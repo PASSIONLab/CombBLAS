@@ -3,8 +3,9 @@ ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
 CombBLAS/BetwCent.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
-CombBLAS/DataTypeConvert.h -text
+CombBLAS/DataTypeToMPI.h -text
 CombBLAS/Isect.h -text
+CombBLAS/LocArr.h -text
 CombBLAS/MMmul.h -text
 CombBLAS/MainPage.h -text
 CombBLAS/MemoryPool.cpp -text

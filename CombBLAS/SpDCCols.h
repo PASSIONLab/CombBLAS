@@ -56,6 +56,16 @@ public:
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
+	virtual vector< LocArr<IT> > getarrays() const
+	{
+		vector< LocArr<IT> > internals;
+		internals.pushback( LocArr (dscs->mas, dcsc->nzc+1) );
+		internals.pushback( LocArr (dscs->jc, dcsc->nzc) );
+		internals.pushback( LocArr (dscs->ir, dcsc->nz) );
+		internals.pushback( LocArr (dscs->num, dcsc->nz) );
+		return internals;
+	}
+	
 	IT * GetJC();
 	IT * GetIR();
 	IT * GetMAS();

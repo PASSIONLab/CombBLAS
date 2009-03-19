@@ -13,6 +13,7 @@
 #include <utility>
 #include "SequenceHeaps/knheap.C"
 #include "SpDefs.h"
+#include "LocArr.h"
 
 using namespace std;
 
@@ -34,12 +35,12 @@ public:
 	
 	void MultiplyAddAssign(SpMat<IT, NT, DER> & A, SpMat<IT, NT, DER> & B, bool isAT, bool isBT);
 
-	// Member Functions
 	virtual void printInfo() = 0;
+	virtual vector< LocArr<IT> > getarrays() const = 0;
 		
 	virtual ofstream& put(ofstream& outfile) const { return outfile; };
 	virtual ifstream& get(ifstream& infile) { return infile; };
-
+	
 	virtual void setnnz (IT n) = 0;
 	virtual void setrows(IT row) = 0;
 	virtual void setcols(IT col) = 0;

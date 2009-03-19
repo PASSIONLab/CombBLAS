@@ -14,12 +14,12 @@
 #include <climits>
 
 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL) {}
 
 
 // Allocate all the space necessary
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, IT nzc)
 :m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
@@ -30,7 +30,7 @@ SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, IT nzc)
 }
 
 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
 :m(0), n(0), nnz(0), localpool(NULL)
 {
@@ -41,7 +41,7 @@ SparseDColumn<T>::SparseDColumn (IT size, IT nRow, IT nCol, const vector<IT> & i
 }
 
 //! Construct SparseDColumn from Dcsc
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, Dcsc<T> * mydcsc)
 :SparseMatrix<T, SparseDColumn<T> >(size,nRow,nCol), localpool(NULL)
 {
@@ -51,7 +51,7 @@ SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, Dcsc<T> * mydcsc)
 		dcsc = NULL;
 }
 
-template <class T>
+template <class IT, class NT>
 template <typename TNEW>
 SparseDColumn<TNEW> SparseDColumn<T>::ConvertNumericType ()
 {
@@ -63,13 +63,13 @@ SparseDColumn<TNEW> SparseDColumn<T>::ConvertNumericType ()
 // Hint1: copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
 // Hint2: Derived's copy constructor must make sure that Base's copy constructor is invoked 
 //		  instead of Base's default constructor
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn(const SparseDColumn<T> & rhs): SparseMatrix<T, SparseDColumn<T> >(rhs), localpool(rhs.localpool)
 {
 	CopyDcsc(rhs.dcsc);
 }
 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn (const MMmul< SparseDColumn<T> > & mmmul)
 {
 	SparseMatrix<T, SparseDColumn<T> >::operator=(mmmul.sm1);
@@ -89,7 +89,7 @@ SparseDColumn<T>::SparseDColumn (const MMmul< SparseDColumn<T> > & mmmul)
  *	\n	if the parameter is supplied, then memory for MAS, JC, IR, NUMX are served from the given memory pool
  *	\n	also modifies the memory pool so that the used portions are no longer listed as free
  */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn(const SparseTriplets<T> & rhs, bool transpose, MemoryPool * mpool)
 : SparseMatrix<T, SparseTriplets<T> >(rhs), localpool(mpool)
 {	
@@ -185,7 +185,7 @@ SparseDColumn<T>::SparseDColumn(const SparseTriplets<T> & rhs, bool transpose, M
 // Hint1: The assignment operator operates on an existing object
 // Hint2: The assignment operator is the only operator that is not inherited.
 //		  Make sure that base class data are also updated during assignment
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> & SparseDColumn<T>::operator=(const SparseDColumn<T>& rhs)
 {
 	// this pointer stores the address of the class instance
@@ -219,7 +219,7 @@ StackEntry<promote_trait<NU1,NU2>::T_promote, IU> MultiplyReturnStack
   * \remarks - OrdOutProdMult which transposes the second input itself
   * \remarks - OrdColByCol which doesn't need transposition at all.
   */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> & SparseDColumn<T>::operator=(const MMmul< SparseDColumn<T> > & mmmul)
 {
 	if(mmmul.sm1.n == mmmul.sm2.m)
@@ -252,7 +252,7 @@ SparseDColumn<T> & SparseDColumn<T>::operator=(const MMmul< SparseDColumn<T> > &
   * \todo Those assumptions are dangerous, fix this interface !!!
   * \remarks This allows every block of matrix B to be transposed only once at the beginning
   */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> & SparseDColumn<T>::operator+=(const MMmul< SparseDColumn<T> > & mmmul)
 {
 	if(m == mmmul.sm1.m && n == mmmul.sm2.n)		// since sm2 is already transposed
@@ -281,7 +281,7 @@ SparseDColumn<T> & SparseDColumn<T>::operator+=(const MMmul< SparseDColumn<T> > 
 	return *this;
 }
 
-template <class T>
+template <class IT, class NT>
 void SparseDColumn<T>::Finalize()
 {
 	dcsc->ConstructAux(n);	
@@ -294,7 +294,7 @@ void SparseDColumn<T>::Finalize()
   * We delete the aux array (if it exists). 
   * It is automatically reconstructed during splitting, col-indexing or algorithm-2
   */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> & SparseDColumn<T>::operator+=(const SparseDColumn<T> & rhs)
 {
 	// this pointer stores the address of the class instance
@@ -331,7 +331,7 @@ SparseDColumn<T> & SparseDColumn<T>::operator+=(const SparseDColumn<T> & rhs)
 	return *this;
 }
 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T>::~SparseDColumn()
 {
 	if(nzmax > 0)
@@ -346,7 +346,7 @@ SparseDColumn<T>::~SparseDColumn()
   * \remarks practically destructs the calling object also (frees most of its memory), 
   * \remarks respects the memory pool !
   */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::Transpose()
 {
 	SparseTriplets<T> Atuples(*this);
@@ -368,7 +368,7 @@ SparseDColumn<T> SparseDColumn<T>::Transpose()
   * \remarks const function, doesn't mutate the calling object
   * \remarks respects the memory pool
   */
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::TransposeConst() const
 {
 	SparseTriplets<T> Atuples(*this);
@@ -385,7 +385,7 @@ SparseDColumn<T> SparseDColumn<T>::TransposeConst() const
   * i.e. any modification on a matrix does either update AUX correctly before returning
   * or deletes the aux (and sets it to NULL) after the operation 
   */
-template <class T>
+template <class IT, class NT>
 void SparseDColumn<T>::Split(SparseDColumn<T> & partA, SparseDColumn<T> & partB) 
 {
 	if(dcsc->aux == NULL)
@@ -465,7 +465,7 @@ void SparseDColumn<T>::Split(SparseDColumn<T> & partA, SparseDColumn<T> & partB)
   * Split method should have been executed on the object beforehand
   * \warning Doesn't create the aux array of the merged output
   */
-template <class T>
+template <class IT, class NT>
 void SparseDColumn<T>::Merge(SparseDColumn<T> & partA, SparseDColumn<T> & partB) 
 {
 	IT zero = static_cast<IT>(0);
@@ -518,7 +518,7 @@ void SparseDColumn<T>::Merge(SparseDColumn<T> & partA, SparseDColumn<T> & partB)
  * \pre ci is sorted and is not completely empty.
  * \remarks it is OK for some indices ci[i] to be empty in the indexed SparseDColumn matrix [i.e. in the end nzc does not need to be equal to n]
  */
-template <class T>
+template <class IT, class NT>
 SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::ColIndex(const vector<ITYPE> & ci)
 {
 	ITYPE zero = static_cast<ITYPE>(0);
@@ -591,7 +591,7 @@ SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::ColIndex(const vector<ITY
 }
 
 // \todo Compare performance with ColIndex above
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::SubsRefCol(const vector<ITYPE> & ci) const
 {
 	ITYPE csize = ci.size();
@@ -603,7 +603,7 @@ SparseDColumn<T> SparseDColumn<T>::SubsRefCol(const vector<ITYPE> & ci) const
 /** 
  * Indexing using Multiplication 
  */
-template <class T>
+template <class IT, class NT>
 SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::operator() (const vector<ITYPE> & ri, const vector<ITYPE> & ci) const
 {
 	ITYPE rsize = ri.size();
@@ -646,7 +646,7 @@ SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::operator() (const vector<
   * Executes [C = A*B] 
   * Partial template specialization on the second Matrix 
   */
-template <class T>
+template <class IT, class NT>
 template <typename T2>
 SparseDColumn<T> SparseDColumn<T>::Multiply (const SparseDColumn<T> & A,const SparseDColumn<T2> & B, bool isAT, bool isBT )
 {
@@ -727,7 +727,7 @@ SparseDColumn<T> SparseDColumn<T>::Multiply (const SparseDColumn<T> & A,const Sp
 /*************************************************************/
 
 
-template <class T>
+template <class IT, class NT>
 inline void SparseDColumn<T>::CopyDcsc(Dcsc<T> * source)
 {
 	// source dcsc will be NULL if number of nonzeros = 0 
@@ -738,7 +738,7 @@ inline void SparseDColumn<T>::CopyDcsc(Dcsc<T> * source)
 }
 
 //! \remarks Can multiply matrices of size up to ITYPEMAX times ITYPEMAX 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::OrdOutProdMult(const SparseDColumn<T> & rhs) const
 {
 	ITYPE cnz;
@@ -773,7 +773,7 @@ SparseDColumn<T> SparseDColumn<T>::OrdOutProdMult(const SparseDColumn<T> & rhs) 
 }
 
 
-template <class T>
+template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::OrdColByCol(const SparseDColumn<T> & rhs) const
 {
 	ITYPE cnz;
@@ -800,7 +800,7 @@ SparseDColumn<T> SparseDColumn<T>::OrdColByCol(const SparseDColumn<T> & rhs) con
 /**
  * C += A*B' (Using OuterProduct Algorithm)
  */
-template <class T>
+template <class IT, class NT>
 int SparseDColumn<T>::PlusEq_AnXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
 {
 	if(A.nzmax == 0 || B.nzmax == 0)
@@ -852,7 +852,7 @@ int SparseDColumn<T>::PlusEq_AnXBt(const SparseDColumn<T> & A, const SparseDColu
  * C += A*B (Using ColByCol Algorithm)
  * \todo Not yet implemented but it will be very similar to SparseDColumn<T>::MultAlg2
  */
-template <class T>
+template <class IT, class NT>
 int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
 {
 	cout << "PlusEq_AnXBn function has not been implemented yet !" << endl;
@@ -860,14 +860,14 @@ int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColu
 }
 
 
-template <class T>
+template <class IT, class NT>
 int SparseDColumn<T>::PlusEq_AtXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
 {
 	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
 	return 0;
 }
 
-template <class T>
+template <class IT, class NT>
 int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
 {
 	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
@@ -879,7 +879,7 @@ int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColu
 /**
  * this = this * rhs (using Alg 1)
  */
-template <class T>
+template <class IT, class NT>
 template <typename T2>
 int SparseDColumn<T>::MultAlg1(const SparseDColumn<T2> & rhs, ITYPE & cnz, Dcsc<T> * & mydcsc) const
 {
@@ -923,7 +923,7 @@ int SparseDColumn<T>::MultAlg1(const SparseDColumn<T2> & rhs, ITYPE & cnz, Dcsc<
  *  i.e. any modification on a matrix does either update AUX correctly before returning
  *  or deletes the aux (and sets it to NULL) after the operation 
  */
-template <class T>
+template <class IT, class NT>
 int SparseDColumn<T>::MultAlg2(const SparseDColumn<T> & rhs, ITYPE & cnz, Dcsc<T> * & mydcsc) const
 {	
 	if(dcsc->aux == NULL)
@@ -1011,7 +1011,7 @@ int SparseDColumn<T>::MultAlg2(const SparseDColumn<T> & rhs, ITYPE & cnz, Dcsc<T
 	return 0;
 }
 
-template <class T>
+template <class IT, class NT>
 void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> & colinds) const
 {
 	ITYPE nind = colnums.size();
@@ -1087,7 +1087,7 @@ void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> 
 
 
 //! Print SparseDComp s
-template <class T>
+template <class IT, class NT>
 ofstream& SparseDColumn<T>::put(ofstream& outfile) const 
 {
 	if(nzmax == 0)
@@ -1150,7 +1150,7 @@ ofstream& SparseDColumn<T>::put(ofstream& outfile) const
 }
 
 
-template<class T>
+template<class IT, class NT>
 inline ITYPE * SparseDColumn<T>::GetJC()
 {
 	if(dcsc != NULL)
@@ -1158,7 +1158,7 @@ inline ITYPE * SparseDColumn<T>::GetJC()
 	else
 		return NULL;
 }
-template<class T>
+template<class IT, class NT>
 inline ITYPE * SparseDColumn<T>::GetMAS()
 {
 	if(dcsc != NULL)
@@ -1166,7 +1166,7 @@ inline ITYPE * SparseDColumn<T>::GetMAS()
 	else
 		return NULL;
 }
-template<class T>
+template<class IT, class NT>
 inline ITYPE * SparseDColumn<T>::GetIR()
 {
 	if(dcsc != NULL)
@@ -1174,7 +1174,7 @@ inline ITYPE * SparseDColumn<T>::GetIR()
 	else
 		return NULL;
 }
-template<class T>
+template<class IT, class NT>
 inline T * SparseDColumn<T>::GetNUM()
 {
 	if(dcsc != NULL)
@@ -1183,7 +1183,7 @@ inline T * SparseDColumn<T>::GetNUM()
 		return NULL;
 }
 
-template<class T>
+template<class IT, class NT>
 inline ITYPE SparseDColumn<T>::GetJCSize()
 {
 	if(dcsc != NULL)
@@ -1191,7 +1191,7 @@ inline ITYPE SparseDColumn<T>::GetJCSize()
 	else
 		return 0;
 }
-template<class T>
+template<class IT, class NT>
 inline ITYPE SparseDColumn<T>::GetSize()
 {
 	if(dcsc != NULL)
@@ -1200,7 +1200,7 @@ inline ITYPE SparseDColumn<T>::GetSize()
 		return 0;
 }
 
-template<class T>
+template<class IT, class NT>
 inline void SparseDColumn<T>::ReserveJCSpace(int mynzc)
 {
 	dcsc->nzc = mynzc; 
@@ -1208,7 +1208,7 @@ inline void SparseDColumn<T>::ReserveJCSpace(int mynzc)
 		dcsc->jc = new ITYPE[dcsc->nzc];
 }
 
-template<class T>
+template<class IT, class NT>
 inline void SparseDColumn<T>::SaveJC(vector<ITYPE> & my_jc)
 {
 	if (dcsc->jc == NULL)
@@ -1222,7 +1222,7 @@ inline void SparseDColumn<T>::SaveJC(vector<ITYPE> & my_jc)
 	}
 }	
 
-template<class T>
+template<class IT, class NT>
 inline void SparseDColumn<T>::DeleteDcsc()
 {
 	if(dcsc != NULL)
@@ -1231,13 +1231,13 @@ inline void SparseDColumn<T>::DeleteDcsc()
 	return;
 }
 
-template<class T>
+template<class IT, class NT>
 Dcsc<T> * SparseDColumn<T>::GetDcsc()
 {
 	return dcsc;
 }
 
-template<class T>
+template<class IT, class NT>
 void SparseDColumn<T>::printInfo()
 {
 	cout<<"m: "<<m<<",n: "<<n<<",nzmax: "<<nzmax;
