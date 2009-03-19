@@ -1,0 +1,29 @@
+INCDIR = /opt/local/include
+INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
+
+OPT = -DNDEBUG -O2 -w 
+DEB = -g -w -DMEMDEBUG -DPERFDEB
+
+TestOneSided.o: TestOneSided.cpp SparseDColumn.cpp SparseOneSidedMPI.cpp SpDefines.h
+	mpicxx $(INCADD) $(OPT) -DBASEADDRESS=\"Data/SCALE17-RMAT\" -c -o TestOneSided.o TestOneSided.cpp
+
+randgen.o: 	randgen.cpp
+	mpicxx $(INCADD) $(OPT) -c -o randgen.o randgen.cpp
+
+MemoryPool.o:	MemoryPool.cpp SpDefines.h
+	mpicxx $(INCADD) $(OPT) -c -o MemoryPool.o MemoryPool.cpp
+
+testseq:  	TestSeq.cpp SparseDColumn.cpp 
+	$(COMPILER) $(INCADD) $(DEB) -o testseq TestSeq.cpp randgen.cpp  
+
+testonesided: 	TestOneSided.o randgen.o MemoryPool.o TestOneSided.cpp SpDefines.h 
+	mpicxx $(OPT) -o testonesided TestOneSided.o MemoryPool.o randgen.o
+
+clean:
+	rm -f TestOneSided.o
+	rm -f testseq
+	rm -f testonesided
+
+cleanout:
+	rm out.*
+	rm err.*

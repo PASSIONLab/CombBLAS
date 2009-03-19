@@ -1,0 +1,49 @@
+include /home/teragrid/tg459476/gasnet-large-nompi/include/ibv-conduit/ibv-par.mak
+
+INCADD = -I$(TACC_BOOST_DIR)/include/boost-1_34_1/ -I/opt/apps/intel10/mvapich2/1.2rc2/include/
+
+COMPILER = icc
+
+OPT = -DNDEBUG -O2 -w 
+DEB = -g -w -DMEMDEBUG -DPERFDEB
+
+MemoryPool.o: 	MemoryPool.cpp 
+	$(GASNET_CC) $(INCADD) $(OPT) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o MemoryPool.o MemoryPool.cpp
+
+TestPar.o: 	TestPar.cpp SparseDColumn.cpp SparseSumAsync.cpp SparseSumSync.cpp SparseCannon.cpp SpDefines.h
+	mpicxx $(INCADD) $(OPT) -c -o TestPar.o TestPar.cpp
+
+TestOneSided.o: TestOneSided.cpp SparseDColumn.cpp SparseOneSidedMPI.cpp SpDefines.h
+	mpicxx $(INCADD) $(OPT) -c -o TestOneSided.o TestOneSided.cpp
+
+TestGas.o: 	TestGas.cpp SparseDColumn.cpp SparseSumGas.cpp
+	$(GASNET_CC) $(INCADD) $(OPT) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o TestGas.o TestGas.cpp
+
+randgen.o: 	randgen.cpp
+	$(COMPILER) $(INCADD) $(OPT) -c -o randgen.o randgen.cpp
+
+testseq:  	TestSeq.cpp SparseDColumn.cpp 
+	$(COMPILER) $(INCADD) $(DEB) -o testseq TestSeq.cpp randgen.cpp  
+
+testpar: 	TestPar.o randgen.o TestPar.cpp SpDefines.h MemoryPool.o
+	mpicxx $(OPT) -o testpar TestPar.o randgen.o MemoryPool.o $(LDADD)
+
+testonesidedalt: 	TestOneSided.o randgen.o TestOneSided.cpp SpDefines.h MemoryPool.o
+	mpicxx $(OPT) -o testonesidedalt TestOneSided.o randgen.o MemoryPool.o $(LDADD)
+
+testgas: 	TestGas.o MemoryPool.o
+	$(GASNET_LD) $(OPT) $(GASNET_LDFLAGS) -o testgas TestGas.o MemoryPool.o $(GASNET_LIBS)
+
+
+clean:
+	rm -f TestGas.o
+	rm -f TestPar.o
+	rm -f TestOneSided.o
+	rm -f testgas
+	rm -f testseq
+	rm -f testpar
+	rm -f testonesided
+
+cleanout:
+	rm out.*
+	rm err.*
