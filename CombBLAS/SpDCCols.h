@@ -4,7 +4,7 @@
 /* date: 01/18/2009 ---------------------------------------------/
 /* design detail: AUX array is not created by the constructor, 	*/
 /* instead it is generated on demand only for:			*/	
-/*		Col Indexing, Splitting, Algorithm-2		*/
+/*		Col Indexing, Algorithm-2			*/
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
@@ -66,12 +66,7 @@ public:
 		return internals;
 	}
 	
-	IT * GetJC();
-	IT * GetIR();
-	IT * GetMAS();
-	NT * GetNUM();
-	IT getnzc() ;
-
+	virtual bool isZero() { return (nnz == zero); }
 	virtual void setnnz (IT n);
 	virtual void setrows(IT row);
 	virtual void setcols(IT col);
@@ -86,7 +81,7 @@ public:
 	template <typename T2> 
        	SpDCCols<T> Multiply (const SpDCCols<T> & A, const SpDCCols<T2> & B, bool isAT, bool isBT );
 	
-	virtual SpDCCols<IT,NT> * operator() (const vector<IT> & ri, const vector<IT> & ci) const;
+	SpMat<IT, NT, SpDCCols<IT, NT> > * operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 
 	SpDCCols<T> SubsRefCol(const vector<IT> & ci) const;	//!< col indexing with multiplication
 
@@ -104,7 +99,7 @@ private:
 	// Private Methods
 	void CopyDcsc(Dcsc<T> * source);
 
-	SpDCCols<T> OrdOutProdMult(const SpDCCols<T>& rhs) const;		// Ordered outer product multiply
+	SpDCCols<T> OrdOutProdMult(const SpDCCols<T>& rhs) const;	// Ordered outer product multiply
 	SpDCCols<T> OrdColByCol(const SpDCCols<T> & rhs) const;		// Ordered column-by-column multiply
 
 
@@ -115,8 +110,8 @@ private:
 
 	void FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> & colinds) const;
 
-	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, const vector<IT> & indices, bool isRow);		// Constructor for indexing
-	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, Dcsc<T> * mydcsc);				// Constructor for multiplication
+	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing
+	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, Dcsc<T> * mydcsc);			// Constructor for multiplication
 
 	// Private member variables
 	Dcsc<IT, NT> * dcsc;
@@ -124,6 +119,7 @@ private:
 	IT m;
 	IT n;
 	IT nnz;
+	const static IT zero = static_cast<IT>(0);
 
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;

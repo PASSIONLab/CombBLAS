@@ -33,6 +33,7 @@ public:
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
 		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
+
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
 	{

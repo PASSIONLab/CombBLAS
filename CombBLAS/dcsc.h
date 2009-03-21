@@ -41,6 +41,10 @@ public:
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
 
+	IT AuxIndex(IT colind, bool & found = false);
+	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
+	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
+
 	void DeleteAux();
 	void ConstructAux(IT ndim);
 	void Resize(IT nzcnew, IT nznew);

@@ -7,6 +7,11 @@
 
 
 #include "dcsc.h"
+#include <algorithm>
+#include <functional>
+#include <iostream>
+
+using namespace std;
 
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc ():nz(0), nzc(0), cf(0.0), colchunks(0),pool(NULL)
@@ -634,7 +639,6 @@ void Dcsc<IT,NT>::ConstructAux(IT ndim)
 	}
 }
 
-
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
@@ -720,6 +724,76 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 	
 	nz = nznew;
 }
+
+
+/**
+  * The first part of the indexing algorithm described in the IPDPS'08 paper
+  * @param[IT] colind {Column index to search}
+  * Find the column with colind. If it exists, return the position of it. 
+  * It it doesn't exist, return value is undefined (implementation specific).
+ **/
+template<class IT, class NT>
+IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found)
+{
+	IT csize = static_cast<IT>(ceil(cf));	// chunk size
+	IT base = static_cast<IT>(floor((float) (colind/csize)));
+	IT start = dcsc->aux[base];
+	IT end = dcsc->aux[base+1];
+
+	IT * itr = find(jc + start, jc + end, colind);
+	
+	found = (itr != jc + end);
+	return (itr-jc);
+}
+
+/**
+ ** Split along the cut (a column index)
+ ** Should work even when one of the splits have no nonzeros at all
+ **/
+template<class IT, class NT>
+void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
+{
+	IT * itr = lower_bound(jc, jc+nzc, cut);
+	IT pos = itr - jc;
+	
+	A = new (mas[pos], pos);
+	B = new (nz-mas[pos], nzc-pos);
+	
+	memcpy(A->jc, jc, pos * sizeof(IT));
+	memcpy(A->mas, mas, (pos+1) * sizeof(IT));
+	memcpy(A->ir, ir, mas[pos] * sizeof(IT));
+	memcpy(A->numx, numx, mas[pos] * sizeof(NT));
+	
+	memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
+	transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut);
+	memcpy(B->mas, mas+pos, (nzc-pos+1) * sizeof(IT));
+	transform(B->mas, B->mas + (nzc-pos+1), B->mas, bind2nd(minus<IT>(), mas[pos]);
+	memcpy(B->ir, ir + mas[pos], (nz- mas[pos]) * sizeof(IT)); 
+	memcpy(B->numx, numx + mas[pos], (nz- mas[pos]) * sizeof(NT)); 
+}
+
+template<class IT, class NT>
+void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
+{
+	IT cnz = A->nz + B->nz;
+	IT cnzc =  A->nzc + B->nzc;
+	*this = Dcsc<IT,NT>(cnz, cnzc);
+
+	memcpy(jc, A->jc, A->nzc * sizeof(IT));
+	memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
+	transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
+
+	memcpy(mas, A->mas, A->nzc * sizeof(IT));
+	memcpy(mas + A->nzc, B->mas, (B->nzc+1) * sizeof(IT));
+	transform(mas + A->nzc, mas+cnzc+1, mas + A->nzc, bind2nd(plus<IT>(), A->mas[A->nzc]));
+
+	memcpy(ir, A->ir, A->nz * sizeof(IT));
+	memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
+
+	memcpy(numx, A->numx, A->nz * sizeof(NT));
+	memcpy(numx + A->nz, B->numx, B->nz * sizeof(NT));
+}
+
 
 template <class IT, class NT>
 Dcsc<IT,NT>::~Dcsc()

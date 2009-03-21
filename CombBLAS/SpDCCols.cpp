@@ -6,8 +6,9 @@
 /****************************************************************/
 
 
-#include "SparseDColumn.h"
+#include "SpDCCols.h"
 #include "MMmul.h"
+#include "Deleter.h"
 #include <algorithm>
 #include <functional>
 #include <vector>
@@ -15,23 +16,23 @@
 
 
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL) {}
+SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL) {}
 
 
 // Allocate all the space necessary
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, IT nzc)
+SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc)
 :m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
 	if(size > 0)
-		dcsc = new Dcsc<T>(size,nzc);
+		dcsc = new Dcsc<IT,NT>(size,nzc);
 	else
 		dcsc = NULL; 
 }
 
-
+//! Private constructor, used for indexing only
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
+SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
 :m(0), n(0), nnz(0), localpool(NULL)
 {
 	if(size > 0)
@@ -42,8 +43,8 @@ SparseDColumn<T>::SparseDColumn (IT size, IT nRow, IT nCol, const vector<IT> & i
 
 //! Construct SparseDColumn from Dcsc
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, Dcsc<T> * mydcsc)
-:SparseMatrix<T, SparseDColumn<T> >(size,nRow,nCol), localpool(NULL)
+SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
+:m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
 	if(size > 0)
 		dcsc = mydcsc;
@@ -52,30 +53,28 @@ SparseDColumn<T>::SparseDColumn(IT size, IT nRow, IT nCol, Dcsc<T> * mydcsc)
 }
 
 template <class IT, class NT>
-template <typename TNEW>
-SparseDColumn<TNEW> SparseDColumn<T>::ConvertNumericType ()
+template <typename NNT>
+SpDCCols<IT,NNT> SpDCCols<IT,NT>::ConvertNumericType ()
 {
-	Dcsc<TNEW> * convert = new Dcsc<TNEW>(dcsc.ConvertNumericType<TNEW>());
-	return SparseDColumn<TNEW>(nzmax, m, n, convert);
+	Dcsc<IT,NNT> * convert = new Dcsc<IT,NNT>(dcsc->ConvertNumericType<NNT>());
+	return SpDCCols<IT,NNT>(nnz, m, n, convert);
 }
 
 
-// Hint1: copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
-// Hint2: Derived's copy constructor must make sure that Base's copy constructor is invoked 
-//		  instead of Base's default constructor
+// Copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
+// Derived's copy constructor can safely call Base's default constructor as base has no data members 
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn(const SparseDColumn<T> & rhs): SparseMatrix<T, SparseDColumn<T> >(rhs), localpool(rhs.localpool)
+SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool)
 {
 	CopyDcsc(rhs.dcsc);
 }
 
+// No need to call base's assigment operator as it has not data members
 template <class IT, class NT>
-SparseDColumn<T>::SparseDColumn (const MMmul< SparseDColumn<T> > & mmmul)
+SpDCCols<IT,NT>::SpDCCols(const MMmul< SpDCCols<IT,NT> > & mmmul)
 {
-	SparseMatrix<T, SparseDColumn<T> >::operator=(mmmul.sm1);
-	
-	dcsc = new Dcsc<T>(*(mmmul.sm1.dcsc));
-
+	dcsc = new Dcsc<IT,NT>(*(mmmul.sm1.dcsc));
 	*this = OrdOutProdMult(mmmul.sm2);	// this = this->OrdOutProdMult(B)
 };
 
@@ -91,10 +90,9 @@ SparseDColumn<T>::SparseDColumn (const MMmul< SparseDColumn<T> > & mmmul)
  */
 template <class IT, class NT>
 SparseDColumn<T>::SparseDColumn(const SparseTriplets<T> & rhs, bool transpose, MemoryPool * mpool)
-: SparseMatrix<T, SparseTriplets<T> >(rhs), localpool(mpool)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(mpool)
 {	
-
-	if(nzmax == 0)	// m by n matrix of complete zeros
+	if(nnz == 0)	// m by n matrix of complete zeros
 	{
 		dcsc = NULL;	
 	}
@@ -102,10 +100,11 @@ SparseDColumn<T>::SparseDColumn(const SparseTriplets<T> & rhs, bool transpose, M
 	{
 		if(transpose)
 		{
+			swap(m,n);
 			IT localnzc = 1;
-			for(IT i=1; i<rhs.nz; ++i)
+			for(IT i=1; i< rhs.getnnz(); ++i)
 			{
-				if(boost::get<0>(rhs.tuples[i]) != boost::get<0>(rhs.tuples[i-1]))
+				if(rhs.rowindex(i) != rhs.rowindex(i-1))
 				{
 					++localnzc;
 				}
@@ -113,93 +112,95 @@ SparseDColumn<T>::SparseDColumn(const SparseTriplets<T> & rhs, bool transpose, M
 
 			if(localpool == NULL)	// no special memory pool used
 			{
-				dcsc = new Dcsc<T>(rhs.nz,localnzc,n);	
+				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc);	
 			}
 			else
 			{
-				dcsc = new Dcsc<T>(rhs.nz,localnzc,n, localpool);
+				dcsc = new Dcsc<IT,NT>(rhs.getnnz(), localnzc, localpool);
 			}		
 
-			dcsc->jc[0]  = boost::get<0>(rhs.tuples[0]); 
-			dcsc->mas[0] = 0;
+			dcsc->jc[zero]  = rhs.rowindex(zero); 
+			dcsc->mas[zero] = zero;
 
-			for(IT i=0; i<rhs.nz; ++i)
+			for(IT i=0; i<rhs.getnnz(); ++i)
 			{
-				dcsc->ir[i]  = boost::get<1>(rhs.tuples[i]);	// copy rhs.jc to ir since this transpose=true
-				dcsc->numx[i] = boost::get<2>(rhs.tuples[i]);
+				dcsc->ir[i]  = rhs.colindex(i);		// copy rhs.jc to ir since this transpose=true
+				dcsc->numx[i] = rhs.numvalue(i);
 			}
 
-			IT jspos    = 1;		
-			for(IT i=1; i<rhs.nz; ++i)
+			IT jspos  = 1;		
+			for(IT i=1; i<rhs.getnnz(); ++i)
 			{
-				if(boost::get<0>(rhs.tuples[i]) != dcsc->jc[jspos-1])
+				if(rhs.rowindex(i) != dcsc->jc[jspos-1])
 				{
-					dcsc->jc[jspos] = boost::get<0>(rhs.tuples[i]);	// copy rhs.ir to jc since this transpose=true
+					dcsc->jc[jspos] = rhs.rowindex(i);	// copy rhs.ir to jc since this transpose=true
 					dcsc->mas[jspos++] = i;
 				}
 			}		
-			dcsc->mas[jspos] = rhs.nz;
+			dcsc->mas[jspos] = rhs.getnnz();
 		}
 		else
 		{
 			IT localnzc = 1;
-			for(IT i=1; i<rhs.nz; ++i)
+			for(IT i=1; i<rhs.getnnz(); ++i)
 			{
-				if(boost::get<1>(rhs.tuples[i]) != boost::get<1>(rhs.tuples[i-1]))
+				if(rhs.colindex(i) != rhs.colindex(i-1))
 				{
 					++localnzc;
 				}
 			}
 			if(localpool == NULL)	// no special memory pool used
 			{
-				dcsc = new Dcsc<T>(rhs.nz,localnzc,n);	
+				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc);	
 			}
 			else
 			{
-				dcsc = new Dcsc<T>(rhs.nz,localnzc,n, localpool);
+				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc, localpool);
 			}
 
-			dcsc->jc[0]  = boost::get<1>(rhs.tuples[0]); 
-			dcsc->mas[0] = 0;
+			dcsc->jc[zero]  = rhs.colindex(zero); 
+			dcsc->mas[zero] = zero;
 
-			for(IT i=0; i<rhs.nz; ++i)
+			for(IT i=0; i<rhs.getnnz(); ++i)
 			{
-				dcsc->ir[i]  = boost::get<0>(rhs.tuples[i]);	// copy rhs.ir to ir since this transpose=false
-				dcsc->numx[i] = boost::get<2>(rhs.tuples[i]);
+				dcsc->ir[i]  = rhs.rowindex(i);		// copy rhs.ir to ir since this transpose=false
+				dcsc->numx[i] = rhs.numvalues(i);
 			}
 
-			IT jspos    = 1;		
-			for(IT i=1; i<rhs.nz; ++i)
+			IT jspos = 1;		
+			for(IT i=1; i<rhs.getnnz(); ++i)
 			{
-				if(boost::get<1>(rhs.tuples[i]) != dcsc->jc[jspos-1])
+				if(rhs.colindex(i) != dcsc->jc[jspos-1])
 				{
-					dcsc->jc[jspos] = boost::get<1>(rhs.tuples[i]);	// copy rhs.jc to jc since this transpose=true
+					dcsc->jc[jspos] = rhs.colindex(i);	// copy rhs.jc to jc since this transpose=true
 					dcsc->mas[jspos++] = i;
 				}
 			}		
-			dcsc->mas[jspos] = rhs.nz;
+			dcsc->mas[jspos] = rhs.getnnz();
 		}
 	}
 }
 
-// Hint1: The assignment operator operates on an existing object
-// Hint2: The assignment operator is the only operator that is not inherited.
-//		  Make sure that base class data are also updated during assignment
+// The assignment operator operates on an existing object
+// The assignment operator is the only operator that is not inherited.
+// But there is no need to call base's assigment operator as it has not data members
 template <class IT, class NT>
-SparseDColumn<T> & SparseDColumn<T>::operator=(const SparseDColumn<T>& rhs)
+SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 {
 	// this pointer stores the address of the class instance
 	// check for self assignment using address comparison
 	if(this != &rhs)		
 	{
-		SparseMatrix<T, SparseDColumn<T> >::operator=(rhs);
+		m = rhs.m; 
+		n = rhs.n;
+		nnz = rhs.nnz; 
 		if(dcsc != NULL && dcsc->nz > 0)
 		{
 			delete dcsc;
 		}
 		if(rhs.dcsc != NULL)	
 		{
-			dcsc = new Dcsc<T>(*(rhs.dcsc));
+			dcsc = new Dcsc<IT,NT>(*(rhs.dcsc));
 		}
 	}
 	return *this;
@@ -332,9 +333,9 @@ SparseDColumn<T> & SparseDColumn<T>::operator+=(const SparseDColumn<T> & rhs)
 }
 
 template <class IT, class NT>
-SparseDColumn<T>::~SparseDColumn()
+SpDCCols<T>::~SpDCCols()
 {
-	if(nzmax > 0)
+	if(nnz > 0)
 	{
 		if(dcsc != NULL) delete dcsc;	// call Dcsc's destructor
 	}
@@ -343,24 +344,17 @@ SparseDColumn<T>::~SparseDColumn()
 
 /** O(nz log(nz)) time Transpose function
   * \remarks basically a lexicographical sort
-  * \remarks practically destructs the calling object also (frees most of its memory), 
-  * \remarks respects the memory pool !
+  * \remarks replaces the calling object with its transpose. 
+  * \remarks respects the memory pool
   */
 template <class IT, class NT>
-SparseDColumn<T> SparseDColumn<T>::Transpose()
+void SpDCCCols<IT,NT>::Transpose()
 {
-	SparseTriplets<T> Atuples(*this);
+	SpTuples<IT,NT> Atuples(*this);
 	Atuples.SortRowBased();
 
-	// destruct (*this)
-	if(nzmax > 0)
-	{
-		if(dcsc != NULL) delete dcsc;	// call Dcsc's destructor
-		
-		dcsc = NULL;
-		nzmax = 0;
-	}
-	return SparseDColumn<T>(Atuples,true, localpool);
+	// destruction of (*this) is handled by the assignment operator
+	*this = SpDCCols<T>(Atuples,true, localpool);
 }
 
 /** O(nz log(nz)) time Transpose function
@@ -369,29 +363,22 @@ SparseDColumn<T> SparseDColumn<T>::Transpose()
   * \remarks respects the memory pool
   */
 template <class IT, class NT>
-SparseDColumn<T> SparseDColumn<T>::TransposeConst() const
+SpDCCCols<IT,NT> SpDCCCols<IT,NT>::TransposeConst() const
 {
-	SparseTriplets<T> Atuples(*this);
+	SpTuples<IT,NT> Atuples(*this);
 	Atuples.SortRowBased();
 
-	return SparseDColumn<T>(Atuples,true, localpool);
+	return SpDCCols<IT,NT>(Atuples,true, localpool);
 }
 
 /** 
-  * Splits SparseDColumn into 2 parts, simply by cutting along the columns
+  * Splits the matrix into two parts, simply by cutting along the columns
   * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
   * Practically destructs the calling object also (frees most of its memory)
-  * \pre If AUX is not NULL, then it is an up-to-date correct version.
-  * i.e. any modification on a matrix does either update AUX correctly before returning
-  * or deletes the aux (and sets it to NULL) after the operation 
   */
 template <class IT, class NT>
 void SparseDColumn<T>::Split(SparseDColumn<T> & partA, SparseDColumn<T> & partB) 
 {
-	if(dcsc->aux == NULL)
-		dcsc->ConstructAux(n);
-
-	IT zero = static_cast<IT>(0);
 	IT cut = n/2;
 	if(cut == zero)
 	{
@@ -399,117 +386,32 @@ void SparseDColumn<T>::Split(SparseDColumn<T> & partA, SparseDColumn<T> & partB)
 		return;
 	}
 
-	// indexing algorithm described in the paper
-	IT csize = static_cast<IT>(ceil(dcsc->cf));	// chunk size
-	IT base = static_cast<IT>(floor((float) (cut/csize)));
-	IT start = dcsc->aux[base];
-	IT end = dcsc->aux[base+1];
+	Dcsc<IT,NT> *Adcsc, *Bdcsc;
+	dcsc->Split(Adcsc, Bdcsc, cut);
 
-	// position pos inside MAS array, i.e. position of the first element with column index >= n/2 [it belongs to the second half]
-	IT pos = zero;	
+	partA = SpDCCols (Adcsc->nz, m, cut, Adcsc);
+	partB = SpDCCols (Bdcsc->nz, m, n-cut, Bdcsc);
 	
-	for(IT i=start; i< end; ++i)
-	{
-		if(dcsc->jc[i] >= cut)
-		{
-			pos = i;
-		}	
-	}
-	if(pos == zero)	// that chunk didn't contain anything with index >= cut
-	{
-		pos = min(end, dcsc->nzc);
-	}
-		
-	partA = SparseDColumn<T>(dcsc->mas[pos], m, cut, pos);
-	partB = SparseDColumn<T>(dcsc->nz - dcsc->mas[pos], m, n - cut, dcsc->nzc - pos);
-	
-	for(IT i=zero; i< pos; ++i)
-	{
-		(partA.dcsc)->jc[i] = dcsc->jc[i];
-		(partA.dcsc)->mas[i] = dcsc->mas[i];
-	}
-	(partA.dcsc)->mas[pos] = dcsc->mas[pos];
-
-	for(IT i=zero; i< dcsc->mas[pos]; ++i)
-	{
-		(partA.dcsc)->ir[i] = dcsc->ir[i];
-		(partA.dcsc)->numx[i] = dcsc->numx[i];
-	}	
-		
-	for(IT i=pos; i< dcsc->nzc; ++i)
-	{
-		(partB.dcsc)->jc[i-pos] = dcsc->jc[i] - cut;
-		(partB.dcsc)->mas[i-pos] = dcsc->mas[i] - dcsc->mas[pos];
-	}
-
-	(partB.dcsc)->mas[dcsc->nzc - pos] = dcsc->mas[dcsc->nzc] - dcsc->mas[pos];
-
-	for(IT i=dcsc->mas[pos]; i< dcsc->nz; ++i)
-	{
-		(partB.dcsc)->ir[i-dcsc->mas[pos]] = dcsc->ir[i];
-		(partB.dcsc)->numx[i-dcsc->mas[pos]] = dcsc->numx[i];
-	}	
-
-	// destruct (*this)
-	if(nzmax > 0)
-	{
-		if(dcsc != NULL) delete dcsc;	// call Dcsc's destructor
-		
-		dcsc = NULL;
-		nzmax = 0;
-	}
+	// handle destruction through assignment operator
+	*this = SpDCCols<IT, NT>();		
 }
 
 /** 
-  * Merges two SparseDColumns (cut along the columns) into 1 piece
+  * Merges two matrices (cut along the columns) into 1 piece
   * Split method should have been executed on the object beforehand
-  * \warning Doesn't create the aux array of the merged output
-  */
+ **/
 template <class IT, class NT>
-void SparseDColumn<T>::Merge(SparseDColumn<T> & partA, SparseDColumn<T> & partB) 
+void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & A, SpDCCols<IT,NT> & B) 
 {
-	IT zero = static_cast<IT>(0);
-	dcsc = new Dcsc<T>((partA.dcsc)->nz + (partB.dcsc)->nz, (partA.dcsc)->nzc + (partB.dcsc)->nzc, partA.n + partB.n);
+	assert(A.m == B.m);
+
+	Dcsc * Cdcsc = new Dcsc<IT,NT>();
+	Cdcsc->Merge(A.dcsc, B.dcsc, A.n);
 	
-	for(IT i=zero; i< (partA.dcsc)->nzc; ++i)
-	{
-		dcsc->jc[i] = (partA.dcsc)->jc[i];
-		dcsc->mas[i] = (partA.dcsc)->mas[i];
-	}
-	for(IT i=zero; i< (partA.dcsc)->nz; ++i)
-	{
-		dcsc->ir[i] = (partA.dcsc)->ir[i];
-		dcsc->numx[i] = (partA.dcsc)->numx[i];
-	}
+	*this = SpDCCols (dcsc->nz, A.m, A.n + B.n, Cdcsc);
 
-	for(IT i=zero; i< (partB.dcsc)->nzc; ++i)
-	{
-		dcsc->jc[i+(partA.dcsc)->nzc] = (partB.dcsc)->jc[i] + partA.n;
-		dcsc->mas[i+(partA.dcsc)->nzc] = (partB.dcsc)->mas[i] + (partA.dcsc)->mas[(partA.dcsc)->nzc];
-	}
-	dcsc->mas[(partB.dcsc)->nzc +(partA.dcsc)->nzc] = (partB.dcsc)->mas[(partB.dcsc)->nzc] + (partA.dcsc)->mas[(partA.dcsc)->nzc];
-
-	for(IT i=zero; i< (partB.dcsc)->nz; ++i)
-	{
-		dcsc->ir[i+(partA.dcsc)->nz] = (partB.dcsc)->ir[i];
-		dcsc->numx[i+(partA.dcsc)->nz] = (partB.dcsc)->numx[i];
-	}
-
-	nzmax = partA.nzmax + partB.nzmax;	
-
-	// destruct parts
-	if(partA.nzmax > 0)
-	{
-		if(partA.dcsc != NULL) delete partA.dcsc;	
-		partA.dcsc = NULL;
-		partA.nzmax = 0;
-	}
-	if(partB.nzmax > 0)
-	{
-		if(partB.dcsc != NULL) delete partB.dcsc;	
-		partB.dcsc = NULL;
-		partB.nzmax = 0;
-	}
+	A = SpDCCols<IT, NT>();	
+	B = SpDCCols<IT, NT>();	
 }
 
 
@@ -799,52 +701,46 @@ SparseDColumn<T> SparseDColumn<T>::OrdColByCol(const SparseDColumn<T> & rhs) con
 
 /**
  * C += A*B' (Using OuterProduct Algorithm)
+ * This version is limited to single precision (i.e. it can't multiply double-precision matrices with booleans)
+ * The multiplication is on the standard (+,*) semiring
  */
 template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AnXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
-	if(A.nzmax == 0 || B.nzmax == 0)
+	if(A.isZero() || B.isZero())
 	{
 		return -1;	// no need to do anything
 	}
 
-	RowColumn *isect1, *isect2;
-	RowColumn *itr1, *itr2;
-	RowColumn *cols, *rows;
+	Isect *isect1, *isect2;
+	Isect *itr1, *itr2;
+	Isect *cols, *rows;
 
-	A.MultPreprocess(B, cols, rows, isect1, isect2, itr1, itr2);
+	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
 	
-	ITYPE kisect = static_cast<ITYPE>(itr1-isect1);		// size of the intersection (== itr2-isect2)
-	if(kisect == 0)
+	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
+	if(kisect == zero)
 	{
-		delete [] isect1;
-		delete [] isect2;
-		delete [] cols;
-		delete [] rows;
+		DeleteAll(isect1, isect2, cols, rows);
 		return -1;
 	}
 	
-	StackEntry<T, IPAIR > * multstack;
-	ITYPE cnz = 0;
-	ITYPE mdim = A.m;	
-	ITYPE ndim = B.m;	// since B has already been transposed
+	StackEntry<NT, pair<IT,IT> > * multstack;
+	PlusTimesSRing ptsr;
+	IT cnz = SpHelper::SpCartesian (A.dcsc, B.dcsc, ptsr, kisect, isect1, isect2, multstack);  
 
-	A.MultPhase(B, kisect, cnz, isect1, isect2, multstack);
-
-	if(nzmax == 0)
+	IT mdim = A.m;	
+	IT ndim = B.m;		// since B has already been transposed
+	if(isZero())
 	{
-		dcsc = new Dcsc<T>(multstack, mdim, ndim, cnz);
+		dcsc = new Dcsc<IT,NT>(multstack, mdim, ndim, cnz);
 	}
 	else
 	{
 		dcsc->AddAndAssign(multstack, mdim, ndim, cnz);
 	}
 
-	delete [] isect1;
-	delete [] isect2;
-	delete [] cols;
-	delete [] rows; 
-	delete [] multstack;
+	DeleteAll(isect1, isect2, cols, rows, multstack);
 	return 1;	
 }
 
@@ -1058,25 +954,19 @@ void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> 
 		delete [] range1;
 		delete [] range2;
 	}
-	else					// use aux based indexing
+	else	 	// use aux based indexing
 	{
-		ITYPE csize = static_cast<ITYPE>(ceil(dcsc->cf));	// chunk size
+		bool found;
 		for(ITYPE j =0; j< nind; ++j)
 		{
-			ITYPE start = dcsc->aux[ static_cast<ITYPE>(floor((float) (colnums[j]/csize))) ];
-			ITYPE end = dcsc->aux[ static_cast<ITYPE>(floor((float) (colnums[j]/csize)))+1 ];
-
-			ITYPE * itr = find(dcsc->jc + start, dcsc->jc + end, colnums[j]);
-
-			if(itr != dcsc->jc + end)
+			IT pos = dcsc->AuxIndex(colnums[i], found);
+			if(found)
 			{
-				ITYPE p = itr - dcsc->jc;
-				colinds[j].first = dcsc->mas[p];
-				colinds[j].second = dcsc->mas[p+1];
+				colinds[j].first = dcsc->mas[pos];
+				colinds[j].second = dcsc->mas[pos+1];
 			}
-			else
+			else 	// not found, signal by setting first = second
 			{
-				// not found, signal by setting first = second
 				colinds[j].first = 0;
 				colinds[j].second = 0;
 			}
@@ -1084,9 +974,6 @@ void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> 
 	}
 }
 
-
-
-//! Print SparseDComp s
 template <class IT, class NT>
 ofstream& SparseDColumn<T>::put(ofstream& outfile) const 
 {

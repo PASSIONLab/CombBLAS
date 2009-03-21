@@ -31,7 +31,7 @@ public:
 	SpMat () {}		// Default constructor
 	virtual ~SpMat(){};	// Virtual destructor
 
-	virtual SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
+	SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
 	
 	void MultiplyAddAssign(SpMat<IT, NT, DER> & A, SpMat<IT, NT, DER> & B, bool isAT, bool isBT);
 
@@ -41,6 +41,7 @@ public:
 	virtual ofstream& put(ofstream& outfile) const { return outfile; };
 	virtual ifstream& get(ifstream& infile) { return infile; };
 	
+	virtual bool isZero() = 0;
 	virtual void setnnz (IT n) = 0;
 	virtual void setrows(IT row) = 0;
 	virtual void setcols(IT col) = 0;

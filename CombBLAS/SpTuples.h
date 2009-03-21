@@ -21,7 +21,7 @@ using namespace boost;
 
 
 template <class IU, class NU>
-class SparseDColumn;
+class SpDCCols;
 
 template <class IU, class NU>
 class Dcsc;

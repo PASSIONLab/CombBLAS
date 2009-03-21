@@ -2,6 +2,13 @@
 #include "SpMat.h"
 
 template <class IT, class NT, class DER>
+SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const
+{
+	return (static_cast<DER>(*this)) (ri, ci);
+}
+
+
+template <class IT, class NT, class DER>
 void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DT> & A, 
 			SpMat<IT, NT, DER> & B, bool isAT, bool isBT)
 {
