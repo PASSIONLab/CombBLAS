@@ -28,7 +28,13 @@ template <class IT, class NT, class DER>
 class SpMat
 {
 public:
-	SpMat () {}		// Default constructor
+	SpMat(IT nz, IT rows, IT cols, Arr<IT,NT> & arr)
+	{
+		static_cast<DER*>(this)->setnnz(nz);
+		static_cast<DER*>(this)->setrows(rows);
+		static_cast<DER*>(this)->setcols(cols);
+		static_cast<DER*>(this)->setarrays(arr);	
+	}
 	virtual ~SpMat(){};	// Virtual destructor
 
 	SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
@@ -42,9 +48,9 @@ public:
 	virtual ifstream& get(ifstream& infile) { return infile; };
 	
 	virtual bool isZero() = 0;
-	virtual void setnnz (IT n) = 0;
-	virtual void setrows(IT row) = 0;
-	virtual void setcols(IT col) = 0;
+	void setnnz (IT nz) = 0;
+	void setrows(IT rows) = 0;
+	void setcols(IT cols) = 0;
 	virtual IT getrows() const = 0;
 	virtual IT getcols() const = 0;
 	virtual IT getnnz() const = 0;

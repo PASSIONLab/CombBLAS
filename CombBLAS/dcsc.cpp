@@ -10,47 +10,38 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <ext/numeric>
 
 using namespace std;
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc ():nz(0), nzc(0), cf(0.0), colchunks(0),pool(NULL)
-{
-	aux = NULL; 
-	mas = NULL; 
-	jc = NULL; 
-	ir = NULL; 
-	numx = NULL;
-}
+Dcsc<IT,NT>::Dcsc ():nz(0), nzc(0),pool(NULL), cp(NULL), jc(NULL), ir(NULL), numx(NULL){}
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol),cf(0.0), colchunks(0), pool(NULL)
+Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol),pool(NULL)
 {
 	assert (nz != 0);
 	size_t sit = sizeof(IT);
 	
-	mas = (IT *) mallocarray ( (nzc+1)*sit ); 
+	cp = (IT *) mallocarray ( (nzc+1)*sit ); 
 	jc  = (IT *) mallocarray ( nzc*sit ); 	
 	ir  = (IT *) mallocarray ( nz*sit ); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-	aux = NULL;
 }
 
 /** 
  * Constructor that is used when the memory for arrays are already allocated by pinning
- * @remark Aux is left NULL, to be contructed by ConstructAux whenever necessary
  */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol, MemoryPool * mpool): nz(nnz),nzc(nzcol),cf(0.0), colchunks(0), pool(mpool)
+Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol, MemoryPool * mpool): nz(nnz),nzc(nzcol), pool(mpool)
 {
 	assert (nz != 0);
 	size_t sit = sizeof(IT);
 	
-	mas = (IT *) mallocarray ( (nzc+1)*sit); 
+	cp = (IT *) mallocarray ( (nzc+1)*sit); 
 	jc  = (IT *) mallocarray ( nzc*sit); 	
 	ir  = (IT *) mallocarray ( nz*sit); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT)); 
-	aux = NULL;
 }
 
 //! GetIndices helper function for StackEntry arrays
@@ -127,7 +118,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 	IT rindex, cindex;
 	getindices(multstack, rindex, cindex,j,nnz);
 
-	temp.mas[0] = 0;
+	temp.cp[0] = 0;
 	while(i< nzc && cindex < numeric_limits<IT>::max())	// i runs over columns of "this",  j runs over all the nonzeros of "multstack"
 	{
 		if(jc[i] > cindex)
@@ -144,24 +135,24 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 			}
 			while(temp.jc[curnzc-1] == cindex);	// loop until cindex changes
 
-			temp.mas[curnzc] = temp.mas[curnzc-1] + columncount;
+			temp.cp[curnzc] = temp.cp[curnzc-1] + columncount;
 		}
 		else if(jc[i] < cindex)
 		{
 			temp.jc[curnzc++] = jc[i++];
-			for(IT k = mas[i-1]; k< mas[i]; ++k)
+			for(IT k = cp[i-1]; k< cp[i]; ++k)
 			{
 				temp.ir[curnz] 		= ir[k];
 				temp.numx[curnz++] 	= numx[k];
 			}
-			temp.mas[curnzc] = temp.mas[curnzc-1] + (mas[i] - mas[i-1]);
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 		}
 		else	// they are equal, merge the column
 		{
 			temp.jc[curnzc++] = jc[i];
-			ITYPE ii = mas[i];
+			ITYPE ii = cp[i];
 			ITYPE prevnz = curnz;		
-			while (ii < mas[i+1] && cindex == jc[i])	// cindex would be MAX if multstack is deplated
+			while (ii < cp[i+1] && cindex == jc[i])	// cindex would be MAX if multstack is deplated
 			{
 				if (ir[ii] < rindex)
 				{
@@ -183,7 +174,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 					getindices(multstack, rindex, cindex,j,nnz);
 				}
 			}
-			while (ii < mas[i+1])
+			while (ii < cp[i+1])
 			{
 				temp.ir[curnz] = ir[ii];
 				temp.numx[curnz++] = numx[ii++];
@@ -195,19 +186,19 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 
 				getindices(multstack, rindex, cindex,j,nnz);
 			}
-			temp.mas[curnzc] = temp.mas[curnzc-1] + curnz-prevnz;
+			temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 			++i;
 		}
 	}
 	while(i< nzc)
 	{
 		temp.jc[curnzc++] = jc[i++];
-		for(IT k = mas[i-1]; k< mas[i]; ++k)
+		for(IT k = cp[i-1]; k< cp[i]; ++k)
 		{
 			temp.ir[curnz] 		= ir[k];
 			temp.numx[curnz++] 	= numx[k];
 		}
-		temp.mas[curnzc] = temp.mas[curnzc-1] + (mas[i] - mas[i-1]);
+		temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 	}
 	while(cindex < numeric_limits<IT>::max())
 	{
@@ -223,7 +214,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 		}
 		while(temp.jc[curnzc-1] == cindex);	// loop until cindex changes
 
-		temp.mas[curnzc] = temp.mas[curnzc-1] + columncount;
+		temp.cp[curnzc] = temp.cp[curnzc-1] + columncount;
 	}
 	temp.Resize(curnzc, curnz);
 	*this = temp;
@@ -232,20 +223,19 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 
 
 /**
+  * Creates DCSC structure from an array of StackEntry's
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), colchunks(0),pool(NULL)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), pool(NULL)
 {
-	if(nz == 0)	return;
-
+	assert(nz != 0 );
 	size_t sit = sizeof(IT);
 	
-	mas = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
+	cp = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
 	jc  = (IT *) mallocarray ( nz*sit ); 		// to be shrinked
 	ir  = (IT *) mallocarray ( nz*sit ); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-	aux  = NULL;
 
 	IT curnzc = 0;				// number of nonzero columns constructed so far
 	IT cindex = multstack[0].key.first;
@@ -254,7 +244,7 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 	ir[0]	= rindex;
 	numx[0] = multstack[0].value;
 	jc[curnzc] = cindex;
-	mas[curnzc] = 0; 
+	cp[curnzc] = zero; 
 	++curnzc;
 
 	for(IT i=1; i<nz; ++i)
@@ -267,27 +257,23 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 		if(cindex != jc[curnzc-1])
 		{
 			jc[curnzc] = cindex;
-			mas[curnzc] = i;
+			cp[curnzc] = i;
 			++curnzc;
 		}
 	}
 
-	// Shrink mas & jc arrays
+	// Shrink cp & jc arrays
 	nzc = curnzc;
 	IT * tmpjc	= jc; 
-	IT * tmpmas 	= mas;
+	IT * tmpcp 	= cp;
 	
-	mas = (IT *) mallocarray ( (nzc+1)*sit ); 	// new size
+	cp = (IT *) mallocarray ( (nzc+1)*sit ); 	// new size
 	jc  = (IT *) mallocarray ( nzc*sit ); 		// new size
 
-	for(IT i=0; i< nzc; ++i)	// copy only a portion of the old elements
-	{
-		mas[i]	= tmpmas[i];
-		jc[i]	= tmpjc[i];
-	}
-	mas[nzc] = nz;
-	
-	deletearray(tmpmas, (nz+1)*sit ); 
+	memcpy(cp, tmpcp, nzc * sizeof(IT)); cp[nzc] = nz;
+	memcpy(jc, tmpjc, nzc * sizeof(IT));
+
+	deletearray(tmpcp, (nz+1)*sit ); 
 	deletearray(tmpjc, nz*sit );
 }
 
@@ -296,36 +282,28 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
   * \remark This function should only be used for indexing 
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),colchunks(0),pool(NULL)
+Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),pool(NULL)
 {
+	assert((nz != 0) && (indices.size() == nnz));
 	size_t sit = sizeof(IT);
 	
-	mas = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
+	cp = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
 	jc  = (IT *) mallocarray ( nz*sit ); 		// to be shrinked
 	ir  = (IT *) mallocarray ( nz*sit ); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-	aux  = NULL;
 
-	for(IT i=0; i <= nz; ++i)
-		mas[i] = i;
-	for(IT i=0; i < nz; ++i)
-		numx[i] = static_cast<NT>(1);
-
+	__gnu_cxx::iota(cp, cp+nz+1, 0);  // insert sequential values {0,1,2,..}
+	fill_n(numx, nz, static_cast<NT>(1));
+	
 	if(isRow)
-	{	
-		for(IT i=0; i < nz; ++i)
-		{
-			jc[i] = indices[i];
-			ir[i] = i;
-		}
+	{
+		__gnu_cxx::iota(ir, ir+nz, 0);	
+		std::copy (indices.begin(), indices.end(), jc);
 	}
 	else
 	{
-		for(IT i=0; i < nz; ++i)
-		{
-			ir[i] = indices[i];
-			jc[i] = i;
-		}
+		__gnu_cxx::iota(jc, jc+nz, 0);
+		std::copy (indices.begin(), indices.end(), ir);	
 	}
 }
 
@@ -341,33 +319,24 @@ Dcsc<IT,NNT> Dcsc<IT,NT>::ConvertNumericType ()
 		convert.numx[i] = static_cast<NNT>(convert.rhs.numx[i]);		
 		convert.ir[i] = convert.rhs.ir[i];
 	}
-	
-	IT tnzc = nzc+1;
-	for(IT i=0; i< nzc; ++i)		
-		convert.jc[i] = jc[i];
-	for(IT i=0; i< tnzc; ++i)		
-		convert.mas[i]= mas[i];
-		
+	memcpy(convert.jc, jc, nzc * sizeof(IT));
+	memcpy(convert.cp, cp, (nzc+1) * sizeof(IT));
 	return convert;
 }
 
 /**
   * Copy constructor that respects the memory pool
-  * Copies the AUX array <=> it already exists
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): colchunks(rhs.colchunks), nz(rhs.nz), nzc(rhs.nzc), cf(rhs.cf),pool(rhs.pool)
+Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.pool)
 {
 	size_t sit = sizeof(IT);
 	if(nz > 0)
 	{
 		numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
 		ir  = (IT *) mallocarray ( nz*sit ); 
-		for(IT i=0; i< nz; ++i)
-		{		
-			numx[i] = rhs.numx[i];		
-			ir[i] = rhs.ir[i];
-		}
+		memcpy(numx, rhs.numx, nz*sizeof(NT));
+		memcpy(ir, rhs.ir, nz*sit);
 	}
 	else
 	{
@@ -376,31 +345,15 @@ Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): colchunks(rhs.colchunks), nz(rhs.nz
 	}
 	if(nzc > 0)
 	{
-		IT tnzc = nzc+1;
 		jc  = (IT *) mallocarray ( nzc*sit ); 
-		mas = (IT *) mallocarray ( tnzc*sit ); 		
-	
-		for(IT i=0; i< nzc; ++i)		
-			jc[i] = rhs.jc[i];
-		for(IT i=0; i< tnzc; ++i)		
-			mas[i]= rhs.mas[i];
+		cp = (IT *) mallocarray ( (nzc+1)*sit ); 		
+		memcpy(jc, rhs.jc, nzc*sit);
+		memcpy(cp, rhs.cp, (nzc+1)*sit);
 	}
 	else
 	{
 		jc = NULL;
-		mas = NULL;
-	}
-		
-	if(colchunks > 0)
-	{
-		IT tchunks = colchunks + 1;
-		aux  = (IT *) mallocarray ( tchunks*sit ); 
-		for(IT i=0; i<tchunks; ++i)
-			aux[i] = rhs.aux[i];
-	}
-	else
-	{
-		aux = NULL;
+		cp = NULL;
 	}
 }
 
@@ -426,63 +379,34 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::operator =(const Dcsc<IT,NT> & rhs)
 		if(nzc > 0)
 		{
 			deletearray(jc, sit * nzc);
-			deletearray(mas, sit * (nzc+1));
+			deletearray(cp, sit * (nzc+1));
 		}
-		if(colchunks > 0)
-		{
-			deletearray(aux, sit * (colchunks+1));	
-		}
-		
 		pool = rhs.pool;
 		nz = rhs.nz;
 		nzc = rhs.nzc;
-		colchunks = rhs.colchunks;
-		
 		if(nz > 0)
 		{
 			numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
 			ir  = (IT *) mallocarray ( nz*sit ); 
-			
-			for(IT i=0; i< nz; ++i)	
-			{	
-				numx[i] = rhs.numx[i];		
-				ir[i] = rhs.ir[i];
-			}
+			memcpy(numx, rhs.numx, nz*sizeof(NT));
+			memcpy(ir, rhs.ir, nz*sit);	
 		}
 		else
 		{
 			numx = NULL;
 			ir = NULL;
 		}
-	
 		if(nzc > 0)
 		{
-			IT tnzc = nzc+1;
 			jc  = (IT *) mallocarray ( nzc*sit ); 
-			mas = (IT *) mallocarray ( tnzc*sit ); 
-
-			for(IT i=0; i< nzc; ++i)		
-				jc[i] = rhs.jc[i];
-			for(IT i=0; i< tnzc; ++i)		
-				mas[i]= rhs.mas[i];
+			cp = (IT *) mallocarray ( (nzc+1)*sit ); 		
+			memcpy(jc, rhs.jc, nzc*sit);
+			memcpy(cp, rhs.cp, (nzc+1)*sit);
 		}
 		else
 		{
 			jc = NULL;
-			mas = NULL;
-		}
-
-		if(colchunks > 0)
-		{
-			IT tchunks = colchunks + 1;
-			aux  = (IT *) mallocarray ( tchunks*sit ); 
-
-			for(IT i=0; i<tchunks; ++i)
-				aux[i] = rhs.aux[i];
-		}
-		else
-		{
-			aux = NULL;
+			cp = NULL;
 		}
 	}
 	return *this;
@@ -504,36 +428,36 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 	IT curnz = 0;
 	IT i = 0;
 	IT j = 0;
-	temp.mas[0] = 0;
+	temp.cp[0] = zero;
 	while(i< nzc && j<rhs.nzc)
 	{
 		if(jc[i] > rhs.jc[j])
 		{
 			temp.jc[curnzc++] = rhs.jc[j++];
-			for(IT k = rhs.mas[j-1]; k< rhs.mas[j]; ++k)
+			for(IT k = rhs.cp[j-1]; k< rhs.cp[j]; ++k)
 			{
 				temp.ir[curnz] 		= rhs.ir[k];
 				temp.numx[curnz++] 	= rhs.numx[k];
 			}
-			temp.mas[curnzc] = temp.mas[curnzc-1] + (rhs.mas[j] - rhs.mas[j-1]);
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (rhs.cp[j] - rhs.cp[j-1]);
 		}
 		else if(jc[i] < rhs.jc[j])
 		{
 			temp.jc[curnzc++] = jc[i++];
-			for(IT k = mas[i-1]; k< mas[i]; k++)
+			for(IT k = cp[i-1]; k< cp[i]; k++)
 			{
 				temp.ir[curnz] 		= ir[k];
 				temp.numx[curnz++] 	= numx[k];
 			}
-			temp.mas[curnzc] = temp.mas[curnzc-1] + (mas[i] - mas[i-1]);
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 		}
 		else
 		{
 			temp.jc[curnzc++] = jc[i];
-			IT ii = mas[i];
-			IT jj = rhs.mas[j];
+			IT ii = cp[i];
+			IT jj = rhs.cp[j];
 			IT prevnz = curnz;		
-			while (ii < mas[i+1] && jj < rhs.mas[j+1])
+			while (ii < cp[i+1] && jj < rhs.cp[j+1])
 			{
 				if (ir[ii] < rhs.ir[jj])
 				{
@@ -551,17 +475,17 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 					temp.numx[curnz++] = numx[ii++] + rhs.numx[jj++];	// might include zeros
 				}
 			}
-			while (ii < mas[i+1])
+			while (ii < cp[i+1])
 			{
 				temp.ir[curnz] = ir[ii];
 				temp.numx[curnz++] = numx[ii++];
 			}
-			while (jj < rhs.mas[j+1])
+			while (jj < rhs.cp[j+1])
 			{
 				temp.ir[curnz] = rhs.ir[jj];
 				temp.numx[curnz++] = rhs.numx[jj++];
 			}
-			temp.mas[curnzc] = temp.mas[curnzc-1] + curnz-prevnz;
+			temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 			++i;
 			++j;
 		}
@@ -569,58 +493,45 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 	while(i< nzc)
 	{
 		temp.jc[curnzc++] = jc[i++];
-		for(IT k = mas[i-1]; k< mas[i]; ++k)
+		for(IT k = cp[i-1]; k< cp[i]; ++k)
 		{
 			temp.ir[curnz] 	= ir[k];
 			temp.numx[curnz++] = numx[k];
 		}
-		temp.mas[curnzc] = temp.mas[curnzc-1] + (mas[i] - mas[i-1]);
+		temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 	}
 	while(j < rhs.nzc)
 	{
 		temp.jc[curnzc++] = rhs.jc[j++];
-		for(IT k = rhs.mas[j-1]; k< rhs.mas[j]; ++k)
+		for(IT k = rhs.cp[j-1]; k< rhs.cp[j]; ++k)
 		{
 			temp.ir[curnz] 	= rhs.ir[k];
 			temp.numx[curnz++] 	= rhs.numx[k];
 		}
-		temp.mas[curnzc] = temp.mas[curnzc-1] + (rhs.mas[j] - rhs.mas[j-1]);
+		temp.cp[curnzc] = temp.cp[curnzc-1] + (rhs.cp[j] - rhs.cp[j-1]);
 	}
 	temp.Resize(curnzc, curnz);
 	*this = temp;
 	return *this;
 }
 	
+
+/** 
+  * Construct an index array called aux
+  * Return the size of the contructed array
+  * Complexity O(nzc)
+ **/ 
 template <class IT, class NT>
-void Dcsc<IT,NT>::DeleteAux()
+IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux)
 {
-	size_t sit = sizeof(IT);
-	if(colchunks > 0)	
-	{
-		deletearray(aux, (colchunks+1)*sit);
-	}
-	cf = 0.0;
-	colchunks =0;
-}
+	float cf  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
+	IT colchunks = static_cast<IT> ( ceil( static_cast<float>(ndim+1) / ceil(cf)) );
 
-template <class IT, class NT>
-void Dcsc<IT,NT>::ConstructAux(IT ndim)
-{
-	size_t sit = sizeof(ITYPE);
-	if(colchunks > 0)	// aux may be empty even when other arrays are not.
-	{
-		deletearray(aux, (colchunks+1)*sit);	
-	}
-
-	// cf and colchunks are recomputed since nzc might have changed !
-	cf	  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
-	colchunks = static_cast<IT> ( ceil( static_cast<float>(ndim+1) / ceil(cf)) );
-
-	aux  = (IT *) mallocarray ( (colchunks+1)*sit ); 
+	aux  = (IT *) mallocarray ( (colchunks+1)*sizeof(IT) ); 
 
 	IT chunksize	= static_cast<IT>(ceil(cf));
-	IT reg		= static_cast<IT>(0);
-	IT curchunk	= static_cast<IT>(0);
+	IT reg		= zero;
+	IT curchunk	= zero;
 	aux[curchunk++] = 0;
 	for(IT i = 0; i< nzc; ++i)
 	{
@@ -637,12 +548,13 @@ void Dcsc<IT,NT>::ConstructAux(IT ndim)
 	{
 		aux[curchunk++] = reg;
 	}
+	return colchunks;
 }
 
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
-	size_t sit = sizeof(I);
+	size_t sit = sizeof(IT);
 
 	if(nznew == nz && nzcnew == nzc)
 	{
@@ -652,15 +564,13 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 	if(nzcnew == 0)
 	{
 		deletearray(jc, sit * nzc);
-		deletearray(mas, sit * (nzc+1));
-
+		deletearray(cp, sit * (nzc+1));
 		nzc = 0;
 	}
 	if(nznew == 0)
 	{
 		deletearray(ir, sit * nz);
 		deletearray(numx, sizeof(NT) * nz);
-
 		nz = 0;
 	}
 	if ( nzcnew == 0 && nznew == 0)
@@ -668,63 +578,45 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 		return;	
 	}
 
-	IT * tmpmas = mas; 
+	IT * tmpcp = cp; 
 	IT * tmpjc = jc;
 	
-	mas = (IT *) mallocarray ( (nzcnew+1)*sit ); 
+	cp = (IT *) mallocarray ( (nzcnew+1)*sit ); 
 	jc = (IT *) mallocarray (  nzcnew * sit ); 	
 
-	if(nzcnew > nzc)	// Grow it
+	if(nzcnew > nzc)// Grow it (copy all of the old elements)
 	{
-		for(IT i=0; i< nzc; ++i)	// copy all of the old elements
-		{
-			mas[i] = tmpmas[i];
-			jc[i] = tmpjc[i];
-		}
-		mas[nzc] = tmpmas[nzc];
+		memcpy(cp, tmpcp, (nzc+1)*sit);
+		memcpy(jc, tmpjc, nzc*sit);		
 	}
-	else			// Shrink it 
+	else		// Shrink it (copy only a portion of the old elements)
 	{
-		for(IT i=0; i< nzcnew; ++i)	// copy only a portion of the old elements
-		{
-			mas[i] = tmpmas[i];
-			jc[i] = tmpjc[i];
-		}
-		mas[nzcnew] = tmpmas[nzcnew];
+		memcpy(cp, tmpcp, (nzcnew+1)*sit);
+		memcpy(jc, tmpjc, nzcnew*sit);	
 	}
-	deletearray(tmpmas, sit * (nzc+1));	// delete the memory pointed by previous pointers
+	deletearray(tmpcp, sit * (nzc+1));	// delete the memory pointed by previous pointers
 	deletearray(tmpjc, sit * nzc);
-
 	nzc = nzcnew;
 	
 	NT * tmpnumx = numx; 
 	IT * tmpir = ir;
-
 	numx = (NT *) mallocarray ( nznew * sizeof(NT) ); 
 	ir = (IT *) mallocarray (  nznew * sit ); 
 
-	if(nznew > nz)	// Grow it
+	if(nznew > nz)	// Grow it (copy all of the old elements)
 	{
-		for(IT i=0; i< nz; ++i)		// copy all of the old elements
-		{
-			numx[i] = tmpnumx[i];
-			ir[i] = tmpir[i];
-		}
+		memcpy(numx, tmpnumx, nz*sizeof(NT));
+		memcpy(ir, tmpir, nz*sit);	
 	}
-	else	// Shrink it 
+	else	// Shrink it (copy only a portion of the old elements)
 	{
-		for(IT i=0; i< nznew; ++i)	// copy only a portion of the old elements
-		{
-			numx[i] = tmpnumx[i];
-			ir[i] = tmpir[i];
-		}
+		memcpy(numx, tmpnumx, nznew*sizeof(NT));
+		memcpy(ir, tmpir, nznew*sit);	
 	}
 	deletearray(tmpnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
 	deletearray(tmpir, nz * sit);
-	
 	nz = nznew;
 }
-
 
 /**
   * The first part of the indexing algorithm described in the IPDPS'08 paper
@@ -733,12 +625,11 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
   * It it doesn't exist, return value is undefined (implementation specific).
  **/
 template<class IT, class NT>
-IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found)
+IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found, IT * aux, IT csize)
 {
-	IT csize = static_cast<IT>(ceil(cf));	// chunk size
 	IT base = static_cast<IT>(floor((float) (colind/csize)));
-	IT start = dcsc->aux[base];
-	IT end = dcsc->aux[base+1];
+	IT start = aux[base];
+	IT end = aux[base+1];
 
 	IT * itr = find(jc + start, jc + end, colind);
 	
@@ -756,20 +647,20 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	IT * itr = lower_bound(jc, jc+nzc, cut);
 	IT pos = itr - jc;
 	
-	A = new (mas[pos], pos);
-	B = new (nz-mas[pos], nzc-pos);
+	A = new (cp[pos], pos);
+	B = new (nz-cp[pos], nzc-pos);
 	
 	memcpy(A->jc, jc, pos * sizeof(IT));
-	memcpy(A->mas, mas, (pos+1) * sizeof(IT));
-	memcpy(A->ir, ir, mas[pos] * sizeof(IT));
-	memcpy(A->numx, numx, mas[pos] * sizeof(NT));
+	memcpy(A->cp, cp, (pos+1) * sizeof(IT));
+	memcpy(A->ir, ir, cp[pos] * sizeof(IT));
+	memcpy(A->numx, numx, cp[pos] * sizeof(NT));
 	
 	memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
 	transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut);
-	memcpy(B->mas, mas+pos, (nzc-pos+1) * sizeof(IT));
-	transform(B->mas, B->mas + (nzc-pos+1), B->mas, bind2nd(minus<IT>(), mas[pos]);
-	memcpy(B->ir, ir + mas[pos], (nz- mas[pos]) * sizeof(IT)); 
-	memcpy(B->numx, numx + mas[pos], (nz- mas[pos]) * sizeof(NT)); 
+	memcpy(B->cp, cp+pos, (nzc-pos+1) * sizeof(IT));
+	transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]);
+	memcpy(B->ir, ir + cp[pos], (nz- cp[pos]) * sizeof(IT)); 
+	memcpy(B->numx, numx + cp[pos], (nz- cp[pos]) * sizeof(NT)); 
 }
 
 template<class IT, class NT>
@@ -783,9 +674,9 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 	memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
 	transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
 
-	memcpy(mas, A->mas, A->nzc * sizeof(IT));
-	memcpy(mas + A->nzc, B->mas, (B->nzc+1) * sizeof(IT));
-	transform(mas + A->nzc, mas+cnzc+1, mas + A->nzc, bind2nd(plus<IT>(), A->mas[A->nzc]));
+	memcpy(cp, A->cp, A->nzc * sizeof(IT));
+	memcpy(cp + A->nzc, B->cp, (B->nzc+1) * sizeof(IT));
+	transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
 
 	memcpy(ir, A->ir, A->nz * sizeof(IT));
 	memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
@@ -799,7 +690,6 @@ template <class IT, class NT>
 Dcsc<IT,NT>::~Dcsc()
 {
 	size_t sit = sizeof(IT);
-
 	if(nz > 0)			// dcsc may be empty
 	{
 		deletearray(numx, nz * sizeof(NT));
@@ -808,11 +698,7 @@ Dcsc<IT,NT>::~Dcsc()
 	if(nzc > 0)
 	{
 		deletearray(jc, nzc * sit);
-		deletearray(mas, (nzc+1) * sit);
-	}
-	if(colchunks > 0)	// aux may be empty even when other arrays are not.
-	{
-		deletearray(aux, (colchunks+1) * sit);		
+		deletearray(cp, (nzc+1) * sit);
 	}
 }
 

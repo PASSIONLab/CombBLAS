@@ -2,10 +2,6 @@
 /* Sequential and Parallel Sparse Matrix Multiplication Library */
 /* version 2.3 --------------------------------------------------/
 /* date: 01/18/2009 ---------------------------------------------/
-/* design detail: AUX array is not created by the constructor, 	*/
-/* instead it is generated on demand only for:			*/	
-/*		- Col Indexing					*/
-/*		- Algorithm 2					*/
 /* Works well with pre-pinned memory and memory pools	---------/
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
@@ -41,25 +37,21 @@ public:
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
 
-	IT AuxIndex(IT colind, bool & found = false);
+	IT AuxIndex(IT colind, bool found, IT * aux, IT csize);
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
-	void DeleteAux();
-	void ConstructAux(IT ndim);
+	IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux);
 	void Resize(IT nzcnew, IT nznew);
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 	
-	IT * aux;		//!<  AUX array, keeps pointers to MAS, size: colchunks+1 
-	IT * mas;		//!<  The master array, size nzc+1 (keeps column pointers)
+	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
 	IT * jc ;		//!<  col indices, size nzc
 	IT * ir ;		//!<  row indices, size nz
 	T * numx;		//!<  generic values, size nz
 
 	IT nz;
 	IT nzc;			//!<  number of columns with at least one non-zero in them
-	float cf;		//!<  Compression factor, size: (n+1)/nzc
-	IT colchunks;
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
 
@@ -68,11 +60,8 @@ private:
 	void deletearray(void * array, size_t size);
 
 	MemoryPool * pool;
+	const static IT zero = static_cast<IT>(0);
 };
-
-
-
-
 
 #include "dcsc.cpp"	
 #endif

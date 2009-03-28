@@ -1,21 +1,21 @@
 #ifndef _LOC_ARR_H_
 #define _LOC_ARR_H_
 
-#include <mpi.h>
-#include "DataTypeToMPI.h"
 
-template<class ST, class ET>
+template<class V, class C>
 struct LocArr
 {
-	LocArr(ET * myaddr, ST mycount): addr((void*) myaddr ), 
-					count(mycount),
-					mpitype(DataTypeToMPI<NT>),
-					eltsize(sizeof(NT)) {};
+	LocArr(V * myaddr, C mycount): addr(myaddr ), count(mycount){}
 	
-	void * addr;
-	ST count;
-	size_t eltsize;
-	MPI_Datatype mpitype;
+	V * addr;
+	C count;
+}
+
+template<class IT, class NT>
+struct Arr
+{
+	vector< LocArr<IT,IT> > indarrs;
+	vector< LocArr<NT,IT> > numarrs;	
 }
 
 #endif

@@ -290,11 +290,6 @@ void SparseDColumn<T>::Finalize()
 	// if not, construct it from stratch
 } 
 
-/**
-  * \attention As the aux array needs to be recontructed after this add-and-assign operation,
-  * We delete the aux array (if it exists). 
-  * It is automatically reconstructed during splitting, col-indexing or algorithm-2
-  */
 template <class IT, class NT>
 SparseDColumn<T> & SparseDColumn<T>::operator+=(const SparseDColumn<T> & rhs)
 {
@@ -311,13 +306,12 @@ SparseDColumn<T> & SparseDColumn<T>::operator+=(const SparseDColumn<T> & rhs)
 			else if(nzmax == 0)
 			{
 				dcsc = new Dcsc<T>(*(rhs.dcsc));
-				nzmax = dcsc->nz;
+				nnz = dcsc->nz;
 			}
 			else
 			{
-				(*dcsc).DeleteAux();
 				(*dcsc) += (*(rhs.dcsc));
-				nzmax = dcsc->nz;
+				nnz = dcsc->nz;
 			}		
 		}
 		else
@@ -464,8 +458,6 @@ SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::ColIndex(const vector<ITY
 	}
 	colindexed->dcsc = new Dcsc<T>(estsize, estnzc, csize);
 	colindexed->dcsc->mas[0] = 0;
-	colindexed->dcsc->colchunks = 0;
-	colindexed->dcsc->aux = NULL;
 
 	ITYPE cnzc = 0;
 	ITYPE cnz =0;
@@ -956,10 +948,17 @@ void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> 
 	}
 	else	 	// use aux based indexing
 	{
+		float cf  = static_cast<float>(n+1) / static_cast<float>(dcsc->nzc);
+		IT csize = static_cast<IT>(ceil(cf));	// chunk size
+		
+		IT * aux;
+		IT auxsize = dcsc->ConstructAux(n, aux);
+
 		bool found;
 		for(ITYPE j =0; j< nind; ++j)
 		{
-			IT pos = dcsc->AuxIndex(colnums[i], found);
+			
+			IT pos = dcsc->AuxIndex(colnums[i], found, aux, csize);
 			if(found)
 			{
 				colinds[j].first = dcsc->mas[pos];
@@ -987,19 +986,6 @@ ofstream& SparseDColumn<T>::put(ofstream& outfile) const
 	if(dcsc != NULL)
 	{
 		outfile << "DCSC:"<<endl;
-		if(dcsc->aux != NULL)
-		{
-			outfile << "aux = [";
-			for(ITYPE i =0; i< dcsc->colchunks; i++)
-			{
-				outfile << dcsc->aux[i] << ", ";
-			}
-			outfile << dcsc->aux[dcsc->colchunks] <<"]" << endl;
-		}
-		else
-		{
-			outfile << "aux is empty !" <<endl;
-		}
 
 		outfile << "mas = [";
 		for(ITYPE i =0; i< dcsc->nzc; i++)
