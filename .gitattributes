@@ -27,8 +27,8 @@ CombBLAS/SpDefs.h -text
 CombBLAS/SpHelper.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
-CombBLAS/SpPar2DMPI2.cpp -text
-CombBLAS/SpPar2DMPI2.h -text
+CombBLAS/SpParMPI2.cpp -text
+CombBLAS/SpParMPI2.h -text
 CombBLAS/SpParMat.h -text
 CombBLAS/SpParVec.cpp -text
 CombBLAS/SpParVec.h -text
