@@ -5,17 +5,17 @@
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
-#ifndef _SPARSE_ONESIDED_MPI_H
-#define _SPARSE_ONESIDED_MPI_H
+#ifndef _SP_PAR_MPI2_H
+#define _SP_PAR_MPI2_H
 
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <mpi.h>
-#include "SparseMatrix.h"
-#include "SpParMatrix.h"
-#include "SparseTriplets.h"
-#include "SparseDColumn.h"
+#include "SpMat.h"
+#include "SpParMat.h"
+#include "SpTuples.h"
+#include "SpDCCols.h"
 #include "CommGrid.h"
 #include "SpWins.h"
 #include "SpSizes.h"
@@ -32,27 +32,27 @@ using namespace boost;
   * \n This partially remedies the severe load balancing problem in sparse matrices. 
   * \n The class uses MPI-2 to achieve one-sided asynchronous communication
   * \n The algorithm treats each submatrix as a single block
-  * \n Local Data Structure used is SparseDColumn which is composed of DCSC only 
+  * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
   */
-template <class T>
-class SparseOneSidedMPI: public SpParMatrix<T>
+template <class IT, class NT, class DER>
+class SpParMPI2: public SpParMat<IT, NT>
 {
 public:
 	// Constructors
-	SparseOneSidedMPI (MPI_Comm world) 
+	SpParMPI2 (MPI_Comm world) 
 	{
 		commGrid.reset(new CommGrid(world, 0, 0)); 	
 	};
-	SparseOneSidedMPI (ifstream & input, MPI_Comm world);
-	SparseOneSidedMPI (shared_ptr< SparseDColumn<T> > myseq, MPI_Comm world):spSeq(myseq) 
+	SpParMPI2 (ifstream & input, MPI_Comm world);
+	SpParMPI2 (shared_ptr< SparseDColumn<T> > myseq, MPI_Comm world):spSeq(myseq) 
 	{	
 		commGrid.reset(new CommGrid(world, 0, 0));
 	};
-	SparseOneSidedMPI (shared_ptr< SparseDColumn<T> > myseq,shared_ptr< CommGrid > grid): spSeq(myseq), commGrid(grid) {};
+	SpParMPI2 (shared_ptr< SparseDColumn<T> > myseq,shared_ptr< CommGrid > grid): spSeq(myseq), commGrid(grid) {};
 
-	SparseOneSidedMPI (const SparseOneSidedMPI<T> & rhs);			// copy constructor
-	SparseOneSidedMPI<T> & operator=(const SparseOneSidedMPI<T> & rhs);	// assignment operator
-	SparseOneSidedMPI<T> & operator+=(const SparseOneSidedMPI<T> & rhs);
+	SpParMPI2 (const SpParMPI2<T> & rhs);			// copy constructor
+	SpParMPI2<T> & operator=(const SpParMPI2<T> & rhs);	// assignment operator
+	SpParMPI2<T> & operator+=(const SpParMPI2<T> & rhs);
 
 	//! No exclicit destructor needed as smart pointers take care of calling the appropriate destructors 
 
@@ -60,7 +60,7 @@ public:
 	//! It transposes the second matrix before the multiplications start, therefore it has no memory to store the old version
 	//! After the multiplications are done, B is correctly restored back.
 	template <typename U> 
-	friend const SparseOneSidedMPI<U> operator* (const SparseOneSidedMPI<U> & A, SparseOneSidedMPI<U> & B );
+	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, SpParMPI2<U> & B );
 
 	virtual ITYPE getrows() const;
 	virtual ITYPE getcols() const;
@@ -81,11 +81,11 @@ private:
 	static void GetSetSizes(ITYPE index, SparseDColumn<T> & Matrix, SpSizes & sizes, MPI_Comm & comm1d);
 
 	shared_ptr< CommGrid > commGrid; 
-	shared_ptr< SparseDColumn<T> > spSeq;
+	shared_ptr< SpMat<IT, NT, DER> > spSeq;
 	
 	template <typename U>
-	friend ofstream& operator<< (ofstream& outfile, const SparseOneSidedMPI<U> & s);	
+	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<U> & s);	
 };
 
-#include "SparseOneSidedMPI.cpp"
+#include "SpParMPI2.cpp"
 #endif

@@ -41,7 +41,7 @@ SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices
 		dcsc = NULL; 
 }
 
-//! Construct SparseDColumn from Dcsc
+//! Construct SpDCCols from Dcsc
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 :m(nRow), n(nCol), nnz(size), localpool(NULL)

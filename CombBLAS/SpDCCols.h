@@ -65,27 +65,6 @@ public:
 		arr.indarrs[2] = LocArr(dscs->ir, dcsc->nz);
 		arr.numarrs[0] = LocArr(dscs->num, dcsc->nz);
 	}
-	void setarrays(const Arr<IT,NT> & arr)
-	{
-		dcsc = new Dcsc (arr.numarrs[0].count,  arr.indarrs[1].count);
-
-
-		:m(nRow), n(nCol), nnz(size), localpool(NULL)
-
-		if(size > 0)
-			dcsc = new Dcsc<IT,NT>(size,nzc);
-		else
-			dcsc = NULL; 
-
-		arr.indarrs.reserve(3);
-		arr.numarrs.reserve(1);
-		arr.indarrs[0] 
-		indarrs.pushback( LocArr (dscs->cp, dcsc->nzc+1) );
-		indarrs.pushback( LocArr (dscs->jc, dcsc->nzc) );
-		indarrs.pushback( LocArr (dscs->ir, dcsc->nz) );
-		numarrs.pushback( LocArr (dscs->num, dcsc->nz) );
-	}
-
 	
 	virtual bool isZero() { return (nnz == zero); }
 	virtual void setnnz (IT n);

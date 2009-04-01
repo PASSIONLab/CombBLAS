@@ -14,20 +14,18 @@
 #include <mpi.h>
 #include "SpWins.h"
 #include "SpSizes.h"
-#include "SparseMatrix.h"
-#include "SparseDColumn.h"
+#include "SpMat.h"
+#include "SpDCCols.h"
 #include "DataTypeConvert.h"
 
 class CommGrid
-{
-public:
-	CommGrid(MPI_Comm world, int nrowproc, int ncolproc): grrow(nrowproc), grcol(ncolproc)
-	{
-		MPI_Comm_dup(world, &commWorld);
 
-		int nproc;
-		MPI_Comm_rank (commWorld, &myrank);
-		MPI_Comm_size (commWorld, &nproc);
+public:
+	CommGrid(MPI::IntraComm & world, int nrowproc, int ncolproc): grrow(nrowproc), grcol(ncolproc)
+	{
+		commWorld = world.Dup();
+		myrank = commWorld.Get_rank();
+		int nproc = commWorld.Get_size();
 
 		if(grrow == 0 && grcol == 0)
 		{
@@ -38,22 +36,31 @@ public:
 
 		mycol =  (int) myrank % grcol;
 		myrow =  (int) myrank / grcol;
-
-		// Create row and column communicators (must be collectively called)
-		// Usage: int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm)
-		// Semantics: Processes with the same color are in the same new communicator 
-		MPI_Comm_split(commWorld, myrow, myrank, &rowWorld);
-		MPI_Comm_split(commWorld, mycol, myrank, &colWorld);
+		
+		/** 
+		  * Create row and column communicators (must be collectively called)
+		  * C syntax: int MPI_Comm_split(MPI_Comm comm, int color, int key, MPI_Comm *newcomm)
+		  * C++ syntax: MPI::Intercomm MPI::Intercomm::Split(int color, int key) consts  
+		  * Semantics: Processes with the same color are in the same new communicator 
+		  */
+		rowworld = commWorld.Split(myrow, myrank);
+		colworld = commWorld.Split(mycol, myrank);
 	}
 	~CommGrid()
 	{
-		MPI_Comm_free(&commWorld);
-		MPI_Comm_free(&rowWorld);
-		MPI_Comm_free(&colWorld);
+		commWorld.Free();
+		rowWorld.Free();
+		colWorld.Free();
 	}
 	bool operator == (const CommGrid & rhs) const
 	{
-		//! Are MPI_Comm objects comparable? Should we?
+		result = MPI::Comm::Compare(commWorld, rhs.commWorld);
+    		if ((result != MPI::IDENT) && (result != MPI::CONGRUENT))
+		{
+			//! A call to MPI::Comm::Compare after MPI::Comm::Dup returns MPI_CONGRUENT
+			//! MPI::CONGRUENT means the communicators have the same group members, in the same order
+    			return false;
+		}
 		return ( (grrow == rhs.grrow) && (grcol == rhs.grcol) && (myrow == rhs.myrow) && (mycol == rhs.mycol));
 	}	
 
@@ -66,7 +73,8 @@ public:
 	template <typename U>
 	void GetB(SparseDColumn<U>* & BRecv, int Bownind, SpWins & cwin, SpSizes & BSizes );
 
-	MPI_Comm commWorld, rowWorld, colWorld;
+	//! A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
+	MPI::IntraComm commWorld, rowWorld, colWorld;
 	int grrow, grcol;
 	int mycol;
 	int myrow;

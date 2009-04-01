@@ -28,25 +28,25 @@ template <class IT, class NT, class DER>
 class SpMat
 {
 public:
-	SpMat(IT nz, IT rows, IT cols, Arr<IT,NT> & arr)
-	{
-		static_cast<DER*>(this)->setnnz(nz);
-		static_cast<DER*>(this)->setrows(rows);
-		static_cast<DER*>(this)->setcols(cols);
-		static_cast<DER*>(this)->setarrays(arr);	
-	}
 	virtual ~SpMat(){};	// Virtual destructor
 
 	SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
 	
 	void MultiplyAddAssign(SpMat<IT, NT, DER> & A, SpMat<IT, NT, DER> & B, bool isAT, bool isBT);
 
-	virtual void printInfo() = 0;
-	virtual vector< LocArr<IT> > getarrays() const = 0;
+	void printInfo() = 0;
+	vector< LocArr<IT> > getarrays() const = 0;
 		
-	virtual ofstream& put(ofstream& outfile) const { return outfile; };
-	virtual ifstream& get(ifstream& infile) { return infile; };
+	ofstream& put(ofstream& outfile) const 
+	{ 
+		return static_cast<DER*>(this)->put(outfile);
+	}
+	ifstream& get(ifstream& infile)
+	{
+		return static_cast<DER*>(this)->get(infile);
+	}
 	
+	/** Do I really need any of this functions?
 	virtual bool isZero() = 0;
 	void setnnz (IT nz) = 0;
 	void setrows(IT rows) = 0;
@@ -54,7 +54,7 @@ public:
 	virtual IT getrows() const = 0;
 	virtual IT getcols() const = 0;
 	virtual IT getnnz() const = 0;
-
+	**/
 protected:
 
 	template <typename UIT, typename UNT, typename UDER>
