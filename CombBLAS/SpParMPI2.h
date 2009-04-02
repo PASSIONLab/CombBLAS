@@ -80,8 +80,9 @@ private:
 	static void SetWindows(MPI_Comm & comm1d, SparseDColumn<T> & Matrix, SpWins & wins);
 	static void GetSetSizes(ITYPE index, SparseDColumn<T> & Matrix, SpSizes & sizes, MPI_Comm & comm1d);
 
-	shared_ptr< CommGrid > commGrid; 
-	shared_ptr< SpMat<IT, NT, DER> > spSeq;
+	const static IT zero = static_cast<IT>(0);
+	CommGrid * commGrid; 
+	SpMat<IT, NT, DER> * spSeq;
 	
 	template <typename U>
 	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<U> & s);	

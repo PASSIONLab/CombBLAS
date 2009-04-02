@@ -1,7 +1,7 @@
-#ifndef _SP_SIZES_H
-#define _SP_SIZES_H
+#ifndef _SP_SIZES_H_
+#define _SP_SIZES_H_
 
-#include "SpDefines.h"
+#include "SpDefs.h"
 
 class SpSizes
 {

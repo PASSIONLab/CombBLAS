@@ -18,14 +18,27 @@
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL) {}
 
+template <class IT, class NT>
+void SpDCCols<IT,NT>::CreateImpl(vector<IT> & essentials)
+{
+	nnz = essentials[0];
+	m = essentials[1];
+	n = essentials[2];
+
+	if(nnz > 0)
+		dcsc = new Dcsc<IT,NT>(nnz,essentials[3]);
+	else
+		dcsc = NULL; 
+}
+
 
 // Allocate all the space necessary
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc)
 :m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
-	if(size > 0)
-		dcsc = new Dcsc<IT,NT>(size,nzc);
+	if(nnz > 0)
+		dcsc = new Dcsc<IT,NT>(nnz, nzc);
 	else
 		dcsc = NULL; 
 }

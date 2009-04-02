@@ -141,10 +141,7 @@ const SpParMPI2<T> operator* (const SpParMPI2<T> & A, SpParMPI2<T> & B )
 	
 	double t1=MPI_Wtime();
 
-	// SpProduct is the output matrix (stored as a smart pointer)
-	ITYPE zero = static_cast<ITYPE>(0);
-	shared_ptr< SpDCCols<T> > SpProduct(new SpDCCols<T>(zero, (A.spSeq)->getrows(), (B.spSeq)->getcols(), zero)); 	
-	
+		
 	// Attention: *(B.spSeq) is practically destroyed after Transpose is called	
 	SpDCCols<T> Btrans = (B.spSeq)->Transpose();
 	Btrans.TransposeInPlace();	// calls SparseMatrix's Transpose in place which is swap(m,n);
@@ -154,8 +151,9 @@ const SpParMPI2<T> operator* (const SpParMPI2<T> & A, SpParMPI2<T> & B )
 	SpParMPI2<T>::SetWindows((A.commGrid)->rowWorld, *(A.spSeq), rowwindows);
 	SpParMPI2<T>::SetWindows((B.commGrid)->colWorld,  Btrans, colwindows);
 
-	SpSizes ARecvSizes(stages);
-	SpSizes BRecvSizes(stages);
+	IT ** ARecvSizes = allocate2D(DER::esscount, stages);
+	IT ** BRecvSizes = allocate2D(DER::esscount, stages);
+  
 	SpParMPI2<T>::GetSetSizes((A.commGrid)->mycol, *(A.spSeq), ARecvSizes, (A.commGrid)->rowWorld);
 	SpParMPI2<T>::GetSetSizes((B.commGrid)->myrow, Btrans, BRecvSizes, (B.commGrid)->colWorld);
 	
@@ -165,6 +163,9 @@ const SpParMPI2<T> operator* (const SpParMPI2<T> & A, SpParMPI2<T> & B )
 	
 	SpDCCols<T> * ARecv;
 	SpDCCols<T> * BRecv; 
+
+	SpMat<IT,NT,DER> C;   // Create an empty object for the product	
+
 
 	for(int i = 0; i < stages; i++) //!< Robust generalization to non-square grids require block-cyclic distibution	
 	{
@@ -228,31 +229,31 @@ void SpParMPI2<T>::SetWindows(MPI_Comm & comm1d, SpDCCols<T> & Matrix, SpWins & 
 
 
 /**
- * @param[in] index of this processor within its row/col, can be {0,...r/s-1}
+ * @param[in] index Index of this processor within its row/col, can be {0,...r/s-1}
+ * @param[in] sizes 2D array where 
+ *  	sizes[i] is an array of size r/s representing the ith essential component of all local blocks within that row/col
+ *	sizes[i][j] is the size of the ith essential component of the jth local block within this row/col
  */
-template <class T>
-void SpParMPI2<T>::GetSetSizes(ITYPE index, SpDCCols<T> & Matrix, SpSizes & sizes, MPI_Comm & comm1d)
+template <class IT, class NT, class DER>
+void SpParMPI2<IT,NT,DER>::GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::IntraComm & comm1d)
 {
-	sizes.nrows[index] = Matrix.getrows();
-	sizes.ncols[index] = Matrix.getcols();
-	sizes.nzcs[index] = Matrix.GetJCSize();
-	sizes.nnzs[index] = Matrix.GetSize();
-
-	MPI_Allgather(MPI_IN_PLACE, 1, DataTypeToMPI<ITYPE>(), sizes.nrows, 1, DataTypeToMPI<ITYPE>(), comm1d);
-	MPI_Allgather(MPI_IN_PLACE, 1, DataTypeToMPI<ITYPE>(), sizes.ncols, 1, DataTypeToMPI<ITYPE>(), comm1d);
-	MPI_Allgather(MPI_IN_PLACE, 1, DataTypeToMPI<ITYPE>(), sizes.nzcs, 1, DataTypeToMPI<ITYPE>(), comm1d);
-	MPI_Allgather(MPI_IN_PLACE, 1, DataTypeToMPI<ITYPE>(), sizes.nnzs, 1, DataTypeToMPI<ITYPE>(), comm1d);
+	vector<IT> essentials = Matrix.GetEssentials();
+	for(IT i=0; i< essentials.size(); ++i)
+	{
+		sizes[i][index] = essentials[i]; 
+		comm1d.Allgather(MPI::IN_PLACE, 1, DataTypeToMPI<IT>(), sizes[i], 1, DataTypeToMPI<IT>());
+	}
 }
 
-template <class T>
-ofstream& SpParMPI2<T>::put(ofstream& outfile) const
+template <class IT, class NT, class DER>
+ofstream& SpParMPI2<IT,NT,DER>::put(ofstream& outfile) const
 {
 	SpTuples<T> triplets(*spSeq);
 	outfile << triplets << endl;
 }
 
-template <typename U>
-ofstream& operator<<(ofstream& outfile, const SpParMPI2<U> & s)
+template <class UIT, class UNT, class UDER>
+ofstream& operator<<(ofstream& outfile, const SpParMPI2<UIT, UNT, UDER> & s)
 {
 	return s.put(outfile) ;	// use the right put() function
 

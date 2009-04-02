@@ -56,7 +56,7 @@ public:
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
-	void getarrays(Arr<IT,NT> & arr) const
+	void GetArrays(Arr<IT,NT> & arr) const
 	{
 		arr.indarrs.reserve(3);
 		arr.numarrs.reserve(1);
@@ -65,6 +65,17 @@ public:
 		arr.indarrs[2] = LocArr(dscs->ir, dcsc->nz);
 		arr.numarrs[0] = LocArr(dscs->num, dcsc->nz);
 	}
+	void createImpl(vector<IT> & essentials);
+	vector<IT> GetEssentials() const
+	{
+		vector<IT> essentials(4);
+		essentials[0] = nnz;
+		essentials[1] = m;
+		essentials[2] = n;
+		essentials[3] = dcsc->nzc;
+		return essentials;
+	}
+		
 	
 	virtual bool isZero() { return (nnz == zero); }
 	virtual void setnnz (IT n);
@@ -120,6 +131,7 @@ private:
 	IT n;
 	IT nnz;
 	const static IT zero = static_cast<IT>(0);
+	const static IT esscount = static_cast<IT>(4);
 
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;

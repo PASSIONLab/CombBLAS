@@ -21,6 +21,23 @@
 class SpHelper
 {
 public:
+	template<typename T, typename I>
+	static T ** allocate2D(I m, I n)
+	{
+		T ** array = new T*[m];
+		for(I i = 0; i<m; ++i) 
+			array[i] = new T[n];
+		return array;
+	}
+	template<typename T, typename I>
+	static void dallocate2D(T ** array, I m)
+	{
+		for(I i = 0; i<m; ++i) 
+			delete array[i]
+		delete [] array;
+	}
+
+	
 	template <typename NT1, typename NT2, typename IT, template SR>
 	static IT Popping(NT1 * numA, NT2 * numB, StackEntry<promote_trait<NT1,NT2>::T_promote,, pair<IT,IT> > * multstack,
 		 	SR sring, IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);

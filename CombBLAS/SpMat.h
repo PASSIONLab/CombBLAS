@@ -28,6 +28,13 @@ template <class IT, class NT, class DER>
 class SpMat
 {
 public:
+	//! Default constructor exists, and does nothing than creating Base<Derived>() and Derived() objects
+	//! One has to call one of the overloaded create functions to get an nonempty object
+	void Create(vector<IT> & essentials)
+	{
+		static_cast<DER*>(this)->CreateImpl(essentials);
+	}
+
 	virtual ~SpMat(){};	// Virtual destructor
 
 	SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;

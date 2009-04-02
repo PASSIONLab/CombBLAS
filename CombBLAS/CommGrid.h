@@ -16,7 +16,7 @@
 #include "SpSizes.h"
 #include "SpMat.h"
 #include "SpDCCols.h"
-#include "DataTypeConvert.h"
+#include "DataTypeToMPI.h"
 
 class CommGrid
 
