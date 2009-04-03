@@ -7,8 +7,8 @@
 
 #include "SpParMPI2.h"
 
-template <class T>
-SpParMPI2<T>::SpParMPI2 (ifstream & input, MPI::IntraComm & world)
+template <class IT, class NT, class DER>
+SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::IntraComm & world)
 {
 	if(!input.is_open())
 	{
@@ -16,36 +16,35 @@ SpParMPI2<T>::SpParMPI2 (ifstream & input, MPI::IntraComm & world)
 		exit(-1);
 	}
 
-	commGrid.reset(new CommGrid(world, 0, 0));
+	commGrid = new CommGrid(world, 0, 0);
 
 	ITYPE m,n,nnz;
 	input >> m >> n >> nnz;
 
-	SpTuples<T> * s = new SpTuples<T>(nnz,m,n);
+	SpMat< IT,NT, SpTuples<IT,NT> > seqTuple(nnz,m,n);
 	if(commGrid->myrank == 0)
 		cout<<"Reading to SpTuples"<<endl;
-	input >> (*s);
+	input >> seqTuple;
 
-	s->SortColBased();
+	seqTuple.SortColBased();
 	if(commGrid->myrank == 0)
-		cout<<"Converting to SpDCCols"<<endl;
+		cout<<"Converting to specialized derived type"<<endl;
 
-	spSeq = new SpDCCols<T>(*s, false, NULL);	
-	delete s;
+	spSeq = new SpMat< IT,NT,DER >(seqTuple, false, NULL);	
 }
 
-template <class T>
-SpParMPI2<T>::SpParMPI2 (const SpParMPI2<T> & rhs)
+template <class IT, class NT, class DER>
+SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 {
 	if(rhs.spSeq != NULL)	
-		spSeq = new SpMat<IT,NT,DER>(*(rhs.spSeq));  // Deep copy of local block
+		spSeq = new SpMat< IT,NT,DER >(*(rhs.spSeq));  	// Deep copy of local block
 
 	if(rhs.commGrid != NULL)	
-		commGrid = new CommGrid(*(rhs.commGrid));  // Deep copy of communication grid
+		commGrid = new CommGrid(*(rhs.commGrid));  	// Deep copy of communication grid
 }
 
-template <class T>
-SpParMPI2<T> & SpParMPI2<T>::operator=(const SpParMPI2<T> & rhs)
+template <class IT, class NT, class DER>
+SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,NT,DER > & rhs)
 {
 	if(this != &rhs)		
 	{
@@ -53,7 +52,7 @@ SpParMPI2<T> & SpParMPI2<T>::operator=(const SpParMPI2<T> & rhs)
 		//! But useful in the presence of a user defined "operator delete" which fails to check NULL
 		if(spSeq != NULL) delete spSeq;
 		if(rhs.spSeq != NULL)	
-			spSeq = new SpMat<IT,NT,DER>(*(rhs.spSeq));  // Deep copy of local block
+			spSeq = new SpMat< IT,NT,DER >(*(rhs.spSeq));  // Deep copy of local block
 		
 		if(commGrid != NULL) delete commGrid;
 		if(rhs.commGrid != NULL)	
@@ -62,8 +61,8 @@ SpParMPI2<T> & SpParMPI2<T>::operator=(const SpParMPI2<T> & rhs)
 	return *this;
 }
 
-template <class T>
-SpParMPI2<T> & SpParMPI2<T>::operator+=(const SpParMPI2<T> & rhs)
+template <class IT, class NT, class DER>
+SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator+=(const SpParMPI2< IT,NT,DER > & rhs)
 {
 	if(this != &rhs)		
 	{
@@ -84,30 +83,30 @@ SpParMPI2<T> & SpParMPI2<T>::operator+=(const SpParMPI2<T> & rhs)
 	
 }
 
-template <class T>
-ITYPE SpParMPI2<T>::getnnz() const
+template <class IT, class NT, class DER>
+IT SpParMPI2< IT,NT,DER >::getnnz() const
 {
-	ITYPE totalnnz = 0;    
-	ITYPE localnnz = spSeq->getnzmax();
-	MPI_Allreduce( &localnnz, &totalnnz, 1, DataTypeToMPI<ITYPE>(), MPI_SUM, commGrid->commWorld );
+	IT totalnnz = 0;    
+	IT localnnz = spSeq->getnnz();
+	(commGrid->commWorld).Allreduce( &localnnz, &totalnnz, 1, DataTypeToMPI<IT>(), MPI::SUM);
  	return totalnnz;  
 }
 
-template <class T>
-ITYPE SpParMPI2<T>::getrows() const
+template <class IT, class NT, class DER>
+IT SpParMPI2< IT,NT,DER >::getnrow() const
 {
-	ITYPE totalrows = 0;
-	ITYPE localrows = spSeq->getrows();    
-	MPI_Allreduce( &localrows, &totalrows, 1, DataTypeToMPI<ITYPE>(), MPI_SUM, commGrid->colWorld );
+	IT totalrows = 0;
+	IT localrows = spSeq->getnrow();    
+	(commGrid->colWorld).Allreduce( &localrows, &totalrows, 1, DataTypeToMPI<IT>(), MPI::SUM);
  	return totalrows;  
 }
 
-template <class T>
-ITYPE SpParMPI2<T>::getcols() const
+template <class IT, class NT, class DER>
+IT SpParMPI2< IT,NT,DER >::getncol() const
 {
-	ITYPE totalcols = 0;
-	ITYPE localcols = spSeq->getcols();    
-	MPI_Allreduce( &localcols, &totalcols, 1, DataTypeToMPI<ITYPE>(), MPI_SUM, commGrid->rowWorld );
+	IT totalcols = 0;
+	IT localcols = spSeq->getcols();    
+	(commGrid->rowWorld).Allreduce( &localcols, &totalcols, 1, DataTypeToMPI<IT>(), MPI::SUM);
  	return totalcols;  
 }
 
@@ -126,34 +125,31 @@ SpParMatrix<T> * SpParMPI2<T>::SubsRefCol (const vector<ITYPE> & ci) const
 }
 
 
-template <class T>
-const SpParMPI2<T> operator* (const SpParMPI2<T> & A, SpParMPI2<T> & B )
+template <class IT, class NT, class DER>
+const SpParMPI2< IT,NT,DER > operator* (const SpParMPI2< IT,NT,DER > & A, const SpParMPI2< IT,NT,DER > & B )
 {
-	if((A.spSeq)->getcols() != (B.spSeq)->getrows())
+	typedef SpMat< IT,NT,DER > SeqMatType;
+ 
+	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
-		return SpParMPI2<T>(MPI_COMM_WORLD);
+		MPI::COMM_WORLD.Abort();
+		return SpParMPI2< IT,NT,DER >();
 	}
 
-	int stages;
-	int Aoffset, Boffset;
-	CommGrid GridC = GridConformance(*(A.commGrid), *(B.commGrid), stages, Aoffset, Boffset);	// stages = inner dimension of matrix blocks
-	
-	double t1=MPI_Wtime();
-
+	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
+	CommGrid GridC = ProductGrid(*(A.commGrid), *(B.commGrid), stages, Aoffset, Boffset);		
 		
-	// Attention: *(B.spSeq) is practically destroyed after Transpose is called	
-	SpDCCols<T> Btrans = (B.spSeq)->Transpose();
-	Btrans.TransposeInPlace();	// calls SparseMatrix's Transpose in place which is swap(m,n);
+	const_cast< SeqMatType* >(B.spSeq)->Transpose();
 	
 	// set row & col window handles
-	SpWins rowwindows, colwindows;
+	vector<MPI::Win> rowwindows, colwindows;
 	SpParMPI2<T>::SetWindows((A.commGrid)->rowWorld, *(A.spSeq), rowwindows);
-	SpParMPI2<T>::SetWindows((B.commGrid)->colWorld,  Btrans, colwindows);
+	SpParMPI2<T>::SetWindows((B.commGrid)->colWorld, *(B.spSeq), colwindows);
 
 	IT ** ARecvSizes = allocate2D(DER::esscount, stages);
 	IT ** BRecvSizes = allocate2D(DER::esscount, stages);
-  
+ 
 	SpParMPI2<T>::GetSetSizes((A.commGrid)->mycol, *(A.spSeq), ARecvSizes, (A.commGrid)->rowWorld);
 	SpParMPI2<T>::GetSetSizes((B.commGrid)->myrow, Btrans, BRecvSizes, (B.commGrid)->colWorld);
 	
@@ -213,18 +209,26 @@ const SpParMPI2<T> operator* (const SpParMPI2<T> & A, SpParMPI2<T> & B )
 	return SpParMPI2<T>(SpProduct, GridC.commWorld);
 }
 
-template <class T>
-void SpParMPI2<T>::SetWindows(MPI_Comm & comm1d, SpDCCols<T> & Matrix, SpWins & wins) 
+template <class IT, class NT, class DER>
+void SpParMPI2< IT,NT,DER >::SetWindows(MPI::Comm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & wins) 
 {
-	size_t sit = sizeof(ITYPE);
-
-	// int MPI_Win_create(void *base, MPI_Aint size, int disp_unit, MPI_Info info, MPI_Comm comm, MPI_Win *win);
+	size_t sit = sizeof(IT);
+	Arr<IT,NT> arrs = Matrix.GetArrays(); 
+	
+	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
 	// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
 	// Collective operation, everybody exposes its own array to everyone else in the communicator
-	MPI_Win_create(Matrix.GetMAS(), (Matrix.GetJCSize()+1) * sit, sit, MPI_INFO_NULL, comm1d, &(wins.maswin));
-	MPI_Win_create(Matrix.GetJC(), Matrix.GetJCSize() * sit, sit, MPI_INFO_NULL, comm1d, &(wins.jcwin));
-	MPI_Win_create(Matrix.GetIR(), Matrix.GetSize() * sit, sit, MPI_INFO_NULL, comm1d, &(wins.irwin));
-	MPI_Win_create(Matrix.GetNUM(), Matrix.GetSize() * sizeof(T), sizeof(T), MPI_INFO_NULL, comm1d, &(wins.numwin));
+	
+	for(IT i=0; i< essarrs.indarrs.size(); ++i)
+	{
+		wins.push_back(MPI::Win::create(arrs.indarrs[i].addr, 
+			arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d);
+	}
+	for(IT i=0; i< essarrs.numarrs.size(); ++i)
+	{
+		wins.push_back(MPI::Win::create(arrs.numarrs[i].addr, 
+			arrs.numarrs[i].count * sizeof(T), sizeof(T), MPI::INFO_NULL, comm1d);
+	}
 }
 
 

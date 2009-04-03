@@ -292,17 +292,17 @@ Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(
 	ir  = (IT *) mallocarray ( nz*sit ); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
 
-	__gnu_cxx::iota(cp, cp+nz+1, 0);  // insert sequential values {0,1,2,..}
+	SpHelper::iota(cp, cp+nz+1, 0);  // insert sequential values {0,1,2,..}
 	fill_n(numx, nz, static_cast<NT>(1));
 	
 	if(isRow)
 	{
-		__gnu_cxx::iota(ir, ir+nz, 0);	
+		SpHelper::iota(ir, ir+nz, 0);	
 		std::copy (indices.begin(), indices.end(), jc);
 	}
 	else
 	{
-		__gnu_cxx::iota(jc, jc+nz, 0);
+		SpHelper::iota(jc, jc+nz, 0);
 		std::copy (indices.begin(), indices.end(), ir);	
 	}
 }
@@ -312,7 +312,7 @@ template <class IT, class NT>
 template <typename NNT>
 Dcsc<IT,NNT> Dcsc<IT,NT>::ConvertNumericType ()
 {
-	Dcsc<IT,NNT> convert(nz, nzc);	// AUX = NULL
+	Dcsc<IT,NNT> convert(nz, nzc);	
 	
 	for(IT i=0; i< nz; ++i)
 	{		

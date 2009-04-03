@@ -14,8 +14,16 @@ struct LocArr
 template<class IT, class NT>
 struct Arr
 {
+	Arr(IT indsize, IT numsize) 
+	{ 
+		indarrs.resize(indsize);
+		numarrs.resize(numsize);
+	} 
+
 	vector< LocArr<IT,IT> > indarrs;
-	vector< LocArr<NT,IT> > numarrs;	
+	vector< LocArr<NT,IT> > numarrs;
+
+	IT totalsize() { return indarrs.size() + numarrs.size(); } 	
 }
 
 #endif

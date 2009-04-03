@@ -56,10 +56,9 @@ public:
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
-	void GetArrays(Arr<IT,NT> & arr) const
+	Arr<IT,NT> GetArrays() const
 	{
-		arr.indarrs.reserve(3);
-		arr.numarrs.reserve(1);
+		Arr<IT,NT> arr(3,1);
 		arr.indarrs[0] = LocArr(dscs->cp, dcsc->nzc+1);
 		arr.indarrs[1] = LocArr(dscs->jc, dcsc->nzc);
 		arr.indarrs[2] = LocArr(dscs->ir, dcsc->nz);
@@ -76,18 +75,10 @@ public:
 		return essentials;
 	}
 		
-	
-	virtual bool isZero() { return (nnz == zero); }
-	virtual void setnnz (IT n);
-	virtual void setrows(IT row);
-	virtual void setcols(IT col);
-	virtual IT getrows() const;
-	virtual IT getcols() const;
-	virtual IT getnnz() const;
-	
-	Dcsc<IT, NT> * GetDcsc();
-	void DeleteDcsc();
-	void Finalize();
+	bool isZero() { return (nnz == zero); }
+	IT getnrow() const { return m; }
+	IT getncol() const { return n; }
+	IT getnnz() const { return nnz; }
 	
 	template <typename T2> 
        	SpDCCols<T> Multiply (const SpDCCols<T> & A, const SpDCCols<T2> & B, bool isAT, bool isBT );
@@ -107,6 +98,9 @@ public:
 	int PlusEq_AnXBn(const SpDCCols<T> & A, const SpDCCols<T> & B);
 
 private:
+	template <class IU, class NU>
+    	friend class SpMat<IU, NU, SpDCCols<IU, NU> >;		//!< So that the base can call create() or clone()
+
 	// Private Methods
 	void CopyDcsc(Dcsc<T> * source);
 

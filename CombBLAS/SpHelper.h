@@ -11,8 +11,8 @@
  * \n First reason is the performance and the second reason is the vague IS-A relationship 
  **/
 
-#ifndef _SP_HELPER_H
-#define _SP_HELPER_H
+#ifndef _SP_HELPER_H_
+#define _SP_HELPER_H_
 
 #include "SpDefs.h"
 #include "StackEntry.h"
@@ -21,6 +21,13 @@
 class SpHelper
 {
 public:
+	template<typename _ForwardIter, typename T>
+	static void iota(_ForwardIter __first, _ForwardIter __last, T __value)
+	{
+		while (__first != __last)
+	     		*__first++ = __value++;
+	}
+	
 	template<typename T, typename I>
 	static T ** allocate2D(I m, I n)
 	{

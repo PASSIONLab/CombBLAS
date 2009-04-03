@@ -5,8 +5,8 @@
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
-#ifndef _SP_PAR_MPI2_H
-#define _SP_PAR_MPI2_H
+#ifndef _SP_PAR_MPI2_H_
+#define _SP_PAR_MPI2_H_
 
 #include <iostream>
 #include <fstream>
@@ -20,11 +20,8 @@
 #include "SpWins.h"
 #include "SpSizes.h"
 #include "DataTypeConvert.h"
-#include <boost/shared_ptr.hpp>
 
 using namespace std;
-using namespace boost;
-
 
 /**
   * This class implements an asynchronous 2D algorithm, in the sense that there is no notion of stages.
@@ -35,36 +32,30 @@ using namespace boost;
   * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
   */
 template <class IT, class NT, class DER>
-class SpParMPI2: public SpParMat<IT, NT>
+class SpParMPI2
 {
 public:
 	// Constructors
-	SpParMPI2 (MPI_Comm world) 
-	{
-		commGrid.reset(new CommGrid(world, 0, 0)); 	
-	};
-	SpParMPI2 (ifstream & input, MPI_Comm world);
-	SpParMPI2 (shared_ptr< SparseDColumn<T> > myseq, MPI_Comm world):spSeq(myseq) 
-	{	
-		commGrid.reset(new CommGrid(world, 0, 0));
-	};
-	SpParMPI2 (shared_ptr< SparseDColumn<T> > myseq,shared_ptr< CommGrid > grid): spSeq(myseq), commGrid(grid) {};
+	SpParMPI2 () {};
+	SpParMPI2 (ifstream & input, MPI::IntraComm & world);
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::IntraComm & world);
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid);
 
-	SpParMPI2 (const SpParMPI2<T> & rhs);			// copy constructor
-	SpParMPI2<T> & operator=(const SpParMPI2<T> & rhs);	// assignment operator
-	SpParMPI2<T> & operator+=(const SpParMPI2<T> & rhs);
-
-	//! No exclicit destructor needed as smart pointers take care of calling the appropriate destructors 
+	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);			// copy constructor
+	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
+	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
+	~SpParMPI2 ();
 
 	//! operator* should alter the second matrix B during the computation, due to memory limitations.
 	//! It transposes the second matrix before the multiplications start, therefore it has no memory to store the old version
 	//! After the multiplications are done, B is correctly restored back.
 	template <typename U> 
-	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, SpParMPI2<U> & B );
+	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, const SpParMPI2<U> & B );
 
-	virtual ITYPE getrows() const;
-	virtual ITYPE getcols() const;
-	virtual ITYPE getnnz() const;	
+	IT getnrows() const;
+	IT getncols() const;
+	IT getnnz() const;	
+	
 	virtual shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	virtual SpParMatrix<T> * SubsRefCol (const vector<ITYPE> & ci) const;
 	virtual ofstream& put(ofstream& outfile) const;

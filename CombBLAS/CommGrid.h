@@ -73,6 +73,8 @@ public:
 	template <typename U>
 	void GetB(SparseDColumn<U>* & BRecv, int Bownind, SpWins & cwin, SpSizes & BSizes );
 
+	friend CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset);
+private:
 	//! A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
 	MPI::IntraComm commWorld, rowWorld, colWorld;
 	int grrow, grcol;
@@ -159,13 +161,12 @@ void CommGrid::GetB(SparseDColumn<U>* & BRecv, int Bownind, SpWins & cwin, SpSiz
 }
 
 
-
-CommGrid GridConformance(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset)
+CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset)
 {
 	if(gridA.grcol != gridB.grrow)
 	{
-		cerr << "Grids don't confirm for multiplication" << endl;
-		abort();
+		cout << "Grids don't confirm for multiplication" << endl;
+		MPI::COMM_WORLD.Abort();
 	}
 	innerdim = gridA.grcol;
 

@@ -37,12 +37,16 @@ public:
 
 	virtual ~SpMat(){};	// Virtual destructor
 
-	SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
+	SpMat< IT,NT,DER > * operator() (const vector<IT> & ri, const vector<IT> & ci) const = 0;
 	
-	void MultiplyAddAssign(SpMat<IT, NT, DER> & A, SpMat<IT, NT, DER> & B, bool isAT, bool isBT);
+	void MultiplyAddAssign( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
 
-	void printInfo() = 0;
-	vector< LocArr<IT> > getarrays() const = 0;
+	void printInfo();
+
+	Arr<IT,NT> GetArrays() const
+	{
+		return static_cast<DER*>(this)->GetArrays();
+	}	
 		
 	ofstream& put(ofstream& outfile) const 
 	{ 
@@ -58,17 +62,18 @@ public:
 	void setnnz (IT nz) = 0;
 	void setrows(IT rows) = 0;
 	void setcols(IT cols) = 0;
-	virtual IT getrows() const = 0;
-	virtual IT getcols() const = 0;
-	virtual IT getnnz() const = 0;
-	**/
+	*/
+	IT getnrow() const { return static_cast<DER*>(this)->getnrow(); }
+	IT getncol() const { return static_cast<DER*>(this)->getncol(); }
+	IT getnnz() const  { return static_cast<DER*>(this)->getnnz(); }
+
 protected:
 
 	template <typename UIT, typename UNT, typename UDER>
-	friend ofstream& operator<< (ofstream& outfile, const SpMat<UIT, UNT, UDER> & s);	
+	friend ofstream& operator<< (ofstream& outfile, const SpMat< UIT,UNT,UDER > & s);	
 
 	template <typename UIT, typename UNT, typename UDER>
-	friend ifstream& operator>> (ifstream& infile, SpMat<UIT, UNT, UDER> & s);	
+	friend ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);	
 };
 
 #include "SpMat.cpp"	

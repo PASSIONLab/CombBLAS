@@ -13,28 +13,25 @@
 #include <sstream>  // Required for stringstreams
 #include <ctime>
 #include <cmath>
-#include "SparseMatrix.h"
-#include "SparseTriplets.h"
-#include "SparseDColumn.h"
-#include "SparseOneSidedMPI.h"
+#include "SpMat.h"
+#include "SpTuples.h"
+#include "SpDCCols.h"
+#include "SpParMPI2.h"
 
 using namespace std;
-using namespace boost;
 
-//! Warning: Make sure you are using the correct NUMTYPE as your input files uses !
-#define NUMTYPE double
+//! Warning: Make sure you are using the correct NUMT as your input files uses !
+#define INDT unsigned
+#define NUMT double
+#define SEQM SpDCCols<INDT, NUMT>
 #define ITERATIONS 10
 
 int main(int argc, char* argv[])
 {
-	int  myrank, nprocs;
-
-    	MPI_Init(&argc, &argv);
-	MPI_Comm wholegrid;
-	MPI_Comm_dup(MPI_COMM_WORLD, &wholegrid); 
-    	MPI_Comm_size(wholegrid, &nprocs);
-    	MPI_Comm_rank(wholegrid, &myrank);
-
+	MPI::Init();
+	int nproc = MPI::COMM_WORLD.Get_size();
+	int myrank = MPI::COMM_WORLD.Get_rank();
+    	
 	stringstream ss1, ss2;
 	string rank, nodes;
 	ss1 << myrank;
@@ -59,10 +56,10 @@ int main(int argc, char* argv[])
 	ifstream input1(ifilename1.c_str());
 	ifstream input2(ifilename2.c_str());
 
-	MPI_Barrier (wholegrid);
+	MPI::COMM_WORLD.Barrier();
 	{
-		SparseOneSidedMPI<NUMTYPE> A(input1, wholegrid);
-		SparseOneSidedMPI<NUMTYPE> B(input2, wholegrid);
+		SpParMPI2<INDT, NUMT, SEQM> A(input1, MPI::COMM_WORLD);
+		SpParMPI2<INDT, NUMT, SEQM> B(input2, MPI::COMM_WORLD);
 
 		input1.clear();
 		input2.clear();
@@ -70,21 +67,22 @@ int main(int argc, char* argv[])
 		input2.close();
 
 		// multiply them to warm-up caches
-		SparseOneSidedMPI<NUMTYPE> C = A * B;
+		SpParMPI2< INDT, NUMT, SEQM > C = A * B;
 
 		if( myrank == 0)
 			cout<<"Multiplications started"<<endl;	
 
-		MPI_Barrier (wholegrid);
-		double t1 = MPI_Wtime();	// start timer (actual wall-clock time)
+		MPI::COMM_WORLD.Barrier();
+		double t1 = MPI::Wtime();	// start timer (actual wall-clock time)
 		
 		for(int i=0;i<ITERATIONS; i++)
 		{
-			SparseOneSidedMPI<NUMTYPE> C = A * B;
+			// This is a different C (as it is in a different scope)
+			SpParMPI2< INDT, NUMT, SEQM > C = A * B;
 		}
 		
-		MPI_Barrier (wholegrid);
-        	double t2=MPI_Wtime();
+		MPI::COMM_WORLD.Barrier();
+        	double t2=MPI::Wtime();
 		
 		if( myrank == 0)
 		{
@@ -92,15 +90,15 @@ int main(int argc, char* argv[])
 			fprintf(stdout, "%.6lf seconds elapsed for %d iterations\n", t2-t1, ITERATIONS);
 		}
 
-		ITYPE mA = A.getrows(); 
-		ITYPE nA = A.getcols();
-		ITYPE nzA = A.getnnz();
-		ITYPE mB = B.getrows();
-		ITYPE nB = B.getcols();
-		ITYPE nzB = B.getnnz();
-		ITYPE mC = C.getrows();
-		ITYPE nC = C.getcols();
-		ITYPE nzC = C.getnnz();
+		INDT mA = A.getnrow(); 
+		INDT nA = A.getncol();
+		INDT nzA = A.getnnz();
+		INDT mB = B.getnrow();
+		INDT nB = B.getncol();
+		INDT nzB = B.getnnz();
+		INDT mC = C.getnrow();
+		INDT nC = C.getncol();
+		INDT nzC = C.getnnz();
 		if (myrank == 0)
 		{
 			cout <<"A has " << mA << " rows and "<< nA <<" columns and "<<  nzA << " nonzeros" << endl;
@@ -119,8 +117,7 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 			cout <<"Wrote to disk" << endl;
 	}
-	MPI_Comm_free(&wholegrid);
-	MPI_Finalize();
+	MPI::Finalize();
 	
 	return 0;
 }
