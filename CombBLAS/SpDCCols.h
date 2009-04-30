@@ -28,7 +28,7 @@
 
 template <class IT, class NT>
 class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
-{
+
 public:
 	// Constructors :
 	SpDCCols ();
@@ -38,7 +38,6 @@ public:
 	SpDCCols (const SpTuples<IT, NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
 
 	SpDCCols (const SpDCCols<IT, NT> & rhs);		// Actual copy constructor		
-	SpDCCols (const MMmul< SpDCCols<IT,NT> > & mmmul);
 	~SpDCCols();
 
 	template <typename NNT>
@@ -56,24 +55,9 @@ public:
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
-	Arr<IT,NT> GetArrays() const
-	{
-		Arr<IT,NT> arr(3,1);
-		arr.indarrs[0] = LocArr(dscs->cp, dcsc->nzc+1);
-		arr.indarrs[1] = LocArr(dscs->jc, dcsc->nzc);
-		arr.indarrs[2] = LocArr(dscs->ir, dcsc->nz);
-		arr.numarrs[0] = LocArr(dscs->num, dcsc->nz);
-	}
+	Arr<IT,NT> GetArrays() const;
 	void createImpl(vector<IT> & essentials);
-	vector<IT> GetEssentials() const
-	{
-		vector<IT> essentials(4);
-		essentials[0] = nnz;
-		essentials[1] = m;
-		essentials[2] = n;
-		essentials[3] = dcsc->nzc;
-		return essentials;
-	}
+	vector<IT> GetEssentials() const;
 		
 	bool isZero() { return (nnz == zero); }
 	IT getnrow() const { return m; }
@@ -134,8 +118,17 @@ private:
 	friend class SpTuples;
 
 	template<class IU, class NU1, class NU2, class SR>
-	friend StackEntry<promote_trait<NU1,NU2>::T_promote, IU> 
-	MultiplyReturnStack (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+
+	template<class IU, class NU1, class NU2, class SR>
+	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+
+	template<class IU, class NU1, class NU2, class SR>
+	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+
+	template<class IU, class NU1, class NU2, class SR>
+	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+
 
 };
 

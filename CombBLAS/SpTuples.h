@@ -5,8 +5,8 @@
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
-#ifndef _SPARSE_TRIPLETS_H
-#define _SPARSE_TRIPLETS_H
+#ifndef _SP_TUPLES_H
+#define _SP_TUPLES_H
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,6 @@
 
 using namespace std;
 using namespace boost;
-
 
 template <class IU, class NU>
 class SpDCCols;
@@ -44,25 +43,23 @@ public:
 
 	SpTuples<IT,NT> & operator=(const SpTuples<IT,NT> & rhs);
 
-	virtual SpTuples<IT, NT> * operator() (const vector<IT> & ri, const vector<IT> & ci) const
-	{
-		return const_cast<SpTuples<IT,NT> *>(this); 
-	};
+	IT & rowindex (IT i) { return get<0>(tuples[i]); }
+	IT & colindex (IT i) { return get<1>(tuples[i]); }
+	NT & numvalue (IT i) { return get<2>(tuples[i]); }
 
-	IT rowindex (IT i) { return get<0>(tuples[i]); }
-	IT colindex (IT i) { return get<1>(tuples[i]); }
-	NT numvalue (IT i) { return get<2>(tuples[i]); }
-
+	IT rowindex (IT i) { return get<0>(tuples[i]); } const;
+	IT colindex (IT i) { return get<1>(tuples[i]); } const;
+	NT numvalue (IT i) { return get<2>(tuples[i]); } const;
 
 	void SortRowBased()
 	{
-		sort(tuples , tuples+nz);	// Default "operator<" for tuples uses lexicographical ordering 
+		sort(tuples , tuples+nnz);	// Default "operator<" for tuples uses lexicographical ordering 
 	};
 
 	void SortColBased()
 	{
 		ColSortCompare<IT,NT> colcmp;
-		sort(tuples , tuples+nz, colcmp );
+		sort(tuples , tuples+nnz, colcmp );
 	};
 
 	// Functions declared as friends
@@ -71,7 +68,7 @@ public:
 	template <class IU, class NU>
 	friend ifstream& operator>> (ifstream& infile, SpTuples<IU,NU> & s); 
 
-	virtual void printInfo() 
+	void printInfo() 
 	{
 		cout << "This is a SpTuples class" << endl;
 	}
@@ -87,7 +84,9 @@ private:
 
 	IT m;
 	IT n;
-	IT nnz;		
+	IT nnz;	
+
+	const static IT zero = static_cast<IT>(0);	
 
 	SpTuples (){};		// Default constructor does nothing, hide it
 	

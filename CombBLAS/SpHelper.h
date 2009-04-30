@@ -62,10 +62,8 @@ public:
 	static void ShrinkArray(NT * & array, IT newsize)
 	{
 		NT * narray = new NT[newsize];
-		for(IT i=0; i< newsize; ++i)	// copy only a portion of the old elements
-		{
-			narray[i] = array[i];
-		}
+		memcpy(narray, array, newsize*sizeof(NT));	// copy only a portion of the old elements
+
 		delete [] array;
 		array = narray;		
 	}

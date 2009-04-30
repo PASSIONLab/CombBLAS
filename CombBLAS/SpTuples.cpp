@@ -1,110 +1,105 @@
 /****************************************************************/
 /* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.1 --------------------------------------------------/
-/* date: 07/11/2007 ---------------------------------------------/
-/* main author: Aydin Buluc (aydin@cs.ucsb.edu) -----------------/
-/* contributors: Fenglin Liao (fenglin@cs.ucsb.edu) -------------/
+/* version 2.3 --------------------------------------------------/
+/* date: 01/18/2009 ---------------------------------------------/
+/* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
-
-
-#include "SparseTriplets.h"
+#include "SpTuples.h"
 
 using namespace boost;
 using namespace std;
 
-template <class T>
-SparseTriplets<T>::SparseTriplets(ITYPE size, ITYPE nRow, ITYPE nCol)
-:SparseMatrix<T, SparseTriplets<T> >(size,nRow,nCol),nz(size)
-{
-	if(size > 0)
+template <class IT,class NT>
+SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
+:m(nRow), n(nCol), nnz(size)
+	if(nnz > 0)
 	{
-		tuples  = new tuple<ITYPE, ITYPE, T>[nzmax];
+		tuples  = new tuple<IT, IT, NT>[nnz];
 	}
 }
 
-template <class T>
-SparseTriplets<T>::SparseTriplets (ITYPE size, ITYPE nRow, ITYPE nCol, tuple<ITYPE, ITYPE, T> * mytuples)
-:SparseMatrix<T, SparseTriplets<T> >(size,nRow,nCol),nz(size), tuples(mytuples)
+template <class IT,class NT>
+SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, T> * mytuples)
+::m(nRow), n(nCol), nnz(size), tuples(mytuples)
 {}
 
 
-template <class T>
-SparseTriplets<T>::~SparseTriplets()
+template <class IT,class NT>
+SpTuples<IT,NT>::~SpTuples()
 {
-	if(nz > 0)
+	if(nnz > 0)
 	{
 		delete [] tuples;
 	}
 }
 
-// Hint1: copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
-// Hint2: Derived's copy constructor must make sure that Base's copy constructor is invoked 
-//		  instead of Base's default constructor
-template <class T>
-SparseTriplets<T>::SparseTriplets(const SparseTriplets<T> & rhs): SparseMatrix<T, SparseTriplets<T> >(rhs), nz(rhs.nz)
+/**
+  * Hint1: copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
+  * Hint2: Base's default constructor is called under the covers 
+  *	  Normally Base's copy constructor should be invoked but it doesn't matter here as Base has no data members
+  */
+template <class IT,class NT>
+SpTuples<IT,NT>::SpTuples(const SpTuples<IT,NT> & rhs): m(rhs.m), n(rhs.n), nnz(rhs.nnz)
 {
-	tuples  = new boost::tuple<ITYPE, ITYPE, T>[nzmax];
-	if(nz > 0)
+	tuples  = new boost::tuple<IT, IT, NT>[nnz];
+	for(IT i=0; i< nnz; ++i)
 	{
-		for(ITYPE i=0; i< nz; i++)
-		{
-			tuples[i] = rhs.tuples[i];
-		}
+		tuples[i] = rhs.tuples[i];
 	}
 }
 
-//! Constructor for converting SparseDColumn matrix -> SparseTriplets 
-template <class T>
-SparseTriplets<T>::SparseTriplets (const SparseDColumn<T> & rhs): SparseMatrix<T, SparseTriplets<T> >(rhs),  nz(rhs.nzmax)
+//! Constructor for converting SpDCCols matrix -> SpTuples 
+template <class IT,class NT>
+SpTuples<IT,NT>::SpTuples (const SpDCCols<IT,NT> & rhs):  m(rhs.m), n(rhs.n), nnz(rhs.nnz)
 {
-	if(nz > 0)
+	if(nnz > 0)
 	{
 		FillTuples(rhs.dcsc);
 	}
 }
 
-template <class T>
-inline void SparseTriplets<T>::FillTuples (Dcsc<T> * mydcsc)
+template <class IT,class NT>
+inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 {
-	tuples  = new boost::tuple<ITYPE, ITYPE, T>[nzmax];
+	tuples  = new boost::tuple<IT, IT, NT>[nzmax];
 
-	ITYPE index = 0;
-	for(ITYPE i = 0; i< mydcsc->nzc; i++)
+	IT k = 0;
+	for(IT i = 0; i< mydcsc->nzc; ++i)
 	{
-		for(ITYPE j = mydcsc->mas[i]; j< mydcsc->mas[i+1]; j++)
+		for(IT j = mydcsc->mas[i]; j< mydcsc->mas[i+1]; ++j)
 		{
-			boost::get<1>(tuples[index]) = mydcsc->jc[i];
-			boost::get<0>(tuples[index]) = mydcsc->ir[j];
-			boost::get<2>(tuples[index]) = mydcsc->numx[j];
-			index++;
+			colindex[k] = mydcsc->jc[i];
+			rowindex[k] = mydcsc->ir[j];
+			numvalue[k] = mydcsc->numx[j];
+			k++;
 		}
 	}
 }
 	
 
-
 // Hint1: The assignment operator (operates on an existing object)
 // Hint2: The assignment operator is the only operator that is not inherited.
 //		  Make sure that base class data are also updated during assignment
-template <class T>
-SparseTriplets<T> & SparseTriplets<T>::operator=(const SparseTriplets<T> & rhs)
+template <class IT,class NT>
+SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 {
 	if(this != &rhs)	// "this" pointer stores the address of the class instance
 	{
-		if(nzmax > 0)
+		if(nnz > 0)
 		{
 			// make empty
 			delete [] tuples;
 		}
-		SparseMatrix<T, SparseTriplets<T> >::operator=(rhs);
-		nz		= rhs.nz;
+		m = rhs.m;
+		n = rhs.n;
+		nnz = rhs.nnz;
 
-		if(nzmax > 0)
+		if(nnz> 0)
 		{
-			tuples  = new boost::tuple<ITYPE, ITYPE, T>[nzmax];
+			tuples  = new boost::tuple<IT, IT, T>[nnz];
 
-			for(ITYPE i=0; i< nz; i++)
+			for(IT i=0; i< nnz; ++i)
 			{
 				tuples[i] = rhs.tuples[i];
 			}
@@ -113,53 +108,44 @@ SparseTriplets<T> & SparseTriplets<T>::operator=(const SparseTriplets<T> & rhs)
 	return *this;
 }
 
-
 //! Loads a triplet matrix from infile
 //! \remarks Assumes matlab type indexing for the input (i.e. indices start from 1)
-template <class T>
-ifstream& operator>> (ifstream& infile, SparseTriplets<T> & s)
+template <class IT,class NT>
+ifstream& operator>> (ifstream& infile, SpTuples<IT,NT> & s)
 {
+	IT cnz = zero;
 	if (infile.is_open())
 	{
-		while (! infile.eof() && s.nz < s.nzmax)
+		while (! infile.eof() && cnz < s.nnz)
 		{
-			infile >> boost::get<0>(s.tuples[s.nz]) >> boost::get<1>(s.tuples[s.nz]) >> boost::get<2>(s.tuples[s.nz]);	// row-col-value
+			infile >> s.rowindex(cnz) >> s.colindex(cnz) >>  s.numvalue(cnz);	// row-col-value
 			
-			boost::get<0>(s.tuples[s.nz]) --;
-			boost::get<1>(s.tuples[s.nz]) --;
+			s.rowindex(cnz) --;
+			s.colindex(cnz) --;
 			
-			if((boost::get<0>(s.tuples[s.nz]) > s.m) || (boost::get<1>(s.tuples[s.nz]) > s.n))
+			if((s.rowindex(cnz) > s.m) || (s.colindex(cnz)  > s.n))
 			{
 				cerr << "supplied matrix indices are beyond specified boundaries, aborting..." << endl;
 				abort();
 			}
-			++s.nz;
+			++cnz;
 		}
+		assert(s.nnz = cnz);
 	}
 	return infile;
 }
 
 //! Output to a triplets file
 //! \remarks Uses matlab type indexing for the output (i.e. indices start from 1)
-template <class T>
-ofstream& operator<< (ofstream& outfile, const SparseTriplets<T> & s)
+template <class IT,class NT>
+ofstream& operator<< (ofstream& outfile, const SpTuples<IT,NT> & s)
 {
-	ITYPE i = 0;
-	outfile << s.m <<"\t"<< s.n <<"\t"<< s.nz<<endl;
-	while (i < s.nz)
+	outfile << s.m <<"\t"<< s.n <<"\t"<< s.nnz<<endl;
+	for (IT i = 0; i < s.nnz; ++i)
 	{
-		outfile << (get<0>(s.tuples[i])+1) <<"\t"<< (get<1>(s.tuples[i])+1) <<"\t"
-			<< get<2>(s.tuples[i])<< endl;	// row-col-value
-		i++;
+		outfile << s.rowindex(i)+1  <<"\t"<< s.colindex(i)+1 <<"\t"
+			<< s.numindex(i) << endl;
 	}
 	return outfile;
-}
-
-template <class T>
-const SparseTriplets<T> operator* (const SparseTriplets<T> & r,const SparseTriplets<T> & s )
-{
-	SparseTriplets<T> C;
-	cout<< "Multiplication of SparseTriplets not yet supported"<<endl;
-	return C;
 }
 

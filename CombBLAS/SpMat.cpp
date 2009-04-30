@@ -2,15 +2,16 @@
 #include "SpMat.h"
 
 template <class IT, class NT, class DER>
-SpMat<IT, NT, DER> * operator() (const vector<IT> & ri, const vector<IT> & ci) const
+SpMat<IT, NT, DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const
 {
-	return (static_cast<DER>(*this)) (ri, ci);
+	return ((static_cast<DER>(*this)) (ri, ci));
 }
 
 
 template <class IT, class NT, class DER>
-void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DT> & A, 
-			SpMat<IT, NT, DER> & B, bool isAT, bool isBT)
+template <typename SR>
+void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A, 
+			SpMat<IT, NT, DER> & B, bool isAT, bool isBT, SR sring)
 {
 	IT A_m, A_n, B_m, B_n;
  
@@ -41,19 +42,19 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DT> & A,
                	{
 			if(isAT && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBt(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast<DER*>(this)->PlusEq_AtXBt(static_cast<DER>(A), static_cast<DER>(B), SR);
 			}
 			else if(isAT && (!isBT))
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBn(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast<DER*>(this)->PlusEq_AtXBn(static_cast<DER>(A), static_cast<DER>(B), SR);
 			}
 			else if((!isAT) && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBt(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast<DER*>(this)->PlusEq_AnXBt(static_cast<DER>(A), static_cast<DER>(B), SR);
 			}
 			else
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBn(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast<DER*>(this)->PlusEq_AnXBn(static_cast<DER>(A), static_cast<DER>(B), SR);
 			}				
 		}
                 else
@@ -67,3 +68,13 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DT> & A,
         }
 };
 
+
+template<typename IU, typename NU1, typename NU2, typename DER, typename SR>
+SpTuples<IU, promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
+					(const SpMat<IU, NU1, DER> & A, 
+					 const SpMat<IU, NU2, DER> & B, 
+					 bool isAT, bool isBT, SR sring)
+
+{
+
+}

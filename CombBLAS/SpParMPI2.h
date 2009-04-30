@@ -25,7 +25,7 @@ using namespace std;
 
 /**
   * This class implements an asynchronous 2D algorithm, in the sense that there is no notion of stages.
-  * \n The process that completes its submatrix update requests subsequent matrices from their owners without waiting to sychronize with other processors
+  * \n The process that completes its submatrix update, requests subsequent matrices from their owners w/out waiting to sychronize with other processors
   * \n This partially remedies the severe load balancing problem in sparse matrices. 
   * \n The class uses MPI-2 to achieve one-sided asynchronous communication
   * \n The algorithm treats each submatrix as a single block
