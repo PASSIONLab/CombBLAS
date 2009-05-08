@@ -2,9 +2,6 @@
 /* Sequential and Parallel Sparse Matrix Multiplication Library */
 /* version 2.3 --------------------------------------------------/
 /* date: 01/18/2009 ---------------------------------------------/
-/* design detail: AUX array is not created by the constructor, 	*/
-/* instead it is generated on demand only for:			*/	
-/*		Col Indexing, Algorithm-2			*/
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
@@ -20,7 +17,6 @@
 #include "SpHelper.h"
 #include "StackEntry.h"
 #include "dcsc.h"
-#include "MMmul.h"
 #include "Isect.h"
 #include "Semirings.h"
 #include "MemoryPool.h"
@@ -45,9 +41,7 @@ public:
 
 	// Member Functions and Operators: 
 	SpDCCols<IT,NT> & operator=(const SpDCCols<IT, NT> & rhs);
-	SpDCCols<IT,NT> & operator=(const MMmul< SpDCCols<IT, NT> > & mmmul);		//!< Delayed evaluation using compositors
 	SpDCCols<IT,NT> & operator+=(const SpDCCols<IT, NT> & rhs);
-	SpDCCols<IT,NT> & operator+=(const MMmul< SpDCCols<IT, NT> > & mmmul);		//!< Delayed evaluation using compositors
 
 	SpDCCols<IT,NT> Transpose();			//!< \attention Destroys calling object (*this)
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object

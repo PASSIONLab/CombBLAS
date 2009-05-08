@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cmath>
 #include "SpDefs.h"
+#include "StackEntry.h"
 #include "Compare.h"
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
@@ -36,7 +37,8 @@ class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 public:
 	// Constructors 
 	SpTuples (IT size, IT nRow, IT nCol);
-	SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);	
+	SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+	SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
 	~SpTuples();

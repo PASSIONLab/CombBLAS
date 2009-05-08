@@ -13,6 +13,7 @@ using namespace std;
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 :m(nRow), n(nCol), nnz(size)
+{
 	if(nnz > 0)
 	{
 		tuples  = new tuple<IT, IT, NT>[nnz];
@@ -21,9 +22,29 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, T> * mytuples)
-::m(nRow), n(nCol), nnz(size), tuples(mytuples)
+:m(nRow), n(nCol), nnz(size), tuples(mytuples)
 {}
 
+/**
+  * Generate a SpTuples object from StackEntry array, then delete that array
+  * @param[StackEntry] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
+ **/  
+template <class IT, class NT>
+SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
+:m(nRow), n(nCol), nnz(size)
+{
+	if(nnz > 0)
+	{
+		tuples  = new tuple<IT, IT, NT>[nnz];
+	}
+	for(IT i=0; i<nnz; ++i)
+	{
+		colindex(i) = multstack[i].key.first;
+		rowindex(i) = multstack[i].key.second;
+		numvalue(i) = multstack[i].value;
+	}
+	delete [] multstack;
+}
 
 template <class IT,class NT>
 SpTuples<IT,NT>::~SpTuples()

@@ -257,24 +257,12 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 		if(cindex != jc[curnzc-1])
 		{
 			jc[curnzc] = cindex;
-			cp[curnzc] = i;
-			++curnzc;
+			cp[curnzc++] = i;
 		}
 	}
+	cp[curnzc] = nz;
 
-	// Shrink cp & jc arrays
-	nzc = curnzc;
-	IT * tmpjc	= jc; 
-	IT * tmpcp 	= cp;
-	
-	cp = (IT *) mallocarray ( (nzc+1)*sit ); 	// new size
-	jc  = (IT *) mallocarray ( nzc*sit ); 		// new size
-
-	memcpy(cp, tmpcp, nzc * sizeof(IT)); cp[nzc] = nz;
-	memcpy(jc, tmpjc, nzc * sizeof(IT));
-
-	deletearray(tmpcp, (nz+1)*sit ); 
-	deletearray(tmpjc, nz*sit );
+	Resize(curnzc, nz);	// only shrink cp & jc arrays
 }
 
 /**
@@ -551,16 +539,14 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux)
 	return colchunks;
 }
 
+/**
+  * Resizes cp & jc arrays to nzcnew, ir & numx arrays to nznew
+  * Zero overhead in case sizes stay the same 
+ **/ 
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
 	size_t sit = sizeof(IT);
-
-	if(nznew == nz && nzcnew == nzc)
-	{
-		// No need to do anything!
-		return;
-	}
 	if(nzcnew == 0)
 	{
 		deletearray(jc, sit * nzc);
@@ -577,45 +563,50 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 	{
 		return;	
 	}
+	if (nzcnew != nzc)	
+	{
+		IT * tmpcp = cp; 
+		IT * tmpjc = jc;
+		
+		cp = (IT *) mallocarray ( (nzcnew+1)*sit ); 
+		jc = (IT *) mallocarray (  nzcnew * sit ); 	
 
-	IT * tmpcp = cp; 
-	IT * tmpjc = jc;
+		if(nzcnew > nzc)	// Grow it (copy all of the old elements)
+		{
+			memcpy(cp, tmpcp, (nzc+1)*sit);
+			memcpy(jc, tmpjc, nzc*sit);		
+		}
+		else		// Shrink it (copy only a portion of the old elements)
+		{
+			memcpy(cp, tmpcp, (nzcnew+1)*sit);
+			memcpy(jc, tmpjc, nzcnew*sit);	
+		}
+		deletearray(tmpcp, sit * (nzc+1));	// delete the memory pointed by previous pointers
+		deletearray(tmpjc, sit * nzc);
+		nzc = nzcnew;
+	}
+	if (nznew != nz)
+	{	
+		NT * tmpnumx = numx; 
+		IT * tmpir = ir;
 	
-	cp = (IT *) mallocarray ( (nzcnew+1)*sit ); 
-	jc = (IT *) mallocarray (  nzcnew * sit ); 	
+		numx = (NT *) mallocarray ( nznew * sizeof(NT) ); 
+		ir = (IT *) mallocarray (  nznew * sit ); 
 
-	if(nzcnew > nzc)// Grow it (copy all of the old elements)
-	{
-		memcpy(cp, tmpcp, (nzc+1)*sit);
-		memcpy(jc, tmpjc, nzc*sit);		
+		if(nznew > nz)	// Grow it (copy all of the old elements)
+		{
+			memcpy(numx, tmpnumx, nz*sizeof(NT));
+			memcpy(ir, tmpir, nz*sit);	
+		}
+		else	// Shrink it (copy only a portion of the old elements)
+		{
+			memcpy(numx, tmpnumx, nznew*sizeof(NT));
+			memcpy(ir, tmpir, nznew*sit);	
+		}
+		deletearray(tmpnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
+		deletearray(tmpir, nz * sit);
+		nz = nznew;
 	}
-	else		// Shrink it (copy only a portion of the old elements)
-	{
-		memcpy(cp, tmpcp, (nzcnew+1)*sit);
-		memcpy(jc, tmpjc, nzcnew*sit);	
-	}
-	deletearray(tmpcp, sit * (nzc+1));	// delete the memory pointed by previous pointers
-	deletearray(tmpjc, sit * nzc);
-	nzc = nzcnew;
-	
-	NT * tmpnumx = numx; 
-	IT * tmpir = ir;
-	numx = (NT *) mallocarray ( nznew * sizeof(NT) ); 
-	ir = (IT *) mallocarray (  nznew * sit ); 
-
-	if(nznew > nz)	// Grow it (copy all of the old elements)
-	{
-		memcpy(numx, tmpnumx, nz*sizeof(NT));
-		memcpy(ir, tmpir, nz*sit);	
-	}
-	else	// Shrink it (copy only a portion of the old elements)
-	{
-		memcpy(numx, tmpnumx, nznew*sizeof(NT));
-		memcpy(ir, tmpir, nznew*sit);	
-	}
-	deletearray(tmpnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
-	deletearray(tmpir, nz * sit);
-	nz = nznew;
 }
 
 /**
@@ -647,8 +638,8 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	IT * itr = lower_bound(jc, jc+nzc, cut);
 	IT pos = itr - jc;
 	
-	A = new (cp[pos], pos);
-	B = new (nz-cp[pos], nzc-pos);
+	A = new Dcsc<IT,NT>(cp[pos], pos);
+	B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
 	
 	memcpy(A->jc, jc, pos * sizeof(IT));
 	memcpy(A->cp, cp, (pos+1) * sizeof(IT));

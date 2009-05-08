@@ -165,6 +165,7 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
  * Performs cartesian product on the dcsc structures. 
  * Indices to perform the product are given by isect1 and isect2 arrays
  * Returns the "actual" number of elements in the merged stack
+ * Bdcsc is "already transposed" (i.e. Bdcsc->ir gives column indices, and Bdcsc->jc gives row indices)
  **/
 template <typename IT, typename NT1, typename NT2, template SR>
 IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
@@ -176,6 +177,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 	KNHeap< pair<IT,IT> , IT > sHeapDcsc(supremum, infimum);	
 
 	// Create a sequence heap that will eventually construct DCSC of C
+	// The key to sort is pair<col_ind, row_ind> so that output is in column-major order
 	for(IT i=0; i< kisect; ++i)
 	{
 		IPAIR key(Bdcsc.ir[isect2[i].current], Adcsc.ir[isect1[i].current]);
