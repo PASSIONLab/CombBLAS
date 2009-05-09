@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "SpMat.h"	// Best to include the base class first
+// #include "SpMat.h"	// Best to include the base class first
 #include "SpTuples.h"
 #include "SpHelper.h"
 #include "StackEntry.h"
@@ -23,25 +23,23 @@
 
 
 template <class IT, class NT>
-class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
-
+class SpDCCols 		//: public SpMat<IT, NT, SpDCCols<IT, NT> >
+{
 public:
 	// Constructors :
 	SpDCCols ();
 	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, ITYPE nzc);
-
-	// Copy constructor for converting from SparseTriplets (may use a private memory heap)
 	SpDCCols (const SpTuples<IT, NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
-
-	SpDCCols (const SpDCCols<IT, NT> & rhs);		// Actual copy constructor		
+	SpDCCols (const SpDCCols<IT, NT> & rhs);	// Actual copy constructor		
 	~SpDCCols();
 
 	template <typename NNT>
 	SpDCCols<IT, NNT> ConvertNumericType();		//!< NNT: New numeric type
 
 	// Member Functions and Operators: 
-	SpDCCols<IT,NT> & operator=(const SpDCCols<IT, NT> & rhs);
-	SpDCCols<IT,NT> & operator+=(const SpDCCols<IT, NT> & rhs);
+	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);
+	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
+	SpDCCols<IT, NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 
 	SpDCCols<IT,NT> Transpose();			//!< \attention Destroys calling object (*this)
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
@@ -52,7 +50,7 @@ public:
 	Arr<IT,NT> GetArrays() const;
 	void createImpl(vector<IT> & essentials);
 	vector<IT> GetEssentials() const;
-		
+
 	bool isZero() { return (nnz == zero); }
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
@@ -61,12 +59,7 @@ public:
 	template <typename T2> 
        	SpDCCols<T> Multiply (const SpDCCols<T> & A, const SpDCCols<T2> & B, bool isAT, bool isBT );
 	
-	SpMat<IT, NT, SpDCCols<IT, NT> > * operator() (const vector<IT> & ri, const vector<IT> & ci) const;
-
-	SpDCCols<T> SubsRefCol(const vector<IT> & ci) const;	//!< col indexing with multiplication
-
 	ofstream& put(ofstream& outfile) const;
-	virtual void printInfo();
 	SparseMatrix<T, SpDCCols<T> > * ColIndex(const vector<ITYPE> & ci);	//!< col indexing without multiplication
 
 
@@ -122,8 +115,6 @@ private:
 
 	template<class IU, class NU1, class NU2, class SR>
 	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt (const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
-
-
 };
 
 #include "SpDCCols.cpp"

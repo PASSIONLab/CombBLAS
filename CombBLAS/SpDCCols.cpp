@@ -51,7 +51,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
 }
 
 /** 
- * Constructor for converting SpTuples matrix -> SpDCCols
+ * Constructor for converting SpTuples matrix -> SpDCCols (may use a private memory heap)
  * @param[in] 	rhs if transpose=true, 
  *	\n		then rhs is assumed to be a row sorted SpTuples object 
  *	\n		else rhs is assumed to be a column sorted SpTuples object
@@ -384,6 +384,44 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	return 1;	
 }
 
+/** 
+ * The almighty indexing polyalgorithm 
+ * Calls different subroutines depending the sparseness of ri/ci
+ */
+template <class IT, class NT>
+SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
+{
+	ITYPE rsize = ri.size();
+	ITYPE csize = ci.size();
+
+	if(rsize == 0 && csize == 0)
+	{
+		// return an m x n matrix of complete zeros
+		// since we don't know whether columns or rows are indexed
+		return SpDCCols<IT,NT> (zero, m, n, zero);		
+	}
+	else if(rsize == 1 && csize == 1)
+	{
+		cout << "Please use special element-wise indexing instead of vectors of length 1" << endl;
+		return ((*this)(ri[0], ci[0]));
+	}	
+	else if(rsize == 0)
+	{
+		return ColIndex(ci);
+	}
+	else if(csize == 0)
+	{
+		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
+		return LeftMatrix.OrdColByCol(*this);
+	}
+	else
+	{
+		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
+		SpDCCols<IT,NT> RightMatrix(csize, this->n, csize, ci, false);
+		return LeftMatrix.OrdColByCol(OrdColByCol(RightMatrix));
+	}
+}
+
 
 /****************************************************************************/
 /********************* PRIVATE CONSTRUCTORS/DESTRUCTORS *********************/
@@ -403,7 +441,7 @@ SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 //! Create a logical matrix from (row/column) indices array, used for indexing only
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
-:m(0), n(0), nnz(0), localpool(NULL)
+:m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
 	if(size > 0)
 		dcsc = new Dcsc<IT,NT>(size,indices,isRow);
@@ -425,6 +463,82 @@ inline void SpDCCols<IT,NT>::CopyDcsc(Dcsc<IT,NT> * source)
 	else
 		dcsc = NULL;
 }
+
+/**
+ * \return An indexed SpDCCols object without using multiplication 
+ * \pre ci is sorted and is not completely empty.
+ * \remarks it is OK for some indices ci[i] to be empty in the indexed SpDCCols matrix 
+ *	[i.e. in the output, nzc does not need to be equal to n]
+ */
+template <class IT, class NT>
+SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
+{
+	ITYPE csize = ci.size();
+	if(nnz == 0)	// nothing to index
+	{
+		return SpDCCols<IT,NT>(zero, m, csize, zero);	
+	}
+	else if(ci.empty())
+	{
+		return SpDCCols<IT,NT>(zero, m,zero, zero);
+	}
+
+	// First pass for estimation
+	IT estsize = zero;
+	IT estnzc = zero;
+	for(IT i=0, j=0;  i< dcsc->nzc && j < csize;)
+	{
+		if((dcsc->jc)[i] < ci[j])
+		{
+			++i;
+		}
+		else if ((dcsc->jc)[i] > ci[j])
+		{
+			++j;
+		}
+		else
+		{
+			estsize +=  (dcsc->cp)[i+1] - (dcsc->cp)[i];
+			++estnzc;
+			++i;
+			++j;
+		}
+	}
+	
+	SpDCCol<IT,NT> SubA(estsize, m, csize, estnzc);	
+	if(estnzc == zero)
+	{
+		return SubA;		// no need to run the second pass
+	}
+	SubA->dcsc->cp[0] = 0;
+	IT cnzc = 0;
+	IT cnz = 0;
+	for(IT i=0, j=0;  i < dcsc->nzc && j < csize;)
+	{
+		if((dcsc->jc)[i] < ci[j])
+		{
+			++i;
+		}
+		else if ((dcsc->jc)[i] > ci[j])		// an empty column for the output
+		{
+			++j;
+		}
+		else
+		{
+			IT columncount = (dcsc->cp)[i+1] - (dcsc->cp)[i];
+			SubA->dcsc->jc[cnzc++] = j;
+			SubA->dcsc->cp[cnzc] = SubA->dcsc->cp[cnzc-1] + columncount;
+			copy(dcsc->ir + dcsc->cp[i], dcsc->ir + dcsc->cp[i+1], SubA->dcsc->ir + cnz);
+			copy(dcsc->numx + dcsc->cp[i], dcsc->numx + dcsc->cp[i+1], SubA->dcsc->numx + cnz);
+			cnz += columncount;
+			++i;
+			++j;
+		}
+	}
+	return SubA;
+}
+
+
 
 /****************************************************************************/
 /**************************** FRIEND FUNCTIONS ******************************/
@@ -468,82 +582,6 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 /********** REST (UNPROCESSED) *************/
 
 
-
-/**
- * \return An indexed SparseDColumn object without using multiplication 
- * \pre ci is sorted and is not completely empty.
- * \remarks it is OK for some indices ci[i] to be empty in the indexed SparseDColumn matrix [i.e. in the end nzc does not need to be equal to n]
- */
-template <class IT, class NT>
-SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::ColIndex(const vector<ITYPE> & ci)
-{
-	ITYPE zero = static_cast<ITYPE>(0);
-	ITYPE csize = ci.size();
-
-	if(nzmax == 0)	// nothing to index
-	{
-		return new  SparseDColumn<T>(zero, m, csize, zero);	
-	}
-	else if(ci.empty())
-	{
-		return new SparseDColumn<T>(zero, m,zero, zero);
-	}
-
-	// Pass 1 for estimation
-	ITYPE estsize = zero;
-	ITYPE estnzc = zero;
-	for(ITYPE i=0, j =0;  i< dcsc->nzc && j < csize ;)
-	{
-		if((dcsc->jc)[i] < ci[j])
-			i++;
-		else if ((dcsc->jc)[i] > ci [j] )
-			j++;
-		else
-		{
-			estsize +=  (dcsc->mas)[i+1] - (dcsc->mas)[i];
-			++estnzc;
-			++i;
-			++j;
-		}
-	}
-	
-	SparseDColumn<T> * colindexed = new  SparseDColumn<T>();	// dcsc = null
-	colindexed->m = m;
-	colindexed->n = csize;
-	colindexed->nzmax = estsize;
-
-	if(estnzc == zero)
-	{
-		return colindexed;		// no need to run the second pass
-	}
-	colindexed->dcsc = new Dcsc<T>(estsize, estnzc, csize);
-	colindexed->dcsc->mas[0] = 0;
-
-	ITYPE cnzc = 0;
-	ITYPE cnz =0;
-	for(ITYPE i =0, j =0;  i< dcsc->nzc & j < csize ;)
-	{
-		if((dcsc->jc)[i] < ci[j])
-			i++;
-		else if ((dcsc->jc)[i] > ci[j])
-			j++;
-		else
-		{
-			colindexed->dcsc->jc[cnzc] = cnzc++;
-			colindexed->dcsc->mas[cnzc] = colindexed->dcsc->mas[cnzc-1] + ( (dcsc->mas)[i+1] - (dcsc->mas)[i] );
-
-			for(ITYPE k= (dcsc->mas)[i]; k< (dcsc->mas)[i+1] ; ++k)
-			{
-				colindexed->dcsc->ir[cnz] =  dcsc->ir[k];
-				colindexed->dcsc->numx[cnz++] =  dcsc->numx[k];
-			}
-			++i;
-			++j;
-		}
-	}
-	return colindexed;
-}
-
 // \todo Compare performance with ColIndex above
 template <class IT, class NT>
 SparseDColumn<T> SparseDColumn<T>::SubsRefCol(const vector<ITYPE> & ci) const
@@ -553,46 +591,6 @@ SparseDColumn<T> SparseDColumn<T>::SubsRefCol(const vector<ITYPE> & ci) const
 	return OrdColByCol(RightMatrix);
 }
 
-
-/** 
- * Indexing using Multiplication 
- */
-template <class IT, class NT>
-SparseMatrix<T, SparseDColumn<T> > * SparseDColumn<T>::operator() (const vector<ITYPE> & ri, const vector<ITYPE> & ci) const
-{
-	ITYPE rsize = ri.size();
-	ITYPE csize = ci.size();
-
-	if(rsize == 0 && csize == 0)
-	{
-		// return an m x n matrix of complete zeros
-		// since we don't know whether columns or rows are indexed
-
-		ITYPE zero = static_cast<ITYPE>(0);
-		return new SparseDColumn(zero, m, n, zero);		
-	}
-	else if(rsize == 1 && csize == 1)
-	{
-		cout<<"Please use element-wise indexing for a single element!"<<endl;
-		return NULL;
-	}
-	else if(rsize == 0)
-	{
-		SparseDColumn<T> RightMatrix(csize, this->n, csize, ci, false);
-		return new SparseDColumn(OrdOutProdMult(RightMatrix));
-	}
-	else if(csize == 0)
-	{
-		SparseDColumn<T> LeftMatrix(rsize, rsize, this->m, ri, true);
-		return new SparseDColumn(LeftMatrix.OrdOutProdMult(*this));
-	}
-	else
-	{
-		SparseDColumn<T> LeftMatrix(rsize, rsize, this->m, ri, true);
-		SparseDColumn<T> RightMatrix(csize, this->n, csize, ci, false);
-		return new SparseDColumn(((LeftMatrix.OrdOutProdMult(*this)).OrdOutProdMult(RightMatrix)));
-	}
-}
 
 
 /** 

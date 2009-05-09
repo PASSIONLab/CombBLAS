@@ -268,29 +268,30 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 /**
   * Create a logical matrix from (row/column) indices array
   * \remark This function should only be used for indexing 
+  * \remark For these temporary matrices nz = nzc (which are both equal to nnz)
   */
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),pool(NULL)
 {
-	assert((nz != 0) && (indices.size() == nnz));
+	assert((nnz != 0) && (indices.size() == nnz));
 	size_t sit = sizeof(IT);
 	
-	cp = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
-	jc  = (IT *) mallocarray ( nz*sit ); 		// to be shrinked
-	ir  = (IT *) mallocarray ( nz*sit ); 
-	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
+	cp = (IT *) mallocarray ( (nnz+1)*sit ); 	
+	jc  = (IT *) mallocarray ( nnz*sit ); 	
+	ir  = (IT *) mallocarray ( nnz*sit ); 
+	numx= (NT *) mallocarray ( nnz*sizeof(NT) ); 
 
-	SpHelper::iota(cp, cp+nz+1, 0);  // insert sequential values {0,1,2,..}
-	fill_n(numx, nz, static_cast<NT>(1));
+	SpHelper::iota(cp, cp+nnz+1, 0);  // insert sequential values {0,1,2,..}
+	fill_n(numx, nnz, static_cast<NT>(1));
 	
 	if(isRow)
 	{
-		SpHelper::iota(ir, ir+nz, 0);	
+		SpHelper::iota(ir, ir+nnz, 0);	
 		std::copy (indices.begin(), indices.end(), jc);
 	}
 	else
 	{
-		SpHelper::iota(jc, jc+nz, 0);
+		SpHelper::iota(jc, jc+nnz, 0);
 		std::copy (indices.begin(), indices.end(), ir);	
 	}
 }
@@ -659,7 +660,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 {
 	IT cnz = A->nz + B->nz;
 	IT cnzc =  A->nzc + B->nzc;
-	*this = Dcsc<IT,NT>(cnz, cnzc);
+	*this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
 
 	memcpy(jc, A->jc, A->nzc * sizeof(IT));
 	memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
