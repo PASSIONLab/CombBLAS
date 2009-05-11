@@ -54,6 +54,7 @@ public:
 	IT nzc;			//!<  number of columns with at least one non-zero in them
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
+	void fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT n) const;
 
 	//! Special memory management functions, both respect the memory pool
 	void * mallocarray (size_t size);

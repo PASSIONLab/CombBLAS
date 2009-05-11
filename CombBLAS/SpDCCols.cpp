@@ -384,6 +384,52 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	return 1;	
 }
 
+/**
+ * C += A*B (Using ColByCol Algorithm)
+ * This version is currently limited to multiplication of matrices with the same precision 
+ * (e.g. it can't multiply double-precision matrices with booleans)
+ * The multiplication is on the specified semiring (passed as parameter)
+ */
+template <class IT, class NT>
+int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+{
+	if(A.isZero() || B.isZero())
+	{
+		return -1;	// no need to do anything
+	}
+	StackEntry< NT, pair<IT,IT> > * multstack;
+	IT cnz = SpHelper::SpColByCol (A.dcsc, B.dcsc, sring, multstack);  
+	
+	IT mdim = A.m;	
+	IT ndim = B.n;
+	if(isZero())
+	{
+		dcsc = new Dcsc<IT,NT>(multstack, mdim, ndim, cnz);
+	}
+	else
+	{
+		dcsc->AddAndAssign(multstack, mdim, ndim, cnz);
+	}
+	delete [] multstack;
+	return 1;	
+}
+
+
+template <class IT, class NT>
+int SparseDColumn<T>::PlusEq_AtXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+{
+	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
+	return 0;
+}
+
+template <class IT, class NT>
+int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+{
+	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
+	return 0;
+}
+
+
 /** 
  * The almighty indexing polyalgorithm 
  * Calls different subroutines depending the sparseness of ri/ci
@@ -412,13 +458,37 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	else if(csize == 0)
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
-		return LeftMatrix.OrdColByCol(*this);
+		return LeftMatrix.OrdColByCol(*this, PlusTimesSRing());
 	}
 	else
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
 		SpDCCols<IT,NT> RightMatrix(csize, this->n, csize, ci, false);
-		return LeftMatrix.OrdColByCol(OrdColByCol(RightMatrix));
+		return LeftMatrix.OrdColByCol(OrdColByCol(RightMatrix,PlusTimesSRing()),PlusTimesSRing());
+	}
+}
+
+template <class IT, class NT>
+ofstream & SpDCCols<IT,NT>::put(ofstream & outfile) const 
+{
+	if(nnz == 0)
+	{
+		outfile << "Matrix doesn't have any nonzeros" <<endl;
+		return outfile;
+	}
+	SpTuples<IT,NT> tuples(*this); 
+	outfile << tuples << endl;
+}
+
+template<class IT, class NT>
+void SpDCCols<IT,NT>::PrintInfo()
+{
+	cout << "m: " << m ;
+	cout << ", n: " << n ;
+	cout << ", nnz: "<< nnz ;
+	if(dcsc != NULL)
+	{
+		cout << ", nzc: "<< dcsc->nzc << endl;
 	}
 }
 
@@ -538,12 +608,56 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 	return SubA;
 }
 
+template <class IT, class NT>
+template <typename NTR, typename SR>
+SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdOutProdMult(const SpDCCol<IT,NTR> & rhs, const SR & sring) const
+{
+	typedef promote_trait<NT,NTR>::T_promote T_promote;  
 
+	if(isZero() || rhs.isZero())
+	{
+		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);		// return an empty matrix	
+	}
+	SpDCCols<IT,NTR> Btrans = rhs.TransposeConst();
+
+	Isect *isect1, *isect2, *itr1, *itr2, *cols, *rows;
+	SpHelper::SpIntersect(dcsc, Btrans.dcsc, cols, rows, isect1, isect2, itr1, itr2);
+	
+	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
+	if(kisect == zero)
+	{
+		DeleteAll(isect1, isect2, cols, rows);
+		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);	
+	}
+	StackEntry< T_promote, pair<IT,IT> > * multstack;
+	IT cnz = SpHelper::SpCartesian (dcsc, Btrans.dcsc, sring, kisect, isect1, isect2, multstack);  
+	DeleteAll(isect1, isect2, cols, rows);
+
+	Dcsc< IT, T_promote > * mydcsc = new Dcsc< IT,T_promote >(multstack, m, rhs.n, cnz);
+	return SpDCCols< IT, T_promote > (cnz, m, rhs.n, mydcsc);
+}
+
+
+template <class IT, class NT>
+template <typename NTR, typename SR>
+SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdColByCol(const SpDCCol<IT,NTR> & rhs, const SR & sring) const
+{
+	typedef promote_trait<NT,NTR>::T_promote T_promote;  
+
+	if(isZero() || rhs.isZero())
+	{
+		return SpDCCols<IT, T_promote> (zero, m, rhs.n, zero);		// return an empty matrix	
+	}
+	StackEntry< T_promote, pair<IT,IT> > * multstack;
+	IT cnz = SpHelper::SpColByCol (dcsc, rhs.dcsc, sring, multstack);  
+	
+	Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
+	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
+}
 
 /****************************************************************************/
 /**************************** FRIEND FUNCTIONS ******************************/
 /****************************************************************************/
-
 
 /**
  * SpTuples(A*B') (Using OuterProduct Algorithm)
@@ -557,9 +671,12 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 					 const SpDCCols<IU, NU2> & B, 
 					 const SR & sring)
 {
+	IT mdim = A.m;	
+	IT ndim = B.m;	// B is already transposed
+
 	if(A.isZero() || B.isZero())
 	{
-		return -1;	// no need to do anything
+		SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);	// just return an empty matrix
 	}
 	Isect *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
@@ -568,560 +685,38 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 	if(kisect == zero)
 	{
 		DeleteAll(isect1, isect2, cols, rows);
-		return -1;
+		return SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);
 	}
 	
 	StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpCartesian (A.dcsc, B.dcsc, sring, kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
-	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (multstack, cnz);
-}
-
-
-/********** REST (UNPROCESSED) *************/
-
-
-// \todo Compare performance with ColIndex above
-template <class IT, class NT>
-SparseDColumn<T> SparseDColumn<T>::SubsRefCol(const vector<ITYPE> & ci) const
-{
-	ITYPE csize = ci.size();
-	SparseDColumn<T> RightMatrix(csize, this->n, csize, ci, false);
-	return OrdColByCol(RightMatrix);
-}
-
-
-
-/** 
-  * Friend of both SparseColumn<T> and SparseColumn<bool>
-  * Executes [C = A*B] 
-  * Partial template specialization on the second Matrix 
-  */
-template <class IT, class NT>
-template <typename T2>
-SparseDColumn<T> SparseDColumn<T>::Multiply (const SparseDColumn<T> & A,const SparseDColumn<T2> & B, bool isAT, bool isBT )
-{
-	ITYPE A_m, A_n, B_m, B_n;
- 
-	if(isAT)
-	{
-		A_m = A.n;
-		A_n = A.m;
-	}
-	else
-	{
-		A_m = A.m;
-		A_n = A.n;
-	}
-	if(isBT)
-	{
-		B_m = B.n;
-		B_n = B.m;
-	}
-	else
-	{
-		B_m = B.m;
-		B_n = B.n;
-	}
-		
-	if(A_n == B_m)
-        {
-		SparseMatrix<T, SparseDColumn<T> >::operator=(A);
-		if(dcsc != NULL && dcsc->nz > 0)
-		{
-			delete dcsc;
-		}
-		dcsc = new Dcsc<T>(*(A.dcsc));	// calls Dcsc's copy constructor !
-
-		ITYPE cnz;
-		Dcsc<T> * mydcsc = NULL;
-
-		ITYPE zero = static_cast<ITYPE>(0);
-		if(A.nzmax == 0 || B.nzmax == 0)
-		{
-			return SparseDColumn(zero, A.m, B.n, zero);		// result is an m by n matrix of complete zeros
-		}
-		else
-		{
-			if(!isBT)
-			{
-				SparseDColumn<T2> Btrans = B.TransposeConst();
-				//! /todo there seems to be a bug here about m and n
-				Btrans.TransposeInPlace();	// calls SparseMatrix's Transpose in place which is swap(m,n);
-				if(MultAlg1(Btrans, cnz, mydcsc) < 0)
-					return SparseDColumn(zero, A.m, B.n, zero);	// result is an m by n matrix of complete zeros
-				else
-					return SparseDColumn (cnz, A.m, B.n, mydcsc);
-			}
-			else
-			{
-				if(MultAlg1(B, cnz, mydcsc) < 0)
-					return SparseDColumn(zero, A.m, B.n, zero);	// result is an m by n matrix of complete zeros
-				else
-					return SparseDColumn (cnz, A.m, B.n, mydcsc);
-
-			}			
-		}	
-	}
-        else
-        {
-                cerr <<"Not multipliable: " << A_n << "!=" << B_m << endl;
-        	return *this;
-	} 
-}
-
-
-/*************************************************************/
-/********************* PRIVATE FUNCTIONS *********************/
-/*************************************************************/
-
-
-
-
-//! \remarks Can multiply matrices of size up to ITYPEMAX times ITYPEMAX 
-template <class IT, class NT>
-SparseDColumn<T> SparseDColumn<T>::OrdOutProdMult(const SparseDColumn<T> & rhs) const
-{
-	ITYPE cnz;
-	Dcsc<T> * mydcsc = NULL;
-
-	ITYPE zero = static_cast<ITYPE>(0);
-	if(nzmax == 0 || rhs.nzmax == 0)
-	{
-		return SparseDColumn(zero, m, rhs.n, zero);		// result is an m by n matrix of complete zeros
-	}
-	else
-	{
-#ifdef MPITIMER
-		timer t = timer();
-#endif
-		SparseDColumn<T> Btrans = rhs.TransposeConst();
-		Btrans.TransposeInPlace();	// calls SparseMatrix's Transpose in place which is swap(m,n);
-#ifdef MPITIMER
-		double fin = t.elapsed();
-		cout<<fin<<",";
-#endif
-
-		if(MultAlg1(Btrans, cnz, mydcsc) < 0)
-		{
-			return SparseDColumn(zero, m, rhs.n, zero);	// result is an m by n matrix of complete zeros
-		}
-		else
-		{
-			return SparseDColumn (cnz, m,rhs.n, mydcsc);
-		}
-	}
-}
-
-
-template <class IT, class NT>
-SparseDColumn<T> SparseDColumn<T>::OrdColByCol(const SparseDColumn<T> & rhs) const
-{
-	ITYPE cnz;
-	Dcsc<T> * mydcsc = NULL;
-
-	ITYPE zero = static_cast<ITYPE>(0);
-	if(nzmax == 0 || rhs.nzmax == 0)
-	{
-		return SparseDColumn(zero, m, rhs.n, zero);		// result is an m by n matrix of complete zeros
-	}
-	else
-	{
-		if(MultAlg2(rhs, cnz, mydcsc) < 0)	// change this to change algorithms
-		{
-			return SparseDColumn(zero, m, rhs.n, zero);	// result is an m by n matrix of complete zeros
-		}
-		else
-		{
-			return SparseDColumn (cnz, m,rhs.n, mydcsc);
-		}
-	}
+	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (cnz, mdim, ndim, multstack);
 }
 
 /**
- * C += A*B (Using ColByCol Algorithm)
- * \todo Not yet implemented but it will be very similar to SparseDColumn<T>::MultAlg2
+ * SpTuples(A*B) (Using ColByCol Algorithm)
+ * Returns the tuples for efficient merging later
+ * Support mixed precision multiplication
+ * The multiplication is on the specified semiring (passed as parameter)
  */
-template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+template<class IU, class NU1, class NU2, class SR>
+SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
+					(const SpDCCols<IU, NU1> & A, 
+					 const SpDCCols<IU, NU2> & B, 
+					 const SR & sring)
 {
-	cout << "PlusEq_AnXBn function has not been implemented yet !" << endl;
-	return 0;
-}
-
-
-template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AtXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
-{
-	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
-	return 0;
-}
-
-template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
-{
-	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
-	return 0;
-}
-
-
-
-/**
- * this = this * rhs (using Alg 1)
- */
-template <class IT, class NT>
-template <typename T2>
-int SparseDColumn<T>::MultAlg1(const SparseDColumn<T2> & rhs, ITYPE & cnz, Dcsc<T> * & mydcsc) const
-{
-	// Take the outer product of this.dcsc and rhs.dcsc [which is tranposed]
-	RowColumn *isect1, *isect2;
-	RowColumn *itr1, *itr2;
-	RowColumn *cols, *rows;
-	MultPreprocess(rhs, cols, rows, isect1, isect2, itr1, itr2);
+	IT mdim = A.m;	
+	IT ndim = B.n;	
+	if(A.isZero() || B.isZero())
+	{
+		SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);
+	}
+	StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack;
+	IT cnz = SpHelper::SpColByCol (A.dcsc, B.dcsc, sring, multstack);  
 	
-	ITYPE kisect = static_cast<ITYPE>(itr1-isect1);		// size of the intersection (== itr2-isect2)
-	if(kisect == 0)
-	{
-		delete [] isect1;
-		delete [] isect2;
-		delete [] cols;
-		delete [] rows;
-		return -1;
-	}
-	
-	StackEntry<T, IPAIR > * multstack;
-	MultPhase(rhs, kisect, cnz, isect1, isect2, multstack);
-
-	ITYPE mdim = m;	
-	ITYPE ndim = rhs.m;	// since rhs has already been transposed
-
-	if(mydcsc != NULL) 
-		delete mydcsc;
-	mydcsc = new Dcsc<T>(multstack, mdim, ndim, cnz);
-
-	delete [] isect1;
-	delete [] isect2;
-	delete [] cols;
-	delete [] rows; 
-	delete [] multstack;
-	return 1;
+	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (cnz, mdim, ndim, multstack);
 }
 
-/**
- * First needs to construct AUX if does not already exist, then performs this = this * rhs (using Alg-2)
- * \pre If AUX is not NULL, then it is an up-to-date correct version.
- *  i.e. any modification on a matrix does either update AUX correctly before returning
- *  or deletes the aux (and sets it to NULL) after the operation 
- */
-template <class IT, class NT>
-int SparseDColumn<T>::MultAlg2(const SparseDColumn<T> & rhs, ITYPE & cnz, Dcsc<T> * & mydcsc) const
-{	
-	if(dcsc->aux == NULL)
-		dcsc->ConstructAux(n);
-
-	cnz = 0;						
-	ITYPE cnzmax = rhs.nzmax + nzmax;	// estimate on the size of resulting matrix C
-	StackEntry<T, IPAIR > * multstack = new StackEntry<T, IPAIR >[cnzmax];	// the stack that holds the results 
-
-	for(ITYPE i=0; i< (rhs.dcsc)->nzc; ++i)		// for all the columns of B
-	{	
-
-		// keys of the heap are row indices only
-		// heap of size ((rhs.dcsc)->mas[i+1]-(rhs.dcsc)->mas[i])
-		KNHeap< ITYPE , HeapEntry<T> > workingset(ITYPEMAX, ITYPEMIN);
-	
-		// colnums vector keeps requested column numbers
-		vector<ITYPE> colnums((rhs.dcsc)->mas[i+1] - (rhs.dcsc)->mas[i]);
-
-		// colinds.first vector keeps indices to the mas array of "this", i.e. it dereferences "colnums" vector (above),
-		// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of the mas array)
-		vector<IPAIR> colinds((rhs.dcsc)->mas[i+1] - (rhs.dcsc)->mas[i]);		
-
-		ITYPE k =0;
-		for(ITYPE j=(rhs.dcsc)->mas[i]; j<(rhs.dcsc)->mas[i+1]; ++j)	
-		{
-			// for all the rows inside the ith nonzero-column, i.e the column (rhs.dcsc)->jc[i]
-			colnums[k] = (rhs.dcsc)->ir[j];
-			k++;
-		}
-		assert(k == colnums.size());
-
-		FillColInds(colnums, colinds);
-		ITYPE maxnnz = 0;	// max number of nonzeros in C(:,i)	
-		ITYPE heapsize = 0;
-		
-		// create the initial heap
-		for(ITYPE j =0; j< k; ++j)		// k = colnums.size()
-		{
-			if(colinds[j].first != colinds[j].second)	// current != end
-			{
-				workingset.insert(dcsc->ir[colinds[j].first], HeapEntry<T>(dcsc->numx[colinds[j].first],j));	// insert(key,value)
-				maxnnz += colinds[j].second - colinds[j].first;
-				heapsize++;
-			} 
-		}	
-
-		if (cnz + maxnnz > cnzmax)		// double the size of multstack
-		{
-			SpHelper::DoubleStack(multstack, cnzmax, maxnnz);
-		} 
-
-		while(heapsize > 0)
-		{
-			ITYPE key;	
-			HeapEntry<T> hentry;
-			workingset.deleteMin(&key, &hentry);
-
-			if(cnz != 0 && multstack[cnz-1].key.second == key)
-			{
-				multstack[cnz-1].value += hentry.value * (rhs.dcsc)->numx[(rhs.dcsc)->mas[i]+hentry.runrank];
-			}
-			else
-			{
-				multstack[cnz].value = hentry.value * (rhs.dcsc)->numx[(rhs.dcsc)->mas[i]+hentry.runrank];
-				multstack[cnz++].key = IPAIR((rhs.dcsc)->jc[i], key);	// first entry is the column index since this will be in column-major order
-			}
-
-			colinds[hentry.runrank].first++;
-			if(colinds[hentry.runrank].first != colinds[hentry.runrank].second)	// current != end
-				workingset.insert(dcsc->ir[colinds[hentry.runrank].first], HeapEntry<T>(dcsc->numx[colinds[hentry.runrank].first],hentry.runrank));
-			else
-				--heapsize;
-		}
-	}
-
-	ITYPE mdim = m;	
-	ITYPE ndim = rhs.n;	// rhs has NOT been transposed
-
-	if(mydcsc != NULL) 
-		delete mydcsc;
-	mydcsc = new Dcsc<T>(multstack, mdim, ndim, cnz);
-
-	delete [] multstack;
-	return 0;
-}
-
-template <class IT, class NT>
-void SparseDColumn<T>::FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> & colinds) const
-{
-	ITYPE nind = colnums.size();
-	if ( (dcsc->nzc / nind) < THRESHOLD) 			// use scanning indexing
-	{
-		ITYPE mink = min(dcsc->nzc, nind);
-		IPAIR * isect = new IPAIR[mink];
-		IPAIR * range1 = new IPAIR[dcsc->nzc];
-		IPAIR * range2 = new IPAIR[nind];
-		
-		for(ITYPE i=0; i < dcsc->nzc; ++i)
-		{
-			range1[i] = make_pair(dcsc->jc[i], i);	// get the actual nonzero value and the index to the ith nonzero
-		}
-		for(ITYPE i=0; i < nind; ++i)
-		{
-			range2[i] = make_pair(colnums[i], 0);	// second element doesn't matter since all the intersecting elements are copied from the first range
-		}
-
-		IPAIR * itr = set_intersection(range1, range1 + dcsc->nzc, range2, range2+nind, isect, SpHelper::first_compare);
-		// isect now can iterate on a subset of the elements of range1
-		// meaning that the intersection can be accessed directly by isect[i] instead of range1[isect[i]]
-		// this is because the intersecting elements are COPIED to the output range "isect"
-
-		ITYPE kisect = static_cast<ITYPE>(itr-isect);		// size of the intersection 
-		
-		for(ITYPE j=0, i =0; j< nind; ++j)
-		{
-			// the elements represented by dcsc->jc[isect[i] are a subset of the elements represented by colnums[j]
-			if( i == kisect || isect[i].first != colnums[j])
-			{
-				// not found, signal by setting first = second
-				colinds[j].first = 0;
-				colinds[j].second = 0;	
-			}
-			else	// i < kisect && dcsc->jc[isect[i]] == colnums[j]
-			{
-				ITYPE p = isect[i++].second;
-				colinds[j].first = dcsc->mas[p];
-				colinds[j].second = dcsc->mas[p+1];
-			}
-		}
-		delete [] isect;
-		delete [] range1;
-		delete [] range2;
-	}
-	else	 	// use aux based indexing
-	{
-		float cf  = static_cast<float>(n+1) / static_cast<float>(dcsc->nzc);
-		IT csize = static_cast<IT>(ceil(cf));	// chunk size
-		
-		IT * aux;
-		IT auxsize = dcsc->ConstructAux(n, aux);
-
-		bool found;
-		for(ITYPE j =0; j< nind; ++j)
-		{
-			
-			IT pos = dcsc->AuxIndex(colnums[i], found, aux, csize);
-			if(found)
-			{
-				colinds[j].first = dcsc->mas[pos];
-				colinds[j].second = dcsc->mas[pos+1];
-			}
-			else 	// not found, signal by setting first = second
-			{
-				colinds[j].first = 0;
-				colinds[j].second = 0;
-			}
-		}
-	}
-}
-
-template <class IT, class NT>
-ofstream& SparseDColumn<T>::put(ofstream& outfile) const 
-{
-	if(nzmax == 0)
-	{
-		outfile << "Matrix Doesn't have any nonzeros" <<endl;
-		return outfile;
-	}
-
-	// Print the columnwise storage
-	if(dcsc != NULL)
-	{
-		outfile << "DCSC:"<<endl;
-
-		outfile << "mas = [";
-		for(ITYPE i =0; i< dcsc->nzc; i++)
-		{
-			outfile << dcsc->mas[i] << ", ";
-		}
-		outfile << dcsc->mas[dcsc->nzc] <<"]" << endl;
-
-		outfile << "jc = [";
-		for(ITYPE i =0; i< dcsc->nzc-1; i++)
-		{
-			outfile << dcsc->jc[i] << ", ";
-		}
-		outfile << dcsc->jc[ dcsc->nzc-1] <<"]" << endl;
-
-		outfile << "ir = [";
-		for(ITYPE i =0; i< dcsc->nz-1; i++)
-		{
-			outfile << dcsc->ir[i] << ", ";
-		}
-		outfile << dcsc->ir[dcsc->nz-1] <<"]" << endl;
-
-		outfile << "numx = [";
-		for(ITYPE i =0; i< dcsc->nz-1; i++)
-		{
-			outfile << dcsc->numx[i] << ", ";
-		}
-		outfile << dcsc->numx[dcsc->nz-1] <<"]" << endl;
-	}
-	else
-	{
-		outfile << "DCSC doesn't exist !" <<endl;
-	}
-	return outfile;
-}
-
-
-template<class IT, class NT>
-inline ITYPE * SparseDColumn<T>::GetJC()
-{
-	if(dcsc != NULL)
-		return dcsc->jc;
-	else
-		return NULL;
-}
-template<class IT, class NT>
-inline ITYPE * SparseDColumn<T>::GetMAS()
-{
-	if(dcsc != NULL)
-		return dcsc->mas;
-	else
-		return NULL;
-}
-template<class IT, class NT>
-inline ITYPE * SparseDColumn<T>::GetIR()
-{
-	if(dcsc != NULL)
-		return dcsc->ir;
-	else
-		return NULL;
-}
-template<class IT, class NT>
-inline T * SparseDColumn<T>::GetNUM()
-{
-	if(dcsc != NULL)
-		return dcsc->numx;
-	else
-		return NULL;
-}
-
-template<class IT, class NT>
-inline ITYPE SparseDColumn<T>::GetJCSize()
-{
-	if(dcsc != NULL)
-		return dcsc->nzc;
-	else
-		return 0;
-}
-template<class IT, class NT>
-inline ITYPE SparseDColumn<T>::GetSize()
-{
-	if(dcsc != NULL)
-		return dcsc->nz;
-	else
-		return 0;
-}
-
-template<class IT, class NT>
-inline void SparseDColumn<T>::ReserveJCSpace(int mynzc)
-{
-	dcsc->nzc = mynzc; 
-	if (dcsc->jc == NULL)
-		dcsc->jc = new ITYPE[dcsc->nzc];
-}
-
-template<class IT, class NT>
-inline void SparseDColumn<T>::SaveJC(vector<ITYPE> & my_jc)
-{
-	if (dcsc->jc == NULL)
-		cout<<"JC doesn't have space, you should have called ReserveJCSpace before calling SaveJC"<<endl;
-	else
-	{
-		for(ITYPE i =0; i< dcsc->nzc; i++)
-		{
-			dcsc->jc[i] = my_jc[i];
-		}
-	}
-}	
-
-template<class IT, class NT>
-inline void SparseDColumn<T>::DeleteDcsc()
-{
-	if(dcsc != NULL)
-		delete dcsc;
-	dcsc = NULL;
-	return;
-}
-
-template<class IT, class NT>
-Dcsc<T> * SparseDColumn<T>::GetDcsc()
-{
-	return dcsc;
-}
-
-template<class IT, class NT>
-void SparseDColumn<T>::printInfo()
-{
-	cout<<"m: "<<m<<",n: "<<n<<",nzmax: "<<nzmax;
-	if(dcsc != NULL)
-	{
-		cout<<", nzc: "<< dcsc->nzc;
-		cout<<", nz: "<< dcsc->nz;
-	}
-	cout << endl;
-}
 

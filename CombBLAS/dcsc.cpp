@@ -677,6 +677,76 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 	memcpy(numx + A->nz, B->numx, B->nz * sizeof(NT));
 }
 
+template<class IT, class NT>
+void Dcsc<IT,NT>::fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT n) const
+{
+	IT nind = colnums.size();			// number of columns of A that contributes to C(:,i)
+	if ( (nzc / nind) < THRESHOLD) 			// use scanning indexing
+	{
+		IT mink = min(nzc, nind);
+		pair<IT,IT> * isect = new pair<IT,IT>[mink];
+		pair<IT,IT> * range1 = new pair<IT,IT>[nzc];
+		pair<IT,IT> * range2 = new pair<IT,IT>[nind];
+		
+		for(IT i=0; i < nzc; ++i)
+		{
+			range1[i] = make_pair(jc[i], i);	// get the actual nonzero value and the index to the ith nonzero
+		}
+		for(IT i=0; i < nind; ++i)
+		{
+			range2[i] = make_pair(colnums[i], 0);	// second is dummy as all the intersecting elements are copied from the first range
+		}
+
+		pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare);
+		// isect now can iterate on a subset of the elements of range1
+		// meaning that the intersection can be accessed directly by isect[i] instead of range1[isect[i]]
+		// this is because the intersecting elements are COPIED to the output range "isect"
+
+		IT kisect = static_cast<IT>(itr-isect);		// size of the intersection 
+		for(IT j=0, i =0; j< nind; ++j)
+		{
+			// the elements represented by jc[isect[i]] are a subset of the elements represented by colnums[j]
+			if( i == kisect || isect[i].first != colnums[j])
+			{
+				// not found, signal by setting first = second
+				colinds[j].first = 0;
+				colinds[j].second = 0;	
+			}
+			else	// i < kisect && dcsc->jc[isect[i]] == colnums[j]
+			{
+				IT p = isect[i++].second;
+				colinds[j].first = cp[p];
+				colinds[j].second = cp[p+1];
+			}
+		}
+		DeleteAll(isect, range1, range2);
+	}
+	else	 	// use aux based indexing
+	{
+		float cf  = static_cast<float>(n+1) / static_cast<float>(nzc);
+		IT csize = static_cast<IT>(ceil(cf));	// chunk size
+		
+		IT * aux;
+		IT auxsize = ConstructAux(n, aux);
+
+		bool found;
+		for(ITYPE j =0; j< nind; ++j)
+		{
+			IT pos = AuxIndex(colnums[i], found, aux, csize);
+			if(found)
+			{
+				colinds[j].first = cp[pos];
+				colinds[j].second = cp[pos+1];
+			}
+			else 	// not found, signal by setting first = second
+			{
+				colinds[j].first = 0;
+				colinds[j].second = 0;
+			}
+		}
+	}
+}
+
 
 template <class IT, class NT>
 Dcsc<IT,NT>::~Dcsc()

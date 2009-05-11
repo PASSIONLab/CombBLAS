@@ -29,8 +29,8 @@ public:
 	// Constructors :
 	SpDCCols ();
 	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, ITYPE nzc);
-	SpDCCols (const SpTuples<IT, NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
-	SpDCCols (const SpDCCols<IT, NT> & rhs);	// Actual copy constructor		
+	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
+	SpDCCols (const SpDCCols<IT,NT> & rhs);	// Actual copy constructor		
 	~SpDCCols();
 
 	template <typename NNT>
@@ -39,7 +39,7 @@ public:
 	// Member Functions and Operators: 
 	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
-	SpDCCols<IT, NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
+	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 
 	SpDCCols<IT,NT> Transpose();			//!< \attention Destroys calling object (*this)
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
@@ -56,12 +56,8 @@ public:
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
 	
-	template <typename T2> 
-       	SpDCCols<T> Multiply (const SpDCCols<T> & A, const SpDCCols<T2> & B, bool isAT, bool isBT );
-	
 	ofstream& put(ofstream& outfile) const;
-	SparseMatrix<T, SpDCCols<T> > * ColIndex(const vector<ITYPE> & ci);	//!< col indexing without multiplication
-
+	void PrintInfo() const;
 
 	int PlusEq_AtXBt(const SpDCCols<T> & A, const SpDCCols<T> & B);  
 	int PlusEq_AtXBn(const SpDCCols<T> & A, const SpDCCols<T> & B);
@@ -69,23 +65,12 @@ public:
 	int PlusEq_AnXBn(const SpDCCols<T> & A, const SpDCCols<T> & B);
 
 private:
-	template <class IU, class NU>
-    	friend class SpMat<IU, NU, SpDCCols<IU, NU> >;		//!< So that the base can call create() or clone()
-
-	// Private Methods
 	void CopyDcsc(Dcsc<T> * source);
+	SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci);	//!< col indexing without multiplication	
 
 	SpDCCols<T> OrdOutProdMult(const SpDCCols<T>& rhs) const;	// Ordered outer product multiply
 	SpDCCols<T> OrdColByCol(const SpDCCols<T> & rhs) const;		// Ordered column-by-column multiply
-
-
-	template <typename T2>
-	int MultAlg1(const SpDCCols<T2> & rhs, ITYPE & cnz,  Dcsc<T> * & mydcsc) const;
 	
-	int MultAlg2(const SpDCCols<T> & rhs, ITYPE & cnz,  Dcsc<T> * & mydcsc) const;
-
-	void FillColInds(const vector<ITYPE> & colnums, vector<IPAIR> & colinds) const;
-
 	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing
 	SpDCCols (ITYPE size, ITYPE nRow, ITYPE nCol, Dcsc<T> * mydcsc);			// Constructor for multiplication
 

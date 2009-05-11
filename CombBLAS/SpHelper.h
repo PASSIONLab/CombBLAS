@@ -57,6 +57,9 @@ public:
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
 		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
+	template <typename IT, typename NT1, typename NT2, template SR>
+	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT estnnz, 
+			StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
@@ -102,9 +105,9 @@ IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry<promote_trait<NT1,NT2>::
 	promote_trait<NT1,NT2>::T_promote value = sring.multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
 	if(cnz != 0)
 	{
-		if(multstack[cnz - 1].key == key)	// already exists
+		if(multstack[cnz-1].key == key)	// already exists
 		{
-			multstack[cnz - 1].value = sring.add(multstack[cnz - 1].value, value);
+			multstack[cnz-1].value = sring.add(multstack[cnz-1].value, value);
 		}
 		else
 		{
@@ -229,5 +232,83 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 	return cnz;
 }
 
+
+template <typename IT, typename NT1, typename NT2, template SR>
+IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, 
+			StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+{
+	typedef promote_trait<NT1,NT2>::T_promote T_promote;     
+
+	IT cnz = 0;
+	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
+	multstack = new StackEntry<T_promote, pair<IT,IT> >[cnzmax];	 
+
+	for(IT i=0; i< Bdcsc->nzc; ++i)		// for all the columns of B
+	{	
+		// heap keys are just row indices (IT) 
+		// heap values are <numvalue, runrank> ( pair<NT,IT> )
+		// heap size is nnz(B(:,i)
+		KNHeap< IT , pair< T_promote ,IT > > workingset(numeric_limits<IT>::max(), numeric_limits<IT>::min());
+	
+		// colnums vector keeps column numbers requested from A
+		vector<IT> colnums(Bdcsc->cp[i+1] - Bdcsc->cp[i]);
+
+		// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+		// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+		vector< pair<IT,IT> > colinds(Bdcsc->cp[i+1] - Bdcsc->cp[i]));		
+
+		copy(Bdcsc->ir + Bdcsc->cp[i], Bdcsc->ir + Bdcsc->cp[i+1], colnums.begin());
+		
+		Adcsc.FillColInds(colnums, colinds);
+		IT maxnnz = 0;	// max number of nonzeros in C(:,i)	
+		IT heapsize = 0;
+		
+		for(IT j =0; j< colnums.size(); ++j)		// create the initial heap 
+		{
+			if(colinds[j].first != colinds[j].second)	// current != end
+			{
+				workingset.insert(Adcsc->ir[colinds[j].first], make_pair(Adcsc->numx[colinds[j].first],j));	// insert(key,value)
+				maxnnz += colinds[j].second - colinds[j].first;
+				heapsize++; 
+			} 
+		}	
+
+		if (cnz + maxnnz > cnzmax)		// double the size of multstack
+		{
+			SpHelper::DoubleStack(multstack, cnzmax, maxnnz);
+		} 
+
+		// No need to keep redefining key and hentry with each iteration of the loop
+		IT key;	
+		pair< T_promote, IT > hentry;
+		while(heapsize > 0)
+		{
+			workingset.deleteMin(&key, &hentry);
+			T_promote mrhs = sring.multiply(hentry.first, Bdcsc->numx[Bdcsc->cp[i]+hentry.second]);
+			
+			if(cnz != 0 && multstack[cnz-1].key.second == key)	// if cnz == 0, then multstack is empty
+			{
+				multstack[cnz-1] = sring.add(multstack[cnz-1].value, mrhs);
+			}
+			else
+			{
+				multstack[cnz].value = mrhs;
+				multstack[cnz++].key = pair<IT,IT>(Bdcsc->jc[i], key);	// first entry is the column index, as it is in column-major order
+			}
+
+			colinds[hentry.second].first++;
+			if(colinds[hentry.second].first != colinds[hentry.second].second)	// current != end
+			{
+				hentry = make_pair(Adcsc->numx[colinds[hentry.second].first],hentry.second);				
+				workingset.insert(Adcsc->ir[colinds[hentry.second].first], hentry);
+			}
+			else
+			{
+				--heapsize;
+			}
+		}
+	}
+	return cnz;
+}
 
 #endif

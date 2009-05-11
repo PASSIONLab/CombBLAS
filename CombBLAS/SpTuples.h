@@ -70,7 +70,7 @@ public:
 	template <class IU, class NU>
 	friend ifstream& operator>> (ifstream& infile, SpTuples<IU,NU> & s); 
 
-	void printInfo() 
+	void PrintInfo() 
 	{
 		cout << "This is a SpTuples class" << endl;
 	}
