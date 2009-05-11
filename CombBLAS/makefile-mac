@@ -3,26 +3,17 @@ INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 
 OPT = -DNDEBUG -O2 -w 
 DEB = -g -w -DMEMDEBUG -DPERFDEB
+COMPILER = g++	# later use mpicxx (but that's based on gcc 4.0)
 
-TestOneSided.o: TestOneSided.cpp SparseDColumn.cpp SparseOneSidedMPI.cpp SpDefines.h
-	mpicxx $(INCADD) $(OPT) -DBASEADDRESS=\"Data/SCALE17-RMAT\" -c -o TestOneSided.o TestOneSided.cpp
+MemoryPool.o:	MemoryPool.cpp SpDefs.h
+	g++ $(INCADD) $(OPT) -c -o MemoryPool.o MemoryPool.cpp
 
-randgen.o: 	randgen.cpp
-	mpicxx $(INCADD) $(OPT) -c -o randgen.o randgen.cpp
-
-MemoryPool.o:	MemoryPool.cpp SpDefines.h
-	mpicxx $(INCADD) $(OPT) -c -o MemoryPool.o MemoryPool.cpp
-
-testseq:  	TestSeq.cpp SparseDColumn.cpp 
-	$(COMPILER) $(INCADD) $(DEB) -o testseq TestSeq.cpp randgen.cpp  
-
-testonesided: 	TestOneSided.o randgen.o MemoryPool.o TestOneSided.cpp SpDefines.h 
-	mpicxx $(OPT) -o testonesided TestOneSided.o MemoryPool.o randgen.o
+driver:	Driver.cpp SpDCCols.cpp 
+	g++ $(INCADD) $(DEB) -o driver Driver.cpp  
 
 clean:
-	rm -f TestOneSided.o
-	rm -f testseq
-	rm -f testonesided
+	rm -f driver
+	rm -f MemoryPool.o 
 
 cleanout:
 	rm out.*

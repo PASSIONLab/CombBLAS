@@ -1,4 +1,4 @@
-#include "SpDefines.h"
+#include "SpDefs.h"
 #include "MemoryPool.h"
 
 MemoryPool::MemoryPool(void * m_beg, size_t m_size):initbeg((char*)m_beg), initend(((char*)m_beg)+m_size)
@@ -107,7 +107,7 @@ void MemoryPool::dealloc(void * base, size_t size)
 //! Dump the contents of the pinned memory
 ofstream& operator<< (ofstream& outfile, const MemoryPool & mpool)
 {
-	ITYPE i = 0;
+	int i = 0;
 	for(list<Memory>::const_iterator iter = mpool.freelist.begin(); iter != mpool.freelist.end(); ++iter, ++i)
 	{
 		outfile << "Chunk " << i << " of size: " << (*iter).size << " starts:" <<  (void*)(*iter).begin 

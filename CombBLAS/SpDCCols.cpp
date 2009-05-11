@@ -702,7 +702,7 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
  * The multiplication is on the specified semiring (passed as parameter)
  */
 template<class IU, class NU1, class NU2, class SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
+SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B, 
 					 const SR & sring)
@@ -718,5 +718,33 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 	
 	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (cnz, mdim, ndim, multstack);
 }
+
+
+template<class IU, class NU1, class NU2, class SR>
+SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
+					(const SpDCCols<IU, NU1> & A, 
+					 const SpDCCols<IU, NU2> & B, 
+					 const SR & sring)
+{
+	IT mdim = A.n;	
+	IT ndim = B.m;	
+	cout << "Tuples_AtXBt function has not been implemented yet !" << endl;
+		
+	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (zero, mdim, ndim);
+}
+
+template<class IU, class NU1, class NU2, class SR>
+SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
+					(const SpDCCols<IU, NU1> & A, 
+					 const SpDCCols<IU, NU2> & B, 
+					 const SR & sring)
+{
+	IT mdim = A.n;	
+	IT ndim = B.n;	
+	cout << "Tuples_AtXBn function has not been implemented yet !" << endl;
+		
+	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (zero, mdim, ndim);
+}
+
 
 

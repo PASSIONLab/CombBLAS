@@ -1,5 +1,9 @@
 #ifndef _COMPARE_H_
-#define _COMPARE_H
+#define _COMPARE_H_
+
+#include <tr1/tuple>
+using namespace std;
+using namespace std::tr1;
 
 /**
  ** Functor class

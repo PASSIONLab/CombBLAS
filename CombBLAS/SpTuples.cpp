@@ -7,9 +7,6 @@
 
 #include "SpTuples.h"
 
-using namespace boost;
-using namespace std;
-
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 :m(nRow), n(nCol), nnz(size)
@@ -21,7 +18,7 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 }
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, T> * mytuples)
+SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
 :m(nRow), n(nCol), nnz(size), tuples(mytuples)
 {}
 
@@ -30,7 +27,7 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, T> * mytuple
   * @param[StackEntry] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
  **/  
 template <class IT, class NT>
-SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
+SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
 :m(nRow), n(nCol), nnz(size)
 {
 	if(nnz > 0)
@@ -63,7 +60,7 @@ SpTuples<IT,NT>::~SpTuples()
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(const SpTuples<IT,NT> & rhs): m(rhs.m), n(rhs.n), nnz(rhs.nnz)
 {
-	tuples  = new boost::tuple<IT, IT, NT>[nnz];
+	tuples  = new tuple<IT, IT, NT>[nnz];
 	for(IT i=0; i< nnz; ++i)
 	{
 		tuples[i] = rhs.tuples[i];
@@ -83,7 +80,7 @@ SpTuples<IT,NT>::SpTuples (const SpDCCols<IT,NT> & rhs):  m(rhs.m), n(rhs.n), nn
 template <class IT,class NT>
 inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 {
-	tuples  = new boost::tuple<IT, IT, NT>[nzmax];
+	tuples  = new tuple<IT, IT, NT>[nnz];
 
 	IT k = 0;
 	for(IT i = 0; i< mydcsc->nzc; ++i)
@@ -118,7 +115,7 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 
 		if(nnz> 0)
 		{
-			tuples  = new boost::tuple<IT, IT, T>[nnz];
+			tuples  = new tuple<IT, IT, NT>[nnz];
 
 			for(IT i=0; i< nnz; ++i)
 			{
@@ -134,7 +131,7 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 template <class IT,class NT>
 ifstream& operator>> (ifstream& infile, SpTuples<IT,NT> & s)
 {
-	IT cnz = zero;
+	IT cnz = SpTuples<IT,NT>::zero;
 	if (infile.is_open())
 	{
 		while (! infile.eof() && cnz < s.nnz)

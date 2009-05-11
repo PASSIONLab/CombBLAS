@@ -11,14 +11,13 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <tr1/tuple>
 #include "SpDefs.h"
 #include "StackEntry.h"
 #include "Compare.h"
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 
 using namespace std;
-using namespace boost;
+using namespace std::tr1;
 
 template <class IU, class NU>
 class SpDCCols;
@@ -32,7 +31,7 @@ class Dcsc;
  * \remarks Indices start from 0 in this class
  */
 template <class IT, class NT>
-class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
+class SpTuples // :public SpMat<IT, NT, SpTuples<IT,NT> >
 {
 public:
 	// Constructors 
@@ -49,9 +48,9 @@ public:
 	IT & colindex (IT i) { return get<1>(tuples[i]); }
 	NT & numvalue (IT i) { return get<2>(tuples[i]); }
 
-	IT rowindex (IT i) { return get<0>(tuples[i]); } const;
-	IT colindex (IT i) { return get<1>(tuples[i]); } const;
-	NT numvalue (IT i) { return get<2>(tuples[i]); } const;
+	IT rowindex (IT i) const { return get<0>(tuples[i]); }
+	IT colindex (IT i) const { return get<1>(tuples[i]); } 
+	NT numvalue (IT i) const { return get<2>(tuples[i]); } 
 
 	void SortRowBased()
 	{

@@ -1,7 +1,7 @@
 /****************************************************************/
 /* Sequential and Parallel Sparse Matrix Multiplication Library */
 /* version 2.3 --------------------------------------------------/
-/* date: 01/18/2009 ---------------------------------------------/#include <gasnet.h>
+/* date: 01/18/2009 ---------------------------------------------/
 /* description: Simple memory pool implementation ---------------/
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /* This can be improved by keeping a second index that keeps ----/
