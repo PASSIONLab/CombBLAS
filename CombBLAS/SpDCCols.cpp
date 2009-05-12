@@ -676,14 +676,14 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 					 const SpDCCols<IU, NU2> & B)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;  
-	typedef typename SpDCCols<IU,NU1>::zero zero;
+	const static IU zero = static_cast<IU>(0);		
 
 	IU mdim = A.m;	
 	IU ndim = B.m;	// B is already transposed
 
 	if(A.isZero() || B.isZero())
 	{
-		SpTuples< IU, T_promote >(zero, mdim, ndim);	// just return an empty matrix
+		return SpTuples< IU, T_promote >(zero, mdim, ndim);	// just return an empty matrix
 	}
 	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
@@ -714,13 +714,13 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn
 					 const SpDCCols<IU, NU2> & B )
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	typedef typename SpDCCols<IU,NU1>::zero zero; 
+	const static IU zero = static_cast<IU>(0);	
 
 	IU mdim = A.m;	
 	IU ndim = B.n;	
 	if(A.isZero() || B.isZero())
 	{
-		SpTuples<IU, T_promote>(zero, mdim, ndim);
+		return SpTuples<IU, T_promote>(zero, mdim, ndim);
 	}
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
 	IU cnz = SpHelper::SpColByCol< SR > (A.dcsc, B.dcsc, multstack);  
@@ -732,11 +732,11 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn
 template<class IU, class NU1, class NU2, class SR>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B, 
+					 const SpDCCols<IU, NU2> & B )
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	typedef typename SpDCCols<IU,NU1>::zero zero; 
-
+	const static IU zero = static_cast<IU>(0);
+	
 	IU mdim = A.n;	
 	IU ndim = B.m;	
 	cout << "Tuples_AtXBt function has not been implemented yet !" << endl;
@@ -747,10 +747,10 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt
 template<class IU, class NU1, class NU2, class SR>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B, 
+					 const SpDCCols<IU, NU2> & B )
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	typedef typename SpDCCols<IU,NU1>::zero zero; 
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 	// T_promote is a type (so the extra "typename"), NOT a value
+	const static IU zero = static_cast<IU>(0);	
 
 	IU mdim = A.n;	
 	IU ndim = B.n;	
