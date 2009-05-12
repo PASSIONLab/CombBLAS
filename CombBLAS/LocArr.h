@@ -9,7 +9,7 @@ struct LocArr
 	
 	V * addr;
 	C count;
-}
+};
 
 template<class IT, class NT>
 struct Arr
@@ -24,7 +24,7 @@ struct Arr
 	vector< LocArr<NT,IT> > numarrs;
 
 	IT totalsize() { return indarrs.size() + numarrs.size(); } 	
-}
+};
 
 #endif
 

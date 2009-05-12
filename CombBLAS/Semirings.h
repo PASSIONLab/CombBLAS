@@ -22,15 +22,17 @@ struct inf_plus{
 template <class T1, class T2>
 struct PlusTimesSRing
 {
-	promote_trait<T1,T2>::T_promote add(const T1 & arg1, const T2 & arg2) const
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+
+	T_promote add(const T1 & arg1, const T2 & arg2) const
 	{
-		return (static_cast<promote_trait<T1,T2>::T_promote>(arg1) +  
-			static_cast<promote_trait<T1,T2>::T_promote>(arg2) );
+		return (static_cast<T_promote>(arg1) +  
+			static_cast<T_promote>(arg2) );
 	}
-	promote_trait<T1,T2>::T_promote multiply(const T1 & arg1, const T2 & arg2) const
+	T_promote multiply(const T1 & arg1, const T2 & arg2) const
 	{
-		return (static_cast<promote_trait<T1,T2>::T_promote>(arg1) * 
-			static_cast<promote_trait<T1,T2>::T_promote>(arg2) );
+		return (static_cast<T_promote>(arg1) * 
+			static_cast<T_promote>(arg2) );
 
 	}
 };
@@ -39,15 +41,17 @@ struct PlusTimesSRing
 template <class T1, class T2>
 struct MinPlusSRing
 {
-	promote_trait<T1,T2>::T_promote add(const T1 & arg1, const T2 & arg2) const
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+
+	T_promote add(const T1 & arg1, const T2 & arg2) const
 	{
-		return min<promote_trait<T1,T2>::T_promote> 
-		(static_cast<promote_trait<T1,T2>::T_promote>(arg1), static_cast<promote_trait<T1,T2>::T_promote>(arg2));
+		return min<T_promote> 
+		(static_cast<T_promote>(arg1), static_cast<T_promote>(arg2));
 	}
-	promote_trait<T1,T2>::T_promote multiply(const T1 & arg1, const T2 & arg2) const
+	T_promote multiply(const T1 & arg1, const T2 & arg2) const
 	{
-		return inf_plus< promote_trait<T1,T2>::T_promote > 
-		(static_cast<promote_trait<T1,T2>::T_promote>(arg1), static_cast<promote_trait<T1,T2>::T_promote>(arg2));
+		return inf_plus< T_promote > 
+		(static_cast<T_promote>(arg1), static_cast<T_promote>(arg2));
 	}
 };
 

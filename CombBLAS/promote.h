@@ -13,7 +13,7 @@ struct promote_trait  { };
 DECLARE_PROMOTE(int, bool,int);
 DECLARE_PROMOTE(unsigned, bool, unsigned);
 DECLARE_PROMOTE(float, bool, float);
-DECLARE_PROMOTE(double, bool, double;
+DECLARE_PROMOTE(double, bool, double);
 DECLARE_PROMOTE(long long, bool, long long);
 DECLARE_PROMOTE(unsigned long long, bool, unsigned long long);
 DECLARE_PROMOTE(bool, int, int);

@@ -32,7 +32,7 @@ SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc)
 }
 
 template <class IT, class NT>
-SpDCCols<T>::~SpDCCols()
+SpDCCols<IT,NT>::~SpDCCols()
 {
 	if(nnz > 0)
 	{
@@ -185,7 +185,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 }
 
 template <class IT, class NT>
-SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=+(const SpDCCols<IT,NT> & rhs)
+SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 {
 	// this pointer stores the address of the class instance
 	// check for self assignment using address comparison
@@ -261,10 +261,10 @@ template <class IT, class NT>
 Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 {
 	Arr<IT,NT> arr(3,1);
-	arr.indarrs[0] = LocArr(dscs->cp, dcsc->nzc+1);
-	arr.indarrs[1] = LocArr(dscs->jc, dcsc->nzc);
-	arr.indarrs[2] = LocArr(dscs->ir, dcsc->nz);
-	arr.numarrs[0] = LocArr(dscs->num, dcsc->nz);
+	arr.indarrs[0] = LocArr<IT,IT>(dcsc->cp, dcsc->nzc+1);
+	arr.indarrs[1] = LocArr<IT,IT>(dcsc->jc, dcsc->nzc);
+	arr.indarrs[2] = LocArr<IT,IT>(dcsc->ir, dcsc->nz);
+	arr.numarrs[0] = LocArr<IT,NT>(dcsc->numx, dcsc->nz);
 }
 
 /**
@@ -274,7 +274,7 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
   * \remarks respects the memory pool
   */
 template <class IT, class NT>
-void SpDCCCols<IT,NT>::Transpose()
+void SpDCCols<IT,NT>::Transpose()
 {
 	SpTuples<IT,NT> Atuples(*this);
 	Atuples.SortRowBased();
@@ -290,7 +290,7 @@ void SpDCCCols<IT,NT>::Transpose()
   * \remarks respects the memory pool
   */
 template <class IT, class NT>
-SpDCCCols<IT,NT> SpDCCCols<IT,NT>::TransposeConst() const
+SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
 {
 	SpTuples<IT,NT> Atuples(*this);
 	Atuples.SortRowBased();
@@ -332,7 +332,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & A, SpDCCols<IT,NT> & B)
 {
 	assert(A.m == B.m);
 
-	Dcsc * Cdcsc = new Dcsc<IT,NT>();
+	Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
 	Cdcsc->Merge(A.dcsc, B.dcsc, A.n);
 	
 	*this = SpDCCols<IT,NT> (dcsc->nz, A.m, A.n + B.n, Cdcsc);
@@ -349,13 +349,13 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & A, SpDCCols<IT,NT> & B)
  */
 template <class IT, class NT>
 template <class SR>
-int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, SR sring)
+int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
 {
 	if(A.isZero() || B.isZero())
 	{
 		return -1;	// no need to do anything
 	}
-	Isect *isect1, *isect2, *itr1, *itr2, *cols, *rows;
+	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
@@ -391,7 +391,8 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
  * The multiplication is on the specified semiring (passed as parameter)
  */
 template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+template <typename SR>
+int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
 {
 	if(A.isZero() || B.isZero())
 	{
@@ -416,14 +417,16 @@ int SparseDColumn<T>::PlusEq_AnXBn(const SparseDColumn<T> & A, const SparseDColu
 
 
 template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AtXBn(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+template <typename SR>
+int SpDCCols<IT,NT>::PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
 {
 	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
 	return 0;
 }
 
 template <class IT, class NT>
-int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColumn<T> & B)
+template <typename SR>
+int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
 {
 	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
 	return 0;
@@ -437,8 +440,8 @@ int SparseDColumn<T>::PlusEq_AtXBt(const SparseDColumn<T> & A, const SparseDColu
 template <class IT, class NT>
 SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
 {
-	ITYPE rsize = ri.size();
-	ITYPE csize = ci.size();
+	IT rsize = ri.size();
+	IT csize = ci.size();
 
 	if(rsize == 0 && csize == 0)
 	{
@@ -458,7 +461,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	else if(csize == 0)
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
-		return LeftMatrix.OrdColByCol(*this, PlusTimesSRing());
+		//return LeftMatrix.template OrdColByCol<PlusTimesSRing>(*this, PlusTimesSRing());
 	}
 	else
 	{
@@ -543,7 +546,7 @@ inline void SpDCCols<IT,NT>::CopyDcsc(Dcsc<IT,NT> * source)
 template <class IT, class NT>
 SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 {
-	ITYPE csize = ci.size();
+	IT csize = ci.size();
 	if(nnz == 0)	// nothing to index
 	{
 		return SpDCCols<IT,NT>(zero, m, csize, zero);	
@@ -610,9 +613,9 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 
 template <class IT, class NT>
 template <typename NTR, typename SR>
-SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdOutProdMult(const SpDCCol<IT,NTR> & rhs, const SR & sring) const
+SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOutProdMult(const SpDCCols<IT,NTR> & rhs, const SR & sring) const
 {
-	typedef promote_trait<NT,NTR>::T_promote T_promote;  
+	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
 
 	if(isZero() || rhs.isZero())
 	{
@@ -620,7 +623,7 @@ SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdOutProdMult(c
 	}
 	SpDCCols<IT,NTR> Btrans = rhs.TransposeConst();
 
-	Isect *isect1, *isect2, *itr1, *itr2, *cols, *rows;
+	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(dcsc, Btrans.dcsc, cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
@@ -640,9 +643,9 @@ SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdOutProdMult(c
 
 template <class IT, class NT>
 template <typename NTR, typename SR>
-SpDCCol< IT, promote_trait<NT,NTR>::T_promote > SpDCCol<IT,NT>::OrdColByCol(const SpDCCol<IT,NTR> & rhs, const SR & sring) const
+SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdColByCol(const SpDCCols<IT,NTR> & rhs, const SR & sring) const
 {
-	typedef promote_trait<NT,NTR>::T_promote T_promote;  
+	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
 
 	if(isZero() || rhs.isZero())
 	{
@@ -678,7 +681,7 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 	{
 		SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);	// just return an empty matrix
 	}
-	Isect *isect1, *isect2, *itr1, *itr2, *cols, *rows;
+	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))

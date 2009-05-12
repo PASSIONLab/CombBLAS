@@ -18,7 +18,7 @@
 
 using namespace std;
 
-template <class IT, NT>
+template <class IT, class NT>
 class Dcsc
 {
 public:
@@ -27,7 +27,7 @@ public:
 	Dcsc (IT nnz, IT nzcol, MemoryPool * pool);	//!< Placement constructor
 
 	Dcsc (IT nnz, const vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
-	Dcsc (StackEntry<T, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
+	Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 
 	Dcsc (const Dcsc<IT,NT> & rhs);				// copy constructor
 	Dcsc<IT,NT> & operator=(const Dcsc<IT,NT> & rhs);	// assignment operator
@@ -37,18 +37,18 @@ public:
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
 
-	IT AuxIndex(IT colind, bool found, IT * aux, IT csize);
+	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize);
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
-	IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux);
+	IT ConstructAux(IT ndim, IT * & aux);
 	void Resize(IT nzcnew, IT nznew);
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 	
 	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
 	IT * jc ;		//!<  col indices, size nzc
 	IT * ir ;		//!<  row indices, size nz
-	T * numx;		//!<  generic values, size nz
+	NT * numx;		//!<  generic values, size nz
 
 	IT nz;
 	IT nzc;			//!<  number of columns with at least one non-zero in them

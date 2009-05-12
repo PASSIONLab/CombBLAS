@@ -150,8 +150,8 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
 		else	// they are equal, merge the column
 		{
 			temp.jc[curnzc++] = jc[i];
-			ITYPE ii = cp[i];
-			ITYPE prevnz = curnz;		
+			IT ii = cp[i];
+			IT prevnz = curnz;		
 			while (ii < cp[i+1] && cindex == jc[i])	// cindex would be MAX if multstack is deplated
 			{
 				if (ir[ii] < rindex)
@@ -648,9 +648,9 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	memcpy(A->numx, numx, cp[pos] * sizeof(NT));
 	
 	memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
-	transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut);
+	transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut));
 	memcpy(B->cp, cp+pos, (nzc-pos+1) * sizeof(IT));
-	transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]);
+	transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]));
 	memcpy(B->ir, ir + cp[pos], (nz- cp[pos]) * sizeof(IT)); 
 	memcpy(B->numx, numx + cp[pos], (nz- cp[pos]) * sizeof(NT)); 
 }
@@ -730,9 +730,9 @@ void Dcsc<IT,NT>::fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > 
 		IT auxsize = ConstructAux(n, aux);
 
 		bool found;
-		for(ITYPE j =0; j< nind; ++j)
+		for(IT j =0; j< nind; ++j)
 		{
-			IT pos = AuxIndex(colnums[i], found, aux, csize);
+			IT pos = AuxIndex(colnums[j], found, aux, csize);
 			if(found)
 			{
 				colinds[j].first = cp[pos];

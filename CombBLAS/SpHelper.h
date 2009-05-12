@@ -7,16 +7,18 @@
 
 /**
  * Functions that are used by multiple SpMat classes
- * \n I tried to avoid putting an intermediate class and rely on inheritance
- * \n First reason is the performance and the second reason is the vague IS-A relationship 
  **/
 
 #ifndef _SP_HELPER_H_
 #define _SP_HELPER_H_
 
+#include <vector>
 #include "SpDefs.h"
 #include "StackEntry.h"
+#include "promote.h"
 #include "Isect.h"
+
+using namespace std;
 
 class SpHelper
 {
@@ -40,26 +42,26 @@ public:
 	static void dallocate2D(T ** array, I m)
 	{
 		for(I i = 0; i<m; ++i) 
-			delete array[i]
+			delete array[i];
 		delete [] array;
 	}
 
 	
-	template <typename NT1, typename NT2, typename IT, template SR>
-	static IT Popping(NT1 * numA, NT2 * numB, StackEntry<promote_trait<NT1,NT2>::T_promote,, pair<IT,IT> > * multstack,
+	template <typename NT1, typename NT2, typename IT, typename SR>
+	static IT Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack,
 		 	SR sring, IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);
 
 	template <typename IT, typename NT1, typename NT2>
 	static void SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, Isect<IT>* & cols, Isect<IT>* & rows, 
 				Isect<IT>* & isect1, Isect<IT>* & isect2, Isect<IT>* & itr1, Isect<IT>* & itr2);
 
-	template <typename IT, typename NT1, typename NT2, template SR>
+	template <typename IT, typename NT1, typename NT2, typename SR>
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
-		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
+		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
-	template <typename IT, typename NT1, typename NT2, template SR>
+	template <typename IT, typename NT1, typename NT2, typename SR>
 	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT estnnz, 
-			StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
+			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
@@ -94,15 +96,15 @@ public:
 /**
  * Pop an element, do the numerical semiring multiplication & insert the result into multstack
  */
-template <typename NT1, typename NT2, typename IT, template SR>
-IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry<promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack, 
+template <typename NT1, typename NT2, typename IT, typename SR>
+IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack, 
 			SR sring, IT & cnz, KNHeap< pair<IT,IT>,IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2)
 {
 	pair<IT,IT> key;	
 	IT inc;
 	sHeap.deleteMin(&key, &inc);
 
-	promote_trait<NT1,NT2>::T_promote value = sring.multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
+	typename promote_trait<NT1,NT2>::T_promote value = sring.multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
 	if(cnz != 0)
 	{
 		if(multstack[cnz-1].key == key)	// already exists
@@ -170,9 +172,9 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
  * Returns the "actual" number of elements in the merged stack
  * Bdcsc is "already transposed" (i.e. Bdcsc->ir gives column indices, and Bdcsc->jc gives row indices)
  **/
-template <typename IT, typename NT1, typename NT2, template SR>
+template <typename IT, typename NT1, typename NT2, typename SR>
 IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
-		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {	
 	pair<IT,IT> supremum(numeric_limits<IT>::max(), numeric_limits<IT>::max());
 	pair<IT,IT> infimum (numeric_limits<IT>::min(), numeric_limits<IT>::min());
@@ -183,13 +185,13 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 	// The key to sort is pair<col_ind, row_ind> so that output is in column-major order
 	for(IT i=0; i< kisect; ++i)
 	{
-		IPAIR key(Bdcsc.ir[isect2[i].current], Adcsc.ir[isect1[i].current]);
+		pair<IT,IT> key(Bdcsc.ir[isect2[i].current], Adcsc.ir[isect1[i].current]);
 		sHeapDcsc.insert(key, i);
 	}
 
 	IT cnz = 0;						
 	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
-	multstack = new StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > [cnzmax];	
+	multstack = new StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > [cnzmax];	
 
 	bool finished = false;
 	while(!finished)		// multiplication loop  (complexity O(flops * log (kisect))
@@ -201,7 +203,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 		} 
 
 		// inc: the list to increment its pointer in the k-list merging
-		ITYPE inc = Popping(Adcsc.numx, Bdcsc.numx, multstack, sring, cnz, sHeapDcsc, isect1, isect2);
+		IT inc = Popping(Adcsc.numx, Bdcsc.numx, multstack, sring, cnz, sHeapDcsc, isect1, isect2);
 		isect1[inc].current++;	
 		
 		if(isect1[inc].current < isect1[inc].size + isect1[inc].start)
@@ -233,11 +235,11 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 }
 
 
-template <typename IT, typename NT1, typename NT2, template SR>
+template <typename IT, typename NT1, typename NT2, typename SR>
 IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, 
-			StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {
-	typedef promote_trait<NT1,NT2>::T_promote T_promote;     
+	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 
 	IT cnz = 0;
 	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
@@ -255,7 +257,7 @@ IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring,
 
 		// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
 		// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
-		vector< pair<IT,IT> > colinds(Bdcsc->cp[i+1] - Bdcsc->cp[i]));		
+		vector< pair<IT,IT> > colinds(Bdcsc->cp[i+1] - Bdcsc->cp[i]);		
 
 		copy(Bdcsc->ir + Bdcsc->cp[i], Bdcsc->ir + Bdcsc->cp[i+1], colnums.begin());
 		

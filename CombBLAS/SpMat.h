@@ -11,7 +11,6 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include "SequenceHeaps/knheap.C"
 #include "SpDefs.h"
 #include "LocArr.h"
 
