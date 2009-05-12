@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <cassert>
 #include <tr1/tuple>
 #include "SpDefs.h"
 #include "StackEntry.h"
@@ -24,7 +25,6 @@ class SpDCCols;
 
 template <class IU, class NU>
 class Dcsc;
-
 
 /**
  * Triplets are represented using the boost::tuple class of the Boost library

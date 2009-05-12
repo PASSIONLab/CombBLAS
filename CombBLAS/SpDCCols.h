@@ -61,26 +61,26 @@ public:
 	void PrintInfo() const;
 
 	template <typename SR> 
-	int PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring);  
+	int PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);  
 	
 	template <typename SR>
-	int PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring);
+	int PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 	
 	template <typename SR>
-	int PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring);  
+	int PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);  
 	
 	template <typename SR>
-	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring);
+	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 
 private:
 	void CopyDcsc(Dcsc<IT,NT> * source);
 	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci);	//!< col indexing without multiplication	
 
 	template <typename NTR, typename SR>
-	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdOutProdMult(const SpDCCols<IT,NTR> & rhs, const SR & sring) const;	
+	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdOutProdMult(const SpDCCols<IT,NTR> & rhs) const;	
 
 	template <typename NTR, typename SR>
-	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdColByCol(const SpDCCols<IT,NTR> & rhs, const SR & sring) const;	
+	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdColByCol(const SpDCCols<IT,NTR> & rhs) const;	
 	
 	SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing
 	SpDCCols (IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc);			// Constructor for multiplication
@@ -102,19 +102,19 @@ private:
 
 	template<class IU, class NU1, class NU2, class SR>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class IU, class NU1, class NU2, class SR>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class IU, class NU1, class NU2, class SR>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class IU, class NU1, class NU2, class SR>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, const SR & sring);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 };
 
 #include "SpDCCols.cpp"

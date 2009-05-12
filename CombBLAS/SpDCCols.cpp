@@ -73,7 +73,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 		{
 			swap(m,n);
 			IT localnzc = 1;
-			for(IT i=1; i< rhs.getnnz(); ++i)
+			for(IT i=1; i< rhs.nnz; ++i)
 			{
 				if(rhs.rowindex(i) != rhs.rowindex(i-1))
 				{
@@ -83,37 +83,37 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 
 			if(localpool == NULL)	// no special memory pool used
 			{
-				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc);	
+				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
 			}
 			else
 			{
-				dcsc = new Dcsc<IT,NT>(rhs.getnnz(), localnzc, localpool);
+				dcsc = new Dcsc<IT,NT>(rhs.nnz, localnzc, localpool);
 	 		}		
 
 			dcsc->jc[zero]  = rhs.rowindex(zero); 
-			dcsc->mas[zero] = zero;
+			dcsc->cp[zero] = zero;
 
-			for(IT i=0; i<rhs.getnnz(); ++i)
+			for(IT i=0; i<rhs.nnz; ++i)
 	 		{
 				dcsc->ir[i]  = rhs.colindex(i);		// copy rhs.jc to ir since this transpose=true
 				dcsc->numx[i] = rhs.numvalue(i);
 			}
 
 			IT jspos  = 1;		
-			for(IT i=1; i<rhs.getnnz(); ++i)
+			for(IT i=1; i<rhs.nnz; ++i)
 			{
 				if(rhs.rowindex(i) != dcsc->jc[jspos-1])
 				{
 					dcsc->jc[jspos] = rhs.rowindex(i);	// copy rhs.ir to jc since this transpose=true
-					dcsc->mas[jspos++] = i;
+					dcsc->cp[jspos++] = i;
 				}
 			}		
-			dcsc->mas[jspos] = rhs.getnnz();
+			dcsc->cp[jspos] = rhs.nnz;
 	 	}
 		else
 		{
 			IT localnzc = 1;
-			for(IT i=1; i<rhs.getnnz(); ++i)
+			for(IT i=1; i<rhs.nnz; ++i)
 			{
 				if(rhs.colindex(i) != rhs.colindex(i-1))
 				{
@@ -122,32 +122,32 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 			}
 			if(localpool == NULL)	// no special memory pool used
 			{
-				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc);	
+				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
 			}
 			else
 			{
-				dcsc = new Dcsc<IT,NT>(rhs.getnnz(),localnzc, localpool);
+				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc, localpool);
 			}
 
 			dcsc->jc[zero]  = rhs.colindex(zero); 
-			dcsc->mas[zero] = zero;
+			dcsc->cp[zero] = zero;
 
-			for(IT i=0; i<rhs.getnnz(); ++i)
+			for(IT i=0; i<rhs.nnz; ++i)
 			{
 				dcsc->ir[i]  = rhs.rowindex(i);		// copy rhs.ir to ir since this transpose=false
-				dcsc->numx[i] = rhs.numvalues(i);
+				dcsc->numx[i] = rhs.numvalue(i);
 			}
 
 			IT jspos = 1;		
-			for(IT i=1; i<rhs.getnnz(); ++i)
+			for(IT i=1; i<rhs.nnz; ++i)
 			{
 				if(rhs.colindex(i) != dcsc->jc[jspos-1])
 				{
 					dcsc->jc[jspos] = rhs.colindex(i);	// copy rhs.jc to jc since this transpose=true
-					dcsc->mas[jspos++] = i;
+					dcsc->cp[jspos++] = i;
 				}
 			}		
-			dcsc->mas[jspos] = rhs.getnnz();
+			dcsc->cp[jspos] = rhs.nnz;
 		}
 	} 
 }
@@ -349,7 +349,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & A, SpDCCols<IT,NT> & B)
  */
 template <class IT, class NT>
 template <class SR>
-int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
+int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
 	if(A.isZero() || B.isZero())
 	{
@@ -366,7 +366,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	}
 	
 	StackEntry< NT, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpCartesian (A.dcsc, B.dcsc, sring, kisect, isect1, isect2, multstack);  
+	IT cnz = SpHelper::SpCartesian< SR > (A.dcsc, B.dcsc, kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
 	IT mdim = A.m;	
@@ -392,14 +392,14 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
  */
 template <class IT, class NT>
 template <typename SR>
-int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
+int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
 	if(A.isZero() || B.isZero())
 	{
 		return -1;	// no need to do anything
 	}
 	StackEntry< NT, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol (A.dcsc, B.dcsc, sring, multstack);  
+	IT cnz = SpHelper::SpColByCol< SR > (A.dcsc, B.dcsc, multstack);  
 	
 	IT mdim = A.m;	
 	IT ndim = B.n;
@@ -418,7 +418,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 
 template <class IT, class NT>
 template <typename SR>
-int SpDCCols<IT,NT>::PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
+int SpDCCols<IT,NT>::PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
 	cout << "PlusEq_AtXBn function has not been implemented yet !" << endl;
 	return 0;
@@ -426,7 +426,7 @@ int SpDCCols<IT,NT>::PlusEq_AtXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 
 template <class IT, class NT>
 template <typename SR>
-int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B, const SR & sring)
+int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B)
 {
 	cout << "PlusEq_AtXBt function has not been implemented yet !" << endl;
 	return 0;
@@ -440,6 +440,8 @@ int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 template <class IT, class NT>
 SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
 {
+	typedef PlusTimesSRing<NT,NT> PT;	
+
 	IT rsize = ri.size();
 	IT csize = ci.size();
 
@@ -461,13 +463,13 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	else if(csize == 0)
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
-		//return LeftMatrix.template OrdColByCol<PlusTimesSRing>(*this, PlusTimesSRing());
+		return LeftMatrix.OrdColByCol< PT >(*this);
 	}
 	else
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
 		SpDCCols<IT,NT> RightMatrix(csize, this->n, csize, ci, false);
-		return LeftMatrix.OrdColByCol(OrdColByCol(RightMatrix,PlusTimesSRing()),PlusTimesSRing());
+		return LeftMatrix.OrdColByCol< PT >( OrdColByCol< PT >(RightMatrix) );
 	}
 }
 
@@ -484,7 +486,7 @@ ofstream & SpDCCols<IT,NT>::put(ofstream & outfile) const
 }
 
 template<class IT, class NT>
-void SpDCCols<IT,NT>::PrintInfo()
+void SpDCCols<IT,NT>::PrintInfo() const
 {
 	cout << "m: " << m ;
 	cout << ", n: " << n ;
@@ -578,7 +580,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 		}
 	}
 	
-	SpDCCol<IT,NT> SubA(estsize, m, csize, estnzc);	
+	SpDCCols<IT,NT> SubA(estsize, m, csize, estnzc);	
 	if(estnzc == zero)
 	{
 		return SubA;		// no need to run the second pass
@@ -613,7 +615,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 
 template <class IT, class NT>
 template <typename NTR, typename SR>
-SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOutProdMult(const SpDCCols<IT,NTR> & rhs, const SR & sring) const
+SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOutProdMult(const SpDCCols<IT,NTR> & rhs) const
 {
 	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
 
@@ -633,7 +635,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpCartesian (dcsc, Btrans.dcsc, sring, kisect, isect1, isect2, multstack);  
+	IT cnz = SpHelper::SpCartesian< SR > (dcsc, Btrans.dcsc, kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
 	Dcsc< IT, T_promote > * mydcsc = new Dcsc< IT,T_promote >(multstack, m, rhs.n, cnz);
@@ -643,7 +645,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 
 template <class IT, class NT>
 template <typename NTR, typename SR>
-SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdColByCol(const SpDCCols<IT,NTR> & rhs, const SR & sring) const
+SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdColByCol(const SpDCCols<IT,NTR> & rhs) const
 {
 	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
 
@@ -652,7 +654,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 		return SpDCCols<IT, T_promote> (zero, m, rhs.n, zero);		// return an empty matrix	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol (dcsc, rhs.dcsc, sring, multstack);  
+	IT cnz = SpHelper::SpColByCol< SR > (dcsc, rhs.dcsc, multstack);  
 	
 	Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
@@ -669,33 +671,35 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
  * The multiplication is on the specified semiring (passed as parameter)
  */
 template<class IU, class NU1, class NU2, class SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
+SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B, 
-					 const SR & sring)
+					 const SpDCCols<IU, NU2> & B)
 {
-	IT mdim = A.m;	
-	IT ndim = B.m;	// B is already transposed
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;  
+	typedef typename SpDCCols<IU,NU1>::zero zero;
+
+	IU mdim = A.m;	
+	IU ndim = B.m;	// B is already transposed
 
 	if(A.isZero() || B.isZero())
 	{
-		SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);	// just return an empty matrix
+		SpTuples< IU, T_promote >(zero, mdim, ndim);	// just return an empty matrix
 	}
-	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
+	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
 	
-	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
+	IU kisect = static_cast<IU>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
 	if(kisect == zero)
 	{
 		DeleteAll(isect1, isect2, cols, rows);
-		return SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);
+		return SpTuples< IU, T_promote >(zero, mdim, ndim);
 	}
 	
-	StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpCartesian (A.dcsc, B.dcsc, sring, kisect, isect1, isect2, multstack);  
+	StackEntry< T_promote, pair<IU,IU> > * multstack;
+	IU cnz = SpHelper::SpCartesian< SR > (A.dcsc, B.dcsc, kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
-	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (cnz, mdim, ndim, multstack);
+	return SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }
 
 /**
@@ -705,48 +709,54 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
  * The multiplication is on the specified semiring (passed as parameter)
  */
 template<class IU, class NU1, class NU2, class SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
+SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B, 
-					 const SR & sring)
+					 const SpDCCols<IU, NU2> & B )
 {
-	IT mdim = A.m;	
-	IT ndim = B.n;	
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
+	typedef typename SpDCCols<IU,NU1>::zero zero; 
+
+	IU mdim = A.m;	
+	IU ndim = B.n;	
 	if(A.isZero() || B.isZero())
 	{
-		SpTuples<IU, promote_trait<NU1,NU2>::T_promote>(zero, mdim, ndim);
+		SpTuples<IU, T_promote>(zero, mdim, ndim);
 	}
-	StackEntry< promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol (A.dcsc, B.dcsc, sring, multstack);  
+	StackEntry< T_promote, pair<IU,IU> > * multstack;
+	IU cnz = SpHelper::SpColByCol< SR > (A.dcsc, B.dcsc, multstack);  
 	
-	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (cnz, mdim, ndim, multstack);
+	return SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }
 
 
 template<class IU, class NU1, class NU2, class SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
+SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B, 
-					 const SR & sring)
 {
-	IT mdim = A.n;	
-	IT ndim = B.m;	
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
+	typedef typename SpDCCols<IU,NU1>::zero zero; 
+
+	IU mdim = A.n;	
+	IU ndim = B.m;	
 	cout << "Tuples_AtXBt function has not been implemented yet !" << endl;
 		
-	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (zero, mdim, ndim);
+	return SpTuples<IU, T_promote> (zero, mdim, ndim);
 }
 
 template<class IU, class NU1, class NU2, class SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
+SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B, 
-					 const SR & sring)
 {
-	IT mdim = A.n;	
-	IT ndim = B.n;	
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
+	typedef typename SpDCCols<IU,NU1>::zero zero; 
+
+	IU mdim = A.n;	
+	IU ndim = B.n;	
 	cout << "Tuples_AtXBn function has not been implemented yet !" << endl;
 		
-	return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (zero, mdim, ndim);
+	return SpTuples<IU, T_promote> (zero, mdim, ndim);
 }
 
 

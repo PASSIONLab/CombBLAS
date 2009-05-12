@@ -49,18 +49,18 @@ public:
 	
 	template <typename NT1, typename NT2, typename IT, typename SR>
 	static IT Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack,
-		 	SR sring, IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);
+		 	IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);
 
 	template <typename IT, typename NT1, typename NT2>
 	static void SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, Isect<IT>* & cols, Isect<IT>* & rows, 
-				Isect<IT>* & isect1, Isect<IT>* & isect2, Isect<IT>* & itr1, Isect<IT>* & itr2);
+			Isect<IT>* & isect1, Isect<IT>* & isect2, Isect<IT>* & itr1, Isect<IT>* & itr2);
 
 	template <typename IT, typename NT1, typename NT2, typename SR>
-	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
-		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
+	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
+			Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename IT, typename NT1, typename NT2, typename SR>
-	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT estnnz, 
+	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT estnnz, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
@@ -98,18 +98,18 @@ public:
  */
 template <typename NT1, typename NT2, typename IT, typename SR>
 IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack, 
-			SR sring, IT & cnz, KNHeap< pair<IT,IT>,IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2)
+			IT & cnz, KNHeap< pair<IT,IT>,IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2)
 {
 	pair<IT,IT> key;	
 	IT inc;
 	sHeap.deleteMin(&key, &inc);
 
-	typename promote_trait<NT1,NT2>::T_promote value = sring.multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
+	typename promote_trait<NT1,NT2>::T_promote value = SR::multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
 	if(cnz != 0)
 	{
 		if(multstack[cnz-1].key == key)	// already exists
 		{
-			multstack[cnz-1].value = sring.add(multstack[cnz-1].value, value);
+			multstack[cnz-1].value = SR::add(multstack[cnz-1].value, value);
 		}
 		else
 		{
@@ -173,8 +173,8 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
  * Bdcsc is "already transposed" (i.e. Bdcsc->ir gives column indices, and Bdcsc->jc gives row indices)
  **/
 template <typename IT, typename NT1, typename NT2, typename SR>
-IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, IT kisect, 
-		Isect<IT> * isect1, Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
+		Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {	
 	pair<IT,IT> supremum(numeric_limits<IT>::max(), numeric_limits<IT>::max());
 	pair<IT,IT> infimum (numeric_limits<IT>::min(), numeric_limits<IT>::min());
@@ -203,7 +203,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 		} 
 
 		// inc: the list to increment its pointer in the k-list merging
-		IT inc = Popping(Adcsc.numx, Bdcsc.numx, multstack, sring, cnz, sHeapDcsc, isect1, isect2);
+		IT inc = Popping< SR >(Adcsc.numx, Bdcsc.numx, multstack, cnz, sHeapDcsc, isect1, isect2);
 		isect1[inc].current++;	
 		
 		if(isect1[inc].current < isect1[inc].size + isect1[inc].start)
@@ -236,7 +236,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 
 
 template <typename IT, typename NT1, typename NT2, typename SR>
-IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring, 
+IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
@@ -286,11 +286,11 @@ IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, SR sring,
 		while(heapsize > 0)
 		{
 			workingset.deleteMin(&key, &hentry);
-			T_promote mrhs = sring.multiply(hentry.first, Bdcsc->numx[Bdcsc->cp[i]+hentry.second]);
+			T_promote mrhs = SR::multiply(hentry.first, Bdcsc->numx[Bdcsc->cp[i]+hentry.second]);
 			
 			if(cnz != 0 && multstack[cnz-1].key.second == key)	// if cnz == 0, then multstack is empty
 			{
-				multstack[cnz-1] = sring.add(multstack[cnz-1].value, mrhs);
+				multstack[cnz-1] = SR::add(multstack[cnz-1].value, mrhs);
 			}
 			else
 			{

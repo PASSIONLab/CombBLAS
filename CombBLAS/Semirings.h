@@ -24,12 +24,12 @@ struct PlusTimesSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 
-	T_promote add(const T1 & arg1, const T2 & arg2) const
+	static T_promote add(const T1 & arg1, const T2 & arg2)
 	{
 		return (static_cast<T_promote>(arg1) +  
 			static_cast<T_promote>(arg2) );
 	}
-	T_promote multiply(const T1 & arg1, const T2 & arg2) const
+	static T_promote multiply(const T1 & arg1, const T2 & arg2)
 	{
 		return (static_cast<T_promote>(arg1) * 
 			static_cast<T_promote>(arg2) );
@@ -43,12 +43,12 @@ struct MinPlusSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 
-	T_promote add(const T1 & arg1, const T2 & arg2) const
+	static T_promote add(const T1 & arg1, const T2 & arg2)
 	{
-		return min<T_promote> 
+		return std::min<T_promote> 
 		(static_cast<T_promote>(arg1), static_cast<T_promote>(arg2));
 	}
-	T_promote multiply(const T1 & arg1, const T2 & arg2) const
+	static T_promote multiply(const T1 & arg1, const T2 & arg2)
 	{
 		return inf_plus< T_promote > 
 		(static_cast<T_promote>(arg1), static_cast<T_promote>(arg2));
