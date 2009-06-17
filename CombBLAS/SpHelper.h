@@ -59,8 +59,8 @@ public:
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
 			Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
-	template <typename IT, typename NT1, typename NT2, typename SR>
-	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT estnnz, 
+	template <typename SR, typename IT, typename NT1, typename NT2>
+	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
@@ -235,7 +235,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 }
 
 
-template <typename IT, typename NT1, typename NT2, typename SR>
+template <typename SR, typename IT, typename NT1, typename NT2>
 IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {

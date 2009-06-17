@@ -52,7 +52,7 @@ public:
 	void CreateImpl(vector<IT> & essentials);
 	vector<IT> GetEssentials() const;
 
-	bool isZero() { return (nnz == zero); }
+	bool isZero() const { return (nnz == zero); }
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }

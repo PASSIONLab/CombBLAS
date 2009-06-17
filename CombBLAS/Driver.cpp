@@ -31,6 +31,10 @@ int main()
 	
 	SpDCCols<int,double> dcolsB(tuplesB, false, NULL);		
 
-	
+
+	SpDCCols<int,double> dcolsC;
+
+	typedef PlusTimesSRing<double, double> PT;	
+	dcolsC.PlusEq_AnXBn< PT > (dcolsA, dcolsB);
 }
 

@@ -8,8 +8,8 @@ COMPILER = g++	# later use mpicxx (but that's based on gcc 4.0)
 MemoryPool.o:	MemoryPool.cpp SpDefs.h
 	g++ $(INCADD) $(OPT) -c -o MemoryPool.o MemoryPool.cpp
 
-driver:	Driver.cpp SpDCCols.cpp 
-	g++ $(INCADD) $(DEB) -o driver Driver.cpp  
+driver:	Driver.cpp SpDCCols.cpp MemoryPool.o
+	g++ $(INCADD) $(DEB) -o driver Driver.cpp MemoryPool.o 
 
 clean:
 	rm -f driver
