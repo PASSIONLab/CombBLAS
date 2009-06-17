@@ -47,6 +47,8 @@ CombBLAS/dcsc.h -text
 CombBLAS/makefile-lonestar -text
 CombBLAS/makefile-mac -text
 CombBLAS/makefile-neumann -text
+CombBLAS/matrixA.txt -text
+CombBLAS/matrixB.txt -text
 CombBLAS/promote.h -text
 Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text
