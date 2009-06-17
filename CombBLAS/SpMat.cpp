@@ -70,7 +70,7 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A,
 
 
 template<typename IU, typename NU1, typename NU2, typename DER, typename SR>
-SpTuples<IU, promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
+SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 					(const SpMat<IU, NU1, DER> & A, 
 					 const SpMat<IU, NU2, DER> & B, 
 					 bool isAT, bool isBT)
@@ -121,6 +121,6 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 	else
 	{
 		cerr <<"Not multipliable: " << A_n << "!=" << B_m << endl;
-		return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (0, 0, 0);
+		return SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> (0, 0, 0);
 	}
 }

@@ -69,7 +69,7 @@ protected:
 	friend ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
 
 	template<class IU, class NU1, class NU2, class SR>
-	friend SpTuples< IU, promote_trait<NU1,NU2>::T_promote >
+	friend SpTuples< IU, typename promote_trait<NU1,NU2>::T_promote >
 	MultiplyReturnTuples (const SpMat< IU, NU1, DER > & A, const SpMat< IU, NU2, DER > & B, bool isAT, bool isBT);
 
 };
