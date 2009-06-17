@@ -6,7 +6,7 @@
 /****************************************************************/
 
 /**
- * Functions that are used by multiple SpMat classes
+ * Functions that are used by multiple classes, but don't need the "this" pointer
  **/
 
 #ifndef _SP_HELPER_H_
@@ -60,7 +60,7 @@ public:
 			Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename SR, typename IT, typename NT1, typename NT2>
-	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
+	static IT SpColByCol(const Dcsc<IT,NT1> * & Adcsc, const Dcsc<IT,NT2> * & Bdcsc, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
@@ -236,13 +236,13 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 
 
 template <typename SR, typename IT, typename NT1, typename NT2>
-IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
+IT SpHelper::SpColByCol(const Dcsc<IT,NT1> * & Adcsc, const Dcsc<IT,NT2> * & Bdcsc, 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 
 	IT cnz = 0;
-	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
+	IT cnzmax = Adcsc->nz + Bdcsc->nz;	// estimate on the size of resulting matrix C
 	multstack = new StackEntry<T_promote, pair<IT,IT> >[cnzmax];	 
 
 	for(IT i=0; i< Bdcsc->nzc; ++i)		// for all the columns of B
