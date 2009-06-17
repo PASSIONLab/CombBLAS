@@ -73,7 +73,7 @@ template<typename IU, typename NU1, typename NU2, typename DER, typename SR>
 SpTuples<IU, promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 					(const SpMat<IU, NU1, DER> & A, 
 					 const SpMat<IU, NU2, DER> & B, 
-					 bool isAT, bool isBT, SR sring)
+					 bool isAT, bool isBT)
 
 {
 	IT A_m, A_n, B_m, B_n;

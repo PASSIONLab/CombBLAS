@@ -12,6 +12,7 @@
 #include <vector>
 #include <utility>
 #include "SpDefs.h"
+#include "promote.h"
 #include "LocArr.h"
 
 using namespace std;
@@ -38,7 +39,7 @@ public:
 	SpMat< IT,NT,DER >  operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	
 	template <typename SR>
-	void MultiplyAddAssign( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT, SR sring);
+	void MultiplyAddAssign( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
 
 	Arr<IT,NT> GetArrays() const
 	{
