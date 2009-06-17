@@ -2,7 +2,7 @@
 #include "SpMat.h"
 
 template <class IT, class NT, class DER>
-SpMat<IT, NT, DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const
+SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
 {
 	return ((static_cast<DER>(*this)) (ri, ci));
 }

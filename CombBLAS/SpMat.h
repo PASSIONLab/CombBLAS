@@ -14,6 +14,7 @@
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"
+#include "SpTuples.h"
 
 using namespace std;
 
