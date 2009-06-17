@@ -399,7 +399,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 		return -1;	// no need to do anything
 	}
 	StackEntry< NT, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol< SR > (A.dcsc, B.dcsc, multstack);  
+	int cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n, multstack);  
 	
 	IT mdim = A.m;	
 	IT ndim = B.n;
@@ -411,6 +411,8 @@ int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	{
 		dcsc->AddAndAssign(multstack, mdim, ndim, cnz);
 	}
+	nnz = dcsc->nz;
+	
 	delete [] multstack;
 	return 1;	
 }
@@ -654,7 +656,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 		return SpDCCols<IT, T_promote> (zero, m, rhs.n, zero);		// return an empty matrix	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol< SR > (dcsc, rhs.dcsc, multstack);  
+	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), multstack);  
 	
 	Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
@@ -723,7 +725,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn
 		return SpTuples<IU, T_promote>(zero, mdim, ndim);
 	}
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
-	IU cnz = SpHelper::SpColByCol< SR > (A.dcsc, B.dcsc, multstack);  
+	IU cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), multstack);  
 	
 	return SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }

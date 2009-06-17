@@ -62,7 +62,7 @@ inline void Dcsc<IT,NT>::getindices (StackEntry<NT, pair<IT,IT> > * multstack, I
 }
 
 template <class IT, class NT>
-void * Dcsc<IT,NT>::mallocarray (size_t size)
+void * Dcsc<IT,NT>::mallocarray (size_t size) const
 {
 	void * addr;
 	if(pool == NULL)
@@ -85,7 +85,7 @@ void * Dcsc<IT,NT>::mallocarray (size_t size)
 
 //! Frees the memory and assigns the pointer to NULL 
 template <class IT, class NT>
-void Dcsc<IT, NT>::deletearray(void * array, size_t size)
+void Dcsc<IT, NT>::deletearray(void * array, size_t size) const
 {
 	
 	if(size != 0 && array != NULL)
@@ -511,7 +511,7 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
   * Complexity O(nzc)
  **/ 
 template <class IT, class NT>
-IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux)
+IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 {
 	float cf  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
 	IT colchunks = static_cast<IT> ( ceil( static_cast<float>(ndim+1) / ceil(cf)) );
@@ -617,7 +617,7 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
   * It it doesn't exist, return value is undefined (implementation specific).
  **/
 template<class IT, class NT>
-IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found, IT * aux, IT csize)
+IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found, IT * aux, IT csize) const
 {
 	IT base = static_cast<IT>(floor((float) (colind/csize)));
 	IT start = aux[base];
@@ -678,7 +678,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 }
 
 template<class IT, class NT>
-void Dcsc<IT,NT>::fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT n) const
+void Dcsc<IT,NT>::FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT ndim) const
 {
 	IT nind = colnums.size();			// number of columns of A that contributes to C(:,i)
 	if ( (nzc / nind) < THRESHOLD) 			// use scanning indexing
@@ -697,7 +697,7 @@ void Dcsc<IT,NT>::fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > 
 			range2[i] = make_pair(colnums[i], 0);	// second is dummy as all the intersecting elements are copied from the first range
 		}
 
-		pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare);
+		pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare<IT> );
 		// isect now can iterate on a subset of the elements of range1
 		// meaning that the intersection can be accessed directly by isect[i] instead of range1[isect[i]]
 		// this is because the intersecting elements are COPIED to the output range "isect"
@@ -723,11 +723,11 @@ void Dcsc<IT,NT>::fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > 
 	}
 	else	 	// use aux based indexing
 	{
-		float cf  = static_cast<float>(n+1) / static_cast<float>(nzc);
+		float cf  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
 		IT csize = static_cast<IT>(ceil(cf));	// chunk size
 		
 		IT * aux;
-		IT auxsize = ConstructAux(n, aux);
+		IT auxsize = ConstructAux(ndim, aux);
 
 		bool found;
 		for(IT j =0; j< nind; ++j)

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-// #include "SpMat.h"	// Best to include the base class first
+#include "SpMat.h"	// Best to include the base class first
 #include "SpTuples.h"
 #include "SpHelper.h"
 #include "StackEntry.h"
@@ -24,7 +24,7 @@
 
 
 template <class IT, class NT>
-class SpDCCols 		//: public SpMat<IT, NT, SpDCCols<IT, NT> >
+class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
 {
 public:
 	// Constructors :
@@ -100,19 +100,19 @@ private:
 	template <class IU, class NU>
 	friend class SpTuples;
 
-	template<class IU, class NU1, class NU2, class SR>
+	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
-	template<class IU, class NU1, class NU2, class SR>
+	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
-	template<class IU, class NU1, class NU2, class SR>
+	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
-	template<class IU, class NU1, class NU2, class SR>
+	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 };

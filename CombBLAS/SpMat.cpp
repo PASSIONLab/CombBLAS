@@ -11,7 +11,7 @@ SpMat<IT, NT, DER> operator() (const vector<IT> & ri, const vector<IT> & ci) con
 template <class IT, class NT, class DER>
 template <typename SR>
 void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A, 
-			SpMat<IT, NT, DER> & B, bool isAT, bool isBT, SR sring)
+			SpMat<IT, NT, DER> & B, bool isAT, bool isBT)
 {
 	IT A_m, A_n, B_m, B_n;
  
@@ -42,19 +42,19 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A,
                	{
 			if(isAT && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBt(static_cast<DER>(A), static_cast<DER>(B), SR);
+				static_cast<DER*>(this)->PlusEq_AtXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
 			}
 			else if(isAT && (!isBT))
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBn(static_cast<DER>(A), static_cast<DER>(B), SR);
+				static_cast<DER*>(this)->PlusEq_AtXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
 			}
 			else if((!isAT) && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBt(static_cast<DER>(A), static_cast<DER>(B), SR);
+				static_cast<DER*>(this)->PlusEq_AnXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
 			}
 			else
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBn(static_cast<DER>(A), static_cast<DER>(B), SR);
+				static_cast<DER*>(this)->PlusEq_AnXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
 			}				
 		}
                 else
@@ -76,5 +76,51 @@ SpTuples<IU, promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 					 bool isAT, bool isBT, SR sring)
 
 {
-
+	IT A_m, A_n, B_m, B_n;
+ 
+	if(isAT)
+	{
+		A_m = A.n;
+		A_n = A.m;
+	}
+	else
+	{
+		A_m = A.m;
+		A_n = A.n;
+	}
+	if(isBT)
+	{
+		B_m = B.n;
+		B_n = B.m;
+	}
+	else
+	{
+		B_m = B.m;
+		B_n = B.n;
+	}
+		
+        if(A_n == B_m)
+	{
+		if(isAT && isBT)
+		{
+			return Tuples_AtXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+		}
+		else if(isAT && (!isBT))
+		{
+			return Tuples_AtXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+		}
+		else if((!isAT) && isBT)
+		{
+			return Tuples_AnXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+		}
+		else
+		{
+			return Tuples_AnXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+		}				
+	}
+	else
+	{
+		cerr <<"Not multipliable: " << A_n << "!=" << B_m << endl;
+		return SpTuples<IU, promote_trait<NU1,NU2>::T_promote> (0, 0, 0);
+	}
 }

@@ -60,15 +60,15 @@ public:
 
 protected:
 
-	template <typename UIT, typename UNT, typename UDER>
+	template < typename UIT, typename UNT, typename UDER >
 	friend ofstream& operator<< (ofstream& outfile, const SpMat< UIT,UNT,UDER > & s);	
 
-	template <typename UIT, typename UNT, typename UDER>
+	template < typename UIT, typename UNT, typename UDER >
 	friend ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
 
 	template<class IU, class NU1, class NU2, class SR>
-	friend SpTuples<IU, promote_trait<NU1,NU2>::T_promote> 
-	MultiplyReturnTuples (const SpMat<IU, NU1, DER> & A, const SpMat<IU, NU2, DER> & B, bool isAT, bool isBT, SR sring);
+	friend SpTuples< IU, promote_trait<NU1,NU2>::T_promote >
+	MultiplyReturnTuples (const SpMat< IU, NU1, DER > & A, const SpMat< IU, NU2, DER > & B, bool isAT, bool isBT);
 
 };
 

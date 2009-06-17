@@ -13,6 +13,7 @@
 #include <vector>
 #include <limits>
 #include "SpDefs.h"
+#include "SpHelper.h"
 #include "StackEntry.h"
 #include "MemoryPool.h"
 
@@ -37,12 +38,14 @@ public:
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
 
-	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize);
+	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize) const;
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
-	IT ConstructAux(IT ndim, IT * & aux);
+	IT ConstructAux(IT ndim, IT * & aux) const;
 	void Resize(IT nzcnew, IT nznew);
+	void FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT ndim) const;
+
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 	
 	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
@@ -54,11 +57,10 @@ public:
 	IT nzc;			//!<  number of columns with at least one non-zero in them
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
-	void fillcolinds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT n) const;
 
 	//! Special memory management functions, both respect the memory pool
-	void * mallocarray (size_t size);
-	void deletearray(void * array, size_t size);
+	void * mallocarray (size_t size) const;
+	void deletearray(void * array, size_t size) const;
 
 	MemoryPool * pool;
 	const static IT zero = static_cast<IT>(0);

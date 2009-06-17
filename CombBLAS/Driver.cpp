@@ -22,6 +22,7 @@ int main()
 	tuplesA.SortColBased();
 	
 	SpDCCols<int,double> dcolsA(tuplesA, false, NULL);
+	dcolsA.PrintInfo();
 
 	inputB >> m >> n >> nnz;
 
@@ -30,11 +31,12 @@ int main()
 	tuplesB.SortColBased();
 	
 	SpDCCols<int,double> dcolsB(tuplesB, false, NULL);		
-
+	dcolsB.PrintInfo();
 
 	SpDCCols<int,double> dcolsC;
 
 	typedef PlusTimesSRing<double, double> PT;	
 	dcolsC.PlusEq_AnXBn< PT > (dcolsA, dcolsB);
+	dcolsC.PrintInfo();
 }
 
