@@ -402,8 +402,6 @@ int SpDCCols<IT,NT>::PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	StackEntry< NT, pair<IT,IT> > * multstack;
 	int cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n, multstack);  
 	
-	cerr << "SpColByCol returned " << cnz << endl;
-	
 	IT mdim = A.m;	
 	IT ndim = B.n;
 	if(isZero())
@@ -501,10 +499,6 @@ ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 	SpTuples<IT,NT> tuples(nnz, m, n);        
 	infile >> tuples;
 	tuples.SortColBased();
-
-	for(int i=0; i<nnz; ++i)
-		cout << tuples.rowindex(i) << " " << tuples.colindex(i) << " " << tuples.numvalue(i) << endl;
-	cout << endl;
         
 	SpDCCols<IT,NT> object(tuples, false, NULL);	
 	*this = object;
@@ -530,22 +524,24 @@ void SpDCCols<IT,NT>::PrintInfo() const
 	if(m < 8 && n < 8)	// small enough to print
 	{
 		NT ** A = SpHelper::allocate2D<NT>(m,n);
-		for(int i=0; i< m; ++i)
-			for(int j=0; j<n; ++j)
+		for(IT i=zero; i< m; ++i)
+			for(IT j=zero; j<n; ++j)
 				A[i][j] = 0.0;
-		
-		for(int i=0; i< dcsc->nzc; ++i)
+		if(dcsc != NULL)
 		{
-			for(int j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
+			for(IT i=zero; i< dcsc->nzc; ++i)
 			{
-				IT colid = dcsc->jc[i];
-				IT rowid = dcsc->ir[j];
-				A[rowid][colid] = dcsc->numx[j];
+				for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
+				{
+					IT colid = dcsc->jc[i];
+					IT rowid = dcsc->ir[j];
+					A[rowid][colid] = dcsc->numx[j];
+				}
 			}
 		} 
-		for(int i=0; i< m; ++i)
+		for(IT i=0; i< m; ++i)
 		{
-                        for(int j=0; j<n; ++j)
+                        for(IT j=0; j<n; ++j)
 			{
                                 cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
 				cout << " ";

@@ -129,26 +129,27 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 //! Loads a triplet matrix from infile
 //! \remarks Assumes matlab type indexing for the input (i.e. indices start from 1)
 template <class IT,class NT>
-ifstream& operator>> (ifstream& infile, SpTuples<IT,NT> & s)
+ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 {
+	cout << "Getting... SpTuples" << endl;
 	IT cnz = SpTuples<IT,NT>::zero;
 	if (infile.is_open())
 	{
-		while (! infile.eof() && cnz < s.nnz)
+		while (! infile.eof() && cnz < nnz)
 		{
-			infile >> s.rowindex(cnz) >> s.colindex(cnz) >>  s.numvalue(cnz);	// row-col-value
+			infile >> rowindex(cnz) >> colindex(cnz) >>  numvalue(cnz);	// row-col-value
 			
-			s.rowindex(cnz) --;
-			s.colindex(cnz) --;
+			rowindex(cnz) --;
+			colindex(cnz) --;
 			
-			if((s.rowindex(cnz) > s.m) || (s.colindex(cnz)  > s.n))
+			if((rowindex(cnz) > m) || (colindex(cnz)  > n))
 			{
 				cerr << "supplied matrix indices are beyond specified boundaries, aborting..." << endl;
 				abort();
 			}
 			++cnz;
 		}
-		assert(s.nnz = cnz);
+		assert(nnz = cnz);
 	}
 	return infile;
 }
@@ -156,13 +157,13 @@ ifstream& operator>> (ifstream& infile, SpTuples<IT,NT> & s)
 //! Output to a triplets file
 //! \remarks Uses matlab type indexing for the output (i.e. indices start from 1)
 template <class IT,class NT>
-ofstream& operator<< (ofstream& outfile, const SpTuples<IT,NT> & s)
+ofstream& SpTuples<IT,NT>::put(ofstream& outfile) const
 {
-	outfile << s.m <<"\t"<< s.n <<"\t"<< s.nnz<<endl;
-	for (IT i = 0; i < s.nnz; ++i)
+	outfile << m <<"\t"<< n <<"\t"<< nnz<<endl;
+	for (IT i = 0; i < nnz; ++i)
 	{
-		outfile << s.rowindex(i)+1  <<"\t"<< s.colindex(i)+1 <<"\t"
-			<< s.numindex(i) << endl;
+		outfile << rowindex(i)+1  <<"\t"<< colindex(i)+1 <<"\t"
+			<< numindex(i) << endl;
 	}
 	return outfile;
 }

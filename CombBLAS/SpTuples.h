@@ -64,11 +64,8 @@ public:
 		sort(tuples , tuples+nnz, colcmp );
 	}
 
-	// Functions declared as friends
-	template <class IU, class NU>
-	friend ofstream& operator<< (ofstream& outfile, const SpTuples<IU,NU> & s);		
-	template <class IU, class NU>
-	friend ifstream& operator>> (ifstream& infile, SpTuples<IU,NU> & s); 
+	ofstream& put (ofstream& outfile) const;		
+	ifstream& get (ifstream& infile); 
 
 	void PrintInfo() 
 	{
