@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+
+#include "SpTuples.h"
 #include "SpDCCols.h"
 
 using namespace std;

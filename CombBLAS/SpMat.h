@@ -14,9 +14,12 @@
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"
-#include "SpTuples.h"
 
 using namespace std;
+
+// Forward declaration (required since a friend function returns a SpTuples object)
+template <class IU, class NU>	
+class SpTuples;
 
 
 /**

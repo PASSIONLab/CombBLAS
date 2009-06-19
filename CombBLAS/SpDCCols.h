@@ -13,7 +13,6 @@
 #include <fstream>
 #include <cmath>
 #include "SpMat.h"	// Best to include the base class first
-#include "SpTuples.h"
 #include "SpHelper.h"
 #include "StackEntry.h"
 #include "dcsc.h"

@@ -17,44 +17,44 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A,
  
 	if(isAT)
 	{
-		A_m = A.n;
-		A_n = A.m;
+		A_m = A.getncol();
+		A_n = A.getnrow();
 	}
 	else
 	{
-		A_m = A.m;
-		A_n = A.n;
+		A_m = A.getnrow();
+		A_n = A.getncol();
 	}
 	if(isBT)
 	{
-		B_m = B.n;
-		B_n = B.m;
+		B_m = B.getncol();
+		B_n = B.getnrow();
 	}
 	else
 	{
-		B_m = B.m;
-		B_n = B.n;
+		B_m = B.getnrow();
+		B_n = B.getncol();
 	}
 		
-        if(m == A_m && n == B_n)                
+        if(getnrow() == A_m && getncol() == B_n)                
         {
                	if(A_n == B_m)
                	{
 			if(isAT && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast< DER* >(this)->PlusEq_AtXBt< SR >(static_cast< DER >(A), static_cast< DER >(B));
 			}
 			else if(isAT && (!isBT))
 			{
-				static_cast<DER*>(this)->PlusEq_AtXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast< DER* >(this)->PlusEq_AtXBn< SR >(static_cast< DER >(A), static_cast< DER >(B));
 			}
 			else if((!isAT) && isBT)
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast< DER* >(this)->PlusEq_AnXBt< SR >(static_cast< DER >(A), static_cast< DER >(B));
 			}
 			else
 			{
-				static_cast<DER*>(this)->PlusEq_AnXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+				static_cast< DER* >(this)->PlusEq_AnXBn< SR >(static_cast< DER >(A), static_cast< DER >(B));
 			}				
 		}
                 else
@@ -64,7 +64,7 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A,
         }
         else
         {
-		cerr<< "Not addable: "<< m << "!=" << A_m << " or " << n << "!=" << B_n << endl;
+		cerr<< "Not addable: "<< getnrow() << "!=" << A_m << " or " << getncol() << "!=" << B_n << endl;
         }
 };
 
@@ -76,27 +76,27 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 					 bool isAT, bool isBT)
 
 {
-	IT A_m, A_n, B_m, B_n;
+	IU A_m, A_n, B_m, B_n;
  
 	if(isAT)
 	{
-		A_m = A.n;
-		A_n = A.m;
+		A_m = A.getncol();
+		A_n = A.getnrow();
 	}
 	else
 	{
-		A_m = A.m;
-		A_n = A.n;
+		A_m = A.getnrow();
+		A_n = A.getncol();
 	}
 	if(isBT)
 	{
-		B_m = B.n;
-		B_n = B.m;
+		B_m = B.getncol();
+		B_n = B.getnrow();
 	}
 	else
 	{
-		B_m = B.m;
-		B_n = B.n;
+		B_m = B.getnrow();
+		B_n = B.getncol();
 	}
 		
         if(A_n == B_m)
