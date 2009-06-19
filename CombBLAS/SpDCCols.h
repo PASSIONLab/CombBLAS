@@ -31,7 +31,7 @@ public:
 	SpDCCols ();
 	SpDCCols (IT size, IT nRow, IT nCol, IT nzc);
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
-	SpDCCols (const SpDCCols<IT,NT> & rhs);	// Actual copy constructor		
+	SpDCCols (const SpDCCols<IT,NT> & rhs);		// Actual copy constructor		
 	~SpDCCols();
 
 	template <typename NNT>
@@ -58,6 +58,7 @@ public:
 	IT getnnz() const { return nnz; }
 	
 	ofstream& put(ofstream& outfile) const;
+	ifstream& get(ifstream& infile);
 	void PrintInfo() const;
 
 	template <typename SR> 

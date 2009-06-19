@@ -124,3 +124,29 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 		return SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> (0, 0, 0);
 	}
 }
+
+template <class IT, class NT, class DER>
+inline ofstream& SpMat<IT, NT, DER>::put(ofstream& outfile) const
+{
+	return static_cast<DER*>(this)->put;
+}
+
+template <class IT, class NT, class DER>
+inline ifstream& SpMat<IT, NT, DER>::get(ifstream& infile)
+{
+	return static_cast<DER*>(this)->get;
+}
+
+
+template < typename UIT, typename UNT, typename UDER >
+ofstream& operator<<(ofstream& outfile, const SpMat< UIT,UNT,UDER > & s)
+{
+	return s.put(outfile);
+}
+
+template < typename UIT, typename UNT, typename UDER >
+ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
+{
+	return s.get(outfile);
+}
+

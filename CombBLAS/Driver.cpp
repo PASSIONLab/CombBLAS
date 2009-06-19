@@ -36,7 +36,7 @@ int main()
 	SpDCCols<int,double> dcolsC;
 
 	typedef PlusTimesSRing<double, double> PT;	
-	dcolsC.PlusEq_AnXBn< PT > (dcolsA, dcolsB);
+	dcolsC.MultiplyAddAssign< PT > (dcolsA, dcolsB, false, false);	// C = A*B
 	dcolsC.PrintInfo();
 }
 

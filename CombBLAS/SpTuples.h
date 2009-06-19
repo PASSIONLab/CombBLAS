@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cassert>
 #include <tr1/tuple>
+#include "SpMat.h"
 #include "SpDefs.h"
 #include "StackEntry.h"
 #include "Compare.h"
@@ -31,7 +32,7 @@ class Dcsc;
  * \remarks Indices start from 0 in this class
  */
 template <class IT, class NT>
-class SpTuples // :public SpMat<IT, NT, SpTuples<IT,NT> >
+class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 {
 public:
 	// Constructors 
@@ -55,13 +56,13 @@ public:
 	void SortRowBased()
 	{
 		sort(tuples , tuples+nnz);	// Default "operator<" for tuples uses lexicographical ordering 
-	};
+	}
 
 	void SortColBased()
 	{
 		ColSortCompare<IT,NT> colcmp;
 		sort(tuples , tuples+nnz, colcmp );
-	};
+	}
 
 	// Functions declared as friends
 	template <class IU, class NU>

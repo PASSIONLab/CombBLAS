@@ -47,14 +47,8 @@ public:
 		return static_cast<DER*>(this)->GetArrays();
 	}	
 		
-	ofstream& put(ofstream& outfile) const 
-	{ 
-		return static_cast<DER*>(this)->put(outfile);
-	}
-	ifstream& get(ifstream& infile)
-	{
-		return static_cast<DER*>(this)->get(infile);
-	}
+	ofstream& put(ofstream& outfile) const;
+	ifstream& get(ifstream& infile);
 	
 	IT getnrow() const { return static_cast<DER*>(this)->getnrow(); }
 	IT getncol() const { return static_cast<DER*>(this)->getncol(); }
