@@ -135,6 +135,7 @@ inline ofstream& SpMat<IT, NT, DER>::put(ofstream& outfile) const
 template <class IT, class NT, class DER>
 inline ifstream& SpMat<IT, NT, DER>::get(ifstream& infile)
 {
+	cout << "Getting... SpMat" << endl;
 	return static_cast<DER*>(this)->get(infile);
 }
 

@@ -11,6 +11,7 @@
 #include <functional>
 #include <vector>
 #include <climits>
+#include <iomanip>
 
 /****************************************************************************/
 /********************* PUBLIC CONSTRUCTORS/DESTRUCTORS **********************/
@@ -494,10 +495,16 @@ ofstream & SpDCCols<IT,NT>::put(ofstream & outfile) const
 template <class IT, class NT>
 ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 {
+	cout << "Getting... SpDCCols" << endl;
 	IT m, n, nnz;
 	infile >> m >> n >> nnz;
 	SpTuples<IT,NT> tuples(nnz, m, n);        
+	infile >> tuples;
 	tuples.SortColBased();
+
+	for(int i=0; i<nnz; ++i)
+		cout << tuples.rowindex(i) << " " << tuples.colindex(i) << " " << tuples.numvalue(i) << endl;
+	cout << endl;
         
 	SpDCCols<IT,NT> object(tuples, false, NULL);	
 	*this = object;
@@ -518,6 +525,33 @@ void SpDCCols<IT,NT>::PrintInfo() const
 	else
 	{
 		cout <<", nzc: "<< 0 << endl;
+	}
+
+	if(m < 8 && n < 8)	// small enough to print
+	{
+		NT ** A = SpHelper::allocate2D<NT>(m,n);
+		for(int i=0; i< m; ++i)
+			for(int j=0; j<n; ++j)
+				A[i][j] = 0.0;
+		
+		for(int i=0; i< dcsc->nzc; ++i)
+		{
+			for(int j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
+			{
+				IT colid = dcsc->jc[i];
+				IT rowid = dcsc->ir[j];
+				A[rowid][colid] = dcsc->numx[j];
+			}
+		} 
+		for(int i=0; i< m; ++i)
+		{
+                        for(int j=0; j<n; ++j)
+			{
+                                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
+				cout << " ";
+			}
+			cout << endl;
+		}
 	}
 }
 
