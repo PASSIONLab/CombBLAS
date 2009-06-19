@@ -356,7 +356,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 		return -1;	// no need to do anything
 	}
 	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
-	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
+	SpHelper::SpIntersect(*(A.dcsc), *(B.dcsc), cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
 	if(kisect == zero)
@@ -366,7 +366,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	}
 	
 	StackEntry< NT, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpCartesian< SR > (A.dcsc, B.dcsc, kisect, isect1, isect2, multstack);  
+	IT cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
 	IT mdim = A.m;	
@@ -485,7 +485,23 @@ ofstream & SpDCCols<IT,NT>::put(ofstream & outfile) const
 	}
 	SpTuples<IT,NT> tuples(*this); 
 	outfile << tuples << endl;
+	return outfile;
 }
+
+
+template <class IT, class NT>
+ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
+{
+	IT m, n, nnz;
+	infile >> m >> n >> nnz;
+	SpTuples<IT,NT> tuples(nnz, m, n);        
+	tuples.SortColBased();
+        
+	SpDCCols<IT,NT> object(tuples, false, NULL);	
+	*this = object;
+	return infile;
+}
+
 
 template<class IT, class NT>
 void SpDCCols<IT,NT>::PrintInfo() const
@@ -628,7 +644,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 	SpDCCols<IT,NTR> Btrans = rhs.TransposeConst();
 
 	Isect<IT> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
-	SpHelper::SpIntersect(dcsc, Btrans.dcsc, cols, rows, isect1, isect2, itr1, itr2);
+	SpHelper::SpIntersect(*dcsc, *(Btrans.dcsc), cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
 	if(kisect == zero)
@@ -637,7 +653,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpCartesian< SR > (dcsc, Btrans.dcsc, kisect, isect1, isect2, multstack);  
+	IT cnz = SpHelper::SpCartesian< SR > (*dcsc, *(Btrans.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
 	Dcsc< IT, T_promote > * mydcsc = new Dcsc< IT,T_promote >(multstack, m, rhs.n, cnz);
@@ -688,7 +704,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 		return SpTuples< IU, T_promote >(zero, mdim, ndim);	// just return an empty matrix
 	}
 	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
-	SpHelper::SpIntersect(A->dcsc, B->dcsc, cols, rows, isect1, isect2, itr1, itr2);
+	SpHelper::SpIntersect(*(A->dcsc), *(B->dcsc), cols, rows, isect1, isect2, itr1, itr2);
 	
 	IU kisect = static_cast<IU>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
 	if(kisect == zero)
@@ -698,7 +714,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt
 	}
 	
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
-	IU cnz = SpHelper::SpCartesian< SR > (A.dcsc, B.dcsc, kisect, isect1, isect2, multstack);  
+	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
 	return SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);

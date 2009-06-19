@@ -28,7 +28,7 @@ class SpTuples;
  ** Uses static polymorphism through curiously recurring templates (CRTP)
  ** Template parameters: IT (index type), NT (numerical type), DER (derived class type)
  **/
-template <class IT, class NT, class DER>
+template < class IT, class NT, class DER >
 class SpMat
 {
 public:
@@ -47,15 +47,15 @@ public:
 
 	Arr<IT,NT> GetArrays() const
 	{
-		return static_cast<DER*>(this)->GetArrays();
+		return static_cast<const DER*>(this)->GetArrays();
 	}	
 		
 	ofstream& put(ofstream& outfile) const;
 	ifstream& get(ifstream& infile);
 	
-	IT getnrow() const { return static_cast<DER*>(this)->getnrow(); }
-	IT getncol() const { return static_cast<DER*>(this)->getncol(); }
-	IT getnnz() const  { return static_cast<DER*>(this)->getnnz(); }
+	IT getnrow() const { return static_cast<const DER*>(this)->getnrow(); }
+	IT getncol() const { return static_cast<const DER*>(this)->getncol(); }
+	IT getnnz() const  { return static_cast<const DER*>(this)->getnnz(); }
 
 protected:
 

@@ -142,16 +142,16 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
 	for(IT i=0; i < Adcsc.nzc; ++i)			
 	{
 		cols[i].index	= Adcsc.jc[i];		// column index
-		cols[i].size	= Adcsc.mas[i+1] - Adcsc.mas[i];
-		cols[i].start	= Adcsc.mas[i];		// pointer to row indices
-		cols[i].current = Adcsc.mas[i];		// pointer to row indices
+		cols[i].size	= Adcsc.cp[i+1] - Adcsc.cp[i];
+		cols[i].start	= Adcsc.cp[i];		// pointer to row indices
+		cols[i].current = Adcsc.cp[i];		// pointer to row indices
 	}
 	for(IT i=0; i < Bdcsc.nzc; ++i)			
 	{
 		rows[i].index	= Bdcsc.jc[i];		// column index
-		rows[i].size	= Bdcsc.mas[i+1] - Bdcsc.mas[i];
-		rows[i].start	= Bdcsc.mas[i];		// pointer to row indices
-		rows[i].current = Bdcsc.mas[i];		// pointer to row indices
+		rows[i].size	= Bdcsc.cp[i+1] - Bdcsc.cp[i];
+		rows[i].start	= Bdcsc.cp[i];		// pointer to row indices
+		rows[i].current = Bdcsc.cp[i];		// pointer to row indices
 	}
 
 	/* A single set_intersection would only return the elements of one sequence 

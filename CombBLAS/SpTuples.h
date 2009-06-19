@@ -45,13 +45,13 @@ public:
 
 	SpTuples<IT,NT> & operator=(const SpTuples<IT,NT> & rhs);
 
-	IT & rowindex (IT i) { return get<0>(tuples[i]); }
-	IT & colindex (IT i) { return get<1>(tuples[i]); }
-	NT & numvalue (IT i) { return get<2>(tuples[i]); }
+	IT & rowindex (IT i) { return tr1::get<0>(tuples[i]); }
+	IT & colindex (IT i) { return tr1::get<1>(tuples[i]); }
+	NT & numvalue (IT i) { return tr1::get<2>(tuples[i]); }
 
-	IT rowindex (IT i) const { return get<0>(tuples[i]); }
-	IT colindex (IT i) const { return get<1>(tuples[i]); } 
-	NT numvalue (IT i) const { return get<2>(tuples[i]); } 
+	IT rowindex (IT i) const { return tr1::get<0>(tuples[i]); }
+	IT colindex (IT i) const { return tr1::get<1>(tuples[i]); } 
+	NT numvalue (IT i) const { return tr1::get<2>(tuples[i]); } 
 
 	void SortRowBased()
 	{

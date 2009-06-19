@@ -42,19 +42,19 @@ void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A,
                	{
 			if(isAT && isBT)
 			{
-				static_cast< DER* >(this)->PlusEq_AtXBt< SR >(static_cast< DER >(A), static_cast< DER >(B));
+				static_cast< DER* >(this)->template PlusEq_AtXBt< SR >(static_cast< DER & >(A), static_cast< DER & >(B));
 			}
 			else if(isAT && (!isBT))
 			{
-				static_cast< DER* >(this)->PlusEq_AtXBn< SR >(static_cast< DER >(A), static_cast< DER >(B));
+				static_cast< DER* >(this)->template PlusEq_AtXBn< SR >(static_cast< DER & >(A), static_cast< DER & >(B));
 			}
 			else if((!isAT) && isBT)
 			{
-				static_cast< DER* >(this)->PlusEq_AnXBt< SR >(static_cast< DER >(A), static_cast< DER >(B));
+				static_cast< DER* >(this)->template PlusEq_AnXBt< SR >(static_cast< DER & >(A), static_cast< DER & >(B));
 			}
 			else
 			{
-				static_cast< DER* >(this)->PlusEq_AnXBn< SR >(static_cast< DER >(A), static_cast< DER >(B));
+				static_cast< DER* >(this)->template PlusEq_AnXBn< SR >(static_cast< DER & >(A), static_cast< DER & >(B));
 			}				
 		}
                 else
@@ -103,19 +103,19 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 	{
 		if(isAT && isBT)
 		{
-			return Tuples_AtXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+			return Tuples_AtXBt<SR>(static_cast< DER & >(A), static_cast< DER & >(B));
 		}
 		else if(isAT && (!isBT))
 		{
-			return Tuples_AtXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+			return Tuples_AtXBn<SR>(static_cast< DER & >(A), static_cast< DER & >(B));
 		}
 		else if((!isAT) && isBT)
 		{
-			return Tuples_AnXBt<SR>(static_cast<DER>(A), static_cast<DER>(B));
+			return Tuples_AnXBt<SR>(static_cast< DER & >(A), static_cast< DER & >(B));
 		}
 		else
 		{
-			return Tuples_AnXBn<SR>(static_cast<DER>(A), static_cast<DER>(B));
+			return Tuples_AnXBn<SR>(static_cast< DER & >(A), static_cast< DER & >(B));
 		}				
 	}
 	else
@@ -128,13 +128,13 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 template <class IT, class NT, class DER>
 inline ofstream& SpMat<IT, NT, DER>::put(ofstream& outfile) const
 {
-	return static_cast<DER*>(this)->put;
+	return static_cast<DER*>(this)->put(outfile);
 }
 
 template <class IT, class NT, class DER>
 inline ifstream& SpMat<IT, NT, DER>::get(ifstream& infile)
 {
-	return static_cast<DER*>(this)->get;
+	return static_cast<DER*>(this)->get(infile);
 }
 
 
@@ -145,7 +145,7 @@ ofstream& operator<<(ofstream& outfile, const SpMat< UIT,UNT,UDER > & s)
 }
 
 template < typename UIT, typename UNT, typename UDER >
-ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
+ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s)
 {
 	return s.get(outfile);
 }
