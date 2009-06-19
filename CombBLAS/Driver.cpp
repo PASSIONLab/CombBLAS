@@ -26,9 +26,9 @@ int main()
 
 	// arguments (in this order): nnz, n, m, nzc
 	SpDCCols<int,double> C(0, A.getnrow(), B.getncol(), 0);
+	C.PrintInfo();
 
 	typedef PlusTimesSRing<double, double> PT;	
 	C.SpGEMM <PT> (A, B, false, false);	// C = A*B
 	C.PrintInfo();
 }
-

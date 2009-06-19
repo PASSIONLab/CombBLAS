@@ -515,6 +515,10 @@ void SpDCCols<IT,NT>::PrintInfo() const
 	{
 		cout << ", nzc: "<< dcsc->nzc << endl;
 	}
+	else
+	{
+		cout <<", nzc: "<< 0 << endl;
+	}
 }
 
 
