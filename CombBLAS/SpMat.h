@@ -43,7 +43,7 @@ public:
 	SpMat< IT,NT,DER >  operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	
 	template <typename SR>
-	void MultiplyAddAssign( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
+	void SpGEMM( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
 
 	Arr<IT,NT> GetArrays() const
 	{

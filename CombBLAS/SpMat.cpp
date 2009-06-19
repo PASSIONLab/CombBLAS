@@ -1,5 +1,6 @@
 
 #include "SpMat.h"
+#include "Friends.h"
 
 template <class IT, class NT, class DER>
 SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
@@ -10,7 +11,7 @@ SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const 
 
 template <class IT, class NT, class DER>
 template <typename SR>
-void SpMat<IT, NT, DER>::MultiplyAddAssign(SpMat<IT, NT, DER> & A, 
+void SpMat<IT, NT, DER>::SpGEMM(SpMat<IT, NT, DER> & A, 
 			SpMat<IT, NT, DER> & B, bool isAT, bool isBT)
 {
 	IT A_m, A_n, B_m, B_n;
@@ -147,6 +148,6 @@ ofstream& operator<<(ofstream& outfile, const SpMat< UIT,UNT,UDER > & s)
 template < typename UIT, typename UNT, typename UDER >
 ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s)
 {
-	return s.get(outfile);
+	return s.get(infile);
 }
 

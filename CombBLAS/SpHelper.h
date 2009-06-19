@@ -20,6 +20,10 @@
 
 using namespace std;
 
+template <class IT, class NT>
+class Dcsc;
+
+
 class SpHelper
 {
 public:
@@ -47,7 +51,7 @@ public:
 	}
 
 	
-	template <typename NT1, typename NT2, typename IT, typename SR>
+	template <typename SR, typename NT1, typename NT2, typename IT>
 	static IT Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack,
 		 	IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);
 
@@ -55,7 +59,7 @@ public:
 	static void SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, Isect<IT>* & cols, Isect<IT>* & rows, 
 			Isect<IT>* & isect1, Isect<IT>* & isect2, Isect<IT>* & itr1, Isect<IT>* & itr2);
 
-	template <typename IT, typename NT1, typename NT2, typename SR>
+	template <typename SR, typename IT, typename NT1, typename NT2>
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
 			Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
@@ -96,7 +100,7 @@ public:
 /**
  * Pop an element, do the numerical semiring multiplication & insert the result into multstack
  */
-template <typename NT1, typename NT2, typename IT, typename SR>
+template <typename SR, typename NT1, typename NT2, typename IT>
 IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack, 
 			IT & cnz, KNHeap< pair<IT,IT>,IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2)
 {
@@ -172,7 +176,7 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
  * Returns the "actual" number of elements in the merged stack
  * Bdcsc is "already transposed" (i.e. Bdcsc->ir gives column indices, and Bdcsc->jc gives row indices)
  **/
-template <typename IT, typename NT1, typename NT2, typename SR>
+template <typename SR, typename IT, typename NT1, typename NT2>
 IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
 		Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
 {	
