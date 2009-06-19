@@ -227,7 +227,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), pool(NULL)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), nzc(nnz), pool(NULL)
 {
 	assert(nz != 0 );
 	size_t sit = sizeof(IT);
@@ -547,6 +547,7 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
+	cout << "Resizing from " << nz << "," << nzc << " to " << nznew << "," << nzcnew << endl; 
 	size_t sit = sizeof(IT);
 	if(nzcnew == 0)
 	{
