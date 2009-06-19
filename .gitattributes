@@ -6,6 +6,7 @@ CombBLAS/Compare.h -text
 CombBLAS/DataTypeToMPI.h -text
 CombBLAS/Deleter.h -text
 CombBLAS/Driver.cpp -text
+CombBLAS/Friends.h -text
 CombBLAS/Isect.h -text
 CombBLAS/LocArr.h -text
 CombBLAS/MMmul.h -text
