@@ -6,6 +6,7 @@
 /****************************************************************/
 
 #include "SpTuples.h"
+#include <iomanip>
 
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
@@ -168,3 +169,34 @@ ofstream& SpTuples<IT,NT>::put(ofstream& outfile) const
 	return outfile;
 }
 
+template <class IT,class NT>
+void SpTuples<IT,NT>::PrintInfo()
+{
+	cout << "This is a SpTuples class" << endl;
+
+	cout << "m: " << m ;
+	cout << ", n: " << n ;
+	cout << ", nnz: "<< nnz << endl;
+
+	if(m < 8 && n < 8)	// small enough to print
+	{
+		NT ** A = SpHelper::allocate2D<NT>(m,n);
+		for(IT i=zero; i< m; ++i)
+			for(IT j=zero; j<n; ++j)
+				A[i][j] = 0.0;
+		
+		for(IT i=zero; i< nnz; ++i)
+		{
+			A[rowindex(i)][colindex(i)] = numvalue(i);			
+		} 
+		for(IT i=0; i< m; ++i)
+		{
+                        for(IT j=0; j<n; ++j)
+			{
+                                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
+				cout << " ";
+			}
+			cout << endl;
+		}
+	}
+}

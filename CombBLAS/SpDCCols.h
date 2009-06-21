@@ -98,6 +98,9 @@ private:
 	MemoryPool * localpool;
 
 	template <class IU, class NU>
+	friend class SpDCCols;		// Let other template instantiations (of the same class) access private members
+	
+	template <class IU, class NU>
 	friend class SpTuples;
 
 	template<class SR, class IU, class NU1, class NU2>

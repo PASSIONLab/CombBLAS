@@ -31,4 +31,15 @@ int main()
 	typedef PlusTimesSRing<double, double> PT;	
 	C.SpGEMM <PT> (A, B, false, false);	// C = A*B
 	C.PrintInfo();
+
+	SpDCCols<int,bool> A_bool = A.ConvertNumericType<bool>();
+
+	A_bool.PrintInfo();
+
+	SpTuples<int,double> C_tuples =  MultiplyReturnTuples<PT>(A_bool, B, false, false);	// D = A_bool*B
+	C_tuples.PrintInfo();
+
+	SpTuples<int,double> C_tt = MultiplyReturnTuples<PT>(B, A_bool, false, true);
+	C_tt.PrintInfo();
+
 }

@@ -67,10 +67,7 @@ public:
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 
 
-	void PrintInfo() 
-	{
-		cout << "This is a SpTuples class" << endl;
-	}
+	void PrintInfo();
 
 private:
 	tuple<IT, IT, NT> * tuples; 	// boost:tuple

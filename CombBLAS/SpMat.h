@@ -65,9 +65,9 @@ protected:
 	template < typename UIT, typename UNT, typename UDER >
 	friend ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
 
-	template<class IU, class NU1, class NU2, class SR>
+	template< class SR, class IU, class NU1, class NU2, class DER1, class DER2 >
 	friend SpTuples< IU, typename promote_trait<NU1,NU2>::T_promote >
-	MultiplyReturnTuples (const SpMat< IU, NU1, DER > & A, const SpMat< IU, NU2, DER > & B, bool isAT, bool isBT);
+	MultiplyReturnTuples (const SpMat< IU, NU1, DER1 > & A, const SpMat< IU, NU2, DER2 > & B, bool isAT, bool isBT);
 
 };
 

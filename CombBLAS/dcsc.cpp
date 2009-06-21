@@ -305,9 +305,9 @@ Dcsc<IT,NNT> Dcsc<IT,NT>::ConvertNumericType ()
 	
 	for(IT i=0; i< nz; ++i)
 	{		
-		convert.numx[i] = static_cast<NNT>(convert.rhs.numx[i]);		
-		convert.ir[i] = convert.rhs.ir[i];
+		convert.numx[i] = static_cast<NNT>(numx[i]);		
 	}
+	memcpy(convert.ir, ir, nz * sizeof(IT));
 	memcpy(convert.jc, jc, nzc * sizeof(IT));
 	memcpy(convert.cp, cp, (nzc+1) * sizeof(IT));
 	return convert;
