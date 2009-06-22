@@ -150,7 +150,6 @@ ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 			}
 			++cnz;
 		}
-		cout << cnz << " " << nnz;
 		assert(nnz == cnz);
 	}
 	else

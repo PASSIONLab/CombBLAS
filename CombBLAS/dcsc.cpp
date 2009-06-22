@@ -516,7 +516,7 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 	float cf  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
 	IT colchunks = static_cast<IT> ( ceil( static_cast<float>(ndim+1) / ceil(cf)) );
 
-	aux  = (IT *) mallocarray ( (colchunks+1)*sizeof(IT) ); 
+	aux  = new IT[colchunks+1]; 
 
 	IT chunksize	= static_cast<IT>(ceil(cf));
 	IT reg		= zero;
@@ -679,7 +679,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 }
 
 template<class IT, class NT>
-void Dcsc<IT,NT>::FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT ndim) const
+void Dcsc<IT,NT>::FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
 	IT nind = colnums.size();			// number of columns of A that contributes to C(:,i)
 	if ( (nzc / nind) < THRESHOLD) 			// use scanning indexing
@@ -724,12 +724,6 @@ void Dcsc<IT,NT>::FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > 
 	}
 	else	 	// use aux based indexing
 	{
-		float cf  = static_cast<float>(ndim+1) / static_cast<float>(nzc);
-		IT csize = static_cast<IT>(ceil(cf));	// chunk size
-		
-		IT * aux;
-		IT auxsize = ConstructAux(ndim, aux);
-
 		bool found;
 		for(IT j =0; j< nind; ++j)
 		{

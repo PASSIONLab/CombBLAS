@@ -249,6 +249,11 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
 	multstack = new StackEntry<T_promote, pair<IT,IT> >[cnzmax];	 
 
+	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
+	IT csize = static_cast<IT>(ceil(cf));   // chunk size
+	IT * aux;
+	IT auxsize = Adcsc.ConstructAux(nA, aux);
+
 	for(IT i=0; i< Bdcsc.nzc; ++i)		// for all the columns of B
 	{	
 		// heap keys are just row indices (IT) 
@@ -265,7 +270,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 
 		copy(Bdcsc.ir + Bdcsc.cp[i], Bdcsc.ir + Bdcsc.cp[i+1], colnums.begin());
 		
-		Adcsc.FillColInds(colnums, colinds, nA);
+		Adcsc.FillColInds(colnums, colinds, aux, csize);
 		IT maxnnz = 0;	// max number of nonzeros in C(:,i)	
 		IT heapsize = 0;
 		
@@ -291,7 +296,6 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		{
 			workingset.deleteMin(&key, &hentry);
 			T_promote mrhs = SR::multiply(hentry.first, Bdcsc.numx[Bdcsc.cp[i]+hentry.second]);
-			
 			if(cnz != 0 && multstack[cnz-1].key.second == key)	// if cnz == 0, then multstack is empty
 			{
 				multstack[cnz-1].value = SR::add(multstack[cnz-1].value, mrhs);
@@ -314,6 +318,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			}
 		}
 	}
+	delete [] aux;
 	return cnz;
 }
 
