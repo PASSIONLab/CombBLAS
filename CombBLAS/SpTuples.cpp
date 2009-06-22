@@ -136,7 +136,7 @@ ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 	IT cnz = SpTuples<IT,NT>::zero;
 	if (infile.is_open())
 	{
-		while (! infile.eof() && cnz < nnz)
+		while ( (!infile.eof()) && cnz < nnz)
 		{
 			infile >> rowindex(cnz) >> colindex(cnz) >>  numvalue(cnz);	// row-col-value
 			
@@ -150,7 +150,12 @@ ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 			}
 			++cnz;
 		}
-		assert(nnz = cnz);
+		cout << cnz << " " << nnz;
+		assert(nnz == cnz);
+	}
+	else
+	{
+		cerr << "input file is not open!" << endl;
 	}
 	return infile;
 }

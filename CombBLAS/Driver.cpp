@@ -1,6 +1,9 @@
+
+#define NDEBUG
+
 #include <iostream>
 #include <fstream>
-
+#include <sys/time.h>
 #include "SpTuples.h"
 #include "SpDCCols.h"
 
@@ -41,5 +44,53 @@ int main()
 
 	SpTuples<int,double> C_tt = MultiplyReturnTuples<PT>(B, A_bool, false, true);
 	C_tt.PrintInfo();
+
+	// Start big timing test
+	ifstream input1("p1/input1_0");
+        ifstream input2("p1/input2_0");
+        if(!(input1.is_open() && input2.is_open()))
+        {
+                cerr << "One of the input files doesn't exist\n";
+                exit(-1);
+        }
+	SpDCCols<int,double> bigA;
+        input1 >> bigA;
+        bigA.PrintInfo();
+
+        SpDCCols<int,double> bigB;
+        input2 >> bigB;
+        bigB.PrintInfo();
+
+	// Cache warm-up
+	SpTuples<int,double> bigC = MultiplyReturnTuples<PT>(bigA, bigB, false, false);
+        bigC.PrintInfo();
+	
+	struct timeval tempo1, tempo2;
+
+	double elapsed_time;    /* elapsed time in seconds */
+	long elapsed_seconds;  /* diff between seconds counter */
+	long elapsed_useconds; /* diff between microseconds counter */
+
+	gettimeofday(&tempo1, NULL);
+	bigC = MultiplyReturnTuples<PT>(bigA, bigB, false, false);
+	gettimeofday(&tempo2, NULL);
+	elapsed_seconds  = tempo2.tv_sec  - tempo1.tv_sec;
+	elapsed_useconds = tempo2.tv_usec - tempo1.tv_usec;
+
+	elapsed_time = (elapsed_seconds + ((double) elapsed_useconds)/1000000.0);
+	printf("ColByCol time = %ld seconds\n", elapsed_time);
+
+	// Cache warm-up
+        SpTuples<int,double> bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);
+        bigC_t.PrintInfo();
+
+	gettimeofday(&tempo1, NULL);
+        bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);
+        gettimeofday(&tempo2, NULL);
+        elapsed_seconds  = tempo2.tv_sec  - tempo1.tv_sec;
+        elapsed_useconds = tempo2.tv_usec - tempo1.tv_usec;
+
+        elapsed_time = (elapsed_seconds + ((double) elapsed_useconds)/1000000.0);
+        printf("OuterProduct time = %ld seconds\n", elapsed_time);
 
 }
