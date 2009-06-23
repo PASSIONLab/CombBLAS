@@ -50,8 +50,8 @@ int main()
 	// Start big timing test
 #ifdef BIGTEST
 
-	ifstream input1("p1/input1_0");
-        ifstream input2("p1/input2_0");
+	ifstream input1("largeseq/input1_0");
+        ifstream input2("largeseq/input2_0");
         if(!(input1.is_open() && input2.is_open()))
         {
                 cerr << "One of the input files doesn't exist\n";
@@ -68,6 +68,10 @@ int main()
 	// Cache warm-up
 	SpTuples<int,double> bigC = MultiplyReturnTuples<PT>(bigA, bigB, false, false);
         bigC.PrintInfo();
+
+	ofstream outputC("largeseq/colbycol");
+	outputC << bigC;
+	outputC.close();
 	
 	struct timeval tempo1, tempo2;
 
@@ -84,9 +88,15 @@ int main()
 	elapsed_time = (elapsed_seconds + ((double) elapsed_useconds)/1000000.0);
 	printf("ColByCol time = %.5f seconds\n", elapsed_time);
 
+	bigB.Transpose();	// now that bigB is transposed, bigC_t will be equal to bigC
+	bigB.PrintInfo();
+	
 	// Cache warm-up
         SpTuples<int,double> bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);
         bigC_t.PrintInfo();
+	ofstream outputCT("largeseq/outerproduct");
+	outputCT << bigC_t;
+	outputCT.close();
 
 	gettimeofday(&tempo1, NULL);
         bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);

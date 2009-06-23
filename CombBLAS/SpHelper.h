@@ -43,7 +43,7 @@ public:
 		return array;
 	}
 	template<typename T, typename I>
-	static void dallocate2D(T ** array, I m)
+	static void deallocate2D(T ** array, I m)
 	{
 		for(I i = 0; i<m; ++i) 
 			delete array[i];

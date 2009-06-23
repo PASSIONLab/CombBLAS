@@ -129,7 +129,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> MultiplyReturnTuples
 template <class IT, class NT, class DER>
 inline ofstream& SpMat<IT, NT, DER>::put(ofstream& outfile) const
 {
-	return static_cast<DER*>(this)->put(outfile);
+	return static_cast<const DER*>(this)->put(outfile);
 }
 
 template <class IT, class NT, class DER>

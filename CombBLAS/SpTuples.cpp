@@ -86,12 +86,11 @@ inline void SpTuples<IT,NT>::FillTuples (Dcsc<IT,NT> * mydcsc)
 	IT k = 0;
 	for(IT i = 0; i< mydcsc->nzc; ++i)
 	{
-		for(IT j = mydcsc->mas[i]; j< mydcsc->mas[i+1]; ++j)
+		for(IT j = mydcsc->cp[i]; j< mydcsc->cp[i+1]; ++j)
 		{
-			colindex[k] = mydcsc->jc[i];
-			rowindex[k] = mydcsc->ir[j];
-			numvalue[k] = mydcsc->numx[j];
-			k++;
+			colindex(k) = mydcsc->jc[i];
+			rowindex(k) = mydcsc->ir[j];
+			numvalue(k++) = mydcsc->numx[j];
 		}
 	}
 }
@@ -168,7 +167,7 @@ ofstream& SpTuples<IT,NT>::put(ofstream& outfile) const
 	for (IT i = 0; i < nnz; ++i)
 	{
 		outfile << rowindex(i)+1  <<"\t"<< colindex(i)+1 <<"\t"
-			<< numindex(i) << endl;
+			<< numvalue(i) << endl;
 	}
 	return outfile;
 }
@@ -202,5 +201,6 @@ void SpTuples<IT,NT>::PrintInfo()
 			}
 			cout << endl;
 		}
+		SpHelper::deallocate2D(A,m);
 	}
 }
