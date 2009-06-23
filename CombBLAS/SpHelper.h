@@ -17,6 +17,7 @@
 #include "StackEntry.h"
 #include "promote.h"
 #include "Isect.h"
+#include "HeapEntry.h"
 
 using namespace std;
 
@@ -84,10 +85,6 @@ public:
 		multstack = new StackEntry<NT, pair<IT,IT> >[2* cnzmax + add];
 		memcpy(multstack, tmpstack, sizeof(StackEntry<NT, pair<IT,IT> >) * cnzmax);
 		
-		/*for(IT j=0; j< cnzmax; ++j)
-		{
-			multstack[j] = tmpstack[j];
-		}*/
 		cnzmax = 2*cnzmax + add;
 		delete [] tmpstack;
 	}
@@ -259,34 +256,33 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	for(IT i=0; i< Bdcsc.nzc; ++i)		// for all the columns of B
 	{
 		IT prevcnz = cnz;
-	
+		IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
+		HeapEntry<IT, T_promote> * wset = new HeapEntry<IT, T_promote>[nnzcol]; 
 		// heap keys are just row indices (IT) 
-		// heap values are <numvalue, runrank> ( pair<NT,IT> )
+		// heap values are <numvalue, runrank>  
 		// heap size is nnz(B(:,i)
-		KNHeap< IT , pair< T_promote ,IT > > workingset(numeric_limits<IT>::max(), numeric_limits<IT>::min());
-	
+
 		// colnums vector keeps column numbers requested from A
-		vector<IT> colnums(Bdcsc.cp[i+1] - Bdcsc.cp[i]);
+		vector<IT> colnums(nnzcol);
 
 		// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
 		// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
-		vector< pair<IT,IT> > colinds(Bdcsc.cp[i+1] - Bdcsc.cp[i]);		
-
+		vector< pair<IT,IT> > colinds(nnzcol);		
 		copy(Bdcsc.ir + Bdcsc.cp[i], Bdcsc.ir + Bdcsc.cp[i+1], colnums.begin());
 		
 		Adcsc.FillColInds(colnums, colinds, aux, csize);
 		IT maxnnz = 0;	// max number of nonzeros in C(:,i)	
-		IT heapsize = 0;
+		IT hsize = 0;
 		
 		for(IT j =0; j< colnums.size(); ++j)		// create the initial heap 
 		{
 			if(colinds[j].first != colinds[j].second)	// current != end
 			{
-				workingset.insert(Adcsc.ir[colinds[j].first], make_pair(Adcsc.numx[colinds[j].first],j));	// insert(key,value)
+				wset[hsize++] = HeapEntry< IT,T_promote > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
 				maxnnz += colinds[j].second - colinds[j].first;
-				heapsize++; 
 			} 
 		}	
+		make_heap(wset, wset+hsize);
 
 		if (cnz + maxnnz > cnzmax)		// double the size of multstack
 		{
@@ -294,33 +290,35 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		} 
 
 		// No need to keep redefining key and hentry with each iteration of the loop
-		IT key;	
-		pair< T_promote, IT > hentry;
-		while(heapsize > 0)
+		while(hsize > 0)
 		{
-			workingset.deleteMin(&key, &hentry);
-			T_promote mrhs = SR::multiply(hentry.first, Bdcsc.numx[Bdcsc.cp[i]+hentry.second]);
-			if(cnz != prevcnz && multstack[cnz-1].key.second == key)	// if (cnz == prevcnz) => first nonzero for this column
+			pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
+			IT locb = wset[hsize-1].runr;	// relative location of the nonzero in B's current column 
+			T_promote mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
+			if(cnz != prevcnz && multstack[cnz-1].key.second == wset[hsize-1].key)	// if (cnz == prevcnz) => first nonzero for this column
 			{
 				multstack[cnz-1].value = SR::add(multstack[cnz-1].value, mrhs);
 			}
 			else
 			{
 				multstack[cnz].value = mrhs;
-				multstack[cnz++].key = make_pair(Bdcsc.jc[i], key);	// first entry is the column index, as it is in column-major order
+				multstack[cnz++].key = make_pair(Bdcsc.jc[i], wset[hsize-1].key);	
+				// first entry is the column index, as it is in column-major order
 			}
-
-			colinds[hentry.second].first++;
-			if(colinds[hentry.second].first != colinds[hentry.second].second)	// current != end
+			
+			if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
 			{
-				hentry = make_pair(Adcsc.numx[colinds[hentry.second].first],hentry.second);				
-				workingset.insert(Adcsc.ir[colinds[hentry.second].first], hentry);
+				// runr stays the same !
+				wset[hsize-1].key = Adcsc.ir[colinds[locb].first];
+				wset[hsize-1].num = Adcsc.numx[colinds[locb].first];  
+				push_heap(wset, wset+hsize);
 			}
 			else
 			{
-				--heapsize;
+				--hsize;
 			}
 		}
+		delete [] wset;
 	}
 	delete [] aux;
 	return cnz;
