@@ -80,12 +80,14 @@ public:
 	template <typename NT, typename IT>
 	static void DoubleStack(StackEntry<NT, pair<IT,IT> > * & multstack, IT & cnzmax, IT add)
 	{
-		StackEntry<NT, pair<IT,IT> > * tmpstack = multstack; 
+		StackEntry<NT, pair<IT,IT> > * tmpstack = multstack; 		
 		multstack = new StackEntry<NT, pair<IT,IT> >[2* cnzmax + add];
-		for(IT j=0; j< cnzmax; ++j)
+		memcpy(multstack, tmpstack, sizeof(StackEntry<NT, pair<IT,IT> >) * cnzmax);
+		
+		/*for(IT j=0; j< cnzmax; ++j)
 		{
 			multstack[j] = tmpstack[j];
-		}
+		}*/
 		cnzmax = 2*cnzmax + add;
 		delete [] tmpstack;
 	}
@@ -255,7 +257,9 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	IT auxsize = Adcsc.ConstructAux(nA, aux);
 
 	for(IT i=0; i< Bdcsc.nzc; ++i)		// for all the columns of B
-	{	
+	{
+		IT prevcnz = cnz;
+	
 		// heap keys are just row indices (IT) 
 		// heap values are <numvalue, runrank> ( pair<NT,IT> )
 		// heap size is nnz(B(:,i)
@@ -296,7 +300,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		{
 			workingset.deleteMin(&key, &hentry);
 			T_promote mrhs = SR::multiply(hentry.first, Bdcsc.numx[Bdcsc.cp[i]+hentry.second]);
-			if(cnz != 0 && multstack[cnz-1].key.second == key)	// if cnz == 0, then multstack is empty
+			if(cnz != prevcnz && multstack[cnz-1].key.second == key)	// if (cnz == prevcnz) => first nonzero for this column
 			{
 				multstack[cnz-1].value = SR::add(multstack[cnz-1].value, mrhs);
 			}

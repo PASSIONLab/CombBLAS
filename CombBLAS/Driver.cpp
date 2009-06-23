@@ -47,7 +47,7 @@ int main()
 
 
 #define BIGTEST
-//#define MASSIVETEST
+#define MASSIVETEST
 
 	// Start big timing test
 	vector<string> prefixes;
