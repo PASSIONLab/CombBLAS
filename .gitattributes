@@ -45,13 +45,13 @@ CombBLAS/TestPar.cpp -text
 CombBLAS/TestSeq.cpp -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
-CombBLAS/largeseq/colbycol -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
-CombBLAS/largeseq/outerproduct -text
 CombBLAS/makefile-lonestar -text
 CombBLAS/makefile-mac -text
 CombBLAS/makefile-neumann -text
+CombBLAS/massiveseq/input1_0 -text
+CombBLAS/massiveseq/input2_0 -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/promote.h -text

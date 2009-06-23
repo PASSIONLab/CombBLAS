@@ -548,6 +548,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 			}
 			cout << endl;
 		}
+		SpHelper::deallocate2D(A,m);
 	}
 }
 

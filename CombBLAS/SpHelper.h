@@ -46,7 +46,7 @@ public:
 	static void deallocate2D(T ** array, I m)
 	{
 		for(I i = 0; i<m; ++i) 
-			delete array[i];
+			delete [] array[i];
 		delete [] array;
 	}
 
