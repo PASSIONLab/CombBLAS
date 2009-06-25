@@ -12,6 +12,9 @@
 #include <vector>
 #include <climits>
 #include <iomanip>
+#include <cassert>
+
+using namespace std;
 
 /****************************************************************************/
 /********************* PUBLIC CONSTRUCTORS/DESTRUCTORS **********************/
@@ -329,17 +332,17 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
   * Split method should have been executed on the object beforehand
  **/
 template <class IT, class NT>
-void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & A, SpDCCols<IT,NT> & B) 
+void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB) 
 {
-	assert(A.m == B.m);
+	assert( partA.m == partB.m );
 
 	Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
-	Cdcsc->Merge(A.dcsc, B.dcsc, A.n);
+	Cdcsc->Merge(partA.dcsc, partB.dcsc, partA.n);
 	
-	*this = SpDCCols<IT,NT> (dcsc->nz, A.m, A.n + B.n, Cdcsc);
+	*this = SpDCCols<IT,NT> (dcsc->nz, partA.m, partA.n + partB.n, Cdcsc);
 
-	A = SpDCCols<IT, NT>();	
-	B = SpDCCols<IT, NT>();	
+	partA = SpDCCols<IT, NT>();	
+	partB = SpDCCols<IT, NT>();	
 }
 
 /**

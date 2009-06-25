@@ -8,6 +8,19 @@ SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const 
 	return ((static_cast<DER>(*this)) (ri, ci));
 }
 
+template <class IT, class NT, class DER>
+void SpMat<IT, NT, DER>::Split( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB) 
+{
+	static_cast< DER* >(this)->Split(static_cast< DER & >(partA), static_cast< DER & >(partB));
+}
+
+template <class IT, class NT, class DER>
+void SpMat<IT, NT, DER>::Merge( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB)
+{
+	static_cast< DER* >(this)->Merge(static_cast< DER & >(partA), static_cast< DER & >(partB));
+}
+
+
 
 template <class IT, class NT, class DER>
 template <typename SR>

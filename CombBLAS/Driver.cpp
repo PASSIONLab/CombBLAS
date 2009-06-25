@@ -47,7 +47,7 @@ int main()
 
 
 #define BIGTEST
-#define MASSIVETEST
+//#define MASSIVETEST
 
 	// Start big timing test
 	vector<string> prefixes;
@@ -73,6 +73,14 @@ int main()
 		SpDCCols<int,double> bigA;
         	input1 >> bigA;
         	bigA.PrintInfo();
+
+		SpDCCols<int,double> bigA1, bigA2;
+		bigA.Split(bigA1, bigA2);
+		bigA1.PrintInfo();
+		bigA2.PrintInfo();
+
+		bigA.Merge(bigA1, bigA2);
+		bigA.PrintInfo();
 
         	SpDCCols<int,double> bigB;
         	input2 >> bigB;

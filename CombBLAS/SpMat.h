@@ -45,6 +45,9 @@ public:
 	template <typename SR>
 	void SpGEMM( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
 
+	void Split( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB); 
+	void Merge( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB); 
+
 	Arr<IT,NT> GetArrays() const
 	{
 		return static_cast<const DER*>(this)->GetArrays();
