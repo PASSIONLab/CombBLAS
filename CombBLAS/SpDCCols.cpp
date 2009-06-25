@@ -339,7 +339,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
 	Cdcsc->Merge(partA.dcsc, partB.dcsc, partA.n);
 	
-	*this = SpDCCols<IT,NT> (dcsc->nz, partA.m, partA.n + partB.n, Cdcsc);
+	*this = SpDCCols<IT,NT> (Cdcsc->nz, partA.m, partA.n + partB.n, Cdcsc);
 
 	partA = SpDCCols<IT, NT>();	
 	partB = SpDCCols<IT, NT>();	
