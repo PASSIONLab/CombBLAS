@@ -48,6 +48,7 @@ CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
+CombBLAS/makefile -text
 CombBLAS/makefile-lonestar -text
 CombBLAS/makefile-mac -text
 CombBLAS/makefile-neumann -text
