@@ -1,72 +1,20 @@
-include /home/aydin/localinstall/gasnetdebug/include/udp-conduit/udp-par.mak
+INCDIR = 
+INCADD = -I$(INCDIR) 
 
-BOOST = /home/aydin/localinstall/boost_new
-LDADD = $(BOOST)/lib/libboost_mpi-gcc41-mt-1_35.a $(BOOST)/lib/libboost_serialization-gcc41-mt-1_35.a $(BOOST)/lib/libboost_thread-gcc41-mt-1_35.a
-INCADD = -I$(BOOST)/include/boost-1_35/
+OPT = -DNDEBUG -O3 -fno-exceptions 
+DEB = -pg -fno-inline
+COMPILER = g++ #mpic++	
 
-COMPILER = g++
+MemoryPool.o:	MemoryPool.cpp SpDefs.h
+	$(COMPILER) $(INCADD) $(DEB) -c -o MemoryPool.o MemoryPool.cpp
 
-OPT = -DNDEBUG -O6 -w -fno-exceptions
-DEB = -g -w -DDEBUG
-
-testseq:  	TestSeq.cpp SparseDColumn.cpp MemoryPool.o
-	$(COMPILER) $(INCADD) $(DEB) -o testseq TestSeq.cpp randgen.cpp MemoryPool.o
-
-TestPar.o: 	TestPar.cpp SparseDColumn.cpp SparseSumAsync.cpp SparseSumSync.cpp SparseCannon.cpp SpDefines.h
-	mpic++ $(INCADD) $(OPT) -c -o TestPar.o TestPar.cpp
-
-testpar: 	TestPar.o randgen.o TestPar.cpp SpDefines.h
-	mpic++ $(OPT) -o testpar TestPar.o randgen.o $(LDADD)
-
-testthread:	TestThread.cpp SparseDColumn.cpp SparseThreaded.cpp
-	mpic++ $(INCADD) $(OPT) -o testthread TestThread.cpp $(LDADD)
-
-seqsimu: 	SeqSimu.cpp SparseDColumn.cpp dcsc.cpp
-	mpic++ $(INCADD) $(OPT) -o seqsimu SeqSimu.cpp
-
-test1d: 	Test1D.cpp SparseColumn.cpp SparsePar1D.cpp SpDefines.h
-	mpic++ $(INCADD) $(DEB) -o test1d Test1D.cpp $(LDADD)
-
-TestGas.o: 	TestGas.cpp SparseDColumn.cpp SparseSumGas.cpp
-	$(GASNET_CC) $(INCADD) $(DEB) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o TestGas.o TestGas.cpp
-
-testgas: 	TestGas.o
-	$(GASNET_LD) $(DEB) $(GASNET_LDFLAGS) -o testgas TestGas.o $(GASNET_LIBS)
-
-exp.o:	 	exp.cpp SparseDColumn.cpp SparseSumGas.cpp dcsc.cpp
-	$(GASNET_CC) $(INCADD) $(DEB) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o exp.o exp.cpp
-
-exp: 		exp.o
-	$(GASNET_LD) $(DEB) $(GASNET_LDFLAGS) -o exp exp.o $(GASNET_LIBS)
-
-expnogas:	exp.cpp SparseDColumn.cpp dcsc.cpp
-	$(COMPILER) $(INCADD) $(DEB) -fno-exceptions -o expnogas exp.cpp  
-
-TestOneSided.o: TestOneSided.cpp SparseDColumn.cpp SparseOneSidedMPI.cpp SpDefines.h
-	mpic++ $(INCADD) $(OPT) -DBASEADDRESS=\"Data/randA_rectB/\" -c -o TestOneSided.o TestOneSided.cpp
-
-testonesided:        TestOneSided.o randgen.o TestOneSided.cpp SpDefines.h MemoryPool.o
-	mpic++ $(OPT) -o testonesided TestOneSided.o randgen.o MemoryPool.o $(LDADD)
-
-BetwCent.o:	BetwCent.cpp SpParMatrix.h SparseOneSidedMPI.cpp SparseDColumn.cpp SpDefines.h
-	mpic++ $(INCADD) $(OPT) -c -o BetwCent.o BetwCent.cpp
-
-betwcent:	BetwCent.o MemoryPool.o
-	mpic++ $(OPT) -o betwcent BetwCent.o MemoryPool.o $(LDADD)
-
-MemoryPool.o:   MemoryPool.cpp
-	$(GASNET_CC) $(INCADD) $(OPT) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o MemoryPool.o MemoryPool.cpp
+driver:	Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h MemoryPool.o
+	$(COMPILER) $(INCADD) $(DEB) -o driver Driver.cpp MemoryPool.o 
 
 clean:
-	rm -f TestGas.o
-	rm -f TestOneSided.o
-	rm -f testgas
-	rm -f testseq
-	rm -f exp.o
-	rm -f exp
-	rm -f TestPar.o
-	rm -f testpar
-	rm -f seqsimu
-	rm -f test1d
-	rm -f testthread
-	rm -f testonesided
+	rm -f driver
+	rm -f MemoryPool.o 
+
+cleanout:
+	rm out.*
+	rm err.*
