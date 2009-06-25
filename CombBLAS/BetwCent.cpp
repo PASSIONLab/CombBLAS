@@ -13,7 +13,7 @@
 #include <sstream>  // Required for stringstreams
 #include <ctime>
 #include <cmath>
-#include <boost/ptr_container/ptr_vector.hpp> 
+#include <boost/ptr_container/ptr_vector.hpp> 	// ABAB: use vector<void*> instead !
 #include "SparseMatrix.h"
 #include "SpParVec.h"
 #include "SpParMatrix.h"

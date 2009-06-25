@@ -1,6 +1,7 @@
 * text=auto !eol
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
 CombBLAS/BetwCent.cpp -text
+CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
 CombBLAS/DataTypeToMPI.h -text
@@ -31,15 +32,14 @@ CombBLAS/SpDefs.h -text
 CombBLAS/SpHelper.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
+CombBLAS/SpParHelper.h -text
 CombBLAS/SpParMPI2.cpp -text
 CombBLAS/SpParMPI2.h -text
 CombBLAS/SpParMat.h -text
 CombBLAS/SpParVec.cpp -text
 CombBLAS/SpParVec.h -text
-CombBLAS/SpSizes.h -text
 CombBLAS/SpTuples.cpp -text
 CombBLAS/SpTuples.h -text
-CombBLAS/SpWins.h -text
 CombBLAS/StackEntry.h -text
 CombBLAS/TestOneSided.cpp -text
 CombBLAS/TestPar.cpp -text

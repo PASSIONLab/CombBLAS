@@ -12,14 +12,14 @@
 #include <fstream>
 #include <cmath>
 #include <mpi.h>
+#include <tr1/memory>	// for shared_ptr
+
 #include "SpMat.h"
-#include "SpParMat.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "CommGrid.h"
-#include "SpWins.h"
-#include "SpSizes.h"
 #include "DataTypeConvert.h"
+#include "LocArr.h"
 
 using namespace std;
 
@@ -38,37 +38,34 @@ public:
 	// Constructors
 	SpParMPI2 () {};
 	SpParMPI2 (ifstream & input, MPI::IntraComm & world);
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::IntraComm & world);
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid);
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::IntraComm & world);	// ABAB: Provide !
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid);		// ABAB: Provide !
 
-	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);			// copy constructor
+	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);				// copy constructor
 	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
 	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
-	~SpParMPI2 ();
+	~SpParMPI2 ();							// ABAB: Provide !
 
 	//! operator* should alter the second matrix B during the computation, due to memory limitations.
 	//! It transposes the second matrix before the multiplications start, therefore it has no memory to store the old version
 	//! After the multiplications are done, B is correctly restored back.
 	template <typename U> 
-	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, const SpParMPI2<U> & B );
+	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, const SpParMPI2<U> & B );		// ABAB: Provide (should accept a Semiring as well)
 
 	IT getnrows() const;
 	IT getncols() const;
 	IT getnnz() const;	
 	
-	virtual shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
-	virtual SpParMatrix<T> * SubsRefCol (const vector<ITYPE> & ci) const;
-	virtual ofstream& put(ofstream& outfile) const;
+	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
+	SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
+	ofstream& put(ofstream& outfile) const;
 
-	virtual ITYPE getlocalrows() const { return spSeq->getrows(); }
-	virtual ITYPE getlocalcols() const { return spSeq->getcols();} 
-	virtual ITYPE getlocalnnz() const { return spSeq->getnzmax(); }
-
-	virtual void operator+= (const SpParMatrix<T> & A) { cout << "Just dummy for now" << endl; };
-
+	IT getlocalrows() const { return spSeq->getrows(); }
+	IT getlocalcols() const { return spSeq->getcols();} 
+	IT getlocalnnz() const { return spSeq->getnzmax(); }
 
 private:
-	static void SetWindows(MPI_Comm & comm1d, SparseDColumn<T> & Matrix, SpWins & wins);
+	// Static functions that do not need access to "this" pointer
 	static void GetSetSizes(ITYPE index, SparseDColumn<T> & Matrix, SpSizes & sizes, MPI_Comm & comm1d);
 
 	const static IT zero = static_cast<IT>(0);

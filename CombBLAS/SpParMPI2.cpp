@@ -15,22 +15,8 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::IntraComm & world)
 		perror("Input file doesn't exist\n");
 		exit(-1);
 	}
-
 	commGrid = new CommGrid(world, 0, 0);
-
-	ITYPE m,n,nnz;
-	input >> m >> n >> nnz;
-
-	SpMat< IT,NT, SpTuples<IT,NT> > seqTuple(nnz,m,n);
-	if(commGrid->myrank == 0)
-		cout<<"Reading to SpTuples"<<endl;
-	input >> seqTuple;
-
-	seqTuple.SortColBased();
-	if(commGrid->myrank == 0)
-		cout<<"Converting to specialized derived type"<<endl;
-
-	spSeq = new SpMat< IT,NT,DER >(seqTuple, false, NULL);	
+	input >> (*spSeq);
 }
 
 template <class IT, class NT, class DER>
@@ -77,10 +63,9 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator+=(const SpParMPI2< IT,
 	}
 	else
 	{
-		cout<< "Missing feauture (A+A): Use multiply with 2 instead !"<<endl;	
+		cout<< "Missing feature (A+A): Use multiply with 2 instead !"<<endl;	
 	}
-	return *this;
-	
+	return *this;	
 }
 
 template <class IT, class NT, class DER>
@@ -109,6 +94,9 @@ IT SpParMPI2< IT,NT,DER >::getncol() const
 	(commGrid->rowWorld).Allreduce( &localcols, &totalcols, 1, DataTypeToMPI<IT>(), MPI::SUM);
  	return totalcols;  
 }
+
+
+////////////// Start fixing ///////////////
 
 /** 
  * Create a submatrix of size m x (size(ncols) * s) on a r x s processor grid
@@ -209,51 +197,14 @@ const SpParMPI2< IT,NT,DER > operator* (const SpParMPI2< IT,NT,DER > & A, const 
 	return SpParMPI2<T>(SpProduct, GridC.commWorld);
 }
 
-template <class IT, class NT, class DER>
-void SpParMPI2< IT,NT,DER >::SetWindows(MPI::Comm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & wins) 
-{
-	size_t sit = sizeof(IT);
-	Arr<IT,NT> arrs = Matrix.GetArrays(); 
-	
-	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
-	// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
-	// Collective operation, everybody exposes its own array to everyone else in the communicator
-	
-	for(IT i=0; i< essarrs.indarrs.size(); ++i)
-	{
-		wins.push_back(MPI::Win::create(arrs.indarrs[i].addr, 
-			arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d);
-	}
-	for(IT i=0; i< essarrs.numarrs.size(); ++i)
-	{
-		wins.push_back(MPI::Win::create(arrs.numarrs[i].addr, 
-			arrs.numarrs[i].count * sizeof(T), sizeof(T), MPI::INFO_NULL, comm1d);
-	}
-}
 
+////////////// End Fixing ///////////////
 
-/**
- * @param[in] index Index of this processor within its row/col, can be {0,...r/s-1}
- * @param[in] sizes 2D array where 
- *  	sizes[i] is an array of size r/s representing the ith essential component of all local blocks within that row/col
- *	sizes[i][j] is the size of the ith essential component of the jth local block within this row/col
- */
-template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::IntraComm & comm1d)
-{
-	vector<IT> essentials = Matrix.GetEssentials();
-	for(IT i=0; i< essentials.size(); ++i)
-	{
-		sizes[i][index] = essentials[i]; 
-		comm1d.Allgather(MPI::IN_PLACE, 1, DataTypeToMPI<IT>(), sizes[i], 1, DataTypeToMPI<IT>());
-	}
-}
 
 template <class IT, class NT, class DER>
 ofstream& SpParMPI2<IT,NT,DER>::put(ofstream& outfile) const
 {
-	SpTuples<T> triplets(*spSeq);
-	outfile << triplets << endl;
+	outfile << (*spSeq) << endl;
 }
 
 template <class UIT, class UNT, class UDER>

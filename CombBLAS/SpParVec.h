@@ -4,59 +4,32 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#ifndef _SP_PAR_VEC_H
+#define _SP_PAR_VEC_H
+
+#include <tr1/memory>
 #include "CommGrid.h"
-#include <boost/shared_ptr.hpp>
 
 using namespace std;
-using namespace boost;
+using namespace std::tr1;
 
 
-template <class T>
+template <class IT, class NT>
 class SpParVec
 {
 public:
-	SpParVec ( shared_ptr< CommGrid > grid): commGrid(grid) 
-	{
-		int rowrank, colrank;
-		MPI_Comm_rank(grid->rowWorld, &rowrank);
-		MPI_Comm_rank(grid->colWorld, &colrank);
-		if(rowrank == colrank)
-			diagonal = true;
-		else
-			diagonal = false;	
-	};
+	SpParVec ( shared_ptr< CommGrid > grid);
 	
-	
-	SpParVec<T> & operator+=(const SpParVec<T> & rhs)
-	{
-		if(diagonal)
-		{
-			vector< pair<ITYPE, T> > narr;
-			ITYPE lsize = arr.size();
-			ITYPE rsize = rhs.arr.size();
-			narr.reserve(lsize+rsize);
-
-			ITYPE i =0, j=0, k=0;
-			while(i < lsize && j < rsize)
-			{
-				if(arr[i].first > rhs.arr[j].first)	
-					narr[k++] = rhs.arr[j++];
-				else if(arr[i].first < rhs.arr[j].first)
-					narr[k++] = arr[i++];
-				else
-					narr[k++] = pair<ITYPE, T>(arr[i].first, arr[i++].second + rhs.arr[j++].second);
-			}
-			narr = arr;
-		}	
-	};	
+	SpParVec<T> & operator+=(const SpParVec<T> & rhs);
 	
 	//SpParVec<T> & operator+=(const MMmul< SpParMatrix<T>, SpParVec<T> > & matmul);	
 
 private:
 	shared_ptr< CommGrid > commGrid;
-	vector< pair<ITYPE, T> > arr;
+	vector< pair<IT, NT> > arr;
 	bool diagonal;
 };
 
+#include "SpParVec.cpp"
 #endif
 
