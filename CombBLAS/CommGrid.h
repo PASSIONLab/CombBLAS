@@ -51,21 +51,4 @@ private:
 };
 
 
-
-CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset)
-{
-	if(gridA.grcol != gridB.grrow)
-	{
-		cout << "Grids don't confirm for multiplication" << endl;
-		MPI::COMM_WORLD.Abort();
-	}
-	innerdim = gridA.grcol;
-
-	Aoffset = (gridA.myrow + gridA.mycol) % gridA.grcol;	// get sequences that avoids contention
-	Boffset = (gridB.myrow + gridB.mycol) % gridB.grrow;
-
-	return CommGrid(MPI::COMM_WORLD, gridA.grrow, gridB.grcol); 
-}
-
-
 #endif

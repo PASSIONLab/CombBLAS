@@ -1,3 +1,4 @@
+CombBLAS/makefile
 Graph500cpp/*.o
 Graph500cpp/Makefile
 Graph500cpp/g500tempstartverts.mtx

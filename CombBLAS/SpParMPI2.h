@@ -46,11 +46,8 @@ public:
 	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
 	~SpParMPI2 ();							// ABAB: Provide !
 
-	//! operator* should alter the second matrix B during the computation, due to memory limitations.
-	//! It transposes the second matrix before the multiplications start, therefore it has no memory to store the old version
-	//! After the multiplications are done, B is correctly restored back.
-	template <typename U> 
-	friend const SpParMPI2<U> operator* (const SpParMPI2<U> & A, const SpParMPI2<U> & B );		// ABAB: Provide (should accept a Semiring as well)
+	template <typename SR, typename U> 
+	friend SpParMPI2<U> Mult_AnXBn (const SpParMPI2<U> & A, const SpParMPI2<U> & B );
 
 	IT getnrows() const;
 	IT getncols() const;
