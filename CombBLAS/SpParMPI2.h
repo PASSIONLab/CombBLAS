@@ -18,8 +18,9 @@
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "CommGrid.h"
-#include "DataTypeConvert.h"
+#include "MPIType.h"
 #include "LocArr.h"
+#include "SpParHelper.h"
 
 using namespace std;
 
@@ -36,25 +37,25 @@ class SpParMPI2
 {
 public:
 	// Constructors
-	SpParMPI2 () {};
-	SpParMPI2 (ifstream & input, MPI::IntraComm & world);
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::IntraComm & world);	// ABAB: Provide !
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid);		// ABAB: Provide !
+	SpParMPI2 ();
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid): spSeq(myseq), commGrid(grid) {};		
+	SpParMPI2 (ifstream & input, MPI::Intracomm & world);
+	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::Intracomm & world);	
 
 	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);				// copy constructor
 	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
 	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
-	~SpParMPI2 ();							// ABAB: Provide !
+	~SpParMPI2 ();						
 
-	template <typename SR, typename U> 
-	friend SpParMPI2<U> Mult_AnXBn (const SpParMPI2<U> & A, const SpParMPI2<U> & B );
+	template <typename SR, typename IU, typename NU, typename UDER> 
+	friend SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMPI2<IU,NU,UDER> & B );
 
-	IT getnrows() const;
-	IT getncols() const;
+	IT getnrow() const;
+	IT getncol() const;
 	IT getnnz() const;	
 	
-	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
-	SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
+	// SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
+	
 	ofstream& put(ofstream& outfile) const;
 
 	IT getlocalrows() const { return spSeq->getrows(); }
@@ -62,15 +63,12 @@ public:
 	IT getlocalnnz() const { return spSeq->getnzmax(); }
 
 private:
-	// Static functions that do not need access to "this" pointer
-	static void GetSetSizes(ITYPE index, SparseDColumn<T> & Matrix, SpSizes & sizes, MPI_Comm & comm1d);
-
 	const static IT zero = static_cast<IT>(0);
 	CommGrid * commGrid; 
 	SpMat<IT, NT, DER> * spSeq;
 	
-	template <typename U>
-	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<U> & s);	
+	template <typename IU, typename NU, typename UDER> 	
+	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<IU,NU,UDER> & s);	
 };
 
 #include "SpParMPI2.cpp"

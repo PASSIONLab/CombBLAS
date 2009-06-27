@@ -26,17 +26,17 @@ public:
 	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind);
 
 	template<typename IT, typename NT, typename DER>
-	static void SetWindows(MPI::IntraComm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
+	static void SetWindows(MPI::Intracomm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
 
 	template <class IT, class NT, class DER>
-	static void GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::IntraComm & comm1d);
+	static void GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d);
 
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);	
 };
 
 /**
   * @param[in,out] MRecv {an already existing, but empty SpMat<...> object}
-  * @param[in] essentials {carries essential information (i.e. required array sizes) about ARecv}
+  * @param[in] essarray {carries essential information (i.e. required array sizes) about ARecv}
   * @param[in] arrwin {windows array of size equal to the number of built-in arrays in the SpMat data structure}
   * @param[in] ownind {processor index (within this processor row/column) of the owner of the matrix to be received}
   * @remark {The communicator information is implicitly contained in the MPI::Win objects}
@@ -57,18 +57,18 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 	for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
 	{
 		arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
-		arrwin[essk++].Get(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, DataTypeToMPI<IT>(), ownind, 0, arrinfo.indarrs[i].count, DataTypeToMPI<IT>());
+		arrwin[essk++].Get(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), ownind, 0, arrinfo.indarrs[i].count, MPIType<IT>());
 	}
 	for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
 	{
 		arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
-		arrwin[essk++].Get(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, DataTypeToMPI<NT>(), ownind, 0, arrinfo.numarrs[i].count, DataTypeToMPI<NT>());
+		arrwin[essk++].Get(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), ownind, 0, arrinfo.numarrs[i].count, MPIType<NT>());
 	}
 }
 
 
 template <class IT, class NT, class DER>
-void SpParHelper::SetWindows(MPI::IntraComm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
+void SpParHelper::SetWindows(MPI::Intracomm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
 {
 	Arr<IT,NT> arrs = Matrix.GetArrays(); 
 	
@@ -78,13 +78,13 @@ void SpParHelper::SetWindows(MPI::IntraComm & comm1d, SpMat< IT,NT,DER > & Matri
 	
 	for(int i=0; i< arrs.indarrs.size(); ++i)
 	{
-		wins.push_back(MPI::Win::create(arrs.indarrs[i].addr, 
-			arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d);
+		arrwin.push_back(MPI::Win::Create(arrs.indarrs[i].addr, 
+			arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d));
 	}
 	for(int i=0; i< arrs.numarrs.size(); ++i)
 	{
-		wins.push_back(MPI::Win::create(arrs.numarrs[i].addr, 
-			arrs.numarrs[i].count * sizeof(NT), sizeof(NT), MPI::INFO_NULL, comm1d);
+		arrwin.push_back(MPI::Win::Create(arrs.numarrs[i].addr, 
+			arrs.numarrs[i].count * sizeof(NT), sizeof(NT), MPI::INFO_NULL, comm1d));
 	}
 }
 
@@ -105,13 +105,13 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
  *	sizes[i][j] is the size of the ith essential component of the jth local block within this row/col
  */
 template <class IT, class NT, class DER>
-void SpParHelper::GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::IntraComm & comm1d)
+void SpParHelper::GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d)
 {
 	vector<IT> essentials = Matrix.GetEssentials();
 	for(IT i=0; i< essentials.size(); ++i)
 	{
 		sizes[i][index] = essentials[i]; 
-		comm1d.Allgather(MPI::IN_PLACE, 1, DataTypeToMPI<IT>(), sizes[i], 1, DataTypeToMPI<IT>());
+		comm1d.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), sizes[i], 1, MPIType<IT>());
 	}
 }
 

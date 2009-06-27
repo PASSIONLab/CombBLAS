@@ -1,6 +1,6 @@
 #include "CommGrid.h"
 
-CommGrid::CommGrid(MPI::IntraComm & world, int nrowproc, int ncolproc): grrow(nrowproc), grcol(ncolproc)
+CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrow(nrowproc), grcol(ncolproc)
 {
 	commWorld = world.Dup();
 	myrank = commWorld.Get_rank();
@@ -22,13 +22,13 @@ CommGrid::CommGrid(MPI::IntraComm & world, int nrowproc, int ncolproc): grrow(nr
 	  * C++ syntax: MPI::Intercomm MPI::Intercomm::Split(int color, int key) consts  
 	  * Semantics: Processes with the same color are in the same new communicator 
 	  */
-	rowworld = commWorld.Split(myrow, myrank);
-	colworld = commWorld.Split(mycol, myrank);
+	rowWorld = commWorld.Split(myrow, myrank);
+	colWorld = commWorld.Split(mycol, myrank);
 }
 
 bool CommGrid::operator== (const CommGrid & rhs) const
 {
-	result = MPI::Comm::Compare(commWorld, rhs.commWorld);
+	int result = MPI::Comm::Compare(commWorld, rhs.commWorld);
 	if ((result != MPI::IDENT) && (result != MPI::CONGRUENT))
 	{
 		// A call to MPI::Comm::Compare after MPI::Comm::Dup returns MPI_CONGRUENT
@@ -47,7 +47,6 @@ void CommGrid::OpenDebugFile(string prefix, ofstream & output)
 	ss >> rank;
 	string ofilename = prefix;
 	ofilename += rank;
-	
 	output.open(ofilename.c_str(), ios_base::app );
 }
 
@@ -57,7 +56,7 @@ CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & A
 	if(gridA.grcol != gridB.grrow)
 	{
 		cout << "Grids don't confirm for multiplication" << endl;
-		MPI::COMM_WORLD.Abort();
+		MPI::COMM_WORLD.Abort(3001);
 	}
 	innerdim = gridA.grcol;
 

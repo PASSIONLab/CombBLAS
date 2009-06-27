@@ -50,6 +50,7 @@ public:
 	Arr<IT,NT> GetArrays() const;
 	void CreateImpl(vector<IT> & essentials);
 	vector<IT> GetEssentials() const;
+	const static IT esscount = static_cast<IT>(4);
 
 	bool isZero() const { return (nnz == zero); }
 	IT getnrow() const { return m; }
@@ -92,8 +93,7 @@ private:
 	IT n;
 	IT nnz;
 	const static IT zero = static_cast<IT>(0);
-	const static IT esscount = static_cast<IT>(4);
-
+	
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;
 

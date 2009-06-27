@@ -1,13 +1,20 @@
 #include <iostream>
 #include <fstream>
+#include <mpi.h>
 #include <sys/time.h>
 #include "SpTuples.h"
 #include "SpDCCols.h"
+#include "SpParMPI2.h"
 
 using namespace std;
 
 int main()
 {
+	MPI::Init();
+	int nprocs = MPI::COMM_WORLD.Get_size();
+	int myrank = MPI::COMM_WORLD.Get_rank();
+
+
 	ifstream inputa("matrixA.txt");
 	ifstream inputb("matrixB.txt");
 	if(!(inputa.is_open() && inputb.is_open()))
@@ -44,7 +51,7 @@ int main()
 
 
 #define BIGTEST
-#define MASSIVETEST
+//#define MASSIVETEST
 
 	// Start big timing test
 	vector<string> prefixes;
@@ -130,8 +137,19 @@ int main()
 		
 		elapsed_time = (elapsed_seconds + ((double) elapsed_useconds)/1000000.0);
 		printf("OuterProduct time = %.5f seconds\n", elapsed_time);
-		
+	
+		input1.seekg (0, ios::beg);
+		input2.seekg (0, ios::beg);
+	
+		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
+		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARSPMAT;
+		PARSPMAT A_par(input1, MPI::COMM_WORLD);
+		PARSPMAT B_par(input2, MPI::COMM_WORLD);
+	
+		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
+
 		input1.close();	
 		input2.close();
 	}
+	MPI::Finalize();
 }

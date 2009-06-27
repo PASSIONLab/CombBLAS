@@ -13,12 +13,17 @@
 #include <cmath>
 #include <cmath>
 #include <mpi.h>
-#include "DataTypeToMPI.h"
+#include <sstream>
+#include <string>
+#include <fstream>
+#include "MPIType.h"
+
+using namespace std;
 
 class CommGrid
 {
 public:
-	CommGrid(MPI::IntraComm & world, int nrowproc, int ncolproc);
+	CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc);
 
 	~CommGrid()
 	{
@@ -38,7 +43,7 @@ public:
 	friend CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
-	MPI::IntraComm commWorld, rowWorld, colWorld;
+	MPI::Intracomm commWorld, rowWorld, colWorld;
 
 	// Processor grid is (grrow X grcol)
 	int grrow, grcol;
