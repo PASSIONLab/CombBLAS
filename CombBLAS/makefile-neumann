@@ -2,17 +2,21 @@ INCDIR =
 INCADD = -I$(INCDIR) 
 
 OPT = -DNDEBUG -O3 -fno-exceptions 
-DEB = -pg -fno-inline
+DEB = -g -O0 -fno-inline
 COMPILER = g++ #mpic++	
 
 MemoryPool.o:	MemoryPool.cpp SpDefs.h
-	$(COMPILER) $(INCADD) $(DEB) -c -o MemoryPool.o MemoryPool.cpp
+	$(COMPILER) $(DEB) -c -o MemoryPool.o MemoryPool.cpp
 
-driver:	Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h MemoryPool.o
-	$(COMPILER) $(INCADD) $(DEB) -o driver Driver.cpp MemoryPool.o 
+Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h 
+	$(COMPILER) $(DEB) -c -o Driver.o Driver.cpp
+
+driver: Driver.o MemoryPool.o
+	$(COMPILER) -g -o driver Driver.o MemoryPool.o
 
 clean:
 	rm -f driver
+	rm -f Driver.o
 	rm -f MemoryPool.o 
 
 cleanout:

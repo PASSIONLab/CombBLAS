@@ -21,8 +21,7 @@ using namespace std;
 /****************************************************************************/
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL) {}
-
+SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){}
 
 // Allocate all the space necessary
 template <class IT, class NT>
@@ -173,10 +172,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 	// check for self assignment using address comparison
 	if(this != &rhs)		
 	{
-		m = rhs.m; 
-		n = rhs.n;
-		nnz = rhs.nnz; 
-		if(dcsc != NULL && dcsc->nz > 0)
+		if(dcsc != NULL && nnz > 0)
 		{
 			delete dcsc;
 		}
@@ -184,6 +180,10 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 		{
 			dcsc = new Dcsc<IT,NT>(*(rhs.dcsc));
 		}
+		
+		m = rhs.m; 
+		n = rhs.n;
+		nnz = rhs.nnz;
 	}
 	return *this;
 }
@@ -320,8 +320,8 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	Dcsc<IT,NT> *Adcsc, *Bdcsc;
 	dcsc->Split(Adcsc, Bdcsc, cut);
 
-	partA = SpDCCols (Adcsc->nz, m, cut, Adcsc);
-	partB = SpDCCols (Bdcsc->nz, m, n-cut, Bdcsc);
+	partA = SpDCCols<IT,NT> (Adcsc->nz, m, cut, Adcsc);
+	partB = SpDCCols<IT,NT> (Bdcsc->nz, m, n-cut, Bdcsc);
 	
 	// handle destruction through assignment operator
 	*this = SpDCCols<IT, NT>();		
@@ -565,7 +565,7 @@ template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 :m(nRow), n(nCol), nnz(size), localpool(NULL)
 {
-	if(size > 0)
+	if(nnz > 0)
 		dcsc = mydcsc;
 	else
 		dcsc = NULL;
