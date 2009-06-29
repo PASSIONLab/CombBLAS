@@ -5,6 +5,7 @@
 template<class V, class C>
 struct LocArr
 {
+	LocArr():addr(NULL),count(0) {}
 	LocArr(V * myaddr, C mycount): addr(myaddr ), count(mycount){}
 	
 	V * addr;

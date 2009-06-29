@@ -35,20 +35,30 @@ public:
 	bool operator== (const CommGrid & rhs) const;
 	
 	int GetRank() { return myrank; }
-	int GetRowRank() { return colWorld.Get_rank(); }
-	int GetColRank() { return rowWorld.Get_rank(); }
+	int GetRowRank() { return myproccol; }
+	int GetColRank() { return myprocrow; }
+	
+	MPI::Intracomm & GetWorld() { return commWorld; }
+	MPI::Intracomm & GetRowWorld() { return rowWorld; }
+	MPI::Intracomm & GetColWorld() { return colWorld; }
+	MPI::Intracomm GetWorld() const { return commWorld; }
+	MPI::Intracomm GetRowWorld() const { return rowWorld; }
+	MPI::Intracomm GetColWorld() const { return colWorld; }
+	
+	int GetGridRows() { return grrows; }
+	int GetGridCols() { return grcols; }
 
 	void OpenDebugFile(string prefix, ofstream & output); 
 
-	friend CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset);
+	friend CommGrid * ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
 	MPI::Intracomm commWorld, rowWorld, colWorld;
 
 	// Processor grid is (grrow X grcol)
-	int grrow, grcol;
-	int mycol;
-	int myrow;
+	int grrows, grcols;
+	int myproccol;
+	int myprocrow;
 	int myrank;
 	
 	template <class IT, class NT, class DER>

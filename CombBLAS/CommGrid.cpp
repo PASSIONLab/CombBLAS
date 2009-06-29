@@ -1,20 +1,21 @@
 #include "CommGrid.h"
+#include "SpDefs.h"
 
-CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrow(nrowproc), grcol(ncolproc)
+CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)
 {
 	commWorld = world.Dup();
 	myrank = commWorld.Get_rank();
 	int nproc = commWorld.Get_size();
 
-	if(grrow == 0 && grcol == 0)
+	if(grrows == 0 && grcols == 0)
 	{
-		grrow = (int)std::sqrt((float)nproc);
-		grcol = grrow;
+		grrows = (int)std::sqrt((float)nproc);
+		grcols = grrows;
 	}
-	assert((nproc == (grrow*grcol)));
+	assert((nproc == (grrows*grcols)));
 
-	mycol =  (int) myrank % grcol;
-	myrow =  (int) myrank / grcol;
+	myproccol =  (int) myrank % grcols;
+	myprocrow =  (int) myrank / grcols;
 		
 	/** 
 	  * Create row and column communicators (must be collectively called)
@@ -22,8 +23,11 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrow(nr
 	  * C++ syntax: MPI::Intercomm MPI::Intercomm::Split(int color, int key) consts  
 	  * Semantics: Processes with the same color are in the same new communicator 
 	  */
-	rowWorld = commWorld.Split(myrow, myrank);
-	colWorld = commWorld.Split(mycol, myrank);
+	rowWorld = commWorld.Split(myprocrow, myrank);
+	colWorld = commWorld.Split(myproccol, myrank);
+
+	assert( ((rowWorld.Get_rank()) == myproccol) );
+	assert( ((colWorld.Get_rank()) == myprocrow) );
 }
 
 bool CommGrid::operator== (const CommGrid & rhs) const
@@ -35,7 +39,7 @@ bool CommGrid::operator== (const CommGrid & rhs) const
 		// MPI::CONGRUENT means the communicators have the same group members, in the same order
     		return false;
 	}
-	return ( (grrow == rhs.grrow) && (grcol == rhs.grcol) && (myrow == rhs.myrow) && (mycol == rhs.mycol));
+	return ( (grrows == rhs.grrows) && (grcols == rhs.grcols) && (myprocrow == rhs.myprocrow) && (myproccol == rhs.myproccol));
 }	
 
 
@@ -51,18 +55,20 @@ void CommGrid::OpenDebugFile(string prefix, ofstream & output)
 }
 
 
-CommGrid ProductGrid(CommGrid & gridA, CommGrid & gridB, int & innerdim, int & Aoffset, int & Boffset)
+CommGrid * ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset)
 {
-	if(gridA.grcol != gridB.grrow)
+	if(gridA->grcols != gridB->grrows)
 	{
 		cout << "Grids don't confirm for multiplication" << endl;
-		MPI::COMM_WORLD.Abort(3001);
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}
-	innerdim = gridA.grcol;
+	innerdim = gridA->grcols;
 
-	Aoffset = (gridA.myrow + gridA.mycol) % gridA.grcol;	// get sequences that avoids contention
-	Boffset = (gridB.myrow + gridB.mycol) % gridB.grrow;
+	Aoffset = (gridA->myprocrow + gridA->myproccol) % gridA->grcols;	// get sequences that avoids contention
+	Boffset = (gridB->myprocrow + gridB->myproccol) % gridB->grrows;
 
-	return CommGrid(MPI::COMM_WORLD, gridA.grrow, gridB.grcol); 
+		
+	CommGrid * cg = new CommGrid(MPI::COMM_WORLD, gridA->grrows, gridB->grcols); 
+	return cg;
 }
 

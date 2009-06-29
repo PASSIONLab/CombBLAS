@@ -20,6 +20,7 @@
 #include "CommGrid.h"
 #include "MPIType.h"
 #include "LocArr.h"
+#include "SpHelper.h"
 #include "SpParHelper.h"
 
 using namespace std;
@@ -56,6 +57,7 @@ public:
 	
 	// SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
 	
+	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
 
 	IT getlocalrows() const { return spSeq->getrows(); }

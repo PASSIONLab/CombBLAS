@@ -26,10 +26,10 @@ public:
 	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind);
 
 	template<typename IT, typename NT, typename DER>
-	static void SetWindows(MPI::Intracomm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
+	static void SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
 
-	template <class IT, class NT, class DER>
-	static void GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d);
+	template <typename IT, typename NT, typename DER>
+	static void GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d, int index);
 
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);	
 };
@@ -68,7 +68,7 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 
 
 template <class IT, class NT, class DER>
-void SpParHelper::SetWindows(MPI::Intracomm & comm1d, SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
+void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
 {
 	Arr<IT,NT> arrs = Matrix.GetArrays(); 
 	
@@ -105,7 +105,7 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
  *	sizes[i][j] is the size of the ith essential component of the jth local block within this row/col
  */
 template <class IT, class NT, class DER>
-void SpParHelper::GetSetSizes(IT index, SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d)
+void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d, int index)
 {
 	vector<IT> essentials = Matrix.GetEssentials();
 	for(IT i=0; i< essentials.size(); ++i)

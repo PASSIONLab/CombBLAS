@@ -230,7 +230,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 /****************************************************************************/
 
 template <class IT, class NT>
-void SpDCCols<IT,NT>::CreateImpl(vector<IT> & essentials)
+void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 {
 	nnz = essentials[0];
 	m = essentials[1];
@@ -268,7 +268,7 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 	arr.indarrs[0] = LocArr<IT,IT>(dcsc->cp, dcsc->nzc+1);
 	arr.indarrs[1] = LocArr<IT,IT>(dcsc->jc, dcsc->nzc);
 	arr.indarrs[2] = LocArr<IT,IT>(dcsc->ir, dcsc->nz);
-	arr.numarrs[0] = LocArr<IT,NT>(dcsc->numx, dcsc->nz);
+	arr.numarrs[0] = LocArr<NT,IT>(dcsc->numx, dcsc->nz);
 }
 
 /**

@@ -48,7 +48,7 @@ public:
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
 	Arr<IT,NT> GetArrays() const;
-	void CreateImpl(vector<IT> & essentials);
+	void CreateImpl(const vector<IT> & essentials);
 	vector<IT> GetEssentials() const;
 	const static IT esscount = static_cast<IT>(4);
 

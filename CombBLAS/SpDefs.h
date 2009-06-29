@@ -11,6 +11,9 @@
 
 #include "SequenceHeaps/knheap.C"
 
+#define GRIDMISMATCH 3001
+#define DIMMISMATCH 3002
+
 // force 8-bytes alignment in heap allocated memory
 #ifndef ALIGN
 #define ALIGN 8
