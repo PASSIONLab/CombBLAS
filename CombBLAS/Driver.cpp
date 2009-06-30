@@ -143,8 +143,11 @@ int main()
 	
 		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
 		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARSPMAT;
-		PARSPMAT A_par(input1, MPI::COMM_WORLD);
-		PARSPMAT B_par(input2, MPI::COMM_WORLD);
+		PARSPMAT A_par;
+		PARSPMAT B_par;
+
+		A_par.ReadDistribute(input1, 0);
+		B_par.ReadDistribute(input2, 0);
 	
 		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
 

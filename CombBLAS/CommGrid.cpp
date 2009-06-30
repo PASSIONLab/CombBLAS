@@ -14,8 +14,8 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	}
 	assert((nproc == (grrows*grcols)));
 
-	myproccol =  (int) myrank % grcols;
-	myprocrow =  (int) myrank / grcols;
+	myproccol =  (int) (myrank % grcols);
+	myprocrow =  (int) (myrank / grcols);
 		
 	/** 
 	  * Create row and column communicators (must be collectively called)
@@ -28,6 +28,28 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 
 	assert( ((rowWorld.Get_rank()) == myproccol) );
 	assert( ((colWorld.Get_rank()) == myprocrow) );
+}
+
+bool CommGrid::OnSameProcCol( int rhsrank)
+{
+	return ( myproccol == ((int) (rhsrank % grcols)) );
+} 
+
+bool CommGrid::OnSameProcRow( int rhsrank)
+{
+	return ( myprocrow == ((int) (rhsrank / grcols)) );
+} 
+
+//! Return rank in the column world
+int CommGrid::GetRankInProcCol( int wholerank)
+{
+	return ((int) (wholerank / grcols));
+} 
+
+//! Return rank in the row world
+int CommGrid::GetRankInProcRow( int wholerank)
+{
+	return ((int) (wholerank % grcols));
 }
 
 bool CommGrid::operator== (const CommGrid & rhs) const

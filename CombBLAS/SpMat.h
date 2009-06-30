@@ -11,11 +11,13 @@
 #include <iostream>
 #include <vector>
 #include <utility>
+#include <tr1/tuple>
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"
 
 using namespace std;
+using namespace std::tr1;
 
 // Forward declaration (required since a friend function returns a SpTuples object)
 template <class IU, class NU>	
@@ -39,6 +41,12 @@ public:
 	{
 		static_cast<DER*>(this)->CreateImpl(essentials);
 	}
+
+	void Create(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
+	{
+		static_cast<DER*>(this)->CreateImpl(size, nRow, nCol, mytuples);
+	}
+	
 	
 	SpMat< IT,NT,DER >  operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	

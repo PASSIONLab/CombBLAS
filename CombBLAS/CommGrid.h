@@ -33,10 +33,15 @@ public:
 	}
 
 	bool operator== (const CommGrid & rhs) const;
+	bool OnSameProcCol( int rhsrank );
+	bool OnSameProcRow( int rhsrank );
 	
 	int GetRank() { return myrank; }
-	int GetRowRank() { return myproccol; }
-	int GetColRank() { return myprocrow; }
+	int GetRankInProcRow() { return myproccol; }
+	int GetRankInProcCol() { return myprocrow; }
+
+	int GetRankInProcRow(int wholerank);
+	int GetRankInProcCol(int wholerank);
 	
 	MPI::Intracomm & GetWorld() { return commWorld; }
 	MPI::Intracomm & GetRowWorld() { return rowWorld; }

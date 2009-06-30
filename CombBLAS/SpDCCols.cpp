@@ -243,6 +243,17 @@ void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 }
 
 template <class IT, class NT>
+void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
+{
+	SpTuples<IT,NT> tuples(size, nRow, nCol, mytuples);        
+	tuples.SortColBased();
+        
+	SpDCCols<IT,NT> object(tuples, false, NULL);	
+	*this = object;
+}
+
+
+template <class IT, class NT>
 vector<IT> SpDCCols<IT,NT>::GetEssentials() const
 {
 	vector<IT> essentials(4);

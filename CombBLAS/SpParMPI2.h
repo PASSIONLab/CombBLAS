@@ -13,6 +13,7 @@
 #include <cmath>
 #include <mpi.h>
 #include <tr1/memory>	// for shared_ptr
+#include <tr1/tuple>
 
 #include "SpMat.h"
 #include "SpTuples.h"
@@ -20,10 +21,14 @@
 #include "CommGrid.h"
 #include "MPIType.h"
 #include "LocArr.h"
+#include "SpDefs.h"
+#include "Deleter.h"
 #include "SpHelper.h"
 #include "SpParHelper.h"
 
 using namespace std;
+using namespace std::tr1;
+
 
 /**
   * This class implements an asynchronous 2D algorithm, in the sense that there is no notion of stages.

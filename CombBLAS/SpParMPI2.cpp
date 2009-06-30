@@ -158,8 +158,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
  
-	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld(), (A.commGrid)->GetRowRank());
-	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld(), (B.commGrid)->GetColRank());
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld(), (A.commGrid)->GetRankInProcRow());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld(), (B.commGrid)->GetRankInProcCol());
 	
 	double t2 = MPI::Wtime();
 	if(GridC->GetRank() == 0)
@@ -175,7 +175,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		int Aownind = (i+Aoffset) % stages;		
 		int Bownind = (i+Boffset) % stages;
 
-		if(Aownind == (A.commGrid)->GetRowRank())
+		if(Aownind == (A.commGrid)->GetRankInProcRow())
 		{
 			ARecv = A.spSeq;	// shallow-copy
 		}
@@ -189,7 +189,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			}		
 			SpParHelper::FetchMatrix(*ARecv, ess, rowwindows, Aownind);
 		}
-		if(Bownind == (B.commGrid)->GetColRank())
+		if(Bownind == (B.commGrid)->GetRankInProcCol())
 		{
 			BRecv = B.spSeq;	// shallow-copy
 		}
@@ -209,8 +209,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 
 		C->template SpGEMM < SR > ( *ARecv, *BRecv, false, true);
 		
-		if(Aownind != (A.commGrid)->GetRowRank()) delete ARecv;
-		if(Bownind != (B.commGrid)->GetColRank()) delete BRecv; 
+		if(Aownind != (A.commGrid)->GetRankInProcRow()) delete ARecv;
+		if(Bownind != (B.commGrid)->GetRankInProcCol()) delete BRecv; 
 	} 
 
 	(GridC->GetWorld()).Barrier();
@@ -230,53 +230,84 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 }
 
 
-// Performs best when the data is already reverse column-sorted (i.e. in decreasing order).
+//! Handles all sorts of orderings as long as there are no duplicates
+//! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
 template <class IT, class NT, class DER>
 ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 {
 	IT total_m, total_n, total_nnz;
-	IT cnz = 0;
+	IT m_perproc, n_perproc;
 
-	IT temprow, tempcol;
-	NT tempval;
+	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
+	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
 
-	int colneighbors = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	int bufferperproc = MEMORYINBYTES / (colneighbors * (2 * sizeof(IT) + sizeof(NT)));
-	int * displs = new int[colneighbors];
-	for (int i=0; i<colneighbors; ++i)
-		displs[i] = i*bufferperproc;	
+	IT buffpercolneigh = MEMORYINBYTES / (colneighs * (2 * sizeof(IT) + sizeof(NT)));
+	IT buffperrowneigh = MEMORYINBYTES / (rowneighs * (2 * sizeof(IT) + sizeof(NT)));
 
-	IT * curptrs;
+	// make sure that buffperrowneigh >= buffpercolneigh to cover for this patological case:
+	//   	-- all data received by a given column head (by vertical communication) are headed to a single processor along the row
+	//   	-- then making sure buffperrowneigh >= buffpercolneigh guarantees that the horizontal buffer will never overflow
+	buffperrowneigh = std::max(buffperrowneigh, buffpercolneigh);
+
+	IT * cdispls = new IT[colneighs];
+	for (int i=0; i<colneighs; ++i)
+		cdispls[i] = i*buffpercolneigh;
+
+	IT * rdispls = new IT[colneighs];
+	for (int i=0; i<rowneighs; ++i)
+		rdispls[i] = i*buffperrowneigh;		
+
+	IT *ccurptrs, *rcurptrs;
 	IT recvcount;
-	if(commGrid->GetRank() == master)
+
+	IT * rows; 
+	IT * cols;
+	NT * vals;
+
+	// Note: all other column heads that initiate the horizontal communication has the same "rankinrow" with the master
+	int rankincol = commGrid->GetRankInProcCol(master);	// get master's rank in its processor column
+	int rankinrow = commGrid->GetRankInProcRow(master);	
+	
+	vector< tuple<IT, IT, NT> > localtuples;
+
+	if(commGrid->GetRank() == master)	// 1 processor
 	{
 		// allocate buffers on the heap as stack space is usually limited
-		IT * rows = new IT [ bufferperproc * colneighbors ];
-		IT * cols = new IT [ bufferperproc * colneighbors ];
-		NT * vals = new NT [ bufferperproc * colneighbors ];
+		rows = new IT [ buffpercolneigh * colneighs ];
+		cols = new IT [ buffpercolneigh * colneighs ];
+		vals = new NT [ buffpercolneigh * colneighs ];
 
-		curptrs = new IT[colneighbors];
-		fill_n(curptrs, colneighbors, zero);	// fill with zero
-
+		ccurptrs = new IT[colneighs];
+		rcurptrs = new IT[rowneighs];
+		fill_n(ccurptrs, colneighs, zero);	// fill with zero
+		fill_n(rcurptrs, rowneighs, zero);	
+		
 		if (infile.is_open())
 		{
 			infile >> total_m >> total_n >> total_nnz;
-			IT m_perproc = total_m / commGrid->GetGridRows();
-			IT n_perproc = total_n / commGrid->GetGridCols();
-
+			m_perproc = total_m / colneighs;
+			n_perproc = total_n / rowneighs;
+			
+			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
+			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
+			
+			IT temprow, tempcol;
+			NT tempval;
+			IT cnz = 0;
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
 				infile >> temprow >> tempcol >> tempval;
-				int recproc = temprow / m_perproc;
-				rows[ recproc * bufferperproc + curptrs[recproc] ] = temprow;
-				cols[ recproc * bufferperproc + curptrs[recproc] ] = tempcol;
-				vals[ recproc * bufferperproc + curptrs[recproc] ] = tempval;
-				++ (curptrs[recproc]);				
+				int colrec = temprow / m_perproc;	// precipient processor along the column
+				rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
+				cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
+				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempval;
+				++ (ccurptrs[colrec]);				
 
-				if(curptrs[recproc] == bufferperproc)	// buffer (for this recipient processor) is full
+				if(ccurptrs[colrec] == buffpercolneigh)		// one buffer is full
 				{
+
 					// first, send the receive counts ...
-					(commGrid->colWorld).Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
+					(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
 
 					// generate space for own recv data ...
 					vector<IT> temprows(recvcount);
@@ -284,22 +315,80 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 					vector<NT> tempvals(recvcount);
 					
 					// then, send all buffers that to their recipients ...
-					(commGrid->colWorld).Scatterv(rows, curprts, displs, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), master); 
-					(commGrid->colWorld).Scatterv(cols, curprts, displs, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), master); 
-					(commGrid->colWorld).Scatterv(vals, curprts, displs, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), master); 
+					(commGrid->colWorld).Scatterv(rows, ccurptrs, cdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankincol); 
+					(commGrid->colWorld).Scatterv(cols, ccurptrs, cdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankincol); 
+					(commGrid->colWorld).Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankincol); 
 
 					// finally, reset current pointers !
-					fill_n(curptrs, colneighbors, zero);		
+					fill_n(ccurptrs, colneighs, zero);
+					DeleteAll(rows, cols, vals);
+			
+					/* Begin horizontal distribution */
 
-					// now, do the horizontal communication
-										
+					rows = new IT [ buffperrowneigh * rowneighs ];
+					cols = new IT [ buffperrowneigh * rowneighs ];
+					vals = new NT [ buffperrowneigh * rowneighs ];
+			
+					// prepare to send the data along the horizontal
+					for(IT i=zero; i< recvcount; ++i)
+					{
+						IT rowrec = tempcols[i] / n_perproc;
+						rows[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = temprows[i];
+						cols[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempcols[i];
+						vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
+						++ (rcurptrs[rowrec]);	
+					}
+				
+					// Send the receive counts for horizontal communication ...
+					(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+					vector<IT>(recvcount).swap(temprows);	// the data is now stored in rows/cols/vals, can reset temporaries
+					vector<IT>(recvcount).swap(tempcols);	// sets size and capacity to recvcount
+					vector<NT>(recvcount).swap(tempvals);
+
+					// then, send all buffers that to their recipients ...
+					(commGrid->rowWorld).Scatterv(rows, rcurptrs, rdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankinrow); 
+					(commGrid->rowWorld).Scatterv(cols, rcurptrs, rdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankinrow); 
+					(commGrid->rowWorld).Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankinrow); 
+
+					// now push what is ours to tuples
+					IT moffset = commGrid->myprocrow * m_perproc; 
+					IT noffset = commGrid->myproccol * n_perproc; 
+					for(IT i=zero; i< recvcount; ++i)
+					{					
+						localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
+					}
+					
+					fill_n(rcurptrs, rowneighs, zero);
+					DeleteAll(rows, cols, vals);		
+					
+					// reuse these buffers for the next vertical communication								
+					rows = new IT [ buffpercolneigh * colneighs ];
+					cols = new IT [ buffpercolneigh * colneighs ];
+					vals = new NT [ buffpercolneigh * colneighs ];
 				}
 				++ cnz;
 			}
+			assert (cnz == total_nnz);
+			
+			// Signal the end of file to other processors along the column
+			fill_n(ccurptrs, colneighs, numeric_limits<IT>::max());	
+			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+
+			// And along the row ...
+			fill_n(rcurptrs, rowneighs, numeric_limits<IT>::max());				
+			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+			
 		}
+		DeleteAll(rows,cols,vals, ccurptrs, rcurptrs);
+
 	}
-	else
+	else if( commGrid->OnSameProcCol(master) ) 	// (r-1) processors
 	{
+		(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
+		(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
+		m_perproc = total_m / colneighs;
+		n_perproc = total_n / rowneighs;
+
 		// void MPI::Comm::Scatterv(const void* sendbuf, const int sendcounts[], const int displs[], const MPI::Datatype& sendtype,
 		//				void* recvbuf, int recvcount, const MPI::Datatype & recvtype, int root) const
 		// The outcome is as if the root executed n send operations,
@@ -307,24 +396,112 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 		// and each process executed a receive,
    		// 	MPI_Recv(recvbuf, recvcount, recvtype, root, ...)
 		// The send buffer is ignored for all nonroot processes.
+
+		while(true)
+		{
+			// first receive the receive counts ...
+			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+			if( recvcount == numeric_limits<IT>::max())
+				break;
+	
+			// create space for incoming data ... 
+			vector<IT> temprows(recvcount);
+			vector<IT> tempcols(recvcount);
+			vector<NT> tempvals(recvcount);
+
+			// receive actual data ... (first 4 arguments are ignored in the receiver side)
+			(commGrid->colWorld).Scatterv(rows, ccurptrs, cdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankincol); 
+			(commGrid->colWorld).Scatterv(cols, ccurptrs, cdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankincol); 
+			(commGrid->colWorld).Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankincol); 
+
+			// now, send the data along the horizontal
+			rcurptrs = new IT[rowneighs];
+			fill_n(rcurptrs, rowneighs, zero);	
 		
-		// first receive the receive counts ...
-		(commGrid->colWorld).Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
+			rows = new IT [ buffperrowneigh * rowneighs ];
+			cols = new IT [ buffperrowneigh * rowneighs ];
+			vals = new NT [ buffperrowneigh * rowneighs ];
 
-		// create space for incoming data ... 
-		vector<IT> temprows(recvcount);
-		vector<IT> tempcols(recvcount);
-		vector<NT> tempvals(recvcount);
+			// prepare to send the data along the horizontal
+			for(IT i=zero; i< recvcount; ++i)
+			{
+				IT rowrec = tempcols[i] / n_perproc;
+				rows[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = temprows[i];
+				cols[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempcols[i];
+				vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
+				++ (rcurptrs[rowrec]);	
+			}
+				
+			// Send the receive counts for horizontal communication ...
+			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+			vector<IT>(recvcount).swap(temprows);	// the data is now stored in rows/cols/vals, can reset temporaries
+			vector<IT>(recvcount).swap(tempcols);	// sets size and capacity to recvcount
+			vector<NT>(recvcount).swap(tempvals);
 
-		// receive actual data ...
-		(commGrid->colWorld).Scatterv(rows, curprts, displs, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), master); 
-		(commGrid->colWorld).Scatterv(cols, curprts, displs, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), master); 
-		(commGrid->colWorld).Scatterv(vals, curprts, displs, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), master); 
+			// then, send all buffers that to their recipients ...
+			(commGrid->rowWorld).Scatterv(rows, rcurptrs, rdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(cols, rcurptrs, rdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankinrow); 
 
-		// now, do the horizontal communication
-
-
+			// now push what is ours to tuples
+			IT moffset = commGrid->myprocrow * m_perproc; 
+			IT noffset = commGrid->myproccol * n_perproc;
+			for(IT i=zero; i< recvcount; ++i)
+			{					
+				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
+			}
+					
+			fill_n(rcurptrs, rowneighs, zero);
+			DeleteAll(rows, cols, vals);	
+		}
+		// Signal the end of file to other processors along the row
+		fill_n(rcurptrs, rowneighs, numeric_limits<IT>::max());				
+		(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+		delete [] rcurptrs;	
 	}
+	else		// r * (s-1) processors that only participate in the horizontal communication step
+	{
+		(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
+		(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
+		m_perproc = total_m / colneighs;
+		n_perproc = total_n / rowneighs;
+		
+		while (true)
+		{
+			// receive the receive count
+			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+			if( recvcount == numeric_limits<IT>::max())
+				break;
+		
+			// create space for incoming data ... 
+			vector<IT> temprows(recvcount);
+			vector<IT> tempcols(recvcount);
+			vector<NT> tempvals(recvcount);
+
+			(commGrid->rowWorld).Scatterv(rows, rcurptrs, rdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(cols, rcurptrs, rdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankinrow);
+
+			// now push what is ours to tuples
+			IT moffset = commGrid->myprocrow * m_perproc; 
+			IT noffset = commGrid->myproccol * n_perproc;
+			for(IT i=zero; i< recvcount; ++i)
+			{					
+				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
+			}
+		}
+	
+	}
+	
+	DeleteAll(cdispls, rdispls);
+	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];	// the vector will go out of scope, make it stick !
+	copy(localtuples.begin(), localtuples.end(), arrtuples);
+
+ 	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
+ 	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
+	
+	spSeq->Create( localtuples.size(), localm, localn, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
+
 	return infile;
 }
 

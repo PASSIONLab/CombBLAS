@@ -47,8 +47,10 @@ public:
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
-	Arr<IT,NT> GetArrays() const;
 	void CreateImpl(const vector<IT> & essentials);
+	void CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+
+	Arr<IT,NT> GetArrays() const;
 	vector<IT> GetEssentials() const;
 	const static IT esscount = static_cast<IT>(4);
 
