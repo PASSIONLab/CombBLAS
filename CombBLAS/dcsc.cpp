@@ -227,13 +227,15 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), nzc(nnz), pool(NULL)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), pool(NULL)
 {
+	nzc = std::min(ndim, nnz);	// nzc can't exceed any of those
+
 	assert(nz != 0 );
 	size_t sit = sizeof(IT);
 	
-	cp = (IT *) mallocarray ( (nz+1)*sit ); 	// to be shrinked
-	jc  = (IT *) mallocarray ( nz*sit ); 		// to be shrinked
+	cp = (IT *) mallocarray ( (nzc+1)*sit ); 	// to be shrinked
+	jc  = (IT *) mallocarray ( nzc*sit ); 		// to be shrinked
 	ir  = (IT *) mallocarray ( nz*sit ); 
 	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
 
@@ -547,7 +549,6 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
-	cout << "Resizing from " << nz << "," << nzc << " to " << nznew << "," << nzcnew << endl; 
 	size_t sit = sizeof(IT);
 	if(nzcnew == 0)
 	{

@@ -65,9 +65,9 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
 
-	IT getlocalrows() const { return spSeq->getrows(); }
-	IT getlocalcols() const { return spSeq->getcols();} 
-	IT getlocalnnz() const { return spSeq->getnzmax(); }
+	IT getlocalrows() const { return spSeq->getnrow(); }
+	IT getlocalcols() const { return spSeq->getncol();} 
+	IT getlocalnnz() const { return spSeq->getnnz(); }
 
 private:
 	const static IT zero = static_cast<IT>(0);

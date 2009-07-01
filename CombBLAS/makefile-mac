@@ -6,29 +6,28 @@ INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 # -fno-rtti does not work with tr1:tuples
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DDEBUG
 COMPILER = mpicxx	
+FLAGS = $(DEB)
 
 CommGrid.o:	CommGrid.cpp CommGrid.h
-	mpicxx $(INCADD) $(OPT) -c -o CommGrid.o CommGrid.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o CommGrid.cpp
 
 MPIType.o:	MPIType.cpp MPIType.h
-	mpicxx $(INCADD) $(OPT) -c -o MPIType.o MPIType.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o MPIType.cpp
 
 MemoryPool.o:	MemoryPool.cpp SpDefs.h
-	$(COMPILER) $(OPT) -c -o MemoryPool.o MemoryPool.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o MemoryPool.cpp
 
-Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h 
-	$(COMPILER) $(OPT) -c -o Driver.o Driver.cpp
+Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Driver.o Driver.cpp
 
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
-	mpicxx $(OPT) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
 clean:
 	rm -f driver
-	rm -f Driver.o
-	rm -f MemoryPool.o 
-	rm -f CommGrid.o
+	rm -f *.o
 
 cleanout:
 	rm out.*

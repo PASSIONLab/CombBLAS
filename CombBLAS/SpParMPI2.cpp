@@ -169,7 +169,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	UDER * ARecv;
 	UDER * BRecv; 
 
-	UDER * C = new UDER();   // Create an empty object for the product	
+	UDER * C = new UDER(0, A.getlocalrows(), B.getlocalcols(), 0);   // Create an empty object for the product	
 
 	for(int i = 0; i < stages; ++i) 	// Robust generalization to non-square grids will require block-cyclic distibution	
 	{
@@ -213,6 +213,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		if(Aownind != (A.commGrid)->GetRankInProcRow()) delete ARecv;
 		if(Bownind != (B.commGrid)->GetRankInProcCol()) delete BRecv; 
 	} 
+
+	C->PrintInfo();
 
 	(GridC->GetWorld()).Barrier();
 

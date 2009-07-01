@@ -171,8 +171,14 @@ int main()
 
 		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
 
+		// collective calls
+		int parnnzC = C_par.getnnz();
+		int parmC = C_par.getnrow();
+		int parnC = C_par.getncol();
+
 		if(myrank == 0)
 		{
+			cout << "C_par has " << parnnzC << " nonzeros and " << parmC << "-by-" << parnC << " dimensions" << endl;
 			input1.close();	
 			input2.close();
 		}

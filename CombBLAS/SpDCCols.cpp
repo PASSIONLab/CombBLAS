@@ -405,6 +405,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	{
 		dcsc->AddAndAssign(multstack, mdim, ndim, cnz);
 	}
+	nnz = dcsc->nz;
 
 	delete [] multstack;
 	return 1;	
