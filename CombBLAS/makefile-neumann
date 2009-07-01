@@ -1,23 +1,30 @@
-INCDIR = 
+INCDIR = /home/aydin/localinstall/openmpi_threaded/include/ 
 INCADD = -I$(INCDIR) 
 
-OPT = -DNDEBUG -O3 -fno-exceptions 
-DEB = -g -O0 -fno-inline
-COMPILER = g++ #mpic++	
+OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
+COMPILER = mpicxx	
+LDADD = -lmpi -lmpi_cxx
+FLAGS = $(DEB)
+
+CommGrid.o:	CommGrid.cpp CommGrid.h
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o CommGrid.cpp
+
+MPIType.o:	MPIType.cpp MPIType.h
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o MPIType.o MPIType.cpp
 
 MemoryPool.o:	MemoryPool.cpp SpDefs.h
-	$(COMPILER) $(DEB) -c -o MemoryPool.o MemoryPool.cpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o MemoryPool.cpp
 
-Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h 
-	$(COMPILER) $(DEB) -c -o Driver.o Driver.cpp
+Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o Driver.o Driver.cpp
 
-driver: Driver.o MemoryPool.o
-	$(COMPILER) -g -o driver Driver.o MemoryPool.o
+driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
 
 clean:
 	rm -f driver
-	rm -f Driver.o
-	rm -f MemoryPool.o 
+	rm -f *.o
 
 cleanout:
 	rm out.*
