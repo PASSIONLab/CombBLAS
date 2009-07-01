@@ -60,9 +60,27 @@ public:
 
 	void SortColBased()
 	{
-		ColSortCompare<IT,NT> colcmp;
-		sort(tuples , tuples+nnz, colcmp );
+		ColSortCompare<IT,NT> collexicogcmp;
+		sort(tuples , tuples+nnz, collexicogcmp );
 	}
+
+	pair<IT,IT> RowLimits()
+	{	
+		RowCompare<IT,NT> rowcmp;
+		tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
+		tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
+
+		return make_pair(tr1::get<0>(*minit), tr1::get<0>(*maxit));
+	}
+	pair<IT,IT> ColLimits()
+	{	
+		ColCompare<IT,NT> colcmp;
+		tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
+		tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
+
+		return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
+	}
+
 
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 

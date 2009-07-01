@@ -154,7 +154,7 @@ int main()
 		A_par.ReadDistribute(input1, 0);
 		B_par.ReadDistribute(input2, 0);
 		
-		/* collective calls
+		// collective calls
 		int parnnzA = A_par.getnnz();
 		int parmA = A_par.getnrow();
 		int parnA = A_par.getncol();
@@ -168,9 +168,8 @@ int main()
 			cout << "A_par has " << parnnzA << " nonzeros and " << parmA << "-by-" << parnA << " dimensions" << endl;
 			cout << "B_par has " << parnnzB << " nonzeros and " << parmB << "-by-" << parnB << " dimensions" << endl;
 		}
-		*/
 
-		//PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
+		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
 
 		if(myrank == 0)
 		{

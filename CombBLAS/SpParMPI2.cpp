@@ -410,7 +410,6 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			// first receive the receive counts ...
 			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
 
-			cerr << commGrid->myrank << " with recvcount " << recvcount << endl;
 			if( recvcount == numeric_limits<IT>::max())
 				break;
 	

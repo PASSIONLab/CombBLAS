@@ -247,6 +247,15 @@ template <class IT, class NT>
 void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
 {
 	SpTuples<IT,NT> tuples(size, nRow, nCol, mytuples);        
+	
+#ifdef DEBUG
+	pair<IT,IT> rlim = tuples.RowLimits(); 
+	pair<IT,IT> clim = tuples.ColLimits();
+
+	cout << "Creating of dimensions " << nRow << "-by-" << nCol << " of size: " << size << 
+			" with row range (" << rlim.first  << "," << rlim.second << ") and column range (" << clim.first  << "," << clim.second << ")" << endl;
+#endif
+
 	tuples.SortColBased();
         
 	SpDCCols<IT,NT> object(tuples, false, NULL);	
