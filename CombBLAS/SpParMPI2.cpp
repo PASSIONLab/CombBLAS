@@ -214,7 +214,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		if(Bownind != (B.commGrid)->GetRankInProcCol()) delete BRecv; 
 	} 
 
-	C->PrintInfo();
+	SpHelper::deallocate2D(ARecvSizes, UDER::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDER::esscount);
 
 	(GridC->GetWorld()).Barrier();
 
@@ -274,11 +275,7 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 	vector< tuple<IT, IT, NT> > localtuples;
 
 	if(commGrid->GetRank() == master)	// 1 processor
-	{
-		
-		cout << "masters rank is "<< rankincol << " x " << rankinrow << endl;
-		cout << "buffers for neighbors are " << buffperrowneigh << " x " << buffpercolneigh << endl;
-		
+	{		
 		// allocate buffers on the heap as stack space is usually limited
 		rows = new IT [ buffpercolneigh * colneighs ];
 		cols = new IT [ buffpercolneigh * colneighs ];
