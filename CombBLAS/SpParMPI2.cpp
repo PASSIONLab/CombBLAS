@@ -205,8 +205,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			SpParHelper::FetchMatrix(*BRecv, ess, colwindows, Bownind);	
 		}
 	
-		SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
-		SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B	
+		if(Aownind != (A.commGrid)->GetRankInProcRow())	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
+		if(Bownind != (B.commGrid)->GetRankInProcCol())	SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B
 
 		C->template SpGEMM < SR > ( *ARecv, *BRecv, false, true);
 		
