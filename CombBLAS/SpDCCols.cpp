@@ -233,6 +233,8 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 template <class IT, class NT>
 void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 {
+	assert(essentials.size() == esscount);
+
 	nnz = essentials[0];
 	m = essentials[1];
 	n = essentials[2];

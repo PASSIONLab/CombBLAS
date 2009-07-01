@@ -29,7 +29,7 @@ public:
 	static void SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
 
 	template <typename IT, typename NT, typename DER>
-	static void GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d, int index);
+	static void GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d);
 
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);	
 };
@@ -99,15 +99,15 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
 
 
 /**
- * @param[in] index Index of this processor within its row/col, can be {0,...r/s-1}
  * @param[in] sizes 2D array where 
  *  	sizes[i] is an array of size r/s representing the ith essential component of all local blocks within that row/col
  *	sizes[i][j] is the size of the ith essential component of the jth local block within this row/col
  */
 template <class IT, class NT, class DER>
-void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d, int index)
+void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d)
 {
 	vector<IT> essentials = Matrix.GetEssentials();
+	int index = comm1d.Get_rank();
 	for(IT i=0; i< essentials.size(); ++i)
 	{
 		sizes[i][index] = essentials[i]; 

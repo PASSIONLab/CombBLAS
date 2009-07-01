@@ -159,15 +159,25 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
  
-	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld(), (A.commGrid)->GetRankInProcRow());
-	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld(), (B.commGrid)->GetRankInProcCol());
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 	
 	double t2 = MPI::Wtime();
-	if(GridC->GetRank() == 0)
+	if(GridC->GetRank() == 2)
+	{
+		for(int i=0; i< UDER::esscount; i++)
+		{
+			for(int j=0; j<stages; j++)
+			{
+				cout << ARecvSizes[i][j] << " ";
+			}
+			cout << endl;
+	 	}
 		fprintf(stdout, "setup (matrix transposition and memory registration) took %.6lf seconds\n", t2-t1);
-	
-	UDER * ARecv;
-	UDER * BRecv; 
+	}
+
+	UDER * ARecv = new UDER();
+	UDER * BRecv = new UDER();
 
 	UDER * C = new UDER(0, A.getlocalrows(), B.getlocalcols(), 0);   // Create an empty object for the product	
 
@@ -178,7 +188,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 
 		if(Aownind == (A.commGrid)->GetRankInProcRow())
 		{
-			ARecv = A.spSeq;	// shallow-copy
+			ARecv = A.spSeq;	// shallow-copy (ABAB: Memory leak !)
 		}
 		else
 		{
