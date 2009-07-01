@@ -24,7 +24,7 @@
 #endif
 
 #ifndef MEMORYINBYTES
-#define MEMORYINBYTES 536870912	// 512 MB, it is advised to define MEMORYINBYTES to be approximately 1/3 of available memory per core
+#define MEMORYINBYTES  1048576	// 1 MB, it is advised to define MEMORYINBYTES to be "at most" 1/3 of available memory per core
 #endif
 
 #endif

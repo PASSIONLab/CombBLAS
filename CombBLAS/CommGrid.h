@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <cmath>
+#include <cassert>
 #include <mpi.h>
 #include <sstream>
 #include <string>

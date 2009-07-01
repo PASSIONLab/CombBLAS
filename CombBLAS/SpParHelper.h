@@ -47,7 +47,7 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 	MRecv.Create(essentials);		// allocate memory for arrays 
 
 	Arr<IT,NT> arrinfo = MRecv.GetArrays();
-	assert( (arrwins.size() == arrinfo.totalsize()));
+	assert( (arrwin.size() == arrinfo.totalsize()));
 
 	// C-binding for MPI::Get
 	//	int MPI_Get(void *origin_addr, int origin_count, MPI_Datatype origin_datatype, int target_rank, MPI_Aint target_disp,

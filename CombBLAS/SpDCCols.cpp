@@ -21,7 +21,8 @@ using namespace std;
 /****************************************************************************/
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){}
+SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){
+}
 
 // Allocate all the space necessary
 template <class IT, class NT>
@@ -280,6 +281,7 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 	arr.indarrs[1] = LocArr<IT,IT>(dcsc->jc, dcsc->nzc);
 	arr.indarrs[2] = LocArr<IT,IT>(dcsc->ir, dcsc->nz);
 	arr.numarrs[0] = LocArr<NT,IT>(dcsc->numx, dcsc->nz);
+	return arr;
 }
 
 /**

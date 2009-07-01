@@ -29,8 +29,9 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::Intracomm & wo
 
 // If there is a single file read by the master process only, use this and then call ReadDistribute()
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (): spSeq(NULL)
+SpParMPI2< IT,NT,DER >::SpParMPI2 ()
 {
+	spSeq = new DER();
 	commGrid = new CommGrid(MPI::COMM_WORLD, 0, 0);
 }
 
@@ -267,11 +268,15 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 	// Note: all other column heads that initiate the horizontal communication has the same "rankinrow" with the master
 	int rankincol = commGrid->GetRankInProcCol(master);	// get master's rank in its processor column
 	int rankinrow = commGrid->GetRankInProcRow(master);	
-	
+  	
 	vector< tuple<IT, IT, NT> > localtuples;
 
 	if(commGrid->GetRank() == master)	// 1 processor
 	{
+		
+		cout << "masters rank is "<< rankincol << " x " << rankinrow << endl;
+		cout << "buffers for neighbors are " << buffperrowneigh << " x " << buffpercolneigh << endl;
+		
 		// allocate buffers on the heap as stack space is usually limited
 		rows = new IT [ buffpercolneigh * colneighs ];
 		cols = new IT [ buffpercolneigh * colneighs ];
@@ -279,15 +284,16 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 
 		ccurptrs = new IT[colneighs];
 		rcurptrs = new IT[rowneighs];
-		fill_n(ccurptrs, colneighs, zero);	// fill with zero
-		fill_n(rcurptrs, rowneighs, zero);	
+		fill_n(ccurptrs, colneighs, (IT) zero);	// fill with zero
+		fill_n(rcurptrs, rowneighs, (IT) zero);	
 		
 		if (infile.is_open())
 		{
 			infile >> total_m >> total_n >> total_nnz;
 			m_perproc = total_m / colneighs;
 			n_perproc = total_n / rowneighs;
-			
+			cout << m_perproc << " " << n_perproc << endl;		
+	
 			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
 			
@@ -297,15 +303,17 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
 				infile >> temprow >> tempcol >> tempval;
+				--temprow;	// file is 1-based where C-arrays are 0-based
+				--tempcol;
+
 				int colrec = temprow / m_perproc;	// precipient processor along the column
 				rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
 				cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
 				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempval;
 				++ (ccurptrs[colrec]);				
 
-				if(ccurptrs[colrec] == buffpercolneigh)		// one buffer is full
+				if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 				{
-
 					// first, send the receive counts ...
 					(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
 
@@ -320,7 +328,7 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 					(commGrid->colWorld).Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankincol); 
 
 					// finally, reset current pointers !
-					fill_n(ccurptrs, colneighs, zero);
+					fill_n(ccurptrs, colneighs, (IT) zero);
 					DeleteAll(rows, cols, vals);
 			
 					/* Begin horizontal distribution */
@@ -358,7 +366,7 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 						localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
 					}
 					
-					fill_n(rcurptrs, rowneighs, zero);
+					fill_n(rcurptrs, rowneighs, (IT) zero);
 					DeleteAll(rows, cols, vals);		
 					
 					// reuse these buffers for the next vertical communication								
@@ -401,6 +409,8 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 		{
 			// first receive the receive counts ...
 			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+
+			cerr << commGrid->myrank << " with recvcount " << recvcount << endl;
 			if( recvcount == numeric_limits<IT>::max())
 				break;
 	
@@ -416,7 +426,7 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 
 			// now, send the data along the horizontal
 			rcurptrs = new IT[rowneighs];
-			fill_n(rcurptrs, rowneighs, zero);	
+			fill_n(rcurptrs, rowneighs, (IT) zero);	
 		
 			rows = new IT [ buffperrowneigh * rowneighs ];
 			cols = new IT [ buffperrowneigh * rowneighs ];
@@ -451,7 +461,7 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
 			}
 					
-			fill_n(rcurptrs, rowneighs, zero);
+			fill_n(rcurptrs, rowneighs, (IT) zero);
 			DeleteAll(rows, cols, vals);	
 		}
 		// Signal the end of file to other processors along the row

@@ -78,5 +78,6 @@ private:
 	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<IU,NU,UDER> & s);	
 };
 
+
 #include "SpParMPI2.cpp"
 #endif
