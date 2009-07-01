@@ -22,7 +22,7 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::Intracomm & world)
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::Intracomm & world): spSeq(myseq)
+SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
 {
 	commGrid = new CommGrid(world, 0, 0);
 }
@@ -47,7 +47,7 @@ template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 {
 	if(rhs.spSeq != NULL)	
-		spSeq = new SpMat< IT,NT,DER >(*(rhs.spSeq));  	// Deep copy of local block
+		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
 	if(rhs.commGrid != NULL)	
 		commGrid = new CommGrid(*(rhs.commGrid));  	// Deep copy of communication grid
@@ -62,7 +62,7 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,N
 		//! But useful in the presence of a user defined "operator delete" which fails to check NULL
 		if(spSeq != NULL) delete spSeq;
 		if(rhs.spSeq != NULL)	
-			spSeq = new SpMat< IT,NT,DER >(*(rhs.spSeq));  // Deep copy of local block
+			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
 		
 		if(commGrid != NULL) delete commGrid;
 		if(rhs.commGrid != NULL)	
@@ -149,7 +149,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
 	CommGrid * GridC = ProductGrid(A.commGrid, B.commGrid, stages, Aoffset, Boffset);		
 		
-	const_cast< SpMat<IU,NU,UDER>* >(B.spSeq)->Transpose();
+	const_cast< UDER* >(B.spSeq)->Transpose();
 	
 	// set row & col window handles
 	vector<MPI::Win> rowwindows, colwindows;
@@ -166,10 +166,10 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	if(GridC->GetRank() == 0)
 		fprintf(stdout, "setup (matrix transposition and memory registration) took %.6lf seconds\n", t2-t1);
 	
-	SpMat<IU,NU,UDER> * ARecv;
-	SpMat<IU,NU,UDER> * BRecv; 
+	UDER * ARecv;
+	UDER * BRecv; 
 
-	SpMat<IU,NU,UDER> * C = new SpMat<IU,NU,UDER>();   // Create an empty object for the product	
+	UDER * C = new UDER();   // Create an empty object for the product	
 
 	for(int i = 0; i < stages; ++i) 	// Robust generalization to non-square grids will require block-cyclic distibution	
 	{
@@ -225,7 +225,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		colwindows[i].Free();
 	}
 
-	const_cast< SpMat<IU,NU,UDER>* >(B.spSeq)->Transpose();	// transpose back to original
+	const_cast< UDER* >(B.spSeq)->Transpose();	// transpose back to original
 	
 	return SpParMPI2<IU,NU,UDER> (C, GridC);			// return the result object
 }

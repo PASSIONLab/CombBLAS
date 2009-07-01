@@ -44,9 +44,9 @@ class SpParMPI2
 public:
 	// Constructors
 	SpParMPI2 ();
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, CommGrid * grid): spSeq(myseq), commGrid(grid) {};		
+	SpParMPI2 (DER * myseq, CommGrid * grid): spSeq(myseq), commGrid(grid) {};		
 	SpParMPI2 (ifstream & input, MPI::Intracomm & world);
-	SpParMPI2 (SpMat<IT,NT,DER> * myseq, MPI::Intracomm & world);	
+	SpParMPI2 (DER * myseq, MPI::Intracomm & world);	
 
 	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);				// copy constructor
 	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
@@ -72,7 +72,7 @@ public:
 private:
 	const static IT zero = static_cast<IT>(0);
 	CommGrid * commGrid; 
-	SpMat<IT, NT, DER> * spSeq;
+	DER * spSeq;
 	
 	template <typename IU, typename NU, typename UDER> 	
 	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<IU,NU,UDER> & s);	
