@@ -23,7 +23,7 @@ class SpParHelper
 {
 public:
 	template<typename IT, typename NT, typename DER>
-	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind);
+	static void FetchMatrix(DER * & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind);
 
 	template<typename IT, typename NT, typename DER>
 	static void SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
@@ -42,11 +42,12 @@ public:
   * @remark {The communicator information is implicitly contained in the MPI::Win objects}
  **/
 template <class IT, class NT, class DER>
-void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind)
+void SpParHelper::FetchMatrix(DER * & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind)
 {
-	MRecv.Create(essentials);		// allocate memory for arrays 
+	MRecv = new DER();			// create the object first
+	MRecv->Create(essentials);		// allocate memory for arrays 
 
-	Arr<IT,NT> arrinfo = MRecv.GetArrays();
+	Arr<IT,NT> arrinfo = MRecv->GetArrays();
 	assert( (arrwin.size() == arrinfo.totalsize()));
 
 	// C-binding for MPI::Get

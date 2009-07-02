@@ -163,21 +163,13 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 	
 	double t2 = MPI::Wtime();
-	if(GridC->GetRank() == 2)
+	if(GridC->GetRank() == 0)
 	{
-		for(int i=0; i< UDER::esscount; i++)
-		{
-			for(int j=0; j<stages; j++)
-			{
-				cout << ARecvSizes[i][j] << " ";
-			}
-			cout << endl;
-	 	}
 		fprintf(stdout, "setup (matrix transposition and memory registration) took %.6lf seconds\n", t2-t1);
 	}
 
-	UDER * ARecv = new UDER();
-	UDER * BRecv = new UDER();
+	UDER * ARecv; 
+	UDER * BRecv;
 
 	UDER * C = new UDER(0, A.getlocalrows(), B.getlocalcols(), 0);   // Create an empty object for the product	
 
@@ -198,7 +190,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			{
 				ess[j] = ARecvSizes[j][Aownind];	
 			}		
-			SpParHelper::FetchMatrix(*ARecv, ess, rowwindows, Aownind);
+			SpParHelper::FetchMatrix(ARecv, ess, rowwindows, Aownind);
 		}
 		if(Bownind == (B.commGrid)->GetRankInProcCol())
 		{
@@ -212,7 +204,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			{
 				ess[j] = BRecvSizes[j][Bownind];	
 			}	
-			SpParHelper::FetchMatrix(*BRecv, ess, colwindows, Bownind);	
+			SpParHelper::FetchMatrix(BRecv, ess, colwindows, Bownind);	
 		}
 	
 		if(Aownind != (A.commGrid)->GetRankInProcRow())	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
@@ -301,7 +293,6 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			infile >> total_m >> total_n >> total_nnz;
 			m_perproc = total_m / colneighs;
 			n_perproc = total_n / rowneighs;
-			cout << m_perproc << " " << n_perproc << endl;		
 	
 			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
