@@ -189,8 +189,9 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			for(int j=0; j< UDER::esscount; ++j)	
 			{
 				ess[j] = ARecvSizes[j][Aownind];	
-			}		
-			SpParHelper::FetchMatrix(ARecv, ess, rowwindows, Aownind);
+			}
+			ARecv = new UDER();	// create the object first	
+			SpParHelper::FetchMatrix(*ARecv, ess, rowwindows, Aownind);	// fetch its elements later
 		}
 		if(Bownind == (B.commGrid)->GetRankInProcCol())
 		{
@@ -204,7 +205,8 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 			{
 				ess[j] = BRecvSizes[j][Bownind];	
 			}	
-			SpParHelper::FetchMatrix(BRecv, ess, colwindows, Bownind);	
+			BRecv = new UDER();
+			SpParHelper::FetchMatrix(*BRecv, ess, colwindows, Bownind);	
 		}
 	
 		if(Aownind != (A.commGrid)->GetRankInProcRow())	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
