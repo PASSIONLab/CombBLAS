@@ -17,14 +17,14 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::Intracomm & world)
 		perror("Input file doesn't exist\n");
 		exit(-1);
 	}
-	commGrid = new CommGrid(world, 0, 0);
+	commGrid.reset(new CommGrid(world, 0, 0));
 	input >> (*spSeq);
 }
 
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
 {
-	commGrid = new CommGrid(world, 0, 0);
+	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 // If there is a single file read by the master process only, use this and then call ReadDistribute()
@@ -32,14 +32,13 @@ template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 ()
 {
 	spSeq = new DER();
-	commGrid = new CommGrid(MPI::COMM_WORLD, 0, 0);
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
 
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
 {
 	if(spSeq != NULL) delete spSeq;
-	if(commGrid != NULL) delete commGrid;
 }
 
 
@@ -49,8 +48,7 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
-	if(rhs.commGrid != NULL)	
-		commGrid = new CommGrid(*(rhs.commGrid));  	// Deep copy of communication grid
+	commGrid.reset(new CommGrid(*(rhs.commGrid)));
 }
 
 template <class IT, class NT, class DER>
@@ -63,10 +61,8 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,N
 		if(spSeq != NULL) delete spSeq;
 		if(rhs.spSeq != NULL)	
 			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
-		
-		if(commGrid != NULL) delete commGrid;
-		if(rhs.commGrid != NULL)	
-			commGrid = new CommGrid(*(rhs.commGrid));  // Deep copy of communication grid
+	
+		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}
 	return *this;
 }
@@ -76,7 +72,7 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator+=(const SpParMPI2< IT,
 {
 	if(this != &rhs)		
 	{
-		if(commGrid == rhs.commGrid)	
+		if(*commGrid == *rhs.commGrid)	
 		{
 			(*spSeq) += (*(rhs.spSeq));
 		}
@@ -147,7 +143,7 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 	}
 
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
-	CommGrid * GridC = ProductGrid(A.commGrid, B.commGrid, stages, Aoffset, Boffset);		
+	CommGrid * GridC = ProductGrid(A.commGrid->get(), B.commGrid->get(), stages, Aoffset, Boffset);		
 		
 	const_cast< UDER* >(B.spSeq)->Transpose();
 	

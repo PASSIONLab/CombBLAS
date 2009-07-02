@@ -1,9 +1,9 @@
 #include "SpParVec.h"
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec ( shared_ptr< CommGrid > grid): commGrid(grid) 
+SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid) 
 {
-	if(commGrid.GetRowRank() == commGrid.GetColRank())
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
 	else
 		diagonal = false;	
@@ -11,7 +11,7 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr< CommGrid > grid): commGrid(grid)
 	
 
 template <class IT, class NT>
-SpParVec<T> & SpParVec<IT, NT>::operator+=(const SpParVec<T> & rhs)
+SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 {
 	if(this != &rhs)		
 	{	
@@ -33,6 +33,7 @@ SpParVec<T> & SpParVec<IT, NT>::operator+=(const SpParVec<T> & rhs)
 				else if(arr[i].first < rhs.arr[j].first)
 				{
 					narr.push_back( arr[i++] );
+				}
 				else
 				{
 					narr.push_back( make_pair(arr[i].first, arr[i++].second + rhs.arr[j++].second) );

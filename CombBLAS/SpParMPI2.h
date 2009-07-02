@@ -44,7 +44,7 @@ class SpParMPI2
 public:
 	// Constructors
 	SpParMPI2 ();
-	SpParMPI2 (DER * myseq, CommGrid * grid): spSeq(myseq), commGrid(grid) {};		
+	SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq), commGrid(grid) {};		
 	SpParMPI2 (ifstream & input, MPI::Intracomm & world);
 	SpParMPI2 (DER * myseq, MPI::Intracomm & world);	
 
@@ -58,20 +58,21 @@ public:
 
 	IT getnrow() const;
 	IT getncol() const;
-	IT getnnz() const;	
+	IT getnnz() const;
 	
 	// SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
 
+	shared_ptr<CommGrid> getcommgrid () { return commGrid; }	
 	IT getlocalrows() const { return spSeq->getnrow(); }
 	IT getlocalcols() const { return spSeq->getncol();} 
 	IT getlocalnnz() const { return spSeq->getnnz(); }
 
 private:
 	const static IT zero = static_cast<IT>(0);
-	CommGrid * commGrid; 
+	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
 	
 	template <typename IU, typename NU, typename UDER> 	
