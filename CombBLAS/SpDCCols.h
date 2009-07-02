@@ -77,12 +77,12 @@ public:
 
 private:
 	void CopyDcsc(Dcsc<IT,NT> * source);
-	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci);	//!< col indexing without multiplication	
+	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci) const;	//!< col indexing without multiplication	
 
-	template <typename NTR, typename SR>
+	template <typename SR, typename NTR>
 	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdOutProdMult(const SpDCCols<IT,NTR> & rhs) const;	
 
-	template <typename NTR, typename SR>
+	template <typename SR, typename NTR>
 	SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > OrdColByCol(const SpDCCols<IT,NTR> & rhs) const;	
 	
 	SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing

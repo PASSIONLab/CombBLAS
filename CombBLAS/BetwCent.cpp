@@ -81,14 +81,28 @@ int main(int argc, char* argv[])
 			cout << "SubBatch size is: " << subBatchSize << endl;
 		}
 
-		/*
 		for(int i=0; i< numBatches; ++i)
 		{
 			for(int j=0; j< subBatchSize; ++j)
 			{
 				batch[j] = i*subBatchSize + j;
 			}
-			SpParMatrix<NUMTYPE> * fringe = A->SubsRefCol(batch);
+			PARSPMAT fringe = A.SubsRefCol(batch);
+	
+			int nrowperproc = mA / (A.getcommgrid())->GetGridCols();
+			// copy(batch.begin(), batch.end(), ostream_iterator<int>(cout, " "));
+
+			int mA = fringe.getnrow(); 
+			int nA = fringe.getncol();
+			int nzA = fringe.getnnz();
+
+			if (myrank == 3)
+			{
+				cout << "A has " << mA << " rows and "<< nA <<" columns and "<<  nzA << " nonzeros" << endl;
+				cout << "Local A has: " << fringe.getlocalnnz() << " nonzeros" << endl;
+			}
+
+			/*
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
@@ -143,13 +157,9 @@ int main(int argc, char* argv[])
 
 			delete fringe;
 
-			break; 
+			break;
+			*/ 
 		}
-
-		MPI_Comm_free(&wholegrid);
-		delete A;
-		delete bc;
-		*/
 
 	}	
 

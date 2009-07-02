@@ -119,16 +119,15 @@ IT SpParMPI2< IT,NT,DER >::getncol() const
 /** 
  * Create a submatrix of size m x (size(ncols) * s) on a r x s processor grid
  * Essentially fetches the columns ci[0], ci[1],... ci[size(ci)] from every submatrix
- *
-template <class T>
-SpParMatrix<T> * SpParMPI2<T>::SubsRefCol (const vector<ITYPE> & ci) const
+ */
+template <class IT, class NT, class DER>
+SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) const
 {
-	vector<ITYPE> ri;
-	
- 	shared_ptr< SpDCCols<T> > ARef (new SpDCCols<T> (spSeq->SubsRefCol(ci)));	
 
-	return new SpParMPI2<T> (ARef, commGrid->commWorld);
-} */
+	vector<IT> ri;
+	DER * tempseq = new DER((*spSeq)(ri, ci)); 
+	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
+} 
 
 template <typename SR, typename IU, typename NU, typename UDER> 
 SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMPI2<IU,NU,UDER> & B )

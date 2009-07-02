@@ -485,7 +485,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	else if(rsize == 1 && csize == 1)
 	{
 		cout << "Please use special element-wise indexing instead of vectors of length 1" << endl;
-		return ((*this)(ri[0], ci[0]));
+		return SpDCCols<IT,NT> (zero, m, n, zero); 	// ABAB: this should normally be ((*this)(ri[0], ci[0]));
 	}	
 	else if(rsize == 0)
 	{
@@ -629,7 +629,7 @@ inline void SpDCCols<IT,NT>::CopyDcsc(Dcsc<IT,NT> * source)
  *	[i.e. in the output, nzc does not need to be equal to n]
  */
 template <class IT, class NT>
-SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
+SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci) const
 {
 	IT csize = ci.size();
 	if(nnz == 0)	// nothing to index
@@ -668,7 +668,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 	{
 		return SubA;		// no need to run the second pass
 	}
-	SubA->dcsc->cp[0] = 0;
+	SubA.dcsc->cp[0] = 0;
 	IT cnzc = 0;
 	IT cnz = 0;
 	for(IT i=0, j=0;  i < dcsc->nzc && j < csize;)
@@ -684,10 +684,10 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 		else
 		{
 			IT columncount = (dcsc->cp)[i+1] - (dcsc->cp)[i];
-			SubA->dcsc->jc[cnzc++] = j;
-			SubA->dcsc->cp[cnzc] = SubA->dcsc->cp[cnzc-1] + columncount;
-			copy(dcsc->ir + dcsc->cp[i], dcsc->ir + dcsc->cp[i+1], SubA->dcsc->ir + cnz);
-			copy(dcsc->numx + dcsc->cp[i], dcsc->numx + dcsc->cp[i+1], SubA->dcsc->numx + cnz);
+			SubA.dcsc->jc[cnzc++] = j;
+			SubA.dcsc->cp[cnzc] = SubA.dcsc->cp[cnzc-1] + columncount;
+			copy(dcsc->ir + dcsc->cp[i], dcsc->ir + dcsc->cp[i+1], SubA.dcsc->ir + cnz);
+			copy(dcsc->numx + dcsc->cp[i], dcsc->numx + dcsc->cp[i+1], SubA.dcsc->numx + cnz);
 			cnz += columncount;
 			++i;
 			++j;
@@ -697,7 +697,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci)
 }
 
 template <class IT, class NT>
-template <typename NTR, typename SR>
+template <typename SR, typename NTR>
 SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOutProdMult(const SpDCCols<IT,NTR> & rhs) const
 {
 	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
@@ -727,7 +727,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 
 
 template <class IT, class NT>
-template <typename NTR, typename SR>
+template <typename SR, typename NTR>
 SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdColByCol(const SpDCCols<IT,NTR> & rhs) const
 {
 	typedef typename promote_trait<NT,NTR>::T_promote T_promote;  
@@ -737,7 +737,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 		return SpDCCols<IT, T_promote> (zero, m, rhs.n, zero);		// return an empty matrix	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
-	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), multstack);  
+	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), n, multstack);  
 	
 	Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	

@@ -59,8 +59,9 @@ public:
 	IT getnrow() const;
 	IT getncol() const;
 	IT getnnz() const;
-	
-	// SpParMatrix<IT,NT,DER> * SubsRefCol (const vector<ITYPE> & ci) const;	// ABAB: change with a real indexing as in SpMat !
+
+	SpParMPI2<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;	// Column indexing with special parallel semantics
+	// ABAB: Need general indexing with serial semantics here !
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
