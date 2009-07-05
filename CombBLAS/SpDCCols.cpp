@@ -205,12 +205,12 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 			else if(nnz == 0)
 			{
 				dcsc = new Dcsc<IT,NT>(*(rhs.dcsc));
-				nnz = rhs.nnz;
+				nnz = dcsc->nz;
 			}
 			else
 			{
 				(*dcsc) += (*(rhs.dcsc));
-				nnz = rhs.nnz;
+				nnz = dcsc->nz;
 			}		
 		}
 		else
@@ -220,10 +220,40 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 	}
 	else
 	{
-		cout<< "Missing feauture (A+A): Use multiply with 2 instead !"<<endl;	
+		cout<< "Missing feature (A+A): Use multiply with 2 instead !"<<endl;	
 	}
 	return *this;
 }
+
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
+{
+	if(this != &rhs)		
+	{
+		if(m == rhs.m && n == rhs.n)
+		{
+			if(rhs.nnz == 0 && exclude)
+			{
+				*this = SpDCCols<IT,NT>();	// completely reset the matrix
+			}
+			else if (rhs.nnz != 0 && nnz != 0)
+			{
+				dcsc.ElementWiseMult (*(rhs.dcsc));
+				nnz = dcsc->nz;
+			}		
+		}
+		else
+		{
+			cout<< "Matrices do not conform for A .* op(B) !"<<endl;		
+		}
+	}
+	else
+	{
+		cout<< "Missing feature (A .* A): Use Square_EWise() instead !"<<endl;	
+	}
+	return *this;
+}
+
 
 
 /****************************************************************************/

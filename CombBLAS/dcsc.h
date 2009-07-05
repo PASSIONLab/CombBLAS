@@ -37,6 +37,7 @@ public:
 
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
+	void ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 	
 
 	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize) const;
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	

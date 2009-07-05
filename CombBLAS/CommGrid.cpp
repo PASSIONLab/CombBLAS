@@ -77,7 +77,7 @@ void CommGrid::OpenDebugFile(string prefix, ofstream & output)
 }
 
 
-CommGrid * ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset)
+shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset)
 {
 	if(gridA->grcols != gridB->grrows)
 	{
@@ -90,7 +90,6 @@ CommGrid * ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int &
 	Boffset = (gridB->myprocrow + gridB->myproccol) % gridB->grrows;
 
 		
-	CommGrid * cg = new CommGrid(MPI::COMM_WORLD, gridA->grrows, gridB->grcols); 
-	return cg;
+	return shared_ptr<CommGrid>( new CommGrid(MPI::COMM_WORLD, gridA->grrows, gridB->grcols) );
 }
 

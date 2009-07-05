@@ -1,5 +1,6 @@
 * text=auto !eol
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
+CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BetwCent.cpp -text
 CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text

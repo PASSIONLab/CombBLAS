@@ -39,4 +39,11 @@ void DeleteAll(A arr1, B arr2, C arr3, D arr4, E arr5)
         DeleteAll(arr1, arr2, arr3, arr4);
 }
 
+template<typename A, typename B, typename C, typename D, typename E, typename F>
+void DeleteAll(A arr1, B arr2, C arr3, D arr4, E arr5, F arr6)
+{
+        delete [] arr6;
+        DeleteAll(arr1, arr2, arr3, arr4,arr5);
+}
+
 #endif

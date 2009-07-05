@@ -41,6 +41,7 @@ public:
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 
+	void ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
 
@@ -106,19 +107,19 @@ private:
 	friend class SpTuples;
 
 	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBn 
+	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AnXBt 
+	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBn 
+	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 
 	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> Tuples_AtXBt 
+	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 };
 

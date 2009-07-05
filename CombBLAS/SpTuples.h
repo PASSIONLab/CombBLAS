@@ -60,7 +60,7 @@ public:
 
 	void SortColBased()
 	{
-		ColSortCompare<IT,NT> collexicogcmp;
+		ColLexiCompare<IT,NT> collexicogcmp;
 		sort(tuples , tuples+nnz, collexicogcmp );
 	}
 
@@ -81,9 +81,16 @@ public:
 		return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
 	}
 
+	// Performs a balanced merge of the array of SpTuples
+	template<typename SR, typename IU, typename NU>
+	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups); 
 
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 
+
+	IT getnrow() const { return m; }
+	IT getncol() const { return n; }
+	IT getnnz() const { return nnz; }
 
 	void PrintInfo();
 

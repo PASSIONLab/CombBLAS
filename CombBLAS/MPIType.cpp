@@ -6,56 +6,61 @@ using namespace std;
 
 
 
-template<> MPI_Datatype MPIType< signed char >( void )
+template<> MPI::Datatype MPIType< signed char >( void )
 {
-	return MPI_CHAR;
+	return MPI::CHAR;
 }; 
 
-template<> MPI_Datatype MPIType< signed short int >( void )
+template<> MPI::Datatype MPIType< signed short int >( void )
 {
-	return MPI_SHORT;
+	return MPI::SHORT;
 }; 
 
-template<> MPI_Datatype MPIType< signed int >( void )
+template<> MPI::Datatype MPIType< signed int >( void )
 {
-	return MPI_INT;
+	return MPI::INT;
 };  
 
-template<> MPI_Datatype MPIType< signed long int >( void )
+template<> MPI::Datatype MPIType< signed long int >( void )
 {
-	return MPI_LONG;
+	return MPI::LONG;
 }; 
 
-template<> MPI_Datatype MPIType< unsigned char >( void )
+template<> MPI::Datatype MPIType< unsigned char >( void )
 {
-	return MPI_UNSIGNED_CHAR;
+	return MPI::UNSIGNED_CHAR;
 }; 
 
-template<> MPI_Datatype MPIType< unsigned short int >( void )
+template<> MPI::Datatype MPIType< unsigned short int >( void )
 {
-	return MPI_UNSIGNED_SHORT;
+	return MPI::UNSIGNED_SHORT;
 }; 
-template<> MPI_Datatype MPIType< unsigned int >( void )
+template<> MPI::Datatype MPIType< unsigned int >( void )
 {
-	return MPI_UNSIGNED;
+	return MPI::UNSIGNED;
 };
 
-template<> MPI_Datatype MPIType< unsigned long int >( void )
+template<> MPI::Datatype MPIType< unsigned long int >( void )
 {
-	return MPI_UNSIGNED_LONG;
+	return MPI::UNSIGNED_LONG;
 }; 
-template<> MPI_Datatype MPIType< float >( void )
+template<> MPI::Datatype MPIType< float >( void )
 {
-	return MPI_FLOAT;
-}; 
-
-template<> MPI_Datatype MPIType< double >( void )
-{
-	return MPI_DOUBLE;
+	return MPI::FLOAT;
 }; 
 
-template<> MPI_Datatype MPIType< long double >( void )
+template<> MPI::Datatype MPIType< double >( void )
 {
-	return MPI_LONG_DOUBLE;
+	return MPI::DOUBLE;
 }; 
+
+template<> MPI::Datatype MPIType< long double >( void )
+{
+	return MPI::LONG_DOUBLE;
+}; 
+
+template<> MPI::Datatype MPIType< bool >( void )
+{
+	return MPI::BOOL;
+};
 

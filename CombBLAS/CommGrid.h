@@ -16,9 +16,12 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <tr1/memory>	// for shared_ptr
 #include "MPIType.h"
 
 using namespace std;
+using namespace std::tr1;
+
 
 class CommGrid
 {
@@ -55,7 +58,7 @@ public:
 
 	void OpenDebugFile(string prefix, ofstream & output); 
 
-	friend CommGrid * ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
+	friend shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
 	MPI::Intracomm commWorld, rowWorld, colWorld;

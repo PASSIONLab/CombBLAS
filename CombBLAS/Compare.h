@@ -11,7 +11,7 @@ using namespace std::tr1;
  ** @pre {No elements with same (i,j) pairs exist in the input}
  **/
 template <class IT, class NT>
-struct ColSortCompare:  // struct instead of class so that operator() is public
+struct ColLexiCompare:  // struct instead of class so that operator() is public
         public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
         {
                 inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
@@ -48,6 +48,24 @@ struct RowCompare:  // struct instead of class so that operator() is public
 			return get<0>(lhs) < get<0>(rhs);
                 }
         };
+
+template <class IT, class NT>
+struct ColLexiCompareWithID:  // struct instead of class so that operator() is public
+        public binary_function< pair< tuple<IT, IT, NT> , int > , pair< tuple<IT, IT, NT> , int>, bool >  // (par1, par2, return_type)
+        {
+                inline bool operator()(const pair< tuple<IT, IT, NT> , int > & lhs, const pair< tuple<IT, IT, NT> , int > & rhs) const
+                {
+                        if(get<1>(lhs.first) == get<1>(rhs.first))
+                        {
+                                return get<0>(lhs.first) < get<0>(rhs.first);
+                        }
+                        else
+                        {
+                                return get<1>(lhs.first) < get<1>(rhs.first);
+                        }
+                }
+        };
+
 
 
 #endif

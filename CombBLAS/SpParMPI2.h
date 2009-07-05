@@ -56,6 +56,9 @@ public:
 	template <typename SR, typename IU, typename NU, typename UDER> 
 	friend SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMPI2<IU,NU,UDER> & B );
 
+	template <typename NNT, typename NDER>
+	SpParMPI2< IT,NNT,NDER > ConvertNumericType ();
+
 	IT getnrow() const;
 	IT getncol() const;
 	IT getnnz() const;

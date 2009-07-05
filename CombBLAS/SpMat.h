@@ -53,6 +53,9 @@ public:
 	template <typename SR>
 	void SpGEMM( SpMat< IT,NT,DER > & A, SpMat< IT,NT,DER > & B, bool isAT, bool isBT);
 
+	// ABAB: A semiring elementwise operation with automatic type promotion is required for completeness (should cover +/- and .* ?)
+	// ABAB: A neat version of ConvertNumericType should be in base class (an operator SpMat<NIT,NNT,NDER>())
+
 	void Split( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB); 
 	void Merge( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > & partB); 
 
@@ -69,7 +72,6 @@ public:
 	{
 		static_cast<DER*>(this)->Transpose();
 	}
-	
 		
 	ofstream& put(ofstream& outfile) const;
 	ifstream& get(ifstream& infile);
@@ -86,8 +88,10 @@ protected:
 	template < typename UIT, typename UNT, typename UDER >
 	friend ifstream& operator>> (ifstream& infile, SpMat< UIT,UNT,UDER > & s);
 
+	//! Returns a pointer to SpTuples, in order to avoid temporaries
+	//! It is the caller's responsibility to delete the returned pointer afterwards
 	template< class SR, class IU, class NU1, class NU2, class DER1, class DER2 >
-	friend SpTuples< IU, typename promote_trait<NU1,NU2>::T_promote >
+	friend SpTuples< IU, typename promote_trait<NU1,NU2>::T_promote > *
 	MultiplyReturnTuples (const SpMat< IU, NU1, DER1 > & A, const SpMat< IU, NU2, DER2 > & B, bool isAT, bool isBT);
 
 };

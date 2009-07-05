@@ -55,9 +55,11 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
-		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARSPMAT;
-		PARSPMAT A;			// construct object
-		A.ReadDistribute(input, 0);	// read it from file
+		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
+		typedef SpParMPI2 <int, int, SpDCCols<int,int> > PARINTMAT;
+
+		PARBOOLMAT A;			// construct object
+		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
 		input.clear();
 		input.close();
 			
@@ -87,63 +89,65 @@ int main(int argc, char* argv[])
 			{
 				batch[j] = i*subBatchSize + j;
 			}
-			PARSPMAT fringe = A.SubsRefCol(batch);
+			PARINTMAT fringe = (A.SubsRefCol(batch)).ConvertNumericType<int, SpDCCols<int,int> >();
 	
 			int nrowperproc = mA / (A.getcommgrid())->GetGridCols();
 			// copy(batch.begin(), batch.end(), ostream_iterator<int>(cout, " "));
 
-			int mA = fringe.getnrow(); 
-			int nA = fringe.getncol();
-			int nzA = fringe.getnnz();
+			int m_f = fringe.getnrow(); 
+			int n_f = fringe.getncol();
+			int nz_f = fringe.getnnz();
 
-			if (myrank == 3)
-			{
-				cout << "A has " << mA << " rows and "<< nA <<" columns and "<<  nzA << " nonzeros" << endl;
-				cout << "Local A has: " << fringe.getlocalnnz() << " nonzeros" << endl;
-			}
-
-			/*
+			if (myrank == 0)
+				cout << "Fringe has " << m_f << " rows and "<< n_f <<" columns and "<<  nz_f << " nonzeros" << endl;
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
-			int rowrank, colrank;
-			MPI_Comm_rank(A->getcommgrid()->rowWorld, &rowrank);
-			MPI_Comm_rank(A->getcommgrid()->colWorld, &colrank);
-	
-			shared_ptr< SparseDColumn<NUMTYPE> > nsplocal;
-			if(rowrank == colrank)
+			SpDCCols<int,int> * nsploc = new SpDCCols<int,int>();
+			tuple<int, int, int> * mytuples = NULL;	
+			if(A.getcommgrid()->GetRankInProcRow() == A.getcommgrid()->GetRankInProcCol())
 			{
-				tuple<ITYPE, ITYPE, NUMTYPE> * mytuples = new tuple<ITYPE, ITYPE, NUMTYPE>[subBatchSize];
+				mytuples = new tuple<int, int, int>[subBatchSize];
 				for(int k =0; k<subBatchSize; ++k)
 				{
-					mytuples[k] = tuple<ITYPE, ITYPE, NUMTYPE>(batch[k], k, 1.0);
+					mytuples[k] = make_tuple(batch[k], k, 1);
 				}
-	
-				SparseTriplets<NUMTYPE> triples(subBatchSize, A->getlocalrows(), subBatchSize, mytuples);
-				nsplocal.reset(new SparseDColumn<NUMTYPE>(triples, false));
-
+				nsploc->Create( subBatchSize, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 			else
 			{
-				SparseTriplets<NUMTYPE> triples(0, A->getlocalrows(), subBatchSize);
-				nsplocal.reset(new SparseDColumn<NUMTYPE>(triples, false));
+				nsploc->Create( 0, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			SpParMatrix<NUMTYPE> * nsp = new SparseOneSidedMPI<NUMTYPE>(nsplocal, A->getcommgrid());
-		
-		
-			int depth = 0;
-			ptr_vector < SparseDColumn<NUMTYPE> > bfs;
-				
-			while( fringe->getnnz() > 0 )
-			{
-				(*nsp) += (*fringe);
-				 
-				//bfs.push_back(new SparseDColumn<NUMTYPE>(*(fringe))); 
-
-				depth++;
-			}
+			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples
 	
+			int m_nsp = nsp.getnrow(); 
+			int n_nsp = nsp.getncol();
+			int nz_nsp = nsp.getnnz();
+
+			if (myrank == 0)
+				cout << "NSP has " << m_nsp << " rows and "<< n_nsp <<" columns and "<<  nz_nsp << " nonzeros" << endl;
+	
+			vector < void * > bfs;	// internally keeps track of depth
+			typedef PlusTimesSRing<int, int> PTINT;		
+			
+			while( fringe.getnnz() > 0 )
+			{
+				nsp += fringe;
+				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
+
+				fringe = (Mult_AnXBn<PTINT>(A, fringe)).ElementWiseMult(nsp, true);
+
+			}
+			m_nsp = nsp.getnrow(); 
+			n_nsp = nsp.getncol();
+			nz_nsp = nsp.getnnz();
+
+			if (myrank == 0)
+				cout << "NSP has " << m_nsp << " rows and "<< n_nsp <<" columns and "<<  nz_nsp << " nonzeros" << endl;
+
+	
+			/*
 			string rfilename = "fridge_"; 
 			rfilename += rank;
 			rfilename = directory+"/"+rfilename;

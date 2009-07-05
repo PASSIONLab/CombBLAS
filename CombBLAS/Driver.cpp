@@ -43,11 +43,14 @@ int main()
 		SpDCCols<int,bool> A_bool = A.ConvertNumericType<bool>();
 		A_bool.PrintInfo();
 
-		SpTuples<int,double> C_tuples =  MultiplyReturnTuples<PT>(A_bool, B, false, false);	// D = A_bool*B
-		C_tuples.PrintInfo();
+		SpTuples<int,double> * C_tuples =  MultiplyReturnTuples<PT>(A_bool, B, false, false);	// D = A_bool*B
+		C_tuples->PrintInfo();
 
-		SpTuples<int,double> C_tt = MultiplyReturnTuples<PT>(B, A_bool, false, true);
-		C_tt.PrintInfo();
+		SpTuples<int,double> * C_tt = MultiplyReturnTuples<PT>(B, A_bool, false, true);
+		C_tt->PrintInfo();
+
+		delete C_tuples;
+		delete C_tt;
 	}
 
 	#define BIGTEST
@@ -93,13 +96,13 @@ int main()
         		bigB.PrintInfo();
 
 			// Cache warm-up
-			SpTuples<int,double> bigC = MultiplyReturnTuples<PT>(bigA, bigB, false, false);
-			bigC.PrintInfo();
+			SpTuples<int,double> * bigC = MultiplyReturnTuples<PT>(bigA, bigB, false, false);
+			bigC->PrintInfo();
 
 	#ifdef OUTPUT
 			string outputnameC = prefixes[i] + string("/colbycol");
 			ofstream outputC(outputnameC.c_str());
-			outputC << bigC;
+			outputC << (*bigC);
 			outputC.close();
 	#endif
 			struct timeval tempo1, tempo2;
@@ -121,13 +124,13 @@ int main()
 			bigB.PrintInfo();
 	
 			// Cache warm-up
-			SpTuples<int,double> bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);
-			bigC_t.PrintInfo();
+			SpTuples<int,double> * bigC_t = MultiplyReturnTuples<PT>(bigA, bigB, false, true);
+			bigC_t->PrintInfo();
 
 	#ifdef OUTPUT	
 			string outputnameCT = prefixes[i] + string("/outerproduct");
 			ofstream outputC(outputnameCT.c_str());
-			outputCT << bigC_t;
+			outputCT << (*bigC_t);
 			outputCT.close();
 	#endif
 
@@ -142,6 +145,13 @@ int main()
 	
 			input1.seekg (0, ios::beg);
 			input2.seekg (0, ios::beg);
+		
+			vector< SpTuples<int,double> *> tomerge(2);
+
+			SpTuples<int,double> twice = MergeAll<PT>(tomerge);
+			twice.PrintInfo(); 
+			delete bigC;
+			delete bigC_t;
 	
 			cerr << "Begin Parallel" << endl;	
 		}	
@@ -152,22 +162,22 @@ int main()
 		cerr << "A and B constructed"<< endl;
 
 		A_par.ReadDistribute(input1, 0);
-		B_par.ReadDistribute(input2, 0);
 		
 		// collective calls
 		int parnnzA = A_par.getnnz();
 		int parmA = A_par.getnrow();
 		int parnA = A_par.getncol();
+		if(myrank == 0)
+			cout << "A_par has " << parnnzA << " nonzeros and " << parmA << "-by-" << parnA << " dimensions" << endl;
+
+		B_par.ReadDistribute(input2, 0);
 
 		int parnnzB = B_par.getnnz();
 		int parmB = B_par.getnrow();
 		int parnB = B_par.getncol();
 		
-		if(myrank == 0)
-		{
-			cout << "A_par has " << parnnzA << " nonzeros and " << parmA << "-by-" << parnA << " dimensions" << endl;
+		if(myrank == 0)		
 			cout << "B_par has " << parnnzB << " nonzeros and " << parmB << "-by-" << parnB << " dimensions" << endl;
-		}
 
 		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
 
