@@ -49,13 +49,21 @@ int main()
 		SpTuples<int,double> * C_tt = MultiplyReturnTuples<PT>(B, A_bool, false, true);
 		C_tt->PrintInfo();
 
+		vector< SpTuples<int,double> *> tomerge;
+		tomerge.push_back(C_tuples);
+		tomerge.push_back(C_tt);
+
+		SpTuples<int,double> twice = MergeAll<PT>(tomerge);
+		twice.PrintInfo(); 
+
 		delete C_tuples;
 		delete C_tt;
 	}
-	#define OUTPUT
 	#define BIGTEST
 	//#define MASSIVETEST
-		// Start big timing test
+	//#define OUTPUT
+	
+	// Start big timing test
 		vector<string> prefixes;
 
 	#ifdef BIGTEST

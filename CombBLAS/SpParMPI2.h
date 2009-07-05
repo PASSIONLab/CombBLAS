@@ -53,8 +53,9 @@ public:
 	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
 	~SpParMPI2 ();						
 
-	template <typename SR, typename IU, typename NU, typename UDER> 
-	friend SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMPI2<IU,NU,UDER> & B );
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::DER_promote> 
+	Mult_AnXBn (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER1> & B )
 
 	template <typename NNT, typename NDER>
 	SpParMPI2< IT,NNT,NDER > ConvertNumericType ();

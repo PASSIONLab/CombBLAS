@@ -149,7 +149,7 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups)
 		ColLexiCompare<IU,int> heapcomp;
 		tuple<IU, IU, int> * heap = new tuple<IU, IU, int> [hsize];	// (rowindex, colindex, source-id)
 		IU * curptr = new IU[hsize];
-		fill_n(curptr, hsize, static_cast<IU>(1)); 
+		fill_n(curptr, hsize, static_cast<IU>(0)); 
 		IU estnnz = 0;
 
 		for(int i=0; i< hsize; ++i)
@@ -166,15 +166,15 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups)
 		{
 			pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
 			int source = tr1::get<2>(heap[hsize-1]);
-			
+
 			if( (cnz != 0) && 
 				((tr1::get<0>(ntuples[cnz-1]) == tr1::get<0>(heap[hsize-1])) && (tr1::get<1>(ntuples[cnz-1]) == tr1::get<1>(heap[hsize-1]))) )
 			{
-				tr1::get<2>(ntuples[cnz-1])  = SR::add(tr1::get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source])); 
+				tr1::get<2>(ntuples[cnz-1])  = SR::add(tr1::get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++)); 
 			}
 			else
-			{	
-				ntuples[cnz++] = ArrSpTups[source]->tuples[curptr[source]];
+			{
+				ntuples[cnz++] = ArrSpTups[source]->tuples[curptr[source]++];
 			}
 			
 			if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
@@ -182,7 +182,6 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups)
 				heap[hsize-1] = make_tuple(tr1::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
 								tr1::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
 				push_heap(heap, heap+hsize, not2(heapcomp));
-				++curptr[source];
 			}
 			else
 			{

@@ -123,6 +123,21 @@ private:
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 };
 
+DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,int>), (SpDCCols<int,int>));
+DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,bool>), (SpDCCols<int,int>));
+DECLARE_PROMOTE((SpDCCols<int,unsigned>), (SpDCCols<int,bool>), (SpDCCols<int,unsigned>));
+DECLARE_PROMOTE((SpDCCols<int,float>), (SpDCCols<int,bool>), (SpDCCols<int,float>));
+DECLARE_PROMOTE((SpDCCols<int,double>), (SpDCCols<int,bool>), (SpDCCols<int,double>));
+DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,int>), (SpDCCols<int,int>));
+DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,unsigned>), (SpDCCols<int,unsigned>));
+DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,float>), (SpDCCols<int,float>));
+DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,double>), (SpDCCols<int,double>));
+DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,float>), (SpDCCols<int,float>));
+DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,double>), (SpDCCols<int,double>));
+DECLARE_PROMOTE((SpDCCols<int,float>), (SpDCCols<int,int>), (SpDCCols<int,float>));
+DECLARE_PROMOTE((SpDCCols<int,double>), (SpDCCols<int,int>), (SpDCCols<int,double>)); 
+
+
 #include "SpDCCols.cpp"
 #endif
 

@@ -137,23 +137,25 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) co
 	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
 } 
 
-//	ABAB: Traits for automatic type promotion !
-template <typename SR, typename IU, typename NU, typename UDER> 
-SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMPI2<IU,NU,UDER> & B )
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
+		(const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B )
 {
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	
 	double t1 = MPI::Wtime();
-
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
-		return SpParMPI2< IU,NU,UDER >();
+		return SpParMPI2< IU,N_promote,DER_promote >();
 	}
 
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
 	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
 		
-	const_cast< UDER* >(B.spSeq)->Transpose();
+	const_cast< UDER2* >(B.spSeq)->Transpose();
 	
 	// set row & col window handles
 	vector<MPI::Win> rowwindows, colwindows;
@@ -172,10 +174,9 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		fprintf(stdout, "setup (matrix transposition and memory registration) took %.6lf seconds\n", t2-t1);
 	}
 
-	UDER * ARecv; 
-	UDER * BRecv;
-
-	UDER * C = new UDER(0, A.getlocalrows(), B.getlocalcols(), 0);   // Create an empty object for the product	
+	UDER1 * ARecv; 
+	UDER2 * BRecv;
+	vector< DER_promote *> tomerge;
 
 	for(int i = 0; i < stages; ++i) 	// Robust generalization to non-square grids will require block-cyclic distibution	
 	{
@@ -189,12 +190,12 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		else
 		{
 			// pack essentials to a vector
-			vector<IU> ess(UDER::esscount);
-			for(int j=0; j< UDER::esscount; ++j)	
+			vector<IU> ess(UDER1::esscount);
+			for(int j=0; j< UDER1::esscount; ++j)	
 			{
 				ess[j] = ARecvSizes[j][Aownind];	
 			}
-			ARecv = new UDER();	// create the object first	
+			ARecv = new UDER1();	// create the object first	
 			SpParHelper::FetchMatrix(*ARecv, ess, rowwindows, Aownind);	// fetch its elements later
 		}
 		if(Bownind == (B.commGrid)->GetRankInProcCol())
@@ -204,26 +205,33 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		else
 		{
 			// pack essentials to a vector
-			vector<IU> ess(UDER::esscount);
-			for(int j=0; j< UDER::esscount; ++j)	
+			vector<IU> ess(UDER2::esscount);
+			for(int j=0; j< UDER2::esscount; ++j)	
 			{
 				ess[j] = BRecvSizes[j][Bownind];	
 			}	
-			BRecv = new UDER();
+			BRecv = new UDER2();
 			SpParHelper::FetchMatrix(*BRecv, ess, colwindows, Bownind);	
 		}
 	
 		if(Aownind != (A.commGrid)->GetRankInProcRow())	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
 		if(Bownind != (B.commGrid)->GetRankInProcCol())	SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B
 
-		C->template SpGEMM < SR > ( *ARecv, *BRecv, false, true);
-		
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
+		tomerge.push_back(C_cont);
+
 		if(Aownind != (A.commGrid)->GetRankInProcRow()) delete ARecv;
 		if(Bownind != (B.commGrid)->GetRankInProcCol()) delete BRecv; 
 	} 
 
-	SpHelper::deallocate2D(ARecvSizes, UDER::esscount);
-	SpHelper::deallocate2D(BRecvSizes, UDER::esscount);
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	for(int i=0; i<tomerge.size(); ++i)
+	{
+		delete tomerge[i];
+	}
+
+	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
 
 	(GridC->GetWorld()).Barrier();
 
@@ -236,9 +244,9 @@ SpParMPI2<IU,NU,UDER> Mult_AnXBn (const SpParMPI2<IU,NU,UDER> & A, const SpParMP
 		colwindows[i].Free();
 	}
 
-	const_cast< UDER* >(B.spSeq)->Transpose();	// transpose back to original
+	const_cast< UDER2* >(B.spSeq)->Transpose();	// transpose back to original
 	
-	return SpParMPI2<IU,NU,UDER> (C, GridC);			// return the result object
+	return SpParMPI2<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
 

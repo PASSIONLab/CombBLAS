@@ -118,5 +118,28 @@ private:
 };
 
 
+// At this point, complete type of of SpTuples is known, safe to declare these specialization (but macros won't work as they are preprocessed)
+template <> struct promote_trait< template SpTuples<int,int>,(SpTuples<int,int>)>       
+    {                                           
+        typedef (SpTuples<int,int>) T_promote;                    
+    };
+
+
+/*
+DECLARE_PROMOTE((SpTuples<int,int>), (SpTuples<int,int>), (SpTuples<int,int>));
+DECLARE_PROMOTE((SpTuples<int,int>), (SpTuples<int,bool>), (SpTuples<int,int>));
+DECLARE_PROMOTE((SpTuples<int,unsigned>), (SpTuples<int,bool>), (SpTuples<int,unsigned>));
+DECLARE_PROMOTE((SpTuples<int,float>), (SpTuples<int,bool>), (SpTuples<int,float>));
+DECLARE_PROMOTE((SpTuples<int,double>), (SpTuples<int,bool>), (SpTuples<int,double>));
+DECLARE_PROMOTE((SpTuples<int,bool>), (SpTuples<int,int>), (SpTuples<int,int>));
+DECLARE_PROMOTE((SpTuples<int,bool>), (SpTuples<int,unsigned>), (SpTuples<int,unsigned>));
+DECLARE_PROMOTE((SpTuples<int,bool>), (SpTuples<int,float>), (SpTuples<int,float>));
+DECLARE_PROMOTE((SpTuples<int,bool>), (SpTuples<int,double>), (SpTuples<int,double>));
+DECLARE_PROMOTE((SpTuples<int,int>), (SpTuples<int,float>), (SpTuples<int,float>));
+DECLARE_PROMOTE((SpTuples<int,int>), (SpTuples<int,double>), (SpTuples<int,double>));
+DECLARE_PROMOTE((SpTuples<int,float>), (SpTuples<int,int>), (SpTuples<int,float>));
+DECLARE_PROMOTE((SpTuples<int,double>), (SpTuples<int,int>), (SpTuples<int,double>));
+*/
+
 #include "SpTuples.cpp"	
 #endif
