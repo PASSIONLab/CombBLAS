@@ -58,6 +58,7 @@ CombBLAS/massiveseq/input2_0 -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/promote.h -text
+CombBLAS/valgrindout -text
 Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text
 Matlab/apsp/apsp.m -text

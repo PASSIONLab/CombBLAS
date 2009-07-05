@@ -3,7 +3,7 @@ INCADD = -I$(INCDIR)
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
-COMPILER = mpicxx	
+COMPILER = icpc #mpicxx	
 LDADD = -lmpi -lmpi_cxx
 FLAGS = $(DEB)
 
@@ -16,13 +16,20 @@ MPIType.o:	MPIType.cpp MPIType.h
 MemoryPool.o:	MemoryPool.cpp SpDefs.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o MemoryPool.cpp
 
-Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp
+BetwCent.o: BetwCent.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
+
+Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpTuples.cpp
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o Driver.o Driver.cpp
 
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
 
+betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
+
 clean:
+	rm -f betwcent
 	rm -f driver
 	rm -f *.o
 
