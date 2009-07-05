@@ -162,8 +162,8 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
 
-	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
-	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER::esscount, stages);
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
  
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
@@ -176,7 +176,7 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 
 	UDER1 * ARecv; 
 	UDER2 * BRecv;
-	vector< DER_promote *> tomerge;
+	vector< SpTuples<IU,N_promote>  *> tomerge;
 
 	for(int i = 0; i < stages; ++i) 	// Robust generalization to non-square grids will require block-cyclic distibution	
 	{

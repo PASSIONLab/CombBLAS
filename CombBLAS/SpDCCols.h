@@ -123,19 +123,68 @@ private:
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
 };
 
-DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,int>), (SpDCCols<int,int>));
-DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,bool>), (SpDCCols<int,int>));
-DECLARE_PROMOTE((SpDCCols<int,unsigned>), (SpDCCols<int,bool>), (SpDCCols<int,unsigned>));
-DECLARE_PROMOTE((SpDCCols<int,float>), (SpDCCols<int,bool>), (SpDCCols<int,float>));
-DECLARE_PROMOTE((SpDCCols<int,double>), (SpDCCols<int,bool>), (SpDCCols<int,double>));
-DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,int>), (SpDCCols<int,int>));
-DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,unsigned>), (SpDCCols<int,unsigned>));
-DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,float>), (SpDCCols<int,float>));
-DECLARE_PROMOTE((SpDCCols<int,bool>), (SpDCCols<int,double>), (SpDCCols<int,double>));
-DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,float>), (SpDCCols<int,float>));
-DECLARE_PROMOTE((SpDCCols<int,int>), (SpDCCols<int,double>), (SpDCCols<int,double>));
-DECLARE_PROMOTE((SpDCCols<int,float>), (SpDCCols<int,int>), (SpDCCols<int,float>));
-DECLARE_PROMOTE((SpDCCols<int,double>), (SpDCCols<int,int>), (SpDCCols<int,double>)); 
+// At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
+template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,int> >       
+    {                                           
+        typedef SpDCCols<int,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,float> >       
+    {                                           
+        typedef SpDCCols<int,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,double> >       
+    {                                           
+        typedef SpDCCols<int,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,int> >       
+    {                                           
+        typedef SpDCCols<int,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,bool> >       
+    {                                           
+        typedef SpDCCols<int,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,float> >       
+    {                                           
+        typedef SpDCCols<int,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,int> >       
+    {                                           
+        typedef SpDCCols<int,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,double> >       
+    {                                           
+        typedef SpDCCols<int,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,int> >       
+    {                                           
+        typedef SpDCCols<int,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,unsigned> , SpDCCols<int,bool> >       
+    {                                           
+        typedef SpDCCols<int,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,unsigned> >       
+    {                                           
+        typedef SpDCCols<int,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,double> >       
+    {                                           
+        typedef SpDCCols<int,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,float> >       
+    {                                           
+        typedef SpDCCols<int,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,bool> >       
+    {                                           
+        typedef SpDCCols<int,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,bool> >       
+    {                                           
+        typedef SpDCCols<int,float> T_promote;                    
+    };
+
 
 
 #include "SpDCCols.cpp"

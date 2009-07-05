@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cmath>
 #include <mpi.h>
+#include <vector>
 #include <tr1/memory>	// for shared_ptr
 #include <tr1/tuple>
 
@@ -25,6 +26,7 @@
 #include "Deleter.h"
 #include "SpHelper.h"
 #include "SpParHelper.h"
+#include "Friends.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -54,8 +56,29 @@ public:
 	~SpParMPI2 ();						
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::DER_promote> 
-	Mult_AnXBn (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER1> & B )
+	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B );
+
+	void ElementWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
+	{
+		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);
+	}
+
+	void PrintInfo()
+	{
+		if (commGrid->myrank == 0)
+		{
+			cout << "Locally at proc #0: " << endl; 
+			spSeq->PrintInfo();
+		}
+			
+		IT mm = getnrow(); 
+		IT nn = getncol();
+		IT nznz = getnnz();
+
+		if (commGrid->myrank == 0)
+			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl;
+	}
 
 	template <typename NNT, typename NDER>
 	SpParMPI2< IT,NNT,NDER > ConvertNumericType ();

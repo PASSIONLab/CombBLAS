@@ -521,8 +521,8 @@ void Dcsc<IT,NT>::ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 	IT estnzc, estnz;
 	if(exclude)
 	{	
-		estnzc = std::min(nzc, rhs.n - rhs.nzc);
-		estnz = std::min(nz, (rhs.m * rhs.n) - rhs.nz); 
+		estnzc = nzc;
+		estnz = nz; 
 	} 
 	else
 	{

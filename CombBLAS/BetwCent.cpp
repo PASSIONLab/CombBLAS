@@ -94,12 +94,7 @@ int main(int argc, char* argv[])
 			int nrowperproc = mA / (A.getcommgrid())->GetGridCols();
 			// copy(batch.begin(), batch.end(), ostream_iterator<int>(cout, " "));
 
-			int m_f = fringe.getnrow(); 
-			int n_f = fringe.getncol();
-			int nz_f = fringe.getnnz();
-
-			if (myrank == 0)
-				cout << "Fringe has " << m_f << " rows and "<< n_f <<" columns and "<<  nz_f << " nonzeros" << endl;
+			fringe.PrintInfo();
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
@@ -120,14 +115,9 @@ int main(int argc, char* argv[])
 			}
 		
 			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples
-	
-			int m_nsp = nsp.getnrow(); 
-			int n_nsp = nsp.getncol();
-			int nz_nsp = nsp.getnnz();
-
-			if (myrank == 0)
-				cout << "NSP has " << m_nsp << " rows and "<< n_nsp <<" columns and "<<  nz_nsp << " nonzeros" << endl;
-	
+				
+			nsp.PrintInfo();
+				
 			vector < void * > bfs;	// internally keeps track of depth
 			typedef PlusTimesSRing<int, int> PTINT;		
 			
@@ -136,15 +126,13 @@ int main(int argc, char* argv[])
 				nsp += fringe;
 				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
 
-				fringe = (Mult_AnXBn<PTINT>(A, fringe)).ElementWiseMult(nsp, true);
+				fringe = (Mult_AnXBn<PTINT>(A, fringe));
 
+				fringe.PrintInfo();
+
+				fringe.ElementWiseMult(nsp, true);
 			}
-			m_nsp = nsp.getnrow(); 
-			n_nsp = nsp.getncol();
-			nz_nsp = nsp.getnnz();
-
-			if (myrank == 0)
-				cout << "NSP has " << m_nsp << " rows and "<< n_nsp <<" columns and "<<  nz_nsp << " nonzeros" << endl;
+		
 
 	
 			/*

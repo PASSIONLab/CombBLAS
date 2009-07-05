@@ -238,7 +238,7 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
 			}
 			else if (rhs.nnz != 0 && nnz != 0)
 			{
-				dcsc.ElementWiseMult (*(rhs.dcsc));
+				dcsc->ElementWiseMult (*(rhs.dcsc), exclude);
 				nnz = dcsc->nz;
 			}		
 		}
@@ -251,7 +251,6 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
 	{
 		cout<< "Missing feature (A .* A): Use Square_EWise() instead !"<<endl;	
 	}
-	return *this;
 }
 
 
