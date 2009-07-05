@@ -147,6 +147,8 @@ int main()
 			input2.seekg (0, ios::beg);
 		
 			vector< SpTuples<int,double> *> tomerge(2);
+			tomerge.push_back(bigC);
+			tomerge.push_back(bigC_t);
 
 			SpTuples<int,double> twice = MergeAll<PT>(tomerge);
 			twice.PrintInfo(); 
