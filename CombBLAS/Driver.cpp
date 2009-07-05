@@ -52,7 +52,7 @@ int main()
 		delete C_tuples;
 		delete C_tt;
 	}
-
+	#define OUTPUT
 	#define BIGTEST
 	//#define MASSIVETEST
 		// Start big timing test
@@ -129,7 +129,7 @@ int main()
 
 	#ifdef OUTPUT	
 			string outputnameCT = prefixes[i] + string("/outerproduct");
-			ofstream outputC(outputnameCT.c_str());
+			ofstream outputCT(outputnameCT.c_str());
 			outputCT << (*bigC_t);
 			outputCT.close();
 	#endif
@@ -146,7 +146,7 @@ int main()
 			input1.seekg (0, ios::beg);
 			input2.seekg (0, ios::beg);
 		
-			vector< SpTuples<int,double> *> tomerge(2);
+			vector< SpTuples<int,double> *> tomerge;
 			tomerge.push_back(bigC);
 			tomerge.push_back(bigC_t);
 
@@ -155,6 +155,12 @@ int main()
 			delete bigC;
 			delete bigC_t;
 	
+	#ifdef OUTPUT	
+			string outputnametwice = prefixes[i] + string("/twice");
+			ofstream outputtw(outputnametwice.c_str());
+			outputtw << twice;
+			outputtw.close();
+	#endif
 			cerr << "Begin Parallel" << endl;	
 		}	
 		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !

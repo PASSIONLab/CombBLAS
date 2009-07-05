@@ -157,15 +157,16 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups)
 			estnnz += ArrSpTups[i]->getnnz();
 			heap[i] = make_tuple(tr1::get<0>(ArrSpTups[i]->tuples[0]), tr1::get<1>(ArrSpTups[i]->tuples[0]), i);
 		}	
-		make_heap(heap, heap+hsize, heapcomp);
+		make_heap(heap, heap+hsize, not2(heapcomp));
+
 		tuple<IU, IU, NU> * ntuples = new tuple<IU,IU,NU>[estnnz]; 
 		IU cnz = 0;
 
 		while(hsize > 0)
 		{
-			pop_heap(heap, heap + hsize, heapcomp);         // result is stored in heap[hsize-1]
+			pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
 			int source = tr1::get<2>(heap[hsize-1]);
-
+			
 			if( (cnz != 0) && 
 				((tr1::get<0>(ntuples[cnz-1]) == tr1::get<0>(heap[hsize-1])) && (tr1::get<1>(ntuples[cnz-1]) == tr1::get<1>(heap[hsize-1]))) )
 			{
@@ -180,7 +181,7 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups)
 			{
 				heap[hsize-1] = make_tuple(tr1::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
 								tr1::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-				push_heap(heap, heap+hsize, heapcomp);
+				push_heap(heap, heap+hsize, not2(heapcomp));
 				++curptr[source];
 			}
 			else
