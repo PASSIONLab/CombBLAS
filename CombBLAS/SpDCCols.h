@@ -28,7 +28,7 @@ class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
 public:
 	// Constructors :
 	SpDCCols ();
-	SpDCCols (IT size, IT nRow, IT nCol, IT nzc);
+	SpDCCols (IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool = NULL);
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
 	SpDCCols (const SpDCCols<IT,NT> & rhs);		// Actual copy constructor		
 	~SpDCCols();

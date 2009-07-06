@@ -26,8 +26,8 @@ SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){
 
 // Allocate all the space necessary
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc)
-:m(nRow), n(nCol), nnz(size), localpool(NULL)
+SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool)
+:m(nRow), n(nCol), nnz(size), localpool(mpool)
 {
 	if(nnz > 0)
 		dcsc = new Dcsc<IT,NT>(nnz, nzc);
@@ -338,12 +338,20 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 template <class IT, class NT>
 void SpDCCols<IT,NT>::Transpose()
 {
-	SpTuples<IT,NT> Atuples(*this);
-	Atuples.SortRowBased();
+	if(nnz > 0)
+	{
+		SpTuples<IT,NT> Atuples(*this);
+		Atuples.SortRowBased();
 
-	// destruction of (*this) is handled by the assignment operator
-	*this = SpDCCols<IT,NT>(Atuples,true, localpool);
+		// destruction of (*this) is handled by the assignment operator
+		*this = SpDCCols<IT,NT>(Atuples,true, localpool);
+	}
+	else
+	{
+		*this = SpDCCols<IT,NT>(zero, n, m, zero, localpool);
+	}
 }
+
 
 /**
   * O(nnz log(nnz)) time Transpose function
