@@ -89,8 +89,11 @@ int main(int argc, char* argv[])
 			{
 				batch[j] = i*subBatchSize + j;
 			}
+			A.PrintInfo();
+			
 			PARINTMAT fringe = (A.SubsRefCol(batch)).ConvertNumericType<int, SpDCCols<int,int> >();
 	
+
 			int nrowperproc = mA / (A.getcommgrid())->GetGridCols();
 			// copy(batch.begin(), batch.end(), ostream_iterator<int>(cout, " "));
 
@@ -114,9 +117,8 @@ int main(int argc, char* argv[])
 				nsploc->Create( 0, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples
-				
-			nsp.PrintInfo();
+			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
+			// nsp.PrintInfo();
 				
 			vector < void * > bfs;	// internally keeps track of depth
 			typedef PlusTimesSRing<int, int> PTINT;		
@@ -125,15 +127,17 @@ int main(int argc, char* argv[])
 			{
 				nsp += fringe;
 				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
+				//nsp.PrintInfo();
 
 				fringe = (Mult_AnXBn<PTINT>(A, fringe));
-
-				fringe.PrintInfo();
+				//fringe.PrintInfo();
 
 				fringe.ElementWiseMult(nsp, true);
+				//fringe.PrintInfo();
+	
+				if(myrank == 0)
+					cout << "Level finished" << endl; 		
 			}
-		
-
 	
 			/*
 			string rfilename = "fridge_"; 

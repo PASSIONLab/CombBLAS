@@ -27,6 +27,12 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(m
 	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
+template <class IT, class NT, class DER>
+SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
+{
+	commGrid.reset(new CommGrid(*grid)); 
+}	
+
 // If there is a single file read by the master process only, use this and then call ReadDistribute()
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 ()
@@ -48,7 +54,7 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
-	commGrid.reset(new CommGrid(*(rhs.commGrid)));	// ABAB: Would an assignment suffice here, on shared_ptr?
+	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 }
 
 template <class IT, class NT, class DER>
@@ -120,9 +126,14 @@ template <typename NNT,typename NDER>
 SpParMPI2<IT,NNT,NDER> SpParMPI2<IT,NT,DER>::ConvertNumericType ()
 {
 	NDER * convert = new NDER(spSeq->ConvertNumericType<NNT>());
+	convert->PrintInfo();
+	
+	cerr << endl;	
+	commGrid->commWorld.Barrier();	
+	cerr << "C" << " ";
+	commGrid->commWorld.Barrier();
 	return SpParMPI2<IT,NNT,NDER> (convert, commGrid);
 }
-
 
 /** 
  * Create a submatrix of size m x (size(ncols) * s) on a r x s processor grid
@@ -134,6 +145,13 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) co
 
 	vector<IT> ri;
 	DER * tempseq = new DER((*spSeq)(ri, ci)); 
+	tempseq->PrintInfo();
+	
+	commGrid->commWorld.Barrier();	
+	cerr << "F" << " ";
+	commGrid->commWorld.Barrier();
+
+
 	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
 } 
 

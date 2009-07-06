@@ -34,6 +34,28 @@ public:
 		rowWorld.Free();
 		colWorld.Free();
 	}
+	CommGrid (const CommGrid & rhs)				// copy constructor
+	{
+		commWorld = rhs.commWorld.Dup();
+		rowWorld = rhs.rowWorld.Dup();
+		colWorld = rhs.colWorld.Dup();
+	}
+	
+	CommGrid & operator=(const CommGrid & rhs)	// assignment operator
+	{
+		if(this != &rhs)		
+		{
+			commWorld.Free();
+			rowWorld.Free();
+			colWorld.Free();
+
+			commWorld = rhs.commWorld.Dup();
+			rowWorld = rhs.rowWorld.Dup();
+			colWorld = rhs.colWorld.Dup();
+		}
+		return *this;
+	}
+
 
 	bool operator== (const CommGrid & rhs) const;
 	bool OnSameProcCol( int rhsrank );

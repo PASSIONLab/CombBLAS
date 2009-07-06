@@ -309,7 +309,12 @@ template <class IT, class NT>
 template <typename NNT>
 SpDCCols<IT,NNT> SpDCCols<IT,NT>::ConvertNumericType ()
 {
-	Dcsc<IT,NNT> * convert = new Dcsc<IT,NNT>(dcsc->ConvertNumericType<NNT>());
+	Dcsc<IT,NNT> * convert;
+	if(nnz > 0)
+		convert = new Dcsc<IT,NNT>(dcsc->ConvertNumericType<NNT>());
+	else
+		convert = NULL;
+	
 	return SpDCCols<IT,NNT>(nnz, m, n, convert);
 }
 

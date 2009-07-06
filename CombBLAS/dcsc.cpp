@@ -601,12 +601,30 @@ void Dcsc<IT,NT>::ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 						++jj;	
 					}
 				}
+				while (ii < cp[i+1])
+				{
+					temp.ir[curnz] = ir[ii];
+					temp.numx[curnz++] = numx[ii++];
+				}
+
 				if(prevnz < curnz)	// at least one nonzero exists in this column
 				{
 					temp.jc[curnzc++] = jc[i];	
 					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 				}
+				++i;
+				++j;
 			}
+		}
+		while(i< nzc)
+		{
+			temp.jc[curnzc++] = jc[i++];
+			for(IT k = cp[i-1]; k< cp[i]; ++k)
+			{
+				temp.ir[curnz] 	= ir[k];
+				temp.numx[curnz++] = numx[k];
+			}
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
 		}
 	}
 

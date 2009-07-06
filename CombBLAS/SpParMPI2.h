@@ -46,7 +46,8 @@ class SpParMPI2
 public:
 	// Constructors
 	SpParMPI2 ();
-	SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq), commGrid(grid) {};		
+	SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid);
+		
 	SpParMPI2 (ifstream & input, MPI::Intracomm & world);
 	SpParMPI2 (DER * myseq, MPI::Intracomm & world);	
 
@@ -66,9 +67,30 @@ public:
 
 	void PrintInfo()
 	{
+		commGrid->commWorld.Barrier();
+		
 		if (commGrid->myrank == 0)
 		{
 			cout << "Locally at proc #0: " << endl; 
+			spSeq->PrintInfo();
+		}
+		cout << "Hello Kitty" << endl;
+		commGrid->commWorld.Barrier();
+		if (commGrid->myrank == 1)
+		{
+			cout << "Locally at proc #1: " << endl; 
+			spSeq->PrintInfo();
+		}
+		commGrid->commWorld.Barrier();		
+		if (commGrid->myrank == 2)
+		{
+			cout << "Locally at proc #2: " << endl; 
+			spSeq->PrintInfo();
+		}
+		commGrid->commWorld.Barrier();		
+		if (commGrid->myrank == 3)
+		{
+			cout << "Locally at proc #3: " << endl; 
 			spSeq->PrintInfo();
 		}
 			
@@ -77,7 +99,7 @@ public:
 		IT nznz = getnnz();
 
 		if (commGrid->myrank == 0)
-			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl;
+			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
 	}
 
 	template <typename NNT, typename NDER>

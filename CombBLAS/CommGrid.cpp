@@ -30,6 +30,8 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	assert( ((colWorld.Get_rank()) == myprocrow) );
 }
 
+
+
 bool CommGrid::OnSameProcCol( int rhsrank)
 {
 	return ( myproccol == ((int) (rhsrank % grcols)) );
