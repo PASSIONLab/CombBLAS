@@ -130,10 +130,11 @@ int main(int argc, char* argv[])
 				//nsp.PrintInfo();
 
 				fringe = (Mult_AnXBn<PTINT>(A, fringe));
-				//fringe.PrintInfo();
-
+				fringe.PrintInfo();
+				break;
+				
 				fringe.ElementWiseMult(nsp, true);
-				//fringe.PrintInfo();
+				fringe.PrintInfo();
 	
 				if(myrank == 0)
 					cout << "Level finished" << endl; 		

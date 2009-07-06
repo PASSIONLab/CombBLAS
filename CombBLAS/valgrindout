@@ -1,261 +1,77 @@
-==10343== Memcheck, a memory error detector.
-==10343== Copyright (C) 2002-2006, and GNU GPL'd, by Julian Seward et al.
-==10343== Using LibVEX rev 1658, a library for dynamic binary translation.
-==10343== Copyright (C) 2004-2006, and GNU GPL'd, by OpenWorks LLP.
-==10343== Using valgrind-3.2.1, a dynamic binary instrumentation framework.
-==10343== Copyright (C) 2000-2006, and GNU GPL'd, by Julian Seward et al.
-==10343== For more details, rerun with: -v
-==10343== 
-==10343== Invalid read of size 1
-==10343==    at 0x4C5412C: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43B92A: SpParMPI2<int, int, SpDCCols<int, int> >::getnrow() const (SpParMPI2.cpp:105)
-==10343==    by 0x43A7D9: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:75)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x56A3550 is 152 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241F7: _ZN8CommGridD9Ev (CommGrid.h:35)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid read of size 8
-==10343==    at 0x4C5422A: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43B92A: SpParMPI2<int, int, SpDCCols<int, int> >::getnrow() const (SpParMPI2.cpp:105)
-==10343==    by 0x43A7D9: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:75)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x56A35E0 is 296 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241F7: _ZN8CommGridD9Ev (CommGrid.h:35)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid read of size 1
-==10343==    at 0x4C5412C: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43BBB2: SpParMPI2<int, int, SpDCCols<int, int> >::getncol() const (SpParMPI2.cpp:114)
-==10343==    by 0x43A7EE: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:76)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x7BE8EF0 is 152 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241E7: _ZN8CommGridD9Ev (CommGrid.h:34)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid read of size 8
-==10343==    at 0x4C5422A: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43BBB2: SpParMPI2<int, int, SpDCCols<int, int> >::getncol() const (SpParMPI2.cpp:114)
-==10343==    by 0x43A7EE: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:76)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x7BE8F80 is 296 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241E7: _ZN8CommGridD9Ev (CommGrid.h:34)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid read of size 1
-==10343==    at 0x4C5412C: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43B6A2: SpParMPI2<int, int, SpDCCols<int, int> >::getnnz() const (SpParMPI2.cpp:96)
-==10343==    by 0x43A803: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:77)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x56A8BC8 is 152 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241D7: _ZN8CommGridD9Ev (CommGrid.h:33)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid read of size 8
-==10343==    at 0x4C5422A: PMPI_Allreduce (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x41A445: MPI::Comm::Allreduce(void const*, void*, int, MPI::Datatype const&, MPI::Op const&) const (comm_inln.h:452)
-==10343==    by 0x43B6A2: SpParMPI2<int, int, SpDCCols<int, int> >::getnnz() const (SpParMPI2.cpp:96)
-==10343==    by 0x43A803: SpParMPI2<int, int, SpDCCols<int, int> >::PrintInfo() (SpParMPI2.h:77)
-==10343==    by 0x409EFE: main (BetwCent.cpp:131)
-==10343==  Address 0x56A8C58 is 296 bytes inside a block of size 448 free'd
-==10343==    at 0x4A0541E: free (vg_replace_malloc.c:233)
-==10343==    by 0x4C2EA64: ompi_comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x4C589C0: PMPI_Comm_free (in /home/aydin/localinstall/openmpi_threaded/lib/libmpi.so.0.0.0)
-==10343==    by 0x419C57: MPI::Comm::Free() (comm_inln.h:290)
-==10343==    by 0x4241D7: _ZN8CommGridD9Ev (CommGrid.h:33)
-==10343==    by 0x4242E2: CommGrid::~CommGrid() (CommGrid.h:65536)
-==10343==    by 0x4235B6: std::tr1::_Sp_deleter<CommGrid>::operator()(CommGrid*) const (boost_shared_ptr.h:93)
-==10343==    by 0x42394E: std::tr1::_Sp_counted_base_impl<CommGrid*, std::tr1::_Sp_deleter<CommGrid> >::dispose() (boost_shared_ptr.h:215)
-==10343==    by 0x4237B3: std::tr1::_Sp_counted_base::release() (boost_shared_ptr.h:153)
-==10343==    by 0x423BA7: _ZNSt3tr112shared_countD9Ev (boost_shared_ptr.h:277)
-==10343==    by 0x423BC6: std::tr1::shared_count::~shared_count() (boost_shared_ptr.h:65536)
-==10343==    by 0x423DA0: _ZNSt3tr110shared_ptrI8CommGridED9Ev (in /home/aydin/Release_PSpGEMM/PSpGEMM-R1/betwcent)
-==10343== 
-==10343== Invalid write of size 4
-==10343==    at 0x4328DA: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:606)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x60A2B10 is 0 bytes after a block of size 16 alloc'd
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x430A5A: Dcsc<int, int>::mallocarray(unsigned long) const (dcsc.cpp:70)
-==10343==    by 0x43061D: _ZN4DcscIiiEC9Eii (dcsc.cpp:27)
-==10343==    by 0x4306B3: Dcsc<int, int>::Dcsc(int, int) (dcsc.cpp:65536)
-==10343==    by 0x4322B7: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:533)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343== 
-==10343== Invalid write of size 4
-==10343==    at 0x43290A: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:607)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x60A2ACC is 0 bytes after a block of size 20 alloc'd
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x430A5A: Dcsc<int, int>::mallocarray(unsigned long) const (dcsc.cpp:70)
-==10343==    by 0x4305F0: _ZN4DcscIiiEC9Eii (dcsc.cpp:26)
-==10343==    by 0x4306B3: Dcsc<int, int>::Dcsc(int, int) (dcsc.cpp:65536)
-==10343==    by 0x4322B7: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:533)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343== 
-==10343== Invalid read of size 4
-==10343==    at 0x4328F0: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:607)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x60A2ACC is 0 bytes after a block of size 20 alloc'd
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x430A5A: Dcsc<int, int>::mallocarray(unsigned long) const (dcsc.cpp:70)
-==10343==    by 0x4305F0: _ZN4DcscIiiEC9Eii (dcsc.cpp:26)
-==10343==    by 0x4306B3: Dcsc<int, int>::Dcsc(int, int) (dcsc.cpp:65536)
-==10343==    by 0x4322B7: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:533)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343== 
-==10343== Invalid write of size 4
-==10343==    at 0x432851: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:595)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x60A2B68 is 0 bytes after a block of size 40 alloc'd
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x430A5A: Dcsc<int, int>::mallocarray(unsigned long) const (dcsc.cpp:70)
-==10343==    by 0x43064B: _ZN4DcscIiiEC9Eii (dcsc.cpp:28)
-==10343==    by 0x4306B3: Dcsc<int, int>::Dcsc(int, int) (dcsc.cpp:65536)
-==10343==    by 0x4322B7: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:533)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343== 
-==10343== Invalid write of size 4
-==10343==    at 0x432888: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:596)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x60A2BC0 is 0 bytes after a block of size 40 alloc'd
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x430A5A: Dcsc<int, int>::mallocarray(unsigned long) const (dcsc.cpp:70)
-==10343==    by 0x430678: _ZN4DcscIiiEC9Eii (dcsc.cpp:29)
-==10343==    by 0x4306B3: Dcsc<int, int>::Dcsc(int, int) (dcsc.cpp:65536)
-==10343==    by 0x4322B7: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:533)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343== 
-==10343== Invalid read of size 4
-==10343==    at 0x4327A1: Dcsc<int, int>::ElementWiseMult(Dcsc<int, int> const&, bool) (dcsc.cpp:590)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-==10343==  Address 0x6 is not stack'd, malloc'd or (recently) free'd
-[neumann:10343] *** Process received signal ***
-[neumann:10343] Signal: Segmentation fault (11)
-[neumann:10343] Signal code: Address not mapped (1)
-[neumann:10343] Failing at address: 0x6
---10343-- VALGRIND INTERNAL ERROR: Valgrind received a signal 11 (SIGSEGV) - exiting
---10343-- si_code=1;  Faulting address: 0x242060A3178;  sp: 0x4028A2D70
-
-valgrind: the 'impossible' happened:
-   Killed by fatal signal
-==10343==    at 0x3802088D: vgPlain_arena_malloc (m_mallocfree.c:190)
-==10343==    by 0x38035516: vgPlain_cli_malloc (replacemalloc_core.c:101)
-==10343==    by 0x380022F5: vgMemCheck_malloc (mc_malloc_wrappers.c:182)
-==10343==    by 0x38035BA7: do_client_request (scheduler.c:1158)
-==10343==    by 0x380372B1: vgPlain_scheduler (scheduler.c:869)
-==10343==    by 0x38051B59: run_a_thread_NORETURN (syswrap-linux.c:87)
-
-sched status:
-  running_tid=1
-
-Thread 1: status = VgTs_Runnable
-==10343==    at 0x4A05809: malloc (vg_replace_malloc.c:149)
-==10343==    by 0x33070E4073: backtrace_symbols (in /lib64/libc-2.5.so)
-==10343==    by 0x54679CA: opal_backtrace_buffer (in /home/aydin/localinstall/openmpi_threaded/lib/libopen-pal.so.0.0.0)
-==10343==    by 0x546651D: opal_show_stackframe (in /home/aydin/localinstall/openmpi_threaded/lib/libopen-pal.so.0.0.0)
-==10343==    by 0x33070301AF: (within /lib64/libc-2.5.so)
-==10343==    by 0x436B15: SpDCCols<int, int>::ElementWiseMult(SpDCCols<int, int> const&, bool) (SpDCCols.cpp:241)
-==10343==    by 0x43A767: SpParMPI2<int, int, SpDCCols<int, int> >::ElementWiseMult(SpParMPI2<int, int, SpDCCols<int, int> > const&, bool) (SpParMPI2.h:64)
-==10343==    by 0x409F1C: main (BetwCent.cpp:133)
-
-Thread 2: status = VgTs_WaitSys
-==10343==    at 0x33070C92E6: poll (in /lib64/libc-2.5.so)
-==10343==    by 0x54571E9: opal_poll_dispatch (in /home/aydin/localinstall/openmpi_threaded/lib/libopen-pal.so.0.0.0)
-==10343==    by 0x54542B6: opal_event_base_loop (in /home/aydin/localinstall/openmpi_threaded/lib/libopen-pal.so.0.0.0)
-==10343==    by 0x54547B7: opal_event_run (in /home/aydin/localinstall/openmpi_threaded/lib/libopen-pal.so.0.0.0)
-==10343==    by 0x3307C062F6: start_thread (in /lib64/libpthread-2.5.so)
-==10343==    by 0x33070D1E3C: clone (in /lib64/libc-2.5.so)
-
-Thread 3: status = VgTs_WaitSys
-==10343==    at 0x33070C43DB: (within /lib64/libc-2.5.so)
-==10343==    by 0xB283EE2: mca_btl_sm_component_event_thread (in /home/aydin/localinstall/openmpi_threaded/lib/openmpi/mca_btl_sm.so)
-==10343==    by 0x3307C062F6: start_thread (in /lib64/libpthread-2.5.so)
-==10343==    by 0x33070D1E3C: clone (in /lib64/libc-2.5.so)
-
-
-Note: see also the FAQ.txt in the source distribution.
-It contains workarounds to several common problems.
-
-If that doesn't help, please report this bug to: www.valgrind.org
-
-In the bug report, send all the above text, the valgrind
-version, and what Linux distro you are using.  Thanks.
-
+A has 7 rows and 7 columns and 13 nonzeros
+Batch processing will occur 1 times, each processing 2 vertices
+SubBatch size is: 1
+Locally at proc #0: 
+m: 3, n: 3, nnz: 1, nzc: 1
+0 0 0 
+Hello Kitty
+Hello Kitty
+Hello Kitty
+1 0 0 
+0 0 0 
+Hello Kitty
+Locally at proc #1: 
+m: 3, n: 4, nnz: 4, nzc: 3
+1 0 0 0 
+0 0 0 0 
+1 0 1 1 
+Locally at proc #2: 
+m: 4, n: 3, nnz: 5, nzc: 3
+1 0 0 
+0 1 0 
+1 0 1 
+0 1 0 
+Locally at proc #3: 
+m: 4, n: 4, nnz: 3, nzc: 2
+0 0 0 1 
+0 0 0 1 
+0 1 0 0 
+0 0 0 0 
+As a whole: 7 rows and 7 columns and 13 nonzeros
+Constructing ! 0
+Constructing ! 2
+Constructing ! 3
+Constructing ! 1
+Constructing ! 1
+Constructing ! 3
+Constructing ! 0
+Constructing ! 2
+Destructing 
+Destructing 
+Destructing 
+Destructing 
+Hello Kitty
+Locally at proc #0: 
+m: 3, n: 1, nnz: 1, nzc: 1
+0 
+1 
+0 
+Hello Kitty
+Hello Kitty
+Hello Kitty
+Locally at proc #1: 
+m: 3, n: 1, nnz: 2, nzc: 1
+1 
+0 
+1 
+Locally at proc #2: 
+m: 4, n: 1, nnz: 2, nzc: 1
+1 
+0 
+1 
+0 
+Locally at proc #3: 
+m: 4, n: 1, nnz: 0, nzc: 0
+0 
+0 
+0 
+0 
+As a whole: 7 rows and 2 columns and 5 nonzeros
+Constructing ! 2
+Constructing ! 0
+Constructing ! 1
+Constructing ! 3
+Constructing ! 0
+Constructing ! 2
+Constructing ! 1
+Constructing ! 3
