@@ -65,7 +65,7 @@ public:
 		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);
 	}
 
-	void PrintInfo()
+	void PrintInfo() const
 	{
 		commGrid->commWorld.Barrier();
 		

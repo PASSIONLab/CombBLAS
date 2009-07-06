@@ -34,7 +34,8 @@ public:
 		rowWorld.Free();
 		colWorld.Free();
 	}
-	CommGrid (const CommGrid & rhs)				// copy constructor
+	CommGrid (const CommGrid & rhs): grrows(rhs.grrows), grcols(rhs.grcols),
+			myrank(rhs.myrank), myprocrow(rhs.myprocrow), myproccol(rhs.myproccol) // copy constructor
 	{
 		commWorld = rhs.commWorld.Dup();
 		rowWorld = rhs.rowWorld.Dup();
@@ -48,6 +49,12 @@ public:
 			commWorld.Free();
 			rowWorld.Free();
 			colWorld.Free();
+
+			grrows = rhs.grrows;
+			grcols = rhs.grcols;
+			myrank = rhs.myrank;
+			myprocrow = rhs.myprocrow;
+			myproccol = rhs.myproccol;
 
 			commWorld = rhs.commWorld.Dup();
 			rowWorld = rhs.rowWorld.Dup();

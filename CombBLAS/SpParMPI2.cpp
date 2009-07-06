@@ -30,6 +30,8 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(m
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
+	cout << "Constructing ! " << grid->myrank << endl; 
+
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
@@ -44,6 +46,7 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 ()
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
 {
+	cout << "Destructing " << endl;
 	if(spSeq != NULL) delete spSeq;
 }
 
@@ -51,6 +54,7 @@ SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 {
+	cout << "Copy constructing ! " << rhs.commGrid->myrank << endl; 
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
@@ -68,6 +72,8 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,N
 		if(rhs.spSeq != NULL)	
 			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
 	
+		cout << "Assigning ! " << rhs.commGrid->myrank << endl; 
+		
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}
 	return *this;
@@ -126,12 +132,12 @@ template <typename NNT,typename NDER>
 SpParMPI2<IT,NNT,NDER> SpParMPI2<IT,NT,DER>::ConvertNumericType ()
 {
 	NDER * convert = new NDER(spSeq->ConvertNumericType<NNT>());
-	convert->PrintInfo();
 	
 	cerr << endl;	
 	commGrid->commWorld.Barrier();	
-	cerr << "C" << " ";
+	cerr << "C " << commGrid->myrank << endl;;
 	commGrid->commWorld.Barrier();
+
 	return SpParMPI2<IT,NNT,NDER> (convert, commGrid);
 }
 
@@ -145,12 +151,10 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) co
 
 	vector<IT> ri;
 	DER * tempseq = new DER((*spSeq)(ri, ci)); 
-	tempseq->PrintInfo();
-	
+
 	commGrid->commWorld.Barrier();	
 	cerr << "F" << " ";
 	commGrid->commWorld.Barrier();
-
 
 	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
 } 
