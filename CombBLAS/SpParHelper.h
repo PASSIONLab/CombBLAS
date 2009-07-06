@@ -44,25 +44,28 @@ public:
 template <class IT, class NT, class DER>
 void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, const vector<MPI::Win> & arrwin, int ownind)
 {
-	MRecv.Create(essentials);		// allocate memory for arrays 
+	MRecv.Create(essentials);		// allocate memory for arrays
 
-	Arr<IT,NT> arrinfo = MRecv.GetArrays();
-	assert( (arrwin.size() == arrinfo.totalsize()));
+	if(/* essentials[0] > 0 */ 1)		// COMBINATORIAL BLAS STANDARD: *essentials has to be "nnz"  
+	{ 
+		Arr<IT,NT> arrinfo = MRecv.GetArrays();
+		assert( (arrwin.size() == arrinfo.totalsize()));
 
-	// C-binding for MPI::Get
-	//	int MPI_Get(void *origin_addr, int origin_count, MPI_Datatype origin_datatype, int target_rank, MPI_Aint target_disp,
-        //    		int target_count, MPI_Datatype target_datatype, MPI_Win win)
+		// C-binding for MPI::Get
+		//	int MPI_Get(void *origin_addr, int origin_count, MPI_Datatype origin_datatype, int target_rank, MPI_Aint target_disp,
+        	//    		int target_count, MPI_Datatype target_datatype, MPI_Win win)
 
-	IT essk = 0;
-	for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
-	{
-		arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
-		arrwin[essk++].Get(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), ownind, 0, arrinfo.indarrs[i].count, MPIType<IT>());
-	}
-	for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
-	{
-		arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
-		arrwin[essk++].Get(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), ownind, 0, arrinfo.numarrs[i].count, MPIType<NT>());
+		IT essk = 0;
+		for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+		{
+			arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
+			arrwin[essk++].Get(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), ownind, 0, arrinfo.indarrs[i].count, MPIType<IT>());
+		}
+		for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+		{
+			arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
+			arrwin[essk++].Get(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), ownind, 0, arrinfo.numarrs[i].count, MPIType<NT>());
+		}
 	}
 }
 

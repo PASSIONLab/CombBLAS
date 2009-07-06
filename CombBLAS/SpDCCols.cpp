@@ -301,7 +301,7 @@ vector<IT> SpDCCols<IT,NT>::GetEssentials() const
 	essentials[0] = nnz;
 	essentials[1] = m;
 	essentials[2] = n;
-	essentials[3] = dcsc->nzc;
+	essentials[3] = (nnz > 0) ? dcsc->nzc : 0;
 	return essentials;
 }
 
@@ -322,10 +322,22 @@ template <class IT, class NT>
 Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 {
 	Arr<IT,NT> arr(3,1);
-	arr.indarrs[0] = LocArr<IT,IT>(dcsc->cp, dcsc->nzc+1);
-	arr.indarrs[1] = LocArr<IT,IT>(dcsc->jc, dcsc->nzc);
-	arr.indarrs[2] = LocArr<IT,IT>(dcsc->ir, dcsc->nz);
-	arr.numarrs[0] = LocArr<NT,IT>(dcsc->numx, dcsc->nz);
+
+	if(nnz > 0)
+	{
+		arr.indarrs[0] = LocArr<IT,IT>(dcsc->cp, dcsc->nzc+1);
+		arr.indarrs[1] = LocArr<IT,IT>(dcsc->jc, dcsc->nzc);
+		arr.indarrs[2] = LocArr<IT,IT>(dcsc->ir, dcsc->nz);
+		arr.numarrs[0] = LocArr<NT,IT>(dcsc->numx, dcsc->nz);
+	}
+	else
+	{
+		arr.indarrs[0] = LocArr<IT,IT>(NULL, zero);
+		arr.indarrs[1] = LocArr<IT,IT>(NULL, zero);
+		arr.indarrs[2] = LocArr<IT,IT>(NULL, zero);
+		arr.numarrs[0] = LocArr<NT,IT>(NULL, zero);
+	
+	}
 	return arr;
 }
 
