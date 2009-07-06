@@ -76,6 +76,7 @@ public:
 	ofstream& put(ofstream& outfile) const;
 	ifstream& get(ifstream& infile);
 	
+	bool isZero() const { return static_cast<const DER*>(this)->isZero(); }
 	IT getnrow() const { return static_cast<const DER*>(this)->getnrow(); }
 	IT getncol() const { return static_cast<const DER*>(this)->getncol(); }
 	IT getnnz() const  { return static_cast<const DER*>(this)->getnnz(); }

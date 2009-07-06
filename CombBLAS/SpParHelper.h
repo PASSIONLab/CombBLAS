@@ -73,21 +73,24 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 template <class IT, class NT, class DER>
 void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
 {
-	Arr<IT,NT> arrs = Matrix.GetArrays(); 
-	
-	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
-	// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
-	// Collective operation, everybody exposes its own array to everyone else in the communicator
-	
-	for(int i=0; i< arrs.indarrs.size(); ++i)
+	if(!Matrix.isZero())
 	{
-		arrwin.push_back(MPI::Win::Create(arrs.indarrs[i].addr, 
-			arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d));
-	}
-	for(int i=0; i< arrs.numarrs.size(); ++i)
-	{
-		arrwin.push_back(MPI::Win::Create(arrs.numarrs[i].addr, 
-			arrs.numarrs[i].count * sizeof(NT), sizeof(NT), MPI::INFO_NULL, comm1d));
+		Arr<IT,NT> arrs = Matrix.GetArrays(); 
+	
+		// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
+		// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
+		// Collective operation, everybody exposes its own array to everyone else in the communicator
+		
+		for(int i=0; i< arrs.indarrs.size(); ++i)
+		{
+			arrwin.push_back(MPI::Win::Create(arrs.indarrs[i].addr, 
+				arrs.indarrs[i].count * sizeof(IT), sizeof(IT), MPI::INFO_NULL, comm1d));
+		}
+		for(int i=0; i< arrs.numarrs.size(); ++i)
+		{
+			arrwin.push_back(MPI::Win::Create(arrs.numarrs[i].addr, 
+				arrs.numarrs[i].count * sizeof(NT), sizeof(NT), MPI::INFO_NULL, comm1d));
+		}
 	}
 }
 
