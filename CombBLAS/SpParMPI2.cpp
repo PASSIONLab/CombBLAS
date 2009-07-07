@@ -362,7 +362,9 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 	IT nn = getncol();
 	IT nznz = getnnz();
 
-	cout << getlocalnnz() << " ";
+	ofstream output;
+	commGrid->OpenDebugFile("justdeb", output);
+	output << getlocalnnz() << endl;
 	commGrid->commWorld.Barrier();
 	
 	if (commGrid->myrank == 0)	

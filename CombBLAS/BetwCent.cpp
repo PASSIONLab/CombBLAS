@@ -158,7 +158,8 @@ int main(int argc, char* argv[])
 				{
 					cout << "Multiplied" << endl;
 				}
-
+				fringe.PrintInfo();
+				nsp.PrintInfo();	
 					
 				fringe = EWiseMult(fringe, nsp, true);	
 			}
