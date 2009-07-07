@@ -115,7 +115,8 @@ int main(int argc, char* argv[])
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
-				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
+				PARBOOLMAT * level = new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() ); 
+				bfs.push_back(level);
 
 				fringe = (Mult_AnXBn<PTINT>(A, fringe));
 				fringe.ElementWiseMult(nsp, true);	
@@ -130,9 +131,9 @@ int main(int argc, char* argv[])
 			nspInv.Apply(bind1st(divides<double>(), 1));
 
 			/// BC update for all vertices except the sources
-			for(int j = bfs.size(); j > 1; --j)
+			for(int j = bfs.size()-1; j > 0; --j)
 			{
-				bfs[j]->PrintInfo();
+				(bfs[j])->PrintInfo();
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
 			}
 			

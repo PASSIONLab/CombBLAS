@@ -318,7 +318,7 @@ SpDCCols<IT,NNT> SpDCCols<IT,NT>::ConvertNumericType ()
 		convert = new Dcsc<IT,NNT>(dcsc->ConvertNumericType<NNT>());
 	else
 		convert = NULL;
-	
+
 	return SpDCCols<IT,NNT>(nnz, m, n, convert);
 }
 
