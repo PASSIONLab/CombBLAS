@@ -51,7 +51,8 @@ public:
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const
 	{
-		dcsc->UpdateDense(array, __binary_op);
+		if(nnz > 0 && dcsc != NULL)
+			dcsc->UpdateDense(array, __binary_op);
 	}
 
 	void ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);

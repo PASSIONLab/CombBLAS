@@ -1,12 +1,11 @@
 /****************************************************************/
 /* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 --------------------------------------------------/
-/* date: 01/18/2009 ---------------------------------------------/
-/* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
+/* version 2.3 -------------------------------------------------*/
+/* date: 01/18/2009 --------------------------------------------*/
+/* author: Aydin Buluc (aydin@cs.ucsb.edu) ---------------------*/
 /****************************************************************/
 
 #include "SpParMPI2.h"
-
 
 // If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
 template <class IT, class NT, class DER>
@@ -138,8 +137,46 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) co
 {
 	vector<IT> ri;
 	DER * tempseq = new DER((*spSeq)(ri, ci)); 
-	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
+	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	
 } 
+
+template <class IT, class NT, class DER>
+SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
+{
+	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
+	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
+
+	IT totalm = getnrow();
+	IT totaln = getncol();
+	IT m_perproc = totalm / colneighs;
+	IT n_perproc = totaln / rowneighs;
+
+	vector<IT> locri, locci;
+	pair<IT,IT> rowboun, colboun; 
+	if( commGrid->myprocrow !=  colneighs)	// not the last processor on the processor column
+		rowboun = make_pair(m_perproc * commGrid->myprocrow, m_perproc * (commGrid->myprocrow + 1) );
+	else
+		rowboun = make_pair(m_perproc * commGrid->myprocrow, totalm);
+
+	if( commGrid->myproccol !=  rowneighs)	// not the last processor on the processor row
+		colboun = make_pair(n_perproc * commGrid->myproccol, n_perproc * (commGrid->myproccol + 1) );
+	else
+		colboun = make_pair(n_perproc * commGrid->myproccol, totaln);
+
+	for(int i=0; i<ri.size(); ++i)
+	{
+		if( ri[i] >= rowboun.first && ri[i] < rowboun.second )	
+			locri.push_back(ri[i]-rowboun.first);
+	}
+	for(int i=0; i<ci.size(); ++i)
+	{
+		if( ci[i] >= colboun.first && ci[i] < colboun.second )	
+			locci.push_back(ci[i]-colboun.first);
+	}
+	DER * tempseq = new DER((*spSeq)(locri, locci)); 
+	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	
+} 
+
 
 template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
@@ -266,6 +303,138 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	return SpParMPI2<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
+
+template <class IT, class NT, class DER>
+void SpParMPI2<IT,NT,DER>::ElementWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
+{
+	if(*commGrid == *rhs.commGrid)	
+	{
+		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
+	}
+	else
+	{
+		cout << "Grids are not comparable, ElementWiseMult() fails !" << endl; 
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}	
+}
+
+template <class IT, class NT, class DER>
+void SpParMPI2<IT,NT,DER>::ElementWiseScale(DenseParMat<IT, NT> & rhs)
+{
+	if(*commGrid == *rhs.commGrid)	
+	{
+		spSeq->ElementWiseScale(rhs.array, rhs.m, rhs.n);	// Dimension compatibility check performed by sequential function
+	}
+	else
+	{
+		cout << "Grids are not comparable, ElementWiseScale() fails !" << endl; 
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
+}
+
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
+void SpParMPI2<IT,NT,DER>::UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const
+{
+	if(*commGrid == *rhs.commGrid)	
+	{
+		if(getlocalrows() == rhs.m  && getlocalcols() == rhs.n)
+		{
+			spSeq->UpdateDense(rhs.array, __binary_op);
+		}
+		else
+		{
+			cout << "Matrices have different dimensions, UpdateDense() fails !" << endl;
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+	}
+	else
+	{
+		cout << "Grids are not comparable, UpdateDense() fails !" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+}
+
+template <class IT, class NT, class DER>
+void SpParMPI2<IT,NT,DER>::PrintInfo() const
+{
+	IT mm = getnrow(); 
+	IT nn = getncol();
+	IT nznz = getnnz();
+
+	if (commGrid->myrank == 0)	
+		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
+
+	if ((commGrid->grrows * commGrid->grcols) ==  1)
+		spSeq->PrintInfo();
+}
+
+
+template <class IT, class NT, class DER>
+void SpParMPI2<IT,NT,DER>::Transpose()
+{
+	#define TRTAGNZ 121
+	#define TRTAGM 122
+	#define TRTAGN 123
+	#define TRTAGROWS 124
+	#define TRTAGCOLS 125
+	#define TRTAGVALS 126
+
+	if(commGrid->myproccol == commGrid->myprocrow)	// Diagonal
+	{
+		spSeq->Transpose();			
+	}
+	else
+	{
+		SpTuples<IT,NT> Atuples(*spSeq);
+		IT locnnz = Atuples.getnnz();
+		IT * rows = new IT[locnnz];
+		IT * cols = new IT[locnnz];
+		NT * vals = new NT[locnnz];
+		for(IT i=0; i < locnnz; ++i)
+		{
+			rows[i] = Atuples.colindex(i);	// swap (i,j) here
+			cols[i] = Atuples.rowindex(i);
+			vals[i] = Atuples.numvalue(i);
+		}
+
+		IT locm = getlocalcols();
+		IT locn = getlocalrows();
+		delete spSeq;
+
+		IT remotem, remoten, remotennz;
+		swap(locm,locn);
+		int diagneigh = commGrid->GetComplementRank();
+
+		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
+		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
+		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
+
+		IT * rowsrecv = new IT[remotennz];
+		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<IT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGROWS);
+		delete [] rows;
+
+		IT * colsrecv = new IT[remotennz];
+		commGrid->GetWorld().Sendrecv(cols, locnnz, MPIType<IT>(), diagneigh, TRTAGCOLS, colsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGCOLS);
+		delete [] cols;
+
+		NT * valsrecv = new NT[remotennz];
+		commGrid->GetWorld().Sendrecv(vals, locnnz, MPIType<NT>(), diagneigh, TRTAGVALS, valsrecv, remotennz, MPIType<NT>(), diagneigh, TRTAGVALS);
+		delete [] vals;
+
+		tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[remotennz];
+		for(IT i=0; i< remotennz; ++i)
+		{
+			arrtuples[i] = make_tuple(rowsrecv[i], colsrecv[i], valsrecv[i]);
+		}	
+		DeleteAll(rowsrecv, colsrecv, valsrecv);
+		ColLexiCompare<IT,NT> collexicogcmp;
+		sort(arrtuples , arrtuples+remotennz, collexicogcmp );	// sort w.r.t columns here
+
+		spSeq = new DER();
+		spSeq->Create( remotennz, remotem, remoten, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
+	}	
+}		
 
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)

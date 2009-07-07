@@ -20,11 +20,7 @@
 #include "DenseParMat.h"
 #include "DenseParVec.h"
 
-
 using namespace std;
-
-//! Warning: Make sure you are using the correct NUMTYPE as your input files uses !
-#define NUMTYPE float 
 
 int main(int argc, char* argv[])
 {
@@ -62,13 +58,11 @@ int main(int argc, char* argv[])
 		typedef SpParMPI2 <int, int, SpDCCols<int,int> > PARINTMAT;
 		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARDOUBLEMAT;
 
-
 		PARBOOLMAT A;			// construct object
 		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
 		input.clear();
 		input.close();
 			
-		SpParVec<int, double> bc(A.getcommgrid());	
 		int nPasses = (int) pow(2.0, K4Approx);
 		int numBatches = (int) ceil( static_cast<float>(nPasses)/ static_cast<float>(batchSize));
 	
@@ -77,15 +71,40 @@ int main(int argc, char* argv[])
 		if(batchSize % (A.getcommgrid())->GetGridCols() > 0 && myrank == 0)
 			cout << "*** Please make batchsize divisible by the grid dimensions (r and s) ***" << endl;
 
-		vector<int> batch(subBatchSize);
+		vector<int> candidates;
 		if (myrank == 0)
 			cout << "Batch processing will occur " << numBatches << " times, each processing " << batchSize << " vertices" << endl;
 
+		// Only consider non-isolated vertices
+		int nlocpass = nPasses / (A.getcommgrid())->GetGridCols();
+		int vertices = 0;
+		int vrtxid = 0; 
+		while(vertices < nlocpass)
+		{
+			vector<int> single;
+			vector<int> empty;
+			single.push_back(vrtxid);
+			int locnnz = ((A.seq())(empty,single)).getnnz();
+			int totnnz;
+			(A.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI_INT, MPI::SUM);
+					
+			if(totnnz > 0)
+			{
+				cout << vrtxid << " ";
+				candidates.push_back(vrtxid);
+				++vertices;
+			}
+			++vrtxid;
+		}
+		cout << endl;
+		cout << candidates.size();
+
+		vector<int> batch;
 		for(int i=0; i< numBatches; ++i)
 		{
 			for(int j=0; j< subBatchSize; ++j)
 			{
-				batch[j] = i*subBatchSize + j;
+				batch[j] = candidates[i*subBatchSize + j];
 			}
 			A.PrintInfo();
 			
@@ -114,7 +133,7 @@ int main(int argc, char* argv[])
 				
 			vector < PARBOOLMAT * > bfs;	// internally keeps track of depth
 			typedef PlusTimesSRing<bool, int> PTBOOLINT;	
-			typedef PlusTimesSRing<double, bool> PTDOUBLEBOOL;	
+			typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;	
 	
 			while( fringe.getnnz() > 0 )
 			{
@@ -140,23 +159,20 @@ int main(int argc, char* argv[])
 
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 			
+			A.Transpose();
+
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{
-				(bfs[j])->PrintInfo();
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
 				w.ElementWiseScale(bcu);
 
-				w.Transpose();
-				PARDOUBLEMAT product = Mult_AnXBn<PTDOUBLEBOOL>(w, A);
-				product.ElementWiseMult(*bfs[j-1], false);
-				product.ElementWiseMult(nsp, false);
+				PARDOUBLEMAT product = EWiseMult(EWiseMult(Mult_AnXBn<PTBOOLDOUBLE>(A,w), *bfs[j-1], false), nsp, false);		
 				bcu += product;
-
-				w.PrintInfo();
 			}
-			break;
-			
+		
+	
+			A.Transpose();
 	
 			/*
 			string rfilename = "fridge_"; 

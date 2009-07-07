@@ -78,6 +78,11 @@ public:
 
 	int GetRankInProcRow(int wholerank);
 	int GetRankInProcCol(int wholerank);
+
+	int GetComplementRank()	// For P(i,j), get rank of P(j,i)
+	{
+		return ((grcols * myproccol) + myprocrow);
+	}
 	
 	MPI::Intracomm & GetWorld() { return commWorld; }
 	MPI::Intracomm & GetRowWorld() { return rowWorld; }
