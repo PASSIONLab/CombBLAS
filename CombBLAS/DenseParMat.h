@@ -27,6 +27,9 @@
 #include "SpParMPI2.h"
 #include "DenseParVec.h"
 
+template <class IU, class NU, class DER>
+class SpParMPI2;
+
 using namespace std;
 using namespace std::tr1;
 
