@@ -12,7 +12,12 @@
 #include <fstream>
 #include <cmath>
 #include <cassert>
-#include <tr1/tuple>
+
+#ifdef NOTR1
+	#include <boost/tr1/tuple.hpp>
+#else
+	#include <tr1/tuple>
+#endif
 #include "SpMat.h"
 #include "SpDefs.h"
 #include "StackEntry.h"

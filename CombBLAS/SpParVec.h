@@ -4,12 +4,16 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <tr1/memory>
+
+#ifdef NOTR1
+	#include <boost/tr1/memory.hpp>
+#else
+	#include <tr1/memory>
+#endif
 #include "CommGrid.h"
 
 using namespace std;
 using namespace std::tr1;
-
 
 template <class IT, class NT>
 class SpParVec

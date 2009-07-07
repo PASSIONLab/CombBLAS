@@ -1,7 +1,11 @@
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
 
-#include <tr1/tuple>
+#ifdef NOTR1
+	#include <boost/tr1/tuple.hpp>
+#else
+	#include <tr1/tuple.hpp>
+#endif
 using namespace std;
 using namespace std::tr1;
 

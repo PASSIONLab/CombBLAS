@@ -11,7 +11,12 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-#include <tr1/tuple>
+#ifdef NOTR1
+	#include <boost/tr1/tuple.hpp>
+#else
+	#include <tr1/tuple>
+#endif
+
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"

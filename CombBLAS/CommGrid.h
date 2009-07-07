@@ -16,12 +16,16 @@
 #include <sstream>
 #include <string>
 #include <fstream>
-#include <tr1/memory>	// for shared_ptr
+
+#ifdef NOTR1
+	#include <boost/tr1/memory.hpp>
+#else
+	#include <tr1/memory>
+#endif
 #include "MPIType.h"
 
 using namespace std;
 using namespace std::tr1;
-
 
 class CommGrid
 {

@@ -13,9 +13,13 @@
 #include <cmath>
 #include <mpi.h>
 #include <vector>
-#include <tr1/memory>	// for shared_ptr
-#include <tr1/tuple>
-
+#ifdef NOTR1
+	#include <boost/tr1/memory.hpp>
+	#include <boost/tr1/tuple.hpp>
+#else
+	#include <tr1/memory>	// for shared_ptr
+	#include <tr1/tuple>
+#endif
 #include "SpMat.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
