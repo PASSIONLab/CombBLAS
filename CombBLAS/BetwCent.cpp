@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
                 	cout << "Example: ./betwcent Data/ 15 128" << endl;
                 	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
                 	cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
+			cout << "Because <BATCHSIZE> is for the overall matrix, whereas <K4APPROX> is per processor " << endl;
  		}
 		MPI::Finalize(); 
 		return -1;
@@ -73,12 +74,12 @@ int main(int argc, char* argv[])
 
 		vector<int> candidates;
 		if (myrank == 0)
-			cout << "Batch processing will occur " << numBatches << " times, each processing " << batchSize << " vertices" << endl;
+			cout << "Batch processing will occur " << numBatches << " times, each processing " << batchSize << " vertices (overall)" << endl;
 
 		// Only consider non-isolated vertices
-		int nlocpass = nPasses / (A.getcommgrid())->GetGridCols();
 		int vertices = 0;
 		int vrtxid = 0; 
+		int nlocpass = nPasses / (A.getcommgrid())->GetGridCols();
 		while(vertices < nlocpass)
 		{
 			vector<int> single;
@@ -159,6 +160,7 @@ int main(int argc, char* argv[])
 
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 			
+			cout << "Crash here?" << endl;
 			A.Transpose();
 
 			// BC update for all vertices except the sources
@@ -171,7 +173,7 @@ int main(int argc, char* argv[])
 				bcu += product;
 			}
 		
-	
+			cout << " Or here? " << endl;
 			A.Transpose();
 	
 			/*
