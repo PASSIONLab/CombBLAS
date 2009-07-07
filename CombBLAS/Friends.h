@@ -335,14 +335,15 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCC
 	assert(A.m == B.m);
 	assert(A.n == B.n);
 
+	Dcsc<IU, N_promote> * tdcsc = NULL;
 	if(A.nnz > 0)
 	{ 
-		Dcsc<IU, N_promote> * tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
+		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
 		return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
 	}
 	else
 	{
-		return 	SpDCCols<IU, N_promote> (0, A.m , A.n, NULL);
+		return 	SpDCCols<IU, N_promote> (0, A.m , A.n, tdcsc);
 	}
 }
 

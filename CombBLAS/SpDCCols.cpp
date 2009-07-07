@@ -795,16 +795,13 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 	IT cnz = SpHelper::SpCartesian< SR > (*dcsc, *(Btrans.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
+	Dcsc<IT, T_promote> * mydcsc;
 	if(cnz > 0)
 	{
-		Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
+		mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 		delete [] multstack;
-		return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
 	}
-	else
-	{
-		return SpDCCols< IT,T_promote > (cnz , m, rhs.n, NULL);
-	}
+	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
 }
 
 
@@ -821,16 +818,12 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), n, multstack);  
 	
-	
+	Dcsc<IT,T_promote > * mydcsc = NULL;
 	if(cnz > 0)
 	{
-		Dcsc< IT,T_promote > * mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
+		mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 		delete [] multstack;
-		return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
 	}
-	else
-	{
-		return SpDCCols< IT,T_promote > (cnz , m, rhs.n, NULL);
-	}
+	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
 }
 

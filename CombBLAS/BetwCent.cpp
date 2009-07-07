@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 		cout << endl;
 		cout << candidates.size();
 
-		vector<int> batch;
+		vector<int> batch(subBatchSize);
 		for(int i=0; i< numBatches; ++i)
 		{
 			for(int j=0; j< subBatchSize; ++j)
