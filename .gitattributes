@@ -6,6 +6,8 @@ CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
 CombBLAS/Deleter.h -text
+CombBLAS/DenseParMat.h -text
+CombBLAS/DenseParVec.h -text
 CombBLAS/Driver.cpp -text
 CombBLAS/Friends.h -text
 CombBLAS/HeapEntry.h -text
@@ -43,6 +45,7 @@ CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text
 CombBLAS/SpTuples.h -text
 CombBLAS/StackEntry.h -text
+CombBLAS/betwCentrality.m -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
@@ -53,6 +56,7 @@ CombBLAS/makefile-neumann -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/promote.h -text
+CombBLAS/readtriples.m -text
 CombBLAS/valgrindout -text
 Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text
