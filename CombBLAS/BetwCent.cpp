@@ -135,7 +135,13 @@ int main(int argc, char* argv[])
 			vector < PARBOOLMAT * > bfs;	// internally keeps track of depth
 			typedef PlusTimesSRing<bool, int> PTBOOLINT;	
 			typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;	
-	
+
+				
+			if( myrank == 0)
+			{
+				cout << "Starting forward bfs" << endl;
+			}
+
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
@@ -155,6 +161,12 @@ int main(int argc, char* argv[])
 			for(int r=0; r< fringe.getlocalrows(); ++r)
 				fill_n(bculocal[r], fringe.getlocalcols(), 1.0);
 
+			if( myrank == 0)
+			{
+				cout << "Starting tally" << endl;
+			}
+
+			
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 
 			// BC update for all vertices except the sources
