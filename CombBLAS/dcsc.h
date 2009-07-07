@@ -16,7 +16,7 @@
 #include "SpHelper.h"
 #include "StackEntry.h"
 #include "MemoryPool.h"
-#include "Promote.h"
+#include "promote.h"
 
 using namespace std;
 
