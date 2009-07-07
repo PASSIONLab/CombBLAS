@@ -59,6 +59,12 @@ public:
 	void FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
 
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
+
+	void ElementWiseScale(NT ** scaler);		// scale elements of "this" with the elements dense rhs matrix
+	
+	template <typename _BinaryOperation>
+	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const;	// update dense 2D array's entries with __binary_op using elements of "this"
+
 	
 	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
 	IT * jc ;		//!<  col indices, size nzc

@@ -257,6 +257,21 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
 	}
 }
 
+/**
+ * @Pre {scaler should NOT contain any zero entries}
+ */
+template <class IT, class NT>
+void SpDCCols<IT,NT>::ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
+{
+	if(m == m_scaler && n == n_scaler)
+	{
+		dcsc->ElementWiseScale (scaler);
+	}
+	else
+	{
+		cout<< "Matrices do not conform for ElementWiseScale !"<<endl;		
+	}
+}	
 
 
 /****************************************************************************/

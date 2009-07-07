@@ -4,7 +4,7 @@
 #ifdef NOTR1
 	#include <boost/tr1/tuple.hpp>
 #else
-	#include <tr1/tuple.hpp>
+	#include <tr1/tuple>
 #endif
 using namespace std;
 using namespace std::tr1;

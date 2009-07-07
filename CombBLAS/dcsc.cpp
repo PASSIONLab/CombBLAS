@@ -526,6 +526,41 @@ void Dcsc<IT,NT>::ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 	*this = EWiseMult((*this), rhs, exclude);
 }
 
+
+template <class IT, class NT>
+void Dcsc<IT,NT>::ElementWiseScale(NT ** scaler)	
+{
+	for(IT i=0; i<nzc; ++i)
+	{
+		IT colid = jc[i];
+		for(IT j=cp[i]; j < cp[i+1]; ++j)
+		{
+			IT rowid = ir[j];
+			numx[j] *= scaler[rowid][colid];
+		}
+	}
+}
+
+/**
+  * Updates entries of 2D dense array using __binary_op and entries of "this"
+  * @pre { __binary_op is a commutative operation}
+  */
+template <class IT, class NT>
+template <typename _BinaryOperation>
+void Dcsc<IT,NT>::UpdateDense(NT ** array, _BinaryOperation __binary_op) const
+{
+	for(IT i=0; i<nzc; ++i)
+	{
+		IT colid = jc[i];
+		for(IT j=cp[i]; j < cp[i+1]; ++j)
+		{
+			IT rowid = ir[j];
+			array[rowid][colid] = __binary_op(array[rowid][colid], numx[j]);
+		}
+	}
+}
+
+
 /** 
   * Construct an index array called aux
   * Return the size of the contructed array

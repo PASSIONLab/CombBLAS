@@ -17,6 +17,9 @@
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "SpParMPI2.h"
+#include "DenseParMat.h"
+#include "DenseParVec.h"
+
 
 using namespace std;
 
@@ -130,12 +133,22 @@ int main(int argc, char* argv[])
 			PARDOUBLEMAT nspInv = nsp.ConvertNumericType<double, SpDCCols<int,double> >();
 			nspInv.Apply(bind1st(divides<double>(), 1));
 
-			/// BC update for all vertices except the sources
+			double ** bculocal = SpHelper::allocate2D<double>(fringe.getlocalrows(), fringe.getlocalcols());
+			for(int r=0; r< fringe.getlocalrows(); ++r)
+				fill_n(bculocal[r], fringe.getlocalcols(), 1.0);
+
+			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
+			
+			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{
 				(bfs[j])->PrintInfo();
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
+				w.ElementWiseScale(bcu);
+
+				w.PrintInfo();
 			}
+			break;
 			
 	
 			/*

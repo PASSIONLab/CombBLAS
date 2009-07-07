@@ -43,9 +43,6 @@ CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text
 CombBLAS/SpTuples.h -text
 CombBLAS/StackEntry.h -text
-CombBLAS/TestOneSided.cpp -text
-CombBLAS/TestPar.cpp -text
-CombBLAS/TestSeq.cpp -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text

@@ -20,11 +20,8 @@ class SpParVec
 {
 public:
 	SpParVec ( shared_ptr<CommGrid> grid);
-	
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	
-	//SpParVec<T> & operator+=(const MMmul< SpParMatrix<T>, SpParVec<T> > & matmul);	
-
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< pair<IT, NT> > arr;

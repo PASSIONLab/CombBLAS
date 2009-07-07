@@ -51,7 +51,6 @@ SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 {
-	cout << "Copy constructing ! " << rhs.commGrid->myrank << endl; 
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 

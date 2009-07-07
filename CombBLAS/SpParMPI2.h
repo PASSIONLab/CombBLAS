@@ -30,6 +30,7 @@
 #include "Deleter.h"
 #include "SpHelper.h"
 #include "SpParHelper.h"
+#include "DenseParMat.h"
 #include "Friends.h"
 
 using namespace std;
@@ -66,13 +67,57 @@ public:
 
 	void ElementWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
 	{
-		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);
+		if(*commGrid == *rhs.commGrid)	
+		{
+			spSeq->ElementWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
+		}
+		else
+		{
+			cout << "Grids are not comparable, ElementWiseMult() fails !" << endl; 
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}	
+
+	}
+	void ElementWiseScale(DenseParMat<IT, NT> & rhs)
+	{
+		if(*commGrid == *rhs.commGrid)	
+		{
+			spSeq->ElementWiseScale(rhs.array, rhs.m, rhs.n);	// Dimension compatibility check performed by sequential function
+		}
+		else
+		{
+			cout << "Grids are not comparable, ElementWiseScale() fails !" << endl; 
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		
 	}
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{
 		spSeq->Apply(__unary_op);	
+	}
+
+	template <typename _BinaryOperation>
+	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const
+	{
+		if(*commGrid == *rhs.commGrid)	
+		{
+			if(getlocalrows() == rhs.m  && getlocalcols() == rhs.n)
+			{
+				spSeq->UpdateDense(rhs.array, __binary_op);
+			}
+			else
+			{
+				cout << "Matrices have different dimensions, UpdateDense() fails !" << endl;
+				MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			}
+		}
+		else
+		{
+			cout << "Grids are not comparable, UpdateDense() fails !" << endl; 
+			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		}
 	}
 
 	void PrintInfo() const
@@ -83,6 +128,9 @@ public:
 
 		if (commGrid->myrank == 0)	
 			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
+
+		if ((commGrid->grrows * commGrid->grcols) ==  1)
+			spSeq->PrintInfo();
 	}
 
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
@@ -113,6 +161,9 @@ private:
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
 	
+	template <class IU, class NU>
+	friend class DenseParMat;
+
 	template <typename IU, typename NU, typename UDER> 	
 	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<IU,NU,UDER> & s);	
 };

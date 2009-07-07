@@ -257,6 +257,8 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 					temp.jc[curnzc++] = A.jc[i];	
 					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 				}
+				++i;
+				++j;
 			}
 		}
 	}

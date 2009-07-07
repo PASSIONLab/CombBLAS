@@ -48,6 +48,13 @@ public:
 			dcsc->Apply(__unary_op);	
 	}
 
+	template <typename _BinaryOperation>
+	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const
+	{
+		dcsc->UpdateDense(array, __binary_op);
+	}
+
+	void ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);
 	void ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
 	
 	void Transpose();				//!< Mutator version, replaces the calling object 
