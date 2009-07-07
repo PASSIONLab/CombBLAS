@@ -91,15 +91,13 @@ int main(int argc, char* argv[])
 					
 			if(totnnz > 0)
 			{
-				cout << vrtxid << " ";
 				candidates.push_back(vrtxid);
 				++vertices;
 			}
 			++vrtxid;
 		}
-		cout << endl;
-		cout << candidates.size();
 
+		double t1 = MPI_Wtime();
 		vector<int> batch(subBatchSize);
 		for(int i=0; i< numBatches; ++i)
 		{
@@ -107,7 +105,6 @@ int main(int argc, char* argv[])
 			{
 				batch[j] = candidates[i*subBatchSize + j];
 			}
-			A.PrintInfo();
 			
 			PARINTMAT fringe = (A.SubsRefCol(batch)).ConvertNumericType<int, SpDCCols<int,int> >();
 			fringe.PrintInfo();
@@ -144,9 +141,6 @@ int main(int argc, char* argv[])
 
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
 				fringe.ElementWiseMult(nsp, true);	
-					
-				if(myrank == 0)
-					cout << "Level finished" << endl; 		
 			}
 
 			// Apply the unary function 1/x to every element in the matrix
@@ -160,7 +154,6 @@ int main(int argc, char* argv[])
 
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 			
-			cout << "Crash here?" << endl;
 			A.Transpose();
 
 			// BC update for all vertices except the sources
@@ -169,31 +162,29 @@ int main(int argc, char* argv[])
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
 				w.ElementWiseScale(bcu);
 
-				PARDOUBLEMAT product = EWiseMult(EWiseMult(Mult_AnXBn<PTBOOLDOUBLE>(A,w), *bfs[j-1], false), nsp, false);		
+				PARDOUBLEMAT product = Mult_AnXBn<PTBOOLDOUBLE>(A,w);
+				product = EWiseMult(product, *bfs[j-1], false);
+				product = EWiseMult(product, nsp, false);		
+
 				bcu += product;
 			}
+			for(int j=0; j < bfs.size(); ++j)
+			{
+				delete bfs[j];
+			}
 		
-			cout << " Or here? " << endl;
 			A.Transpose();
 	
-			/*
-			string rfilename = "fridge_"; 
-			rfilename += rank;
-			rfilename = directory+"/"+rfilename;
-		
-			if(myrank == 0)
-				cout<<"Writing output to disk"<<endl;
-			ofstream outputr(rfilename.c_str()); 
-			outputr << (*fringe);	 
-			if(myrank == 0)
-				cout <<"Wrote to disk" << endl;
-
-			delete fringe;
-
-			break;
-			*/ 
+			// Accumulate bcu to bc
 		}
-
+		double t2=MPI_Wtime();
+		double TEPS = (nPasses * static_cast<float>(A.getnnz())) / (t2-t1);
+		if( myrank == 0)
+		{
+			cout<<"Computation finished"<<endl;	
+			fprintf(stdout, "%.6lf seconds elapsed for %d starting vertices\n", t2-t1, nPasses);
+			fprintf(stdout, "TEPS score is: %.6lf\n", TEPS);
+		}
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
