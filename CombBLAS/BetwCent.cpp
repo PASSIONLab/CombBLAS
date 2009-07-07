@@ -148,8 +148,16 @@ int main(int argc, char* argv[])
 				PARBOOLMAT * level = new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() ); 
 				bfs.push_back(level);
 
+				if( myrank == 0)
+					cout << "Multiplying" << endl;
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
-				fringe.ElementWiseMult(nsp, true);	
+				if( myrank == 0)
+				{
+					cout << "Multiplied" << endl;
+				}
+
+					
+				fringe = EWiseMult(fringe, nsp, true);	
 			}
 
 			// Apply the unary function 1/x to every element in the matrix
