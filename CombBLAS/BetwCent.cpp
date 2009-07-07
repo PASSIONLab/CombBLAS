@@ -59,8 +59,11 @@ int main(int argc, char* argv[])
 		typedef SpParMPI2 <int, int, SpDCCols<int,int> > PARINTMAT;
 		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARDOUBLEMAT;
 
-		PARBOOLMAT A;			// construct object
+		PARBOOLMAT A, AT;			// construct object
 		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
+		AT = A;
+		AT.Transpose();
+
 		input.clear();
 		input.close();
 			
@@ -153,8 +156,6 @@ int main(int argc, char* argv[])
 				fill_n(bculocal[r], fringe.getlocalcols(), 1.0);
 
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
-			
-			A.Transpose();
 
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
@@ -162,7 +163,7 @@ int main(int argc, char* argv[])
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
 				w.ElementWiseScale(bcu);
 
-				PARDOUBLEMAT product = Mult_AnXBn<PTBOOLDOUBLE>(A,w);
+				PARDOUBLEMAT product = Mult_AnXBn<PTBOOLDOUBLE>(AT,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 
@@ -173,8 +174,6 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			A.Transpose();
-	
 			// Accumulate bcu to bc
 		}
 		double t2=MPI_Wtime();
