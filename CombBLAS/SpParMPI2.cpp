@@ -361,11 +361,6 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 	IT mm = getnrow(); 
 	IT nn = getncol();
 	IT nznz = getnnz();
-
-	ofstream output;
-	commGrid->OpenDebugFile("justdeb", output);
-	output << getlocalnnz() << endl;
-	commGrid->commWorld.Barrier();
 	
 	if (commGrid->myrank == 0)	
 		cout << endl << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
