@@ -265,7 +265,8 @@ void SpDCCols<IT,NT>::ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 {
 	if(m == m_scaler && n == n_scaler)
 	{
-		dcsc->ElementWiseScale (scaler);
+		if(nnz > 0)
+			dcsc->ElementWiseScale (scaler);
 	}
 	else
 	{

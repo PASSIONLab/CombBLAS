@@ -113,7 +113,8 @@ int main(int argc, char* argv[])
 			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
 				
 			vector < PARBOOLMAT * > bfs;	// internally keeps track of depth
-			typedef PlusTimesSRing<int, int> PTINT;	
+			typedef PlusTimesSRing<bool, int> PTBOOLINT;	
+			typedef PlusTimesSRing<double, bool> PTDOUBLEBOOL;	
 	
 			while( fringe.getnnz() > 0 )
 			{
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
 				PARBOOLMAT * level = new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() ); 
 				bfs.push_back(level);
 
-				fringe = (Mult_AnXBn<PTINT>(A, fringe));
+				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
 				fringe.ElementWiseMult(nsp, true);	
 					
 				if(myrank == 0)
@@ -145,6 +146,12 @@ int main(int argc, char* argv[])
 				(bfs[j])->PrintInfo();
 				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
 				w.ElementWiseScale(bcu);
+
+				w.Transpose();
+				PARDOUBLEMAT product = Mult_AnXBn<PTDOUBLEBOOL>(w, A);
+				product.ElementWiseMult(*bfs[j-1], false);
+				product.ElementWiseMult(nsp, false);
+				bcu += product;
 
 				w.PrintInfo();
 			}

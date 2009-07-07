@@ -59,7 +59,12 @@ public:
 	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);				// copy constructor
 	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
 	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
-	~SpParMPI2 ();						
+	~SpParMPI2 ();
+
+	void Transpose()
+	{
+		
+	}						
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 

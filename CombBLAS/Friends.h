@@ -331,12 +331,19 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 template<typename IU, typename NU1, typename NU2>
 SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	Dcsc<IU, N_promote> * tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
-
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote; 
 	assert(A.m == B.m);
 	assert(A.n == B.n);
-	return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
+
+	if(A.nnz > 0)
+	{ 
+		Dcsc<IU, N_promote> * tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
+		return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
+	}
+	else
+	{
+		return 	SpDCCols<IU, N_promote> (0, A.m , A.n, NULL);
+	}
 }
 
 
