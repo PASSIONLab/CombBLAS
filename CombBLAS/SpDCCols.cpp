@@ -612,7 +612,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 		NT ** A = SpHelper::allocate2D<NT>(m,n);
 		for(IT i=zero; i< m; ++i)
 			for(IT j=zero; j<n; ++j)
-				A[i][j] = 0.0;
+				A[i][j] = static_cast<NT>(0);
 		if(dcsc != NULL)
 		{
 			for(IT i=zero; i< dcsc->nzc; ++i)

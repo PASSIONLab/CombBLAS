@@ -53,8 +53,6 @@ CombBLAS/largeseq/input2_0 -text
 CombBLAS/makefile-lonestar -text
 CombBLAS/makefile-mac -text
 CombBLAS/makefile-neumann -text
-CombBLAS/massiveseq/input1_0 -text
-CombBLAS/massiveseq/input2_0 -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/promote.h -text
