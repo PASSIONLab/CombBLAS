@@ -8,6 +8,10 @@
 #include "SpTuples.h"
 #include <iomanip>
 
+template <class IT, class NT>
+const IT SpTuples<IT,NT>::zero = static_cast<IT>(0);
+
+
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 :m(nRow), n(nCol), nnz(size)

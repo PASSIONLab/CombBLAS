@@ -1,77 +1,8 @@
-A has 7 rows and 7 columns and 13 nonzeros
-Batch processing will occur 1 times, each processing 2 vertices
-SubBatch size is: 1
-Locally at proc #0: 
-m: 3, n: 3, nnz: 1, nzc: 1
-0 0 0 
-Hello Kitty
-Hello Kitty
-Hello Kitty
-1 0 0 
-0 0 0 
-Hello Kitty
-Locally at proc #1: 
-m: 3, n: 4, nnz: 4, nzc: 3
-1 0 0 0 
-0 0 0 0 
-1 0 1 1 
-Locally at proc #2: 
-m: 4, n: 3, nnz: 5, nzc: 3
-1 0 0 
-0 1 0 
-1 0 1 
-0 1 0 
-Locally at proc #3: 
-m: 4, n: 4, nnz: 3, nzc: 2
-0 0 0 1 
-0 0 0 1 
-0 1 0 0 
-0 0 0 0 
-As a whole: 7 rows and 7 columns and 13 nonzeros
-Constructing ! 0
-Constructing ! 2
-Constructing ! 3
-Constructing ! 1
-Constructing ! 1
-Constructing ! 3
-Constructing ! 0
-Constructing ! 2
-Destructing 
-Destructing 
-Destructing 
-Destructing 
-Hello Kitty
-Locally at proc #0: 
-m: 3, n: 1, nnz: 1, nzc: 1
-0 
-1 
-0 
-Hello Kitty
-Hello Kitty
-Hello Kitty
-Locally at proc #1: 
-m: 3, n: 1, nnz: 2, nzc: 1
-1 
-0 
-1 
-Locally at proc #2: 
-m: 4, n: 1, nnz: 2, nzc: 1
-1 
-0 
-1 
-0 
-Locally at proc #3: 
-m: 4, n: 1, nnz: 0, nzc: 0
-0 
-0 
-0 
-0 
-As a whole: 7 rows and 2 columns and 5 nonzeros
-Constructing ! 2
-Constructing ! 0
-Constructing ! 1
-Constructing ! 3
-Constructing ! 0
-Constructing ! 2
-Constructing ! 1
-Constructing ! 3
+F 
+F F 
+C 0
+F 
+C 3
+
+C 1
+C 2

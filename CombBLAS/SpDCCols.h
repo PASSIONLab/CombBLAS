@@ -41,6 +41,12 @@ public:
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op)
+	{
+		dcsc->Apply(__unary_op);	
+	}
+
 	void ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
@@ -95,7 +101,7 @@ private:
 	IT m;
 	IT n;
 	IT nnz;
-	const static IT zero = static_cast<IT>(0);
+	const static IT zero;
 	
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;

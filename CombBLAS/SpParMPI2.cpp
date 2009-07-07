@@ -30,8 +30,6 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(m
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
-	cout << "Constructing ! " << grid->myrank << endl; 
-
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
@@ -46,7 +44,6 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 ()
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
 {
-	cout << "Destructing " << endl;
 	if(spSeq != NULL) delete spSeq;
 }
 
@@ -72,8 +69,6 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,N
 		if(rhs.spSeq != NULL)	
 			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
 	
-		cout << "Assigning ! " << rhs.commGrid->myrank << endl; 
-		
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}
 	return *this;
@@ -132,12 +127,6 @@ template <typename NNT,typename NDER>
 SpParMPI2<IT,NNT,NDER> SpParMPI2<IT,NT,DER>::ConvertNumericType ()
 {
 	NDER * convert = new NDER(spSeq->ConvertNumericType<NNT>());
-	
-	cerr << endl;	
-	commGrid->commWorld.Barrier();	
-	cerr << "C " << commGrid->myrank << endl;;
-	commGrid->commWorld.Barrier();
-
 	return SpParMPI2<IT,NNT,NDER> (convert, commGrid);
 }
 
@@ -148,14 +137,8 @@ SpParMPI2<IT,NNT,NDER> SpParMPI2<IT,NT,DER>::ConvertNumericType ()
 template <class IT, class NT, class DER>
 SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) const
 {
-
 	vector<IT> ri;
 	DER * tempseq = new DER((*spSeq)(ri, ci)); 
-
-	commGrid->commWorld.Barrier();	
-	cerr << "F" << " ";
-	commGrid->commWorld.Barrier();
-
 	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
 } 
 
@@ -166,7 +149,6 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
 	
-	double t1 = MPI::Wtime();
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
@@ -183,19 +165,13 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	vector<MPI::Win> rowwindows, colwindows;
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
-
+	
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
- 
+	
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 	
-	double t2 = MPI::Wtime();
-	if(GridC->GetRank() == 0)
-	{
-		fprintf(stdout, "setup (matrix transposition and memory registration) took %.6lf seconds\n", t2-t1);
-	}
-
 	UDER1 * ARecv; 
 	UDER2 * BRecv;
 	vector< SpTuples<IU,N_promote>  *> tomerge;
@@ -240,22 +216,22 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 		if(Bownind != (B.commGrid)->GetRankInProcCol())	SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B
 
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
-		tomerge.push_back(C_cont);
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
 
 		if(Aownind != (A.commGrid)->GetRankInProcRow()) delete ARecv;
 		if(Bownind != (B.commGrid)->GetRankInProcCol()) delete BRecv; 
-	} 
+	}
+	IU C_m = A.getlocalrows();
+	IU C_n = B.getlocalrows();	// Don't forget that B is virtually transposed
 
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
 	for(int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
 	}
-
 	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
-
-	(GridC->GetWorld()).Barrier();
 
 	for(int i=0; i< rowwindows.size(); ++i)
 	{

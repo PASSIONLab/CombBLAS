@@ -65,41 +65,24 @@ public:
 		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);
 	}
 
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op)
+	{
+		spSeq->Apply(__unary_op);	
+	}
+
 	void PrintInfo() const
 	{
-		commGrid->commWorld.Barrier();
-		
-		if (commGrid->myrank == 0)
-		{
-			cout << "Locally at proc #0: " << endl; 
-			spSeq->PrintInfo();
-		}
-		cout << "Hello Kitty" << endl;
-		commGrid->commWorld.Barrier();
-		if (commGrid->myrank == 1)
-		{
-			cout << "Locally at proc #1: " << endl; 
-			spSeq->PrintInfo();
-		}
-		commGrid->commWorld.Barrier();		
-		if (commGrid->myrank == 2)
-		{
-			cout << "Locally at proc #2: " << endl; 
-			spSeq->PrintInfo();
-		}
-		commGrid->commWorld.Barrier();		
-		if (commGrid->myrank == 3)
-		{
-			cout << "Locally at proc #3: " << endl; 
-			spSeq->PrintInfo();
-		}
-			
 		IT mm = getnrow(); 
 		IT nn = getncol();
 		IT nznz = getnnz();
 
 		if (commGrid->myrank == 0)
+		{
 			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
+			cout << "Locally at #1, it is: "<< endl;
+			spSeq->PrintInfo(); 
+		}
 	}
 
 	template <typename NNT, typename NDER>

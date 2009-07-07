@@ -37,7 +37,13 @@ public:
 
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
-	void ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 	
+	void ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
+
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op)
+	{	
+		transform(numx, numx+nz, numx, __unary_op);
+	}
 
 	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize) const;
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
@@ -64,7 +70,7 @@ private:
 	void deletearray(void * array, size_t size) const;
 
 	MemoryPool * pool;
-	const static IT zero = static_cast<IT>(0);
+	const static IT zero;
 };
 
 #include "dcsc.cpp"	

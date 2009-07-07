@@ -65,29 +65,38 @@ public:
 	}
 
 	pair<IT,IT> RowLimits()
-	{	
-		RowCompare<IT,NT> rowcmp;
-		tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
-		tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
-
-		return make_pair(tr1::get<0>(*minit), tr1::get<0>(*maxit));
+	{
+		if(nnz > 0)
+		{	
+			RowCompare<IT,NT> rowcmp;
+			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
+			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
+			return make_pair(tr1::get<0>(*minit), tr1::get<0>(*maxit));
+		}
+		else
+			return make_pair(zero,zero);
 	}
 	pair<IT,IT> ColLimits()
 	{	
-		ColCompare<IT,NT> colcmp;
-		tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
-		tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
-
-		return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
+		if(nnz > 0)
+		{
+			ColCompare<IT,NT> colcmp;
+			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
+			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
+			return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
+		}
+		else
+			return make_pair(zero,zero);
 	}
 
 	// Performs a balanced merge of the array of SpTuples
 	template<typename SR, typename IU, typename NU>
-	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups); 
+	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
 
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 
 
+	bool isZero() const { return (nnz == zero); }	
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
@@ -107,7 +116,7 @@ private:
 	IT n;
 	IT nnz;	
 
-	const static IT zero = static_cast<IT>(0);	
+	const static IT zero;	
 
 	SpTuples (){};		// Default constructor does nothing, hide it
 	

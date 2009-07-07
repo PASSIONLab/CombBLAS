@@ -21,6 +21,10 @@ using namespace std;
 /****************************************************************************/
 
 template <class IT, class NT>
+const IT SpDCCols<IT,NT>::zero = static_cast<IT>(0);
+
+
+template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){
 }
 
@@ -215,7 +219,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 		}
 		else
 		{
-			cout<< "Not addable !"<<endl;		
+			cout<< "Not addable: " << m  << "!=" << rhs.m << " or " << n << "!=" << rhs.n <<endl;		
 		}
 	}
 	else
@@ -234,7 +238,7 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
 		{
 			if(rhs.nnz == 0 && exclude)
 			{
-				*this = SpDCCols<IT,NT>();	// completely reset the matrix
+				*this = SpDCCols<IT,NT>(zero,m,n,zero);	// completely reset the matrix
 			}
 			else if (rhs.nnz != 0 && nnz != 0)
 			{

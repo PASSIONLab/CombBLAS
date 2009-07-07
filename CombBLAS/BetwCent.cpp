@@ -57,6 +57,8 @@ int main(int argc, char* argv[])
 		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
 		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
 		typedef SpParMPI2 <int, int, SpDCCols<int,int> > PARINTMAT;
+		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARDOUBLEMAT;
+
 
 		PARBOOLMAT A;			// construct object
 		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
@@ -67,21 +69,14 @@ int main(int argc, char* argv[])
 		int nPasses = (int) pow(2.0, K4Approx);
 		int numBatches = (int) ceil( static_cast<float>(nPasses)/ static_cast<float>(batchSize));
 	
-		// these get() calls are collective, should be called by all processors 
-		int mA = A.getnrow(); 
-		int nA = A.getncol();
-		int nzA = A.getnnz();
-	
 		// get the number of batch vertices for submatrix
 		int subBatchSize = batchSize / (A.getcommgrid())->GetGridCols();
-		vector<int> batch(subBatchSize);
+		if(batchSize % (A.getcommgrid())->GetGridCols() > 0 && myrank == 0)
+			cout << "*** Please make batchsize divisible by the grid dimensions (r and s) ***" << endl;
 
+		vector<int> batch(subBatchSize);
 		if (myrank == 0)
-		{
-			cout << "A has " << mA << " rows and "<< nA <<" columns and "<<  nzA << " nonzeros" << endl;
 			cout << "Batch processing will occur " << numBatches << " times, each processing " << batchSize << " vertices" << endl;
-			cout << "SubBatch size is: " << subBatchSize << endl;
-		}
 
 		for(int i=0; i< numBatches; ++i)
 		{
@@ -92,11 +87,6 @@ int main(int argc, char* argv[])
 			A.PrintInfo();
 			
 			PARINTMAT fringe = (A.SubsRefCol(batch)).ConvertNumericType<int, SpDCCols<int,int> >();
-	
-
-			int nrowperproc = mA / (A.getcommgrid())->GetGridCols();
-			// copy(batch.begin(), batch.end(), ostream_iterator<int>(cout, " "));
-
 			fringe.PrintInfo();
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
@@ -118,27 +108,29 @@ int main(int argc, char* argv[])
 			}
 		
 			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
-			// nsp.PrintInfo();
 				
 			vector < void * > bfs;	// internally keeps track of depth
-			typedef PlusTimesSRing<int, int> PTINT;		
-			
+			typedef PlusTimesSRing<int, int> PTINT;	
+	
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
 				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
-				//nsp.PrintInfo();
 
 				fringe = (Mult_AnXBn<PTINT>(A, fringe));
-				fringe.PrintInfo();
-				break;
-				
 				fringe.ElementWiseMult(nsp, true);
-				fringe.PrintInfo();
-	
+					
 				if(myrank == 0)
 					cout << "Level finished" << endl; 		
 			}
+
+			nsp.PrintInfo();
+			
+			// Apply the unary function 1/x to every element in the matrix
+			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
+			PARDOUBLEMAT nspInv = nsp.ConvertNumericType<double, SpDCCols<int,double> >();
+			nspInv.Apply(bind1st(divides<double>(), 1));
+			nspInv.PrintInfo();
 	
 			/*
 			string rfilename = "fridge_"; 

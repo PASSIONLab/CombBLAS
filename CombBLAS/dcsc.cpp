@@ -15,6 +15,10 @@
 using namespace std;
 
 template <class IT, class NT>
+const IT Dcsc<IT,NT>::zero = static_cast<IT>(0);
+
+
+template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0),pool(NULL){}
 
 template <class IT, class NT>
