@@ -150,6 +150,9 @@ int main(int argc, char* argv[])
 
 				if( myrank == 0)
 					cout << "Multiplying" << endl;
+				A.PrintInfo();
+				fringe.PrintInfo();			
+	
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
 				if( myrank == 0)
 				{

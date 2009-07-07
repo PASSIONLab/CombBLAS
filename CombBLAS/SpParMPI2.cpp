@@ -362,8 +362,11 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 	IT nn = getncol();
 	IT nznz = getnnz();
 
+	cout << getlocalnnz() << " ";
+	commGrid->commWorld.Barrier();
+	
 	if (commGrid->myrank == 0)	
-		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
+		cout << endl << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
 
 	if ((commGrid->grrows * commGrid->grcols) ==  1)
 		spSeq->PrintInfo();
