@@ -44,10 +44,12 @@ public:
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{
-		dcsc->Apply(__unary_op);	
+		if(nnz > 0)
+			dcsc->Apply(__unary_op);	
 	}
 
 	void ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
+	
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
 
@@ -111,6 +113,9 @@ private:
 	
 	template <class IU, class NU>
 	friend class SpTuples;
+
+	template<typename IU, typename NU1, typename NU2>
+	friend SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude);
 
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 

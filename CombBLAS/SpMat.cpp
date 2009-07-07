@@ -21,7 +21,6 @@ void SpMat<IT, NT, DER>::Merge( SpMat< IT,NT,DER > & partA, SpMat< IT,NT,DER > &
 }
 
 
-
 template <class IT, class NT, class DER>
 template <typename SR>
 void SpMat<IT, NT, DER>::SpGEMM(SpMat<IT, NT, DER> & A, 

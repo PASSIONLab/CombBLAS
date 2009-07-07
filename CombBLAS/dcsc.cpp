@@ -11,6 +11,7 @@
 #include <functional>
 #include <iostream>
 #include <ext/numeric>
+#include "Friends.h"
 
 using namespace std;
 
@@ -522,119 +523,8 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 template <class IT, class NT>
 void Dcsc<IT,NT>::ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)	
 {
-	IT estnzc, estnz;
-	if(exclude)
-	{	
-		estnzc = nzc;
-		estnz = nz; 
-	} 
-	else
-	{
-		estnzc = std::min(nzc, rhs.nzc);
-		estnz  = std::min(nz, rhs.nz);
-	}
-
-	Dcsc<IT,NT> temp(estnz, estnzc);
-
-	IT curnzc = 0;
-	IT curnz = 0;
-	IT i = 0;
-	IT j = 0;
-	temp.cp[0] = zero;
-	
-	if(!exclude)	// A = A .* B
-	{
-		while(i< nzc && j<rhs.nzc)
-		{
-			if(jc[i] > rhs.jc[j]) 		++j;
-			else if(jc[i] < rhs.jc[j]) 	++i;
-			else
-			{
-				IT ii = cp[i];
-				IT jj = rhs.cp[j];
-				IT prevnz = curnz;		
-				while (ii < cp[i+1] && jj < rhs.cp[j+1])
-				{
-					if (ir[ii] < rhs.ir[jj])	++ii;
-					else if (ir[ii] > rhs.ir[jj])	++jj;
-					else
-					{
-						temp.ir[curnz] = ir[ii];
-						temp.numx[curnz++] = numx[ii++] * rhs.numx[jj++];	
-					}
-				}
-				if(prevnz < curnz)	// at least one nonzero exists in this column
-				{
-					temp.jc[curnzc++] = jc[i];	
-					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
-				}
-			}
-		}
-	}
-	else	// A = A .* not(B)
-	{
-		while(i< nzc && j< rhs.nzc)
-		{
-			if(jc[i] > rhs.jc[j])		++j;
-			else if(jc[i] < rhs.jc[j])
-			{
-				temp.jc[curnzc++] = jc[i++];
-				for(IT k = cp[i-1]; k< cp[i]; k++)		// ABAB: memcopy() instead?
-				{
-					temp.ir[curnz] 		= ir[k];
-					temp.numx[curnz++] 	= numx[k];
-				}
-				temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
-			}
-			else
-			{
-				IT ii = cp[i];
-				IT jj = rhs.cp[j];
-				IT prevnz = curnz;		
-				while (ii < cp[i+1] && jj < rhs.cp[j+1])
-				{
-					if (ir[ii] > rhs.ir[jj])	++jj;
-					else if (ir[ii] < rhs.ir[jj])
-					{
-						temp.ir[curnz] = ir[ii];
-						temp.numx[curnz++] = numx[ii++];
-					}
-					else	// eliminate those existing nonzeros
-					{
-						++ii;	
-						++jj;	
-					}
-				}
-				while (ii < cp[i+1])
-				{
-					temp.ir[curnz] = ir[ii];
-					temp.numx[curnz++] = numx[ii++];
-				}
-
-				if(prevnz < curnz)	// at least one nonzero exists in this column
-				{
-					temp.jc[curnzc++] = jc[i];	
-					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
-				}
-				++i;
-				++j;
-			}
-		}
-		while(i< nzc)
-		{
-			temp.jc[curnzc++] = jc[i++];
-			for(IT k = cp[i-1]; k< cp[i]; ++k)
-			{
-				temp.ir[curnz] 	= ir[k];
-				temp.numx[curnz++] = numx[k];
-			}
-			temp.cp[curnzc] = temp.cp[curnzc-1] + (cp[i] - cp[i-1]);
-		}
-	}
-
-	temp.Resize(curnzc, curnz);
-	*this = temp;
-}	
+	*this = EWiseMult((*this), rhs, exclude);
+}
 
 /** 
   * Construct an index array called aux

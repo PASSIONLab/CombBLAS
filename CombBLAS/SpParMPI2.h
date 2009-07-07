@@ -77,13 +77,14 @@ public:
 		IT nn = getncol();
 		IT nznz = getnnz();
 
-		if (commGrid->myrank == 0)
-		{
+		if (commGrid->myrank == 0)	
 			cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
-			cout << "Locally at #1, it is: "<< endl;
-			spSeq->PrintInfo(); 
-		}
 	}
+
+	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	EWiseMult (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B , bool exclude);
+
 
 	template <typename NNT, typename NDER>
 	SpParMPI2< IT,NNT,NDER > ConvertNumericType ();

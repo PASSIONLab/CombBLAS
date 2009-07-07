@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 		
 			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
 				
-			vector < void * > bfs;	// internally keeps track of depth
+			vector < PARBOOLMAT * > bfs;	// internally keeps track of depth
 			typedef PlusTimesSRing<int, int> PTINT;	
 	
 			while( fringe.getnnz() > 0 )
@@ -118,19 +118,24 @@ int main(int argc, char* argv[])
 				bfs.push_back(new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() )); 
 
 				fringe = (Mult_AnXBn<PTINT>(A, fringe));
-				fringe.ElementWiseMult(nsp, true);
+				fringe.ElementWiseMult(nsp, true);	
 					
 				if(myrank == 0)
 					cout << "Level finished" << endl; 		
 			}
 
-			nsp.PrintInfo();
-			
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
 			PARDOUBLEMAT nspInv = nsp.ConvertNumericType<double, SpDCCols<int,double> >();
 			nspInv.Apply(bind1st(divides<double>(), 1));
-			nspInv.PrintInfo();
+
+			/// BC update for all vertices except the sources
+			for(int j = bfs.size(); j > 1; --j)
+			{
+				bfs[j]->PrintInfo();
+				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
+			}
+			
 	
 			/*
 			string rfilename = "fridge_"; 

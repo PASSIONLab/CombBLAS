@@ -142,6 +142,26 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) co
 	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	// shared_ptr assignment on commGrid, should be fine !
 } 
 
+template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
+	(const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B , bool exclude)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+
+	if(*(A.commGrid) == *(B.commGrid))	
+	{
+		DER_promote * result = new DER_promote( EWiseMult(*(A.spSeq),*(B.spSeq),exclude) );
+		return SpParMPI2<IU, N_promote, DER_promote> (result, A.commGrid);
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise multiplication" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return SpParMPI2< IU,N_promote,DER_promote >();
+	}
+}
+
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
 		(const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B )

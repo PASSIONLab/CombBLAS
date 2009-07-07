@@ -6,7 +6,6 @@
 #include "SpHelper.h"
 #include "StackEntry.h"
 #include "Isect.h"
-#include "dcsc.h"
 #include "Deleter.h"
 #include "Compare.h"
 
@@ -17,6 +16,10 @@ class SpTuples;
 
 template <class IU, class NU>	
 class SpDCCols;
+
+template <class IU, class NU>	
+class Dcsc;
+
 
 
 /****************************************************************************/
@@ -195,6 +198,144 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 	}
 }
 
+
+/**
+ * @param[in]   exclude if false,
+ *      \n              then operation is A = A .* B
+ *      \n              else operation is A = A .* not(B) 
+ * \attention The memory pool of the lvalue is preserved:
+ * 	\n	If A = A .* B where B uses pinnedPool and A uses NULL before the operation,
+ * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
+ **/
+template <typename IU, typename NU1, typename NU2>
+Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	IU estnzc, estnz;
+	if(exclude)
+	{	
+		estnzc = A.nzc;
+		estnz = A.nz; 
+	} 
+	else
+	{
+		estnzc = std::min(A.nzc, B.nzc);
+		estnz  = std::min(A.nz, B.nz);
+	}
+
+	Dcsc<IU,N_promote> temp(estnz, estnzc);
+
+	IU curnzc = 0;
+	IU curnz = 0;
+	IU i = 0;
+	IU j = 0;
+	temp.cp[0] = Dcsc<IU,NU1>::zero;
+	
+	if(!exclude)	// A = A .* B
+	{
+		while(i< A.nzc && j<B.nzc)
+		{
+			if(A.jc[i] > B.jc[j]) 		++j;
+			else if(A.jc[i] < B.jc[j]) 	++i;
+			else
+			{
+				IU ii = A.cp[i];
+				IU jj = B.cp[j];
+				IU prevnz = curnz;		
+				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				{
+					if (A.ir[ii] < B.ir[jj])	++ii;
+					else if (A.ir[ii] > B.ir[jj])	++jj;
+					else
+					{
+						temp.ir[curnz] = A.ir[ii];
+						temp.numx[curnz++] = A.numx[ii++] * B.numx[jj++];	
+					}
+				}
+				if(prevnz < curnz)	// at least one nonzero exists in this column
+				{
+					temp.jc[curnzc++] = A.jc[i];	
+					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
+				}
+			}
+		}
+	}
+	else	// A = A .* not(B)
+	{
+		while(i< A.nzc && j< B.nzc)
+		{
+			if(A.jc[i] > B.jc[j])		++j;
+			else if(A.jc[i] < B.jc[j])
+			{
+				temp.jc[curnzc++] = A.jc[i++];
+				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)	
+				{
+					temp.ir[curnz] 		= A.ir[k];
+					temp.numx[curnz++] 	= A.numx[k];
+				}
+				temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+			}
+			else
+			{
+				IU ii = A.cp[i];
+				IU jj = B.cp[j];
+				IU prevnz = curnz;		
+				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				{
+					if (A.ir[ii] > B.ir[jj])	++jj;
+					else if (A.ir[ii] < B.ir[jj])
+					{
+						temp.ir[curnz] = A.ir[ii];
+						temp.numx[curnz++] = A.numx[ii++];
+					}
+					else	// eliminate those existing nonzeros
+					{
+						++ii;	
+						++jj;	
+					}
+				}
+				while (ii < A.cp[i+1])
+				{
+					temp.ir[curnz] = A.ir[ii];
+					temp.numx[curnz++] = A.numx[ii++];
+				}
+
+				if(prevnz < curnz)	// at least one nonzero exists in this column
+				{
+					temp.jc[curnzc++] = A.jc[i];	
+					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
+				}
+				++i;
+				++j;
+			}
+		}
+		while(i< A.nzc)
+		{
+			temp.jc[curnzc++] = A.jc[i++];
+			for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
+			{
+				temp.ir[curnz] 	= A.ir[k];
+				temp.numx[curnz++] = A.numx[k];
+			}
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+		}
+	}
+
+	temp.Resize(curnzc, curnz);
+	return temp;
+}	
+
+
+template<typename IU, typename NU1, typename NU2>
+SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	Dcsc<IU, N_promote> * tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
+
+	assert(A.m == B.m);
+	assert(A.n == B.n);
+	return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
+}
 
 
 #endif

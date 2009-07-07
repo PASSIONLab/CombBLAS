@@ -16,6 +16,7 @@
 #include "SpHelper.h"
 #include "StackEntry.h"
 #include "MemoryPool.h"
+#include "Promote.h"
 
 using namespace std;
 
@@ -37,7 +38,11 @@ public:
 
 	template <typename NNT>
 	Dcsc<IT,NNT> ConvertNumericType();
+	
 	void ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
+
+	template <typename IU, typename NU1, typename NU2>
+	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude);
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
