@@ -143,6 +143,7 @@ int main(int argc, char* argv[])
 				bfs.push_back(level);
 
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
+				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);	
 			}
 
