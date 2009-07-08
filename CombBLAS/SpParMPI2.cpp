@@ -234,23 +234,28 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 
 	for(int i = 0; i < stages; ++i) 	// Robust generalization to non-square grids will require block-cyclic distibution	
 	{
+		for(int j=0; j< rowwindows.size(); ++j)
+			MPI_Win_fence(0, rowwindows[j]);
+		for(int j=0; j< colwindows.size(); ++j)
+			MPI_Win_fence(0, colwindows[j]);
+
 		int Aownind = (i+Aoffset) % stages;		
 		int Bownind = (i+Boffset) % stages;
 
 		if(Aownind == (A.commGrid)->GetRankInProcRow())
 		{
-			ARecv = A.spSeq;	// shallow-copy (ABAB: Memory leak !)
+			ARecv = A.spSeq;	// shallow-copy 
 		}
 		else
 		{
 			// pack essentials to a vector
-			vector<IU> ess(UDER1::esscount);
+			vector<IU> ess1(UDER1::esscount);
 			for(int j=0; j< UDER1::esscount; ++j)	
 			{
-				ess[j] = ARecvSizes[j][Aownind];	
+				ess1[j] = ARecvSizes[j][Aownind];	
 			}
 			ARecv = new UDER1();	// create the object first	
-			SpParHelper::FetchMatrix(*ARecv, ess, rowwindows, Aownind);	// fetch its elements later
+			SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);	// fetch its elements later
 		}
 		if(Bownind == (B.commGrid)->GetRankInProcCol())
 		{
@@ -259,18 +264,25 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 		else
 		{
 			// pack essentials to a vector
-			vector<IU> ess(UDER2::esscount);
+			vector<IU> ess2(UDER2::esscount);
 			for(int j=0; j< UDER2::esscount; ++j)	
 			{
-				ess[j] = BRecvSizes[j][Bownind];	
+				ess2[j] = BRecvSizes[j][Bownind];	
 			}	
 			BRecv = new UDER2();
-			SpParHelper::FetchMatrix(*BRecv, ess, colwindows, Bownind);	
+			SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
 		}
-	
-		if(Aownind != (A.commGrid)->GetRankInProcRow())	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
-		if(Bownind != (B.commGrid)->GetRankInProcCol())	SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B
+		
+		for(int j=0; j< rowwindows.size(); ++j)
+			MPI_Win_fence(0, rowwindows[j]);
+		for(int j=0; j< colwindows.size(); ++j)
+			MPI_Win_fence(0, colwindows[j]);
 
+		//if(Aownind != (A.commGrid)->GetRankInProcRow())	
+		//	SpParHelper::UnlockWindows(Aownind, rowwindows);	// unlock windows for A
+		//if(Bownind != (B.commGrid)->GetRankInProcCol())
+		//	SpParHelper::UnlockWindows(Bownind, colwindows);	// unlock windows for B
+		
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -286,6 +298,7 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	{
 		delete tomerge[i];
 	}
+
 	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
 
@@ -363,7 +376,7 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 	IT nznz = getnnz();
 	
 	if (commGrid->myrank == 0)	
-		cout << endl << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
+		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
 
 	if ((commGrid->grrows * commGrid->grcols) ==  1)
 		spSeq->PrintInfo();

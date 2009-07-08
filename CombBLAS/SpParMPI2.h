@@ -13,6 +13,7 @@
 #include <cmath>
 #include <mpi.h>
 #include <vector>
+#include <iterator>
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/tuple.hpp>

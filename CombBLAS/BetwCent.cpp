@@ -24,7 +24,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	MPI::Init();
+	MPI::Init(argc, argv);
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 	typedef PlusTimesSRing<double, double> PT;	
@@ -136,27 +136,13 @@ int main(int argc, char* argv[])
 			typedef PlusTimesSRing<bool, int> PTBOOLINT;	
 			typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;	
 
-				
-			if( myrank == 0)
-			{
-				cout << "Starting forward bfs" << endl;
-			}
-
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
 				PARBOOLMAT * level = new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() ); 
 				bfs.push_back(level);
 
-				if( myrank == 0)
-					cout << "Multiplying" << endl;
-	
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
-				if( myrank == 0)
-				{
-					cout << "Multiplied" << endl;
-				}
-					
 				fringe = EWiseMult(fringe, nsp, true);	
 			}
 
@@ -168,12 +154,6 @@ int main(int argc, char* argv[])
 			double ** bculocal = SpHelper::allocate2D<double>(fringe.getlocalrows(), fringe.getlocalcols());
 			for(int r=0; r< fringe.getlocalrows(); ++r)
 				fill_n(bculocal[r], fringe.getlocalcols(), 1.0);
-
-			if( myrank == 0)
-			{
-				cout << "Starting tally" << endl;
-			}
-
 			
 			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 
