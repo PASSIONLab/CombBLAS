@@ -29,6 +29,13 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(m
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
+	grid->GetWorld().Barrier();
+	
+	myseq->PrintInfo();
+	grid->GetWorld().Barrier();
+	cout << "Creating with localcols: " << myseq->getncol() << "and localrows: " << myseq->getnrow() << endl;
+	grid->GetWorld().Barrier();
+
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
@@ -116,7 +123,6 @@ IT SpParMPI2< IT,NT,DER >::getncol() const
 {
 	IT totalcols = 0;
 	IT localcols = spSeq->getncol();    
-	cout << "localcols: " << localcols << endl;
 	(commGrid->GetRowWorld()).Allreduce( &localcols, &totalcols, 1, MPIType<IT>(), MPI::SUM);
  	return totalcols;  
 }
@@ -441,20 +447,6 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 		if(Aownprev != (A.commGrid)->GetRankInProcRow()) delete ARecvNext;
 		if(Bownprev != (B.commGrid)->GetRankInProcRow()) delete BRecvNext;
 	}
-	
-	IU C_m = A.getlocalrows();
-	IU C_n = B.getlocalrows();	// Don't forget that B is virtually transposed
-
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
-	for(int i=0; i<tomerge.size(); ++i)
-	{
-		delete tomerge[i];
-	}
-	C->PrintInfo();
-
-	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
-	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
-
 	for(int i=0; i< rowwindows.size(); ++i)
 	{
 		rowwindows[i].Free();
@@ -465,7 +457,23 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 		colwindows[i].Free();
 		colwinnext[i].Free();
 	}
+	GridC->GetWorld().Barrier();
 
+	
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	for(int i=0; i<tomerge.size(); ++i)
+	{
+		delete tomerge[i];
+	}
+	C->PrintInfo();
+	
+	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
+
+	
 	const_cast< UDER2* >(B.spSeq)->Transpose();	// transpose back to original
 	
 	return SpParMPI2<IU,N_promote,DER_promote> (C, GridC);			// return the result object
