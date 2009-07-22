@@ -1,48 +1,37 @@
-include /home/teragrid/tg459476/gasnet-large-nompi/include/ibv-conduit/ibv-par.mak
+INCDIR = $(TACC_BOOST_INC)/boost-1_34_1/ 
+INCADD = -I$(INCDIR) 
 
-INCADD = -I$(TACC_BOOST_DIR)/include/boost-1_34_1/ -I/opt/apps/intel10/mvapich2/1.2rc2/include/
+OPT = -DNDEBUG -O3 -w -DMPICH_IGNORE_CXX_SEEK -DNOTR1
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DNOTR1
+COMPILER = mpicxx
+#LDADD = -lmpi -lmpi_cxx
+FLAGS = $(OPT)
 
-COMPILER = icc
+CommGrid.o:	CommGrid.cpp CommGrid.h
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o CommGrid.cpp
 
-OPT = -DNDEBUG -O2 -w 
-DEB = -g -w -DMEMDEBUG -DPERFDEB
+MPIType.o:	MPIType.cpp MPIType.h
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o MPIType.o MPIType.cpp
 
-MemoryPool.o: 	MemoryPool.cpp 
-	$(GASNET_CC) $(INCADD) $(OPT) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o MemoryPool.o MemoryPool.cpp
+MemoryPool.o:	MemoryPool.cpp SpDefs.h
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o MemoryPool.cpp
 
-TestPar.o: 	TestPar.cpp SparseDColumn.cpp SparseSumAsync.cpp SparseSumSync.cpp SparseCannon.cpp SpDefines.h
-	mpicxx $(INCADD) $(OPT) -c -o TestPar.o TestPar.cpp
+BetwCent.o: BetwCent.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
-TestOneSided.o: TestOneSided.cpp SparseDColumn.cpp SparseOneSidedMPI.cpp SpDefines.h
-	mpicxx $(INCADD) $(OPT) -c -o TestOneSided.o TestOneSided.cpp
+Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpTuples.cpp
+	$(COMPILER) $(FLAGS) $(INCADD) -c -o Driver.o Driver.cpp
 
-TestGas.o: 	TestGas.cpp SparseDColumn.cpp SparseSumGas.cpp
-	$(GASNET_CC) $(INCADD) $(OPT) $(GASNET_CPPFLAGS) $(GASNET_CFLAGS) -c -o TestGas.o TestGas.cpp
+driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
 
-randgen.o: 	randgen.cpp
-	$(COMPILER) $(INCADD) $(OPT) -c -o randgen.o randgen.cpp
-
-testseq:  	TestSeq.cpp SparseDColumn.cpp 
-	$(COMPILER) $(INCADD) $(DEB) -o testseq TestSeq.cpp randgen.cpp  
-
-testpar: 	TestPar.o randgen.o TestPar.cpp SpDefines.h MemoryPool.o
-	mpicxx $(OPT) -o testpar TestPar.o randgen.o MemoryPool.o $(LDADD)
-
-testonesidedalt: 	TestOneSided.o randgen.o TestOneSided.cpp SpDefines.h MemoryPool.o
-	mpicxx $(OPT) -o testonesidedalt TestOneSided.o randgen.o MemoryPool.o $(LDADD)
-
-testgas: 	TestGas.o MemoryPool.o
-	$(GASNET_LD) $(OPT) $(GASNET_LDFLAGS) -o testgas TestGas.o MemoryPool.o $(GASNET_LIBS)
-
+betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
 
 clean:
-	rm -f TestGas.o
-	rm -f TestPar.o
-	rm -f TestOneSided.o
-	rm -f testgas
-	rm -f testseq
-	rm -f testpar
-	rm -f testonesided
+	rm -f betwcent
+	rm -f driver
+	rm -f *.o
 
 cleanout:
 	rm out.*
