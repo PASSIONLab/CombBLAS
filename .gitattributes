@@ -19,6 +19,8 @@ CombBLAS/MPIType.h -text
 CombBLAS/MainPage.h -text
 CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
+CombBLAS/ReleaseTests/TransposeTest.cpp -text
+CombBLAS/ReleaseTests/makefile -text
 CombBLAS/Semirings.h -text
 CombBLAS/SequenceHeaps/heap-CLR.h -text
 CombBLAS/SequenceHeaps/heap2.h -text
