@@ -585,6 +585,11 @@ void SpParMPI2<IT,NT,DER>::Transpose()
 		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
 		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
 		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
+		cout << "Locs: " << locm << " " << locn << " " << locnnz << endl;
+		cout << "Rems: " << remotem << " " << remoten << " " << remotennz << endl;
+		cout << "Diagonal:" << diagneigh << endl;
+
+		
 
 		IT * rowsrecv = new IT[remotennz];
 		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<IT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGROWS);

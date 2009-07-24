@@ -45,6 +45,12 @@ CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text
 CombBLAS/SpTuples.h -text
 CombBLAS/StackEntry.h -text
+CombBLAS/Test/Deleter.h -text
+CombBLAS/Test/Semirings.h -text
+CombBLAS/Test/output -text
+CombBLAS/Test/promote.h -text
+CombBLAS/Test/test.cpp -text
+CombBLAS/Test/vector_test.cpp -text
 CombBLAS/betwCentrality.m -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
