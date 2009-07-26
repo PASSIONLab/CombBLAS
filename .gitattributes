@@ -53,9 +53,9 @@ CombBLAS/Test/output -text
 CombBLAS/Test/promote.h -text
 CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
-CombBLAS/betwCentrality.m -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
+CombBLAS/genRMatBetw.m -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
 CombBLAS/makefile-lonestar -text
@@ -63,8 +63,9 @@ CombBLAS/makefile-mac -text
 CombBLAS/makefile-neumann -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
+CombBLAS/mfiles/betwCentrality.m -text
+CombBLAS/mfiles/readtriples.m -text
 CombBLAS/promote.h -text
-CombBLAS/readtriples.m -text
 CombBLAS/valgrindout -text
 Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text

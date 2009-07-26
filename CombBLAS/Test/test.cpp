@@ -11,7 +11,7 @@
 #include <ext/numeric>
 
 using namespace std;
-#define TESTSIZE 1000000
+#define TESTSIZE 100000000
 
 // accumulate with a function object or pointer
 template<typename _InputIterator, typename _Tp, typename _BinaryOperation>
