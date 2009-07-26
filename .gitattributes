@@ -55,7 +55,6 @@ CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
-CombBLAS/genRMatBetw.m -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
 CombBLAS/makefile-lonestar -text
@@ -64,6 +63,7 @@ CombBLAS/makefile-neumann -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/mfiles/betwCentrality.m -text
+CombBLAS/mfiles/genRMatBetw.m -text
 CombBLAS/mfiles/readtriples.m -text
 CombBLAS/promote.h -text
 CombBLAS/valgrindout -text
