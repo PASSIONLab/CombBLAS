@@ -31,7 +31,16 @@ public:
 	template <typename IT, typename NT, typename DER>
 	static void GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d);
 
-	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);	
+	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);
+
+	static void Print(const string & s)
+	{
+		int myrank = MPI::COMM_WORLD.Get_rank();
+		if(myrank == 0)
+		{
+			cout << s;
+		}
+	}	
 };
 
 /**

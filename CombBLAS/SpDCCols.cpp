@@ -230,7 +230,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 }
 
 template <class IT, class NT>
-void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
+void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 {
 	if(this != &rhs)		
 	{
@@ -242,7 +242,7 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
 			}
 			else if (rhs.nnz != 0 && nnz != 0)
 			{
-				dcsc->ElementWiseMult (*(rhs.dcsc), exclude);
+				dcsc->EWiseMult (*(rhs.dcsc), exclude);
 				nnz = dcsc->nz;
 			}		
 		}
@@ -261,16 +261,16 @@ void SpDCCols<IT,NT>::ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude
  * @Pre {scaler should NOT contain any zero entries}
  */
 template <class IT, class NT>
-void SpDCCols<IT,NT>::ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
+void SpDCCols<IT,NT>::EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 {
 	if(m == m_scaler && n == n_scaler)
 	{
 		if(nnz > 0)
-			dcsc->ElementWiseScale (scaler);
+			dcsc->EWiseScale (scaler);
 	}
 	else
 	{
-		cout<< "Matrices do not conform for ElementWiseScale !"<<endl;		
+		cout<< "Matrices do not conform for EWiseScale !"<<endl;		
 	}
 }	
 
@@ -327,11 +327,11 @@ vector<IT> SpDCCols<IT,NT>::GetEssentials() const
 
 template <class IT, class NT>
 template <typename NNT>
-SpDCCols<IT,NNT> SpDCCols<IT,NT>::ConvertNumericType ()
+SpDCCols<IT,NT>::operator SpDCCols<IT,NNT> () const
 {
 	Dcsc<IT,NNT> * convert;
 	if(nnz > 0)
-		convert = new Dcsc<IT,NNT>(dcsc->ConvertNumericType<NNT>());
+		convert = new Dcsc<IT,NNT>(*dcsc);
 	else
 		convert = NULL;
 

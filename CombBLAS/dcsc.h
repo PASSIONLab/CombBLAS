@@ -26,7 +26,7 @@ class Dcsc
 public:
 	Dcsc ();
 	Dcsc (IT nnz, IT nzcol);
-	Dcsc (IT nnz, IT nzcol, MemoryPool * pool);	//!< Placement constructor
+	Dcsc (IT nnz, IT nzcol, MemoryPool * pool);		//!< Placement constructor
 
 	Dcsc (IT nnz, const vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
 	Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
@@ -35,12 +35,13 @@ public:
 	Dcsc<IT,NT> & operator=(const Dcsc<IT,NT> & rhs);	// assignment operator
 	Dcsc<IT,NT> & operator+=(const Dcsc<IT,NT> & rhs);	// add and assign operator
 	~Dcsc();
-
-	template <typename NNT>
-	Dcsc<IT,NNT> ConvertNumericType();
 	
-	void ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
-
+	bool operator==(const Dcsc<IT,NT> & rhs);	
+	template <typename NNT> operator Dcsc<IT,NNT>() const;	//<! numeric type conversion
+	
+	void EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
+	void EWiseScale(NT ** scaler);				//<! scale elements of "this" with the elements dense rhs matrix
+	
 	template <typename IU, typename NU1, typename NU2>
 	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude);
 
@@ -60,12 +61,9 @@ public:
 
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 
-	void ElementWiseScale(NT ** scaler);		// scale elements of "this" with the elements dense rhs matrix
-	
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const;	// update dense 2D array's entries with __binary_op using elements of "this"
 
-	
 	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
 	IT * jc ;		//!<  col indices, size nzc
 	IT * ir ;		//!<  row indices, size nz

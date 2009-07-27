@@ -30,16 +30,21 @@ public:
 	SpDCCols ();
 	SpDCCols (IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool = NULL);
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
-	SpDCCols (const SpDCCols<IT,NT> & rhs);		// Actual copy constructor		
+	SpDCCols (const SpDCCols<IT,NT> & rhs);					// Actual copy constructor		
 	~SpDCCols();
 
-	template <typename NNT>
-	SpDCCols<IT, NNT> ConvertNumericType();		//!< NNT: New numeric type
+	template <typename NNT> operator SpDCCols<IT,NNT> () const;		//!< NNT: New numeric type
 
 	// Member Functions and Operators: 
 	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
+	bool operator== (const SpDCCols<IT, NT> & rhs) const
+	{
+		if(nnz != rhs.nnz || m != rhs.m || n != rhs.n)
+			return false;
+		return ((*dcsc) == (*(rhs.dcsc)));
+	}
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -55,8 +60,8 @@ public:
 			dcsc->UpdateDense(array, __binary_op);
 	}
 
-	void ElementWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);
-	void ElementWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
+	void EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler);
+	void EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude);
 	
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object

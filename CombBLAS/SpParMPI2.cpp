@@ -29,13 +29,6 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(m
 template <class IT, class NT, class DER>
 SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
-	grid->GetWorld().Barrier();
-	
-	myseq->PrintInfo();
-	grid->GetWorld().Barrier();
-	cout << "Creating with localcols: " << myseq->getncol() << "and localrows: " << myseq->getnrow() << endl;
-	grid->GetWorld().Barrier();
-
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
@@ -129,9 +122,9 @@ IT SpParMPI2< IT,NT,DER >::getncol() const
 
 template <class IT, class NT, class DER>
 template <typename NNT,typename NDER>	 
-SpParMPI2<IT,NNT,NDER> SpParMPI2<IT,NT,DER>::ConvertNumericType ()
+SpParMPI2<IT,NT,DER>::operator SpParMPI2<IT,NNT,NDER> () const
 {
-	NDER * convert = new NDER(spSeq->ConvertNumericType<NNT>());
+	NDER * convert = new NDER(*spSeq);
 	return SpParMPI2<IT,NNT,NDER> (convert, commGrid);
 }
 
@@ -480,30 +473,31 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 }
 
 
+// In-place version where rhs type is the same (no need for type promotion)
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::ElementWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
+void SpParMPI2<IT,NT,DER>::EWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
-		spSeq->ElementWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
+		spSeq->EWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
 	}
 	else
 	{
-		cout << "Grids are not comparable, ElementWiseMult() fails !" << endl; 
+		cout << "Grids are not comparable, EWiseMult() fails !" << endl; 
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 	}	
 }
 
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::ElementWiseScale(DenseParMat<IT, NT> & rhs)
+void SpParMPI2<IT,NT,DER>::EWiseScale(DenseParMat<IT, NT> & rhs)
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
-		spSeq->ElementWiseScale(rhs.array, rhs.m, rhs.n);	// Dimension compatibility check performed by sequential function
+		spSeq->EWiseScale(rhs.array, rhs.m, rhs.n);	// Dimension compatibility check performed by sequential function
 	}
 	else
 	{
-		cout << "Grids are not comparable, ElementWiseScale() fails !" << endl; 
+		cout << "Grids are not comparable, EWiseScale() fails !" << endl; 
 			MPI::COMM_WORLD.Abort(DIMMISMATCH);
 	}
 }
@@ -545,6 +539,15 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 		spSeq->PrintInfo();
 }
 
+template <class IT, class NT, class DER>
+bool SpParMPI2<IT,NT,DER>::operator== (const SpParMPI2<IT,NT,DER> & rhs) const
+{
+	int local = static_cast<int>((*spSeq) == (*(rhs.spSeq)));
+	int whole = 1;
+	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	return static_cast<bool>(whole);	
+}
+
 
 template <class IT, class NT, class DER>
 void SpParMPI2<IT,NT,DER>::Transpose()
@@ -555,6 +558,9 @@ void SpParMPI2<IT,NT,DER>::Transpose()
 	#define TRTAGROWS 124
 	#define TRTAGCOLS 125
 	#define TRTAGVALS 126
+
+	ofstream oput;
+	commGrid->OpenDebugFile("transpose", oput);
 
 	if(commGrid->myproccol == commGrid->myprocrow)	// Diagonal
 	{
@@ -585,12 +591,11 @@ void SpParMPI2<IT,NT,DER>::Transpose()
 		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
 		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
 		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
-		cout << "Locs: " << locm << " " << locn << " " << locnnz << endl;
-		cout << "Rems: " << remotem << " " << remoten << " " << remotennz << endl;
-		cout << "Diagonal:" << diagneigh << endl;
+		oput << "Locs: " << locm << " " << locn << " " << locnnz << endl;
+		oput << "Rems: " << remotem << " " << remoten << " " << remotennz << endl;
+		oput << "Diagonal:" << diagneigh << endl;
 
 		
-
 		IT * rowsrecv = new IT[remotennz];
 		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<IT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGROWS);
 		delete [] rows;

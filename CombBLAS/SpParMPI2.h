@@ -68,8 +68,8 @@ public:
 	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	Mult_AnXBn (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B );
 
-	void ElementWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude);
-	void ElementWiseScale(DenseParMat<IT, NT> & rhs);
+	void EWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude);
+	void EWiseScale(DenseParMat<IT, NT> & rhs);
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -86,8 +86,7 @@ public:
 	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	EWiseMult (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B , bool exclude);
 
-	template <typename NNT, typename NDER>
-	SpParMPI2< IT,NNT,NDER > ConvertNumericType ();
+	template <typename NNT, typename NDER> operator SpParMPI2< IT,NNT,NDER > () const;
 
 	IT getnrow() const;
 	IT getncol() const;
@@ -95,6 +94,7 @@ public:
 
 	SpParMPI2<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				// Column indexing with special parallel semantics
 	SpParMPI2<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	// General indexing with serial semantics
+	bool operator== (const SpParMPI2<IT,NT,DER> & rhs) const;
 
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;

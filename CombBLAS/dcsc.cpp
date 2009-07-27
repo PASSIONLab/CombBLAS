@@ -306,7 +306,7 @@ Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(
 
 template <class IT, class NT>
 template <typename NNT>
-Dcsc<IT,NNT> Dcsc<IT,NT>::ConvertNumericType ()
+Dcsc<IT,NT>::operator Dcsc<IT,NNT>() const
 {
 	Dcsc<IT,NNT> convert(nz, nzc);	
 	
@@ -511,6 +511,16 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 	return *this;
 }
 
+template <class IT, class NT>
+bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
+{
+	if(nzc != rhs.nzc) return false;
+	bool same = std::equal(cp, cp+nzc+1, rhs.cp); 
+	same = same && std::equal(jc, jc+nzc, rhs.jc);
+	same = same && std::equal(ir, ir+nz, rhs.ir);
+	same = same && std::equal(numx, numx+nz, rhs.numx);
+	return same;
+}
 
 /**
  * @param[in]   exclude if false,
@@ -521,14 +531,13 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
  * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
  **/
 template <class IT, class NT>
-void Dcsc<IT,NT>::ElementWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)	
+void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)	
 {
-	*this = EWiseMult((*this), rhs, exclude);
+	*this = EWiseMult((*this), rhs, exclude);	// call the binary version
 }
 
-
 template <class IT, class NT>
-void Dcsc<IT,NT>::ElementWiseScale(NT ** scaler)	
+void Dcsc<IT,NT>::EWiseScale(NT ** scaler)	
 {
 	for(IT i=0; i<nzc; ++i)
 	{

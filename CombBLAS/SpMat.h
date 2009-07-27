@@ -77,6 +77,8 @@ public:
 	{
 		static_cast<DER*>(this)->Transpose();
 	}
+
+	bool operator== (const SpMat< IT,NT,DER > & rhs) const; 
 		
 	ofstream& put(ofstream& outfile) const;
 	ifstream& get(ifstream& infile);

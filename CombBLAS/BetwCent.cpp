@@ -22,12 +22,27 @@
 
 using namespace std;
 
+
+// Simple helper class for declarations: Just the numerical type is templated 
+// The index type and the sequential matrix type stays the same for the whole code
+// In this case, they are "int" and "SpDCCols"
+template <class NT>
+class PSpMat 
+{ 
+public: 
+	typedef SpDCCols < int, NT > DCCols;
+	typedef SpParMPI2 < int, NT, DCCols > MPI_DCCols;
+};
+
+
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
-	typedef PlusTimesSRing<double, double> PT;	
+	
+	typedef PlusTimesSRing<bool, int> PTBOOLINT;	
+	typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;
 
 	if(argc < 4)
         {
@@ -54,13 +69,8 @@ int main(int argc, char* argv[])
 		ifstream input(ifilename.c_str());
 		MPI::COMM_WORLD.Barrier();
 	
-		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
-		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
-		typedef SpParMPI2 <int, int, SpDCCols<int,int> > PARINTMAT;
-		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARDOUBLEMAT;
-
-		PARBOOLMAT A, AT;			// construct object
-		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
+		PSpMat<bool>::MPI_DCCols A, AT;	// construct object
+		A.ReadDistribute(input, 0);		// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();
 
@@ -90,7 +100,7 @@ int main(int argc, char* argv[])
 			single.push_back(vrtxid);
 			int locnnz = ((A.seq())(empty,single)).getnnz();
 			int totnnz;
-			(A.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI_INT, MPI::SUM);
+			(A.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI::INT, MPI::SUM);
 					
 			if(totnnz > 0)
 			{
@@ -109,12 +119,12 @@ int main(int argc, char* argv[])
 				batch[j] = candidates[i*subBatchSize + j];
 			}
 			
-			PARINTMAT fringe = (A.SubsRefCol(batch)).ConvertNumericType<int, SpDCCols<int,int> >();
+			PSpMat<int>::MPI_DCCols fringe = A.SubsRefCol(batch);
 			fringe.PrintInfo();
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
-			SpDCCols<int,int> * nsploc = new SpDCCols<int,int>();
+			PSpMat<int>::DCCols * nsploc = new PSpMat<int>::DCCols();
 			tuple<int, int, int> * mytuples = NULL;	
 			if(A.getcommgrid()->GetRankInProcRow() == A.getcommgrid()->GetRankInProcCol())
 			{
@@ -130,16 +140,14 @@ int main(int argc, char* argv[])
 				nsploc->Create( 0, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			PARINTMAT nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
+			PSpMat<int>::MPI_DCCols  nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
 				
-			vector < PARBOOLMAT * > bfs;	// internally keeps track of depth
-			typedef PlusTimesSRing<bool, int> PTBOOLINT;	
-			typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;	
+			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
 
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
-				PARBOOLMAT * level = new PARBOOLMAT(fringe.ConvertNumericType<bool, SpDCCols<int,bool> >() ); 
+				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
 				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
@@ -149,7 +157,7 @@ int main(int argc, char* argv[])
 
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
-			PARDOUBLEMAT nspInv = nsp.ConvertNumericType<double, SpDCCols<int,double> >();
+			PSpMat<double>::MPI_DCCols nspInv = nsp;
 			nspInv.Apply(bind1st(divides<double>(), 1));
 
 			double ** bculocal = SpHelper::allocate2D<double>(fringe.getlocalrows(), fringe.getlocalcols());
@@ -161,10 +169,10 @@ int main(int argc, char* argv[])
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{
-				PARDOUBLEMAT w = EWiseMult( *bfs[j], nspInv, false);
-				w.ElementWiseScale(bcu);
+				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
+				w.EWiseScale(bcu);
 
-				PARDOUBLEMAT product = Mult_AnXBn<PTBOOLDOUBLE>(AT,w);
+				PSpMat<double>::MPI_DCCols product = Mult_AnXBn<PTBOOLDOUBLE>(AT,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 

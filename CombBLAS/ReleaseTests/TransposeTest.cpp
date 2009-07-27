@@ -23,36 +23,48 @@ int main(int argc, char* argv[])
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 
-	if(argc < 2)
+	if(argc < 4)
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./TransposeTest <BASEADDRESS>" << endl;
-			cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
+			cout << "Usage: ./TransposeTest <BASEADDRESS> <Matrix> <MatrixTranspose>" << endl;
+			cout << "Input file <Matrix> and <MatrixTranspose> should be under <BASEADDRESS> in triples format" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
 	}				
 	{
 		string directory(argv[1]);		
-		string ifilename = "input.txt";
-		ifilename = directory+"/"+ifilename;
+		string normalname(argv[2]);
+		string transname(argv[3]);
+		normalname = directory+"/"+normalname;
+		transname = directory+"/"+transname;
 
-		ifstream input(ifilename.c_str());
+		ifstream inputnormal(normalname.c_str());
+		ifstream inputtrans(transname.c_str());
 		MPI::COMM_WORLD.Barrier();
 	
 		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
 
-		PARBOOLMAT A, AT;			// construct object
-		A.ReadDistribute(input, 0);		// read it from file, note that we use the transpose of "input" data
+		PARBOOLMAT A, AT, ATControl;		// construct object
+		A.ReadDistribute(inputnormal, 0);	// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();
-	
-		A.PrintInfo();
-		AT.PrintInfo();
 
-		input.clear();
-		input.close();
+		ATControl.ReadDistribute(inputtrans, 0);
+		if (ATControl == AT)
+		{
+			SpParHelper::Print("Transpose working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in transpose, go fix it!\n");	
+		}
+
+		inputnormal.clear();
+		inputnormal.close();
+		inputtrans.clear();
+		inputtrans.close();
 	}
 	MPI::Finalize();
 	return 0;
