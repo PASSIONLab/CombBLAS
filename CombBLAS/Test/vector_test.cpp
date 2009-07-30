@@ -69,11 +69,12 @@ int main()
 			b[i][j] = j;
 		}
 	}
-	float * test = new float[10]();		// not the empty set of parantheses as the initializer --> makes them default constructed
+	float * test = new float[10]();
+	// note the empty set of parantheses as the initializer --> makes them default constructed
 	// The C++ standard says that: 
 	// A default constructed POD type is zero-initialized,
 		
-	copy(test, test+10, ostream_iterator<int>( cout, " "));
+	copy(test, test+10, ostream_iterator<float>( cout, " "));
 	cout << endl;
 
 
