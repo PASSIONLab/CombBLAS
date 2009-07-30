@@ -8,12 +8,18 @@
 #include "Semirings.h"
 #include "Deleter.h"
 #include <ext/numeric>
+#include <tr1/array>
+#include <xmmintrin.h>
+#include <emmintrin.h>
+//#include <smmintrin.h>	// SSE-4
+
 
 #define BETA 16
 #define ITER 1000000
 
 using namespace std;
-typedef int vpackedsi __attribute__ ((vector_size (BETA*sizeof(int))));
+
+typedef int vpackedsi __attribute__ ((vector_size (BETA*sizeof(int))));			// 64-bytes, a full cache line !
 
 union ipackedvector 
 {
@@ -22,7 +28,7 @@ union ipackedvector
 };
 
 template <int D, typename T>
-void saxpy(T a, T *b, T *c)
+void saxpy(T a, T * __restrict b, T * __restrict c)
 {
 	for(int i=0; i<D; ++i)
 	{
@@ -30,29 +36,58 @@ void saxpy(T a, T *b, T *c)
 	}	
 }
 
+template <int D, typename T>
+void saxpy_array(T a, tr1::array<T,D> & b, tr1::array<T,D> & c)
+{
+	for(int i=0; i<D; ++i)
+	{
+		c[i] +=  a* b[i];
+	}	
+}
+
+
 int main()
 {
-	int a = 2;
-	int b[BETA];
-	int c[BETA];
+	/*
+	__m128i a, b, c;
+	int inp_sse1[4] __attribute__((aligned(16))) = { 2, 2, 2, 2 };
+	int inp_sse2[4] __attribute__((aligned(16))) = { 0, 1, 2, 3 };
+	int out_sse[4] __attribute__((aligned(16))) = {0, 0, 0, 0};
 
-	for (int i=0; i< BETA; ++i)
+ 	__m128i res = _mm_mul_epi32(a, b); */
+
+	
+	// tr1::array seems to be at least as fast as built-in C arrays
+	int a = 2;
+	tr1::array<int,BETA> * b = new tr1::array<int,BETA>[ITER];
+	tr1::array<int,BETA> * c = new tr1::array<int,BETA>[ITER]();
+
+	for (int i=0; i< ITER; ++i)
 	{
-		b[i] = i;
-		c[i] = 0;
+		for (int j=0; j< BETA; ++j)
+		{
+			b[i][j] = j;
+		}
 	}
+	float * test = new float[10]();		// not the empty set of parantheses as the initializer --> makes them default constructed
+	// The C++ standard says that: 
+	// A default constructed POD type is zero-initialized,
+		
+	copy(test, test+10, ostream_iterator<int>( cout, " "));
+	cout << endl;
+
 
 	timeval tim;		
 	gettimeofday(&tim, NULL);
 	double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
 	for(int i=0; i<ITER; ++i)
 	{
-		saxpy<BETA>(a, b, c);
+		saxpy_array<BETA>(a, b[i], c[i]);
 	}
 	gettimeofday(&tim, NULL);
 	double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
 	printf("%.6lf seconds elapsed for template unrolled loop\n", t2-t1);
-	copy(c, c+BETA, ostream_iterator<int>( cout, " "));
+	copy(c[0].begin(), c[0].end(), ostream_iterator<int>( cout, " "));
 	cout << endl;
 
 	ipackedvector av, bv, cv;
@@ -74,7 +109,6 @@ int main()
 	printf("%.6lf seconds elapsed for gcc vector extensions\n", t2-t1);
 	copy(cv.f, cv.f+BETA, ostream_iterator<int>( cout, " "));
 	cout << endl;
-
 
 	vector<int> tvec;
 	tvec.reserve(10);
