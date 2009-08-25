@@ -5,11 +5,12 @@
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ---------------------*/
 /****************************************************************/
 
-#include "SpParMPI2.h"
+#include "SpParMat.h"
+#include "ParFriends.h"
 
 // If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::Intracomm & world)
+SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
 {
 	if(!input.is_open())
 	{
@@ -21,34 +22,34 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (ifstream & input, MPI::Intracomm & world)
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
 {
 	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
 // If there is a single file read by the master process only, use this and then call ReadDistribute()
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 ()
+SpParMat< IT,NT,DER >::SpParMat ()
 {
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::~SpParMPI2 ()
+SpParMat< IT,NT,DER >::~SpParMat ()
 {
 	if(spSeq != NULL) delete spSeq;
 }
 
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
+SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)
 {
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
@@ -57,7 +58,7 @@ SpParMPI2< IT,NT,DER >::SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs)
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,NT,DER > & rhs)
+SpParMat< IT,NT,DER > & SpParMat< IT,NT,DER >::operator=(const SpParMat< IT,NT,DER > & rhs)
 {
 	if(this != &rhs)		
 	{
@@ -73,7 +74,7 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator=(const SpParMPI2< IT,N
 }
 
 template <class IT, class NT, class DER>
-SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator+=(const SpParMPI2< IT,NT,DER > & rhs)
+SpParMat< IT,NT,DER > & SpParMat< IT,NT,DER >::operator+=(const SpParMat< IT,NT,DER > & rhs)
 {
 	if(this != &rhs)		
 	{
@@ -94,7 +95,7 @@ SpParMPI2< IT,NT,DER > & SpParMPI2< IT,NT,DER >::operator+=(const SpParMPI2< IT,
 }
 
 template <class IT, class NT, class DER>
-IT SpParMPI2< IT,NT,DER >::getnnz() const
+IT SpParMat< IT,NT,DER >::getnnz() const
 {
 	IT totalnnz = 0;    
 	IT localnnz = spSeq->getnnz();
@@ -103,7 +104,7 @@ IT SpParMPI2< IT,NT,DER >::getnnz() const
 }
 
 template <class IT, class NT, class DER>
-IT SpParMPI2< IT,NT,DER >::getnrow() const
+IT SpParMat< IT,NT,DER >::getnrow() const
 {
 	IT totalrows = 0;
 	IT localrows = spSeq->getnrow();    
@@ -112,7 +113,7 @@ IT SpParMPI2< IT,NT,DER >::getnrow() const
 }
 
 template <class IT, class NT, class DER>
-IT SpParMPI2< IT,NT,DER >::getncol() const
+IT SpParMat< IT,NT,DER >::getncol() const
 {
 	IT totalcols = 0;
 	IT localcols = spSeq->getncol();    
@@ -122,10 +123,10 @@ IT SpParMPI2< IT,NT,DER >::getncol() const
 
 template <class IT, class NT, class DER>
 template <typename NNT,typename NDER>	 
-SpParMPI2<IT,NT,DER>::operator SpParMPI2<IT,NNT,NDER> () const
+SpParMat<IT,NT,DER>::operator SpParMat<IT,NNT,NDER> () const
 {
 	NDER * convert = new NDER(*spSeq);
-	return SpParMPI2<IT,NNT,NDER> (convert, commGrid);
+	return SpParMat<IT,NNT,NDER> (convert, commGrid);
 }
 
 /** 
@@ -133,15 +134,15 @@ SpParMPI2<IT,NT,DER>::operator SpParMPI2<IT,NNT,NDER> () const
  * Essentially fetches the columns ci[0], ci[1],... ci[size(ci)] from every submatrix
  */
 template <class IT, class NT, class DER>
-SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) const
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) const
 {
 	vector<IT> ri;
 	DER * tempseq = new DER((*spSeq)(ri, ci)); 
-	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	
+	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
 } 
 
 template <class IT, class NT, class DER>
-SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
 {
 	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
 	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
@@ -174,13 +175,13 @@ SpParMPI2<IT,NT,DER> SpParMPI2<IT,NT,DER>::operator() (const vector<IT> & ri, co
 			locci.push_back(ci[i]-colboun.first);
 	}
 	DER * tempseq = new DER((*spSeq)(locri, locci)); 
-	return SpParMPI2<IT,NT,DER> (tempseq, commGrid);	
+	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
 } 
 
 
 template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
-	(const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B , bool exclude)
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
+	(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
@@ -188,19 +189,19 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	if(*(A.commGrid) == *(B.commGrid))	
 	{
 		DER_promote * result = new DER_promote( EWiseMult(*(A.spSeq),*(B.spSeq),exclude) );
-		return SpParMPI2<IU, N_promote, DER_promote> (result, A.commGrid);
+		return SpParMat<IU, N_promote, DER_promote> (result, A.commGrid);
 	}
 	else
 	{
 		cout << "Grids are not comparable elementwise multiplication" << endl; 
 		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
-		return SpParMPI2< IU,N_promote,DER_promote >();
+		return SpParMat< IU,N_promote,DER_promote >();
 	}
 }
 
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
-		(const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B )
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
+		(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
@@ -209,7 +210,7 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
-		return SpParMPI2< IU,N_promote,DER_promote >();
+		return SpParMat< IU,N_promote,DER_promote >();
 	}
 
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
@@ -469,13 +470,13 @@ SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<U
 	
 	const_cast< UDER2* >(B.spSeq)->Transpose();	// transpose back to original
 	
-	return SpParMPI2<IU,N_promote,DER_promote> (C, GridC);			// return the result object
+	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
 
 // In-place version where rhs type is the same (no need for type promotion)
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::EWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude)
+void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude)
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
@@ -489,7 +490,7 @@ void SpParMPI2<IT,NT,DER>::EWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool 
 }
 
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::EWiseScale(DenseParMat<IT, NT> & rhs)
+void SpParMat<IT,NT,DER>::EWiseScale(DenseParMat<IT, NT> & rhs)
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
@@ -504,7 +505,7 @@ void SpParMPI2<IT,NT,DER>::EWiseScale(DenseParMat<IT, NT> & rhs)
 
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation>
-void SpParMPI2<IT,NT,DER>::UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const
+void SpParMat<IT,NT,DER>::UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
@@ -526,7 +527,7 @@ void SpParMPI2<IT,NT,DER>::UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperati
 }
 
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::PrintInfo() const
+void SpParMat<IT,NT,DER>::PrintInfo() const
 {
 	IT mm = getnrow(); 
 	IT nn = getncol();
@@ -540,7 +541,7 @@ void SpParMPI2<IT,NT,DER>::PrintInfo() const
 }
 
 template <class IT, class NT, class DER>
-bool SpParMPI2<IT,NT,DER>::operator== (const SpParMPI2<IT,NT,DER> & rhs) const
+bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 {
 	int local = static_cast<int>((*spSeq) == (*(rhs.spSeq)));
 	int whole = 1;
@@ -550,7 +551,7 @@ bool SpParMPI2<IT,NT,DER>::operator== (const SpParMPI2<IT,NT,DER> & rhs) const
 
 
 template <class IT, class NT, class DER>
-void SpParMPI2<IT,NT,DER>::Transpose()
+void SpParMat<IT,NT,DER>::Transpose()
 {
 	#define TRTAGNZ 121
 	#define TRTAGM 122
@@ -625,7 +626,7 @@ void SpParMPI2<IT,NT,DER>::Transpose()
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
 template <class IT, class NT, class DER>
-ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
+ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 {
 	IT total_m, total_n, total_nnz;
 	IT m_perproc, n_perproc;
@@ -912,13 +913,13 @@ ifstream& SpParMPI2< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 
 
 template <class IT, class NT, class DER>
-ofstream& SpParMPI2<IT,NT,DER>::put(ofstream& outfile) const
+ofstream& SpParMat<IT,NT,DER>::put(ofstream& outfile) const
 {
 	outfile << (*spSeq) << endl;
 }
 
 template <class IU, class NU, class UDER>
-ofstream& operator<<(ofstream& outfile, const SpParMPI2<IU, NU, UDER> & s)
+ofstream& operator<<(ofstream& outfile, const SpParMat<IU, NU, UDER> & s)
 {
 	return s.put(outfile) ;	// use the right put() function
 

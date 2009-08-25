@@ -5,8 +5,8 @@
 /* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
 /****************************************************************/
 
-#ifndef _SP_PAR_MPI2_H_
-#define _SP_PAR_MPI2_H_
+#ifndef _SP_PAR_MAT_H_
+#define _SP_PAR_MAT_H_
 
 #include <iostream>
 #include <fstream>
@@ -47,28 +47,28 @@ using namespace std::tr1;
   * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
   */
 template <class IT, class NT, class DER>
-class SpParMPI2
+class SpParMat
 {
 public:
 	// Constructors
-	SpParMPI2 ();
-	SpParMPI2 (DER * myseq, shared_ptr<CommGrid> grid);
+	SpParMat ();
+	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
 		
-	SpParMPI2 (ifstream & input, MPI::Intracomm & world);
-	SpParMPI2 (DER * myseq, MPI::Intracomm & world);	
+	SpParMat (ifstream & input, MPI::Intracomm & world);
+	SpParMat (DER * myseq, MPI::Intracomm & world);	
 
-	SpParMPI2 (const SpParMPI2< IT,NT,DER > & rhs);				// copy constructor
-	SpParMPI2< IT,NT,DER > & operator=(const SpParMPI2< IT,NT,DER > & rhs);	// assignment operator
-	SpParMPI2< IT,NT,DER > & operator+=(const SpParMPI2< IT,NT,DER > & rhs);
-	~SpParMPI2 ();
+	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
+	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
+	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
+	~SpParMat ();
 
 	void Transpose();
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	Mult_AnXBn (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B );
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
 
-	void EWiseMult (const SpParMPI2< IT,NT,DER >  & rhs, bool exclude);
+	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale(DenseParMat<IT, NT> & rhs);
 
 	template <typename _UnaryOperation>
@@ -83,18 +83,18 @@ public:
 	void PrintInfo() const;
 
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMPI2<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	EWiseMult (const SpParMPI2<IU,NU1,UDER1> & A, const SpParMPI2<IU,NU2,UDER2> & B , bool exclude);
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
 
-	template <typename NNT, typename NDER> operator SpParMPI2< IT,NNT,NDER > () const;
+	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;
 
 	IT getnrow() const;
 	IT getncol() const;
 	IT getnnz() const;
 
-	SpParMPI2<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				// Column indexing with special parallel semantics
-	SpParMPI2<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	// General indexing with serial semantics
-	bool operator== (const SpParMPI2<IT,NT,DER> & rhs) const;
+	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				// Column indexing with special parallel semantics
+	SpParMat<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	// General indexing with serial semantics
+	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
@@ -113,8 +113,8 @@ private:
 	friend class DenseParMat;
 
 	template <typename IU, typename NU, typename UDER> 	
-	friend ofstream& operator<< (ofstream& outfile, const SpParMPI2<IU,NU,UDER> & s);	
+	friend ofstream& operator<< (ofstream& outfile, const SpParMat<IU,NU,UDER> & s);	
 };
 
-#include "SpParMPI2.cpp"
+#include "SpParMat.cpp"
 #endif

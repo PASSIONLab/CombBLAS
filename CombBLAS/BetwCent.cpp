@@ -136,11 +136,11 @@ int main(int argc, char* argv[])
 				nsploc->Create( subBatchSize, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 			else
-			{
+			{  
 				nsploc->Create( 0, A.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			PSpMat<int>::MPI_DCCols  nsp(nsploc, A.getcommgrid());	// This parallel data structure HAS-A SpTuples		
+			PSpMat<int>::MPI_DCCols  nsp(nsploc, A.getcommgrid());			
 				
 			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
 
