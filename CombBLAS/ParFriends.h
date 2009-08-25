@@ -2,20 +2,15 @@
 #define _PAR_FRIENDS_H_
 
 #include <iostream>
-#include "SpParMat.h"	// Best to include the base class first
+#include "SpParMat.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
 
 using namespace std;
 
-template <class IU, class NU>	
-class SpTuples;
+template <class IT, class NT, class DER>
+class SpParMat;
 
-template <class IU, class NU>	
-class SpDCCols;
-
-template <class IU, class NU>	
-class Dcsc;
 
 
 
@@ -23,327 +18,401 @@ class Dcsc;
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
 
-/**
- * SpTuples(A*B') (Using OuterProduct Algorithm)
- * Returns the tuples for efficient merging later
- * Support mixed precision multiplication
- * The multiplication is on the specified semiring (passed as parameter)
- */
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
-					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B)
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;  
-	const static IU zero = static_cast<IU>(0);		
-
-	IU mdim = A.m;	
-	IU ndim = B.m;	// B is already transposed
-
-	if(A.isZero() || B.isZero())
-	{
-		return new SpTuples< IU, T_promote >(zero, mdim, ndim);	// just return an empty matrix
-	}
-	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
-	SpHelper::SpIntersect(*(A.dcsc), *(B.dcsc), cols, rows, isect1, isect2, itr1, itr2);
-	
-	IU kisect = static_cast<IU>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
-	if(kisect == zero)
-	{
-		DeleteAll(isect1, isect2, cols, rows);
-		return new SpTuples< IU, T_promote >(zero, mdim, ndim);
-	}
-	
-	StackEntry< T_promote, pair<IU,IU> > * multstack;
-	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
-	DeleteAll(isect1, isect2, cols, rows);
-
-	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
-}
-
-/**
- * SpTuples(A*B) (Using ColByCol Algorithm)
- * Returns the tuples for efficient merging later
- * Support mixed precision multiplication
- * The multiplication is on the specified semiring (passed as parameter)
- */
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
-					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	const static IU zero = static_cast<IU>(0);	
-
-	IU mdim = A.m;	
-	IU ndim = B.n;	
-	if(A.isZero() || B.isZero())
-	{
-		return new SpTuples<IU, T_promote>(zero, mdim, ndim);
-	}
-	StackEntry< T_promote, pair<IU,IU> > * multstack;
-	IU cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n,  multstack);  
-	
-	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
-}
-
-
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
-					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	const static IU zero = static_cast<IU>(0);
-	
-	IU mdim = A.n;	
-	IU ndim = B.m;	
-	cout << "Tuples_AtXBt function has not been implemented yet !" << endl;
-		
-	return new SpTuples<IU, T_promote> (zero, mdim, ndim);
-}
-
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
-					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 	// T_promote is a type (so the extra "typename"), NOT a value
-	const static IU zero = static_cast<IU>(0);	
-
-	IU mdim = A.n;	
-	IU ndim = B.n;	
-	cout << "Tuples_AtXBn function has not been implemented yet !" << endl;
-		
-	return new SpTuples<IU, T_promote> (zero, mdim, ndim);
-}
-
-// Performs a balanced merge of the array of SpTuples
-// Assumes the input parameters are already column sorted
-template<class SR, class IU, class NU>
-SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0)
-{
-	int hsize =  ArrSpTups.size();		
-	if(hsize == 0)
-	{
-		return SpTuples<IU,NU>(0, mstar,nstar);
-	}
-	else
-	{
-		mstar = ArrSpTups[0]->m;
-		nstar = ArrSpTups[0]->n;
-	}
-	for(int i=1; i< hsize; ++i)
-	{
-		if((mstar != ArrSpTups[i]->m) || nstar != ArrSpTups[i]->n)
-		{
-			cerr << "Dimensions do not match on MergeAll()" << endl;
-			return SpTuples<IU,NU>(0,0,0);
-		}
-	}
-	if(hsize > 1)
-	{
-		ColLexiCompare<IU,int> heapcomp;
-		tuple<IU, IU, int> * heap = new tuple<IU, IU, int> [hsize];	// (rowindex, colindex, source-id)
-		IU * curptr = new IU[hsize];
-		fill_n(curptr, hsize, static_cast<IU>(0)); 
-		IU estnnz = 0;
-
-		for(int i=0; i< hsize; ++i)
-		{
-			estnnz += ArrSpTups[i]->getnnz();
-			heap[i] = make_tuple(tr1::get<0>(ArrSpTups[i]->tuples[0]), tr1::get<1>(ArrSpTups[i]->tuples[0]), i);
-		}	
-		make_heap(heap, heap+hsize, not2(heapcomp));
-
-		tuple<IU, IU, NU> * ntuples = new tuple<IU,IU,NU>[estnnz]; 
-		IU cnz = 0;
-
-		while(hsize > 0)
-		{
-			pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
-			int source = tr1::get<2>(heap[hsize-1]);
-
-			if( (cnz != 0) && 
-				((tr1::get<0>(ntuples[cnz-1]) == tr1::get<0>(heap[hsize-1])) && (tr1::get<1>(ntuples[cnz-1]) == tr1::get<1>(heap[hsize-1]))) )
-			{
-				tr1::get<2>(ntuples[cnz-1])  = SR::add(tr1::get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++)); 
-			}
-			else
-			{
-				ntuples[cnz++] = ArrSpTups[source]->tuples[curptr[source]++];
-			}
-			
-			if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
-			{
-				heap[hsize-1] = make_tuple(tr1::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
-								tr1::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-				push_heap(heap, heap+hsize, not2(heapcomp));
-			}
-			else
-			{
-				--hsize;
-			}
-		}
-		SpHelper::ShrinkArray(ntuples, cnz);
-		DeleteAll(heap, curptr);
-		return SpTuples<IU,NU> (cnz, mstar, nstar, ntuples);
-	}
-	else
-	{
-		return SpTuples<IU,NU> (*ArrSpTups[0]);
-	}
-}
-
-
-/**
- * @param[in]   exclude if false,
- *      \n              then operation is A = A .* B
- *      \n              else operation is A = A .* not(B) 
- * \attention The memory pool of the lvalue is preserved:
- * 	\n	If A = A .* B where B uses pinnedPool and A uses NULL before the operation,
- * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
- **/
-template <typename IU, typename NU1, typename NU2>
-Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude)
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
+		(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	IU estnzc, estnz;
-	if(exclude)
-	{	
-		estnzc = A.nzc;
-		estnz = A.nz; 
-	} 
-	else
-	{
-		estnzc = std::min(A.nzc, B.nzc);
-		estnz  = std::min(A.nz, B.nz);
-	}
-
-	Dcsc<IU,N_promote> temp(estnz, estnzc);
-
-	IU curnzc = 0;
-	IU curnz = 0;
-	IU i = 0;
-	IU j = 0;
-	temp.cp[0] = Dcsc<IU,NU1>::zero;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
 	
-	if(!exclude)	// A = A .* B
+	if(A.getncol() != B.getnrow())
 	{
-		while(i< A.nzc && j<B.nzc)
-		{
-			if(A.jc[i] > B.jc[j]) 		++j;
-			else if(A.jc[i] < B.jc[j]) 	++i;
-			else
-			{
-				IU ii = A.cp[i];
-				IU jj = B.cp[j];
-				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
-				{
-					if (A.ir[ii] < B.ir[jj])	++ii;
-					else if (A.ir[ii] > B.ir[jj])	++jj;
-					else
-					{
-						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = A.numx[ii++] * B.numx[jj++];	
-					}
-				}
-				if(prevnz < curnz)	// at least one nonzero exists in this column
-				{
-					temp.jc[curnzc++] = A.jc[i];	
-					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
-				}
-				++i;
-				++j;
-			}
-		}
-	}
-	else	// A = A .* not(B)
-	{
-		while(i< A.nzc && j< B.nzc)
-		{
-			if(A.jc[i] > B.jc[j])		++j;
-			else if(A.jc[i] < B.jc[j])
-			{
-				temp.jc[curnzc++] = A.jc[i++];
-				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)	
-				{
-					temp.ir[curnz] 		= A.ir[k];
-					temp.numx[curnz++] 	= A.numx[k];
-				}
-				temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
-			}
-			else
-			{
-				IU ii = A.cp[i];
-				IU jj = B.cp[j];
-				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
-				{
-					if (A.ir[ii] > B.ir[jj])	++jj;
-					else if (A.ir[ii] < B.ir[jj])
-					{
-						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = A.numx[ii++];
-					}
-					else	// eliminate those existing nonzeros
-					{
-						++ii;	
-						++jj;	
-					}
-				}
-				while (ii < A.cp[i+1])
-				{
-					temp.ir[curnz] = A.ir[ii];
-					temp.numx[curnz++] = A.numx[ii++];
-				}
-
-				if(prevnz < curnz)	// at least one nonzero exists in this column
-				{
-					temp.jc[curnzc++] = A.jc[i];	
-					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
-				}
-				++i;
-				++j;
-			}
-		}
-		while(i< A.nzc)
-		{
-			temp.jc[curnzc++] = A.jc[i++];
-			for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
-			{
-				temp.ir[curnz] 	= A.ir[k];
-				temp.numx[curnz++] = A.numx[k];
-			}
-			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
-		}
+		cout<<"Can not multiply, dimensions does not match"<<endl;
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
 	}
 
-	temp.Resize(curnzc, curnz);
-	return temp;
-}	
+	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
+	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
+		
+	const_cast< UDER2* >(B.spSeq)->Transpose();
+	
+	// set row & col window handles
+	vector<MPI::Win> rowwindows, colwindows;
+	vector<MPI::Win> rowwinnext, colwinnext;
+	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
+	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
+	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwinnext);
+	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwinnext);
+	
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+	
+	UDER1 * ARecv, * ARecvNext; 
+	UDER2 * BRecv, * BRecvNext;
+	vector< SpTuples<IU,N_promote>  *> tomerge;
+
+	ofstream oput;
+	GridC->OpenDebugFile("deb", oput);
+
+	// Prefetch first
+	for(int j=0; j< rowwindows.size(); ++j)
+		MPI_Win_fence(MPI_MODE_NOPRECEDE, rowwindows[j]);
+	for(int j=0; j< colwindows.size(); ++j)
+		MPI_Win_fence(MPI_MODE_NOPRECEDE, colwindows[j]);
+
+	for(int j=0; j< rowwinnext.size(); ++j)
+		MPI_Win_fence(MPI_MODE_NOPRECEDE, rowwinnext[j]);
+	for(int j=0; j< colwinnext.size(); ++j)
+		MPI_Win_fence(MPI_MODE_NOPRECEDE, colwinnext[j]);
 
 
-template<typename IU, typename NU1, typename NU2>
-SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude)
-{
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote; 
-	assert(A.m == B.m);
-	assert(A.n == B.n);
-
-	Dcsc<IU, N_promote> * tdcsc = NULL;
-	if(A.nnz > 0 && B.nnz > 0)
-	{ 
-		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
-		return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
+	int Aownind = (0+Aoffset) % stages;		
+	int Bownind = (0+Boffset) % stages;
+	if(Aownind == (A.commGrid)->GetRankInProcRow())
+	{	
+		ARecv = A.spSeq;	// shallow-copy 
 	}
 	else
 	{
-		return 	SpDCCols<IU, N_promote> (0, A.m , A.n, tdcsc);
+		vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDER1::esscount; ++j)	
+		{
+			ess1[j] = ARecvSizes[j][Aownind];	
+		}
+		ARecv = new UDER1();	// create the object first	
+
+		oput << "For A (out), Fetching " << (void*)rowwindows[0] << endl;
+		SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);	// fetch its elements later
 	}
+	if(Bownind == (B.commGrid)->GetRankInProcCol())
+	{
+		BRecv = B.spSeq;	// shallow-copy
+	}
+	else
+	{
+		vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDER2::esscount; ++j)	
+		{
+			ess2[j] = BRecvSizes[j][Bownind];	
+		}	
+		BRecv = new UDER2();
+
+		oput << "For B (out), Fetching " << (void*)colwindows[0] << endl;
+		SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
+	}
+
+	int Aownprev = Aownind;
+	int Bownprev = Bownind;
+	
+	for(int i = 1; i < stages; ++i) 
+	{
+		Aownind = (i+Aoffset) % stages;		
+		Bownind = (i+Boffset) % stages;
+
+		if(i % 2 == 1)	// Fetch RecvNext via winnext, fence on Recv via windows
+		{	
+			if(Aownind == (A.commGrid)->GetRankInProcRow())
+			{	
+				ARecvNext = A.spSeq;	// shallow-copy 
+			}
+			else
+			{
+				vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDER1::esscount; ++j)	
+				{
+					ess1[j] = ARecvSizes[j][Aownind];	
+				}
+				ARecvNext = new UDER1();	// create the object first	
+
+				oput << "For A, Fetching " << (void*) rowwinnext[0] << endl;
+				SpParHelper::FetchMatrix(*ARecvNext, ess1, rowwinnext, Aownind);
+			}
+		
+			if(Bownind == (B.commGrid)->GetRankInProcCol())
+			{
+				BRecvNext = B.spSeq;	// shallow-copy
+			}
+			else
+			{
+				vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDER2::esscount; ++j)	
+				{
+					ess2[j] = BRecvSizes[j][Bownind];	
+				}		
+				BRecvNext = new UDER2();
+
+				oput << "For B, Fetching " << (void*)colwinnext[0] << endl;
+				SpParHelper::FetchMatrix(*BRecvNext, ess2, colwinnext, Bownind);	// No lock version, only get !
+			}
+		
+			oput << "Fencing " << (void*) rowwindows[0] << endl;
+			oput << "Fencing " << (void*) colwindows[0] << endl;
+		
+			for(int j=0; j< rowwindows.size(); ++j)
+				MPI_Win_fence(MPI_MODE_NOSTORE, rowwindows[j]);		// Synch using "other" windows
+			for(int j=0; j< colwindows.size(); ++j)
+				MPI_Win_fence(MPI_MODE_NOSTORE, colwindows[j]);
+	
+			SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
+			if(!C_cont->isZero()) 
+				tomerge.push_back(C_cont);
+
+			if(Aownprev != (A.commGrid)->GetRankInProcRow()) delete ARecv;
+			if(Bownprev != (B.commGrid)->GetRankInProcCol()) delete BRecv;
+
+			Aownprev = Aownind;
+			Bownprev = Bownind; 
+		}	
+		else	// fetch to Recv via windows, fence on RecvNext via winnext
+		{	
+			
+			if(Aownind == (A.commGrid)->GetRankInProcRow())
+			{	
+				ARecv = A.spSeq;	// shallow-copy 
+			}
+			else
+			{
+				vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDER1::esscount; ++j)	
+				{
+					ess1[j] = ARecvSizes[j][Aownind];	
+				}
+				ARecv = new UDER1();	// create the object first	
+
+				oput << "For A, Fetching " << (void*) rowwindows[0] << endl;
+				SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);
+			}
+		
+			if(Bownind == (B.commGrid)->GetRankInProcCol())
+			{
+				BRecv = B.spSeq;	// shallow-copy
+			}
+			else
+			{
+				vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDER2::esscount; ++j)	
+				{
+					ess2[j] = BRecvSizes[j][Bownind];	
+				}		
+				BRecv = new UDER2();
+
+				oput << "For B, Fetching " << (void*)colwindows[0] << endl;
+				SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
+			}
+		
+			oput << "Fencing " << (void*) rowwinnext[0] << endl;
+			oput << "Fencing " << (void*) rowwinnext[0] << endl;
+		
+			for(int j=0; j< rowwinnext.size(); ++j)
+				MPI_Win_fence(MPI_MODE_NOSTORE, rowwinnext[j]);		// Synch using "other" windows
+			for(int j=0; j< colwinnext.size(); ++j)
+				MPI_Win_fence(MPI_MODE_NOSTORE, colwinnext[j]);
+
+			SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecvNext, *BRecvNext, false, true);
+			if(!C_cont->isZero()) 
+				tomerge.push_back(C_cont);
+
+
+			if(Aownprev != (A.commGrid)->GetRankInProcRow()) delete ARecvNext;
+			if(Bownprev != (B.commGrid)->GetRankInProcCol()) delete BRecvNext;
+
+			Aownprev = Aownind;
+			Bownprev = Bownind; 
+		}
+
+	}
+
+	if(stages % 2 == 1)	// fence on Recv via windows
+	{
+		oput << "Fencing " << (void*) rowwindows[0] << endl;
+		oput << "Fencing " << (void*) colwindows[0] << endl;
+
+		for(int j=0; j< rowwindows.size(); ++j)
+			MPI_Win_fence(MPI_MODE_NOSUCCEED, rowwindows[j]);		// Synch using "prev" windows
+		for(int j=0; j< colwindows.size(); ++j)
+			MPI_Win_fence(MPI_MODE_NOSUCCEED, colwindows[j]);
+
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
+
+		if(Aownprev != (A.commGrid)->GetRankInProcRow()) delete ARecv;
+		if(Bownprev != (B.commGrid)->GetRankInProcRow()) delete BRecv;
+	}
+	else		// fence on RecvNext via winnext
+	{
+		oput << "Fencing " << (void*) rowwinnext[0] << endl;
+		oput << "Fencing " << (void*) colwinnext[0] << endl;
+
+		for(int j=0; j< rowwinnext.size(); ++j)
+			MPI_Win_fence(MPI_MODE_NOSUCCEED, rowwinnext[j]);		// Synch using "prev" windows
+		for(int j=0; j< colwinnext.size(); ++j)
+			MPI_Win_fence(MPI_MODE_NOSUCCEED, colwinnext[j]);
+
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecvNext, *BRecvNext, false, true);
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
+
+		if(Aownprev != (A.commGrid)->GetRankInProcRow()) delete ARecvNext;
+		if(Bownprev != (B.commGrid)->GetRankInProcRow()) delete BRecvNext;
+	}
+	for(int i=0; i< rowwindows.size(); ++i)
+	{
+		rowwindows[i].Free();
+		rowwinnext[i].Free();
+	}
+	for(int i=0; i< colwindows.size(); ++i)
+	{
+		colwindows[i].Free();
+		colwinnext[i].Free();
+	}
+	GridC->GetWorld().Barrier();
+
+	
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	for(int i=0; i<tomerge.size(); ++i)
+	{
+		delete tomerge[i];
+	}
+	C->PrintInfo();
+	
+	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
+
+	
+	const_cast< UDER2* >(B.spSeq)->Transpose();	// transpose back to original
+	
+	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
 
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn_ActiveTarget 
+		(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
+
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	
+	if(A.getncol() != B.getnrow())
+	{
+		cout<<"Can not multiply, dimensions does not match"<<endl;
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
+	}
+
+	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
+	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
+		
+	const_cast< UDER2* >(B.spSeq)->Transpose();
+	
+	// Create row and column windows (collective operation, i.e. everybody exposes its window to others)
+	vector<MPI::Win> rowwindows, colwindows;
+	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
+	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
+	
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+	
+	UDER1 * ARecv, * ARecvNext; 
+	UDER2 * BRecv, * BRecvNext;
+	vector< SpTuples<IU,N_promote>  *> tomerge;
+
+	int ranks[1]; 
+	MPI::Group row_group = (A.commGrid)->GetRowWorld().Get_group();
+	ranks[0] = (A.commGrid)->GetRankInProcRow();
+	MPI::Group row_access = row_group.Excl(1, ranks[]);	// exclude yourself, keep the original ordering
+
+	MPI::Group col_group = (B.commGrid)->GetColWorld().Get_group();
+	ranks[0] = (B.commGrid)->GetRankInProcCol();
+	MPI::Group col_access = col_group.Excl(1, ranks[]);
+
+	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
+	for(int j=0; j< rowwindows.size(); ++j)
+		rowwindows[j].Post(row_access, MPI_MODE_NOPUT);
+	for(int j=0; j< colwindows.size(); ++j)
+		colwindows[j].Post(col_access, MPI_MODE_NOPUT);
+
+	// begin the ACCESS epochs for the arrays of the remote matrices A and B
+	// Start() will not return until all processes in the target group have entered their exposure epoch
+	for(int j=0; j< rowwindows.size(); ++j)
+		rowwindows[j].Start(row_access, 0);
+	for(int j=0; j< colwindows.size(); ++j)
+		colwindows[j].Start(col_access, 0);
+
+
+	int Aownind = (0+Aoffset) % stages;		
+	int Bownind = (0+Boffset) % stages;
+	if(Aownind == (A.commGrid)->GetRankInProcRow())
+	{	
+		ARecv = A.spSeq;	// shallow-copy 
+	}
+	else
+	{
+		vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDER1::esscount; ++j)	
+			ess1[j] = ARecvSizes[j][Aownind];	
+
+		ARecv = new UDER1();	// create the object first	
+		SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);	// fetch its elements later
+	}
+	if(Bownind == (B.commGrid)->GetRankInProcCol())
+	{
+		BRecv = B.spSeq;	// shallow-copy
+	}
+	else
+	{
+		vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDER2::esscount; ++j)	
+			ess2[j] = BRecvSizes[j][Bownind];	
+	
+		BRecv = new UDER2();
+		SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
+	}
+
+	// ABAB: We can not get away with a single window per local matrix because the mpi_win_complete() calls do not take a group argument
+	// they just match the group in the previous call to mpi_win_start(). In this case, we have to use multiple overlapping windows; hoping that 
+	// concurrent reads won't crash?
+
+
+	// End the exposure epochs for the arrays of the local matrices A and B
+	// The Wait() call matches calls to Complete() issued by ** EACH OF THE ORIGIN PROCESSES ** that were granted access to the window during this epoch.
+	for(int j=0; j< rowwindows.size(); ++j)
+		rowwindows[j].Wait();
+	for(int j=0; j< colwindows.size(); ++j)
+		colwindows[j].Wait();
+			
+}
+
+
+template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
+	(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+
+	if(*(A.commGrid) == *(B.commGrid))	
+	{
+		DER_promote * result = new DER_promote( EWiseMult(*(A.spSeq),*(B.spSeq),exclude) );
+		return SpParMat<IU, N_promote, DER_promote> (result, A.commGrid);
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise multiplication" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
+	}
+}
 #endif
 

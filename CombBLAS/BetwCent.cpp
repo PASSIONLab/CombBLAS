@@ -16,7 +16,7 @@
 #include "SpParVec.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
-#include "SpParMPI2.h"
+#include "SpParMat.h"
 #include "DenseParMat.h"
 #include "DenseParVec.h"
 
@@ -31,7 +31,7 @@ class PSpMat
 { 
 public: 
 	typedef SpDCCols < int, NT > DCCols;
-	typedef SpParMPI2 < int, NT, DCCols > MPI_DCCols;
+	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
 };
 
 

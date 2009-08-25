@@ -64,10 +64,6 @@ public:
 
 	void Transpose();
 
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	Mult_AnXBn (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
-
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale(DenseParMat<IT, NT> & rhs);
 
@@ -81,6 +77,10 @@ public:
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 
 	void PrintInfo() const;
+
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
 
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 

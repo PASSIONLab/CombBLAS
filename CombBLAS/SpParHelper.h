@@ -85,7 +85,7 @@ void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > &
 	
 	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
 	// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
-	// *** Collective operation ***, everybody exposes its own array to everyone else in the communicator
+	// *** COLLECTIVE OPERATION ***, everybody exposes its own array to everyone else in the communicator
 		
 	for(int i=0; i< arrs.indarrs.size(); ++i)
 	{

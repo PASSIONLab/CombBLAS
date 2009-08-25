@@ -20,8 +20,10 @@ CombBLAS/MainPage.h -text
 CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
 CombBLAS/ParFriends.h -text
+CombBLAS/ReleaseTests/MultTest.cpp -text
 CombBLAS/ReleaseTests/TransposeTest -text
 CombBLAS/ReleaseTests/TransposeTest.cpp -text
+CombBLAS/ReleaseTests/exectests -text
 CombBLAS/ReleaseTests/makefile -text
 CombBLAS/ReleaseTests/makefile-mac -text
 CombBLAS/Semirings.h -text

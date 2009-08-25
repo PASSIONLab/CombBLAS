@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 		ifstream inputtrans(transname.c_str());
 		MPI::COMM_WORLD.Barrier();
 	
-		typedef SpParMat <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
+		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
 
 		PARBOOLMAT A, AT, ATControl;		// construct object
 		A.ReadDistribute(inputnormal, 0);	// read it from file, note that we use the transpose of "input" data
@@ -69,3 +69,4 @@ int main(int argc, char* argv[])
 	MPI::Finalize();
 	return 0;
 }
+
