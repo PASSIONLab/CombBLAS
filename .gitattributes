@@ -42,8 +42,8 @@ CombBLAS/SpHelper.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
 CombBLAS/SpParHelper.h -text
-CombBLAS/SpParMPI2.cpp -text
-CombBLAS/SpParMPI2.h -text
+CombBLAS/SpParMat.cpp -text
+CombBLAS/SpParMat.h -text
 CombBLAS/SpParVec.cpp -text
 CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text
