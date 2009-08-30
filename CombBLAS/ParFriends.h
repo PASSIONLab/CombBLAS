@@ -18,12 +18,12 @@ class SpParMat;
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
 
-template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn 
-		(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn 
+		(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B )
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
 	
 	if(A.getncol() != B.getnrow())
 	{
@@ -35,7 +35,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
 	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
 		
-	const_cast< UDER2* >(B.spSeq)->Transpose();
+	const_cast< UDERB* >(B.spSeq)->Transpose();
 	
 	// set row & col window handles
 	vector<MPI::Win> rowwindows, colwindows;
@@ -45,14 +45,14 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwinnext);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwinnext);
 	
-	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
-	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
 	
 	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
 	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
 	
-	UDER1 * ARecv, * ARecvNext; 
-	UDER2 * BRecv, * BRecvNext;
+	UDERA * ARecv, * ARecvNext; 
+	UDERB * BRecv, * BRecvNext;
 	vector< SpTuples<IU,N_promote>  *> tomerge;
 
 	ofstream oput;
@@ -78,12 +78,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	else
 	{
-		vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
-		for(int j=0; j< UDER1::esscount; ++j)	
+		vector<IU> ess1(UDERA::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDERA::esscount; ++j)	
 		{
 			ess1[j] = ARecvSizes[j][Aownind];	
 		}
-		ARecv = new UDER1();	// create the object first	
+		ARecv = new UDERA();	// create the object first	
 
 		oput << "For A (out), Fetching " << (void*)rowwindows[0] << endl;
 		SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);	// fetch its elements later
@@ -94,12 +94,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	else
 	{
-		vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
-		for(int j=0; j< UDER2::esscount; ++j)	
+		vector<IU> ess2(UDERB::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDERB::esscount; ++j)	
 		{
 			ess2[j] = BRecvSizes[j][Bownind];	
 		}	
-		BRecv = new UDER2();
+		BRecv = new UDERB();
 
 		oput << "For B (out), Fetching " << (void*)colwindows[0] << endl;
 		SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
@@ -121,12 +121,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			}
 			else
 			{
-				vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
-				for(int j=0; j< UDER1::esscount; ++j)	
+				vector<IU> ess1(UDERA::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDERA::esscount; ++j)	
 				{
 					ess1[j] = ARecvSizes[j][Aownind];	
 				}
-				ARecvNext = new UDER1();	// create the object first	
+				ARecvNext = new UDERA();	// create the object first	
 
 				oput << "For A, Fetching " << (void*) rowwinnext[0] << endl;
 				SpParHelper::FetchMatrix(*ARecvNext, ess1, rowwinnext, Aownind);
@@ -138,12 +138,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			}
 			else
 			{
-				vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
-				for(int j=0; j< UDER2::esscount; ++j)	
+				vector<IU> ess2(UDERB::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDERB::esscount; ++j)	
 				{
 					ess2[j] = BRecvSizes[j][Bownind];	
 				}		
-				BRecvNext = new UDER2();
+				BRecvNext = new UDERB();
 
 				oput << "For B, Fetching " << (void*)colwinnext[0] << endl;
 				SpParHelper::FetchMatrix(*BRecvNext, ess2, colwinnext, Bownind);	// No lock version, only get !
@@ -176,12 +176,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			}
 			else
 			{
-				vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
-				for(int j=0; j< UDER1::esscount; ++j)	
+				vector<IU> ess1(UDERA::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDERA::esscount; ++j)	
 				{
 					ess1[j] = ARecvSizes[j][Aownind];	
 				}
-				ARecv = new UDER1();	// create the object first	
+				ARecv = new UDERA();	// create the object first	
 
 				oput << "For A, Fetching " << (void*) rowwindows[0] << endl;
 				SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);
@@ -193,12 +193,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			}
 			else
 			{
-				vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
-				for(int j=0; j< UDER2::esscount; ++j)	
+				vector<IU> ess2(UDERB::esscount);		// pack essentials to a vector
+				for(int j=0; j< UDERB::esscount; ++j)	
 				{
 					ess2[j] = BRecvSizes[j][Bownind];	
 				}		
-				BRecv = new UDER2();
+				BRecv = new UDERB();
 
 				oput << "For B, Fetching " << (void*)colwindows[0] << endl;
 				SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
@@ -283,23 +283,23 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	C->PrintInfo();
 	
-	SpHelper::deallocate2D(ARecvSizes, UDER1::esscount);
-	SpHelper::deallocate2D(BRecvSizes, UDER2::esscount);
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 
 	
-	const_cast< UDER2* >(B.spSeq)->Transpose();	// transpose back to original
+	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
 
-template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> Mult_AnXBn_ActiveTarget 
-		(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B )
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_ActiveTarget 
+		(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B )
 
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
 	
 	if(A.getncol() != B.getnrow())
 	{
@@ -311,78 +311,91 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
 	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
 		
-	const_cast< UDER2* >(B.spSeq)->Transpose();
+	UDERA A1seq, A2seq;
+	(A.spSeq)->Split( A1seq, A2seq); 
+
+	const_cast< UDERB* >(B.spSeq)->Transpose();
+	UDERB B1seq, B2seq;
+	(B.spSeq)->Split( B1seq, B2seq); 
 	
 	// Create row and column windows (collective operation, i.e. everybody exposes its window to others)
-	vector<MPI::Win> rowwindows, colwindows;
-	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
-	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
+	vector<MPI::Win> rowwins1, rowwins2, colwins1, colwins2;
+	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A1seq, rowwins1);
+	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A2seq, rowwins2);
+	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B1seq, colwins1);
+	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B2seq, colwins2);
+
+	// ABAB: We can optimize the call to create windows in the absence of passive synchronization
+	// 	MPI_Info info; 
+	// 	MPI_Info_create ( &info ); 
+	// 	MPI_Info_set( info, "no_locks", "true" ); 
+	// 	MPI_Win_create( . . ., info, . . . ); 
+	// 	MPI_Info_free( &info ); 
 	
-	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDER1::esscount, stages);
-	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDER2::esscount, stages);
+	IU ** ARecvSizes1 = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** ARecvSizes2 = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes1 = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+	IU ** BRecvSizes2 = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+		
+	SpParHelper::GetSetSizes( A1seq, ARecvSizes1, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( A2seq, ARecvSizes2, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( B1seq, BRecvSizes1, (B.commGrid)->GetColWorld());
+	SpParHelper::GetSetSizes( B2seq, BRecvSizes2, (B.commGrid)->GetColWorld());
 	
-	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
-	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
-	
-	UDER1 * ARecv, * ARecvNext; 
-	UDER2 * BRecv, * BRecvNext;
+	UDERA * ARecv1, * ARecv2; 
+	UDERB * BRecv1, * BRecv2;
 	vector< SpTuples<IU,N_promote>  *> tomerge;
 
-	int ranks[1]; 
 	MPI::Group row_group = (A.commGrid)->GetRowWorld().Get_group();
-	ranks[0] = (A.commGrid)->GetRankInProcRow();
-	MPI::Group row_access = row_group.Excl(1, ranks[]);	// exclude yourself, keep the original ordering
-
 	MPI::Group col_group = (B.commGrid)->GetColWorld().Get_group();
-	ranks[0] = (B.commGrid)->GetRankInProcCol();
-	MPI::Group col_access = col_group.Excl(1, ranks[]);
 
-	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
-	for(int j=0; j< rowwindows.size(); ++j)
-		rowwindows[j].Post(row_access, MPI_MODE_NOPUT);
-	for(int j=0; j< colwindows.size(); ++j)
-		colwindows[j].Post(col_access, MPI_MODE_NOPUT);
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
 
-	// begin the ACCESS epochs for the arrays of the remote matrices A and B
-	// Start() will not return until all processes in the target group have entered their exposure epoch
-	for(int j=0; j< rowwindows.size(); ++j)
-		rowwindows[j].Start(row_access, 0);
-	for(int j=0; j< colwindows.size(); ++j)
-		colwindows[j].Start(col_access, 0);
+	// Start exposure epochs to first set of windows
+	SpParHelper::PostExposureEpoch(Aself, rowwins1, row_group);
+	SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
 
+	int Aowner = (0+Aoffset) % stages;		
+	int Bowner = (0+Boffset) % stages;
 
-	int Aownind = (0+Aoffset) % stages;		
-	int Bownind = (0+Boffset) % stages;
-	if(Aownind == (A.commGrid)->GetRankInProcRow())
+	if(Aowner == Aself)
 	{	
-		ARecv = A.spSeq;	// shallow-copy 
+		ARecv1 = A1seq;		// shallow-copy 
 	}
 	else
 	{
-		vector<IU> ess1(UDER1::esscount);		// pack essentials to a vector
-		for(int j=0; j< UDER1::esscount; ++j)	
-			ess1[j] = ARecvSizes[j][Aownind];	
+		SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
 
-		ARecv = new UDER1();	// create the object first	
-		SpParHelper::FetchMatrix(*ARecv, ess1, rowwindows, Aownind);	// fetch its elements later
+		for(int j=0; j< rowwins1.size(); ++j)
+			rowwins1[j].Complete();
+
+		SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);	// Start prefetching next half 
+
+
 	}
-	if(Bownind == (B.commGrid)->GetRankInProcCol())
+	if(Bowner == Bself)
 	{
-		BRecv = B.spSeq;	// shallow-copy
+		BRecv1 = B1seq;		// shallow-copy
 	}
 	else
 	{
-		vector<IU> ess2(UDER2::esscount);		// pack essentials to a vector
-		for(int j=0; j< UDER2::esscount; ++j)	
-			ess2[j] = BRecvSizes[j][Bownind];	
+		SpParHelper::StartAccessEpoch(Bownind, colwins1, col_group);
+
+		vector<IU> ess(UDERB::esscount);		// pack essentials to a vector
+		for(int j=0; j< UDERB::esscount; ++j)	
+			ess[j] = BRecvSizes1[j][Bownind];	
 	
-		BRecv = new UDER2();
-		SpParHelper::FetchMatrix(*BRecv, ess2, colwindows, Bownind);	// No lock version, only get !
+		BRecv1 = new UDERB();
+		SpParHelper::FetchMatrix(*BRecv1, ess, colwins1, Bownind);	// No lock version, only get()
 	}
 
-	// ABAB: We can not get away with a single window per local matrix because the mpi_win_complete() calls do not take a group argument
-	// they just match the group in the previous call to mpi_win_start(). In this case, we have to use multiple overlapping windows; hoping that 
-	// concurrent reads won't crash?
+	for(int i = 1; i < stages; ++i) 
+	{
+		Aowner = (i+Aoffset) % stages;		
+		Bowner = (i+Boffset) % stages;
+		
+		
 
 
 	// End the exposure epochs for the arrays of the local matrices A and B
@@ -395,12 +408,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 
-template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> EWiseMult 
-	(const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude)
+template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 
+	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B , bool exclude)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
 
 	if(*(A.commGrid) == *(B.commGrid))	
 	{

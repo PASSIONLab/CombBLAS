@@ -31,6 +31,11 @@ public:
 	template <typename IT, typename NT, typename DER>
 	static void GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MPI::Intracomm & comm1d);
 
+	template <typename IT, typename DER>
+	static void AccessNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes);
+
+	static void StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group);
+	static void PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group);
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);
 
 	static void Print(const string & s)
@@ -106,6 +111,49 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
 	{
 		arrwin[i].Unlock(ownind);
 	}
+}
+
+/**
+ * @param[in] owner {target processor rank within the processor group} 
+ * @param[in] arrwin {start access epoch only to owner's arrwin (-windows) }
+ */
+void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group)
+{
+	int acc_ranks[1]; 
+	acc_ranks[0] = owner;
+	MPI::Group access = group.Incl(1, acc_ranks[]);
+
+	// begin the ACCESS epochs for the arrays of the remote matrices A and B
+	// Start() *may* block until all processes in the target group have entered their exposure epoch
+	for(int i=0; i< arrwin.size(); ++i)
+		arrwin[i].Start(access, 0); 
+}
+
+/**
+ * @param[in] self {rank of "this" processor to be excluded when starting the exposure epoch} 
+ */
+void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group)
+{
+	int exp_exc_ranks[1]; 
+	exp_exc_ranks[0] = self;
+	MPI::Group exposure = group.Excl(1, exp_exc_ranks[]);
+
+	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
+	for(int i=0; i< arrwin.size(); ++i)
+		arrwin[i].Post(exposure, MPI_MODE_NOPUT);
+}
+
+template <class IT, class DER>
+void SpParHelper::AccessNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes)
+{
+	StartAccessEpoch(owner, arrwin, group);		// start the access epoch to arrwin of owner
+
+	vector<IT> ess(DER::esscount);			// pack essentials to a vector
+	for(int j=0; j< DER::esscount; ++j)	
+		ess[j] = sizes[j][owner];	
+
+	Matrix = new DER();	// create the object first	
+	FetchMatrix(*Matrix, ess, arrwin, owner);	// then start fetching its elements
 }
 
 
