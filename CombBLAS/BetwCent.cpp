@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = (Mult_AnXBn<PTBOOLINT>(A, fringe));
+				fringe = Mult_AnXBn<PTBOOLINT>(A, fringe);
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);	
 			}

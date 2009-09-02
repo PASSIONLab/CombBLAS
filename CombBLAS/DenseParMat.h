@@ -24,7 +24,7 @@
 #include "MPIType.h"
 #include "Deleter.h"
 #include "SpHelper.h"
-#include "SpParMPI2.h"
+#include "SpParMat.h"
 #include "DenseParVec.h"
 
 template <class IU, class NU, class DER>

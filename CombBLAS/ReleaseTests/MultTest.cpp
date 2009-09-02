@@ -16,6 +16,17 @@
 
 using namespace std;
 
+// Simple helper class for declarations: Just the numerical type is templated 
+// The index type and the sequential matrix type stays the same for the whole code
+// In this case, they are "int" and "SpDCCols"
+template <class NT>
+class PSpMat 
+{ 
+public: 
+	typedef SpDCCols < int, NT > DCCols;
+	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
+};
+
 
 int main(int argc, char* argv[])
 {
@@ -27,44 +38,48 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./TransposeTest <BASEADDRESS> <Matrix> <MatrixTranspose>" << endl;
-			cout << "Input file <Matrix> and <MatrixTranspose> should be under <BASEADDRESS> in triples format" << endl;
+			cout << "Usage: ./MultTest <MatrixA> <MatrixB> <MatrixC>" << endl;
+			cout << "<MatrixA>,<MatrixB>,<MatrixC> are absolute addresses, and files should be in triples format" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
 	}				
 	{
-		string directory(argv[1]);		
-		string normalname(argv[2]);
-		string transname(argv[3]);
-		normalname = directory+"/"+normalname;
-		transname = directory+"/"+transname;
+		string Aname(argv[1]);		
+		string Bname(argv[2]);
+		string Cname(argv[3]);
 
-		ifstream inputnormal(normalname.c_str());
-		ifstream inputtrans(transname.c_str());
+		ifstream inputA(Aname.c_str());
+		ifstream inputB(Bname.c_str());
+		ifstream inputC(Cname.c_str());
+
 		MPI::COMM_WORLD.Barrier();
 	
-		typedef SpParMPI2 <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
+		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 
-		PARBOOLMAT A, AT, ATControl;		// construct object
-		A.ReadDistribute(inputnormal, 0);	// read it from file, note that we use the transpose of "input" data
-		AT = A;
-		AT.Transpose();
+		PSpMat<double>::MPI_DCCols A, B, C, CControl;	// construct objects
+		
+		A.ReadDistribute(inputA, 0);
+		B.ReadDistribute(inputB, 0);
+		CControl.ReadDistribute(inputC, 0);
 
-		ATControl.ReadDistribute(inputtrans, 0);
-		if (ATControl == AT)
+		C = Mult_AnXBn<PTDOUBLEDOUBLE>(A, B);
+		
+		if (CControl == C)
 		{
-			SpParHelper::Print("Transpose working correctly\n");	
+			SpParHelper::Print("Multiplication working correctly\n");	
 		}
 		else
 		{
-			SpParHelper::Print("ERROR in transpose, go fix it!\n");	
+			SpParHelper::Print("ERROR in Multiplication, go fix it!\n");	
 		}
 
-		inputnormal.clear();
-		inputnormal.close();
-		inputtrans.clear();
-		inputtrans.close();
+		inputA.clear();
+		inputA.close();
+		inputB.clear();
+		inputB.close();
+		inputC.clear();
+		inputC.close();
 	}
 	MPI::Finalize();
 	return 0;

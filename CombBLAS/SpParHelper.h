@@ -45,7 +45,20 @@ public:
 		{
 			cout << s;
 		}
-	}	
+	}
+
+	static void WaitNFree(vector<MPI::Win> & arrwin)
+	{
+		// End the exposure epochs for the arrays of the local matrices A and B
+		// The Wait() call matches calls to Complete() issued by ** EACH OF THE ORIGIN PROCESSES ** 
+		// that were granted access to the window during this epoch.
+
+		for(int i=0; i< arrwin.size(); ++i)
+		{
+			arrwin[i].Wait();
+			arrwin[i].Free();
+		}
+	}		
 };
 
 /**
@@ -71,7 +84,6 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 	for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
 	{
 		//arrwin[essk].Lock(MPI::LOCK_SHARED, ownind, 0);
- 
 		arrwin[essk++].Get(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), ownind, 0, arrinfo.indarrs[i].count, MPIType<IT>());
 	}
 	for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
@@ -87,7 +99,7 @@ void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > &
 {	
 	
 	Arr<IT,NT> arrs = Matrix.GetArrays(); 
-	
+	 
 	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
 	// The displacement unit argument is provided to facilitate address arithmetic in RMA operations
 	// *** COLLECTIVE OPERATION ***, everybody exposes its own array to everyone else in the communicator
@@ -121,7 +133,7 @@ void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Gr
 {
 	int acc_ranks[1]; 
 	acc_ranks[0] = owner;
-	MPI::Group access = group.Incl(1, acc_ranks[]);
+	MPI::Group access = group.Incl(1, acc_ranks);
 
 	// begin the ACCESS epochs for the arrays of the remote matrices A and B
 	// Start() *may* block until all processes in the target group have entered their exposure epoch
@@ -136,7 +148,7 @@ void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Gr
 {
 	int exp_exc_ranks[1]; 
 	exp_exc_ranks[0] = self;
-	MPI::Group exposure = group.Excl(1, exp_exc_ranks[]);
+	MPI::Group exposure = group.Excl(1, exp_exc_ranks);
 
 	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
 	for(int i=0; i< arrwin.size(); ++i)

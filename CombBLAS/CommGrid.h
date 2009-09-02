@@ -108,7 +108,7 @@ private:
 	int myrank;
 	
 	template <class IT, class NT, class DER>
-	friend class SpParMPI2;
+	friend class SpParMat;
 };
 
 
