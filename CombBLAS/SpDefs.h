@@ -11,6 +11,8 @@
 
 #include "SequenceHeaps/knheap.C"
 
+#define EPSILON 0.0001
+
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
 

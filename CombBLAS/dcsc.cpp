@@ -518,7 +518,9 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	bool same = std::equal(cp, cp+nzc+1, rhs.cp); 
 	same = same && std::equal(jc, jc+nzc, rhs.jc);
 	same = same && std::equal(ir, ir+nz, rhs.ir);
-	same = same && std::equal(numx, numx+nz, rhs.numx);
+
+	ErrorTolerantEqual<NT> epsilonequal;
+	same = same && std::equal(numx, numx+nz, rhs.numx, epsilonequal );
 	return same;
 }
 

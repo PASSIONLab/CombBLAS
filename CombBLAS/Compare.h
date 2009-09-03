@@ -1,6 +1,8 @@
 #ifndef _COMPARE_H_
 #define _COMPARE_H_
 
+#include <cmath>
+
 #ifdef NOTR1
 	#include <boost/tr1/tuple.hpp>
 #else
@@ -8,6 +10,17 @@
 #endif
 using namespace std;
 using namespace std::tr1;
+
+template <class T>
+struct ErrorTolerantEqual:
+	public binary_function< T, T, bool >
+	{
+		inline bool operator() (const T & a, const T & b) const
+		{
+			return ( std::abs(a - b) < EPSILON ) ; 
+		}
+	};
+	
 
 /**
  ** Functor class
