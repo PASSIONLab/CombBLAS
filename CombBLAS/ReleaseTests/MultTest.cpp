@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 		B.ReadDistribute(inputB, 0);
 		CControl.ReadDistribute(inputC, 0);
 
-		C = Mult_AnXBn<PTDOUBLEDOUBLE>(A, B);
+		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
 		
 		if (CControl == C)
 		{

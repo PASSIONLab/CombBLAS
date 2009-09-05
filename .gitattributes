@@ -1,5 +1,9 @@
 * text=auto !eol
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
+CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/makefile-lonestar -text
+CombBLAS/Applications/makefile-mac -text
+CombBLAS/Applications/makefile-neumann -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BetwCent.cpp -text
 CombBLAS/CommGrid.cpp -text
@@ -8,7 +12,6 @@ CombBLAS/Compare.h -text
 CombBLAS/Deleter.h -text
 CombBLAS/DenseParMat.h -text
 CombBLAS/DenseParVec.h -text
-CombBLAS/Driver.cpp -text
 CombBLAS/Friends.h -text
 CombBLAS/HeapEntry.h -text
 CombBLAS/Isect.h -text
@@ -21,7 +24,6 @@ CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
 CombBLAS/ParFriends.h -text
 CombBLAS/ReleaseTests/MultTest.cpp -text
-CombBLAS/ReleaseTests/TransposeTest -text
 CombBLAS/ReleaseTests/TransposeTest.cpp -text
 CombBLAS/ReleaseTests/exectests -text
 CombBLAS/ReleaseTests/makefile -text
@@ -61,9 +63,6 @@ CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
-CombBLAS/makefile-lonestar -text
-CombBLAS/makefile-mac -text
-CombBLAS/makefile-neumann -text
 CombBLAS/matrixA.txt -text
 CombBLAS/matrixB.txt -text
 CombBLAS/mfiles/betwCentrality.m -text

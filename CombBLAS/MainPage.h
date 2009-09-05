@@ -16,7 +16,7 @@
 * - floats for numerical values (nonzeros),
 * - SpDCCols<IT,NT> for the underlying sequential matrix operations, 
 * - and MPI-2 for communication is:
-* 	SpParMPI2<int, float, SpDCCols<int,float> > A;
+* 	SpParMat<int, float, SpDCCols<int,float> > A;
 * The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
 * and is akin to some STL constructs such as vector<int, SomeAllocator<int> >
 *

@@ -13,12 +13,12 @@
 #include <sstream>  // Required for stringstreams
 #include <ctime>
 #include <cmath>
-#include "SpParVec.h"
-#include "SpTuples.h"
-#include "SpDCCols.h"
-#include "SpParMat.h"
-#include "DenseParMat.h"
-#include "DenseParVec.h"
+#include "../SpParVec.h"
+#include "../SpTuples.h"
+#include "../SpDCCols.h"
+#include "../SpParMat.h"
+#include "../DenseParMat.h"
+#include "../DenseParVec.h"
 
 using namespace std;
 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<bool>::MPI_DCCols A, AT;	// construct object
-		A.ReadDistribute(input, 0);		// read it from file, note that we use the transpose of "input" data
+		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 		{
 			vector<int> single;
 			vector<int> empty;
-			single.push_back(vrtxid);
+			single.push_back(vrtxid);		// will return ERROR if vrtxid > N (the column dimension) 
 			int locnnz = ((A.seq())(empty,single)).getnnz();
 			int totnnz;
 			(A.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI::INT, MPI::SUM);
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn<PTBOOLINT>(A, fringe);
+				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(A, fringe);
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);	
 			}
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				PSpMat<double>::MPI_DCCols product = Mult_AnXBn<PTBOOLDOUBLE>(AT,w);
+				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(AT,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 

@@ -538,6 +538,36 @@ int SpDCCols<IT,NT>::PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 }
 
 
+template <class IT, class NT>
+SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (IT ri, IT ci) const
+{
+	IT * itr = find(dcsc->jc, dcsc->jc + dcsc->nzc, ci);
+	if(itr != dcsc->jc + dcsc->nzc)
+	{
+		IT irbeg = cp[itr - dcsc->jc];
+		IT irend = cp[itr - dcsc->jc + 1];
+
+		IT * ele = find(dcsc->ir + irbeg, dcsc->ir + irend, ri);
+		if(ele != dcsc->ir + irend)	
+		{	
+			SpDCCols<IT,NT> SingEleMat(1, 1, 1, 1);	// 1-by-1 matrix with 1 nonzero 
+			*(SingEleMat.dcsc.numx) = numx[ele - dcsc->ir];
+			*(SingEleMat.dcsc.ir) = *ele; 
+			*(SingEleMat.dcsc.jc) = *itr;
+			(SingEleMat.dcsc.cp)[0] = 0;
+			(SingEleMat.dcsc.cp)[1] = 1;
+		}
+		else
+		{
+			return SpDCCols<IT,NT>();  // 0-by-0 empty matrix
+		}
+	}
+	else
+	{
+		return SpDCCols<IT,NT>();	 // 0-by-0 empty matrix		
+	}
+}
+
 /** 
  * The almighty indexing polyalgorithm 
  * Calls different subroutines depending the sparseness of ri/ci
@@ -559,7 +589,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	else if(rsize == 1 && csize == 1)
 	{
 		cout << "Please use special element-wise indexing instead of vectors of length 1" << endl;
-		return SpDCCols<IT,NT> (zero, m, n, zero); 	// ABAB: this should normally be ((*this)(ri[0], ci[0]));
+		return ((*this)(ri[0], ci[0]));
 	}	
 	else if(rsize == 0)
 	{
@@ -607,6 +637,22 @@ ifstream & SpDCCols<IT,NT>::get(ifstream & infile)
 	return infile;
 }
 
+
+template<class IT, class NT>
+void SpDCCols<IT,NT>::PrintInfo(ofstream &  out) const
+{
+	out << "m: " << m ;
+	out << ", n: " << n ;
+	out << ", nnz: "<< nnz ;
+	if(dcsc != NULL)
+	{
+		out << ", nzc: "<< dcsc->nzc << endl;
+	}
+	else
+	{
+		out <<", nzc: "<< 0 << endl;
+	}
+}
 
 template<class IT, class NT>
 void SpDCCols<IT,NT>::PrintInfo() const

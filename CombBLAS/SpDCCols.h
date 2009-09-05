@@ -38,6 +38,7 @@ public:
 	// Member Functions and Operators: 
 	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);
 	SpDCCols<IT,NT> & operator+= (const SpDCCols<IT, NT> & rhs);
+	SpDCCols<IT,NT> operator() (IT ri, IT ci) const;	
 	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	bool operator== (const SpDCCols<IT, NT> & rhs) const
 	{
@@ -81,9 +82,11 @@ public:
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
 	
-	ofstream& put(ofstream& outfile) const;
-	ifstream& get(ifstream& infile);
+	ofstream& put(ofstream & outfile) const;
+	ifstream& get(ifstream & infile);
 	void PrintInfo() const;
+	void PrintInfo(ofstream & out) const;
+
 
 	template <typename SR> 
 	int PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);  
