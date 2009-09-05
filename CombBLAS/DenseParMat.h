@@ -28,7 +28,7 @@
 #include "DenseParVec.h"
 
 template <class IU, class NU, class DER>
-class SpParMPI2;
+class SpParMat;
 
 using namespace std;
 using namespace std::tr1;
@@ -78,7 +78,7 @@ public:
 	}
 
 	template <typename DER>
-	DenseParMat< IT,NT > & operator+=(const SpParMPI2< IT,NT,DER > & rhs)		// add a sparse matrix
+	DenseParMat< IT,NT > & operator+=(const SpParMat< IT,NT,DER > & rhs)		// add a sparse matrix
 	{
 		if(*commGrid == *rhs.commGrid)	
 		{
@@ -110,7 +110,7 @@ private:
 	IT m, n;
 
 	template <class IU, class NU, class DER>
-	friend class SpParMPI2; 
+	friend class SpParMat; 
 };
 
 #endif

@@ -1,11 +1,13 @@
 * text=auto !eol
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
+CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/Driver.cpp -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
 CombBLAS/Applications/makefile-neumann -text
+CombBLAS/Applications/matrixA.txt -text
+CombBLAS/Applications/matrixB.txt -text
 CombBLAS/BC-DEBUG/input.txt -text
-CombBLAS/BetwCent.cpp -text
 CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
@@ -63,8 +65,6 @@ CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
-CombBLAS/matrixA.txt -text
-CombBLAS/matrixB.txt -text
 CombBLAS/mfiles/betwCentrality.m -text
 CombBLAS/mfiles/genRMatBetw.m -text
 CombBLAS/mfiles/readtriples.m -text

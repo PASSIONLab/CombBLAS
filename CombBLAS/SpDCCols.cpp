@@ -544,18 +544,18 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (IT ri, IT ci) const
 	IT * itr = find(dcsc->jc, dcsc->jc + dcsc->nzc, ci);
 	if(itr != dcsc->jc + dcsc->nzc)
 	{
-		IT irbeg = cp[itr - dcsc->jc];
-		IT irend = cp[itr - dcsc->jc + 1];
+		IT irbeg = dcsc->cp[itr - dcsc->jc];
+		IT irend = dcsc->cp[itr - dcsc->jc + 1];
 
 		IT * ele = find(dcsc->ir + irbeg, dcsc->ir + irend, ri);
 		if(ele != dcsc->ir + irend)	
 		{	
 			SpDCCols<IT,NT> SingEleMat(1, 1, 1, 1);	// 1-by-1 matrix with 1 nonzero 
-			*(SingEleMat.dcsc.numx) = numx[ele - dcsc->ir];
-			*(SingEleMat.dcsc.ir) = *ele; 
-			*(SingEleMat.dcsc.jc) = *itr;
-			(SingEleMat.dcsc.cp)[0] = 0;
-			(SingEleMat.dcsc.cp)[1] = 1;
+			*(SingEleMat.dcsc->numx) = dcsc->numx[ele - dcsc->ir];
+			*(SingEleMat.dcsc->ir) = *ele; 
+			*(SingEleMat.dcsc->jc) = *itr;
+			(SingEleMat.dcsc->cp)[0] = 0;
+			(SingEleMat.dcsc->cp)[1] = 1;
 		}
 		else
 		{
