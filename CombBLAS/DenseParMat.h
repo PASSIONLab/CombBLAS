@@ -42,6 +42,15 @@ public:
 	{
 		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));		
 	}
+	DenseParMat (NT value, shared_ptr<CommGrid> grid, IT rows, IT cols): m(rows), n(cols)
+	{
+		array = SpHelper::allocate2D<double>(rows, cols);
+		for(int i=0; i< rows; ++i)
+		{
+			fill_n(array[i], cols, value);		// fill array[i][0] ... array[i][cols] with "value"
+		}
+		commGrid.reset(new CommGrid(*grid)); 
+	}
 	DenseParMat (NT ** seqarr, shared_ptr<CommGrid> grid, IT rows, IT cols): array(seqarr), m(rows), n(cols)
 	{
 		commGrid.reset(new CommGrid(*grid)); 
@@ -53,53 +62,26 @@ public:
 		{
 			array = SpHelper::allocate2D<NT>(m, n);
 			for(int i=0; i< m; ++i)
+			{
 				copy(array[i], array[i]+n, rhs.array[i]);
+			}
 		}
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}
-	DenseParMat< IT,NT > & operator=(const DenseParMat< IT,NT > & rhs)		// assignment operator
-	{
-		if(this != &rhs)		
-		{
-			if(array != NULL) 
-				SpHelper::deallocate2D(array, m);
-
-			m = rhs.m;
-			n = rhs.n;
-			if(rhs.array != NULL)	
-			{
-				array = SpHelper::allocate2D<NT>(m, n);
-				for(int i=0; i< m; ++i)
-					copy(array[i], array[i]+n, rhs.array[i]);
-			}
-			commGrid.reset(new CommGrid(*(rhs.commGrid)));		
-		}
-		return *this;
-	}
+	
+	DenseParMat< IT,NT > &  operator=(const DenseParMat< IT,NT > & rhs);	
 
 	template <typename DER>
-	DenseParMat< IT,NT > & operator+=(const SpParMat< IT,NT,DER > & rhs)		// add a sparse matrix
-	{
-		if(*commGrid == *rhs.commGrid)	
-		{
-			(rhs.spSeq)->UpdateDense(array, plus<double>());
-		}
-		else
-		{
-			cout << "Grids are not comparable elementwise addition" << endl; 
-			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
-		}
-		return *this;
-		
-	}
+	DenseParMat< IT,NT > & operator+=(const SpParMat< IT,NT,DER > & rhs);		// add a sparse matrix
+	
+	template <typename _BinaryOperation>
+	DenseParVec< IT,NT > reduce(Dim dim, _BinaryOperation __binary_op) const;
+
 	~DenseParMat ()
 	{
 		if(array != NULL) 
 			SpHelper::deallocate2D(array, m);
 	}					
-
-	DenseParVec< IT,NT > SumRows();
-	DenseParVec< IT,NT > SumCols();
 
 	shared_ptr<CommGrid> getcommgrid () { return commGrid; }	
 
@@ -107,11 +89,12 @@ private:
 	const static IT zero = static_cast<IT>(0);
 	shared_ptr<CommGrid> commGrid; 
 	NT ** array;
-	IT m, n;
+	IT m, n;	// Local columns and rows
 
 	template <class IU, class NU, class DER>
 	friend class SpParMat; 
 };
 
+#include "DenseParMat.cpp"
 #endif
 

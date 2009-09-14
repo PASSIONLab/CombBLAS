@@ -122,6 +122,28 @@ IT SpParMat< IT,NT,DER >::getncol() const
 }
 
 template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
+{
+	switch(dim)
+	{
+		case Column:
+		{
+			break;
+		}
+		case Row:
+		{
+			break;
+		}
+		default:
+		{
+			cout << "Unknown scaling dimension, returning..." << endl;
+			break;
+		}
+	}
+
+}
+
+template <class IT, class NT, class DER>
 template <typename NNT,typename NDER>	 
 SpParMat<IT,NT,DER>::operator SpParMat<IT,NNT,NDER> () const
 {
@@ -196,7 +218,7 @@ void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool ex
 }
 
 template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::EWiseScale(DenseParMat<IT, NT> & rhs)
+void SpParMat<IT,NT,DER>::EWiseScale(const DenseParMat<IT, NT> & rhs)
 {
 	if(*commGrid == *rhs.commGrid)	
 	{

@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<bool>::MPI_DCCols A, AT;	// construct object
-		A.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
-		AT = A;
-		AT.Transpose();
+		AT.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
+		A = AT;
+		A.Transpose();
 
 		input.clear();
 		input.close();
@@ -119,28 +119,28 @@ int main(int argc, char* argv[])
 				batch[j] = candidates[i*subBatchSize + j];
 			}
 			
-			PSpMat<int>::MPI_DCCols fringe = A.SubsRefCol(batch);
+			PSpMat<int>::MPI_DCCols fringe = AT.SubsRefCol(batch);
 			fringe.PrintInfo();
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
 			PSpMat<int>::DCCols * nsploc = new PSpMat<int>::DCCols();
 			tuple<int, int, int> * mytuples = NULL;	
-			if(A.getcommgrid()->GetRankInProcRow() == A.getcommgrid()->GetRankInProcCol())
+			if(AT.getcommgrid()->GetRankInProcRow() == AT.getcommgrid()->GetRankInProcCol())
 			{
 				mytuples = new tuple<int, int, int>[subBatchSize];
 				for(int k =0; k<subBatchSize; ++k)
 				{
 					mytuples[k] = make_tuple(batch[k], k, 1);
 				}
-				nsploc->Create( subBatchSize, A.getlocalrows(), subBatchSize, mytuples);		
+				nsploc->Create( subBatchSize, AT.getlocalrows(), subBatchSize, mytuples);		
 			}
 			else
 			{  
-				nsploc->Create( 0, A.getlocalrows(), subBatchSize, mytuples);		
+				nsploc->Create( 0, AT.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			PSpMat<int>::MPI_DCCols  nsp(nsploc, A.getcommgrid());			
+			PSpMat<int>::MPI_DCCols  nsp(nsploc, AT.getcommgrid());			
 				
 			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
 
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(A, fringe);
+				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);	
 			}
@@ -160,11 +160,8 @@ int main(int argc, char* argv[])
 			PSpMat<double>::MPI_DCCols nspInv = nsp;
 			nspInv.Apply(bind1st(divides<double>(), 1));
 
-			double ** bculocal = SpHelper::allocate2D<double>(fringe.getlocalrows(), fringe.getlocalcols());
-			for(int r=0; r< fringe.getlocalrows(); ++r)
-				fill_n(bculocal[r], fringe.getlocalcols(), 1.0);
-			
-			DenseParMat<int, double> bcu(bculocal, A.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
+			// create a dense matrix with all 1's 
+			DenseParMat<int, double> bcu(1.0, AT.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
@@ -172,7 +169,7 @@ int main(int argc, char* argv[])
 				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(AT,w);
+				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 
@@ -183,7 +180,7 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			// Accumulate bcu to bc
+			DenseParVec<int, double> bc = bcu.reduce(Column, plus<double>());
 		}
 		double t2=MPI_Wtime();
 		double TEPS = (nPasses * static_cast<float>(A.getnnz())) / (t2-t1);

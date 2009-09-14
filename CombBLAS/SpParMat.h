@@ -49,7 +49,7 @@ using namespace std::tr1;
 template <class IT, class NT, class DER>
 class SpParMat
 {
-public:
+public:	
 	// Constructors
 	SpParMat ();
 	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
@@ -63,9 +63,9 @@ public:
 	~SpParMat ();
 
 	void Transpose();
-
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
-	void EWiseScale(DenseParMat<IT, NT> & rhs);
+	void EWiseScale (const DenseParMat<IT,NT> & rhs);
+	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -90,7 +90,7 @@ public:
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
 
-	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;
+	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	// Type conversion operator
 
 	IT getnrow() const;
 	IT getncol() const;

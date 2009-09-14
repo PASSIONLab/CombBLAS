@@ -9,12 +9,12 @@
 * It contains efficient implementations of novel data structures/algorithms 
 * as well as reimplementations of some previously known data structures/algorithms for convenience.
 *
-* The main data structure is a distributed sparse matrix (SpParMat<IT,NT,DER>) which HAS-A sequential sparse matrix (SpMat<IT,NT>) that 
-* can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCols, SpDCols)
+* The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
+* can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols)
 * For example, the standard way to declare a parallel sparse matrix A that uses 
 * - 32-bit integers for indices, 
 * - floats for numerical values (nonzeros),
-* - SpDCCols<IT,NT> for the underlying sequential matrix operations, 
+* - SpDCCols <int,float> for the underlying sequential matrix operations, 
 * - and MPI-2 for communication is:
 * 	SpParMat<int, float, SpDCCols<int,float> > A;
 * The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
@@ -51,22 +51,27 @@
 * - SpDCCols		: implements Alg 1B and Alg 2 [1], holds DCSC.
 
 * Parallel classes:
+* - SpParMat		: distributed memory MPI implementation 
+	\n Each processor locally stores its submatrix (block) as a sequential SpDCCols object
+	\n Uses a polyalgorithm for SpGEMM. 
+	\n If robust MPI-2 support is not available, then it reverts back to a less scalable synchronous algorithm that is based on SUMMA [2]
+	\n Otherwise, it uses an asyncronous algorithm based on one sided communication. This performs best on an interconnect with RDMA support
 * - SpThreaded		: shared memory implementation. Uses <a href="http://www.boost.org/doc/html/thread.html"> Boost.Threads</a> for multithreading. 
 	\n Uses a logical 2D block decomposition of sparse matrices. 
 	\n Asyncronous (to migitate the severe load balancing problem) 
-	\n Lock-free (since it relies on the owner computes rule, i.e. \f$ C_{i,j}\f$ is updated by only \f$ P_{i,j} \f$)
-* - SpParMPI		: synchronous distributed memory implementation (i.e. executes in \f$p\f$ stages)
-	\n Based on SUMMA
-	\n Each processor stores its submatrix (block) in SparseDComp format
-* - SpParMPI2		: asyncronous distributed memory implementation (i.e. no broadcasting or stages)
-	\n If a processor finished its update on \f$ C_{i,j} \f$ using \f$ A_{i,k} \f$, \f$ B_{k,j} \f$, it requests \f$ A_{i,k+1} \f$, \f$ B_{k+1,j}\f$ from their owners right away.
-	\n Performs best under MPI-2's passive synchronization and on an interconnect with RDMA support.  
+	\n Lock-free (since it relies on the owner computes rule, i.e. C_{ij} is updated by only P_{ij})
 
 * For internal installation and implementation tricks, consult http://editthis.info/cs240aproject/Main_Page
 *
-* Test programs demonstrating how to use the library:
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/TestSeq.cpp"> betwcent.cpp </a> Betwenness centrality computation on directed, unweighted graphs
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/TestThread.cpp"> mcl.cpp </a> An implementation of the MCL clustering algorithm using Combinatorial BLAS
+* Applications implemented using Combinatorial BLAS:
+* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/BetwCent.cpp"> BetwCent.cpp </a> Betwenness centrality computation on directed, unweighted graphs
+* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/MCL.cpp"> MCL.cpp </a> An implementation of the MCL graph clustering algorithm 
 *
-* [1] Aydin Buluç and John R. Gilbert, <it> On the Representation and Multiplication of Hypersparse Matrices </it>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+* Test programs demonstrating how to use the library:
+* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/TransposeTest.cpp"> TransposeTest.cpp </a> File I/O and parallel transpose tests
+* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/MultTest.cpp"> MultTest.cpp </a> File I/O and parallel SpGEMM tests
+*
+* [1] Aydin Buluc and John R. Gilbert, <it> On the Representation and Multiplication of Hypersparse Matrices </it>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+*
+* [2] Aydin Buluc and John R. Gilbert, <it> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </it>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
 */

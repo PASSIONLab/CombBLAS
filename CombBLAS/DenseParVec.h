@@ -20,14 +20,17 @@ class DenseParVec
 {
 public:
 	DenseParVec ( shared_ptr<CommGrid> grid);
-	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< NT > arr;
 	bool diagonal;
+
+	template <class IU, class NU>
+	friend class DenseParMat;
 };
 
+#include "DenseParVec.cpp"
 #endif
 
 
