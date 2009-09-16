@@ -75,7 +75,7 @@ public:
 	DenseParMat< IT,NT > & operator+=(const SpParMat< IT,NT,DER > & rhs);		// add a sparse matrix
 	
 	template <typename _BinaryOperation>
-	DenseParVec< IT,NT > reduce(Dim dim, _BinaryOperation __binary_op) const;
+	DenseParVec< IT,NT > reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
 
 	~DenseParMat ()
 	{

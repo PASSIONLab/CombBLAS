@@ -2,6 +2,7 @@
 #define _DENSE_PAR_VEC_H_
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <utility>
 
@@ -20,6 +21,8 @@ class DenseParVec
 {
 public:
 	DenseParVec ( shared_ptr<CommGrid> grid);
+	bool operator== (const DenseParVec<IT,NT> & rhs) const;
+	ifstream& ReadDistribute (ifstream& infile, int master);
 	
 private:
 	shared_ptr<CommGrid> commGrid;

@@ -14,10 +14,9 @@
 
 #include <iostream>
 #include <functional>
-#include "mpi.h"
-using namespace std;
+#include <mpi.h>
 
-template<typename Op, typename T> struct is_mpi_op;
+using namespace std;
 
 /**
  *  @brief Compute the maximum of two values.
@@ -125,123 +124,26 @@ struct bitwise_xor : public std::binary_function<T, T, T>
 };
 
 
+// MPIOp: A class that has a static op() function that takes no arguments and returns the corresponding MPI_Op
+// if and only if the given Op has a mapping to a valid MPI_Op
+// No concepts checking for the applicability of Op on the datatype T at the moment
+// In the future, this can be implemented via metafunction forwarding using mpl::or_ and mpl::bool_
 
-/**************************************************************************
- * MPI_Op queries                                                         *
- **************************************************************************/
-
-/**
- *  @brief Determine if a function object has an associated @c MPI_Op.
- *
- *  This trait determines if a function object type @c Op, when used
- *  with argument type @c T, has an associated @c MPI_Op. If so, @c
- *  is_mpi_op<Op,T> will derive from @c mpl::false_ and will
- *  contain a static member function @c op that takes no arguments but
- *  returns the associated @c MPI_Op value. For instance, @c
- *  is_mpi_op<std::plus<int>,int>::op() returns @c MPI_SUM.
- *
- *  Users may specialize @c is_mpi_op for any other class templates
- *  that map onto operations that have @c MPI_Op equivalences, such as
- *  bitwise OR, logical and, or maximum. However, users are encouraged
- *  to use the standard function objects in the @c functional and @c
- *  boost/mpi/operations.hpp headers whenever possible. For
- *  function objects that are class templates with a single template
- *  parameter, it may be easier to specialize @c is_builtin_mpi_op.
- */
-
-// Everything that is derived from typetrait::false_ falls to this case which does not have an op() function
-template<typename Op, typename T>
-struct is_mpi_op : public typetrait::false_ { };
-
-/// Everything from here is a valid instantiations as long as it is derived from typetrait::true_
-template<typename T>
-struct is_mpi_op<maximum<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_floating_point_datatype<T> >
+template <typename Op, typename T> 
+struct MPIOp
 {
-  static MPI_Op op() { return MPI_MAX; }
 };
 
-template<typename T>
-struct is_mpi_op<minimum<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_floating_point_datatype<T> >
-{
-  static MPI_Op op() { return MPI_MIN; }
-};
-
-template<typename T>
- struct is_mpi_op<std::plus<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_floating_point_datatype<T>,
-                           is_mpi_complex_datatype<T> >
-{
-  static MPI_Op op() { return MPI_SUM; }
-};
-
-
-template<typename T>
- struct is_mpi_op<std::multiplies<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_floating_point_datatype<T>,
-                           is_mpi_complex_datatype<T> >
-{
-  static MPI_Op op() { return MPI_PROD; }
-};
-
-
-template<typename T>
- struct is_mpi_op<std::logical_and<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_logical_datatype<T> >
-{
-  static MPI_Op op() { return MPI_LAND; }
-};
-
-template<typename T>
- struct is_mpi_op<std::logical_or<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_logical_datatype<T> >
-{
-  static MPI_Op op() { return MPI_LOR; }
-};
-
-
-template<typename T>
- struct is_mpi_op<logical_xor<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_logical_datatype<T> >
-{
-  static MPI_Op op() { return MPI_LXOR; }
-};
-
-
-template<typename T>
- struct is_mpi_op<bitwise_and<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_byte_datatype<T> >
-{
-  static MPI_Op op() { return MPI_BAND; }
-};
-
-
-template<typename T>
- struct is_mpi_op<bitwise_or<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_byte_datatype<T> >
-{
-  static MPI_Op op() { return MPI_BOR; }
-};
-
-
-template<typename T>
- struct is_mpi_op<bitwise_xor<T>, T>
-  : public boost::mpl::or_<is_mpi_integer_datatype<T>,
-                           is_mpi_byte_datatype<T> >
-{
-  static MPI_Op op() { return MPI_BXOR; }
-};
-
+template<typename T> struct MPIOp< maximum<T>, T > {  static MPI_Op op() { return MPI_MAX; } };
+template<typename T> struct MPIOp< minimum<T>, T > {  static MPI_Op op() { return MPI_MIN; } };
+template<typename T> struct MPIOp< std::plus<T>, T > {  static MPI_Op op() { return MPI_SUM; } };
+template<typename T> struct MPIOp< std::multiplies<T>, T > {  static MPI_Op op() { return MPI_PROD; } };
+template<typename T> struct MPIOp< std::logical_and<T>, T > {  static MPI_Op op() { return MPI_LAND; } };
+template<typename T> struct MPIOp< std::logical_or<T>, T > {  static MPI_Op op() { return MPI_LOR; } };
+template<typename T> struct MPIOp< logical_xor<T>, T > {  static MPI_Op op() { return MPI_LXOR; } };
+template<typename T> struct MPIOp< bitwise_and<T>, T > {  static MPI_Op op() { return MPI_BAND; } };
+template<typename T> struct MPIOp< bitwise_or<T>, T > {  static MPI_Op op() { return MPI_BOR; } };
+template<typename T> struct MPIOp< bitwise_xor<T>, T > {  static MPI_Op op() { return MPI_BXOR; } };
 
 
 #endif

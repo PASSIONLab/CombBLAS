@@ -79,6 +79,9 @@ public:
 	int GetRankInProcRow(int wholerank);
 	int GetRankInProcCol(int wholerank);
 
+	int GetDiagOfProcRow();
+	int GetDiagOfProcCol();
+
 	int GetComplementRank()	// For P(i,j), get rank of P(j,i)
 	{
 		return ((grcols * myproccol) + myprocrow);

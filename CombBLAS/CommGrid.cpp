@@ -54,6 +54,21 @@ int CommGrid::GetRankInProcRow( int wholerank)
 	return ((int) (wholerank % grcols));
 }
 
+//! Get the rank of the diagonal processor in that particular row 
+//! In the ith processor row, the diagonal processor is the ith processor within that row 
+int CommGrid::GetDiagOfProcRow( )
+{
+	return myprocrow;
+}
+
+//! Get the rank of the diagonal processor in that particular col 
+//! In the ith processor col, the diagonal processor is the ith processor within that col
+int CommGrid::GetDiagOfProcCol( )
+{
+	return myproccol;
+}
+
+
 bool CommGrid::operator== (const CommGrid & rhs) const
 {
 	int result = MPI::Comm::Compare(commWorld, rhs.commWorld);
