@@ -68,7 +68,6 @@ int CommGrid::GetDiagOfProcCol( )
 	return myproccol;
 }
 
-
 bool CommGrid::operator== (const CommGrid & rhs) const
 {
 	int result = MPI::Comm::Compare(commWorld, rhs.commWorld);

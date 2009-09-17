@@ -12,6 +12,7 @@
 #include "../SpParMat.h"
 #include "../DenseParMat.h"
 #include "../DenseParVec.h"
+#include "../SpDefs.h"
 
 using namespace std;
 
@@ -55,7 +56,8 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<double>::MPI_DCCols A;	
-		DenseParVec<int,double> colsums, rowsums;		
+		DenseParVec<int,double> colsums(A.getcommgrid(), 0.0);
+		DenseParVec<int,double> rowsums(A.getcommgrid(), 0.0);
 
 		A.ReadDistribute(inputA, 0);
 		colsums.ReadDistribute(inputB, 0);
@@ -64,8 +66,8 @@ int main(int argc, char* argv[])
 		DenseParMat<int, double> bcu(0.0, A.getcommgrid(), A.getlocalrows(), A.getlocalcols() );
 		bcu += A;
 
-		DenseParVec< int, double > rowsums_control = bcu.Reduce(Dim::Row, std::plus<double> , 0.0);
-		DenseParVec< int, double > colsums_control = bcu.Reduce(Dim::Column, std::plus<double> , 0.0);
+		DenseParVec< int, double > rowsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
+		DenseParVec< int, double > colsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
 		
 	
 		if (rowsums_control == rowsums && colsums_control == colsums)

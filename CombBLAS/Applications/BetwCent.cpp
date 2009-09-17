@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			DenseParVec<int, double> bc = bcu.reduce(Column, plus<double>(), 0.0);
+			DenseParVec<int, double> bc = bcu.Reduce(Column, plus<double>(), 0.0);
 		}
 		double t2=MPI_Wtime();
 		double TEPS = (nPasses * static_cast<float>(A.getnnz())) / (t2-t1);

@@ -21,15 +21,22 @@ TransposeTest.o: TransposeTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../
 MultTest.o: MultTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTest.o MultTest.cpp
 
+ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
+
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
 
 MultTest: MemoryPool.o CommGrid.o MPIType.o MultTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o MultTest MultTest.o MemoryPool.o CommGrid.o MPIType.o
 
+ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
+
 clean:
 	rm -f TransposeTest
 	rm -f MultTest
+	rm -f ReduceTest
 	rm -f *.o
 
 cleanout:

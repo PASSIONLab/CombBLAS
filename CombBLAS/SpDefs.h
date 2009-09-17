@@ -16,6 +16,22 @@
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
 
+
+// MPI Message tags 
+// Prefixes denote functions
+//	TR: Transpose
+//	RD: ReadDistribute
+#define TRTAGNZ 121
+#define TRTAGM 122
+#define TRTAGN 123
+#define TRTAGROWS 124
+#define TRTAGCOLS 125
+#define TRTAGVALS 126
+#define RDTAGINDS 127
+#define RDTAGVALS 128
+#define RDTAGNNZ 129
+
+
 enum Dim
 {
 Column,

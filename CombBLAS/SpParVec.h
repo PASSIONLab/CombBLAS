@@ -21,11 +21,18 @@ class SpParVec
 public:
 	SpParVec ( shared_ptr<CommGrid> grid);
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
+	ifstream& ReadDistribute (ifstream& infile, int master);	
 	
 private:
 	shared_ptr<CommGrid> commGrid;
-	vector< pair<IT, NT> > arr;
+	vector< pair<IT, NT> > arr;	// arr.length() give the number of nonzeros
+	IT length;			// actual length of the vector (including zeros)
 	bool diagonal;
+	const static IT zero = static_cast<IT>(0);
+
+	template <typename IU, class NU>
+	friend class DenseParVec;
+	
 };
 
 #include "SpParVec.cpp"

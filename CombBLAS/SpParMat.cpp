@@ -281,13 +281,6 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Transpose()
 {
-	#define TRTAGNZ 121
-	#define TRTAGM 122
-	#define TRTAGN 123
-	#define TRTAGROWS 124
-	#define TRTAGCOLS 125
-	#define TRTAGVALS 126
-
 	ofstream oput;
 	commGrid->OpenDebugFile("transpose", oput);
 
@@ -506,6 +499,12 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
 			
 		}
+		else	// input file does not exist !
+		{
+			total_n = 0; total_m = 0;	
+			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
+			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);								
+		}
 		DeleteAll(rows,cols,vals, ccurptrs, rcurptrs);
 
 	}
@@ -524,7 +523,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
    		// 	MPI_Recv(recvbuf, recvcount, recvtype, root, ...)
 		// The send buffer is ignored for all nonroot processes.
 
-		while(true)
+		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
 		{
 			// first receive the receive counts ...
 			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
@@ -598,7 +597,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 		m_perproc = total_m / colneighs;
 		n_perproc = total_n / rowneighs;
 		
-		while (true)
+		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
 		{
 			// receive the receive count
 			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
