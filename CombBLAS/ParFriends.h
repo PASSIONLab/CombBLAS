@@ -22,6 +22,109 @@ class SpParMat;
  * No memory hog: splits the matrix into two along the column, prefetches the next half matrix while computing on the current one 
  **/  
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_Synch 
+		(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B )
+
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
+	
+	if(A.getncol() != B.getnrow())
+	{
+		cout<<"Can not multiply, dimensions does not match"<<endl;
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
+	}
+
+	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+		
+	const_cast< UDERB* >(B.spSeq)->Transpose();	
+	GridC->Barrier();
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *(A.spSeq), ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *(B.spSeq), BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	UDERA * ARecv; 
+	UDERB * BRecv;
+	vector< SpTuples<IU,N_promote>  *> tomerge;
+
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
+
+	for(int i = 0; i < stages; ++i) 
+	{
+		if(i == Aself)
+		{	
+			ARecv = A.spSeq;	// shallow-copy 
+		}
+		else
+		{
+			vector<IU> ess(UDERA::esscount);		// pack essentials to a vector
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();	// first, create the object	
+		}
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
+		
+		if(i == Bself)
+		{
+			BRecv = B.spSeq;	// shallow-copy
+		}
+		else
+		{
+			vector<IU> ess(UDERB::esscount);		// pack essentials to a vector
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+			
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
+
+		if(i != Aself)	
+		{
+			delete ARecv1;		
+		}
+		if(i != Bself)	
+		{
+			delete BRecv1;
+		}
+	}
+
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+			
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	for(int i=0; i<tomerge.size(); ++i)
+	{
+		delete tomerge[i];
+	}
+	C->PrintInfo();
+
+	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
+}
+
+/**
+ * Parallel A = B*C routine that uses one-sided MPI-2 features
+ * General active target syncronization via MPI_Win_Post, MPI_Win_Start, MPI_Win_Complete, MPI_Win_Wait
+ * Tested on my dual core Macbook with 1,4,9,16,25 MPI processes
+ * No memory hog: splits the matrix into two along the column, prefetches the next half matrix while computing on the current one 
+ **/  
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_ActiveTarget 
 		(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B )
 

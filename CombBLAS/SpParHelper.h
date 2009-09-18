@@ -25,6 +25,9 @@ public:
 	template<typename IT, typename NT, typename DER>
 	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, vector<MPI::Win> & arrwin, int ownind);
 
+	template<typename IT, typename NT, typename DER>	
+	static void BCastMatrix(MPI::Intracomm & comm1d, SpMat<IT,NT,DER> & Matrix, const vector<IT> & essentials, int root);
+
 	template<typename IT, typename NT, typename DER>
 	static void SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin);
 
@@ -93,6 +96,29 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 	}
 }
 
+
+/**
+  * For the root processor, "Matrix" is its local object to be sent to all others
+  * For all others, it is a (yet) empty object to be filled by the received data
+ **/
+template<typename IT, typename NT, typename DER>	
+void SpParHelper::BCastMatrix(MPI::Intracomm & comm1d, SpMat<IT,NT,DER> & Matrix, const vector<IT> & essentials, int root)
+{
+	if(comm1d.Get_rank() != root)
+	{
+		Matrix.Create(essentials);		// allocate memory for arrays		
+	}
+
+	Arr<IT,NT> arrinfo = Matrix.GetArrays();
+	for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+	{
+		comm1d.Bcast(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), root);					
+	}
+	for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+	{
+		comm1d.Bcast(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), root);					
+	}			
+}
 
 template <class IT, class NT, class DER>
 void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
