@@ -12,7 +12,9 @@ CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
 CombBLAS/Deleter.h -text
+CombBLAS/DenseParMat.cpp -text
 CombBLAS/DenseParMat.h -text
+CombBLAS/DenseParVec.cpp -text
 CombBLAS/DenseParVec.h -text
 CombBLAS/Friends.h -text
 CombBLAS/HeapEntry.h -text
