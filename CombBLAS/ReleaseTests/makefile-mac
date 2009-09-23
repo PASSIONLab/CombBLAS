@@ -33,7 +33,7 @@ MultTest: MemoryPool.o CommGrid.o MPIType.o MultTest.o
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
 
-clean:
+clean: 
 	rm -f TransposeTest
 	rm -f MultTest
 	rm -f ReduceTest
