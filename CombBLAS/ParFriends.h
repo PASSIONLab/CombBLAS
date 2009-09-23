@@ -43,7 +43,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	IU C_n = B.spSeq->getncol();
 		
 	const_cast< UDERB* >(B.spSeq)->Transpose();	
-	GridC->Barrier();
+	GridC->GetWorld().Barrier();
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
 	
@@ -60,28 +60,30 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 
 	for(int i = 0; i < stages; ++i) 
 	{
+		vector<IU> ess;	
 		if(i == Aself)
 		{	
 			ARecv = A.spSeq;	// shallow-copy 
 		}
 		else
 		{
-			vector<IU> ess(UDERA::esscount);		// pack essentials to a vector
+			ess.resize(UDERA::esscount);
 			for(int j=0; j< UDERA::esscount; ++j)	
 			{
 				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
 			}
-			ARecv = new UDERA();	// first, create the object	
+			ARecv = new UDERA();				// first, create the object
 		}
-		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements
-		
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		ess.clear();	
+
 		if(i == Bself)
 		{
 			BRecv = B.spSeq;	// shallow-copy
 		}
 		else
 		{
-			vector<IU> ess(UDERB::esscount);		// pack essentials to a vector
+			ess.resize(UDERB::esscount);		
 			for(int j=0; j< UDERB::esscount; ++j)	
 			{
 				ess[j] = BRecvSizes[j][i];	
@@ -90,17 +92,17 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 			
-		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
 		if(i != Aself)	
 		{
-			delete ARecv1;		
+			delete ARecv;		
 		}
 		if(i != Bself)	
 		{
-			delete BRecv1;
+			delete BRecv;
 		}
 	}
 

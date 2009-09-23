@@ -98,8 +98,9 @@ void SpParHelper::FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essen
 
 
 /**
-  * For the root processor, "Matrix" is its local object to be sent to all others
-  * For all others, it is a (yet) empty object to be filled by the received data
+  * @param[in] Matrix {For the root processor, the local object to be sent to all others.
+  * 		For all others, it is a (yet) empty object to be filled by the received data}
+  * @param[in] essentials {irrelevant for the root}
  **/
 template<typename IT, typename NT, typename DER>	
 void SpParHelper::BCastMatrix(MPI::Intracomm & comm1d, SpMat<IT,NT,DER> & Matrix, const vector<IT> & essentials, int root)

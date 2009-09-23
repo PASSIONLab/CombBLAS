@@ -2,6 +2,7 @@
 #define _COMPARE_H_
 
 #include <cmath>
+#include "SpDefs.h"
 
 #ifdef NOTR1
 	#include <boost/tr1/tuple.hpp>

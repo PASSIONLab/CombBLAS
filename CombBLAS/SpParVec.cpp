@@ -146,9 +146,12 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			fill_n(ccurptrs, colneighs, numeric_limits<IT>::max());	
 			commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
 
-			// And along the diagonal on this row ...
-			recvcount = numeric_limits<IT>::max();
-			commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);	
+			if(!diagonal)
+			{
+				// And along the diagonal on this row ...
+				recvcount = numeric_limits<IT>::max();
+				commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);	
+			}
 		}
 		else	// input file does not exist !
 		{
@@ -197,9 +200,12 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			}
 			DeleteAll(tempinds, tempvals);	
 		}
-		// Signal the end of data to the diagonal on this row	
-		recvcount = numeric_limits<IT>::max();
-		commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);
+		if(!diagonal)
+		{ 
+			// Signal the end of data to the diagonal on this row	
+			recvcount = numeric_limits<IT>::max();
+			commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);
+		}
 	}
 	else		// remaining r * (s-1) processors 
 	{		

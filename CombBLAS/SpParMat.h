@@ -78,18 +78,6 @@ public:
 
 	void PrintInfo() const;
 
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	Mult_AnXBn_Fence (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
-
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	Mult_AnXBn_ActiveTarget (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
-
-	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
-	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
-
 	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	// Type conversion operator
 
 	IT getnrow() const;
@@ -108,6 +96,25 @@ public:
 	IT getlocalcols() const { return spSeq->getncol();} 
 	IT getlocalnnz() const { return spSeq->getnnz(); }
 	DER seq() { return (*spSeq); }
+
+
+	//! Friend declaration
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn_Synch (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
+
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn_ActiveTarget (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
+
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn_Fence (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B );
+
+	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
+
 private:
 	const static IT zero = static_cast<IT>(0);
 	shared_ptr<CommGrid> commGrid; 

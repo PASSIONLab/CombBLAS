@@ -67,12 +67,24 @@ int main(int argc, char* argv[])
 		
 		if (CControl == C)
 		{
-			SpParHelper::Print("Multiplication working correctly\n");	
+			SpParHelper::Print("Active Target Multiplication working correctly\n");	
 		}
 		else
 		{
-			SpParHelper::Print("ERROR in Multiplication, go fix it!\n");	
+			SpParHelper::Print("ERROR in Active Target Multiplication, go fix it!\n");	
 		}
+
+
+		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);
+		if (CControl == C)
+		{
+			SpParHelper::Print("Synchronous Multiplication working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in Synchronous Multiplication, go fix it!\n");	
+		}
+
 
 		inputA.clear();
 		inputA.close();

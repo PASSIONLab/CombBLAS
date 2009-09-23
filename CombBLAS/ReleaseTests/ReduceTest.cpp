@@ -62,14 +62,16 @@ int main(int argc, char* argv[])
 		A.ReadDistribute(inputA, 0);
 		colsums.ReadDistribute(inputB, 0);
 		rowsums.ReadDistribute(inputC, 0);
-
+		
 		DenseParMat<int, double> bcu(0.0, A.getcommgrid(), A.getlocalrows(), A.getlocalcols() );
 		bcu += A;
 
-		DenseParVec< int, double > rowsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
-		DenseParVec< int, double > colsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
+		DenseParVec< int, double > rowsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
+		DenseParVec< int, double > colsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
 		
-	
+		//ofstream rsout;
+		//rowsums_control.PrintToFile("rowsums_countrol", rsout);	
+
 		if (rowsums_control == rowsums && colsums_control == colsums)
 		{
 			SpParHelper::Print("Reduction via summation working correctly\n");	

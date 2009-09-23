@@ -25,6 +25,13 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec< IT,NT > &  operator=(const SpParVec< IT,NT > & rhs);		// SpParVec->DenseParVec conversion operator
 	
+	void PrintToFile(string prefix, ofstream & output)
+	{
+		commGrid->OpenDebugFile(prefix, output);
+		copy(arr.begin(), arr.end(), ostream_iterator<NT> (output, "\n"));
+		output.close();
+	}
+	
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< NT > arr;
