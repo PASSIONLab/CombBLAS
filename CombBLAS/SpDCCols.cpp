@@ -44,7 +44,10 @@ SpDCCols<IT,NT>::~SpDCCols()
 {
 	if(nnz > 0)
 	{
-		if(dcsc != NULL) delete dcsc;	// call Dcsc's destructor
+		if(dcsc != NULL) 
+		{	delete dcsc;	// call Dcsc's destructor
+			dcsc = NULL;
+		}
 	}
 }
 
@@ -180,6 +183,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 		if(dcsc != NULL && nnz > 0)
 		{
 			delete dcsc;
+			dcsc = NULL;
 		}
 		if(rhs.dcsc != NULL)	
 		{
