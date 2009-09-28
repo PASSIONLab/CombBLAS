@@ -23,7 +23,14 @@ public:
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
 	bool operator== (const DenseParVec<IT,NT> & rhs) const;
 	ifstream& ReadDistribute (ifstream& infile, int master);
-	DenseParVec< IT,NT > &  operator=(const SpParVec< IT,NT > & rhs);		// SpParVec->DenseParVec conversion operator
+	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		// SpParVec->DenseParVec conversion operator
+	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
+
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op)
+	{	
+		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
+	}	
 	
 	void PrintToFile(string prefix, ofstream & output)
 	{

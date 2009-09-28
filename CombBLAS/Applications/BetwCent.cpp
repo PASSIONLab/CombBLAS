@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
 		int numBatches = (int) ceil( static_cast<float>(nPasses)/ static_cast<float>(batchSize));
 	
 		// get the number of batch vertices for submatrix
-		int subBatchSize = batchSize / (A.getcommgrid())->GetGridCols();
-		if(batchSize % (A.getcommgrid())->GetGridCols() > 0 && myrank == 0)
+		int subBatchSize = batchSize / (AT.getcommgrid())->GetGridCols();
+		if(batchSize % (AT.getcommgrid())->GetGridCols() > 0 && myrank == 0)
 			cout << "*** Please make batchsize divisible by the grid dimensions (r and s) ***" << endl;
 
 		vector<int> candidates;
@@ -92,15 +92,15 @@ int main(int argc, char* argv[])
 		// Only consider non-isolated vertices
 		int vertices = 0;
 		int vrtxid = 0; 
-		int nlocpass = nPasses / (A.getcommgrid())->GetGridCols();
+		int nlocpass = nPasses / (AT.getcommgrid())->GetGridCols();
 		while(vertices < nlocpass)
 		{
 			vector<int> single;
 			vector<int> empty;
 			single.push_back(vrtxid);		// will return ERROR if vrtxid > N (the column dimension) 
-			int locnnz = ((A.seq())(empty,single)).getnnz();
+			int locnnz = ((AT.seq())(empty,single)).getnnz();
 			int totnnz;
-			(A.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI::INT, MPI::SUM);
+			(AT.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI::INT, MPI::SUM);
 					
 			if(totnnz > 0)
 			{
@@ -112,6 +112,8 @@ int main(int argc, char* argv[])
 
 		double t1 = MPI_Wtime();
 		vector<int> batch(subBatchSize);
+		DenseParVec<int, double> bc(AT.getcommgrid(),0.0);
+
 		for(int i=0; i< numBatches; ++i)
 		{
 			for(int j=0; j< subBatchSize; ++j)
@@ -150,9 +152,11 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
+				cout << "Before Mult_AnXBn" << endl;
 				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
 				fringe.PrintInfo();
-				fringe = EWiseMult(fringe, nsp, true);	
+				fringe = EWiseMult(fringe, nsp, true);
+				cout << "After EWiseMult" << endl;	
 			}
 
 			// Apply the unary function 1/x to every element in the matrix
@@ -180,8 +184,12 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			DenseParVec<int, double> bc = bcu.Reduce(Column, plus<double>(), 0.0);
+			cout << "Reducing" << endl;
+			bc += bcu.Reduce(Column, plus<double>(), 0.0);
+			cout << "Reduced" << endl;
 		}
+		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
+		
 		double t2=MPI_Wtime();
 		double TEPS = (nPasses * static_cast<float>(A.getnnz())) / (t2-t1);
 		if( myrank == 0)

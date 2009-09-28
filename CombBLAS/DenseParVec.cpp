@@ -24,6 +24,25 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 }
 
 template <class IT, class NT>
+DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & rhs)
+{
+	if(this != &rhs)		
+	{	
+		if(identity != rhs.identity)
+		{
+			cout << "Trying to add two DenseParVec objects with different identity elements..." << endl;
+			cout << "Operation didn't happen !" << endl;
+		}
+		else if(diagonal)	// Only the diagonal processors hold values
+		{
+			transform(arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), plus<NT>());
+		} 	
+	}	
+	return *this;
+};	
+
+
+template <class IT, class NT>
 bool DenseParVec<IT,NT>::operator== (const DenseParVec<IT,NT> & rhs) const
 {
 	ErrorTolerantEqual<NT> epsilonequal;

@@ -321,18 +321,22 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	{
 		delete tomerge[i];
 	}
-	C->PrintInfo();
 
 	// MPI_Win_Wait() works like a barrier as it waits for all origins to finish their remote memory operation on "this" window
 	SpParHelper::WaitNFree(rowwins1);
 	SpParHelper::WaitNFree(rowwins2);
 	SpParHelper::WaitNFree(colwins1);
 	SpParHelper::WaitNFree(colwins2);	
-	
+
+	cout << "Merging" << endl;	
 	(A.spSeq)->Merge(A1seq, A2seq);
-	(B.spSeq)->Merge(B1seq, B2seq);	
-	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	(B.spSeq)->Merge(B1seq, B2seq);
+
+	cout << "Merged" << endl;
 	
+	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+
+	cout << "Transposed" << endl;	
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
 
@@ -605,7 +609,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	{
 		delete tomerge[i];
 	}
-	C->PrintInfo();
 	
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);

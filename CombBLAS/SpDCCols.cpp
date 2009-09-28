@@ -335,7 +335,7 @@ SpDCCols<IT,NT>::operator SpDCCols<IT,NNT> () const
 	else
 		convert = NULL;
 
-	return SpDCCols<IT,NNT>(nnz, m, n, convert);
+	return SpDCCols<IT,NNT>(m, n, convert);
 }
 
 template <class IT, class NT>
@@ -418,8 +418,8 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	Dcsc<IT,NT> *Adcsc, *Bdcsc;
 	dcsc->Split(Adcsc, Bdcsc, cut);
 
-	partA = SpDCCols<IT,NT> (Adcsc->nz, m, cut, Adcsc);
-	partB = SpDCCols<IT,NT> (Bdcsc->nz, m, n-cut, Bdcsc);
+	partA = SpDCCols<IT,NT> (m, cut, Adcsc);
+	partB = SpDCCols<IT,NT> (m, n-cut, Bdcsc);
 	
 	// handle destruction through assignment operator
 	*this = SpDCCols<IT, NT>();		
@@ -435,12 +435,30 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	assert( partA.m == partB.m );
 
 	Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
-	Cdcsc->Merge(partA.dcsc, partB.dcsc, partA.n);
-	
-	*this = SpDCCols<IT,NT> (Cdcsc->nz, partA.m, partA.n + partB.n, Cdcsc);
+	cout << partA.nnz << " " << partB.nnz << endl;
+
+	if(partA.nnz == 0 && partB.nnz == 0)
+	{
+		Cdcsc = NULL;
+	}
+	else if(partA.nnz == 0)
+	{
+		Cdcsc = partB.dcsc;
+	}
+	else if(partB.nnz == 0)
+	{
+		Cdcsc = partA.dcsc;
+	}
+	else
+	{
+		Cdcsc->Merge(partA.dcsc, partB.dcsc, partA.n);
+	}
+	*this = SpDCCols<IT,NT> (partA.m, partA.n + partB.n, Cdcsc);
 
 	partA = SpDCCols<IT, NT>();	
-	partB = SpDCCols<IT, NT>();	
+	cout << "Deleted A" << endl;
+	partB = SpDCCols<IT, NT>();
+	cout << "Deleted B" << endl;	
 }
 
 /**
@@ -707,9 +725,11 @@ void SpDCCols<IT,NT>::PrintInfo() const
 
 //! Construct SpDCCols from Dcsc
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
-:m(nRow), n(nCol), nnz(size), localpool(NULL)
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
+:m(nRow), n(nCol), localpool(NULL)
 {
+	nnz = (mydcsc == NULL) ? 0 : mydcsc->nz;
+
 	if(nnz > 0)
 		dcsc = mydcsc;
 	else
@@ -847,7 +867,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 		mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 		delete [] multstack;
 	}
-	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
+	return SpDCCols< IT,T_promote > (m, rhs.n, mydcsc);	
 }
 
 
@@ -870,6 +890,6 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 		mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
 		delete [] multstack;
 	}
-	return SpDCCols< IT,T_promote > (cnz, m, rhs.n, mydcsc);	
+	return SpDCCols< IT,T_promote > (m, rhs.n, mydcsc);	
 }
 

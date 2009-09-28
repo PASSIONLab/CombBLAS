@@ -92,7 +92,6 @@ void * Dcsc<IT,NT>::mallocarray (size_t size) const
 template <class IT, class NT>
 void Dcsc<IT, NT>::deletearray(void * array, size_t size) const
 {
-	
 	if(size != 0 && array != NULL)
 	{
 		array = (void *) ((char*)array - ALIGN);
@@ -705,21 +704,33 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 {
 	IT * itr = lower_bound(jc, jc+nzc, cut);
 	IT pos = itr - jc;
-	
-	A = new Dcsc<IT,NT>(cp[pos], pos);
-	B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
-	
-	memcpy(A->jc, jc, pos * sizeof(IT));
-	memcpy(A->cp, cp, (pos+1) * sizeof(IT));
-	memcpy(A->ir, ir, cp[pos] * sizeof(IT));
-	memcpy(A->numx, numx, cp[pos] * sizeof(NT));
-	
-	memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
-	transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut));
-	memcpy(B->cp, cp+pos, (nzc-pos+1) * sizeof(IT));
-	transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]));
-	memcpy(B->ir, ir + cp[pos], (nz- cp[pos]) * sizeof(IT)); 
-	memcpy(B->numx, numx + cp[pos], (nz- cp[pos]) * sizeof(NT)); 
+
+	if(cp[pos] == zero)
+	{
+		A = NULL;
+	}
+	else
+	{
+		A = new Dcsc<IT,NT>(cp[pos], pos);
+		memcpy(A->jc, jc, pos * sizeof(IT));
+		memcpy(A->cp, cp, (pos+1) * sizeof(IT));
+		memcpy(A->ir, ir, cp[pos] * sizeof(IT));
+		memcpy(A->numx, numx, cp[pos] * sizeof(NT));
+	}	
+	if(nz-cp[pos] == zero)
+	{
+		B = NULL;
+	}
+	else
+	{
+		B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
+		memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
+		transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut));
+		memcpy(B->cp, cp+pos, (nzc-pos+1) * sizeof(IT));
+		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]));
+		memcpy(B->ir, ir + cp[pos], (nz- cp[pos]) * sizeof(IT)); 
+		memcpy(B->numx, numx + cp[pos], (nz- cp[pos]) * sizeof(NT)); 
+	}
 }
 
 template<class IT, class NT>
@@ -727,21 +738,24 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 {
 	IT cnz = A->nz + B->nz;
 	IT cnzc =  A->nzc + B->nzc;
-	*this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
+	if(cnz > 0)
+	{
+		*this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
 
-	memcpy(jc, A->jc, A->nzc * sizeof(IT));
-	memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
-	transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
+		memcpy(jc, A->jc, A->nzc * sizeof(IT));
+		memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
+		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
 
-	memcpy(cp, A->cp, A->nzc * sizeof(IT));
-	memcpy(cp + A->nzc, B->cp, (B->nzc+1) * sizeof(IT));
-	transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
+		memcpy(cp, A->cp, A->nzc * sizeof(IT));
+		memcpy(cp + A->nzc, B->cp, (B->nzc+1) * sizeof(IT));
+		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
 
-	memcpy(ir, A->ir, A->nz * sizeof(IT));
-	memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
+		memcpy(ir, A->ir, A->nz * sizeof(IT));
+		memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
 
-	memcpy(numx, A->numx, A->nz * sizeof(NT));
-	memcpy(numx + A->nz, B->numx, B->nz * sizeof(NT));
+		memcpy(numx, A->numx, A->nz * sizeof(NT));
+		memcpy(numx + A->nz, B->numx, B->nz * sizeof(NT));
+	}
 }
 
 template<class IT, class NT>

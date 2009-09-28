@@ -339,11 +339,11 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCC
 	if(A.nnz > 0 && B.nnz > 0)
 	{ 
 		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
-		return 	SpDCCols<IU, N_promote> (tdcsc->nz, A.m , A.n, tdcsc);
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else
 	{
-		return 	SpDCCols<IU, N_promote> (0, A.m , A.n, tdcsc);
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 }
 
