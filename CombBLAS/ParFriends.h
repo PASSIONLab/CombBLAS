@@ -328,15 +328,10 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpParHelper::WaitNFree(colwins1);
 	SpParHelper::WaitNFree(colwins2);	
 
-	cout << "Merging" << endl;	
 	(A.spSeq)->Merge(A1seq, A2seq);
 	(B.spSeq)->Merge(B1seq, B2seq);
-
-	cout << "Merged" << endl;
 	
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
-
-	cout << "Transposed" << endl;	
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
 

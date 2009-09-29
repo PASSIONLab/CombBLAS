@@ -359,7 +359,7 @@ Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.
   * then after the operation A now uses pinnedPool too
   */
 template <class IT, class NT>
-Dcsc<IT,NT> & Dcsc<IT,NT>::operator =(const Dcsc<IT,NT> & rhs)
+Dcsc<IT,NT> & Dcsc<IT,NT>::operator=(const Dcsc<IT,NT> & rhs)
 {
 	if(this != &rhs)		
 	{

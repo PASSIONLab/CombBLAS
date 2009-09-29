@@ -46,7 +46,6 @@ SpDCCols<IT,NT>::~SpDCCols()
 	{
 		if(dcsc != NULL) 
 		{	delete dcsc;	// call Dcsc's destructor
-			dcsc = NULL;
 		}
 	}
 }
@@ -183,16 +182,20 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 		if(dcsc != NULL && nnz > 0)
 		{
 			delete dcsc;
-			dcsc = NULL;
 		}
 		if(rhs.dcsc != NULL)	
 		{
 			dcsc = new Dcsc<IT,NT>(*(rhs.dcsc));
+			nnz = rhs.nnz;
+		}
+		else
+		{
+			dcsc = NULL;
+			nnz = 0;
 		}
 		
 		m = rhs.m; 
 		n = rhs.n;
-		nnz = rhs.nnz;
 	}
 	return *this;
 }
@@ -439,7 +442,6 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	assert( partA.m == partB.m );
 
 	Dcsc<IT,NT> * Cdcsc = new Dcsc<IT,NT>();
-	cout << partA.nnz << " " << partB.nnz << endl;
 
 	if(partA.nnz == 0 && partB.nnz == 0)
 	{
@@ -447,11 +449,11 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	}
 	else if(partA.nnz == 0)
 	{
-		Cdcsc = partB.dcsc;
+		Cdcsc = new Dcsc<IT,NT>(*(partB.dcsc));
 	}
 	else if(partB.nnz == 0)
 	{
-		Cdcsc = partA.dcsc;
+		Cdcsc = new Dcsc<IT,NT>(*(partA.dcsc));
 	}
 	else
 	{
@@ -460,9 +462,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	*this = SpDCCols<IT,NT> (partA.m, partA.n + partB.n, Cdcsc);
 
 	partA = SpDCCols<IT, NT>();	
-	cout << "Deleted A" << endl;
 	partB = SpDCCols<IT, NT>();
-	cout << "Deleted B" << endl;	
 }
 
 /**
@@ -730,14 +730,12 @@ void SpDCCols<IT,NT>::PrintInfo() const
 //! Construct SpDCCols from Dcsc
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
-:m(nRow), n(nCol), localpool(NULL)
+:m(nRow), n(nCol), localpool(NULL), dcsc(mydcsc)
 {
-	nnz = (mydcsc == NULL) ? 0 : mydcsc->nz;
-
-	if(nnz > 0)
-		dcsc = mydcsc;
+	if (mydcsc == NULL) 
+		nnz = 0;
 	else
-		dcsc = NULL;
+		nnz = mydcsc->nz;
 }
 
 //! Create a logical matrix from (row/column) indices array, used for indexing only
@@ -865,7 +863,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 	IT cnz = SpHelper::SpCartesian< SR > (*dcsc, *(Btrans.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
-	Dcsc<IT, T_promote> * mydcsc;
+	Dcsc<IT, T_promote> * mydcsc = NULL;
 	if(cnz > 0)
 	{
 		mydcsc = new Dcsc< IT,T_promote > (multstack, m, rhs.n, cnz);
