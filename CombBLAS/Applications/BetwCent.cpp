@@ -152,11 +152,9 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				cout << "Before Mult_AnXBn" << endl;
 				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);
-				cout << "After EWiseMult" << endl;	
 			}
 
 			// Apply the unary function 1/x to every element in the matrix
@@ -184,9 +182,8 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			cout << "Reducing" << endl;
+			cout << "Adding contributions to bc" << endl;
 			bc += bcu.Reduce(Column, plus<double>(), 0.0);
-			cout << "Reduced" << endl;
 		}
 		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
 		
