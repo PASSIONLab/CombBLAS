@@ -264,8 +264,10 @@ void SpParMat<IT,NT,DER>::PrintInfo() const
 	if (commGrid->myrank == 0)	
 		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
 
+#ifdef DEBUG
 	if ((commGrid->grrows * commGrid->grcols) ==  1)
 		spSeq->PrintInfo();
+#endif
 }
 
 template <class IT, class NT, class DER>

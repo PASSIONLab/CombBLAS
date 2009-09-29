@@ -156,6 +156,8 @@ int main(int argc, char* argv[])
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);
 			}
+			MPI::COMM_WORLD.Barrier();
+			cout << "Exit forward" << endl;
 
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp

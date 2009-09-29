@@ -114,7 +114,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	{
 		delete tomerge[i];
 	}
-	C->PrintInfo();
 
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object

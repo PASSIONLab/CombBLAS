@@ -50,7 +50,7 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 				recvbuf = &parvec.arr[0];	
 			}
 			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
-			delete sendbuf;
+			delete [] sendbuf;
 			break;
 		}
 		default:
