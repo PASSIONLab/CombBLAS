@@ -97,7 +97,7 @@ public:
 	int GetGridRows() { return grrows; }
 	int GetGridCols() { return grcols; }
 
-	void OpenDebugFile(string prefix, ofstream & output); 
+	void OpenDebugFile(string prefix, ofstream & output) const; 
 
 	friend shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:

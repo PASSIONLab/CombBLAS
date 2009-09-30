@@ -132,14 +132,13 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
-	
+
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
-
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
 	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, Aoffset, Boffset);		
 
@@ -326,9 +325,9 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpParHelper::WaitNFree(rowwins2);
 	SpParHelper::WaitNFree(colwins1);
 	SpParHelper::WaitNFree(colwins2);	
-
+	
 	(A.spSeq)->Merge(A1seq, A2seq);
-	(B.spSeq)->Merge(B1seq, B2seq);
+	(B.spSeq)->Merge(B1seq, B2seq);	
 	
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object

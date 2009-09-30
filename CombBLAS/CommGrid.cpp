@@ -81,7 +81,7 @@ bool CommGrid::operator== (const CommGrid & rhs) const
 }	
 
 
-void CommGrid::OpenDebugFile(string prefix, ofstream & output) 
+void CommGrid::OpenDebugFile(string prefix, ofstream & output) const 
 {
 	stringstream ss;
 	string rank;

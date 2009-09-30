@@ -20,6 +20,10 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 	{
 		tuples  = new tuple<IT, IT, NT>[nnz];
 	}
+	else
+	{
+		tuples = NULL;
+	}
 }
 
 template <class IT,class NT>

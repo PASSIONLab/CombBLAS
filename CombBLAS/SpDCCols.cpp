@@ -422,8 +422,13 @@ void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 		return;
 	}
 
-	Dcsc<IT,NT> *Adcsc, *Bdcsc;
-	dcsc->Split(Adcsc, Bdcsc, cut);
+	Dcsc<IT,NT> *Adcsc = NULL;
+	Dcsc<IT,NT> *Bdcsc = NULL;
+
+	if(nnz != 0)
+	{
+		dcsc->Split(Adcsc, Bdcsc, cut);
+	}
 
 	partA = SpDCCols<IT,NT> (m, cut, Adcsc);
 	partB = SpDCCols<IT,NT> (m, n-cut, Bdcsc);

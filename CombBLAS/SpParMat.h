@@ -91,12 +91,11 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
 
-	shared_ptr<CommGrid> getcommgrid () { return commGrid; }	
+	shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
 	IT getlocalrows() const { return spSeq->getnrow(); }
 	IT getlocalcols() const { return spSeq->getncol();} 
 	IT getlocalnnz() const { return spSeq->getnnz(); }
 	DER seq() { return (*spSeq); }
-
 
 	//! Friend declaration
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 

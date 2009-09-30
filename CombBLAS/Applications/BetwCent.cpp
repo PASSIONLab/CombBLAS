@@ -143,9 +143,7 @@ int main(int argc, char* argv[])
 			}
 		
 			PSpMat<int>::MPI_DCCols  nsp(nsploc, AT.getcommgrid());			
-				
 			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
-
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
@@ -156,8 +154,6 @@ int main(int argc, char* argv[])
 				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);
 			}
-			MPI::COMM_WORLD.Barrier();
-			cout << "Exit forward" << endl;
 
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
@@ -167,6 +163,8 @@ int main(int argc, char* argv[])
 			// create a dense matrix with all 1's 
 			DenseParMat<int, double> bcu(1.0, AT.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 
+			SpParHelper::Print("Tallying...\n");
+			
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{
@@ -184,7 +182,7 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			cout << "Adding contributions to bc" << endl;
+			SpParHelper::Print("Adding bc contributions...\n");			
 			bc += bcu.Reduce(Column, plus<double>(), 0.0);
 		}
 		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
