@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
                 	cout << "Example: ./betwcent Data/ 15 128" << endl;
                 	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
                 	cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
-			cout << "Because <BATCHSIZE> is for the overall matrix, whereas <K4APPROX> is per processor " << endl;
+			cout << "Because <BATCHSIZE> is for the overall matrix (similarly, <K4APPROX> is global as well) " << endl;
  		}
 		MPI::Finalize(); 
 		return -1;
