@@ -144,6 +144,8 @@ int main(int argc, char* argv[])
 		
 			PSpMat<int>::MPI_DCCols  nsp(nsploc, AT.getcommgrid());			
 			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
+
+			SpParHelper::Print("Exploring via BFS...\n");
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
@@ -151,7 +153,6 @@ int main(int argc, char* argv[])
 				bfs.push_back(level);
 
 				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
-				fringe.PrintInfo();
 				fringe = EWiseMult(fringe, nsp, true);
 			}
 

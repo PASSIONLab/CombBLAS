@@ -283,9 +283,6 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Transpose()
 {
-	ofstream oput;
-	commGrid->OpenDebugFile("transpose", oput);
-
 	if(commGrid->myproccol == commGrid->myprocrow)	// Diagonal
 	{
 		spSeq->Transpose();			
@@ -315,9 +312,6 @@ void SpParMat<IT,NT,DER>::Transpose()
 		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
 		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
 		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
-		oput << "Locs: " << locm << " " << locn << " " << locnnz << endl;
-		oput << "Rems: " << remotem << " " << remoten << " " << remotennz << endl;
-		oput << "Diagonal:" << diagneigh << endl;
 
 		
 		IT * rowsrecv = new IT[remotennz];
