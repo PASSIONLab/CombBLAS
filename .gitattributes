@@ -65,6 +65,12 @@ CombBLAS/Test/output -text
 CombBLAS/Test/promote.h -text
 CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
+CombBLAS/bc-runtimes/100cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/121cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/144cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/169cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/64cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/81cores_b256_tile4.out -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text

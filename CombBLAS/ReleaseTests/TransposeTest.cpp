@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include <tr1/tuple>
 #include "../SpParVec.h"
 #include "../SpTuples.h"
 #include "../SpDCCols.h"

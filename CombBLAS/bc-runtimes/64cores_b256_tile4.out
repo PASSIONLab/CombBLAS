@@ -1,0 +1,337 @@
+Batch processing will occur 16 times, each processing 256 vertices (overall)
+As a whole: 65536 rows and 256 columns and 2571 nonzeros
+As a whole: 65536 rows and 256 columns and 171043 nonzeros
+As a whole: 65536 rows and 256 columns and 2725716 nonzeros
+As a whole: 65536 rows and 256 columns and 7157527 nonzeros
+As a whole: 65536 rows and 256 columns and 6462418 nonzeros
+As a whole: 65536 rows and 256 columns and 2179798 nonzeros
+As a whole: 65536 rows and 256 columns and 306735 nonzeros
+As a whole: 65536 rows and 256 columns and 22306 nonzeros
+As a whole: 65536 rows and 256 columns and 825 nonzeros
+As a whole: 65536 rows and 256 columns and 5 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3414 nonzeros
+As a whole: 65536 rows and 256 columns and 223123 nonzeros
+As a whole: 65536 rows and 256 columns and 2807213 nonzeros
+As a whole: 65536 rows and 256 columns and 6933269 nonzeros
+As a whole: 65536 rows and 256 columns and 6339940 nonzeros
+As a whole: 65536 rows and 256 columns and 2430379 nonzeros
+As a whole: 65536 rows and 256 columns and 465667 nonzeros
+As a whole: 65536 rows and 256 columns and 47591 nonzeros
+As a whole: 65536 rows and 256 columns and 2570 nonzeros
+As a whole: 65536 rows and 256 columns and 75 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3522 nonzeros
+As a whole: 65536 rows and 256 columns and 227150 nonzeros
+As a whole: 65536 rows and 256 columns and 2750857 nonzeros
+As a whole: 65536 rows and 256 columns and 7006213 nonzeros
+As a whole: 65536 rows and 256 columns and 6428629 nonzeros
+As a whole: 65536 rows and 256 columns and 2334645 nonzeros
+As a whole: 65536 rows and 256 columns and 388061 nonzeros
+As a whole: 65536 rows and 256 columns and 35036 nonzeros
+As a whole: 65536 rows and 256 columns and 1695 nonzeros
+As a whole: 65536 rows and 256 columns and 36 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3916 nonzeros
+As a whole: 65536 rows and 256 columns and 240706 nonzeros
+As a whole: 65536 rows and 256 columns and 2831829 nonzeros
+As a whole: 65536 rows and 256 columns and 6927913 nonzeros
+As a whole: 65536 rows and 256 columns and 6251033 nonzeros
+As a whole: 65536 rows and 256 columns and 2349000 nonzeros
+As a whole: 65536 rows and 256 columns and 449321 nonzeros
+As a whole: 65536 rows and 256 columns and 42951 nonzeros
+As a whole: 65536 rows and 256 columns and 2291 nonzeros
+As a whole: 65536 rows and 256 columns and 52 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3516 nonzeros
+As a whole: 65536 rows and 256 columns and 227810 nonzeros
+As a whole: 65536 rows and 256 columns and 2654574 nonzeros
+As a whole: 65536 rows and 256 columns and 6662281 nonzeros
+As a whole: 65536 rows and 256 columns and 6179751 nonzeros
+As a whole: 65536 rows and 256 columns and 2360615 nonzeros
+As a whole: 65536 rows and 256 columns and 429181 nonzeros
+As a whole: 65536 rows and 256 columns and 44779 nonzeros
+As a whole: 65536 rows and 256 columns and 2484 nonzeros
+As a whole: 65536 rows and 256 columns and 72 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3171 nonzeros
+As a whole: 65536 rows and 256 columns and 205492 nonzeros
+As a whole: 65536 rows and 256 columns and 2638854 nonzeros
+As a whole: 65536 rows and 256 columns and 6962456 nonzeros
+As a whole: 65536 rows and 256 columns and 6334377 nonzeros
+As a whole: 65536 rows and 256 columns and 2197078 nonzeros
+As a whole: 65536 rows and 256 columns and 390862 nonzeros
+As a whole: 65536 rows and 256 columns and 56413 nonzeros
+As a whole: 65536 rows and 256 columns and 5196 nonzeros
+As a whole: 65536 rows and 256 columns and 248 nonzeros
+As a whole: 65536 rows and 256 columns and 6 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 2889 nonzeros
+As a whole: 65536 rows and 256 columns and 196338 nonzeros
+As a whole: 65536 rows and 256 columns and 2834005 nonzeros
+As a whole: 65536 rows and 256 columns and 7212865 nonzeros
+As a whole: 65536 rows and 256 columns and 6295837 nonzeros
+As a whole: 65536 rows and 256 columns and 2021529 nonzeros
+As a whole: 65536 rows and 256 columns and 286233 nonzeros
+As a whole: 65536 rows and 256 columns and 21472 nonzeros
+As a whole: 65536 rows and 256 columns and 863 nonzeros
+As a whole: 65536 rows and 256 columns and 11 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 2999 nonzeros
+As a whole: 65536 rows and 256 columns and 187791 nonzeros
+As a whole: 65536 rows and 256 columns and 2527370 nonzeros
+As a whole: 65536 rows and 256 columns and 6813477 nonzeros
+As a whole: 65536 rows and 256 columns and 6530583 nonzeros
+As a whole: 65536 rows and 256 columns and 2462982 nonzeros
+As a whole: 65536 rows and 256 columns and 427318 nonzeros
+As a whole: 65536 rows and 256 columns and 66529 nonzeros
+As a whole: 65536 rows and 256 columns and 8458 nonzeros
+As a whole: 65536 rows and 256 columns and 592 nonzeros
+As a whole: 65536 rows and 256 columns and 22 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3950 nonzeros
+As a whole: 65536 rows and 256 columns and 225477 nonzeros
+As a whole: 65536 rows and 256 columns and 2654894 nonzeros
+As a whole: 65536 rows and 256 columns and 6889253 nonzeros
+As a whole: 65536 rows and 256 columns and 6390552 nonzeros
+As a whole: 65536 rows and 256 columns and 2341395 nonzeros
+As a whole: 65536 rows and 256 columns and 404585 nonzeros
+As a whole: 65536 rows and 256 columns and 37010 nonzeros
+As a whole: 65536 rows and 256 columns and 1915 nonzeros
+As a whole: 65536 rows and 256 columns and 39 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3630 nonzeros
+As a whole: 65536 rows and 256 columns and 226109 nonzeros
+As a whole: 65536 rows and 256 columns and 2766603 nonzeros
+As a whole: 65536 rows and 256 columns and 6874981 nonzeros
+As a whole: 65536 rows and 256 columns and 6155171 nonzeros
+As a whole: 65536 rows and 256 columns and 2259461 nonzeros
+As a whole: 65536 rows and 256 columns and 454207 nonzeros
+As a whole: 65536 rows and 256 columns and 51926 nonzeros
+As a whole: 65536 rows and 256 columns and 3012 nonzeros
+As a whole: 65536 rows and 256 columns and 84 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 2394 nonzeros
+As a whole: 65536 rows and 256 columns and 172839 nonzeros
+As a whole: 65536 rows and 256 columns and 2591303 nonzeros
+As a whole: 65536 rows and 256 columns and 6954005 nonzeros
+As a whole: 65536 rows and 256 columns and 6470863 nonzeros
+As a whole: 65536 rows and 256 columns and 2334425 nonzeros
+As a whole: 65536 rows and 256 columns and 387059 nonzeros
+As a whole: 65536 rows and 256 columns and 32261 nonzeros
+As a whole: 65536 rows and 256 columns and 1430 nonzeros
+As a whole: 65536 rows and 256 columns and 28 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3253 nonzeros
+As a whole: 65536 rows and 256 columns and 225723 nonzeros
+As a whole: 65536 rows and 256 columns and 2904843 nonzeros
+As a whole: 65536 rows and 256 columns and 7040616 nonzeros
+As a whole: 65536 rows and 256 columns and 6212523 nonzeros
+As a whole: 65536 rows and 256 columns and 2220151 nonzeros
+As a whole: 65536 rows and 256 columns and 381536 nonzeros
+As a whole: 65536 rows and 256 columns and 32692 nonzeros
+As a whole: 65536 rows and 256 columns and 1572 nonzeros
+As a whole: 65536 rows and 256 columns and 25 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3106 nonzeros
+As a whole: 65536 rows and 256 columns and 179725 nonzeros
+As a whole: 65536 rows and 256 columns and 2524390 nonzeros
+As a whole: 65536 rows and 256 columns and 6957561 nonzeros
+As a whole: 65536 rows and 256 columns and 6544646 nonzeros
+As a whole: 65536 rows and 256 columns and 2326473 nonzeros
+As a whole: 65536 rows and 256 columns and 376463 nonzeros
+As a whole: 65536 rows and 256 columns and 33867 nonzeros
+As a whole: 65536 rows and 256 columns and 1658 nonzeros
+As a whole: 65536 rows and 256 columns and 42 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3846 nonzeros
+As a whole: 65536 rows and 256 columns and 239533 nonzeros
+As a whole: 65536 rows and 256 columns and 2845841 nonzeros
+As a whole: 65536 rows and 256 columns and 6949616 nonzeros
+As a whole: 65536 rows and 256 columns and 6188982 nonzeros
+As a whole: 65536 rows and 256 columns and 2221208 nonzeros
+As a whole: 65536 rows and 256 columns and 384530 nonzeros
+As a whole: 65536 rows and 256 columns and 35837 nonzeros
+As a whole: 65536 rows and 256 columns and 1824 nonzeros
+As a whole: 65536 rows and 256 columns and 41 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 3675 nonzeros
+As a whole: 65536 rows and 256 columns and 239278 nonzeros
+As a whole: 65536 rows and 256 columns and 3014262 nonzeros
+As a whole: 65536 rows and 256 columns and 7320685 nonzeros
+As a whole: 65536 rows and 256 columns and 6193813 nonzeros
+As a whole: 65536 rows and 256 columns and 1945209 nonzeros
+As a whole: 65536 rows and 256 columns and 284500 nonzeros
+As a whole: 65536 rows and 256 columns and 21607 nonzeros
+As a whole: 65536 rows and 256 columns and 911 nonzeros
+As a whole: 65536 rows and 256 columns and 14 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+As a whole: 65536 rows and 256 columns and 2710 nonzeros
+As a whole: 65536 rows and 256 columns and 180822 nonzeros
+As a whole: 65536 rows and 256 columns and 2627369 nonzeros
+As a whole: 65536 rows and 256 columns and 6992510 nonzeros
+As a whole: 65536 rows and 256 columns and 6424153 nonzeros
+As a whole: 65536 rows and 256 columns and 2250091 nonzeros
+As a whole: 65536 rows and 256 columns and 361748 nonzeros
+As a whole: 65536 rows and 256 columns and 33565 nonzeros
+As a whole: 65536 rows and 256 columns and 1774 nonzeros
+As a whole: 65536 rows and 256 columns and 46 nonzeros
+As a whole: 65536 rows and 256 columns and 0 nonzeros
+Tallying...
+Adding bc contributions...
+Computation finished
+45.037575 seconds elapsed for 4096 starting vertices
+TEPS score is: 44614880.967962
+Job  mvapich_wrapper /opt/lsf/bin/TaskStarter -p c13-101:47097 -c /opt/lsf/conf -a X86_64 ./betwcent /work/teragrid/tg459476/SCALE16BTW-TRANSBOOL 12 256
+
+TID   HOST_NAME   COMMAND_LINE            STATUS            TERMINATION_TIME
+===== ========== ================  =======================  ===================
+00000 c43-207    ./betwcent /work  Done                     09/30/2009 17:30:24
+00001 c43-207    ./betwcent /work  Done                     09/30/2009 17:30:24
+00002 c43-207    ./betwcent /work  Done                     09/30/2009 17:30:24
+00003 c43-207    ./betwcent /work  Done                     09/30/2009 17:30:24
+00004 c37-205    ./betwcent /work  Done                     09/30/2009 17:30:24
+00005 c37-205    ./betwcent /work  Done                     09/30/2009 17:30:24
+00006 c37-205    ./betwcent /work  Done                     09/30/2009 17:30:24
+00007 c37-205    ./betwcent /work  Done                     09/30/2009 17:30:24
+00008 c34-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00009 c34-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00010 c34-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00011 c34-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00012 c28-305    ./betwcent /work  Done                     09/30/2009 17:30:24
+00013 c28-305    ./betwcent /work  Done                     09/30/2009 17:30:24
+00014 c28-305    ./betwcent /work  Done                     09/30/2009 17:30:24
+00015 c28-305    ./betwcent /work  Done                     09/30/2009 17:30:24
+00016 c28-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00017 c28-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00018 c28-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00019 c28-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00020 c13-306    ./betwcent /work  Done                     09/30/2009 17:30:24
+00021 c13-306    ./betwcent /work  Done                     09/30/2009 17:30:24
+00022 c13-306    ./betwcent /work  Done                     09/30/2009 17:30:24
+00023 c13-306    ./betwcent /work  Done                     09/30/2009 17:30:24
+00024 c13-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00025 c13-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00026 c13-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00027 c13-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00028 c34-105    ./betwcent /work  Done                     09/30/2009 17:30:24
+00029 c34-105    ./betwcent /work  Done                     09/30/2009 17:30:24
+00030 c34-105    ./betwcent /work  Done                     09/30/2009 17:30:24
+00031 c34-105    ./betwcent /work  Done                     09/30/2009 17:30:24
+00032 c31-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00033 c31-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00034 c31-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00035 c31-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00036 c17-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00037 c17-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00038 c17-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00039 c17-103    ./betwcent /work  Done                     09/30/2009 17:30:24
+00040 c13-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00041 c13-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00042 c13-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00043 c13-106    ./betwcent /work  Done                     09/30/2009 17:30:24
+00044 c42-404    ./betwcent /work  Done                     09/30/2009 17:30:24
+00045 c42-404    ./betwcent /work  Done                     09/30/2009 17:30:24
+00046 c42-404    ./betwcent /work  Done                     09/30/2009 17:30:24
+00047 c42-404    ./betwcent /work  Done                     09/30/2009 17:30:24
+00048 c43-407    ./betwcent /work  Done                     09/30/2009 17:30:24
+00049 c43-407    ./betwcent /work  Done                     09/30/2009 17:30:24
+00050 c43-407    ./betwcent /work  Done                     09/30/2009 17:30:24
+00051 c43-407    ./betwcent /work  Done                     09/30/2009 17:30:24
+00052 c25-408    ./betwcent /work  Done                     09/30/2009 17:30:24
+00053 c25-408    ./betwcent /work  Done                     09/30/2009 17:30:24
+00054 c25-408    ./betwcent /work  Done                     09/30/2009 17:30:24
+00055 c25-408    ./betwcent /work  Done                     09/30/2009 17:30:24
+00056 c22-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00057 c22-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00058 c22-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00059 c22-304    ./betwcent /work  Done                     09/30/2009 17:30:24
+00060 c13-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00061 c13-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00062 c13-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+00063 c13-101    ./betwcent /work  Done                     09/30/2009 17:30:24
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@c13-101>
+Subject: Job 237740: <betwcentp64> Done
+
+Job <betwcentp64> was submitted from host <lslogin1> by user <tg459476>.
+Job was executed on host(s) <4*c13-101>, in queue <normal>, as user <tg459476>.
+                            <4*c22-304>
+                            <4*c25-408>
+                            <4*c43-407>
+                            <4*c42-404>
+                            <4*c13-106>
+                            <4*c17-103>
+                            <4*c31-103>
+                            <4*c34-105>
+                            <4*c13-304>
+                            <4*c13-306>
+                            <4*c28-106>
+                            <4*c28-305>
+                            <4*c34-101>
+                            <4*c37-205>
+                            <4*c43-207>
+</home/teragrid/tg459476> was used as the home directory.
+</home/teragrid/tg459476/Release_PSpGEMM/PSpGEMM-R1/Applications> was used as the working directory.
+Started at Wed Sep 30 17:29:07 2009
+Results reported at Wed Sep 30 17:30:27 2009
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/tcsh 			  
+				  # first line specifies shell
+#BSUB -J betwcentp64 		  #name the job "jobname"
+#BSUB -o out.o%J   		  #output->   out.o&ltjobID>
+#BSUB -e err.o%J   		  #error -> error.o&ltjobID>
+#BSUB -n 64 -W 0:10               #1 CPU cores and 0hr+15min
+#BSUB -q normal                   #Use development queue.
+#BSUB -R 'span[ptile=4]'	  # 4 MPI task per node
+set echo                          #Echo all commands.
+cd $LS_SUBCWD                     #cd to directory of submission
+ibrun ./betwcent $WORK/SCALE16BTW-TRANSBOOL 12 256  # 8 processors on the row, each has batch=256/8=32; 2^12 = 4096 starting vertices overall
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time   :   2934.19 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <err.o237740> for stderr output of this job.
+
