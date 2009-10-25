@@ -36,13 +36,13 @@ void deallocate2D(T ** array, I m)
 
 using namespace std;
 
-typedef int vpackedsi __attribute__ ((vector_size (BETA*sizeof(int))));			// 64-bytes, a full cache line !
+//typedef int vpackedsi __attribute__ ((vector_size (BETA*sizeof(int))));			// 64-bytes, a full cache line !
 
-union ipackedvector 
-{
-  	vpackedsi v;
-  	int f[BETA];
-};
+//union ipackedvector 
+//{
+//  	vpackedsi v;
+//  	int f[BETA];
+//};
 
 template <int D, typename T>
 void saxpy(T a, T * __restrict b, T * __restrict c)
@@ -112,7 +112,8 @@ int main()
 	copy(yy[0], yy[0]+BETA, ostream_iterator<float>( cout, " "));
 	cout << endl;
 
-	
+	/*
+	ipackedvector av, bv, cv;
 	for (int i=0; i< ITER; ++i)
 	{
 		for (int j=0; j< BETA; ++j)
@@ -143,7 +144,7 @@ int main()
 	t2=tim.tv_sec+(tim.tv_usec/1000000.0);
 	printf("%.6lf seconds elapsed for template unrolled loop\n", t2-t1);
 	copy(c[0].begin(), c[0].end(), ostream_iterator<int>( cout, " "));
-	cout << endl;
+	cout << endl;*/
 	
 
 //	ipackedvector av, bv, cv;

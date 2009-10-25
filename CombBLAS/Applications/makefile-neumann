@@ -1,32 +1,35 @@
-INCDIR = /home/aydin/localinstall/openmpi_threaded/include/ 
-INCADD = -I$(INCDIR) 
+INCDIR = $(HOME)
+INCADD = -I$(INCDIR)
+
+# notes for configure:
+# -fno-exceptions does not work with MPICH2
+# -fno-rtti does not work with tr1:tuples
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
-COMPILER = icpc #mpicxx	
-LDADD = -lmpi -lmpi_cxx
-FLAGS = $(DEB)
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
+COMPILER = mpicxx	
+FLAGS = $(OPT)
 
-CommGrid.o:	CommGrid.cpp CommGrid.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o CommGrid.cpp
+CommGrid.o:	../CommGrid.cpp ../CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
 
-MPIType.o:	MPIType.cpp MPIType.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o MPIType.o MPIType.cpp
+MPIType.o:	../MPIType.cpp ../MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp
 
-MemoryPool.o:	MemoryPool.cpp SpDefs.h
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o MemoryPool.cpp
+MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp
 
-BetwCent.o: BetwCent.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpDefs.h
+Driver.o: Driver.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Driver.o Driver.cpp
+
+BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
-Driver.o: Driver.cpp SpDCCols.cpp dcsc.cpp SpHelper.h SpParMPI2.cpp SpTuples.cpp
-	$(COMPILER) $(FLAGS) $(INCADD) -c -o Driver.o Driver.cpp
-
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
+	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o $(LDADD)
+	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
 
 clean:
 	rm -f betwcent

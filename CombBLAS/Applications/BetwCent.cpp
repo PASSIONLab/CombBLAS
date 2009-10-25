@@ -82,17 +82,23 @@ int main(int argc, char* argv[])
 	
 		// get the number of batch vertices for submatrix
 		int subBatchSize = batchSize / (AT.getcommgrid())->GetGridCols();
+		int nBatchSize = subBatchSize * (AT.getcommgrid())->GetGridCols();
+		nPasses = numBatches * nBatchSize;	// update the number of starting vertices	
+	
 		if(batchSize % (AT.getcommgrid())->GetGridCols() > 0 && myrank == 0)
-			cout << "*** Please make batchsize divisible by the grid dimensions (r and s) ***" << endl;
+		{
+			cout << "*** Batchsize is not evenly divisible by the grid dimension ***" << endl;
+			cout << "*** Processing "<< nPasses <<" vertices instead"<< endl;
+		}
 
 		vector<int> candidates;
 		if (myrank == 0)
-			cout << "Batch processing will occur " << numBatches << " times, each processing " << batchSize << " vertices (overall)" << endl;
+			cout << "Batch processing will occur " << numBatches << " times, each processing " << nBatchSize << " vertices (overall)" << endl;
 
 		// Only consider non-isolated vertices
 		int vertices = 0;
 		int vrtxid = 0; 
-		int nlocpass = nPasses / (AT.getcommgrid())->GetGridCols();
+		int nlocpass = numBatches * subBatchSize;
 		while(vertices < nlocpass)
 		{
 			vector<int> single;
@@ -109,7 +115,8 @@ int main(int argc, char* argv[])
 			}
 			++vrtxid;
 		}
-
+		
+		SpParHelper::Print("Candidates chosen, precomputation finished\n");
 		double t1 = MPI_Wtime();
 		vector<int> batch(subBatchSize);
 		DenseParVec<int, double> bc(AT.getcommgrid(),0.0);
@@ -122,7 +129,6 @@ int main(int argc, char* argv[])
 			}
 			
 			PSpMat<int>::MPI_DCCols fringe = AT.SubsRefCol(batch);
-			fringe.PrintInfo();
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
@@ -152,7 +158,7 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
+				fringe = Mult_AnXBn_Synch<PTBOOLINT>(AT, fringe);
 				fringe = EWiseMult(fringe, nsp, true);
 			}
 
@@ -172,7 +178,7 @@ int main(int argc, char* argv[])
 				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
+				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_Synch<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 
