@@ -71,10 +71,14 @@ CombBLAS/bc-runtimes/SCALE16/144cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/169cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/196cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/225cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/SCALE16/256cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/36cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/49cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/64cores_b256_tile4.out -text
 CombBLAS/bc-runtimes/SCALE16/81cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/SCALE17/100cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/SCALE17/64cores_b256_tile4.out -text
+CombBLAS/bc-runtimes/SCALE17/81cores_b256_tile4.out -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
