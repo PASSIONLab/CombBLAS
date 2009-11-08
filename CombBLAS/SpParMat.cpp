@@ -397,10 +397,10 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			infile >> total_m >> total_n >> total_nnz;
 			m_perproc = total_m / colneighs;
 			n_perproc = total_n / rowneighs;
-	
+
 			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
-			
+
 			IT temprow, tempcol;
 			NT tempval;
 			IT cnz = 0;
@@ -620,7 +620,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 		}
 	
 	}
-	
+
 	DeleteAll(cdispls, rdispls);
 	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];	// the vector will go out of scope, make it stick !
 	copy(localtuples.begin(), localtuples.end(), arrtuples);

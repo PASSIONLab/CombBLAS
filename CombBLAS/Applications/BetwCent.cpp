@@ -67,6 +67,11 @@ int main(int argc, char* argv[])
 		ifilename = directory+"/"+ifilename;
 
 		ifstream input(ifilename.c_str());
+		if( !input ) 
+		{
+		    	cerr << "Error opening input stream" << endl;
+    			return;
+  		}
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<bool>::MPI_DCCols A, AT;	// construct object
