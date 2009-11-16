@@ -5,7 +5,11 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include <tr1/tuple>
+#ifdef NOTR1
+        #include <boost/tr1/memory.hpp>
+#else
+        #include <tr1/memory>
+#endif
 #include "../SpParVec.h"
 #include "../SpTuples.h"
 #include "../SpDCCols.h"

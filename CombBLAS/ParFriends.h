@@ -147,11 +147,12 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		
 	UDERA A1seq, A2seq;
 	(A.spSeq)->Split( A1seq, A2seq); 
-
+	
 	// ABAB: It should be able to perform split/merge with the transpose option [single function call]
 	const_cast< UDERB* >(B.spSeq)->Transpose();
+	
 	UDERB B1seq, B2seq;
-	(B.spSeq)->Split( B1seq, B2seq); 
+	(B.spSeq)->Split( B1seq, B2seq);
 	
 	// Create row and column windows (collective operation, i.e. everybody exposes its window to others)
 	vector<MPI::Win> rowwins1, rowwins2, colwins1, colwins2;
@@ -193,7 +194,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpParHelper::PostExposureEpoch(Aself, rowwins2, row_group);
 	SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
 	SpParHelper::PostExposureEpoch(Bself, colwins2, col_group);
-
+	
 	int Aowner = (0+Aoffset) % stages;		
 	int Bowner = (0+Boffset) % stages;
 
@@ -226,6 +227,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 
 	for(int i = 1; i < stages; ++i) 
 	{
+		//SpParHelper::Print("Stage starting\n");
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
@@ -284,7 +286,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		if(Bowner == Bself)	BRecv2 = &B2seq;		
 		else	SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);
 	}
-
+	//SpParHelper::Print("Stages finished\n");
 	SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
 	if(!C_cont->isZero()) 
 		tomerge.push_back(C_cont);

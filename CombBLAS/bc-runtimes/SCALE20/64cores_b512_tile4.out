@@ -1,0 +1,156 @@
+Batch processing will occur 8 times, each processing 512 vertices (overall)
+Candidates chosen, precomputation finished
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Computation finished
+732.053249 seconds elapsed for 4096 starting vertices
+TEPS score is: 45451309.454334
+Job  mvapich_wrapper /opt/lsf/bin/TaskStarter -p c12-209:53432 -c /opt/lsf/conf -a X86_64 ./betwcent /work/teragrid/tg459476/SCALE20BTW-TRANSBOOL 12 512
+
+TID   HOST_NAME   COMMAND_LINE            STATUS            TERMINATION_TIME
+===== ========== ================  =======================  ===================
+00000 c42-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00001 c42-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00002 c42-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00003 c42-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00004 c43-106    ./betwcent /work  Done                     11/10/2009 20:10:56
+00005 c43-106    ./betwcent /work  Done                     11/10/2009 20:10:56
+00006 c43-106    ./betwcent /work  Done                     11/10/2009 20:10:56
+00007 c43-106    ./betwcent /work  Done                     11/10/2009 20:10:56
+00008 c18-107    ./betwcent /work  Done                     11/10/2009 20:10:56
+00009 c18-107    ./betwcent /work  Done                     11/10/2009 20:10:56
+00010 c18-107    ./betwcent /work  Done                     11/10/2009 20:10:56
+00011 c18-107    ./betwcent /work  Done                     11/10/2009 20:10:56
+00012 c43-303    ./betwcent /work  Done                     11/10/2009 20:10:56
+00013 c43-303    ./betwcent /work  Done                     11/10/2009 20:10:56
+00014 c43-303    ./betwcent /work  Done                     11/10/2009 20:10:56
+00015 c43-303    ./betwcent /work  Done                     11/10/2009 20:10:56
+00016 c20-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00017 c20-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00018 c20-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00019 c20-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00020 c25-101    ./betwcent /work  Done                     11/10/2009 20:10:56
+00021 c25-101    ./betwcent /work  Done                     11/10/2009 20:10:56
+00022 c25-101    ./betwcent /work  Done                     11/10/2009 20:10:56
+00023 c25-101    ./betwcent /work  Done                     11/10/2009 20:10:56
+00024 c25-110    ./betwcent /work  Done                     11/10/2009 20:10:56
+00025 c25-110    ./betwcent /work  Done                     11/10/2009 20:10:56
+00026 c25-110    ./betwcent /work  Done                     11/10/2009 20:10:56
+00027 c25-110    ./betwcent /work  Done                     11/10/2009 20:10:56
+00028 c15-201    ./betwcent /work  Done                     11/10/2009 20:10:56
+00029 c15-201    ./betwcent /work  Done                     11/10/2009 20:10:56
+00030 c15-201    ./betwcent /work  Done                     11/10/2009 20:10:56
+00031 c15-201    ./betwcent /work  Done                     11/10/2009 20:10:56
+00032 c33-403    ./betwcent /work  Done                     11/10/2009 20:10:56
+00033 c33-403    ./betwcent /work  Done                     11/10/2009 20:10:56
+00034 c33-403    ./betwcent /work  Done                     11/10/2009 20:10:56
+00035 c33-403    ./betwcent /work  Done                     11/10/2009 20:10:56
+00036 c38-204    ./betwcent /work  Done                     11/10/2009 20:10:56
+00037 c38-204    ./betwcent /work  Done                     11/10/2009 20:10:56
+00038 c38-204    ./betwcent /work  Done                     11/10/2009 20:10:56
+00039 c38-204    ./betwcent /work  Done                     11/10/2009 20:10:56
+00040 c38-210    ./betwcent /work  Done                     11/10/2009 20:10:56
+00041 c38-210    ./betwcent /work  Done                     11/10/2009 20:10:56
+00042 c38-210    ./betwcent /work  Done                     11/10/2009 20:10:56
+00043 c38-210    ./betwcent /work  Done                     11/10/2009 20:10:56
+00044 c31-105    ./betwcent /work  Done                     11/10/2009 20:10:56
+00045 c31-105    ./betwcent /work  Done                     11/10/2009 20:10:56
+00046 c31-105    ./betwcent /work  Done                     11/10/2009 20:10:56
+00047 c31-105    ./betwcent /work  Done                     11/10/2009 20:10:56
+00048 c15-307    ./betwcent /work  Done                     11/10/2009 20:10:56
+00049 c15-307    ./betwcent /work  Done                     11/10/2009 20:10:56
+00050 c15-307    ./betwcent /work  Done                     11/10/2009 20:10:56
+00051 c15-307    ./betwcent /work  Done                     11/10/2009 20:10:56
+00052 c23-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00053 c23-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00054 c23-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00055 c23-203    ./betwcent /work  Done                     11/10/2009 20:10:56
+00056 c33-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00057 c33-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00058 c33-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00059 c33-402    ./betwcent /work  Done                     11/10/2009 20:10:56
+00060 c12-209    ./betwcent /work  Done                     11/10/2009 20:10:56
+00061 c12-209    ./betwcent /work  Done                     11/10/2009 20:10:56
+00062 c12-209    ./betwcent /work  Done                     11/10/2009 20:10:56
+00063 c12-209    ./betwcent /work  Done                     11/10/2009 20:10:56
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@c12-209>
+Subject: Job 283985: <betwcentp64> Done
+
+Job <betwcentp64> was submitted from host <lslogin2> by user <tg459476>.
+Job was executed on host(s) <4*c12-209>, in queue <normal>, as user <tg459476>.
+                            <4*c33-402>
+                            <4*c23-203>
+                            <4*c15-307>
+                            <4*c31-105>
+                            <4*c38-210>
+                            <4*c38-204>
+                            <4*c33-403>
+                            <4*c15-201>
+                            <4*c25-110>
+                            <4*c25-101>
+                            <4*c20-203>
+                            <4*c43-303>
+                            <4*c18-107>
+                            <4*c43-106>
+                            <4*c42-402>
+</home/teragrid/tg459476> was used as the home directory.
+</home/teragrid/tg459476/Release_PSpGEMM/PSpGEMM-R1/Applications> was used as the working directory.
+Started at Tue Nov 10 19:58:04 2009
+Results reported at Tue Nov 10 20:10:59 2009
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/tcsh 			  
+				  # first line specifies shell
+#BSUB -J betwcentp64 		  #name the job "jobname"
+#BSUB -o out.o%J   		  #output->   out.o&ltjobID>
+#BSUB -e err.o%J   		  #error -> error.o&ltjobID>
+#BSUB -n 64 -W 0:20               #1 CPU cores and 0hr+15min
+#BSUB -q normal                   #Use development queue.
+#BSUB -R 'span[ptile=4]'	  # 4 MPI task per node
+set echo                          #Echo all commands.
+cd $LS_SUBCWD                     #cd to directory of submission
+ibrun ./betwcent $WORK/SCALE20BTW-TRANSBOOL 12 512  # 8 processors on the row, each has batch=256/8=32; 2^12 = 4096 starting vertices overall
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time   :  47319.79 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <err.o283985> for stderr output of this job.
+

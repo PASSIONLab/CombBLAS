@@ -1,0 +1,218 @@
+*** Batchsize is not evenly divisible by the grid dimension ***
+*** Processing 4092 vertices instead
+Batch processing will occur 4 times, each processing 1023 vertices (overall)
+Candidates chosen, precomputation finished
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Computation finished
+171.678048 seconds elapsed for 4092 starting vertices
+TEPS score is: 96190982.285974
+Job  mvapich_wrapper /opt/lsf/bin/TaskStarter -p c30-309:34995 -c /opt/lsf/conf -a X86_64 ./betwcent /work/teragrid/tg459476/SCALE19BTW-TRANSBOOL 12 1024
+
+TID   HOST_NAME   COMMAND_LINE            STATUS            TERMINATION_TIME
+===== ========== ================  =======================  ===================
+00000 c40-304    ./betwcent /work  Done                     11/09/2009 16:36:21
+00001 c13-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00002 c13-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00003 c13-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00004 c13-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00005 c11-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00006 c11-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00007 c11-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00008 c11-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00009 c23-406    ./betwcent /work  Done                     11/09/2009 16:36:21
+00010 c23-406    ./betwcent /work  Done                     11/09/2009 16:36:21
+00011 c23-406    ./betwcent /work  Done                     11/09/2009 16:36:21
+00012 c23-406    ./betwcent /work  Done                     11/09/2009 16:36:21
+00013 c37-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00014 c37-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00015 c37-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00016 c37-105    ./betwcent /work  Done                     11/09/2009 16:36:21
+00017 c14-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00018 c14-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00019 c14-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00020 c14-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00021 c34-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00022 c34-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00023 c34-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00024 c34-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00025 c26-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00026 c26-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00027 c26-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00028 c26-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00029 c36-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00030 c36-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00031 c36-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00032 c36-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00033 c36-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00034 c36-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00035 c36-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00036 c36-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00037 c41-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00038 c41-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00039 c41-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00040 c41-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00041 c40-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00042 c40-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00043 c40-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00044 c40-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00045 c19-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00046 c19-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00047 c19-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00048 c19-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00049 c38-104    ./betwcent /work  Done                     11/09/2009 16:36:21
+00050 c38-104    ./betwcent /work  Done                     11/09/2009 16:36:21
+00051 c38-104    ./betwcent /work  Done                     11/09/2009 16:36:21
+00052 c38-104    ./betwcent /work  Done                     11/09/2009 16:36:21
+00053 c45-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00054 c45-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00055 c45-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00056 c45-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00057 c18-109    ./betwcent /work  Done                     11/09/2009 16:36:21
+00058 c18-109    ./betwcent /work  Done                     11/09/2009 16:36:21
+00059 c18-109    ./betwcent /work  Done                     11/09/2009 16:36:21
+00060 c18-109    ./betwcent /work  Done                     11/09/2009 16:36:21
+00061 c18-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00062 c18-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00063 c18-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00064 c18-210    ./betwcent /work  Done                     11/09/2009 16:36:21
+00065 c21-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00066 c21-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00067 c21-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00068 c21-301    ./betwcent /work  Done                     11/09/2009 16:36:21
+00069 c38-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00070 c38-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00071 c38-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00072 c38-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00073 c41-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00074 c41-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00075 c41-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00076 c41-408    ./betwcent /work  Done                     11/09/2009 16:36:21
+00077 c25-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00078 c25-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00079 c25-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00080 c25-409    ./betwcent /work  Done                     11/09/2009 16:36:21
+00081 c34-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00082 c34-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00083 c34-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00084 c34-107    ./betwcent /work  Done                     11/09/2009 16:36:21
+00085 c14-202    ./betwcent /work  Done                     11/09/2009 16:36:21
+00086 c14-202    ./betwcent /work  Done                     11/09/2009 16:36:21
+00087 c14-202    ./betwcent /work  Done                     11/09/2009 16:36:21
+00088 c14-202    ./betwcent /work  Done                     11/09/2009 16:36:21
+00089 c36-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00090 c36-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00091 c36-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00092 c36-101    ./betwcent /work  Done                     11/09/2009 16:36:21
+00093 c26-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00094 c26-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00095 c26-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00096 c26-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00097 c32-205    ./betwcent /work  Done                     11/09/2009 16:36:21
+00098 c32-205    ./betwcent /work  Done                     11/09/2009 16:36:21
+00099 c32-205    ./betwcent /work  Done                     11/09/2009 16:36:21
+00100 c32-205    ./betwcent /work  Done                     11/09/2009 16:36:21
+00101 c33-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00102 c33-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00103 c33-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00104 c33-106    ./betwcent /work  Done                     11/09/2009 16:36:21
+00105 c20-303    ./betwcent /work  Done                     11/09/2009 16:36:21
+00106 c20-303    ./betwcent /work  Done                     11/09/2009 16:36:21
+00107 c20-303    ./betwcent /work  Done                     11/09/2009 16:36:21
+00108 c20-303    ./betwcent /work  Done                     11/09/2009 16:36:21
+00109 c31-302    ./betwcent /work  Done                     11/09/2009 16:36:21
+00110 c31-302    ./betwcent /work  Done                     11/09/2009 16:36:21
+00111 c31-302    ./betwcent /work  Done                     11/09/2009 16:36:21
+00112 c31-302    ./betwcent /work  Done                     11/09/2009 16:36:21
+00113 c39-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00114 c39-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00115 c39-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00116 c39-207    ./betwcent /work  Done                     11/09/2009 16:36:21
+00117 c30-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00118 c30-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00119 c30-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+00120 c30-309    ./betwcent /work  Done                     11/09/2009 16:36:21
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@c30-309>
+Subject: Job 280467: <betwcentp121> Done
+
+Job <betwcentp121> was submitted from host <lslogin1> by user <tg459476>.
+Job was executed on host(s) <4*c30-309>, in queue <normal>, as user <tg459476>.
+                            <4*c39-207>
+                            <4*c31-302>
+                            <4*c20-303>
+                            <4*c33-106>
+                            <4*c32-205>
+                            <4*c26-106>
+                            <4*c36-101>
+                            <4*c14-202>
+                            <4*c34-107>
+                            <4*c25-409>
+                            <4*c41-408>
+                            <4*c38-107>
+                            <4*c21-301>
+                            <4*c18-210>
+                            <4*c18-109>
+                            <4*c45-409>
+                            <4*c38-104>
+                            <4*c19-207>
+                            <4*c40-408>
+                            <4*c41-210>
+                            <4*c36-309>
+                            <4*c36-207>
+                            <4*c26-301>
+                            <4*c34-101>
+                            <4*c14-301>
+                            <4*c37-105>
+                            <4*c23-406>
+                            <4*c11-106>
+                            <4*c13-105>
+                            <1*c40-304>
+</home/teragrid/tg459476> was used as the home directory.
+</home/teragrid/tg459476/Release_PSpGEMM/PSpGEMM-R1/Applications> was used as the working directory.
+Started at Mon Nov  9 16:32:55 2009
+Results reported at Mon Nov  9 16:36:26 2009
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/tcsh 			  
+				  # first line specifies shell
+#BSUB -J betwcentp121 		  #name the job "jobname"
+#BSUB -o out.o%J   		  #output->   out.o&ltjobID>
+#BSUB -e err.o%J   		  #error -> error.o&ltjobID>
+#BSUB -n 121 -W 0:10               #1 CPU cores and 0hr+15min
+#BSUB -q normal                   #Use development queue.
+#BSUB -R 'span[ptile=4]'	  # 4 MPI task per node
+set echo                          #Echo all commands.
+cd $LS_SUBCWD                     #cd to directory of submission
+ibrun ./betwcent $WORK/SCALE19BTW-TRANSBOOL 12 1024  # 16 processors on the row, each has batch=512/8=32; 2^12 = 4096 starting vertices overall
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time   :  21377.87 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <err.o280467> for stderr output of this job.
+

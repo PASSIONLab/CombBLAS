@@ -1,0 +1,140 @@
+*** Batchsize is not evenly divisible by the grid dimension ***
+*** Processing 4088 vertices instead
+Batch processing will occur 8 times, each processing 511 vertices (overall)
+Candidates chosen, precomputation finished
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Exploring via BFS...
+Tallying...
+Adding bc contributions...
+Computation finished
+376.590029 seconds elapsed for 4088 starting vertices
+TEPS score is: 43808214.327273
+Job  mvapich_wrapper /opt/lsf/bin/TaskStarter -p c38-303:33283 -c /opt/lsf/conf -a X86_64 ./betwcent /work/teragrid/tg459476/SCALE19BTW-TRANSBOOL 12 512
+
+TID   HOST_NAME   COMMAND_LINE            STATUS            TERMINATION_TIME
+===== ========== ================  =======================  ===================
+00000 c44-208    ./betwcent /work  Done                     11/12/2009 05:04:04
+00001 c25-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00002 c25-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00003 c25-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00004 c25-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00005 c20-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00006 c20-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00007 c20-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00008 c20-204    ./betwcent /work  Done                     11/12/2009 05:04:04
+00009 c20-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00010 c20-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00011 c20-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00012 c20-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00013 c15-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00014 c15-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00015 c15-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00016 c15-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00017 c25-205    ./betwcent /work  Done                     11/12/2009 05:04:04
+00018 c25-205    ./betwcent /work  Done                     11/12/2009 05:04:04
+00019 c25-205    ./betwcent /work  Done                     11/12/2009 05:04:04
+00020 c25-205    ./betwcent /work  Done                     11/12/2009 05:04:04
+00021 c41-107    ./betwcent /work  Done                     11/12/2009 05:04:04
+00022 c41-107    ./betwcent /work  Done                     11/12/2009 05:04:04
+00023 c41-107    ./betwcent /work  Done                     11/12/2009 05:04:04
+00024 c41-107    ./betwcent /work  Done                     11/12/2009 05:04:04
+00025 c35-402    ./betwcent /work  Done                     11/12/2009 05:04:04
+00026 c35-402    ./betwcent /work  Done                     11/12/2009 05:04:04
+00027 c35-402    ./betwcent /work  Done                     11/12/2009 05:04:04
+00028 c35-402    ./betwcent /work  Done                     11/12/2009 05:04:04
+00029 c20-109    ./betwcent /work  Done                     11/12/2009 05:04:04
+00030 c20-109    ./betwcent /work  Done                     11/12/2009 05:04:04
+00031 c20-109    ./betwcent /work  Done                     11/12/2009 05:04:04
+00032 c20-109    ./betwcent /work  Done                     11/12/2009 05:04:04
+00033 c25-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00034 c25-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00035 c25-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00036 c25-202    ./betwcent /work  Done                     11/12/2009 05:04:04
+00037 c12-203    ./betwcent /work  Done                     11/12/2009 05:04:04
+00038 c12-203    ./betwcent /work  Done                     11/12/2009 05:04:04
+00039 c12-203    ./betwcent /work  Done                     11/12/2009 05:04:04
+00040 c12-203    ./betwcent /work  Done                     11/12/2009 05:04:04
+00041 c39-201    ./betwcent /work  Done                     11/12/2009 05:04:04
+00042 c39-201    ./betwcent /work  Done                     11/12/2009 05:04:04
+00043 c39-201    ./betwcent /work  Done                     11/12/2009 05:04:04
+00044 c39-201    ./betwcent /work  Done                     11/12/2009 05:04:04
+00045 c38-303    ./betwcent /work  Done                     11/12/2009 05:04:04
+00046 c38-303    ./betwcent /work  Done                     11/12/2009 05:04:04
+00047 c38-303    ./betwcent /work  Done                     11/12/2009 05:04:04
+00048 c38-303    ./betwcent /work  Done                     11/12/2009 05:04:04
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@c38-303>
+Subject: Job 286759: <betwcentp49> Done
+
+Job <betwcentp49> was submitted from host <lslogin1> by user <tg459476>.
+Job was executed on host(s) <4*c38-303>, in queue <normal>, as user <tg459476>.
+                            <4*c39-201>
+                            <4*c12-203>
+                            <4*c25-202>
+                            <4*c20-109>
+                            <4*c35-402>
+                            <4*c41-107>
+                            <4*c25-205>
+                            <4*c15-202>
+                            <4*c20-202>
+                            <4*c20-204>
+                            <4*c25-204>
+                            <1*c44-208>
+</home/teragrid/tg459476> was used as the home directory.
+</home/teragrid/tg459476/Release_PSpGEMM/PSpGEMM-R1/Applications> was used as the working directory.
+Started at Thu Nov 12 04:57:13 2009
+Results reported at Thu Nov 12 05:04:07 2009
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/tcsh 			  
+				  # first line specifies shell
+#BSUB -J betwcentp49 		  #name the job "jobname"
+#BSUB -o out.o%J   		  #output->   out.o&ltjobID>
+#BSUB -e err.o%J   		  #error -> error.o&ltjobID>
+#BSUB -n 49 -W 0:20               #1 CPU cores and 0hr+15min
+#BSUB -q normal                   #Use development queue.
+#BSUB -R 'span[ptile=4]'	  # 4 MPI task per node
+set echo                          #Echo all commands.
+cd $LS_SUBCWD                     #cd to directory of submission
+ibrun ./betwcent $WORK/SCALE19BTW-TRANSBOOL 12 512  # 8 processors on the row, each has batch=256/8=32; 2^12 = 4096 starting vertices overall
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time   :  18631.92 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <err.o286759> for stderr output of this job.
+

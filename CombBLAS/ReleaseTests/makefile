@@ -1,8 +1,8 @@
-INCDIR = $(TACC_BOOST_INC)/boost-1_34_1/
-INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
+INCDIR = $(TACC_BOOST_INC)/boost-1_39/
+INCADD = -I$(INCDIR)
 
-OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DNOTR1
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DNOTR1
+OPT = -DNDEBUG -O3 -w -DMPICH_IGNORE_CXX_SEEK -DNOTR1
+DEB = -g -O0 -w -fno-inline -DMPICH_IGNORE_CXX_SEEK -DNOTR1
 COMPILER = mpicxx	
 FLAGS = $(DEB)
 
@@ -21,17 +21,23 @@ TransposeTest.o: TransposeTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../
 MultTest.o: MultTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTest.o MultTest.cpp
 
+MultTiming.o: MultTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTiming.o MultTiming.cpp
+
 ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
 
 MultTest: MemoryPool.o CommGrid.o MPIType.o MultTest.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o MultTest MultTest.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o MultTest MultTest.o MemoryPool.o CommGrid.o MPIType.o
+
+MultTime: MemoryPool.o CommGrid.o MPIType.o MultTiming.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o MultTime MultTiming.o MemoryPool.o CommGrid.o MPIType.o
 
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
-	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
 
 clean:
 	rm -f TransposeTest
