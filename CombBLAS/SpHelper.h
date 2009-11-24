@@ -13,6 +13,7 @@
 #define _SP_HELPER_H_
 
 #include <vector>
+#include <limits>
 #include "SpDefs.h"
 #include "StackEntry.h"
 #include "promote.h"

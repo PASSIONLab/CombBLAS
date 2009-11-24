@@ -1,5 +1,7 @@
+#include <limits>
 #include "SpParVec.h"
 #include "SpDefs.h"
+using namespace std;
 
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(zero)

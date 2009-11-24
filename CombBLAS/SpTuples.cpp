@@ -154,7 +154,6 @@ ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 			if((rowindex(cnz) > m) || (colindex(cnz)  > n))
 			{
 				cerr << "supplied matrix indices are beyond specified boundaries, aborting..." << endl;
-				abort();
 			}
 			++cnz;
 		}

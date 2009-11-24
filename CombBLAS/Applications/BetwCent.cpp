@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 		ifstream input(ifilename.c_str());
 		if( !input ) 
 		{
-		    	cerr << "Error opening input stream" << endl;
-    			return;
+		    	SpParHelper::Print( "Error opening input stream\n");
+    			return -1;
   		}
 		MPI::COMM_WORLD.Barrier();
 	

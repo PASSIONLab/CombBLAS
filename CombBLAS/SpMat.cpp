@@ -1,6 +1,7 @@
-
+#include <cstdlib>
 #include "SpMat.h"
 #include "Friends.h"
+using namespace std;
 
 template <class IT, class NT, class DER>
 SpMat<IT, NT, DER> SpMat<IT, NT, DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
