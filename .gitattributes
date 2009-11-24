@@ -58,6 +58,9 @@ CombBLAS/ReleaseTests/exectests -text
 CombBLAS/ReleaseTests/makefile -text
 CombBLAS/ReleaseTests/makefile-lonestar -text
 CombBLAS/ReleaseTests/makefile-mac -text
+CombBLAS/ReleaseTests/makefile-neumann -text
+CombBLAS/ReleaseTests/myhosts -text
+CombBLAS/ReleaseTests/pathtompich2 -text
 CombBLAS/Semirings.h -text
 CombBLAS/SequenceHeaps/heap-CLR.h -text
 CombBLAS/SequenceHeaps/heap2.h -text
