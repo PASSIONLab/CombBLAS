@@ -55,7 +55,6 @@ CombBLAS/ReleaseTests/MultTiming.cpp -text
 CombBLAS/ReleaseTests/ReduceTest.cpp -text
 CombBLAS/ReleaseTests/TransposeTest.cpp -text
 CombBLAS/ReleaseTests/exectests -text
-CombBLAS/ReleaseTests/makefile -text
 CombBLAS/ReleaseTests/makefile-lonestar -text
 CombBLAS/ReleaseTests/makefile-mac -text
 CombBLAS/ReleaseTests/makefile-neumann -text
