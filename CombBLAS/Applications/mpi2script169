@@ -3,9 +3,9 @@
 #BSUB -J betwcentp169 		  #name the job "jobname"
 #BSUB -o out.o%J   		  #output->   out.o&ltjobID>
 #BSUB -e err.o%J   		  #error -> error.o&ltjobID>
-#BSUB -n 169 -W 0:10               #1 CPU cores and 0hr+15min
+#BSUB -n 169 -W 0:40               #1 CPU cores and 0hr+15min
 #BSUB -q normal                   #Use development queue.
 #BSUB -R 'span[ptile=4]'	  # 4 MPI task per node
 set echo                          #Echo all commands.
 cd $LS_SUBCWD                     #cd to directory of submission
-ibrun ./betwcent $WORK/SCALE19BTW-TRANSBOOL 12 512  # 8 processors on the row, each has batch=256/8=32; 2^12 = 4096 starting vertices overall
+ibrun ./betwcent $WORK/SCALE22BTW-TRANSBOOL 12 256  # 8 processors on the row, each has batch=256/8=32; 2^12 = 4096 starting vertices overall
