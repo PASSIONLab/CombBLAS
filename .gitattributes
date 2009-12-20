@@ -399,6 +399,7 @@ CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
 CombBLAS/mfiles/betwCentrality.m -text
+CombBLAS/mfiles/compress.pl -text
 CombBLAS/mfiles/genRMatBetw.m -text
 CombBLAS/mfiles/readtriples.m -text
 CombBLAS/promote.h -text
