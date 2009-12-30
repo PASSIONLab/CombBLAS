@@ -40,6 +40,7 @@ public:
 	static void StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group);
 	static void PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group);
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);
+	static void SetWinErrHandler(vector<MPI::Win> & arrwin);	// set the error handler to THROW_EXCEPTIONS
 
 	static void Print(const string & s)
 	{
@@ -149,6 +150,14 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
 	for(int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Unlock(ownind);
+	}
+}
+
+void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
+{
+	for(int i=0; i< arrwin.size(); ++i)
+	{
+		arrwin[i].Set_errhandler(MPI::ERRORS_THROW_EXCEPTIONS);
 	}
 }
 

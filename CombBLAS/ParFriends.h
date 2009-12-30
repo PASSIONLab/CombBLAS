@@ -161,6 +161,11 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B1seq, colwins1);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B2seq, colwins2);
 
+	SpParHelper::SetWinErrHandler(rowwins1);	// set the error handler to THROW_EXCEPTIONS
+	SpParHelper::SetWinErrHandler(rowwins2);	
+	SpParHelper::SetWinErrHandler(colwins1);	
+	SpParHelper::SetWinErrHandler(colwins2);	
+
 	// ABAB: We can optimize the call to create windows in the absence of passive synchronization
 	// 	MPI_Info info; 
 	// 	MPI_Info_create ( &info ); 
@@ -189,49 +194,93 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
 
+	
+	GridC->GetWorld().Barrier();	
+
+	SpParHelper::Print("Writing to file\n");
+	ofstream oput;
+	GridC->OpenDebugFile("deb", oput);
+
+	oput << "A1seq: " << A1seq.getnrow() << " " << A1seq.getncol() << " " << A1seq.getnnz() << endl;
+	oput << "A2seq: " << A2seq.getnrow() << " " << A2seq.getncol() << " " << A2seq.getnnz() << endl;
+	oput << "B1seq: " << B1seq.getnrow() << " " << B1seq.getncol() << " " << B1seq.getnnz() << endl;
+	oput << "B2seq: " << B2seq.getnrow() << " " << B2seq.getncol() << " " << B2seq.getnnz() << endl;
+
+	SpParHelper::Print("Wrote to file\n");
+	GridC->GetWorld().Barrier();
+	
 	// Start exposure epochs to all windows
-	SpParHelper::PostExposureEpoch(Aself, rowwins1, row_group);
-	SpParHelper::PostExposureEpoch(Aself, rowwins2, row_group);
-	SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
-	SpParHelper::PostExposureEpoch(Bself, colwins2, col_group);
+	try
+	{
+		SpParHelper::PostExposureEpoch(Aself, rowwins1, row_group);
+		SpParHelper::PostExposureEpoch(Aself, rowwins2, row_group);
+		SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
+		SpParHelper::PostExposureEpoch(Bself, colwins2, col_group);
+	}
+    	catch(MPI::Exception e)
+	{
+		oput << "Exception while posting exposure epoch" << endl;
+       		oput << e.Get_error_string() << endl;
+     	}
+
+	GridC->GetWorld().Barrier();
+	SpParHelper::Print("Exposure epochs posted\n");	
+	GridC->GetWorld().Barrier();
+
 	
 	int Aowner = (0+Aoffset) % stages;		
 	int Bowner = (0+Boffset) % stages;
+	try
+	{	
+		if(Aowner == Aself)	
+		{
+			ARecv1 = &A1seq;		// shallow-copy 
+			ARecv2 = &A2seq;
+		}
+		else
+		{
+			SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
+			SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);	// Start prefetching next half 
 
-	if(Aowner == Aself)	
-	{
-		ARecv1 = &A1seq;		// shallow-copy 
-		ARecv2 = &A2seq;
-	}
-	else
-	{
-		SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
-		SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);	// Start prefetching next half 
-
-		for(int j=0; j< rowwins1.size(); ++j)	// wait for the first half to complete
-			rowwins1[j].Complete();
-	}
-	if(Bowner == Bself)
-	{
-		BRecv1 = &B1seq;		// shallow-copy
-		BRecv2 = &B2seq;
-	}
-	else
-	{
-		SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
-		SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);	// Start prefetching next half 
-		
-		for(int j=0; j< colwins1.size(); ++j)
-			colwins1[j].Complete();
+			for(int j=0; j< rowwins1.size(); ++j)	// wait for the first half to complete
+				rowwins1[j].Complete();
+		}
+		if(Bowner == Bself)
+		{
+			BRecv1 = &B1seq;		// shallow-copy
+			BRecv2 = &B2seq;
+		}
+		else
+		{
+			SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
+			SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);	// Start prefetching next half 
+			
+			for(int j=0; j< colwins1.size(); ++j)
+				colwins1[j].Complete();
+		}
 	}
 
+    	catch(MPI::Exception e)
+	{
+		oput << "Exception while starting access epoch or the first fetch" << endl;
+       		oput << e.Get_error_string() << endl;
+     	}
+	
+	GridC->GetWorld().Barrier();
 	for(int i = 1; i < stages; ++i) 
 	{
-		//SpParHelper::Print("Stage starting\n");
+		SpParHelper::Print("Stage starting\n");
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
+
+		SpParHelper::Print("Multiplied\n");
+
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
+		SpParHelper::Print("Pushed back\n");
+
+		
+		GridC->GetWorld().Barrier();
 		bool remoteA = false;
 		bool remoteB = false;
 
@@ -242,6 +291,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			for(int j=0; j< rowwins2.size(); ++j)	// wait for the previous second half to complete
 				rowwins2[j].Complete();
 		}
+		SpParHelper::Print("Completed A\n");
+
 		if(Bowner != Bself)	
 		{
 			remoteB = true;
@@ -249,10 +300,14 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			for(int j=0; j< colwins2.size(); ++j)	// wait for the previous second half to complete
 				colwins2[j].Complete();
 		}
-	
+		SpParHelper::Print("Completed B\n");
+
+		
+		GridC->GetWorld().Barrier();
 		Aowner = (i+Aoffset) % stages;		
 		Bowner = (i+Boffset) % stages;
 	
+
 		// start fetching the current first half 
 		if(Aowner == Aself)	ARecv1 = &A1seq;		
 		else	SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
@@ -260,11 +315,18 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		if(Bowner == Bself)	BRecv1 = &B1seq;		
 		else	SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
 	
+		SpParHelper::Print("Fetched next\n");
+
+		
+		GridC->GetWorld().Barrier();
 		// while multiplying the already completed previous second halfs
 		C_cont = MultiplyReturnTuples<SR>(*ARecv2, *BRecv2, false, true);	
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
-		
+
+		SpParHelper::Print("Multiplied and pushed\n");
+		GridC->GetWorld().Barrier();
+
 		if (remoteA) delete ARecv2;		// free memory of the previous second half
 		if (remoteB) delete BRecv2;
 
@@ -278,6 +340,9 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			for(int j=0; j< colwins1.size(); ++j)
 				colwins1[j].Complete();
 		}
+		
+		SpParHelper::Print("Completed next\n");	
+		GridC->GetWorld().Barrier();
 
 		// start prefetching the current second half 
 		if(Aowner == Aself)	ARecv2 = &A2seq;		

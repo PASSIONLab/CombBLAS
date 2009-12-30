@@ -2,6 +2,14 @@
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
+CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
+CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx13 -text
+CombBLAS/Applications/compilertests/gcc4.4-btwcent64-approx12 -text
+CombBLAS/Applications/compilertests/icc10.1-btwcent169 -text
+CombBLAS/Applications/compilertests/icc10.1-btwcent441 -text
+CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
+CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
 CombBLAS/Applications/makefile-neumann -text
