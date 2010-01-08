@@ -466,6 +466,8 @@ CombBLAS/bc-runtimes/SCALE22/961cores_b128.out -text
 CombBLAS/bc-runtimes/SCALE22/961cores_b256.out -text
 CombBLAS/bc-runtimes/SCALE22/961cores_b512_run1.out -text
 CombBLAS/bc-runtimes/SCALE22/961cores_b512_run2.out -text
+CombBLAS/bc-runtimes/SCALE23/1024cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/1024cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/196cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/225cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/256cores_b512.out -text
@@ -479,9 +481,18 @@ CombBLAS/bc-runtimes/SCALE23/441cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/484cores_b1024.app13 -text
 CombBLAS/bc-runtimes/SCALE23/484cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/529cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/529cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/576cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/576cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/625cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/625cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE23/676cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/676cores_b512.out -text
+CombBLAS/bc-runtimes/SCALE23/729cores_b512.out -text
+CombBLAS/bc-runtimes/SCALE23/841cores_b512.out -text
+CombBLAS/bc-runtimes/SCALE23/900cores_b1024.app13 -text
+CombBLAS/bc-runtimes/SCALE23/900cores_b512.out -text
+CombBLAS/bc-runtimes/SCALE23/961cores_b1024.app13 -text
 CombBLAS/bc-runtimes/SCALE24/400cores_b256.out -text
 CombBLAS/bc-runtimes/SCALE24/441cores_b256.out -text
 CombBLAS/bc-runtimes/SCALE24/484cores_b256.out -text
