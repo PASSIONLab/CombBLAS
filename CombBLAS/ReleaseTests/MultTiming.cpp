@@ -66,15 +66,15 @@ int main(int argc, char* argv[])
 		B.ReadDistribute(inputB, 0);
 
 		SpParHelper::Print("Data read\n");
-		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
-		SpParHelper::Print("Warmed up for Synch\n");
+		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+		SpParHelper::Print("Warmed up for PassiveTarget\n");
 
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 	
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
 		}
 		
 		MPI::COMM_WORLD.Barrier();
@@ -82,19 +82,19 @@ int main(int argc, char* argv[])
 
 		if(myrank == 0)
 		{
-			cout<<"SUMMA based synchronous multiplications finished"<<endl;	
-			printf("%.6lf seconds elapsed\n", (t2-t1)/(double)ITERATIONS);
+			cout<<"Passive target multiplications finished"<<endl;	
+			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
 
-		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
-		SpParHelper::Print("Warmed up for ActiveTarget\n");
+		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+		SpParHelper::Print("Warmed up for Synch\n");
 		
 		MPI::COMM_WORLD.Barrier();
 		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 	
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
+			C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
 		}
 		
 		MPI::COMM_WORLD.Barrier();
@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
 
 		if(myrank == 0)
 		{
-			cout<<"Active target multiplications finished"<<endl;	
-			printf("%.6lf seconds elapsed\n", (t2-t1)/(double)ITERATIONS);
+			cout<<"Synchronous multiplications finished"<<endl;	
+			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
 
 		inputA.clear();

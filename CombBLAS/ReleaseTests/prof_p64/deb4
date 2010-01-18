@@ -1,0 +1,396 @@
+Transpose and Split:	0.202182
+Window creation and metadata exchange:	0.019393
+First half, fetch only:	0.0607772
+Multiple:	0.065578
+Unmatched communication	0.092762
+Multiple:	0.0703259
+Unmatched communication	0.0776191
+Multiple:	0.0714221
+Unmatched communication	0.128108
+Multiple:	0.0703402
+Unmatched communication	0.0265009
+Multiple:	0.0701671
+Unmatched communication	0.057056
+Multiple:	0.0776889
+Unmatched communication	0.0196609
+Multiple:	0.0717251
+Unmatched communication	0.0312939
+Multiple:	0.070168
+Unmatched communication	0.0181501
+Multiple:	0.073976
+Unmatched communication	0.065892
+Multiple:	0.0709641
+Unmatched communication	0.00947094
+Multiple:	0.0780709
+Unmatched communication	0.0280001
+Multiple:	0.07601
+Unmatched communication	0.141089
+Multiple:	0.069154
+Unmatched communication	0.134462
+Multiple:	0.0637031
+Unmatched communication	0.0799279
+Multiple:	0.069844
+Unmatched communication	0.892839
+Multiple:	0.058836
+Deallocation and merge:	0.628255
+Retranspose and remerge:	1.12357
+Transpose and Split:	0.218382
+Window creation and metadata exchange:	0.016134
+First half, fetch only:	0.0499241
+Multiple:	0.0645769
+Unmatched communication	0.0947909
+Multiple:	0.074599
+Unmatched communication	0.016953
+Multiple:	0.0720551
+Unmatched communication	0.0830109
+Multiple:	0.0694551
+Unmatched communication	0.02775
+Multiple:	0.06531
+Unmatched communication	0.0964599
+Multiple:	0.081296
+Unmatched communication	0.017983
+Multiple:	0.0682402
+Unmatched communication	0.156355
+Multiple:	0.0678589
+Unmatched communication	0.0175762
+Multiple:	0.0799539
+Unmatched communication	0.042228
+Multiple:	0.069427
+Unmatched communication	0.0368619
+Multiple:	0.0743711
+Unmatched communication	0.0705321
+Multiple:	0.0709598
+Unmatched communication	0.0902162
+Multiple:	0.069854
+Unmatched communication	0.059345
+Multiple:	0.065274
+Unmatched communication	0.056998
+Multiple:	0.0613048
+Unmatched communication	0.0626411
+Multiple:	0.0701339
+Deallocation and merge:	0.721187
+Retranspose and remerge:	2.03599
+Transpose and Split:	0.205183
+Window creation and metadata exchange:	0.035301
+First half, fetch only:	0.0452001
+Multiple:	0.065872
+Unmatched communication	0.0857959
+Multiple:	0.0719039
+Unmatched communication	0.119821
+Multiple:	0.0728421
+Unmatched communication	0.088182
+Multiple:	0.0629749
+Unmatched communication	0.069627
+Multiple:	0.07249
+Unmatched communication	0.0355511
+Multiple:	0.079278
+Unmatched communication	0.043896
+Multiple:	0.0693779
+Unmatched communication	0.049947
+Multiple:	0.0611241
+Unmatched communication	0.00968289
+Multiple:	0.0710289
+Unmatched communication	0.0406702
+Multiple:	0.076426
+Unmatched communication	0.00857186
+Multiple:	0.07212
+Unmatched communication	0.054126
+Multiple:	0.070415
+Unmatched communication	0.0898681
+Multiple:	0.0704041
+Unmatched communication	0.0380421
+Multiple:	0.0650229
+Unmatched communication	0.112035
+Multiple:	0.0598869
+Unmatched communication	1.0177
+Multiple:	0.06879
+Deallocation and merge:	0.667221
+Retranspose and remerge:	1.12996
+Transpose and Split:	0.205384
+Window creation and metadata exchange:	0.0298648
+First half, fetch only:	0.0411
+Multiple:	0.0669482
+Unmatched communication	0.0858369
+Multiple:	0.0735421
+Unmatched communication	0.018662
+Multiple:	0.0710759
+Unmatched communication	0.111313
+Multiple:	0.0708559
+Unmatched communication	0.0835261
+Multiple:	0.0704038
+Unmatched communication	0.0388322
+Multiple:	0.0765288
+Unmatched communication	0.0949051
+Multiple:	0.0679789
+Unmatched communication	0.172844
+Multiple:	0.0682759
+Unmatched communication	0.00782013
+Multiple:	0.0763998
+Unmatched communication	0.074039
+Multiple:	0.0736041
+Unmatched communication	0.061542
+Multiple:	0.0725191
+Unmatched communication	0.127902
+Multiple:	0.0663981
+Unmatched communication	0.12152
+Multiple:	0.0657768
+Unmatched communication	0.0844772
+Multiple:	0.0590849
+Unmatched communication	0.009305
+Multiple:	0.059952
+Unmatched communication	0.00842595
+Multiple:	0.0573051
+Deallocation and merge:	0.649821
+Retranspose and remerge:	2.02035
+Transpose and Split:	0.207815
+Window creation and metadata exchange:	0.0215361
+First half, fetch only:	0.0360169
+Multiple:	0.0689669
+Unmatched communication	0.085124
+Multiple:	0.0729702
+Unmatched communication	0.0163779
+Multiple:	0.0709889
+Unmatched communication	0.0872002
+Multiple:	0.066128
+Unmatched communication	0.0575409
+Multiple:	0.0720031
+Unmatched communication	0.055259
+Multiple:	0.0779889
+Unmatched communication	0.0423121
+Multiple:	0.0713358
+Unmatched communication	0.106297
+Multiple:	0.0639532
+Unmatched communication	0.024174
+Multiple:	0.07073
+Unmatched communication	0.011843
+Multiple:	0.071243
+Unmatched communication	0.128843
+Multiple:	0.0760429
+Unmatched communication	0.112484
+Multiple:	0.0691471
+Unmatched communication	0.022743
+Multiple:	0.0718329
+Unmatched communication	0.082453
+Multiple:	0.0630381
+Unmatched communication	0.0532639
+Multiple:	0.0671179
+Unmatched communication	0.0792971
+Multiple:	0.0656681
+Deallocation and merge:	0.679407
+Retranspose and remerge:	2.39004
+Transpose and Split:	0.212632
+Window creation and metadata exchange:	0.014739
+First half, fetch only:	0.0475521
+Multiple:	0.0669298
+Unmatched communication	0.0110512
+Multiple:	0.0726519
+Unmatched communication	0.0799801
+Multiple:	0.0737538
+Unmatched communication	0.0987191
+Multiple:	0.0658031
+Unmatched communication	0.073447
+Multiple:	0.0685868
+Unmatched communication	0.088613
+Multiple:	0.071233
+Unmatched communication	0.0292661
+Multiple:	0.0674498
+Unmatched communication	0.0537822
+Multiple:	0.0641139
+Unmatched communication	0.052134
+Multiple:	0.070652
+Unmatched communication	0.086422
+Multiple:	0.0688939
+Unmatched communication	0.0812862
+Multiple:	0.0749018
+Unmatched communication	0.0654891
+Multiple:	0.067404
+Unmatched communication	0.054915
+Multiple:	0.065732
+Unmatched communication	0.0828412
+Multiple:	0.0621378
+Unmatched communication	0.0255311
+Multiple:	0.0637879
+Unmatched communication	0.021035
+Multiple:	0.07198
+Deallocation and merge:	0.714588
+Retranspose and remerge:	1.97307
+Transpose and Split:	0.199108
+Window creation and metadata exchange:	0.0373421
+First half, fetch only:	0.0405459
+Multiple:	0.06634
+Unmatched communication	0.085196
+Multiple:	0.0722401
+Unmatched communication	0.047209
+Multiple:	0.070868
+Unmatched communication	0.0644829
+Multiple:	0.0645111
+Unmatched communication	0.0924959
+Multiple:	0.0725551
+Unmatched communication	0.162221
+Multiple:	0.0785589
+Unmatched communication	0.0904691
+Multiple:	0.0637391
+Unmatched communication	0.124044
+Multiple:	0.0682039
+Unmatched communication	0.031837
+Multiple:	0.07096
+Unmatched communication	0.078938
+Multiple:	0.0754609
+Unmatched communication	0.014137
+Multiple:	0.0714471
+Unmatched communication	0.120208
+Multiple:	0.07095
+Unmatched communication	0.112867
+Multiple:	0.065737
+Unmatched communication	0.100343
+Multiple:	0.0639501
+Unmatched communication	0.066133
+Multiple:	0.0573108
+Unmatched communication	0.00971317
+Multiple:	0.0606768
+Deallocation and merge:	0.656597
+Retranspose and remerge:	1.49566
+Transpose and Split:	0.20721
+Window creation and metadata exchange:	0.018343
+First half, fetch only:	0.047313
+Multiple:	0.0654371
+Unmatched communication	0.0108061
+Multiple:	0.0704439
+Unmatched communication	0.054527
+Multiple:	0.072077
+Unmatched communication	0.084115
+Multiple:	0.0716391
+Unmatched communication	0.0791888
+Multiple:	0.072046
+Unmatched communication	0.121873
+Multiple:	0.07566
+Unmatched communication	0.0917029
+Multiple:	0.0692899
+Unmatched communication	0.065444
+Multiple:	0.0660191
+Unmatched communication	0.0367341
+Multiple:	0.0725749
+Unmatched communication	0.0102751
+Multiple:	0.0720129
+Unmatched communication	0.0931139
+Multiple:	0.0704782
+Unmatched communication	0.0187068
+Multiple:	0.0704112
+Unmatched communication	0.0217829
+Multiple:	0.0676591
+Unmatched communication	0.156529
+Multiple:	0.0662138
+Unmatched communication	0.017066
+Multiple:	0.0650311
+Unmatched communication	0.0836871
+Multiple:	0.0697799
+Deallocation and merge:	0.698275
+Retranspose and remerge:	1.86143
+Transpose and Split:	0.191409
+Window creation and metadata exchange:	0.0442371
+First half, fetch only:	0.0336039
+Multiple:	0.068049
+Unmatched communication	0.0853481
+Multiple:	0.0688109
+Unmatched communication	0.0387089
+Multiple:	0.0723841
+Unmatched communication	0.0352309
+Multiple:	0.066319
+Unmatched communication	0.0595431
+Multiple:	0.071523
+Unmatched communication	0.086431
+Multiple:	0.0782509
+Unmatched communication	0.0412161
+Multiple:	0.075269
+Unmatched communication	0.110667
+Multiple:	0.0681551
+Unmatched communication	0.0185158
+Multiple:	0.0725241
+Unmatched communication	0.0129509
+Multiple:	0.0734732
+Unmatched communication	0.0786519
+Multiple:	0.0736139
+Unmatched communication	0.059257
+Multiple:	0.073575
+Unmatched communication	0.142581
+Multiple:	0.069562
+Unmatched communication	0.114061
+Multiple:	0.066129
+Unmatched communication	0.0181301
+Multiple:	0.065161
+Unmatched communication	0.0251319
+Multiple:	0.0681171
+Deallocation and merge:	0.741607
+Retranspose and remerge:	2.41773
+Transpose and Split:	0.198157
+Window creation and metadata exchange:	0.0352359
+First half, fetch only:	0.0454681
+Multiple:	0.0666621
+Unmatched communication	0.0856988
+Multiple:	0.074646
+Unmatched communication	0.0689051
+Multiple:	0.0718789
+Unmatched communication	0.0986741
+Multiple:	0.0677819
+Unmatched communication	0.061733
+Multiple:	0.0711372
+Unmatched communication	0.0485799
+Multiple:	0.073421
+Unmatched communication	0.168304
+Multiple:	0.0699229
+Unmatched communication	0.093354
+Multiple:	0.0657551
+Unmatched communication	0.035655
+Multiple:	0.0671329
+Unmatched communication	0.0831509
+Multiple:	0.0687921
+Unmatched communication	0.054249
+Multiple:	0.0782499
+Unmatched communication	0.062628
+Multiple:	0.067656
+Unmatched communication	0.043473
+Multiple:	0.066216
+Unmatched communication	0.05984
+Multiple:	0.0657339
+Unmatched communication	0.0338352
+Multiple:	0.0625479
+Unmatched communication	0.0199051
+Multiple:	0.0691638
+Deallocation and merge:	0.705325
+Retranspose and remerge:	1.95233
+Transpose and Split:	0.202221
+Window creation and metadata exchange:	0.0341041
+First half, fetch only:	0.0585589
+Multiple:	0.0681269
+Unmatched communication	0.16897
+Multiple:	0.0684459
+Unmatched communication	0.031142
+Multiple:	0.071542
+Unmatched communication	0.042273
+Multiple:	0.0691299
+Unmatched communication	0.0929289
+Multiple:	0.0688071
+Unmatched communication	0.0818141
+Multiple:	0.080488
+Unmatched communication	0.0257978
+Multiple:	0.0648241
+Unmatched communication	0.0544381
+Multiple:	0.065908
+Unmatched communication	0.0566831
+Multiple:	0.0677428
+Unmatched communication	0.077193
+Multiple:	0.0726411
+Unmatched communication	0.101907
+Multiple:	0.0766158
+Unmatched communication	0.014154
+Multiple:	0.0708821
+Unmatched communication	0.0488141
+Multiple:	0.0643871
+Unmatched communication	0.0707619
+Multiple:	0.065136
+Unmatched communication	0.068198
+Multiple:	0.067327
+Unmatched communication	0.023401
+Multiple:	0.066591
+Deallocation and merge:	0.707649
+Retranspose and remerge:	1.9378
