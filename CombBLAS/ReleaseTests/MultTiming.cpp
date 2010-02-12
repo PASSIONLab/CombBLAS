@@ -19,7 +19,7 @@
 
 
 using namespace std;
-#define ITERATIONS 10
+#define ITERATIONS 20
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 
 		SpParHelper::Print("Data read\n");
 		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
 		SpParHelper::Print("Warmed up for PassiveTarget\n");
 
 		MPI::COMM_WORLD.Barrier();
@@ -86,6 +87,7 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
 
+		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
 		SpParHelper::Print("Warmed up for Synch\n");
 		
