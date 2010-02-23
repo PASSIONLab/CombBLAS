@@ -1,0 +1,32 @@
+TACC: Setting memory limits for job 1246088 to 1992294 KB
+TACC: Dumping job script:
+--------------------------------------------------------------------------------
+#!/bin/bash 			  
+				# first line specifies shell
+#$ -V		 		# inherit the submission environment
+#$ -cwd				# Start job in this directory
+#$ -N btwcent1600		# Name
+#$ -o $JOB_NAME.$JOB_ID.out	# output->   out.o&ltjobID>
+#$ -e $JOB_NAME.$JOB_ID.err	# error -> error.o&ltjobID>
+#$ -pe 16way 1600		# 16 tasks/node, 1024 cores total
+#$ -l h_rt=00:10:00		# 25 mins runtime
+#$ -q normal			# Use normal queue.
+set -x                          #Echo all commands.
+ibrun ./MultTime $WORK/SCALE22-RMAT/input1_0 $WORK/SCALE22-RMAT/input2_0
+--------------------------------------------------------------------------------
+TACC: Done.
+TACC: Starting up job 1246088
+TACC: Setting up parallel environment for OpenMPI mpirun.
+TACC: Setup complete. Running job script.
+TACC: starting parallel tasks...
+Data read
+Warmed up for PassiveTarget
+Passive target multiplications finished
+1.280182 seconds elapsed per iteration
+Warmed up for Synch
+Synchronous multiplications finished
+1.079225 seconds elapsed per iteration
+TACC: Shutting down parallel environment.
+TACC: Shutdown complete. Exiting.
+TACC: Cleaning up after job: 1246088
+TACC: Done.

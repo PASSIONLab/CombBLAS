@@ -19,7 +19,7 @@
 
 
 using namespace std;
-#define ITERATIONS 20
+#define ITERATIONS 10
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
