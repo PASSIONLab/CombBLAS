@@ -37,8 +37,12 @@ public:
 	template <typename IT, typename DER>
 	static void AccessNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes);
 
+	template <typename IT, typename DER>
+	static void LockNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes);
+
 	static void StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group);
 	static void PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group);
+	static void LockWindows(int ownind, vector<MPI::Win> & arrwin);
 	static void UnlockWindows(int ownind, vector<MPI::Win> & arrwin);
 	static void SetWinErrHandler(vector<MPI::Win> & arrwin);	// set the error handler to THROW_EXCEPTIONS
 
@@ -60,9 +64,17 @@ public:
 		for(int i=0; i< arrwin.size(); ++i)
 		{
 			arrwin[i].Wait();
+		}
+		FreeWindows(arrwin);
+	}		
+	
+	static void FreeWindows(vector<MPI::Win> & arrwin)
+	{
+		for(int i=0; i< arrwin.size(); ++i)
+		{
 			arrwin[i].Free();
 		}
-	}		
+	}
 };
 
 /**
@@ -125,7 +137,6 @@ void SpParHelper::BCastMatrix(MPI::Intracomm & comm1d, SpMat<IT,NT,DER> & Matrix
 template <class IT, class NT, class DER>
 void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > & Matrix, vector<MPI::Win> & arrwin) 
 {	
-	
 	Arr<IT,NT> arrs = Matrix.GetArrays(); 
 	 
 	// static MPI::Win MPI::Win::create(const void *base, MPI::Aint size, int disp_unit, MPI::Info info, const MPI::Intracomm & comm);
@@ -144,6 +155,13 @@ void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > &
 	}	
 }
 
+void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
+{
+	for(int i=0; i< arrwin.size(); ++i)
+	{
+		arrwin[i].Lock(MPI::LOCK_SHARED, ownind, 0);
+	}
+}
 
 void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin) 
 {
@@ -167,9 +185,10 @@ void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
  */
 void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group)
 {
+	/* Now start using the whole comm as a group */
 	int acc_ranks[1]; 
 	acc_ranks[0] = owner;
-	MPI::Group access = group.Incl(1, acc_ranks);
+	MPI::Group access = group.Incl(1, acc_ranks);	// take only the owner
 
 	// begin the ACCESS epochs for the arrays of the remote matrices A and B
 	// Start() *may* block until all processes in the target group have entered their exposure epoch
@@ -182,10 +201,8 @@ void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Gr
  */
 void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group)
 {
-	int exp_exc_ranks[1]; 
-	exp_exc_ranks[0] = self;
-	MPI::Group exposure = group.Excl(1, exp_exc_ranks);
-
+	MPI::Group exposure = group;
+	
 	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
 	for(int i=0; i< arrwin.size(); ++i)
 		arrwin[i].Post(exposure, MPI_MODE_NOPUT);
@@ -194,7 +211,20 @@ void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Gr
 template <class IT, class DER>
 void SpParHelper::AccessNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes)
 {
-	StartAccessEpoch(owner, arrwin, group);		// start the access epoch to arrwin of owner
+	StartAccessEpoch(owner, arrwin, group);	// start the access epoch to arrwin of owner
+
+	vector<IT> ess(DER::esscount);			// pack essentials to a vector
+	for(int j=0; j< DER::esscount; ++j)	
+		ess[j] = sizes[j][owner];	
+
+	Matrix = new DER();	// create the object first	
+	FetchMatrix(*Matrix, ess, arrwin, owner);	// then start fetching its elements
+}
+
+template <class IT, class DER>
+void SpParHelper::LockNFetch(DER * & Matrix, int owner, vector<MPI::Win> & arrwin, MPI::Group & group, IT ** sizes)
+{
+	LockWindows(owner, arrwin);
 
 	vector<IT> ess(DER::esscount);			// pack essentials to a vector
 	for(int j=0; j< DER::esscount; ++j)	
