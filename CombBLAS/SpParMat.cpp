@@ -143,25 +143,62 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 }
 
 template <class IT, class NT, class DER>
-DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim)
+DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const
 {
+	DenseParVec<IT,NT> parvec(commGrid, identity);
+
 	switch(dim)
 	{
-		case Column:
+		case Row:	// pack along the columns, result is a "Row" vector of size n
 		{
+			NT * sendbuf = new NT[n];
+			fill(NT, NT+n, identity);	// fill with identity
+
+			for(DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			{
+				for(DER::SpColIter::NzIter nzit = ccol.begnz(); nzit != colit.endnz(); ++nzit)
+				{
+					sendbuf[colit.colid()] = __binary_op(nzit.entry(), sendbuf[colit.colid()]);
+					// MUCH MORE STUFF HERE !
+				}
+			}
+
+			NT * recvbuf = NULL;
+			int root = commGrid->GetDiagOfProcCol();
+			if(parvec.diagonal)
+			{
+				parvec.arr.resize(n);
+				recvbuf = &parvec.arr[0];	
+			}
+			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, n, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			delete sendbuf;
 			break;
 		}
-		case Row:
+		case Column:	// pack along the rows, result is a "Column" vector of size m
 		{
+			NT * sendbuf = new NT[m];
+			for(int i=0; i < m; ++i)
+			{
+				sendbuf[i] = std::accumulate( array[i], array[i]+n, identity, __binary_op);
+			}
+			NT * recvbuf = NULL;
+			int root = commGrid->GetDiagOfProcRow();
+			if(parvec.diagonal)
+			{
+				parvec.arr.resize(m);
+				recvbuf = &parvec.arr[0];	
+			}
+			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			delete [] sendbuf;
 			break;
 		}
 		default:
 		{
-			cout << "Unknown scaling dimension, returning..." << endl;
+			cout << "Unknown reduction dimension, returning empty vector" << endl;
 			break;
 		}
 	}
-	return DenseParVec<IT,NT>();
+	return parvec;
 }
 
 
@@ -398,7 +435,10 @@ template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Inflate(double power)
 {		
 	Apply(bind2nd(exponentiate, power));	
-	DenseParVec<IT,NT> colsums = Reduce(Column, MPI::SUM);
+	DenseParVec<IT,NT> colsums = Reduce(Column, plus<NT>(), 0.0);
+
+	ofstream output;
+	colsums.PrintToFile("colsums", output); 
 	colsums.Apply(bind1st(divides<double>(), 1);
 	DimScale(colsums, Column);
 }

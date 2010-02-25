@@ -167,6 +167,20 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 /************************** PUBLIC OPERATORS ********************************/
 /****************************************************************************/
 
+template <class IT, class NT>
+SpColIter SpDCCols<IT,NT>::begcol()
+{
+	return SpColIter(dcsc->cp, dcsc->jc); 
+
+}
+
+template <class IT, class NT>
+SpColIter SpDCCols<IT,NT>::endcol()
+{
+	return SpColIter(dcsc->cp + dcsc->nzc, NULL); 
+
+}
+
 /**
  * The assignment operator operates on an existing object
  * The assignment operator is the only operator that is not inherited.

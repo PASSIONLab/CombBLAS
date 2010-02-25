@@ -47,6 +47,69 @@ public:
 		return ((*dcsc) == (*(rhs.dcsc)));
 	}
 
+
+	class SpColIter 
+	{
+   	public:
+      		SpColIter(IT * cp, IT * jc) : colptr(cp), colid(jc) {}
+     		
+      		bool operator==(const SpColIter& other)
+      		{
+         		return(colptr == other.colptr);	// compare pointers
+      		}
+
+      		bool operator!=(const SpColIter& other)
+      		{
+         		return(colptr != other.colptr);
+      		}
+		
+           	SpColIter& operator++()	// prefix operator
+      		{
+         		++colptr;
+			++colid;
+         		return(*this);
+      		}
+
+      		SpColIter operator++(int)	// postfix operator
+      		{
+         		SpColIter tmp(*this);
+         		++(*this);
+         		return(tmp);
+      		}
+ 
+      		IT colid()	// Return the colid of the current column. 
+      		{
+         		return (*colid);
+      		}
+
+		NzIter begnz()	// Return the beginning iterator for the nonzeros of the current column
+      		{
+         		return NzIter( dcsc->ir + (*colptr), dcsc->num + (*colptr) );
+      		}
+
+      		NzIter endnz()		// Return the ending iterator for the nonzeros of the current column
+      		{
+         		return NzIter(dcsc->ir + (*(colptr+1)) , NULL );
+      		}
+
+		class NzIter	// To iterate over the nonzeros of the sparse column
+		{
+		
+		private:
+			// MUCH MORE STUFF	
+		}
+
+
+   	private:
+      		IT * colptr;
+		IT * colid;
+   	};
+
+
+	
+	SpColIter begcol();
+	SpColIter endcol();	
+
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{

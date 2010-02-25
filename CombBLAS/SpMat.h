@@ -50,8 +50,7 @@ public:
 	void Create(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
 	{
 		static_cast<DER*>(this)->CreateImpl(size, nRow, nCol, mytuples);
-	}
-	
+	}	
 	
 	SpMat< IT,NT,DER >  operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	
