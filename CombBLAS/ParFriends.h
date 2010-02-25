@@ -13,17 +13,14 @@ using namespace std;
 template <class IT, class NT, class DER>
 class SpParMat;
 
-#define INVFREQ 3
-
 /*************************************************************************************************/
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
 
+
 /**
- * Parallel A = B*C routine that uses one-sided MPI-2 features
- * General active target syncronization via MPI_Win_Post, MPI_Win_Start, MPI_Win_Complete, MPI_Win_Wait
- * Tested on my dual core Macbook with 1,4,9,16,25 MPI processes
- * No memory hog: splits the matrix into two along the column, prefetches the next half matrix while computing on the current one 
+ * Parallel A = B*C routine that uses only MPI-1 features
+ * Relies on simple blocking broadcast
  **/  
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_Synch 

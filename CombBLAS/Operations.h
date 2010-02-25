@@ -14,9 +14,22 @@
 
 #include <iostream>
 #include <functional>
+#include <cmath>
 #include <mpi.h>
 
 using namespace std;
+
+/**
+ * binary_function<Arg1, Arg2, Result>
+ * This is left untemplate because pow() only makes sense for 
+ * <double, int, double> , <double, double, double> , <float, float, float>
+ * and C++ can automatically upcast each case to <double, double, double>
+ *//
+struct exponentiate : public std::binary_function<double, double, double> 
+{
+    double operator()(double x, double y) { return std::pow(x, y); }
+};
+
 
 /**
  *  @brief Compute the maximum of two values.

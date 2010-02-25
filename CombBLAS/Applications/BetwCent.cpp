@@ -163,7 +163,19 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn_Synch<PTBOOLINT>(AT, fringe);
+		#ifdef DEBUG
+				{
+ 				   	int i = 0;
+    					char hostname[256];
+    					gethostname(hostname, sizeof(hostname));
+    					printf("PID %d on %s ready for attach\n", getpid(), hostname);
+    					fflush(stdout);
+    					while (0 == i)
+        					sleep(5);
+				}
+		#endif
+
+				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
 				fringe = EWiseMult(fringe, nsp, true);
 			}
 
@@ -183,7 +195,7 @@ int main(int argc, char* argv[])
 				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_Synch<PTBOOLDOUBLE>(A,w);
+				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 

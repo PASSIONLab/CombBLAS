@@ -140,8 +140,30 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			break;
 		}
 	}
-
 }
+
+template <class IT, class NT, class DER>
+DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim)
+{
+	switch(dim)
+	{
+		case Column:
+		{
+			break;
+		}
+		case Row:
+		{
+			break;
+		}
+		default:
+		{
+			cout << "Unknown scaling dimension, returning..." << endl;
+			break;
+		}
+	}
+	return DenseParVec<IT,NT>();
+}
+
 
 template <class IT, class NT, class DER>
 template <typename NNT,typename NDER>	 
@@ -277,6 +299,108 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 	int whole = 1;
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
 	return static_cast<bool>(whole);	
+}
+
+
+/**
+ * Parallel routine that returns A*A on the semiring SR
+ * Uses only MPI-1 features (relies on simple blocking broadcast)
+ **/  
+template <class IT, class NT, class DER>
+template <typename SR>
+void Square ()
+{
+	int stages, dummy; 	// last two parameters of productgrid are ignored for synchronous multiplication
+	shared_ptr<CommGrid> Grid = ProductGrid(commGrid.get(), commGrid.get(), stages, dummy, dummy);		
+	
+	IU AA_m = spSeq->getnrow();
+	IU AA_n = spSeq->getncol();
+	
+	UDER seqTrn = spSeq->TransposeConst();	// will be automatically discarded after going out of scope		
+
+	Grid->GetWorld().Barrier();
+
+	IT ** NRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+	IT ** TRecvSizes = SpHelper::allocate2D<IT>(DER::esscount, stages);
+	
+	SpParHelper::GetSetSizes( *spSeq, NRecvSizes, commGrid->GetRowWorld());
+	SpParHelper::GetSetSizes( seqTrn, TRecvSizes, commGrid->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	DER * NRecv; 
+	DER * TRecv;
+	vector< SpTuples<IT,NT>  *> tomerge;
+
+	int Nself = commGrid->GetRankInProcRow();
+	int Tself = commGrid->GetRankInProcCol();	
+
+	for(int i = 0; i < stages; ++i) 
+	{
+		vector<IU> ess;	
+		if(i == Nself)
+		{	
+			NRecv = spSeq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(DER::esscount);
+			for(int j=0; j< DER::esscount; ++j)	
+			{
+				ess[j] = NRecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			NRecv = new DER();				// first, create the object
+		}
+
+		SpParHelper::BCastMatrix(Grid->GetRowWorld(), *NRecv, ess, i);	// then, broadcast its elements	
+		ess.clear();	
+		
+		if(i == Tself)
+		{
+			TRecv = &seqTrn;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(DER::esscount);		
+			for(int j=0; j< DER::esscount; ++j)	
+			{
+				ess[j] = TRecvSizes[j][i];	
+			}	
+			TRecv = new DER();
+		}
+		SpParHelper::BCastMatrix(Grid->GetColWorld(), *TRecv, ess, i);	
+
+		SpTuples<IT,NT> * AA_cont = MultiplyReturnTuples<SR>(*NRecv, *TRecv, false, true);
+		if(!AA_cont->isZero()) 
+			tomerge.push_back(AA_cont);
+
+		if(i != Nself)	
+		{
+			delete NRecv;		
+		}
+		if(i != Tself)	
+		{
+			delete TRecv;
+		}
+	}
+
+	SpHelper::deallocate2D(NRecvSizes, DER::esscount);
+	SpHelper::deallocate2D(TRecvSizes, DER::esscount);
+	
+	delete spSeq;		
+	sqSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	for(int i=0; i<tomerge.size(); ++i)
+	{
+		delete tomerge[i];
+	}
+}
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::Inflate(double power)
+{		
+	Apply(bind2nd(exponentiate, power));	
+	DenseParVec<IT,NT> colsums = Reduce(Column, MPI::SUM);
+	colsums.Apply(bind1st(divides<double>(), 1);
+	DimScale(colsums, Column);
 }
 
 

@@ -62,10 +62,13 @@ public:
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();
 
+	void Square();
 	void Transpose();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
+
+	DenseParVec<IT,NT> Reduce(Dim dim);	
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
