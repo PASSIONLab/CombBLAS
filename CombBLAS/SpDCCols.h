@@ -47,68 +47,105 @@ public:
 		return ((*dcsc) == (*(rhs.dcsc)));
 	}
 
-
 	class SpColIter 
 	{
-   	public:
-      		SpColIter(IT * cp, IT * jc) : colptr(cp), colid(jc) {}
+	public:
+		class NzIter	//!< To iterate over the nonzeros of the sparse column
+		{	
+		public:
+			NzIter(IT * ir, NT * num) : rid(ir), val(num) {}
+     		
+      			bool operator==(const NzIter & other)
+      			{
+       		  		return(rid == other.rid);	// compare pointers
+      			}
+      			bool operator!=(const NzIter & other)
+      			{
+        	 		return(rid != other.rid);
+      			}
+           		NzIter & operator++()	// prefix operator
+      			{
+         			++rid;
+				++val;
+         			return(*this);
+			}
+      			NzIter operator++(int)	// postfix operator
+      			{
+         			NzIter tmp(*this);
+         			++(*this);
+        	 		return(tmp);
+      			}
+			IT rowid() const	//!< Return the "local" rowid of the current nonzero entry.
+			{
+				return (*rid);
+			}
+			NT & value()		//!< value is returned by reference for possible updates
+			{
+				return (*val);
+			}
+		private:
+			IT * rid;
+			NT * val;
+			
+		};
+
+      		SpColIter(IT * cp, IT * jc) : cptr(cp), cid(jc) {}
      		
       		bool operator==(const SpColIter& other)
       		{
-         		return(colptr == other.colptr);	// compare pointers
+         		return(cptr == other.cptr);	// compare pointers
       		}
-
       		bool operator!=(const SpColIter& other)
       		{
-         		return(colptr != other.colptr);
+         		return(cptr != other.cptr);
       		}
-		
-           	SpColIter& operator++()	// prefix operator
+           	SpColIter& operator++()		// prefix operator
       		{
-         		++colptr;
-			++colid;
+         		++cptr;
+			++cid;
          		return(*this);
       		}
-
       		SpColIter operator++(int)	// postfix operator
       		{
          		SpColIter tmp(*this);
          		++(*this);
          		return(tmp);
       		}
- 
-      		IT colid()	// Return the colid of the current column. 
+      		IT colid() const	//!< Return the "local" colid of the current column. 
       		{
-         		return (*colid);
+         		return (*cid);
       		}
-
-		NzIter begnz()	// Return the beginning iterator for the nonzeros of the current column
-      		{
-         		return NzIter( dcsc->ir + (*colptr), dcsc->num + (*colptr) );
-      		}
-
-      		NzIter endnz()		// Return the ending iterator for the nonzeros of the current column
-      		{
-         		return NzIter(dcsc->ir + (*(colptr+1)) , NULL );
-      		}
-
-		class NzIter	// To iterate over the nonzeros of the sparse column
+		IT colptr() const
 		{
-		
-		private:
-			// MUCH MORE STUFF	
+			return (*cptr);
 		}
-
-
-   	private:
-      		IT * colptr;
-		IT * colid;
+		IT colptrnext() const
+		{
+			return (*(cptr+1));
+		}
+  	private:
+      		IT * cptr;
+		IT * cid;
    	};
-
-
 	
-	SpColIter begcol();
-	SpColIter endcol();	
+	SpColIter begcol()
+	{
+		return SpColIter(dcsc->cp, dcsc->jc); 
+	}	
+	SpColIter endcol()
+	{
+		return SpColIter(dcsc->cp + dcsc->nzc, NULL); 
+	}
+
+	typename SpColIter::NzIter begnz(const SpColIter & ccol)	//!< Return the beginning iterator for the nonzeros of the current column
+	{
+		return typename SpColIter::NzIter( dcsc->ir + ccol.colptr(), dcsc->numx + ccol.colptr() );
+	}
+
+	typename SpColIter::NzIter endnz(const SpColIter & ccol)	//!< Return the ending iterator for the nonzeros of the current column
+	{
+		return typename SpColIter::NzIter( dcsc->ir + ccol.colptrnext(), NULL );
+	}			
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -192,6 +229,10 @@ private:
 	
 	template <class IU, class NU>
 	friend class SpTuples;
+
+	template <class IU, class NU>
+	friend class SpDCCols<IU, NU>::SpColIter;
+	
 
 	template<typename IU, typename NU1, typename NU2>
 	friend SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude);

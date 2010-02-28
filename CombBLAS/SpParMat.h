@@ -62,13 +62,16 @@ public:
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();
 
-	void Square();
+	template <typename SR>	void Square();
+
 	void Transpose();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
+	void Inflate(double power);	//<! Placeholder, can be implemented in 4 lines using other functions		
 
-	DenseParVec<IT,NT> Reduce(Dim dim);	
+	template <typename _BinaryOperation>	
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -81,14 +84,14 @@ public:
 
 	void PrintInfo() const;
 
-	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	// Type conversion operator
+	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	//!< Type conversion operator
 
 	IT getnrow() const;
 	IT getncol() const;
 	IT getnnz() const;
 
-	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				// Column indexing with special parallel semantics
-	SpParMat<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	// General indexing with serial semantics
+	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
+	SpParMat<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	//!< General indexing with serial semantics
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
 	ifstream& ReadDistribute (ifstream& infile, int master);

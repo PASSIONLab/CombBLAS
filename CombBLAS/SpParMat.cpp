@@ -126,12 +126,53 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 {
 	switch(dim)
 	{
-		case Column:
+		case Column:	// scale each "Column", using a row vector
 		{
+			// Diagonal processor broadcast data so that everyone gets the scaling vector 
+			NT * scaler = NULL;
+			int root = commGrid->GetDiagOfProcCol();
+			if(v.diagonal)
+			{	
+				scaler = &v.arr[0];	
+			}
+			else
+			{	
+				scaler = new NT[getlocalcols()];	
+			}
+			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<IT>(), root);	
+
+			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			{
+				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				{
+					nzit.value() *=  scaler[colit.colid()];
+				}
+			}
+			if(!v.diagonal)	delete [] scaler;
 			break;
 		}
 		case Row:
 		{
+			NT * scaler = NULL;
+			int root = commGrid->GetDiagOfProcRow();
+			if(v.diagonal)
+			{	
+				scaler = &v.arr[0];	
+			}
+			else
+			{	
+				scaler = new NT[getlocalrows()];	
+			}
+			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<IT>(), root);	
+
+			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)
+			{
+				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				{
+					nzit.value() *= scaler[nzit.rowid()];
+				}
+			}
+			if(!v.diagonal)	delete [] scaler;			
 			break;
 		}
 		default:
@@ -143,6 +184,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 }
 
 template <class IT, class NT, class DER>
+template <typename _BinaryOperation>
 DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const
 {
 	DenseParVec<IT,NT> parvec(commGrid, identity);
@@ -151,44 +193,45 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 	{
 		case Row:	// pack along the columns, result is a "Row" vector of size n
 		{
-			NT * sendbuf = new NT[n];
-			fill(NT, NT+n, identity);	// fill with identity
+			NT * sendbuf = new NT[getlocalcols()];
+			fill(sendbuf, sendbuf+getlocalcols(), identity);	// fill with identity
 
-			for(DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
 			{
-				for(DER::SpColIter::NzIter nzit = ccol.begnz(); nzit != colit.endnz(); ++nzit)
+				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
 				{
 					sendbuf[colit.colid()] = __binary_op(nzit.entry(), sendbuf[colit.colid()]);
-					// MUCH MORE STUFF HERE !
 				}
 			}
-
 			NT * recvbuf = NULL;
 			int root = commGrid->GetDiagOfProcCol();
 			if(parvec.diagonal)
 			{
-				parvec.arr.resize(n);
+				parvec.arr.resize(getlocalcols());
 				recvbuf = &parvec.arr[0];	
 			}
-			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, n, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
 			delete sendbuf;
 			break;
 		}
 		case Column:	// pack along the rows, result is a "Column" vector of size m
 		{
-			NT * sendbuf = new NT[m];
-			for(int i=0; i < m; ++i)
+			NT * sendbuf = new NT[getlocalrows()];
+			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
 			{
-				sendbuf[i] = std::accumulate( array[i], array[i]+n, identity, __binary_op);
+				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				{
+					sendbuf[nzit.rowid()] = __binary_op(nzit.entry(), sendbuf[nzit.rowid()]);
+				}
 			}
 			NT * recvbuf = NULL;
 			int root = commGrid->GetDiagOfProcRow();
 			if(parvec.diagonal)
 			{
-				parvec.arr.resize(m);
+				parvec.arr.resize(getlocalrows());
 				recvbuf = &parvec.arr[0];	
 			}
-			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, getlocalrows(), MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
 			delete [] sendbuf;
 			break;
 		}
@@ -345,15 +388,15 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
  **/  
 template <class IT, class NT, class DER>
 template <typename SR>
-void Square ()
+void SpParMat<IT,NT,DER>::Square ()
 {
 	int stages, dummy; 	// last two parameters of productgrid are ignored for synchronous multiplication
 	shared_ptr<CommGrid> Grid = ProductGrid(commGrid.get(), commGrid.get(), stages, dummy, dummy);		
 	
-	IU AA_m = spSeq->getnrow();
-	IU AA_n = spSeq->getncol();
+	IT AA_m = spSeq->getnrow();
+	IT AA_n = spSeq->getncol();
 	
-	UDER seqTrn = spSeq->TransposeConst();	// will be automatically discarded after going out of scope		
+	DER seqTrn = spSeq->TransposeConst();	// will be automatically discarded after going out of scope		
 
 	Grid->GetWorld().Barrier();
 
@@ -373,7 +416,7 @@ void Square ()
 
 	for(int i = 0; i < stages; ++i) 
 	{
-		vector<IU> ess;	
+		vector<IT> ess;	
 		if(i == Nself)
 		{	
 			NRecv = spSeq;	// shallow-copy 
@@ -424,7 +467,7 @@ void Square ()
 	SpHelper::deallocate2D(TRecvSizes, DER::esscount);
 	
 	delete spSeq;		
-	sqSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	spSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
 	for(int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
@@ -434,13 +477,13 @@ void Square ()
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Inflate(double power)
 {		
-	Apply(bind2nd(exponentiate, power));	
-	DenseParVec<IT,NT> colsums = Reduce(Column, plus<NT>(), 0.0);
+	Apply(bind2nd(exponentiate(), power));	
+	DenseParVec<IT,NT> colsums = Reduce(Row, plus<NT>(), 0.0);	// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
 
 	ofstream output;
 	colsums.PrintToFile("colsums", output); 
-	colsums.Apply(bind1st(divides<double>(), 1);
-	DimScale(colsums, Column);
+	colsums.Apply(bind1st(divides<double>(), 1));
+	DimScale(colsums, Column);	// scale each "Column" with the given row vector
 }
 
 

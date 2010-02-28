@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <vector>
 #include <limits>
+#include <cassert>
 #include "SpDefs.h"
 #include "SpHelper.h"
 #include "StackEntry.h"

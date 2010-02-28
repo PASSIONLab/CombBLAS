@@ -25,14 +25,21 @@ Driver.o: Driver.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
+MCL.o: 	MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp
+
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
 
+mcl: 	MemoryPool.o CommGrid.o MPIType.o MCL.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
+
 clean:
 	rm -f betwcent
+	rm -f mcl
 	rm -f driver
 	rm -f *.o
 

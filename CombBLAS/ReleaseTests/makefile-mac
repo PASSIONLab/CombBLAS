@@ -18,6 +18,9 @@ MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 TransposeTest.o: TransposeTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TransposeTest.o TransposeTest.cpp
 
+IteratorTest.o: IteratorTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o IteratorTest.o IteratorTest.cpp
+
 MultTest.o: MultTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MultTest.o MultTest.cpp
 
@@ -35,6 +38,9 @@ MultTest: MemoryPool.o CommGrid.o MPIType.o MultTest.o
 
 MultTime: MemoryPool.o CommGrid.o MPIType.o MultTiming.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o MultTime MultTiming.o MemoryPool.o CommGrid.o MPIType.o
+
+IteratorTest: MemoryPool.o CommGrid.o MPIType.o IteratorTest.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o IteratorTest IteratorTest.o MemoryPool.o CommGrid.o MPIType.o
 
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o

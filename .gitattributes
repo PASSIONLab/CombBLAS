@@ -2,6 +2,7 @@
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx13 -text
@@ -58,6 +59,7 @@ CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
 CombBLAS/Operations.h -text
 CombBLAS/ParFriends.h -text
+CombBLAS/ReleaseTests/IteratorTest.cpp -text
 CombBLAS/ReleaseTests/MultTest.cpp -text
 CombBLAS/ReleaseTests/MultTiming.cpp -text
 CombBLAS/ReleaseTests/ReduceTest.cpp -text

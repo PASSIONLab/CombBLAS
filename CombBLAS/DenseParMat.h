@@ -56,7 +56,7 @@ public:
 		commGrid.reset(new CommGrid(*grid)); 
 	}
 
-	DenseParMat (const DenseParMat< IT,NT > & rhs): m(rhs.m), n(rhs.n)			// copy constructor
+	DenseParMat (const DenseParMat< IT,NT > & rhs): m(rhs.m), n(rhs.n)		// copy constructor
 	{
 		if(rhs.array != NULL)	
 		{
