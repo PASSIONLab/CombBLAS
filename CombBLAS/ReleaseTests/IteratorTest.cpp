@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
 		ofstream output;
 		(A.getcommgrid())->OpenDebugFile("submatrix", output);
-		
+	
 		for(SpDCCols<int,double>::SpColIter colit = A.seq().begcol(); colit != A.seq().endcol(); ++colit)	// iterate over columns
 		{
 			for(SpDCCols<int,double>::SpColIter::NzIter nzit = A.seq().begnz(colit); nzit != A.seq().endnz(colit); ++nzit)
