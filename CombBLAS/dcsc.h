@@ -52,6 +52,9 @@ public:
 		transform(numx, numx+nz, numx, __unary_op);
 	}
 
+	template <typename _UnaryOperation>
+	void Prune(_UnaryOperation __unary_op);
+
 	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize) const;
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		

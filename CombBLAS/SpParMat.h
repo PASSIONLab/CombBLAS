@@ -68,7 +68,7 @@ public:
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
-	void Inflate(double power);	//<! Placeholder, can be implemented in 4 lines using other functions		
+	void Inflate(double power);	//<! Placeholder; can be implemented in 4 lines using other functions		
 
 	template <typename _BinaryOperation>	
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
@@ -77,6 +77,12 @@ public:
 	void Apply(_UnaryOperation __unary_op)
 	{
 		spSeq->Apply(__unary_op);	
+	}
+
+	template <typename _UnaryOperation>
+	void Prune(_UnaryOperation __unary_op) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
+	{
+		spSeq->Prune(__unary_op);
 	}
 
 	template <typename _BinaryOperation>

@@ -130,11 +130,17 @@ public:
 	
 	SpColIter begcol()
 	{
-		return SpColIter(dcsc->cp, dcsc->jc); 
+		if( nnz > 0 )
+			return SpColIter(dcsc->cp, dcsc->jc); 
+		else	
+			return SpColIter(NULL, NULL);
 	}	
 	SpColIter endcol()
 	{
-		return SpColIter(dcsc->cp + dcsc->nzc, NULL); 
+		if( nnz > 0 )
+			return SpColIter(dcsc->cp + dcsc->nzc, NULL); 
+		else
+			return SpColIter(NULL, NULL);
 	}
 
 	typename SpColIter::NzIter begnz(const SpColIter & ccol)	//!< Return the beginning iterator for the nonzeros of the current column
@@ -153,6 +159,9 @@ public:
 		if(nnz > 0)
 			dcsc->Apply(__unary_op);	
 	}
+	
+	template <typename _UnaryOperation>
+	void Prune(_UnaryOperation __unary_op);
 
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const

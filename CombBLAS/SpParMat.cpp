@@ -7,6 +7,7 @@
 
 #include "SpParMat.h"
 #include "ParFriends.h"
+#include "Operations.h"
 
 // If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
 template <class IT, class NT, class DER>
@@ -33,7 +34,10 @@ SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
-// If there is a single file read by the master process only, use this and then call ReadDistribute()
+/**
+  * If there is a single file read by the master process only, use this and then call ReadDistribute()
+  * Since this is the default constructor, you don't need to explicitly call it, just a declaration will call it
+ **/
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat ()
 {
@@ -133,7 +137,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			int root = commGrid->GetDiagOfProcCol();
 			if(v.diagonal)
 			{	
-				scaler = &v.arr[0];	
+				scaler = const_cast<NT*>(&v.arr[0]);	
 			}
 			else
 			{	
@@ -141,9 +145,9 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			}
 			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<IT>(), root);	
 
-			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
-				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
 					nzit.value() *=  scaler[colit.colid()];
 				}
@@ -157,7 +161,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			int root = commGrid->GetDiagOfProcRow();
 			if(v.diagonal)
 			{	
-				scaler = &v.arr[0];	
+				scaler = const_cast<NT*>(&v.arr[0]);	
 			}
 			else
 			{	
@@ -165,9 +169,9 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			}
 			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<IT>(), root);	
 
-			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 			{
-				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
 					nzit.value() *= scaler[nzit.rowid()];
 				}
@@ -196,11 +200,11 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 			NT * sendbuf = new NT[getlocalcols()];
 			fill(sendbuf, sendbuf+getlocalcols(), identity);	// fill with identity
 
-			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
-				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[colit.colid()] = __binary_op(nzit.entry(), sendbuf[colit.colid()]);
+					sendbuf[colit.colid()] = __binary_op(nzit.value(), sendbuf[colit.colid()]);
 				}
 			}
 			NT * recvbuf = NULL;
@@ -217,11 +221,11 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 		case Column:	// pack along the rows, result is a "Column" vector of size m
 		{
 			NT * sendbuf = new NT[getlocalrows()];
-			for(typename DER::SpColIter colit = spSeq.begcol(); colit != spSeq.endcol(); ++colit)	// iterate over columns
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
-				for(typename DER::SpColIter::NzIter nzit = colit.begnz(); nzit != colit.endnz(); ++nzit)
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[nzit.rowid()] = __binary_op(nzit.entry(), sendbuf[nzit.rowid()]);
+					sendbuf[nzit.rowid()] = __binary_op(nzit.value(), sendbuf[nzit.rowid()]);
 				}
 			}
 			NT * recvbuf = NULL;
@@ -485,7 +489,6 @@ void SpParMat<IT,NT,DER>::Inflate(double power)
 	colsums.Apply(bind1st(divides<double>(), 1));
 	DimScale(colsums, Column);	// scale each "Column" with the given row vector
 }
-
 
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Transpose()

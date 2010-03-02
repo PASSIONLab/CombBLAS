@@ -237,6 +237,16 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 }
 
 template <class IT, class NT>
+template <typename _UnaryOperation>
+void SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op)
+{
+	dcsc->Prune (__unary_op);
+	nnz = dcsc->nz;
+
+	if(nnz == 0) delete dcsc;
+}
+
+template <class IT, class NT>
 void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 {
 	if(this != &rhs)		

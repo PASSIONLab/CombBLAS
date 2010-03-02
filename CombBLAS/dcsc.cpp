@@ -407,6 +407,9 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::operator=(const Dcsc<IT,NT> & rhs)
 	return *this;
 }
 
+
+
+
 /**
   * \attention The memory pool of the lvalue is preserved
   * If A += B where B uses pinnedPool and A uses NULL before the operation,
@@ -536,6 +539,73 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 {
 	*this = EWiseMult((*this), rhs, exclude);	// call the binary version
 }
+
+
+template <class IT, class NT>
+template <typename _UnaryOperation>
+void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
+{
+	// Two-pass algorithm
+	IT prunednnz = 0;
+	IT prunednzc = 0;
+	for(IT i=0; i<nzc; ++i)
+	{
+		bool colexists = false;
+		for(IT j=cp[i]; j < cp[i+1]; ++j)
+		{
+			if(!(__unary_op(numx[j]))) 	// keep this nonzero
+			{
+				++prunednnz;
+				colexists = true;
+			}
+		}
+		if(colexists) 	++prunednzc;
+	}
+
+	size_t sit = sizeof(IT);
+	
+	IT * oldcp = cp; 
+	IT * oldjc = jc;
+	IT * oldir = ir;	
+	NT * oldnumx = numx;	
+
+	cp = (IT *) mallocarray ( (prunednzc+1)*sit ); 
+	jc = (IT *) mallocarray (  prunednzc * sit ); 
+	ir = (IT *) mallocarray ( prunednnz * sit );
+	numx = (NT *) mallocarray (prunednnz * sizeof(NT));
+
+	IT cnzc = 0;
+	IT cnnz = 0;
+	cp[cnzc] = 0;
+	for(IT i=0; i<nzc; ++i)
+	{
+		for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
+		{
+			if(!(__unary_op(numx[j]))) // keep this nonzero
+			{
+				ir[cnnz] = oldir[j];	
+				numx[cnnz++] = 	oldnumx[j];
+			}
+		}
+		if(cnnz > cp[cnzc])
+		{
+			jc[cnzc] = oldjc[i];
+			cp[cnzc+1] = cnnz;
+			++cnzc;
+		}
+	}
+	assert(cnzc == prunednzc);
+	assert(cnnz == prunednnz);
+
+	deletearray(oldnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
+	deletearray(oldir, nz * sit);
+	deletearray(oldjc, nzc * sit);
+	deletearray(oldcp, (nzc+1)*sit);
+
+	nz = cnnz;
+	nzc = cnzc;
+}
+
 
 template <class IT, class NT>
 void Dcsc<IT,NT>::EWiseScale(NT ** scaler)	
