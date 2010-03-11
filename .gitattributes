@@ -688,7 +688,10 @@ CombBLAS/largeseq/input2_0 -text
 CombBLAS/mfiles/betwCentrality.m -text
 CombBLAS/mfiles/compress.pl -text
 CombBLAS/mfiles/genRMatBetw.m -text
+CombBLAS/mfiles/genfringe.m -text
+CombBLAS/mfiles/genrestrict.m -text
 CombBLAS/mfiles/readtriples.m -text
+CombBLAS/mfiles/rmatdenseness.m -text
 CombBLAS/mfiles/writematrix.m -text
 CombBLAS/mfiles/writerowvector.m -text
 CombBLAS/promote.h -text
