@@ -1,0 +1,23 @@
++ ibrun ./MultTime /work/00919/tg459476/SCALE26-RMAT/rmat26.txt /work/00919/tg459476/SCALE26-RMAT/fringe_scale26_rect8192_sparse100000
+Warning: Permanently added 'i122-312.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i178-409.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+[i162-410:02581] *** Process received signal ***
+[i162-410:02581] Signal: Bus error (7)
+[i162-410:02581] Signal code:  (2)
+[i162-410:02581] Failing at address: 0x2aaabe281d00
+[i162-410:02581] [ 0] /lib64/tls/libpthread.so.0 [0x3cb190c4f0]
+[i162-410:02581] [ 1] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_btl_sm.so [0x2b6e6ede81fa]
+[i162-410:02581] [ 2] /opt/apps/gcc4_4/openmpi/1.3b/lib/libmpi.so.0(ompi_free_list_grow+0x1d9) [0x2b6e6ae9ae69]
+[i162-410:02581] [ 3] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_btl_sm.so [0x2b6e6ede5e11]
+[i162-410:02581] [ 4] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_pml_ob1.so [0x2b6e6e1851f5]
+[i162-410:02581] [ 5] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_pml_ob1.so [0x2b6e6e17f515]
+[i162-410:02581] [ 6] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_coll_tuned.so [0x2b6e6fc17f20]
+[i162-410:02581] [ 7] /opt/apps/gcc4_4/openmpi/1.3b/lib/libmpi.so.0(PMPI_Scatter+0x179) [0x2b6e6aeda7e9]
+[i162-410:02581] [ 8] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime [0x40f1f5]
+[i162-410:02581] [ 9] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(main+0x317) [0x40fd07]
+[i162-410:02581] [10] /lib64/tls/libc.so.6(__libc_start_main+0xdb) [0x3cb0c1c3fb]
+[i162-410:02581] [11] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(__gxx_personality_v0+0x1b2) [0x40d01a]
+[i162-410:02581] *** End of error message ***
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 2581 on node i162-410.ranger.tacc.utexas.edu exited on signal 7 (Bus error).
+--------------------------------------------------------------------------

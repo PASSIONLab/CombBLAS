@@ -1,0 +1,38 @@
++ ibrun ./MultTime /work/00919/tg459476/SCALE26-RMAT/rmat26.txt /work/00919/tg459476/SCALE26-RMAT/fringe_scale26_rect8192_sparse1000
+Warning: Permanently added 'i174-109.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i152-111.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i166-204.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i161-208.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i130-101.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i120-202.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i150-407.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i132-210.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i130-306.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i158-205.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i118-303.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i136-101.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i145-307.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i172-406.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i122-409.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i167-104.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i158-305.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i103-405.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i122-406.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+[i138-410:31041] *** Process received signal ***
+[i138-410:31041] Signal: Segmentation fault (11)
+[i138-410:31041] Signal code: Address not mapped (1)
+[i138-410:31041] Failing at address: 0x2aaa00000004
+[i138-410:31041] [ 0] /lib64/tls/libpthread.so.0 [0x360080c4f0]
+[i138-410:31041] [ 1] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_btl_sm.so [0x2b310b0d71ba]
+[i138-410:31041] [ 2] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_bml_r2.so [0x2b310a87ff72]
+[i138-410:31041] [ 3] /opt/apps/gcc4_4/openmpi/1.3b/lib/libopen-pal.so.0(opal_progress+0x4a) [0x2b3107663b8a]
+[i138-410:31041] [ 4] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_grpcomm_basic.so [0x2b3108a11a85]
+[i138-410:31041] [ 5] /opt/apps/gcc4_4/openmpi/1.3b/lib/libmpi.so.0 [0x2b31071a6d2c]
+[i138-410:31041] [ 6] /opt/apps/gcc4_4/openmpi/1.3b/lib/libmpi.so.0(MPI_Init+0x138) [0x2b31071c5978]
+[i138-410:31041] [ 7] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(main+0x29) [0x40fa19]
+[i138-410:31041] [ 8] /lib64/tls/libc.so.6(__libc_start_main+0xdb) [0x35ffb1c3fb]
+[i138-410:31041] [ 9] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(__gxx_personality_v0+0x1b2) [0x40d01a]
+[i138-410:31041] *** End of error message ***
+--------------------------------------------------------------------------
+mpirun noticed that process rank 1457 with PID 31041 on node i138-410.ranger.tacc.utexas.edu exited on signal 11 (Segmentation fault).
+--------------------------------------------------------------------------
