@@ -33,6 +33,7 @@
 #include "SpParHelper.h"
 #include "DenseParMat.h"
 #include "Friends.h"
+#include "Operations.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -68,10 +69,16 @@ public:
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
-	void Inflate(double power);	//<! Placeholder; can be implemented in 4 lines using other functions		
+
+	template <typename _BinaryOperation, typename _UnaryOperation >	
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
 
 	template <typename _BinaryOperation>	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const;
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
+	{
+		// because default template arguments don't work with function templates
+		return Reduce(dim, __binary_op, id, identity<NT>() );			
+	}
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)

@@ -19,6 +19,18 @@
 
 using namespace std;
 
+
+template<typename T>
+struct identity : public std::unary_function<T, T>
+{
+  /** @returns x itself */
+  const T& operator()(const T& x) const
+  {
+    return x;
+  }
+};
+
+
 /**
  * binary_function<Arg1, Arg2, Result>
  * This is left untemplated because pow() only makes sense for 

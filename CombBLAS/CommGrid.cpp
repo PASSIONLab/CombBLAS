@@ -30,7 +30,25 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	assert( ((colWorld.Get_rank()) == myprocrow) );
 }
 
-
+MPI::Intracomm CommGrid::GetDiagWorld() const
+{
+	if(grrows != grcols)	
+	{
+		cout << "The grid is not square... !" << endl;
+		cout << "Returning everyone instead of the diagonal" << endl;
+		return commWorld;
+	}
+	int * process_ranks = new int[grcols];
+	for(int i=0; i < grcols; ++i)
+	{
+		process_ranks[i] = i*grcols + i;
+	}
+	MPI::Group diag_group = commWorld.Get_group();
+	diag_group.Incl(grcols, process_ranks);
+	delete [] process_ranks;
+	
+	return commWorld.Create(diag_group);		
+}
 
 bool CommGrid::OnSameProcCol( int rhsrank)
 {

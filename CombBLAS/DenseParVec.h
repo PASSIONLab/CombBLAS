@@ -23,11 +23,13 @@ template <class IT, class NT>
 class DenseParVec
 {
 public:
+	DenseParVec ( );
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
 	bool operator== (const DenseParVec<IT,NT> & rhs) const;
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
+	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -42,11 +44,17 @@ public:
 		output.close();
 	}
 	
+	template <typename _BinaryOperation>
+	NT Reduce(_BinaryOperation __binary_op, NT identity);
+			
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< NT > arr;
 	bool diagonal;
-	NT identity;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 
+	NT zero;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 
+
+	template <typename _BinaryOperation>	
+	void EWise(const DenseParVec<IT,NT> & rhs,  _BinaryOperation __binary_op);
 
 	template <class IU, class NU>
 	friend class DenseParMat;

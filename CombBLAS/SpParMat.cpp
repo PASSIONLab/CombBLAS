@@ -9,7 +9,9 @@
 #include "ParFriends.h"
 #include "Operations.h"
 
-// If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
+/**
+  * If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
+ **/
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
 {
@@ -187,24 +189,30 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 	}
 }
 
+/**
+  * Reduce along the column/row into a vector
+  * @param[in] __binary_op {the operation used for reduction; examples: max, min, plus, multiply, and, or}
+  * @param[in] id {scalar that is used as the identity for __binary_op; examples: zero, infinity}
+  * @param[in] __unary_op {optional unary operation applied to nonzeros *before* the __binary_op; examples: 1/x, x^2}
+ **/ 
 template <class IT, class NT, class DER>
-template <typename _BinaryOperation>
-DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT identity) const
+template <typename _BinaryOperation, typename _UnaryOperation>	
+DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
 {
-	DenseParVec<IT,NT> parvec(commGrid, identity);
+	DenseParVec<IT,NT> parvec(commGrid, id);
 
 	switch(dim)
 	{
 		case Row:	// pack along the columns, result is a "Row" vector of size n
 		{
 			NT * sendbuf = new NT[getlocalcols()];
-			fill(sendbuf, sendbuf+getlocalcols(), identity);	// fill with identity
+			fill(sendbuf, sendbuf+getlocalcols(), id);	// fill with identity
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[colit.colid()] = __binary_op(nzit.value(), sendbuf[colit.colid()]);
+					sendbuf[colit.colid()] = __binary_op(__unary_op(nzit.value()), sendbuf[colit.colid()]);
 				}
 			}
 			NT * recvbuf = NULL;
@@ -215,17 +223,19 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 				recvbuf = &parvec.arr[0];	
 			}
 			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
-			delete sendbuf;
+			delete [] sendbuf;
 			break;
 		}
 		case Column:	// pack along the rows, result is a "Column" vector of size m
 		{
 			NT * sendbuf = new NT[getlocalrows()];
+			fill(sendbuf, sendbuf+getlocalcols(), id);	// fill with identity
+			
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[nzit.rowid()] = __binary_op(nzit.value(), sendbuf[nzit.rowid()]);
+					sendbuf[nzit.rowid()] = __binary_op(__unary_op(nzit.value()), sendbuf[nzit.rowid()]);
 				}
 			}
 			NT * recvbuf = NULL;
@@ -246,6 +256,7 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 		}
 	}
 	return parvec;
+
 }
 
 
@@ -478,17 +489,6 @@ void SpParMat<IT,NT,DER>::Square ()
 	}
 }
 
-template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::Inflate(double power)
-{		
-	Apply(bind2nd(exponentiate(), power));	
-	DenseParVec<IT,NT> colsums = Reduce(Row, plus<NT>(), 0.0);	// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
-
-	ofstream output;
-	colsums.PrintToFile("colsums", output); 
-	colsums.Apply(bind1st(divides<double>(), 1));
-	DimScale(colsums, Column);	// scale each "Column" with the given row vector
-}
 
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Transpose()
