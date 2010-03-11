@@ -19,6 +19,7 @@
 #include "../SpParMat.h"
 #include "../DenseParMat.h"
 #include "../DenseParVec.h"
+#include "../Operations.h"
 
 using namespace std;
 
@@ -28,24 +29,43 @@ using namespace std;
 // The index type and the sequential matrix type stays the same for the whole code
 // In this case, they are "int" and "SpDCCols"
 template <class NT>
-class PSpMat 
+class Dist
 { 
 public: 
 	typedef SpDCCols < int, NT > DCCols;
 	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
+	typedef DenseParVec < int, NT> MPI_DenseVec;
 };
 
 
-double Chaos(const PSpMat<double>::MPI_DCCols & A)
+void Interpret(const Dist<double>::MPI_DCCols & A)
 {
-	return 1.0;
+	// Placeholder
 }
 
 
+double Inflate(Dist<double>::MPI_DCCols & A, double power)
+{		
+	A.Apply(bind2nd(exponentiate(), power));
+	{
+		// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
+		Dist<double>::MPI_DenseVec colsums = A.Reduce(Row, plus<double>(), 0.0);			
+#ifdef DEBUG
+		ofstream output;
+		colsums.PrintToFile("colsums", output); 
+#endif		
+		colsums.Apply(bind1st(divides<double>(), 1));
+		A.DimScale(colsums, Column);	// scale each "Column" with the given row vector
+	}
 
-void Interpret(const PSpMat<double>::MPI_DCCols & A)
-{
-	// Placeholder
+	// After normalization, each column of A is now a stochastic vector
+	Dist<double>::MPI_DenseVec colssqs = A.Reduce(Row, plus<double>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
+
+	// Matrix entries are non-negative, so max() can use zero as identity
+	Dist<double>::MPI_DenseVec colmaxs = A.Reduce(Row, maximum<double>(), 0.0);
+
+	colmaxs -= colssqs;	// chaos indicator
+	return colmaxs.Reduce(maximum<double>(), 0.0);
 }
 
 
@@ -85,20 +105,27 @@ int main(int argc, char* argv[])
   		}
 		MPI::COMM_WORLD.Barrier();
 	
-		PSpMat<double>::MPI_DCCols A;	// construct object
+		Dist<double>::MPI_DCCols A;	// construct object
 		A.ReadDistribute(input, 0);	// read it from file
 	
 		input.clear();
 		input.close();
-		
-		double oldchaos = Chaos(A); 
+
+		// chaos doesn't make sense for non-stochastic matrices		
+		double oldchaos = 0; 
 		double newchaos = oldchaos ;
+
 		// while there is an epsilon improvement
 		while(( oldchaos - newchaos) > EPS)
 		{
+			oldchaos = newchaos;
 			A.Square<PTDOUBLEDOUBLE>() ;		// expand 
-			A.Inflate(inflation);	// inflate (and renormalize)
+			newchaos = Inflate(A, inflation);	// inflate (and renormalize)
 
+			stringstream s;
+			s << "Old chaos: " << oldchaos << ", new chaos: " << newchaos;
+			SpParHelper::Print(s.str());
+			
 			SpParHelper::Print("Before pruning...");
 			A.PrintInfo();
 
@@ -106,9 +133,6 @@ int main(int argc, char* argv[])
 
 			SpParHelper::Print("After pruning...");
 			A.PrintInfo();
-
-			oldchaos = newchaos; 
-			newchaos = Chaos(A);
 		}
 		Interpret(A);	
 	}	
