@@ -581,7 +581,7 @@ void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
 	{
 		for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
 		{
-			if(!(__unary_op(numx[j]))) // keep this nonzero
+			if(!(__unary_op(oldnumx[j]))) // keep this nonzero
 			{
 				ir[cnnz] = oldir[j];	
 				numx[cnnz++] = 	oldnumx[j];

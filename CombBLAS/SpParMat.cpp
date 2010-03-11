@@ -145,7 +145,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			{	
 				scaler = new NT[getlocalcols()];	
 			}
-			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<IT>(), root);	
+			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<NT>(), root);	
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
@@ -169,7 +169,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			{	
 				scaler = new NT[getlocalrows()];	
 			}
-			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<IT>(), root);	
+			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<NT>(), root);	
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 			{

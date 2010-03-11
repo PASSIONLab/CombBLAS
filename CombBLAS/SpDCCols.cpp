@@ -240,10 +240,13 @@ template <class IT, class NT>
 template <typename _UnaryOperation>
 void SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op)
 {
-	dcsc->Prune (__unary_op);
-	nnz = dcsc->nz;
+	if(nnz > 0)
+	{
+		dcsc->Prune (__unary_op);
+		nnz = dcsc->nz;
 
-	if(nnz == 0) delete dcsc;
+		if(nnz == 0) delete dcsc;
+	}
 }
 
 template <class IT, class NT>

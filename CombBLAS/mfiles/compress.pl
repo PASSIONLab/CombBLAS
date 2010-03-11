@@ -5,7 +5,7 @@
 $matrixname="betwinput_scale";
 $transname="betwinput_transposed_scale";
 $outname="bc_scale";
-for($scale=21; $scale<=25; $scale++)
+for($scale=27; $scale<=27; $scale++)
 {
 	$strtar = "tar -cvf ${outname}$scale.tar ${matrixname}$scale ${transname}$scale\n";
 	print $strtar;

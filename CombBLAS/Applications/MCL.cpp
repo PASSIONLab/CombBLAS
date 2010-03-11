@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define EPS 0.00001
+#define EPS 0.001
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -50,12 +50,13 @@ double Inflate(Dist<double>::MPI_DCCols & A, double power)
 	{
 		// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
 		Dist<double>::MPI_DenseVec colsums = A.Reduce(Row, plus<double>(), 0.0);			
-#ifdef DEBUG
-		ofstream output;
-		colsums.PrintToFile("colsums", output); 
-#endif		
 		colsums.Apply(bind1st(divides<double>(), 1));
 		A.DimScale(colsums, Column);	// scale each "Column" with the given row vector
+
+#ifdef DEBUG
+		colsums = A.Reduce(Row, plus<double>(), 0.0);			
+		colsums.PrintToFile("colnormalizedsums"); 
+#endif		
 	}
 
 	// After normalization, each column of A is now a stochastic vector
@@ -111,28 +112,32 @@ int main(int argc, char* argv[])
 		input.clear();
 		input.close();
 
-		// chaos doesn't make sense for non-stochastic matrices		
-		double oldchaos = 0; 
-		double newchaos = oldchaos ;
+		// chaos doesn't make sense for non-stochastic matrices	
+		// it is in the range {0,1} for stochastic matrices
+		double chaos = 1000;
 
 		// while there is an epsilon improvement
-		while(( oldchaos - newchaos) > EPS)
+		while( chaos > EPS)
 		{
-			oldchaos = newchaos;
+			double t1 = MPI_Wtime();
 			A.Square<PTDOUBLEDOUBLE>() ;		// expand 
-			newchaos = Inflate(A, inflation);	// inflate (and renormalize)
+			
+			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
 			stringstream s;
-			s << "Old chaos: " << oldchaos << ", new chaos: " << newchaos;
+			s << "New chaos: " << chaos << '\n';
 			SpParHelper::Print(s.str());
 			
-			SpParHelper::Print("Before pruning...");
-			A.PrintInfo();
-
 			A.Prune(bind2nd(less<double>(), prunelimit));
+			
+			double t2=MPI_Wtime();
+			if(myrank == 0)
+				printf("%.6lf seconds elapsed for this iteration\n", (t2-t1));
 
-			SpParHelper::Print("After pruning...");
+#ifdef DEBUG	
+			SpParHelper::Print("After pruning...\n");
 			A.PrintInfo();
+#endif
 		}
 		Interpret(A);	
 	}	

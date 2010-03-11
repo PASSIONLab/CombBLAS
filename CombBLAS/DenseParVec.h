@@ -37,10 +37,12 @@ public:
 		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
 	}	
 	
-	void PrintToFile(string prefix, ofstream & output)
+	void PrintToFile(string prefix)
 	{
+		ofstream output;
 		commGrid->OpenDebugFile(prefix, output);
-		copy(arr.begin(), arr.end(), ostream_iterator<NT> (output, "\n"));
+		copy(arr.begin(), arr.end(), ostream_iterator<NT> (output, " "));
+		output << endl;
 		output.close();
 	}
 	
