@@ -50,7 +50,7 @@ double Inflate(Dist<double>::MPI_DCCols & A, double power)
 	{
 		// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
 		Dist<double>::MPI_DenseVec colsums = A.Reduce(Row, plus<double>(), 0.0);			
-		colsums.Apply(bind1st(divides<double>(), 1));
+		colsums.Apply(safemultinv<double>());
 		A.DimScale(colsums, Column);	// scale each "Column" with the given row vector
 
 #ifdef DEBUG

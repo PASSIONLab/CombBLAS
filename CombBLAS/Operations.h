@@ -30,6 +30,17 @@ struct identity : public std::unary_function<T, T>
   }
 };
 
+	
+template<typename T>
+struct safemultinv : public std::unary_function<T, T>
+{
+  /** @returns x itself */
+  const T operator()(const T& x) const
+  {
+	T inf = std::numeric_limits<T>::max();
+    	return (x == 0) ? inf:(1/x);
+  }
+};
 
 /**
  * binary_function<Arg1, Arg2, Result>
