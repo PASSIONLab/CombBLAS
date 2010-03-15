@@ -128,6 +128,10 @@ int main(int argc, char* argv[])
 			s << "New chaos: " << chaos << '\n';
 			SpParHelper::Print(s.str());
 			
+#ifdef DEBUG	
+			SpParHelper::Print("Before pruning...\n");
+			A.PrintInfo();
+#endif
 			A.Prune(bind2nd(less<double>(), prunelimit));
 			
 			double t2=MPI_Wtime();

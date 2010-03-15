@@ -98,6 +98,9 @@ public:
 	template<typename SR, typename IU, typename NU>
 	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
 
+	template<typename SR, typename IU, typename NU>
+	friend SpTuples<IU,NU> * MergeAllRec(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
+	
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 
 

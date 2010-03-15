@@ -23,6 +23,17 @@ struct ErrorTolerantEqual:
 	};
 	
 
+template<class IT, class NT>
+struct TupleEqual:
+	public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >
+	{
+		inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+		{
+			return ( (get<0>(lhs) == get<0>(rhs)) && (get<1>(lhs) == get<1>(rhs)) );
+		} 
+	};
+
+
 /**
  ** Functor class
  ** \return bool, whether lhs precedes rhs in column-sorted order

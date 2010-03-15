@@ -39,7 +39,9 @@ CombBLAS/Applications/mpi2script64 -text
 CombBLAS/Applications/mpi2script81 -text
 CombBLAS/Applications/mpi2script9 -text
 CombBLAS/BC-DEBUG/input.txt -text
+CombBLAS/BranchTrial/Friends.h -text
 CombBLAS/BranchTrial/ParFriends.h -text
+CombBLAS/BranchTrial/SpParMat.cpp -text
 CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
