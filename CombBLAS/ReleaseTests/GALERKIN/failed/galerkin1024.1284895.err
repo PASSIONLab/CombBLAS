@@ -1,0 +1,48 @@
++ ibrun ./MultTime /work/00919/tg459476/SCALE23-RMAT/input1_0 /work/00919/tg459476/SCALE23-RMAT/galerkin_scale23_order4
+Warning: Permanently added 'i113-209.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i124-106.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i175-204.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i132-408.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i166-303.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i139-307.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i148-308.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i139-411.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i128-203.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i128-109.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i162-302.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i168-103.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i137-407.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i176-304.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i146-302.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i105-302.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i173-212.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i116-311.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+Warning: Permanently added 'i129-308.ranger.tacc.utexas.edu' (RSA) to the list of known hosts.
+[i140-203:00879] *** Process received signal ***
+[i140-203:00879] Signal: Segmentation fault (11)
+[i140-203:00879] Signal code: Address not mapped (1)
+[i140-203:00879] Failing at address: (nil)
+[i140-203:00876] *** Process received signal ***
+[i140-203:00876] Signal: Segmentation fault (11)
+[i140-203:00876] Signal code: Invalid permissions (2)
+[i140-203:00876] Failing at address: 0x856a30
+[i140-203:00876] [ 0] /lib64/tls/libpthread.so.0 [0x3bfa10c4f0]
+[i140-203:00876] [ 1] [0x856a30]
+[i140-203:00876] *** End of error message ***
+[i140-203:00879] [ 0] /lib64/tls/libpthread.so.0 [0x3bfa10c4f0]
+[i140-203:00879] [ 1] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_coll_hierarch.so [0x2b89e58c7334]
+[i140-203:00879] [ 2] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_pml_ob1.so [0x2b89e46551d9]
+[i140-203:00879] [ 3] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_btl_sm.so [0x2b89e52b467c]
+[i140-203:00879] [ 4] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_bml_r2.so [0x2b89e4a5cf72]
+[i140-203:00879] [ 5] /opt/apps/gcc4_4/openmpi/1.3b/lib/libopen-pal.so.0(opal_progress+0x4a) [0x2b89e1840b8a]
+[i140-203:00879] [ 6] /opt/apps/gcc4_4/openmpi/1.3b/lib/openmpi/mca_osc_pt2pt.so [0x2b89e62f32d5]
+[i140-203:00879] [ 7] /opt/apps/gcc4_4/openmpi/1.3b/lib/libmpi.so.0(MPI_Win_unlock+0xa8) [0x2b89e13b1c88]
+[i140-203:00879] [ 8] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(_Z24Mult_AnXBn_PassiveTargetI14PlusTimesSRingIddEidd8SpDCColsIidES3_E8SpParMatIT0_N13promote_traitIT1_T2_E9T_promoteENS6_IT3_T4_E9T_promoteEERKS4_IS5_S7_SB_ERKS4_IS5_S8_SC_E+0x8e1) [0x4248c1]
+[i140-203:00879] [ 9] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(main+0x5c2) [0x40ffb2]
+[i140-203:00879] [10] /lib64/tls/libc.so.6(__libc_start_main+0xdb) [0x3bf941c3fb]
+[i140-203:00879] [11] /share/home/00919/tg459476/PSpGEMM-R1/ReleaseTests/MultTime(__gxx_personality_v0+0x1b2) [0x40d01a]
+[i140-203:00879] *** End of error message ***
+[[6468,0],13]-[[6468,1],210] mca_oob_tcp_msg_recv: readv failed: Connection reset by peer (104)
+--------------------------------------------------------------------------
+mpirun noticed that process rank 210 with PID 876 on node i140-203.ranger.tacc.utexas.edu exited on signal 11 (Segmentation fault).
+--------------------------------------------------------------------------
