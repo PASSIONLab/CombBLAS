@@ -1,0 +1,3 @@
+The timings weren't preceded by a dummy warm-up iteration. Therefore, ignore the cost of the first
+iteration. Next time, perform a dummy iteration and discard it before starting timing.
+

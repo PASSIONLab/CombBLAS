@@ -740,6 +740,15 @@ CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
+CombBLAS/mcl-runtimes/TODO -text
+CombBLAS/mcl-runtimes/rmat14/p1024_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p16_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p1_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p256_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p4096_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p4_rmat14 -text
+CombBLAS/mcl-runtimes/rmat14/p64_rmat14 -text
+CombBLAS/mcl-runtimes/rmat16/p256_rmat16 -text
 CombBLAS/mfiles/betwCentrality.m -text
 CombBLAS/mfiles/compress.pl -text
 CombBLAS/mfiles/genRMatBetw.m -text

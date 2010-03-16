@@ -1,0 +1,110 @@
+TACC: Setting memory limits for job 1288751 to 1992294 KB
+TACC: Dumping job script:
+--------------------------------------------------------------------------------
+#!/bin/bash 			  
+				# first line specifies shell
+#$ -V		 		# inherit the submission environment
+#$ -cwd				# Start job in this directory
+#$ -N mcl_p1			# Name
+#$ -o $JOB_NAME.$JOB_ID.out	# output->   out.o&ltjobID>
+#$ -e $JOB_NAME.$JOB_ID.err	# error -> error.o&ltjobID>
+#$ -pe 16way 16			# 16 tasks/node, 64 cores total
+export MY_NSLOTS=1
+#$ -l h_rt=04:15:00		# 15 mins runtime
+#$ -q normal			# Use normal queue.
+set -x                          #Echo all commands.
+ibrun ./mcl $WORK/rmat14permutedselflooped 2 0.00001
+--------------------------------------------------------------------------------
+TACC: Done.
+TACC: Starting up job 1288751
+TACC: Setting up parallel environment for OpenMPI mpirun.
+TACC: Setup complete. Running job script.
+TACC: starting parallel tasks...
+New chaos: 0.222222
+2.464536 seconds elapsed for this iteration
+New chaos: 0.245051
+1667.945646 seconds elapsed for this iteration
+New chaos: 0.231589
+885.900176 seconds elapsed for this iteration
+New chaos: 0.202409
+13.534416 seconds elapsed for this iteration
+New chaos: 0.196544
+0.241057 seconds elapsed for this iteration
+New chaos: 0.18601
+0.008486 seconds elapsed for this iteration
+New chaos: 0.165953
+0.007766 seconds elapsed for this iteration
+New chaos: 0.164044
+0.007642 seconds elapsed for this iteration
+New chaos: 0.15846
+0.007433 seconds elapsed for this iteration
+New chaos: 0.136286
+0.007395 seconds elapsed for this iteration
+New chaos: 0.124387
+0.007267 seconds elapsed for this iteration
+New chaos: 0.123258
+0.007203 seconds elapsed for this iteration
+New chaos: 0.125
+0.007267 seconds elapsed for this iteration
+New chaos: 0.166305
+0.007255 seconds elapsed for this iteration
+New chaos: 0.139064
+0.007244 seconds elapsed for this iteration
+New chaos: 0.147714
+0.007259 seconds elapsed for this iteration
+New chaos: 0.187459
+0.007181 seconds elapsed for this iteration
+New chaos: 0.1237
+0.007263 seconds elapsed for this iteration
+New chaos: 0.119487
+0.007208 seconds elapsed for this iteration
+New chaos: 0.11932
+0.007188 seconds elapsed for this iteration
+New chaos: 0.123957
+0.007187 seconds elapsed for this iteration
+New chaos: 0.110981
+0.007249 seconds elapsed for this iteration
+New chaos: 0.123984
+0.007199 seconds elapsed for this iteration
+New chaos: 0.165638
+0.007212 seconds elapsed for this iteration
+New chaos: 0.134114
+0.007165 seconds elapsed for this iteration
+New chaos: 0.164985
+0.007202 seconds elapsed for this iteration
+New chaos: 0.121401
+0.007193 seconds elapsed for this iteration
+New chaos: 0.139572
+0.007210 seconds elapsed for this iteration
+New chaos: 0.179827
+0.007214 seconds elapsed for this iteration
+New chaos: 0.13859
+0.007233 seconds elapsed for this iteration
+New chaos: 0.104147
+0.007186 seconds elapsed for this iteration
+New chaos: 0.148147
+0.007190 seconds elapsed for this iteration
+New chaos: 0.154271
+0.007238 seconds elapsed for this iteration
+New chaos: 0.104834
+0.007229 seconds elapsed for this iteration
+New chaos: 0.12379
+0.007225 seconds elapsed for this iteration
+New chaos: 0.0658794
+0.007237 seconds elapsed for this iteration
+New chaos: 0.0703247
+0.007233 seconds elapsed for this iteration
+New chaos: 0.110413
+0.007208 seconds elapsed for this iteration
+New chaos: 0.12058
+0.007201 seconds elapsed for this iteration
+New chaos: 0.0534935
+0.007203 seconds elapsed for this iteration
+New chaos: 0.00415486
+0.007179 seconds elapsed for this iteration
+New chaos: 2.28871e-05
+0.007194 seconds elapsed for this iteration
+TACC: Shutting down parallel environment.
+TACC: Shutdown complete. Exiting.
+TACC: Cleaning up after job: 1288751
+TACC: Done.
