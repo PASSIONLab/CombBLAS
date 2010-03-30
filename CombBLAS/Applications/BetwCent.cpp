@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 				Dist<bool>::MPI_DCCols * level = new Dist<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
+				fringe = Mult_AnXBn_Synch<PTBOOLINT>(AT, fringe);
 				fringe = EWiseMult(fringe, nsp, true);
 			}
 
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 				Dist<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				Dist<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
+				Dist<double>::MPI_DCCols product = Mult_AnXBn_Synch<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 
