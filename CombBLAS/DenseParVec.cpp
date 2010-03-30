@@ -68,7 +68,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & 
 {
 	if(this != &rhs)		
 	{	
-		if(*commGrid != *rhs.commGrid) 		
+		if(!(*commGrid == *rhs.commGrid)) 		
 		{
 			cout << "Grids are not comparable elementwise addition" << endl; 
 			MPI::COMM_WORLD.Abort(GRIDMISMATCH);

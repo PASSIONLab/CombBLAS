@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
   		}
 		MPI::COMM_WORLD.Barrier();
 	
-		PSpMat<bool>::MPI_DCCols A, AT;	// construct object
+		Dist<bool>::MPI_DCCols A, AT;	// construct object
 		AT.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
 		A = AT;
 		A.Transpose();
@@ -133,11 +133,11 @@ int main(int argc, char* argv[])
 				batch[j] = candidates[i*subBatchSize + j];
 			}
 			
-			PSpMat<int>::MPI_DCCols fringe = AT.SubsRefCol(batch);
+			Dist<int>::MPI_DCCols fringe = AT.SubsRefCol(batch);
 
 			// Create nsp by setting (r,i)=1 for the ith root vertex with label r
 			// Inially only the diagonal processors have any nonzeros (because we chose roots so)
-			PSpMat<int>::DCCols * nsploc = new PSpMat<int>::DCCols();
+			Dist<int>::DCCols * nsploc = new Dist<int>::DCCols();
 			tuple<int, int, int> * mytuples = NULL;	
 			if(AT.getcommgrid()->GetRankInProcRow() == AT.getcommgrid()->GetRankInProcCol())
 			{
@@ -153,14 +153,14 @@ int main(int argc, char* argv[])
 				nsploc->Create( 0, AT.getlocalrows(), subBatchSize, mytuples);		
 			}
 		
-			PSpMat<int>::MPI_DCCols  nsp(nsploc, AT.getcommgrid());			
-			vector < PSpMat<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
+			Dist<int>::MPI_DCCols  nsp(nsploc, AT.getcommgrid());			
+			vector < Dist<bool>::MPI_DCCols * > bfs;		// internally keeps track of depth
 
 			SpParHelper::Print("Exploring via BFS...\n");
 			while( fringe.getnnz() > 0 )
 			{
 				nsp += fringe;
-				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
+				Dist<bool>::MPI_DCCols * level = new Dist<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
 				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 
 			// Apply the unary function 1/x to every element in the matrix
 			// 1/x works because no explicit zeros are stored in the sparse matrix nsp
-			PSpMat<double>::MPI_DCCols nspInv = nsp;
+			Dist<double>::MPI_DCCols nspInv = nsp;
 			nspInv.Apply(bind1st(divides<double>(), 1));
 
 			// create a dense matrix with all 1's 
@@ -179,10 +179,10 @@ int main(int argc, char* argv[])
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{
-				PSpMat<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
+				Dist<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				PSpMat<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
+				Dist<double>::MPI_DCCols product = Mult_AnXBn_ActiveTarget<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 
