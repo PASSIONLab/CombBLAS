@@ -27,7 +27,7 @@ using namespace std;
 // The index type and the sequential matrix type stays the same for the whole code
 // In this case, they are "int" and "SpDCCols"
 template <class NT>
-class PSpMat 
+class Dist 
 { 
 public: 
 	typedef SpDCCols < int, NT > DCCols;
@@ -163,18 +163,6 @@ int main(int argc, char* argv[])
 				PSpMat<bool>::MPI_DCCols * level = new PSpMat<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-		#ifdef DEBUG
-				{
- 				   	int i = 0;
-    					char hostname[256];
-    					gethostname(hostname, sizeof(hostname));
-    					printf("PID %d on %s ready for attach\n", getpid(), hostname);
-    					fflush(stdout);
-    					while (0 == i)
-        					sleep(5);
-				}
-		#endif
-
 				fringe = Mult_AnXBn_ActiveTarget<PTBOOLINT>(AT, fringe);
 				fringe = EWiseMult(fringe, nsp, true);
 			}
@@ -188,7 +176,6 @@ int main(int argc, char* argv[])
 			DenseParMat<int, double> bcu(1.0, AT.getcommgrid(), fringe.getlocalrows(), fringe.getlocalcols() );
 
 			SpParHelper::Print("Tallying...\n");
-			
 			// BC update for all vertices except the sources
 			for(int j = bfs.size()-1; j > 0; --j)
 			{

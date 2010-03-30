@@ -1,0 +1,12 @@
+#!/bin/bash 			  
+				# first line specifies shell
+#$ -V		 		# inherit the submission environment
+#$ -cwd				# Start job in this directory
+#$ -N btwcent1936		# Name
+#$ -o $JOB_NAME.$JOB_ID.out	# output->   out.o&ltjobID>
+#$ -e $JOB_NAME.$JOB_ID.err	# error -> error.o&ltjobID>
+#$ -pe 16way 1936		# 16 tasks/node, 1024 cores total
+#$ -l h_rt=00:30:00		# 25 mins runtime
+#$ -q normal			# Use normal queue.
+set -x                          #Echo all commands.
+ibrun ./MultTime $WORK/SCALE24-RMAT/input1_0 $WORK/SCALE24-RMAT/input2_0
