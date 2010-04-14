@@ -79,7 +79,7 @@ public:
 
 /**
   * @param[in,out] MRecv {an already existing, but empty SpMat<...> object}
-  * @param[in] essarray {carries essential information (i.e. required array sizes) about ARecv}
+  * @param[in] essentials {carries essential information (i.e. required array sizes) about ARecv}
   * @param[in] arrwin {windows array of size equal to the number of built-in arrays in the SpMat data structure}
   * @param[in] ownind {processor index (within this processor row/column) of the owner of the matrix to be received}
   * @remark {The communicator information is implicitly contained in the MPI::Win objects}

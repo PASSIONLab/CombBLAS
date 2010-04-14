@@ -47,10 +47,10 @@ public:
 		return ((*dcsc) == (*(rhs.dcsc)));
 	}
 
-	class SpColIter 
+	class SpColIter //! Iterate over (sparse) columns of the sparse matrix
 	{
 	public:
-		class NzIter	//!< To iterate over the nonzeros of the sparse column
+		class NzIter	//! Iterate over the nonzeros of the sparse column
 		{	
 		public:
 			NzIter(IT * ir, NT * num) : rid(ir), val(num) {}

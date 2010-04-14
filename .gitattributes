@@ -50,6 +50,7 @@ CombBLAS/DenseParMat.cpp -text
 CombBLAS/DenseParMat.h -text
 CombBLAS/DenseParVec.cpp -text
 CombBLAS/DenseParVec.h -text
+CombBLAS/Doxyfile -text
 CombBLAS/Friends.h -text
 CombBLAS/HeapEntry.h -text
 CombBLAS/Isect.h -text

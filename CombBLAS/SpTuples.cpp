@@ -33,7 +33,7 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytupl
 
 /**
   * Generate a SpTuples object from StackEntry array, then delete that array
-  * @param[StackEntry] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
+  * @param[in] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
  **/  
 template <class IT, class NT>
 SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
