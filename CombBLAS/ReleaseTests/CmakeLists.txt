@@ -1,0 +1,15 @@
+# Top level directory has the include files
+INCLUDE_DIRECTORIES(..)
+ADD_LIBRARY( CommGrid Commgrid  )
+ADD_LIBRARY( MPIType MPIType )
+ADD_LIBRARY( MemoryPool MemoryPool )
+
+ADD_LIBRARY( MultTiming MultTiming  )
+ADD_LIBRARY( TransposeTest TransposeTest )
+ADD_LIBRARY( ReduceTest ReduceTest )
+ADD_LIBRARY( IteratorTest IteratorTest )
+ADD_LIBRARY( MultTest MultTest )
+
+ADD_EXECUTABLE( MultTiming MultTiming )
+ADD_EXECUTABLE( ReduceTest ReduceTest )
+TARGET_LINK_LIBRARIES( MultTiming CommGrid MPIType MemoryPool )

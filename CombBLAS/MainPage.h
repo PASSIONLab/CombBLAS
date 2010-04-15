@@ -3,11 +3,16 @@
 * @authors Aydin Buluc
 *
 * @section intro Introduction
-* Download the latest tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combinatorialBLAS-alpha_10.tar.gz"> here </a>. You need a recent 
+* <b>Download</b> 
+* - The latest (recommended) tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here </a>. 
+* - Alternatively, the CMake-free version (with sample makefiles) is here <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10.tar.gz"> here </a>
+*
+* <b>Requirements</b>: You need a recent 
 * C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler; it will work if you just add boost's path to 
-* $INCADD in the makefile. 
+* $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There is no binary library to link to, and no configured header file. Like many high-performance C++ libraries, the Combinatorial BLAS is purely templated. 
 * 
+* <b>Documentation</b>:
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
 * It contains efficient implementations of novel data structures/algorithms
