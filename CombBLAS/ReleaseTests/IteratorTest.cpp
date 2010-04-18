@@ -40,18 +40,25 @@ int main(int argc, char* argv[])
 		PARMAT A;
 		A.ReadDistribute(input, 0);	// read it from file
 
-		ofstream output;
-		(A.getcommgrid())->OpenDebugFile("submatrix", output);
+		int count = 0;	
+		int total = 0;
 	
 		for(SpDCCols<int,double>::SpColIter colit = A.seq().begcol(); colit != A.seq().endcol(); ++colit)	// iterate over columns
 		{
 			for(SpDCCols<int,double>::SpColIter::NzIter nzit = A.seq().begnz(colit); nzit != A.seq().endnz(colit); ++nzit)
 			{	
-				output << nzit.rowid() << '\t' << colit.colid() << '\t' << nzit.value() << '\n';	
+				// cout << nzit.rowid() << '\t' << colit.colid() << '\t' << nzit.value() << '\n';	
+				count++;
 			}
 		}	
-		output.close();
-
+		MPI::COMM_WORLD.Allreduce( &count, &total, 1, MPIType<int>(), MPI::SUM);
+		
+		if(total == A.getnnz())
+			SpParHelper::Print( "Iteration passed soft test\n");
+		else
+			SpParHelper::Print( "Iteration failed !!!\n") ;
+		
+			
 		input.clear();
 		input.close();
 	}

@@ -67,15 +67,15 @@ int main(int argc, char* argv[])
 		B.ReadDistribute(inputB, 0);
 		CControl.ReadDistribute(inputC, 0);
 
-		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
-		
+		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+
 		if (CControl == C)
 		{
-			SpParHelper::Print("Active Target Multiplication working correctly\n");	
+			SpParHelper::Print("Passive Target Multiplication working correctly\n");	
 		}
 		else
 		{
-			SpParHelper::Print("ERROR in Active Target Multiplication, go fix it!\n");	
+			SpParHelper::Print("ERROR in Passive Target Multiplication, go fix it!\n");	
 		}
 
 
