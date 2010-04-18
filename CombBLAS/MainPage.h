@@ -1,35 +1,35 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors Aydin Buluc
+* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>
 *
 * @section intro Introduction
 * <b>Download</b> 
-* - The latest (recommended) tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here </a>. 
-* - Alternatively, the CMake-free version (with sample makefiles) is here <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10.tar.gz"> here </a>
+* - The latest CMake'd tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here</a>. 
+* Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata.tar.gz"> here</a>.
+* - Alternatively, the CMake-free version (with sample makefiles) is <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10.tar.gz">here</a>
 *
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
-* has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler; it will work if you just add boost's path to 
-* $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There is no binary library to link to, and no configured header file. Like many high-performance C++ libraries, the Combinatorial BLAS is purely templated. 
+* has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
+* $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
 * 
 * <b>Documentation</b>:
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
 * It contains efficient implementations of novel data structures/algorithms
-* as well as reimplementations of some previously known data structures/algorithms for convenience.
+* as well as reimplementations of some previously known data structures/algorithms for convenience. More details can be found in Chapter 4 of my thesis [1].
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
-* can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols)
-* For example, the standard way to declare a parallel sparse matrix A that uses 
-* - 32-bit integers for indices, 
-* - floats for numerical values (nonzeros),
-* - SpDCCols <int,float> for the underlying sequential matrix operations, 
-* - and MPI-2 for communication is:
-* 	SpParMat<int, float, SpDCCols<int,float> > A;
+* can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
+*
+* For example, the standard way to declare a parallel sparse matrix A that uses 32-bit integers for indices, floats for numerical values (nonzeros),
+* SpDCCols <int,float> for the underlying sequential matrix operations is: 
+* - SpParMat<int, float, SpDCCols<int,float> > A; 
+*
 * The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
 * and is akin to some STL constructs such as vector<int, SomeAllocator<int> >
 *
-* The supported operation (a growing list) is:
+* The supported operations (a growing list) are:
 * - Sparse matrix-matrix multiplication on a semiring SR: Mult_AnXBn_Synch(), and other variants
 * - Elementwise multiplication of sparse matrices (A .* B and A .* not(B) in Matlab): EWiseMult()
 * - Unary operations on nonzeros: SpParMat::Apply()
@@ -59,30 +59,37 @@
 * Sequential classes:
 * - SpTuples		: uses triples format to store matrices, mostly used for input/output and intermediate tasks (such as sorting)
 * - SpCCols		: multiplication is similar to Matlab's, holds CSC. 
-* - SpDCCols		: implements Alg 1B and Alg 2 [1], holds DCSC.
+* - SpDCCols		: implements Alg 1B and Alg 2 [2], holds DCSC.
 
 * Parallel classes:
 * - SpParMat		: distributed memory MPI implementation 
 	\n Each processor locally stores its submatrix (block) as a sequential SpDCCols object
 	\n Uses a polyalgorithm for SpGEMM. 
-	\n If robust MPI-2 support is not available, then it reverts back to a less scalable synchronous algorithm that is based on SUMMA [2]
+	\n If robust MPI-2 support is not available, then it reverts back to a less scalable synchronous algorithm that is based on SUMMA [3]
 	\n Otherwise, it uses an asyncronous algorithm based on one sided communication. This performs best on an interconnect with RDMA support
 * - SpThreaded (not included)	: shared memory implementation. Uses <a href="http://www.boost.org/doc/html/thread.html"> Boost.Threads</a> for multithreading. 
 	\n Uses a logical 2D block decomposition of sparse matrices. 
 	\n Asyncronous (to migitate the severe load balancing problem) 
 	\n Lock-free (since it relies on the owner computes rule, i.e. C_{ij} is updated by only P_{ij})
-
-* For internal installation and implementation tricks, consult http://editthis.info/cs240aproject/Main_Page
 *
-* Applications implemented using Combinatorial BLAS:
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/BetwCent.cpp"> BetwCent.cpp </a> Betwenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/code/CombBLAS/SCALE17BTW-TRANSBOOL/input.txt"> here </a>
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/MCL.cpp"> MCL.cpp </a> An implementation of the MCL graph clustering algorithm 
+* 
+* <b> Applications </b>  implemented using Combinatorial BLAS:
+* - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/code/CombBLAS/scale17_bc_inp.tar.gz"> here </a>.
+* - MCL.cpp : An implementation of the MCL graph clustering algorithm.
+* 
+* <b> Performance </b> results of both applications can be found in Chapter 5 of my thesis [1].
 *
 * Test programs demonstrating how to use the library:
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/TransposeTest.cpp"> TransposeTest.cpp </a> File I/O and parallel transpose tests
-* - <a href="http://gauss.cs.ucsb.edu/~aydin/src/MultTiming.cpp"> MultTiming.cpp </a> Parallel SpGEMM tests
+* - TransposeTest.cpp : File I/O and parallel transpose tests
+* - MultTiming.cpp : Parallel SpGEMM tests
 *
-* [1] Aydin Buluc and John R. Gilbert, <it> On the Representation and Multiplication of Hypersparse Matrices </it>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
 *
-* [2] Aydin Buluc and John R. Gilbert, <it> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </it>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
+* <b> Citation: </b> Please cite my thesis [1] if you end up using the Combinatorial BLAS in your research.
+*
+* - [1] Aydin Buluc. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
+* - [2] Aydin Buluc and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+* - [3] Aydin Buluc and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
+*
+* 
+* For internal installation and implementation tricks, consult http://editthis.info/cs240aproject/Main_Page
 */
