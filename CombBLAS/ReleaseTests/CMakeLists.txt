@@ -1,9 +1,5 @@
 # Top level directory has the include files
 
-ADD_LIBRARY( CommGridlib ../CommGrid.cpp  )
-ADD_LIBRARY( MPITypelib ../MPIType.cpp )
-ADD_LIBRARY( MemoryPoollib ../MemoryPool.cpp )
-
 ADD_EXECUTABLE( MultTiming MultTiming.cpp )
 ADD_EXECUTABLE( MultTest MultTest.cpp )
 ADD_EXECUTABLE( ReduceTest ReduceTest.cpp )

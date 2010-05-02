@@ -4,10 +4,14 @@
 *
 * @section intro Introduction
 * <b>Download</b> 
-* - The latest CMake'd tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here</a>. 
+* - The latest CMake'd tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here</a>. To create sample applications
+* and test files, all you need to do is to execute the following three commands, in the given order, inside the PSpGEMM-R1 directory: 
+*     <i> cmake . </i>
+*     <i> make </i>
+*     <i> ctest -V </i>
 * Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata.tar.gz"> here</a>.
-* - Alternatively, the CMake-free version (with sample makefiles) is <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10.tar.gz">here</a>
-*
+* - Alternatively, the CMake-free version (with sample makefiles) is <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10.tar.gz">here</a>. 
+* 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 

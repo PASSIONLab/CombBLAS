@@ -34,12 +34,17 @@ else (NOT HAVE_TR1)
 	SET(CMAKE_CXX_FLAGS "-DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK")
 endif (NOT HAVE_TR1)
 
-#ADD_SUBDIRECTORY( Applications ) 
+ADD_LIBRARY( CommGridlib SHARED CommGrid.cpp  )
+ADD_LIBRARY( MPITypelib SHARED MPIType.cpp )
+ADD_LIBRARY( MemoryPoollib SHARED MemoryPool.cpp )
+
+
 ADD_SUBDIRECTORY( ReleaseTests )
+ADD_SUBDIRECTORY( Applications ) 
 
 ENABLE_TESTING()
 INCLUDE(CTest)
 ADD_TEST( Multiplication_Test mpirun -np 4 ReleaseTests/MultTest TESTDATA/rmat_scale16_A.txt TESTDATA/rmat_scale16_B.txt TESTDATA/rmat_scale16_productAB.txt)
 ADD_TEST( Reduction_Test mpirun -np 4 ReleaseTests/ReduceTest TESTDATA/sprand10000 TESTDATA/sprand10000_sumcols TESTDATA/sprand10000_sumrows)
 ADD_TEST( Iterator_Test mpirun -np 4 ReleaseTests/IteratorTest TESTDATA sprand10000)
-
+ADD_TEST( Transpose_Test mpirun -np 4 ReleaseTests/TransposeTest TESTDATA betwinput_scale16 betwinput_transposed_scale16)
