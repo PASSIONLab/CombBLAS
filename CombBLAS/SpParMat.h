@@ -109,6 +109,7 @@ public:
 
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	ofstream& put(ofstream& outfile) const;
+	void PrintForPatoh(string filename) const;
 
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
 	IT getlocalrows() const { return spSeq->getnrow(); }

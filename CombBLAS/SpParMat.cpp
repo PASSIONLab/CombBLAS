@@ -550,6 +550,103 @@ void SpParMat<IT,NT,DER>::Transpose()
 	}	
 }		
 
+// Prints in the following format suitable for I/O with PaToH
+// 1st line: <index_base(0 or 1)> <|V|> <|N|> <pins>
+// For row-wise sparse matrix partitioning (our case): 1 <num_rows> <num_cols> <nnz>
+// For the rest of the file, (i+1)th line is a list of vertices that are members of the ith net
+// Treats the matrix as binary (for now)
+template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
+{
+	int proccols = commGrid->GetGridCols();
+	int procrows = commGrid->GetGridRows();
+	IT * gsizes;
+
+	for(int i = 0; i < proccols; i++)	// for all processor columns (in order)
+	{
+		if(commGrid->GetRankInProcRow() == i)	// only the ith processor column
+		{ 
+			if(commGrid->GetRankInProcCol() == 0)	// get the head of column
+			{
+				std::ofstream out(filename,std::ios_base::app);
+				std::ostream_iterator<IT> dest(outfile, " ");
+
+				gsizes = new IT[procrows];
+				IT localrows = spSeq->getnrow();    
+				(commGrid->GetColWorld()).Bcast(&localrows, 1, MPIType<IT>(), 0); 
+				IT netid = 0;
+				for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over nonempty subcolumns
+				{
+					IT mysize;
+					IT * vertices;
+					while(netid <= colit.colid())
+					{
+						if(netid < colit.colid())	// empty subcolumns
+						{
+							mysize = 0;
+						}
+						else
+						{
+							mysize = colit.nnz();
+							vertices = new IT[mysize];
+							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit) IT j=0; nzit != spSeq->endnz(colit); ++nzit, ++j)
+							{
+								vertices[j] = nzit.rowid();
+							}
+						}
+						(commGrid->GetColWorld()).Gather(mysize, 1, MPIType<IT>(), gsizes, procrows, MPIType<IT>(), 0);
+						IT colcnt = std::accumulate(gsizes, gsizes+procrows, 0);
+						IT * ents = new IT[colcnt];	// nonzero entries in the netid'th column
+						IT * dpls = new IT[procrows]();	// displacements (zero initialized pid) 
+						std::partial_sum(gsizes, gsizes+procrows-1, dpls+1);
+
+						// int MPI_Gatherv (void* sbuf, int scount, MPI_Datatype stype, 
+						// 		    void* rbuf, int *rcount, int* displs, MPI_Datatype rtype, int root, MPI_Comm comm)	
+						(commGrid->GetColWorld()).Gatherv(vertices, mysize, MPIType<IT>(), ents, gsizes, dpls, MPIType<IT>(), 0);
+						std::copy(ents, ents+colcnt, dest);	
+						
+						if(netid == colit.colid())	delete [] vertices;
+						++netid;
+					} 
+				}
+				delete [] gsizes;
+			}
+			else	// get the rest of the processors
+			{
+				IT m_perproc;
+				(commGrid->GetColWorld()).Bcast(&m_perproc, 1, MPIType<IT>(), 0); 
+				IT moffset = commGrid->GetRankInProcCol() * m_perproc; 
+				for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+				{	
+					while(netid <= colit.colid())
+					{
+						if(netid < colit.colid())	// empty subcolumns
+						{
+							mysize = 0;
+						}
+						else
+						{
+							mysize = colit.nnz();
+							vertices = new IT[mysize];
+							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit) IT j=0; nzit != spSeq->endnz(colit); ++nzit, ++j)
+							{
+								vertices[j] = nzit.rowid() + moffset; 
+							}
+						}
+						(commGrid->GetColWorld()).Gather(mysize, 1, MPIType<IT>(), gsizes, procrows, MPIType<IT>(), 0)
+					
+						// rbuf, rcount, displs, rtype are only significant at the root
+						(commGrid->GetColWorld()).Gatherv(vertices, mysize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), 0);
+						
+						if(netid == colit.colid())	delete [] vertices;
+						++netid;
+					}
+				}
+			}
+		} // end_if the ith processor column
+	} // end_for all processor columns
+}
+
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
 template <class IT, class NT, class DER>

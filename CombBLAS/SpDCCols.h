@@ -123,6 +123,10 @@ public:
 		{
 			return (*(cptr+1));
 		}
+		IT nnz() const
+		{
+			return (colptrnext() - colptr());
+		}
   	private:
       		IT * cptr;
 		IT * cid;

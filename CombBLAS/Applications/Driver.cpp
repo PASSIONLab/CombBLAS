@@ -2,9 +2,9 @@
 #include <fstream>
 #include <mpi.h>
 #include <sys/time.h>
-#include "SpTuples.h"
-#include "SpDCCols.h"
-#include "SpParMPI2.h"
+#include "../SpTuples.h"
+#include "../SpDCCols.h"
+#include "../SpParMat.h"
 
 using namespace std;
 
@@ -40,7 +40,7 @@ int main()
 		C.SpGEMM <PT> (A, B, false, false);	// C = A*B
 		C.PrintInfo();
 
-		SpDCCols<int,bool> A_bool = A.ConvertNumericType<bool>();
+		SpDCCols<int,bool> A_bool = A;
 		A_bool.PrintInfo();
 
 		SpTuples<int,double> * C_tuples =  MultiplyReturnTuples<PT>(A_bool, B, false, false);	// D = A_bool*B
@@ -172,7 +172,7 @@ int main()
 			cerr << "Begin Parallel" << endl;	
 		}	
 		// ABAB: Make a macro such as "PARTYPE(it,nt,seqtype)" that just typedefs this guy !
-		typedef SpParMPI2 <int, double, SpDCCols<int,double> > PARSPMAT;
+		typedef SpParMat <int, double, SpDCCols<int,double> > PARSPMAT;
 		PARSPMAT A_par;
 		PARSPMAT B_par;
 		cerr << "A and B constructed"<< endl;
@@ -195,7 +195,7 @@ int main()
 		if(myrank == 0)		
 			cout << "B_par has " << parnnzB << " nonzeros and " << parmB << "-by-" << parnB << " dimensions" << endl;
 
-		PARSPMAT C_par = Mult_AnXBn<PT> (A_par, B_par);	
+		PARSPMAT C_par = Mult_AnXBn_Synch<PT> (A_par, B_par);	
 
 		// collective calls
 		int parnnzC = C_par.getnnz();
