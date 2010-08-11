@@ -1,5 +1,6 @@
 * text=auto !eol
 ArrayGraphBook/ArrayGraphBookPrePublicationDraft.pdf -text
+CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/CMakeLists.txt -text
 CombBLAS/Applications/Driver.cpp -text

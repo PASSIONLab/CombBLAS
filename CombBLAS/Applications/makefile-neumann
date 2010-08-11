@@ -28,11 +28,17 @@ BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h
 MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp
 
+APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp
+
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
+
+apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
@@ -40,6 +46,8 @@ betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 clean:
 	rm -f betwcent
 	rm -f driver
+	rm -f mcl
+	rm -f apowers
 	rm -f *.o
 
 cleanout:

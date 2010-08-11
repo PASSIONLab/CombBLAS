@@ -8,6 +8,8 @@
 #include "SpParMat.h"
 #include "ParFriends.h"
 #include "Operations.h"
+#include <fstream>
+using namespace std;
 
 /**
   * If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
@@ -562,14 +564,32 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 	int procrows = commGrid->GetGridRows();
 	IT * gsizes;
 
+	// collective calls
+	IT totalm = getnrow();
+	IT totaln = getncol();
+	IT totnnz = getnnz();
+	int flinelen = 0;
+	if(commGrid->GetRank() == 0)
+	{
+		std::string s;
+		std::stringstream strm;
+		strm << 0 << " " << totalm << " " << totaln << " " << totnnz << endl;
+		s = strm.str();
+		std::ofstream out(filename.c_str(),std::ios_base::app);
+		flinelen = s.length();
+		out.write(s.c_str(), flinelen);
+		out.close();
+	}
+
+	IT nzc = 0;	// nonempty column counts per processor column
 	for(int i = 0; i < proccols; i++)	// for all processor columns (in order)
 	{
 		if(commGrid->GetRankInProcRow() == i)	// only the ith processor column
 		{ 
 			if(commGrid->GetRankInProcCol() == 0)	// get the head of column
 			{
-				std::ofstream out(filename,std::ios_base::app);
-				std::ostream_iterator<IT> dest(outfile, " ");
+				std::ofstream out(filename.c_str(),std::ios_base::app);
+				std::ostream_iterator<IT> dest(out, " ");
 
 				gsizes = new IT[procrows];
 				IT localrows = spSeq->getnrow();    
@@ -589,13 +609,18 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						{
 							mysize = colit.nnz();
 							vertices = new IT[mysize];
-							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit) IT j=0; nzit != spSeq->endnz(colit); ++nzit, ++j)
+							IT j = 0;
+							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 							{
 								vertices[j] = nzit.rowid();
+								++j;
 							}
 						}
-						(commGrid->GetColWorld()).Gather(mysize, 1, MPIType<IT>(), gsizes, procrows, MPIType<IT>(), 0);
+						(commGrid->GetColWorld()).Gather(&mysize, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0);
 						IT colcnt = std::accumulate(gsizes, gsizes+procrows, 0);
+				//		std::copy(gsizes, gsizes + procrows, ostream_iterator<IT>(cout," "));
+				//		cout << endl;
+						//cout << colcnt << endl;
 						IT * ents = new IT[colcnt];	// nonzero entries in the netid'th column
 						IT * dpls = new IT[procrows]();	// displacements (zero initialized pid) 
 						std::partial_sum(gsizes, gsizes+procrows-1, dpls+1);
@@ -603,21 +628,32 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						// int MPI_Gatherv (void* sbuf, int scount, MPI_Datatype stype, 
 						// 		    void* rbuf, int *rcount, int* displs, MPI_Datatype rtype, int root, MPI_Comm comm)	
 						(commGrid->GetColWorld()).Gatherv(vertices, mysize, MPIType<IT>(), ents, gsizes, dpls, MPIType<IT>(), 0);
-						std::copy(ents, ents+colcnt, dest);	
+						if(colcnt != 0)
+						{
+							std::copy(ents, ents+colcnt, dest);	
+							out << endl;
+							++nzc;
+						}
+						delete [] ents; delete [] dpls;
 						
 						if(netid == colit.colid())	delete [] vertices;
 						++netid;
 					} 
 				}
 				delete [] gsizes;
+				out.close();
+				
 			}
 			else	// get the rest of the processors
 			{
 				IT m_perproc;
 				(commGrid->GetColWorld()).Bcast(&m_perproc, 1, MPIType<IT>(), 0); 
 				IT moffset = commGrid->GetRankInProcCol() * m_perproc; 
+				IT netid = 0;
 				for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
-				{	
+				{
+					IT mysize;
+					IT * vertices;	
 					while(netid <= colit.colid())
 					{
 						if(netid < colit.colid())	// empty subcolumns
@@ -628,12 +664,14 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						{
 							mysize = colit.nnz();
 							vertices = new IT[mysize];
-							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit) IT j=0; nzit != spSeq->endnz(colit); ++nzit, ++j)
+							IT j = 0;
+							for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 							{
 								vertices[j] = nzit.rowid() + moffset; 
+								++j;
 							}
 						}
-						(commGrid->GetColWorld()).Gather(mysize, 1, MPIType<IT>(), gsizes, procrows, MPIType<IT>(), 0)
+						(commGrid->GetColWorld()).Gather(&mysize, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0);
 					
 						// rbuf, rcount, displs, rtype are only significant at the root
 						(commGrid->GetColWorld()).Gatherv(vertices, mysize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), 0);
@@ -644,6 +682,29 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 				}
 			}
 		} // end_if the ith processor column
+		commGrid->GetWorld().Barrier();		// signal the end of ith processor column iteration (so that all processors block)
+		if((i == proccols-1) && (commGrid->GetRankInProcCol() == 0))	// if that was the last iteration and we are the column heads
+		{
+			IT totalnzc = 0;
+			(commGrid->GetRowWorld()).Reduce(&nzc, &totalnzc, 1, MPIType<IT>(), MPI::SUM, 0);
+
+			if(commGrid->GetRank() == 0)	// I am the master, hence I'll change the first line
+			{
+				// Don't just open with std::ios_base::app here
+				// The std::ios::app flag causes fstream to call seekp(0, ios::end); at the start of every operator<<() inserter
+				std::ofstream out(filename.c_str(),std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+				out.seekp(0, std::ios_base::beg);
+				
+				string s;
+				std::stringstream strm;
+				strm << 0 << " " << totalm << " " << totalnzc << " " << totnnz;
+				s = strm.str();
+				s.resize(flinelen-1, ' ');	// in case totalnzc has fewer digits than totaln
+
+				out.write(s.c_str(), flinelen-1);
+				out.close();
+			}
+		}
 	} // end_for all processor columns
 }
 
