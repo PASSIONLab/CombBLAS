@@ -618,9 +618,6 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						}
 						(commGrid->GetColWorld()).Gather(&mysize, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0);
 						IT colcnt = std::accumulate(gsizes, gsizes+procrows, 0);
-				//		std::copy(gsizes, gsizes + procrows, ostream_iterator<IT>(cout," "));
-				//		cout << endl;
-						//cout << colcnt << endl;
 						IT * ents = new IT[colcnt];	// nonzero entries in the netid'th column
 						IT * dpls = new IT[procrows]();	// displacements (zero initialized pid) 
 						std::partial_sum(gsizes, gsizes+procrows-1, dpls+1);
@@ -640,9 +637,27 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						++netid;
 					} 
 				}
+				while(netid < spSeq->getncol())
+				{
+					IT mysize = 0; 	
+					(commGrid->GetColWorld()).Gather(&mysize, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0);
+					IT colcnt = std::accumulate(gsizes, gsizes+procrows, 0);
+					IT * ents = new IT[colcnt];	// nonzero entries in the netid'th column
+					IT * dpls = new IT[procrows]();	// displacements (zero initialized pid) 
+					std::partial_sum(gsizes, gsizes+procrows-1, dpls+1);
+
+					(commGrid->GetColWorld()).Gatherv(NULL, mysize, MPIType<IT>(), ents, gsizes, dpls, MPIType<IT>(), 0);
+					if(colcnt != 0)
+					{
+						std::copy(ents, ents+colcnt, dest);	
+						out << endl;
+						++nzc;
+					}
+					delete [] ents; delete [] dpls;
+					++netid;
+				} 
 				delete [] gsizes;
 				out.close();
-				
 			}
 			else	// get the rest of the processors
 			{
@@ -680,6 +695,13 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 						++netid;
 					}
 				}
+				while(netid < spSeq->getncol())
+				{
+					IT mysize = 0; 	
+					(commGrid->GetColWorld()).Gather(&mysize, 1, MPIType<IT>(), gsizes, 1, MPIType<IT>(), 0);
+					(commGrid->GetColWorld()).Gatherv(NULL, mysize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), 0);
+					++netid;
+				} 
 			}
 		} // end_if the ith processor column
 		commGrid->GetWorld().Barrier();		// signal the end of ith processor column iteration (so that all processors block)
