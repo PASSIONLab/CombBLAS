@@ -15,6 +15,7 @@
 
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
+#define NOTSQUARE 3003
 
 
 // MPI Message tags 

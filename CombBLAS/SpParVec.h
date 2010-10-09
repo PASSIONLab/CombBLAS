@@ -15,6 +15,15 @@
 using namespace std;
 using namespace std::tr1;
 
+
+/** 
+  * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to diagonal processors 
+  * This is done without any reference to ordering of the nonzero indices
+  * Example: x = [5,1,6,2,9] and we use 4 processors P_00, P_01, P_10, P_11
+  * Then P_00 owns [5,1,6] and P_11 owns [2,9]
+  * ABAB: As of 08/2010, this class is used only to generate random permutations  
+  **/
+  
 template <class IT, class NT>
 class SpParVec
 {
@@ -23,6 +32,13 @@ public:
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
 	
+	IT getnnz() const
+	{
+		IT totnnz = 0;
+		IT locnnz = arr.length();
+		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+	}
+
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< pair<IT, NT> > arr;	// arr.length() give the number of nonzeros

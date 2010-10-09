@@ -11,6 +11,12 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	{
 		grrows = (int)std::sqrt((float)nproc);
 		grcols = grrows;
+
+		if(grcols * grrows != nproc)
+		{
+			cerr << "This version of the Combinatorial BLAS only works on a square logical processor grid" << endl;
+			MPI::COMM_WORLD.Abort(NOTSQUARE);
+		}
 	}
 	assert((nproc == (grrows*grcols)));
 
@@ -46,7 +52,8 @@ MPI::Intracomm CommGrid::GetDiagWorld() const
 	MPI::Group diag_group = commWorld.Get_group();
 	diag_group.Incl(grcols, process_ranks);
 	delete [] process_ranks;
-	
+
+	// The Create() function returns MPI_COMM_NULL to processes that are NOT in group	
 	return commWorld.Create(diag_group);		
 }
 

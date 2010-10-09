@@ -46,13 +46,13 @@ int main(int argc, char* argv[])
 	
 	typedef PlusTimesSRing<bool, bool> PTBOOLBOOL;
 
-	if(argc < 3)
+	if(argc < 4)
         {
 		if(myrank == 0)
 		{	
-                	cout << "Usage: ./apowers <BASEADDRESS> <KLIMIT>" << endl;
-                	cout << "Example: ./apowers Data/ 5" << endl;
-                	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
+                	cout << "Usage: ./apowers <INPUTADDRESS> <KLIMIT><NONUM>" << endl;
+                	cout << "Example: ./apowers Data/input.txt 4 0" << endl;
+			cout << "If <NONUM> is set, then the input file is unweighted" << endl;
                 }
 		MPI::Finalize(); 
 		return -1;
@@ -60,11 +60,7 @@ int main(int argc, char* argv[])
 
 	{
 		double klimit = atof(argv[2]);
-
-		string directory(argv[1]);		
-		string ifilename = "input.txt";
-		ifilename = directory+"/"+ifilename;
-
+		string ifilename(argv[1]);		
 		ifstream input(ifilename.c_str());
 		if( !input ) 
 		{
@@ -74,8 +70,13 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		Dist<double>::MPI_DCCols A;	// construct object
-		A.ReadDistribute(input, 0);	// read it from file
-	
+		bool nonum = static_cast<bool>(atoi(argv[3]));
+		if(myrank ==0)
+			cout << "Reading file " << (nonum?string("without"):string("with")) << " numerics" << endl;
+
+		A.ReadDistribute(input, 0, nonum);	// read it from file
+		if(myrank ==0)
+			cout << "Matrix read"<< endl;	
 		input.clear();
 		input.close();
 

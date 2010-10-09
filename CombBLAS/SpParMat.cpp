@@ -282,8 +282,16 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
 	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
 } 
 
+
+/** 
+ * Generalized sparse matrix indexing
+ * Both the storage and the actual values in SpParVec should be IT
+ * TODO: The index vectors are duplicated on all processors, make them distributed as well
+ * 	 Then, we can use this function to apply a permutation like A(p,p) 
+ * 	 Sequential indexing subroutine (via multiplication) is general enough for this purpose.
+ */
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const vector<IT> & ri, const vector<IT> & ci) const
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const
 {
 	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
 	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
@@ -292,6 +300,14 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const vector<IT> & ri, cons
 	IT totaln = getncol();
 	IT m_perproc = totalm / colneighs;
 	IT n_perproc = totaln / rowneighs;
+
+	IT P_rows = ri.getnnz();
+	IT P_cols = getnrow();
+	IT Q_rows = getncol();
+	IT Q_cols = ci.getnnz();
+
+
+	int colrec = std::min(temprow / m_perproc, colneighs-1);	// precipient processor along the column
 
 	vector<IT> locri, locci;
 	pair<IT,IT> rowboun, colboun; 
@@ -327,6 +343,16 @@ void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool ex
 {
 	if(*commGrid == *rhs.commGrid)	
 	{
+		spSeq->EWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
+	}
+	else
+	{
+		cout << "Grids are not comparable, EWiseMult() fails !" << endl; 
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}	
+}
+
+template <class IT, class NT, class DER>
 		spSeq->EWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
 	}
 	else
@@ -704,6 +730,7 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 				} 
 			}
 		} // end_if the ith processor column
+
 		commGrid->GetWorld().Barrier();		// signal the end of ith processor column iteration (so that all processors block)
 		if((i == proccols-1) && (commGrid->GetRankInProcCol() == 0))	// if that was the last iteration and we are the column heads
 		{
@@ -732,8 +759,9 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 
 //! Handles all sorts of orderings as long as there are no duplicates
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
+//! if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 template <class IT, class NT, class DER>
-ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
+ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum)
 {
 	IT total_m, total_n, total_nnz;
 	IT m_perproc, n_perproc;
@@ -784,7 +812,15 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 		
 		if (infile.is_open())
 		{
-			infile >> total_m >> total_n >> total_nnz;
+			char comment[256];
+			infile.getline(comment,256);
+			while(comment[0] == '%')
+			{
+				infile.getline(comment,256);
+			}
+			stringstream ss;
+			ss << string(comment);
+			ss >> total_m >> total_n >> total_nnz;
 			m_perproc = total_m / colneighs;
 			n_perproc = total_n / rowneighs;
 
@@ -796,7 +832,10 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			IT cnz = 0;
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
-				infile >> temprow >> tempcol >> tempval;
+				infile >> temprow >> tempcol;
+				if(nonum)	tempval = static_cast<NT>(1);
+				else 		infile >> tempval;
+
 				--temprow;	// file is 1-based where C-arrays are 0-based
 				--tempcol;
 
@@ -1005,16 +1044,6 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master)
 			for(IT i=zero; i< recvcount; ++i)
 			{					
 				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
-			}
-			DeleteAll(temprows,tempcols,tempvals);
-		}
-	
-	}
-
-	DeleteAll(cdispls, rdispls);
-	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];	// the vector will go out of scope, make it stick !
-	copy(localtuples.begin(), localtuples.end(), arrtuples);
-
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
 	

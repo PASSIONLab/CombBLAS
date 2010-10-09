@@ -75,6 +75,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 {	 
 	if(nnz == 0)	// m by n matrix of complete zeros
 	{
+		if(transpose) swap(m,n);
 		dcsc = NULL;	
 	} 
 	else
@@ -626,11 +627,6 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 		// since we don't know whether columns or rows are indexed
 		return SpDCCols<IT,NT> (zero, m, n, zero);		
 	}
-	else if(rsize == 1 && csize == 1)
-	{
-		cout << "Please use special element-wise indexing instead of vectors of length 1" << endl;
-		return ((*this)(ri[0], ci[0]));
-	}	
 	else if(rsize == 0)
 	{
 		return ColIndex(ci);
@@ -640,7 +636,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
 		return LeftMatrix.OrdColByCol< PT >(*this);
 	}
-	else
+	else	// this handles the (rsize=1 && csize=1) case as well
 	{
 		SpDCCols<IT,NT> LeftMatrix(rsize, rsize, this->m, ri, true);
 		SpDCCols<IT,NT> RightMatrix(csize, this->n, csize, ci, false);

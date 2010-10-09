@@ -48,13 +48,17 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 	return *this;
 };	
 
-// Called on an existing object
+//! Called on an existing object
+//! ABAB: This needs a rewrite to respect the semantics of SpParVec<> class
 template <class IT, class NT>
 ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
 	IT total_n, total_nnz, n_perproc;
-	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	IT buffpercolneigh = MEMORYINBYTES / (colneighs * (2 * sizeof(IT) + sizeof(NT)));
+	MPI::Intracomm diagprocs = commGrid->GetDiagWorld();
+Get_rank()
+
+	int neighs = diagprocs->Get_size();	// number of neighbors along diagonal (including oneself)
+	IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 
 	IT * cdispls = new IT[colneighs];
 	for (int i=0; i<colneighs; ++i)

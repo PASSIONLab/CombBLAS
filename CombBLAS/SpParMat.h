@@ -104,10 +104,13 @@ public:
 	IT getnnz() const;
 
 	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
-	SpParMat<IT,NT,DER> operator() (const vector<IT> & ri, const vector<IT> & ci) const;	//!< General indexing with serial semantics
+
+	//! General indexing with serial semantics
+	SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const
+
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
-	ifstream& ReadDistribute (ifstream& infile, int master);
+	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false);
 	ofstream& put(ofstream& outfile) const;
 	void PrintForPatoh(string filename) const;
 
@@ -137,6 +140,9 @@ public:
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
+
+	template <typename IU, typename DER>
+	friend SpParMat<IU,bool,DER> RandPerm ();
 
 private:
 	const static IT zero = static_cast<IT>(0);
