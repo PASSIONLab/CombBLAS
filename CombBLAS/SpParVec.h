@@ -21,8 +21,10 @@ using namespace std::tr1;
   * This is done without any reference to ordering of the nonzero indices
   * Example: x = [5,1,6,2,9] and we use 4 processors P_00, P_01, P_10, P_11
   * Then P_00 owns [5,1,6] and P_11 owns [2,9]
-  * ABAB: As of 08/2010, this class is used only to generate random permutations  
-  **/
+  * 	In the case of A(v,w) type sparse matrix indexing, this doesn't matter because n = nnz
+  * 	After all, A(v,w) will have dimensions length(v) x length (w) 
+  * 	v and w will be of numerical type (NT) "int" and their indices (IT) will be consecutive integers 
+ **/
   
 template <class IT, class NT>
 class SpParVec

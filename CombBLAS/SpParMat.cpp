@@ -271,7 +271,7 @@ SpParMat<IT,NT,DER>::operator SpParMat<IT,NNT,NDER> () const
 }
 
 /** 
- * Create a submatrix of size m x (size(ncols) * s) on a r x s processor grid
+ * Create a submatrix of size m x (size(ci) * s) on a r x s processor grid
  * Essentially fetches the columns ci[0], ci[1],... ci[size(ci)] from every submatrix
  */
 template <class IT, class NT, class DER>

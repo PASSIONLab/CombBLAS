@@ -54,61 +54,56 @@ template <class IT, class NT>
 ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
 	IT total_n, total_nnz, n_perproc;
-	MPI::Intracomm diagprocs = commGrid->GetDiagWorld();
-Get_rank()
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL)	// Diagonal processors
+	{
+		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
+		IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 
-	int neighs = diagprocs->Get_size();	// number of neighbors along diagonal (including oneself)
-	IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
+		IT * displs = new IT[neighs];
+		for (int i=0; i<neighs; ++i)
+			displs[i] = i*buffperneigh;
 
-	IT * cdispls = new IT[colneighs];
-	for (int i=0; i<colneighs; ++i)
-		cdispls[i] = i*buffpercolneigh;
+		IT * curptrs;
+		IT recvcount;
+		IT * inds; 
+		NT * vals;
 
-	IT *ccurptrs;
-	IT recvcount;
-	IT * inds; 
-	NT * vals;
+		int diagrank = DiagWorld.Get_rank();	
+		vector< pair<IT,NT> > localvec;
+		if(diagrank == master)	// 1 processor
+		{		
+			inds = new IT [ buffperneigh * neighs ];
+			vals = new NT [ buffperneigh * neighs ];
 
-	// Note: all other column heads that initiate the horizontal communication has the same "rankinrow" with the master
-	int rankincol = commGrid->GetRankInProcCol(master);	// get master's rank in its processor column
-	int rankinrow = commGrid->GetRankInProcRow(master);	
-  	
-	vector< pair<IT,NT> > localvec;
-	if(commGrid->GetRank() == master)	// 1 processor
-	{		
-		int diag;
-
-		// allocate buffers on the heap as stack space is usually limited
-		inds = new IT [ buffpercolneigh * colneighs ];
-		vals = new NT [ buffpercolneigh * colneighs ];
-
-		ccurptrs = new IT[colneighs];
-		fill_n(ccurptrs, colneighs, (IT) zero);	// fill with zero
+			curptrs = new IT[neighs];
+			fill_n(curptrs, neighs, (IT) zero);	// fill with zero
 		
-		if (infile.is_open())
-		{
-			infile >> total_n >> total_nnz;
-			n_perproc = total_n / colneighs;
-			commGrid->GetWorld().Bcast(&total_n, 1, MPIType<IT>(), master);			
-	
-			IT tempind;
-			NT tempval;
-			IT cnz = 0;
-			while ( (!infile.eof()) && cnz < total_nnz)
+			if (infile.is_open())
 			{
-				infile >> tempind;
-				infile >> tempval;
-				tempind--;
-
-				int colrec = std::min(tempind / n_perproc, colneighs-1);	// precipient processor along the column
-				inds[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempind;
-				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempval;
-				++ (ccurptrs[colrec]);				
-
-				if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
+				infile >> total_n >> total_nnz;
+				n_perproc = total_n / neighs;	// the last proc gets the extras
+				DiagWorld().Bcast(&total_n, 1, MPIType<IT>(), master);			
+	
+				IT tempind;
+				NT tempval;
+				IT cnz = 0;
+				while ( (!infile.eof()) && cnz < total_nnz)
 				{
-					// first, send the receive counts ...
-					commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+					infile >> tempind;
+					infile >> tempval;
+					tempind--;
+
+					int rec = std::min(tempind / n_perproc, neighs-1);	// precipient processor along the column
+					inds[ rec * buffperneigh + curptrs[rec] ] = tempind;
+					vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
+					++ (curptrs[rec]);				
+
+			//--- DESDE AQUI
+					if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
+					{
+						// first, send the receive counts ...
+						commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
 
 					// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 					IT * tempinds = new IT[recvcount];
