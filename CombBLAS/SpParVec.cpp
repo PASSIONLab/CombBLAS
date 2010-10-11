@@ -49,13 +49,12 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 };	
 
 //! Called on an existing object
-//! ABAB: This needs a rewrite to respect the semantics of SpParVec<> class
 template <class IT, class NT>
 ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
 	IT total_n, total_nnz, n_perproc;
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI_COMM_NULL)	// Diagonal processors
+	if(DiagWorld != MPI_COMM_NULL)	// Diagonal processors only
 	{
 		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
 		IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
@@ -70,8 +69,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		NT * vals;
 
 		int diagrank = DiagWorld.Get_rank();	
-		vector< pair<IT,NT> > localvec;
-		if(diagrank == master)	// 1 processor
+		if(diagrank == master)	// 1 processor only
 		{		
 			inds = new IT [ buffperneigh * neighs ];
 			vals = new NT [ buffperneigh * neighs ];
@@ -83,7 +81,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			{
 				infile >> total_n >> total_nnz;
 				n_perproc = total_n / neighs;	// the last proc gets the extras
-				DiagWorld().Bcast(&total_n, 1, MPIType<IT>(), master);			
+				DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);			
 	
 				IT tempind;
 				NT tempval;
@@ -94,152 +92,84 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					infile >> tempval;
 					tempind--;
 
-					int rec = std::min(tempind / n_perproc, neighs-1);	// precipient processor along the column
+					int rec = std::min(tempind / n_perproc, neighs-1);	// precipient processor along the diagonal
 					inds[ rec * buffperneigh + curptrs[rec] ] = tempind;
 					vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
 					++ (curptrs[rec]);				
 
-			//--- DESDE AQUI
-					if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
+					if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 					{
 						// first, send the receive counts ...
-						commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+						DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
 
-					// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
-					IT * tempinds = new IT[recvcount];
-					NT * tempvals = new NT[recvcount];
+						// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
+						IT * tempinds = new IT[recvcount];
+						NT * tempvals = new NT[recvcount];
 					
-					// then, send all buffers that to their recipients ...
-					commGrid->GetColWorld().Scatterv(inds, ccurptrs, cdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankincol); 
-					commGrid->GetColWorld().Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankincol); 
-
-					// finally, reset current pointers !
-					fill_n(ccurptrs, colneighs, (IT) zero);
-					DeleteAll(inds, vals);
-			
-					/* Begin horizontal distribution, send data to the diagonal processor on this row */
-					if(diagonal)
-					{
-						IT noffset = commGrid->GetRankInProcRow() * n_perproc; 
-						for(IT i=zero; i< recvcount; ++i)
-						{	
-							localvec.push_back( make_pair(tempinds[i]-noffset, tempvals[i]) );
-						}
-					}
-					else
-					{
-						diag = commGrid->GetDiagOfProcRow();
-						commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);	// send the size first						
-						commGrid->GetRowWorld().Send(tempinds, recvcount, MPIType<IT>(), diag, RDTAGINDS);	// then the data
-						commGrid->GetRowWorld().Send(tempvals, recvcount, MPIType<NT>(), diag, RDTAGVALS);
-					}
-					DeleteAll(tempinds, tempvals);		
-					
-					// reuse these buffers for the next vertical communication								
-					inds = new IT [ buffpercolneigh * colneighs ];
-					vals = new NT [ buffpercolneigh * colneighs ];
-				}
-				++ cnz;
-			}
-			assert (cnz == total_nnz);
-			
-			// Signal the end of file to other processors along the column
-			fill_n(ccurptrs, colneighs, numeric_limits<IT>::max());	
-			commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
-
-			if(!diagonal)
-			{
-				// And along the diagonal on this row ...
-				recvcount = numeric_limits<IT>::max();
-				commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);	
-			}
-		}
-		else	// input file does not exist !
-		{
-			total_n = 0;	
-			commGrid->GetWorld().Bcast(&total_n, 1, MPIType<IT>(), master);						
-		}
-		DeleteAll(inds,vals, ccurptrs);
-	}
-	else if( commGrid->OnSameProcCol(master) ) 	// (r-1) processors
-	{
-		commGrid->GetWorld().Bcast(&total_n, 1, MPIType<IT>(), master);
-		n_perproc = total_n / colneighs;
-		int diag;
-
-		while(total_n > 0)
-		{
-			// first receive the receive counts ...
-			commGrid->GetColWorld().Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
-
-			if( recvcount == numeric_limits<IT>::max())
-				break;
+						// then, send all buffers that to their recipients ...
+						DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), diagrank); 
+						DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), diagrank); 
 	
-			// create space for incoming data ... 
-			IT * tempinds = new IT[recvcount];
-			NT * tempvals = new NT[recvcount];
+						// now push what is ours to tuples
+						IT offset = diagrank * n_perproc;
+						for(IT i=zero; i< recvcount; ++i)
+						{					
+							arr.push_back( 	make_tuple(tempinds[i]-offset, tempvals[i]) );
+						}
 
-			// receive actual data ... (first 4 arguments are ignored in the receiver side)
-			commGrid->GetColWorld().Scatterv(inds, ccurptrs, cdispls, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), rankincol); 
-			commGrid->GetColWorld().Scatterv(vals, ccurptrs, cdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankincol); 
-
-			/* Begin horizontal distribution, send data to the diagonal processor on this row */
-			if(diagonal)
-			{
-				IT noffset = commGrid->GetRankInProcRow() * n_perproc; 
-				for(IT i=zero; i< recvcount; ++i)
-				{	
-					localvec.push_back( make_pair(tempinds[i]-noffset, tempvals[i]) );
+						// reset current pointers so that we can reuse {inds,vals} buffers
+						fill_n(curptrs, neighs, (IT) zero);
+						DeleteAll(tempinds, tempvals);
+					}
+					++ cnz;
 				}
+				assert (cnz == total_nnz);
+			
+				// Signal the end of file to other processors along the diagonal
+				fill_n(curptrs, neighs, numeric_limits<IT>::max());	
+				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
 			}
-			else
+			else	// input file does not exist !
 			{
-				diag = commGrid->GetDiagOfProcRow();
-				commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);	// send the size first						
-				commGrid->GetRowWorld().Send(tempinds, recvcount, MPIType<IT>(), diag, RDTAGINDS);	// then the data
-				commGrid->GetRowWorld().Send(tempvals, recvcount, MPIType<NT>(), diag, RDTAGVALS);
+				total_n = 0;	
+				DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);						
 			}
-			DeleteAll(tempinds, tempvals);	
+			DeleteAll(inds,vals, curptrs);
 		}
-		if(!diagonal)
-		{ 
-			// Signal the end of data to the diagonal on this row	
-			recvcount = numeric_limits<IT>::max();
-			commGrid->GetRowWorld().Send(&recvcount, 1, MPIType<IT>(), diag, RDTAGNNZ);
-		}
-	}
-	else		// remaining r * (s-1) processors 
-	{		
-		commGrid->GetWorld().Bcast(&total_n, 1, MPIType<IT>(), master);
-		n_perproc = total_n / colneighs;
+		else 	 	// (r-1) processors on the diagonal
+		{
+			DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);
+			n_perproc = total_n / neighs;
 
-		if(diagonal)	// only the diagonals will receive the data
-		{	
-			while(total_n > 0)
+			while(total_n > 0)	// otherwise, input file do not exist
 			{
-				commGrid->GetRowWorld().Recv(&recvcount, 1, MPIType<IT>(), rankinrow, RDTAGNNZ);	// receive the size first	
+				// first receive the receive counts ...
+				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
+
 				if( recvcount == numeric_limits<IT>::max())
 					break;
 	
 				// create space for incoming data ... 
 				IT * tempinds = new IT[recvcount];
 				NT * tempvals = new NT[recvcount];
-		
-				commGrid->GetRowWorld().Recv(tempinds, recvcount, MPIType<IT>(), rankinrow, RDTAGINDS);	// then receive the data
-				commGrid->GetRowWorld().Recv(tempvals, recvcount, MPIType<NT>(), rankinrow, RDTAGVALS);
 
-				IT noffset = commGrid->GetRankInProcRow() * n_perproc; 
+				// receive actual data ... (first 4 arguments are ignored in the receiver side)
+				DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), diagrank); 
+				DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), diagrank); 
+
+				// now push what is ours to tuples
+				IT offset = diagrank * n_perproc;
 				for(IT i=zero; i< recvcount; ++i)
-				{	
-					localvec.push_back( make_pair(tempinds[i]-noffset, tempvals[i]) );
+				{					
+					arr.push_back( 	make_tuple(tempinds[i]-offset, tempvals[i]) );
 				}
+
 				DeleteAll(tempinds, tempvals);
 			}
 		}
 	}	
 	delete [] cdispls;
-	arr = localvec;
- 	length = (commGrid->GetRankInProcRow() != (commGrid->GetGridCols()-1))? n_perproc: (total_n - (n_perproc * (commGrid->GetGridCols()-1)));
+ 	length = (diagrank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));
 
 	return infile;
 }
