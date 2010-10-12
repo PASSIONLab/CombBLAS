@@ -22,6 +22,7 @@
 // Prefixes denote functions
 //	TR: Transpose
 //	RD: ReadDistribute
+//	RF: Sparse matrix indexing
 #define TRTAGNZ 121
 #define TRTAGM 122
 #define TRTAGN 123
@@ -31,7 +32,8 @@
 #define RDTAGINDS 127
 #define RDTAGVALS 128
 #define RDTAGNNZ 129
-
+#define RFROWDATA 130
+#define RFCOLDATA 131
 
 enum Dim
 {

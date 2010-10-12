@@ -48,9 +48,11 @@ private:
 	bool diagonal;
 	const static IT zero = static_cast<IT>(0);
 
-	template <typename IU, class NU>
+	template <class IU, class NU>
 	friend class DenseParVec;
 	
+	template <class IU, class NU, class UDER>
+	friend class SpParmat;
 };
 
 #include "SpParVec.cpp"

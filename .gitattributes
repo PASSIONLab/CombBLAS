@@ -789,8 +789,8 @@ CombBLAS/mfiles/genfringe.m -text
 CombBLAS/mfiles/genrestrict.m -text
 CombBLAS/mfiles/readtriples.m -text
 CombBLAS/mfiles/rmatdenseness.m -text
+CombBLAS/mfiles/writecolvector.m -text
 CombBLAS/mfiles/writematrix.m -text
-CombBLAS/mfiles/writerowvector.m -text
 CombBLAS/promote.h -text
 CombBLAS/valgrindout -text
 Graph500cpp/Makefile-neumann -text

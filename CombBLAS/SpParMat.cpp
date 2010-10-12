@@ -258,9 +258,7 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 		}
 	}
 	return parvec;
-
 }
-
 
 template <class IT, class NT, class DER>
 template <typename NNT,typename NDER>	 
@@ -282,24 +280,145 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
 	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
 } 
 
-
 /** 
  * Generalized sparse matrix indexing
  * Both the storage and the actual values in SpParVec should be IT
- * TODO: The index vectors are duplicated on all processors, make them distributed as well
- * 	 Then, we can use this function to apply a permutation like A(p,p) 
- * 	 Sequential indexing subroutine (via multiplication) is general enough for this purpose.
+ * The index vectors are distributed on diagonal processors
+ * We can use this function to apply a permutation like A(p,q) 
+ * Sequential indexing subroutine (via multiplication) is general enough.
  */
 template <class IT, class NT, class DER>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const
 {
+	// We create two boolean matrices P and Q
+	// Dimensions:  P is size(ri) x m
+	//		Q is n x size(ci) 
+
 	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
 	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-
-	IT totalm = getnrow();
+	IT totalm = getnrow();	// collective call
 	IT totaln = getncol();
-	IT m_perproc = totalm / colneighs;
-	IT n_perproc = totaln / rowneighs;
+	IT m_perproc = totalm / rowneighs;
+	IT n_perproc = totaln / colneighs;
+	IT p_nnz, q_nnz, rilen, cilen; 
+	IT * pcnts;
+	IT * qcnts;
+	
+	int diaginrow = commGrid->GetDiagOfProcRow();
+	int diagincol = commGrid->GetDiagOfProcCol();
+
+	if(ri.diagonal)		// only the diagonal processors hold vectors
+	{
+		// broadcast the size 
+		rilen = ri.length;
+		cilen = ci.length;
+		(commGrid->rowWorld).Bcast(&rilen, 1, MPIType<IT>(), diaginrow);
+		(commGrid->colWorld).Bcast(&cilen, 1, MPIType<IT>(), diagincol);
+
+		vector< vector<IT> > rowdata_rowid(rowneighs);
+		vector< vector<IT> > rowdata_colid(rowneighs);
+	
+		vector< vector<IT> > coldata_rowid(colneighs);
+		vector< vector<IT> > coldata_colid(colneighs);
+	
+		for(typename vector< pair<IT,IT> >::const_iterator itr = ri.arr.begin(); itr != ri.arr.end(); ++itr)
+		{	
+			int rowrec = std::min(itr->second / m_perproc, rowneighs-1);	// precipient processor along the column
+
+			// ri's numerical values give the colids and its indices give rowids
+			// thus, the rowid's are already offset'd where colid's are not
+			rowdata_rowid[rowrec].push_back(itr->first);
+			rowdata_colid[rowrec].push_back(itr->second - (rowrec * m_perproc));
+		}
+		pcnts = new IT[rowneighs];
+		for(IT i=0; i<rowneighs; ++i)
+			pcnts[i] = rowdata_rowid[i].size();
+
+		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
+
+		for(IT i=0; i<rowneighs; ++i)
+		{
+			if(i != diaginrow)	// destination is not me	
+			{
+				(commGrid->rowWorld).Send(&(rowdata_rowid[i].arr[0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->rowWorld).Send(&(rowdata_colid[i].arr[0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+			}
+		}
+
+		for(typename vector< pair<IT,IT> >::const_iterator itr = ci.arr.begin(); itr != ci.arr.end(); ++itr)
+		{	
+			int colrec = std::min(itr->second / n_perproc, colneighs-1);	// precipient processor along the column
+
+			// ci's numerical values give the rowids and its indices give colids
+			// thus, the colid's are already offset'd where rowid's are not
+			coldata_rowid[colrec].push_back(itr->second - (colrec * n_perproc));
+			coldata_colid[colrec].push_back(itr->first);
+		}
+
+		qcnts = new IT[colneighs];
+		for(IT i=0; i<colneighs; ++i)
+			qcnts[i] = coldata_rowid[i].size();
+
+		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
+
+		for(IT i=0; i<colneighs; ++i)
+		{
+			if(i != diagincol)	// destination is not me	
+			{
+				(commGrid->colWorld).Send(&(coldata_rowid[i].arr[0]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->colWorld).Send(&(coldata_colid[i].arr[0]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+			}
+		}
+	}
+	else	// all others receive data from the diagonal
+	{
+		(commGrid->rowWorld).Bcast(&rilen, 1, MPIType<IT>(), diaginrow);
+		(commGrid->colWorld).Bcast(&cilen, 1, MPIType<IT>(), diagincol);
+
+		// receive the receive counts ...
+		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
+		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
+		
+	
+		// create space for incoming data ... 
+		IT * p_rows = new IT[p_nnz];
+		IT * p_cols = new IT[p_nnz];
+		IT * q_rows = new IT[q_nnz];
+		IT * q_cols = new IT[q_nnz];
+		
+		// receive actual data ... 
+		(commGrid->rowWorld).Recv(p_rows, p_nnz, MPIType<IT>(), diaginrow, RFROWIDS);	
+		(commGrid->rowWorld).Recv(p_cols, p_nnz, MPIType<IT>(), diaginrow, RFCOLIDS);	
+	
+		(commGrid->colWorld).Recv(q_rows, q_nnz, MPIType<IT>(), diaginrow, RFROWIDS);	
+		(commGrid->colWorld).Recv(q_cols, q_nnz, MPIType<IT>(), diaginrow, RFCOLIDS);	
+
+		tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz]; 
+		for(int i=0; i< p_nnz; ++i)
+		{
+			p_tuples[i] = make_tuple(p_rows[i], p_cols[i], 1);
+		}
+
+		tuple<IT,IT,bool> * q_tuples = new tuple<IT,IT,bool>[q_nnz]; 
+		for(int i=0; i< q_nnz; ++i)
+		{
+			q_tuples[i] = make_tuple(q_rows[i], q_cols[i], 1);
+		}
+
+		DER * PSeq = new DER();  //? ABAB? Are we fucked?
+		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+
+		SpParMat<IT,bool,DER> (PSeq, commGrid);
+
+	
+		DER * QSeq = new DER();  //? ABAB? Are we fucked?
+		QSeq->Create( q_nnz, gellocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
+
+		SpParMat<IT,bool,DER> (Qseq, commGrid);
+	}
+
+	// ABAB: delete[] temporaries
+	// Do parallel matrix-matrix multiply
 
 	IT P_rows = ri.getnnz();
 	IT P_cols = getnrow();
@@ -307,31 +426,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	IT Q_cols = ci.getnnz();
 
 
-	int colrec = std::min(temprow / m_perproc, colneighs-1);	// precipient processor along the column
-
-	vector<IT> locri, locci;
-	pair<IT,IT> rowboun, colboun; 
-	if( commGrid->myprocrow !=  colneighs)	// not the last processor on the processor column
-		rowboun = make_pair(m_perproc * commGrid->myprocrow, m_perproc * (commGrid->myprocrow + 1) );
-	else
-		rowboun = make_pair(m_perproc * commGrid->myprocrow, totalm);
-
-	if( commGrid->myproccol !=  rowneighs)	// not the last processor on the processor row
-		colboun = make_pair(n_perproc * commGrid->myproccol, n_perproc * (commGrid->myproccol + 1) );
-	else
-		colboun = make_pair(n_perproc * commGrid->myproccol, totaln);
-
-	for(int i=0; i<ri.size(); ++i)
-	{
-		if( ri[i] >= rowboun.first && ri[i] < rowboun.second )	
-			locri.push_back(ri[i]-rowboun.first);
-	}
-	for(int i=0; i<ci.size(); ++i)
-	{
-		if( ci[i] >= colboun.first && ci[i] < colboun.second )	
-			locci.push_back(ci[i]-colboun.first);
-	}
-	DER * tempseq = new DER((*spSeq)(locri, locci)); 
+	DER * tempseq = new DER((*spSeq)(locri, locci)); 	// We don't need any sequential indexing?
 	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
 } 
 
@@ -352,15 +447,6 @@ void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool ex
 	}	
 }
 
-template <class IT, class NT, class DER>
-		spSeq->EWiseMult(*(rhs.spSeq), exclude);		// Dimension compatibility check performed by sequential function
-	}
-	else
-	{
-		cout << "Grids are not comparable, EWiseMult() fails !" << endl; 
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
-	}	
-}
 
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::EWiseScale(const DenseParMat<IT, NT> & rhs)
