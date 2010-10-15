@@ -200,7 +200,6 @@ public:
 	void PrintInfo() const;
 	void PrintInfo(ofstream & out) const;
 
-
 	template <typename SR> 
 	int PlusEq_AtXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);  
 	
@@ -327,6 +326,18 @@ template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,bool> >
 template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,bool> >       
     {                                           
         typedef SpDCCols<int,float> T_promote;                    
+    };
+
+// Below are necessary constructs to be able to define a SpMat<NT,IT> where
+// all we know is DER (say SpDCCols<int, double>) and NT,IT
+// in other words, we infer the templated SpDCCols<> type
+// This is not a type conversion from an existing object, 
+// but a type inference for the newly created object
+
+template <NT, IT, NNT, NIT> 
+struct create_trait< SpDCCols<NT,IT> , NNT, NIT >
+    {
+        typedef SpDCCols<NNT,NIT> T_inferred;
     };
 
 

@@ -307,6 +307,11 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	int diaginrow = commGrid->GetDiagOfProcRow();
 	int diagincol = commGrid->GetDiagOfProcCol();
 
+	// infer the concrete type SpPar<IT,IT>
+	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+	DER_IT * PSeq;
+	DER_IT * QSeq;
+
 	if(ri.diagonal)		// only the diagonal processors hold vectors
 	{
 		// broadcast the size 
@@ -369,6 +374,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 				(commGrid->colWorld).Send(&(coldata_colid[i].arr[0]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
 			}
 		}
+		DeleteAll(pcnts, qcnts);
+
+		// ABAB: PSeq and QSeq generation
 	}
 	else	// all others receive data from the diagonal
 	{
@@ -379,7 +387,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
 		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
 		
-	
 		// create space for incoming data ... 
 		IT * p_rows = new IT[p_nnz];
 		IT * p_cols = new IT[p_nnz];
@@ -404,31 +411,25 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			q_tuples[i] = make_tuple(q_rows[i], q_cols[i], 1);
 		}
+		DeleteAll(p_rows, p_cols, q_rows, q_cols);
 
-		DER * PSeq = new DER();  //? ABAB? Are we fucked?
+		PSeq = new DER_IT(); 
 		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
-		SpParMat<IT,bool,DER> (PSeq, commGrid);
-
-	
-		DER * QSeq = new DER();  //? ABAB? Are we fucked?
+		QSeq = new DER_IT();  
 		QSeq->Create( q_nnz, gellocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
-
-		SpParMat<IT,bool,DER> (Qseq, commGrid);
 	}
+	
+	// Distributed matrix generation (collective call)
+	SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
+	SpParMat<IT,bool,DER_IT> Q (Qseq, commGrid);
 
-	// ABAB: delete[] temporaries
 	// Do parallel matrix-matrix multiply
+	typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;
+	typedef PlusTimesSRing<double, bool> PTDOUBLEBOOL;
 
-	IT P_rows = ri.getnnz();
-	IT P_cols = getnrow();
-	IT Q_rows = getncol();
-	IT Q_cols = ci.getnnz();
-
-
-	DER * tempseq = new DER((*spSeq)(locri, locci)); 	// We don't need any sequential indexing?
-	return SpParMat<IT,NT,DER> (tempseq, commGrid);	
-} 
+        return Mult_AnXBn_Synch<PTDOUBLEBOOL>(Mult_AnXBn_Synch<PTBOOLDOUBLE>(P, *this), Q);
+}
 
 
 
