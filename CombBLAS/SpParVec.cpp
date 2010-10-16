@@ -11,6 +11,17 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(
 	else
 		diagonal = false;	
 };
+
+template <class IT, class NT>
+SpParVec<IT, NT>::SpParVec (): length(zero)
+{
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+		diagonal = true;
+	else
+		diagonal = false;	
+};
 	
 
 template <class IT, class NT>
@@ -115,7 +126,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 						IT offset = diagrank * n_perproc;
 						for(IT i=zero; i< recvcount; ++i)
 						{					
-							arr.push_back( 	make_tuple(tempinds[i]-offset, tempvals[i]) );
+							arr.push_back( 	make_pair(tempinds[i]-offset, tempvals[i]) );
 						}
 
 						// reset current pointers so that we can reuse {inds,vals} buffers
@@ -162,7 +173,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				IT offset = diagrank * n_perproc;
 				for(IT i=zero; i< recvcount; ++i)
 				{					
-					arr.push_back( 	make_tuple(tempinds[i]-offset, tempvals[i]) );
+					arr.push_back( 	make_pair(tempinds[i]-offset, tempvals[i]) );
 				}
 
 				DeleteAll(tempinds, tempvals);

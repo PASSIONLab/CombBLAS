@@ -30,6 +30,7 @@ template <class IT, class NT>
 class SpParVec
 {
 public:
+	SpParVec ( );
 	SpParVec ( shared_ptr<CommGrid> grid);
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
@@ -52,7 +53,7 @@ private:
 	friend class DenseParVec;
 	
 	template <class IU, class NU, class UDER>
-	friend class SpParmat;
+	friend class SpParMat;
 };
 
 #include "SpParVec.cpp"

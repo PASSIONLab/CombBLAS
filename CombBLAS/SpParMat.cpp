@@ -346,8 +346,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			if(i != diaginrow)	// destination is not me	
 			{
-				(commGrid->rowWorld).Send(&(rowdata_rowid[i].arr[0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->rowWorld).Send(&(rowdata_colid[i].arr[0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				(commGrid->rowWorld).Send(&(rowdata_rowid[i][0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->rowWorld).Send(&(rowdata_colid[i][0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
 			}
 		}
 
@@ -371,8 +371,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			if(i != diagincol)	// destination is not me	
 			{
-				(commGrid->colWorld).Send(&(coldata_rowid[i].arr[0]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->colWorld).Send(&(coldata_colid[i].arr[0]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				(commGrid->colWorld).Send(&(coldata_rowid[i][0]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->colWorld).Send(&(coldata_colid[i][0]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
 			}
 		}
 		DeleteAll(pcnts, qcnts);
