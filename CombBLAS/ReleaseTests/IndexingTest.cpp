@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 		{
 			cout << "Usage: ./IndexingTest <BASEADDRESS> <Matrix> <IndexedMatrix> <VectorOne> <VectorTwo>" << endl;
+			cout << "Example: ./IndexingTest ../mfiles B_100x100.txt B_10x30_Indexed.txt rand10outta100.txt rand30outta100.txt" << endl;
 			cout << "Input files should be under <BASEADDRESS> in tuples format" << endl;
 		}
 		MPI::Finalize(); 
