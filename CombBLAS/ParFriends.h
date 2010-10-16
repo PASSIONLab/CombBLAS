@@ -793,38 +793,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 
-//! Creates a n-by-n pseudorandom permutation matrix
-//! This is not a truely random permutation matrix
-//! Because it doesn't allow clustering on any processor columns, which would be possible under a random permutation
-//! Therefore, it's not indended for statistical experiments, 
-//! But it is great for load balancing on sparse matrices as it ensures proper work distribution. 
-template <typename IU, typename DER>
-friend SpParMat<IU,bool,DER> RandPerm (n)
-{
-	SpParMat<IU,bool,DER> randperm;
-	if(randperm.getcommgrid()->GetRankInProcRow() == randperm.getcommgrid()->GetRankInProcCol()) // I am the diagonal processor 
-	{
-		
-		IT m_perproc, n_perproc;
-
-		int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-		int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
-
-		
-		SpHelper::iota(ir, ir+nnz, 0); 
-		mytuples = new tuple<int, int, int>[subBatchSize];
-				for(int k =0; k<subBatchSize; ++k)
-				{
-					mytuples[k] = make_tuple(batch[k], k, 1);
-				}
-				nsploc->Create( subBatchSize, AT.getlocalrows(), subBatchSize, mytuples);		
-			}
-			else
-			{  
-				nsploc->Create( 0, AT.getlocalrows(), subBatchSize, mytuples);		
-			}
-}
-
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 
 	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B , bool exclude)

@@ -334,10 +334,20 @@ template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,bool> >
 // This is not a type conversion from an existing object, 
 // but a type inference for the newly created object
 
-template <NT, IT, NNT, NIT> 
-struct create_trait< SpDCCols<NT,IT> , NNT, NIT >
+template <class SPMAT, class NIT, class NNT>
+struct create_trait
+{
+	// none
+};
+
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int, double> , NIT, NNT >
     {
-        typedef SpDCCols<NNT,NIT> T_inferred;
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
+
+template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, double> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
     };
 
 

@@ -32,8 +32,8 @@
 #define RDTAGINDS 127
 #define RDTAGVALS 128
 #define RDTAGNNZ 129
-#define RFROWDATA 130
-#define RFCOLDATA 131
+#define RFROWIDS 130
+#define RFCOLIDS 131
 
 enum Dim
 {

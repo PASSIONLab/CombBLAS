@@ -307,7 +307,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	int diaginrow = commGrid->GetDiagOfProcRow();
 	int diagincol = commGrid->GetDiagOfProcCol();
 
-	// infer the concrete type SpPar<IT,IT>
+	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
 	DER_IT * PSeq;
 	DER_IT * QSeq;
@@ -339,6 +339,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		for(IT i=0; i<rowneighs; ++i)
 			pcnts[i] = rowdata_rowid[i].size();
 
+		// the second parameter, sendcount, is the number of elements sent to *each* processor
 		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
 
 		for(IT i=0; i<rowneighs; ++i)
@@ -376,7 +377,23 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		}
 		DeleteAll(pcnts, qcnts);
 
-		// ABAB: PSeq and QSeq generation
+		tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz]; 
+		for(int i=0; i< p_nnz; ++i)
+		{
+			p_tuples[i] = make_tuple(rowdata_rowid[diaginrow][i], rowdata_colid[diaginrow][i], 1);
+		}
+
+		tuple<IT,IT,bool> * q_tuples = new tuple<IT,IT,bool>[q_nnz]; 
+		for(int i=0; i< q_nnz; ++i)
+		{
+			q_tuples[i] = make_tuple(coldata_rowid[diagincol][i], coldata_colid[diagincol][i], 1);
+		}
+
+		PSeq = new DER_IT(); 
+		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+
+		QSeq = new DER_IT();  
+		QSeq->Create( q_nnz, getlocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
 	}
 	else	// all others receive data from the diagonal
 	{
@@ -397,8 +414,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		(commGrid->rowWorld).Recv(p_rows, p_nnz, MPIType<IT>(), diaginrow, RFROWIDS);	
 		(commGrid->rowWorld).Recv(p_cols, p_nnz, MPIType<IT>(), diaginrow, RFCOLIDS);	
 	
-		(commGrid->colWorld).Recv(q_rows, q_nnz, MPIType<IT>(), diaginrow, RFROWIDS);	
-		(commGrid->colWorld).Recv(q_cols, q_nnz, MPIType<IT>(), diaginrow, RFCOLIDS);	
+		(commGrid->colWorld).Recv(q_rows, q_nnz, MPIType<IT>(), diagincol, RFROWIDS);	
+		(commGrid->colWorld).Recv(q_cols, q_nnz, MPIType<IT>(), diagincol, RFCOLIDS);	
 
 		tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz]; 
 		for(int i=0; i< p_nnz; ++i)
@@ -417,18 +434,18 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
 		QSeq = new DER_IT();  
-		QSeq->Create( q_nnz, gellocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
+		QSeq->Create( q_nnz, getlocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
 	}
 	
 	// Distributed matrix generation (collective call)
 	SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
-	SpParMat<IT,bool,DER_IT> Q (Qseq, commGrid);
+	SpParMat<IT,bool,DER_IT> Q (QSeq, commGrid);
 
 	// Do parallel matrix-matrix multiply
-	typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;
-	typedef PlusTimesSRing<double, bool> PTDOUBLEBOOL;
+	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
 
-        return Mult_AnXBn_Synch<PTDOUBLEBOOL>(Mult_AnXBn_Synch<PTBOOLDOUBLE>(P, *this), Q);
+        return Mult_AnXBn_Synch<PTNTBOOL>(Mult_AnXBn_Synch<PTBOOLNT>(P, *this), Q);
 }
 
 
@@ -1131,6 +1148,14 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			for(IT i=zero; i< recvcount; ++i)
 			{					
 				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
+			}
+			DeleteAll(temprows,tempcols,tempvals);
+		}
+	}
+	DeleteAll(cdispls, rdispls);
+	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];  // the vector will go out of scope, make it stick !
+	copy(localtuples.begin(), localtuples.end(), arrtuples);
+
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
 	
@@ -1138,7 +1163,6 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 
 	return infile;
 }
-
 
 
 template <class IT, class NT, class DER>

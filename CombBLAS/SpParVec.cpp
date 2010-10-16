@@ -52,9 +52,10 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 template <class IT, class NT>
 ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
+	length = zero;	// will be updated for diagonal processors
 	IT total_n, total_nnz, n_perproc;
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI_COMM_NULL)	// Diagonal processors only
+	if(DiagWorld != MPI::COMM_NULL)	// Diagonal processors only
 	{
 		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
 		IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
@@ -167,10 +168,9 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				DeleteAll(tempinds, tempvals);
 			}
 		}
+		delete [] displs;
+ 		length = (diagrank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));
 	}	
-	delete [] cdispls;
- 	length = (diagrank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));
-
 	return infile;
 }
 

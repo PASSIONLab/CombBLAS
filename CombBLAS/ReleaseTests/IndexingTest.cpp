@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 		ifstream inputnormal(normalname.c_str());
 		ifstream inputindexd(indexdname.c_str());
 		ifstream inputvec1(vec1name.c_str());
-		ifstream inputvec2(vec2dname.c_str());
+		ifstream inputvec2(vec2name.c_str());
 		MPI::COMM_WORLD.Barrier();
 	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;
