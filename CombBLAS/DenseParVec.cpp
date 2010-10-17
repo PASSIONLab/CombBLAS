@@ -35,11 +35,11 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 {
 	arr.resize(rhs.length);
 	std::fill(arr.begin(), arr.end(), zero);	
-	typename vector< pair<IT,NT> >::const_iterator it; 
 
-	for(it = rhs.arr.begin(); it!= rhs.arr.end(); ++it) 
+	IT spvecsize = rhs.ind.size();
+	for(IT i=0; i< spvecsize; ++i)
 	{
-		arr[it->first] = it->second;
+		arr[rhs.ind[i]] = rhs.num[i];
 	}
 }
 

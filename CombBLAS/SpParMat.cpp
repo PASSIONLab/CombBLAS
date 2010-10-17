@@ -325,15 +325,17 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	
 		vector< vector<IT> > coldata_rowid(colneighs);
 		vector< vector<IT> > coldata_colid(colneighs);
-	
-		for(typename vector< pair<IT,IT> >::const_iterator itr = ri.arr.begin(); itr != ri.arr.end(); ++itr)
+
+		IT locvecr = ri.ind.size();	// nnz in local vector
+		for(IT i=0; i < locvecr; ++i)
 		{	
-			int rowrec = std::min(itr->second / m_perproc, rowneighs-1);	// precipient processor along the column
+			// make 1-based indices 0-based
+			int rowrec = std::min((ri.num[i]-1) / m_perproc, rowneighs-1);	// precipient processor along the column
 
 			// ri's numerical values give the colids and its indices give rowids
 			// thus, the rowid's are already offset'd where colid's are not
-			rowdata_rowid[rowrec].push_back(itr->first);
-			rowdata_colid[rowrec].push_back(itr->second - (rowrec * m_perproc));
+			rowdata_rowid[rowrec].push_back(ri.ind[i]);
+			rowdata_colid[rowrec].push_back(ri.num[i] - 1 - (rowrec * m_perproc));
 		}
 		pcnts = new IT[rowneighs];
 		for(IT i=0; i<rowneighs; ++i)
@@ -351,14 +353,16 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 			}
 		}
 
-		for(typename vector< pair<IT,IT> >::const_iterator itr = ci.arr.begin(); itr != ci.arr.end(); ++itr)
+		IT locvecc = ci.ind.size();	// nnz in local vector
+		for(IT i=0; i < locvecc; ++i)
 		{	
-			int colrec = std::min(itr->second / n_perproc, colneighs-1);	// precipient processor along the column
+			// make 1-based indices 0-based
+			int colrec = std::min((ci.num[i]-1) / n_perproc, colneighs-1);	// precipient processor along the column
 
 			// ci's numerical values give the rowids and its indices give colids
 			// thus, the colid's are already offset'd where rowid's are not
-			coldata_rowid[colrec].push_back(itr->second - (colrec * n_perproc));
-			coldata_colid[colrec].push_back(itr->first);
+			coldata_rowid[colrec].push_back(ci.num[i] - 1 - (colrec * n_perproc));
+			coldata_colid[colrec].push_back(ci.ind[i]);
 		}
 
 		qcnts = new IT[colneighs];

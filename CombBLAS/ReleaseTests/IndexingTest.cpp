@@ -61,6 +61,9 @@ int main(int argc, char* argv[])
 		vec2.ReadDistribute(inputvec2, 0);
 	
 		ACID = A(vec1, vec2);
+
+		ACID.PrintInfo();
+
 		if (ACID == AID)
 		{
 			SpParHelper::Print("Indexing working correctly\n");	

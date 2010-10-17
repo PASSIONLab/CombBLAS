@@ -38,14 +38,21 @@ public:
 	IT getnnz() const
 	{
 		IT totnnz = 0;
-		IT locnnz = arr.length();
+		IT locnnz = ind.size();
 		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+	}
+
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op)
+	{
+		transform(num.begin(), num.end(), num.begin(), __unary_op);
 	}
 
 private:
 	shared_ptr<CommGrid> commGrid;
-	vector< pair<IT, NT> > arr;	// arr.length() give the number of nonzeros
-	IT length;			// actual length of the vector (including zeros)
+	vector< IT > ind;	// ind.size() give the number of nonzeros
+	vector< NT > num;
+	IT length;		// actual length of the vector (including zeros)
 	bool diagonal;
 	const static IT zero = static_cast<IT>(0);
 

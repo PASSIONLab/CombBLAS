@@ -31,29 +31,35 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 	{	
 		if(diagonal)	// Only the diagonal processors hold values
 		{
-			vector< pair<IT, NT> > narr;
-			IT lsize = arr.size();
-			IT rsize = rhs.arr.size();
-			narr.reserve(lsize+rsize);
+			vector< IT > nind;
+			vector< NT > nnum;
+			IT lsize = ind.size();
+			IT rsize = rhs.ind.size();
+			nind.reserve(lsize+rsize);
+			nnum.reserve(lsize+rsize);
 
 			IT i=0, j=0;
 			while(i < lsize && j < rsize)
 			{
 				// assignment won't change the size of vector, push_back is necessary
-				if(arr[i].first > rhs.arr[j].first)
+				if(ind[i] > rhs.ind[j])
 				{	
-					narr.push_back( rhs.arr[j++] );
+					nind.push_back( rhs.ind[j] );
+					nnum.push_back( rhs.num[j++] );
 				}
-				else if(arr[i].first < rhs.arr[j].first)
+				else if(ind[i] < rhs.ind[j])
 				{
-					narr.push_back( arr[i++] );
+					nind.push_back( ind[i] );
+					nnum.push_back( num[i++] );
 				}
 				else
 				{
-					narr.push_back( make_pair(arr[i].first, arr[i++].second + rhs.arr[j++].second) );
+					nind.push_back( ind[i].first );
+					nnum.push_back( num[i++] + rhs.num[j++] );
 				}
 			}
-			arr.swap(narr);		// arr will contain the elements of narr with capacity shrunk-to-fit size
+			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
+			num.swap(nnum);
 		} 	
 	}	
 	return *this;
@@ -112,21 +118,22 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 					{
 						// first, send the receive counts ...
-						DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
+						DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
 
 						// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 						IT * tempinds = new IT[recvcount];
 						NT * tempvals = new NT[recvcount];
 					
 						// then, send all buffers that to their recipients ...
-						DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), diagrank); 
-						DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), diagrank); 
+						DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
+						DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 	
 						// now push what is ours to tuples
-						IT offset = diagrank * n_perproc;
+						IT offset = master * n_perproc;
 						for(IT i=zero; i< recvcount; ++i)
 						{					
-							arr.push_back( 	make_pair(tempinds[i]-offset, tempvals[i]) );
+							ind.push_back( tempinds[i]-offset );
+							num.push_back( tempvals[i] );
 						}
 
 						// reset current pointers so that we can reuse {inds,vals} buffers
@@ -139,7 +146,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			
 				// Signal the end of file to other processors along the diagonal
 				fill_n(curptrs, neighs, numeric_limits<IT>::max());	
-				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
+				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
 			}
 			else	// input file does not exist !
 			{
@@ -156,7 +163,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			while(total_n > 0)	// otherwise, input file do not exist
 			{
 				// first receive the receive counts ...
-				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), diagrank);
+				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
 
 				if( recvcount == numeric_limits<IT>::max())
 					break;
@@ -166,14 +173,15 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				NT * tempvals = new NT[recvcount];
 
 				// receive actual data ... (first 4 arguments are ignored in the receiver side)
-				DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), diagrank); 
-				DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), diagrank); 
+				DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
+				DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 
 				// now push what is ours to tuples
 				IT offset = diagrank * n_perproc;
 				for(IT i=zero; i< recvcount; ++i)
 				{					
-					arr.push_back( 	make_pair(tempinds[i]-offset, tempvals[i]) );
+					ind.push_back( tempinds[i]-offset );
+					num.push_back( tempvals[i] );
 				}
 
 				DeleteAll(tempinds, tempvals);

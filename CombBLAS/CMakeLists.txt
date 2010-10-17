@@ -48,3 +48,5 @@ ADD_TEST( Multiplication_Test mpirun -np 4 ReleaseTests/MultTest TESTDATA/rmat_s
 ADD_TEST( Reduction_Test mpirun -np 4 ReleaseTests/ReduceTest TESTDATA/sprand10000 TESTDATA/sprand10000_sumcols TESTDATA/sprand10000_sumrows)
 ADD_TEST( Iterator_Test mpirun -np 4 ReleaseTests/IteratorTest TESTDATA sprand10000)
 ADD_TEST( Transpose_Test mpirun -np 4 ReleaseTests/TransposeTest TESTDATA betwinput_scale16 betwinput_transposed_scale16)
+ADD_TEST( Indexing_Test mpirun -np 4 ReleaseTests/IndexingTest TESTDATA B_100x100.txt B_10x30_Indexed.txt rand10outta100.txt rand30outta100.txt)
+
