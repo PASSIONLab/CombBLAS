@@ -22,6 +22,32 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 	else
 		diagonal = false;	
 };
+
+template <class IT, class NT>
+void SpParVec<IT,NT>::RandPerm(IT loclength)
+{
+	length = loclength;
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		srand ( time(NULL) );
+		vector< pair<double,IT> > vecpair(length);
+		for(int i=0; i<length; ++i)
+		{
+			vecpair[i].first = rand();
+			vecpair[i].second = i;
+		}
+		int nproc = DiagWorld.Get_size();
+		int diagrank = DiagWorld.Get_rank();
+
+		long * dist = new long[nproc];
+		dist[diagrank] = length;
+
+		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+    		psort::parallel_sort (work, work + length,  dist, commGrid->GetDiagWorld());
+	}
+}
 	
 
 template <class IT, class NT>
@@ -195,6 +221,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	commGrid->GetWorld().Barrier();
 	return infile;
 }
+
 
 
 

@@ -35,6 +35,7 @@ public:
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
 	
+	void RandPerm(IT loclength);	// called on an existing object, generates a random permutation
 	IT getnnz() const
 	{
 		IT totnnz = 0;
