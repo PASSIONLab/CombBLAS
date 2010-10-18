@@ -52,7 +52,7 @@ private:
 	shared_ptr<CommGrid> commGrid;
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	IT length;		// actual length of the vector (including zeros)
+	IT length;		// actual local length of the vector (including zeros)
 	bool diagonal;
 	const static IT zero = static_cast<IT>(0);
 

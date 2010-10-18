@@ -16,6 +16,7 @@
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
 #define NOTSQUARE 3003
+#define NOFILE 3004
 
 
 // MPI Message tags 
@@ -34,6 +35,8 @@
 #define RDTAGNNZ 129
 #define RFROWIDS 130
 #define RFCOLIDS 131
+#define TRROWX 132
+#define TRCOLX 133
 
 enum Dim
 {

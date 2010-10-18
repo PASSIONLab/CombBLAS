@@ -97,6 +97,8 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		
 			if (infile.is_open())
 			{
+				infile.clear();
+				infile.seekg(0);
 				infile >> total_n >> total_nnz;
 				n_perproc = total_n / neighs;	// the last proc gets the extras
 				DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);			
@@ -190,6 +192,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		delete [] displs;
  		length = (diagrank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));
 	}	
+	commGrid->GetWorld().Barrier();
 	return infile;
 }
 

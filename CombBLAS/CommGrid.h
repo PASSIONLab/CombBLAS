@@ -37,6 +37,7 @@ public:
 		commWorld.Free();
 		rowWorld.Free();
 		colWorld.Free();
+		if(diagWorld != MPI::COMM_NULL) diagWorld.Free();
 	}
 	CommGrid (const CommGrid & rhs): grrows(rhs.grrows), grcols(rhs.grcols),
 			myrank(rhs.myrank), myprocrow(rhs.myprocrow), myproccol(rhs.myproccol) // copy constructor
@@ -44,6 +45,7 @@ public:
 		commWorld = rhs.commWorld.Dup();
 		rowWorld = rhs.rowWorld.Dup();
 		colWorld = rhs.colWorld.Dup();
+		diagWorld = (rhs.diagWorld == MPI::COMM_NULL)? MPI::COMM_NULL: rhs.diagWorld.Dup();
 	}
 	
 	CommGrid & operator=(const CommGrid & rhs)	// assignment operator
@@ -63,11 +65,12 @@ public:
 			commWorld = rhs.commWorld.Dup();
 			rowWorld = rhs.rowWorld.Dup();
 			colWorld = rhs.colWorld.Dup();
+			diagWorld = (rhs.diagWorld == MPI::COMM_NULL)? MPI::COMM_NULL: rhs.diagWorld.Dup();
 		}
 		return *this;
 	}
-
-
+	void CreateDiagWorld();
+	
 	bool operator== (const CommGrid & rhs) const;
 	bool OnSameProcCol( int rhsrank );
 	bool OnSameProcRow( int rhsrank );
@@ -90,10 +93,11 @@ public:
 	MPI::Intracomm & GetWorld() { return commWorld; }
 	MPI::Intracomm & GetRowWorld() { return rowWorld; }
 	MPI::Intracomm & GetColWorld() { return colWorld; }
+	MPI::Intracomm & GetDiagWorld() { return diagWorld; }
 	MPI::Intracomm GetWorld() const { return commWorld; }
 	MPI::Intracomm GetRowWorld() const { return rowWorld; }
 	MPI::Intracomm GetColWorld() const { return colWorld; }
-	MPI::Intracomm GetDiagWorld() const;
+	MPI::Intracomm GetDiagWorld() const { return diagWorld; }
 	
 	int GetGridRows() { return grrows; }
 	int GetGridCols() { return grcols; }
@@ -103,7 +107,7 @@ public:
 	friend shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
-	MPI::Intracomm commWorld, rowWorld, colWorld;
+	MPI::Intracomm commWorld, rowWorld, colWorld, diagWorld;
 
 	// Processor grid is (grrow X grcol)
 	int grrows, grcols;

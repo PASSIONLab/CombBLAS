@@ -42,6 +42,8 @@ public:
 	SpDCCols<IT,NT> operator() (const vector<IT> & ri, const vector<IT> & ci) const;
 	bool operator== (const SpDCCols<IT, NT> & rhs) const
 	{
+		if(rhs.nnz == 0 && nnz == 0)
+			return true;
 		if(nnz != rhs.nnz || m != rhs.m || n != rhs.n)
 			return false;
 		return ((*dcsc) == (*(rhs.dcsc)));

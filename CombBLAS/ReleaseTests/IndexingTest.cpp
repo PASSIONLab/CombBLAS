@@ -48,6 +48,17 @@ int main(int argc, char* argv[])
 		ifstream inputindexd(indexdname.c_str());
 		ifstream inputvec1(vec1name.c_str());
 		ifstream inputvec2(vec2name.c_str());
+
+		if(myrank == 0)
+		{	
+			if(inputnormal.fail() || inputindexd.fail() || inputvec1.fail() || inputvec2.fail())
+			{
+				cout << "One of the input files do not exist, aborting" << endl;
+				MPI::COMM_WORLD.Abort(NOFILE);
+				return -1;
+			}
+		}
+
 		MPI::COMM_WORLD.Barrier();
 	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;

@@ -31,30 +31,33 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	  */
 	rowWorld = commWorld.Split(myprocrow, myrank);
 	colWorld = commWorld.Split(myproccol, myrank);
+	CreateDiagWorld();
 
 	assert( ((rowWorld.Get_rank()) == myproccol) );
 	assert( ((colWorld.Get_rank()) == myprocrow) );
 }
 
-MPI::Intracomm CommGrid::GetDiagWorld() const
+void CommGrid::CreateDiagWorld()
 {
 	if(grrows != grcols)	
 	{
 		cout << "The grid is not square... !" << endl;
-		cout << "Returning everyone instead of the diagonal" << endl;
-		return commWorld;
+		cout << "Returning diagworld to everyone instead of the diagonal" << endl;
+		diagWorld = commWorld;
+		return;
 	}
 	int * process_ranks = new int[grcols];
 	for(int i=0; i < grcols; ++i)
 	{
 		process_ranks[i] = i*grcols + i;
 	}
-	MPI::Group diag_group = commWorld.Get_group();
-	diag_group.Incl(grcols, process_ranks);
+	MPI::Group group = commWorld.Get_group();
+	MPI::Group diag_group = group.Incl(grcols, process_ranks);
+
 	delete [] process_ranks;
 
 	// The Create() function returns MPI_COMM_NULL to processes that are NOT in group	
-	return commWorld.Create(diag_group);		
+	diagWorld = commWorld.Create(diag_group);		
 }
 
 bool CommGrid::OnSameProcCol( int rhsrank)

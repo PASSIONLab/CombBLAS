@@ -312,6 +312,13 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	DER_IT * PSeq;
 	DER_IT * QSeq;
 
+	int diagneigh = commGrid->GetComplementRank();
+	IT mylocalrows = getlocalrows();
+	IT mylocalcols = getlocalcols();
+	IT trlocalrows, trlocalcols;
+	commGrid->GetWorld().Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX);
+	commGrid->GetWorld().Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX);
+
 	if(ri.diagonal)		// only the diagonal processors hold vectors
 	{
 		// broadcast the size 
@@ -394,10 +401,10 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		}
 
 		PSeq = new DER_IT(); 
-		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+		PSeq->Create( p_nnz, rilen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
 		QSeq = new DER_IT();  
-		QSeq->Create( q_nnz, getlocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
+		QSeq->Create( q_nnz, trlocalcols, cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
 	}
 	else	// all others receive data from the diagonal
 	{
@@ -435,10 +442,10 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		DeleteAll(p_rows, p_cols, q_rows, q_cols);
 
 		PSeq = new DER_IT(); 
-		PSeq->Create( p_nnz, rilen, getlocalrows(), p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+		PSeq->Create( p_nnz, rilen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
 		QSeq = new DER_IT();  
-		QSeq->Create( q_nnz, getlocalcols(), cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
+		QSeq->Create( q_nnz, trlocalcols, cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
 	}
 	
 	// Distributed matrix generation (collective call)
@@ -518,8 +525,16 @@ void SpParMat<IT,NT,DER>::PrintInfo() const
 		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
 
 #ifdef DEBUG
-	if ((commGrid->grrows * commGrid->grcols) ==  1)
-		spSeq->PrintInfo();
+	IT allprocs = commGrid->grrows * commGrid->grcols;
+	for(IT i=0; i< allprocs; ++i)
+	{
+		if (commGrid->myrank == i)
+		{
+			cout << "Processor (" << commGrid->GetRankInProcRow() << "," << commGrid->GetRankInProcCol() << ")'s data: " << endl;
+			spSeq->PrintInfo();
+		}
+		commGrid->GetWorld().Barrier();
+	}
 #endif
 }
 
