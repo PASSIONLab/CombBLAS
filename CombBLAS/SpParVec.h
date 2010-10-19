@@ -24,6 +24,7 @@ using namespace std::tr1;
   * 	In the case of A(v,w) type sparse matrix indexing, this doesn't matter because n = nnz
   * 	After all, A(v,w) will have dimensions length(v) x length (w) 
   * 	v and w will be of numerical type (NT) "int" and their indices (IT) will be consecutive integers 
+  * Just like in SpParMat case, indices are local to processors (they belong to range [0,...,length-1] on each processor)
  **/
   
 template <class IT, class NT>
@@ -35,7 +36,6 @@ public:
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
 	
-	void RandPerm(IT loclength);	// called on an existing object, generates a random permutation
 	IT getnnz() const
 	{
 		IT totnnz = 0;
@@ -62,6 +62,9 @@ private:
 	
 	template <class IU, class NU, class UDER>
 	friend class SpParMat;
+
+	template <typename IU>
+	void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
 };
 
 #include "SpParVec.cpp"

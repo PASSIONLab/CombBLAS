@@ -7,6 +7,9 @@
 #include "SpParMat.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
+#include "psort-1.0/src/psort.h"
+#include "psort-1.0/src/psort_samplesort.h"
+
 
 using namespace std;
 
@@ -792,6 +795,51 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
+
+
+template <typename IU>
+void RandPerm(SpParVec<IU,IU> & V, IU loclength)
+{
+	length = loclength;
+	MPI::Intracomm DiagWorld = V.commGrid->GetDiagWorld();
+
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		srand ( time(NULL) );
+		pair<double,IT> * vecpair = new pair<double,IT>[length];
+
+		int nproc = DiagWorld.Get_size();
+		int diagrank = DiagWorld.Get_rank();
+		for(int i=0; i<length; ++i)
+		{
+			vecpair[i].first = rand();
+			vecpair[i].second = i+i*diagrank;
+		}
+
+		long * dist = new long[nproc];
+		dist[diagrank] = V.length;
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, nproc, MPIType<long>());
+
+		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+    		psort::parallel_sort (vecpair, vecpair + length,  dist, DiagWorld);
+
+		vector< IU > nind;
+		vector< IU > nnum;
+		nind.reserve(length);
+		nnum.reserve(length);
+		for(int i=0; i<length; ++i)
+		{
+			nind[i] = i;
+			nnum[i] = vecpair[i].second;
+		}
+		delete [] vecpair;
+		delete [] dist;
+
+		V.ind.swap(nind);
+		V.num.swap(nnum);
+	}
+}
+		
 
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 

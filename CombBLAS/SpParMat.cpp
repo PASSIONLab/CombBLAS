@@ -336,7 +336,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		IT locvecr = ri.ind.size();	// nnz in local vector
 		for(IT i=0; i < locvecr; ++i)
 		{	
-			// make 1-based indices 0-based
+			// make 1-based numerical values (permutation indices) 0-based
 			int rowrec = std::min((ri.num[i]-1) / m_perproc, rowneighs-1);	// precipient processor along the column
 
 			// ri's numerical values give the colids and its indices give rowids
@@ -363,7 +363,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		IT locvecc = ci.ind.size();	// nnz in local vector
 		for(IT i=0; i < locvecc; ++i)
 		{	
-			// make 1-based indices 0-based
+			// make 1-based numerical values (permutation indices) 0-based
 			int colrec = std::min((ci.num[i]-1) / n_perproc, colneighs-1);	// precipient processor along the column
 
 			// ci's numerical values give the rowids and its indices give colids
