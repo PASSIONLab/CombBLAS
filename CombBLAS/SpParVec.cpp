@@ -22,8 +22,51 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 	else
 		diagonal = false;	
 };
-	
 
+template <class IT, class NT>
+SpParVec<IT, IT> SpParVec<IT, NT>::sort()
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	SpParVec<IT,IT> temp(commGrid);
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		pair<IT,IT> * vecpair = new pair<IT,IT>[length];
+
+		int nproc = DiagWorld.Get_size();
+		int diagrank = DiagWorld.Get_rank();
+
+		long * dist = new long[nproc];
+		dist[diagrank] = length;
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
+
+		for(int i=0; i<length; ++i)
+		{
+			vecpair[i].first = num[i];	// we'll sort wrt numerical values
+			vecpair[i].second = ind[i] + lengthuntil + 1;	
+		}
+
+		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+    		psort::parallel_sort (vecpair, vecpair + length,  dist, DiagWorld);
+
+		vector< IT > nind(length);
+		vector< IT > nnum(length);
+		for(int i=0; i<length; ++i)
+		{
+			num[i] = vecpair[i].first;	// sorted range
+			nind[i] = ind[i];		// make sure the sparsity distribution is the same
+			nnum[i] = vecpair[i].second;	// inverse permutation stored as numerical values
+		}
+		delete [] vecpair;
+		delete [] dist;
+
+		temp.length = length;
+		temp.ind = nind;
+		temp.num = nnum;
+	}
+	return temp;
+}
+		
 template <class IT, class NT>
 SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 {
@@ -31,12 +74,11 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 	{	
 		if(diagonal)	// Only the diagonal processors hold values
 		{
-			vector< IT > nind;
-			vector< NT > nnum;
 			IT lsize = ind.size();
 			IT rsize = rhs.ind.size();
-			nind.reserve(lsize+rsize);
-			nnum.reserve(lsize+rsize);
+
+			vector< IT > nind(lsize+rsize);
+			vector< NT > nnum(lsize+rsize);
 
 			IT i=0, j=0;
 			while(i < lsize && j < rsize)
@@ -60,6 +102,7 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 			num.swap(nnum);
+			length = ind.size();
 		} 	
 	}	
 	return *this;

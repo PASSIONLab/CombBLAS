@@ -33,8 +33,13 @@ class SpParVec
 public:
 	SpParVec ( );
 	SpParVec ( shared_ptr<CommGrid> grid);
+
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
+
+	// sort the vector itself
+	// return the permutation vector
+	SpParVec<IT, IT> sort();	
 	
 	IT getnnz() const
 	{

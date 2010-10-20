@@ -7,9 +7,6 @@
 #include "SpParMat.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
-#include "psort-1.0/src/psort.h"
-#include "psort-1.0/src/psort_samplesort.h"
-
 
 using namespace std;
 
@@ -805,28 +802,28 @@ void RandPerm(SpParVec<IU,IU> & V, IU loclength)
 
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
-		srand ( time(NULL) );
 		pair<double,IU> * vecpair = new pair<double,IU>[loclength];
 
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
-		for(int i=0; i<loclength; ++i)
-		{
-			vecpair[i].first = rand();
-			vecpair[i].second = i+i*diagrank;
-		}
 
 		long * dist = new long[nproc];
 		dist[diagrank] = V.length;
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, nproc, MPIType<long>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		IU lengthuntil = accumulate(dist, dist+diagrank, 0);
+
+  		MTRand M;	// generate random numbers with Mersenne Twister
+		for(int i=0; i<loclength; ++i)
+		{
+			vecpair[i].first = M.rand();
+			vecpair[i].second = i+1+lengthuntil;	// permutation indices are 1-based
+		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
     		psort::parallel_sort (vecpair, vecpair + loclength,  dist, DiagWorld);
 
-		vector< IU > nind;
-		vector< IU > nnum;
-		nind.reserve(loclength);
-		nnum.reserve(loclength);
+		vector< IU > nind(loclength);
+		vector< IU > nnum(loclength);
 		for(int i=0; i<loclength; ++i)
 		{
 			nind[i] = i;

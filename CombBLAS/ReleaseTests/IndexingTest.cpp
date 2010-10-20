@@ -100,6 +100,23 @@ int main(int argc, char* argv[])
 		outs << "New balance: " << newbalance << endl;
 		SpParHelper::Print(outs.str());
 		SpParHelper::Print(outs.str());
+
+		// B = P A Q
+		// get the inverse permutations
+		SpParVec<int, int> pinv = p.sort();
+		SpParVec<int, int> qinv = q.sort();
+		PARDBMAT C = B(pinv,qinv);
+		if(C == A)
+		{
+			SpParHelper::Print("Double permutation successfully restored the original\n");	
+		}
+		else
+		{
+			A.PrintForPatoh("Original.patoh");
+			B.PrintForPatoh("Permuted.patoh");	
+			C.PrintForPatoh("Restored.patoh");
+		}
+
 		inputnormal.clear();
 		inputnormal.close();
 		inputindexd.clear();
