@@ -64,7 +64,7 @@ private:
 	friend class SpParMat;
 
 	template <typename IU>
-	void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
+	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
 };
 
 #include "SpParVec.cpp"

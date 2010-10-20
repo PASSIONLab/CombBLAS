@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;
 
-		PARDBMAT A, AID, ACID;		// construct objects
+		PARDBMAT A, AID, ACID;		// declare objects
 		SpParVec<int,int> vec1, vec2;
 
 		A.ReadDistribute(inputnormal, 0);	
@@ -84,6 +84,22 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in indexing, go fix it!\n");	
 		}
 
+		// generate random permutations
+		SpParVec<int,int> p, q;
+		RandPerm(p, A.getlocalrows());	
+		RandPerm(q, A.getlocalcols());
+
+		PARDBMAT B = A(p,q);
+		A.PrintInfo();
+		B.PrintInfo();
+
+		float oldbalance = A.LoadImbalance();
+		float newbalance = B.LoadImbalance();
+		ostringstream outs;
+		outs << "Old balance: " << oldbalance << endl;
+		outs << "New balance: " << newbalance << endl;
+		SpParHelper::Print(outs.str());
+		SpParHelper::Print(outs.str());
 		inputnormal.clear();
 		inputnormal.close();
 		inputindexd.clear();

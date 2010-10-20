@@ -64,6 +64,7 @@ public:
 	~SpParMat ();
 
 	template <typename SR>	void Square();
+	float LoadImbalance() const;
 
 	void Transpose();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);

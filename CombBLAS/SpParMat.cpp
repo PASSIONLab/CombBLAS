@@ -103,6 +103,17 @@ SpParMat< IT,NT,DER > & SpParMat< IT,NT,DER >::operator+=(const SpParMat< IT,NT,
 }
 
 template <class IT, class NT, class DER>
+float SpParMat< IT,NT,DER >::LoadImbalance() const
+{
+	IT totnnz = getnnz();	// collective call
+	IT maxnnz = 0;    
+	IT localnnz = spSeq->getnnz();
+	(commGrid->GetWorld()).Allreduce( &localnnz, &maxnnz, 1, MPIType<IT>(), MPI::MAX);
+	if(totnnz == 0) return 1;
+ 	return static_cast<float>(((commGrid->GetWorld()).Get_size() * maxnnz)) / static_cast<float>(totnnz);  
+}
+
+template <class IT, class NT, class DER>
 IT SpParMat< IT,NT,DER >::getnnz() const
 {
 	IT totalnnz = 0;    
