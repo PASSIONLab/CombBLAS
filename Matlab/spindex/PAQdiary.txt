@@ -1,0 +1,87 @@
+% Showing that P*(A*Q) is better than (P*A)*Q in sprefm
+% (except for indexing a single row)
+%
+% John R. Gilbert, 5 Sep 2010
+
+
+indextimetest(1000); % P*(A*Q)
+
+Comparing times for A(I,J) and sprefm(A,I,J)
+
+Test 1: Single element (1000 reps)
+  Generate 131072-vertex Rmat:  5.02 sec
+  Loop and random overhead:     0.00 sec
+  Native indexing:              0.00 sec
+  Indexing with spgemm:         1.25 sec
+  Ratio spgemm / native:  451.73
+Test 2: Single row (1000 reps)
+  Loop and random overhead:     0.00 sec
+  Native indexing:             16.93 sec
+  Indexing with spgemm:        89.06 sec
+  Ratio spgemm / native:   5.26
+Test 3: Single column (1000 reps)
+  Loop and random overhead:     0.00 sec
+  Native indexing:              0.01 sec
+  Indexing with spgemm:        26.43 sec
+  Ratio spgemm / native:  5560.12
+Test 4: Random 1000-by-1000 submatrix of big Rmat (1000 reps)
+  Loop and random overhead:     0.16 sec
+  Native indexing:             28.36 sec
+  Indexing with spgemm:         3.48 sec
+  Ratio spgemm / native:   0.12
+Test 5: Random 1000-by-1000 submatrix of small Rmat (1000 reps)
+  Generate   1024-vertex rmat:  0.02 sec
+  Loop and random overhead:     0.15 sec
+  Native indexing:             33.08 sec
+  Indexing with spgemm:         1.66 sec
+  Ratio spgemm / native:   0.05
+Summary of execution time ratios spgemm / native
+  Single element:  451.73
+  Single row:        5.26
+  Single column:  5560.12
+  Submatrix 1:       0.12
+  Submatrix 2:       0.05
+
+Total elapsed time: 205.62 sec
+
+indextimetest(1000); % (P*A)*Q
+
+Comparing times for A(I,J) and sprefm(A,I,J)
+
+Test 1: Single element (1000 reps)
+  Generate 131072-vertex Rmat:  5.05 sec
+  Loop and random overhead:     0.00 sec
+  Native indexing:              0.00 sec
+  Indexing with spgemm:        23.55 sec
+  Ratio spgemm / native:  7145.90
+Test 2: Single row (1000 reps)
+  Loop and random overhead:     0.00 sec
+  Native indexing:             16.89 sec
+  Indexing with spgemm:        52.85 sec
+  Ratio spgemm / native:   3.13
+Test 3: Single column (1000 reps)
+  Loop and random overhead:     0.00 sec
+  Native indexing:              0.01 sec
+  Indexing with spgemm:        117.05 sec
+  Ratio spgemm / native:  21861.77
+Test 4: Random 1000-by-1000 submatrix of big Rmat (1000 reps)
+  Loop and random overhead:     0.15 sec
+  Native indexing:             28.45 sec
+  Indexing with spgemm:        25.47 sec
+  Ratio spgemm / native:   0.89
+Test 5: Random 1000-by-1000 submatrix of small Rmat (1000 reps)
+  Generate   1024-vertex Rmat:  0.02 sec
+  Loop and random overhead:     0.15 sec
+  Native indexing:             32.87 sec
+  Indexing with spgemm:         1.67 sec
+  Ratio spgemm / native:   0.05
+Summary of execution time ratios spgemm / native
+  Single element: 7145.90
+  Single row:        3.13
+  Single column:  21861.77
+  Submatrix 1:       0.89
+  Submatrix 2:       0.05
+
+Total elapsed time: 304.22 sec
+
+diary off
