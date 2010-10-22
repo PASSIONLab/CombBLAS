@@ -837,6 +837,60 @@ void RandPerm(SpParVec<IU,IU> & V, IU loclength)
 	}
 }
 		
+template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x )
+{
+
+	if(!(*A.commGrid == *x.commGrid)) 		
+	{
+		cout << "Grids are not comparable for SpMV" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	int diaginrow = commGrid->GetDiagOfProcRow();
+        int diagincol = commGrid->GetDiagOfProcCol();
+
+	T_promote id = (T_promote) 0;	// do we need a better identity?
+	DenseParVec<IU, T_promote> y ( x.commGrid, id);	
+	IT ysize = A.getlocalrows();
+	if(x.diagonal)
+	{
+		IU size = x.arr.size();
+		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+		ColWorld.Bcast(&x.arr[0], size, MPITYPE<NUV>(), diagincol); 
+
+		T_promote * localy = new T_promote[ysize];
+		fill_n(localy, ysize, id);		
+		dcsc_gespmv(*(A.spSeq), &x.arr[0], localy);	
+
+		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
+                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), MPIOp<SR::add, T_promote>::op(), diaginrow);
+		y.arr.resize(ysize);
+		copy(localy, localy+ysize, y.arr);
+		delete [] localy;
+	}
+	else
+	{
+		IU size;
+		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+
+		NUV * localx = new NUV[size];
+		ColWorld.Bcast(localx, size, MPITYPE<NUV>(), diagincol); 
+	
+		T_promote * localy = new T_promote[ysize];		
+		fill_n(localy, ysize, id);		
+
+		dcsc_gespmv(*(A.spSeq), localx, localy);
+		delete [] localx;
+
+                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), MPIOp<SR::add, T_promote>::op(), diaginrow);	// ABAB?
+		delete [] localy;
+	}
+}
+	
 
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 

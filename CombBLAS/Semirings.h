@@ -33,7 +33,11 @@ struct PlusTimesSRing
 	{
 		return (static_cast<T_promote>(arg1) * 
 			static_cast<T_promote>(arg2) );
+	}
 
+	static void axpy(T1 a, const T2 & x, T_promote & y)
+	{
+		y += a*x;
 	}
 };
 

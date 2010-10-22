@@ -47,7 +47,7 @@ public:
 	}
 	
 	template <typename _BinaryOperation>
-	NT Reduce(_BinaryOperation __binary_op, NT identity);
+	NT Reduce(_BinaryOperation __binary_op, NT identity);	// ABAB: What's the purpose of this function?
 			
 private:
 	shared_ptr<CommGrid> commGrid;

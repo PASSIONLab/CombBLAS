@@ -7,6 +7,11 @@ DenseParVec<IT, NT>::DenseParVec ()
 {
 	zero = static_cast<NT>(0);
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+		diagonal = true;
+	else
+		diagonal = false;	
 }
 
 template <class IT, class NT>
@@ -104,11 +109,6 @@ template <class IT, class NT>
 bool DenseParVec<IT,NT>::operator== (const DenseParVec<IT,NT> & rhs) const
 {
 	ErrorTolerantEqual<NT> epsilonequal;
-	//for(int i=0; i<arr.size(); ++i)
-	//{
-	//	if(std::abs(arr[i] - rhs.arr[i]) > EPSILON)
-	//		cout << i << ": " << arr[i] << " != " << rhs.arr[i] << endl;
-	//}
 
 	int local = static_cast<int>(std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal));
 	int whole = 1;
