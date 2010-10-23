@@ -7,6 +7,7 @@
 #include "SpParMat.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
+#include "Friends.h"
 
 using namespace std;
 
@@ -841,7 +842,8 @@ template <typename SR, typename IU, typename NUM, typename NUV, typename UDER>
 DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x )
 {
-
+	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+	typedef typename SR::VecRing VecRing;
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
@@ -850,24 +852,24 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
-	int diaginrow = commGrid->GetDiagOfProcRow();
-        int diagincol = commGrid->GetDiagOfProcCol();
+	int diaginrow = x.commGrid->GetDiagOfProcRow();
+        int diagincol = x.commGrid->GetDiagOfProcCol();
 
 	T_promote id = (T_promote) 0;	// do we need a better identity?
 	DenseParVec<IU, T_promote> y ( x.commGrid, id);	
-	IT ysize = A.getlocalrows();
+	IU ysize = A.getlocalrows();
 	if(x.diagonal)
 	{
 		IU size = x.arr.size();
 		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(&x.arr[0], size, MPITYPE<NUV>(), diagincol); 
+		ColWorld.Bcast(const_cast<NUV*>(&x.arr[0]), size, MPIType<NUV>(), diagincol); 
 
 		T_promote * localy = new T_promote[ysize];
 		fill_n(localy, ysize, id);		
-		dcsc_gespmv(*(A.spSeq), &x.arr[0], localy);	
+		dcsc_gespmv<SR>(*(A.spSeq), &x.arr[0], localy);	
 
 		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
-                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), MPIOp<SR::add, T_promote>::op(), diaginrow);
+                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), MPIOp<typename VecRing::add, T_promote>::op(), diaginrow);
 		y.arr.resize(ysize);
 		copy(localy, localy+ysize, y.arr);
 		delete [] localy;
@@ -878,17 +880,18 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
 
 		NUV * localx = new NUV[size];
-		ColWorld.Bcast(localx, size, MPITYPE<NUV>(), diagincol); 
+		ColWorld.Bcast(localx, size, MPIType<NUV>(), diagincol); 
 	
 		T_promote * localy = new T_promote[ysize];		
 		fill_n(localy, ysize, id);		
 
-		dcsc_gespmv(*(A.spSeq), localx, localy);
+		dcsc_gespmv<SR>(*(A.spSeq), localx, localy);
 		delete [] localx;
 
-                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), MPIOp<SR::add, T_promote>::op(), diaginrow);	// ABAB?
+                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), MPIOp<typename VecRing::add, T_promote>::op(), diaginrow);	
 		delete [] localy;
 	}
+	return y;
 }
 	
 

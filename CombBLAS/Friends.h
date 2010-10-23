@@ -31,12 +31,12 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 {
 	if(A.nnz > 0)
 	{	
-		for(IT j =0; j<A.dcsc.nzc; ++j)	// for all nonzero columns
+		for(IU j =0; j<A.dcsc.nzc; ++j)	// for all nonzero columns
 		{
-			IT colid = A.dcsc.jc[j];
-			for(IT i = A.dcsc.cp[j]; i< A.dcsc.cp[j+1]; ++i)
+			IU colid = A.dcsc.jc[j];
+			for(IU i = A.dcsc.cp[j]; i< A.dcsc.cp[j+1]; ++i)
 			{
-				IT rowid = A.dcsc.ir[i];
+				IU rowid = A.dcsc.ir[i];
 				SR::axpy(A.dcsc.numx[i], x[colid], y[rowid]);
 			}
 		}

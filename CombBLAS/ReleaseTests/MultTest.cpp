@@ -38,11 +38,11 @@ int main(int argc, char* argv[])
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 
-	if(argc < 4)
+	if(argc < 6)
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./MultTest <MatrixA> <MatrixB> <MatrixC>" << endl;
+			cout << "Usage: ./MultTest <MatrixA> <MatrixB> <MatrixC> <vecX> <vecY>" << endl;
 			cout << "<MatrixA>,<MatrixB>,<MatrixC> are absolute addresses, and files should be in triples format" << endl;
 		}
 		MPI::Finalize(); 
@@ -52,32 +52,29 @@ int main(int argc, char* argv[])
 		string Aname(argv[1]);		
 		string Bname(argv[2]);
 		string Cname(argv[3]);
+		string V1name(argv[4]);
+		string V2name(argv[5]);
 
 		ifstream inputA(Aname.c_str());
 		ifstream inputB(Bname.c_str());
 		ifstream inputC(Cname.c_str());
+		ifstream vecinpx(V1name.c_str());
+		ifstream vecinpy(V2name.c_str());
 
 		MPI::COMM_WORLD.Barrier();
 	
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 
 		PSpMat<double>::MPI_DCCols A, B, C, CControl;	// construct objects
+		DenseParVec<int, double> ycontrol, x;
 		
 		A.ReadDistribute(inputA, 0);
 		B.ReadDistribute(inputB, 0);
 		CControl.ReadDistribute(inputC, 0);
+		x.ReadDistribute(vecinpx, 0);
+		ycontrol.ReadDistribute(vecinpy,0);
 
-		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
-
-		if (CControl == C)
-		{
-			SpParHelper::Print("Passive Target Multiplication working correctly\n");	
-		}
-		else
-		{
-			SpParHelper::Print("ERROR in Passive Target Multiplication, go fix it!\n");	
-		}
-
+		DenseParVec<int, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
 
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);
 		if (CControl == C)
@@ -96,6 +93,10 @@ int main(int argc, char* argv[])
 		inputB.close();
 		inputC.clear();
 		inputC.close();
+		vecinpx.clear();
+		vecinpx.close();
+		vecinpy.clear();
+		vecinpy.close();
 	}
 	MPI::Finalize();
 	return 0;

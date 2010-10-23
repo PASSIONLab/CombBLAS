@@ -23,6 +23,7 @@ template <class T1, class T2>
 struct PlusTimesSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	typedef PlusTimesSRing<T_promote, T_promote> VecRing;	// for vector additions
 
 	static T_promote add(const T1 & arg1, const T2 & arg2)
 	{
@@ -40,6 +41,8 @@ struct PlusTimesSRing
 		y += a*x;
 	}
 };
+
+
 
 
 template <class T1, class T2>

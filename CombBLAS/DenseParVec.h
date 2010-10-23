@@ -19,6 +19,9 @@ using namespace std::tr1;
 template <class IT, class NT>
 class SpParVec;
 
+template <class IT, class NT, class DER>
+class SpParMat;
+
 template <class IT, class NT>
 class DenseParVec
 {
@@ -63,6 +66,10 @@ private:
 
 	template <class IU, class NU, class UDER>
 	friend class SpParMat;
+
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );
 };
 
 #include "DenseParVec.cpp"
