@@ -843,7 +843,6 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	(const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x )
 {
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
-	typedef typename SR::VecRing VecRing;
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
@@ -869,9 +868,9 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		dcsc_gespmv<SR>(*(A.spSeq), &x.arr[0], localy);	
 
 		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
-                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), MPIOp<typename VecRing::add, T_promote>::op(), diaginrow);
+                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
 		y.arr.resize(ysize);
-		copy(localy, localy+ysize, y.arr);
+		copy(localy, localy+ysize, y.arr.begin());
 		delete [] localy;
 	}
 	else
@@ -888,7 +887,7 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		dcsc_gespmv<SR>(*(A.spSeq), localx, localy);
 		delete [] localx;
 
-                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), MPIOp<typename VecRing::add, T_promote>::op(), diaginrow);	
+                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);	
 		delete [] localy;
 	}
 	return y;
