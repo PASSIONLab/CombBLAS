@@ -1060,6 +1060,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 		}
 		else	// input file does not exist !
 		{
+			cout << "COMBBLAS: Input file doesn't exist" << endl;
 			total_n = 0; total_m = 0;	
 			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);								

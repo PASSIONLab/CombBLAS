@@ -75,6 +75,14 @@ int main(int argc, char* argv[])
 		ycontrol.ReadDistribute(vecinpy,0);
 
 		DenseParVec<int, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
+		if (ycontrol == y)
+		{
+			SpParHelper::Print("Dense SpMV working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in Dense SpMV, go fix it!\n");	
+		}
 
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);
 		if (CControl == C)

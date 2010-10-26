@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <utility>
+#include <iterator>
 
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
@@ -33,6 +34,30 @@ public:
 	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
+
+	bool operator==(const DenseParVec<IT,NT> & rhs)
+	{
+		ErrorTolerantEqual<NT> epsilonequal;
+		int local = 1;
+		if(diagonal)
+		{
+			local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
+			vector<NT> diff(arr.size());
+			transform(arr.begin(), arr.end(), rhs.arr.begin(), diff.begin(), minus<NT>());
+			typename vector<NT>::iterator maxitr;
+			maxitr = max_element(diff.begin(), diff.end()); 			
+			cout << maxitr-diff.begin() << ": " << *maxitr << " where lhs: " << *(arr.begin()+(maxitr-diff.begin())) 
+							<< " and rhs: " << *(rhs.arr.begin()+(maxitr-diff.begin())) << endl; 
+
+			if(local == 0)
+			{
+				PrintToFile("y");
+			}
+		}
+		int whole = 1;
+		commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+		return static_cast<bool>(whole);	
+	}
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
