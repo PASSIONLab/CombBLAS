@@ -42,17 +42,18 @@ public:
 		if(diagonal)
 		{
 			local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
+		#ifdef DEBUG
 			vector<NT> diff(arr.size());
 			transform(arr.begin(), arr.end(), rhs.arr.begin(), diff.begin(), minus<NT>());
 			typename vector<NT>::iterator maxitr;
 			maxitr = max_element(diff.begin(), diff.end()); 			
 			cout << maxitr-diff.begin() << ": " << *maxitr << " where lhs: " << *(arr.begin()+(maxitr-diff.begin())) 
 							<< " and rhs: " << *(rhs.arr.begin()+(maxitr-diff.begin())) << endl; 
-
 			if(local == 0)
 			{
 				PrintToFile("y");
 			}
+		#endif
 		}
 		int whole = 1;
 		commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);

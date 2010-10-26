@@ -4,6 +4,7 @@ CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/CMakeLists.txt -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/Graph500.cpp -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
@@ -376,6 +377,8 @@ CombBLAS/TESTDATA/rmat_scale16_productAB.txt -text
 CombBLAS/TESTDATA/sprand10000 -text
 CombBLAS/TESTDATA/sprand10000_sumcols -text
 CombBLAS/TESTDATA/sprand10000_sumrows -text
+CombBLAS/TESTDATA/x_65536_halfdense.txt -text
+CombBLAS/TESTDATA/y_65536_halfdense.txt -text
 CombBLAS/Test/Deleter.h -text
 CombBLAS/Test/Semirings.h -text
 CombBLAS/Test/output -text
@@ -801,6 +804,7 @@ CombBLAS/mfiles/genRMatBetw.m -text
 CombBLAS/mfiles/genfringe.m -text
 CombBLAS/mfiles/genrestrict.m -text
 CombBLAS/mfiles/readtriples.m -text
+CombBLAS/mfiles/readvector.m -text
 CombBLAS/mfiles/rmatdenseness.m -text
 CombBLAS/mfiles/writecolvector.m -text
 CombBLAS/mfiles/writematrix.m -text

@@ -9,7 +9,7 @@ if(isint)
 	end
 else
 	for m = 1:nnz(v)
-		fprintf(fid, '%d\t%.3f\n',i(m),k(m)); 
+		fprintf(fid, '%d\t%.5f\n',i(m),k(m)); 
 	end
 end
 fclose(fid);
