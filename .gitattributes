@@ -66,6 +66,8 @@ CombBLAS/StackEntry.h -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/promote.h -text
+Graph500cpp/Makefile-neumann -text
+Graph500cpp/graph500.cpp -text
 Matlab/apsp/apsp.m -text
 Matlab/apsp/min_plus.m -text
 Matlab/spindex/PAQdiary.txt -text
