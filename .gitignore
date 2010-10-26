@@ -3,3 +3,5 @@ Graph500cpp/Makefile
 Graph500cpp/g500tempstartverts.mtx
 Graph500cpp/graph500
 Graph500cpp/makefile
+Python/pyCombBLAS/*.o
+Python/pyCombBLAS/*.so
