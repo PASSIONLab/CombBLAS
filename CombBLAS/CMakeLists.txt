@@ -37,7 +37,8 @@ endif (NOT HAVE_TR1)
 ADD_LIBRARY( CommGridlib SHARED CommGrid.cpp  )
 ADD_LIBRARY( MPITypelib SHARED MPIType.cpp )
 ADD_LIBRARY( MemoryPoollib SHARED MemoryPool.cpp )
-
+ADD_LIBRARY( GraphUtilslib SHARED graph500-1.2/generator/utils.c )
+ADD_LIBRARY( GraphGenlib SHARED graph500-1.2/generator/graph_generator.c )
 
 ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications ) 

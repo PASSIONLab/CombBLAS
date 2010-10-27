@@ -29,6 +29,30 @@ class Dcsc;
 class SpHelper
 {
 public:
+	template<typename _ForwardIterator>
+	static bool is_sorted(_ForwardIterator __first, _ForwardIterator __last)
+	{
+      		if (__first == __last)
+        		return true;
+
+      		_ForwardIterator __next = __first;
+      		for (++__next; __next != __last; __first = __next, ++__next)
+        		if (*__next < *__first)
+          			return false;
+      		return true;
+    	}
+  	template<typename _ForwardIterator, typename _StrictWeakOrdering>
+    	bool is_sorted(_ForwardIterator __first, _ForwardIterator __last,  _StrictWeakOrdering __comp)
+    	{
+      		if (__first == __last)
+        		return true;
+
+		_ForwardIterator __next = __first;
+		for (++__next; __next != __last; __first = __next, ++__next)
+			if (__comp(*__next, *__first))
+          			return false;
+      		return true;
+	}
 	template<typename _ForwardIter, typename T>
 	static void iota(_ForwardIter __first, _ForwardIter __last, T __value)
 	{

@@ -8,6 +8,8 @@
 #include "SpParMat.h"
 #include "ParFriends.h"
 #include "Operations.h"
+#include "graph500-1.2/generator/graph_generator.h"
+#include "graph500-1.2/generator/utils.h"
 #include <fstream>
 using namespace std;
 
@@ -556,6 +558,24 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 	int whole = 1;
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
 	return static_cast<bool>(whole);	
+}
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges)
+{ 
+  // Spread the two 64-bit numbers into five nonzero values in the correct range
+  uint_fast32_t seed[5];
+  make_mrg_seed(1, 2, seed);
+  int64_t* edges = new int64_t[2*nedges];	// will include duplicates and self-loops
+  generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
+
+  // keep multiplicities of edges as the numerical value (NT)
+  int64_t n = std::pow(2., log_numverts);
+  SpTuples<int64_t,NT> A(nedges, n, n, edges);  
+  delete [] edges;
+  
+  delete sqSeq;	// in case it was not empty, avoid memory leaks
+  spSeq = new DER(A);        // Convert SpTuples to DER
 }
 
 

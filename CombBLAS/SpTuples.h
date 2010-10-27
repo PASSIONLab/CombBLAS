@@ -32,6 +32,14 @@ class SpDCCols;
 template <class IU, class NU>
 class Dcsc;
 
+#ifdef GRAPHGEN_KEEP_MULTIPLICITIES
+typedef struct generated_edge {
+  int64_t src;
+  int64_t tgt;
+  int64_t multiplicity;
+} generated_edge;
+#endif
+
 /**
  * Triplets are represented using the boost::tuple class of the Boost library
  * \remarks Indices start from 0 in this class
@@ -43,6 +51,7 @@ public:
 	// Constructors 
 	SpTuples (IT size, IT nRow, IT nCol);
 	SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+	SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges);	// Graph500 contructor
 	SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
@@ -60,13 +69,15 @@ public:
 
 	void SortRowBased()
 	{
-		sort(tuples , tuples+nnz);	// Default "operator<" for tuples uses lexicographical ordering 
+		if(!SpHelper::is_sorted(tuples, tuples+nnz))
+			sort(tuples , tuples+nnz);	// Default "operator<" for tuples uses lexicographical ordering 
 	}
 
 	void SortColBased()
 	{
 		ColLexiCompare<IT,NT> collexicogcmp;
-		sort(tuples , tuples+nnz, collexicogcmp );
+		if(!SpHelper::is_sorted(tuples, tuples+nnz, collexicogcmp))
+			sort(tuples , tuples+nnz, collexicogcmp );
 	}
 
 	pair<IT,IT> RowLimits()

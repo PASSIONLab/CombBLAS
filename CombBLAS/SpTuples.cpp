@@ -32,6 +32,56 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytupl
 {}
 
 /**
+  * Generate a SpTuples object from an edge list
+  * @param[in] edges: edge list that might contain duplicate edges
+  * Semantics differ depending on the object created:
+  * NT=bool: duplicates are ignored
+  * NT='countable' (such as short,int): duplicated as summed to keep count 	 
+ **/  
+template <class IT, class NT>
+SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges):m(nRow), n(nCol)
+{
+	if(maxnnz > 0)
+	{
+		tuples  = new tuple<IT, IT, NT>[maxnnz];
+	}
+	for(IT i=0; i<maxnnz; ++i)
+	{
+		rowindex(i) = edges[2*i+0];
+		colindex(i) = edges[2*i+1];
+		numvalue(i) = 1;
+	}
+	SortRowBased();
+	
+	IT cnz = 0;
+	nnz = 0;
+	for( cnz < maxnnz; )
+	{
+		IT j=cnz+1;
+		while(j < maxnnz && rowindex(cnz) == rowindex(j) && colindex(cnz) == colindex(j)) 
+		{
+			numvalue(cnz) +=  numvalue(j);
+			numvalue(j++) = 0;	// mark for deletion
+		}
+		++nnz;
+		cnz = j;
+	}
+	tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz];
+	IT j = 0;
+	for(IT i=0; i<maxnnz; ++i)
+	{
+		if(numvalue(i) != 0)
+		{
+			ntuples[j++] = tuples[i];
+		}
+	}
+	assert(j == nnz);
+	delete [] tuples;
+	tuples = ntuples;
+}
+
+
+/**
   * Generate a SpTuples object from StackEntry array, then delete that array
   * @param[in] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
  **/  
@@ -51,6 +101,9 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT>
 	}
 	delete [] multstack;
 }
+
+
+	SpTuples (IT nRow, IT nCol, IT * edges);	// Graph500 contructor
 
 template <class IT,class NT>
 SpTuples<IT,NT>::~SpTuples()

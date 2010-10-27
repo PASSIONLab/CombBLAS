@@ -63,7 +63,7 @@ public:
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();
 
-	template <typename SR>	void Square();
+	void GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges);
 	float LoadImbalance() const;
 
 	void Transpose();

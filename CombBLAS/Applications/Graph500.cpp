@@ -60,15 +60,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}				
 	{
-		typedef bool NM;
-		typedef unsigned NV;
-		typedef unsigned IT;
-		typedef SelectMaxSRing<NM, NV> SR;	
-		typedef SpParMat < IT, NV, SpDCCols<IT,NV> > PSpMat;
-
-		// Declare objects
-		PSpMat AT;	
-		DenseParVec<int, double> x;
+		typedef SelectMaxSRing<bool, int64_t> SR;	
+		typedef SpParMat < int64_t, short, SpDCCols<int64_t,short> > PSpMat_Int16;
+		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 
 		// calculate the problem size that can be solved
 		// number of nonzero columns are at most the matrix dimension (for small p)
@@ -113,20 +107,24 @@ int main(int argc, char* argv[])
 		outs << "Using the " << name << " problem" << endl;
 		SpParHelper::Print(outs.str());
 
-		// A' is generated just like A
-		// rmat parameters are probabilistically symmetric
-		AT.GenerateRMAT(scale, 16, 0.57, 0.19, 0.19);
+		// Declare objects
+		PSpMat_Int16 A;	
+		DenseParVec<int64_t, int64_t> x;
+
+		// this is an undirected graph, so A*x does indeed BFS
+ 		double initiator[4] = {.57, .19, .19, .05};
+        	A.GenGraph500Data(initiator, scale, 8. * std:pow(2., scale));	// NV stores edge multiplicities
 				
 		// relabel vertices
-		SpParVec<IT,IT> p;
-		RandPerm(p, AT.getlocalrows());	
-		AT = AT(p,p);
-		AT.PrintInfo();
+		SpParVec<int64_t,int64_t> p;
+		RandPerm(p, A.getlocalrows());	
+		A = A(p,p);
+		A.PrintInfo();
 
-		AT.RandomizeEdges();
+		A.RandomizeEdges();
 
 		// TODO: this is inside the main iteration loop
-		DenseParVec<int, double> y = SpMV<SR>(AT, x);
+		DenseParVec<int64_t, int64_t> y = SpMV<SR>(A, x);
 	}
 	MPI::Finalize();
 	return 0;
