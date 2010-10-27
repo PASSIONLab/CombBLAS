@@ -42,7 +42,7 @@ public:
       		return true;
     	}
   	template<typename _ForwardIterator, typename _StrictWeakOrdering>
-    	bool is_sorted(_ForwardIterator __first, _ForwardIterator __last,  _StrictWeakOrdering __comp)
+    	static bool is_sorted(_ForwardIterator __first, _ForwardIterator __last,  _StrictWeakOrdering __comp)
     	{
       		if (__first == __last)
         		return true;
