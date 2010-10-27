@@ -8,8 +8,11 @@
 #include "SpParMat.h"
 #include "ParFriends.h"
 #include "Operations.h"
+
+#define GRAPH_GENERATOR_SEQ
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
+
 #include <fstream>
 using namespace std;
 
@@ -574,7 +577,8 @@ void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts,
   SpTuples<int64_t,NT> A(nedges, n, n, edges);  
   delete [] edges;
   
-  delete sqSeq;	// in case it was not empty, avoid memory leaks
+  // ADAM: this used to be "delete sqSeq;" I assume the 'q' was a typo for 'p'.
+  delete spSeq;	// in case it was not empty, avoid memory leaks
   spSeq = new DER(A);        // Convert SpTuples to DER
 }
 

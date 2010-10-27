@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./MultTest <MatrixA>" << endl;
+			cout << "Usage: ./graph500 <MatrixA>" << endl;
 			cout << "<MatrixA> file should be in triples format" << endl;
 		}
 		MPI::Finalize(); 

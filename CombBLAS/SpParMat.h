@@ -66,6 +66,10 @@ public:
 	void GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges);
 	float LoadImbalance() const;
 
+	template <typename SR>
+	void Square (); // ADAM: definiton was there, only this declaration was missing.
+
+
 	void Transpose();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);

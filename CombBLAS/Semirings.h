@@ -39,7 +39,7 @@ struct SelectMaxSRing
 	{
 		y = std::max(y, static_cast<T_promote>(a*x));
 	}
-}
+};
 
 template <class T1, class T2>
 struct PlusTimesSRing

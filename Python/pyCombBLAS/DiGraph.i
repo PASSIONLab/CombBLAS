@@ -38,6 +38,10 @@ DiGraph::init();
 // This class will get a wrapper created
 class DiGraph {
 public:
+	static void init();
+	static void finalize();
+
+public:
 	DiGraph();
 
 public:
@@ -51,4 +55,5 @@ public:
 
 // It's possible to have the generated python code also include some custom code.
 // This may be a good place to add an atexit() to call mpi finalize.
-//%pragma(python) code="from SWIGdir.othermodule import MyBasePtr"
+%pragma(python) code="import atexit"
+%pragma(python) code="atexit.register(DiGraph.finalize())"
