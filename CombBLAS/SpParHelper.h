@@ -155,7 +155,7 @@ void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > &
 	}	
 }
 
-void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
+inline void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
 {
 	for(int i=0; i< arrwin.size(); ++i)
 	{
@@ -163,7 +163,7 @@ void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
 	}
 }
 
-void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin) 
+inline void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin) 
 {
 	for(int i=0; i< arrwin.size(); ++i)
 	{
@@ -171,7 +171,7 @@ void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
 	}
 }
 
-void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
+inline void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
 {
 	for(int i=0; i< arrwin.size(); ++i)
 	{
@@ -183,7 +183,7 @@ void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
  * @param[in] owner {target processor rank within the processor group} 
  * @param[in] arrwin {start access epoch only to owner's arrwin (-windows) }
  */
-void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group)
+inline void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Group & group)
 {
 	/* Now start using the whole comm as a group */
 	int acc_ranks[1]; 
@@ -199,7 +199,7 @@ void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, MPI::Gr
 /**
  * @param[in] self {rank of "this" processor to be excluded when starting the exposure epoch} 
  */
-void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group)
+inline void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, MPI::Group & group)
 {
 	MPI::Group exposure = group;
 	
