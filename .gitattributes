@@ -934,3 +934,4 @@ Python/pyCombBLAS/DiGraph.cpp -text
 Python/pyCombBLAS/DiGraph.h -text
 Python/pyCombBLAS/DiGraph.i -text
 Python/pyCombBLAS/Makefile -text
+Python/pyCombBLAS/testscript.py -text

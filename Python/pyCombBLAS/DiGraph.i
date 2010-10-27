@@ -7,9 +7,10 @@
 // omitting the templated protected members.
 
 %{
-//#include "DiGraph.h"
 #define SWIG_FILE_WITH_INIT
 
+#include "DiGraph.h"
+/*
 class DiGraph {
 public:
 	static void init();
@@ -26,6 +27,8 @@ public:
 	void load(const char* filename);
 };
 
+void finalize();
+*/
 %}
 
 
@@ -33,6 +36,11 @@ public:
 %init %{
 DiGraph::init();
 %}
+
+// It's possible to have the generated python code also include some custom code.
+// This may be a good place to add an atexit() to call mpi finalize.
+%pragma(python) code="import atexit"
+%pragma(python) code="atexit.register(DiGraph.finalize())"
 
 
 // This class will get a wrapper created
@@ -53,7 +61,4 @@ public:
 
 };
 
-// It's possible to have the generated python code also include some custom code.
-// This may be a good place to add an atexit() to call mpi finalize.
-%pragma(python) code="import atexit"
-%pragma(python) code="atexit.register(DiGraph.finalize())"
+void finalize();

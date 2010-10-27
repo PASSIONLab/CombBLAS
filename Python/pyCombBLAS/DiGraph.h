@@ -10,10 +10,16 @@
 
 class DiGraph {
 protected:
-	typedef SpDCCols < int, double > DCCols;
-	typedef SpParMat < int, double, SpDCCols < int, double > > MPI_DCCols;
-	
-	//MPI_DCCols g;
+
+	template <class NT>
+	class PSpMat 
+	{ 
+	public: 
+		typedef SpDCCols < int, NT > DCCols;
+		typedef SpParMat < int, NT, DCCols > MPI_DCCols;
+	};
+
+	PSpMat<double>::MPI_DCCols g;
 
 /////////////// everything below this appears in declaration for wrapper:
 public:
@@ -32,5 +38,7 @@ public:
 	void load(const char* filename);
 	
 };
+
+void finalize();
 
 #endif
