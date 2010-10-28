@@ -24,7 +24,13 @@ void DiGraph::load(const char* filename)
 	input.close();
 }
 
-void DiGraph::init()
+void DiGraph::SpMV_SelMax(const SpVectList& v)
+{
+	cout << "SpMV on SelectMax semiring with vector of size " << v.length() << endl;
+}
+
+
+void init_pyCombBLAS_MPI()
 {
 	cout << "calling MPI::Init" << endl;
 	MPI::Init();
@@ -47,12 +53,7 @@ void DiGraph::init()
 	
 }
 
-void DiGraph::finalize()
-{
+void finalize() {
 	cout << "calling MPI::Finalize" << endl;
 	MPI::Finalize();
-}
-
-void finalize() {
-	DiGraph::finalize();
 }

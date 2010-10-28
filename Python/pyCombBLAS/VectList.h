@@ -1,5 +1,5 @@
-#ifndef DIGRAPH_H
-#define DIGRAPH_H
+#ifndef VECTLIST_H
+#define VECTLIST_H
 
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/SpTuples.h"
@@ -9,41 +9,21 @@
 #include "../../CombBLAS/DenseParMat.h"
 #include "../../CombBLAS/DenseParVec.h"
 
-#include "SpVectList.h"
-
-class DiGraph {
+class VectList {
 protected:
 
-	template <class NT>
-	class PSpMat 
-	{ 
-	public: 
-		typedef SpDCCols < int, NT > DCCols;
-		typedef SpParMat < int, NT, DCCols > MPI_DCCols;
-	};
-
-	PSpMat<double>::MPI_DCCols g;
+	DenseParVec<int, int> v;
 
 /////////////// everything below this appears in python interface:
 public:
-	DiGraph();
+	VectList();
 
 public:
-	int nedges();
-	int nverts();
+	int length() const;
 	
 public:	
 	void load(const char* filename);
 	
-public:
-	void SpMV_SelMax(const SpVectList& v);
-	
 };
-
-extern "C" {
-void init_pyCombBLAS_MPI();
-}
-
-void finalize();
 
 #endif

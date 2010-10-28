@@ -11,12 +11,12 @@ DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = mpicxx
 FLAGS = $(DEB) -fPIC 
 
-all: DiGraph.py
+all: pyCombBLAS.py
 
-DiGraph_wrap.cpp: DiGraph.i
-	swig -python -c++ -shadow -module DiGraph -o DiGraph_wrap.cpp DiGraph.i
+pyCombBLAS_wrap.cpp: pyCombBLAS.i
+	swig -python -c++ -shadow -o pyCombBLAS_wrap.cpp pyCombBLAS.i
 
-DiGraph_wrap.o: DiGraph_wrap.cpp
+pyCombBLAS_wrap.o: pyCombBLAS_wrap.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c $< -o $@
 
 %.o : %.cpp %.h
@@ -40,11 +40,11 @@ libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
 
 
 
-_DiGraph.so: DiGraph.o DiGraph_wrap.o libCombBLAS.a
-	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _DiGraph.so DiGraph.o DiGraph_wrap.o -L. -lCombBLAS
+_pyCombBLAS.so: DiGraph.o SpVectList.o VectList.o pyCombBLAS_wrap.o libCombBLAS.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so DiGraph.o SpVectList.o VectList.o pyCombBLAS_wrap.o -L. -lCombBLAS
 
 # the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
-DiGraph.py:	_DiGraph.so
+pyCombBLAS.py:	_pyCombBLAS.so
 
 
 
@@ -53,8 +53,8 @@ clean:
 	rm -f *.o
 	rm -f *.a
 	rm -f *.pyc
-	rm -f DiGraph_wrap.cpp
-	rm -f DiGraph.py
+	rm -f pyCombBLAS_wrap.cpp
+	rm -f pyCombBLAS.py
 
 cleanout:
 	rm out.*

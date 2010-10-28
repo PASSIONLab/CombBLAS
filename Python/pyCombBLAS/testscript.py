@@ -1,8 +1,9 @@
-import DiGraph
+import pyCombBLAS as pcb
 
-g = DiGraph.DiGraph()
+g = pcb.DiGraph()
+g.load("/home/alugowski/matrices/rmat_scale14.mtx");
 print(g.nedges())
 
 del g
 
-DiGraph.finalize()
+pcb.finalize()

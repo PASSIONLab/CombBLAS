@@ -935,8 +935,12 @@ Python/distribCombBLAS/Graph.py -text
 Python/distribCombBLAS/Graph500.py -text
 Python/pyCombBLAS/DiGraph.cpp -text
 Python/pyCombBLAS/DiGraph.h -text
-Python/pyCombBLAS/DiGraph.i -text
 Python/pyCombBLAS/Makefile -text
+Python/pyCombBLAS/SpVectList.cpp -text
+Python/pyCombBLAS/SpVectList.h -text
+Python/pyCombBLAS/VectList.cpp -text
+Python/pyCombBLAS/VectList.h -text
+Python/pyCombBLAS/pyCombBLAS.i -text
 Python/pyCombBLAS/testscript.py -text
 Python/serialSciPy/DiGraph.py -text
 Python/serialSciPy/Graph.py -text
