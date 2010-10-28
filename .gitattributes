@@ -935,3 +935,6 @@ Python/pyCombBLAS/DiGraph.h -text
 Python/pyCombBLAS/DiGraph.i -text
 Python/pyCombBLAS/Makefile -text
 Python/pyCombBLAS/testscript.py -text
+Python/serialSciPy/DiGraph.py -text
+Python/serialSciPy/Graph.py -text
+Python/serialSciPy/Graph500.py -text
