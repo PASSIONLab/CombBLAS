@@ -930,6 +930,9 @@ Matlab/utils/testmat.m -text
 Python/DiGraph.py -text
 Python/Graph.py -text
 Python/Graph500.py -text
+Python/distribCombBLAS/DiGraph.py -text
+Python/distribCombBLAS/Graph.py -text
+Python/distribCombBLAS/Graph500.py -text
 Python/pyCombBLAS/DiGraph.cpp -text
 Python/pyCombBLAS/DiGraph.h -text
 Python/pyCombBLAS/DiGraph.i -text
