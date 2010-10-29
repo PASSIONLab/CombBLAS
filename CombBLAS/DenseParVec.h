@@ -29,7 +29,6 @@ class DenseParVec
 public:
 	DenseParVec ( );
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
-	bool operator== (const DenseParVec<IT,NT> & rhs) const;
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
