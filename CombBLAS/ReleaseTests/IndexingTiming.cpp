@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
 		A.PrintInfo();	
 		SpParVec<int,int> p;
 		RandPerm(p,A.getlocalrows());
+		SpParHelper::Print("Permutation Generated\n");
 		PARDBMAT B = A(p,p);
 		B.PrintInfo();
 

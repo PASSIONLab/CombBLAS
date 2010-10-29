@@ -421,6 +421,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 
 		QSeq = new DER_IT();  
 		QSeq->Create( q_nnz, trlocalcols, cilen, q_tuples);		// deletion of tuples[] is handled by SpMat::Create
+
 	}
 	else	// all others receive data from the diagonal
 	{
