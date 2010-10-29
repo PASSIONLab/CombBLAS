@@ -106,17 +106,6 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 
 
 template <class IT, class NT>
-bool DenseParVec<IT,NT>::operator== (const DenseParVec<IT,NT> & rhs) const
-{
-	ErrorTolerantEqual<NT> epsilonequal;
-
-	int local = static_cast<int>(std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal));
-	int whole = 1;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
-	return static_cast<bool>(whole);	
-}
-
-template <class IT, class NT>
 ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
 	SpParVec<IT,NT> tmpSpVec(commGrid);
