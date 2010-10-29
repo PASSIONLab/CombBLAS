@@ -12,19 +12,22 @@ def k2Validate(G, start, parents, levels):
 	# Spec test #1:
 	# confirm that the tree is a tree;  i.e., that it does not have any 
 	# cycles and that every vertex with a parent is in the tree
-	visited = sc.zeros(sc.shape(parents)[0]);
-	visited[root] = 1;
+	visited = DPV.zeros(G.nverts());		# NEW:  hmmm;  could G.nverts return a funny object that 
+									# causes zeros() to create a DPV without the "DPV."?
+									# Or use zeros_like(parents) to do the same?
+	visited[root] = 1;					# NEW:  indexing (subsasgn in M terminology)
 	fringe = (root, );
 	cycle = False;
-	while len(fringe) <> 0 and not cycle:		#ToDo:  n^2 algorithm here
+	#ToDo:  n^2 algorithm here
+	while len(fringe) <> 0 and not cycle:		
 		newfringe = [];
 		for i in range(len(fringe)):
-			newvisits = (parents==fringe[i]).nonzero();
-			if sc.any(visited[newvisits]):
+			newvisits = (parents==fringe[i]).nonzero();	# NEW: overload of "=="
+			if (visited[newvisits]).any():	# NEW:  DPV.any() needs to return a scalar to the client
 				cycle = True;
 				break;
 			visited[newvisits] = 1;
-			newfringe += newvisits[0].tolist();
+			newfringe += newvisits[0].tolist();	# NEW:  different interface for append()
 		fringe = newfringe;
 	if cycle:
 		print "Cycle detected"; 
@@ -32,7 +35,7 @@ def k2Validate(G, start, parents, levels):
 	
 	# Spec test #2:  
 	# every tree edge connects vertices whose BFS levels differ by 1
-	treeEdges = ((parents <> -2) & (parents <> -1))
+	treeEdges = ((parents <> -2) & (parents <> -1))	# NEW:  ne() and and()
 	treeI = parents[treeEdges].astype(int);
 	treeJ = sc.arange(sc.shape(treeEdges)[0])[treeEdges];
 	if any(levels[treeI]-levels[treeJ] <> -1):
@@ -52,13 +55,13 @@ def k2Validate(G, start, parents, levels):
 	lj = levels[Gj];
 	neither_in = (li == -2) & (lj == -2);
 	both_in = (li > -2) & (lj > -2);
-	if any(sc.logical_not(neither_in | both_in)):
+	if any(sc.logical_not(neither_in | both_in)):	# NEW:  not()
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
 	# Spec test #5:
 	# a vertex and its parent are joined by an edge of the original graph
-	respects = abs(li-lj) <= 1
+	respects = abs(li-lj) <= 1					# NEW:  abs() (and binary "-"?)
 	if any(sc.logical_not(neither_in | respects)):
 		print "At least one vertex and its parent are not joined by an original edge"
 		good = False;
@@ -74,7 +77,9 @@ before = time.clock()
 G = kdtd.DiGraph(edges,(2**scale,2**scale));
 K1elapsed = time.clock() - before;
 
-deg3verts = sc.array(sc.nonzero(G.degree().flatten() > 2)).flatten();	#indices of vertices with degree > 2
+#old deg3verts = sc.array(sc.nonzero(G.degree().flatten() > 2)).flatten();	#indices of vertices with degree > 2
+deg3verts = (G.degree() > 2).nonzero().toClient;	# NEW:  gt() and toClient()
+								# moving deg3verts now makes code below simple SciPy code
 nstarts = 4;
 starts = sc.unique((sc.floor(sc.rand(nstarts*2)*sc.shape(deg3verts)[0])).astype(int))
 K2elapsed = 0;
