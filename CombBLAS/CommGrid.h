@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <stdint.h>
 
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
@@ -45,7 +46,13 @@ public:
 		commWorld = rhs.commWorld.Dup();
 		rowWorld = rhs.rowWorld.Dup();
 		colWorld = rhs.colWorld.Dup();
-		diagWorld = (rhs.diagWorld == MPI::COMM_NULL)? MPI::COMM_NULL: rhs.diagWorld.Dup();
+
+		// don't use the shortcut ternary ? operator, C++ syntax fails as
+		// mpich implements MPI::COMM_NULL of different type than MPI::IntraComm
+		if(rhs.diagWorld == MPI::COMM_NULL)
+			diagWorld = MPI::COMM_NULL;
+		else
+			diagWorld = rhs.diagWorld.Dup();
 	}
 	
 	CommGrid & operator=(const CommGrid & rhs)	// assignment operator
@@ -65,7 +72,11 @@ public:
 			commWorld = rhs.commWorld.Dup();
 			rowWorld = rhs.rowWorld.Dup();
 			colWorld = rhs.colWorld.Dup();
-			diagWorld = (rhs.diagWorld == MPI::COMM_NULL)? MPI::COMM_NULL: rhs.diagWorld.Dup();
+			
+			if(rhs.diagWorld == MPI::COMM_NULL)
+				diagWorld = MPI::COMM_NULL;
+			else
+				diagWorld = rhs.diagWorld.Dup();
 		}
 		return *this;
 	}
@@ -118,6 +129,5 @@ private:
 	template <class IT, class NT, class DER>
 	friend class SpParMat;
 };
-
 
 #endif

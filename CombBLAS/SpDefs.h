@@ -10,10 +10,12 @@
 #define _SP_DEFS_H_
 
 #include <cmath>
+#include <limits.h>
 #include "SequenceHeaps/knheap.C"
 #include "psort-1.0/src/psort.h"
 #include "psort-1.0/src/psort_samplesort.h"
 #include "psort-1.0/driver/MersenneTwister.h"
+#include "CommGrid.h"
 
 #define EPSILON 0.01
 

@@ -60,11 +60,11 @@ public:
 	     		*__first++ = __value++;
 	}
 	
-	template<typename T, typename I>
-	static T ** allocate2D(I m, I n)
+	template<typename T, typename I1, typename I2>
+	static T ** allocate2D(I1 m, I2 n)
 	{
 		T ** array = new T*[m];
-		for(I i = 0; i<m; ++i) 
+		for(I1 i = 0; i<m; ++i) 
 			array[i] = new T[n];
 		return array;
 	}

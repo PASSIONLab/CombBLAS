@@ -11,12 +11,14 @@ struct promote_trait  { };
     };
 
 DECLARE_PROMOTE(int, bool,int);
+DECLARE_PROMOTE(short, bool,short);
 DECLARE_PROMOTE(unsigned, bool, unsigned);
 DECLARE_PROMOTE(float, bool, float);
 DECLARE_PROMOTE(double, bool, double);
 DECLARE_PROMOTE(long long, bool, long long);
 DECLARE_PROMOTE(unsigned long long, bool, unsigned long long);
 DECLARE_PROMOTE(bool, int, int);
+DECLARE_PROMOTE(bool, short, short);
 DECLARE_PROMOTE(bool, unsigned, unsigned);
 DECLARE_PROMOTE(bool, float, float);
 DECLARE_PROMOTE(bool, double, double);

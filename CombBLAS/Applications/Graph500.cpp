@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 		// for large p, though, nzc = nnz since each subcolumn will have a single nonzero 
 		// so assume (1+8+8+8)*nedges for the uint64 case and (1+4+4+4)*nedges for uint32
 		unsigned raminbytes = atoi(argv[1]) * 1024 * 1024;	
-		unsigned peredge = 1+3*sizeof(IT);
+		unsigned peredge = 1+3*sizeof(int64_t);
 		unsigned maxnedges = raminbytes / peredge;
 		unsigned maxvertices = maxnedges / 16;
 		unsigned maxscale = highestbitset(maxvertices) * nprocs;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
 		// this is an undirected graph, so A*x does indeed BFS
  		double initiator[4] = {.57, .19, .19, .05};
-        	A.GenGraph500Data(initiator, scale, 8. * std:pow(2., scale));	// NV stores edge multiplicities
+        	A.GenGraph500Data(initiator, scale, 8. * std::pow(2., scale));	// NV stores edge multiplicities
 				
 		// relabel vertices
 		SpParVec<int64_t,int64_t> p;
@@ -121,10 +121,10 @@ int main(int argc, char* argv[])
 		A = A(p,p);
 		A.PrintInfo();
 
-		A.RandomizeEdges();
+		//A.RandomizeEdges();
 
 		// TODO: this is inside the main iteration loop
-		DenseParVec<int64_t, int64_t> y = SpMV<SR>(A, x);
+		// DenseParVec<int64_t, int64_t> y = SpMV<SR>(A, x);
 	}
 	MPI::Finalize();
 	return 0;

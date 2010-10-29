@@ -9,11 +9,11 @@
 #include "ParFriends.h"
 #include "Operations.h"
 
-#define GRAPH_GENERATOR_SEQ
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
 
 #include <fstream>
+#include <algorithm>
 using namespace std;
 
 /**
@@ -310,8 +310,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	// Dimensions:  P is size(ri) x m
 	//		Q is n x size(ci) 
 
-	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
+	IT colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
+	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
 	IT totalm = getnrow();	// collective call
 	IT totaln = getncol();
 	IT m_perproc = totalm / rowneighs;
@@ -320,15 +320,15 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	IT * pcnts;
 	IT * qcnts;
 	
-	int diaginrow = commGrid->GetDiagOfProcRow();
-	int diagincol = commGrid->GetDiagOfProcCol();
+	IT diaginrow = commGrid->GetDiagOfProcRow();
+	IT diagincol = commGrid->GetDiagOfProcCol();
 
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
 	DER_IT * PSeq;
 	DER_IT * QSeq;
 
-	int diagneigh = commGrid->GetComplementRank();
+	IT diagneigh = commGrid->GetComplementRank();
 	IT mylocalrows = getlocalrows();
 	IT mylocalcols = getlocalcols();
 	IT trlocalrows, trlocalcols;
@@ -579,7 +579,7 @@ void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts,
   
   // ADAM: this used to be "delete sqSeq;" I assume the 'q' was a typo for 'p'.
   delete spSeq;	// in case it was not empty, avoid memory leaks
-  spSeq = new DER(A);        // Convert SpTuples to DER
+  spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
 

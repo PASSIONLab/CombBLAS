@@ -273,6 +273,78 @@ private:
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
+
+// type promotion for IT=int64_t
+template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,int> >       
+    {                                           
+        typedef SpDCCols<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,float> >       
+    {                                           
+        typedef SpDCCols<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,double> >       
+    {                                           
+        typedef SpDCCols<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,int> >       
+    {                                           
+        typedef SpDCCols<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,float> >       
+    {                                           
+        typedef SpDCCols<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,int> >       
+    {                                           
+        typedef SpDCCols<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,double> >       
+    {                                           
+        typedef SpDCCols<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,int> >       
+    {                                           
+        typedef SpDCCols<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,unsigned> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,short> >       
+    {                                           
+        typedef SpDCCols<int64_t,short> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,short> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,short> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,unsigned> >       
+    {                                           
+        typedef SpDCCols<int64_t,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,double> >       
+    {                                           
+        typedef SpDCCols<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,float> >       
+    {                                           
+        typedef SpDCCols<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,float> T_promote;                    
+    };
+
+// type promotion for IT=int
 template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,int> >       
     {                                           
         typedef SpDCCols<int,int> T_promote;                    
@@ -313,6 +385,14 @@ template <> struct promote_trait< SpDCCols<int,unsigned> , SpDCCols<int,bool> >
     {                                           
         typedef SpDCCols<int,unsigned> T_promote;                    
     };
+template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,short> >       
+    {                                           
+        typedef SpDCCols<int,short> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int,short> , SpDCCols<int,bool> >       
+    {                                           
+        typedef SpDCCols<int,short> T_promote;                    
+    };
 template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,unsigned> >       
     {                                           
         typedef SpDCCols<int,unsigned> T_promote;                    
@@ -350,13 +430,26 @@ template <class NIT, class NNT>  struct create_trait< SpDCCols<int, double> , NI
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
-
 template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, double> , NIT, NNT >
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
-
-
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, double> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int, short> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
+template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, short> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, short> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
 
 #include "SpDCCols.cpp"
 #endif

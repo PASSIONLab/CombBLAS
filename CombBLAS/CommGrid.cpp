@@ -120,7 +120,6 @@ void CommGrid::OpenDebugFile(string prefix, ofstream & output) const
 	output.open(ofilename.c_str(), ios_base::app );
 }
 
-
 shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset)
 {
 	if(gridA->grcols != gridB->grrows)
