@@ -88,6 +88,7 @@ CombBLAS/ReleaseTests/GALERKIN/cores64_scale23_order4 -text
 CombBLAS/ReleaseTests/GALERKIN/cores64_scale23_order8 -text
 CombBLAS/ReleaseTests/GALERKIN/failed/galerkin1024.1284895.err -text
 CombBLAS/ReleaseTests/IndexingTest.cpp -text
+CombBLAS/ReleaseTests/IndexingTiming.cpp -text
 CombBLAS/ReleaseTests/IteratorTest.cpp -text
 CombBLAS/ReleaseTests/MultTest.cpp -text
 CombBLAS/ReleaseTests/MultTiming.cpp -text
