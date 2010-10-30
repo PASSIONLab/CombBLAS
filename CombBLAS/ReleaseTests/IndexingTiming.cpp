@@ -80,15 +80,15 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
 
-		/**  Test #2
-   		**   
+		//  Test #2
 		int nclust = 10;
 		vector< SpParVec<int,int> > clusters(nclust);
+		int nperclus = A.getnrow() / nclust;
 
 		for(int i = 0; i< nclust; i++)
 		{
-			int k = std::min(A.getnrow() / nclust, A.getnrow() - nclust * i);
-			clusters[i].iota(k, nclust * i + 1);
+			int k = std::min(nperclus, A.getnrow() - nperclus * i);
+			clusters[i].iota(k, nperclus * i + 1);
 			clusters[i] = p(clusters[i]);
 		}
 
@@ -96,9 +96,24 @@ int main(int argc, char* argv[])
 		{
 			B = A(clusters[i], clusters[i]);
 			B.PrintInfo();
-		}  
-		**/
-			
+		} 
+
+		MPI::COMM_WORLD.Barrier();
+		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+		for(int i=0; i< nclust; i++)
+		{
+			for(int j=0; j < ITERATIONS; j++)
+				B = A(clusters[i], clusters[i]);
+		} 
+
+		MPI::COMM_WORLD.Barrier();
+		t2 = MPI::Wtime(); 	
+
+		if(myrank == 0)
+		{
+			cout<<"Indexing Iterations finished"<<endl;	
+			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
+		}
 
 		input.clear();
 		input.close();

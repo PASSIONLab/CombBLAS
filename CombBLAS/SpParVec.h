@@ -26,6 +26,9 @@ using namespace std::tr1;
   * 	After all, A(v,w) will have dimensions length(v) x length (w) 
   * 	v and w will be of numerical type (NT) "int" and their indices (IT) will be consecutive integers 
   * Just like in SpParMat case, indices are local to processors (they belong to range [0,...,length-1] on each processor)
+  *
+  * TODO: Instead of repeated calls to "DiagWorld", this class should be oblivious to the communicator
+  * 	  It should just distribute the vector to the MPI::IntraComm that it owns, whether diagonal or whole
  **/
   
 template <class IT, class NT>
@@ -38,7 +41,8 @@ public:
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
 
-	SpParVec<IT,NT> iota(IT size, NT first);
+	void PrintInfo() const;
+	void iota(IT size, NT first);
 	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;
 
 	// sort the vector itself
@@ -50,6 +54,7 @@ public:
 		IT totnnz = 0;
 		IT locnnz = ind.size();
 		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		return totnnz;
 	}
 
 	template <typename _UnaryOperation>

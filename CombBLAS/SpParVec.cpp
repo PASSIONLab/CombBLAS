@@ -28,19 +28,20 @@ template <class IT, class NT>
 SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	SpParVec<IT,IT> temp(commGrid);
+	SpParVec<IT,NT> Indexed(commGrid);
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		IT n_perproc = getnnz() / nprocs;
 		vector< vector<IT> > data_req(nprocs);
-		for(IT i=0; i < ri.length; ++i)
+		for(IT i=0; i < ri.ind.size(); ++i)
 		{
-			int rec = std::min(ri.num[i] / n_perproc, nprocs-1);	// recipient processor along the diagonal
+			int owner = ri.num[i] / n_perproc;	
+			int rec = std::min(owner, nprocs-1);	// find its owner 
 			data_req[rec].push_back(ri.num[i] - 1 - (rec * n_perproc));
 		}
-		IT * sendbuf = new IT[ri.length];
+		IT * sendbuf = new IT[ri.ind.size()];
 		IT * sendcnt = new IT[nprocs];
 		IT * sdispls = new IT[nprocs];
 		for(int i=0; i<nprocs; ++i)
@@ -68,33 +69,58 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		// We will return the requested data, 
 		// our return can be at most as big as the request
 		// and smaller if we are missing some elements 
-		IT * databack = new IT[totrecv];		
+		IT * indsback = new IT[totrecv];
+		NT * databack = new NT[totrecv];		
 
+		IT * ddispls = new IT[nprocs];
+		copy(rdispls, rdispls+nprocs, ddispls);
 		for(int i=0; i<nprocs; ++i)
 		{
 			// this is not the most efficient method because it scans ind vector nprocs = sqrt(p) times
-			// Set_intersection is stable, meaning both that elements are copied from the first range rather than the second, 
-			// and that the relative order of elements in the output range is the same as in the first input range
-			IT * it = set_intersection(recvbuf+rdispls[i], recvbuf+rdispls[i]+recvcnt[i], ind.begin(), ind.end(), databack+rdispls[i]);
-			sendcnt[i] = (it - (databack+rdispls[i]));	// size of the intersection
+			IT * it = set_intersection(recvbuf+rdispls[i], recvbuf+rdispls[i]+recvcnt[i], ind.begin(), ind.end(), indsback+rdispls[i]);
+			recvcnt[i] = (it - (indsback+rdispls[i]));	// update with size of the intersection
+	
+			IT vi = 0;
+			for(IT j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+			{
+				// indsback is a subset of ind
+				while(indsback[j] > ind[vi]) 
+					++vi;
+				databack[j] = num[vi++];
+			}
 		}
 		
-		DiagWorld.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// share the response counts, overriding request counts 
-		DiagWorld.Alltoallv(databack, sendcnt, rdispls, MPIType<IT>(), recvbuf, recvcnt, sdispls, MPIType<IT>());  // send data
+		DeleteAll(recvbuf, ddispls);
+		NT * databuf = new NT[ri.ind.size()];
 
+		DiagWorld.Alltoall(recvcnt, 1, MPIType<IT>(), sendcnt, 1, MPIType<IT>());	// share the response counts, overriding request counts 
+		DiagWorld.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send data
+		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
 
-		// ABAB: Now create the output from databack
-		return SpParVec<IT,NT>();
+		DeleteAll(rdispls, recvcnt, indsback, databack);
 
-		// ABAB: Don't forget to deallocate temporary arrays
+		// Now create the output from databuf 
+		for(int i=0; i<nprocs; ++i)
+		{
+			// data will come globally sorted from processors 
+			// i.e. ind owned by proc_i is always smaller than 
+			// ind owned by proc_j for j < i
+			for(IT j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
+			{
+				Indexed.ind.push_back(sendbuf[j]);
+				Indexed.num.push_back(databuf[j]);
+			}
+		}
+		Indexed.length = length;
+		DeleteAll(sdispls, sendcnt, sendbuf, databuf);
 	}
+	return Indexed;
 }
 
 template <class IT, class NT>
-SpParVec<IT,NT> SpParVec<IT,NT>::iota(IT size, NT first)
+void SpParVec<IT,NT>::iota(IT size, NT first)
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	SpParVec<IT,IT> temp(commGrid);
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
 		int dgrank = DiagWorld.Get_rank();
@@ -105,7 +131,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::iota(IT size, NT first)
 		ind.resize(length);
 		num.resize(length);
 		SpHelper::iota(ind.begin(), ind.end(), zero);	// offset'd within processors
-		SpHelper::iota(num.begin(), num.end(), (dgrank * n_perproc) * first);	// global across processors
+		SpHelper::iota(num.begin(), num.end(), (dgrank * n_perproc) + first);	// global across processors
 	}
 }
 
@@ -116,28 +142,29 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 	SpParVec<IT,IT> temp(commGrid);
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
-		pair<IT,IT> * vecpair = new pair<IT,IT>[length];
+		IT nnz = ind.size(); 
+		pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
 
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
 
 		long * dist = new long[nproc];
-		dist[diagrank] = length;
+		dist[diagrank] = nnz;
 		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
 
-		for(int i=0; i<length; ++i)
+		for(int i=0; i<nnz; ++i)
 		{
 			vecpair[i].first = num[i];	// we'll sort wrt numerical values
 			vecpair[i].second = ind[i] + lengthuntil + 1;	
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + length,  dist, DiagWorld);
+    		psort::parallel_sort (vecpair, vecpair + nnz,  dist, DiagWorld);
 
-		vector< IT > nind(length);
-		vector< IT > nnum(length);
-		for(int i=0; i<length; ++i)
+		vector< IT > nind(nnz);
+		vector< IT > nnum(nnz);
+		for(int i=0; i<nnz; ++i)
 		{
 			num[i] = vecpair[i].first;	// sorted range
 			nind[i] = ind[i];		// make sure the sparsity distribution is the same
@@ -326,5 +353,15 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 }
 
 
-
+template <class IT, class NT>
+void SpParVec<IT,NT>::PrintInfo() const
+{
+	if(diagonal)
+	{
+		IT nznz = getnnz();
+		
+		if (commGrid->GetRank() == 0)	
+			cout << "As a whole, this vector has: " << nznz << " nonzeros" << endl; 
+	}
+}
 

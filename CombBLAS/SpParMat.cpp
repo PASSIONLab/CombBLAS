@@ -338,8 +338,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	if(ri.diagonal)		// only the diagonal processors hold vectors
 	{
 		// broadcast the size 
-		rilen = ri.length;
-		cilen = ci.length;
+		rilen = ri.ind.size();
+		cilen = ci.ind.size();
 		(commGrid->rowWorld).Bcast(&rilen, 1, MPIType<IT>(), diaginrow);
 		(commGrid->colWorld).Bcast(&cilen, 1, MPIType<IT>(), diagincol);
 
