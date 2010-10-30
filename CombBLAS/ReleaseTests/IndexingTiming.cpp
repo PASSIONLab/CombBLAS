@@ -80,6 +80,26 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
 
+		/**  Test #2
+   		**   
+		int nclust = 10;
+		vector< SpParVec<int,int> > clusters(nclust);
+
+		for(int i = 0; i< nclust; i++)
+		{
+			int k = std::min(A.getnrow() / nclust, A.getnrow() - nclust * i);
+			clusters[i].iota(k, nclust * i + 1);
+			clusters[i] = p(clusters[i]);
+		}
+
+		for(int i=0; i< nclust; i++)
+		{
+			B = A(clusters[i], clusters[i]);
+			B.PrintInfo();
+		}  
+		**/
+			
+
 		input.clear();
 		input.close();
 	}

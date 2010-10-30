@@ -364,19 +364,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		for(IT i=0; i<rowneighs; ++i)
 			pcnts[i] = rowdata_rowid[i].size();
 
-		// the second parameter, sendcount, is the number of elements sent to *each* processor
-		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
-
-		for(IT i=0; i<rowneighs; ++i)
-		{
-			if(i != diaginrow)	// destination is not me	
-			{
-				(commGrid->rowWorld).Send(&(rowdata_rowid[i][0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->rowWorld).Send(&(rowdata_colid[i][0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
-			}
-		}
-
-		IT locvecc = ci.ind.size();	// nnz in local vector
+		// Now, do it for ci
+		IT locvecc = ci.ind.size();	
 		for(IT i=0; i < locvecc; ++i)
 		{	
 			// make 1-based numerical values (permutation indices) 0-based
@@ -392,7 +381,18 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		for(IT i=0; i<colneighs; ++i)
 			qcnts[i] = coldata_rowid[i].size();
 
+		// the second parameter, sendcount, is the number of elements sent to *each* processor
+		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
 		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
+
+		for(IT i=0; i<rowneighs; ++i)
+		{
+			if(i != diaginrow)	// destination is not me	
+			{
+				(commGrid->rowWorld).Send(&(rowdata_rowid[i][0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->rowWorld).Send(&(rowdata_colid[i][0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+			}
+		}
 
 		for(IT i=0; i<colneighs; ++i)
 		{

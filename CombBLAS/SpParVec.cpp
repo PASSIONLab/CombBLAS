@@ -1,6 +1,7 @@
 #include <limits>
 #include "SpParVec.h"
 #include "SpDefs.h"
+#include "SpHelper.h"
 using namespace std;
 
 template <class IT, class NT>
@@ -22,6 +23,91 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 	else
 		diagonal = false;	
 };
+
+template <class IT, class NT>
+SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	SpParVec<IT,IT> temp(commGrid);
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = getnnz() / nprocs;
+		vector< vector<IT> > data_req(nprocs);
+		for(IT i=0; i < ri.length; ++i)
+		{
+			int rec = std::min(ri.num[i] / n_perproc, nprocs-1);	// recipient processor along the diagonal
+			data_req[rec].push_back(ri.num[i] - 1 - (rec * n_perproc));
+		}
+		IT * sendbuf = new IT[ri.length];
+		IT * sendcnt = new IT[nprocs];
+		IT * sdispls = new IT[nprocs];
+		for(int i=0; i<nprocs; ++i)
+			sendcnt[i] = data_req[i].size();
+
+		IT * rdispls = new IT[nprocs];
+		IT * recvcnt = new IT[nprocs];
+		DiagWorld.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// share the request counts 
+
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+		IT * recvbuf = new IT[totrecv];
+
+		for(int i=0; i<nprocs; ++i)
+			copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
+
+		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+		
+		// We will return the requested data, 
+		// our return can be at most as big as the request
+		// and smaller if we are missing some elements 
+		IT * databack = new IT[totrecv];		
+
+		for(int i=0; i<nprocs; ++i)
+		{
+			// this is not the most efficient method because it scans ind vector nprocs = sqrt(p) times
+			// Set_intersection is stable, meaning both that elements are copied from the first range rather than the second, 
+			// and that the relative order of elements in the output range is the same as in the first input range
+			IT * it = set_intersection(recvbuf+rdispls[i], recvbuf+rdispls[i]+recvcnt[i], ind.begin(), ind.end(), databack+rdispls[i]);
+			sendcnt[i] = (it - (databack+rdispls[i]));	// size of the intersection
+		}
+		
+		DiagWorld.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// share the response counts, overriding request counts 
+		DiagWorld.Alltoallv(databack, sendcnt, rdispls, MPIType<IT>(), recvbuf, recvcnt, sdispls, MPIType<IT>());  // send data
+
+
+		// ABAB: Now create the output from databack
+		return SpParVec<IT,NT>();
+
+		// ABAB: Don't forget to deallocate temporary arrays
+	}
+}
+
+template <class IT, class NT>
+SpParVec<IT,NT> SpParVec<IT,NT>::iota(IT size, NT first)
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	SpParVec<IT,IT> temp(commGrid);
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = size / nprocs;
+
+		length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
+		ind.resize(length);
+		num.resize(length);
+		SpHelper::iota(ind.begin(), ind.end(), zero);	// offset'd within processors
+		SpHelper::iota(num.begin(), num.end(), (dgrank * n_perproc) * first);	// global across processors
+	}
+}
 
 template <class IT, class NT>
 SpParVec<IT, IT> SpParVec<IT, NT>::sort()
@@ -155,7 +241,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					infile >> tempval;
 					tempind--;
 
-					int rec = std::min(tempind / n_perproc, neighs-1);	// precipient processor along the diagonal
+					int rec = std::min(tempind / n_perproc, neighs-1);	// recipient processor along the diagonal
 					inds[ rec * buffperneigh + curptrs[rec] ] = tempind;
 					vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
 					++ (curptrs[rec]);				

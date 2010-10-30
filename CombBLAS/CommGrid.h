@@ -109,7 +109,7 @@ public:
 	MPI::Intracomm GetRowWorld() const { return rowWorld; }
 	MPI::Intracomm GetColWorld() const { return colWorld; }
 	MPI::Intracomm GetDiagWorld() const { return diagWorld; }
-	
+
 	int GetGridRows() { return grrows; }
 	int GetGridCols() { return grcols; }
 
