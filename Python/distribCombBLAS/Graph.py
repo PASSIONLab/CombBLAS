@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sc
 import scipy.sparse as sp
-import DenseParVec as DPV
+import SpParVec as SPV
 import SpParMat as SPM
 
 class Graph():
@@ -21,8 +21,9 @@ class Graph():
 	def __len__(self):
 		return self.spmat.nverts();
 
-	def shape(self):
-		return (self.spmat.nverts(), self.spmat.nverts());
+	# NOTE:  no shape() for a graph;  use nverts/nedges instead	
+	#def shape(self):
+	#	return (self.spmat.nverts(), self.spmat.nverts());
 
 	#FIX:  should only return 1 of the 2 directed edges for simple graphs
 	def toEdgeV(self):		
@@ -42,14 +43,14 @@ class Graph():
 		return self.spmat.getnrow();
 
 	def degree(self):
-		tmp = SPM.reduce(self._spones(self.spmat), 0, +);
+		tmp = SPM.reduce(self._spones(self.spmat), 0, +);	# FIX: syntax
 		return tmp;
 
 	@staticmethod
 	def _spones(spmat):		
 		[nr, nc] = spmat.shape();
 		[ij, ign] = Graph._toEdgeV(spmat);
-		return Graph.Graph(ij, DPV.ones(len(ign)));
+		return Graph.Graph(ij, SPV.ones(len(ign)));
 
 	@staticmethod
 	def _sub2ind(size, row, col):		# ToDo:  extend to >2D
@@ -75,32 +76,34 @@ class Graph():
  		#old		#was:  Z[i,0] = min( Z[i], X[i,k]*Y[k,] );
 		#old	foo = Z[i];	#debug
 
-		Z = SPM._Mult_AnXB_times_max(X, Y);	# assuming function creates its own output array
+		Z = SPM.SpMV_SelMax(X, Y);	# assuming function creates its own output array
 
 		return Z
 		
 
 class EdgeV():
-	print "in EdgeV"
+	# NOTE:  implemented in terms of CBLAS' sparse vectors
+	# NOTE:  vertex numbers go from 1 to N unlike Python's 0 to N-1 
 
 
-	# For now, vertex endpoints are each a DenseParVec, as is values
+	# For now, vertex endpoints are each a SpParVec, as is values
 	# ToDo:  create a way for a client edge-vector to become a distributed edge-vector
 	def __init__(self, verts, values):
 		error = False;
-		if type(values).__name__ <> 'DenseParVec':
+		if type(values).__name__ <> 'SpParVec':
 			error = True;
-		for i in range(len(verts)):		# 'len' overloaded for DPVs
-			if type(verts[i]).__name__ <> 'DenseParVec':
+		for i in range(len(verts)):		# 'len' overloaded for SPVs
+			if type(verts[i]).__name__ <> 'SpParVec':
 				error = True;
 		if error:
-			raise ValueError('inputs must be DenseParVecs')
+			raise ValueError('inputs must be SpParVecs')
 		if len(verts[0]) <> len(values):
 			raise ValueError('length of vertex and values vectors must be the same')
 		self.__verts = verts;
 		self.__values = values;
 
 
+	#FIX: inconsistency between len and getitem;  len returns #verts;  getitem[0] returns verts
 	def __len__(self):
 		return len(self.__verts[0]);
 

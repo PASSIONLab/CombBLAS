@@ -3,6 +3,7 @@ import scipy as sc
 import scipy.sparse as sp
 import Graph as gr
 import DenseParVec as DPV
+import SpParVec as SPV
 import SpParMat as SPM
 
 class DiGraph(gr.Graph):
@@ -81,42 +82,37 @@ def Graph500Edges(n):						# NOTE: Not changed yet from SciPy version
 
 def bfsTree(G, starts):
 	#old parents = -2*sc.ones(G.spmat.shape[0]).astype(int);
-	parents = DPV.zeros(G.nverts()) - 2;				# constructor and -=
+	parents = SPV.zeros(G.nverts()) - 2;				# constructor and -=
 	#old levels = np.copy(parents);
-	levels = DPV.copy(parents);					# copy() (or "=") DPV->DPV (NEW) 
+	levels = SPV.copy(parents);					# copy() (or "=") DPV->DPV (NEW) 
 	#old newverts = np.copy(starts);
-	newverts = DPV.DenseParVec(starts);				# need constructor (or "=") from serial vector (NEW)
-	#old parents[newverts] = -1;
-	DPV.set(parents, newverts, -1)					# DPV.set(input, ndx, val) or overload "=" (NEW)
-	#old levels[newverts] = 0;
-	DPV.set(levels, newverts, 0);
+	newverts = SPV.SpParVec(starts);				# need constructor (or "=") from scalar (NEW)
+	parents[newverts] = -1;						# overload __setitem__ (NEW)
+	levels[newverts] = 0;
 	#fringe = np.array([newverts]);
-	fringe = DPV.copy(newverts);
+	fringe = SPV.copy(newverts);
 	level = 1;
 	#old while len(fringe) > 0:
-	while len(fringe) > 0							# 'len' overloaded for DPVs
-											# DPV.not() (NEW)
-											# assuming DPV.bool() returns 1 where input is <> 0)
+	while len(fringe) > 0							# 'len' overloaded for SPVs?
 		#old colvec = sc.zeros((G.nverts(),));
-		colvec = DPV.zeros(G.nverts());
+		colvec = SPV.zeros(G.nverts());
 		# +1 to deal with 0 being a valid vertex ID
 		#old colvec[fringe] = fringe+1; 
-		DPV.set(levels, fringe, fringe+1)
+		colvec[fringe] = fringe+1
 		#old cand = gr.Graph._SpMV_times_max(G.spmat, colvec)
-		cand = gr.Graph._Mult_AnXB(G.spmat, colvec);	# note "AnXB" (MV), not "AnXBn" (MM)
+		cand = gr.Graph._SpMV_SelMax(G.spmat, colvec);	# 
 		#old newverts = np.array(((cand.toarray().flatten() <> 0) & (parents == -2)).nonzero()).flatten();
-		tmp1 = DPV.and( DPV.not(DPV.bool(cand)),  DPV.bool(parents+2) );	# DPV.and() (NEW)		
-		newverts = DPV.nonzero(tmp1)				# DPV.nonzero() (NEW)
+		tmp1 = SPV.logical_not(SPV.bool_(cand)) &  SPV.bool_(parents+2) );		
+		newverts = SPV.nonzero(tmp1)				# SPV.nonzero() (NEW)
 		#old if len(newverts) > 0:
-		if dpv.reduce(DPV.not(DPV.bool(newverts)), +)
+		if SPV.reduce(SPV.logical_not(SPV.bool_(newverts)), +)
 			#old parents[newverts] = cand[newverts].todense().astype(int) - 1;
-			tmp1 = DPV.get(cand,newverts) - 1;		# syntax could be indexing
-			DPV.set(parents, newverts, tmp1)
-			#old levels[newverts] = level;
-			DPV.set(levels, newverts, level);
+			parents[newverts] = cand[newverts] - 1;
+			levels[newverts] = level;
 		level += 1;
 		fringe = newverts;
-	parents = parents.astype(int);
+	#old parents = parents.astype(int);
+	parents = int(parents);
 	return (parents, levels);
 
 

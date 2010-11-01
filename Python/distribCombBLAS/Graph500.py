@@ -12,22 +12,23 @@ def k2Validate(G, start, parents, levels):
 	# Spec test #1:
 	# confirm that the tree is a tree;  i.e., that it does not have any 
 	# cycles and that every vertex with a parent is in the tree
-	visited = DPV.zeros(G.nverts());		# NEW:  hmmm;  could G.nverts return a funny object that 
+	visited = SPV.zeros(G.nverts());		# NEW:  hmmm;  could G.nverts return a funny object that 
 									# causes zeros() to create a DPV without the "DPV."?
 									# Or use zeros_like(parents) to do the same?
-	visited[root] = 1;					# NEW:  indexing (subsasgn in M terminology)
-	fringe = (root, );
+	visited[root] = 1;
+	fringe = SPV.SpParVec(G.nverts());
+	fringe[root] = 1;		
 	cycle = False;
 	#ToDo:  n^2 algorithm here
-	while len(fringe) <> 0 and not cycle:		
-		newfringe = [];
-		for i in range(len(fringe)):
+	while len(fringe.nonzero()) <> 0 and not cycle:		
+		newfringe = SPV.zeros(G.nverts());
+		for i in range(len(fringe.nonzero())):
 			newvisits = (parents==fringe[i]).nonzero();	# NEW: overload of "=="
-			if (visited[newvisits]).any():	# NEW:  DPV.any() needs to return a scalar to the client
+			if (visited[newvisits]).any():	# NEW:  SPV.any() needs to return a scalar
 				cycle = True;
 				break;
 			visited[newvisits] = 1;
-			newfringe += newvisits[0].tolist();	# NEW:  different interface for append()
+			newfringe[newvisits] = 1;
 		fringe = newfringe;
 	if cycle:
 		print "Cycle detected"; 
@@ -36,8 +37,9 @@ def k2Validate(G, start, parents, levels):
 	# Spec test #2:  
 	# every tree edge connects vertices whose BFS levels differ by 1
 	treeEdges = ((parents <> -2) & (parents <> -1))	# NEW:  ne() and and()
-	treeI = parents[treeEdges].astype(int);
-	treeJ = sc.arange(sc.shape(treeEdges)[0])[treeEdges];
+	#old treeI = parents[treeEdges].astype(int);
+	treeI = int(parents[treeEdges]);
+	treeJ = SPV.range(len(treeEdges)[0])[treeEdges];	
 	if any(levels[treeI]-levels[treeJ] <> -1):
 		print "The levels of some tree edges' vertices differ by other than 1"
 
@@ -55,14 +57,16 @@ def k2Validate(G, start, parents, levels):
 	lj = levels[Gj];
 	neither_in = (li == -2) & (lj == -2);
 	both_in = (li > -2) & (lj > -2);
-	if any(sc.logical_not(neither_in | both_in)):	# NEW:  not()
+	#old if any(sc.logical_not(neither_in | both_in)):	
+	if any(SPV.logical_not(neither_in | both_in)):	# NEW:  not()
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
 	# Spec test #5:
 	# a vertex and its parent are joined by an edge of the original graph
 	respects = abs(li-lj) <= 1					# NEW:  abs() (and binary "-"?)
-	if any(sc.logical_not(neither_in | respects)):
+	#old if any(sc.logical_not(neither_in | respects)):
+	if any(SPV.logical_not(neither_in | respects)):
 		print "At least one vertex and its parent are not joined by an original edge"
 		good = False;
 
