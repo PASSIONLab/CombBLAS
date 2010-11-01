@@ -24,6 +24,12 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 		diagonal = false;	
 };
 
+
+/**
+ * Preserves the length
+ * Example: p([1,3,92]) has perhaps less nonzeros than 
+ * p itself but its length is the same as p
+**/
 template <class IT, class NT>
 SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 {

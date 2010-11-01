@@ -33,31 +33,13 @@ public:
 	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
+	bool operator==(const DenseParVec<IT,NT> & rhs) const;
 
-	bool operator==(const DenseParVec<IT,NT> & rhs)
-	{
-		ErrorTolerantEqual<NT> epsilonequal;
-		int local = 1;
-		if(diagonal)
-		{
-			local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
-		#ifdef DEBUG
-			vector<NT> diff(arr.size());
-			transform(arr.begin(), arr.end(), rhs.arr.begin(), diff.begin(), minus<NT>());
-			typename vector<NT>::iterator maxitr;
-			maxitr = max_element(diff.begin(), diff.end()); 			
-			cout << maxitr-diff.begin() << ": " << *maxitr << " where lhs: " << *(arr.begin()+(maxitr-diff.begin())) 
-							<< " and rhs: " << *(rhs.arr.begin()+(maxitr-diff.begin())) << endl; 
-			if(local == 0)
-			{
-				PrintToFile("y");
-			}
-		#endif
-		}
-		int whole = 1;
-		commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
-		return static_cast<bool>(whole);	
-	}
+	template <typename _Predicate>
+	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
+
+	template <typename _Predicate>
+	IT Count(_Predicate pred) const;	//!< Return the number of elements for which pred is true
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -75,7 +57,7 @@ public:
 	}
 	
 	template <typename _BinaryOperation>
-	NT Reduce(_BinaryOperation __binary_op, NT identity);	// ABAB: What's the purpose of this function?
+	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
 			
 private:
 	shared_ptr<CommGrid> commGrid;

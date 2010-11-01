@@ -104,6 +104,64 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 	return *this;
 };		
 
+template <class IT, class NT>
+bool DenseParVec<IT,NT>::operator==(const DenseParVec<IT,NT> & rhs) const
+{
+	ErrorTolerantEqual<NT> epsilonequal;
+	int local = 1;
+	if(diagonal)
+	{
+		local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
+#ifdef DEBUG
+		vector<NT> diff(arr.size());
+		transform(arr.begin(), arr.end(), rhs.arr.begin(), diff.begin(), minus<NT>());
+		typename vector<NT>::iterator maxitr;
+		maxitr = max_element(diff.begin(), diff.end()); 			
+		cout << maxitr-diff.begin() << ": " << *maxitr << " where lhs: " << *(arr.begin()+(maxitr-diff.begin())) 
+						<< " and rhs: " << *(rhs.arr.begin()+(maxitr-diff.begin())) << endl; 
+#endif
+	}
+	int whole = 1;
+	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	return static_cast<bool>(whole);	
+}
+
+template <class IT, class NT>
+template <typename _Predicate>
+IT DenseParVec<IT,NT>::Count(_Predicate pred) const
+{
+	IT local = 0;
+	if(diagonal)
+	{
+		IT local = count_if( arr.begin(), arr.end(), pred );
+	}
+	IT whole = 0;
+	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
+	return whole;	
+}
+
+//! Requires no communication because SpParVec (the return object)
+//! is distributed based on length, not nonzero counts
+template <class IT, class NT>
+template <typename _Predicate>
+SpParVec<IT,NT> DenseParVec<IT,NT>::Find(_Predicate pred) const
+{
+	SpParVec<IT,NT> found(commGrid);
+	if(diagonal)
+	{
+		IT size = arr.size();
+		for(IT i=0; i<size; ++i)
+		{
+			if(pred(arr[i]))
+			{
+				found.ind.push_back(i);
+				found.num.push_back(arr[i]);
+			}
+		}
+		found.length = size;
+	}
+	return found;	
+}
 
 template <class IT, class NT>
 ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)

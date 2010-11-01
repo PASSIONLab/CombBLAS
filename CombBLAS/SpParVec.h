@@ -17,14 +17,16 @@ using namespace std::tr1;
 
 
 /** 
-  * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to diagonal processors 
-  * This is done in a way that respects ordering of the nonzero indices
+  * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to 
+  * diagonal processors in a way that respects ordering of the nonzero indices
   * Example: x = [5,1,6,2,9] for nnz(x)=5 and length(x)=10 
   *	we use 4 processors P_00, P_01, P_10, P_11
   * 	Then P_00 owns [1,2] (in the range [0...4]) and P_11 owns rest
   * In the case of A(v,w) type sparse matrix indexing, this doesn't matter because n = nnz
   * 	After all, A(v,w) will have dimensions length(v) x length (w) 
   * 	v and w will be of numerical type (NT) "int" and their indices (IT) will be consecutive integers 
+  * It is possibly that nonzero counts are distributed unevenly
+  * Example: x=[1,2,3,4,5] and length(x) = 10
   * Just like in SpParMat case, indices are local to processors (they belong to range [0,...,length-1] on each processor)
   *
   * TODO: Instead of repeated calls to "DiagWorld", this class should be oblivious to the communicator
