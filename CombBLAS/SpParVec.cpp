@@ -29,6 +29,9 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
  * Preserves the length
  * Example: p([1,3,92]) has perhaps less nonzeros than 
  * p itself but its length is the same as p
+ * TODO: Indexing (with this given semantics) would just work with
+ * the prototype operator() (const DenseParVec<IT,IT> & ri) 
+ * because this code makes no reference to ri.ind() 
 **/
 template <class IT, class NT>
 SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
@@ -41,13 +44,13 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		int nprocs = DiagWorld.Get_size();
 		IT n_perproc = getnnz() / nprocs;
 		vector< vector<IT> > data_req(nprocs);
-		for(IT i=0; i < ri.ind.size(); ++i)
+		for(IT i=0; i < ri.num.size(); ++i)
 		{
 			int owner = ri.num[i] / n_perproc;	
 			int rec = std::min(owner, nprocs-1);	// find its owner 
 			data_req[rec].push_back(ri.num[i] - 1 - (rec * n_perproc));
 		}
-		IT * sendbuf = new IT[ri.ind.size()];
+		IT * sendbuf = new IT[ri.num.size()];
 		IT * sendcnt = new IT[nprocs];
 		IT * sdispls = new IT[nprocs];
 		for(int i=0; i<nprocs; ++i)
@@ -97,7 +100,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		}
 		
 		DeleteAll(recvbuf, ddispls);
-		NT * databuf = new NT[ri.ind.size()];
+		NT * databuf = new NT[ri.num.size()];
 
 		DiagWorld.Alltoall(recvcnt, 1, MPIType<IT>(), sendcnt, 1, MPIType<IT>());	// share the response counts, overriding request counts 
 		DiagWorld.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send data

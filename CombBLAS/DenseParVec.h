@@ -39,6 +39,9 @@ public:
 	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
 	template <typename _Predicate>
+	SpParVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
+
+	template <typename _Predicate>
 	IT Count(_Predicate pred) const;	//!< Return the number of elements for which pred is true
 
 	template <typename _UnaryOperation>

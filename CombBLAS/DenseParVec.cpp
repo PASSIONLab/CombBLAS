@@ -140,6 +140,27 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 	return whole;	
 }
 
+template <class IT, class NT>
+template <typename _Predicate>
+SpParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
+{
+	SpParVec<IT,IT> found(commGrid);
+	if(diagonal)
+	{
+		IT size = arr.size();
+		for(IT i=0; i<size; ++i)
+		{
+			if(pred(arr[i]))
+			{
+				found.ind.push_back(i);
+				found.num.push_back(i);
+			}
+		}
+		found.length = size;
+	}
+}
+
+
 //! Requires no communication because SpParVec (the return object)
 //! is distributed based on length, not nonzero counts
 template <class IT, class NT>
