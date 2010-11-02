@@ -17,6 +17,7 @@
 #include "../CombBLAS/SpParMat.h"
 #include "../CombBLAS/DenseParMat.h"
 #include "../CombBLAS/DenseParVec.h"
+#include "../CombBLAS/DistEdgeList.h"
 
 
 using namespace std;
@@ -76,6 +77,19 @@ typedef struct BFSSRing_s
 		return arg1 + arg2;
 	}
 } BFSSRing;
+
+void generate(PSpMat<int>::MPI_DCCols & A) {
+	DistEdgeList<int64_t> DEL;
+	
+	double a = 0.57;
+	double b = 0.19;
+	double c = 0.19;
+	double d = 1-(a+b+c); // = 0.05
+	double abcd[] = {a, b, c, d};
+	DEL.GenGraph500Data(abcd, 10, 255);
+	
+	PermEdges<int64_t>(DEL);
+}
 
 int main(int argc, char* argv[])
 {

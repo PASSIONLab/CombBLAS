@@ -6,4 +6,6 @@ print(g.nedges())
 
 del g
 
+print "1"
+
 pcb.finalize()
