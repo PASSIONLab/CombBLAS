@@ -46,6 +46,10 @@ using namespace std::tr1;
   * \n The class uses MPI-2 to achieve one-sided asynchronous communication
   * \n The algorithm treats each submatrix as a single block
   * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
+  * \todo At this point, each MPI call probably sends less than 2 billion elements, but what if
+  *	we need to send more with a single call? MPI routines expect an 32-bit int sendcount/recvcount.
+  *	solution #1: Replace all MPI_{foo} with MPI_{foo}L whenever MPI 2.3 becomes widely available
+  *	solution #2: Exchange data in a loop 
   */
 template <class IT, class NT, class DER>
 class SpParMat

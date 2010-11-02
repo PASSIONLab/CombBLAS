@@ -45,11 +45,17 @@ public:
 
 	void PrintInfo() const;
 	void iota(IT size, NT first);
-	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;
+	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;	// SpRef
+	void SetElement (IT indx, NT numx);	// element-wise assignment
 
 	// sort the vector itself
 	// return the permutation vector
 	SpParVec<IT, IT> sort();	
+
+	IT getlocnnz() const 
+	{
+		return ind.size();
+	}
 	
 	IT getnnz() const
 	{

@@ -21,11 +21,6 @@ template<> MPI::Datatype MPIType< signed int >( void )
 	return MPI::INT;
 };  
 
-template<> MPI::Datatype MPIType< signed long int >( void )
-{
-	return MPI::LONG;
-}; 
-
 template<> MPI::Datatype MPIType< unsigned char >( void )
 {
 	return MPI::UNSIGNED_CHAR;
@@ -40,10 +35,16 @@ template<> MPI::Datatype MPIType< unsigned int >( void )
 	return MPI::UNSIGNED;
 };
 
-template<> MPI::Datatype MPIType< unsigned long int >( void )
+template<> MPI::Datatype MPIType< int64_t>(void)
 {
-	return MPI::UNSIGNED_LONG;
-}; 
+	return MPI::LONG_LONG;
+};
+
+template<> MPI::Datatype MPIType< uint64_t>(void)
+{
+	return MPI::UNSIGNED_LONG_LONG;
+};
+
 template<> MPI::Datatype MPIType< float >( void )
 {
 	return MPI::FLOAT;

@@ -24,6 +24,37 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 		diagonal = false;	
 };
 
+//! Performs almost no communication other than getnnz()
+//! Indexing is performed 1-based (regardless of the underlying storage)
+template <class IT, class NT>
+void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		IT dgrank = (IT) DiagWorld.Get_rank();
+		IT nprocs = (IT) DiagWorld.Get_size();
+		IT n_perproc = getnnz() / nprocs;
+		IT offset = dgrank * n_perproc;
+
+		IT owner = (indx-1) / n_perproc;	
+		IT rec = std::min(owner, nprocs-1);	// find its owner 
+		if(rec == dgrank)
+		{
+			IT locindx = indx-1-offset;
+			typename vector<IT>::iterator it = find(ind.begin(), ind.end(), locindx);	
+			if(it == ind.end())
+			{
+				ind.push_back(locindx);
+				num.push_back(numx);
+			}
+			else
+			{
+				*it = numx;
+			}
+		}
+	}
+}
 
 /**
  * Preserves the length
