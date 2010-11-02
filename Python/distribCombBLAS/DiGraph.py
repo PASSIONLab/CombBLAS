@@ -2,26 +2,25 @@ import numpy as np
 import scipy as sc
 import scipy.sparse as sp
 import Graph as gr
-import DenseParVec as DPV
-import SpParVec as SPV
-import SpParMat as SPM
+import SpParVec as spv
+import SpParMat as spm
 
 class DiGraph(gr.Graph):
 
 	print "in DiGraph"
 
 	def __init__(self, edgev, size):
-		self.spmat = SPM.SpParMat(edgev, shape=size);
+		self.spmat = spm.SpParMat(edgev, shape=size);
 
 	def degree(self):
 		return self.indegree() + self.outdegree();
 
 	def indegree(self):
-		tmp = SPM.reduce(self._spones(self.spmat), 0, +);
+		tmp = spm.reduce(self._spones(self.spmat), 0, +);
 		return tmp;
 
 	def outdegree(self):
-		tmp = SPM.reduce(self._spones(self.spmat), 1, +);
+		tmp = spm.reduce(self._spones(self.spmat), 1, +);
 		return tmp;
 
 		
@@ -82,30 +81,30 @@ def Graph500Edges(n):						# NOTE: Not changed yet from SciPy version
 
 def bfsTree(G, starts):
 	#old parents = -2*sc.ones(G.spmat.shape[0]).astype(int);
-	parents = SPV.zeros(G.nverts()) - 2;				# constructor and -=
+	parents = spv.zeros(G.nverts()) - 2;				# constructor and -=
 	#old levels = np.copy(parents);
-	levels = SPV.copy(parents);					# copy() (or "=") DPV->DPV (NEW) 
+	levels = parents;					# copy() (or "=") DPV->DPV (NEW) 
 	#old newverts = np.copy(starts);
-	newverts = SPV.SpParVec(starts);				# need constructor (or "=") from scalar (NEW)
+	newverts = spv.SpParVec(starts);				# need constructor (or "=") from scalar (NEW)
 	parents[newverts] = -1;						# overload __setitem__ (NEW)
 	levels[newverts] = 0;
 	#fringe = np.array([newverts]);
-	fringe = SPV.copy(newverts);
+	fringe = newverts;
 	level = 1;
 	#old while len(fringe) > 0:
-	while len(fringe) > 0							# 'len' overloaded for SPVs?
+	while len(fringe) > 0							# 'len' overloaded for SPVs
 		#old colvec = sc.zeros((G.nverts(),));
-		colvec = SPV.zeros(G.nverts());
+		colvec = spv.zeros(G.nverts());
 		# +1 to deal with 0 being a valid vertex ID
 		#old colvec[fringe] = fringe+1; 
 		colvec[fringe] = fringe+1
 		#old cand = gr.Graph._SpMV_times_max(G.spmat, colvec)
 		cand = gr.Graph._SpMV_SelMax(G.spmat, colvec);	# 
 		#old newverts = np.array(((cand.toarray().flatten() <> 0) & (parents == -2)).nonzero()).flatten();
-		tmp1 = SPV.logical_not(SPV.bool_(cand)) &  SPV.bool_(parents+2) );		
-		newverts = SPV.nonzero(tmp1)				# SPV.nonzero() (NEW)
+		tmp1 = ~(spv.bool(cand)) &  spv.bool(parents+2) );		
+		newverts = tmp1.nonzero();				
 		#old if len(newverts) > 0:
-		if SPV.reduce(SPV.logical_not(SPV.bool_(newverts)), +)
+		if spv.reduce(~(spv.bool(newverts)), +)
 			#old parents[newverts] = cand[newverts].todense().astype(int) - 1;
 			parents[newverts] = cand[newverts] - 1;
 			levels[newverts] = level;

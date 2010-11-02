@@ -1,8 +1,8 @@
 import numpy as np
 import scipy as sc
 import scipy.sparse as sp
-import SpParVec as SPV
-import SpParMat as SPM
+import SpParVec as spv
+import SpParMat as spm
 
 class Graph():
 	#ToDo: privatize .spmat name (to .__spmat)
@@ -12,11 +12,9 @@ class Graph():
 
 	def __init__(self, edgev, size):
 		# include edges in both directions
-		# old self.spmat = sp.csr_matrix((edgev[1],edgev[0]), shape=(size)) + sp.csr_matrix(((edgev[1][1],edgev[1][0]), edgev[0]), shape=(size));
-
 		# NEW:  not clear that any of the SpParMat constructors actually do the following, so
 		#   may be a new function
-		self.spmat = SPM.SpParMat(edgev, size=size);
+		self.spmat = spm.SpParMat(edgev, size=size);
 
 	def __len__(self):
 		return self.spmat.nverts();
@@ -27,11 +25,11 @@ class Graph():
 
 	#FIX:  should only return 1 of the 2 directed edges for simple graphs
 	def toEdgeV(self):		
-		[ij, v] = self._toArrays(self.spmat);
+		[ij, v] = self._toVectors(self.spmat);
 		return EdgeV(ij, v);
 
 	@staticmethod
-	def _toArrays(spmat):		# similar to toEdgeV, except returns arrays
+	def _toVectors(spmat):		# similar to toEdgeV, except returns arrays
 		[i, j] = spmat.nonzero();		# NEW:  don't see a way to do this with current SpParMat
 		v = spmat[i,j];				# not NEW:  looks like already supported by general indexing
 		return ((i,j), v)
@@ -43,14 +41,14 @@ class Graph():
 		return self.spmat.getnrow();
 
 	def degree(self):
-		tmp = SPM.reduce(self._spones(self.spmat), 0, +);	# FIX: syntax
+		tmp = spm.reduce(self._spones(self.spmat), 0, +);	# FIX: syntax
 		return tmp;
 
 	@staticmethod
 	def _spones(spmat):		
 		[nr, nc] = spmat.shape();
 		[ij, ign] = Graph._toEdgeV(spmat);
-		return Graph.Graph(ij, SPV.ones(len(ign)));
+		return Graph.Graph(ij, spv.ones(len(ign)));
 
 	@staticmethod
 	def _sub2ind(size, row, col):		# ToDo:  extend to >2D
@@ -68,15 +66,8 @@ class Graph():
 		if ncY > 1:
 			print "Y must be a column vector"
 			return
-		#ToDo:  make this work with a truly sparse Z
-		#old Z = sp.csr_matrix(-np.Inf * np.ones((nrX, ),np.dtype(X))).T;
-		#old for i in range(nrX):
- 		#old	for k in range(ncX):
- 		#old		Z[i,0] = max( (Z[i])[0,0], X[i,k]*Y[k,] );
- 		#old		#was:  Z[i,0] = min( Z[i], X[i,k]*Y[k,] );
-		#old	foo = Z[i];	#debug
 
-		Z = SPM.SpMV_SelMax(X, Y);	# assuming function creates its own output array
+		Z = spm.SpMV_SelMax(X, Y);	# assuming function creates its own output array
 
 		return Z
 		
@@ -105,7 +96,7 @@ class EdgeV():
 
 	#FIX: inconsistency between len and getitem;  len returns #verts;  getitem[0] returns verts
 	def __len__(self):
-		return len(self.__verts[0]);
+		return self.__verts.nverts();
 
 	def __getitem__(self, i):
 		if i == 0:
@@ -115,11 +106,11 @@ class EdgeV():
 		raise ValueError('index out of range');
 		return;
 
-	def vertsShape(self):
-		return np.shape(self.__verts);
+	def nverts(self):
+		return self.__verts.nverts();
 
-	def valuesShape(self):
-		return np.shape(self.__values);
+	def nvalues(self):
+		return self.__values.nvalues();
 
 	def verts(self):
 		return self.__verts;
