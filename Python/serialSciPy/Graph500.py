@@ -78,6 +78,7 @@ deg3verts = sc.array(sc.nonzero(G.degree().flatten() > 2)).flatten();	#indices o
 nstarts = 4;
 starts = sc.unique((sc.floor(sc.rand(nstarts*2)*sc.shape(deg3verts)[0])).astype(int))
 K2elapsed = 0;
+K2edges = 0;
 for start in starts[:nstarts]:
 	before = time.clock();
 	[parents, levels] = kdtd.bfsTree(G, deg3verts[start]);
@@ -85,10 +86,11 @@ for start in starts[:nstarts]:
 	if not k2Validate(G, deg3verts[start], parents, levels):
 		print "Invalid BFS tree generated blah blah";
 		break;
+	K2edges += sc.shape((parents[edges.verts()[0]] <> -2).nonzero())[1];
 
 
 print 'Graph500 benchmark run for scale = %2i' % scale
-print 'Time for kernel 1 = %8.4f seconds' % K1elapsed
-print 'Time for kernel 2 = %8.4f seconds' % K2elapsed
+print 'Kernel 1 time = %8.4f seconds' % K1elapsed
+print 'Kernel 2 time = %8.4f seconds' % K2elapsed
 print '                    %8.4f seconds for each of %i starts' % (K2elapsed/nstarts, nstarts)
-#ToDo:  calculate TEPS and print it out
+print 'Kernel 2 TEPS = %7.4e' % (K2edges/K2elapsed)
