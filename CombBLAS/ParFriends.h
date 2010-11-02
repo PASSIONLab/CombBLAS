@@ -894,6 +894,68 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 }
 	
 
+template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x )
+{
+	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+	if(!(*A.commGrid == *x.commGrid)) 		
+	{
+		cout << "Grids are not comparable for SpMV" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	int diaginrow = x.commGrid->GetDiagOfProcRow();
+        int diagincol = x.commGrid->GetDiagOfProcCol();
+
+	T_promote id = (T_promote) 0;	// do we need a better identity?
+	DenseParVec<IU, T_promote> y ( x.commGrid, id);	
+	IU ysize = A.getlocalrows();
+	if(x.diagonal)
+	{
+		IU size = x.getlocnnz();
+		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+		ColWorld.Bcast(const_cast<IU*>(&x.ind[0]), size, MPIType<IU>(), diagincol); 
+		ColWorld.Bcast(const_cast<NUV*>(&x.num[0]), size, MPIType<NUV>(), diagincol); 
+
+		T_promote * localy = new T_promote[ysize];
+		fill_n(localy, ysize, id);		
+
+		// serial SpMV with sparse vector
+		vector< pair<IU, T_promote> >  multstack;
+		dcsc_gespmv<SR>(*(A.spSeq), &x.ind[0], &x.num[0], size, multstack);	
+
+		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
+		// ABAB: Write a sparse vector reduction !
+                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
+		y.arr.resize(ysize);
+		copy(localy, localy+ysize, y.arr.begin());
+		delete [] localy;
+	}
+	else
+	{
+		IU size;
+		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+
+		NUV * localx = new NUV[size];
+		ColWorld.Bcast(localx, size, MPIType<NUV>(), diagincol); 
+	
+		T_promote * localy = new T_promote[ysize];		
+		fill_n(localy, ysize, id);		
+
+		dcsc_gespmv<SR>(*(A.spSeq), localx, localy);
+		delete [] localx;
+
+                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);	
+
+		delete [] localy;
+	}
+	return y;
+}
+	
+
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseMult 
 	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B , bool exclude)

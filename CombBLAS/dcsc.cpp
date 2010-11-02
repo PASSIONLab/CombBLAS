@@ -828,11 +828,11 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 	}
 }
 
+// nind, =length(colsums), gives number of columns of A that contributes to C(:,i)
 template<class IT, class NT>
-void Dcsc<IT,NT>::FillColInds(const vector<IT> & colnums, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
+void Dcsc<IT,NT>::FillColInds(IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
-	IT nind = colnums.size();			// number of columns of A that contributes to C(:,i)
-	if ( (nzc / nind) < THRESHOLD) 			// use scanning indexing
+	if ( (nzc / nind) < THRESHOLD || aux == NULL) 	// use scanning indexing
 	{
 		IT mink = min(nzc, nind);
 		pair<IT,IT> * isect = new pair<IT,IT>[mink];

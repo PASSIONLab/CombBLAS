@@ -93,6 +93,10 @@ public:
 	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT nA,	 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
+	template <typename SR, typename IT, typename NT1, typename NT2>
+	static IT SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT veclen,  
+			vector< pair<IT, typename promote_trait<NT1,NT2>::T_promote> > & multstack);
+
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
 	{
@@ -295,7 +299,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		vector< pair<IT,IT> > colinds(nnzcol);		
 		copy(Bdcsc.ir + Bdcsc.cp[i], Bdcsc.ir + Bdcsc.cp[i+1], colnums.begin());
 		
-		Adcsc.FillColInds(colnums, colinds, aux, csize);
+		Adcsc.FillColInds(&colnums[0], colnums.size(), colinds, aux, csize);
 		IT maxnnz = 0;	// max number of nonzeros in C(:,i)	
 		IT hsize = 0;
 		
@@ -347,6 +351,64 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	}
 	delete [] aux;
 	return cnz;
+}
+
+
+// indx vector practically keeps column numbers requested from A
+template <typename SR, typename IT, typename NT1, typename NT2>
+IT SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT veclen,  
+			vector< pair<IT, typename promote_trait<NT1,NT2>::T_promote> > & multstack)
+{
+	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
+	HeapEntry<IT, T_promote> * wset = new HeapEntry<IT, T_promote>[veclen]; 
+
+	// colnums vector keeps column numbers requested from A
+	vector<IT> colnums(veclen);
+
+	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+	vector< pair<IT,IT> > colinds(veclen);		
+
+	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
+	IT hsize = 0;		
+	for(IT j =0; j< veclen; ++j)		// create the initial heap 
+	{
+		if(colinds[j].first != colinds[j].second)	// current != end
+		{
+			// HeapEntry(key, run, num)
+			wset[hsize++] = HeapEntry< IT,T_promote > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
+		} 
+	}	
+	make_heap(wset, wset+hsize);
+
+	while(hsize > 0)
+	{
+		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
+		IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
+		T_promote mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);
+		if((!multstack.empty()) && multstack.back().first == wset[hsize-1].key)	
+		{
+			multstack.back().value = SR::add(multstack.back().value, mrhs);
+		}
+		else
+		{
+			multstack.push_back(make_pair(wset[hsize-1].key, mrhs));	
+		}
+			
+		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
+		{
+			// runr stays the same !
+			wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
+			wset[hsize-1].num = Adcsc.numx[colinds[locv].first];  
+			push_heap(wset, wset+hsize);
+		}
+		else
+		{
+			--hsize;
+		}
+	}
+	delete [] wset;
+	return multstack.size();
 }
 
 #endif
