@@ -88,7 +88,7 @@ void generate(PSpMat<int>::MPI_DCCols & A, bool mayiprint) {
 	double abcd[] = {a, b, c, d};
 	if (mayiprint)
 		cout << "GenGraph500" << endl;
-	DEL.GenGraph500Data(abcd, 10, 255);
+	DEL.GenGraph500Data(abcd, 18, 221255);
 	
 	if (mayiprint)
 		cout << "PermEdges" << endl;

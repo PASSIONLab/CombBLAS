@@ -51,7 +51,6 @@ public:
 class pySpParVec {
 public:
 	pySpParVec();
-	pySpParVec(int64_t
 
 public:
 	int length() const;
@@ -67,14 +66,14 @@ public:
 	bool anyNonzeros() const;
 	bool allNonzeros() const;
 	
-	int64_t intersectSize(cost pySpParVec& other);
+	int64_t intersectSize(const pySpParVec& other);
 	
 public:	
 	void load(const char* filename);
 
 public:
-	static pySpParVec zeros(int64_t howmany);
-	static pySpParVec range(int64_t howmany, int64_t start);
+	static pySpParVec* zeros(int64_t howmany);
+	static pySpParVec* range(int64_t howmany, int64_t start);
 	
 };
 

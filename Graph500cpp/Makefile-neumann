@@ -8,7 +8,7 @@ INCADD = -I$(INCDIR)
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = mpicxx
-FLAGS = $(DEB)  -DGRAPH_GENERATOR_SEQ -Drestrict
+FLAGS = $(DEB) 
 
 GENERATOR_OBJS_SEQ=btrd_binomial_distribution.o splittable_mrg.o mrg_transitions.o graph_generator.o permutation_gen.o scramble_edges.o utils.o
 

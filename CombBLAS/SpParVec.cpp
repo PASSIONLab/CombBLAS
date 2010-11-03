@@ -249,7 +249,7 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 				}
 				else
 				{
-					nind.push_back( ind[i].first );
+					nind.push_back( ind[i] ); // ADAM: used to be nind.push_back( ind[i].first );
 					nnum.push_back( num[i++] + rhs.num[j++] );
 				}
 			}
@@ -273,12 +273,13 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
 		IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 
-		IT * displs = new IT[neighs];
+		// ADAM: displs used to be type IT, but it is passed to MPI as an int
+		int * displs = new int[neighs];
 		for (int i=0; i<neighs; ++i)
 			displs[i] = i*buffperneigh;
 
-		IT * curptrs;
-		IT recvcount;
+		int * curptrs; // ADAM: curptrs and recvcount used to be type IT, but they are passed to MPI as counts, which are ints
+		int recvcount;
 		IT * inds; 
 		NT * vals;
 
@@ -288,7 +289,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			inds = new IT [ buffperneigh * neighs ];
 			vals = new NT [ buffperneigh * neighs ];
 
-			curptrs = new IT[neighs];
+			curptrs = new int[neighs]; 
 			fill_n(curptrs, neighs, (IT) zero);	// fill with zero
 		
 			if (infile.is_open())
@@ -308,7 +309,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					infile >> tempval;
 					tempind--;
 
-					int rec = std::min(tempind / n_perproc, neighs-1);	// recipient processor along the diagonal
+					int rec = std::min((int)(tempind / n_perproc), neighs-1);	// recipient processor along the diagonal
 					inds[ rec * buffperneigh + curptrs[rec] ] = tempind;
 					vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
 					++ (curptrs[rec]);				
@@ -316,7 +317,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 					{
 						// first, send the receive counts ...
-						DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
+						DiagWorld.Scatter(curptrs, 1, MPIType<int>(), &recvcount, 1, MPIType<int>(), master);
 
 						// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 						IT * tempinds = new IT[recvcount];
