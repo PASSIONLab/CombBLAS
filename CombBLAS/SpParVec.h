@@ -15,6 +15,9 @@
 using namespace std;
 using namespace std::tr1;
 
+template <class IT>
+class DistEdgeList;
+
 
 /** 
   * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to 
@@ -87,6 +90,9 @@ private:
 
 	template <typename IU>
 	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
+	
+	template <typename IU>
+	friend void RenameVertices(DistEdgeList<IU> & DEL);
 };
 
 #include "SpParVec.cpp"

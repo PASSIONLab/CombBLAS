@@ -78,7 +78,7 @@ typedef struct BFSSRing_s
 	}
 } BFSSRing;
 
-void generate(PSpMat<int>::MPI_DCCols & A) {
+void generate(PSpMat<int>::MPI_DCCols & A, bool mayiprint) {
 	DistEdgeList<int64_t> DEL;
 	
 	double a = 0.57;
@@ -86,9 +86,17 @@ void generate(PSpMat<int>::MPI_DCCols & A) {
 	double c = 0.19;
 	double d = 1-(a+b+c); // = 0.05
 	double abcd[] = {a, b, c, d};
+	if (mayiprint)
+		cout << "GenGraph500" << endl;
 	DEL.GenGraph500Data(abcd, 10, 255);
 	
+	if (mayiprint)
+		cout << "PermEdges" << endl;
 	PermEdges<int64_t>(DEL);
+
+	if (mayiprint)
+		cout << "RenameVertices" << endl;
+	RenameVertices<int64_t>(DEL);
 }
 
 int main(int argc, char* argv[])
@@ -106,6 +114,19 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./graph500 <MatrixA>" << endl;
 			cout << "<MatrixA> file should be in triples format" << endl;
 		}
+		
+		if (myrank == 0)
+		{
+			cout << "trying a generate instead" << endl;
+		}
+		{
+			PSpMat<int>::MPI_DCCols A;
+			generate(A, myrank == 0);
+		}
+		if (myrank == 0) {
+			cout << "yay!" << endl;
+		}
+		
 		MPI::Finalize(); 
 		return -1;
 	}				

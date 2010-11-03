@@ -49,7 +49,9 @@ public:
 	void GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges);
 	void CleanupEmpties();
 	
-	IT getNumEdges() { return nedges; }
+	IT getNumRows() { return numrows; }
+	IT getNumCols() { return numcols; }
+	IT getNumLocalEdges() { return nedges; }
 	
 private:
 	MPI::Intercomm comm;
@@ -60,11 +62,16 @@ private:
 	IT nedges; // number of edges
 	IT memedges; // number of edges for which there is space. nedges <= memsize
 	
+	IT numrows;
+	IT numcols;
+	
 	void SetMemSize(IT ne);
 	
 	template<typename IU>
 	friend void PermEdges(DistEdgeList<IU> & DEL);
-
+	
+	template <typename IU>
+	friend void RenameVertices(DistEdgeList<IU> & DEL);
 };
 
 template<typename IU>
