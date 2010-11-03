@@ -260,8 +260,6 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 				DEL.edges[j] = localPerm[DEL.edges[j]-startInd];
 				renamed[j] = true;
 			}
-			fflush(stdout);
-			DEL.comm.Barrier();
 		}
 		
 		startInd += permsize;
