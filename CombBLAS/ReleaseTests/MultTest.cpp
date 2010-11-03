@@ -67,12 +67,15 @@ int main(int argc, char* argv[])
 
 		PSpMat<double>::MPI_DCCols A, B, C, CControl;	// construct objects
 		DenseParVec<int, double> ycontrol, x;
+		SpParVec<int, double> spycontrol, spx;
 		
 		A.ReadDistribute(inputA, 0);
 		B.ReadDistribute(inputB, 0);
 		CControl.ReadDistribute(inputC, 0);
 		x.ReadDistribute(vecinpx, 0);
+		spx.ReadDistribute(vecinpx, 0);
 		ycontrol.ReadDistribute(vecinpy,0);
+		spycontrol.ReadDistribute(vecinpy,0);
 
 		DenseParVec<int, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
 		if (ycontrol == y)
@@ -82,6 +85,19 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Dense SpMV, go fix it!\n");	
+		}
+
+		SpParVec<int, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
+		y = spy;	// convert to dense
+		ycontrol = spycontrol;
+		
+		if (ycontrol == y)
+		{
+			SpParHelper::Print("Sparse SpMV working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in Sparse SpMV, go fix it!\n");	
 		}
 
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);

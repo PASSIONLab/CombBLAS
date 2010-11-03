@@ -753,7 +753,7 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
   * It it doesn't exist, return value is undefined (implementation specific).
  **/
 template<class IT, class NT>
-IT Dcsc<IT,NT>::AuxIndex(IT colind, bool & found, IT * aux, IT csize) const
+IT Dcsc<IT,NT>::AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const
 {
 	IT base = static_cast<IT>(floor((float) (colind/csize)));
 	IT start = aux[base];
@@ -830,7 +830,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 
 // nind, =length(colsums), gives number of columns of A that contributes to C(:,i)
 template<class IT, class NT>
-void Dcsc<IT,NT>::FillColInds(IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
+void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
 	if ( (nzc / nind) < THRESHOLD || aux == NULL) 	// use scanning indexing
 	{

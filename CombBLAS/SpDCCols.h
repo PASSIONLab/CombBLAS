@@ -271,8 +271,8 @@ private:
         friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
-	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * xi, const NUV * x, IT nnzx, 	//!< SpMV with sparse vector
-		vector< pair<IT, typename promote_trait<NUM,NUV>::T_promote> > & multstack);
+	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 	//!< SpMV with sparse vector
+		vector<IU> & indy, vector<typename promote_trait<NUM,NUV>::T_promote>  & numy);
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)

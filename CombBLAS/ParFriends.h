@@ -867,7 +867,7 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		fill_n(localy, ysize, id);		
 		dcsc_gespmv<SR>(*(A.spSeq), &x.arr[0], localy);	
 
-		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
+		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root)
                 RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
 		y.arr.resize(ysize);
 		copy(localy, localy+ysize, y.arr.begin());
@@ -910,47 +910,92 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	int diaginrow = x.commGrid->GetDiagOfProcRow();
         int diagincol = x.commGrid->GetDiagOfProcCol();
 
-	T_promote id = (T_promote) 0;	// do we need a better identity?
-	DenseParVec<IU, T_promote> y ( x.commGrid, id);	
+	SpParVec<IU, T_promote> y ( x.commGrid);	// identity doesn't matter for sparse vectors
 	IU ysize = A.getlocalrows();
 	if(x.diagonal)
 	{
-		IU size = x.getlocnnz();
-		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<IU*>(&x.ind[0]), size, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(const_cast<NUV*>(&x.num[0]), size, MPIType<NUV>(), diagincol); 
+		IU nnzx = x.getlocnnz();
+		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
+		ColWorld.Bcast(const_cast<IU*>(&x.ind[0]), nnzx, MPIType<IU>(), diagincol); 
+		ColWorld.Bcast(const_cast<NUV*>(&x.num[0]), nnzx, MPIType<NUV>(), diagincol); 
 
+		// define a SPA-like data structure
 		T_promote * localy = new T_promote[ysize];
-		fill_n(localy, ysize, id);		
+		bool * isthere = new bool[ysize];
+		vector<IU> nzinds;	// nonzero indices		
+		fill_n(isthere, ysize, false);
 
 		// serial SpMV with sparse vector
-		vector< pair<IU, T_promote> >  multstack;
-		dcsc_gespmv<SR>(*(A.spSeq), &x.ind[0], &x.num[0], size, multstack);	
+		vector< IU > indy;
+		vector< T_promote >  numy;
+		dcsc_gespmv<SR>(*(A.spSeq), &x.ind[0], &x.num[0], nnzx, indy, numy);	
 
-		// IntraComm::Reduce(sendbuf, recvbug, count, type, op, root)
-		// ABAB: Write a sparse vector reduction !
-                RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
-		y.arr.resize(ysize);
-		copy(localy, localy+ysize, y.arr.begin());
+		int proccols = x.commGrid->GetGridCols();
+		int * gsizes = new int[proccols];	// # of processor columns = number of processors in the RowWorld
+		int mysize = indy.size();
+		RowWorld.Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, diaginrow);
+		int maxnnz = std::accumulate(gsizes, gsizes+proccols, 0);
+		int * dpls = new int[proccols]();	// displacements (zero initialized pid) 
+		std::partial_sum(gsizes, gsizes+proccols-1, dpls+1);
+		
+		IU * indbuf = new IU[maxnnz];	
+		T_promote * numbuf = new T_promote[maxnnz];
+
+		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
+                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow);
+                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow);
+
+		for(int i=0; i< maxnnz; ++i)
+		{
+			if(!isthere[indbuf[i]])
+			{
+				localy[indbuf[i]] = numbuf[i];	// initial assignment
+				nzinds.push_back(indbuf[i]);
+				isthere[indbuf[i]] = true;
+			} 
+			else
+			{
+				localy[indbuf[i]] = SR::add(localy[indbuf[i]], numbuf[i]);	
+			}
+		}
+		DeleteAll(gsizes, dpls, indbuf, numbuf,isthere);
+		sort(nzinds.begin(), nzinds.end());
+		
+		int nnzy = nzinds.size();
+		y.ind.resize(nnzy);
+		y.num.resize(nnzy);
+		for(int i=0; i< nnzy; ++i)
+		{
+			y.ind[i] = nzinds[i];
+			y.num[i] = localy[nzinds[i]]; 	
+		}
+		y.length = ysize;
 		delete [] localy;
 	}
 	else
 	{
-		IU size;
-		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+		IU nnzx;
+		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
 
-		NUV * localx = new NUV[size];
-		ColWorld.Bcast(localx, size, MPIType<NUV>(), diagincol); 
-	
-		T_promote * localy = new T_promote[ysize];		
-		fill_n(localy, ysize, id);		
+		IU * xinds = new IU[nnzx];
+		NUV * xnums = new NUV[nnzx];
+		ColWorld.Bcast(xinds, nnzx, MPIType<IU>(), diagincol); 
+		ColWorld.Bcast(xnums, nnzx, MPIType<NUV>(), diagincol); 
 
-		dcsc_gespmv<SR>(*(A.spSeq), localx, localy);
-		delete [] localx;
+		// serial SpMV with sparse vector
+		vector< IU > indy;
+		vector< T_promote >  numy;
+		dcsc_gespmv<SR>(*(A.spSeq), xinds, xnums, nnzx, indy, numy);	
 
-                RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);	
+		int mysize = indy.size();
+		RowWorld.Gather(&mysize, 1, MPI::INT, NULL, 1, MPI::INT, diaginrow);
 
-		delete [] localy;
+		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
+                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow);
+                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow);
+
+		delete [] xinds;
+		delete [] xnums;
 	}
 	return y;
 }

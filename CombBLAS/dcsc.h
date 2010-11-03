@@ -55,13 +55,13 @@ public:
 	template <typename _UnaryOperation>
 	void Prune(_UnaryOperation __unary_op);
 
-	IT AuxIndex(IT colind, bool & found, IT * aux, IT csize) const;
+	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
 	IT ConstructAux(IT ndim, IT * & aux) const;
 	void Resize(IT nzcnew, IT nznew);
-	void FillColInds(IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
+	void FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
 
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 

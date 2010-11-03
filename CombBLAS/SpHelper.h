@@ -94,8 +94,8 @@ public:
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename SR, typename IT, typename NT1, typename NT2>
-	static IT SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT veclen,  
-			vector< pair<IT, typename promote_trait<NT1,NT2>::T_promote> > & multstack);
+	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, const IT * indx, const NT2 * numx, IT veclen,  
+			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy);
 
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
@@ -356,8 +356,8 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 
 // indx vector practically keeps column numbers requested from A
 template <typename SR, typename IT, typename NT1, typename NT2>
-IT SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT veclen,  
-			vector< pair<IT, typename promote_trait<NT1,NT2>::T_promote> > & multstack)
+void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, const IT * indx, const NT2 * numx, IT veclen,  
+			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
 {
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 	HeapEntry<IT, T_promote> * wset = new HeapEntry<IT, T_promote>[veclen]; 
@@ -386,13 +386,14 @@ IT SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT vecle
 		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
 		IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
 		T_promote mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);
-		if((!multstack.empty()) && multstack.back().first == wset[hsize-1].key)	
+		if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
 		{
-			multstack.back().value = SR::add(multstack.back().value, mrhs);
+			numy.back() = SR::add(numy.back(), mrhs);
 		}
 		else
 		{
-			multstack.push_back(make_pair(wset[hsize-1].key, mrhs));	
+			indy.push_back(wset[hsize-1].key);
+			numy.push_back(mrhs);	
 		}
 			
 		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
@@ -408,7 +409,6 @@ IT SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT * indx, NT2 * numx, IT vecle
 		}
 	}
 	delete [] wset;
-	return multstack.size();
 }
 
 #endif

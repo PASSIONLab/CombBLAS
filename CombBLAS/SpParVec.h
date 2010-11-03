@@ -10,10 +10,16 @@
 #else
 	#include <tr1/memory>
 #endif
+
 #include "CommGrid.h"
+#include "promote.h"
+#include "SpParMat.h"
 
 using namespace std;
 using namespace std::tr1;
+
+template <class IT, class NT, class DER>
+class SpParMat;
 
 template <class IT>
 class DistEdgeList;
@@ -87,6 +93,10 @@ private:
 	
 	template <class IU, class NU, class UDER>
 	friend class SpParMat;
+
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+	friend SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x );
 
 	template <typename IU>
 	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
