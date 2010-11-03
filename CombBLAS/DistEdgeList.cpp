@@ -11,6 +11,7 @@
 #include "ParFriends.h"
 #include "Operations.h"
 
+#define GRAPH_GENERATOR_SEQ
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
 
