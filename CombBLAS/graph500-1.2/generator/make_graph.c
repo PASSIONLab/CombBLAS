@@ -32,10 +32,6 @@
 #include "scramble_edges.h"
 #include "utils.h"
 
-double initiator[] = {.57, .19, .19, .05};
-  make_graph(log_numverts, 8. * pow(2., log_numverts), 1, 2, initiator, &nedges, &result);
-
-
 #ifdef GRAPH_GENERATOR_SEQ
 void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, uint64_t userseed2, const double initiator[4], int64_t* nedges_ptr, int64_t** result_ptr) {
   int64_t N, M;
