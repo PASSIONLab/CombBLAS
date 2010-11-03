@@ -9,9 +9,6 @@
 #include "ParFriends.h"
 #include "Operations.h"
 
-#include "graph500-1.2/generator/graph_generator.h"
-#include "graph500-1.2/generator/utils.h"
-
 #include <fstream>
 #include <algorithm>
 using namespace std;
@@ -567,6 +564,11 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges)
 { 
+  // This function should not be used in this form
+  // use DistEdgeList::GenGraph500Data instead
+  
+  
+  /*
   // Spread the two 64-bit numbers into five nonzero values in the correct range
   uint_fast32_t seed[5];
   make_mrg_seed(1, 2, seed);
@@ -581,6 +583,7 @@ void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts,
   // ADAM: this used to be "delete sqSeq;" I assume the 'q' was a typo for 'p'.
   delete spSeq;	// in case it was not empty, avoid memory leaks
   spSeq = new DER(A,false);        // Convert SpTuples to DER
+  */
 }
 
 
