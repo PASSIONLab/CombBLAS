@@ -40,8 +40,8 @@ libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
 
 
 
-_pyCombBLAS.so: DiGraph.o SpVectList.o VectList.o pyCombBLAS_wrap.o libCombBLAS.a
-	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so DiGraph.o SpVectList.o VectList.o pyCombBLAS_wrap.o -L. -lCombBLAS
+_pyCombBLAS.so: pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o libCombBLAS.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o -L. -lCombBLAS
 
 # the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
 pyCombBLAS.py:	_pyCombBLAS.so

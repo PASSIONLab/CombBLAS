@@ -1,5 +1,5 @@
-#ifndef DIGRAPH_H
-#define DIGRAPH_H
+#ifndef PY_SP_PAR_MAT_H
+#define PY_SP_PAR_MAT_H
 
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/SpTuples.h"
@@ -8,10 +8,11 @@
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/DenseParMat.h"
 #include "../../CombBLAS/DenseParVec.h"
+#include "../../CombBLAS/DistEdgeList.h"
 
-#include "SpVectList.h"
+#include "pySpParVec.h"
 
-class DiGraph {
+class pySpParMat {
 protected:
 
 	template <class NT>
@@ -26,7 +27,7 @@ protected:
 
 /////////////// everything below this appears in python interface:
 public:
-	DiGraph();
+	pySpParMat();
 
 public:
 	int nedges();
@@ -34,9 +35,10 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void GenGraph500Edges(int scale);
 	
 public:
-	void SpMV_SelMax(const SpVectList& v);
+	void SpMV_SelMax(const pySpParVec& v);
 	
 };
 

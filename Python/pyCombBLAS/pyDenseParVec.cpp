@@ -1,18 +1,18 @@
 #include <mpi.h>
 
 #include <iostream>
-#include "VectList.h"
+#include "pyDenseParVec.h"
 
-VectList::VectList()
+pyDenseParVec::pyDenseParVec()
 {
 }
 
-int VectList::length() const
+int pyDenseParVec::length() const
 {
 	return -1; //v.getnnz();
 }
 	
-void VectList::load(const char* filename)
+void pyDenseParVec::load(const char* filename)
 {
 	ifstream input(filename);
 	v.ReadDistribute(input, 0);

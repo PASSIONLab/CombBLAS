@@ -1,5 +1,5 @@
-#ifndef SPVECTLIST_H
-#define SPVECTLIST_H
+#ifndef PY_DENSE_PAR_VEC_H
+#define PY_DENSE_PAR_VEC_H
 
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/SpTuples.h"
@@ -9,14 +9,14 @@
 #include "../../CombBLAS/DenseParMat.h"
 #include "../../CombBLAS/DenseParVec.h"
 
-class SpVectList {
+class pyDenseParVec {
 protected:
 
-	SpParVec<int, int> v;
+	DenseParVec<int64_t, int64_t> v;
 
 /////////////// everything below this appears in python interface:
 public:
-	SpVectList();
+	pyDenseParVec();
 
 public:
 	int length() const;

@@ -9,13 +9,13 @@
 %{
 #define SWIG_FILE_WITH_INIT
 
-#include "DiGraph.h"
-#include "SpVectList.h"
-#include "VectList.h"
+#include "pySpParMat.h"
+#include "pySpParVec.h"
+#include "pyDenseParVec.h"
 %}
 
 
-// This block gets called when the module is loaded
+// This block gets called when the module is loaded. It is wrapped in extern "C".
 %init %{
 init_pyCombBLAS_MPI();
 %}
@@ -26,10 +26,12 @@ init_pyCombBLAS_MPI();
 %pragma(python) code="atexit.register(DiGraph.finalize())"
 
 
-// This class will get a wrapper created
-class DiGraph {
+// wrapped classes
+
+class pySpParMat {
+protected:
 public:
-	DiGraph();
+	pySpParMat();
 
 public:
 	int nedges();
@@ -37,28 +39,48 @@ public:
 	
 public:	
 	void load(const char* filename);
-
+	void GenGraph500Edges(int scale);
+	
 public:
-	void SpMV_SelMax(const SpVectList& v);
-
+	void SpMV_SelMax(const pySpParVec& v);
+	
 };
 
-class SpVectList {
+
+
+class pySpParVec {
+public:
+	pySpParVec();
+	pySpParVec(int64_t
 
 public:
-	SpVectList();
+	int length() const;
 
-public:
-	int length();
+public:	
+	const pySpParVec& add(const pySpParVec& other);
+	const pySpParVec& subtract(const pySpParVec& other);
+
+	const pySpParVec& invert(); // "~";  almost equal to logical_not
+	
+	const pySpParVec& abs();
+	
+	bool anyNonzeros() const;
+	bool allNonzeros() const;
+	
+	int64_t intersectSize(cost pySpParVec& other);
 	
 public:	
 	void load(const char* filename);
+
+public:
+	static pySpParVec zeros(int64_t howmany);
+	static pySpParVec range(int64_t howmany, int64_t start);
 	
 };
 
-class VectList {
+class pyDenseParVec {
 public:
-	VectList();
+	pyDenseParVec();
 
 public:
 	int length() const;
@@ -67,6 +89,8 @@ public:
 	void load(const char* filename);
 	
 };
+
+
 
 //void init();
 void finalize();

@@ -1,30 +1,57 @@
 #include <mpi.h>
 
 #include <iostream>
-#include "DiGraph.h"
+#include "pySpParMat.h"
 
-DiGraph::DiGraph()
+pySpParMat::pySpParMat()
 {
 }
 
-int DiGraph::nedges()
+int pySpParMat::nedges()
 {
 	return g.getnnz();
 }
 
-int DiGraph::nverts()
+int pySpParMat::nverts()
 {
 	return g.getncol();
 }
 	
-void DiGraph::load(const char* filename)
+void pySpParMat::load(const char* filename)
 {
 	ifstream input(filename);
 	g.ReadDistribute(input, 0);
 	input.close();
 }
 
-void DiGraph::SpMV_SelMax(const SpVectList& v)
+void pySpParMat::GenGraph500Edges(int scale)
+{
+	DistEdgeList<int64_t> DEL;
+	
+	double a = 0.57;
+	double b = 0.19;
+	double c = 0.19;
+	double d = 1-(a+b+c); // = 0.05
+	double abcd[] = {a, b, c, d};
+	
+	bool mayiprint = false;
+	
+	if (mayiprint)
+		cout << "GenGraph500" << endl;
+		
+	DEL.GenGraph500Data(abcd, scale, (int64_t)(pow(2., scale)*16));
+	
+	if (mayiprint)
+		cout << "PermEdges" << endl;
+	PermEdges<int64_t>(DEL);
+
+	if (mayiprint)
+		cout << "RenameVertices" << endl;
+	RenameVertices<int64_t>(DEL);
+}
+
+
+void pySpParMat::SpMV_SelMax(const pySpParVec& v)
 {
 	cout << "SpMV on SelectMax semiring with vector of size " << v.length() << endl;
 }
@@ -34,6 +61,7 @@ void init_pyCombBLAS_MPI()
 {
 	cout << "calling MPI::Init" << endl;
 	MPI::Init();
+	/*
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 	MPI::COMM_WORLD.Barrier();
@@ -50,7 +78,7 @@ void init_pyCombBLAS_MPI()
 		else
 			cout << ". SHOULD GET #PROCS! MPI is broken!" << endl;
 	}
-	
+	*/
 }
 
 void finalize() {
