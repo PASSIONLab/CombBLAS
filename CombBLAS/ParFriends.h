@@ -1020,5 +1020,25 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
 }
+
+
+template <typename IU, typename NU1, typename NU2>
+SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult 
+	(const SpParVec<IU,NU1> & V, const SpParVec<IU,NU2> & W , bool exclude)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+
+	if(*(V.commGrid) == *(W.commGrid))	
+	{
+		// Put code here
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise multiplication" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	return SpParVec< IU,T_promote>();
+}
+
 #endif
 

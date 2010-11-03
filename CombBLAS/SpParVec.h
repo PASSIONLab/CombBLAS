@@ -100,6 +100,10 @@ private:
 	friend SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x );
 
+	template <typename IU, typename NU1, typename NU2>
+	friend SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
+	EWiseMult (const SpParVec<IU,NU1> & V, const SpParVec<IU,NU2> & W , bool exclude);
+
 	template <typename IU>
 	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
 	

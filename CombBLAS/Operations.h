@@ -21,20 +21,30 @@ using namespace std;
 
 
 template<typename T>
+struct set: public std::unary_function<T, T>
+{
+  set(T myvalue): value(myvalue) {};
+  /** @returns value regardless of x */
+  const T& operator()(const T& x) const
+  {
+    return value;
+  } 
+  T value;
+};
+
+template<typename T>
 struct identity : public std::unary_function<T, T>
 {
   /** @returns x itself */
-  const T& operator()(const T& x) const
+  const T operator()(const T& x) const
   {
-    return x;
+	return x;
   }
 };
-
 	
 template<typename T>
 struct safemultinv : public std::unary_function<T, T>
 {
-  /** @returns x itself */
   const T operator()(const T& x) const
   {
 	T inf = std::numeric_limits<T>::max();

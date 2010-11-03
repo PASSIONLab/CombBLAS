@@ -60,7 +60,7 @@ private:
 	           // Edge i goes from edges[2*i+0] to edges[2*i+1]
 	           
 	IT nedges; // number of edges
-	IT memedges; // number of edges for which there is space. nedges <= memsize
+	IT memedges; // number of edges for which there is space. nedges <= memedges
 	
 	IT numrows;
 	IT numcols;

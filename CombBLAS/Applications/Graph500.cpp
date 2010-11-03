@@ -17,6 +17,7 @@
 #include "../SpParMat.h"
 #include "../DenseParMat.h"
 #include "../DenseParVec.h"
+#include "../ParFriends.h"
 
 
 using namespace std;
@@ -138,39 +139,38 @@ int main(int argc, char* argv[])
 		A.PrintInfo();
 
 		float balance = A.LoadImbalance();
-		ostringstream outs;
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
 		// Reduce on a boolean matrix would return a boolean vector, not possible to sum along
-		SpMat_Int * AInt = new AInt(A);
+		PSpMat_Int * AInt = new PSpMat_Int(A);
 		DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
-		SpParVec<int64_t, int64_t> ColSums.FindInds(bind2nd(greater<int>(), 2));	
+		SpParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	
 		delete AInt;	// save memory	
 
 		SpParVec<int64_t,int64_t> RandVec, First64;
-		RandPerm(RandVec,ColSums.getlocnnz());	// returns 1-based permutation indices
+		RandPerm(RandVec,Cands.getlocnnz());	// returns 1-based permutation indices
 		First64.iota(64, 1);
-		RandVec = RandVec(First64);
+		Cands = Cands(RandVec(First64));
 		SpParHelper::Print("Starting vertices are chosen\n");
-		RandVec.PrintInfo();
+		Cands.PrintInfo();
 
-		for(int =0; i<64; ++i)
+		for(int i=0; i<64; ++i)
 		{
 			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), -2);	// identity is -2
+			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe;	// numerical values are stored 1-based
-			SpParVec<int64_t, int> levels;
-			fringe.SetElement(RandVec[i]) = RandVec[i];	
+			fringe.SetElement(Cands[i], Cands[i]);	
 			while(fringe.getnnz() > 0)
 			{
 				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
-				fringe = EWiseMult(fringe, parents, true);	// clean-up vertices that already has parents	
+				fringe = EWiseMult(fringe, parents, true);	// clean-up vertices that already has parents (not implemented) ! ABAB: Is this semantically correct? (multiply?)
 				parents += fringe;
 
 				// following steps are only for validation later
 				SpParVec<int64_t, int> thislevel(fringe);
-				thislevel.Apply(set<int64_t>(levels+1));	
+				thislevel.Apply(set<int>(levels+1));	
 				levels += thislevel;
 			}
 		}
