@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
 		}
 
 		SpParVec<int, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
+		spycontrol.PrintInfo();
+		spy.PrintInfo();
 		y = spy;	// convert to dense
 		ycontrol = spycontrol;
 		

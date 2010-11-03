@@ -56,6 +56,7 @@ public:
 	void iota(IT size, NT first);
 	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;	// SpRef
 	void SetElement (IT indx, NT numx);	// element-wise assignment
+	NT operator[](IT indx) const;
 
 	// sort the vector itself
 	// return the permutation vector
@@ -87,6 +88,7 @@ private:
 	IT length;		// actual local length of the vector (including zeros)
 	bool diagonal;
 	const static IT zero = static_cast<IT>(0);
+	NT NOT_FOUND; 
 
 	template <class IU, class NU>
 	friend class DenseParVec;

@@ -5,7 +5,7 @@
 using namespace std;
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(zero)
+SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(zero), NOT_FOUND(numeric_limits<NT>::min())
 {
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -14,7 +14,7 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(
 };
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec (): length(zero)
+SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 	
@@ -23,6 +23,44 @@ SpParVec<IT, NT>::SpParVec (): length(zero)
 	else
 		diagonal = false;	
 };
+
+
+template <class IT, class NT>
+NT SpParVec<IT,NT>::operator[](IT indx) const
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	NT val;
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		IT dgrank = (IT) DiagWorld.Get_rank();
+		IT nprocs = (IT) DiagWorld.Get_size();
+		IT n_perproc = getnnz() / nprocs;
+		IT offset = dgrank * n_perproc;
+
+		IT owner = (indx-1) / n_perproc;	
+		IT rec = std::min(owner, nprocs-1);	// find its owner 
+		NT diagval;
+		if(rec == dgrank)
+		{
+			IT locindx = indx-1-offset;
+			typename vector<IT>::iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
+			if(it != ind.end() && locindx < (*it))	// found
+			{
+				diagval = num[it-ind.begin()];
+			}
+			else
+			{
+				diagval = NOT_FOUND;	// return NULL
+			}
+		}
+		DiagWorld.Bcast(&diagval, 1, MPIType<NT>(), rec);			
+		val = diagval;
+	}
+
+	IT diaginrow = commGrid->GetDiagOfProcRow();
+	(commGrid->GetRowWorld()).Bcast(&val, 1, MPIType<NT>(), diaginrow);
+	return val;
+}
 
 //! Performs almost no communication other than getnnz()
 //! Indexing is performed 1-based (regardless of the underlying storage)
@@ -42,13 +80,18 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		if(rec == dgrank)
 		{
 			IT locindx = indx-1-offset;
-			typename vector<IT>::iterator it = find(ind.begin(), ind.end(), locindx);	
-			if(it == ind.end())
+			typename vector<IT>::iterator it = lower_bound(ind.begin(), ind.end(), locindx);	
+			if(it == ind.end())	// beyond limits, insert from back
 			{
 				ind.push_back(locindx);
 				num.push_back(numx);
 			}
-			else
+			else if (locindx < *it)	// not found, insert in the middle
+			{
+				ind.insert(it, locindx);
+				num.insert(num.begin() + (it-ind.begin()), numx);
+			}
+			else // found
 			{
 				*it = numx;
 			}
@@ -271,14 +314,13 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	if(DiagWorld != MPI::COMM_NULL)	// Diagonal processors only
 	{
 		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
-		IT buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
+		int buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 
-		// ADAM: displs used to be type IT, but it is passed to MPI as an int
 		int * displs = new int[neighs];
 		for (int i=0; i<neighs; ++i)
 			displs[i] = i*buffperneigh;
 
-		int * curptrs; // ADAM: curptrs and recvcount used to be type IT, but they are passed to MPI as counts, which are ints
+		int * curptrs; 
 		int recvcount;
 		IT * inds; 
 		NT * vals;
@@ -290,7 +332,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			vals = new NT [ buffperneigh * neighs ];
 
 			curptrs = new int[neighs]; 
-			fill_n(curptrs, neighs, (IT) zero);	// fill with zero
+			fill_n(curptrs, neighs, 0);	// fill with zero
 		
 			if (infile.is_open())
 			{
@@ -317,7 +359,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 					{
 						// first, send the receive counts ...
-						DiagWorld.Scatter(curptrs, 1, MPIType<int>(), &recvcount, 1, MPIType<int>(), master);
+						DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
 
 						// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 						IT * tempinds = new IT[recvcount];
@@ -336,7 +378,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 						}
 
 						// reset current pointers so that we can reuse {inds,vals} buffers
-						fill_n(curptrs, neighs, (IT) zero);
+						fill_n(curptrs, neighs, 0);
 						DeleteAll(tempinds, tempvals);
 					}
 					++ cnz;
@@ -344,8 +386,8 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				assert (cnz == total_nnz);
 			
 				// Signal the end of file to other processors along the diagonal
-				fill_n(curptrs, neighs, numeric_limits<IT>::max());	
-				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
+				fill_n(curptrs, neighs, numeric_limits<int>::max());	
+				DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
 			}
 			else	// input file does not exist !
 			{
@@ -362,9 +404,9 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			while(total_n > 0)	// otherwise, input file do not exist
 			{
 				// first receive the receive counts ...
-				DiagWorld.Scatter(curptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), master);
+				DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
 
-				if( recvcount == numeric_limits<IT>::max())
+				if( recvcount == numeric_limits<int>::max())
 					break;
 	
 				// create space for incoming data ... 

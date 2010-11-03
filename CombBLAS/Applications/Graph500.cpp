@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 		delete AInt;	// save memory	
 
 		SpParVec<int64_t,int64_t> RandVec, First64;
-		RandPerm(RandVec,ColSums.getlocnnz());
+		RandPerm(RandVec,ColSums.getlocnnz());	// returns 1-based permutation indices
 		First64.iota(64, 1);
 		RandVec = RandVec(First64);
 		SpParHelper::Print("Starting vertices are chosen\n");
@@ -157,12 +157,21 @@ int main(int argc, char* argv[])
 
 		for(int =0; i<64; ++i)
 		{
+			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), -2);	// identity is -2
 			int64_t level = 1;
-			SpParVec<int64_t, int64_t> fringe;
-			fringe.SetElement(RandVec[i]) = level;	// NT SpParVec::operator[] (IT indx) -- missing
+			SpParVec<int64_t, int64_t> fringe;	// numerical values are stored 1-based
+			SpParVec<int64_t, int> levels;
+			fringe.SetElement(RandVec[i]) = RandVec[i];	
 			while(fringe.getnnz() > 0)
 			{
-				DenseParVec<int64_t, int64_t> y = SpMV<SR>(A, fringe);	// SpMV with sparse vector --  missing 
+				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
+				fringe = EWiseMult(fringe, parents, true);	// clean-up vertices that already has parents	
+				parents += fringe;
+
+				// following steps are only for validation later
+				SpParVec<int64_t, int> thislevel(fringe);
+				thislevel.Apply(set<int64_t>(levels+1));	
+				levels += thislevel;
 			}
 		}
 	}
