@@ -36,12 +36,13 @@ MemoryPool.o:	$(COMBBLAS)/MemoryPool.cpp $(COMBBLAS)/SpDefs.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp	
 
 libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
-	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o
+	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o 
 
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-
-_pyCombBLAS.so: pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o libCombBLAS.a
-	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o -L. -lCombBLAS
+_pyCombBLAS.so: pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 # the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
 pyCombBLAS.py:	_pyCombBLAS.so
