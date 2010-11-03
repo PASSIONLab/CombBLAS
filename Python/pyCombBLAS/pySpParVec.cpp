@@ -14,6 +14,8 @@ int pySpParVec::length() const
 
 const pySpParVec& pySpParVec::add(const pySpParVec& other)
 {
+	v.operator+=(other.v);
+
 	return *this;
 }
 
