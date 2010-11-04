@@ -30,6 +30,6 @@ const pyDenseParVec& pyDenseParVec::add(const pyDenseParVec& other) {
 }
 
 const pyDenseParVec& pyDenseParVec::add(const pySpParVec& other) {
-	cout << "DenseParVec += SpParVec not implemented yet" << endl;
+	v.operator+=(other.v);
 	return *this;
 }

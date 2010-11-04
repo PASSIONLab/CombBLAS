@@ -54,32 +54,7 @@ void pySpParMat::GenGraph500Edges(int scale)
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	/*
-	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
-SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x )
-	
-	
-		template <class NT>
-	class PSpMat 
-	{ 
-	public: 
-		typedef SpDCCols < int64_t, NT > DCCols;
-		typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
-	};
-
-	PSpMat<int>::MPI_DCCols A;
-	*/
-	
-	/*
-	ret->v = SpMV< SelectMaxSRing<int, int64_t>,
-			int64_t,
-			int,
-			int64_t,
-			PSpMat<int>::DCCols
-			>(A, x.v);
-			*/
-	//ret->v = SpMV< SelectMaxSRing<int, int64_t > >(A, x.v);
+	ret->v = SpMV< SelectMaxSRing<int, int64_t > >(A, x.v);
 	return ret;
 }
 
