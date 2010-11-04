@@ -105,11 +105,13 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 			{
 				ind.push_back(locindx);
 				num.push_back(numx);
+				length++;
 			}
 			else if (locindx < *iter)	// not found, insert in the middle
 			{
 				ind.insert(iter, locindx);
 				num.insert(num.begin() + (iter-ind.begin()), numx);
+				length++;
 			}
 			else // found
 			{
