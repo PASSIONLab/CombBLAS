@@ -15,12 +15,38 @@ DenseParVec<IT, NT>::DenseParVec ()
 }
 
 template <class IT, class NT>
+DenseParVec<IT, NT>::DenseParVec (IT locallength, NT id): zero(id)
+{
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+		diagonal = true;
+	else
+		diagonal = false;
+		
+	if (diagonal)
+		arr.resize(locallength, zero);
+}
+
+template <class IT, class NT>
 DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, NT id): commGrid(grid), zero(id)
 {
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
 	else
 		diagonal = false;	
+};
+
+template <class IT, class NT>
+DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT id): commGrid(grid), zero(id)
+{
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+		diagonal = true;
+	else
+		diagonal = false;	
+
+	if (diagonal)
+		arr.resize(locallength, zero);
 };
 
 template <class IT, class NT>

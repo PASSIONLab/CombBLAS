@@ -30,13 +30,24 @@ class DenseParVec
 {
 public:
 	DenseParVec ( );
+	DenseParVec (IT locallength, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
+	DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT id);
+	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);		
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
+	
+	IT getTotalLength() const
+	{
+		IT totnnz = 0;
+		IT locnnz = arr.size();
+		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		return totnnz;
+	}
 
 	template <typename _Predicate>
 	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true

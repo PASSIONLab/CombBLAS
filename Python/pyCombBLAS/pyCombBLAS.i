@@ -2,6 +2,7 @@
 %module pyCombBLAS
 
 %typemap(in) int64_t = long long;
+%typemap(out) int64_t = long long;
 
 // This block gets copied verbatim into the header area of the generated wrapper. DiGraph has to
 // be defined here somehow. Prefereably we'd #include "DiGraph.h", but that brings in templates which
@@ -36,15 +37,16 @@ public:
 	pySpParMat();
 
 public:
-	int nedges();
-	int nverts();
+	int64_t getnnz();
+	int64_t getnrow();
+	int64_t getncol();
 	
 public:	
 	void load(const char* filename);
 	void GenGraph500Edges(int scale);
 	
 public:
-	void SpMV_SelMax(const pySpParVec& v);
+	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	
 };
 
@@ -80,13 +82,13 @@ public:
 	
 };
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+//pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 class pyDenseParVec {
 public:
-	pyDenseParVec();
-	pyDenseParVec(const pySpParMat& commSource, int64_t zero);
+	//pyDenseParVec();
+	pyDenseParVec(int64_t size, int64_t id);
 
 public:
 	int length() const;

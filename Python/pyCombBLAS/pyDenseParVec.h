@@ -28,7 +28,8 @@ protected:
 /////////////// everything below this appears in python interface:
 public:
 	pyDenseParVec();
-	pyDenseParVec(const pySpParMat& commSource, int64_t zero);
+	pyDenseParVec(int64_t size, int64_t id);
+	//pyDenseParVec(const pySpParMat& commSource, int64_t zero);
 
 public:
 	int length() const;

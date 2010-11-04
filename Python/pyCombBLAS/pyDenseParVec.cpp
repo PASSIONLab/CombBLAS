@@ -7,13 +7,17 @@ pyDenseParVec::pyDenseParVec()
 {
 }
 
-pyDenseParVec::pyDenseParVec(const pySpParMat& commSource, int64_t zero)
+pyDenseParVec::pyDenseParVec(int64_t size, int64_t id): v(size, id)
 {
 }
 
+//pyDenseParVec::pyDenseParVec(const pySpParMat& commSource, int64_t zero)
+//{
+//}
+
 int pyDenseParVec::length() const
 {
-	return -1; //v.getnnz();
+	return v.getTotalLength();
 }
 	
 void pyDenseParVec::load(const char* filename)

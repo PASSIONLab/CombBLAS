@@ -7,12 +7,17 @@ pySpParMat::pySpParMat()
 {
 }
 
-int pySpParMat::nedges()
+int64_t pySpParMat::getnnz()
 {
 	return A.getnnz();
 }
 
-int pySpParMat::nverts()
+int64_t pySpParMat::getnrow()
+{
+	return A.getnrow();
+}
+
+int64_t pySpParMat::getncol()
 {
 	return A.getncol();
 }

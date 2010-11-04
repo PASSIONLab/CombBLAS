@@ -99,7 +99,9 @@ pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
 {
 	pySpParVec* ret = new pySpParVec();
-	ret->v = ::EWiseMult(a.v, b.v, exclude, (int64_t)0);
+	cout << "running EWiseMult" << endl;
+	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)0);
+	cout << "finished running EWiseMult" << endl;
 	return ret;
 }
 

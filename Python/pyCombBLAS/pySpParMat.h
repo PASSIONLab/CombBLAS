@@ -36,8 +36,9 @@ public:
 	pySpParMat();
 
 public:
-	int nedges();
-	int nverts();
+	int64_t getnnz();
+	int64_t getnrow();
+	int64_t getncol();
 	
 public:	
 	void load(const char* filename);
