@@ -70,30 +70,50 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
-		IT dgrank = (IT) DiagWorld.Get_rank();
-		IT nprocs = (IT) DiagWorld.Get_size();
-		IT n_perproc = getnnz() / nprocs;
-		IT offset = dgrank * n_perproc;
-
-		IT owner = (indx-1) / n_perproc;	
-		IT rec = std::min(owner, nprocs-1);	// find its owner 
-		if(rec == dgrank)
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		
+		// The new element should be placed on the least-burdened node.
+		// So find who that node is.
+		int64_t* all_nnzs = new int64_t[nprocs];
+		
+		all_nnzs[dgrank] = ind.size();
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
+		
+		// find the owner
+		int64_t min = LLONG_MAX;
+		int64_t offset = 0, running_offset = 0;
+		int owner = 0;
+		for (int i = 0; i < nprocs; i++) {
+			if (all_nnzs[i] < min) {
+				min = all_nnzs[i];
+				owner = i;
+				offset = running_offset;
+			}
+			running_offset += all_nnzs[i];
+		}
+		owner = std::min(owner, nprocs-1);
+		
+		delete [] all_nnzs;
+		all_nnzs = NULL;
+		
+		if(owner == dgrank) // insert if this process is the owner
 		{
 			IT locindx = indx-1-offset;
-			typename vector<IT>::iterator it = lower_bound(ind.begin(), ind.end(), locindx);	
-			if(it == ind.end())	// beyond limits, insert from back
+			typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
+			if(iter == ind.end())	// beyond limits, insert from back
 			{
 				ind.push_back(locindx);
 				num.push_back(numx);
 			}
-			else if (locindx < *it)	// not found, insert in the middle
+			else if (locindx < *iter)	// not found, insert in the middle
 			{
-				ind.insert(it, locindx);
-				num.insert(num.begin() + (it-ind.begin()), numx);
+				ind.insert(iter, locindx);
+				num.insert(num.begin() + (iter-ind.begin()), numx);
 			}
 			else // found
 			{
-				*it = numx;
+				*iter = numx;
 			}
 		}
 	}
