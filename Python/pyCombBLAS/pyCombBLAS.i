@@ -1,6 +1,8 @@
 
 %module pyCombBLAS
 
+%typemap(in) int64_t = long long;
+
 // This block gets copied verbatim into the header area of the generated wrapper. DiGraph has to
 // be defined here somehow. Prefereably we'd #include "DiGraph.h", but that brings in templates which
 // cause duplicate definition linker errors. Unless that gets resolved, we just redefine DiGraph
@@ -47,20 +49,21 @@ public:
 };
 
 
-
 class pySpParVec {
 public:
 	pySpParVec();
+	//pySpParVec(const pySpParMat& commSource);
 
 public:
-	int length() const;
-
+	int64_t getnnz() const;
+	
 public:	
 	const pySpParVec& add(const pySpParVec& other);
-	const pySpParVec& subtract(const pySpParVec& other);
+	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
 
+
+	const pySpParVec& subtract(const pySpParVec& other);
 	const pySpParVec& invert(); // "~";  almost equal to logical_not
-	
 	const pySpParVec& abs();
 	
 	bool anyNonzeros() const;
@@ -77,12 +80,19 @@ public:
 	
 };
 
+pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+
 class pyDenseParVec {
 public:
 	pyDenseParVec();
+	pyDenseParVec(const pySpParMat& commSource, int64_t zero);
 
 public:
 	int length() const;
+	
+	const pyDenseParVec& add(const pyDenseParVec& other);
+	const pyDenseParVec& add(const pySpParVec& other);
 	
 public:	
 	void load(const char* filename);

@@ -9,3 +9,5 @@ Python/pyCombBLAS/*.a
 Python/pyCombBLAS/*.o
 Python/pyCombBLAS/*.pyc
 Python/pyCombBLAS/*.so
+Python/pyCombBLAS/pyCombBLAS.py
+Python/pyCombBLAS/pyCombBLAS_wrap.cpp

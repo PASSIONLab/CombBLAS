@@ -8,25 +8,44 @@
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/DenseParMat.h"
 #include "../../CombBLAS/DenseParVec.h"
+#include "../../CombBLAS/ParFriends.h"
+#include "../../CombBLAS/Semirings.h"
+
+#include "pySpParMat.h"
+#include "pyDenseParVec.h"
+
+class pySpParMat;
+class pyDenseParVec;
 
 class pySpParVec {
 protected:
 
 	SpParVec<int64_t, int64_t> v;
+	
+	//pySpParVec(SpParVec<int64_t, int64_t> & in_v);
+	
+	friend class pySpParMat;
+	friend class pyDenseParVec;
+	
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+
 
 /////////////// everything below this appears in python interface:
 public:
 	pySpParVec();
+	//pySpParVec(const pySpParMat& commSource);
 
 public:
-	int length() const;
-
+	int64_t getnnz() const;
+	
 public:	
 	const pySpParVec& add(const pySpParVec& other);
-	const pySpParVec& subtract(const pySpParVec& other);
+	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
 
+
+	const pySpParVec& subtract(const pySpParVec& other);
 	const pySpParVec& invert(); // "~";  almost equal to logical_not
-	
 	const pySpParVec& abs();
 	
 	bool anyNonzeros() const;
@@ -68,5 +87,9 @@ public:
 	static pySpParVec* range(int64_t howmany, int64_t start);
 	
 };
+
+pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
 
 #endif

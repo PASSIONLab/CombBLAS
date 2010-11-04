@@ -9,18 +9,18 @@ pySpParMat::pySpParMat()
 
 int pySpParMat::nedges()
 {
-	return g.getnnz();
+	return A.getnnz();
 }
 
 int pySpParMat::nverts()
 {
-	return g.getncol();
+	return A.getncol();
 }
 	
 void pySpParMat::load(const char* filename)
 {
 	ifstream input(filename);
-	g.ReadDistribute(input, 0);
+	A.ReadDistribute(input, 0);
 	input.close();
 }
 
@@ -51,9 +51,36 @@ void pySpParMat::GenGraph500Edges(int scale)
 }
 
 
-void pySpParMat::SpMV_SelMax(const pySpParVec& v)
+pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
-	cout << "SpMV on SelectMax semiring with vector of size " << v.length() << endl;
+	pySpParVec* ret = new pySpParVec();
+	/*
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x )
+	
+	
+		template <class NT>
+	class PSpMat 
+	{ 
+	public: 
+		typedef SpDCCols < int64_t, NT > DCCols;
+		typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
+	};
+
+	PSpMat<int>::MPI_DCCols A;
+	*/
+	
+	/*
+	ret->v = SpMV< SelectMaxSRing<int, int64_t>,
+			int64_t,
+			int,
+			int64_t,
+			PSpMat<int>::DCCols
+			>(A, x.v);
+			*/
+	//ret->v = SpMV< SelectMaxSRing<int, int64_t > >(A, x.v);
+	return ret;
 }
 
 

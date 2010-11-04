@@ -3,11 +3,23 @@
 #include <iostream>
 #include "pySpParVec.h"
 
+using namespace std;
+
 pySpParVec::pySpParVec()
 {
 }
 
-int pySpParVec::length() const
+
+//pySpParVec::pySpParVec(const pySpParMat& commSource): v(commSource.A.commGrid);
+//{
+//}
+
+//pySpParVec::pySpParVec(SpParVec<int64_t, int64_t> & in_v): v(in_v)
+//{
+//}
+
+
+int64_t pySpParVec::getnnz() const
 {
 	return v.getnnz();
 }
@@ -18,6 +30,12 @@ const pySpParVec& pySpParVec::add(const pySpParVec& other)
 
 	return *this;
 }
+
+void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignment
+{
+	v.SetElement(index, numx);
+}
+
 
 const pySpParVec& pySpParVec::subtract(const pySpParVec& other)
 {
@@ -71,3 +89,15 @@ pySpParVec* pySpParVec::range(int64_t howmany, int64_t start)
 	return ret;
 }
 
+pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
+{
+	pySpParVec* ret = new pySpParVec();
+	//ret->v = EWiseMult(a.v, b.v, exclude);
+	return ret;
+}
+
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude)
+{
+	cout << "EWiseMult(sparse vector, dense vector) not implemented yet" << endl;
+	return NULL;
+}

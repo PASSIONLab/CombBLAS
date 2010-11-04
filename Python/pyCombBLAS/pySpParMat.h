@@ -9,8 +9,12 @@
 #include "../../CombBLAS/DenseParMat.h"
 #include "../../CombBLAS/DenseParVec.h"
 #include "../../CombBLAS/DistEdgeList.h"
+#include "../../CombBLAS/ParFriends.h"
+#include "../../CombBLAS/Semirings.h"
 
 #include "pySpParVec.h"
+
+class pySpParVec;
 
 class pySpParMat {
 protected:
@@ -19,11 +23,13 @@ protected:
 	class PSpMat 
 	{ 
 	public: 
-		typedef SpDCCols < int, NT > DCCols;
-		typedef SpParMat < int, NT, DCCols > MPI_DCCols;
+		typedef SpDCCols < int64_t, NT > DCCols;
+		typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 	};
 
-	PSpMat<double>::MPI_DCCols g;
+	PSpMat<int>::MPI_DCCols A;
+	
+	friend class pySpParVec;
 
 /////////////// everything below this appears in python interface:
 public:
@@ -38,7 +44,7 @@ public:
 	void GenGraph500Edges(int scale);
 	
 public:
-	void SpMV_SelMax(const pySpParVec& v);
+	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	
 };
 
