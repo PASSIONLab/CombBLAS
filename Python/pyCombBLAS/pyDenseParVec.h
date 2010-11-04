@@ -23,7 +23,7 @@ protected:
 	DenseParVec<int64_t, int64_t> v;
 	
 	friend class pySpParVec;
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 /////////////// everything below this appears in python interface:
 public:

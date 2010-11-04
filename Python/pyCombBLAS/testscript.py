@@ -14,7 +14,7 @@ fringe.SetElement(5, 5);
 print "starting loop"
 while (fringe.getnnz() > 0):
 	fringe = A.SpMV(fringe) #	// SpMV with sparse vector
-	fringe = EWiseMult(fringe, parents, true);	#// clean-up vertices that already has parents 
+	fringe = EWiseMult(fringe, parents, true, 0);	#// clean-up vertices that already has parents 
 	parents.add(fringe);
 
 

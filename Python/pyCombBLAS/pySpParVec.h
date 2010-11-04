@@ -28,7 +28,7 @@ protected:
 	friend class pyDenseParVec;
 	
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 
 /////////////// everything below this appears in python interface:
@@ -90,6 +90,6 @@ public:
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 #endif

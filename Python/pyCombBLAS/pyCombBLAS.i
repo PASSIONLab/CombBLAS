@@ -81,7 +81,7 @@ public:
 };
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude);
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 class pyDenseParVec {
 public:
