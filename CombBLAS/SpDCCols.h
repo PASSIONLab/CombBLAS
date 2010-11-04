@@ -290,6 +290,14 @@ template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,do
     {                                           
         typedef SpDCCols<int64_t,double> T_promote;                    
     };
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,int64_t> >       
+    {                                           
+        typedef SpDCCols<int64_t,int64_t> T_promote;                    
+    };
+template <> struct promote_trait< SpDCCols<int64_t,int64_t> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,int64_t> T_promote;                    
+    };
 template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,int> >       
     {                                           
         typedef SpDCCols<int64_t,int> T_promote;                    
@@ -441,15 +449,15 @@ template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, double> 
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int, short> , NIT, NNT >
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int, int> , NIT, NNT >
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, short> , NIT, NNT >
+template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, int> , NIT, NNT >
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, short> , NIT, NNT >
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, int> , NIT, NNT >
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };

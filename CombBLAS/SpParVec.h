@@ -35,7 +35,7 @@ class DistEdgeList;
   * 	After all, A(v,w) will have dimensions length(v) x length (w) 
   * 	v and w will be of numerical type (NT) "int" and their indices (IT) will be consecutive integers 
   * It is possibly that nonzero counts are distributed unevenly
-  * Example: x=[1,2,3,4,5] and length(x) = 10
+  * Example: x=[1,2,3,4,5] and length(x) = 10, then P_00 would own all the nonzeros and P_11 would hold an empty vector
   * Just like in SpParMat case, indices are local to processors (they belong to range [0,...,length-1] on each processor)
   *
   * TODO: Instead of repeated calls to "DiagWorld", this class should be oblivious to the communicator
@@ -51,6 +51,14 @@ public:
 
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
+
+	template <typename NNT> operator SpParVec< IT,NNT > () const	//!< Type conversion operator
+	{
+		SpParVec<IT,NNT> CVT(commGrid);
+		CVT.ind = vector<IT>(ind.begin(), ind.end());
+		CVT.num = vector<NNT>(num.begin(), num.end());
+		CVT.length = length;
+	}
 
 	void PrintInfo() const;
 	void iota(IT size, NT first);
@@ -91,6 +99,9 @@ private:
 	NT NOT_FOUND; 
 
 	template <class IU, class NU>
+	friend class SpParVec;
+
+	template <class IU, class NU>
 	friend class DenseParVec;
 	
 	template <class IU, class NU, class UDER>
@@ -102,7 +113,7 @@ private:
 
 	template <typename IU, typename NU1, typename NU2>
 	friend SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
-	EWiseMult (const SpParVec<IU,NU1> & V, const SpParVec<IU,NU2> & W , bool exclude);
+	EWiseMult (const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero);
 
 	template <typename IU>
 	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation

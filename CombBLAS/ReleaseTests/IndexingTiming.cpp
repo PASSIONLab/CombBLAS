@@ -58,9 +58,9 @@ int main(int argc, char* argv[])
 		float oldbalance = A.LoadImbalance();
 		float newbalance = B.LoadImbalance();
 		ostringstream outs;
+		outs << "Running on " << nprocs << " cores" << endl;
 		outs << "Old balance: " << oldbalance << endl;
 		outs << "New balance: " << newbalance << endl;
-		SpParHelper::Print(outs.str());
 		SpParHelper::Print(outs.str());
 
 		MPI::COMM_WORLD.Barrier();

@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 		SpParHelper::Print(outs.str());
 
 		// Declare objects
-		PSpMat_Bool A;	
+		SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > A;	
 		DenseParVec<int64_t, int64_t> x;
 
 		if(NOINPUT)
@@ -157,7 +157,10 @@ int main(int argc, char* argv[])
 
 		for(int i=0; i<64; ++i)
 		{
-			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), -2);	// identity is -2
+			// use identity (undiscovered) = 0, because 
+			// (A) vertex indices that are stored in fringe are 1-based
+			// (B) semantics are problematic with other values, i.e. operator+= 
+			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), (int64_t) 0);	// identity is 0 
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe;	// numerical values are stored 1-based
@@ -165,12 +168,12 @@ int main(int argc, char* argv[])
 			while(fringe.getnnz() > 0)
 			{
 				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
-				fringe = EWiseMult(fringe, parents, true);	// clean-up vertices that already has parents (not implemented) ! ABAB: Is this semantically correct? (multiply?)
+				fringe = EWiseMult(fringe, parents, true, (int64_t) 0);		// clean-up vertices that already has parents 
 				parents += fringe;
 
 				// following steps are only for validation later
 				SpParVec<int64_t, int> thislevel(fringe);
-				thislevel.Apply(set<int>(levels+1));	
+				thislevel.Apply(set<int>(level+1));	
 				levels += thislevel;
 			}
 		}

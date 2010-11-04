@@ -9,7 +9,11 @@ struct promote_trait  { };
     {                                           \
         typedef C T_promote;                    \
     };
-
+DECLARE_PROMOTE(int64_t, bool, int64_t);
+DECLARE_PROMOTE(int64_t, int, int64_t);
+DECLARE_PROMOTE(bool, int64_t, int64_t);
+DECLARE_PROMOTE(int, int64_t, int64_t);
+DECLARE_PROMOTE(int64_t, int64_t, int64_t);
 DECLARE_PROMOTE(int, bool,int);
 DECLARE_PROMOTE(short, bool,short);
 DECLARE_PROMOTE(unsigned, bool, unsigned);

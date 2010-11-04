@@ -43,7 +43,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 		if(rec == dgrank)
 		{
 			IT locindx = indx-1-offset;
-			typename vector<IT>::iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
+			typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
 			if(it != ind.end() && locindx < (*it))	// found
 			{
 				diagval = num[it-ind.begin()];
@@ -125,14 +125,14 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 			data_req[rec].push_back(ri.num[i] - 1 - (rec * n_perproc));
 		}
 		IT * sendbuf = new IT[ri.num.size()];
-		IT * sendcnt = new IT[nprocs];
-		IT * sdispls = new IT[nprocs];
+		int * sendcnt = new int[nprocs];
+		int * sdispls = new int[nprocs];
 		for(int i=0; i<nprocs; ++i)
 			sendcnt[i] = data_req[i].size();
 
-		IT * rdispls = new IT[nprocs];
-		IT * recvcnt = new IT[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// share the request counts 
+		int * rdispls = new int[nprocs];
+		int * recvcnt = new int[nprocs];
+		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
 
 		sdispls[0] = 0;
 		rdispls[0] = 0;
@@ -155,7 +155,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		IT * indsback = new IT[totrecv];
 		NT * databack = new NT[totrecv];		
 
-		IT * ddispls = new IT[nprocs];
+		int * ddispls = new int[nprocs];
 		copy(rdispls, rdispls+nprocs, ddispls);
 		for(int i=0; i<nprocs; ++i)
 		{
@@ -164,7 +164,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 			recvcnt[i] = (it - (indsback+rdispls[i]));	// update with size of the intersection
 	
 			IT vi = 0;
-			for(IT j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+			for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
 			{
 				// indsback is a subset of ind
 				while(indsback[j] > ind[vi]) 
@@ -176,7 +176,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		DeleteAll(recvbuf, ddispls);
 		NT * databuf = new NT[ri.num.size()];
 
-		DiagWorld.Alltoall(recvcnt, 1, MPIType<IT>(), sendcnt, 1, MPIType<IT>());	// share the response counts, overriding request counts 
+		DiagWorld.Alltoall(recvcnt, 1, MPI::INT, sendcnt, 1, MPI::INT);	// share the response counts, overriding request counts 
 		DiagWorld.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send data
 		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
 
@@ -188,7 +188,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 			// data will come globally sorted from processors 
 			// i.e. ind owned by proc_i is always smaller than 
 			// ind owned by proc_j for j < i
-			for(IT j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
+			for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
 			{
 				Indexed.ind.push_back(sendbuf[j]);
 				Indexed.num.push_back(databuf[j]);

@@ -48,6 +48,17 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 	}
 }
 
+
+template <class IT, class NT>
+DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > & rhs)		
+{
+	IT spvecsize = rhs.ind.size();
+	for(IT i=0; i< spvecsize; ++i)
+	{
+		arr[rhs.ind[i]] += rhs.num[i];
+	}
+}
+
 /**
   * Perform __binary_op(*this, v2) for every element in rhs, *this, 
   * which are of the same size. and write the result back to *this

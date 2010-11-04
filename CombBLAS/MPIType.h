@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <mpi.h>
+#include <stdint.h>
 
 using namespace std;
 
@@ -28,6 +29,8 @@ template<> MPI::Datatype MPIType< unsigned char >( void );
 template<> MPI::Datatype MPIType< unsigned short int >( void );
 template<> MPI::Datatype MPIType< unsigned int >( void );
 template<> MPI::Datatype MPIType< unsigned long int >( void );
+template<> MPI::Datatype MPIType< int64_t >( void );
+template<> MPI::Datatype MPIType< uint64_t >( void );
 template<> MPI::Datatype MPIType< float >( void );
 template<> MPI::Datatype MPIType< double >( void );
 template<> MPI::Datatype MPIType< long double >( void );

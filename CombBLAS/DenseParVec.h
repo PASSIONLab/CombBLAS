@@ -23,6 +23,8 @@ class SpParVec;
 template <class IT, class NT, class DER>
 class SpParMat;
 
+
+// TODO: Why is this class templated with IT?
 template <class IT, class NT>
 class DenseParVec
 {
@@ -30,7 +32,8 @@ public:
 	DenseParVec ( );
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
 	ifstream& ReadDistribute (ifstream& infile, int master);
-	DenseParVec<IT,NT> &  operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
+	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
+	DenseParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);		
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
@@ -80,6 +83,10 @@ private:
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );
+
+	template <typename IU, typename NU1, typename NU2>
+	friend SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
+	EWiseMult (const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero);
 };
 
 #include "DenseParVec.cpp"
