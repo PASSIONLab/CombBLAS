@@ -1043,7 +1043,7 @@ SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 				IU size= V.ind.size();
 				for(IU i=0; i<size; ++i)
 				{
-					if(W.arr[V.ind[i]] == zero) 	// keep only those
+					if(W.arr.size() <= V.ind[i] || W.arr[V.ind[i]] == zero) 	// keep only those
 					{
 						Product.ind.push_back(V.ind[i]);
 						Product.num.push_back(V.num[i]);
@@ -1055,7 +1055,7 @@ SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 				IU size= V.ind.size();
 				for(IU i=0; i<size; ++i)
 				{
-					if(W.arr[V.ind[i]] != zero) 	// keep only those
+					if(W.arr.size() > V.ind[i] && W.arr[V.ind[i]] != zero) 	// keep only those
 					{
 						Product.ind.push_back(V.ind[i]);
 						Product.num.push_back(V.num[i] * W.arr[V.ind[i]]);
