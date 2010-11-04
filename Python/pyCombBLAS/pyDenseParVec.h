@@ -23,6 +23,7 @@ protected:
 	DenseParVec<int64_t, int64_t> v;
 	
 	friend class pySpParVec;
+	friend class pySpParMat;
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 /////////////// everything below this appears in python interface:
@@ -30,15 +31,22 @@ public:
 	pyDenseParVec();
 	pyDenseParVec(int64_t size, int64_t id);
 	//pyDenseParVec(const pySpParMat& commSource, int64_t zero);
-
+	
 public:
 	int length() const;
 	
 	const pyDenseParVec& add(const pyDenseParVec& other);
 	const pyDenseParVec& add(const pySpParVec& other);
+	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
+	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
+	pyDenseParVec& operator=(const pyDenseParVec & rhs);
+	pyDenseParVec* copy();
 	
 public:	
 	void load(const char* filename);
+	
+public:
+	pySpParVec* FindInds_GreaterThan(int64_t value);
 	
 };
 

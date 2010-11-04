@@ -37,3 +37,37 @@ const pyDenseParVec& pyDenseParVec::add(const pySpParVec& other) {
 	v.operator+=(other.v);
 	return *this;
 }
+
+pyDenseParVec& pyDenseParVec::operator+=(const pyDenseParVec & rhs)
+{
+	v.operator+=(rhs.v);
+	return *this;
+}
+
+pyDenseParVec& pyDenseParVec::operator-=(const pyDenseParVec & rhs)
+{
+	v.operator-=(rhs.v);
+	return *this;
+}
+
+pyDenseParVec& pyDenseParVec::operator=(const pyDenseParVec & rhs)
+{
+	v.operator=(rhs.v);
+	return *this;
+}
+
+pyDenseParVec* pyDenseParVec::copy()
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	ret->v = v;
+	return ret;
+}
+
+
+pySpParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
+{
+	pySpParVec* ret = new pySpParVec();
+	ret->v = v.FindInds(bind2nd(greater<int64_t>(), value));
+	return ret;
+}
+

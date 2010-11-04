@@ -45,8 +45,8 @@ public:
 
 
 	const pySpParVec& subtract(const pySpParVec& other);
-	const pySpParVec& invert(); // "~";  almost equal to logical_not
-	const pySpParVec& abs();
+	void invert(); // "~";  almost equal to logical_not
+	void abs();
 	
 	bool anyNonzeros() const;
 	bool allNonzeros() const;

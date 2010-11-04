@@ -46,6 +46,10 @@ public:
 	void GenGraph500Edges(int scale);
 	
 public:
+	//DenseParVec<int64_t, int>* Reduce_ColumnSums();
+	pySpParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
+
+public:
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	
 };
@@ -64,9 +68,9 @@ public:
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
 
 
-	const pySpParVec& subtract(const pySpParVec& other);
-	const pySpParVec& invert(); // "~";  almost equal to logical_not
-	const pySpParVec& abs();
+	//const pySpParVec& subtract(const pySpParVec& other);
+	void invert(); // "~";  almost equal to logical_not
+	void abs();
 	
 	bool anyNonzeros() const;
 	bool allNonzeros() const;
@@ -95,10 +99,17 @@ public:
 	
 	const pyDenseParVec& add(const pyDenseParVec& other);
 	const pyDenseParVec& add(const pySpParVec& other);
+	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
+	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
+	pyDenseParVec& operator=(const pyDenseParVec & rhs);
+	pyDenseParVec* copy();
 	
 public:	
 	void load(const char* filename);
-	
+
+public:
+	pySpParVec* FindInds_GreaterThan(int64_t value);
+
 };
 
 

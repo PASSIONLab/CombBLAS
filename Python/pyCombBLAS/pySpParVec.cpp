@@ -1,6 +1,8 @@
 #include <mpi.h>
 
 #include <iostream>
+#include <math.h>
+
 #include "pySpParVec.h"
 
 using namespace std;
@@ -37,19 +39,30 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 }
 
 
-const pySpParVec& pySpParVec::subtract(const pySpParVec& other)
-{
-	return *this;
+//const pySpParVec& pySpParVec::subtract(const pySpParVec& other)
+//{
+//	return *this;
+//}
+
+
+int64_t invert64(int64_t v) {
+	return ~v;
 }
 
-const pySpParVec& pySpParVec::invert() // "~";  almost equal to logical_not
+void pySpParVec::invert() // "~";  almost equal to logical_not
 {
-	return *this;
+	v.Apply(invert64);
 }
 
-const pySpParVec& pySpParVec::abs()
+
+int64_t abs64(int64_t v) {
+	if (v < 0) return -v;
+	return v;
+}
+
+void pySpParVec::abs()
 {
-	return *this;
+	v.Apply(abs64);
 }
 
 bool pySpParVec::anyNonzeros() const
@@ -64,6 +77,7 @@ bool pySpParVec::allNonzeros() const
 
 int64_t pySpParVec::intersectSize(const pySpParVec& other)
 {
+	cout << "intersectSize missing CombBLAS piece" << endl;
 	return 0;
 }
 

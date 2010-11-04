@@ -55,6 +55,26 @@ void pySpParMat::GenGraph500Edges(int scale)
 	RenameVertices<int64_t>(DEL);
 }
 
+int64_t upcast(int i) {
+	return i;
+}
+
+//pyDenseParVec* pySpParMat::Reduce_ColumnSums()
+//{
+//	pyDenseParVec* ret = new pyDenseParVec();
+//	ret->v.stealFrom(A.Reduce(Column, plus<int64_t>(), 0, upcast));
+//	return ret;
+//}
+
+pySpParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
+{
+	pySpParVec* ret = new pySpParVec();
+	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0); 
+	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	
+	return ret;
+}
+
+
 
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
