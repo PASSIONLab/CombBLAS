@@ -72,8 +72,28 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 	{
 		arr[rhs.ind[i]] = rhs.num[i];
 	}
+	
+	return *this;
 }
 
+template <class IT, class NT>
+DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)		// SpParVec->DenseParVec conversion operator
+{
+	commGrid = rhs.commGrid;
+	arr = rhs.arr;
+	diagonal = rhs.diagonal;
+	zero = rhs.zero;
+	return *this;
+}
+
+template <class IT, class NT>
+DenseParVec< IT,NT > &  DenseParVec<IT,NT>::stealFrom(DenseParVec<IT,NT> & victim)		// SpParVec->DenseParVec conversion operator
+{
+	commGrid = victim.commGrid;
+	arr.swap(victim.arr);
+	diagonal = victim.diagonal;
+	zero = victim.zero;
+}
 
 template <class IT, class NT>
 DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > & rhs)		
