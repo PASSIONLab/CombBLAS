@@ -11,7 +11,10 @@
 #include "ParFriends.h"
 #include "Operations.h"
 
+#ifndef GRAPH_GENERATOR_SEQ
 #define GRAPH_GENERATOR_SEQ
+#endif
+
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
 
@@ -22,13 +25,12 @@ using namespace std;
 template <typename IT>
 DistEdgeList<IT>::DistEdgeList(): nedges(0), edges(NULL)
 {
-	comm = MPI::COMM_WORLD.Dup();
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
 
 template <typename IT>
 DistEdgeList<IT>::~DistEdgeList()
 {
-	comm.Free();
 	delete [] edges;
 }
 
@@ -64,9 +66,8 @@ void DistEdgeList<IT>::CleanupEmpties()
 		nedges--;
 	}
 	
-	
 	// remove marked multiplicities or self-loops
-	for (int64_t i = 0; i < (nedges-1); i++)
+	for (IT i = 0; i < (nedges-1); i++)
 	{
 		if (edges[2*i + 0] == -1)
 		{
@@ -75,39 +76,21 @@ void DistEdgeList<IT>::CleanupEmpties()
 			edges[2*i + 0] = edges[2*(nedges-1) + 0];
 			edges[2*i + 1] = edges[2*(nedges-1) + 1];
 			edges[2*(nedges-1) + 0] = -1; // mark this spot as unused
-			nedges--;
+
+			while (nedges > 0 && edges[2*(nedges-1) + 0] == -1)	// the swapped edge might be -1 too
+				nedges--;
 		}
 	}
 }
 
 
 /**
- * Generates a SpParMat which represents a matrix usable for the Graph500 benchmark.
- 
- 
-I think the function is already semantically correct, except that nedges parameter should be
-totaledges/np where np is the number of processors, just like the way John did in this M-file.
-However, this should go inside the DistEdgeList class instead of SpParMat. The returned data
-(int64_t * edges) need not be reformatted and DistEdgeList class should ideally just use that
-array as its private data.
-[implication: the line "SpTuples<int64_t,NT> A(nedges, n, n, edges);" and anything following that
-should be omitted from GenGraph500Data]
-
-Note that GenGraph500Data will return global vertex numbers (from 1... N). The ith edge can be
-accessed with edges[2*i] and edges[2*i+1]. There will be duplicates and the data won't be sorted.
-Please try to verify that my calls to the reference implementation inside GenGraph500Data are
-meaningful.
-
-The header files are "graph500-1.2/generator/graph_generator.h" and  "graph500-1.2/generator/utils.h"
-
-*/
-
-
-/** Generates an edge list consisting of an RMAT matrix suitable for the Graph500 benchmark.
- * Requires IT = int64_t
+ * Note that GenGraph500Data will return global vertex numbers (from 1... N). The ith edge can be
+ * accessed with edges[2*i] and edges[2*i+1]. There will be duplicates and the data won't be sorted.
+ * Generates an edge list consisting of an RMAT matrix suitable for the Graph500 benchmark.
 */
 template <typename IT>
-void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges_in)
+void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in)
 {
 	// Spread the two 64-bit numbers into five nonzero values in the correct range
 	uint_fast32_t seed[5];
@@ -118,7 +101,7 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 	numrows = numcols = (IT)pow((double)2, log_numverts);
 	
 	// clear the source vertex by setting it to -1
-	for (int64_t i = 0; i < nedges; i++)
+	for (IT i = 0; i < nedges; i++)
 	{
 		edges[2*i+0] = -1;
 	}
@@ -129,10 +112,7 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 
 /**
  * Randomly permutes the distributed edge list.
- 
- which is inside "ParFriends.h" and is a friend of SpParVec. 
 
-The differences are:
 - your PermEdges will be among all processors instead of being among diagonals only. 
 - it will be a friend of your DistEdgeList class. 
 - you are likely to use a vector of "tuples<double,IT,IT>" where double is the random number;
@@ -146,21 +126,20 @@ For an example, think about the edge (0,1). It will eventually (at the end of ke
 owned by processor P(0,0). 
 However, assume that processor P(r1,c1) has a copy of it before the call to PermEdges. After
 this call, some other irrelevant processor P(r2,c2) will own it. So we gained nothing, it is
-just a scrambled egg. (John, Steve, am I right?)
+just a scrambled egg. 
 */
 template <typename IT>
 void PermEdges(DistEdgeList<IT> & DEL)
 {
-	IT nedges = DEL.memedges;
-	
+	IT nedges = DEL.memedges;	// this can be optimized by calling the clean-up first
 	pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[nedges];
 
-	int nproc = DEL.comm.Get_size();
-	int rank = DEL.comm.Get_rank();
+	int nproc =(DEL.commGrid)->GetSize();
+	int rank = (DEL.commGrid)->GetRank();
 
 	IT* dist = new IT[nproc];
 	dist[rank] = nedges;
-	DEL.comm.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<IT>());
+	(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<IT>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	MTRand M;	// generate random numbers with Mersenne Twister
@@ -175,7 +154,7 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	DEL.SetMemSize(0);
 	
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-	psort::parallel_sort (vecpair, vecpair + nedges,  dist, DEL.comm);
+	psort::parallel_sort (vecpair, vecpair + nedges,  dist, DEL.commGrid->GetWorld());
 	
 	// recreate the edge list
 	DEL.SetMemSize(nedges);
@@ -210,49 +189,51 @@ For all diagonal processors P(i,i)
 template <typename IU>
 void RenameVertices(DistEdgeList<IU> & DEL)
 {
-	int rank = DEL.comm.Get_rank();
-	int size = DEL.comm.Get_size();
-	int sqrt_size = (int)sqrt(size);
-	if (sqrt_size*sqrt_size != size) {
-		if (rank == 0)
-			printf("RenameVertices(): BAD ASSUMPTION: number of processors is not square!\n");
-	}
+	int nproccols = DEL.commGrid->GetGridCols();
+	int nprocrows = DEL.commGrid->GetGridRows();
+	int myprocrow = DEL.commGrid->GetRankInProcCol();
+	int rank = DEL.commGrid->GetRank();
 
 	// create permutation
 	SpParVec<IU, IU> globalPerm;
-	globalPerm.iota(DEL.getNumRows(), 0);
-	RandPerm(globalPerm, DEL.getNumRows()/sqrt_size);
+	IU locrows; 
+	if(myprocrow != nprocrows-1)
+		locrows = DEL.getNumRows() / nprocrows;
+	else
+		locrows = DEL.getNumRows() - myprocrow * (DEL.getNumRows() / nprocrows);
+
+	RandPerm(globalPerm, locrows);
 	
 	// way to mark whether each vertex was already renamed or not
-	bool* renamed = new bool[2*DEL.getNumLocalEdges()];
-	memset(renamed, 0, sizeof(bool)*2*DEL.getNumLocalEdges());
+	IU locedgelist = 2*DEL.getNumLocalEdges();
+	bool* renamed = new bool[locedgelist];
+	fill_n(renamed, locedgelist, 0);
 	
 	// permutation for one round
-	IU* localPerm = new IU[2*DEL.memedges];
-	long permsize;
-	long startInd = 0;
+	IU* localPerm;
+	IU permsize;
+	IU startInd = 0;
 	
-	for (int round = 0; round < sqrt_size; round++)
+	for (int round = 0; round < nprocrows; round++)
 	{
 		// broadcast the permutation from the one diagonal processor
-		int broadcaster = round*sqrt_size + round;
+		int broadcaster = round*nproccols + round;
 		
 		if (rank == broadcaster)
 		{
 			permsize = globalPerm.getlocnnz();
+			localPerm = new IU[permsize];
 			copy(globalPerm.num.begin(), globalPerm.num.end(), localPerm);
 		}
-		
-		//if (rank == 0)
-		//	printf("on round %d, startInd=%ld\n", round, startInd);
-			
-		DEL.comm.Bcast(&permsize, 1, MPIType<long>(), broadcaster);
-		DEL.comm.Bcast(localPerm, permsize, MPIType<IU>(), broadcaster);
 
-		//if (rank == 0)
-		//	printf("on round %d: got permutation of size %ld\n", round, permsize);
+		DEL.commGrid->GetWorld().Bcast(&permsize, 1, MPIType<IU>(), broadcaster);
+		if(rank != broadcaster)
+		{
+			localPerm = new IU[permsize];
+		}
+		DEL.commGrid->GetWorld().Bcast(localPerm, permsize, MPIType<IU>(), broadcaster);
 		
-		for (int64_t j = 0; j < 2*DEL.getNumLocalEdges(); j++)
+		for (int64_t j = 0; j < locedgelist ; j++)
 		{
 			// We are renaming vertices, not edges
 			if (startInd <= DEL.edges[j] && DEL.edges[j] < (startInd + permsize) && !renamed[j])
@@ -262,11 +243,10 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 				renamed[j] = true;
 			}
 		}
-		
 		startInd += permsize;
+		delete [] localPerm;
 	}
-	
-	delete [] localPerm;
+	cout << "totalrenamed : " << accumulate(renamed, renamed+locedgelist, 0) << endl;
 	delete [] renamed;
 }
 

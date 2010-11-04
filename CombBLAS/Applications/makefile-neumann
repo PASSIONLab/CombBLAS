@@ -9,6 +9,14 @@ OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = mpicxx	
 FLAGS = $(OPT)
+COMBBLAS = ..
+
+
+#
+# build Graph500 generator
+#
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
@@ -43,8 +51,8 @@ mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
 apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
 
-graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o
+graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o

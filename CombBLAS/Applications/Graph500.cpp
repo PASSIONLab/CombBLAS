@@ -18,6 +18,7 @@
 #include "../DenseParMat.h"
 #include "../DenseParVec.h"
 #include "../ParFriends.h"
+#include "../DistEdgeList.h"
 
 
 using namespace std;
@@ -121,7 +122,11 @@ int main(int argc, char* argv[])
 		{
 			// this is an undirected graph, so A*x does indeed BFS
  			double initiator[4] = {.57, .19, .19, .05};
-			// A.GenGraph500Data(initiator, scale, 16.0 * std::pow(2.0, (double)scale));	
+
+			DistEdgeList<int64_t> DEL;
+			DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+			PermEdges<int64_t>(DEL);
+			RenameVertices<int64_t>(DEL);
 		}
 		else
 		{

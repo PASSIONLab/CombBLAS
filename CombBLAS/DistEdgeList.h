@@ -46,7 +46,7 @@ public:
 	DistEdgeList ();
 	~DistEdgeList ();
 
-	void GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges);
+	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges);
 	void CleanupEmpties();
 	
 	IT getNumRows() { return numrows; }
@@ -54,7 +54,7 @@ public:
 	IT getNumLocalEdges() { return nedges; }
 	
 private:
-	MPI::Intercomm comm;
+	shared_ptr<CommGrid> commGrid; 
 	
 	IT* edges; // edge list composed of pairs of edge endpoints.
 	           // Edge i goes from edges[2*i+0] to edges[2*i+1]

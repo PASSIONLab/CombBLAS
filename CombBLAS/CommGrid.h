@@ -112,6 +112,7 @@ public:
 
 	int GetGridRows() { return grrows; }
 	int GetGridCols() { return grcols; }
+	int GetSize() { return grrows * grcols; }
 
 	void OpenDebugFile(string prefix, ofstream & output) const; 
 
