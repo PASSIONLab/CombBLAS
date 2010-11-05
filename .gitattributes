@@ -946,6 +946,7 @@ Python/pyCombBLAS/pySpParVec.cpp -text
 Python/pyCombBLAS/pySpParVec.h -text
 Python/pyCombBLAS/testdense.py -text
 Python/pyCombBLAS/testscript.py -text
+Python/pyCombBLAS/val.py -text
 Python/serialSciPy/DiGraph.py -text
 Python/serialSciPy/Graph.py -text
 Python/serialSciPy/Graph500.py -text
