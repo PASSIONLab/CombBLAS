@@ -62,7 +62,7 @@ public:
 	void load(const char* filename);
 	
 public:
-	pySpParVec* FindInds_GreaterThan(int64_t value);
+	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 	
 };
 

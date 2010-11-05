@@ -89,14 +89,14 @@ void pySpParVec::abs()
 	v.Apply(abs64);
 }
 
-bool pySpParVec::anyNonzeros() const
+bool pySpParVec::any() const
 {
 	return getnnz() != 0;
 }
 
-bool pySpParVec::allNonzeros() const
+bool pySpParVec::all() const
 {
-	return getnnz() == v.totallength();
+	return getnnz() == v.getTotalLength();
 }
 
 int64_t pySpParVec::intersectSize(const pySpParVec& other)

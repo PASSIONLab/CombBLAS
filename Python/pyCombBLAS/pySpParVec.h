@@ -50,8 +50,8 @@ public:
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
 	
-	bool anyNonzeros() const;
-	bool allNonzeros() const;
+	bool any() const; // any nonzeros
+	bool all() const; // all nonzeros
 	
 	int64_t intersectSize(const pySpParVec& other);
 	

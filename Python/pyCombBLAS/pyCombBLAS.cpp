@@ -17,24 +17,6 @@ int64_t negate64(int64_t v)
 	return -v;
 }
 
-bool nonzero64(int64_t v)
-{
-	return v != 0;
-}
-
-bool zero64(int64_t v)
-{
-	return v == 0;
-}
-
-bool eq64(int64_t test, int64_t val)
-{
-	return test == val;
-}
-bool neq64(int64_t test, int64_t val)
-{
-	return test != val;
-}
 
 
 ////////////////// OPERATORS

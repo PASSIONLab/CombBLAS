@@ -48,7 +48,7 @@ public:
 	void GenGraph500Edges(int scale);
 	
 public:
-	pySpParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
+	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
 	//pyDenseParVec* Reduce_ColumnSums();
 	
 public:

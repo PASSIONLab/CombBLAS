@@ -46,7 +46,7 @@ public:
 	void GenGraph500Edges(int scale);
 	
 public:
-	pySpParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
+	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
 	//pyDenseParVec* Reduce_ColumnSums();
 	
 public:
@@ -73,8 +73,8 @@ public:
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
 	
-	bool anyNonzeros() const;
-	bool allNonzeros() const;
+	bool any() const;
+	bool all() const;
 	
 	int64_t intersectSize(const pySpParVec& other);
 	
@@ -131,7 +131,7 @@ public:
 	void load(const char* filename);
 	
 public:
-	pySpParVec* FindInds_GreaterThan(int64_t value);
+	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 };
 
 

@@ -37,7 +37,7 @@ pyDenseParVec::pyDenseParVec(int64_t size, int64_t id)
 pySpParVec* pyDenseParVec::sparse() const
 {
 	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v.Find(nonzero64);
+	ret->v = v.Find(bind2nd(not_equal_to<int64_t>(), (int64_t)0));
 	return ret;
 }
 
@@ -45,7 +45,7 @@ pySpParVec* pyDenseParVec::sparse(int64_t zero) const
 {
 	pySpParVec* ret = new pySpParVec(0);
 	
-	//ret->v = v.Find(bind2nd(neq64, zero));
+	ret->v = v.Find(bind2nd(not_equal_to<int64_t>(), zero));
 	return ret;
 }
 
@@ -98,9 +98,9 @@ pyDenseParVec* pyDenseParVec::copy()
 }
 
 
-pySpParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
+pyDenseParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
 {
-	pySpParVec* ret = new pySpParVec(0);
+	pyDenseParVec* ret = new pyDenseParVec();
 	ret->v = v.FindInds(bind2nd(greater<int64_t>(), value));
 	return ret;
 }
@@ -124,12 +124,12 @@ void pyDenseParVec::negate()
 
 int64_t pyDenseParVec::getnnz() const
 {
-	return v.Count(nonzero64);
+	return v.Count(bind2nd(not_equal_to<int64_t>(), (int64_t)0));
 }
 
 int64_t pyDenseParVec::getnz() const
 {
-	return v.Count(zero64);
+	return v.Count(bind2nd(equal_to<int64_t>(), (int64_t)0));
 }
 
 void pyDenseParVec::SetElement (int64_t indx, int64_t numx)	// element-wise assignment

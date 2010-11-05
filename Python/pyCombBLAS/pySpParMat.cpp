@@ -71,11 +71,11 @@ int64_t upcast(int i) {
 //	return ret;
 //}
 
-pySpParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
+pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 {
-	pySpParVec* ret = new pySpParVec(0);
+	pyDenseParVec* ret = new pyDenseParVec();
 	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0); 
-	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	
+	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));
 	return ret;
 }
 
