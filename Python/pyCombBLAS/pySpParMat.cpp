@@ -53,6 +53,11 @@ void pySpParMat::GenGraph500Edges(int scale)
 	if (mayiprint)
 		cout << "RenameVertices" << endl;
 	RenameVertices<int64_t>(DEL);
+	
+	if (mayiprint)
+		cout << "Convert To Matrix" << endl;
+		
+	A = SpParMat<int64_t, int, SpDCCols<int64_t, int> > (DEL);
 }
 
 int64_t upcast(int i) {
@@ -68,7 +73,7 @@ int64_t upcast(int i) {
 
 pySpParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0); 
 	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	
 	return ret;
@@ -78,7 +83,7 @@ pySpParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	ret->v = SpMV< SelectMaxSRing<int, int64_t > >(A, x.v);
 	return ret;
 }

@@ -16,16 +16,38 @@ pyDenseParVec::pyDenseParVec(int64_t size, int64_t id)
 	if (comm != MPI::COMM_NULL)
 	{
 		int nprocs = comm.Get_size();
-		locsize = (int64_t)ceil(double(size)/double(nprocs));
+		int dgrank = comm.Get_rank();
+		locsize = (int64_t)floor(static_cast<double>(size)/static_cast<double>(nprocs));
+		
+		if (dgrank == nprocs-1)
+		{
+			// this may be shorter than the others
+			locsize = size - locsize*(nprocs-1);
+		}
 	}
 
-	DenseParVec<int64_t, int64_t> temp(locsize, id);
+	DenseParVec<int64_t, int64_t> temp(locsize, id, 0);
 	v.stealFrom(temp);
 }
 
 //pyDenseParVec::pyDenseParVec(const pySpParMat& commSource, int64_t zero)
 //{
 //}
+
+pySpParVec* pyDenseParVec::sparse() const
+{
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = v.Find(nonzero64);
+	return ret;
+}
+
+pySpParVec* pyDenseParVec::sparse(int64_t zero) const
+{
+	pySpParVec* ret = new pySpParVec(0);
+	
+	//ret->v = v.Find(bind2nd(neq64, zero));
+	return ret;
+}
 
 int pyDenseParVec::length() const
 {
@@ -78,7 +100,7 @@ pyDenseParVec* pyDenseParVec::copy()
 
 pySpParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	ret->v = v.FindInds(bind2nd(greater<int64_t>(), value));
 	return ret;
 }

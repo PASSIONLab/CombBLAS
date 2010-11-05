@@ -7,8 +7,27 @@
 
 using namespace std;
 
-pySpParVec::pySpParVec()
+pySpParVec::pySpParVec(int64_t size)
 {
+	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
+	
+	int64_t locsize = 0;
+	
+	if (comm != MPI::COMM_NULL)
+	{
+		int nprocs = comm.Get_size();
+		int dgrank = comm.Get_rank();
+		locsize = (int64_t)floor(static_cast<double>(size)/static_cast<double>(nprocs));
+		
+		if (dgrank == nprocs-1)
+		{
+			// this may be shorter than the others
+			locsize = size - locsize*(nprocs-1);
+		}
+	}
+
+	SpParVec<int64_t, int64_t> temp(locsize);
+	v = temp;
 }
 
 
@@ -19,6 +38,13 @@ pySpParVec::pySpParVec()
 //pySpParVec::pySpParVec(SpParVec<int64_t, int64_t> & in_v): v(in_v)
 //{
 //}
+
+pyDenseParVec* pySpParVec::dense() const
+{
+	pyDenseParVec* ret = new pyDenseParVec(v.getnnz(), 0);
+	ret->v += v;
+	return ret;
+}
 
 
 int64_t pySpParVec::getnnz() const
@@ -46,7 +72,7 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 
 pySpParVec* pySpParVec::copy()
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	ret->v = v;
 	return ret;
 }
@@ -65,12 +91,12 @@ void pySpParVec::abs()
 
 bool pySpParVec::anyNonzeros() const
 {
-	return false;
+	return getnnz() != 0;
 }
 
 bool pySpParVec::allNonzeros() const
 {
-	return false;
+	return getnnz() == v.totallength();
 }
 
 int64_t pySpParVec::intersectSize(const pySpParVec& other)
@@ -87,16 +113,21 @@ void pySpParVec::load(const char* filename)
 	input.close();
 }
 
+void pySpParVec::printall()
+{
+	v.DebugPrint();
+}
+
 
 pySpParVec* pySpParVec::zeros(int64_t howmany)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(howmany);
 	return ret;
 }
 
 pySpParVec* pySpParVec::range(int64_t howmany, int64_t start)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(howmany);
 	ret->v.iota(howmany, start);
 	return ret;
 }

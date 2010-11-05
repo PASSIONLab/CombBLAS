@@ -56,9 +56,10 @@ public:
 
 class pySpParVec {
 public:
-	pySpParVec();
+	pySpParVec(int64_t length);
 	//pySpParVec(const pySpParMat& commSource);
 
+	pyDenseParVec* dense() const;
 public:
 	int64_t getnnz() const;
 
@@ -76,6 +77,8 @@ public:
 	bool allNonzeros() const;
 	
 	int64_t intersectSize(const pySpParVec& other);
+	
+	void printall();
 
 	
 public:	
@@ -96,6 +99,9 @@ public:
 	pyDenseParVec();
 	pyDenseParVec(int64_t size, int64_t id);
 	//pyDenseParVec(const pySpParMat& commSource, int64_t zero);
+
+	pySpParVec* sparse() const;
+	pySpParVec* sparse(int64_t zero) const;
 	
 public:
 	int length() const;

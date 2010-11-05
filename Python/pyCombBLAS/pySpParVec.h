@@ -32,8 +32,10 @@ protected:
 
 /////////////// everything below this appears in python interface:
 public:
-	pySpParVec();
+	pySpParVec(int64_t length);
 	//pySpParVec(const pySpParMat& commSource);
+	
+	pyDenseParVec* dense() const;
 
 public:
 	int64_t getnnz() const;
@@ -52,6 +54,8 @@ public:
 	bool allNonzeros() const;
 	
 	int64_t intersectSize(const pySpParVec& other);
+	
+	void printall();
 
 	/*
 	def __or__(self, other):

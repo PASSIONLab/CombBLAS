@@ -1,6 +1,6 @@
 import pyCombBLAS as pcb
 
-d = pcb.pyDenseParVec(16, 0)
+d = pcb.pyDenseParVec(19, 0)
 d.SetElement(1, 1)
 d.SetElement(5, 5)
 d.SetElement(9, 9)

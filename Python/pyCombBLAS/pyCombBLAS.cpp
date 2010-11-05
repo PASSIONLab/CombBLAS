@@ -27,18 +27,28 @@ bool zero64(int64_t v)
 	return v == 0;
 }
 
+bool eq64(int64_t test, int64_t val)
+{
+	return test == val;
+}
+bool neq64(int64_t test, int64_t val)
+{
+	return test != val;
+}
+
+
 ////////////////// OPERATORS
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	//ret->v = ::EWiseMult(a.v, b.v, exclude);
 	return ret;
 }
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec* ret = new pySpParVec(0);
 	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)0);
 	return ret;
 }
