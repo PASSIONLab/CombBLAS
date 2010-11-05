@@ -40,8 +40,8 @@ public:
 public:
 	int64_t getnnz() const;
 
-	void add(const pySpParVec& other);
-	//void subtract(const pySpParVec& other);
+	pySpParVec& operator+=(const pySpParVec& other);
+	pySpParVec& operator-=(const pySpParVec& other);
 	pySpParVec* copy();
 
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment

@@ -63,8 +63,8 @@ public:
 public:
 	int64_t getnnz() const;
 
-	void add(const pySpParVec& other);
-	//void subtract(const pySpParVec& other);
+	pySpParVec& operator+=(const pySpParVec& other);
+	pySpParVec& operator-=(const pySpParVec& other);
 	pySpParVec* copy();
 
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
@@ -110,7 +110,7 @@ public:
 	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=, use copy instead.
 	pyDenseParVec* copy();
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment

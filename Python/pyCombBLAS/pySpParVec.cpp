@@ -52,11 +52,17 @@ int64_t pySpParVec::getnnz() const
 	return v.getnnz();
 }
 
-void pySpParVec::add(const pySpParVec& other)
+pySpParVec& pySpParVec::operator+=(const pySpParVec& other)
 {
 	v.operator+=(other.v);
 
-	//return *this;
+	return *this;
+}
+
+pySpParVec& pySpParVec::operator-=(const pySpParVec& other)
+{
+	v -= other.v;
+	return *this;
 }
 
 void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignment
@@ -64,11 +70,6 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 	v.SetElement(index, numx);
 }
 
-
-//const pySpParVec& pySpParVec::subtract(const pySpParVec& other)
-//{
-//	return *this;
-//}
 
 pySpParVec* pySpParVec::copy()
 {
