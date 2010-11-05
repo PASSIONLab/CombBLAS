@@ -41,7 +41,7 @@ pySpParVec::pySpParVec(int64_t size)
 
 pyDenseParVec* pySpParVec::dense() const
 {
-	pyDenseParVec* ret = new pyDenseParVec(v.getnnz(), 0);
+	pyDenseParVec* ret = new pyDenseParVec(v.getTotalLength(), 0);
 	ret->v += v;
 	return ret;
 }
