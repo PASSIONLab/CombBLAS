@@ -37,7 +37,10 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);	
-	DenseParVec<IT,NT> & stealFrom(DenseParVec<IT,NT> & victim); // like operator=, but instead of making a deep copy it just steels the contents. Useful for places where the "victim" will be distroyed immediately after the call.
+	
+	//! like operator=, but instead of making a deep copy it just steals the contents. 
+	//! Useful for places where the "victim" will be distroyed immediately after the call.
+	DenseParVec<IT,NT> & stealFrom(DenseParVec<IT,NT> & victim); 
 	DenseParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);		
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
@@ -50,7 +53,7 @@ public:
 	{
 		IT totnnz = 0;
 		IT locnnz = arr.size();
-		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
 
@@ -58,7 +61,7 @@ public:
 	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
 	template <typename _Predicate>
-	SpParVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
+	DenseParVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
 
 	template <typename _Predicate>
 	IT Count(_Predicate pred) const;	//!< Return the number of elements for which pred is true
@@ -80,7 +83,8 @@ public:
 		output << endl;
 		output.close();
 	}
-	
+
+	void PrintInfo(string vectorname) const;
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 	
@@ -101,6 +105,9 @@ private:
 
 	template <class IU, class NU, class UDER>
 	friend class SpParMat;
+
+	template <class IU, class NU>
+	friend class DenseParVec;
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 

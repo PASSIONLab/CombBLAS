@@ -84,13 +84,12 @@ public:
 		return totnnz;
 	}
 
-	IT totallength() const
+	IT getTotalLength() const
 	{
 		IT totlen = 0;
 		(commGrid->GetDiagWorld()).Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
 		return totlen;
 	}
-
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)

@@ -41,6 +41,18 @@ struct identity : public std::unary_function<T, T>
 	return x;
   }
 };
+
+
+template<typename T>
+struct totality : public std::unary_function<T, bool>
+{
+  /** @returns true regardless */
+  const bool operator()(const T& x) const
+  {
+	return true;
+  }
+};
+	
 	
 template<typename T>
 struct safemultinv : public std::unary_function<T, T>

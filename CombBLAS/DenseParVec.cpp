@@ -199,25 +199,65 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 
 template <class IT, class NT>
 template <typename _Predicate>
-SpParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
+DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 {
-	SpParVec<IT,IT> found(commGrid);
-	if(diagonal)
+	DenseParVec<IT,IT> found(commGrid, (IT) 0);
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	IT totlen = getTotalLength();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		
 		IT size = arr.size();
 		for(IT i=0; i<size; ++i)
 		{
 			if(pred(arr[i]))
 			{
-				found.ind.push_back(i);
-				found.num.push_back(i);
+				found.arr.push_back(i);
 			}
 		}
-		found.length = size;
+		cout << "Barrier coming" << endl;
+		DiagWorld.Barrier();
+		IT n_perproc = totlen / nprocs;
+		IT lengthuntil = dgrank * n_perproc;
+
+		// rebalance/redistribute
+		IT nsize = found.arr.size();
+		int * sendcnt = new int[nprocs];
+		fill(sendcnt, sendcnt+nprocs, 0);
+		for(IT i=0, j=0; i<nsize; ++i)
+		{
+			// owner id's are monotonically increasing and continuous
+			int owner = std::min(static_cast<int>( (i+lengthuntil) / n_perproc), nprocs-1); 
+			sendcnt[owner]++;
+		}
+
+		int * recvcnt = new int[nprocs];
+		commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+
+		int * sdispls = new int[nprocs];
+		int * rdispls = new int[nprocs];
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
+		vector<IT> recvbuf(totrecv);
+		cout << "Recvbuf size: " << totrecv << endl;
+			
+		// data is already in the right order in found.arr
+		commGrid->GetWorld().Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
+		found.arr.swap(recvbuf);
+		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
-	
 	return found;
 }
+
 
 
 //! Requires no communication because SpParVec (the return object)
@@ -405,18 +445,19 @@ template <class IT, class NT>
 template <typename _UnaryOperation>
 void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT> & mask)
 {
-	/* // For some reason the compiler doesn't like this iterator
-	vector< IT >::iterator miter = mask.ind.begin();
+	typename vector< IT >::iterator miter = mask.ind.begin();
 	while (miter < mask.ind.end())
 	{
 		IT index = *miter++;
 		arr[index] = __unary_op(arr[index]);
 	}
-	*/
-	for (IT index = 0; index < mask.ind.size(); index++)
-	{
-		arr[index] = __unary_op(arr[index]);
-	}
 }	
 
 
+template <class IT, class NT>
+void DenseParVec<IT,NT>::PrintInfo(string vectorname) const
+{
+	IT totl = getTotalLength();
+	if (commGrid->GetRank() == 0)	
+			cout << "As a whole, " << vectorname << " has length " << totl << endl; 
+}

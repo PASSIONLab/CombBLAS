@@ -152,16 +152,17 @@ int main(int argc, char* argv[])
 		// Reduce on a boolean matrix would return a boolean vector, not possible to sum along
 		PSpMat_Int * AInt = new PSpMat_Int(A);
 		DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
-		SpParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	// only the indices of connected vertices
+		DenseParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	// only the indices of connected vertices
 		Cands.PrintInfo("Candidates array");
 		delete AInt;	// save memory	
 
-		SpParVec<int64_t,int64_t> First64;
-		RandPerm(Cands);	// From [{1,1},{4,4},{7,7}] to [{1,p{1}}, {2,p{2}}, {3,p{3}}]
-		Cands.PrintInfo("Candidates array (permuted)");
+		SpParVec<int64_t,int64_t> First64, CandSp;
+		CandSp = Cands.Find(totality<int64_t>());
+		RandPerm(CandSp);	// From [{1,1},{4,4},{7,7}] to [{1,p{1}}, {2,p{2}}, {3,p{3}}]
+		CandSp.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 1);			// NV is also 1-based
-		Cands = Cands(First64);			// Because SpRef expects a 1-based parameter
-		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
+		CandSp = CandSp(First64);			// Because SpRef expects a 1-based parameter
+		CandSp.PrintInfo("First 64 of candidates (randomly chosen) array");
 
 		for(int i=0; i<64; ++i)
 		{
@@ -172,8 +173,8 @@ int main(int argc, char* argv[])
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe(A.getlocalcols());	// numerical values are stored 1-based
-			fringe.SetElement(Cands[i], Cands[i]);	
-			cout << "Candidate id: "<< Cands[i] << endl;
+			fringe.SetElement(CandSp[i], CandSp[i]);	
+			cout << "Candidate id: "<< CandSp[i] << endl;
 			while(fringe.getnnz() > 0)
 			{
 				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
