@@ -101,28 +101,6 @@ pySpParVec* pySpParVec::range(int64_t howmany, int64_t start)
 	return ret;
 }
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
-{
-	pySpParVec* ret = new pySpParVec();
-	//ret->v = ::EWiseMult(a.v, b.v, exclude);
-	return ret;
-}
-
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
-{
-	pySpParVec* ret = new pySpParVec();
-	cout << "running EWiseMult" << endl;
-	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)0);
-	cout << "finished running EWiseMult" << endl;
-	return ret;
-}
-
-
-
-
-
-
-
 
 
 

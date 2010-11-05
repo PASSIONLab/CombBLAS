@@ -1,8 +1,9 @@
 
 %module pyCombBLAS
 
-%typemap(in) int64_t = long long;
-%typemap(out) int64_t = long long;
+//%typemap(in) int64_t = long long;
+//%typemap(out) int64_t = long long;
+%apply long long {int64_t}
 
 // This block gets copied verbatim into the header area of the generated wrapper. DiGraph has to
 // be defined here somehow. Prefereably we'd #include "DiGraph.h", but that brings in templates which
@@ -103,15 +104,21 @@ public:
 	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
-	pyDenseParVec& operator=(const pyDenseParVec & rhs);
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	pyDenseParVec* copy();
+	
+	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
+	int64_t GetElement (int64_t indx);	// element-wise fetch
+
+	void printall();
 	
 public:
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
+	void negate();
 	
-	//bool anyNonzeros() const;
-	//bool allNonzeros() const;
+	int64_t getnnz() const;
+	int64_t getnz() const;
 
 	
 public:	
@@ -125,3 +132,4 @@ public:
 
 //void init();
 void finalize();
+bool root();

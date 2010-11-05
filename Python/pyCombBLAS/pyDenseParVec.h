@@ -38,15 +38,21 @@ public:
 	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
-	pyDenseParVec& operator=(const pyDenseParVec & rhs);
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	pyDenseParVec* copy();
+	
+	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
+	int64_t GetElement (int64_t indx);	// element-wise fetch
+
+	void printall();
 	
 public:
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
+	void negate();
 	
-	bool anyNonzeros() const;
-	bool allNonzeros() const;
+	int64_t getnnz() const;
+	int64_t getnz() const;
 
 	
 public:	

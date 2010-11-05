@@ -56,10 +56,4 @@ public:
 	
 };
 
-extern "C" {
-void init_pyCombBLAS_MPI();
-}
-
-void finalize();
-
 #endif

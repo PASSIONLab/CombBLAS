@@ -20,6 +20,9 @@ while (fringe.getnnz() > 0):
 	print "running add"
 	parents.add(fringe)
 
+print "trying FindInds"
+r = levels.FindInds_GreaterThan(-3)
+print "FindInds result has %d nnz" %(r.getnnz())
 
 del A
 del parents
