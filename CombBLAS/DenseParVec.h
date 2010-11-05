@@ -43,6 +43,7 @@ public:
 	DenseParVec<IT,NT> & stealFrom(DenseParVec<IT,NT> & victim); 
 	DenseParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);		
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
+	DenseParVec<IT,NT> & operator-=(const SpParVec<IT,NT> & rhs);		
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
 

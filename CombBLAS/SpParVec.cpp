@@ -285,8 +285,10 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 			IT lsize = ind.size();
 			IT rsize = rhs.ind.size();
 
-			vector< IT > nind(lsize+rsize);
-			vector< NT > nnum(lsize+rsize);
+			vector< IT > nind;
+			vector< NT > nnum;
+			nind.reserve(lsize+rsize);
+			nnum.reserve(lsize+rsize);
 
 			IT i=0, j=0;
 			while(i < lsize && j < rsize)
@@ -304,8 +306,50 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 				}
 				else
 				{
-					nind.push_back( ind[i] ); // ADAM: used to be nind.push_back( ind[i].first );
+					nind.push_back( ind[i] );
 					nnum.push_back( num[i++] + rhs.num[j++] );
+				}
+			}
+			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
+			num.swap(nnum);
+			length = ind.size();
+		} 	
+	}	
+	return *this;
+};	
+template <class IT, class NT>
+SpParVec<IT,NT> & SpParVec<IT, NT>::operator-=(const SpParVec<IT,NT> & rhs)
+{
+	if(this != &rhs)		
+	{	
+		if(diagonal)	// Only the diagonal processors hold values
+		{
+			IT lsize = ind.size();
+			IT rsize = rhs.ind.size();
+
+			vector< IT > nind;
+			vector< NT > nnum;
+			nind.reserve(lsize+rsize);
+			nnum.reserve(lsize+rsize);
+
+			IT i=0, j=0;
+			while(i < lsize && j < rsize)
+			{
+				// assignment won't change the size of vector, push_back is necessary
+				if(ind[i] > rhs.ind[j])
+				{	
+					nind.push_back( rhs.ind[j] );
+					nnum.push_back( -rhs.num[j++] );
+				}
+				else if(ind[i] < rhs.ind[j])
+				{
+					nind.push_back( ind[i] );
+					nnum.push_back( num[i++] );
+				}
+				else
+				{
+					nind.push_back( ind[i] );
+					nnum.push_back( num[i++] - rhs.num[j++] );
 				}
 			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size

@@ -51,6 +51,7 @@ public:
 	SpParVec ( shared_ptr<CommGrid> grid);
 
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
+	SpParVec<IT,NT> & operator-=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
 
 	template <typename NNT> operator SpParVec< IT,NNT > () const	//!< Type conversion operator
