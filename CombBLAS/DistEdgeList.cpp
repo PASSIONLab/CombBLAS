@@ -34,8 +34,7 @@ DistEdgeList<IT>::~DistEdgeList()
 	delete [] edges;
 }
 
-/** Allocates enough space
-*/
+//! Allocates enough space
 template <typename IT>
 void DistEdgeList<IT>::SetMemSize(IT ne)
 {
@@ -131,19 +130,19 @@ just a scrambled egg.
 template <typename IT>
 void PermEdges(DistEdgeList<IT> & DEL)
 {
-	IT nedges = DEL.memedges;	// this can be optimized by calling the clean-up first
-	pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[nedges];
+	IT maxedges = DEL.memedges;	// this can be optimized by calling the clean-up first
+	pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[maxedges];
 
 	int nproc =(DEL.commGrid)->GetSize();
 	int rank = (DEL.commGrid)->GetRank();
 
 	IT* dist = new IT[nproc];
-	dist[rank] = nedges;
+	dist[rank] = maxedges;
 	(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<IT>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	MTRand M;	// generate random numbers with Mersenne Twister
-	for (IT i = 0; i < nedges; i++)
+	for (IT i = 0; i < maxedges; i++)
 	{
 		vecpair[i].first = M.rand();
 		vecpair[i].second.first = DEL.edges[2*i + 0];
@@ -154,37 +153,30 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	DEL.SetMemSize(0);
 	
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-	psort::parallel_sort (vecpair, vecpair + nedges,  dist, DEL.commGrid->GetWorld());
+	psort::parallel_sort (vecpair, vecpair + maxedges,  dist, DEL.commGrid->GetWorld());
 	
 	// recreate the edge list
-	DEL.SetMemSize(nedges);
+	DEL.SetMemSize(maxedges);
 
-	for (IT i = 0; i < nedges; i++)
+	for (IT i = 0; i < maxedges; i++)
 	{
 		DEL.edges[2*i + 0] = vecpair[i].second.first;
 		DEL.edges[2*i + 1] = vecpair[i].second.second;
 	}
-	
 	delete [] dist;
 	delete [] vecpair;
 }
 
 /*
-(AL3) Rename vertices globally. You first need to do:
-
-SpParVec<int,int> p;
-RandPerm(p, A.getlocalrows());
-
-This will create a global permutation vector distributed on diagonal processors. Then the sqrt(p)
-round robin algorithm will do the renaming: 
+(AL3) Rename vertices globally. 
+	You first need to do create a random permutation distributed on diagonal processors. 
+	Then the sqrt(p) round robin algorithm will do the renaming: 
 
 For all diagonal processors P(i,i)
             Broadcast local_p to all p processors
             For j= i*sqrt(p) to min((i+1)*sqrt(p), N)
                       Rename the all j's with local_p(j) inside the edgelist (and mark them
                       "renamed" so that yeach vertex id is renamed only once)
-
-
 */
 template <typename IU>
 void RenameVertices(DistEdgeList<IU> & DEL)
@@ -202,7 +194,8 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	else
 		locrows = DEL.getNumRows() - myprocrow * (DEL.getNumRows() / nprocrows);
 
-	RandPerm(globalPerm, locrows);
+	globalPerm.iota(DEL.getNumRows(), 0);
+	RandPerm(globalPerm);	// now, randperm can return a 0-based permutation
 	
 	// way to mark whether each vertex was already renamed or not
 	IU locedgelist = 2*DEL.getNumLocalEdges();
@@ -232,21 +225,20 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 			localPerm = new IU[permsize];
 		}
 		DEL.commGrid->GetWorld().Bcast(localPerm, permsize, MPIType<IU>(), broadcaster);
-		
-		for (int64_t j = 0; j < locedgelist ; j++)
+	
+		// iterate over 	
+		for (typename vector<IU>::size_type j = 0; j < locedgelist ; j++)
 		{
 			// We are renaming vertices, not edges
 			if (startInd <= DEL.edges[j] && DEL.edges[j] < (startInd + permsize) && !renamed[j])
 			{
-				//printf("proc %d: permuting edges[%ld] with localPerm[%ld]\n", rank, j, DEL.edges[j]-startInd);
-				DEL.edges[j] = localPerm[DEL.edges[j]-startInd];
+				DEL.edges[j] = localPerm[DEL.edges[j]-startInd];	// randperm returned a 0-based permutation since that's what we passed it
 				renamed[j] = true;
 			}
 		}
 		startInd += permsize;
 		delete [] localPerm;
 	}
-	cout << "totalrenamed : " << accumulate(renamed, renamed+locedgelist, 0) << endl;
 	delete [] renamed;
 }
 

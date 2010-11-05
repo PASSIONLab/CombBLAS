@@ -86,8 +86,10 @@ int main(int argc, char* argv[])
 
 		// generate random permutations
 		SpParVec<int,int> p, q;
-		RandPerm(p, A.getlocalrows());	
-		RandPerm(q, A.getlocalcols());
+		p.iota(A.getnrow(), 1);
+		q.iota(A.getncol(), 1);
+		RandPerm(p);	
+		RandPerm(q);
 
 		PARDBMAT B = A(p,q);
 		A.PrintInfo();

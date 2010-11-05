@@ -794,38 +794,38 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 
-
+// Randomly permutes an already existing vector
+// Preserves the data distribution (doesn't rebalance)
 template <typename IU>
-void RandPerm(SpParVec<IU,IU> & V, IU loclength)
+void RandPerm(SpParVec<IU,IU> & V)
 {
-	V.length = loclength;
 	MPI::Intracomm DiagWorld = V.commGrid->GetDiagWorld();
 
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
-		pair<double,IU> * vecpair = new pair<double,IU>[loclength];
+		pair<double,IU> * vecpair = new pair<double,IU>[V.getlocnnz()];
 
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
 
 		long * dist = new long[nproc];
-		dist[diagrank] = V.length;
+		dist[diagrank] = V.getlocnnz();
 		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
 		IU lengthuntil = accumulate(dist, dist+diagrank, 0);
 
   		MTRand M;	// generate random numbers with Mersenne Twister
-		for(int i=0; i<loclength; ++i)
+		for(int i=0; i<V.getlocnnz(); ++i)
 		{
 			vecpair[i].first = M.rand();
-			vecpair[i].second = i+1+lengthuntil;	// permutation indices are 1-based
+			vecpair[i].second = V.num[i];	// permutation indices are 1-based
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + loclength,  dist, DiagWorld);
+    		psort::parallel_sort (vecpair, vecpair + V.getlocnnz(),  dist, DiagWorld);
 
-		vector< IU > nind(loclength);
-		vector< IU > nnum(loclength);
-		for(int i=0; i<loclength; ++i)
+		vector< IU > nind(V.getlocnnz());
+		vector< IU > nnum(V.getlocnnz());
+		for(int i=0; i<V.getlocnnz(); ++i)
 		{
 			nind[i] = i;
 			nnum[i] = vecpair[i].second;
@@ -1072,6 +1072,7 @@ SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 		return SpParVec< IU,T_promote>();
 	}
 }
+
 
 #endif
 

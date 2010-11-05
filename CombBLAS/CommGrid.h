@@ -85,7 +85,8 @@ public:
 	bool operator== (const CommGrid & rhs) const;
 	bool OnSameProcCol( int rhsrank );
 	bool OnSameProcRow( int rhsrank );
-	
+
+	int GetRank(int rowrank, int colrank) { return rowrank * grcols + colrank; }	
 	int GetRank() { return myrank; }
 	int GetRankInProcRow() { return myproccol; }
 	int GetRankInProcCol() { return myprocrow; }

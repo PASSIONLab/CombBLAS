@@ -44,7 +44,7 @@ public:
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
 
 	void SetElement (IT indx, NT numx);	// element-wise assignment
-	NT   GetElement (IT indx);	// element-wise fetch
+	NT   GetElement (IT indx);		// element-wise fetch
 	
 	IT getTotalLength() const
 	{

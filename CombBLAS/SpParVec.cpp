@@ -24,6 +24,16 @@ SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min()
 		diagonal = false;	
 };
 
+template <class IT, class NT>
+SpParVec<IT, NT>::SpParVec (IT loclen): length(loclen), NOT_FOUND(numeric_limits<NT>::min())
+{
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+		diagonal = true;
+	else
+		diagonal = false;	
+}
 
 template <class IT, class NT>
 NT SpParVec<IT,NT>::operator[](IT indx) const
@@ -34,7 +44,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 	{
 		IT dgrank = (IT) DiagWorld.Get_rank();
 		IT nprocs = (IT) DiagWorld.Get_size();
-		IT n_perproc = getnnz() / nprocs;
+		IT n_perproc = totallength() / nprocs;
 		IT offset = dgrank * n_perproc;
 
 		IT owner = (indx-1) / n_perproc;	
@@ -73,33 +83,12 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		
-		// The new element should be placed on the least-burdened node.
-		// So find who that node is.
-		int64_t* all_nnzs = new int64_t[nprocs];
-		
-		all_nnzs[dgrank] = ind.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
-		
-		// find the owner
-		int64_t min = LLONG_MAX;
-		int64_t offset = 0, running_offset = 0;
-		int owner = 0;
-		for (int i = 0; i < nprocs; i++) {
-			if (all_nnzs[i] < min) {
-				min = all_nnzs[i];
-				owner = i;
-				offset = running_offset;
-			}
-			running_offset += all_nnzs[i];
-		}
-		owner = std::min(owner, nprocs-1);
-		
-		delete [] all_nnzs;
-		all_nnzs = NULL;
+		IT n_perproc = totallength() / nprocs;
+		int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
 		
 		if(owner == dgrank) // insert if this process is the owner
 		{
-			IT locindx = indx-1-offset;
+			IT locindx = indx-1-(dgrank*n_perproc);
 			typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
 			if(iter == ind.end())	// beyond limits, insert from back
 			{
@@ -122,9 +111,10 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 }
 
 /**
- * Preserves the length
- * Example: p([1,3,92]) has perhaps less nonzeros than 
- * p itself but its length is the same as p
+ * The distribution and length are inherited from ri
+ * Example: This is [{1,n1},{4,n4},{7,n7},{8,n8},{9,n9}] with P_00 owning {1,4} and P_11 rest
+ * Assume ri = [{1,4},{2,1}] is distributed as one element per processor
+ * Then result has length 2, distrubuted one element per processor
  * TODO: Indexing (with this given semantics) would just work with
  * the prototype operator() (const DenseParVec<IT,IT> & ri) 
  * because this code makes no reference to ri.ind() 
@@ -138,13 +128,13 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getnnz() / nprocs;
+		IT n_perproc = totallength() / nprocs;
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
 		{
-			int owner = ri.num[i] / n_perproc;	
+			int owner = (ri.num[i]-1) / n_perproc;	// numerical values in ri are 1-based
 			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.num[i] - 1 - (rec * n_perproc));
+			data_req[rec].push_back(ri.num[i] - 1- (rec * n_perproc));
 		}
 		IT * sendbuf = new IT[ri.num.size()];
 		int * sendcnt = new int[nprocs];
@@ -216,7 +206,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 				Indexed.num.push_back(databuf[j]);
 			}
 		}
-		Indexed.length = length;
+		Indexed.length = ri.length;
 		DeleteAll(sdispls, sendcnt, sendbuf, databuf);
 	}
 	return Indexed;
@@ -459,14 +449,15 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 
 
 template <class IT, class NT>
-void SpParVec<IT,NT>::PrintInfo() const
+void SpParVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	if(diagonal)
 	{
 		IT nznz = getnnz();
+		IT totl = totallength();
 		
 		if (commGrid->GetRank() == 0)	
-			cout << "As a whole, this vector has: " << nznz << " nonzeros" << endl; 
+			cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << totl << endl; 
 	}
 }
 

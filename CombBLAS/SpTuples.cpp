@@ -45,14 +45,16 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges):m(nRow), n(n
 	{
 		tuples  = new tuple<IT, IT, NT>[maxnnz];
 	}
+	cout << maxnnz << endl;
 	for(IT i=0; i<maxnnz; ++i)
 	{
 		rowindex(i) = edges[2*i+0];
 		colindex(i) = edges[2*i+1];
-		numvalue(i) = 1;
+		numvalue(i) = (NT) 1;
 	}
+	nnz = maxnnz;	// for now (to sort)
 	SortRowBased();
-	
+
 	IT cnz = 0;
 	nnz = 0;
 	for(; cnz < maxnnz; )
@@ -102,9 +104,6 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT>
 	delete [] multstack;
 }
 
-
-// ADAM: I commented this out. Should it be a constructor definition?
-//	SpTuples (IT nRow, IT nCol, IT * edges);	// Graph500 contructor
 
 template <class IT,class NT>
 SpTuples<IT,NT>::~SpTuples()
@@ -242,6 +241,19 @@ void SpTuples<IT,NT>::PrintInfo()
 	cout << "m: " << m ;
 	cout << ", n: " << n ;
 	cout << ", nnz: "<< nnz << endl;
+
+	for(IT i=0; i< nnz; ++i)
+	{
+		if(rowindex(i) < 0 || colindex(i) < 0)
+		{
+			cout << "Negative index at " << i << endl;
+			return;
+		}
+		else if(rowindex(i) >= m || colindex(i) >= n)
+		{
+			cout << "Index " << i << " too big with values (" << rowindex(i) << ","<< colindex(i) << ")" << endl;
+		}
+	}
 
 	if(m < 8 && n < 8)	// small enough to print
 	{

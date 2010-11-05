@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 17;	// fits even to single processor
+			scale = 12;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -127,6 +127,8 @@ int main(int argc, char* argv[])
 			DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
 			PermEdges<int64_t>(DEL);
 			RenameVertices<int64_t>(DEL);
+
+			A = SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > (DEL);	 // conversion from distributed edge list
 		}
 		else
 		{
@@ -150,15 +152,16 @@ int main(int argc, char* argv[])
 		// Reduce on a boolean matrix would return a boolean vector, not possible to sum along
 		PSpMat_Int * AInt = new PSpMat_Int(A);
 		DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
-		SpParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	
+		SpParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	// only the indices of connected vertices
+		Cands.PrintInfo("Candidates array");
 		delete AInt;	// save memory	
 
-		SpParVec<int64_t,int64_t> RandVec, First64;
-		RandPerm(RandVec,Cands.getlocnnz());	// returns 1-based permutation indices
-		First64.iota(64, 1);
-		Cands = Cands(RandVec(First64));
-		SpParHelper::Print("Starting vertices are chosen\n");
-		Cands.PrintInfo();
+		SpParVec<int64_t,int64_t> First64;
+		RandPerm(Cands);	// From [{1,1},{4,4},{7,7}] to [{1,p{1}}, {2,p{2}}, {3,p{3}}]
+		Cands.PrintInfo("Candidates array (permuted)");
+		First64.iota(64, 1);			// NV is also 1-based
+		Cands = Cands(First64);			// Because SpRef expects a 1-based parameter
+		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 
 		for(int i=0; i<64; ++i)
 		{
@@ -168,8 +171,9 @@ int main(int argc, char* argv[])
 			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), (int64_t) 0);	// identity is 0 
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
-			SpParVec<int64_t, int64_t> fringe;	// numerical values are stored 1-based
+			SpParVec<int64_t, int64_t> fringe(A.getlocalcols());	// numerical values are stored 1-based
 			fringe.SetElement(Cands[i], Cands[i]);	
+			cout << "Candidate id: "<< Cands[i] << endl;
 			while(fringe.getnnz() > 0)
 			{
 				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector

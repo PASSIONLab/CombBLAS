@@ -561,29 +561,77 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 	return static_cast<bool>(whole);	
 }
 
-template <class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges)
-{ 
-  // This function should not be used in this form
-  // use DistEdgeList::GenGraph500Data instead
-  
-  
-  /*
-  // Spread the two 64-bit numbers into five nonzero values in the correct range
-  uint_fast32_t seed[5];
-  make_mrg_seed(1, 2, seed);
-  int64_t* edges = new int64_t[2*nedges];	// will include duplicates and self-loops
-  generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
 
-  // keep multiplicities of edges as the numerical value (NT)
-  int64_t n = (int64_t) std::pow(2., log_numverts);
-  SpTuples<int64_t,NT> A(nedges, n, n, edges);  
-  delete [] edges;
-  
-  // ADAM: this used to be "delete sqSeq;" I assume the 'q' was a typo for 'p'.
-  delete spSeq;	// in case it was not empty, avoid memory leaks
-  spSeq = new DER(A,false);        // Convert SpTuples to DER
-  */
+template <class IT, class NT, class DER>
+SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL)
+{
+	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
+	int rank = commGrid->GetRank();
+	int nprocs = commGrid->GetSize();
+	int r = commGrid->GetGridRows();
+	int s = commGrid->GetGridCols();
+	vector< vector<IT> > data(nprocs);
+
+	IT m_perproc = DEL.getNumRows() / r;
+	IT n_perproc = DEL.getNumCols() / s;
+
+	// clear the source vertex by setting it to -1
+	int realedges = 0;
+	for (IT i = 0; i < DEL.nedges; i++)
+	{
+		if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
+		{
+			int rowowner = std::min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), r-1);
+			int colowner = std::min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), s-1); 
+			int owner = commGrid->GetRank(rowowner, colowner);
+			data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
+			data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
+			++realedges;
+		}
+	}
+
+  	IT * sendbuf = new IT[2*realedges];
+	int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = data[i].size();
+
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+	for(int i=0; i<nprocs; ++i)
+		copy(data[i].begin(), data[i].end(), sendbuf+sdispls[i]);
+	
+	// clear memory
+	for(int i=0; i<nprocs; ++i)
+		vector<IT>().swap(data[i]);
+
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);	// totrecv = 2*locedges
+	IT * recvbuf = new IT[totrecv];
+			
+	commGrid->GetWorld().Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>()); 
+	delete [] sendbuf;
+
+	int myprocrow = commGrid->GetRankInProcCol();
+	int myproccol = commGrid->GetRankInProcRow();
+	IT locrows, loccols; 
+	if(myprocrow != r-1)	locrows = m_perproc;
+	else 	locrows = DEL.getNumRows() - myprocrow * m_perproc;
+	if(myproccol != s-1)	loccols = n_perproc;
+	else	loccols = DEL.getNumCols() - myproccol * n_perproc;
+
+	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, recvbuf);  	
+	delete [] recvbuf;
+  	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
 

@@ -34,6 +34,7 @@
 #include "DenseParMat.h"
 #include "Friends.h"
 #include "Operations.h"
+#include "DistEdgeList.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -63,17 +64,15 @@ public:
 	SpParMat (DER * myseq, MPI::Intracomm & world);	
 
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
+	SpParMat (const DistEdgeList< IT > & rhs);				// conversion from distributed edge list
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();
 
-	void GenGraph500Data(double initiator[4], int log_numverts, int64_t nedges);
-	float LoadImbalance() const;
-
 	template <typename SR>
-	void Square (); // ADAM: definiton was there, only this declaration was missing.
+	void Square (); 
 
-
+	float LoadImbalance() const;
 	void Transpose();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);

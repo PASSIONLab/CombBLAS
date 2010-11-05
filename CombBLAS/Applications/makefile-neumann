@@ -6,9 +6,9 @@ INCADD = -I$(INCDIR)
 # -fno-rtti does not work with tr1:tuples
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
 COMPILER = mpicxx	
-FLAGS = $(OPT)
+FLAGS = $(DEB)
 COMBBLAS = ..
 
 

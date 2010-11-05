@@ -49,9 +49,9 @@ public:
 	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges);
 	void CleanupEmpties();
 	
-	IT getNumRows() { return numrows; }
-	IT getNumCols() { return numcols; }
-	IT getNumLocalEdges() { return nedges; }
+	IT getNumRows() const { return numrows; }
+	IT getNumCols() const { return numcols; }
+	IT getNumLocalEdges() const { return nedges; }
 	
 private:
 	shared_ptr<CommGrid> commGrid; 
@@ -72,6 +72,9 @@ private:
 	
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
+
+	template <class IU, class NU, class UDER>
+	friend class SpParMat;
 };
 
 template<typename IU>

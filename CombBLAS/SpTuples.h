@@ -32,13 +32,6 @@ class SpDCCols;
 template <class IU, class NU>
 class Dcsc;
 
-#ifdef GRAPHGEN_KEEP_MULTIPLICITIES
-typedef struct generated_edge {
-  int64_t src;
-  int64_t tgt;
-  int64_t multiplicity;
-} generated_edge;
-#endif
 
 /**
  * Triplets are represented using the boost::tuple class of the Boost library
@@ -207,7 +200,69 @@ template <> struct promote_trait< SpTuples<int,float> , SpTuples<int,bool> >
     {                                           
         typedef SpTuples<int,float> T_promote;                    
     };
-
-
+template <> struct promote_trait< SpTuples<int64_t,int> , SpTuples<int64_t,int> >       
+    {                                           
+        typedef SpTuples<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,float> , SpTuples<int64_t,float> >       
+    {                                           
+        typedef SpTuples<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,double> , SpTuples<int64_t,double> >       
+    {                                           
+        typedef SpTuples<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,int64_t> , SpTuples<int64_t,int64_t> >       
+    {                                           
+        typedef SpTuples<int64_t,int64_t> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,bool> , SpTuples<int64_t,int> >       
+    {                                           
+        typedef SpTuples<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,int> , SpTuples<int64_t,bool> >       
+    {                                           
+        typedef SpTuples<int64_t,int> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,int> , SpTuples<int64_t,float> >       
+    {                                           
+        typedef SpTuples<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,float> , SpTuples<int64_t,int> >       
+    {                                           
+        typedef SpTuples<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,int> , SpTuples<int64_t,double> >       
+    {                                           
+        typedef SpTuples<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,double> , SpTuples<int64_t,int> >       
+    {                                           
+        typedef SpTuples<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,unsigned> , SpTuples<int64_t,bool> >       
+    {                                           
+        typedef SpTuples<int64_t,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,bool> , SpTuples<int64_t,unsigned> >       
+    {                                           
+        typedef SpTuples<int64_t,unsigned> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,bool> , SpTuples<int64_t,double> >       
+    {                                           
+        typedef SpTuples<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,bool> , SpTuples<int64_t,float> >       
+    {                                           
+        typedef SpTuples<int64_t,float> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,double> , SpTuples<int64_t,bool> >       
+    {                                           
+        typedef SpTuples<int64_t,double> T_promote;                    
+    };
+template <> struct promote_trait< SpTuples<int64_t,float> , SpTuples<int64_t,bool> >       
+    {                                           
+        typedef SpTuples<int64_t,float> T_promote;                    
+    };
 #include "SpTuples.cpp"	
 #endif

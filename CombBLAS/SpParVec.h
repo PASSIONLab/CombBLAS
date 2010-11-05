@@ -47,6 +47,7 @@ class SpParVec
 {
 public:
 	SpParVec ( );
+	SpParVec ( IT loclength);
 	SpParVec ( shared_ptr<CommGrid> grid);
 
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
@@ -60,9 +61,9 @@ public:
 		CVT.length = length;
 	}
 
-	void PrintInfo() const;
+	void PrintInfo(string vecname) const;
 	void iota(IT size, NT first);
-	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;	// SpRef
+	SpParVec<IT,NT> operator() (const SpParVec<IT,IT> & ri) const;	//!< SpRef (expects NT of ri to be 1-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	NT operator[](IT indx) const;
 
@@ -82,6 +83,14 @@ public:
 		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
+
+	IT totallength() const
+	{
+		IT totlen = 0;
+		(commGrid->GetDiagWorld()).Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
+		return totlen;
+	}
+
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -116,7 +125,7 @@ private:
 	EWiseMult (const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero);
 
 	template <typename IU>
-	friend void RandPerm(SpParVec<IU,IU> & V, IU loclength); 	// called on an existing object, generates a random permutation
+	friend void RandPerm(SpParVec<IU,IU> & V); 	// called on an existing object, randomly permutes it
 	
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
