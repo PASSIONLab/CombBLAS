@@ -190,7 +190,7 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 	IT local = 0;
 	if(diagonal)
 	{
-		IT local = count_if( arr.begin(), arr.end(), pred );
+		local = count_if( arr.begin(), arr.end(), pred );
 	}
 	IT whole = 0;
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
