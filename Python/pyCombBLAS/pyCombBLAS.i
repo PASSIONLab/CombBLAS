@@ -32,7 +32,6 @@ init_pyCombBLAS_MPI();
 // wrapped classes
 
 class pySpParMat {
-protected:
 public:
 	pySpParMat();
 
@@ -46,12 +45,11 @@ public:
 	void GenGraph500Edges(int scale);
 	
 public:
-	//DenseParVec<int64_t, int>* Reduce_ColumnSums();
 	pySpParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
-
+	//pyDenseParVec* Reduce_ColumnSums();
+	
 public:
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
-	
 };
 
 
@@ -62,13 +60,14 @@ public:
 
 public:
 	int64_t getnnz() const;
+
+	void add(const pySpParVec& other);
+	//void subtract(const pySpParVec& other);
+	pySpParVec* copy();
+
+	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
 	
 public:	
-	const pySpParVec& add(const pySpParVec& other);
-	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
-
-
-	//const pySpParVec& subtract(const pySpParVec& other);
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
 	
@@ -76,6 +75,7 @@ public:
 	bool allNonzeros() const;
 	
 	int64_t intersectSize(const pySpParVec& other);
+
 	
 public:	
 	void load(const char* filename);
@@ -84,6 +84,7 @@ public:
 	static pySpParVec* zeros(int64_t howmany);
 	static pySpParVec* range(int64_t howmany, int64_t start);
 	
+	
 };
 
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
@@ -91,25 +92,33 @@ pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude,
 
 class pyDenseParVec {
 public:
-	//pyDenseParVec();
+	pyDenseParVec();
 	pyDenseParVec(int64_t size, int64_t id);
-
+	//pyDenseParVec(const pySpParMat& commSource, int64_t zero);
+	
 public:
 	int length() const;
 	
-	const pyDenseParVec& add(const pyDenseParVec& other);
-	const pyDenseParVec& add(const pySpParVec& other);
+	void add(const pyDenseParVec& other);
+	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator=(const pyDenseParVec & rhs);
 	pyDenseParVec* copy();
 	
+public:
+	void invert(); // "~";  almost equal to logical_not
+	void abs();
+	
+	//bool anyNonzeros() const;
+	//bool allNonzeros() const;
+
+	
 public:	
 	void load(const char* filename);
-
+	
 public:
 	pySpParVec* FindInds_GreaterThan(int64_t value);
-
 };
 
 

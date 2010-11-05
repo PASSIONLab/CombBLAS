@@ -28,14 +28,14 @@ void pyDenseParVec::load(const char* filename)
 }
 
 
-const pyDenseParVec& pyDenseParVec::add(const pyDenseParVec& other) {
+void pyDenseParVec::add(const pyDenseParVec& other) {
 	v.operator+=(other.v);
-	return *this;
+	//return *this;
 }
 
-const pyDenseParVec& pyDenseParVec::add(const pySpParVec& other) {
+void pyDenseParVec::add(const pySpParVec& other) {
 	v.operator+=(other.v);
-	return *this;
+	//return *this;
 }
 
 pyDenseParVec& pyDenseParVec::operator+=(const pyDenseParVec & rhs)
@@ -71,3 +71,14 @@ pySpParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
 	return ret;
 }
 
+
+void pyDenseParVec::invert() // "~";  almost equal to logical_not
+{
+	v.Apply(invert64);
+}
+
+
+void pyDenseParVec::abs()
+{
+	v.Apply(abs64);
+}

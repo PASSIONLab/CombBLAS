@@ -11,11 +11,10 @@
 #include "../../CombBLAS/SpParVec.h"
 #include "../../CombBLAS/ParFriends.h"
 
-#include "pySpParMat.h"
-#include "pySpParVec.h"
-
+#include "pyCombBLAS.h"
 class pySpParMat;
 class pySpParVec;
+class pyDenseParVec;
 
 class pyDenseParVec {
 protected:
@@ -35,12 +34,20 @@ public:
 public:
 	int length() const;
 	
-	const pyDenseParVec& add(const pyDenseParVec& other);
-	const pyDenseParVec& add(const pySpParVec& other);
+	void add(const pyDenseParVec& other);
+	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator=(const pyDenseParVec & rhs);
 	pyDenseParVec* copy();
+	
+public:
+	void invert(); // "~";  almost equal to logical_not
+	void abs();
+	
+	bool anyNonzeros() const;
+	bool allNonzeros() const;
+
 	
 public:	
 	void load(const char* filename);

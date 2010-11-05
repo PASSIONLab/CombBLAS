@@ -11,10 +11,9 @@
 #include "../../CombBLAS/ParFriends.h"
 #include "../../CombBLAS/Semirings.h"
 
-#include "pySpParMat.h"
-#include "pyDenseParVec.h"
-
+#include "pyCombBLAS.h"
 class pySpParMat;
+class pySpParVec;
 class pyDenseParVec;
 
 class pySpParVec {
@@ -38,13 +37,14 @@ public:
 
 public:
 	int64_t getnnz() const;
+
+	void add(const pySpParVec& other);
+	//void subtract(const pySpParVec& other);
+	pySpParVec* copy();
+
+	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
 	
 public:	
-	const pySpParVec& add(const pySpParVec& other);
-	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
-
-
-	const pySpParVec& subtract(const pySpParVec& other);
 	void invert(); // "~";  almost equal to logical_not
 	void abs();
 	

@@ -12,9 +12,12 @@
 #include "../../CombBLAS/ParFriends.h"
 #include "../../CombBLAS/Semirings.h"
 
-#include "pySpParVec.h"
+#include "pyCombBLAS.h"
 
+class pySpParMat;
 class pySpParVec;
+class pyDenseParVec;
+
 
 class pySpParMat {
 protected:

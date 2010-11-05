@@ -26,11 +26,11 @@ int64_t pySpParVec::getnnz() const
 	return v.getnnz();
 }
 
-const pySpParVec& pySpParVec::add(const pySpParVec& other)
+void pySpParVec::add(const pySpParVec& other)
 {
 	v.operator+=(other.v);
 
-	return *this;
+	//return *this;
 }
 
 void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignment
@@ -44,21 +44,19 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 //	return *this;
 //}
 
-
-int64_t invert64(int64_t v) {
-	return ~v;
+pySpParVec* pySpParVec::copy()
+{
+	pySpParVec* ret = new pySpParVec();
+	ret->v = v;
+	return ret;
 }
+
 
 void pySpParVec::invert() // "~";  almost equal to logical_not
 {
 	v.Apply(invert64);
 }
 
-
-int64_t abs64(int64_t v) {
-	if (v < 0) return -v;
-	return v;
-}
 
 void pySpParVec::abs()
 {
