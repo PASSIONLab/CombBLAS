@@ -461,3 +461,38 @@ void SpParVec<IT,NT>::PrintInfo(string vectorname) const
 	}
 }
 
+template <class IT, class NT>
+void SpParVec<IT,NT>::DebugPrint()
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+
+		int64_t* all_nnzs = new int64_t[nprocs];
+		
+		all_nnzs[dgrank] = ind.size();
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
+		int64_t offset = 0;
+		
+		for (int i = 0; i < nprocs; i++)
+		{
+			if (i == dgrank)
+			{
+				cout << "stored on proc " << dgrank << "," << dgrank << ":" << endl;
+				
+				for (int j = 0; j < ind.size(); j++)
+				{
+					cout << "Element #" << (j+offset+1) << ": [" << (ind[j]+offset+1) << "] = " << num[j] << endl;
+				}
+			}
+			offset += all_nnzs[i];
+			DiagWorld.Barrier();
+		}
+		DiagWorld.Barrier();
+		if (dgrank == 0)
+			cout << "total size: " << offset << endl;
+		DiagWorld.Barrier();
+	}
+}

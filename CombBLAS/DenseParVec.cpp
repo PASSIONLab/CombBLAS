@@ -15,7 +15,7 @@ DenseParVec<IT, NT>::DenseParVec ()
 }
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec (IT locallength, NT id): zero(id)
+DenseParVec<IT, NT>::DenseParVec (IT locallength, NT initval, NT id): zero(id)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 
@@ -25,7 +25,7 @@ DenseParVec<IT, NT>::DenseParVec (IT locallength, NT id): zero(id)
 		diagonal = false;
 		
 	if (diagonal)
-		arr.resize(locallength, zero);
+		arr.resize(locallength, initval);
 }
 
 template <class IT, class NT>
@@ -38,7 +38,7 @@ DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, NT id): commGrid(g
 };
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT id): commGrid(grid), zero(id)
+DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id): commGrid(grid), zero(id)
 {
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -46,7 +46,7 @@ DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT
 		diagonal = false;	
 
 	if (diagonal)
-		arr.resize(locallength, zero);
+		arr.resize(locallength, initval);
 };
 
 template <class IT, class NT>
@@ -261,7 +261,17 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTotalLength() / nprocs;
+		IT n_perproc = arr.size(); //getTotalLength() / nprocs;
+		if (dgrank == nprocs-1 && nprocs > 0)
+		{
+			// the local length on the last processor will be less than the others if the vector length is not evenly divisible
+			// but for these calculations we need that length
+			DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+		}
+		else if (dgrank == 0 && nprocs > 0)
+		{
+			DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
+		}
 		IT offset = dgrank * n_perproc;
 		
 		if (n_perproc == 0) {
@@ -307,10 +317,20 @@ NT DenseParVec<IT,NT>::GetElement (IT indx)
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTotalLength() / nprocs;
+		IT n_perproc = arr.size(); //getTotalLength() / nprocs;
+		if (dgrank == nprocs-1 && nprocs > 0)
+		{
+			// the local length on the last processor will be less than the others if the vector length is not evenly divisible
+			// but for these calculations we need that length
+			DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+		}
+		else if (dgrank == 0 && nprocs > 0)
+		{
+			DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
+		}
 		IT offset = dgrank * n_perproc;
 		
-		if (n_perproc == 0) {
+		if (n_perproc == 0 && dgrank == 0) {
 			cout << "DenseParVec::GetElement can't be called on an empty vector." << endl;
 			return ret;
 		}
@@ -362,8 +382,9 @@ void DenseParVec<IT,NT>::DebugPrint()
 		
 		for (int i = 0; i < nprocs; i++)
 		{
-			if (i == dgrank) {
-				cout << "stored on proc " << dgrank << ":" << endl;
+			if (i == dgrank)
+			{
+				cout << "stored on proc " << dgrank << "," << dgrank << ":" << endl;
 				
 				for (int j = 0; j < arr.size(); j++)
 				{
@@ -379,4 +400,23 @@ void DenseParVec<IT,NT>::DebugPrint()
 		DiagWorld.Barrier();
 	}
 }
+
+template <class IT, class NT>
+template <typename _UnaryOperation>
+void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT> & mask)
+{
+	/* // For some reason the compiler doesn't like this iterator
+	vector< IT >::iterator miter = mask.ind.begin();
+	while (miter < mask.ind.end())
+	{
+		IT index = *miter++;
+		arr[index] = __unary_op(arr[index]);
+	}
+	*/
+	for (IT index = 0; index < mask.ind.size(); index++)
+	{
+		arr[index] = __unary_op(arr[index]);
+	}
+}	
+
 

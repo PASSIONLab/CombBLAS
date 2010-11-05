@@ -30,9 +30,9 @@ class DenseParVec
 {
 public:
 	DenseParVec ( );
-	DenseParVec (IT locallength, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
+	DenseParVec (IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
-	DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT id);
+	DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
@@ -68,6 +68,9 @@ public:
 	{	
 		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
 	}	
+
+	template <typename _UnaryOperation>
+	void Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>& mask);
 	
 	void PrintToFile(string prefix)
 	{

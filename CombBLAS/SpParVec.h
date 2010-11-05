@@ -97,6 +97,9 @@ public:
 	{
 		transform(num.begin(), num.end(), num.begin(), __unary_op);
 	}
+	
+	void DebugPrint();
+	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 
 private:
 	shared_ptr<CommGrid> commGrid;
