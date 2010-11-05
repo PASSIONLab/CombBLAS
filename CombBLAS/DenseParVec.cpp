@@ -215,6 +215,8 @@ SpParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 		}
 		found.length = size;
 	}
+	
+	return found;
 }
 
 
@@ -249,5 +251,132 @@ ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 
 	*this = tmpSpVec;
 	return infile;
+}
+
+template <class IT, class NT>
+void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = getTotalLength() / nprocs;
+		IT offset = dgrank * n_perproc;
+		
+		if (n_perproc == 0) {
+			cout << "DenseParVec::SetElement can't be called on an empty vector." << endl;
+			return;
+		}
+		
+		IT owner = (indx-1) / n_perproc;	
+		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
+
+		//cout << "rank " << dgrank << ". nprocs " << nprocs << ".  n_perproc " << n_perproc;
+		//cout << ".  offset " << offset << ".  owner " << owner << ".   size " << arr.size();
+		//cout << ".  localind " << (indx-1-offset) << endl;		
+
+		if(rec == dgrank) // this process is the owner
+		{
+			IT locindx = indx-1-offset;
+			
+			if (locindx > arr.size()-1)
+			{
+				cout << "DenseParVec::SetElement cannot expand array" << endl;
+			}
+			else if (locindx < 0)
+			{
+				cout << "DenseParVec::SetElement local index < 0" << endl;
+			}
+			else
+			{
+				arr[locindx] = numx;
+			}
+		}
+	}
+}
+
+template <class IT, class NT>
+NT DenseParVec<IT,NT>::GetElement (IT indx)
+{
+	NT ret;
+	
+	int owner = 0;
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = getTotalLength() / nprocs;
+		IT offset = dgrank * n_perproc;
+		
+		if (n_perproc == 0) {
+			cout << "DenseParVec::GetElement can't be called on an empty vector." << endl;
+			return ret;
+		}
+		
+		owner = (indx-1) / n_perproc;	
+		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
+		
+		if(rec == dgrank) // this process is the owner
+		{
+			IT locindx = indx-1-offset;
+
+			if (locindx > arr.size()-1)
+			{
+				cout << "DenseParVec::GetElement cannot expand array" << endl;
+			}
+			else if (locindx < 0)
+			{
+				cout << "DenseParVec::GetElement local index < 0" << endl;
+			}
+			else
+			{
+				ret = arr[locindx];
+			}
+
+		}
+	}
+	
+	int worldowner = (commGrid->GetGridCols()+1)*owner;
+	
+	(commGrid->GetWorld()).Bcast(&worldowner, 1, MPIType<int>(), 0);
+	(commGrid->GetWorld()).Bcast(&ret, 1, MPIType<NT>(), worldowner);
+	return ret;
+}
+
+template <class IT, class NT>
+void DenseParVec<IT,NT>::DebugPrint()
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+
+		int64_t* all_nnzs = new int64_t[nprocs];
+		
+		all_nnzs[dgrank] = arr.size();
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
+		int64_t offset = 0;
+		
+		for (int i = 0; i < nprocs; i++)
+		{
+			if (i == dgrank) {
+				cout << "stored on proc " << dgrank << ":" << endl;
+				
+				for (int j = 0; j < arr.size(); j++)
+				{
+					cout << "[" << (j+offset+1) << "] = " << arr[j] << endl;
+				}
+			}
+			offset += all_nnzs[i];
+			DiagWorld.Barrier();
+		}
+		DiagWorld.Barrier();
+		if (dgrank == 0)
+			cout << "total size: " << offset << endl;
+		DiagWorld.Barrier();
+	}
 }
 

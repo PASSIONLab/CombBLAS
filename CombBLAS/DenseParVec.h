@@ -42,6 +42,9 @@ public:
 	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
 	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
+
+	void SetElement (IT indx, NT numx);	// element-wise assignment
+	NT   GetElement (IT indx);	// element-wise fetch
 	
 	IT getTotalLength() const
 	{
@@ -74,6 +77,9 @@ public:
 		output << endl;
 		output.close();
 	}
+	
+	void DebugPrint();
+	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 	
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
