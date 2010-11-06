@@ -30,6 +30,29 @@ pyDenseParVec::pyDenseParVec(int64_t size, int64_t id)
 	v.stealFrom(temp);
 }
 
+pyDenseParVec::pyDenseParVec(int64_t size, int64_t init, int64_t zero)
+{
+	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
+	
+	int64_t locsize = 0;
+	
+	if (comm != MPI::COMM_NULL)
+	{
+		int nprocs = comm.Get_size();
+		int dgrank = comm.Get_rank();
+		locsize = (int64_t)floor(static_cast<double>(size)/static_cast<double>(nprocs));
+		
+		if (dgrank == nprocs-1)
+		{
+			// this may be shorter than the others
+			locsize = size - locsize*(nprocs-1);
+		}
+	}
+
+	DenseParVec<int64_t, int64_t> temp(locsize, init, zero);
+	v.stealFrom(temp);
+}
+
 //pyDenseParVec::pyDenseParVec(const pySpParMat& commSource, int64_t zero)
 //{
 //}
@@ -192,4 +215,11 @@ void pyDenseParVec::printall()
 void pyDenseParVec::ApplyMasked_SetTo(const pySpParVec& mask, int64_t value)
 {
 	v.Apply(set<int64_t>(value), mask.v);
+}
+
+pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	ret->v.iota(howmany, start);
+	return ret;
 }

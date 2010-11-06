@@ -105,7 +105,8 @@ pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude,
 
 class pyDenseParVec {
 public:
-	pyDenseParVec(int64_t size, int64_t id);
+	pyDenseParVec(int64_t size, int64_t init);
+	pyDenseParVec(int64_t size, int64_t init, int64_t zero);
 
 	pySpParVec* sparse() const;
 	pySpParVec* sparse(int64_t zero) const;
@@ -149,6 +150,9 @@ public:
 	
 	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
+
+public:
+	static pyDenseParVec* range(int64_t howmany, int64_t start);
 
 };
 
