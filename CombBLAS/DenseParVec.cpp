@@ -340,7 +340,7 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 		IT n_perproc = arr.size(); //getTotalLength() / nprocs;
 		if (dgrank == nprocs-1 && nprocs > 1)
 		{
-			// the local length on the last processor will be less than the others if the vector length is not evenly divisible
+			// the local length on the last processor will be greater than the others if the vector length is not evenly divisible
 			// but for these calculations we need that length
 			DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
 		}
@@ -527,6 +527,19 @@ void DenseParVec<IT,NT>::RandPerm()
 		arr.swap(nnum);
 	}
 }
+
+template <class IT, class NT>
+IT DenseParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
+{
+	IT totnnz = 0;
+	if (comm != MPI::COMM_NULL)	
+	{
+		IT locnnz = arr.size();
+		comm.Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+	}
+	return totnnz;
+}
+
 
 template <class IT, class NT>
 void DenseParVec<IT,NT>::PrintInfo(string vectorname) const

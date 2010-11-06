@@ -51,17 +51,9 @@ public:
 	NT   GetElement (IT indx);		// element-wise fetch
 	
 	void RandPerm();	// randomly permute the vector
-	IT getTotalLength(MPI::Intracomm & comm) const
-	{
-		IT totnnz = 0;
-		if (comm != MPI::COMM_NULL)	
-		{
-			IT locnnz = arr.size();
-			comm.Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
-		}
-		return totnnz;
-	}
-
+	IT getTotalLength(MPI::Intracomm & comm) const;
+	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
+	
 	template <typename _Predicate>
 	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
