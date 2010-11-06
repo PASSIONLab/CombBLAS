@@ -85,6 +85,9 @@ public:
 	void load(const char* filename);
 
 public:
+	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+
+public:
 	static pySpParVec* zeros(int64_t howmany);
 	static pySpParVec* range(int64_t howmany, int64_t start);
 	

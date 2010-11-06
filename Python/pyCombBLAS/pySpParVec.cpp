@@ -119,6 +119,18 @@ void pySpParVec::printall()
 	v.DebugPrint();
 }
 
+pyDenseParVec* pySpParVec::FindInds_GreaterThan(int64_t value)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	
+	// cheapen out and use the dense version for now
+	pyDenseParVec* temp = dense();
+	ret->v = temp->v.FindInds(bind2nd(greater<int64_t>(), value));
+	delete temp;
+	return ret;
+}
+
+
 
 pySpParVec* pySpParVec::zeros(int64_t howmany)
 {
