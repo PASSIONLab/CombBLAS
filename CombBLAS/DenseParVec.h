@@ -37,6 +37,7 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
 	DenseParVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);	
+	DenseParVec<IT,NT> operator() (const DenseParVec<IT,IT> & ri) const;	//<! subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
@@ -48,8 +49,13 @@ public:
 	bool operator==(const DenseParVec<IT,NT> & rhs) const;
 
 	void SetElement (IT indx, NT numx);	// element-wise assignment
-	NT   GetElement (IT indx);		// element-wise fetch
+	NT   GetElement (IT indx) const;	// element-wise fetch
+	NT operator[](IT indx) const		// more c++ like API
+	{
+		return GetElement(indx);
+	} 
 	
+	void iota(IT size, NT first);
 	void RandPerm();	// randomly permute the vector
 	IT getTotalLength(MPI::Intracomm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }

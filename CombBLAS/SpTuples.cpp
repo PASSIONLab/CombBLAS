@@ -45,7 +45,6 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges):m(nRow), n(n
 	{
 		tuples  = new tuple<IT, IT, NT>[maxnnz];
 	}
-	cout << maxnnz << endl;
 	for(IT i=0; i<maxnnz; ++i)
 	{
 		rowindex(i) = edges[2*i+0];

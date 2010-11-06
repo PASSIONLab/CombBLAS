@@ -29,8 +29,9 @@ DenseParVec<IT, NT>::DenseParVec (IT locallength, NT initval, NT id): zero(id)
 }
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, NT id): commGrid(grid), zero(id)
+DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, NT id): zero(id)
 {
+	commGrid.reset(new CommGrid(*grid));		
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
 	else
@@ -77,9 +78,11 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)		// SpParVec->DenseParVec conversion operator
+DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)	
 {
-	commGrid = rhs.commGrid;
+	if (this == &rhs)      // Same object?
+      		return *this;        // Yes, so skip assignment, and just return *this.
+	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	arr = rhs.arr;
 	diagonal = rhs.diagonal;
 	zero = rhs.zero;
@@ -89,7 +92,7 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const DenseParVec< IT,NT >
 template <class IT, class NT>
 DenseParVec< IT,NT > &  DenseParVec<IT,NT>::stealFrom(DenseParVec<IT,NT> & victim)		// SpParVec->DenseParVec conversion operator
 {
-	commGrid = victim.commGrid;
+	commGrid.reset(new CommGrid(*(victim.commGrid)));		
 	arr.swap(victim.arr);
 	diagonal = victim.diagonal;
 	zero = victim.zero;
@@ -383,10 +386,9 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 }
 
 template <class IT, class NT>
-NT DenseParVec<IT,NT>::GetElement (IT indx)
+NT DenseParVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
-	
 	int owner = 0;
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
@@ -526,6 +528,117 @@ void DenseParVec<IT,NT>::RandPerm()
 
 		arr.swap(nnum);
 	}
+}
+
+template <class IT, class NT>
+void DenseParVec<IT,NT>::iota(IT size, NT first)
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = size / nprocs;
+
+		IT length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
+		arr.resize(length);
+		SpHelper::iota(arr.begin(), arr.end(), (dgrank * n_perproc) + first);	// global across processors
+	}
+}
+
+template <class IT, class NT>
+DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri) const
+{
+	if(!(*commGrid == *ri.commGrid))
+	{
+		cout << "Grids are not comparable for dense vector subsref" << endl;
+		return DenseParVec<IT,NT>();
+	}
+
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	DenseParVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
+	if(DiagWorld != MPI::COMM_NULL) 		// Diagonal processors only
+	{
+		int dgrank = DiagWorld.Get_rank();
+		int nprocs = DiagWorld.Get_size();
+		IT n_perproc = getTotalLength(DiagWorld) / nprocs;	
+		vector< vector< IT > > data_req(nprocs);	
+		vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
+		for(IT i=0; i < ri.arr.size(); ++i)
+		{
+			int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
+			int rec = std::min(owner, nprocs-1);	// find its owner 
+			data_req[rec].push_back(ri.arr[i] - (rec * n_perproc));
+			revr_map[rec].push_back(i);
+		}
+		IT * sendbuf = new IT[ri.arr.size()];
+		int * sendcnt = new int[nprocs];
+		int * sdispls = new int[nprocs];
+		for(int i=0; i<nprocs; ++i)
+			sendcnt[i] = data_req[i].size();
+
+		int * rdispls = new int[nprocs];
+		int * recvcnt = new int[nprocs];
+		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+		IT * recvbuf = new IT[totrecv];
+
+		for(int i=0; i<nprocs; ++i)
+		{
+			copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
+			vector<IT>().swap(data_req[i]);
+		}
+
+		IT * reversemap = new IT[ri.arr.size()];
+		for(int i=0; i<nprocs; ++i)
+		{
+			copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);
+			vector<IT>().swap(revr_map[i]);
+		}
+
+		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+		
+		// We will return the requested data,
+		// our return will be as big as the request 
+		// as we are indexing a dense vector, all elements exist
+		// so the displacement boundaries are the same as rdispls
+		NT * databack = new NT[totrecv];		
+
+		for(int i=0; i<nprocs; ++i)
+		{
+			for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+			{
+				databack[j] = arr[recvbuf[j]];
+			}
+		}
+		
+		delete [] recvbuf;
+		NT * databuf = new NT[ri.arr.size()];
+
+		// the response counts are the same as the request counts 
+		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+		DeleteAll(rdispls, recvcnt, databack);
+
+		// Now create the output from databuf
+		Indexed.arr.resize(ri.arr.size()); 
+		for(int i=0; i<nprocs; ++i)
+		{
+			for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
+			{
+				Indexed.arr[reversemap[j]] = databuf[j];
+			}
+		}
+		DeleteAll(sdispls, sendcnt, databuf,reversemap);
+	}
+	return Indexed;
 }
 
 template <class IT, class NT>

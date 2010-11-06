@@ -156,13 +156,12 @@ int main(int argc, char* argv[])
 		Cands.PrintInfo("Candidates array");
 		delete AInt;	// save memory	
 
-		SpParVec<int64_t,int64_t> First64, CandSp;
+		DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
 		Cands.RandPerm();
 		Cands.PrintInfo("Candidates array (permuted)");
-		CandSp = Cands.Find(totality<int64_t>());
-		First64.iota(64, 1);			// NV is also 1-based
-		CandSp = CandSp(First64);		// Because SpRef expects a 1-based parameter
-		CandSp.PrintInfo("First 64 of candidates (randomly chosen) array");
+		First64.iota(64, 0);			
+		Cands = Cands(First64);		
+		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 
 		for(int i=0; i<64; ++i)
 		{
@@ -173,8 +172,11 @@ int main(int argc, char* argv[])
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe(A.getlocalcols());	// numerical values are stored 1-based
-			fringe.SetElement(CandSp[i], CandSp[i]);	
-			cout << "Candidate id: "<< CandSp[i] << endl;
+
+			ostringstream outs;
+			outs << "Starting vertex id: " << Cands[i] << endl;
+			SpParHelper::Print(outs.str());
+			fringe.SetElement(Cands[i], Cands[i]);	
 			while(fringe.getnnz() > 0)
 			{
 				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
