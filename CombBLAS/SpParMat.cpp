@@ -976,8 +976,8 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 	IT total_m, total_n, total_nnz;
 	IT m_perproc, n_perproc;
 
-	IT colneighs = (IT) commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
-	IT rowneighs = (IT) commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
+	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
+	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
 
 	IT buffpercolneigh = MEMORYINBYTES / (colneighs * (2 * sizeof(IT) + sizeof(NT)));
 	IT buffperrowneigh = MEMORYINBYTES / (rowneighs * (2 * sizeof(IT) + sizeof(NT)));
@@ -1054,7 +1054,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 				--temprow;	// file is 1-based where C-arrays are 0-based
 				--tempcol;
 
-				IT colrec = std::min(temprow / m_perproc, colneighs-1);	// precipient processor along the column
+				int colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
 				rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
 				cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
 				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempval;
@@ -1086,9 +1086,9 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					vals = new NT [ buffperrowneigh * rowneighs ];
 			
 					// prepare to send the data along the horizontal
-					for(IT i=zero; i< recvcount; ++i)
+					for(int i=0; i< recvcount; ++i)
 					{
-						IT rowrec = std::min(tempcols[i] / n_perproc, rowneighs-1);
+						int rowrec = std::min(static_cast<int>(tempcols[i] / n_perproc), rowneighs-1);
 						rows[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = temprows[i];
 						cols[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempcols[i];
 						vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
@@ -1113,7 +1113,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					// now push what is ours to tuples
 					IT moffset = commGrid->myprocrow * m_perproc; 
 					IT noffset = commGrid->myproccol * n_perproc; 
-					for(IT i=zero; i< recvcount; ++i)
+					for(int i=0; i< recvcount; ++i)
 					{					
 						localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
 					}
@@ -1167,7 +1167,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
 		{
 			// first receive the receive counts ...
-			(commGrid->colWorld).Scatter(ccurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankincol);
+			(commGrid->colWorld).Scatter(ccurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankincol);
 
 			if( recvcount == numeric_limits<int>::max())
 				break;
@@ -1184,16 +1184,16 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 
 			// now, send the data along the horizontal
 			rcurptrs = new int[rowneighs];
-			fill_n(rcurptrs, rowneighs, (IT) zero);	
+			fill_n(rcurptrs, rowneighs, 0);	
 		
 			rows = new IT [ buffperrowneigh * rowneighs ];
 			cols = new IT [ buffperrowneigh * rowneighs ];
 			vals = new NT [ buffperrowneigh * rowneighs ];
-
+		
 			// prepare to send the data along the horizontal
-			for(IT i=zero; i< recvcount; ++i)
+			for(int i=0; i< recvcount; ++i)
 			{
-				 IT rowrec = std::min(tempcols[i] / n_perproc, rowneighs-1);
+				int rowrec = std::min(static_cast<int>(tempcols[i] / n_perproc), rowneighs-1);
 				rows[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = temprows[i];
 				cols[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempcols[i];
 				vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
@@ -1201,7 +1201,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			}
 				
 			// Send the receive counts for horizontal communication ...
-			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow);
 			
 			// the data is now stored in rows/cols/vals, can reset temporaries
 			// sets size and capacity to new recvcount
@@ -1218,17 +1218,17 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			// now push what is ours to tuples
 			IT moffset = commGrid->myprocrow * m_perproc; 
 			IT noffset = commGrid->myproccol * n_perproc;
-			for(IT i=zero; i< recvcount; ++i)
+			for(int i=0; i< recvcount; ++i)
 			{					
 				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
 			}
 					
-			fill_n(rcurptrs, rowneighs, (IT) zero);
+			fill_n(rcurptrs, rowneighs,0);
 			DeleteAll(rows, cols, vals,temprows, tempcols, tempvals);	
 		}
 		// Signal the end of file to other processors along the row
 		fill_n(rcurptrs, rowneighs, numeric_limits<int>::max());				
-		(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+		(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow);
 		delete [] rcurptrs;	
 	}
 	else		// r * (s-1) processors that only participate in the horizontal communication step
@@ -1241,7 +1241,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
 		{
 			// receive the receive count
-			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPIType<IT>(), &recvcount, 1, MPIType<IT>(), rankinrow);
+			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow);
 			if( recvcount == numeric_limits<int>::max())
 				break;
 		

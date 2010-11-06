@@ -129,6 +129,9 @@ int main(int argc, char* argv[])
 			RenameVertices<int64_t>(DEL);
 
 			A = SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > (DEL);	 // conversion from distributed edge list
+			PSpMat_Bool AT = A;
+			AT.Transpose();
+			A += AT;
 		}
 		else
 		{
