@@ -30,7 +30,8 @@ protected:
 		typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 	};
 
-	PSpMat<int>::MPI_DCCols A;
+	//PSpMat<int>::MPI_DCCols A;
+	SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > A;
 	
 	friend class pySpParVec;
 

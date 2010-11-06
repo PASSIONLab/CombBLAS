@@ -31,6 +31,7 @@ void pySpParMat::load(const char* filename)
 
 void pySpParMat::GenGraph500Edges(int scale)
 {
+	/*
 	DistEdgeList<int64_t> DEL;
 	
 	double a = 0.57;
@@ -58,6 +59,22 @@ void pySpParMat::GenGraph500Edges(int scale)
 		cout << "Convert To Matrix" << endl;
 		
 	A = SpParMat<int64_t, int, SpDCCols<int64_t, int> > (DEL);
+	*/
+	
+	int nprocs = MPI::COMM_WORLD.Get_size();
+	
+	// this is an undirected graph, so A*x does indeed BFS
+	double initiator[4] = {.57, .19, .19, .05};
+
+	DistEdgeList<int64_t> DEL;
+	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+	PermEdges<int64_t>(DEL);
+	RenameVertices<int64_t>(DEL);
+
+	A = SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > (DEL);	 // conversion from distributed edge list
+	SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > AT = A;
+	AT.Transpose();
+	A += AT;
 }
 
 int64_t upcast(int i) {
@@ -80,10 +97,18 @@ void pySpParMat::Apply_SetTo(int64_t value)
 pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
-	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0);
+	
+	// make a temporary int matrix
+	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
+	DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
+	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	// only the indices of connected vertices
+	delete AInt;	// save memory	
+
+	
+	//DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0);
 	//cout << "column sums:------------" << endl;
 	//ColSums.DebugPrint();
-	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));
+	//ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));
 	return ret;
 }
 
