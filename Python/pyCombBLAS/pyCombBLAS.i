@@ -68,6 +68,7 @@ public:
 	pySpParVec* copy();
 
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
+	int64_t GetElement(int64_t index);
 	
 public:	
 	void invert(); // "~";  almost equal to logical_not
@@ -86,6 +87,8 @@ public:
 
 public:
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+	pySpParVec* SpRef(const pySpParVec& ri);
+	void setNumToInd();
 
 public:
 	static pySpParVec* zeros(int64_t howmany);
@@ -121,6 +124,8 @@ public:
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
 	int64_t GetElement (int64_t indx);	// element-wise fetch
 
+	void RandPerm();
+
 	void printall();
 	
 public:
@@ -136,6 +141,8 @@ public:
 	void load(const char* filename);
 	
 public:
+	int64_t Count_GreaterThan(int64_t value);
+	pySpParVec* Find_totality();
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 

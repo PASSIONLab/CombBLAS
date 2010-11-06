@@ -109,6 +109,17 @@ pyDenseParVec* pyDenseParVec::copy()
 	return ret;
 }
 
+int64_t pyDenseParVec::Count_GreaterThan(int64_t value)
+{
+	return v.Count(bind2nd(greater<int64_t>(), value));
+}
+
+pySpParVec* pyDenseParVec::Find_totality()
+{
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = v.Find(totality<int64_t>());
+	return ret;
+}
 
 pyDenseParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
 {
@@ -152,6 +163,11 @@ void pyDenseParVec::SetElement (int64_t indx, int64_t numx)	// element-wise assi
 int64_t pyDenseParVec::GetElement (int64_t indx)	// element-wise fetch
 {
 	return v.GetElement(indx);
+}
+
+void pyDenseParVec::RandPerm()
+{
+	v.RandPerm();
 }
 
 void pyDenseParVec::printall()

@@ -45,6 +45,7 @@ public:
 	pySpParVec* copy();
 
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
+	int64_t GetElement(int64_t index);
 	
 public:	
 	void invert(); // "~";  almost equal to logical_not
@@ -88,6 +89,10 @@ public:
 
 public:
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+	
+	pySpParVec* SpRef(const pySpParVec& ri);
+	
+	void setNumToInd();
 
 public:
 	static pySpParVec* zeros(int64_t howmany);

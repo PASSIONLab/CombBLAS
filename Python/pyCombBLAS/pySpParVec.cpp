@@ -70,6 +70,11 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 	v.SetElement(index, numx);
 }
 
+int64_t pySpParVec::GetElement(int64_t index)
+{
+	return v[index];
+}
+
 
 pySpParVec* pySpParVec::copy()
 {
@@ -130,6 +135,17 @@ pyDenseParVec* pySpParVec::FindInds_GreaterThan(int64_t value)
 	return ret;
 }
 
+pySpParVec* pySpParVec::SpRef(const pySpParVec& ri)
+{
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = v(ri.v);
+	return ret;
+}
+
+void pySpParVec::setNumToInd()
+{
+	v.setNumToInd();
+}
 
 
 pySpParVec* pySpParVec::zeros(int64_t howmany)

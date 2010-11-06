@@ -48,6 +48,8 @@ public:
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
 	int64_t GetElement (int64_t indx);	// element-wise fetch
+	
+	void RandPerm();
 
 	void printall();
 	
@@ -64,6 +66,8 @@ public:
 	void load(const char* filename);
 	
 public:
+	int64_t Count_GreaterThan(int64_t value);
+	pySpParVec* Find_totality();
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 
