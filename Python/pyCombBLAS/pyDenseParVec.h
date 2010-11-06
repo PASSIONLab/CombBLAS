@@ -41,6 +41,8 @@ public:
 	void add(const pySpParVec& other);
 	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
+	pyDenseParVec& operator+=(const pySpParVec & rhs);
+	pyDenseParVec& operator-=(const pySpParVec & rhs);
 	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	pyDenseParVec* copy();
 	

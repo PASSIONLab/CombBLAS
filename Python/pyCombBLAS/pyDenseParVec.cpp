@@ -84,6 +84,18 @@ pyDenseParVec& pyDenseParVec::operator-=(const pyDenseParVec & rhs)
 	return *this;
 }
 
+pyDenseParVec& pyDenseParVec::operator+=(const pySpParVec & rhs)
+{
+	v.operator+=(rhs.v);
+	return *this;
+}
+
+pyDenseParVec& pyDenseParVec::operator-=(const pySpParVec & rhs)
+{
+	v.operator-=(rhs.v);
+	return *this;
+}
+
 //pyDenseParVec& pyDenseParVec::operator=(const pyDenseParVec & rhs)
 //{
 //	v.operator=(rhs.v);
