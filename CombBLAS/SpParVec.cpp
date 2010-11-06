@@ -44,7 +44,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 	{
 		IT dgrank = (IT) DiagWorld.Get_rank();
 		IT nprocs = (IT) DiagWorld.Get_size();
-		IT n_perproc = getTotalLength() / nprocs;
+		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
 		IT offset = dgrank * n_perproc;
 
 		IT owner = (indx-1) / n_perproc;	
@@ -83,7 +83,7 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		
-		IT n_perproc = getTotalLength() / nprocs;
+		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
 		int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
 		
 		if(owner == dgrank) // insert if this process is the owner
@@ -127,7 +127,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTotalLength() / nprocs;
+		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
 		{
@@ -490,15 +490,23 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	return infile;
 }
 
+template <class IT, class NT>
+IT SpParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
+{
+	IT totlen = 0;
+	comm.Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
+	return totlen;
+}
+
 
 template <class IT, class NT>
 void SpParVec<IT,NT>::PrintInfo(string vectorname) const
 {
+	IT nznz = getnnz();
+	IT totl = getTotalLength();
+
 	if(diagonal)
 	{
-		IT nznz = getnnz();
-		IT totl = getTotalLength();
-		
 		if (commGrid->GetRank() == 0)	
 			cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << totl << endl; 
 	}

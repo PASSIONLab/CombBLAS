@@ -81,16 +81,12 @@ public:
 	{
 		IT totnnz = 0;
 		IT locnnz = ind.size();
-		(commGrid->GetDiagWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
 
-	IT getTotalLength() const
-	{
-		IT totlen = 0;
-		(commGrid->GetDiagWorld()).Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
-		return totlen;
-	}
+	IT getTotalLength(MPI::Intracomm & comm) const;
+	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
