@@ -313,13 +313,13 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		IT n_perproc = arr.size(); //getTotalLength() / nprocs;
-		if (dgrank == nprocs-1 && nprocs > 0)
+		if (dgrank == nprocs-1 && nprocs > 1)
 		{
 			// the local length on the last processor will be less than the others if the vector length is not evenly divisible
 			// but for these calculations we need that length
 			DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
 		}
-		else if (dgrank == 0 && nprocs > 0)
+		else if (dgrank == 0 && nprocs > 1)
 		{
 			DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
 		}
@@ -369,13 +369,13 @@ NT DenseParVec<IT,NT>::GetElement (IT indx)
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		IT n_perproc = arr.size(); //getTotalLength() / nprocs;
-		if (dgrank == nprocs-1 && nprocs > 0)
+		if (dgrank == nprocs-1 && nprocs > 1)
 		{
 			// the local length on the last processor will be less than the others if the vector length is not evenly divisible
 			// but for these calculations we need that length
 			DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
 		}
-		else if (dgrank == 0 && nprocs > 0)
+		else if (dgrank == 0 && nprocs > 1)
 		{
 			DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
 		}
