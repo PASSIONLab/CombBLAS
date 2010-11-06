@@ -137,6 +137,8 @@ public:
 	
 public:
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
+
 };
 
 

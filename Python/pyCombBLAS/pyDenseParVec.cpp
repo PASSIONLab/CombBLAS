@@ -158,3 +158,8 @@ void pyDenseParVec::printall()
 {
 	v.DebugPrint();
 }
+
+void pyDenseParVec::ApplyMasked_SetTo(const pySpParVec& mask, int64_t value)
+{
+	v.Apply(set<int64_t>(value), mask.v);
+}
