@@ -87,6 +87,12 @@ public:
 
 	IT getTotalLength(MPI::Intracomm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
+	
+	// I'm sure there's a better way to do this, but I'm not sure what it is.
+	void setNumToInd()
+	{
+		transform(ind.begin(), ind.end(), num.begin(), identity<IT>());
+	}
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
