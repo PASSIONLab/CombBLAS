@@ -832,7 +832,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 template<class IT, class NT>
 void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
-	if ( (nzc / nind) < THRESHOLD || aux == NULL) 	// use scanning indexing
+	if ( aux == NULL || (nzc / nind) < THRESHOLD)   	// use scanning indexing
 	{
 		IT mink = min(nzc, nind);
 		pair<IT,IT> * isect = new pair<IT,IT>[mink];

@@ -49,7 +49,7 @@ template <typename SR, typename IU, typename NUM, typename NUV>
 void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
 		vector<IU> & indy, vector<typename promote_trait<NUM,NUV>::T_promote>  & numy)
 {
-	if(A.getnnz() > 0 || nnzx > 0)
+	if(A.getnnz() > 0 && nnzx > 0)
 	{
 		SpHelper::SpMXSpV<SR>(*(A.dcsc), indx, numx, nnzx, indy, numy);
 	}

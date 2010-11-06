@@ -166,15 +166,15 @@ int main(int argc, char* argv[])
 		Cands = Cands(First64);		
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 
-		for(int i=0; i<64; ++i)
+		for(int i=0; i<1; ++i)
 		{
-			// use identity (undiscovered) = 0, because 
-			// (A) vertex indices that are stored in fringe are 1-based
-			// (B) semantics are problematic with other values, i.e. operator+= 
-			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), (int64_t) 0);	// identity is 0 
+
+			// DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
+			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getlocalcols(), (int64_t) -1, (int64_t) -1);	// identity is -1
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
-			SpParVec<int64_t, int64_t> fringe(A.getlocalcols());	// numerical values are stored 1-based
+			SpParVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getlocalcols());	// numerical values are stored 0-based
+			fringe.PrintInfo("dummy");
 
 			ostringstream outs;
 			outs << "Starting vertex id: " << Cands[i] << endl;
@@ -182,14 +182,21 @@ int main(int argc, char* argv[])
 			fringe.SetElement(Cands[i], Cands[i]);	
 			while(fringe.getnnz() > 0)
 			{
-				SpParVec<int64_t, int64_t> fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
-				fringe = EWiseMult(fringe, parents, true, (int64_t) 0);		// clean-up vertices that already has parents 
+				fringe.setNumToInd();
+				fringe.PrintInfo("fringe before SpMV");
+
+				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
+				fringe.PrintInfo("fringe after SpMV");
+				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
+				fringe.PrintInfo("fringe after cleanup");
+
 				parents += fringe;
 
 				// following steps are only for validation later
-				SpParVec<int64_t, int> thislevel(fringe);
-				thislevel.Apply(set<int>(level+1));	
-				levels += thislevel;
+				// SpParVec<int64_t, int> thislevel(fringe);
+				// thislevel.Apply(set<int>(level++));	
+				// levels += thislevel;
+				SpParHelper::Print("Iteration finished\n");
 			}
 		}
 	}

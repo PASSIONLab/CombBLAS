@@ -49,6 +49,7 @@ public:
 	SpParVec ( );
 	SpParVec ( IT loclength);
 	SpParVec ( shared_ptr<CommGrid> grid);
+	SpParVec ( shared_ptr<CommGrid> grid, IT loclength);
 
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	SpParVec<IT,NT> & operator-=(const SpParVec<IT,NT> & rhs);

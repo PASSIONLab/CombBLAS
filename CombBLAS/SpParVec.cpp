@@ -13,6 +13,23 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(
 		diagonal = false;	
 };
 
+
+template <class IT, class NT>
+SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid, IT loclen): commGrid(grid), NOT_FOUND(numeric_limits<NT>::min())
+{
+	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+	{
+		diagonal = true;
+		length = loclen;
+	}
+	else
+	{
+		diagonal = false;	
+		length = zero;
+	}
+};
+
+
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min())
 {
@@ -25,14 +42,20 @@ SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min()
 };
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec (IT loclen): length(loclen), NOT_FOUND(numeric_limits<NT>::min())
+SpParVec<IT, NT>::SpParVec (IT loclen): NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 	
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
+	{
 		diagonal = true;
+		length = loclen;
+	}
 	else
+	{
 		diagonal = false;	
+		length = zero;
+	}
 }
 
 template <class IT, class NT>
@@ -74,7 +97,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 }
 
 //! Performs almost no communication other than getnnz()
-//! Indexing is performed 1-based (regardless of the underlying storage)
+//! Indexing is performed 0-based 
 template <class IT, class NT>
 void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 {
@@ -103,7 +126,6 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 			}
 			else // found
 			{
-				//*iter = numx; // no no no no
 				*(num.begin() + (iter-ind.begin())) = numx;
 			}
 		}

@@ -905,6 +905,7 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		cout << "Grids are not comparable for SpMV" << endl; 
 		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}
+
 	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();

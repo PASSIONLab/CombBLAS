@@ -104,7 +104,10 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > &
 	IT spvecsize = rhs.ind.size();
 	for(IT i=0; i< spvecsize; ++i)
 	{
-		arr[rhs.ind[i]] += rhs.num[i];
+		if(arr[rhs.ind[i]] == zero) // not set before
+			arr[rhs.ind[i]] = rhs.num[i];
+		else
+			arr[rhs.ind[i]] += rhs.num[i];
 	}
 }
 
@@ -658,6 +661,6 @@ template <class IT, class NT>
 void DenseParVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	IT totl = getTotalLength(commGrid->GetDiagWorld());
-	if (commGrid->GetRank() == 0)	
+	if (commGrid->GetRank() == 0)		// is always on the diagonal
 		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
 }
