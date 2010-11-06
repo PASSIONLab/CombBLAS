@@ -74,14 +74,9 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 		IT rec = std::min(owner, nprocs-1);	// find its owner 
 		NT diagval;
 		
-		//cout << "rank " << dgrank << ". nprocs " << nprocs << ".  n_perproc " << n_perproc;
-		//cout << " total_length " << getTotalLength(commGrid->GetDiagWorld());
-		//cout << ".  offset " << offset << ".  owner " << owner << ".   size " << ind.size();
-		//cout << ". index " << indx << endl;
-
 		if(rec == dgrank)
 		{
-			IT locindx = indx; // indx-offset; // For a sparse vector they are NOT offset.
+			IT locindx = indx-offset; 
 			typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
 			if(it != ind.end() && locindx == (*it))	// found
 			{
@@ -117,7 +112,7 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		
 		if(owner == dgrank) // insert if this process is the owner
 		{
-			IT locindx = indx; // indx-(dgrank*n_perproc); for a sparse vector they are NOT offset.
+			IT locindx = indx-(dgrank*n_perproc); 
 			typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
 			if(iter == ind.end())	// beyond limits, insert from back
 			{
@@ -159,9 +154,9 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
 		{
-			int owner = (ri.num[i]-1) / n_perproc;	// numerical values in ri are 1-based
+			int owner = (ri.num[i]) / n_perproc;	// numerical values in ri are 1-based
 			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.num[i] - 1- (rec * n_perproc));
+			data_req[rec].push_back(ri.num[i] - (rec * n_perproc));
 		}
 		IT * sendbuf = new IT[ri.num.size()];
 		int * sendcnt = new int[nprocs];

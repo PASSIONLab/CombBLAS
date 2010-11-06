@@ -164,17 +164,16 @@ int main(int argc, char* argv[])
 		Cands.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 0);			
 		Cands = Cands(First64);		
+		Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 
-		for(int i=0; i<1; ++i)
+		for(int i=0; i<64; ++i)
 		{
-
 			// DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
 			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getlocalcols(), (int64_t) -1, (int64_t) -1);	// identity is -1
 			DenseParVec<int64_t, int> levels;
 			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getlocalcols());	// numerical values are stored 0-based
-			fringe.PrintInfo("dummy");
 
 			ostringstream outs;
 			outs << "Starting vertex id: " << Cands[i] << endl;
@@ -198,6 +197,7 @@ int main(int argc, char* argv[])
 				// levels += thislevel;
 				SpParHelper::Print("Iteration finished\n");
 			}
+			parents.PrintInfo("parents after BFS");	
 		}
 	}
 	MPI::Finalize();

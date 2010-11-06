@@ -92,7 +92,16 @@ public:
 	// I'm sure there's a better way to do this, but I'm not sure what it is.
 	void setNumToInd()
 	{
-		transform(ind.begin(), ind.end(), num.begin(), identity<IT>());
+		MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+        	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+        	{
+           		IT dgrank = (IT) DiagWorld.Get_rank();
+            		IT nprocs = (IT) DiagWorld.Get_size();
+            		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
+            		IT offset = dgrank * n_perproc;
+
+            		transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));
+		}
 	}
 
 	template <typename _UnaryOperation>

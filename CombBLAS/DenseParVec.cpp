@@ -214,6 +214,9 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 	return whole;	
 }
 
+
+//! Returns a dense vector of global indices 
+//! for which the predicate is satisfied
 template <class IT, class NT>
 template <typename _Predicate>
 DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
@@ -224,13 +227,14 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
+		IT old_n_perproc = getTotalLength(DiagWorld) / nprocs;
 		
 		IT size = arr.size();
 		for(IT i=0; i<size; ++i)
 		{
 			if(pred(arr[i]))
 			{
-				found.arr.push_back(i);
+				found.arr.push_back(i+old_n_perproc*dgrank);
 			}
 		}
 		DiagWorld.Barrier();
@@ -571,7 +575,7 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		{
 			int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
 			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.arr[i] - (rec * n_perproc));
+			data_req[rec].push_back(ri.arr[i] - (nprocs * dgrank));
 			revr_map[rec].push_back(i);
 		}
 		IT * sendbuf = new IT[ri.arr.size()];
