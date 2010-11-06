@@ -31,7 +31,7 @@ pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
 {
 	pySpParVec* ret = new pySpParVec(0);
-	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)0);
+	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)zero);
 	return ret;
 }
 
