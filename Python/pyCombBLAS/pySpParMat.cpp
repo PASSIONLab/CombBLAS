@@ -71,15 +71,29 @@ int64_t upcast(int i) {
 //	return ret;
 //}
 
+void pySpParMat::Apply_SetTo(int64_t value)
+{
+	A.Apply(set<int64_t>(value));
+}
+
+
 pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
-	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0); 
+	DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0);
+	//cout << "column sums:------------" << endl;
+	//ColSums.DebugPrint();
 	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));
 	return ret;
 }
 
 
+pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
+{
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = SpMV< PlusTimesSRing<int, int64_t > >(A, x.v);
+	return ret;
+}
 
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {

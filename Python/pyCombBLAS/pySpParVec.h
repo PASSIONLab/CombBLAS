@@ -89,8 +89,9 @@ public:
 
 public:
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	
-	pySpParVec* SpRef(const pySpParVec& ri);
+	pySpParVec* SubsRef(const pySpParVec& ri);
 	
 	void setNumToInd();
 

@@ -51,7 +51,10 @@ public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
 	//pyDenseParVec* Reduce_ColumnSums();
 	
+	void Apply_SetTo(int64_t v);
+	
 public:
+	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	
 };

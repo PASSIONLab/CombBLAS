@@ -4,6 +4,7 @@ A = pcb.pySpParMat()
 path = "/home/alugowski/matrices/rmat_scale16.mtx";
 print "loading matrix from %s"%(path)
 A.load(path)
+#A.Apply_SetTo(1)
 print "A is %d by %d with %d nonzeros." % (A.getncol(), A.getnrow(),  A.getnnz())
 
 n = A.getnrow()
@@ -12,15 +13,7 @@ numCands = 64
 if (numCands > n):
 	numCands = n
 
-#	SpParVec<int64_t,int64_t> First64, CandSp;
-#	Cands.RandPerm();
-#	Cands.PrintInfo("Candidates array (permuted)");
-#	CandSp = Cands.Find(totality<int64_t>());
-#	First64.iota(64, 1);			// NV is also 1-based
-#	CandSp = CandSp(First64);		// Because SpRef expects a 1-based parameter
-#	CandSp.PrintInfo("First 64 of candidates (randomly chosen) array");
-
-Cands = A.FindIndsOfColsWithSumGreaterThan(2);
+Cands = A.FindIndsOfColsWithSumGreaterThan(3);
 
 numAvailableCands = Cands.length()
 if (numAvailableCands < numCands):
@@ -30,13 +23,16 @@ if (numAvailableCands < numCands):
 Cands.RandPerm();
 CandSp = Cands.Find_totality();
 First64 = pcb.pySpParVec.range(numCands, 1);
-CandSp = CandSp.SpRef(First64);
+CandSp = CandSp.SubsRef(First64);
 
-print "The candidates are:"
-CandSp.printall()
+#print "The candidates are:"
+#CandSp.printall()
 
 
 print "Starting vertices generated."
+
+numCands = 1;
+CandSp.SetElement(0, 7281);
 
 for i in range(0, numCands):
 	c = CandSp.GetElement(i)
@@ -46,14 +42,20 @@ for i in range(0, numCands):
 #	level = 1
 
 	parents = pcb.pyDenseParVec(n, -1)
-	fringe = pcb.pySpParVec(n) #SpParVec<int64_t, int64_t>	// numerical values are stored 1-based
+	fringe = pcb.pySpParVec(n)
 	fringe.SetElement(c, c);
 	parents.SetElement(c, c);
 	
 	while (fringe.getnnz() > 0):
 		fringe.setNumToInd()
-		fringe = A.SpMV_SelMax(fringe) #	// SpMV with sparse vector
-		fringe = pcb.EWiseMult(fringe, parents, True, -1)	#// clean-up vertices that already has parents 
+		print "fringe at start of iteration"
+		fringe.printall();
+		fringe = A.SpMV_SelMax(fringe) #
+		print "fringe after SpMV"
+		fringe.printall();
+		fringe = pcb.EWiseMult(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
+		print "fringe at end of iteration"
+		fringe.printall();
 		parents.ApplyMasked_SetTo(fringe, 0)
 		parents += fringe
 	

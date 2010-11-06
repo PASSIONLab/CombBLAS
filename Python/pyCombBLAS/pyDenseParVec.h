@@ -25,11 +25,10 @@ protected:
 	friend class pySpParMat;
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
+	pyDenseParVec();
 /////////////// everything below this appears in python interface:
 public:
-	pyDenseParVec();
 	pyDenseParVec(int64_t size, int64_t id);
-	//pyDenseParVec(const pySpParMat& commSource, int64_t zero);
 	
 	pySpParVec* sparse() const;
 	pySpParVec* sparse(int64_t zero) const;
@@ -69,6 +68,9 @@ public:
 	int64_t Count_GreaterThan(int64_t value);
 	pySpParVec* Find_totality();
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
+	pyDenseParVec* FindInds_NotEqual(int64_t value);
+	
+	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 
 };

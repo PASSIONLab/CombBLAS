@@ -135,7 +135,19 @@ pyDenseParVec* pySpParVec::FindInds_GreaterThan(int64_t value)
 	return ret;
 }
 
-pySpParVec* pySpParVec::SpRef(const pySpParVec& ri)
+pyDenseParVec* pySpParVec::FindInds_NotEqual(int64_t value)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	
+	// cheapen out and use the dense version for now
+	pyDenseParVec* temp = dense();
+	ret->v = temp->v.FindInds(bind2nd(not_equal_to<int64_t>(), value));
+	delete temp;
+	return ret;
+}
+
+
+pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 {
 	pySpParVec* ret = new pySpParVec(0);
 	ret->v = v(ri.v);

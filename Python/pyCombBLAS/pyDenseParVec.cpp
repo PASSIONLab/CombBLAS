@@ -128,6 +128,20 @@ pyDenseParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
 	return ret;
 }
 
+pyDenseParVec* pyDenseParVec::FindInds_NotEqual(int64_t value)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	ret->v = v.FindInds(bind2nd(not_equal_to<int64_t>(), value));
+	return ret;
+}
+	
+pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	ret->v = v(ri.v);
+	return ret;
+}
+
 
 void pyDenseParVec::invert() // "~";  almost equal to logical_not
 {
