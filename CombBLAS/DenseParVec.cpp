@@ -214,7 +214,6 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 {
 	DenseParVec<IT,IT> found(commGrid, (IT) 0);
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	IT totlen = getTotalLength();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
 		int dgrank = DiagWorld.Get_rank();
@@ -228,9 +227,36 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 				found.arr.push_back(i);
 			}
 		}
-		cout << "Barrier coming" << endl;
 		DiagWorld.Barrier();
-		IT n_perproc = totlen / nprocs;
+		IT n_perproc = found.getTotalLength(DiagWorld) / nprocs;
+		if(n_perproc == 0)	// it has less than sqrt(p) elements, all owned by the last processor
+		{
+			if(dgrank != nprocs-1)
+			{
+				int arrsize = found.arr.size();
+				DiagWorld.Gather(&arrsize, 1, MPI::INT, NULL, 0, MPI::DATATYPE_NULL, nprocs-1);
+				DiagWorld.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPI::DATATYPE_NULL, nprocs-1);
+			}
+			else
+			{	
+				int * allnnzs = new int[nprocs];
+				allnnzs[dgrank] = found.arr.size();
+				DiagWorld.Gather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, allnnzs, 1, MPI::INT, nprocs-1);
+				
+				int * rdispls = new int[nprocs];
+				rdispls[0] = 0;
+				for(int i=0; i<nprocs-1; ++i)
+					rdispls[i+1] = rdispls[i] + allnnzs[i];
+
+				IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
+				vector<IT> recvbuf(totrecv);
+				DiagWorld.Gatherv(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
+
+				found.arr.swap(recvbuf);
+				DeleteAll(allnnzs, rdispls);
+			}
+			return found;		// don't execute further
+		}
 		IT lengthuntil = dgrank * n_perproc;
 
 		// rebalance/redistribute
@@ -245,7 +271,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 		}
 
 		int * recvcnt = new int[nprocs];
-		commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
 
 		int * sdispls = new int[nprocs];
 		int * rdispls = new int[nprocs];
@@ -259,10 +285,9 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 
 		IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
 		vector<IT> recvbuf(totrecv);
-		cout << "Recvbuf size: " << totrecv << endl;
 			
 		// data is already in the right order in found.arr
-		commGrid->GetWorld().Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
+		DiagWorld.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
 		found.arr.swap(recvbuf);
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
@@ -468,7 +493,7 @@ void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>
 template <class IT, class NT>
 void DenseParVec<IT,NT>::PrintInfo(string vectorname) const
 {
-	IT totl = getTotalLength();
+	IT totl = getTotalLength(commGrid->GetDiagWorld());
 	if (commGrid->GetRank() == 0)	
-			cout << "As a whole, " << vectorname << " has length " << totl << endl; 
+		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
 }

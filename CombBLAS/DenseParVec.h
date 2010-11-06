@@ -50,11 +50,14 @@ public:
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	NT   GetElement (IT indx);		// element-wise fetch
 	
-	IT getTotalLength() const
+	IT getTotalLength(MPI::Intracomm & comm) const
 	{
 		IT totnnz = 0;
-		IT locnnz = arr.size();
-		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		if (comm != MPI::COMM_NULL)	
+		{
+			IT locnnz = arr.size();
+			comm.Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		}
 		return totnnz;
 	}
 
