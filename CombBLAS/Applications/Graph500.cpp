@@ -157,11 +157,11 @@ int main(int argc, char* argv[])
 		delete AInt;	// save memory	
 
 		SpParVec<int64_t,int64_t> First64, CandSp;
+		Cands.RandPerm();
+		Cands.PrintInfo("Candidates array (permuted)");
 		CandSp = Cands.Find(totality<int64_t>());
-		RandPerm(CandSp);	// From [{1,1},{4,4},{7,7}] to [{1,p{1}}, {2,p{2}}, {3,p{3}}]
-		CandSp.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 1);			// NV is also 1-based
-		CandSp = CandSp(First64);			// Because SpRef expects a 1-based parameter
+		CandSp = CandSp(First64);		// Because SpRef expects a 1-based parameter
 		CandSp.PrintInfo("First 64 of candidates (randomly chosen) array");
 
 		for(int i=0; i<64; ++i)

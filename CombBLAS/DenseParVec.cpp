@@ -489,6 +489,44 @@ void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>
 	}
 }	
 
+// Randomly permutes an already existing vector
+template <class IT, class NT>
+void DenseParVec<IT,NT>::RandPerm()
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		IT size = arr.size();
+		pair<double,IT> * vecpair = new pair<double,IT>[size];
+
+		int nproc = DiagWorld.Get_size();
+		int diagrank = DiagWorld.Get_rank();
+
+		long * dist = new long[nproc];
+		dist[diagrank] = size;
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
+
+  		MTRand M;	// generate random numbers with Mersenne Twister
+		for(int i=0; i<size; ++i)
+		{
+			vecpair[i].first = M.rand();
+			vecpair[i].second = arr[i];	// permutation indices are 1-based
+		}
+
+		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+    		psort::parallel_sort (vecpair, vecpair + size,  dist, DiagWorld);
+
+		vector< NT > nnum(size);
+		for(int i=0; i<size; ++i)
+			nnum[i] = vecpair[i].second;
+
+		delete [] vecpair;
+		delete [] dist;
+
+		arr.swap(nnum);
+	}
+}
 
 template <class IT, class NT>
 void DenseParVec<IT,NT>::PrintInfo(string vectorname) const

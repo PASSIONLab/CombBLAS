@@ -799,6 +799,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 template <typename IU>
 void RandPerm(SpParVec<IU,IU> & V)
 {
+	SpParHelper::Print("COMBBLAS: This version of RandPerm(SpParVec &) is obsolete, please use DenseParVec::RandPerm()\n");
 	MPI::Intracomm DiagWorld = V.commGrid->GetDiagWorld();
 
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only

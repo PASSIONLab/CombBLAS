@@ -50,6 +50,7 @@ public:
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	NT   GetElement (IT indx);		// element-wise fetch
 	
+	void RandPerm();	// randomly permute the vector
 	IT getTotalLength(MPI::Intracomm & comm) const
 	{
 		IT totnnz = 0;
