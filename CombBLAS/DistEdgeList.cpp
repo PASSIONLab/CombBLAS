@@ -187,7 +187,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	int rank = DEL.commGrid->GetRank();
 
 	// create permutation
-	SpParVec<IU, IU> globalPerm;
+	DenseParVec<IU, IU> globalPerm(DEL.commGrid, -1);
 	IU locrows; 
 	if(myprocrow != nprocrows-1)
 		locrows = DEL.getNumRows() / nprocrows;
@@ -195,7 +195,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 		locrows = DEL.getNumRows() - myprocrow * (DEL.getNumRows() / nprocrows);
 
 	globalPerm.iota(DEL.getNumRows(), 0);
-	RandPerm(globalPerm);	// now, randperm can return a 0-based permutation
+	globalPerm.RandPerm();	// now, randperm can return a 0-based permutation
 	
 	// way to mark whether each vertex was already renamed or not
 	IU locedgelist = 2*DEL.getNumLocalEdges();
@@ -214,9 +214,9 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 		
 		if (rank == broadcaster)
 		{
-			permsize = globalPerm.getlocnnz();
+			permsize = globalPerm.getLocalLength();
 			localPerm = new IU[permsize];
-			copy(globalPerm.num.begin(), globalPerm.num.end(), localPerm);
+			copy(globalPerm.arr.begin(), globalPerm.arr.end(), localPerm);
 		}
 
 		DEL.commGrid->GetWorld().Bcast(&permsize, 1, MPIType<IU>(), broadcaster);
@@ -242,18 +242,3 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	delete [] renamed;
 }
 
-/*
-Below are what I'll provide from this point [everything timed here]:
-
-A contructor of the form SpParMat(DistEdgeList) that will require an all-to-all communication
-to send the data to their eventual owners. 
-Before this point, the distribution was based on approximate nonzero count and processors was
-potentially holding somebody else's data.  
-
-I have the semi-complete functions to do the local data conversion (after the all-to-all exchange): 
-SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges)
-SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool = NULL);
-
-I just need to make them work together and write the parallel logic around them. It will also
-remove any duplicates, self-loops, etc.
-*/

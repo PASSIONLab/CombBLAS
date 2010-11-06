@@ -23,6 +23,8 @@ class SpParVec;
 template <class IT, class NT, class DER>
 class SpParMat;
 
+template <class IT>
+class DistEdgeList;
 
 // TODO: Why is this class templated with IT?
 template <class IT, class NT>
@@ -59,6 +61,7 @@ public:
 	void RandPerm();	// randomly permute the vector
 	IT getTotalLength(MPI::Intracomm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
+	IT getLocalLength() const { return arr.size(); }
 	
 	template <typename _Predicate>
 	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
@@ -119,6 +122,9 @@ private:
 	template <typename IU, typename NU1, typename NU2>
 	friend SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
 	EWiseMult (const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero);
+
+	template <typename IU>
+	friend void RenameVertices(DistEdgeList<IU> & DEL);
 };
 
 #include "DenseParVec.cpp"
