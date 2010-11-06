@@ -88,7 +88,7 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		
 		if(owner == dgrank) // insert if this process is the owner
 		{
-			IT locindx = indx-1-(dgrank*n_perproc);
+			IT locindx = indx-(dgrank*n_perproc);
 			typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
 			if(iter == ind.end())	// beyond limits, insert from back
 			{
@@ -527,7 +527,7 @@ void SpParVec<IT,NT>::DebugPrint()
 				
 				for (int j = 0; j < ind.size(); j++)
 				{
-					cout << "Element #" << (j+offset+1) << ": [" << (ind[j]+offset+1) << "] = " << num[j] << endl;
+					cout << "Element #" << (j+offset) << ": [" << (ind[j]+offset) << "] = " << num[j] << endl;
 				}
 			}
 			offset += all_nnzs[i];

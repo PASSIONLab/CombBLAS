@@ -330,7 +330,7 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 			return;
 		}
 		
-		IT owner = (indx-1) / n_perproc;	
+		IT owner = (indx) / n_perproc;	
 		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
 
 		//cout << "rank " << dgrank << ". nprocs " << nprocs << ".  n_perproc " << n_perproc;
@@ -339,7 +339,7 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 
 		if(rec == dgrank) // this process is the owner
 		{
-			IT locindx = indx-1-offset;
+			IT locindx = indx-offset;
 			
 			if (locindx > arr.size()-1)
 			{
@@ -386,12 +386,12 @@ NT DenseParVec<IT,NT>::GetElement (IT indx)
 			return ret;
 		}
 		
-		owner = (indx-1) / n_perproc;	
+		owner = (indx) / n_perproc;	
 		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
 		
 		if(rec == dgrank) // this process is the owner
 		{
-			IT locindx = indx-1-offset;
+			IT locindx = indx-offset;
 
 			if (locindx > arr.size()-1)
 			{
@@ -439,7 +439,7 @@ void DenseParVec<IT,NT>::DebugPrint()
 				
 				for (int j = 0; j < arr.size(); j++)
 				{
-					cout << "[" << (j+offset+1) << "] = " << arr[j] << endl;
+					cout << "[" << (j+offset) << "] = " << arr[j] << endl;
 				}
 			}
 			offset += all_nnzs[i];
