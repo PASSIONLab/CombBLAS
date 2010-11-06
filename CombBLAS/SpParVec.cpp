@@ -47,14 +47,15 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
 		IT offset = dgrank * n_perproc;
 
-		IT owner = (indx-1) / n_perproc;	
+		IT owner = (indx) / n_perproc;	
 		IT rec = std::min(owner, nprocs-1);	// find its owner 
 		NT diagval;
+		
 		if(rec == dgrank)
 		{
-			IT locindx = indx-1-offset;
+			IT locindx = indx-offset;
 			typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
-			if(it != ind.end() && locindx < (*it))	// found
+			if(it != ind.end() && locindx == (*it))	// found
 			{
 				diagval = num[it-ind.begin()];
 			}
