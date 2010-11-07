@@ -95,7 +95,10 @@ public:
 	
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
+	int64_t Reduce_sum();
+	
 	void setNumToInd();
+	void Apply_SetTo(int64_t v);
 
 public:
 	static pySpParVec* zeros(int64_t howmany);

@@ -92,7 +92,10 @@ public:
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	pySpParVec* SubsRef(const pySpParVec& ri);
+	int64_t Reduce_sum();
 	void setNumToInd();
+	void Apply_SetTo(int64_t v);
+
 
 public:
 	static pySpParVec* zeros(int64_t howmany);

@@ -158,9 +158,20 @@ pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 	return ret;
 }
 
+int64_t pySpParVec::Reduce_sum()
+{
+	return v.Reduce(plus<int64_t>(), 0);
+}
+
+
 void pySpParVec::setNumToInd()
 {
 	v.setNumToInd();
+}
+
+void pySpParVec::Apply_SetTo(int64_t value)
+{
+	v.Apply(set<int64_t>(value));
 }
 
 

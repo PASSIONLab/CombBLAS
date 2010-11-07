@@ -48,7 +48,7 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 
 void init_pyCombBLAS_MPI()
 {
-	cout << "calling MPI::Init" << endl;
+	//cout << "calling MPI::Init" << endl;
 	MPI::Init();
 	/*
 	int nprocs = MPI::COMM_WORLD.Get_size();
@@ -72,7 +72,7 @@ void init_pyCombBLAS_MPI()
 
 void finalize()
 {
-	cout << "calling MPI::Finalize" << endl;
+	//cout << "calling MPI::Finalize" << endl;
 	MPI::Finalize();
 }
 
