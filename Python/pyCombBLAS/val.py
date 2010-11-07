@@ -47,9 +47,14 @@ cycle = False;
 # Spect test #2
 
 print "starting spec test#2"
-tmp1 = parents.FindInds_NotEqual(-2)
-tmp2 = parents.FindInds_NotEqual(-1)
+#treeEdges = ((parents<> -2) & (parents <> -1)).nonzero();
+tmp1 = parents.Find_NotEqual(-2)
+tmp2 = parents.Find_NotEqual(-1)
+tmp3 = pcb.pyDenseParVec(nrowA,0);
+tmp3.ApplyMasked_SetTo(tmp2,1);
+treeEdges = pcb.EWiseMult(tmp1,tmp3,False,0);
 
-treeEdges = pcb.EWiseMult(tmp1.sparse(), tmp2, True, 0);
+#for next line, really need just the nonzeros in treeEdges used
 treeI = parents.SubsRef(treeEdges.dense());
-treeJ = pcb.pyDenseParVec(treeEdges.getnnz());
+treeJ = pcb.pyDenseParVec.range(treeEdges.getnnz(),0);
+pass
