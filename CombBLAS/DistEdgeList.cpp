@@ -93,7 +93,10 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 {
 	// Spread the two 64-bit numbers into five nonzero values in the correct range
 	uint_fast32_t seed[5];
-	make_mrg_seed(1, 2, seed);
+	uint64_t seed1 = MPI::COMM_WORLD.Get_rank();
+	uint64_t seed2 = time(NULL);
+	make_mrg_seed(seed1, seed2, seed);
+
 
 	SetMemSize(nedges_in);	
 	nedges = nedges_in;
