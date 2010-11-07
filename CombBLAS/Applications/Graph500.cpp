@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 12;	// fits even to single processor
+			scale = 16;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -199,7 +199,10 @@ int main(int argc, char* argv[])
 				SpParHelper::Print("Iteration finished\n");
 				iterations++;
 			}
-			cout << "number iterations: " << iterations << endl;
+	
+			ostringstream outnew;
+			outnew << "Number iterations: " << iterations << endl;
+			SpParHelper::Print(outnew.str());
 			parents.PrintInfo("parents after BFS");	
 		}
 	}

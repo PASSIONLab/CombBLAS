@@ -101,11 +101,19 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 	
 	// clear the source vertex by setting it to -1
 	for (IT i = 0; i < nedges; i++)
-	{
 		edges[2*i+0] = -1;
-	}
 	
 	generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
+
+	vector < pair<IT, IT> > vec;
+	for(IT i=0; i< nedges; i++)
+	{
+		vec.push_back(make_pair(edges[2*i], edges[2*i+1]));
+	}
+	sort(vec.begin(), vec.end());
+	vector < pair<IT, IT> > uniqued;
+	unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
+	cout << "before uniqued: " << vec.size() << " and after: " << uniqued.size() << endl;
 }
 
 
@@ -206,6 +214,14 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	IU* localPerm;
 	IU permsize;
 	IU startInd = 0;
+
+	//vector < pair<IU, IU> > vec;
+	//for(IU i=0; i< DEL.getNumLocalEdges(); i++)
+	//	vec.push_back(make_pair(DEL.edges[2*i], DEL.edges[2*i+1]));
+	//sort(vec.begin(), vec.end());
+	//vector < pair<IU, IU> > uniqued;
+	//unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
+	//cout << "before: " << vec.size() << " and after: " << uniqued.size() << endl;
 	
 	for (int round = 0; round < nprocrows; round++)
 	{
@@ -232,7 +248,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 			// We are renaming vertices, not edges
 			if (startInd <= DEL.edges[j] && DEL.edges[j] < (startInd + permsize) && !renamed[j])
 			{
-				DEL.edges[j] = localPerm[DEL.edges[j]-startInd];	// randperm returned a 0-based permutation since that's what we passed it
+				DEL.edges[j] = localPerm[DEL.edges[j]-startInd];
 				renamed[j] = true;
 			}
 		}

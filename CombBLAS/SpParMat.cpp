@@ -629,6 +629,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL)
 	else	loccols = DEL.getNumCols() - myproccol * n_perproc;
 
 	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+	cout << "matrix size @" << rank << " is " << totrecv/2 << endl;
   	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, recvbuf);  	
 	delete [] recvbuf;
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
