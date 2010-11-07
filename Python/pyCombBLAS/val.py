@@ -9,32 +9,47 @@ try:            # partially handle the case where the main script did not run
         A
 except NameError:
         A = pcb.pySpParMat();
-        A.load("/home/alugowski/matrices/rmat_scale14.mtx");
-        levels = pcb.pyDenseParVec(A.getnrow(), 0);
-        if Applybroken:
-                for i in range(1,A.getnrow()+1):
-                        levels.SetElement(i,1);
-        else:
-                levels.Apply(set(1));
+        A.load("../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt");
+        #A.load("/home/alugowski/matrices/rmat_scale14.mtx");
+	nrowA = A.getnrow();
+	#nrowA = 16384;
+	root = 5;
+        levels = pcb.pyDenseParVec(nrowA, 1);
+        levels.SetElement(root,0);
         levels.SetElement(12345, -2);
-        levels.SetElement(5,0);
-        levels.GetElement(1);
-        levels.GetElement(5);
-        levels.GetElement(12345);
+        levels.GetElement(1)
+        levels.GetElement(5)
+        levels.GetElement(12345)
+	parents = pcb.pyDenseParVec(nrowA, 5);
+	parents.SetElement(root,-1)
+	parents.SetElement(12345,-2)
 
 tmp1 = levels.FindInds_GreaterThan(-1);                 # levels > -1
-tmp2 = pcb.pyDenseParVec(A.getnrow(),0);
-if Applybroken:
-        for i in range(1,A.getnrow()+1):
-                tmp2.SetElement(i,0);
-else:
-        tmp2.Apply(set(0));
+tmp2 = pcb.pyDenseParVec(nrowA,0);
 tmp2 -= levels;                                         # == -levels
 tmp2ndx = tmp2.FindInds_GreaterThan(-1);                # levels < 1
-root = pcb.EWiseMult(tmp1, tmp2ndx, True, 0);           # (levels < 1) & (levels > -1)
+root = pcb.EWiseMult(tmp2ndx.sparse(), tmp1, True, 0).GetElement(0);           # (levels < 1) & (levels > -1)
+#tmp1 = levels.FindInds_NotEqual(0);
+#tmp2 = tmp1.GetElement(0);
 
-visited = pcb.pySpParVec.zeros(A.getncol());
+# Spect test #1:  !!NOTE!! Not completed!!
+print "starting spec test#1"
+visited = pcb.pySpParVec.zeros(nrowA);
 visited.SetElement(root,1);
 
-fringe = pcb.pySpParVec.zeros(A.getncol());
+fringe = pcb.pySpParVec.zeros(nrowA);
 fringe.SetElement(root,1);
+
+cycle = False;
+#while fringe.FindInds_NotEqual(0)).getnnz() > 0 and not cycle:
+#	pass
+
+# Spect test #2
+
+print "starting spec test#2"
+tmp1 = parents.FindInds_NotEqual(-2)
+tmp2 = parents.FindInds_NotEqual(-1)
+
+treeEdges = pcb.EWiseMult(tmp1.sparse(), tmp2, True, 0);
+treeI = parents.SubsRef(treeEdges.dense());
+treeJ = pcb.pyDenseParVec(treeEdges.getnnz());
