@@ -112,6 +112,10 @@ public:
 	{
 		transform(num.begin(), num.end(), num.begin(), __unary_op);
 	}
+
+	template <typename _BinaryOperation>
+	NT Reduce(_BinaryOperation __binary_op, NT init);
+
 	
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }

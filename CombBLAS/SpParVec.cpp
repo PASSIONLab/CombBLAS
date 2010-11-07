@@ -531,6 +531,20 @@ IT SpParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 	return totlen;
 }
 
+template <class IT, class NT>
+template <typename _BinaryOperation>
+NT SpParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
+{
+	// std::accumulate returns init for empty sequences
+	// the semantics are init + num[0] + ... + num[n]
+	NT localsum = std::accumulate( num.begin(), num.end(), init, __binary_op);
+
+	NT totalsum = init;
+	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	return totalsum;
+}
+
+
 
 template <class IT, class NT>
 void SpParVec<IT,NT>::PrintInfo(string vectorname) const
