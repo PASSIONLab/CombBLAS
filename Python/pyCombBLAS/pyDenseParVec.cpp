@@ -139,8 +139,22 @@ int64_t pyDenseParVec::Count_GreaterThan(int64_t value)
 
 pySpParVec* pyDenseParVec::Find_totality()
 {
-	pySpParVec* ret = new pySpParVec(0);
+	pySpParVec* ret = new pySpParVec();
 	ret->v = v.Find(totality<int64_t>());
+	return ret;
+}
+
+pySpParVec* pyDenseParVec::Find_GreaterThan(int64_t value)
+{
+	pySpParVec* ret = new pySpParVec();
+	ret->v = v.Find(bind2nd(greater<int64_t>(), value));
+	return ret;
+}
+
+pySpParVec* pyDenseParVec::Find_NotEqual(int64_t value)
+{
+	pySpParVec* ret = new pySpParVec();
+	ret->v = v.Find(bind2nd(not_equal_to<int64_t>(), value));
 	return ret;
 }
 

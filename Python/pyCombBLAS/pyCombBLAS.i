@@ -147,6 +147,8 @@ public:
 public:
 	int64_t Count_GreaterThan(int64_t value);
 	pySpParVec* Find_totality();
+	pySpParVec* Find_GreaterThan(int64_t value);
+	pySpParVec* Find_NotEqual(int64_t value);
 	pyDenseParVec* FindInds_GreaterThan(int64_t value);
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	
