@@ -23,17 +23,25 @@ int64_t negate64(int64_t v)
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
 {
-	pySpParVec* ret = new pySpParVec(0);
+	pySpParVec* ret = new pySpParVec();
 	//ret->v = ::EWiseMult(a.v, b.v, exclude);
+	cout << "EWiseMult(sparse, sparse) not implemented!" << endl;
 	return ret;
 }
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = EWiseMult(a.v, b.v, exclude, (int64_t)zero);
+	pySpParVec* ret = new pySpParVec();
+	SpParVec<int64_t, int64_t> result = EWiseMult(a.v, b.v, exclude, (int64_t)zero);
+	ret->v.stealFrom(result);
 	return ret;
 }
+
+void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero)
+{
+	a.v = EWiseMult(a.v, b.v, exclude, (int64_t)zero);
+}
+
 
 
 ////////////////////////// INITALIZATION/FINALIZE

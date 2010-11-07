@@ -53,6 +53,7 @@ public:
 public:
 	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	void SpMV_SelMax_inplace(pySpParVec& v);
 };
 
 
@@ -102,6 +103,7 @@ public:
 
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 class pyDenseParVec {
 public:

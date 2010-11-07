@@ -28,8 +28,10 @@ protected:
 	
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 
+	pySpParVec(); // used for initializing temporaries to be returned
 /////////////// everything below this appears in python interface:
 public:
 	pySpParVec(int64_t length);
@@ -102,7 +104,7 @@ public:
 };
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 #endif

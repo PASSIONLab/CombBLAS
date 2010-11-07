@@ -16,6 +16,10 @@ fringe = pcb.pySpParVec(n)
 fringe.SetElement(c, c);
 parents.SetElement(c, c);
 
+if (pcb.root()):
+	print "start fringe:" 
+fringe.printall()
+
 while (fringe.getnnz() > 0):
 	fringe.setNumToInd()
 	print "\nfringe at start of iteration"

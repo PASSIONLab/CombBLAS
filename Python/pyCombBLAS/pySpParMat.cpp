@@ -115,16 +115,23 @@ pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = SpMV< PlusTimesSRing<int, int64_t > >(A, x.v);
+	pySpParVec* ret = new pySpParVec();
+	SpParVec<int64_t, int64_t> result = SpMV< PlusTimesSRing<bool, int64_t > >(A, x.v);
+	ret->v.stealFrom(result);
 	return ret;
 }
 
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = SpMV< SelectMaxSRing<int, int64_t > >(A, x.v);
+	pySpParVec* ret = new pySpParVec();
+	SpParVec<int64_t, int64_t> result = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
+	ret->v.stealFrom(result);
 	return ret;
+}
+
+void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
+{
+	x.v = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
 }
 
 

@@ -57,6 +57,7 @@ public:
 public:
 	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	void SpMV_SelMax_inplace(pySpParVec& v);
 	
 };
 

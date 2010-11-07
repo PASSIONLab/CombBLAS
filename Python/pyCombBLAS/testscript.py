@@ -2,10 +2,11 @@ import sys
 import pyCombBLAS as pcb
 
 A = pcb.pySpParMat()
-scale = 16
+scale = -16
 
 if (scale < 0):
 	path = "/home/alugowski/matrices/rmat_scale16.mtx";
+	path = "../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt";
 	print "loading matrix from %s"%(path)
 	A.load(path)
 	A.Apply_SetTo(1)
@@ -54,23 +55,30 @@ for i in range(0, numCands):
 	fringe.SetElement(c, c);
 	parents.SetElement(c, c);
 	
+	if (pcb.root()):
+		print "start fringe:" 
+	fringe.printall()
+	
+	iterations = 0
 	while (fringe.getnnz() > 0):
 		fringe.setNumToInd()
 		#print "fringe at start of iteration"
 		#fringe.printall();
-		fringe = A.SpMV_SelMax(fringe) #
+		A.SpMV_SelMax_inplace(fringe) #
 		#print "fringe after SpMV"
 		#fringe.printall();
-		fringe = pcb.EWiseMult(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
+		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
 		#print "fringe at end of iteration"
 		#fringe.printall();
 		#parents.ApplyMasked_SetTo(fringe, 0)
-		parents += fringe
+		parents.add(fringe)
+		iterations += 1
 	
 	#parents.printall()
-	r = parents.Count_GreaterThan(-1)
+	#r = parents.Count_GreaterThan(-1)
+	r = 11111
 	if (pcb.root()):
-		print "We have %d parents" %(r)
+		print "We have %d parents found in %d iterations--------------------" %(r, iterations)
 
 del A
 del parents

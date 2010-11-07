@@ -7,6 +7,10 @@
 
 using namespace std;
 
+pySpParVec::pySpParVec()
+{
+}
+
 pySpParVec::pySpParVec(int64_t size)
 {
 	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();

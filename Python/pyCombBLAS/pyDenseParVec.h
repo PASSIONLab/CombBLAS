@@ -24,6 +24,7 @@ protected:
 	friend class pySpParVec;
 	friend class pySpParMat;
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 
 	pyDenseParVec();
 /////////////// everything below this appears in python interface:
