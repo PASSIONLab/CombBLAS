@@ -51,6 +51,9 @@ public:
 	SpParVec ( shared_ptr<CommGrid> grid);
 	SpParVec ( shared_ptr<CommGrid> grid, IT loclength);
 
+	//! like operator=, but instead of making a deep copy it just steals the contents. 
+	//! Useful for places where the "victim" will be distroyed immediately after the call.
+	void stealFrom(SpParVec<IT,NT> & victim); 
 	SpParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);
 	SpParVec<IT,NT> & operator-=(const SpParVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	

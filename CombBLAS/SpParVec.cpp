@@ -59,6 +59,16 @@ SpParVec<IT, NT>::SpParVec (IT loclen): NOT_FOUND(numeric_limits<NT>::min())
 }
 
 template <class IT, class NT>
+void SpParVec<IT,NT>::stealFrom(SpParVec<IT,NT> & victim)
+{
+	commGrid.reset(new CommGrid(*(victim.commGrid)));		
+	ind.swap(victim.ind);
+	num.swap(victim.num);
+	diagonal = victim.diagonal;
+	length = victim.length;
+}
+
+template <class IT, class NT>
 NT SpParVec<IT,NT>::operator[](IT indx) const
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();

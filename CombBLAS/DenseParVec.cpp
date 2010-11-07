@@ -96,6 +96,8 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::stealFrom(DenseParVec<IT,NT> & victi
 	arr.swap(victim.arr);
 	diagonal = victim.diagonal;
 	zero = victim.zero;
+	
+	return *this;
 }
 
 template <class IT, class NT>

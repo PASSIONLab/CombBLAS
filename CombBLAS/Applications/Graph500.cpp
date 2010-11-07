@@ -178,7 +178,8 @@ int main(int argc, char* argv[])
 			ostringstream outs;
 			outs << "Starting vertex id: " << Cands[i] << endl;
 			SpParHelper::Print(outs.str());
-			fringe.SetElement(Cands[i], Cands[i]);	
+			fringe.SetElement(Cands[i], Cands[i]);
+			int iterations = 0;
 			while(fringe.getnnz() > 0)
 			{
 				fringe.setNumToInd();
@@ -196,7 +197,9 @@ int main(int argc, char* argv[])
 				// thislevel.Apply(set<int>(level++));	
 				// levels += thislevel;
 				SpParHelper::Print("Iteration finished\n");
+				iterations++;
 			}
+			cout << "number iterations: " << iterations << endl;
 			parents.PrintInfo("parents after BFS");	
 		}
 	}
