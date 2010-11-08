@@ -9,3 +9,4 @@ Python/pyCombBLAS/*.a
 Python/pyCombBLAS/*.o
 Python/pyCombBLAS/*.pyc
 Python/pyCombBLAS/*.so
+Python/pyCombBLAS/Makefile
