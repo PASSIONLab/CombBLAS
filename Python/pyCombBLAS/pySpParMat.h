@@ -22,16 +22,11 @@ class pyDenseParVec;
 class pySpParMat {
 protected:
 
-	template <class NT>
-	class PSpMat 
-	{ 
-	public: 
-		typedef SpDCCols < int64_t, NT > DCCols;
-		typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
-	};
+	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
+	typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
+	typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 
-	//PSpMat<int>::MPI_DCCols A;
-	SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > A;
+	PSpMat_Bool A;
 	
 	friend class pySpParVec;
 
@@ -47,6 +42,8 @@ public:
 public:	
 	void load(const char* filename);
 	void GenGraph500Edges(int scale);
+	double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
+	pyDenseParVec* GenGraph500Candidates(int howmany);
 	
 public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);

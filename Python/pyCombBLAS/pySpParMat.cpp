@@ -1,4 +1,5 @@
 #include <mpi.h>
+#include <sys/time.h> 
 
 #include <iostream>
 #include "pySpParMat.h"
@@ -62,6 +63,7 @@ void pySpParMat::GenGraph500Edges(int scale)
 	*/
 	
 	int nprocs = MPI::COMM_WORLD.Get_size();
+	int rank = MPI::COMM_WORLD.Get_rank();
 	
 	// this is an undirected graph, so A*x does indeed BFS
 	double initiator[4] = {.57, .19, .19, .05};
@@ -71,15 +73,85 @@ void pySpParMat::GenGraph500Edges(int scale)
 	PermEdges<int64_t>(DEL);
 	RenameVertices<int64_t>(DEL);
 
-	A = SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > (DEL);	 // conversion from distributed edge list
-	SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > AT = A;
+	A = PSpMat_Bool (DEL);	 // conversion from distributed edge list
+	PSpMat_Bool AT = A;
 	AT.Transpose();
+	
+	int64_t nnz = A.getnnz();
+	if (rank == 0)
+		cout << "Generator: A.getnnz() before A += AT: " << nnz << endl;
 	A += AT;
+	nnz = A.getnnz();
+	if (rank == 0)
+		cout << "Generator: A.getnnz() after A += AT: " << nnz << endl;
 }
 
-int64_t upcast(int i) {
-	return i;
+double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
+{
+	double k1time = 0;
+	DenseParVec<int64_t, int64_t> degrees;
+
+	int nprocs = MPI::COMM_WORLD.Get_size();
+	int rank = MPI::COMM_WORLD.Get_rank();
+
+
+	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
+	// this is an undirected graph, so A*x does indeed BFS
+	double initiator[4] = {.57, .19, .19, .05};
+
+	DistEdgeList<int64_t> DEL;
+	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+	PermEdges<int64_t>(DEL);
+	RenameVertices<int64_t>(DEL);
+
+	PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
+	degrees = G->Reduce(Column, plus<int64_t>(), 0); 
+	delete G;
+
+	// Start Kernel #1
+	MPI::COMM_WORLD.Barrier();
+	double t1 = MPI_Wtime();
+
+	A = PSpMat_Bool(DEL);	// remove self loops and duplicates (since this is of type boolean)
+	PSpMat_Bool AT = A;
+	AT.Transpose();
+	A += AT;
+	
+	MPI::COMM_WORLD.Barrier();
+	double t2=MPI_Wtime();
+	
+	// END OF COPY
+	
+	k1time = t2-t1;
+	pyDegrees.v.stealFrom(degrees);
+	return k1time;
 }
+
+pyDenseParVec* pySpParMat::GenGraph500Candidates(int howmany)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+
+	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
+	PSpMat_Int * AInt = new PSpMat_Int(A); 
+	DenseParVec<int64_t, int> * ColSums = new DenseParVec<int64_t, int> (AInt->Reduce(Column, plus<int>(), false)); 
+	DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int>(), 1));	// only the indices of non-isolated vertices
+	delete AInt;
+	delete ColSums;
+		
+	//Cands.PrintInfo("Candidates array");
+	DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
+	Cands.RandPerm();
+	//Cands.PrintInfo("Candidates array (permuted)");
+	First64.iota(howmany, 0);			
+	Cands = Cands(First64);		
+	//Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
+	
+	// END COPY
+	
+	ret->v.stealFrom(Cands);
+	return ret;
+}
+
 
 //pyDenseParVec* pySpParMat::Reduce_ColumnSums()
 //{

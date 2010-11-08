@@ -17,6 +17,9 @@ def splitthousands(s, sep=','):
 A = pcb.pySpParMat()
 scale = 20
 
+degrees = pcb.pyDenseParVec(4, 0);
+k1time = 0.0
+
 if len(sys.argv) == 2:
 	scale = int(sys.argv[1])
 
@@ -26,15 +29,23 @@ if (scale < 0):
 	print "loading matrix from %s"%(path)
 	A.load(path)
 	A.Apply_SetTo(1)
+	n = A.getnrow()
+	
+	colreducer = pcb.pyDenseParVec(n, 1).sparse();
+	degrees = A.SpMV_PlusTimes(colreducer).dense();
+
 else:
 	if (pcb.root()):
 		print "Generating RMAT with 2**%d nodes" %(scale)
-	A.GenGraph500Edges(scale)
-	A.Apply_SetTo(1)
+	k1time = A.GenGraph500Edges(scale, degrees)
+	if (pcb.root()):
+		print "Generation took %lf s"%(k1time)
+	
 
 n = A.getnrow()
 m = A.getncol()
 nnz = A.getnnz()
+edgefactor = nnz/n;
 if (pcb.root()):
 	print "A is %d by %d with %d nonzeros." % (n, m, nnz)
 
@@ -46,17 +57,20 @@ numCands = 64
 if (numCands > n):
 	numCands = n
 
-Cands = A.FindIndsOfColsWithSumGreaterThan(4);
+#Cands = A.FindIndsOfColsWithSumGreaterThan(4);
 
-numAvailableCands = Cands.length()
-if (numAvailableCands < numCands):
-	if (pcb.root()):
-		print "Not enough vertices in the graph qualify as candidates. Only %d have enough degree."%(numAvailableCands)
-	numCands = numAvailableCands
+#numAvailableCands = Cands.length()
+#if (numAvailableCands < numCands):
+#	if (pcb.root()):
+#		print "Not enough vertices in the graph qualify as candidates. Only %d have enough degree."%(numAvailableCands)
+#	numCands = numAvailableCands
 
-Cands.RandPerm();
-First64 = pcb.pyDenseParVec.range(numCands, 0);
-Cands = Cands.SubsRef(First64);
+#Cands.RandPerm();
+#First64 = pcb.pyDenseParVec.range(numCands, 0);
+#Cands = Cands.SubsRef(First64);
+
+
+Cands = A.GenGraph500Candidates(numCands)
 
 #if (pcb.root()):
 #	print "The candidates are:"
@@ -123,8 +137,10 @@ for i in range(0, numCands):
 		if (pcb.root()):
 			print "oh oh oh oh noooooooo! (parents.nnz) %d != %d (parentsSP.nnz)"%(r, pnnz)
 	parentsSP.Apply_SetTo(1);
-	s = A.SpMV_PlusTimes(parentsSP)
-	nedges = s.Reduce_sum()
+	nedges = pcb.EWiseMult(parentsSP, degrees, False, 0).Reduce_sum()
+	
+	#s = A.SpMV_PlusTimes(parentsSP)
+	#nedges = s.Reduce_sum()
 
 	# summarize this round	
 	if (pcb.root()):
@@ -138,5 +154,6 @@ for i in range(0, numCands):
 del A
 del parents
 del fringe
+del degrees
 
 pcb.finalize()

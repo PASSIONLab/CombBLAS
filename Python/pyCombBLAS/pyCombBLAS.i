@@ -44,7 +44,9 @@ public:
 public:	
 	void load(const char* filename);
 	void GenGraph500Edges(int scale);
-	
+	double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
+	pyDenseParVec* GenGraph500Candidates(int howmany);
+
 public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
 	//pyDenseParVec* Reduce_ColumnSums();
