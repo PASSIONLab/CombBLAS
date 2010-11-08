@@ -3,14 +3,6 @@ import time
 import pyCombBLAS as pcb
 
 
-# makes numbers pretty
-def splitthousands(s, sep=','):
-	s = str(int(s))
-	if (len(s) <= 3): return s  
-	return splitthousands(s[:-3], sep) + sep + s[-3:]
-
-
-
 ###############################################
 ###########    MATRIX CREATION
 
@@ -147,6 +139,25 @@ for i in range(0, numCands):
 		print "Round %2d, root %-10d %15d parents (%5.2f%%),%3d iterations,%15d edges, %f s,   TEPS: %s" %((i+1), c, r, (100.0*r/n), niter, nedges, telapsed, splitthousands(nedges/telapsed))
 
 ###############################################
+###########    RESULTS
+
+print "     SCALE: %d"%(scale)
+print "      nvtx: %d"%(n)
+print " num edges: %d"%(nnz)
+print "edgefactor: %d"%(edgefactor)
+print "   num BFS: $d"%(numCands)
+print "  kernel 1: $d seconds"%(numCands)
+
+print "\n   kernel 2 Times"
+printstats(times, "time", False)
+
+print "\n   kernel 2 Number of edges"
+printstats(times, "nedge", False)
+
+print "\n   kernel 2 TEPS"
+printstats(times, "TEPS", True)
+
+###############################################
 ###########    CLEANUP
 
 # These have to be explicitly deleted because they must release their MPI-backed data
@@ -155,5 +166,93 @@ del A
 del parents
 del fringe
 del degrees
+
+
+###############################################
+###########    HELPER FUNCTIONS
+
+# makes numbers pretty
+def splitthousands(s, sep=','):
+	s = str(int(s))
+	if (len(s) <= 3): return s  
+	return splitthousands(s[:-3], sep) + sep + s[-3:]
+
+# prints statistics about an array
+def printstats(data, label, israte):
+	n = data.length()
+	data.sort()
+	
+	#min
+	min = data[0]
+	
+	#first quantile
+	t = (n+1) / 4.0
+	k = int(t)
+	if (t == k):
+		q1 = data[k]
+	else:
+		q1 = 3*(data[k]/4.0) + data[k+1]/4.0;
+		
+	# median
+	t = (n+1) / 2.0
+	k = int(t)
+	if (t == k):
+		median = data[k]
+	else:
+		median = data[k]/2.0 + data[k+1]/2.0;
+	
+	# third quantile
+	t = 3*((n+1) / 4.0);
+	k = int(t)
+	if (t == k):
+		q3 = data[k]
+	else:
+		q3 = data[k]/4.0 + 3*(data[k+1]/4.0);
+
+	#max
+	max = data[n-1];
+	
+	#mean
+	sum = 0.0
+	for i in range(n-1, -1, -1):
+		sum = sum + data[i]
+	mean = sum/n;
+	
+	#standard deviation
+	s = 0.0
+	for k in range(n-1, -1, -1):
+		tmp = data[k] - mean
+		s = s + tmp*tmp
+	sampleStdDev = sqrt(s/(n-1))
+
+	#harmonic mean
+	s = 0.0
+	for k in range(0,n):
+		if (data[k]):
+			s = s + 1.0/data[k]
+	harmonicMean = n/s
+	m = s/n
+		
+	#harmonic sample standard deviation
+	s = 0.0
+	for k in range(0, n):
+		if (data[k]):
+			tmp = 1.0/data[k] - m;
+		else:
+			tmp = -m
+		s = tmp*tmp
+	harmonicSampleStdDev = (sqrt (s)/(n-1)) * out[7] * out[7]
+	
+	print "            min_%s: %20.17e\n"%(label, min);
+	print "  firstquartile_%s: %20.17e\n"%(label, q1);
+	print "         median_%s: %20.17e\n"%(label, median);
+	print "  thirdquartile_%s: %20.17e\n"%(label, q3);
+	print "            max_%s: %20.17e\n"%(label, max);
+	if (israte):
+		print "  harmonic_mean_%s: %20.17e\n"%(label, harmonicMean);
+		print "harmonic_stddev_%s: %20.17e\n"%(label, harmonicSampleStdDev);
+	else:
+		print "           mean_%s: %20.17e\n"%(label, mean);
+		print "         stddev_%s: %20.17e\n"%(label, sampleStdDev);
 
 pcb.finalize()
