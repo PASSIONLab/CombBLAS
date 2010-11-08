@@ -376,7 +376,7 @@ void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT * indx, const
 	if(spmvaux == NULL)
 	{
 		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
-		cout << "index generated" << endl;
+		// cout << "index generated" << endl;
 	}
 
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	

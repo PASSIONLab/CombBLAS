@@ -8,7 +8,7 @@ COMBBLAS = ../../CombBLAS
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
-COMPILER = mpicxx
+COMPILER = $(CC)
 FLAGS = $(DEB) -fPIC 
 
 all: pyCombBLAS.py

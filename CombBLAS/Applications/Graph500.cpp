@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 17;	// fits even to single processor
+			scale = 20;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -126,8 +126,13 @@ int main(int argc, char* argv[])
 
 			DistEdgeList<int64_t> DEL;
 			DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+			SpParHelper::Print("Generated local RMAT matrices\n");
+
 			PermEdges<int64_t>(DEL);
+			SpParHelper::Print("Permuted Edges\n");
+
 			RenameVertices<int64_t>(DEL);
+			SpParHelper::Print("Renamed Vertices\n");
 
 			PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
 			degrees = G->Reduce(Column, plus<int64_t>(), 0); 
@@ -167,10 +172,10 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
-		PSpMat_Int * AInt = new PSpMat_Int(A); 
-		DenseParVec<int64_t, int> * ColSums = new DenseParVec<int64_t, int> (AInt->Reduce(Column, plus<int>(), false)); 
-		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int>(), 1));	// only the indices of non-isolated vertices
-		delete AInt;
+		PSpMat_Int64 * AInt64 = new PSpMat_Int64(A); 
+		DenseParVec<int64_t, int64_t> * ColSums = new DenseParVec<int64_t, int64_t> (AInt64->Reduce(Column, plus<int64_t>(), false)); 
+		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
+		delete AInt64;
 		delete ColSums;
 			
 		Cands.PrintInfo("Candidates array");
@@ -179,6 +184,7 @@ int main(int argc, char* argv[])
 		Cands.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 0);			
 		Cands = Cands(First64);		
+		Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 		
 		double MTEPS[64]; double INVMTEPS[64];
@@ -191,11 +197,12 @@ int main(int argc, char* argv[])
 			ostringstream outs;
 			outs << "Starting vertex id: " << Cands[i] << endl;
 			SpParHelper::Print(outs.str());
-			fringe.SetElement(Cands[i], Cands[i]);
-			int iterations = 0;
 
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
+
+			fringe.SetElement(Cands[i], Cands[i]);
+			int iterations = 0;
 			while(fringe.getnnz() > 0)
 			{
 				fringe.setNumToInd();

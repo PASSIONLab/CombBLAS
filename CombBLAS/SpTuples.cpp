@@ -76,7 +76,15 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges, bool removel
 		++nnz;
 		cnz = j;
 	}
-	cout << "Duplicates removed: " << dup << " and self-loops removed: " <<  self << endl;  
+
+
+	IT totdup = 0; IT totself = 0; 
+	MPI::COMM_WORLD.Allreduce( &dup, &totdup, 1, MPIType<IT>(), MPI::SUM);
+	MPI::COMM_WORLD.Allreduce( &self, &totself, 1, MPIType<IT>(), MPI::SUM);
+	ostringstream os;
+	os << "Duplicates removed: " << totdup << " and self-loops removed: " <<  totself << endl;  
+	SpParHelper::Print(os.str());
+
 	tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz];
 	IT j = 0;
 	for(IT i=0; i<maxnnz; ++i)
