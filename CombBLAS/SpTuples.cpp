@@ -40,7 +40,7 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytupl
   * NT='countable' (such as short,int): duplicated as summed to keep count 	 
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges):m(nRow), n(nCol)
+SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges, bool removeloops):m(nRow), n(nCol)
 {
 	if(maxnnz > 0)
 	{
@@ -56,21 +56,27 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges):m(nRow), n(n
 	SortColBased();
 
 	IT cnz = 0;
-	nnz = 0;
-	IT dup =0;
+	IT dup = 0;  IT self = 0;
+	nnz = 0; 
 	while(cnz < maxnnz)
 	{
 		IT j=cnz+1;
 		while(j < maxnnz && rowindex(cnz) == rowindex(j) && colindex(cnz) == colindex(j)) 
 		{
-			numvalue(cnz) +=  numvalue(j);
+			numvalue(cnz) +=  numvalue(j);	
 			numvalue(j++) = 0;	// mark for deletion
-			dup++;
+			++dup;
+		}
+		if(removeloops && rowindex(cnz) == colindex(cnz))
+		{
+			numvalue(cnz) = 0;
+			--nnz;
+			++self;
 		}
 		++nnz;
 		cnz = j;
 	}
-	cout << "duplicates: " << dup << endl;
+	cout << "Duplicates removed: " << dup << " and self-loops removed: " <<  self << endl;  
 	tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz];
 	IT j = 0;
 	for(IT i=0; i<maxnnz; ++i)

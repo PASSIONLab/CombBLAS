@@ -57,7 +57,7 @@ Row
 #endif
 
 #ifndef THRESHOLD
-#define THRESHOLD 5	// if range1.size() / range2.size() < threshold, use scanning based indexing
+#define THRESHOLD 4	// if range1.size() / range2.size() < threshold, use scanning based indexing
 #endif
 
 #ifndef MEMORYINBYTES

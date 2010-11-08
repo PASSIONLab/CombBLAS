@@ -94,7 +94,7 @@ public:
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
 	template <typename SR, typename IT, typename NT1, typename NT2>
-	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, const IT * indx, const NT2 * numx, IT veclen,  
+	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy);
 
 	template <typename NT, typename IT>
@@ -123,6 +123,8 @@ public:
 	{ return pair1.first < pair2.first; }
 
 };
+
+static int64_t * spmvaux = NULL;
 
 
 /**
@@ -356,7 +358,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 
 // indx vector practically keeps column numbers requested from A
 template <typename SR, typename IT, typename NT1, typename NT2>
-void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, const IT * indx, const NT2 * numx, IT veclen,  
+void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
 {
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
@@ -369,7 +371,15 @@ void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, const IT * indx, const NT2 * 
 	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
 	vector< pair<IT,IT> > colinds(veclen);		
 
-	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
+	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
+        IT csize = static_cast<IT>(ceil(cf));   // chunk size
+	if(spmvaux == NULL)
+	{
+		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
+		cout << "index generated" << endl;
+	}
+
+	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 	IT hsize = 0;		
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 
 	{

@@ -108,15 +108,15 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 	
 	generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
 
-	vector < pair<IT, IT> > vec;
-	for(IT i=0; i< nedges; i++)
-	{
-		vec.push_back(make_pair(edges[2*i], edges[2*i+1]));
-	}
-	sort(vec.begin(), vec.end());
-	vector < pair<IT, IT> > uniqued;
-	unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
-	cout << "before uniqued: " << vec.size() << " and after: " << uniqued.size() << endl;
+	//vector < pair<IT, IT> > vec;
+	//for(IT i=0; i< nedges; i++)
+	//{
+	//	vec.push_back(make_pair(edges[2*i], edges[2*i+1]));
+	//}
+	//sort(vec.begin(), vec.end());
+	//vector < pair<IT, IT> > uniqued;
+	//unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
+	//cout << "before uniqued: " << vec.size() << " and after: " << uniqued.size() << endl;
 }
 
 

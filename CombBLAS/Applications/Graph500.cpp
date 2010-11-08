@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
+		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 
 		// calculate the problem size that can be solved
 		// number of nonzero columns are at most the matrix dimension (for small p)
@@ -106,7 +107,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 16;	// fits even to single processor
+			scale = 17;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -115,8 +116,8 @@ int main(int argc, char* argv[])
 		SpParHelper::Print(outs.str());
 
 		// Declare objects
-		SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > A;	
-		DenseParVec<int64_t, int64_t> x;
+		PSpMat_Bool A;	
+		DenseParVec<int64_t, int64_t> degrees;
 
 		if(NOINPUT)
 		{
@@ -128,10 +129,24 @@ int main(int argc, char* argv[])
 			PermEdges<int64_t>(DEL);
 			RenameVertices<int64_t>(DEL);
 
-			A = SpParMat<int64_t, bool, SpDCCols<int64_t, bool> > (DEL);	 // conversion from distributed edge list
+			PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
+			degrees = G->Reduce(Column, plus<int64_t>(), 0); 
+			delete G;
+
+			// Start Kernel #1
+			MPI::COMM_WORLD.Barrier();
+			double t1 = MPI_Wtime();
+
+			A = PSpMat_Bool(DEL);	// remove self loops and duplicates (since this is of type boolean)
 			PSpMat_Bool AT = A;
 			AT.Transpose();
 			A += AT;
+			
+			MPI::COMM_WORLD.Barrier();
+			double t2=MPI_Wtime();
+			
+			if(myrank == 0)
+				fprintf(stdout, "%.6lf seconds elapsed for Kernel #1\n", t2-t1);
 		}
 		else
 		{
@@ -152,27 +167,24 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
-		// Reduce on a boolean matrix would return a boolean vector, not possible to sum along
-		PSpMat_Int * AInt = new PSpMat_Int(A);
-		DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
-		DenseParVec<int64_t, int64_t> Cands = ColSums.FindInds(bind2nd(greater<int>(), 2));	// only the indices of connected vertices
+		PSpMat_Int * AInt = new PSpMat_Int(A); 
+		DenseParVec<int64_t, int> * ColSums = new DenseParVec<int64_t, int> (AInt->Reduce(Column, plus<int>(), false)); 
+		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int>(), 1));	// only the indices of non-isolated vertices
+		delete AInt;
+		delete ColSums;
+			
 		Cands.PrintInfo("Candidates array");
-		delete AInt;	// save memory	
-
 		DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
 		Cands.RandPerm();
 		Cands.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 0);			
 		Cands = Cands(First64);		
-		Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 
 		for(int i=0; i<64; ++i)
 		{
 			// DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
 			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getlocalcols(), (int64_t) -1, (int64_t) -1);	// identity is -1
-			DenseParVec<int64_t, int> levels;
-			int64_t level = 1;
 			SpParVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getlocalcols());	// numerical values are stored 0-based
 
 			ostringstream outs;
@@ -180,28 +192,34 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(outs.str());
 			fringe.SetElement(Cands[i], Cands[i]);
 			int iterations = 0;
+
+			MPI::COMM_WORLD.Barrier();
+			double t1 = MPI_Wtime();
 			while(fringe.getnnz() > 0)
 			{
 				fringe.setNumToInd();
-				fringe.PrintInfo("fringe before SpMV");
-
+				//fringe.PrintInfo("fringe before SpMV");
 				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
-				fringe.PrintInfo("fringe after SpMV");
+				//fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
-				fringe.PrintInfo("fringe after cleanup");
-
+				//fringe.PrintInfo("fringe after cleanup");
 				parents += fringe;
-
-				// following steps are only for validation later
-				// SpParVec<int64_t, int> thislevel(fringe);
-				// thislevel.Apply(set<int>(level++));	
-				// levels += thislevel;
-				SpParHelper::Print("Iteration finished\n");
+				//SpParHelper::Print("Iteration finished\n");
 				iterations++;
 			}
+			MPI::COMM_WORLD.Barrier();
+			double t2 = MPI_Wtime();
+
+			SpParVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+			parentsp.Apply(set<int64_t>(1));
+			int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
 	
 			ostringstream outnew;
 			outnew << "Number iterations: " << iterations << endl;
+			outnew << "Number of vertices found: " << parentsp.Reduce(plus<int64_t>(), (int64_t) 0) << endl; 
+			outnew << "Number of edges traversed: " << nedges << endl;
+			outnew << "BFS time: " << t2-t1 << " seconds" << endl;
+			outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 			SpParHelper::Print(outnew.str());
 			parents.PrintInfo("parents after BFS");	
 		}

@@ -64,7 +64,7 @@ public:
 	SpParMat (DER * myseq, MPI::Intracomm & world);	
 
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
-	SpParMat (const DistEdgeList< IT > & rhs);				// conversion from distributed edge list
+	SpParMat (const DistEdgeList< IT > & rhs, bool removeloops = true);	// conversion from distributed edge list
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();

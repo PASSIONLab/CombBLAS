@@ -51,7 +51,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
-		SpHelper::SpMXSpV<SR>(*(A.dcsc), indx, numx, nnzx, indy, numy);
+		SpHelper::SpMXSpV<SR>(*(A.dcsc), A.n, indx, numx, nnzx, indy, numy);
 	}
 }
 
