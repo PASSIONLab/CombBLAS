@@ -180,7 +180,8 @@ int main(int argc, char* argv[])
 		First64.iota(64, 0);			
 		Cands = Cands(First64);		
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
-
+		
+		double MTEPS[64]; double INVMTEPS[64];
 		for(int i=0; i<64; ++i)
 		{
 			// DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
@@ -220,9 +221,15 @@ int main(int argc, char* argv[])
 			outnew << "Number of edges traversed: " << nedges << endl;
 			outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 			outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
+			MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
 			SpParHelper::Print(outnew.str());
 			parents.PrintInfo("parents after BFS");	
 		}
+		transform(MTEPS, MTEPS+64, INVMTEPS, safemultinv<double>()); 	
+		double hteps = 64.0 / accumulate(INVMTEPS, INVMTEPS+64, 0.0);
+		ostringstream os;
+		os << "Harmonic mean of TEPS: " << hteps << endl;
+		SpParHelper::Print(os.str());
 	}
 	MPI::Finalize();
 	return 0;
