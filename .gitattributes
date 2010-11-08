@@ -16,6 +16,7 @@ CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
 CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
+CombBLAS/Applications/makefile-nersc -text
 CombBLAS/Applications/makefile-neumann -text
 CombBLAS/Applications/matrixA.txt -text
 CombBLAS/Applications/matrixB.txt -text
