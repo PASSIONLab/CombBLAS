@@ -935,9 +935,12 @@ Python/distribCombBLAS/DiGraph.py -text
 Python/distribCombBLAS/Graph.py -text
 Python/distribCombBLAS/Graph500.py -text
 Python/pyCombBLAS/Makefile -text
+Python/pyCombBLAS/Makefile-neumann -text
 Python/pyCombBLAS/pyCombBLAS.cpp -text
 Python/pyCombBLAS/pyCombBLAS.h -text
 Python/pyCombBLAS/pyCombBLAS.i -text
+Python/pyCombBLAS/pyCombBLAS.py -text
+Python/pyCombBLAS/pyCombBLAS_wrap.cpp -text
 Python/pyCombBLAS/pyDenseParVec.cpp -text
 Python/pyCombBLAS/pyDenseParVec.h -text
 Python/pyCombBLAS/pySpParMat.cpp -text
