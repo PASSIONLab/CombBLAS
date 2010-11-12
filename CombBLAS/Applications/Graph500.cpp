@@ -183,6 +183,7 @@ int main(int argc, char* argv[])
 		Cands.RandPerm();
 		Cands.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 0);			
+		First64.DebugPrint();
 		Cands = Cands(First64);		
 		Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");

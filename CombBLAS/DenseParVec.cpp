@@ -577,7 +577,7 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		{
 			int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
 			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.arr[i] - (nprocs * dgrank));
+			data_req[rec].push_back(ri.arr[i] - (n_perproc * owner));
 			revr_map[rec].push_back(i);
 		}
 		IT * sendbuf = new IT[ri.arr.size()];
@@ -614,6 +614,10 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		}
 
 		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+		ofstream out;
+		commGrid->OpenDebugFile("Indexing", out);
+		copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
+		out << " done "<< endl;
 		
 		// We will return the requested data,
 		// our return will be as big as the request 
