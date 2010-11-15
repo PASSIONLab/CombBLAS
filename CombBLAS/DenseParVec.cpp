@@ -471,7 +471,7 @@ void DenseParVec<IT,NT>::DebugPrint()
 		{
 			if (i == dgrank)
 			{
-				cout << "stored on proc " << dgrank << "," << dgrank << ":" << endl;
+				cout << arr.size() << " elements stored on proc " << dgrank << "," << dgrank << ":" << endl;
 				
 				for (int j = 0; j < arr.size(); j++)
 				{
