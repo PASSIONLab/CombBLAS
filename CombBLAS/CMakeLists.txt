@@ -38,11 +38,10 @@ endif (NOT HAVE_TR1)
 ADD_LIBRARY( CommGridlib CommGrid.cpp  )
 ADD_LIBRARY( MPITypelib MPIType.cpp )
 ADD_LIBRARY( MemoryPoollib MemoryPool.cpp )
-ADD_LIBRARY( GraphUtilslib graph500-1.2/generator/utils.c )
-ADD_LIBRARY( GraphGenlib graph500-1.2/generator/graph_generator.c )
 
 ADD_SUBDIRECTORY( ReleaseTests )
 ADD_SUBDIRECTORY( Applications ) 
+ADD_SUBDIRECTORY( graph500-1.2/generator )
 
 ENABLE_TESTING()
 INCLUDE(CTest)

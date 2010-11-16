@@ -111,6 +111,7 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > &
 		else
 			arr[rhs.ind[i]] += rhs.num[i];
 	}
+	return *this;
 }
 
 template <class IT, class NT>
@@ -419,7 +420,7 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 		
 		if (n_perproc == 0 && dgrank == 0) {
 			cout << "DenseParVec::GetElement can't be called on an empty vector." << endl;
-			return ret;
+			return numeric_limits<NT>::min();
 		}
 		
 		owner = (indx) / n_perproc;	
@@ -455,6 +456,12 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 template <class IT, class NT>
 void DenseParVec<IT,NT>::DebugPrint()
 {
+	// ABAB: Alternative
+	// ofstream out;
+	// commGrid->OpenDebugFile("DenseParVec", out);
+	// copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
+	// out << " <end_of_vector>"<< endl;
+
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
 	{
@@ -471,19 +478,20 @@ void DenseParVec<IT,NT>::DebugPrint()
 		{
 			if (i == dgrank)
 			{
-				cout << arr.size() << " elements stored on proc " << dgrank << "," << dgrank << ":" << endl;
+				cerr << arr.size() << " elements stored on proc " << dgrank << "," << dgrank << ":" ;
 				
 				for (int j = 0; j < arr.size(); j++)
 				{
-					cout << "[" << (j+offset) << "] = " << arr[j] << endl;
+					cerr << "\n[" << (j+offset) << "] = " << arr[j] ;
 				}
+				cerr << endl;
 			}
 			offset += all_nnzs[i];
 			DiagWorld.Barrier();
 		}
 		DiagWorld.Barrier();
 		if (dgrank == 0)
-			cout << "total size: " << offset << endl;
+			cerr << "total size: " << offset << endl;
 		DiagWorld.Barrier();
 	}
 }
@@ -614,10 +622,6 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		}
 
 		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
-		ofstream out;
-		commGrid->OpenDebugFile("Indexing", out);
-		copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
-		out << " done "<< endl;
 		
 		// We will return the requested data,
 		// our return will be as big as the request 

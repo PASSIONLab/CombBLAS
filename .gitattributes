@@ -41,6 +41,9 @@ CombBLAS/Applications/mpi2script529 -text
 CombBLAS/Applications/mpi2script64 -text
 CombBLAS/Applications/mpi2script81 -text
 CombBLAS/Applications/mpi2script9 -text
+CombBLAS/Applications/script1024 -text
+CombBLAS/Applications/script256 -text
+CombBLAS/Applications/script4096 -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BranchTrial/Friends.h -text
 CombBLAS/BranchTrial/ParFriends.h -text

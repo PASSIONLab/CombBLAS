@@ -47,7 +47,7 @@ template<typename T>
 struct totality : public std::unary_function<T, bool>
 {
   /** @returns true regardless */
-  const bool operator()(const T& x) const
+  bool operator()(const T& x) const
   {
 	return true;
   }

@@ -1,0 +1,8 @@
+#PBS -q regular
+#PBS -l mppwidth=256
+#PBS -l walltime=00:50:00
+#PBS -j eo
+#PBS -V
+
+cd $SCRATCH
+aprun -n 256 ./graph500 2048
