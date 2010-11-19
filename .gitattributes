@@ -3,6 +3,11 @@ CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/CMakeLists.txt -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/FranklinResults/script1024.e6815193 -text
+CombBLAS/Applications/FranklinResults/script1024.e6817832 -text
+CombBLAS/Applications/FranklinResults/script256.e6815098 -text
+CombBLAS/Applications/FranklinResults/script256_ipm.e6824308 -text
+CombBLAS/Applications/FranklinResults/script4096.e6815194 -text
 CombBLAS/Applications/Graph500.cpp -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text

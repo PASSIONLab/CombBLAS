@@ -1,6 +1,6 @@
 #PBS -q regular
 #PBS -l mppwidth=1024
-#PBS -l walltime=00:40:00
+#PBS -l walltime=00:55:00
 #PBS -j eo
 #PBS -V
 

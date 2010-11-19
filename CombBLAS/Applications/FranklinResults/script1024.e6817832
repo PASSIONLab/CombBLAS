@@ -1,0 +1,679 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Max scale allowed : 30
+Using the Mini problem
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 89969768 and self-loops removed: 0
+Duplicates removed: 89969768 and self-loops removed: 3789
+14.486510 seconds elapsed for Kernel #1
+As a whole: 536870912 rows and 536870912 columns and 16999922070 nonzeros
+Max scale allowed : 30
+Using the Mini problem
+Load balance: 1.02004
+As a whole, Candidates array has length 172314626
+As a whole, Candidates array (permuted) has length 172314626
+2 elements stored on proc 0,0:
+[0] = 0
+[1] = 1
+2 elements stored on proc 1,1:
+2 elements stored on proc 4,4:
+2 elements stored on proc 3,3:
+[6] = 6
+[7] = 7
+2 elements stored on proc 2,2:
+[2] = 2
+[3] = 3
+[8] = 8
+[4] = 4
+[5] = 5
+[9] = 9
+2 elements stored on proc 5,5:
+[10] = 10
+[11] = 11
+2 elements stored on proc 6,6:
+2 elements stored on proc 7,7:
+[14] = 14
+[15] = 15
+[12] = 12
+[13] = 13
+2 elements stored on proc 8,8:
+[16] = 16
+[17] = 17
+2 elements stored on proc 9,9:
+[18] = 18
+[19] = 19
+2 elements stored on proc 10,10:
+[20] = 20
+[21] = 21
+2 elements stored on proc 11,11:
+[22] = 22
+2 elements stored on proc 12,12:
+[23] = 23
+[24] = 24
+[25] = 25
+2 elements stored on proc 13,13:
+2 elements stored on proc 15,15:
+2 elements stored on proc 14,14:
+[26] = 26
+[27] = 27
+2 elements stored on proc 16,16:
+[30] = 30
+[31] = 31
+[28] = 28
+[29] = 29
+[32] = 32
+[33] = 33
+2 elements stored on proc 17,17:
+[34] = 34
+[35] = 35
+2 elements stored on proc 18,18:
+[36] = 36
+[37] = 37
+2 elements stored on proc 19,19:
+[38] = 38
+[39] = 39
+2 elements stored on proc 20,20:
+[40] = 40
+[41] = 41
+2 elements stored on proc 21,21:
+[42] = 42
+[43] = 43
+2 elements stored on proc 22,22:
+[44] = 44
+2 elements stored on proc 23,23:
+[46] = 46
+[45] = 45
+[47] = 47
+2 elements stored on proc 24,24:
+[48] = 48
+[49] = 49
+2 elements stored on proc 26,26:
+2 elements stored on proc 25,25:
+[50] = 50
+2 elements stored on proc 28,28:
+2 elements stored on proc 27,27:
+[54] = 54
+[52] = 52
+[53] = 53
+[51] = 51
+[56] = 56
+[55] = 55
+[57] = 57
+2 elements stored on proc 29,29:
+[58] = 58
+[59] = 59
+2 elements stored on proc 30,30:
+2 elements stored on proc 31,31:
+[62] = 62
+[63] = 63
+[60] = 60
+[61] = 61
+total size: 64
+2 elements stored on proc 0,0:
+[0] = 297792108
+[1] = 159805265
+2 elements stored on proc 1,1:
+[2] = 45632507
+[3] = 176314138
+2 elements stored on proc 4,4:
+2 elements stored on proc 3,3:
+[6] = 494704109
+[7] = 309108525
+2 elements stored on proc 2,2:
+[4] = 37856362
+[5] = 18381646
+[8] = 165417253
+[9] = 249275783
+2 elements stored on proc 5,5:
+[10] = 386849291
+[11] = 108023115
+2 elements stored on proc 6,6:
+[12] = 173975097
+[13] = 412154305
+2 elements stored on proc 7,7:
+[14] = 384528209
+[15] = 155990763
+2 elements stored on proc 8,8:
+[16] = 91485656
+[17] = 466081762
+2 elements stored on proc 9,9:
+[18] = 151688528
+[19] = 345792253
+2 elements stored on proc 11,11:
+[22] = 197450486
+[23] = 134782521
+2 elements stored on proc 10,10:
+[20] = 126430286
+[21] = 214238836
+2 elements stored on proc 12,12:
+[24] = 501675574
+[25] = 163792384
+2 elements stored on proc 13,13:
+[26] = 302646733
+[27] = 60410296
+2 elements stored on proc 14,14:
+[28] = 491641484
+[29] = 161777021
+2 elements stored on proc 15,15:
+[30] = 346350577
+[31] = 407472214
+2 elements stored on proc 16,16:
+[32] = 211412634
+[33] = 139675553
+2 elements stored on proc 17,17:
+[34] = 226715257
+[35] = 203968468
+2 elements stored on proc 18,18:
+[36] = 356507568
+[37] = 241711780
+2 elements stored on proc 19,19:
+[38] = 289356770
+[39] = 445138906
+2 elements stored on proc 20,20:
+[40] = 511771978
+[41] = 221128495
+2 elements stored on proc 21,21:
+[42] = 145099865
+[43] = 197275086
+2 elements stored on proc 22,22:
+[44] = 360137192
+[45] = 429722085
+2 elements stored on proc 23,23:
+[46] = 206084072
+[47] = 410080833
+2 elements stored on proc 24,24:
+[48] = 498409618
+[49] = 162167972
+2 elements stored on proc 27,27:
+[54] = 400433891
+[55] = 283332099
+2 elements stored on proc 26,26:
+[52] = 89095628
+[53] = 251857335
+2 elements stored on proc 25,25:
+[50] = 170100554
+[51] = 105852404
+2 elements stored on proc 28,28:
+[56] = 493748273
+[57] = 19496526
+2 elements stored on proc 29,29:
+[58] = 16706756
+[59] = 532163908
+2 elements stored on proc 30,30:
+[60] = 318058664
+[61] = 26055686
+2 elements stored on proc 31,31:
+[62] = 185883449
+[63] = 194144667
+total size: 64
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+Starting vertex id: 297792108
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.3891 seconds
+MTEPS: 242.726
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 159805265
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.8195 seconds
+MTEPS: 269.956
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 45632507
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.3648 seconds
+MTEPS: 257.453
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 176314138
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.7499 seconds
+MTEPS: 270.548
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 37856362
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.468 seconds
+MTEPS: 256.659
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 18381646
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.1452 seconds
+MTEPS: 259.159
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 494704109
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2046 seconds
+MTEPS: 243.998
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 309108525
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.2295 seconds
+MTEPS: 250.949
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 165417253
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.165 seconds
+MTEPS: 244.273
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 249275783
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.5191 seconds
+MTEPS: 248.844
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 386849291
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.4186 seconds
+MTEPS: 249.57
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 108023115
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.3276 seconds
+MTEPS: 243.149
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 173975097
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2141 seconds
+MTEPS: 243.932
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 412154305
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.1539 seconds
+MTEPS: 267.148
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 384528209
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2408 seconds
+MTEPS: 243.748
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 155990763
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.672 seconds
+MTEPS: 255.104
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 91485656
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.5771 seconds
+MTEPS: 255.825
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 466081762
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.1567 seconds
+MTEPS: 251.484
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 151688528
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.6487 seconds
+MTEPS: 271.413
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 345792253
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.1523 seconds
+MTEPS: 259.103
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 126430286
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.6858 seconds
+MTEPS: 247.648
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 214238836
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.8402 seconds
+MTEPS: 261.565
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 197450486
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.0755 seconds
+MTEPS: 244.896
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 134782521
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.4986 seconds
+MTEPS: 264.315
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 501675574
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.487 seconds
+MTEPS: 272.806
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 163792384
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2338 seconds
+MTEPS: 243.796
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 302646733
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.5132 seconds
+MTEPS: 248.886
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 60410296
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.0227 seconds
+MTEPS: 252.474
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 491641484
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.9344 seconds
+MTEPS: 253.131
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 161777021
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.33 seconds
+MTEPS: 243.132
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 346350577
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.3061 seconds
+MTEPS: 265.89
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 407472214
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2132 seconds
+MTEPS: 243.939
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 211412634
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2976 seconds
+MTEPS: 243.355
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 139675553
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.7653 seconds
+MTEPS: 254.399
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 226715257
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.7422 seconds
+MTEPS: 247.246
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 203968468
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.5551 seconds
+MTEPS: 263.856
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 356507568
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.3811 seconds
+MTEPS: 273.727
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 241711780
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.1578 seconds
+MTEPS: 251.476
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 289356770
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.9991 seconds
+MTEPS: 260.306
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 445138906
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.0991 seconds
+MTEPS: 251.909
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 511771978
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.1492 seconds
+MTEPS: 267.187
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 221128495
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.1264 seconds
+MTEPS: 251.707
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 145099865
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.734 seconds
+MTEPS: 247.304
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 197275086
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.1589 seconds
+MTEPS: 244.315
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 360137192
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.2057 seconds
+MTEPS: 266.719
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 429722085
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.3232 seconds
+MTEPS: 243.179
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 206084072
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.5756 seconds
+MTEPS: 263.69
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 410080833
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.0365 seconds
+MTEPS: 245.169
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 498409618
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.1493 seconds
+MTEPS: 267.186
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 162167972
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.038 seconds
+MTEPS: 252.361
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 170100554
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 31.4347 seconds
+MTEPS: 273.261
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 105852404
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.8584 seconds
+MTEPS: 261.42
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 89095628
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 33.8322 seconds
+MTEPS: 253.896
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 251857335
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.4344 seconds
+MTEPS: 264.838
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 400433891
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.2734 seconds
+MTEPS: 243.523
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 283332099
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.6805 seconds
+MTEPS: 262.843
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 493748273
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 32.3587 seconds
+MTEPS: 265.458
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 19496526
+Number iterations: 7
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.0994 seconds
+MTEPS: 251.906
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 16706756
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.3212 seconds
+MTEPS: 243.193
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 532163908
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.1595 seconds
+MTEPS: 244.311
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 318058664
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.198 seconds
+MTEPS: 244.044
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 26055686
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 34.9839 seconds
+MTEPS: 245.538
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 185883449
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.1723 seconds
+MTEPS: 244.222
+As a whole, parents after BFS has length 536870912
+Starting vertex id: 194144667
+Number iterations: 8
+Number of vertices found: 235297244
+Number of edges traversed: 8589860883
+BFS time: 35.1536 seconds
+MTEPS: 244.352
+As a whole, parents after BFS has length 536870912
+Harmonic mean of TEPS: 253.785
+Application 4537156 resources: utime 230119, stime 4404
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024
+ +          Job Id: 6817832.nid00003
+ +          System: franklin
+ +     Queued Time: Sun Nov 14 20:09:54 2010
+ +      Start Time: Sun Nov 14 23:13:19 2010
+ + Completion Time: Sun Nov 14 23:52:34 2010
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:82813:nid00004,walltime=00:40:00
+ +  Used Resources: cput=00:00:00,mem=7080kb,vmem=24148kb,walltime=00:39:15
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script1024
+ + --------------------------------------------------------------------------
+
