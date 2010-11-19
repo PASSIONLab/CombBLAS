@@ -149,7 +149,7 @@ void PermEdges(DistEdgeList<IT> & DEL)
 
 	IT* dist = new IT[nproc];
 	dist[rank] = maxedges;
-	(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<IT>());
+	(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	MTRand M;	// generate random numbers with Mersenne Twister

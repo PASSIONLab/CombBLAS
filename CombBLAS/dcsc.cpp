@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <ext/numeric>
 #include "Friends.h"
+#include "SpHelper.h"
 
 using namespace std;
 

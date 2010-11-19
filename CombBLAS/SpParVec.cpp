@@ -275,12 +275,12 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
 
-		long * dist = new long[nproc];
+		IT * dist = new IT[nproc];
 		dist[diagrank] = nnz;
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>, dist, 1, MPIType<IT>());
 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
 
-		for(int i=0; i<nnz; ++i)
+		for(size_t i=0; i<nnz; ++i)
 		{
 			vecpair[i].first = num[i];	// we'll sort wrt numerical values
 			vecpair[i].second = ind[i] + lengthuntil + 1;	
@@ -291,7 +291,7 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 
 		vector< IT > nind(nnz);
 		vector< IT > nnum(nnz);
-		for(int i=0; i<nnz; ++i)
+		for(size_t i=0; i<nnz; ++i)
 		{
 			num[i] = vecpair[i].first;	// sorted range
 			nind[i] = ind[i];		// make sure the sparsity distribution is the same
@@ -568,11 +568,11 @@ void SpParVec<IT,NT>::DebugPrint()
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 
-		int64_t* all_nnzs = new int64_t[nprocs];
+		IT* all_nnzs = new IT[nprocs];
 		
 		all_nnzs[dgrank] = ind.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
-		int64_t offset = 0;
+		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), all_nnzs, 1, MPIType<IT>());
+		IT offset = 0;
 		
 		for (int i = 0; i < nprocs; i++)
 		{

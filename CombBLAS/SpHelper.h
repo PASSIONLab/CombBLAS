@@ -19,12 +19,12 @@
 #include "promote.h"
 #include "Isect.h"
 #include "HeapEntry.h"
+#include "SpImpl.h"
 
 using namespace std;
 
 template <class IT, class NT>
 class Dcsc;
-
 
 class SpHelper
 {
@@ -93,10 +93,6 @@ public:
 	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT nA,	 
 			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
 
-	template <typename SR, typename IT, typename NT1, typename NT2>
-	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
-			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy);
-
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
 	{
@@ -124,7 +120,6 @@ public:
 
 };
 
-static int64_t * spmvaux = NULL;
 
 
 /**
@@ -355,70 +350,5 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	return cnz;
 }
 
-
-// indx vector practically keeps column numbers requested from A
-template <typename SR, typename IT, typename NT1, typename NT2>
-void SpHelper::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
-			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
-{
-	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
-	HeapEntry<IT, T_promote> * wset = new HeapEntry<IT, T_promote>[veclen]; 
-
-	// colnums vector keeps column numbers requested from A
-	vector<IT> colnums(veclen);
-
-	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
-	vector< pair<IT,IT> > colinds(veclen);		
-
-	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
-        IT csize = static_cast<IT>(ceil(cf));   // chunk size
-	if(spmvaux == NULL)
-	{
-		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
-		// cout << "index generated" << endl;
-	}
-
-	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
-	IT hsize = 0;		
-	for(IT j =0; j< veclen; ++j)		// create the initial heap 
-	{
-		if(colinds[j].first != colinds[j].second)	// current != end
-		{
-			// HeapEntry(key, run, num)
-			wset[hsize++] = HeapEntry< IT,T_promote > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
-		} 
-	}	
-	make_heap(wset, wset+hsize);
-
-	while(hsize > 0)
-	{
-		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
-		IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
-		T_promote mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);
-		if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
-		{
-			numy.back() = SR::add(numy.back(), mrhs);
-		}
-		else
-		{
-			indy.push_back(wset[hsize-1].key);
-			numy.push_back(mrhs);	
-		}
-			
-		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
-		{
-			// runr stays the same !
-			wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
-			wset[hsize-1].num = Adcsc.numx[colinds[locv].first];  
-			push_heap(wset, wset+hsize);
-		}
-		else
-		{
-			--hsize;
-		}
-	}
-	delete [] wset;
-}
 
 #endif

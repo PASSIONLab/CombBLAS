@@ -809,9 +809,9 @@ void RandPerm(SpParVec<IU,IU> & V)
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
 
-		long * dist = new long[nproc];
+		IU * dist = new IU[nproc];
 		dist[diagrank] = V.getlocnnz();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPIType<IU>(), dist, 1, MPIType<IU>());
 		IU lengthuntil = accumulate(dist, dist+diagrank, 0);
 
   		MTRand M;	// generate random numbers with Mersenne Twister

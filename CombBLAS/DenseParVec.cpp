@@ -247,14 +247,14 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 			if(dgrank != nprocs-1)
 			{
 				int arrsize = found.arr.size();
-				DiagWorld.Gather(&arrsize, 1, MPI::INT, NULL, 0, MPI::DATATYPE_NULL, nprocs-1);
-				DiagWorld.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPI::DATATYPE_NULL, nprocs-1);
+				DiagWorld.Gather(&arrsize, 1, MPI::INT, NULL, 1, MPIType<IT>(), nprocs-1);
+				DiagWorld.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1);
 			}
 			else
 			{	
 				int * allnnzs = new int[nprocs];
 				allnnzs[dgrank] = found.arr.size();
-				DiagWorld.Gather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, allnnzs, 1, MPI::INT, nprocs-1);
+				DiagWorld.Gather(MPI::IN_PLACE, 1, MPI::INT, allnnzs, 1, MPI::INT, nprocs-1);
 				
 				int * rdispls = new int[nprocs];
 				rdispls[0] = 0;
@@ -263,7 +263,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 
 				IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
 				vector<IT> recvbuf(totrecv);
-				DiagWorld.Gatherv(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
+				DiagWorld.Gatherv(MPI::IN_PLACE, 1, MPI::INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
 
 				found.arr.swap(recvbuf);
 				DeleteAll(allnnzs, rdispls);
@@ -471,7 +471,7 @@ void DenseParVec<IT,NT>::DebugPrint()
 		int64_t* all_nnzs = new int64_t[nprocs];
 		
 		all_nnzs[dgrank] = arr.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, all_nnzs, 1, MPIType<int64_t>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<int64_t>(), all_nnzs, 1, MPIType<int64_t>());
 		int64_t offset = 0;
 		
 		for (int i = 0; i < nprocs; i++)
@@ -523,7 +523,7 @@ void DenseParVec<IT,NT>::RandPerm()
 
 		long * dist = new long[nproc];
 		dist[diagrank] = size;
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPI::DATATYPE_NULL, dist, 1, MPIType<long>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
 
   		MTRand M;	// generate random numbers with Mersenne Twister

@@ -7,6 +7,7 @@
 #include "StackEntry.h"
 #include "Isect.h"
 #include "Deleter.h"
+#include "SpImpl.h"
 #include "Compare.h"
 
 using namespace std;
@@ -51,7 +52,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
-		SpHelper::SpMXSpV<SR>(*(A.dcsc), A.n, indx, numx, nnzx, indy, numy);
+		SpMXSpV<SR>(*(A.dcsc), A.n, indx, numx, nnzx, indy, numy);
 	}
 }
 

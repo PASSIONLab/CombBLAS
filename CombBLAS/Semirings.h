@@ -18,7 +18,6 @@ struct inf_plus{
   }
 };
 
-// This one is used for BFS iteration
 template <class T1, class T2>
 struct SelectMaxSRing
 {
@@ -38,6 +37,27 @@ struct SelectMaxSRing
 	static void axpy(T1 a, const T2 & x, T_promote & y)
 	{
 		y = std::max(y, static_cast<T_promote>(a*x));
+	}
+};
+
+
+// This one is used for BFS iteration
+template <class T2>
+struct SelectMaxSRing<bool, T2>
+{
+	typedef T2 T_promote;
+	static MPI_Op mpi_op() { return MPI_MAX; };
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+		return std::max(arg1, arg2);
+	}
+	static T_promote multiply(const bool & arg1, const T2 & arg2)
+	{
+		return arg2;
+	}
+	static void axpy(bool a, const T2 & x, T_promote & y)
+	{
+		y = std::max(y, x);
 	}
 };
 
