@@ -360,6 +360,7 @@ CombBLAS/SpDCCols.cpp -text
 CombBLAS/SpDCCols.h -text
 CombBLAS/SpDefs.h -text
 CombBLAS/SpHelper.h -text
+CombBLAS/SpImpl.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
 CombBLAS/SpParHelper.h -text
