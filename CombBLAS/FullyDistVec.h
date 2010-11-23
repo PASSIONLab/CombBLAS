@@ -1,5 +1,5 @@
-#ifndef _DENSE_PAR_VEC_H_
-#define _DENSE_PAR_VEC_H_
+#ifndef _FULLY_DIST_VEC_H_
+#define _FULLY_DIST_VEC_H_
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +18,7 @@ using namespace std;
 using namespace std::tr1;
 
 template <class IT, class NT>
-class SpParVec;
+class FullyDistSpVec;
 
 template <class IT, class NT, class DER>
 class SpParMat;
@@ -26,29 +26,28 @@ class SpParMat;
 template <class IT>
 class DistEdgeList;
 
-// TODO: Why is this class templated with IT?
 template <class IT, class NT>
-class DenseParVec
+class FullyDistVec
 {
 public:
-	DenseParVec ( );
-	DenseParVec ( IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
-	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
-	DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
+	FullyDistVec ( );
+	FullyDistVec ( IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
+	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
+	FullyDistVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
-	DenseParVec<IT,NT> & operator=(const SpParVec<IT,NT> & rhs);		//!< SpParVec->DenseParVec conversion operator
-	DenseParVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);	
-	DenseParVec<IT,NT> operator() (const DenseParVec<IT,IT> & ri) const;	//<! subsref
+	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
+	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	
+	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
-	DenseParVec<IT,NT> & stealFrom(DenseParVec<IT,NT> & victim); 
-	DenseParVec<IT,NT> & operator+=(const SpParVec<IT,NT> & rhs);		
-	DenseParVec<IT,NT> & operator+=(const DenseParVec<IT,NT> & rhs);
-	DenseParVec<IT,NT> & operator-=(const SpParVec<IT,NT> & rhs);		
-	DenseParVec<IT,NT> & operator-=(const DenseParVec<IT,NT> & rhs);
-	bool operator==(const DenseParVec<IT,NT> & rhs) const;
+	FullyDistVec<IT,NT> & stealFrom(FullyDistVec<IT,NT> & victim); 
+	FullyDistVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);		
+	FullyDistVec<IT,NT> & operator+=(const FullyDistVec<IT,NT> & rhs);
+	FullyDistVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);		
+	FullyDistVec<IT,NT> & operator-=(const FullyDistVec<IT,NT> & rhs);
+	bool operator==(const FullyDistVec<IT,NT> & rhs) const;
 
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	NT   GetElement (IT indx) const;	// element-wise fetch
@@ -66,10 +65,10 @@ public:
 	IT getLocalLength() const { return arr.size(); }
 	
 	template <typename _Predicate>
-	SpParVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
+	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
 
 	template <typename _Predicate>
-	DenseParVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
+	FullyDistVec<IT,IT> FindInds(_Predicate pred) const;	//!< Return the indices where pred is true
 
 	template <typename _Predicate>
 	IT Count(_Predicate pred) const;	//!< Return the number of elements for which pred is true
@@ -81,7 +80,7 @@ public:
 	}	
 
 	template <typename _UnaryOperation>
-	void Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>& mask);
+	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,NT>& mask);
 	
 	void PrintToFile(string prefix)
 	{
@@ -102,11 +101,10 @@ public:
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< NT > arr;
-	bool diagonal;
 	NT zero;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 
 
 	template <typename _BinaryOperation>	
-	void EWise(const DenseParVec<IT,NT> & rhs,  _BinaryOperation __binary_op);
+	void EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op);
 
 	template <class IU, class NU>
 	friend class DenseParMat;
@@ -115,21 +113,21 @@ private:
 	friend class SpParMat;
 
 	template <class IU, class NU>
-	friend class DenseParVec;
+	friend class FullyDistVec;
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
-	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );
+	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x );
 
 	template <typename IU, typename NU1, typename NU2>
-	friend SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
-	EWiseMult (const SpParVec<IU,NU1> & V, const DenseParVec<IU,NU2> & W , bool exclude, NU2 zero);
+	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
+	EWiseMult (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero);
 
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
 };
 
-#include "DenseParVec.cpp"
+#include "FullyDistVec.cpp"
 #endif
 
 

@@ -180,12 +180,12 @@ void PermEdges(DistEdgeList<IT> & DEL)
 
 /*
 (AL3) Rename vertices globally. 
-	You first need to do create a random permutation distributed on diagonal processors. 
-	Then the sqrt(p) round robin algorithm will do the renaming: 
+	You first need to do create a random permutation distributed on all processors. 
+	Then the p round robin algorithm will do the renaming: 
 
-For all diagonal processors P(i,i)
+For all processors P(i,i)
             Broadcast local_p to all p processors
-            For j= i*sqrt(p) to min((i+1)*sqrt(p), N)
+            For j= i*N/p to min((i+1)*N/p, N)
                       Rename the all j's with local_p(j) inside the edgelist (and mark them
                       "renamed" so that yeach vertex id is renamed only once)
 */

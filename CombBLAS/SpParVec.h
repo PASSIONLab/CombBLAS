@@ -89,10 +89,10 @@ public:
 		return totnnz;
 	}
 
+	IT getTypicalLocLength() const;
 	IT getTotalLength(MPI::Intracomm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
 	
-	// I'm sure there's a better way to do this, but I'm not sure what it is.
 	void setNumToInd()
 	{
 		MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
@@ -100,7 +100,7 @@ public:
         	{
            		IT dgrank = (IT) DiagWorld.Get_rank();
             		IT nprocs = (IT) DiagWorld.Get_size();
-            		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
+            		IT n_perproc = getTypicalLocLength();
             		IT offset = dgrank * n_perproc;
 
             		transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));

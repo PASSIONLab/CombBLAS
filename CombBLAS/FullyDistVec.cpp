@@ -1,58 +1,36 @@
-#include "DenseParVec.h"
-#include "SpParVec.h"
+#include "FullyDistVec.h"
+#include "FullyDistSpVec.h"
 #include "Operations.h"
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec ()
+FullyDistVec<IT, NT>::FullyDistVec ()
 {
 	zero = static_cast<NT>(0);
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-
-	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
-		diagonal = true;
-	else
-		diagonal = false;	
 }
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec (IT locallength, NT initval, NT id): zero(id)
+FullyDistVec<IT, NT>::FullyDistVec (IT locallength, NT initval, NT id): zero(id)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-
-	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
-		diagonal = true;
-	else
-		diagonal = false;
-		
-	if (diagonal)
-		arr.resize(locallength, initval);
+	arr.resize(locallength, initval);
 }
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, NT id): zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id)
 {
 	commGrid.reset(new CommGrid(*grid));		
-	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
-		diagonal = true;
-	else
-		diagonal = false;	
 };
 
 template <class IT, class NT>
-DenseParVec<IT, NT>::DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id): commGrid(grid), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id): commGrid(grid), zero(id)
 {
-	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
-		diagonal = true;
-	else
-		diagonal = false;	
-
-	if (diagonal)
-		arr.resize(locallength, initval);
+	arr.resize(locallength, initval);
 };
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
-NT DenseParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
+NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 {
 	// std::accumulate returns identity for empty sequences
 	NT localsum = std::accumulate( arr.begin(), arr.end(), identity, __binary_op);
@@ -63,7 +41,7 @@ NT DenseParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & rhs)		// SpParVec->DenseParVec conversion operator
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
 	arr.resize(rhs.length);
 	std::fill(arr.begin(), arr.end(), zero);	
@@ -78,30 +56,27 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const SpParVec< IT,NT > & 
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)	
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)	
 {
-	if (this == &rhs)      // Same object?
-      		return *this;        // Yes, so skip assignment, and just return *this.
+	if (this == &rhs)      	// Same object?
+      		return *this;   // Yes, so skip assignment, and just return *this.
 	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	arr = rhs.arr;
-	diagonal = rhs.diagonal;
 	zero = rhs.zero;
 	return *this;
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::stealFrom(DenseParVec<IT,NT> & victim)		// SpParVec->DenseParVec conversion operator
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & victim)		// FullyDistSpVec->FullyDistVec conversion operator
 {
 	commGrid.reset(new CommGrid(*(victim.commGrid)));		
 	arr.swap(victim.arr);
-	diagonal = victim.diagonal;
 	zero = victim.zero;
-	
 	return *this;
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > & rhs)		
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< IT,NT > & rhs)		
 {
 	IT spvecsize = rhs.ind.size();
 	for(IT i=0; i< spvecsize; ++i)
@@ -115,7 +90,7 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator+=(const SpParVec< IT,NT > &
 }
 
 template <class IT, class NT>
-DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator-=(const SpParVec< IT,NT > & rhs)		
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator-=(const FullyDistSpVec< IT,NT > & rhs)		
 {
 	IT spvecsize = rhs.ind.size();
 	for(IT i=0; i< spvecsize; ++i)
@@ -131,7 +106,7 @@ DenseParVec< IT,NT > &  DenseParVec<IT,NT>::operator-=(const SpParVec< IT,NT > &
   */ 
 template <class IT, class NT>
 template <typename _BinaryOperation>	
-void DenseParVec<IT,NT>::EWise(const DenseParVec<IT,NT> & rhs,  _BinaryOperation __binary_op)
+void FullyDistVec<IT,NT>::EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op)
 {
 	if(zero == rhs.zero)
 	{
@@ -139,14 +114,14 @@ void DenseParVec<IT,NT>::EWise(const DenseParVec<IT,NT> & rhs,  _BinaryOperation
 	}
 	else
 	{
-		cout << "DenseParVec objects have different identity (zero) elements..." << endl;
+		cout << "FullyDistVec objects have different identity (zero) elements..." << endl;
 		cout << "Operation didn't happen !" << endl;
 	}
 };
 
 
 template <class IT, class NT>
-DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & rhs)
+FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator+=(const FullyDistVec<IT,NT> & rhs)
 {
 	if(this != &rhs)		
 	{	
@@ -155,7 +130,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & 
 			cout << "Grids are not comparable elementwise addition" << endl; 
 			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 		}
-		else if(diagonal)	// Only the diagonal processors hold values
+		else 
 		{
 			EWise(rhs, std::plus<NT>());
 		} 	
@@ -164,7 +139,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & 
 };
 
 template <class IT, class NT>
-DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & rhs)
+FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator-=(const FullyDistVec<IT,NT> & rhs)
 {
 	if(this != &rhs)		
 	{	
@@ -173,7 +148,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 			cout << "Grids are not comparable elementwise addition" << endl; 
 			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 		}
-		else if(diagonal)	// Only the diagonal processors hold values
+		else 
 		{
 			EWise(rhs, std::minus<NT>());
 		} 	
@@ -182,22 +157,11 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 };		
 
 template <class IT, class NT>
-bool DenseParVec<IT,NT>::operator==(const DenseParVec<IT,NT> & rhs) const
+bool FullyDistVec<IT,NT>::operator==(const FullyDistVec<IT,NT> & rhs) const
 {
 	ErrorTolerantEqual<NT> epsilonequal;
 	int local = 1;
-	if(diagonal)
-	{
-		local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
-#ifdef DEBUG
-		vector<NT> diff(arr.size());
-		transform(arr.begin(), arr.end(), rhs.arr.begin(), diff.begin(), minus<NT>());
-		typename vector<NT>::iterator maxitr;
-		maxitr = max_element(diff.begin(), diff.end()); 			
-		cout << maxitr-diff.begin() << ": " << *maxitr << " where lhs: " << *(arr.begin()+(maxitr-diff.begin())) 
-						<< " and rhs: " << *(rhs.arr.begin()+(maxitr-diff.begin())) << endl; 
-#endif
-	}
+	local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
 	int whole = 1;
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
 	return static_cast<bool>(whole);	
@@ -205,13 +169,9 @@ bool DenseParVec<IT,NT>::operator==(const DenseParVec<IT,NT> & rhs) const
 
 template <class IT, class NT>
 template <typename _Predicate>
-IT DenseParVec<IT,NT>::Count(_Predicate pred) const
+IT FullyDistVec<IT,NT>::Count(_Predicate pred) const
 {
-	IT local = 0;
-	if(diagonal)
-	{
-		local = count_if( arr.begin(), arr.end(), pred );
-	}
+	IT local = count_if( arr.begin(), arr.end(), pred );
 	IT whole = 0;
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
 	return whole;	
@@ -222,102 +182,101 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 //! for which the predicate is satisfied
 template <class IT, class NT>
 template <typename _Predicate>
-DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
+FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 {
-	DenseParVec<IT,IT> found(commGrid, (IT) 0);
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	FullyDistVec<IT,IT> found(commGrid, (IT) 0);
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT old_n_perproc = getTypicalLocLength();
+		
+	IT size = arr.size();
+	for(IT i=0; i<size; ++i)
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		IT old_n_perproc = getTypicalLocLength();
-		
-		IT size = arr.size();
-		for(IT i=0; i<size; ++i)
+		if(pred(arr[i]))
 		{
-			if(pred(arr[i]))
-			{
-				found.arr.push_back(i+old_n_perproc*dgrank);
-			}
+			found.arr.push_back(i+old_n_perproc*rank);
 		}
-		DiagWorld.Barrier();
-		
-		// Since the found vector is not reshuffled yet, we can use getTypicalLocLength() at this point
-		IT n_perproc = found.getTotalLength() / nprocs;
-		if(n_perproc == 0)	// it has less than sqrt(p) elements, all owned by the last processor
-		{
-			if(dgrank != nprocs-1)
-			{
-				int arrsize = found.arr.size();
-				DiagWorld.Gather(&arrsize, 1, MPI::INT, NULL, 1, MPI::INT, nprocs-1);
-				DiagWorld.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1);
-			}
-			else
-			{	
-				int * allnnzs = new int[nprocs];
-				allnnzs[dgrank] = found.arr.size();
-				DiagWorld.Gather(MPI::IN_PLACE, 1, MPI::INT, allnnzs, 1, MPI::INT, nprocs-1);
-				
-				int * rdispls = new int[nprocs];
-				rdispls[0] = 0;
-				for(int i=0; i<nprocs-1; ++i)
-					rdispls[i+1] = rdispls[i] + allnnzs[i];
-
-				IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
-				vector<IT> recvbuf(totrecv);
-				DiagWorld.Gatherv(MPI::IN_PLACE, 1, MPI::INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
-
-				found.arr.swap(recvbuf);
-				DeleteAll(allnnzs, rdispls);
-			}
-			return found;		// don't execute further
-		}
-		IT lengthuntil = dgrank * n_perproc;
-
-		// rebalance/redistribute
-		IT nsize = found.arr.size();
-		int * sendcnt = new int[nprocs];
-		fill(sendcnt, sendcnt+nprocs, 0);
-		for(IT i=0; i<nsize; ++i)
-		{
-			// owner id's are monotonically increasing and continuous
-			int owner = std::min(static_cast<int>( (i+lengthuntil) / n_perproc), nprocs-1); 
-			sendcnt[owner]++;
-		}
-
-		int * recvcnt = new int[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
-
-		int * sdispls = new int[nprocs];
-		int * rdispls = new int[nprocs];
-		sdispls[0] = 0;
-		rdispls[0] = 0;
-		for(int i=0; i<nprocs-1; ++i)
-		{
-			sdispls[i+1] = sdispls[i] + sendcnt[i];
-			rdispls[i+1] = rdispls[i] + recvcnt[i];
-		}
-
-		IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
-		vector<IT> recvbuf(totrecv);
-			
-		// data is already in the right order in found.arr
-		DiagWorld.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
-		found.arr.swap(recvbuf);
-		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
+	World.Barrier();
+
+	// Since the found vector is not reshuffled yet, we can use getTypicalLocLength() at this point
+	IT n_perproc = found.getTotalLength() / nprocs;
+	if(n_perproc == 0)	// it has less than p elements, all owned by the last processor
+	{
+		if(rank != nprocs-1)
+		{
+			int arrsize = found.arr.size();
+			World.Gather(&arrsize, 1, MPI::INT, NULL, 1, MPI::INT, nprocs-1);
+			World.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1);
+		}
+		else
+		{	
+			int * allnnzs = new int[nprocs];
+			allnnzs[rank] = found.arr.size();
+			World.Gather(MPI::IN_PLACE, 1, MPI::INT, allnnzs, 1, MPI::INT, nprocs-1);
+				
+			int * rdispls = new int[nprocs];
+			rdispls[0] = 0;
+			for(int i=0; i<nprocs-1; ++i)
+				rdispls[i+1] = rdispls[i] + allnnzs[i];
+
+			IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
+			vector<IT> recvbuf(totrecv);
+			World.Gatherv(MPI::IN_PLACE, 1, MPI::INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
+
+			found.arr.swap(recvbuf);
+			DeleteAll(allnnzs, rdispls);
+		}
+		return found;		// don't execute further
+	}
+
+	IT lengthuntil = rank * n_perproc;
+
+	// rebalance/redistribute
+	IT nsize = found.arr.size();
+	int * sendcnt = new int[nprocs];
+	fill(sendcnt, sendcnt+nprocs, 0);
+	for(IT i=0; i<nsize; ++i)
+	{
+		// owner id's are monotonically increasing and continuous
+		int owner = std::min(static_cast<int>( (i+lengthuntil) / n_perproc), nprocs-1); 
+		sendcnt[owner]++;
+	}
+
+	int * recvcnt = new int[nprocs];
+	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+
+	int * sdispls = new int[nprocs];
+	int * rdispls = new int[nprocs];
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
+	vector<IT> recvbuf(totrecv);
+			
+	// data is already in the right order in found.arr
+	World.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
+	found.arr.swap(recvbuf);
+	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+
 	return found;
 }
 
 
 
-//! Requires no communication because SpParVec (the return object)
+//! Requires no communication because FullyDistSpVec (the return object)
 //! is distributed based on length, not nonzero counts
 template <class IT, class NT>
 template <typename _Predicate>
-SpParVec<IT,NT> DenseParVec<IT,NT>::Find(_Predicate pred) const
+FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 {
-	SpParVec<IT,NT> found(commGrid);
+	FullyDistSpVec<IT,NT> found(commGrid);
 	if(diagonal)
 	{
 		IT size = arr.size();
@@ -335,9 +294,9 @@ SpParVec<IT,NT> DenseParVec<IT,NT>::Find(_Predicate pred) const
 }
 
 template <class IT, class NT>
-ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
+ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
-	SpParVec<IT,NT> tmpSpVec(commGrid);
+	FullyDistSpVec<IT,NT> tmpSpVec(commGrid);
 	tmpSpVec.ReadDistribute(infile, master);
 
 	*this = tmpSpVec;
@@ -345,7 +304,7 @@ ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 }
 
 template <class IT, class NT>
-void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
+void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
@@ -356,7 +315,7 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 		IT offset = dgrank * n_perproc;
 		
 		if (n_perproc == 0) {
-			cout << "DenseParVec::SetElement can't be called on an empty vector." << endl;
+			cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
 			return;
 		}
 		
@@ -373,11 +332,11 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 			
 			if (locindx > arr.size()-1)
 			{
-				cout << "DenseParVec::SetElement cannot expand array" << endl;
+				cout << "FullyDistVec::SetElement cannot expand array" << endl;
 			}
 			else if (locindx < 0)
 			{
-				cout << "DenseParVec::SetElement local index < 0" << endl;
+				cout << "FullyDistVec::SetElement local index < 0" << endl;
 			}
 			else
 			{
@@ -388,7 +347,7 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 }
 
 template <class IT, class NT>
-NT DenseParVec<IT,NT>::GetElement (IT indx) const
+NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
 	int owner = 0;
@@ -401,7 +360,7 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 		IT offset = dgrank * n_perproc;
 		
 		if (n_perproc == 0 && dgrank == 0) {
-			cout << "DenseParVec::GetElement can't be called on an empty vector." << endl;
+			cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
 			return numeric_limits<NT>::min();
 		}
 		
@@ -414,11 +373,11 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 
 			if (locindx > arr.size()-1)
 			{
-				cout << "DenseParVec::GetElement cannot expand array" << endl;
+				cout << "FullyDistVec::GetElement cannot expand array" << endl;
 			}
 			else if (locindx < 0)
 			{
-				cout << "DenseParVec::GetElement local index < 0" << endl;
+				cout << "FullyDistVec::GetElement local index < 0" << endl;
 			}
 			else
 			{
@@ -436,11 +395,11 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 }
 
 template <class IT, class NT>
-void DenseParVec<IT,NT>::DebugPrint()
+void FullyDistVec<IT,NT>::DebugPrint()
 {
 	// ABAB: Alternative
 	// ofstream out;
-	// commGrid->OpenDebugFile("DenseParVec", out);
+	// commGrid->OpenDebugFile("FullyDistVec", out);
 	// copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
 	// out << " <end_of_vector>"<< endl;
 
@@ -480,7 +439,7 @@ void DenseParVec<IT,NT>::DebugPrint()
 
 template <class IT, class NT>
 template <typename _UnaryOperation>
-void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT> & mask)
+void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,NT> & mask)
 {
 	typename vector< IT >::const_iterator miter = mask.ind.begin();
 	while (miter < mask.ind.end())
@@ -492,7 +451,7 @@ void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>
 
 // Randomly permutes an already existing vector
 template <class IT, class NT>
-void DenseParVec<IT,NT>::RandPerm()
+void FullyDistVec<IT,NT>::RandPerm()
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
@@ -530,7 +489,7 @@ void DenseParVec<IT,NT>::RandPerm()
 }
 
 template <class IT, class NT>
-void DenseParVec<IT,NT>::iota(IT size, NT first)
+void FullyDistVec<IT,NT>::iota(IT size, NT first)
 {
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
@@ -546,16 +505,16 @@ void DenseParVec<IT,NT>::iota(IT size, NT first)
 }
 
 template <class IT, class NT>
-DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri) const
+FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> & ri) const
 {
 	if(!(*commGrid == *ri.commGrid))
 	{
 		cout << "Grids are not comparable for dense vector subsref" << endl;
-		return DenseParVec<IT,NT>();
+		return FullyDistVec<IT,NT>();
 	}
 
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	DenseParVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
+	FullyDistVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
 	if(DiagWorld != MPI::COMM_NULL) 		// Diagonal processors only
 	{
 		int dgrank = DiagWorld.Get_rank();
@@ -641,7 +600,7 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 }
 
 template <class IT, class NT>
-IT DenseParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
+IT FullyDistVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 {
 	IT totnnz = 0;
 	if (comm != MPI::COMM_NULL)	
@@ -653,7 +612,7 @@ IT DenseParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 }
 
 template <class IT, class NT>
-IT DenseParVec<IT,NT>::getTypicalLocLength() const
+IT FullyDistVec<IT,NT>::getTypicalLocLength() const
 {
 	IT n_perproc = 0 ;
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
@@ -679,7 +638,7 @@ IT DenseParVec<IT,NT>::getTypicalLocLength() const
 
 
 template <class IT, class NT>
-void DenseParVec<IT,NT>::PrintInfo(string vectorname) const
+void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	IT totl = getTotalLength(commGrid->GetDiagWorld());
 	if (commGrid->GetRank() == 0)		// is always on the diagonal

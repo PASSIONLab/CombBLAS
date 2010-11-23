@@ -13,7 +13,6 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(
 		diagonal = false;	
 };
 
-
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid, IT loclen): commGrid(grid), NOT_FOUND(numeric_limits<NT>::min())
 {
@@ -28,7 +27,6 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid, IT loclen): commGrid(gri
 		length = zero;
 	}
 };
-
 
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min())
@@ -45,7 +43,6 @@ template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec (IT loclen): NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-	
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 	{
 		diagonal = true;
@@ -77,7 +74,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 	{
 		IT dgrank = (IT) DiagWorld.Get_rank();
 		IT nprocs = (IT) DiagWorld.Get_size();
-		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
+		IT n_perproc = getTypicalLocLength();
 		IT offset = dgrank * n_perproc;
 
 		IT owner = (indx) / n_perproc;	
@@ -117,7 +114,7 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
 		
-		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
+		IT n_perproc = getTypicalLocLength();
 		int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
 		
 		if(owner == dgrank) // insert if this process is the owner
@@ -160,7 +157,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 	{
 		int dgrank = DiagWorld.Get_rank();
 		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTotalLength(commGrid->GetDiagWorld()) / nprocs;
+		IT n_perproc = getTypicalLocLength();
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
 		{
@@ -527,8 +524,35 @@ template <class IT, class NT>
 IT SpParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 {
 	IT totlen = 0;
-	comm.Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
+	if(comm != MPI::COMM_NULL)
+	{
+		comm.Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
+	}
 	return totlen;
+}
+
+template <class IT, class NT>
+IT SpParVec<IT,NT>::getTypicalLocLength() const
+{
+	IT n_perproc = 0 ;
+        MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+        if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+        {
+                int dgrank = DiagWorld.Get_rank();
+                int nprocs = DiagWorld.Get_size();
+                n_perproc = length;
+                if (dgrank == nprocs-1 && nprocs > 1)
+                {
+                        // the local length on the last processor will be greater than the others if the vector length is not evenly divisible
+                        // but for these calculations we need that length
+                        DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+                }
+                else if (dgrank == 0 && nprocs > 1)
+                {
+                        DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
+                }
+        }
+        return n_perproc;
 }
 
 template <class IT, class NT>

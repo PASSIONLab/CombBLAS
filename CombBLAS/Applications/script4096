@@ -6,4 +6,4 @@
 #PBS -V
 setenv MPICH_UNEX_BUFFER_SIZE 100M
 cd $SCRATCH
-aprun -n 4096 ./graph500 512
+aprun -n 4096 ./graph500 128

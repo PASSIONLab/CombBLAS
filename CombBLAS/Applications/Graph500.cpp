@@ -215,6 +215,7 @@ int main(int argc, char* argv[])
 				parents += fringe;
 				//SpParHelper::Print("Iteration finished\n");
 				iterations++;
+				MPI::COMM_WORLD.Barrier();
 			}
 			MPI::COMM_WORLD.Barrier();
 			double t2 = MPI_Wtime();
