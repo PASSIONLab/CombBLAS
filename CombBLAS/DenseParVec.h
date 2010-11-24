@@ -26,12 +26,12 @@ class SpParMat;
 template <class IT>
 class DistEdgeList;
 
-// TODO: Why is this class templated with IT?
 template <class IT, class NT>
 class DenseParVec
 {
 public:
 	DenseParVec ( );
+	DenseParVec ( IT globallength );
 	DenseParVec ( IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
 	DenseParVec ( shared_ptr<CommGrid> grid, NT id);
 	DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);

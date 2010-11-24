@@ -265,6 +265,7 @@ CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269002.out -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.err -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.out -text
 CombBLAS/ReleaseTests/TransposeTest.cpp -text
+CombBLAS/ReleaseTests/VectorTest.cpp -text
 CombBLAS/ReleaseTests/exectests -text
 CombBLAS/ReleaseTests/makefile-lonestar -text
 CombBLAS/ReleaseTests/makefile-mac -text

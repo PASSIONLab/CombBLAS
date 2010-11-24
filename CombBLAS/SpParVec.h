@@ -47,7 +47,7 @@ class SpParVec
 {
 public:
 	SpParVec ( );
-	SpParVec ( IT loclength);
+	SpParVec ( IT loclength );
 	SpParVec ( shared_ptr<CommGrid> grid);
 	SpParVec ( shared_ptr<CommGrid> grid, IT loclength);
 

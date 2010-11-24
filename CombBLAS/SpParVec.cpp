@@ -128,8 +128,10 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 			}
 			else if (locindx < *iter)	// not found, insert in the middle
 			{
-				ind.insert(iter, locindx);
+				// the order of insertions is crucial
+				// if we first insert to ind, then ind.begin() is invalidated !
 				num.insert(num.begin() + (iter-ind.begin()), numx);
+				ind.insert(iter, locindx);
 			}
 			else // found
 			{
