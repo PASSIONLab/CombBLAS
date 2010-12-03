@@ -172,10 +172,19 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
+		MPI::COMM_WORLD.Barrier();
+		double t1 = MPI_Wtime();
+
 		PSpMat_Int64 * AInt64 = new PSpMat_Int64(A); 
 		DenseParVec<int64_t, int64_t> * ColSums = new DenseParVec<int64_t, int64_t> (AInt64->Reduce(Column, plus<int64_t>(), false)); 
-		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
 		delete AInt64;
+
+		MPI::COMM_WORLD.Barrier();
+		double t2=MPI_Wtime();
+		if(myrank == 0)
+			fprintf(stdout, "%.6lf seconds elapsed for getting column sums\n", t2-t1);
+
+		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
 		delete ColSums;
 			
 		Cands.PrintInfo("Candidates array");
@@ -202,6 +211,8 @@ int main(int argc, char* argv[])
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
 
+			MPI_Pcontrol(1,"BFS");
+
 			fringe.SetElement(Cands[i], Cands[i]);
 			int iterations = 0;
 			while(fringe.getnnz() > 0)
@@ -217,6 +228,9 @@ int main(int argc, char* argv[])
 				iterations++;
 				MPI::COMM_WORLD.Barrier();
 			}
+
+			MPI_Pcontrol(-1,"BFS");
+
 			MPI::COMM_WORLD.Barrier();
 			double t2 = MPI_Wtime();
 
