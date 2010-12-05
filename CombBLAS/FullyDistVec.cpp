@@ -376,7 +376,7 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::DebugPrint()
 {
-	int bufsize, *buf, count;
+	int bufsize, count;
     	MPI::Status status;
 
 	MPI::Intracomm World = commGrid->GetWorld();
@@ -392,18 +392,44 @@ void FullyDistVec<IT,NT>::DebugPrint()
     	thefile.Set_view(lengthuntil * sizeof(IT), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
 
 	int count = arr.size();
-	thefile.Write(buf, count, MPIType<IT>(), &status);
+	thefile.Write(&(arr[0]), count, MPIType<IT>(), &status);
 	thefile.Close();
 	
 	// Now let processor-0 read the file and print
 	IT total = getTotalLength(World);
 	if(rank == 0)
 	{
+		FILE * f = fopen("temp_fullydistvec", "r");
+                if(!f)
+                {
+                        cerr << "Problem reading binary input file\n";
+                        return 1;
+                }
+		IT maxd = std::max(total-n_per_proc, n_per_proc);
+		IT * data = new IT[maxd];
+
 		for(int i=0; i<nprocs-1; ++i)
 		{
 			// read n_per_proc integers and print them
+			fread(data, sizeof(IT), n_per_proc,f);
+
+			cout << "Elements stored on proc " << i << ":" ;	
+			for (int j = 0; j < n_per_proc; j++)
+			{
+				cout << "{" << data[j] << ",";
+			}
+			cout << "}" << endl;
 		}
 		// read the remaining total-n_per_proc integers and print them
+		fread(data, sizeof(IT), total-n_per_proc, f);
+		
+		cout << "Elements stored on proc " << nprocs-1 << ":" ;	
+		for (int j = 0; j < total-n_per_proc; j++)
+		{
+			cout << "{" << data[j] << ",";
+		}
+		cout << "}" << endl;
+		delete [] data;
 	}
 }
 
