@@ -200,8 +200,8 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	}
 	World.Barrier();
 
-	// Since the found vector is not reshuffled yet, we can use getTypicalLocLength() at this point
-	IT n_perproc = found.getTotalLength() / nprocs;
+	// Since the found vector is not reshuffled yet, we can't use getTypicalLocLength() at this point
+	IT n_perproc = found.getTotalLength(World) / nprocs;
 	if(n_perproc == 0)	// it has less than p elements, all owned by the last processor
 	{
 		if(rank != nprocs-1)
@@ -269,7 +269,6 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 }
 
 
-
 //! Requires no communication because FullyDistSpVec (the return object)
 //! is distributed based on length, not nonzero counts
 template <class IT, class NT>
@@ -277,19 +276,16 @@ template <typename _Predicate>
 FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 {
 	FullyDistSpVec<IT,NT> found(commGrid);
-	if(diagonal)
+	IT size = arr.size();
+	for(IT i=0; i<size; ++i)
 	{
-		IT size = arr.size();
-		for(IT i=0; i<size; ++i)
+		if(pred(arr[i]))
 		{
-			if(pred(arr[i]))
-			{
-				found.ind.push_back(i);
-				found.num.push_back(arr[i]);
-			}
+			found.ind.push_back(i);
+			found.num.push_back(arr[i]);
 		}
-		found.length = size;
 	}
+	found.length = size;
 	return found;	
 }
 
@@ -306,42 +302,33 @@ ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT n_perproc = getTypicalLocLength();	
+	IT offset = rank * n_perproc;
+		
+	if (n_perproc == 0) 
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTypicalLocLength();	
-		IT offset = dgrank * n_perproc;
-		
-		if (n_perproc == 0) {
-			cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
-			return;
-		}
-		
-		IT owner = (indx) / n_perproc;	
-		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-
-		//cout << "rank " << dgrank << ". nprocs " << nprocs << ".  n_perproc " << n_perproc;
-		//cout << ".  offset " << offset << ".  owner " << owner << ".   size " << arr.size();
-		//cout << ".  localind " << (indx-1-offset) << endl;		
-
-		if(rec == dgrank) // this process is the owner
+		cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
+		return;
+	}
+	IT owner = (indx) / n_perproc;	
+	IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
+	if(rec == rank) // this process is the owner
+	{
+		IT locindx = indx-offset;	
+		if (locindx > arr.size()-1)
 		{
-			IT locindx = indx-offset;
-			
-			if (locindx > arr.size()-1)
-			{
-				cout << "FullyDistVec::SetElement cannot expand array" << endl;
-			}
-			else if (locindx < 0)
-			{
-				cout << "FullyDistVec::SetElement local index < 0" << endl;
-			}
-			else
-			{
-				arr[locindx] = numx;
-			}
+			cout << "FullyDistVec::SetElement cannot expand array" << endl;
+		}
+		else if (locindx < 0)
+		{
+			cout << "FullyDistVec::SetElement local index < 0" << endl;
+		}
+		else
+		{
+			arr[locindx] = numx;
 		}
 	}
 }
@@ -350,90 +337,73 @@ template <class IT, class NT>
 NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
-	int owner = 0;
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT n_perproc = getTypicalLocLength();
+	IT offset = rank * n_perproc;	
+	if (n_perproc == 0 && rank == 0) 
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTypicalLocLength();
-		IT offset = dgrank * n_perproc;
+		cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
+		return numeric_limits<NT>::min();
+	}
 		
-		if (n_perproc == 0 && dgrank == 0) {
-			cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
-			return numeric_limits<NT>::min();
-		}
+	int owner = (indx) / n_perproc;	
+	IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
 		
-		owner = (indx) / n_perproc;	
-		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-		
-		if(rec == dgrank) // this process is the owner
+	if(rec == rank) // this process is the owner
+	{
+		IT locindx = indx-offset;
+
+		if (locindx > arr.size()-1)
 		{
-			IT locindx = indx-offset;
-
-			if (locindx > arr.size()-1)
-			{
-				cout << "FullyDistVec::GetElement cannot expand array" << endl;
-			}
-			else if (locindx < 0)
-			{
-				cout << "FullyDistVec::GetElement local index < 0" << endl;
-			}
-			else
-			{
-				ret = arr[locindx];
-			}
-
+			cout << "FullyDistVec::GetElement cannot expand array" << endl;
+		}
+		else if (locindx < 0)
+		{
+			cout << "FullyDistVec::GetElement local index < 0" << endl;
+		}
+		else
+		{
+			ret = arr[locindx];
 		}
 	}
-	
-	int worldowner = (commGrid->GetGridCols()+1)*owner;
-	
-	(commGrid->GetWorld()).Bcast(&worldowner, 1, MPIType<int>(), 0);
-	(commGrid->GetWorld()).Bcast(&ret, 1, MPIType<NT>(), worldowner);
+	World.Bcast(&ret, 1, MPIType<NT>(), owner);
 	return ret;
 }
 
+// Write to file using MPI-2
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::DebugPrint()
 {
-	// ABAB: Alternative
-	// ofstream out;
-	// commGrid->OpenDebugFile("FullyDistVec", out);
-	// copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
-	// out << " <end_of_vector>"<< endl;
+	int bufsize, *buf, count;
+    	MPI::Status status;
 
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI::Intracomm World = commGrid->GetWorld();
+    	int rank = World.Get_rank();
+    	int nprocs = World.Get_size();
+    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistvec", MMPI_MODE_WRONLY | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+	IT n_perproc = getTypicalLocLength();
+	IT lengthuntil = rank * n_perproc;
+
+	// The disp displacement argument specifies the position 
+	// (absolute offset in bytes from the beginning of the file) 
+    	thefile.Set_view(lengthuntil * sizeof(IT), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
+
+	int count = arr.size();
+	thefile.Write(buf, count, MPIType<IT>(), &status);
+	thefile.Close();
+	
+	// Now let processor-0 read the file and print
+	IT total = getTotalLength(World);
+	if(rank == 0)
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-
-		int64_t* all_nnzs = new int64_t[nprocs];
-		
-		all_nnzs[dgrank] = arr.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<int64_t>(), all_nnzs, 1, MPIType<int64_t>());
-		int64_t offset = 0;
-		
-		for (int i = 0; i < nprocs; i++)
+		for(int i=0; i<nprocs-1; ++i)
 		{
-			if (i == dgrank)
-			{
-				cerr << arr.size() << " elements stored on proc " << dgrank << "," << dgrank << ":" ;
-				
-				for (int j = 0; j < arr.size(); j++)
-				{
-					cerr << "\n[" << (j+offset) << "] = " << arr[j] ;
-				}
-				cerr << endl;
-			}
-			offset += all_nnzs[i];
-			DiagWorld.Barrier();
+			// read n_per_proc integers and print them
 		}
-		DiagWorld.Barrier();
-		if (dgrank == 0)
-			cerr << "total size: " << offset << endl;
-		DiagWorld.Barrier();
+		// read the remaining total-n_per_proc integers and print them
 	}
 }
 

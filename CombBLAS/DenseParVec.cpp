@@ -266,8 +266,8 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 		}
 		DiagWorld.Barrier();
 		
-		// Since the found vector is not reshuffled yet, we can use getTypicalLocLength() at this point
-		IT n_perproc = found.getTotalLength() / nprocs;
+		// Since the found vector is not reshuffled yet, we can't use getTypicalLocLength() at this point
+		IT n_perproc = found.getTotalLength(DiagWorld) / nprocs;
 		if(n_perproc == 0)	// it has less than sqrt(p) elements, all owned by the last processor
 		{
 			if(dgrank != nprocs-1)

@@ -186,7 +186,9 @@ int main(int argc, char* argv[])
 
 		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
 		delete ColSums;
-			
+		SpParHelper::Print("Found non-isolated vertices\n");	
+
+	
 		Cands.PrintInfo("Candidates array");
 		DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
 		Cands.RandPerm();
