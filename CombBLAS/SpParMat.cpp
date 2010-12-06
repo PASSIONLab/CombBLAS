@@ -294,7 +294,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
 } 
 
 /** 
- * Generalized sparse matrix indexing
+ * Generalized sparse matrix indexing (ri/ci are 0-based indexed)
  * Both the storage and the actual values in SpParVec should be IT
  * The index vectors are distributed on diagonal processors
  * We can use this function to apply a permutation like A(p,q) 
@@ -349,13 +349,13 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		IT locvecr = ri.ind.size();	// nnz in local vector
 		for(IT i=0; i < locvecr; ++i)
 		{	
-			// make 1-based numerical values (permutation indices) 0-based
-			IT rowrec = std::min((ri.num[i]-1) / m_perproc, rowneighs-1);	// precipient processor along the column
+			// numerical values (permutation indices) are 0-based
+			IT rowrec = std::min(ri.num[i] / m_perproc, rowneighs-1);	// precipient processor along the column
 
 			// ri's numerical values give the colids and its indices give rowids
 			// thus, the rowid's are already offset'd where colid's are not
 			rowdata_rowid[rowrec].push_back(ri.ind[i]);
-			rowdata_colid[rowrec].push_back(ri.num[i] - 1 - (rowrec * m_perproc));
+			rowdata_colid[rowrec].push_back(ri.num[i] - (rowrec * m_perproc));
 		}
 		pcnts = new IT[rowneighs];
 		for(IT i=0; i<rowneighs; ++i)
@@ -365,12 +365,12 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		IT locvecc = ci.ind.size();	
 		for(IT i=0; i < locvecc; ++i)
 		{	
-			// make 1-based numerical values (permutation indices) 0-based
-			IT colrec = std::min((ci.num[i]-1) / n_perproc, colneighs-1);	// precipient processor along the column
+			// numerical values (permutation indices) are 0-based
+			IT colrec = std::min(ci.num[i] / n_perproc, colneighs-1);	// precipient processor along the column
 
 			// ci's numerical values give the rowids and its indices give colids
 			// thus, the colid's are already offset'd where rowid's are not
-			coldata_rowid[colrec].push_back(ci.num[i] - 1 - (colrec * n_perproc));
+			coldata_rowid[colrec].push_back(ci.num[i] - (colrec * n_perproc));
 			coldata_colid[colrec].push_back(ci.ind[i]);
 		}
 
@@ -472,7 +472,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 
         return Mult_AnXBn_Synch<PTNTBOOL>(Mult_AnXBn_Synch<PTBOOLNT>(P, *this), Q);
 }
-
 
 
 // In-place version where rhs type is the same (no need for type promotion)

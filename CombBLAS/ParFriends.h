@@ -774,22 +774,17 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	GridC->GetWorld().Barrier();
 
-	
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
-
 	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
 	for(int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
 	}
-	
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
-
 	
-	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
-	
+	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original	
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);			// return the result object
 }
 
@@ -818,7 +813,7 @@ void RandPerm(SpParVec<IU,IU> & V)
 		for(int i=0; i<V.getlocnnz(); ++i)
 		{
 			vecpair[i].first = M.rand();
-			vecpair[i].second = V.num[i];	// permutation indices are 1-based
+			vecpair[i].second = V.num[i];
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	

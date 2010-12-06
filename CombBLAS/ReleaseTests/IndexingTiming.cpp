@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 
 		A.PrintInfo();	
 		SpParVec<int,int> p;
-		p.iota(A.getnrow(), 1);
+		p.iota(A.getnrow(), 0);
 		RandPerm(p);	
 		SpParHelper::Print("Permutation Generated\n");
 		PARDBMAT B = A(p,p);
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 		for(int i = 0; i< nclust; i++)
 		{
 			int k = std::min(nperclus, A.getnrow() - nperclus * i);
-			clusters[i].iota(k, nperclus * i + 1);
+			clusters[i].iota(k, nperclus * i);
 			clusters[i] = p(clusters[i]);
 		}
 

@@ -76,6 +76,8 @@ CombBLAS/DistEdgeList.cpp -text
 CombBLAS/DistEdgeList.h -text
 CombBLAS/Doxyfile -text
 CombBLAS/Friends.h -text
+CombBLAS/FullyDistSpVec.cpp -text
+CombBLAS/FullyDistSpVec.h -text
 CombBLAS/FullyDistVec.cpp -text
 CombBLAS/FullyDistVec.h -text
 CombBLAS/HeapEntry.h -text

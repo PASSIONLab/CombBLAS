@@ -78,10 +78,9 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 		IT offset = dgrank * n_perproc;
 
 		IT owner = (indx) / n_perproc;	
-		IT rec = std::min(owner, nprocs-1);	// find its owner 
+		owner = std::min(owner, nprocs-1);	// find its owner 
 		NT diagval;
-		
-		if(rec == dgrank)
+		if(owner == dgrank)
 		{
 			IT locindx = indx-offset; 
 			typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
@@ -94,7 +93,7 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 				diagval = NOT_FOUND;	// return NULL
 			}
 		}
-		DiagWorld.Bcast(&diagval, 1, MPIType<NT>(), rec);			
+		DiagWorld.Bcast(&diagval, 1, MPIType<NT>(), owner);			
 		val = diagval;
 	}
 
@@ -163,7 +162,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
 		{
-			int owner = (ri.num[i]) / n_perproc;	// numerical values in ri are 1-based
+			int owner = (ri.num[i]) / n_perproc;	// numerical values in ri are 0-based
 			int rec = std::min(owner, nprocs-1);	// find its owner 
 			data_req[rec].push_back(ri.num[i] - (rec * n_perproc));
 		}
@@ -282,7 +281,7 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 		for(size_t i=0; i<nnz; ++i)
 		{
 			vecpair[i].first = num[i];	// we'll sort wrt numerical values
-			vecpair[i].second = ind[i] + lengthuntil + 1;	
+			vecpair[i].second = ind[i] + lengthuntil;	// return 0-based indices	
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	

@@ -389,10 +389,10 @@ void FullyDistVec<IT,NT>::DebugPrint()
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(lengthuntil * sizeof(IT), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
+    	thefile.Set_view(lengthuntil * sizeof(NT), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
 
 	int count = arr.size();
-	thefile.Write(&(arr[0]), count, MPIType<IT>(), &status);
+	thefile.Write(&(arr[0]), count, MPIType<NT>(), &status);
 	thefile.Close();
 	
 	// Now let processor-0 read the file and print
@@ -406,27 +406,27 @@ void FullyDistVec<IT,NT>::DebugPrint()
                         return 1;
                 }
 		IT maxd = std::max(total-n_per_proc, n_per_proc);
-		IT * data = new IT[maxd];
+		NT * data = new NT[maxd];
 
 		for(int i=0; i<nprocs-1; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, sizeof(IT), n_per_proc,f);
+			fread(data, sizeof(NT), n_per_proc,f);
 
-			cout << "Elements stored on proc " << i << ":" ;	
+			cout << "Elements stored on proc " << i << ": {" ;	
 			for (int j = 0; j < n_per_proc; j++)
 			{
-				cout << "{" << data[j] << ",";
+				cout << data[j] << ",";
 			}
 			cout << "}" << endl;
 		}
 		// read the remaining total-n_per_proc integers and print them
-		fread(data, sizeof(IT), total-n_per_proc, f);
+		fread(data, sizeof(NT), total-n_per_proc, f);
 		
-		cout << "Elements stored on proc " << nprocs-1 << ":" ;	
+		cout << "Elements stored on proc " << nprocs-1 << ": {" ;	
 		for (int j = 0; j < total-n_per_proc; j++)
 		{
-			cout << "{" << data[j] << ",";
+			cout << data[j] << ",";
 		}
 		cout << "}" << endl;
 		delete [] data;
@@ -449,55 +449,49 @@ void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI::Intracomm World = commGrid->GetWorld();
+	IT size = arr.size();
+	pair<double,IT> * vecpair = new pair<double,IT>[size];
+
+	int nprocs = World.Get_size();
+	int rank = World.Get_rank();
+
+	IT * dist = new IT[nprocs];
+	dist[rank] = size;
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(dist, dist+rank, 0);
+
+  	MTRand M;	// generate random numbers with Mersenne Twister
+	for(int i=0; i<size; ++i)
 	{
-		IT size = arr.size();
-		pair<double,IT> * vecpair = new pair<double,IT>[size];
-
-		int nproc = DiagWorld.Get_size();
-		int diagrank = DiagWorld.Get_rank();
-
-		long * dist = new long[nproc];
-		dist[diagrank] = size;
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
-		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
-
-  		MTRand M;	// generate random numbers with Mersenne Twister
-		for(int i=0; i<size; ++i)
-		{
-			vecpair[i].first = M.rand();
-			vecpair[i].second = arr[i];	// permutation indices are 1-based
-		}
-
-		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + size,  dist, DiagWorld);
-
-		vector< NT > nnum(size);
-		for(int i=0; i<size; ++i)
-			nnum[i] = vecpair[i].second;
-
-		delete [] vecpair;
-		delete [] dist;
-
-		arr.swap(nnum);
+		vecpair[i].first = M.rand();
+		vecpair[i].second = arr[i];	
 	}
+
+	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+    	psort::parallel_sort (vecpair, vecpair + size,  dist, World);
+
+	vector< NT > nnum(size);
+	for(int i=0; i<size; ++i)
+		nnum[i] = vecpair[i].second;
+
+	delete [] vecpair;
+	delete [] dist;
+
+	arr.swap(nnum);
 }
 
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::iota(IT size, NT first)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
-	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = size / nprocs;
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT n_perproc = size / nprocs;
 
-		IT length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
-		arr.resize(length);
-		SpHelper::iota(arr.begin(), arr.end(), (dgrank * n_perproc) + first);	// global across processors
-	}
+	IT length = (rank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
+	arr.resize(length);
+	SpHelper::iota(arr.begin(), arr.end(), (rank * n_perproc) + first);	// global across processors
 }
 
 template <class IT, class NT>
@@ -509,89 +503,86 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		return FullyDistVec<IT,NT>();
 	}
 
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
-	if(DiagWorld != MPI::COMM_NULL) 		// Diagonal processors only
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT n_perproc = getTypicalLocLength();
+	vector< vector< IT > > data_req(nprocs);	
+	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
+	for(IT i=0; i < ri.arr.size(); ++i)
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		IT n_perproc = getTypicalLocLength();
-		vector< vector< IT > > data_req(nprocs);	
-		vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
-		for(IT i=0; i < ri.arr.size(); ++i)
-		{
-			int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
-			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.arr[i] - (n_perproc * owner));
-			revr_map[rec].push_back(i);
-		}
-		IT * sendbuf = new IT[ri.arr.size()];
-		int * sendcnt = new int[nprocs];
-		int * sdispls = new int[nprocs];
-		for(int i=0; i<nprocs; ++i)
-			sendcnt[i] = data_req[i].size();
-
-		int * rdispls = new int[nprocs];
-		int * recvcnt = new int[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
-
-		sdispls[0] = 0;
-		rdispls[0] = 0;
-		for(int i=0; i<nprocs-1; ++i)
-		{
-			sdispls[i+1] = sdispls[i] + sendcnt[i];
-			rdispls[i+1] = rdispls[i] + recvcnt[i];
-		}
-		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
-		IT * recvbuf = new IT[totrecv];
-
-		for(int i=0; i<nprocs; ++i)
-		{
-			copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
-			vector<IT>().swap(data_req[i]);
-		}
-
-		IT * reversemap = new IT[ri.arr.size()];
-		for(int i=0; i<nprocs; ++i)
-		{
-			copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);
-			vector<IT>().swap(revr_map[i]);
-		}
-
-		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
-		
-		// We will return the requested data,
-		// our return will be as big as the request 
-		// as we are indexing a dense vector, all elements exist
-		// so the displacement boundaries are the same as rdispls
-		NT * databack = new NT[totrecv];		
-
-		for(int i=0; i<nprocs; ++i)
-		{
-			for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
-			{
-				databack[j] = arr[recvbuf[j]];
-			}
-		}
-		
-		delete [] recvbuf;
-		NT * databuf = new NT[ri.arr.size()];
-
-		// the response counts are the same as the request counts 
-		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
-		DeleteAll(rdispls, recvcnt, databack);
-
-		// Now create the output from databuf
-		Indexed.arr.resize(ri.arr.size()); 
-		for(int i=0; i<nprocs; ++i)
-		{
-			for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
-			{
-				Indexed.arr[reversemap[j]] = databuf[j];
-			}
-		}
-		DeleteAll(sdispls, sendcnt, databuf,reversemap);
+		int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
+		owner = std::min(owner, nprocs-1);	// find its owner 
+		data_req[owner].push_back(ri.arr[i] - (n_perproc * owner));
+		revr_map[owner].push_back(i);
 	}
+	IT * sendbuf = new IT[ri.arr.size()];
+	int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = data_req[i].size();
+
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+	IT * recvbuf = new IT[totrecv];
+
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
+		vector<IT>().swap(data_req[i]);
+	}
+
+	IT * reversemap = new IT[ri.arr.size()];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
+		vector<IT>().swap(revr_map[i]);
+	}
+
+	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+		
+	// We will return the requested data,
+	// our return will be as big as the request 
+	// as we are indexing a dense vector, all elements exist
+	// so the displacement boundaries are the same as rdispls
+	NT * databack = new NT[totrecv];		
+
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+			databack[j] = arr[recvbuf[j]];
+		}
+	}
+		
+	delete [] recvbuf;
+	NT * databuf = new NT[ri.arr.size()];
+
+	// the response counts are the same as the request counts 
+	World.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+	DeleteAll(rdispls, recvcnt, databack);
+
+	// Now create the output from databuf
+	Indexed.arr.resize(ri.arr.size()); 
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
+		{
+			Indexed.arr[reversemap[j]] = databuf[j];
+		}
+	}
+	DeleteAll(sdispls, sendcnt, databuf,reversemap);
 	return Indexed;
 }
 
@@ -610,23 +601,19 @@ IT FullyDistVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 template <class IT, class NT>
 IT FullyDistVec<IT,NT>::getTypicalLocLength() const
 {
-	IT n_perproc = 0 ;
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-        if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
-        {
-                int dgrank = DiagWorld.Get_rank();
-                int nprocs = DiagWorld.Get_size();
-                n_perproc = arr.size(); 
-                if (dgrank == nprocs-1 && nprocs > 1)
-                {
-                        // the local length on the last processor will be greater than the others if the vector length is not evenly divisible
-                        // but for these calculations we need that length
-                        DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
-                }
-                else if (dgrank == 0 && nprocs > 1)
-                {
-                        DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
-                }
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	IT n_perproc = arr.size(); 
+	if (rank == nprocs-1 && nprocs > 1)
+	{
+		// the local length on the last processor will be greater than the others if the vector length is not evenly divisible
+		// but for these calculations we need that length
+		World.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+	}
+	else if (rank == 0 && nprocs > 1)
+	{
+		World.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
 	}
 	return n_perproc;
 }
@@ -636,7 +623,7 @@ IT FullyDistVec<IT,NT>::getTypicalLocLength() const
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const
 {
-	IT totl = getTotalLength(commGrid->GetDiagWorld());
+	IT totl = getTotalLength(commGrid->GetWorld());
 	if (commGrid->GetRank() == 0)		// is always on the diagonal
 		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
 }

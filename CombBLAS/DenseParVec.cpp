@@ -536,7 +536,7 @@ void DenseParVec<IT,NT>::RandPerm()
 		for(int i=0; i<size; ++i)
 		{
 			vecpair[i].first = M.rand();
-			vecpair[i].second = arr[i];	// permutation indices are 1-based
+			vecpair[i].second = arr[i];
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
@@ -590,9 +590,9 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		for(IT i=0; i < ri.arr.size(); ++i)
 		{
 			int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
-			int rec = std::min(owner, nprocs-1);	// find its owner 
-			data_req[rec].push_back(ri.arr[i] - (n_perproc * owner));
-			revr_map[rec].push_back(i);
+			owner = std::min(owner, nprocs-1);	// find its owner 
+			data_req[owner].push_back(ri.arr[i] - (n_perproc * owner));
+			revr_map[owner].push_back(i);
 		}
 		IT * sendbuf = new IT[ri.arr.size()];
 		int * sendcnt = new int[nprocs];
