@@ -35,13 +35,13 @@ def k2Validate(G, start, parents, levels):
 	treeEdges = ((parents <> -2) & (parents <> -1))
 	treeI = parents[treeEdges].astype(int);
 	treeJ = sc.arange(sc.shape(treeEdges)[0])[treeEdges];
-	if any(levels[treeI]-levels[treeJ] <> -1):
+	if sc.any(levels[treeI]-levels[treeJ] <> -1):
 		print "The levels of some tree edges' vertices differ by other than 1"
 
 
 	# Spec test #3:
 	# every input edge has vertices whose levels differ by no more than 1
-	if any((parents <> -2) & (visited <> 1)):
+	if sc.any((parents <> -2) & (visited <> 1)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
@@ -52,14 +52,14 @@ def k2Validate(G, start, parents, levels):
 	lj = levels[Gj];
 	neither_in = (li == -2) & (lj == -2);
 	both_in = (li > -2) & (lj > -2);
-	if any(sc.logical_not(neither_in | both_in)):
+	if sc.any(sc.logical_not(neither_in | both_in)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
 	# Spec test #5:
 	# a vertex and its parent are joined by an edge of the original graph
 	respects = abs(li-lj) <= 1
-	if any(sc.logical_not(neither_in | respects)):
+	if sc.any(sc.logical_not(neither_in | respects)):
 		print "At least one vertex and its parent are not joined by an original edge"
 		good = False;
 
@@ -68,7 +68,8 @@ def k2Validate(G, start, parents, levels):
 
 
 scale = 4;
-edges = kdtd.Graph500Edges(scale);
+edgefactor = 16;
+edges = kdtd.Graph500Edges(scale, edgefactor);
 
 before = time.clock()
 G = kdtd.DiGraph(edges,(2**scale,2**scale));

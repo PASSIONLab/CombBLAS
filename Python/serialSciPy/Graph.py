@@ -2,7 +2,7 @@ import numpy as np
 import scipy as sc
 import scipy.sparse as sp
 
-class Graph():
+class Graph:
 	#ToDo: privatize .spmat name (to .__spmat)
 	#ToDo: implement bool, not, _sprand
 
@@ -77,8 +77,30 @@ class Graph():
 
 		return Z
 		
+	@staticmethod
+	def _SpMV_sel_max(X,Y):		# ToDo:  extend to 2-/3-arg versions 
+		[nrX, ncX] = X.get_shape()
+		shY = sc.shape(Y)
+		nrY = shY[0];
+		if ncX != nrY:
+			print "Inner dimensions of X and Y do not match"
+ 			return
+		if len(shY) > 1 and shY[1] > 1:
+			print "Y must be a column vector"
+			return
+		#ToDo:  make this work with a truly sparse Z
+		Z = sp.csr_matrix(-np.Inf * np.ones((nrX, ),np.dtype(X))).T;
+		for i in range(nrX):
+ 			for k in range(ncX):
+				if X[i,k] <> 0 and Y[k,] <> 0:
+ 					Z[i,0] = max( (Z[i])[0,0], Y[k,] );
+ 					#was:  Z[i,0] = min( Z[i], X[i,k]*Y[k,] );
+			#foo = Z[i];	#debug
 
-class EdgeV():
+		return Z
+		
+
+class EdgeV:
 	print "in EdgeV"
 
 
@@ -127,7 +149,8 @@ class EdgeV():
 
 #	No VertexV class for now
 
-#class VertexV():
+#class VertexV:
 #	print "in VertexV"
 #
 #	def __init__(self, ndces):
+
