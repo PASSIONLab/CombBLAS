@@ -7,6 +7,7 @@ def k2Validate(G, start, parents, levels):
 	good = True;
 	[[Gi,Gj],Gv] = G._toArrays(G.spmat)
 	root = (levels==0).nonzero()[0][0];
+	nverts = sc.shape(parents)[0];
 
 	
 	# Spec test #1:
@@ -16,10 +17,15 @@ def k2Validate(G, start, parents, levels):
 	visited[root] = 1;
 	fringe = (root, );
 	cycle = False;
+	firstTime = True;
 	while len(fringe) <> 0 and not cycle:		#ToDo:  n^2 algorithm here
 		newfringe = [];
 		for i in range(len(fringe)):
-			newvisits = (parents==fringe[i]).nonzero();
+			newvisits = (parents==fringe[i])
+			if firstTime:		# handle parents[root] == root cycle
+				firstTime = False;
+				newvisits[root] = False;
+			newvisits = newvisits.nonzero();
 			if sc.any(visited[newvisits]):
 				cycle = True;
 				break;
@@ -32,7 +38,7 @@ def k2Validate(G, start, parents, levels):
 	
 	# Spec test #2:  
 	# every tree edge connects vertices whose BFS levels differ by 1
-	treeEdges = ((parents <> -2) & (parents <> -1))
+	treeEdges = (parents <> -2) & (parents <> sc.arange(nverts))
 	treeI = parents[treeEdges].astype(int);
 	treeJ = sc.arange(sc.shape(treeEdges)[0])[treeEdges];
 	if sc.any(levels[treeI]-levels[treeJ] <> -1):
@@ -72,6 +78,7 @@ edgefactor = 16;
 edges = kdtd.Graph500Edges(scale, edgefactor);
 
 before = time.clock()
+edges.Graph500CleanEdges();
 G = kdtd.DiGraph(edges,(2**scale,2**scale));
 K1elapsed = time.clock() - before;
 

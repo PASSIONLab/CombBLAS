@@ -98,7 +98,7 @@ def bfsTree(G, starts):
 	parents = -2*sc.ones(G.spmat.shape[0]).astype(int);
 	levels = np.copy(parents);
 	newverts = np.copy(starts);
-	parents[newverts] = -1;
+	parents[newverts] = newverts;	# parents[root] == root
 	levels[newverts] = 0;
 	fringe = np.array([newverts]);
 	level = 1;

@@ -145,7 +145,13 @@ class EdgeV:
 
 	def values(self):
 		return self.__values;
-		
+
+	def Graph500CleanEdges(self):
+		keep = (self.__verts[0]-self.__verts[1]) <> 0;
+		v0 = self.__verts[0][keep];
+		v1 = self.__verts[1][keep];
+		self.__verts = (v0,v1);
+		self.__values   = self.__values[keep];
 
 #	No VertexV class for now
 
