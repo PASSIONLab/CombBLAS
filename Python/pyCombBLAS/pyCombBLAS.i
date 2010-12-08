@@ -6,7 +6,7 @@
 %apply long long {int64_t}
 
 // This block gets copied verbatim into the header area of the generated wrapper. DiGraph has to
-// be defined here somehow. Prefereably we'd #include "DiGraph.h", but that brings in templates which
+// be defined here somehow. Preferably we would #include "DiGraph.h", but that brings in templates which
 // cause duplicate definition linker errors. Unless that gets resolved, we just redefine DiGraph
 // omitting the templated protected members.
 
@@ -24,7 +24,7 @@
 init_pyCombBLAS_MPI();
 %}
 
-// It's possible to have the generated python code also include some custom code.
+// It is possible to have the generated python code also include some custom code.
 // This may be a good place to add an atexit() to call mpi finalize.
 %pragma(python) code="import atexit"
 %pragma(python) code="atexit.register(DiGraph.finalize())"
@@ -127,7 +127,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=, use copy instead.
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=, use copy instead.
 	pyDenseParVec* copy();
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
