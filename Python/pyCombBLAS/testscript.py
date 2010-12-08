@@ -90,11 +90,79 @@ def printstats(data, label, israte):
 		print "           mean_%s: %20.17e"%(label, mean);
 		print "         stddev_%s: %20.17e"%(label, sampleStdDev);
 
+
+def k2validate(G, root, parents):
+
+	ret = 1;	# assume valid
+	nrowG = G.getnrow();
+
+	# calculate level in the tree for each vertex; root is at level 0
+	# about the same calculation as bfsTree, but tracks levels too
+	parents2 = pcb.pyDenseParVec(nrowG, -1);
+	fringe = pcb.pySpParVec(nrowG);
+	parents2.SetElement(root,root);
+	fringe.SetElement(root,root);
+	levels = pcb.pyDenseParVec(nrowG, -1);
+	levels.SetElement(root,0);
+
+	level = 1;
+	while fringe.getnnz() > 0:
+		fringe.setNumToInd();
+		G.SpMV_SelMax_inplace(fringe);
+		pcb.EWiseMult_inplacefirst(fringe, parents2, True, -1);
+		#fringe.printall();
+		parents2.ApplyMasked_SetTo(fringe,0);
+		parents2.add(fringe);
+		levels.ApplyMasked_SetTo(fringe,level);
+		level += 1;
+	
+	# spec test #1
+	#	Not implemented
+	
+
+	# spec test #2
+	#    tree edges should be between verts whose levels differ by 1
+	
+	#print "starting spec test#2"
+	#  root = element of parents that points to itself
+	##tmp1 = parents.copy()
+	##tmp1 -= pcb.pyDenseParVec.range(nrowG,0)
+	##root = tmp1.FindInds_NotEqual(0);
+	#treeEdges = ((parents <> -1) & (parents <> root);
+	tmp1 = parents.copy();
+	tmp1.SetElement(root,-1);
+	treeEdges = tmp1.FindInds_NotEqual(-1);
+	#treeI = parents[treeEdges]
+	treeI = parents.SubsRef(treeEdges);
+	#treeJ = 1..nrowG[treeEdges]
+	treeJ = pcb.pyDenseParVec.range(nrowG,0).SubsRef(treeEdges);
+	#if any(levels[treeI]-levels[treeJ] <> -1):
+	tmp1 = levels.SubsRef(treeI);
+	tmp1 -= levels.SubsRef(treeJ);
+	tmp2 = tmp1.FindInds_NotEqual(-1);
+	if tmp2.getnnz():
+		ret = -1;
+
+	# spec test #3
+	#	Not implemented
+
+	# spec test #4
+	#	Not implemented
+
+	# spec test #5
+	#	Not implemented
+
+	
+
+	del G, parents, parents2, fringe, levels, tmp1, tmp2, treeEdges, treeI, treeJ
+	
+	return ret
+
 ###############################################
 ###########    MATRIX CREATION
 
 A = pcb.pySpParMat()
-scale = 20
+scale = 10
 
 degrees = pcb.pyDenseParVec(4, 0);
 k1time = 0.0
@@ -173,7 +241,7 @@ for i in range(0, numCands):
 	tstart = time.time()
 	#------------------------- TIMED --------------------------------------------
 	
-	parents = pcb.pyDenseParVec(n, -1, -1)
+	parents = pcb.pyDenseParVec(n, -1);
 	fringe = pcb.pySpParVec(n)
 	fringe.SetElement(c, c);
 	parents.SetElement(c, c);
@@ -193,7 +261,7 @@ for i in range(0, numCands):
 		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
 		#print "fringe at end of iteration"
 		#fringe.printall();
-		#parents.ApplyMasked_SetTo(fringe, 0)
+		parents.ApplyMasked_SetTo(fringe, 0)
 		parents.add(fringe)
 		niter += 1
 	
@@ -218,6 +286,12 @@ for i in range(0, numCands):
 	#s = A.SpMV_PlusTimes(parentsSP)
 	#nedges = s.Reduce_sum()
 
+	k2Fail = False;
+	if False:
+		print "Not validating BFS tree"
+	elif k2validate(A, c, parents) < 0:
+		k2Fail = True;
+		print "k2validate found errors in BFS tree"
 
 	times.append(telapsed)
 	iterations.append(niter)
@@ -248,14 +322,17 @@ if (pcb.root()):
 	print "\n   kernel 2 TEPS"
 	printstats(TEPS, "TEPS", True)
 
+	if k2Fail:
+		print "***ERROR:  At least one tree failed kernel 2 validation"
+
 ###############################################
 ###########    CLEANUP
 
 # These have to be explicitly deleted because they must release their MPI-backed data
 # before finalize() calls MPI::Finalize(). Otherwise you get a crash.
 del A
-del parents
-del fringe
+del parents, parentsSP
+del fringe, Cands 
 del degrees
 
 
