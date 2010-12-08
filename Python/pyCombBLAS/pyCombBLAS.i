@@ -95,7 +95,9 @@ public:
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	int64_t Reduce_sum();
+        // sets the value of each nonzero element to its index
 	void setNumToInd();
+        // sets the value of each nonzero element to the passed value
 	void Apply_SetTo(int64_t v);
 
 
@@ -106,6 +108,11 @@ public:
 	
 };
 
+//      EWiseMult has 2 flavors:
+//      - if Exclude is false, will do element-wise multiplication
+//      - if Exclude is true, will remove from the result vector all elements 
+//          whose corresponding element of the second vector is "nonzero"
+//          (i.e., not equal to the sparse vector's identity value)  '
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
@@ -113,6 +120,9 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 class pyDenseParVec {
 public:
 	pyDenseParVec(int64_t size, int64_t init);
+//      Third argument is the zero or identity value for the vector; not
+//      fully implemented in other routines, but EWiseMult and sparse() avoid
+//      ops on "zero" elements
 	pyDenseParVec(int64_t size, int64_t init, int64_t zero);
 
 	pySpParVec* sparse() const;
@@ -158,6 +168,8 @@ public:
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	
 	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
+//      Sets each element of the result vector that is referenced by
+//      the mask vector to the passed value
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 
 public:
