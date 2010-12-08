@@ -5,7 +5,6 @@ import Graph as gr
 
 class DiGraph(gr.Graph):
 
-	print "in DiGraph"
 
 	def __init__(self, edgev, size):
 		#  Keeping EdgeV independent of the number of vertices touched by an edge 
@@ -34,7 +33,7 @@ class DiGraph(gr.Graph):
 		
 
 class DiEdgeV(gr.EdgeV):
-	print "in DiEdgeV"
+	pass;		#print "in DiEdgeV"
 
 		
 
@@ -92,10 +91,10 @@ def Graph500Edges(scale, edgefactor):
 
 #	creates a breadth-first search tree of a Graph from a starting set of vertices
 #	returns a 1D array with the parent vertex of each vertex in the tree; unreached vertices have parent == -Inf
-#        and a 1D array with the level at which each vertex was first discovered (-2 if not in the tree)
+#        and a 1D array with the level at which each vertex was first discovered (-1 if not in the tree)
 
 def bfsTree(G, starts):
-	parents = -2*sc.ones(G.spmat.shape[0]).astype(int);
+	parents = -1*sc.ones(G.spmat.shape[0]).astype(int);
 	levels = np.copy(parents);
 	newverts = np.copy(starts);
 	parents[newverts] = newverts;	# parents[root] == root
@@ -107,7 +106,7 @@ def bfsTree(G, starts):
 		# +1 to deal with 0 being a valid vertex ID
 		colvec[fringe] = fringe+1; 
 		cand = gr.Graph._SpMV_sel_max(G.spmat, colvec)
-		newverts = np.array(((cand.toarray().flatten() <> -np.Inf) & (parents == -2)).nonzero()).flatten();
+		newverts = np.array(((cand.toarray().flatten() <> -np.Inf) & (parents == -1)).nonzero()).flatten();
 		if len(newverts) > 0:
 			parents[newverts] = cand[newverts].todense().astype(int) - 1;
 			levels[newverts] = level;

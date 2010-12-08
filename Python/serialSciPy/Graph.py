@@ -6,15 +6,12 @@ class Graph:
 	#ToDo: privatize .spmat name (to .__spmat)
 	#ToDo: implement bool, not, _sprand
 
-	print "in Graph"
 
 	def __init__(self, edgev, size):
-		#print "in Graph/__init__"
 		# include edges in both directions
 		self.spmat = sp.csr_matrix((edgev[1],edgev[0]), shape=(size)) + sp.csr_matrix(((edgev[1][1],edgev[1][0]), edgev[0]), shape=(size));
 
 	def __len__(self):
-		#print "in Graph/len"
 		return int(np.max(self.spmat.get_shape()));
 
 	#FIX:  should only return 1 of the 2 directed edges for simple graphs
@@ -101,7 +98,6 @@ class Graph:
 		
 
 class EdgeV:
-	print "in EdgeV"
 
 
 	# vertex endpoints are each a tuple of flattened NumPy column vectors

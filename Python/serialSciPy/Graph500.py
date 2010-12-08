@@ -38,7 +38,7 @@ def k2Validate(G, start, parents, levels):
 	
 	# Spec test #2:  
 	# every tree edge connects vertices whose BFS levels differ by 1
-	treeEdges = (parents <> -2) & (parents <> sc.arange(nverts))
+	treeEdges = (parents <> -1) & (parents <> sc.arange(nverts))
 	treeI = parents[treeEdges].astype(int);
 	treeJ = sc.arange(sc.shape(treeEdges)[0])[treeEdges];
 	if sc.any(levels[treeI]-levels[treeJ] <> -1):
@@ -47,7 +47,7 @@ def k2Validate(G, start, parents, levels):
 
 	# Spec test #3:
 	# every input edge has vertices whose levels differ by no more than 1
-	if sc.any((parents <> -2) & (visited <> 1)):
+	if sc.any((parents <> -1) & (visited <> 1)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
@@ -56,8 +56,8 @@ def k2Validate(G, start, parents, levels):
 	# have both endpoints in the tree or not in the tree)
 	li = levels[Gi]; 
 	lj = levels[Gj];
-	neither_in = (li == -2) & (lj == -2);
-	both_in = (li > -2) & (lj > -2);
+	neither_in = (li == -1) & (lj == -1);
+	both_in = (li > -1) & (lj > -1);
 	if sc.any(sc.logical_not(neither_in | both_in)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
@@ -73,7 +73,7 @@ def k2Validate(G, start, parents, levels):
 
 
 
-scale = 4;
+scale = 6;
 edgefactor = 16;
 edges = kdtd.Graph500Edges(scale, edgefactor);
 
@@ -92,9 +92,9 @@ for start in starts[:nstarts]:
 	[parents, levels] = kdtd.bfsTree(G, deg3verts[start]);
 	K2elapsed += time.clock() - before;
 	if not k2Validate(G, deg3verts[start], parents, levels):
-		print "Invalid BFS tree generated blah blah";
+		print "Invalid BFS tree generated";
 		break;
-	K2edges += sc.shape((parents[edges.verts()[0]] <> -2).nonzero())[1];
+	K2edges += sc.shape((parents[edges.verts()[0]] <> -1).nonzero())[1];
 
 
 print 'Graph500 benchmark run for scale = %2i' % scale
