@@ -514,14 +514,39 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	IT n_perproc = getTypicalLocLength();
 	IT lengthuntil = rank * n_perproc;
 
+	struct mystruct
+	{
+		IT ind;
+		NT num;
+	};
+	mystruct data;
+
+	MPI::Aint addr1 = MPI::Get_address(&data.ind);
+	MPI::Aint addr2 = MPI::Get_address(&data.num);
+	MPI::Aint disp[2];
+	disp[0] = 0;
+	disp[1] = addr2 - addr1;
+	int blocklen[2] = {1, 1}; 
+
+	MPI::Datatype type[2] = { MPIType<IT>(), MPIType<NT>() };
+	MPI::Datatype datatype = MPI::Create_struct(3, blocklen, disp, type);
+	datatype.commit();
+	int dsize = datatype.Get_size();
+
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(lengthuntil * sizeof(IT), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
-	// ABAB: Define a new datatype?
+    	thefile.Set_view(lengthuntil * dsize, datatype, datatype, "native", MPI::INFO_NULL);
 
 	int count = arr.size();
-	thefile.Write(&(arr[0]), count, MPIType<IT>(), &status);
+	mystruct * packed = new mystruct[count];
+	for(int i=0; i<count; ++i)
+	{
+		packed[i].ind = ind[i];
+		packed[i].num = num[i];
+	}
+	thefile.Write(packed, count, datatype, &status);
 	thefile.Close();
+	delete [] packed;
 	
 	// Now let processor-0 read the file and print
 	IT total = getTotalLength(World); 
