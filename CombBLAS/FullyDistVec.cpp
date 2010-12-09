@@ -10,6 +10,12 @@ FullyDistVec<IT, NT>::FullyDistVec ()
 }
 
 template <class IT, class NT>
+FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id)
+{
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+}
+
+template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec (IT locallength, NT initval, NT id): zero(id)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
@@ -376,13 +382,10 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::DebugPrint()
 {
-	int bufsize, count;
-    	MPI::Status status;
-
 	MPI::Intracomm World = commGrid->GetWorld();
     	int rank = World.Get_rank();
     	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistvec", MMPI_MODE_WRONLY | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
 
 	IT n_perproc = getTypicalLocLength();
 	IT lengthuntil = rank * n_perproc;
@@ -392,7 +395,7 @@ void FullyDistVec<IT,NT>::DebugPrint()
     	thefile.Set_view(lengthuntil * sizeof(NT), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
 
 	int count = arr.size();
-	thefile.Write(&(arr[0]), count, MPIType<NT>(), &status);
+	thefile.Write(&(arr[0]), count, MPIType<NT>());
 	thefile.Close();
 	
 	// Now let processor-0 read the file and print
@@ -403,28 +406,28 @@ void FullyDistVec<IT,NT>::DebugPrint()
                 if(!f)
                 {
                         cerr << "Problem reading binary input file\n";
-                        return 1;
+                        return;
                 }
-		IT maxd = std::max(total-n_per_proc, n_per_proc);
+		IT maxd = std::max(total-(n_perproc * (nprocs-1)), n_perproc);
 		NT * data = new NT[maxd];
 
 		for(int i=0; i<nprocs-1; ++i)
 		{
-			// read n_per_proc integers and print them
-			fread(data, sizeof(NT), n_per_proc,f);
+			// read n_perproc integers and print them
+			fread(data, sizeof(NT), n_perproc,f);
 
 			cout << "Elements stored on proc " << i << ": {" ;	
-			for (int j = 0; j < n_per_proc; j++)
+			for (int j = 0; j < n_perproc; j++)
 			{
 				cout << data[j] << ",";
 			}
 			cout << "}" << endl;
 		}
-		// read the remaining total-n_per_proc integers and print them
-		fread(data, sizeof(NT), total-n_per_proc, f);
+		// read the remaining total-n_perproc integers and print them
+		fread(data, sizeof(NT), total-(n_perproc * (nprocs-1)), f);
 		
 		cout << "Elements stored on proc " << nprocs-1 << ": {" ;	
-		for (int j = 0; j < total-n_per_proc; j++)
+		for (int j = 0; j < total-(n_perproc * (nprocs-1)); j++)
 		{
 			cout << data[j] << ",";
 		}

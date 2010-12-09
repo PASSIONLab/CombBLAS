@@ -122,7 +122,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
-	DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
 
 	sdispls[0] = 0;
 	rdispls[0] = 0;
@@ -137,7 +137,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	for(int i=0; i<nprocs; ++i)
 		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
 
-	DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
 		
 	// We will return the requested data, 
 	// our return can be at most as big as the request
@@ -215,7 +215,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>, dist, 1, MPIType<IT>());
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	for(size_t i=0; i<nnz; ++i)
@@ -225,7 +225,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	}
 
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    	psort::parallel_sort (vecpair, vecpair + nnz,  dist, DiagWorld);
+    	psort::parallel_sort (vecpair, vecpair + nnz,  dist, World);
 
 	vector< IT > nind(nnz);
 	vector< IT > nnum(nnz);
@@ -470,7 +470,7 @@ IT FullyDistSpVec<IT,NT>::getTypicalLocLength() const
 		// but for these calculations we need that length
 		World.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
 	}
-	else if (dgrank == 0 && nprocs > 1)
+	else if (rank == 0 && nprocs > 1)
 	{
 		World.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
 	}
@@ -503,16 +503,15 @@ void FullyDistSpVec<IT,NT>::PrintInfo(string vectorname) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::DebugPrint()
 {
-	int bufsize, count;
-    	MPI::Status status;
-
 	MPI::Intracomm World = commGrid->GetWorld();
     	int rank = World.Get_rank();
     	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MMPI_MODE_WRONLY | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
 
-	IT n_perproc = getTypicalLocLength();
-	IT lengthuntil = rank * n_perproc;
+	IT * dist = new IT[nprocs];
+	dist[rank] = getlocnnz();
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	struct mystruct
 	{
@@ -527,63 +526,69 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	disp[0] = 0;
 	disp[1] = addr2 - addr1;
 	int blocklen[2] = {1, 1}; 
-
 	MPI::Datatype type[2] = { MPIType<IT>(), MPIType<NT>() };
-	MPI::Datatype datatype = MPI::Create_struct(3, blocklen, disp, type);
-	datatype.commit();
+
+	// inline MPI::Datatype
+	// MPI::Datatype::Create_struct(int count, const int array_of_blocklengths[],
+        //                            const MPI::Aint array_of_displacements[],
+        //                            const MPI::Datatype array_of_types[])
+	// {
+  	// 	MPI_Datatype newtype;
+  	// 	int i;
+  	// 	MPI_Datatype* type_array = new MPI_Datatype[count];
+  	//	for (i=0; i < count; i++)
+    	//		type_array[i] = array_of_types[i];
+
+  	// 	(void)MPI_Type_create_struct(count, const_cast<int *>(array_of_blocklengths),
+        //                       const_cast<MPI_Aint*>(array_of_displacements),
+        //                       type_array, &newtype);
+  	// 	delete[] type_array;
+ 	//	return newtype;
+	// }
+	MPI::Datatype datatype = MPI::Datatype::Create_struct(2, blocklen, disp, type);	// static function without a "this" pointer
+	datatype.Commit();
 	int dsize = datatype.Get_size();
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
     	thefile.Set_view(lengthuntil * dsize, datatype, datatype, "native", MPI::INFO_NULL);
 
-	int count = arr.size();
+	int count = ind.size();
 	mystruct * packed = new mystruct[count];
 	for(int i=0; i<count; ++i)
 	{
 		packed[i].ind = ind[i];
 		packed[i].num = num[i];
 	}
-	thefile.Write(packed, count, datatype, &status);
+	thefile.Write(packed, count, datatype);
 	thefile.Close();
 	delete [] packed;
 	
 	// Now let processor-0 read the file and print
-	IT total = getTotalLength(World); 
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistspvec", "r");
                 if(!f)
                 { 
                         cerr << "Problem reading binary input file\n";
-                        return 1;
+                        return;
                 }
-		IT maxd = std::max(total-n_per_proc, n_per_proc);
-		IT * data = new IT[maxd];
+		IT maxd = *max_element(dist, dist+nprocs);
+		mystruct * data = new mystruct[maxd];
 
-		for(int i=0; i<nprocs-1; ++i)
+		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, sizeof(IT), n_per_proc,f);
+			fread(data, dsize, dist[i],f);
 
-			cout << "Elements stored on proc " << i << ":\n";
-			for (int j = 0; j < n_per_proc; j++)
+			cout << "Elements stored on proc " << i << ": {";
+			for (int j = 0; j < dist[i]; j++)
 			{
-				cout << "Element #" << (j+offset) << ": [" << (ind[j]) << "] = " << num[j] << endl;
-
-				cout << data[j] << ",";
+				cout << "(" << data[j].ind << "," << data[j].num << "), ";
 			}
 			cout << "}" << endl;
 		}
-		// read the remaining total-n_per_proc integers and print them
-		fread(data, sizeof(IT), total-n_per_proc, f);
-	
-		cout << "Elements stored on proc " << nprocs-1 << ":\n" ;	
-		for (int j = 0; j < total-n_per_proc; j++)
-		{
-			cout << data[j] << ",";
-		}
 		delete [] data;
+		delete [] dist;
 	}
-		
 }

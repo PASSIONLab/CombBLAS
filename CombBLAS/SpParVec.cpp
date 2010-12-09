@@ -275,7 +275,7 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 
 		IT * dist = new IT[nproc];
 		dist[diagrank] = nnz;
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>, dist, 1, MPIType<IT>());
+		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
 
 		for(size_t i=0; i<nnz; ++i)

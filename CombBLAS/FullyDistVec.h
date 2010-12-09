@@ -31,6 +31,7 @@ class FullyDistVec
 {
 public:
 	FullyDistVec ( );
+	FullyDistVec ( NT id) ;
 	FullyDistVec ( IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
 	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
