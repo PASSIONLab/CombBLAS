@@ -45,9 +45,9 @@ class FullyDistSpVec
 {
 public:
 	FullyDistSpVec ( );
-	FullyDistSpVec ( IT loclength );
+	FullyDistSpVec ( IT glen );
 	FullyDistSpVec ( shared_ptr<CommGrid> grid);
-	FullyDistSpVec ( shared_ptr<CommGrid> grid, IT loclength);
+	FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
@@ -61,7 +61,8 @@ public:
 		FullyDistSpVec<IT,NNT> CVT(commGrid);
 		CVT.ind = vector<IT>(ind.begin(), ind.end());
 		CVT.num = vector<NNT>(num.begin(), num.end());
-		CVT.length = length;
+		CVT.glen = glen;
+		CVT.NOT_FOUND = NOT_FOUND;
 	}
 
 	void PrintInfo(string vecname) const;
@@ -78,7 +79,6 @@ public:
 	{
 		return ind.size();
 	}
-	
 	IT getnnz() const
 	{
 		IT totnnz = 0;
@@ -86,11 +86,11 @@ public:
 		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
+	IT LengthUntil() const;
+	IT MyLocLength() const;
+	IT TotalLength() const { return glen; }
+	int Owner(IT gind, IT & lind) const;
 
-	IT getTypicalLocLength() const;
-	IT getTotalLength(MPI::Intracomm & comm) const;
-	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
-	
 	void setNumToInd()
 	{
 		MPI::Intracomm World = commGrid->GetWorld();
@@ -110,11 +110,13 @@ public:
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+
 private:
+	
 	shared_ptr<CommGrid> commGrid;
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	IT length;		// actual local length of the vector (including zeros)
+	IT glen;		// global length (actual "length" including zeros)
 	const static IT zero = static_cast<IT>(0);
 	NT NOT_FOUND; 
 

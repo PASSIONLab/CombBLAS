@@ -6,22 +6,22 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: commGrid(grid), length(zero), NOT_FOUND(numeric_limits<NT>::min())
+: commGrid(grid), glen(zero), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT loclen)
-: commGrid(grid), length(loclen), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
+: commGrid(grid), glen(globallen), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (): glen(zero), NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT loclen): length(loclen), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): glen(globallen), NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
@@ -32,22 +32,19 @@ void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 	commGrid.reset(new CommGrid(*(victim.commGrid)));		
 	ind.swap(victim.ind);
 	num.swap(victim.num);
-	length = victim.length;
+	glen = victim.glen;
+	NOT_FOUND = victim.NOT_FOUND;
 }
 
 template <class IT, class NT>
 NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = getTypicalLocLength();
-	IT offset = rank * n_perproc;
-	int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
+	IT begin = LengthUntil();
+	IT end = begin + MyLocLength();
 	NT val;
-	if(owner == rank)
+	if(indx >= begin && indx < end)
 	{
-		IT locindx = indx-offset; 
+		IT locindx = indx-begin; 
 		typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
 		if(it != ind.end() && locindx == (*it))	// found
 		{
@@ -58,7 +55,7 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 			val = NOT_FOUND;	// return NULL
 		}
 	}
-	World.Bcast(&val, 1, MPIType<NT>(), owner);			
+	(commGrid->GetWorld()).Bcast(&val, 1, MPIType<NT>(), owner);			
 	return val;
 }
 
@@ -66,14 +63,12 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	int rank = commGrid->GetRank();
-	int nprocs = commGrid->GetSize();	
-	IT n_perproc = getTypicalLocLength();
-	int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
-		
-	if(owner == rank) 	// insert if this process is the owner
+	IT begin = LengthUntil();
+	IT end = begin + MyLocLength();
+	NT val;
+	if(indx >= begin && indx < end)
 	{
-		IT locindx = indx-(rank*n_perproc); 
+		IT locindx = indx-begin; 
 		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
 		if(iter == ind.end())	// beyond limits, insert from back
 		{
@@ -106,15 +101,16 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,NT> Indexed(commGrid);
 	int nprocs = World.Get_size();
-	IT n_perproc = getTypicalLocLength();
 	vector< vector<IT> > data_req(nprocs);
-	for(IT i=0; i < ri.num.size(); ++i)
+	IT locnnz = getlocnnz();
+
+	for(IT i=0; i < locnnz; ++i)
 	{
-		int owner = (ri.num[i]) / n_perproc;	// numerical values in ri are 0-based
-		owner = std::min(owner, nprocs-1);	// find its owner 
-		data_req[owner].push_back(ri.num[i] - (owner * n_perproc));
+		IT locind;
+		int owner = Owner(ri.num[i], locind);	// numerical values in ri are 0-based
+		data_req[owner].push_back(locind);
 	}
-	IT * sendbuf = new IT[ri.num.size()];
+	IT * sendbuf = new IT[locnnz];
 	int * sendcnt = new int[nprocs];
 	int * sdispls = new int[nprocs];
 	for(int i=0; i<nprocs; ++i)
@@ -183,7 +179,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 			Indexed.num.push_back(databuf[j]);
 		}
 	}
-	Indexed.length = ri.length;
+	Indexed.glen = ri.glen;
 	DeleteAll(sdispls, sendcnt, sendbuf, databuf);
 	return Indexed;
 }
@@ -457,25 +453,81 @@ IT FullyDistSpVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
 	return totlen;
 }
 
+// The full distribution is actually a two-level distribution that matches the matrix distribution
+// In this scheme, each processor row (except the last) is responsible for t = floor(n/sqrt(p)) elements. 
+// The last processor row gets the remaining (n-floor(n/sqrt(p))*(sqrt(p)-1)) elements
+// Within the processor row, each processor (except the last) is responsible for loc = floor(t/sqrt(p)) elements. 
+// Example: n=103 and p=16
+// All processors P_ij for i=0,1,2 and j=0,1,2 get floor(floor(102/4)/4) = 6 elements
+// All processors P_i3 for i=0,1,2 get 25-6*3 = 7 elements
+// All processors P_3j for j=0,1,2 get (102-25*3)/4 = 6 elements
+// Processor P_33 gets 27-6*3 = 9 elements  
 template <class IT, class NT>
-IT FullyDistSpVec<IT,NT>::getTypicalLocLength() const
+IT FullyDistSpVec<IT,NT>::LengthUntil() const
 {
-        MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = length;
-	if (rank == nprocs-1 && nprocs > 1)
-	{
-		// the local length on the last processor will be greater than the others if the vector length is not evenly divisible
-		// but for these calculations we need that length
-		World.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
-	}
-	else if (rank == 0 && nprocs > 1)
-	{
-		World.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
-	}
-        return n_perproc;
+	int procrows = commGrid->GetGridRows();
+	int my_procrow = commGrid->GetRankInProcCol();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	IT n_thisrow;	// length assigned to this processor row	
+	if(my_procrow == procrows-1)
+		n_thisrow = glen - (n_perprocrow*(procrows-1));
+	else
+		n_thisrow = n_perprocrow;	
+
+	int proccols = commGrid->GetGridCols();
+	int my_proccol = commGrid->GetRankInProcRow();
+	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
+
+	return ((n_perprocrow * my_procrow)+(n_perproc*my_proccol));
 }
+
+template <class IT, class NT>
+IT FullyDistSpVec<IT,NT>::MyLocLength() const
+{
+	int procrows = commGrid->GetGridRows();
+	int my_procrow = commGrid->GetRankInProcCol();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	IT n_thisrow;	// length assigned to this processor row	
+	if(my_procrow == procrows-1)
+		n_thisrow = glen - (n_perprocrow*(procrows-1));
+	else
+		n_thisrow = n_perprocrow;	
+
+	int proccols = commGrid->GetGridCols();
+	int my_proccol = commGrid->GetRankInProcRow();
+	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
+	if(my_proccols == proccols-1)
+		return (n_thisrow - (n_perproc*(proccols-1)));
+	else
+		return n_perproc;	
+}
+
+//! Given global index gind,
+//! Return the owner processor id, and
+//! Assign the local index to lind
+template <class IT, class NT>
+int FullyDistSpVec<IT,NT>::Owner(IT gind, IT & lind) const
+{
+	int procrows = commGrid->GetGridRows();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	int own_procrow = std::min(gind / n_perprocrow, procrows-1);	// owner's processor row
+	IT ind_withinrow = gind - (own_procrow * n_perprocrow);
+
+	IT n_thisrow;	// length assigned to owner's processor row	
+	if(own_procrow == procrows-1)
+		n_thisrow = glen - (n_perprocrow*(procrows-1));
+	else
+		n_thisrow = n_perprocrow;	
+
+	int proccols = commGrid->GetGridCols();
+	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
+	int own_proccol = std::min(ind_withinrow / n_perproc, proccols-1);
+	lind = ind_withinrow - (own_proccol * n_perproc)
+
+	// GetRank(int rowrank, int colrank) { return rowrank * grcols + colrank;}
+	return commGrid->GetRank(own_procrow, own_proccol);
+}
+
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
