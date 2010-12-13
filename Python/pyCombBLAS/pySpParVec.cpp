@@ -82,7 +82,14 @@ void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignm
 
 int64_t pySpParVec::GetElement(int64_t index)
 {
-	return v[index];
+	int64_t val = v[index];
+	
+	if (val == v.NOT_FOUND)
+	{
+		cout << "Element " << index << " not found." << endl;
+	}
+	
+	return val;
 }
 
 
