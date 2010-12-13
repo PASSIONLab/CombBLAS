@@ -36,7 +36,7 @@ public:
 	pySpParVec* sparse(int64_t zero) const;
 	
 public:
-	int length() const;
+	int64_t len() const;
 	
 	void add(const pyDenseParVec& other);
 	void add(const pySpParVec& other);
@@ -45,6 +45,12 @@ public:
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
 	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	
+	pyDenseParVec* operator+(const pyDenseParVec & rhs);
+	pyDenseParVec* operator-(const pyDenseParVec & rhs);
+	pyDenseParVec* operator+(const pySpParVec & rhs);
+	pyDenseParVec* operator-(const pySpParVec & rhs);
+	
 	pyDenseParVec* copy();
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment

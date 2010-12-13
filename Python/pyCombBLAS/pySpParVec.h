@@ -41,6 +41,7 @@ public:
 
 public:
 	int64_t getnnz() const;
+	int64_t len() const;
 
 	pySpParVec& operator+=(const pySpParVec& other);
 	pySpParVec& operator-=(const pySpParVec& other);

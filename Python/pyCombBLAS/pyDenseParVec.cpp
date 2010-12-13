@@ -72,7 +72,7 @@ pySpParVec* pyDenseParVec::sparse(int64_t zero) const
 	return ret;
 }
 
-int pyDenseParVec::length() const
+int64_t pyDenseParVec::len() const
 {
 	return v.getTotalLength();
 }
@@ -124,6 +124,36 @@ pyDenseParVec& pyDenseParVec::operator-=(const pySpParVec & rhs)
 //	v.operator=(rhs.v);
 //	return *this;
 //}
+
+pyDenseParVec* pyDenseParVec::operator+(const pyDenseParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) += rhs;	
+	return ret;
+}
+
+pyDenseParVec* pyDenseParVec::operator-(const pyDenseParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) -= rhs;	
+	return ret;
+}
+
+pyDenseParVec* pyDenseParVec::operator+(const pySpParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) += rhs;	
+	return ret;
+}
+
+pyDenseParVec* pyDenseParVec::operator-(const pySpParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) -= rhs;	
+	return ret;
+}
+
+
 
 pyDenseParVec* pyDenseParVec::copy()
 {

@@ -5,10 +5,7 @@
 //%typemap(out) int64_t = long long;
 %apply long long {int64_t}
 
-// This block gets copied verbatim into the header area of the generated wrapper. DiGraph has to
-// be defined here somehow. Preferably we would #include "DiGraph.h", but that brings in templates which
-// cause duplicate definition linker errors. Unless that gets resolved, we just redefine DiGraph
-// omitting the templated protected members.
+// This block gets copied verbatim into the header area of the generated wrapper.
 
 %{
 #define SWIG_FILE_WITH_INIT
@@ -24,7 +21,7 @@
 init_pyCombBLAS_MPI();
 %}
 
-// It is possible to have the generated python code also include some custom code.
+// It's possible to have the generated python code also include some custom code.
 // This may be a good place to add an atexit() to call mpi finalize.
 %pragma(python) code="import atexit"
 %pragma(python) code="atexit.register(DiGraph.finalize())"
@@ -67,6 +64,7 @@ public:
 	pyDenseParVec* dense() const;
 public:
 	int64_t getnnz() const;
+	int64_t len() const;
 
 	pySpParVec& operator+=(const pySpParVec& other);
 	pySpParVec& operator-=(const pySpParVec& other);
@@ -95,9 +93,7 @@ public:
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	int64_t Reduce_sum();
-        // sets the value of each nonzero element to its index
 	void setNumToInd();
-        // sets the value of each nonzero element to the passed value
 	void Apply_SetTo(int64_t v);
 
 
@@ -110,7 +106,7 @@ public:
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
-//      - if Exclude is true, will remove from the result vector all elements 
+//      - if Exclude is true, will remove from the result vector all elements
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
@@ -120,16 +116,13 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 class pyDenseParVec {
 public:
 	pyDenseParVec(int64_t size, int64_t init);
-//      Third argument is the zero or identity value for the vector; not
-//      fully implemented in other routines, but EWiseMult and sparse() avoid
-//      ops on "zero" elements
 	pyDenseParVec(int64_t size, int64_t init, int64_t zero);
 
 	pySpParVec* sparse() const;
 	pySpParVec* sparse(int64_t zero) const;
 	
 public:
-	int length() const;
+	int64_t len() const;
 	
 	void add(const pyDenseParVec& other);
 	void add(const pySpParVec& other);
@@ -137,7 +130,13 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=, use copy instead.
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	
+	pyDenseParVec* operator+(const pyDenseParVec & rhs);
+	pyDenseParVec* operator-(const pyDenseParVec & rhs);
+	pyDenseParVec* operator+(const pySpParVec & rhs);
+	pyDenseParVec* operator-(const pySpParVec & rhs);
+	
 	pyDenseParVec* copy();
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
@@ -168,8 +167,6 @@ public:
 	pyDenseParVec* FindInds_NotEqual(int64_t value);
 	
 	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
-//      Sets each element of the result vector that is referenced by
-//      the mask vector to the passed value
 	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 
 public:

@@ -6,10 +6,10 @@ COMBBLAS = ../../CombBLAS
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
 
-OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
+OPT = -g -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = $(CC)
-FLAGS = $(DEB) -fPIC 
+FLAGS = $(OPT) -fPIC 
 
 all: pyCombBLAS.py
 

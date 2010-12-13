@@ -56,6 +56,12 @@ int64_t pySpParVec::getnnz() const
 	return v.getnnz();
 }
 
+int64_t pySpParVec::len() const
+{
+	return v.getTotalLength();
+}
+
+
 pySpParVec& pySpParVec::operator+=(const pySpParVec& other)
 {
 	v.operator+=(other.v);
