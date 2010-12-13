@@ -5,6 +5,23 @@ template <class IT, class NT>
 class FullyDist
 {
 public:
+	FullyDist():glen(0)
+	{
+		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	}
+	FullyDist(IT globallen): glen(globallen) 
+	{
+		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	}
+	FullyDist( shared_ptr<CommGrid> grid):glen(0)
+	{
+		commGrid.reset(new CommGrid(*grid));		
+	}
+	FullyDist( shared_ptr<CommGrid> grid, IT globallen): glen(globallen)
+	{
+		commGrid.reset(new CommGrid(*grid));		
+	}
+
 	IT LengthUntil() const;
 	IT MyLocLength() const;
 	IT TotalLength() const { return glen; }

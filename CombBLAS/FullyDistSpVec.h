@@ -42,7 +42,7 @@ class DistEdgeList;
  **/
   
 template <class IT, class NT>
-class FullyDistSpVec
+class FullyDistSpVec: public FullyDist<IT,NT>
 {
 public:
 	FullyDistSpVec ( );
@@ -108,6 +108,10 @@ public:
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+
+protected:
+	using FullyDist<IT,NT>::glen; 
+	using FullyDist<IT,NT>::commGrid; 
 
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros

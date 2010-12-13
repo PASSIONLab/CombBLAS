@@ -6,25 +6,21 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: commGrid(grid), glen(zero), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist(grid), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: commGrid(grid), glen(globallen), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist(grid,globallen), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (): glen(zero), NOT_FOUND(numeric_limits<NT>::min())
-{
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-};
+FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist(), NOT_FOUND(numeric_limits<NT>::min())
+{ };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): glen(globallen), NOT_FOUND(numeric_limits<NT>::min())
-{
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-}
+FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist(globallen), NOT_FOUND(numeric_limits<NT>::min())
+{ }
 
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)

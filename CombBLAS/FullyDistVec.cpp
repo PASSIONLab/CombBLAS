@@ -3,36 +3,29 @@
 #include "Operations.h"
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ()
-{
-	zero = static_cast<NT>(0);
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-}
+FullyDistVec<IT, NT>::FullyDistVec (): zero(0), FullyDist()
+{ }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id)
-{
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
-}
+FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id), FullyDist()
+{ }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (IT locallength, NT initval, NT id): zero(id)
+FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id): zero(id), FullyDist(globallen)
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 	arr.resize(locallength, initval);
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id)
-{
-	commGrid.reset(new CommGrid(*grid));		
-};
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id), FullyDist(grid)
+{ }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id): commGrid(grid), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
+: zero(id), FullyDist(grid,globallen)
 {
 	arr.resize(locallength, initval);
-};
+}
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
@@ -49,10 +42,10 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
-	arr.resize(rhs.length);
+	arr.resize(rhs.MyLocLength());
 	std::fill(arr.begin(), arr.end(), zero);	
 
-	IT spvecsize = rhs.ind.size();
+	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
 	{
 		arr[rhs.ind[i]] = rhs.num[i];
@@ -61,21 +54,13 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	return *this;
 }
 
-template <class IT, class NT>
-FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)	
-{
-	if (this == &rhs)      	// Same object?
-      		return *this;   // Yes, so skip assignment, and just return *this.
-	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
-	arr = rhs.arr;
-	zero = rhs.zero;
-	return *this;
-}
+// Let the compiler create an assignment operator and call base class' 
+// assignment operator automatically
 
 template <class IT, class NT>
-FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & victim)		// FullyDistSpVec->FullyDistVec conversion operator
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & victim)
 {
-	commGrid.reset(new CommGrid(*(victim.commGrid)));		
+	FullyDist<IT,NT>::operator= (victim);	// to update glen and commGrid
 	arr.swap(victim.arr);
 	zero = victim.zero;
 	return *this;
@@ -84,7 +69,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & vi
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< IT,NT > & rhs)		
 {
-	IT spvecsize = rhs.ind.size();
+	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
 	{
 		if(arr[rhs.ind[i]] == zero) // not set before
@@ -98,7 +83,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< I
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator-=(const FullyDistSpVec< IT,NT > & rhs)		
 {
-	IT spvecsize = rhs.ind.size();
+	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
 	{
 		arr[rhs.ind[i]] -= rhs.num[i];
@@ -182,7 +167,7 @@ IT FullyDistVec<IT,NT>::Count(_Predicate pred) const
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
 	return whole;	
 }
-
+// ABAB: I am here !
 
 //! Returns a dense vector of global indices 
 //! for which the predicate is satisfied

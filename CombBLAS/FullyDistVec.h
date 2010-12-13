@@ -33,13 +33,12 @@ class FullyDistVec: public FullyDist<IT,NT>
 public:
 	FullyDistVec ( );
 	FullyDistVec ( NT id) ;
-	FullyDistVec ( IT locallength, NT initval, NT id); // initializes the vector to size locallength (if this node is on a diagonal)
+	FullyDistVec ( IT globallen, NT initval, NT id); 
 	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
-	FullyDistVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
+	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
-	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
@@ -62,15 +61,9 @@ public:
 	void RandPerm();	// randomly permute the vector
 
 	using FullyDist<IT,NT>::LengthUntil;
-	using FullyDist<IT,NT>::MyLocLength;
 	using FullyDist<IT,NT>::TotalLength;
 	using FullyDist<IT,NT>::Owner;
-
-	// Get rid of the following...
-	IT getTypicalLocLength() const;
-	IT getTotalLength(MPI::Intracomm & comm) const;
-	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
-	IT getLocalLength() const { return arr.size(); }
+	IT MyLocLength() const { return arr.size(); }	// override base class function
 	
 	template <typename _Predicate>
 	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
@@ -105,9 +98,10 @@ public:
 	
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
-			
+protected:
+	using FullyDist<IT,NT>::glen; 
+	using FullyDist<IT,NT>::commGrid; 
 private:
-	shared_ptr<CommGrid> commGrid;
 	vector< NT > arr;
 	NT zero;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 
 
