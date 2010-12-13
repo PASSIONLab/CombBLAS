@@ -116,10 +116,9 @@ public:
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 
-	
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
-
+	NT NOT_FOUND; 
 private:
 	shared_ptr<CommGrid> commGrid;
 	vector< IT > ind;	// ind.size() give the number of nonzeros
@@ -127,7 +126,6 @@ private:
 	IT length;		// actual local length of the vector (including zeros)
 	bool diagonal;
 	const static IT zero = static_cast<IT>(0);
-	NT NOT_FOUND; 
 
 	template <class IU, class NU>
 	friend class SpParVec;

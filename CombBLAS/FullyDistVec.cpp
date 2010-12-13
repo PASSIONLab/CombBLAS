@@ -291,7 +291,6 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 			found.num.push_back(arr[i]);
 		}
 	}
-	found.length = size;
 	return found;	
 }
 
@@ -588,40 +587,6 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	DeleteAll(sdispls, sendcnt, databuf,reversemap);
 	return Indexed;
 }
-
-template <class IT, class NT>
-IT FullyDistVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
-{
-	IT totnnz = 0;
-	if (comm != MPI::COMM_NULL)	
-	{
-		IT locnnz = arr.size();
-		comm.Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
-	}
-	return totnnz;
-}
-
-template <class IT, class NT>
-IT FullyDistVec<IT,NT>::getTypicalLocLength() const
-{
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = arr.size(); 
-	if (rank == nprocs-1 && nprocs > 1)
-	{
-		// the local length on the last processor will be greater than the others if the vector length is not evenly divisible
-		// but for these calculations we need that length
-		World.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
-	}
-	else if (rank == 0 && nprocs > 1)
-	{
-		World.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
-	}
-	return n_perproc;
-}
-
-
 
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const

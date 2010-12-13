@@ -40,6 +40,60 @@ int main(int argc, char* argv[])
 
 		FullyDistSpVec<int64_t, int64_t> FDSV = FDV.Find(IsOdd<int64_t>());
 		FDSV.DebugPrint();
+
+		SpParVec<int64_t, int64_t> SPV_C(12);
+		SPV_C.SetElement(2,2);	
+		SPV_C.SetElement(4,4);	
+		SPV_C.SetElement(5,-5);	
+		SPV_C.SetElement(6,6);	
+
+		SpParVec<int64_t, int64_t> SPV_D(12);
+		SPV_D.SetElement(2,4);	
+		SPV_D.SetElement(3,9);	
+		SPV_D.SetElement(5,-25);	
+		SPV_D.SetElement(7,-49);	
+		
+		SPV_C += SPV_D;
+		SPV_D += SPV_D;
+		SPV_C.DebugPrint();
+		SPV_D.DebugPrint();
+
+		SpParVec<int64_t, int64_t> SPV_E(3);
+		SPV_E.SetElement(0,3);
+		SPV_E.SetElement(1,7);
+		SPV_E.SetElement(2,10);
+		SPV_E.DebugPrint();
+
+		SpParVec<int64_t, int64_t> SPV_F = SPV_C(SPV_E);
+		SPV_F.DebugPrint();
+		SpParVec<int64_t, int64_t> SPV_H = SPV_C;
+		SpParVec<int64_t, int64_t> SPV_J = SPV_H(SPV_F);
+		int64_t val = SPV_J[8];
+		stringstream tss;
+		string ss;
+		if(val == SPV_J.NOT_FOUND)
+		{	
+			ss = "NOT_FOUND";
+		}
+		else
+		{
+			tss << val;
+			ss = tss.str();
+		}
+		cout << ss << endl;	
+		SPV_J.SetElement(8, 777);
+
+		val = SPV_J[8];
+		if(val == SPV_J.NOT_FOUND)
+		{	
+			ss = "NOT_FOUND";
+		}
+		else
+		{
+			tss << val;
+			ss = tss.str();
+		}
+		cout << ss << endl;	
 	}
 	MPI::Finalize();
 	return 0;

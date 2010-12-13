@@ -311,7 +311,12 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 	if(this != &rhs)		
 	{	
 		if(diagonal)	// Only the diagonal processors hold values
-		{
+		{	
+			if(length != rhs.length)
+			{
+				cerr << "Vector dimensions don't match for addition\n";
+				return *this; 	
+			}
 			IT lsize = ind.size();
 			IT rsize = rhs.ind.size();
 
@@ -342,7 +347,6 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 			num.swap(nnum);
-			length = ind.size();
 		} 	
 	}	
 	return *this;
@@ -354,6 +358,11 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator-=(const SpParVec<IT,NT> & rhs)
 	{	
 		if(diagonal)	// Only the diagonal processors hold values
 		{
+			if(length != rhs.length)
+			{
+				cerr << "Vector dimensions don't match for addition\n";
+				return *this; 	
+			}
 			IT lsize = ind.size();
 			IT rsize = rhs.ind.size();
 
@@ -384,7 +393,6 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator-=(const SpParVec<IT,NT> & rhs)
 			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 			num.swap(nnum);
-			length = ind.size();
 		} 	
 	}	
 	return *this;

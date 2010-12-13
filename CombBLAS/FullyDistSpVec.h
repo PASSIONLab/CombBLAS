@@ -14,6 +14,7 @@
 #include "CommGrid.h"
 #include "promote.h"
 #include "SpParMat.h"
+#include "FullyDist.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -66,7 +67,7 @@ public:
 	}
 
 	void PrintInfo(string vecname) const;
-	void iota(IT size, NT first);
+	void iota(IT globalsize, NT first);
 	FullyDistSpVec<IT,NT> operator() (const FullyDistSpVec<IT,IT> & ri) const;	//!< SpRef (expects NT of ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	NT operator[](IT indx) const;
@@ -86,17 +87,14 @@ public:
 		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
-	IT LengthUntil() const;
-	IT MyLocLength() const;
-	IT TotalLength() const { return glen; }
-	int Owner(IT gind, IT & lind) const;
+	using FullyDist<IT,NT>::LengthUntil;
+	using FullyDist<IT,NT>::MyLocLength;
+	using FullyDist<IT,NT>::TotalLength;
+	using FullyDist<IT,NT>::Owner;
 
 	void setNumToInd()
 	{
-		MPI::Intracomm World = commGrid->GetWorld();
-           	int rank = World.Get_rank();
-            	IT n_perproc = getTypicalLocLength();
-            	IT offset = static_cast<IT>(rank) * n_perproc;
+		IT offset = LengthUntil();
             	transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));
 	}
 
@@ -112,11 +110,8 @@ public:
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 
 private:
-	
-	shared_ptr<CommGrid> commGrid;
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	IT glen;		// global length (actual "length" including zeros)
 	const static IT zero = static_cast<IT>(0);
 	NT NOT_FOUND; 
 

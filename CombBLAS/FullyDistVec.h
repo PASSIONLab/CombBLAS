@@ -13,6 +13,7 @@
 	#include <tr1/memory>
 #endif
 #include "CommGrid.h"
+#include "FullyDist.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -27,7 +28,7 @@ template <class IT>
 class DistEdgeList;
 
 template <class IT, class NT>
-class FullyDistVec
+class FullyDistVec: public FullyDist<IT,NT>
 {
 public:
 	FullyDistVec ( );
@@ -60,6 +61,12 @@ public:
 	void iota(IT size, NT first);
 	void RandPerm();	// randomly permute the vector
 
+	using FullyDist<IT,NT>::LengthUntil;
+	using FullyDist<IT,NT>::MyLocLength;
+	using FullyDist<IT,NT>::TotalLength;
+	using FullyDist<IT,NT>::Owner;
+
+	// Get rid of the following...
 	IT getTypicalLocLength() const;
 	IT getTotalLength(MPI::Intracomm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }

@@ -39,14 +39,13 @@ void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 template <class IT, class NT>
 NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 {
-	IT begin = LengthUntil();
-	IT end = begin + MyLocLength();
 	NT val;
-	if(indx >= begin && indx < end)
+	IT locind;
+	int owner = Owner(indx, locind);
+	if(commGrid->GetRank() == owner)
 	{
-		IT locindx = indx-begin; 
-		typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locindx);	// ind is a sorted vector
-		if(it != ind.end() && locindx == (*it))	// found
+		typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locind);	// ind is a sorted vector
+		if(it != ind.end() && locind == (*it))	// found
 		{
 			val = num[it-ind.begin()];
 		}
@@ -63,24 +62,22 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	IT begin = LengthUntil();
-	IT end = begin + MyLocLength();
-	NT val;
-	if(indx >= begin && indx < end)
+	IT locind;
+	int owner = Owner(indx, locind);
+	if(commGrid->GetRank() == owner)
 	{
-		IT locindx = indx-begin; 
-		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locindx);	
+		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);	
 		if(iter == ind.end())	// beyond limits, insert from back
 		{
-			ind.push_back(locindx);
+			ind.push_back(locind);
 			num.push_back(numx);
 		}
-		else if (locindx < *iter)	// not found, insert in the middle
+		else if (locind < *iter)	// not found, insert in the middle
 		{
 			// the order of insertions is crucial
 			// if we first insert to ind, then ind.begin() is invalidated !
 			num.insert(num.begin() + (iter-ind.begin()), numx);
-			ind.insert(iter, locindx);
+			ind.insert(iter, locind);
 		}
 		else // found
 		{
@@ -185,17 +182,14 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 }
 
 template <class IT, class NT>
-void FullyDistSpVec<IT,NT>::iota(IT size, NT first)
+void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 {
-	int rank = commGrid->GetRank();
-	int nprocs = commGrid->GetSize();
-	IT n_perproc = size / nprocs;
-
-	length = (rank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
+	glen = globalsize;
+	IT length = MyLocLength();
 	ind.resize(length);
 	num.resize(length);
 	SpHelper::iota(ind.begin(), ind.end(), zero);	// offset'd within processors
-	SpHelper::iota(num.begin(), num.end(), (rank * n_perproc) + first);	// global across processors
+	SpHelper::iota(num.begin(), num.end(), LengthUntil() + first);	// global across processors
 }
 
 template <class IT, class NT>
@@ -203,23 +197,20 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
-	IT nnz = ind.size(); 
+	IT nnz = getlocnnz(); 
 	pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
-
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(dist, dist+rank, 0);
-
+	IT sizeuntil = accumulate(dist, dist+rank, 0);
 	for(size_t i=0; i<nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
-		vecpair[i].second = ind[i] + lengthuntil;	
+		vecpair[i].second = ind[i] + sizeuntil;	
 	}
-
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
     	psort::parallel_sort (vecpair, vecpair + nnz,  dist, World);
 
@@ -234,7 +225,8 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	delete [] vecpair;
 	delete [] dist;
 
-	temp.length = length;
+	temp.NOT_FOUND = NOT_FOUND;
+	temp.glen = glen;
 	temp.ind = nind;
 	temp.num = nnum;
 	return temp;
@@ -245,8 +237,13 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<
 {
 	if(this != &rhs)		
 	{	
-		IT lsize = ind.size();
-		IT rsize = rhs.ind.size();
+		if(glen != rhs.glen)
+		{
+			cerr << "Vector dimensions don't match for addition\n";
+			return *this; 	
+		}
+		IT lsize = getlocnnz();
+		IT rsize = rhs.getlocnnz();
 
 		vector< IT > nind;
 		vector< NT > nnum;
@@ -275,7 +272,6 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
-		length = ind.size(); 	
 	}	
 	return *this;
 };	
@@ -284,9 +280,13 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 {
 	if(this != &rhs)		
 	{	
-		IT lsize = ind.size();
-		IT rsize = rhs.ind.size();
-
+		if(glen != rhs.glen)
+		{
+			cerr << "Vector dimensions don't match for addition\n";
+			return *this; 	
+		}
+		IT lsize = getlocnnz();
+		IT rsize = rhs.getlocnnz();
 		vector< IT > nind;
 		vector< NT > nnum;
 		nind.reserve(lsize+rsize);
@@ -309,12 +309,11 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 			else
 			{
 				nind.push_back( ind[i] );
-				nnum.push_back( num[i++] - rhs.num[j++] );
+				nnum.push_back( num[i++] - rhs.num[j++] );	// ignore numerical cancellations
 			}
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
-		length = ind.size();
 	} 		
 	return *this;
 };	
@@ -323,7 +322,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 template <class IT, class NT>
 ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
-	IT total_n, total_nnz, n_perproc;
+	IT total_nnz;
 	MPI::Intracomm World = commGrid->GetWorld();
 	int neighs = World.Get_size();	// number of neighbors (including oneself)
 	int buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
@@ -336,7 +335,6 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	int recvcount;
 	IT * inds; 
 	NT * vals;
-
 	int rank = World.Get_rank();	
 	if(rank == master)	// 1 processor only
 	{		
@@ -348,9 +346,8 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		{
 			infile.clear();
 			infile.seekg(0);
-			infile >> total_n >> total_nnz;
-			n_perproc = total_n / neighs;	// the last proc gets the extras
-			World.Bcast(&total_n, 1, MPIType<IT>(), master);			
+			infile >> glen >> total_nnz;
+			World.Bcast(&glen, 1, MPIType<IT>(), master);			
 	
 			IT tempind;
 			NT tempval;
@@ -360,8 +357,9 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				infile >> tempind;
 				infile >> tempval;
 				tempind--;
-				int rec = std::min((int)(tempind / n_perproc), neighs-1);	// recipient processor along the diagonal
-				inds[ rec * buffperneigh + curptrs[rec] ] = tempind;
+				IT locind;
+				int rec = Owner(tempind, locind);	// recipient (owner) processor
+				inds[ rec * buffperneigh + curptrs[rec] ] = locind;
 				vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
 				++ (curptrs[rec]);				
 
@@ -379,16 +377,15 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 	
 					// now push what is ours to tuples
-					IT offset = master * n_perproc;
 					for(IT i=zero; i< recvcount; ++i)
 					{					
-						ind.push_back( tempinds[i]-offset );
+						ind.push_back( tempinds[i] );	// already offset'd by the sender
 						num.push_back( tempvals[i] );
 					}
 
 					// reset current pointers so that we can reuse {inds,vals} buffers
 					fill_n(curptrs, neighs, 0);
-						DeleteAll(tempinds, tempvals);
+					DeleteAll(tempinds, tempvals);
 				}
 				++ cnz;
 			}
@@ -400,17 +397,16 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		}
 		else	// input file does not exist !
 		{
-			total_n = 0;	
-			World.Bcast(&total_n, 1, MPIType<IT>(), master);						
+			glen = 0;	
+			World.Bcast(&glen, 1, MPIType<IT>(), master);						
 		}
 		DeleteAll(inds,vals, curptrs);
 	}
 	else 	 	// all other processors
 	{
-		World.Bcast(&total_n, 1, MPIType<IT>(), master);
-		n_perproc = total_n / neighs;
+		World.Bcast(&glen, 1, MPIType<IT>(), master);
 
-		while(total_n > 0)	// otherwise, input file do not exist
+		while(glen > 0)	// otherwise, input file do not exist
 		{
 			// first receive the receive counts ...
 			World.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
@@ -427,105 +423,17 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 
 			// now push what is ours to tuples
-			IT offset = rank * n_perproc;
 			for(IT i=zero; i< recvcount; ++i)
 			{					
-				ind.push_back( tempinds[i]-offset );
+				ind.push_back( tempinds[i] );
 				num.push_back( tempvals[i] );
 			}
 			DeleteAll(tempinds, tempvals);
 		}
 	}
 	delete [] displs;
- 	length = (rank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));	
 	World.Barrier();
 	return infile;
-}
-
-template <class IT, class NT>
-IT FullyDistSpVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
-{
-	IT totlen = 0;
-	if(comm != MPI::COMM_NULL)
-	{
-		comm.Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
-	}
-	return totlen;
-}
-
-// The full distribution is actually a two-level distribution that matches the matrix distribution
-// In this scheme, each processor row (except the last) is responsible for t = floor(n/sqrt(p)) elements. 
-// The last processor row gets the remaining (n-floor(n/sqrt(p))*(sqrt(p)-1)) elements
-// Within the processor row, each processor (except the last) is responsible for loc = floor(t/sqrt(p)) elements. 
-// Example: n=103 and p=16
-// All processors P_ij for i=0,1,2 and j=0,1,2 get floor(floor(102/4)/4) = 6 elements
-// All processors P_i3 for i=0,1,2 get 25-6*3 = 7 elements
-// All processors P_3j for j=0,1,2 get (102-25*3)/4 = 6 elements
-// Processor P_33 gets 27-6*3 = 9 elements  
-template <class IT, class NT>
-IT FullyDistSpVec<IT,NT>::LengthUntil() const
-{
-	int procrows = commGrid->GetGridRows();
-	int my_procrow = commGrid->GetRankInProcCol();
-	IT n_perprocrow = glen / procrows;	// length on a typical processor row
-	IT n_thisrow;	// length assigned to this processor row	
-	if(my_procrow == procrows-1)
-		n_thisrow = glen - (n_perprocrow*(procrows-1));
-	else
-		n_thisrow = n_perprocrow;	
-
-	int proccols = commGrid->GetGridCols();
-	int my_proccol = commGrid->GetRankInProcRow();
-	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
-
-	return ((n_perprocrow * my_procrow)+(n_perproc*my_proccol));
-}
-
-template <class IT, class NT>
-IT FullyDistSpVec<IT,NT>::MyLocLength() const
-{
-	int procrows = commGrid->GetGridRows();
-	int my_procrow = commGrid->GetRankInProcCol();
-	IT n_perprocrow = glen / procrows;	// length on a typical processor row
-	IT n_thisrow;	// length assigned to this processor row	
-	if(my_procrow == procrows-1)
-		n_thisrow = glen - (n_perprocrow*(procrows-1));
-	else
-		n_thisrow = n_perprocrow;	
-
-	int proccols = commGrid->GetGridCols();
-	int my_proccol = commGrid->GetRankInProcRow();
-	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
-	if(my_proccols == proccols-1)
-		return (n_thisrow - (n_perproc*(proccols-1)));
-	else
-		return n_perproc;	
-}
-
-//! Given global index gind,
-//! Return the owner processor id, and
-//! Assign the local index to lind
-template <class IT, class NT>
-int FullyDistSpVec<IT,NT>::Owner(IT gind, IT & lind) const
-{
-	int procrows = commGrid->GetGridRows();
-	IT n_perprocrow = glen / procrows;	// length on a typical processor row
-	int own_procrow = std::min(gind / n_perprocrow, procrows-1);	// owner's processor row
-	IT ind_withinrow = gind - (own_procrow * n_perprocrow);
-
-	IT n_thisrow;	// length assigned to owner's processor row	
-	if(own_procrow == procrows-1)
-		n_thisrow = glen - (n_perprocrow*(procrows-1));
-	else
-		n_thisrow = n_perprocrow;	
-
-	int proccols = commGrid->GetGridCols();
-	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
-	int own_proccol = std::min(ind_withinrow / n_perproc, proccols-1);
-	lind = ind_withinrow - (own_proccol * n_perproc)
-
-	// GetRank(int rowrank, int colrank) { return rowrank * grcols + colrank;}
-	return commGrid->GetRank(own_procrow, own_proccol);
 }
 
 
@@ -546,10 +454,8 @@ template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	IT nznz = getnnz();
-	IT totl = getTotalLength();
-
 	if (commGrid->GetRank() == 0)	
-		cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << totl << endl; 
+		cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << glen << endl; 
 }
 
 template <class IT, class NT>
@@ -563,7 +469,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(dist, dist+rank, 0);
+	IT sizeuntil = accumulate(dist, dist+rank, 0);
 
 	struct mystruct
 	{
@@ -603,7 +509,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(lengthuntil * dsize, datatype, datatype, "native", MPI::INFO_NULL);
+    	thefile.Set_view(sizeuntil * dsize, datatype, datatype, "native", MPI::INFO_NULL);
 
 	int count = ind.size();
 	mystruct * packed = new mystruct[count];
