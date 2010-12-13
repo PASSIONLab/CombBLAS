@@ -97,5 +97,53 @@ def bfsTree(G, start):
 	return parents;
 
 
+	# returns tuples with elements
+	# 0:  True/False of whether it is a BFS tree or not
+	# 1:  levels of each vertex in the tree (-1 if not reached)
+def isBfsTree(G, root, parents):
+
+	ret = 1;	# assume valid
+	nrowG = G.getnrow();
+
+	# calculate level in the tree for each vertex; root is at level 0
+	# about the same calculation as bfsTree, but tracks levels too
+	parents2 = pcb.pyDenseParVec(nrowG, -1);
+	fringe = pcb.pySpParVec(nrowG);
+	parents2.SetElement(root,root);
+	fringe.SetElement(root,root);
+	levels = pcb.pyDenseParVec(nrowG, -1);
+	levels.SetElement(root,0);
+
+	level = 1;
+	while fringe.getnnz() > 0:
+		fringe.setNumToInd();
+		G.SpMV_SelMax_inplace(fringe);
+		pcb.EWiseMult_inplacefirst(fringe, parents2, True, -1);
+		#fringe.printall();
+		parents2.ApplyMasked_SetTo(fringe,0);
+		parents2.add(fringe);
+		levels.ApplyMasked_SetTo(fringe,level);
+		level += 1;
+	
+	# spec test #1
+	#	Not implemented
+	
+
+	# spec test #2
+	#    tree edges should be between verts whose levels differ by 1
+	
+#FIX: need nonzero() of next stmt?
+	treeEdges = ((parents <> -1) & (parents <> root));  
+	treeI = parents[treeEdges]
+	#treeJ = 1..nrowG[treeEdges]
+	treeJ = pcb.pyDenseParVec.range(nrowG,0)[treeEdges];
+	if any(levels[treeI]-levels[treeJ] <> -1):
+		ret = -1;
+
+	
+
+	del G, parents, fringe, levels, treeEdges, treeI, treeJ
+	
+	return (ret, levels)
 
 #ToDo:  move bc() here from KDT.py

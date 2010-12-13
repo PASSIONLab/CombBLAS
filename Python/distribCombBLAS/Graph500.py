@@ -10,44 +10,15 @@ def k2Validate(G, start, parents, levels):
 	root = (levels==0).nonzero()[0][0];
 
 	
-	# Spec test #1:
-	# confirm that the tree is a tree;  i.e., that it does not have any 
-	# cycles and that every vertex with a parent is in the tree
-	visited = spv.zeros(G.nverts());		# NEW:  hmmm;  could G.nverts return a funny object that 
-									# causes zeros() to create a DPV without the "DPV."?
-									# Or use zeros_like(parents) to do the same?
-	visited[root] = 1;
-	fringe = spv.SpParVec(G.nverts());
-	fringe[root] = 1;		
-	cycle = False;
-	#ToDo:  n^2 algorithm here
-	while len(fringe.nonzero()) <> 0 and not cycle:		
-		newfringe = spv.zeros(G.nverts());
-		for i in range(len(fringe.nonzero())):
-			newvisits = (parents==fringe[i]).nonzero();
-			if (visited[newvisits]).any():
-				cycle = True;
-				break;
-			visited[newvisits] = 1;
-			newfringe[newvisits] = 1;
-		fringe = newfringe;
-	if cycle:
-		print "Cycle detected"; 
-		good = False;
-	
-	# Spec test #2:  
-	# every tree edge connects vertices whose BFS levels differ by 1
-	treeEdges = ((parents <> -2) & (parents <> -1));
-	#old treeI = parents[treeEdges].astype(int);
-	treeI = int(parents[treeEdges]);
-	treeJ = spv.range(len(treeEdges)[0])[treeEdges];	
-	if any(levels[treeI]-levels[treeJ] <> -1):
-		print "The levels of some tree edges' vertices differ by other than 1"
-
+	(valid, levels) = kdt.isBfsTree(G, start, parents);
+	#	isBfsTree implements Graph500 tests 1 and 2 
+	if ~valid:
+		print "isBfsTree detected failure of Graph500 test %d" % abs(valid);
 
 	# Spec test #3:
 	# every input edge has vertices whose levels differ by no more than 1
 	# NOTE:  code implements every _tree_ edge, not input edge
+#FIX:  visited not calculated yet
 	if any((parents <> -2) & (visited <> 1)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
