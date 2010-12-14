@@ -15,6 +15,8 @@
 #include "promote.h"
 #include "SpParMat.h"
 #include "FullyDist.h"
+#include "Exception.h"
+
 
 using namespace std;
 using namespace std::tr1;
@@ -25,6 +27,9 @@ class SpParMat;
 template <class IT>
 class DistEdgeList;
 
+
+template <class IU, class NU>
+class FullyDistVec;
 
 /** 
   * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to 
@@ -108,6 +113,7 @@ public:
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+	NT NOT_FOUND; 
 
 protected:
 	using FullyDist<IT,NT>::glen; 
@@ -117,7 +123,6 @@ private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
 	const static IT zero = static_cast<IT>(0);
-	NT NOT_FOUND; 
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;

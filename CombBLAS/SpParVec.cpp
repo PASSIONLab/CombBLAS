@@ -345,10 +345,29 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator+=(const SpParVec<IT,NT> & rhs)
 					nnum.push_back( num[i++] + rhs.num[j++] );
 				}
 			}
+			while( i < lsize)	// rhs was depleted first
+			{
+				nind.push_back( ind[i] );
+				nnum.push_back( num[i++] );
+			}
+			while( j < rsize) 	// *this was depleted first
+			{
+				nind.push_back( rhs.ind[j] );
+				nnum.push_back( rhs.num[j++] );
+			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
-			num.swap(nnum);
-		} 	
+			num.swap(nnum); 	
+		}
 	}	
+	else
+	{		
+		if(diagonal)
+		{
+			typename vector<NT>::iterator it;
+			for(it = num.begin(); it != num.end(); ++it)
+				(*it) *= 2;
+		}
+	}
 	return *this;
 };	
 template <class IT, class NT>
@@ -391,10 +410,28 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator-=(const SpParVec<IT,NT> & rhs)
 					nnum.push_back( num[i++] - rhs.num[j++] );
 				}
 			}
+			while( i < lsize)	// rhs was depleted first
+			{
+				nind.push_back( ind[i] );
+				nnum.push_back( num[i++] );
+			}
+			while( j < rsize) 	// *this was depleted first
+			{
+				nind.push_back( rhs.ind[j] );
+				nnum.push_back( -rhs.num[j++] );
+			}
 			ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
-			num.swap(nnum);
-		} 	
+			num.swap(nnum); 	
+		}
 	}	
+	else
+	{
+		if(diagonal)
+		{
+			ind.clear();
+			num.clear();
+		}
+	}
 	return *this;
 };	
 
@@ -576,8 +613,6 @@ NT SpParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
 	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
 	return totalsum;
 }
-
-
 
 template <class IT, class NT>
 void SpParVec<IT,NT>::PrintInfo(string vectorname) const

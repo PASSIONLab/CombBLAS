@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../SpParVec.h"
+#include "../FullyDistSpVec.h"
 #include "../FullyDistVec.h"
 
 using namespace std;
@@ -21,53 +21,72 @@ int main(int argc, char* argv[])
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 
+	try
 	{
-		SpParVec<int64_t, int64_t> SPV_A(1024);
+		FullyDistSpVec<int64_t, int64_t> SPV_A(1024);
 		SPV_A.SetElement(2,2);
 		SPV_A.SetElement(83,-83);
 		SPV_A.SetElement(284,284);
+		SpParHelper::Print("Printing SPV_A\n");
 		SPV_A.DebugPrint();
 		
-		SpParVec<int64_t, int64_t> SPV_B(1024);
+		FullyDistSpVec<int64_t, int64_t> SPV_B(1024);
 		SPV_B.SetElement(2,4);
 		SPV_B.SetElement(184,368);
 		SPV_B.SetElement(83,-1);
+		SpParHelper::Print("Printing SPV_B\n");
 		SPV_B.DebugPrint();
 
 		FullyDistVec<int64_t, int64_t> FDV(-1);
 		FDV.iota(64,0);
+		SpParHelper::Print("Printing FPV\n");
 		FDV.DebugPrint();
 
 		FullyDistSpVec<int64_t, int64_t> FDSV = FDV.Find(IsOdd<int64_t>());
+		SpParHelper::Print("Printing FPSV\n");
 		FDSV.DebugPrint();
 
-		SpParVec<int64_t, int64_t> SPV_C(12);
+		FullyDistSpVec<int64_t, int64_t> SPV_C(12);
 		SPV_C.SetElement(2,2);	
 		SPV_C.SetElement(4,4);	
 		SPV_C.SetElement(5,-5);	
 		SPV_C.SetElement(6,6);	
 
-		SpParVec<int64_t, int64_t> SPV_D(12);
+		SpParHelper::Print("Printing SPV_C\n");
+		SPV_C.DebugPrint();
+
+		FullyDistSpVec<int64_t, int64_t> SPV_D(12);
 		SPV_D.SetElement(2,4);	
 		SPV_D.SetElement(3,9);	
 		SPV_D.SetElement(5,-25);	
 		SPV_D.SetElement(7,-49);	
+
+		SpParHelper::Print("Printing SPV_D\n");
+		SPV_D.DebugPrint();
 		
 		SPV_C += SPV_D;
 		SPV_D += SPV_D;
+
+		SpParHelper::Print("Printing SPV_C + SPV_D\n");
 		SPV_C.DebugPrint();
+
+		SpParHelper::Print("Printing SPV_D + SPV_D\n");
 		SPV_D.DebugPrint();
 
-		SpParVec<int64_t, int64_t> SPV_E(3);
+		FullyDistSpVec<int64_t, int64_t> SPV_E(3);
 		SPV_E.SetElement(0,3);
 		SPV_E.SetElement(1,7);
 		SPV_E.SetElement(2,10);
+
+		SpParHelper::Print("Printing SPV_E\n");
 		SPV_E.DebugPrint();
 
-		SpParVec<int64_t, int64_t> SPV_F = SPV_C(SPV_E);
+		FullyDistSpVec<int64_t, int64_t> SPV_F = SPV_C(SPV_E);
+
+		SpParHelper::Print("Printing SPV_F = SPV_C(SPV_E)\n");
 		SPV_F.DebugPrint();
-		SpParVec<int64_t, int64_t> SPV_H = SPV_C;
-		SpParVec<int64_t, int64_t> SPV_J = SPV_H(SPV_F);
+		FullyDistSpVec<int64_t, int64_t> SPV_H = SPV_C;
+		FullyDistSpVec<int64_t, int64_t> SPV_J = SPV_H(SPV_F);
 		int64_t val = SPV_J[8];
 		stringstream tss;
 		string ss;
@@ -80,7 +99,8 @@ int main(int argc, char* argv[])
 			tss << val;
 			ss = tss.str();
 		}
-		cout << ss << endl;	
+		if(myrank == 0)
+			cout << ss << endl;	
 		SPV_J.SetElement(8, 777);
 
 		val = SPV_J[8];
@@ -93,8 +113,14 @@ int main(int argc, char* argv[])
 			tss << val;
 			ss = tss.str();
 		}
-		cout << ss << endl;	
+		if(myrank == 0)
+			cout << ss << endl;	
+
 	}
+	catch (exception& e)
+  	{
+    		cout << e.what() << endl;
+  	}
 	MPI::Finalize();
 	return 0;
 }

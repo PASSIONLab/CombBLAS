@@ -12,8 +12,10 @@
 #else
 	#include <tr1/memory>
 #endif
+
 #include "CommGrid.h"
 #include "FullyDist.h"
+#include "Exception.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -57,13 +59,14 @@ public:
 		return GetElement(indx);
 	} 
 	
-	void iota(IT size, NT first);
+	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
 
 	using FullyDist<IT,NT>::LengthUntil;
 	using FullyDist<IT,NT>::TotalLength;
 	using FullyDist<IT,NT>::Owner;
-	IT MyLocLength() const { return arr.size(); }	// override base class function
+	using FullyDist<IT,NT>::MyLocLength;
+	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resize
 	
 	template <typename _Predicate>
 	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
@@ -98,9 +101,11 @@ public:
 	
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
+
 protected:
 	using FullyDist<IT,NT>::glen; 
 	using FullyDist<IT,NT>::commGrid; 
+
 private:
 	vector< NT > arr;
 	NT zero;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 

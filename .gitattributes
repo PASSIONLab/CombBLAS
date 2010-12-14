@@ -79,6 +79,7 @@ CombBLAS/DenseParVec.h -text
 CombBLAS/DistEdgeList.cpp -text
 CombBLAS/DistEdgeList.h -text
 CombBLAS/Doxyfile -text
+CombBLAS/Exception.h -text
 CombBLAS/Friends.h -text
 CombBLAS/FullyDist.h -text
 CombBLAS/FullyDistSpVec.cpp -text

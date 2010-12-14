@@ -6,29 +6,28 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist(grid), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist<IT,NT>(grid), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist(grid,globallen), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist<IT,NT>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist(), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist<IT,NT>(), NOT_FOUND(numeric_limits<NT>::min())
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist(globallen), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist<IT,NT>(globallen), NOT_FOUND(numeric_limits<NT>::min())
 { }
 
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {
-	commGrid.reset(new CommGrid(*(victim.commGrid)));		
+	FullyDist<IT,NT>::operator= (victim);	// to update glen and commGrid
 	ind.swap(victim.ind);
 	num.swap(victim.num);
-	glen = victim.glen;
 	NOT_FOUND = victim.NOT_FOUND;
 }
 
@@ -95,12 +94,29 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	FullyDistSpVec<IT,NT> Indexed(commGrid);
 	int nprocs = World.Get_size();
 	vector< vector<IT> > data_req(nprocs);
-	IT locnnz = getlocnnz();
+	IT locnnz = ri.getlocnnz();
+
+	int local = 1;
+	int whole = 1;
+	for(IT i=0; i < locnnz; ++i)
+	{
+		if(ri.num[i] >= glen || ri.num[i] < 0)
+		{
+			local = 0;
+		} 
+	}
+	World.Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	if(whole == 0)
+	{
+		throw oorex;
+		return Indexed;
+	}
 
 	for(IT i=0; i < locnnz; ++i)
 	{
 		IT locind;
 		int owner = Owner(ri.num[i], locind);	// numerical values in ri are 0-based
+		cout << World.Get_rank() << ": " << ri.num[i] << " is owned by " << owner << " with local index " << locind << endl; 
 		data_req[owner].push_back(locind);
 	}
 	IT * sendbuf = new IT[locnnz];
@@ -266,9 +282,25 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<
 				nnum.push_back( num[i++] + rhs.num[j++] );
 			}
 		}
+		while( i < lsize)	// rhs was depleted first
+		{
+			nind.push_back( ind[i] );
+			nnum.push_back( num[i++] );
+		}
+		while( j < rsize) 	// *this was depleted first
+		{
+			nind.push_back( rhs.ind[j] );
+			nnum.push_back( rhs.num[j++] );
+		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
 	}	
+	else
+	{		
+		typename vector<NT>::iterator it;
+		for(it = num.begin(); it != num.end(); ++it)
+			(*it) *= 2;
+	}
 	return *this;
 };	
 template <class IT, class NT>
@@ -308,9 +340,24 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 				nnum.push_back( num[i++] - rhs.num[j++] );	// ignore numerical cancellations
 			}
 		}
+		while( i < lsize)	// rhs was depleted first
+		{
+			nind.push_back( ind[i] );
+			nnum.push_back( num[i++] );
+		}
+		while( j < rsize) 	// *this was depleted first
+		{
+			nind.push_back( rhs.ind[j] );
+			nnum.push_back( rhs.num[j++] );
+		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
 	} 		
+	else
+	{
+		ind.clear();
+		num.clear();
+	}
 	return *this;
 };	
 

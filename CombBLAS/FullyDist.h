@@ -1,6 +1,11 @@
 #ifndef _FULLY_DIST_H
 #define _FULLY_DIST_H
 
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
 template <class IT, class NT>
 class FullyDist
 {
@@ -42,10 +47,18 @@ int FullyDist<IT,NT>::Owner(IT gind, IT & lind) const
 {
 	int procrows = commGrid->GetGridRows();
 	IT n_perprocrow = glen / procrows;	// length on a typical processor row
-	int own_procrow = std::min(gind / n_perprocrow, procrows-1);	// owner's processor row
-	IT ind_withinrow = gind - (own_procrow * n_perprocrow);
+	IT n_thisrow;		// length assigned to owner's processor row	
+	int own_procrow;	// owner's processor row
+	if(n_perprocrow != 0)
+	{
+		own_procrow = std::min(static_cast<int>(gind / n_perprocrow), procrows-1);	// owner's processor row
+	}
+	else	// all owned by the last processor row
+	{
+		own_procrow = procrows -1;
+	}
 
-	IT n_thisrow;	// length assigned to owner's processor row	
+	IT ind_withinrow = gind - (own_procrow * n_perprocrow);
 	if(own_procrow == procrows-1)
 		n_thisrow = glen - (n_perprocrow*(procrows-1));
 	else
@@ -53,7 +66,16 @@ int FullyDist<IT,NT>::Owner(IT gind, IT & lind) const
 
 	int proccols = commGrid->GetGridCols();
 	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
-	int own_proccol = std::min(ind_withinrow / n_perproc, proccols-1);
+
+	int own_proccol;
+	if(n_perproc != 0)
+	{
+		own_proccol = std::min(static_cast<int>(ind_withinrow / n_perproc), proccols-1);
+	}
+	else
+	{
+		own_proccol = proccols-1;
+	}
 	lind = ind_withinrow - (own_proccol * n_perproc);
 
 	// GetRank(int rowrank, int colrank) { return rowrank * grcols + colrank;}

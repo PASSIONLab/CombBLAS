@@ -3,28 +3,28 @@
 #include "Operations.h"
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (): zero(0), FullyDist()
+FullyDistVec<IT, NT>::FullyDistVec (): zero(0), FullyDist<IT,NT>()
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id), FullyDist()
+FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id), FullyDist<IT,NT>()
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id): zero(id), FullyDist(globallen)
+FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id): zero(id), FullyDist<IT,NT>(globallen)
 {
-	arr.resize(locallength, initval);
+	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id), FullyDist(grid)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id), FullyDist<IT,NT>(grid)
 { }
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
-: zero(id), FullyDist(grid,globallen)
+: zero(id), FullyDist<IT,NT>(grid,globallen)
 {
-	arr.resize(locallength, initval);
+	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
@@ -167,7 +167,6 @@ IT FullyDistVec<IT,NT>::Count(_Predicate pred) const
 	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
 	return whole;	
 }
-// ABAB: I am here !
 
 //! Returns a dense vector of global indices 
 //! for which the predicate is satisfied
@@ -177,64 +176,37 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 {
 	FullyDistVec<IT,IT> found(commGrid, (IT) 0);
 	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT old_n_perproc = getTypicalLocLength();
-		
-	IT size = arr.size();
-	for(IT i=0; i<size; ++i)
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
+
+	IT sizelocal = LocArrSize();
+	IT sizesofar = LengthUntil();
+	for(IT i=0; i<sizelocal; ++i)
 	{
 		if(pred(arr[i]))
 		{
-			found.arr.push_back(i+old_n_perproc*rank);
+			found.arr.push_back(i+sizesofar);
 		}
 	}
-	World.Barrier();
+	IT * dist = new IT[nprocs];
+	IT nsize = found.arr.size(); 
+	dist[rank] = nsize;
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(dist, dist+rank, 0);
+	found.glen = accumulate(dist, dist+nprocs, 0);
 
-	// Since the found vector is not reshuffled yet, we can't use getTypicalLocLength() at this point
-	IT n_perproc = found.getTotalLength(World) / nprocs;
-	if(n_perproc == 0)	// it has less than p elements, all owned by the last processor
-	{
-		if(rank != nprocs-1)
-		{
-			int arrsize = found.arr.size();
-			World.Gather(&arrsize, 1, MPI::INT, NULL, 1, MPI::INT, nprocs-1);
-			World.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1);
-		}
-		else
-		{	
-			int * allnnzs = new int[nprocs];
-			allnnzs[rank] = found.arr.size();
-			World.Gather(MPI::IN_PLACE, 1, MPI::INT, allnnzs, 1, MPI::INT, nprocs-1);
-				
-			int * rdispls = new int[nprocs];
-			rdispls[0] = 0;
-			for(int i=0; i<nprocs-1; ++i)
-				rdispls[i+1] = rdispls[i] + allnnzs[i];
-
-			IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
-			vector<IT> recvbuf(totrecv);
-			World.Gatherv(MPI::IN_PLACE, 1, MPI::INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
-
-			found.arr.swap(recvbuf);
-			DeleteAll(allnnzs, rdispls);
-		}
-		return found;		// don't execute further
-	}
-
-	IT lengthuntil = rank * n_perproc;
+	// Although the found vector is not reshuffled yet, its glen and commGrid are set
+	// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
 
 	// rebalance/redistribute
-	IT nsize = found.arr.size();
 	int * sendcnt = new int[nprocs];
 	fill(sendcnt, sendcnt+nprocs, 0);
 	for(IT i=0; i<nsize; ++i)
 	{
-		// owner id's are monotonically increasing and continuous
-		int owner = std::min(static_cast<int>( (i+lengthuntil) / n_perproc), nprocs-1); 
-		sendcnt[owner]++;
+		IT locind;
+		int owner = found.Owner(i+lengthuntil, locind);	
+		++sendcnt[owner];
 	}
-
 	int * recvcnt = new int[nprocs];
 	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
 
@@ -247,7 +219,6 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-
 	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
 	vector<IT> recvbuf(totrecv);
 			
@@ -292,33 +263,28 @@ ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = getTypicalLocLength();	
-	IT offset = rank * n_perproc;
-		
-	if (n_perproc == 0) 
+	int rank = commGrid->GetRank();
+	if (glen == 0) 
 	{
-		cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
+		if(rank == 0)
+			cout << "FullyDistVec::SetElement can't be called on an empty vector." << endl;
 		return;
 	}
-	IT owner = (indx) / n_perproc;	
-	IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-	if(rec == rank) // this process is the owner
+	IT locind;
+	int owner = Owner(indx, locind);
+	if(commGrid->GetRank() == owner)
 	{
-		IT locindx = indx-offset;	
-		if (locindx > arr.size()-1)
+		if (locind > (LocArrSize() -1))
 		{
 			cout << "FullyDistVec::SetElement cannot expand array" << endl;
 		}
-		else if (locindx < 0)
+		else if (locind < 0)
 		{
 			cout << "FullyDistVec::SetElement local index < 0" << endl;
 		}
 		else
 		{
-			arr[locindx] = numx;
+			arr[locind] = numx;
 		}
 	}
 }
@@ -328,34 +294,32 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
 	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = getTypicalLocLength();
-	IT offset = rank * n_perproc;	
-	if (n_perproc == 0 && rank == 0) 
+	int rank = commGrid->GetRank();
+	if (glen == 0) 
 	{
-		cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
+		if(rank == 0)
+			cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
+
 		return numeric_limits<NT>::min();
 	}
-		
-	int owner = (indx) / n_perproc;	
-	IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-		
-	if(rec == rank) // this process is the owner
+	IT locind;
+	int owner = Owner(indx, locind);
+	if(commGrid->GetRank() == owner)
 	{
-		IT locindx = indx-offset;
-
-		if (locindx > arr.size()-1)
+		if (locind > (LocArrSize() -1))
 		{
-			cout << "FullyDistVec::GetElement cannot expand array" << endl;
+			cout << "FullyDistVec::GetElement local index > size" << endl;
+			ret = numeric_limits<NT>::min();
+
 		}
-		else if (locindx < 0)
+		else if (locind < 0)
 		{
 			cout << "FullyDistVec::GetElement local index < 0" << endl;
+			ret = numeric_limits<NT>::min();
 		}
 		else
 		{
-			ret = arr[locindx];
+			ret = arr[locind];
 		}
 	}
 	World.Bcast(&ret, 1, MPIType<NT>(), owner);
@@ -370,20 +334,19 @@ void FullyDistVec<IT,NT>::DebugPrint()
     	int rank = World.Get_rank();
     	int nprocs = World.Get_size();
     	MPI::File thefile = MPI::File::Open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
-
-	IT n_perproc = getTypicalLocLength();
-	IT lengthuntil = rank * n_perproc;
+	IT lengthuntil = LengthUntil();
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
     	thefile.Set_view(lengthuntil * sizeof(NT), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
 
-	int count = arr.size();
+	IT count = LocArrSize();	
 	thefile.Write(&(arr[0]), count, MPIType<NT>());
 	thefile.Close();
 	
 	// Now let processor-0 read the file and print
-	IT total = getTotalLength(World);
+	IT * counts = new IT[nprocs];
+	World.Gather(&count, 1, MPIType<IT>(), counts, 1, MPIType<IT>(), 0);	// gather at root=0
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistvec", "r");
@@ -392,31 +355,23 @@ void FullyDistVec<IT,NT>::DebugPrint()
                         cerr << "Problem reading binary input file\n";
                         return;
                 }
-		IT maxd = std::max(total-(n_perproc * (nprocs-1)), n_perproc);
+		IT maxd = *max_element(counts, counts+nprocs);
 		NT * data = new NT[maxd];
 
-		for(int i=0; i<nprocs-1; ++i)
+		for(int i=0; i<nprocs; ++i)
 		{
-			// read n_perproc integers and print them
-			fread(data, sizeof(NT), n_perproc,f);
+			// read counts[i] integers and print them
+			fread(data, sizeof(NT), counts[i],f);
 
 			cout << "Elements stored on proc " << i << ": {" ;	
-			for (int j = 0; j < n_perproc; j++)
+			for (int j = 0; j < counts[i]; j++)
 			{
 				cout << data[j] << ",";
 			}
 			cout << "}" << endl;
 		}
-		// read the remaining total-n_perproc integers and print them
-		fread(data, sizeof(NT), total-(n_perproc * (nprocs-1)), f);
-		
-		cout << "Elements stored on proc " << nprocs-1 << ": {" ;	
-		for (int j = 0; j < total-(n_perproc * (nprocs-1)); j++)
-		{
-			cout << data[j] << ",";
-		}
-		cout << "}" << endl;
 		delete [] data;
+		delete [] counts;
 	}
 }
 
@@ -437,7 +392,7 @@ template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	IT size = arr.size();
+	IT size = LocArrSize();
 	pair<double,IT> * vecpair = new pair<double,IT>[size];
 
 	int nprocs = World.Get_size();
@@ -469,16 +424,12 @@ void FullyDistVec<IT,NT>::RandPerm()
 }
 
 template <class IT, class NT>
-void FullyDistVec<IT,NT>::iota(IT size, NT first)
+void FullyDistVec<IT,NT>::iota(IT globalsize, NT first)
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	IT n_perproc = size / nprocs;
-
-	IT length = (rank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
+	glen = globalsize;
+	IT length = MyLocLength();	// only needs glen to determine length
 	arr.resize(length);
-	SpHelper::iota(arr.begin(), arr.end(), (rank * n_perproc) + first);	// global across processors
+	SpHelper::iota(arr.begin(), arr.end(), LengthUntil() + first);	// global across processors
 }
 
 template <class IT, class NT>
@@ -494,17 +445,18 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	FullyDistVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
 	int rank = World.Get_rank();
 	int nprocs = World.Get_size();
-	IT n_perproc = getTypicalLocLength();
 	vector< vector< IT > > data_req(nprocs);	
 	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
-	for(IT i=0; i < ri.arr.size(); ++i)
+
+	IT riloclen = ri.LocArrSize();
+	for(IT i=0; i < riloclen; ++i)
 	{
-		int owner = ri.arr[i] / n_perproc;	// numerical values in ri are 0-based
-		owner = std::min(owner, nprocs-1);	// find its owner 
-		data_req[owner].push_back(ri.arr[i] - (n_perproc * owner));
+		IT locind;
+		int owner = Owner(ri.arr[i], locind);	// numerical values in ri are 0-based
+		data_req[owner].push_back(locind);
 		revr_map[owner].push_back(i);
 	}
-	IT * sendbuf = new IT[ri.arr.size()];
+	IT * sendbuf = new IT[riloclen];
 	int * sendcnt = new int[nprocs];
 	int * sdispls = new int[nprocs];
 	for(int i=0; i<nprocs; ++i)
@@ -530,13 +482,12 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		vector<IT>().swap(data_req[i]);
 	}
 
-	IT * reversemap = new IT[ri.arr.size()];
+	IT * reversemap = new IT[riloclen];
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
 		vector<IT>().swap(revr_map[i]);
 	}
-
 	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
 		
 	// We will return the requested data,
@@ -544,7 +495,6 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	// as we are indexing a dense vector, all elements exist
 	// so the displacement boundaries are the same as rdispls
 	NT * databack = new NT[totrecv];		
-
 	for(int i=0; i<nprocs; ++i)
 	{
 		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
@@ -552,16 +502,15 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 			databack[j] = arr[recvbuf[j]];
 		}
 	}
-		
 	delete [] recvbuf;
-	NT * databuf = new NT[ri.arr.size()];
+	NT * databuf = new NT[riloclen];
 
 	// the response counts are the same as the request counts 
 	World.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
 	DeleteAll(rdispls, recvcnt, databack);
 
 	// Now create the output from databuf
-	Indexed.arr.resize(ri.arr.size()); 
+	Indexed.arr.resize(riloclen); 
 	for(int i=0; i<nprocs; ++i)
 	{
 		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
@@ -576,7 +525,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const
 {
-	IT totl = getTotalLength(commGrid->GetWorld());
-	if (commGrid->GetRank() == 0)		// is always on the diagonal
+	IT totl = TotalLength();
+	if (commGrid->GetRank() == 0)		
 		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
 }
