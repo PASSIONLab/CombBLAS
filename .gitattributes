@@ -953,6 +953,7 @@ Matlab/utils/testmat.m -text
 Python/distribCombBLAS/DiGraph.py -text
 Python/distribCombBLAS/Graph.py -text
 Python/distribCombBLAS/Graph500.py -text
+Python/distribCombBLAS/feedback.py -text
 Python/pyCombBLAS/Makefile -text
 Python/pyCombBLAS/Makefile-neumann -text
 Python/pyCombBLAS/pyCombBLAS.cpp -text
