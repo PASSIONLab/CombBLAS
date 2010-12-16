@@ -87,8 +87,8 @@ namespace psort {
       // keep a list of ranges, trying to "activate" them at each branch
       vector< pair<_RandomAccessIter, _RandomAccessIter> > d_ranges(nproc - 1);
       vector< pair<_Distance *, _Distance *> > t_ranges(nproc - 1);
-      d_ranges[0] = make_pair(first, last);
-      t_ranges[0] = make_pair(targets, targets + (nproc - 1));
+      d_ranges[0] = pair<_RandomAccessIter, _RandomAccessIter>(first, last);
+      t_ranges[0] = pair<_Distance *, _Distance *>(targets, targets + (nproc - 1));
   
       // invariant: subdist[i][rank] == d_ranges[i].second - d_ranges[i].first
       // amount of data each proc still has in the search

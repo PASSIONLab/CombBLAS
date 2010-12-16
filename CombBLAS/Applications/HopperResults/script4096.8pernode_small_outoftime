@@ -1,0 +1,343 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Max scale allowed : 33
+Using the Small problem
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 391820176 and self-loops removed: 0
+Duplicates removed: 391820176 and self-loops removed: 7674
+41.432956 seconds elapsed for Kernel #1
+As a whole: 4294967296 rows and 4294967296 columns and 136655297772 nonzeros
+Max scale allowed : 33
+Using the Small problem
+Load balance: 1.02082
+15.889223 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 1200239419
+As a whole, Candidates array (permuted) has length 1200239419
+1 elements stored on proc 0,0:
+[0] = 0
+1 elements stored on proc 8,8:
+[8] = 8
+1 elements stored on proc 24,24:
+[24] = 24
+1 elements stored on proc 16,16:
+[16] = 16
+1 elements stored on proc 9,9:
+[9] = 9
+1 elements stored on proc 1,1:
+[1] = 1
+1 elements stored on proc 31,31:
+[31] = 31
+1 elements stored on proc 23,23:
+[23] = 23
+1 elements stored on proc 14,14:
+[14] = 14
+1 elements stored on proc 7,7:
+[7] = 7
+1 elements stored on proc 30,30:
+[30] = 30
+1 elements stored on proc 22,22:
+[22] = 22
+1 elements stored on proc 13,13:
+[13] = 13
+1 elements stored on proc 6,6:
+[6] = 61 elements stored on proc 32,32:
+[32] = 32
+1 elements stored on proc 29,29:
+[29] = 29
+1 elements stored on proc 21,21:
+[21] = 21
+1 elements stored on proc 12,12:
+[12] = 12
+1 elements stored on proc 5,5:
+[5] = 5
+1 elements stored on proc 38,38:
+[38] = 38
+1 elements stored on proc 28,28:
+[28] = 28
+1 elements stored on proc 20,20:
+[20] = 20
+1 elements stored on proc 11,11:
+[11] = 11
+1 elements stored on proc 4,4:
+[4] = 4
+1 elements stored on proc 37,37:
+[37] = 37
+1 elements stored on proc 27,27:
+[27] = 27
+1 elements stored on proc 19,19:
+[19] = 19
+1 elements stored on proc 10,10:
+[10] = 10
+1 elements stored on proc 3,3:
+[3] = 3
+1 elements stored on proc 40,40:
+[40] = 40
+1 elements stored on proc 36,36:
+[36] = 36
+1 elements stored on proc 26,26:
+[26] = 26
+1 elements stored on proc 18,18:
+[18] = 18
+1 elements stored on proc 15,15:
+[15] = 15
+1 elements stored on proc 2,2:
+[2] = 2
+1 elements stored on proc 47,47:
+[47] = 47
+1 elements stored on proc 35,35:
+[35] = 35
+1 elements stored on proc 25,25:
+[25] = 25
+1 elements stored on proc 17,17:
+[17] = 17
+
+1 elements stored on proc 46,46:
+[46] = 46
+1 elements stored on proc 34,34:
+[34] = 34
+1 elements stored on proc 48,48:
+[48] = 48
+1 elements stored on proc 45,45:
+[45] = 45
+1 elements stored on proc 33,33:
+[33] = 33
+1 elements stored on proc 55,55:
+[55] = 55
+1 elements stored on proc 44,44:
+[44] = 44
+1 elements stored on proc 39,39:
+[39] = 39
+1 elements stored on proc 54,54:
+[54] = 541 elements stored on proc 43,43:
+[43] = 43
+1 elements stored on proc 53,53:
+[53] = 53
+1 elements stored on proc 42,42:
+[42] = 42
+1 elements stored on proc 52,52:
+[52] = 52
+1 elements stored on proc 41,41:
+[41] = 41
+1 elements stored on proc 56,56:
+[56] = 56
+1 elements stored on proc 51,51:
+[51] = 51
+1 elements stored on proc 50,50:
+[50] = 50
+1 elements stored on proc 49,49:
+[49] = 49
+
+total size: 64
+1 elements stored on proc 0,0:
+[0] = 1625924375
+1 elements stored on proc 1,1:
+[1] = 2544971607
+1 elements stored on proc 8,8:
+[8] = 3266188059
+1 elements stored on proc 7,7:
+[7] = 2013534964
+1 elements stored on proc 9,9:
+[9] = 1050960954
+1 elements stored on proc 6,6:
+[6] = 1405970646
+1 elements stored on proc 5,5:
+[5] = 418810397
+1 elements stored on proc 13,13:
+[13] = 868627881
+1 elements stored on proc 4,4:
+[4] = 3251057493
+1 elements stored on proc 16,16:
+[16] = 1614223847
+1 elements stored on proc 12,12:
+[12] = 581172168
+1 elements stored on proc 3,3:
+[3] = 1395327171
+1 elements stored on proc 22,22:
+[22] = 3159856263
+1 elements stored on proc 11,11:
+[11] = 2217611533
+1 elements stored on proc 2,2:
+[2] = 2238778295
+1 elements stored on proc 21,21:
+[21] = 1487069822
+1 elements stored on proc 10,10:
+[10] = 3865883347
+1 elements stored on proc 24,24:
+[24] = 2152648789
+1 elements stored on proc 20,20:
+[20] = 3236905269
+1 elements stored on proc 15,15:
+[15] = 3708828200
+1 elements stored on proc 30,30:
+[30] = 3175735641
+1 elements stored on proc 19,19:
+[19] = 3763903104
+1 elements stored on proc 14,14:
+[14] = 448194016
+1 elements stored on proc 29,29:
+[29] = 41002030
+1 elements stored on proc 18,18:
+[18] = 2792868557
+1 elements stored on proc 32,32:
+[32] = 3271224488
+1 elements stored on proc 28,28:
+[28] = 4232768408
+1 elements stored on proc 17,17:
+[17] = 905727275
+1 elements stored on proc 37,37:
+[37] = 1832694280
+1 elements stored on proc 27,27:
+[27] = 3431165337
+1 elements stored on proc 23,23:
+[23] = 2992273704
+1 elements stored on proc 36,36:
+[36] = 3519994205
+1 elements stored on proc 26,26:
+[26] = 2954246080
+1 elements stored on proc 40,40:
+[40] = 2790613235
+1 elements stored on proc 35,35:
+[35] = 1776327936
+1 elements stored on proc 25,25:
+[25] = 925750622
+1 elements stored on proc 45,45:
+[45] = 2814696075
+1 elements stored on proc 34,34:
+[34] = 3264603109
+1 elements stored on proc 31,31:
+[31] = 3429698749
+1 elements stored on proc 48,48:
+[48] = 2043645378
+1 elements stored on proc 44,44:
+[44] = 293182149
+1 elements stored on proc 33,33:
+[33] = 1537310969
+1 elements stored on proc 53,53:
+[53] = 1220612424
+1 elements stored on proc 43,43:
+[43] = 1294976712
+1 elements stored on proc 39,39:
+[39] = 1944145184
+1 elements stored on proc 52,52:
+[52] = 207935941
+1 elements stored on proc 42,42:
+[42] = 2614710815
+1 elements stored on proc 38,38:
+[38] = 3449672414
+1 elements stored on proc 51,51:
+[51] = 3398252331
+1 elements stored on proc 41,41:
+[41] = 2651545703
+1 elements stored on proc 50,50:
+[50] = 489895081
+1 elements stored on proc 47,47:
+[47] = 4147756078
+1 elements stored on proc 49,49:
+[49] = 3421564287
+1 elements stored on proc 46,46:
+[46] = 3218547976
+1 elements stored on proc 55,55:
+[55] = 4018127581
+1 elements stored on proc 54,54:
+[54] = 639535901
+total size: 64
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+1 elements stored on proc 62,62:
+[62] = 621 elements stored on proc 61,61:
+[61] = 61
+1 elements stored on proc 60,60:
+[60] = 60
+1 elements stored on proc 59,59:
+[59] = 59
+1 elements stored on proc 58,58:
+[58] = 58
+1 elements stored on proc 57,57:
+[57] = 57
+1 elements stored on proc 63,63:
+[63] = 63
+
+1 elements stored on proc 56,56:
+[56] = 894801022
+1 elements stored on proc 61,61:
+[61] = 1140529808
+1 elements stored on proc 60,60:
+[60] = 3902913017
+1 elements stored on proc 59,59:
+[59] = 490342840
+1 elements stored on proc 58,58:
+[58] = 2651793825
+1 elements stored on proc 57,57:
+[57] = 2572968635
+1 elements stored on proc 63,63:
+[63] = 383873625
+1 elements stored on proc 62,62:
+[62] = 2184730340
+Starting vertex id: 1625924375
+[NID 01381] 2010-12-08 20:52:39 Apid 381157: initiated application termination
+[NID 00962] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 00899] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 01673] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 01054] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 02707] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 02611] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 01250] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 03384] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 01945] 2010-12-08 20:52:17 Apid 381157: OOM killer terminated this process.
+[NID 02713] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 01995] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 02553] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 03432] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 02076] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 02053] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 02671] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 01381] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 01379] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 03439] 2010-12-08 20:52:18 Apid 381157: OOM killer terminated this process.
+[NID 01682] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 01694] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 03442] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 00927] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 01689] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 02044] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 02560] 2010-12-08 20:52:19 Apid 381157: OOM killer terminated this process.
+[NID 02528] 2010-12-08 20:52:20 Apid 381157: OOM killer terminated this process.
+[NID 01698] 2010-12-08 20:52:20 Apid 381157: OOM killer terminated this process.
+[NID 02615] 2010-12-08 20:52:21 Apid 381157: OOM killer terminated this process.
+[NID 02770] 2010-12-08 20:52:22 Apid 381157: OOM killer terminated this process.
+[NID 00920] 2010-12-08 20:52:23 Apid 381157: OOM killer terminated this process.
+Application 381157 exit signals: Killed
+Application 381157 resources: utime ~0s, stime ~0s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4096_hop_8pernode
+ +          Job Id: 119959.sdb
+ +          System: hopper2
+ +     Queued Time: Wed Dec  8 16:39:11 2010
+ +      Start Time: Wed Dec  8 20:35:53 2010
+ + Completion Time: Wed 08 Dec 2010 08:55:12 PM PST
+ +            User: abuluc
+ +        MOM Host: nid04123
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:3088:hopper03,walltime=02:55:00
+ +  Used Resources: cput=00:00:00,mem=12356kb,vmem=43592kb,walltime=00:19:18
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: 
+ +     Submit Args: script4096_hop_8pernode
+ + --------------------------------------------------------------------------
+
+ABAB: Script was:
+
+#PBS -q regular
+#PBS -l mppwidth=12288
+## (Note: 4096 (total tasks) * 24 (total cores per node) / 8 (desired tasks per node).)
+#PBS -l walltime=02:55:00
+#PBS -j eo
+#PBS -V
+
+cd $SCRATCH
+aprun -n 4096 -N 8 ./graph500_hopper 2048
+
+

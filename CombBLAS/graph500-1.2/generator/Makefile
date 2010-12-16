@@ -2,8 +2,8 @@ AR = ar
 RANLIB = ranlib
 # CC is the C++ compiler, while cc is the C compiler
 COMPILER = CC
-CFLAGS = -g -Wall -Drestrict=__restrict__ -O3 -DNDEBUG -ffast-math -DGRAPH_GENERATOR_SEQ -fPIC # -g -pg
-# CFLAGS = -g -Wall -Drestrict=__restrict__
+CFLAGS = -Drestrict=__restrict__ -O3 -DNDEBUG -DGRAPH_GENERATOR_SEQ -fPIC # -g -pg
+# CFLAGS = -Drestrict=__restrict__
 LDFLAGS = -g # -g -pg
 
 all: libgraph_generator_seq.a 

@@ -1,5 +1,17 @@
-INCDIR = $(HOME)
-INCADD = -I$(INCDIR)
+#INCADD = -I/global/homes/a/abuluc \
+# 	-I/opt/cray/pmi/1.0-1.0000.7901.22.1.ss/include \
+# 	-I/opt/cray/mpt/5.1.0/xt/seastar/mpich2-gnu/include \
+# 	-I/opt/cray/mpt/5.1.0/xt/seastar/sma/include \
+# 	-I/opt/xt-libsci/10.4.8/gnu/include \
+# 	-I/usr/include/alps \
+#	-I/opt/gcc/4.5.1/snos/include/g++ -I/opt/gcc/4.5.1/snos/include/g++/x86_64-suse-linux -I/opt/gcc/4.5.1/snos/include/g++/backward \
+# 	-I/usr/local/include \
+# 	-I/opt/gcc/4.5.1/snos/include \
+# 	-I/opt/gcc/4.5.1/snos/lib/gcc/x86_64-suse-linux/4.5.1/include \
+# 	-I/opt/gcc/4.5.1/snos/lib/gcc/x86_64-suse-linux/4.5.1/include-fixed \
+# 	-I/usr/include
+
+# LIBADD = -L/opt/gcc/4.5.1/snos/lib/gcc/x86_64-suse-linux/4.5.1/../../../
 
 # notes for configure:
 # -fno-exceptions does not work with MPICH2
@@ -7,10 +19,12 @@ INCADD = -I$(INCDIR)
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -fPIC
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
-COMPILER = CC	
-FLAGS = $(OPT)
+COMPILER = CC -v
+FLAGS = $(OPT) -DNOTR1
 COMBBLAS = ..
 
+BOOST = $(HOME)/boost_1_45_0/
+INCADD = -I$(BOOST)
 
 #
 # build Graph500 generator
@@ -19,13 +33,13 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
 
 MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
 
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
 Driver.o: Driver.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Driver.o Driver.cpp

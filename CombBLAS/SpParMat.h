@@ -85,7 +85,7 @@ public:
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
 	{
 		// because default template arguments don't work with function templates
-		return Reduce(dim, __binary_op, id, identity<NT>() );			
+		return Reduce(dim, __binary_op, id, myidentity<NT>() );			
 	}
 
 	template <typename _UnaryOperation>

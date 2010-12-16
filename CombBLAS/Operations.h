@@ -43,6 +43,18 @@ struct identity : public std::unary_function<T, T>
 };
 
 
+// Because identify reports ambiguity in PGI compilers
+template<typename T>
+struct myidentity : public std::unary_function<T, T>
+{
+  /** @returns x itself */
+  const T operator()(const T& x) const
+  {
+	return x;
+  }
+};
+
+
 template<typename T>
 struct totality : public std::unary_function<T, bool>
 {
