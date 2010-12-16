@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 20;	// fits even to single processor
+			scale = 16;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Renamed Vertices\n");
 
 			PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
+			// pack along the rows, result is a "Column" vector of size m (doesn't matter as G will be symmetricized)
 			degrees = G->Reduce(Column, plus<int64_t>(), 0); 
 			delete G;
 
@@ -241,6 +242,7 @@ int main(int argc, char* argv[])
 			int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
 	
 			ostringstream outnew;
+			outnew << i << "th starting vertex" << endl;
 			outnew << "Number iterations: " << iterations << endl;
 			outnew << "Number of vertices found: " << parentsp.Reduce(plus<int64_t>(), (int64_t) 0) << endl; 
 			outnew << "Number of edges traversed: " << nedges << endl;
@@ -248,8 +250,9 @@ int main(int argc, char* argv[])
 			outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 			MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
 			SpParHelper::Print(outnew.str());
-			parents.PrintInfo("parents after BFS");	
+			parents.PrintInfo("Parents after BFS");	
 		}
+		SpParHelper::Print("Finished\n");
 		transform(MTEPS, MTEPS+64, INVMTEPS, safemultinv<double>()); 	
 		double hteps = 64.0 / accumulate(INVMTEPS, INVMTEPS+64, 0.0);
 		ostringstream os;

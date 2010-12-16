@@ -32,6 +32,7 @@
 #include "SpHelper.h"
 #include "SpParHelper.h"
 #include "DenseParMat.h"
+#include "FullyDistVec.h"
 #include "Friends.h"
 #include "Operations.h"
 

@@ -94,6 +94,7 @@ public:
 	}
 	using FullyDist<IT,NT>::LengthUntil;
 	using FullyDist<IT,NT>::MyLocLength;
+	using FullyDist<IT,NT>::MyRowLength;
 	using FullyDist<IT,NT>::TotalLength;
 	using FullyDist<IT,NT>::Owner;
 

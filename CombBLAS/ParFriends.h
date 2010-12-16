@@ -997,7 +997,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	return y;
 }
 
-/*
+
+
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x )
@@ -1013,95 +1014,124 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
 
-	FullyDistSpVec<IU, T_promote> y ( x.commGrid);	// identity doesn't matter for sparse vectors
-	IU ysize = A.getlocalrows();
-	if(x.diagonal)
+	IU xlocnz = x.getlocnnz();
+	IU trxlocnz = 0;
+
+	int diagneigh = x.commGrid->GetComplementRank();
+	World.Sendrecv(&xlocnz, 1, MPIType<IU>(), diagneigh, TRX, &trxlocnz, 1, MPIType<IU>(), diagneigh, TRX);
+	
+	IU * trxinds = new IU[trxlocnz];
+	NUV * trxnums = new NUV[trxlocnz];
+	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, &(trxinds[0]), trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, &(trxnums[0]), trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+
+	int colneighs = ColWorld.Get_size();
+	int colrank = ColWorld.Get_rank();
+	IU * colnz = new IU[colneighs];
+	colnz[colrank] = trxlocnz;
+	ColWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IU>(), colnz, 1, MPIType<IU>());
+	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
+	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
+	IU * indacc = new IU[accnz];
+	NUV * numacc = new NUV[accnz];
+
+	ColWorld.Allgatherv(&(trxinds[0]), trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	ColWorld.Allgatherv(&(trxnums[0]), trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>());
+	DeleteAll(trxinds, trxnums);
+
+	// serial SpMV with sparse vector
+	vector< IU > indy;
+	vector< T_promote >  numy;
+	dcsc_gespmv<SR>(*(A.spSeq), &indacc[0], &numacc[0], accnz, indy, numy);	
+	DeleteAll(indacc, numacc);
+	DeleteAll(colnz, dpls);
+
+	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
+	IU yintlen = y.MyRowLength();
+
+	int rowneighs = RowWorld.Get_size();
+	vector< vector<IU> > sendind(rowneighs);
+	vector< vector<T_promote> > sendnum(rowneighs);
+	typename vector<IU>::size_type outnz = indy.size();
+	for(typename vector<IU>::size_type i=0; i< outnz; ++i)
 	{
-		IU nnzx = x.getlocnnz();
-		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<IU*>(&x.ind[0]), nnzx, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(const_cast<NUV*>(&x.num[0]), nnzx, MPIType<NUV>(), diagincol); 
-
-		// define a SPA-like data structure
-		T_promote * localy = new T_promote[ysize];
-		bool * isthere = new bool[ysize];
-		vector<IU> nzinds;	// nonzero indices		
-		fill_n(isthere, ysize, false);
-
-		// serial SpMV with sparse vector
-		vector< IU > indy;
-		vector< T_promote >  numy;
-		dcsc_gespmv<SR>(*(A.spSeq), &x.ind[0], &x.num[0], nnzx, indy, numy);	
-
-		int proccols = x.commGrid->GetGridCols();
-		int * gsizes = new int[proccols];	// # of processor columns = number of processors in the RowWorld
-		int mysize = indy.size();
-		RowWorld.Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, diaginrow);
-		int maxnnz = std::accumulate(gsizes, gsizes+proccols, 0);
-		int * dpls = new int[proccols]();	// displacements (zero initialized pid) 
-		std::partial_sum(gsizes, gsizes+proccols-1, dpls+1);
-		
-		IU * indbuf = new IU[maxnnz];	
-		T_promote * numbuf = new T_promote[maxnnz];
-
-		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow);
-                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow);
-
-		for(int i=0; i< maxnnz; ++i)
-		{
-			if(!isthere[indbuf[i]])
-			{
-				localy[indbuf[i]] = numbuf[i];	// initial assignment
-				nzinds.push_back(indbuf[i]);
-				isthere[indbuf[i]] = true;
-			} 
-			else
-			{
-				localy[indbuf[i]] = SR::add(localy[indbuf[i]], numbuf[i]);	
-			}
-		}
-		DeleteAll(gsizes, dpls, indbuf, numbuf,isthere);
-		sort(nzinds.begin(), nzinds.end());
-		
-		int nnzy = nzinds.size();
-		y.ind.resize(nnzy);
-		y.num.resize(nnzy);
-		for(int i=0; i< nnzy; ++i)
-		{
-			y.ind[i] = nzinds[i];
-			y.num[i] = localy[nzinds[i]]; 	
-		}
-		y.length = ysize;
-		delete [] localy;
+		IU locind;
+		int rown = OwnerWithinRow(yintlen, indy[i], locind);
+		sendind[rown].push_back(locind);
+		sendnum[rown].push_back(numy[i]);
 	}
-	else
+
+	IU * sendindbuf = new IU[outnz];
+	T_promote * sendnumbuf = new T_promote[outnz];
+	int * sendcnt = new int[rowneighs];
+	int * sdispls = new int[rowneighs];
+	for(int i=0; i<rowneighs; ++i)
+		sendcnt[i] = sendind[i].size();
+
+	int * rdispls = new int[rowneighs];
+	int * recvcnt = new int[rowneighs];
+	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<rowneighs-1; ++i)
 	{
-		IU nnzx;
-		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
-
-		IU * xinds = new IU[nnzx];
-		NUV * xnums = new NUV[nnzx];
-		ColWorld.Bcast(xinds, nnzx, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(xnums, nnzx, MPIType<NUV>(), diagincol); 
-
-		// serial SpMV with sparse vector
-		vector< IU > indy;
-		vector< T_promote >  numy;
-		dcsc_gespmv<SR>(*(A.spSeq), xinds, xnums, nnzx, indy, numy);	
-
-		int mysize = indy.size();
-		RowWorld.Gather(&mysize, 1, MPI::INT, NULL, 1, MPI::INT, diaginrow);
-
-		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow);
-                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow);
-
-		delete [] xinds;
-		delete [] xnums;
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	return y;
-}*/
+	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
+	IU * recvindbuf = new IU[totrecv];
+	T_promote * recvnumbuf = new T_promote[totrecv];
+
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(sendind[i].begin(), sendind[i].end(), sendindbuf+sdispls[i]);
+		vector<IU>().swap(sendind[i]);
+	}
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(sendnum[i].begin(), sendnum[i].end(), sendnumbuf+sdispls[i]);
+		vector<T_promote>().swap(sendnum[i]);
+	}
+		
+	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
+	DeleteAll(sendindbuf, sendnumbuf);
+	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+		
+	// define a SPA-like data structure
+	IU ysize = y.MyLocLength();
+	T_promote * localy = new T_promote[ysize];
+	bool * isthere = new bool[ysize];
+	vector<IU> nzinds;	// nonzero indices		
+	fill_n(isthere, ysize, false);
+	
+	for(IU i=0; i< totrecv; ++i)
+	{
+		if(!isthere[recvindbuf[i]])
+		{
+			localy[recvindbuf[i]] = recvnumbuf[i];	// initial assignment
+			nzinds.push_back(recvindbuf[i]);
+			isthere[recvindbuf[i]] = true;
+		} 
+		else
+		{
+			localy[recvindbuf[i]] = SR::add(localy[recvindbuf[i]], recvnumbuf[i]);	
+		}
+	}
+	DeleteAll(isthere, recvindbuf, recvnumbuf);
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	y.ind.resize(nnzy);
+	y.num.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		y.ind[i] = nzinds[i];
+		y.num[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+}
 	
 
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 

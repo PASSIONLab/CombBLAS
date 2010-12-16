@@ -383,15 +383,8 @@ void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 			cout << "DenseParVec::SetElement can't be called on an empty vector." << endl;
 			return;
 		}
-		
-		IT owner = (indx) / n_perproc;	
-		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-
-		//cout << "rank " << dgrank << ". nprocs " << nprocs << ".  n_perproc " << n_perproc;
-		//cout << ".  offset " << offset << ".  owner " << owner << ".   size " << arr.size();
-		//cout << ".  localind " << (indx-1-offset) << endl;		
-
-		if(rec == dgrank) // this process is the owner
+		IT owner = std::min(static_cast<int>(indx / n_perproc), nprocs-1);	
+		if(owner == dgrank) // this process is the owner
 		{
 			IT locindx = indx-offset;
 			
@@ -428,14 +421,10 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 			cout << "DenseParVec::GetElement can't be called on an empty vector." << endl;
 			return numeric_limits<NT>::min();
 		}
-		
-		owner = (indx) / n_perproc;	
-		IT rec = (owner < nprocs-1) ? owner : nprocs-1;	// find its owner 
-		
-		if(rec == dgrank) // this process is the owner
+		owner = std::min(static_cast<int>(indx / n_perproc), nprocs-1);	
+		if(owner == dgrank) // this process is the owner
 		{
 			IT locindx = indx-offset;
-
 			if (locindx > arr.size()-1)
 			{
 				cout << "DenseParVec::GetElement cannot expand array" << endl;
@@ -448,12 +437,9 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 			{
 				ret = arr[locindx];
 			}
-
 		}
 	}
-	
-	int worldowner = (commGrid->GetGridCols()+1)*owner;
-	
+	int worldowner = commGrid->GetRank(owner);	// 0 is always on the diagonal
 	(commGrid->GetWorld()).Bcast(&worldowner, 1, MPIType<int>(), 0);
 	(commGrid->GetWorld()).Bcast(&ret, 1, MPIType<NT>(), worldowner);
 	return ret;

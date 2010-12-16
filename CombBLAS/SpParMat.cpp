@@ -244,7 +244,7 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 		case Column:	// pack along the rows, result is a "Column" vector of size m
 		{
 			NT * sendbuf = new NT[getlocalrows()];
-			fill(sendbuf, sendbuf+getlocalcols(), id);	// fill with identity
+			fill(sendbuf, sendbuf+getlocalrows(), id);	// fill with identity
 			
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{

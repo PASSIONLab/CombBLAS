@@ -43,6 +43,7 @@
 #define RFCOLIDS 131
 #define TRROWX 132
 #define TRCOLX 133
+#define TRX 134
 
 enum Dim
 {

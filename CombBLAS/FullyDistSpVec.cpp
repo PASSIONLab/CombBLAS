@@ -116,7 +116,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	{
 		IT locind;
 		int owner = Owner(ri.num[i], locind);	// numerical values in ri are 0-based
-		cout << World.Get_rank() << ": " << ri.num[i] << " is owned by " << owner << " with local index " << locind << endl; 
 		data_req[owner].push_back(locind);
 	}
 	IT * sendbuf = new IT[locnnz];
@@ -136,7 +135,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,0);
 	IT * recvbuf = new IT[totrecv];
 
 	for(int i=0; i<nprocs; ++i)

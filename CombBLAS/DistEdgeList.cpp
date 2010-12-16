@@ -192,21 +192,15 @@ For all processors P(i,i)
 template <typename IU>
 void RenameVertices(DistEdgeList<IU> & DEL)
 {
-	int nproccols = DEL.commGrid->GetGridCols();
-	int nprocrows = DEL.commGrid->GetGridRows();
-	int myprocrow = DEL.commGrid->GetRankInProcCol();
+	int nprocs = DEL.commGrid->GetSize();
 	int rank = DEL.commGrid->GetRank();
+	MPI::Intracomm World = DEL.commGrid->GetWorld(); 
 
 	// create permutation
-	DenseParVec<IU, IU> globalPerm(DEL.commGrid, -1);
-	IU locrows; 
-	if(myprocrow != nprocrows-1)
-		locrows = DEL.getNumRows() / nprocrows;
-	else
-		locrows = DEL.getNumRows() - myprocrow * (DEL.getNumRows() / nprocrows);
-
+	FullyDistVec<IU, IU> globalPerm(DEL.commGrid, -1);
 	globalPerm.iota(DEL.getNumRows(), 0);
 	globalPerm.RandPerm();	// now, randperm can return a 0-based permutation
+	IU locrows = globalPerm.MyLocLength(); 
 	
 	// way to mark whether each vertex was already renamed or not
 	IU locedgelist = 2*DEL.getNumLocalEdges();
@@ -214,7 +208,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	fill_n(renamed, locedgelist, 0);
 	
 	// permutation for one round
-	IU* localPerm;
+	IU * localPerm;
 	IU permsize;
 	IU startInd = 0;
 
@@ -226,24 +220,21 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	//unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
 	//cout << "before: " << vec.size() << " and after: " << uniqued.size() << endl;
 	
-	for (int round = 0; round < nprocrows; round++)
+	for (int round = 0; round < nprocs; round++)
 	{
-		// broadcast the permutation from the one diagonal processor
-		int broadcaster = round*nproccols + round;
-		
-		if (rank == broadcaster)
+		// broadcast the permutation from the one processor
+		if (rank == round)
 		{
-			permsize = globalPerm.getLocalLength();
+			permsize = locrows;
 			localPerm = new IU[permsize];
 			copy(globalPerm.arr.begin(), globalPerm.arr.end(), localPerm);
 		}
-
-		DEL.commGrid->GetWorld().Bcast(&permsize, 1, MPIType<IU>(), broadcaster);
-		if(rank != broadcaster)
+		World.Bcast(&permsize, 1, MPIType<IU>(), round);
+		if(rank != round)
 		{
 			localPerm = new IU[permsize];
 		}
-		DEL.commGrid->GetWorld().Bcast(localPerm, permsize, MPIType<IU>(), broadcaster);
+		World.Bcast(localPerm, permsize, MPIType<IU>(), round);
 	
 		// iterate over 	
 		for (typename vector<IU>::size_type j = 0; j < locedgelist ; j++)
