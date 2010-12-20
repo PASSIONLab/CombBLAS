@@ -21,7 +21,7 @@
 init_pyCombBLAS_MPI();
 %}
 
-// It's possible to have the generated python code also include some custom code.
+// It is possible to have the generated python code also include some custom code.
 // This may be a good place to add an atexit() to call mpi finalize.
 %pragma(python) code="import atexit"
 %pragma(python) code="atexit.register(DiGraph.finalize())"
@@ -130,7 +130,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
