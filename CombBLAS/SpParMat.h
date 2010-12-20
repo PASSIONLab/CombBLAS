@@ -32,6 +32,7 @@
 #include "SpHelper.h"
 #include "SpParHelper.h"
 #include "DenseParMat.h"
+#include "FullyDistVec.h"
 #include "Friends.h"
 #include "Operations.h"
 #include "DistEdgeList.h"
@@ -82,11 +83,19 @@ public:
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
 
 	template <typename _BinaryOperation>	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
-	{
-		// because default template arguments don't work with function templates
-		return Reduce(dim, __binary_op, id, myidentity<NT>() );			
-	}
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;
+
+	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
+
+	template <typename VT, typename _BinaryOperation>	
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const;
+
+	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
+	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
+
+	template <typename VT, typename _BinaryOperation>	
+	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const;
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -152,6 +161,10 @@ public:
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x );
+	
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x );
 
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 

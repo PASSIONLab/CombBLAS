@@ -13,7 +13,7 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 
 	switch(dim)
 	{
-		case Row:	// pack (collapse) rows 
+		case Column:	// pack along the columns, result is a vector of size n
 		{
 			NT * sendbuf = new NT[n];
 			for(int j=0; j < n; ++j)
@@ -35,7 +35,7 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 			delete sendbuf;
 			break;
 		}
-		case Column:	// pack (collapse) columns
+		case Row:	// pack along the rows, result is a vector of size m
 		{
 			NT * sendbuf = new NT[m];
 			for(int i=0; i < m; ++i)

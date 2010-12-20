@@ -28,6 +28,7 @@ public:
 	}
 
 	IT LengthUntil() const;
+	IT RowLenUntil() const;
 	IT MyLocLength() const;
 	IT MyRowLength() const;
 	IT TotalLength() const { return glen; }
@@ -37,7 +38,6 @@ public:
 protected:
 	shared_ptr<CommGrid> commGrid;
 	IT glen;		// global length (actual "length" including zeros)
-
 };
 
 
@@ -111,12 +111,6 @@ int FullyDist<IT,NT>::OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) 
 }
 
 
-// The full distribution is actually a two-level distribution that matches the matrix distribution
-// In this scheme, each processor row (except the last) is responsible for t = floor(n/sqrt(p)) elements. 
-// The last processor row gets the remaining (n-floor(n/sqrt(p))*(sqrt(p)-1)) elements
-// Within the processor row, each processor (except the last) is responsible for loc = floor(t/sqrt(p)) elements. 
-// Example: n=103 and p=16
-// All processors P_ij for i=0,1,2 and j=0,1,2 get floor(floor(102/4)/4) = 6 elements
 
 // The full distribution is actually a two-level distribution that matches the matrix distribution
 // In this scheme, each processor row (except the last) is responsible for t = floor(n/sqrt(p)) elements. 
@@ -146,6 +140,28 @@ IT FullyDist<IT,NT>::LengthUntil() const
 
 	return ((n_perprocrow * my_procrow)+(n_perproc*my_proccol));
 }
+
+// Return the length until this processor, within this processor row only
+template <class IT, class NT>
+IT FullyDist<IT,NT>::RowLenUntil() const
+{
+	int procrows = commGrid->GetGridRows();
+	int my_procrow = commGrid->GetRankInProcCol();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	IT n_thisrow;	// length assigned to this processor row	
+	if(my_procrow == procrows-1)
+		n_thisrow = glen - (n_perprocrow*(procrows-1));
+	else
+		n_thisrow = n_perprocrow;	
+
+	int proccols = commGrid->GetGridCols();
+	int my_proccol = commGrid->GetRankInProcRow();
+
+	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
+
+	return (n_perproc*my_proccol);
+}
+
 
 template <class IT, class NT>
 IT FullyDist<IT,NT>::MyLocLength() const

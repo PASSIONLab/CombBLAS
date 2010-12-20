@@ -108,7 +108,6 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT nA, const IT
 			vector<IT> & indy, vector<NT> & numy)
 {     
 	pair<IT, IT> * wset = new pair<IT, IT>[veclen]; 
-
 	// colnums vector keeps column numbers requested from A
 	vector<IT> colnums(veclen);
 
@@ -122,7 +121,6 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT nA, const IT
 	{
 		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
 	}
-
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 	IT hsize = 0;		
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 

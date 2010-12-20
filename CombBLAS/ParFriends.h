@@ -1014,36 +1014,44 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
 
-	IU xlocnz = x.getlocnnz();
-	IU trxlocnz = 0;
+	int xlocnz = (int) x.getlocnnz();
+	int trxlocnz = 0;
+	int roffst = x.RowLenUntil();
+	int offset;
 
 	int diagneigh = x.commGrid->GetComplementRank();
-	World.Sendrecv(&xlocnz, 1, MPIType<IU>(), diagneigh, TRX, &trxlocnz, 1, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(&xlocnz, 1, MPI::INT, diagneigh, TRX, &trxlocnz, 1, MPI::INT, diagneigh, TRX);
+	World.Sendrecv(&roffst, 1, MPI::INT, diagneigh, TROST, &offset, 1, MPI::INT, diagneigh, TROST);
 	
 	IU * trxinds = new IU[trxlocnz];
 	NUV * trxnums = new NUV[trxlocnz];
-	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, &(trxinds[0]), trxlocnz, MPIType<IU>(), diagneigh, TRX);
-	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, &(trxnums[0]), trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
 
 	int colneighs = ColWorld.Get_size();
 	int colrank = ColWorld.Get_rank();
-	IU * colnz = new IU[colneighs];
+	int * colnz = new int[colneighs];
 	colnz[colrank] = trxlocnz;
-	ColWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IU>(), colnz, 1, MPIType<IU>());
+	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
 	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
 	IU * indacc = new IU[accnz];
 	NUV * numacc = new NUV[accnz];
 
-	ColWorld.Allgatherv(&(trxinds[0]), trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
-	ColWorld.Allgatherv(&(trxnums[0]), trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>());
+	// ABAB: Future issues here, colnz is of type int (MPI limitation)
+	// What if the aggregate vector size along the processor row/column is not 32-bit addressible?
+	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>());
 	DeleteAll(trxinds, trxnums);
 
 	// serial SpMV with sparse vector
 	vector< IU > indy;
 	vector< T_promote >  numy;
-	dcsc_gespmv<SR>(*(A.spSeq), &indacc[0], &numacc[0], accnz, indy, numy);	
+
+	dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+
 	DeleteAll(indacc, numacc);
 	DeleteAll(colnz, dpls);
 
@@ -1057,7 +1065,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	for(typename vector<IU>::size_type i=0; i< outnz; ++i)
 	{
 		IU locind;
-		int rown = OwnerWithinRow(yintlen, indy[i], locind);
+		int rown = y.OwnerWithinRow(yintlen, indy[i], locind);
 		sendind[rown].push_back(locind);
 		sendnum[rown].push_back(numy[i]);
 	}
@@ -1131,6 +1139,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		y.num[i] = localy[nzinds[i]]; 	
 	}
 	delete [] localy;
+	return y;
 }
 	
 
@@ -1206,6 +1215,60 @@ SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 	}
 }
 
+/**
+ * if exclude is true, then we prune all entries W[i] != zero from V 
+ * if exclude is false, then we perform a proper elementwise multiplication
+**/
+template <typename IU, typename NU1, typename NU2>
+FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+
+	if(*(V.commGrid) == *(W.commGrid))	
+	{
+		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
+		if(V.glen != W.glen)
+		{
+			cerr << "Vector dimensions don't match for EWiseMult\n";
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		else
+		{
+			Product.glen = V.glen;
+			IU size= V.getlocnnz();
+			if(exclude)
+			{
+				for(IU i=0; i<size; ++i)
+				{
+					if(W.arr[V.ind[i]] == zero) 	// keep only those
+					{
+						Product.ind.push_back(V.ind[i]);
+						Product.num.push_back(V.num[i]);
+					}
+				}		
+			}	
+			else
+			{
+				for(IU i=0; i<size; ++i)
+				{
+					if(W.arr[V.ind[i]] != zero) 	// keep only those
+					{
+						Product.ind.push_back(V.ind[i]);
+						Product.num.push_back(V.num[i] * W.arr[V.ind[i]]);
+					}
+				}
+			}
+		}
+		return Product;
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise multiplication" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return FullyDistSpVec< IU,T_promote>();
+	}
+}
 
 #endif
 

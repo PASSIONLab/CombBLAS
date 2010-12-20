@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 			}
 		
 			SpParHelper::Print("Adding bc contributions...\n");			
-			bc += bcu.Reduce(Column, plus<double>(), 0.0);
+			bc += bcu.Reduce(Row, plus<double>(), 0.0);	// pack along rows
 		}
 		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
 		

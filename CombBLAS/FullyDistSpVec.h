@@ -97,6 +97,7 @@ public:
 	using FullyDist<IT,NT>::MyRowLength;
 	using FullyDist<IT,NT>::TotalLength;
 	using FullyDist<IT,NT>::Owner;
+	using FullyDist<IT,NT>::RowLenUntil;
 
 	void setNumToInd()
 	{

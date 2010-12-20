@@ -83,6 +83,10 @@ public:
 	void CreateDiagWorld();
 	
 	bool operator== (const CommGrid & rhs) const;
+	bool operator!= (const CommGrid & rhs) const
+	{
+		return (! (*this == rhs));
+	}
 	bool OnSameProcCol( int rhsrank );
 	bool OnSameProcRow( int rhsrank );
 

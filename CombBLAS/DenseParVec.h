@@ -117,6 +117,9 @@ private:
 	template <class IU, class NU>
 	friend class DenseParVec;
 
+	template <class IU, class NU>
+	friend class FullyDistVec;
+
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );

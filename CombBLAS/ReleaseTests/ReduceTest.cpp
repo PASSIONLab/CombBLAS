@@ -70,8 +70,8 @@ int main(int argc, char* argv[])
 		DenseParMat<int, double> bcu(0.0, A.getcommgrid(), A.getlocalrows(), A.getlocalcols() );
 		bcu += A;
 
-		DenseParVec< int, double > rowsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
-		DenseParVec< int, double > colsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
+		DenseParVec< int, double > rowsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
+		DenseParVec< int, double > colsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
 		
 		//ofstream rsout;
 		//rowsums_control.PrintToFile("rowsums_countrol", rsout);	

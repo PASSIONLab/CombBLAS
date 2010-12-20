@@ -48,22 +48,22 @@ double Inflate(Dist<double>::MPI_DCCols & A, double power)
 {		
 	A.Apply(bind2nd(exponentiate(), power));
 	{
-		// Reduce(to)Row: pack along the column, result is a "Row" vector of size m
-		Dist<double>::MPI_DenseVec colsums = A.Reduce(Row, plus<double>(), 0.0);			
+		// Reduce (Column): pack along the columns, result is a vector of size n
+		Dist<double>::MPI_DenseVec colsums = A.Reduce(Column, plus<double>(), 0.0);			
 		colsums.Apply(safemultinv<double>());
-		A.DimScale(colsums, Column);	// scale each "Column" with the given row vector
+		A.DimScale(colsums, Column);	// scale each "Column" with the given vector
 
 #ifdef DEBUG
-		colsums = A.Reduce(Row, plus<double>(), 0.0);			
+		colsums = A.Reduce(Column, plus<double>(), 0.0);			
 		colsums.PrintToFile("colnormalizedsums"); 
 #endif		
 	}
 
 	// After normalization, each column of A is now a stochastic vector
-	Dist<double>::MPI_DenseVec colssqs = A.Reduce(Row, plus<double>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
+	Dist<double>::MPI_DenseVec colssqs = A.Reduce(Column, plus<double>(), 0.0, bind2nd(exponentiate(), 2));	// sums of squares of columns
 
 	// Matrix entries are non-negative, so max() can use zero as identity
-	Dist<double>::MPI_DenseVec colmaxs = A.Reduce(Row, maximum<double>(), 0.0);
+	Dist<double>::MPI_DenseVec colmaxs = A.Reduce(Column, maximum<double>(), 0.0);
 
 	colmaxs -= colssqs;	// chaos indicator
 	return colmaxs.Reduce(maximum<double>(), 0.0);
@@ -150,4 +150,3 @@ int main(int argc, char* argv[])
 	MPI::Finalize();	
 	return 0;
 }
-

@@ -204,63 +204,119 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 	}
 }
 
-/**
-  * Reduce along the column/row into a vector
-  * @param[in] __binary_op {the operation used for reduction; examples: max, min, plus, multiply, and, or}
-  * @param[in] id {scalar that is used as the identity for __binary_op; examples: zero, infinity}
-  * @param[in] __unary_op {optional unary operation applied to nonzeros *before* the __binary_op; examples: 1/x, x^2}
- **/ 
 template <class IT, class NT, class DER>
-template <typename _BinaryOperation, typename _UnaryOperation>	
+template <typename _BinaryOperation, typename _UnaryOperation >	
 DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
 {
 	DenseParVec<IT,NT> parvec(commGrid, id);
+	Reduce(parvec, dim, __binary_op, id, __unary_op);			
+	return parvec;
+}
 
+// default template arguments don't work with function templates
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>	
+DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const
+{
+	DenseParVec<IT,NT> parvec(commGrid, id);
+	Reduce(parvec, dim, __binary_op, id, myidentity<NT>() );			
+	return parvec;
+}
+
+template <class IT, class NT, class DER>
+template <typename VT, typename _BinaryOperation>	
+void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const
+{
+	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );			
+}
+
+template <class IT, class NT, class DER>
+template <typename VT, typename _BinaryOperation>	
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const
+{
+	DenseParVec<IT,VT> parvec(commGrid, id);
+	Reduce(parvec, dim, __binary_op, id, myidentity<NT>() );				
+	rvec = parvec;	
+}
+
+template <class IT, class NT, class DER>
+template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
+{
+	DenseParVec<IT,VT> parvec(commGrid, id);
+	Reduce(parvec, dim, __binary_op, id, __unary_op );				
+	rvec = parvec;	
+}
+
+/**
+  * Reduce along the column/row into a vector
+  * @param[in] __binary_op {the operation used for reduction; examples: max, min, plus, multiply, and, or. Its parameters and return type are all VT}
+  * @param[in] id {scalar that is used as the identity for __binary_op; examples: zero, infinity}
+  * @param[in] __unary_op {optional unary operation applied to nonzeros *before* the __binary_op; examples: 1/x, x^2}
+  * @param[out] rvec {the return vector, specified as an output parameter to allow arbitrary return types via VT}
+ **/ 
+template <class IT, class NT, class DER>
+template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
+void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
+{
+	if(rvec.zero != id)
+	{
+		ostringstream outs;
+		outs << "SpParMat::Reduce(): Return vector's zero is different than set id"  << endl;
+		outs << "Setting rvec.zero to id (" << id << ") instead" << endl;
+		SpParHelper::Print(outs.str());
+		rvec.zero = id;
+	}
+	if(*rvec.commGrid != *commGrid)
+	{
+		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
 	switch(dim)
 	{
-		case Row:	// pack along the columns, result is a "Row" vector of size n
+		case Column:	// pack along the columns, result is a vector of size n
 		{
-			NT * sendbuf = new NT[getlocalcols()];
+			VT * sendbuf = new VT[getlocalcols()];
 			fill(sendbuf, sendbuf+getlocalcols(), id);	// fill with identity
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[colit.colid()] = __binary_op(__unary_op(nzit.value()), sendbuf[colit.colid()]);
+					sendbuf[colit.colid()] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[colit.colid()]);
 				}
 			}
-			NT * recvbuf = NULL;
+			VT * recvbuf = NULL;
 			int root = commGrid->GetDiagOfProcCol();
-			if(parvec.diagonal)
+			if(rvec.diagonal)
 			{
-				parvec.arr.resize(getlocalcols());
-				recvbuf = &parvec.arr[0];	
+				rvec.arr.resize(getlocalcols());
+				recvbuf = &rvec.arr[0];	
 			}
-			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root);
 			delete [] sendbuf;
 			break;
 		}
-		case Column:	// pack along the rows, result is a "Column" vector of size m
+		case Row:	// pack along the rows, result is a vector of size m
 		{
-			NT * sendbuf = new NT[getlocalrows()];
+			VT * sendbuf = new VT[getlocalrows()];
 			fill(sendbuf, sendbuf+getlocalrows(), id);	// fill with identity
 			
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					sendbuf[nzit.rowid()] = __binary_op(__unary_op(nzit.value()), sendbuf[nzit.rowid()]);
+					sendbuf[nzit.rowid()] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()]);
 				}
 			}
-			NT * recvbuf = NULL;
+			VT * recvbuf = NULL;
 			int root = commGrid->GetDiagOfProcRow();
-			if(parvec.diagonal)
+			if(rvec.diagonal)
 			{
-				parvec.arr.resize(getlocalrows());
-				recvbuf = &parvec.arr[0];	
+				rvec.arr.resize(getlocalrows());
+				recvbuf = &(rvec.arr[0]);	
 			}
-			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, getlocalrows(), MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, getlocalrows(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root);
 			delete [] sendbuf;
 			break;
 		}
@@ -270,7 +326,6 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 			break;
 		}
 	}
-	return parvec;
 }
 
 template <class IT, class NT, class DER>
@@ -485,7 +540,7 @@ void SpParMat<IT,NT,DER>::EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool ex
 	else
 	{
 		cout << "Grids are not comparable, EWiseMult() fails !" << endl; 
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}	
 }
 
@@ -500,7 +555,7 @@ void SpParMat<IT,NT,DER>::EWiseScale(const DenseParMat<IT, NT> & rhs)
 	else
 	{
 		cout << "Grids are not comparable, EWiseScale() fails !" << endl; 
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}
 }
 
@@ -1280,6 +1335,7 @@ template <class IT, class NT, class DER>
 ofstream& SpParMat<IT,NT,DER>::put(ofstream& outfile) const
 {
 	outfile << (*spSeq) << endl;
+	return outfile;
 }
 
 template <class IU, class NU, class UDER>

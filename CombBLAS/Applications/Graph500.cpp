@@ -11,12 +11,11 @@
 #else
         #include <tr1/memory>
 #endif
-#include "../SpParVec.h"
 #include "../SpTuples.h"
 #include "../SpDCCols.h"
 #include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
+#include "../FullyDistVec.h"
+#include "../FullyDistSpVec.h"
 #include "../ParFriends.h"
 #include "../DistEdgeList.h"
 
@@ -107,7 +106,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			name = "Debug";
-			scale = 16;	// fits even to single processor
+			scale = 18;	// fits even to single processor
 		}
 
 		ostringstream outs;
@@ -117,33 +116,34 @@ int main(int argc, char* argv[])
 
 		// Declare objects
 		PSpMat_Bool A;	
-		DenseParVec<int64_t, int64_t> degrees;
+		FullyDistVec<int64_t, int64_t> degrees;
 
 		if(NOINPUT)
 		{
 			// this is an undirected graph, so A*x does indeed BFS
  			double initiator[4] = {.57, .19, .19, .05};
 
-			DistEdgeList<int64_t> DEL;
-			DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
+			DEL->GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
 			SpParHelper::Print("Generated local RMAT matrices\n");
-
-			PermEdges<int64_t>(DEL);
+		
+			PermEdges<int64_t>(*DEL);
 			SpParHelper::Print("Permuted Edges\n");
 
-			RenameVertices<int64_t>(DEL);
+			RenameVertices<int64_t>(*DEL);
 			SpParHelper::Print("Renamed Vertices\n");
-
-			PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
-			// pack along the rows, result is a "Column" vector of size m (doesn't matter as G will be symmetricized)
-			degrees = G->Reduce(Column, plus<int64_t>(), 0); 
+	
+			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false);	 // conversion from distributed edge list, keep self-loops
+			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
 			delete G;
 
 			// Start Kernel #1
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
 
-			A = PSpMat_Bool(DEL);	// remove self loops and duplicates (since this is of type boolean)
+			A = PSpMat_Bool(*DEL);	// remove self loops and duplicates (since this is of type boolean)
+			delete DEL;	// free memory before symmetricizing
+			
 			PSpMat_Bool AT = A;
 			AT.Transpose();
 			A += AT;
@@ -159,9 +159,13 @@ int main(int argc, char* argv[])
 			ifstream input(argv[2]);
 			A.ReadDistribute(input, 0);	// read it from file
 			SpParHelper::Print("Read input");
+
+			PSpMat_Int64 * G = new PSpMat_Int64(A); 
+			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
+			delete G;
+
 			PSpMat_Bool AT = A;
 			AT.Transpose();
-
 			// boolean addition is practically a "logical or", 
 			// therefore this doesn't destruct any links
 			A += AT;	// symmetricize
@@ -176,22 +180,20 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
 
-		PSpMat_Int64 * AInt64 = new PSpMat_Int64(A); 
-		DenseParVec<int64_t, int64_t> * ColSums = new DenseParVec<int64_t, int64_t> (AInt64->Reduce(Column, plus<int64_t>(), false)); 
-		delete AInt64;
+		FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+		A.Reduce(*ColSums, Column, plus<int64_t>(), 0); 	// plus<int64_t> matches the type of the output vector
 
 		MPI::COMM_WORLD.Barrier();
 		double t2=MPI_Wtime();
 		if(myrank == 0)
 			fprintf(stdout, "%.6lf seconds elapsed for getting column sums\n", t2-t1);
 
-		DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
+		FullyDistVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
 		delete ColSums;
 		SpParHelper::Print("Found non-isolated vertices\n");	
-
 	
 		Cands.PrintInfo("Candidates array");
-		DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
+		FullyDistVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
 		Cands.RandPerm();
 		Cands.PrintInfo("Candidates array (permuted)");
 		First64.iota(64, 0);			
@@ -203,17 +205,14 @@ int main(int argc, char* argv[])
 		double MTEPS[64]; double INVMTEPS[64];
 		for(int i=0; i<64; ++i)
 		{
-			// DenseParVec ( shared_ptr<CommGrid> grid, IT locallength, NT initval, NT id);
-			DenseParVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getlocalcols(), (int64_t) -1, (int64_t) -1);	// identity is -1
-			SpParVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getlocalcols());	// numerical values are stored 0-based
+			// FullyDistVec (shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
+			FullyDistVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getncol(), (int64_t) -1, (int64_t) -1);	// identity is -1
 
-			ostringstream outs;
-			outs << "Starting vertex id: " << Cands[i] << endl;
-			SpParHelper::Print(outs.str());
+			// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
+			FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getncol());	// numerical values are stored 0-based
 
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
-
 			MPI_Pcontrol(1,"BFS");
 
 			fringe.SetElement(Cands[i], Cands[i]);
@@ -223,26 +222,28 @@ int main(int argc, char* argv[])
 				fringe.setNumToInd();
 				//fringe.PrintInfo("fringe before SpMV");
 				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
-				//fringe.PrintInfo("fringe after SpMV");
+				// fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
-				//fringe.PrintInfo("fringe after cleanup");
+				// fringe.PrintInfo("fringe after cleanup");
 				parents += fringe;
-				//SpParHelper::Print("Iteration finished\n");
+				// parents.PrintInfo("Parents after addition");
+				// SpParHelper::Print("Iteration finished\n");
 				iterations++;
 				MPI::COMM_WORLD.Barrier();
 			}
 
 			MPI_Pcontrol(-1,"BFS");
-
 			MPI::COMM_WORLD.Barrier();
 			double t2 = MPI_Wtime();
 
-			SpParVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+			FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
 			parentsp.Apply(set<int64_t>(1));
+
+			// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
 			int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
 	
 			ostringstream outnew;
-			outnew << i << "th starting vertex" << endl;
+			outnew << i << "th starting vertex was " << Cands[i] << endl;
 			outnew << "Number iterations: " << iterations << endl;
 			outnew << "Number of vertices found: " << parentsp.Reduce(plus<int64_t>(), (int64_t) 0) << endl; 
 			outnew << "Number of edges traversed: " << nedges << endl;
@@ -250,7 +251,6 @@ int main(int argc, char* argv[])
 			outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 			MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
 			SpParHelper::Print(outnew.str());
-			parents.PrintInfo("Parents after BFS");	
 		}
 		SpParHelper::Print("Finished\n");
 		transform(MTEPS, MTEPS+64, INVMTEPS, safemultinv<double>()); 	

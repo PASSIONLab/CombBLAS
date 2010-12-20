@@ -54,6 +54,42 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	return *this;
 }
 
+
+template <class IT, class NT>
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)		// DenseParVec->FullyDistVec conversion operator
+{
+	if(*commGrid != *rhs.commGrid) 		
+	{
+		cout << "Grids are not comparable elementwise addition" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	else
+	{
+		zero = rhs.zero;
+		glen = rhs.getTotalLength();
+		arr.resize(MyLocLength());	// once glen is set, MyLocLength() works
+		fill(arr.begin(), arr.end(), zero);	
+
+		int * sendcnts;
+		int * dpls;
+		if(rhs.diagonal)
+		{
+			int proccols = commGrid->GetGridCols();	
+        		IT n_perproc = rhs.getLocalLength() / proccols;
+			sendcnts = new int[proccols];
+			fill(sendcnts, sendcnts+proccols-1, n_perproc);
+			sendcnts[proccols-1] = rhs.getLocalLength() - (n_perproc * (proccols-1));
+			dpls = new int[proccols]();	// displacements (zero initialized pid) 
+			partial_sum(sendcnts, sendcnts+proccols-1, dpls+1);
+		}
+
+		int rowroot = commGrid->GetDiagOfProcRow();
+		(commGrid->GetRowWorld()).Scatterv(&(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot);
+	}
+	return *this;
+}
+
+
 // Let the compiler create an assignment operator and call base class' 
 // assignment operator automatically
 
@@ -247,6 +283,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 			found.num.push_back(arr[i]);
 		}
 	}
+	found.glen = glen;
 	return found;	
 }
 
@@ -442,7 +479,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	}
 
 	MPI::Intracomm World = commGrid->GetWorld();
-	FullyDistVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
+	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, ri.zero, ri.zero);	// length(Indexed) = length(ri)
 	int rank = World.Get_rank();
 	int nprocs = World.Get_size();
 	vector< vector< IT > > data_req(nprocs);	
@@ -510,7 +547,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	DeleteAll(rdispls, recvcnt, databack);
 
 	// Now create the output from databuf
-	Indexed.arr.resize(riloclen); 
+	// Indexed.arr is already allocated in contructor
 	for(int i=0; i<nprocs; ++i)
 	{
 		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)

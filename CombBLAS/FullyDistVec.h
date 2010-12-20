@@ -41,6 +41,7 @@ public:
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
+	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
@@ -66,7 +67,7 @@ public:
 	using FullyDist<IT,NT>::TotalLength;
 	using FullyDist<IT,NT>::Owner;
 	using FullyDist<IT,NT>::MyLocLength;
-	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resize
+	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resized
 	
 	template <typename _Predicate>
 	FullyDistSpVec<IT,NT> Find(_Predicate pred) const;	//!< Return the elements for which pred is true
