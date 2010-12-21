@@ -1,0 +1,2573 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+export: Command not found.
+export: Command not found.
+Max scale allowed : 30
+Using the Mini problem
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 89976189 and self-loops removed: 0
+Duplicates removed: 89976189 and self-loops removed: 3703
+13.744317 seconds elapsed for Kernel #1
+As a whole: 536870912 rows and 536870912 columns and 16999909400 nonzeros
+Max scale allowed : 30
+Using the Mini problem
+Load balance: 1.02518
+2.323634 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 172311030
+As a whole, Candidates array (permuted) has length 172311030
+Elements stored on proc 0: {}
+Elements stored on proc 1: {}
+Elements stored on proc 2: {}
+Elements stored on proc 3: {}
+Elements stored on proc 4: {}
+Elements stored on proc 5: {}
+Elements stored on proc 6: {}
+Elements stored on proc 7: {}
+Elements stored on proc 8: {}
+Elements stored on proc 9: {}
+Elements stored on proc 10: {}
+Elements stored on proc 11: {}
+Elements stored on proc 12: {}
+Elements stored on proc 13: {}
+Elements stored on proc 14: {}
+Elements stored on proc 15: {}
+Elements stored on proc 16: {}
+Elements stored on proc 17: {}
+Elements stored on proc 18: {}
+Elements stored on proc 19: {}
+Elements stored on proc 20: {}
+Elements stored on proc 21: {}
+Elements stored on proc 22: {}
+Elements stored on proc 23: {}
+Elements stored on proc 24: {}
+Elements stored on proc 25: {}
+Elements stored on proc 26: {}
+Elements stored on proc 27: {}
+Elements stored on proc 28: {}
+Elements stored on proc 29: {}
+Elements stored on proc 30: {}
+Elements stored on proc 31: {0,1,}
+Elements stored on proc 32: {}
+Elements stored on proc 33: {}
+Elements stored on proc 34: {}
+Elements stored on proc 35: {}
+Elements stored on proc 36: {}
+Elements stored on proc 37: {}
+Elements stored on proc 38: {}
+Elements stored on proc 39: {}
+Elements stored on proc 40: {}
+Elements stored on proc 41: {}
+Elements stored on proc 42: {}
+Elements stored on proc 43: {}
+Elements stored on proc 44: {}
+Elements stored on proc 45: {}
+Elements stored on proc 46: {}
+Elements stored on proc 47: {}
+Elements stored on proc 48: {}
+Elements stored on proc 49: {}
+Elements stored on proc 50: {}
+Elements stored on proc 51: {}
+Elements stored on proc 52: {}
+Elements stored on proc 53: {}
+Elements stored on proc 54: {}
+Elements stored on proc 55: {}
+Elements stored on proc 56: {}
+Elements stored on proc 57: {}
+Elements stored on proc 58: {}
+Elements stored on proc 59: {}
+Elements stored on proc 60: {}
+Elements stored on proc 61: {}
+Elements stored on proc 62: {}
+Elements stored on proc 63: {2,3,}
+Elements stored on proc 64: {}
+Elements stored on proc 65: {}
+Elements stored on proc 66: {}
+Elements stored on proc 67: {}
+Elements stored on proc 68: {}
+Elements stored on proc 69: {}
+Elements stored on proc 70: {}
+Elements stored on proc 71: {}
+Elements stored on proc 72: {}
+Elements stored on proc 73: {}
+Elements stored on proc 74: {}
+Elements stored on proc 75: {}
+Elements stored on proc 76: {}
+Elements stored on proc 77: {}
+Elements stored on proc 78: {}
+Elements stored on proc 79: {}
+Elements stored on proc 80: {}
+Elements stored on proc 81: {}
+Elements stored on proc 82: {}
+Elements stored on proc 83: {}
+Elements stored on proc 84: {}
+Elements stored on proc 85: {}
+Elements stored on proc 86: {}
+Elements stored on proc 87: {}
+Elements stored on proc 88: {}
+Elements stored on proc 89: {}
+Elements stored on proc 90: {}
+Elements stored on proc 91: {}
+Elements stored on proc 92: {}
+Elements stored on proc 93: {}
+Elements stored on proc 94: {}
+Elements stored on proc 95: {4,5,}
+Elements stored on proc 96: {}
+Elements stored on proc 97: {}
+Elements stored on proc 98: {}
+Elements stored on proc 99: {}
+Elements stored on proc 100: {}
+Elements stored on proc 101: {}
+Elements stored on proc 102: {}
+Elements stored on proc 103: {}
+Elements stored on proc 104: {}
+Elements stored on proc 105: {}
+Elements stored on proc 106: {}
+Elements stored on proc 107: {}
+Elements stored on proc 108: {}
+Elements stored on proc 109: {}
+Elements stored on proc 110: {}
+Elements stored on proc 111: {}
+Elements stored on proc 112: {}
+Elements stored on proc 113: {}
+Elements stored on proc 114: {}
+Elements stored on proc 115: {}
+Elements stored on proc 116: {}
+Elements stored on proc 117: {}
+Elements stored on proc 118: {}
+Elements stored on proc 119: {}
+Elements stored on proc 120: {}
+Elements stored on proc 121: {}
+Elements stored on proc 122: {}
+Elements stored on proc 123: {}
+Elements stored on proc 124: {}
+Elements stored on proc 125: {}
+Elements stored on proc 126: {}
+Elements stored on proc 127: {6,7,}
+Elements stored on proc 128: {}
+Elements stored on proc 129: {}
+Elements stored on proc 130: {}
+Elements stored on proc 131: {}
+Elements stored on proc 132: {}
+Elements stored on proc 133: {}
+Elements stored on proc 134: {}
+Elements stored on proc 135: {}
+Elements stored on proc 136: {}
+Elements stored on proc 137: {}
+Elements stored on proc 138: {}
+Elements stored on proc 139: {}
+Elements stored on proc 140: {}
+Elements stored on proc 141: {}
+Elements stored on proc 142: {}
+Elements stored on proc 143: {}
+Elements stored on proc 144: {}
+Elements stored on proc 145: {}
+Elements stored on proc 146: {}
+Elements stored on proc 147: {}
+Elements stored on proc 148: {}
+Elements stored on proc 149: {}
+Elements stored on proc 150: {}
+Elements stored on proc 151: {}
+Elements stored on proc 152: {}
+Elements stored on proc 153: {}
+Elements stored on proc 154: {}
+Elements stored on proc 155: {}
+Elements stored on proc 156: {}
+Elements stored on proc 157: {}
+Elements stored on proc 158: {}
+Elements stored on proc 159: {8,9,}
+Elements stored on proc 160: {}
+Elements stored on proc 161: {}
+Elements stored on proc 162: {}
+Elements stored on proc 163: {}
+Elements stored on proc 164: {}
+Elements stored on proc 165: {}
+Elements stored on proc 166: {}
+Elements stored on proc 167: {}
+Elements stored on proc 168: {}
+Elements stored on proc 169: {}
+Elements stored on proc 170: {}
+Elements stored on proc 171: {}
+Elements stored on proc 172: {}
+Elements stored on proc 173: {}
+Elements stored on proc 174: {}
+Elements stored on proc 175: {}
+Elements stored on proc 176: {}
+Elements stored on proc 177: {}
+Elements stored on proc 178: {}
+Elements stored on proc 179: {}
+Elements stored on proc 180: {}
+Elements stored on proc 181: {}
+Elements stored on proc 182: {}
+Elements stored on proc 183: {}
+Elements stored on proc 184: {}
+Elements stored on proc 185: {}
+Elements stored on proc 186: {}
+Elements stored on proc 187: {}
+Elements stored on proc 188: {}
+Elements stored on proc 189: {}
+Elements stored on proc 190: {}
+Elements stored on proc 191: {10,11,}
+Elements stored on proc 192: {}
+Elements stored on proc 193: {}
+Elements stored on proc 194: {}
+Elements stored on proc 195: {}
+Elements stored on proc 196: {}
+Elements stored on proc 197: {}
+Elements stored on proc 198: {}
+Elements stored on proc 199: {}
+Elements stored on proc 200: {}
+Elements stored on proc 201: {}
+Elements stored on proc 202: {}
+Elements stored on proc 203: {}
+Elements stored on proc 204: {}
+Elements stored on proc 205: {}
+Elements stored on proc 206: {}
+Elements stored on proc 207: {}
+Elements stored on proc 208: {}
+Elements stored on proc 209: {}
+Elements stored on proc 210: {}
+Elements stored on proc 211: {}
+Elements stored on proc 212: {}
+Elements stored on proc 213: {}
+Elements stored on proc 214: {}
+Elements stored on proc 215: {}
+Elements stored on proc 216: {}
+Elements stored on proc 217: {}
+Elements stored on proc 218: {}
+Elements stored on proc 219: {}
+Elements stored on proc 220: {}
+Elements stored on proc 221: {}
+Elements stored on proc 222: {}
+Elements stored on proc 223: {12,13,}
+Elements stored on proc 224: {}
+Elements stored on proc 225: {}
+Elements stored on proc 226: {}
+Elements stored on proc 227: {}
+Elements stored on proc 228: {}
+Elements stored on proc 229: {}
+Elements stored on proc 230: {}
+Elements stored on proc 231: {}
+Elements stored on proc 232: {}
+Elements stored on proc 233: {}
+Elements stored on proc 234: {}
+Elements stored on proc 235: {}
+Elements stored on proc 236: {}
+Elements stored on proc 237: {}
+Elements stored on proc 238: {}
+Elements stored on proc 239: {}
+Elements stored on proc 240: {}
+Elements stored on proc 241: {}
+Elements stored on proc 242: {}
+Elements stored on proc 243: {}
+Elements stored on proc 244: {}
+Elements stored on proc 245: {}
+Elements stored on proc 246: {}
+Elements stored on proc 247: {}
+Elements stored on proc 248: {}
+Elements stored on proc 249: {}
+Elements stored on proc 250: {}
+Elements stored on proc 251: {}
+Elements stored on proc 252: {}
+Elements stored on proc 253: {}
+Elements stored on proc 254: {}
+Elements stored on proc 255: {14,15,}
+Elements stored on proc 256: {}
+Elements stored on proc 257: {}
+Elements stored on proc 258: {}
+Elements stored on proc 259: {}
+Elements stored on proc 260: {}
+Elements stored on proc 261: {}
+Elements stored on proc 262: {}
+Elements stored on proc 263: {}
+Elements stored on proc 264: {}
+Elements stored on proc 265: {}
+Elements stored on proc 266: {}
+Elements stored on proc 267: {}
+Elements stored on proc 268: {}
+Elements stored on proc 269: {}
+Elements stored on proc 270: {}
+Elements stored on proc 271: {}
+Elements stored on proc 272: {}
+Elements stored on proc 273: {}
+Elements stored on proc 274: {}
+Elements stored on proc 275: {}
+Elements stored on proc 276: {}
+Elements stored on proc 277: {}
+Elements stored on proc 278: {}
+Elements stored on proc 279: {}
+Elements stored on proc 280: {}
+Elements stored on proc 281: {}
+Elements stored on proc 282: {}
+Elements stored on proc 283: {}
+Elements stored on proc 284: {}
+Elements stored on proc 285: {}
+Elements stored on proc 286: {}
+Elements stored on proc 287: {16,17,}
+Elements stored on proc 288: {}
+Elements stored on proc 289: {}
+Elements stored on proc 290: {}
+Elements stored on proc 291: {}
+Elements stored on proc 292: {}
+Elements stored on proc 293: {}
+Elements stored on proc 294: {}
+Elements stored on proc 295: {}
+Elements stored on proc 296: {}
+Elements stored on proc 297: {}
+Elements stored on proc 298: {}
+Elements stored on proc 299: {}
+Elements stored on proc 300: {}
+Elements stored on proc 301: {}
+Elements stored on proc 302: {}
+Elements stored on proc 303: {}
+Elements stored on proc 304: {}
+Elements stored on proc 305: {}
+Elements stored on proc 306: {}
+Elements stored on proc 307: {}
+Elements stored on proc 308: {}
+Elements stored on proc 309: {}
+Elements stored on proc 310: {}
+Elements stored on proc 311: {}
+Elements stored on proc 312: {}
+Elements stored on proc 313: {}
+Elements stored on proc 314: {}
+Elements stored on proc 315: {}
+Elements stored on proc 316: {}
+Elements stored on proc 317: {}
+Elements stored on proc 318: {}
+Elements stored on proc 319: {18,19,}
+Elements stored on proc 320: {}
+Elements stored on proc 321: {}
+Elements stored on proc 322: {}
+Elements stored on proc 323: {}
+Elements stored on proc 324: {}
+Elements stored on proc 325: {}
+Elements stored on proc 326: {}
+Elements stored on proc 327: {}
+Elements stored on proc 328: {}
+Elements stored on proc 329: {}
+Elements stored on proc 330: {}
+Elements stored on proc 331: {}
+Elements stored on proc 332: {}
+Elements stored on proc 333: {}
+Elements stored on proc 334: {}
+Elements stored on proc 335: {}
+Elements stored on proc 336: {}
+Elements stored on proc 337: {}
+Elements stored on proc 338: {}
+Elements stored on proc 339: {}
+Elements stored on proc 340: {}
+Elements stored on proc 341: {}
+Elements stored on proc 342: {}
+Elements stored on proc 343: {}
+Elements stored on proc 344: {}
+Elements stored on proc 345: {}
+Elements stored on proc 346: {}
+Elements stored on proc 347: {}
+Elements stored on proc 348: {}
+Elements stored on proc 349: {}
+Elements stored on proc 350: {}
+Elements stored on proc 351: {20,21,}
+Elements stored on proc 352: {}
+Elements stored on proc 353: {}
+Elements stored on proc 354: {}
+Elements stored on proc 355: {}
+Elements stored on proc 356: {}
+Elements stored on proc 357: {}
+Elements stored on proc 358: {}
+Elements stored on proc 359: {}
+Elements stored on proc 360: {}
+Elements stored on proc 361: {}
+Elements stored on proc 362: {}
+Elements stored on proc 363: {}
+Elements stored on proc 364: {}
+Elements stored on proc 365: {}
+Elements stored on proc 366: {}
+Elements stored on proc 367: {}
+Elements stored on proc 368: {}
+Elements stored on proc 369: {}
+Elements stored on proc 370: {}
+Elements stored on proc 371: {}
+Elements stored on proc 372: {}
+Elements stored on proc 373: {}
+Elements stored on proc 374: {}
+Elements stored on proc 375: {}
+Elements stored on proc 376: {}
+Elements stored on proc 377: {}
+Elements stored on proc 378: {}
+Elements stored on proc 379: {}
+Elements stored on proc 380: {}
+Elements stored on proc 381: {}
+Elements stored on proc 382: {}
+Elements stored on proc 383: {22,23,}
+Elements stored on proc 384: {}
+Elements stored on proc 385: {}
+Elements stored on proc 386: {}
+Elements stored on proc 387: {}
+Elements stored on proc 388: {}
+Elements stored on proc 389: {}
+Elements stored on proc 390: {}
+Elements stored on proc 391: {}
+Elements stored on proc 392: {}
+Elements stored on proc 393: {}
+Elements stored on proc 394: {}
+Elements stored on proc 395: {}
+Elements stored on proc 396: {}
+Elements stored on proc 397: {}
+Elements stored on proc 398: {}
+Elements stored on proc 399: {}
+Elements stored on proc 400: {}
+Elements stored on proc 401: {}
+Elements stored on proc 402: {}
+Elements stored on proc 403: {}
+Elements stored on proc 404: {}
+Elements stored on proc 405: {}
+Elements stored on proc 406: {}
+Elements stored on proc 407: {}
+Elements stored on proc 408: {}
+Elements stored on proc 409: {}
+Elements stored on proc 410: {}
+Elements stored on proc 411: {}
+Elements stored on proc 412: {}
+Elements stored on proc 413: {}
+Elements stored on proc 414: {}
+Elements stored on proc 415: {24,25,}
+Elements stored on proc 416: {}
+Elements stored on proc 417: {}
+Elements stored on proc 418: {}
+Elements stored on proc 419: {}
+Elements stored on proc 420: {}
+Elements stored on proc 421: {}
+Elements stored on proc 422: {}
+Elements stored on proc 423: {}
+Elements stored on proc 424: {}
+Elements stored on proc 425: {}
+Elements stored on proc 426: {}
+Elements stored on proc 427: {}
+Elements stored on proc 428: {}
+Elements stored on proc 429: {}
+Elements stored on proc 430: {}
+Elements stored on proc 431: {}
+Elements stored on proc 432: {}
+Elements stored on proc 433: {}
+Elements stored on proc 434: {}
+Elements stored on proc 435: {}
+Elements stored on proc 436: {}
+Elements stored on proc 437: {}
+Elements stored on proc 438: {}
+Elements stored on proc 439: {}
+Elements stored on proc 440: {}
+Elements stored on proc 441: {}
+Elements stored on proc 442: {}
+Elements stored on proc 443: {}
+Elements stored on proc 444: {}
+Elements stored on proc 445: {}
+Elements stored on proc 446: {}
+Elements stored on proc 447: {26,27,}
+Elements stored on proc 448: {}
+Elements stored on proc 449: {}
+Elements stored on proc 450: {}
+Elements stored on proc 451: {}
+Elements stored on proc 452: {}
+Elements stored on proc 453: {}
+Elements stored on proc 454: {}
+Elements stored on proc 455: {}
+Elements stored on proc 456: {}
+Elements stored on proc 457: {}
+Elements stored on proc 458: {}
+Elements stored on proc 459: {}
+Elements stored on proc 460: {}
+Elements stored on proc 461: {}
+Elements stored on proc 462: {}
+Elements stored on proc 463: {}
+Elements stored on proc 464: {}
+Elements stored on proc 465: {}
+Elements stored on proc 466: {}
+Elements stored on proc 467: {}
+Elements stored on proc 468: {}
+Elements stored on proc 469: {}
+Elements stored on proc 470: {}
+Elements stored on proc 471: {}
+Elements stored on proc 472: {}
+Elements stored on proc 473: {}
+Elements stored on proc 474: {}
+Elements stored on proc 475: {}
+Elements stored on proc 476: {}
+Elements stored on proc 477: {}
+Elements stored on proc 478: {}
+Elements stored on proc 479: {28,29,}
+Elements stored on proc 480: {}
+Elements stored on proc 481: {}
+Elements stored on proc 482: {}
+Elements stored on proc 483: {}
+Elements stored on proc 484: {}
+Elements stored on proc 485: {}
+Elements stored on proc 486: {}
+Elements stored on proc 487: {}
+Elements stored on proc 488: {}
+Elements stored on proc 489: {}
+Elements stored on proc 490: {}
+Elements stored on proc 491: {}
+Elements stored on proc 492: {}
+Elements stored on proc 493: {}
+Elements stored on proc 494: {}
+Elements stored on proc 495: {}
+Elements stored on proc 496: {}
+Elements stored on proc 497: {}
+Elements stored on proc 498: {}
+Elements stored on proc 499: {}
+Elements stored on proc 500: {}
+Elements stored on proc 501: {}
+Elements stored on proc 502: {}
+Elements stored on proc 503: {}
+Elements stored on proc 504: {}
+Elements stored on proc 505: {}
+Elements stored on proc 506: {}
+Elements stored on proc 507: {}
+Elements stored on proc 508: {}
+Elements stored on proc 509: {}
+Elements stored on proc 510: {}
+Elements stored on proc 511: {30,31,}
+Elements stored on proc 512: {}
+Elements stored on proc 513: {}
+Elements stored on proc 514: {}
+Elements stored on proc 515: {}
+Elements stored on proc 516: {}
+Elements stored on proc 517: {}
+Elements stored on proc 518: {}
+Elements stored on proc 519: {}
+Elements stored on proc 520: {}
+Elements stored on proc 521: {}
+Elements stored on proc 522: {}
+Elements stored on proc 523: {}
+Elements stored on proc 524: {}
+Elements stored on proc 525: {}
+Elements stored on proc 526: {}
+Elements stored on proc 527: {}
+Elements stored on proc 528: {}
+Elements stored on proc 529: {}
+Elements stored on proc 530: {}
+Elements stored on proc 531: {}
+Elements stored on proc 532: {}
+Elements stored on proc 533: {}
+Elements stored on proc 534: {}
+Elements stored on proc 535: {}
+Elements stored on proc 536: {}
+Elements stored on proc 537: {}
+Elements stored on proc 538: {}
+Elements stored on proc 539: {}
+Elements stored on proc 540: {}
+Elements stored on proc 541: {}
+Elements stored on proc 542: {}
+Elements stored on proc 543: {32,33,}
+Elements stored on proc 544: {}
+Elements stored on proc 545: {}
+Elements stored on proc 546: {}
+Elements stored on proc 547: {}
+Elements stored on proc 548: {}
+Elements stored on proc 549: {}
+Elements stored on proc 550: {}
+Elements stored on proc 551: {}
+Elements stored on proc 552: {}
+Elements stored on proc 553: {}
+Elements stored on proc 554: {}
+Elements stored on proc 555: {}
+Elements stored on proc 556: {}
+Elements stored on proc 557: {}
+Elements stored on proc 558: {}
+Elements stored on proc 559: {}
+Elements stored on proc 560: {}
+Elements stored on proc 561: {}
+Elements stored on proc 562: {}
+Elements stored on proc 563: {}
+Elements stored on proc 564: {}
+Elements stored on proc 565: {}
+Elements stored on proc 566: {}
+Elements stored on proc 567: {}
+Elements stored on proc 568: {}
+Elements stored on proc 569: {}
+Elements stored on proc 570: {}
+Elements stored on proc 571: {}
+Elements stored on proc 572: {}
+Elements stored on proc 573: {}
+Elements stored on proc 574: {}
+Elements stored on proc 575: {34,35,}
+Elements stored on proc 576: {}
+Elements stored on proc 577: {}
+Elements stored on proc 578: {}
+Elements stored on proc 579: {}
+Elements stored on proc 580: {}
+Elements stored on proc 581: {}
+Elements stored on proc 582: {}
+Elements stored on proc 583: {}
+Elements stored on proc 584: {}
+Elements stored on proc 585: {}
+Elements stored on proc 586: {}
+Elements stored on proc 587: {}
+Elements stored on proc 588: {}
+Elements stored on proc 589: {}
+Elements stored on proc 590: {}
+Elements stored on proc 591: {}
+Elements stored on proc 592: {}
+Elements stored on proc 593: {}
+Elements stored on proc 594: {}
+Elements stored on proc 595: {}
+Elements stored on proc 596: {}
+Elements stored on proc 597: {}
+Elements stored on proc 598: {}
+Elements stored on proc 599: {}
+Elements stored on proc 600: {}
+Elements stored on proc 601: {}
+Elements stored on proc 602: {}
+Elements stored on proc 603: {}
+Elements stored on proc 604: {}
+Elements stored on proc 605: {}
+Elements stored on proc 606: {}
+Elements stored on proc 607: {36,37,}
+Elements stored on proc 608: {}
+Elements stored on proc 609: {}
+Elements stored on proc 610: {}
+Elements stored on proc 611: {}
+Elements stored on proc 612: {}
+Elements stored on proc 613: {}
+Elements stored on proc 614: {}
+Elements stored on proc 615: {}
+Elements stored on proc 616: {}
+Elements stored on proc 617: {}
+Elements stored on proc 618: {}
+Elements stored on proc 619: {}
+Elements stored on proc 620: {}
+Elements stored on proc 621: {}
+Elements stored on proc 622: {}
+Elements stored on proc 623: {}
+Elements stored on proc 624: {}
+Elements stored on proc 625: {}
+Elements stored on proc 626: {}
+Elements stored on proc 627: {}
+Elements stored on proc 628: {}
+Elements stored on proc 629: {}
+Elements stored on proc 630: {}
+Elements stored on proc 631: {}
+Elements stored on proc 632: {}
+Elements stored on proc 633: {}
+Elements stored on proc 634: {}
+Elements stored on proc 635: {}
+Elements stored on proc 636: {}
+Elements stored on proc 637: {}
+Elements stored on proc 638: {}
+Elements stored on proc 639: {38,39,}
+Elements stored on proc 640: {}
+Elements stored on proc 641: {}
+Elements stored on proc 642: {}
+Elements stored on proc 643: {}
+Elements stored on proc 644: {}
+Elements stored on proc 645: {}
+Elements stored on proc 646: {}
+Elements stored on proc 647: {}
+Elements stored on proc 648: {}
+Elements stored on proc 649: {}
+Elements stored on proc 650: {}
+Elements stored on proc 651: {}
+Elements stored on proc 652: {}
+Elements stored on proc 653: {}
+Elements stored on proc 654: {}
+Elements stored on proc 655: {}
+Elements stored on proc 656: {}
+Elements stored on proc 657: {}
+Elements stored on proc 658: {}
+Elements stored on proc 659: {}
+Elements stored on proc 660: {}
+Elements stored on proc 661: {}
+Elements stored on proc 662: {}
+Elements stored on proc 663: {}
+Elements stored on proc 664: {}
+Elements stored on proc 665: {}
+Elements stored on proc 666: {}
+Elements stored on proc 667: {}
+Elements stored on proc 668: {}
+Elements stored on proc 669: {}
+Elements stored on proc 670: {}
+Elements stored on proc 671: {40,41,}
+Elements stored on proc 672: {}
+Elements stored on proc 673: {}
+Elements stored on proc 674: {}
+Elements stored on proc 675: {}
+Elements stored on proc 676: {}
+Elements stored on proc 677: {}
+Elements stored on proc 678: {}
+Elements stored on proc 679: {}
+Elements stored on proc 680: {}
+Elements stored on proc 681: {}
+Elements stored on proc 682: {}
+Elements stored on proc 683: {}
+Elements stored on proc 684: {}
+Elements stored on proc 685: {}
+Elements stored on proc 686: {}
+Elements stored on proc 687: {}
+Elements stored on proc 688: {}
+Elements stored on proc 689: {}
+Elements stored on proc 690: {}
+Elements stored on proc 691: {}
+Elements stored on proc 692: {}
+Elements stored on proc 693: {}
+Elements stored on proc 694: {}
+Elements stored on proc 695: {}
+Elements stored on proc 696: {}
+Elements stored on proc 697: {}
+Elements stored on proc 698: {}
+Elements stored on proc 699: {}
+Elements stored on proc 700: {}
+Elements stored on proc 701: {}
+Elements stored on proc 702: {}
+Elements stored on proc 703: {42,43,}
+Elements stored on proc 704: {}
+Elements stored on proc 705: {}
+Elements stored on proc 706: {}
+Elements stored on proc 707: {}
+Elements stored on proc 708: {}
+Elements stored on proc 709: {}
+Elements stored on proc 710: {}
+Elements stored on proc 711: {}
+Elements stored on proc 712: {}
+Elements stored on proc 713: {}
+Elements stored on proc 714: {}
+Elements stored on proc 715: {}
+Elements stored on proc 716: {}
+Elements stored on proc 717: {}
+Elements stored on proc 718: {}
+Elements stored on proc 719: {}
+Elements stored on proc 720: {}
+Elements stored on proc 721: {}
+Elements stored on proc 722: {}
+Elements stored on proc 723: {}
+Elements stored on proc 724: {}
+Elements stored on proc 725: {}
+Elements stored on proc 726: {}
+Elements stored on proc 727: {}
+Elements stored on proc 728: {}
+Elements stored on proc 729: {}
+Elements stored on proc 730: {}
+Elements stored on proc 731: {}
+Elements stored on proc 732: {}
+Elements stored on proc 733: {}
+Elements stored on proc 734: {}
+Elements stored on proc 735: {44,45,}
+Elements stored on proc 736: {}
+Elements stored on proc 737: {}
+Elements stored on proc 738: {}
+Elements stored on proc 739: {}
+Elements stored on proc 740: {}
+Elements stored on proc 741: {}
+Elements stored on proc 742: {}
+Elements stored on proc 743: {}
+Elements stored on proc 744: {}
+Elements stored on proc 745: {}
+Elements stored on proc 746: {}
+Elements stored on proc 747: {}
+Elements stored on proc 748: {}
+Elements stored on proc 749: {}
+Elements stored on proc 750: {}
+Elements stored on proc 751: {}
+Elements stored on proc 752: {}
+Elements stored on proc 753: {}
+Elements stored on proc 754: {}
+Elements stored on proc 755: {}
+Elements stored on proc 756: {}
+Elements stored on proc 757: {}
+Elements stored on proc 758: {}
+Elements stored on proc 759: {}
+Elements stored on proc 760: {}
+Elements stored on proc 761: {}
+Elements stored on proc 762: {}
+Elements stored on proc 763: {}
+Elements stored on proc 764: {}
+Elements stored on proc 765: {}
+Elements stored on proc 766: {}
+Elements stored on proc 767: {46,47,}
+Elements stored on proc 768: {}
+Elements stored on proc 769: {}
+Elements stored on proc 770: {}
+Elements stored on proc 771: {}
+Elements stored on proc 772: {}
+Elements stored on proc 773: {}
+Elements stored on proc 774: {}
+Elements stored on proc 775: {}
+Elements stored on proc 776: {}
+Elements stored on proc 777: {}
+Elements stored on proc 778: {}
+Elements stored on proc 779: {}
+Elements stored on proc 780: {}
+Elements stored on proc 781: {}
+Elements stored on proc 782: {}
+Elements stored on proc 783: {}
+Elements stored on proc 784: {}
+Elements stored on proc 785: {}
+Elements stored on proc 786: {}
+Elements stored on proc 787: {}
+Elements stored on proc 788: {}
+Elements stored on proc 789: {}
+Elements stored on proc 790: {}
+Elements stored on proc 791: {}
+Elements stored on proc 792: {}
+Elements stored on proc 793: {}
+Elements stored on proc 794: {}
+Elements stored on proc 795: {}
+Elements stored on proc 796: {}
+Elements stored on proc 797: {}
+Elements stored on proc 798: {}
+Elements stored on proc 799: {48,49,}
+Elements stored on proc 800: {}
+Elements stored on proc 801: {}
+Elements stored on proc 802: {}
+Elements stored on proc 803: {}
+Elements stored on proc 804: {}
+Elements stored on proc 805: {}
+Elements stored on proc 806: {}
+Elements stored on proc 807: {}
+Elements stored on proc 808: {}
+Elements stored on proc 809: {}
+Elements stored on proc 810: {}
+Elements stored on proc 811: {}
+Elements stored on proc 812: {}
+Elements stored on proc 813: {}
+Elements stored on proc 814: {}
+Elements stored on proc 815: {}
+Elements stored on proc 816: {}
+Elements stored on proc 817: {}
+Elements stored on proc 818: {}
+Elements stored on proc 819: {}
+Elements stored on proc 820: {}
+Elements stored on proc 821: {}
+Elements stored on proc 822: {}
+Elements stored on proc 823: {}
+Elements stored on proc 824: {}
+Elements stored on proc 825: {}
+Elements stored on proc 826: {}
+Elements stored on proc 827: {}
+Elements stored on proc 828: {}
+Elements stored on proc 829: {}
+Elements stored on proc 830: {}
+Elements stored on proc 831: {50,51,}
+Elements stored on proc 832: {}
+Elements stored on proc 833: {}
+Elements stored on proc 834: {}
+Elements stored on proc 835: {}
+Elements stored on proc 836: {}
+Elements stored on proc 837: {}
+Elements stored on proc 838: {}
+Elements stored on proc 839: {}
+Elements stored on proc 840: {}
+Elements stored on proc 841: {}
+Elements stored on proc 842: {}
+Elements stored on proc 843: {}
+Elements stored on proc 844: {}
+Elements stored on proc 845: {}
+Elements stored on proc 846: {}
+Elements stored on proc 847: {}
+Elements stored on proc 848: {}
+Elements stored on proc 849: {}
+Elements stored on proc 850: {}
+Elements stored on proc 851: {}
+Elements stored on proc 852: {}
+Elements stored on proc 853: {}
+Elements stored on proc 854: {}
+Elements stored on proc 855: {}
+Elements stored on proc 856: {}
+Elements stored on proc 857: {}
+Elements stored on proc 858: {}
+Elements stored on proc 859: {}
+Elements stored on proc 860: {}
+Elements stored on proc 861: {}
+Elements stored on proc 862: {}
+Elements stored on proc 863: {52,53,}
+Elements stored on proc 864: {}
+Elements stored on proc 865: {}
+Elements stored on proc 866: {}
+Elements stored on proc 867: {}
+Elements stored on proc 868: {}
+Elements stored on proc 869: {}
+Elements stored on proc 870: {}
+Elements stored on proc 871: {}
+Elements stored on proc 872: {}
+Elements stored on proc 873: {}
+Elements stored on proc 874: {}
+Elements stored on proc 875: {}
+Elements stored on proc 876: {}
+Elements stored on proc 877: {}
+Elements stored on proc 878: {}
+Elements stored on proc 879: {}
+Elements stored on proc 880: {}
+Elements stored on proc 881: {}
+Elements stored on proc 882: {}
+Elements stored on proc 883: {}
+Elements stored on proc 884: {}
+Elements stored on proc 885: {}
+Elements stored on proc 886: {}
+Elements stored on proc 887: {}
+Elements stored on proc 888: {}
+Elements stored on proc 889: {}
+Elements stored on proc 890: {}
+Elements stored on proc 891: {}
+Elements stored on proc 892: {}
+Elements stored on proc 893: {}
+Elements stored on proc 894: {}
+Elements stored on proc 895: {54,55,}
+Elements stored on proc 896: {}
+Elements stored on proc 897: {}
+Elements stored on proc 898: {}
+Elements stored on proc 899: {}
+Elements stored on proc 900: {}
+Elements stored on proc 901: {}
+Elements stored on proc 902: {}
+Elements stored on proc 903: {}
+Elements stored on proc 904: {}
+Elements stored on proc 905: {}
+Elements stored on proc 906: {}
+Elements stored on proc 907: {}
+Elements stored on proc 908: {}
+Elements stored on proc 909: {}
+Elements stored on proc 910: {}
+Elements stored on proc 911: {}
+Elements stored on proc 912: {}
+Elements stored on proc 913: {}
+Elements stored on proc 914: {}
+Elements stored on proc 915: {}
+Elements stored on proc 916: {}
+Elements stored on proc 917: {}
+Elements stored on proc 918: {}
+Elements stored on proc 919: {}
+Elements stored on proc 920: {}
+Elements stored on proc 921: {}
+Elements stored on proc 922: {}
+Elements stored on proc 923: {}
+Elements stored on proc 924: {}
+Elements stored on proc 925: {}
+Elements stored on proc 926: {}
+Elements stored on proc 927: {56,57,}
+Elements stored on proc 928: {}
+Elements stored on proc 929: {}
+Elements stored on proc 930: {}
+Elements stored on proc 931: {}
+Elements stored on proc 932: {}
+Elements stored on proc 933: {}
+Elements stored on proc 934: {}
+Elements stored on proc 935: {}
+Elements stored on proc 936: {}
+Elements stored on proc 937: {}
+Elements stored on proc 938: {}
+Elements stored on proc 939: {}
+Elements stored on proc 940: {}
+Elements stored on proc 941: {}
+Elements stored on proc 942: {}
+Elements stored on proc 943: {}
+Elements stored on proc 944: {}
+Elements stored on proc 945: {}
+Elements stored on proc 946: {}
+Elements stored on proc 947: {}
+Elements stored on proc 948: {}
+Elements stored on proc 949: {}
+Elements stored on proc 950: {}
+Elements stored on proc 951: {}
+Elements stored on proc 952: {}
+Elements stored on proc 953: {}
+Elements stored on proc 954: {}
+Elements stored on proc 955: {}
+Elements stored on proc 956: {}
+Elements stored on proc 957: {}
+Elements stored on proc 958: {}
+Elements stored on proc 959: {58,59,}
+Elements stored on proc 960: {}
+Elements stored on proc 961: {}
+Elements stored on proc 962: {}
+Elements stored on proc 963: {}
+Elements stored on proc 964: {}
+Elements stored on proc 965: {}
+Elements stored on proc 966: {}
+Elements stored on proc 967: {}
+Elements stored on proc 968: {}
+Elements stored on proc 969: {}
+Elements stored on proc 970: {}
+Elements stored on proc 971: {}
+Elements stored on proc 972: {}
+Elements stored on proc 973: {}
+Elements stored on proc 974: {}
+Elements stored on proc 975: {}
+Elements stored on proc 976: {}
+Elements stored on proc 977: {}
+Elements stored on proc 978: {}
+Elements stored on proc 979: {}
+Elements stored on proc 980: {}
+Elements stored on proc 981: {}
+Elements stored on proc 982: {}
+Elements stored on proc 983: {}
+Elements stored on proc 984: {}
+Elements stored on proc 985: {}
+Elements stored on proc 986: {}
+Elements stored on proc 987: {}
+Elements stored on proc 988: {}
+Elements stored on proc 989: {}
+Elements stored on proc 990: {}
+Elements stored on proc 991: {60,61,}
+Elements stored on proc 992: {}
+Elements stored on proc 993: {}
+Elements stored on proc 994: {}
+Elements stored on proc 995: {}
+Elements stored on proc 996: {}
+Elements stored on proc 997: {}
+Elements stored on proc 998: {}
+Elements stored on proc 999: {}
+Elements stored on proc 1000: {}
+Elements stored on proc 1001: {}
+Elements stored on proc 1002: {}
+Elements stored on proc 1003: {}
+Elements stored on proc 1004: {}
+Elements stored on proc 1005: {}
+Elements stored on proc 1006: {}
+Elements stored on proc 1007: {}
+Elements stored on proc 1008: {}
+Elements stored on proc 1009: {}
+Elements stored on proc 1010: {}
+Elements stored on proc 1011: {}
+Elements stored on proc 1012: {}
+Elements stored on proc 1013: {}
+Elements stored on proc 1014: {}
+Elements stored on proc 1015: {}
+Elements stored on proc 1016: {}
+Elements stored on proc 1017: {}
+Elements stored on proc 1018: {}
+Elements stored on proc 1019: {}
+Elements stored on proc 1020: {}
+Elements stored on proc 1021: {}
+Elements stored on proc 1022: {}
+Elements stored on proc 1023: {62,63,}
+Elements stored on proc 0: {}
+Elements stored on proc 1: {}
+Elements stored on proc 2: {}
+Elements stored on proc 3: {}
+Elements stored on proc 4: {}
+Elements stored on proc 5: {}
+Elements stored on proc 6: {}
+Elements stored on proc 7: {}
+Elements stored on proc 8: {}
+Elements stored on proc 9: {}
+Elements stored on proc 10: {}
+Elements stored on proc 11: {}
+Elements stored on proc 12: {}
+Elements stored on proc 13: {}
+Elements stored on proc 14: {}
+Elements stored on proc 15: {}
+Elements stored on proc 16: {}
+Elements stored on proc 17: {}
+Elements stored on proc 18: {}
+Elements stored on proc 19: {}
+Elements stored on proc 20: {}
+Elements stored on proc 21: {}
+Elements stored on proc 22: {}
+Elements stored on proc 23: {}
+Elements stored on proc 24: {}
+Elements stored on proc 25: {}
+Elements stored on proc 26: {}
+Elements stored on proc 27: {}
+Elements stored on proc 28: {}
+Elements stored on proc 29: {}
+Elements stored on proc 30: {}
+Elements stored on proc 31: {482421580,366477647,}
+Elements stored on proc 32: {}
+Elements stored on proc 33: {}
+Elements stored on proc 34: {}
+Elements stored on proc 35: {}
+Elements stored on proc 36: {}
+Elements stored on proc 37: {}
+Elements stored on proc 38: {}
+Elements stored on proc 39: {}
+Elements stored on proc 40: {}
+Elements stored on proc 41: {}
+Elements stored on proc 42: {}
+Elements stored on proc 43: {}
+Elements stored on proc 44: {}
+Elements stored on proc 45: {}
+Elements stored on proc 46: {}
+Elements stored on proc 47: {}
+Elements stored on proc 48: {}
+Elements stored on proc 49: {}
+Elements stored on proc 50: {}
+Elements stored on proc 51: {}
+Elements stored on proc 52: {}
+Elements stored on proc 53: {}
+Elements stored on proc 54: {}
+Elements stored on proc 55: {}
+Elements stored on proc 56: {}
+Elements stored on proc 57: {}
+Elements stored on proc 58: {}
+Elements stored on proc 59: {}
+Elements stored on proc 60: {}
+Elements stored on proc 61: {}
+Elements stored on proc 62: {}
+Elements stored on proc 63: {491585532,105541699,}
+Elements stored on proc 64: {}
+Elements stored on proc 65: {}
+Elements stored on proc 66: {}
+Elements stored on proc 67: {}
+Elements stored on proc 68: {}
+Elements stored on proc 69: {}
+Elements stored on proc 70: {}
+Elements stored on proc 71: {}
+Elements stored on proc 72: {}
+Elements stored on proc 73: {}
+Elements stored on proc 74: {}
+Elements stored on proc 75: {}
+Elements stored on proc 76: {}
+Elements stored on proc 77: {}
+Elements stored on proc 78: {}
+Elements stored on proc 79: {}
+Elements stored on proc 80: {}
+Elements stored on proc 81: {}
+Elements stored on proc 82: {}
+Elements stored on proc 83: {}
+Elements stored on proc 84: {}
+Elements stored on proc 85: {}
+Elements stored on proc 86: {}
+Elements stored on proc 87: {}
+Elements stored on proc 88: {}
+Elements stored on proc 89: {}
+Elements stored on proc 90: {}
+Elements stored on proc 91: {}
+Elements stored on proc 92: {}
+Elements stored on proc 93: {}
+Elements stored on proc 94: {}
+Elements stored on proc 95: {138065689,326186563,}
+Elements stored on proc 96: {}
+Elements stored on proc 97: {}
+Elements stored on proc 98: {}
+Elements stored on proc 99: {}
+Elements stored on proc 100: {}
+Elements stored on proc 101: {}
+Elements stored on proc 102: {}
+Elements stored on proc 103: {}
+Elements stored on proc 104: {}
+Elements stored on proc 105: {}
+Elements stored on proc 106: {}
+Elements stored on proc 107: {}
+Elements stored on proc 108: {}
+Elements stored on proc 109: {}
+Elements stored on proc 110: {}
+Elements stored on proc 111: {}
+Elements stored on proc 112: {}
+Elements stored on proc 113: {}
+Elements stored on proc 114: {}
+Elements stored on proc 115: {}
+Elements stored on proc 116: {}
+Elements stored on proc 117: {}
+Elements stored on proc 118: {}
+Elements stored on proc 119: {}
+Elements stored on proc 120: {}
+Elements stored on proc 121: {}
+Elements stored on proc 122: {}
+Elements stored on proc 123: {}
+Elements stored on proc 124: {}
+Elements stored on proc 125: {}
+Elements stored on proc 126: {}
+Elements stored on proc 127: {16111733,182041027,}
+Elements stored on proc 128: {}
+Elements stored on proc 129: {}
+Elements stored on proc 130: {}
+Elements stored on proc 131: {}
+Elements stored on proc 132: {}
+Elements stored on proc 133: {}
+Elements stored on proc 134: {}
+Elements stored on proc 135: {}
+Elements stored on proc 136: {}
+Elements stored on proc 137: {}
+Elements stored on proc 138: {}
+Elements stored on proc 139: {}
+Elements stored on proc 140: {}
+Elements stored on proc 141: {}
+Elements stored on proc 142: {}
+Elements stored on proc 143: {}
+Elements stored on proc 144: {}
+Elements stored on proc 145: {}
+Elements stored on proc 146: {}
+Elements stored on proc 147: {}
+Elements stored on proc 148: {}
+Elements stored on proc 149: {}
+Elements stored on proc 150: {}
+Elements stored on proc 151: {}
+Elements stored on proc 152: {}
+Elements stored on proc 153: {}
+Elements stored on proc 154: {}
+Elements stored on proc 155: {}
+Elements stored on proc 156: {}
+Elements stored on proc 157: {}
+Elements stored on proc 158: {}
+Elements stored on proc 159: {471307513,101437168,}
+Elements stored on proc 160: {}
+Elements stored on proc 161: {}
+Elements stored on proc 162: {}
+Elements stored on proc 163: {}
+Elements stored on proc 164: {}
+Elements stored on proc 165: {}
+Elements stored on proc 166: {}
+Elements stored on proc 167: {}
+Elements stored on proc 168: {}
+Elements stored on proc 169: {}
+Elements stored on proc 170: {}
+Elements stored on proc 171: {}
+Elements stored on proc 172: {}
+Elements stored on proc 173: {}
+Elements stored on proc 174: {}
+Elements stored on proc 175: {}
+Elements stored on proc 176: {}
+Elements stored on proc 177: {}
+Elements stored on proc 178: {}
+Elements stored on proc 179: {}
+Elements stored on proc 180: {}
+Elements stored on proc 181: {}
+Elements stored on proc 182: {}
+Elements stored on proc 183: {}
+Elements stored on proc 184: {}
+Elements stored on proc 185: {}
+Elements stored on proc 186: {}
+Elements stored on proc 187: {}
+Elements stored on proc 188: {}
+Elements stored on proc 189: {}
+Elements stored on proc 190: {}
+Elements stored on proc 191: {46019789,476811668,}
+Elements stored on proc 192: {}
+Elements stored on proc 193: {}
+Elements stored on proc 194: {}
+Elements stored on proc 195: {}
+Elements stored on proc 196: {}
+Elements stored on proc 197: {}
+Elements stored on proc 198: {}
+Elements stored on proc 199: {}
+Elements stored on proc 200: {}
+Elements stored on proc 201: {}
+Elements stored on proc 202: {}
+Elements stored on proc 203: {}
+Elements stored on proc 204: {}
+Elements stored on proc 205: {}
+Elements stored on proc 206: {}
+Elements stored on proc 207: {}
+Elements stored on proc 208: {}
+Elements stored on proc 209: {}
+Elements stored on proc 210: {}
+Elements stored on proc 211: {}
+Elements stored on proc 212: {}
+Elements stored on proc 213: {}
+Elements stored on proc 214: {}
+Elements stored on proc 215: {}
+Elements stored on proc 216: {}
+Elements stored on proc 217: {}
+Elements stored on proc 218: {}
+Elements stored on proc 219: {}
+Elements stored on proc 220: {}
+Elements stored on proc 221: {}
+Elements stored on proc 222: {}
+Elements stored on proc 223: {304927366,348874129,}
+Elements stored on proc 224: {}
+Elements stored on proc 225: {}
+Elements stored on proc 226: {}
+Elements stored on proc 227: {}
+Elements stored on proc 228: {}
+Elements stored on proc 229: {}
+Elements stored on proc 230: {}
+Elements stored on proc 231: {}
+Elements stored on proc 232: {}
+Elements stored on proc 233: {}
+Elements stored on proc 234: {}
+Elements stored on proc 235: {}
+Elements stored on proc 236: {}
+Elements stored on proc 237: {}
+Elements stored on proc 238: {}
+Elements stored on proc 239: {}
+Elements stored on proc 240: {}
+Elements stored on proc 241: {}
+Elements stored on proc 242: {}
+Elements stored on proc 243: {}
+Elements stored on proc 244: {}
+Elements stored on proc 245: {}
+Elements stored on proc 246: {}
+Elements stored on proc 247: {}
+Elements stored on proc 248: {}
+Elements stored on proc 249: {}
+Elements stored on proc 250: {}
+Elements stored on proc 251: {}
+Elements stored on proc 252: {}
+Elements stored on proc 253: {}
+Elements stored on proc 254: {}
+Elements stored on proc 255: {333174862,256734023,}
+Elements stored on proc 256: {}
+Elements stored on proc 257: {}
+Elements stored on proc 258: {}
+Elements stored on proc 259: {}
+Elements stored on proc 260: {}
+Elements stored on proc 261: {}
+Elements stored on proc 262: {}
+Elements stored on proc 263: {}
+Elements stored on proc 264: {}
+Elements stored on proc 265: {}
+Elements stored on proc 266: {}
+Elements stored on proc 267: {}
+Elements stored on proc 268: {}
+Elements stored on proc 269: {}
+Elements stored on proc 270: {}
+Elements stored on proc 271: {}
+Elements stored on proc 272: {}
+Elements stored on proc 273: {}
+Elements stored on proc 274: {}
+Elements stored on proc 275: {}
+Elements stored on proc 276: {}
+Elements stored on proc 277: {}
+Elements stored on proc 278: {}
+Elements stored on proc 279: {}
+Elements stored on proc 280: {}
+Elements stored on proc 281: {}
+Elements stored on proc 282: {}
+Elements stored on proc 283: {}
+Elements stored on proc 284: {}
+Elements stored on proc 285: {}
+Elements stored on proc 286: {}
+Elements stored on proc 287: {40882114,308289169,}
+Elements stored on proc 288: {}
+Elements stored on proc 289: {}
+Elements stored on proc 290: {}
+Elements stored on proc 291: {}
+Elements stored on proc 292: {}
+Elements stored on proc 293: {}
+Elements stored on proc 294: {}
+Elements stored on proc 295: {}
+Elements stored on proc 296: {}
+Elements stored on proc 297: {}
+Elements stored on proc 298: {}
+Elements stored on proc 299: {}
+Elements stored on proc 300: {}
+Elements stored on proc 301: {}
+Elements stored on proc 302: {}
+Elements stored on proc 303: {}
+Elements stored on proc 304: {}
+Elements stored on proc 305: {}
+Elements stored on proc 306: {}
+Elements stored on proc 307: {}
+Elements stored on proc 308: {}
+Elements stored on proc 309: {}
+Elements stored on proc 310: {}
+Elements stored on proc 311: {}
+Elements stored on proc 312: {}
+Elements stored on proc 313: {}
+Elements stored on proc 314: {}
+Elements stored on proc 315: {}
+Elements stored on proc 316: {}
+Elements stored on proc 317: {}
+Elements stored on proc 318: {}
+Elements stored on proc 319: {489273314,293026733,}
+Elements stored on proc 320: {}
+Elements stored on proc 321: {}
+Elements stored on proc 322: {}
+Elements stored on proc 323: {}
+Elements stored on proc 324: {}
+Elements stored on proc 325: {}
+Elements stored on proc 326: {}
+Elements stored on proc 327: {}
+Elements stored on proc 328: {}
+Elements stored on proc 329: {}
+Elements stored on proc 330: {}
+Elements stored on proc 331: {}
+Elements stored on proc 332: {}
+Elements stored on proc 333: {}
+Elements stored on proc 334: {}
+Elements stored on proc 335: {}
+Elements stored on proc 336: {}
+Elements stored on proc 337: {}
+Elements stored on proc 338: {}
+Elements stored on proc 339: {}
+Elements stored on proc 340: {}
+Elements stored on proc 341: {}
+Elements stored on proc 342: {}
+Elements stored on proc 343: {}
+Elements stored on proc 344: {}
+Elements stored on proc 345: {}
+Elements stored on proc 346: {}
+Elements stored on proc 347: {}
+Elements stored on proc 348: {}
+Elements stored on proc 349: {}
+Elements stored on proc 350: {}
+Elements stored on proc 351: {507072442,199089373,}
+Elements stored on proc 352: {}
+Elements stored on proc 353: {}
+Elements stored on proc 354: {}
+Elements stored on proc 355: {}
+Elements stored on proc 356: {}
+Elements stored on proc 357: {}
+Elements stored on proc 358: {}
+Elements stored on proc 359: {}
+Elements stored on proc 360: {}
+Elements stored on proc 361: {}
+Elements stored on proc 362: {}
+Elements stored on proc 363: {}
+Elements stored on proc 364: {}
+Elements stored on proc 365: {}
+Elements stored on proc 366: {}
+Elements stored on proc 367: {}
+Elements stored on proc 368: {}
+Elements stored on proc 369: {}
+Elements stored on proc 370: {}
+Elements stored on proc 371: {}
+Elements stored on proc 372: {}
+Elements stored on proc 373: {}
+Elements stored on proc 374: {}
+Elements stored on proc 375: {}
+Elements stored on proc 376: {}
+Elements stored on proc 377: {}
+Elements stored on proc 378: {}
+Elements stored on proc 379: {}
+Elements stored on proc 380: {}
+Elements stored on proc 381: {}
+Elements stored on proc 382: {}
+Elements stored on proc 383: {455177224,67558131,}
+Elements stored on proc 384: {}
+Elements stored on proc 385: {}
+Elements stored on proc 386: {}
+Elements stored on proc 387: {}
+Elements stored on proc 388: {}
+Elements stored on proc 389: {}
+Elements stored on proc 390: {}
+Elements stored on proc 391: {}
+Elements stored on proc 392: {}
+Elements stored on proc 393: {}
+Elements stored on proc 394: {}
+Elements stored on proc 395: {}
+Elements stored on proc 396: {}
+Elements stored on proc 397: {}
+Elements stored on proc 398: {}
+Elements stored on proc 399: {}
+Elements stored on proc 400: {}
+Elements stored on proc 401: {}
+Elements stored on proc 402: {}
+Elements stored on proc 403: {}
+Elements stored on proc 404: {}
+Elements stored on proc 405: {}
+Elements stored on proc 406: {}
+Elements stored on proc 407: {}
+Elements stored on proc 408: {}
+Elements stored on proc 409: {}
+Elements stored on proc 410: {}
+Elements stored on proc 411: {}
+Elements stored on proc 412: {}
+Elements stored on proc 413: {}
+Elements stored on proc 414: {}
+Elements stored on proc 415: {245904465,30950373,}
+Elements stored on proc 416: {}
+Elements stored on proc 417: {}
+Elements stored on proc 418: {}
+Elements stored on proc 419: {}
+Elements stored on proc 420: {}
+Elements stored on proc 421: {}
+Elements stored on proc 422: {}
+Elements stored on proc 423: {}
+Elements stored on proc 424: {}
+Elements stored on proc 425: {}
+Elements stored on proc 426: {}
+Elements stored on proc 427: {}
+Elements stored on proc 428: {}
+Elements stored on proc 429: {}
+Elements stored on proc 430: {}
+Elements stored on proc 431: {}
+Elements stored on proc 432: {}
+Elements stored on proc 433: {}
+Elements stored on proc 434: {}
+Elements stored on proc 435: {}
+Elements stored on proc 436: {}
+Elements stored on proc 437: {}
+Elements stored on proc 438: {}
+Elements stored on proc 439: {}
+Elements stored on proc 440: {}
+Elements stored on proc 441: {}
+Elements stored on proc 442: {}
+Elements stored on proc 443: {}
+Elements stored on proc 444: {}
+Elements stored on proc 445: {}
+Elements stored on proc 446: {}
+Elements stored on proc 447: {298674078,472372110,}
+Elements stored on proc 448: {}
+Elements stored on proc 449: {}
+Elements stored on proc 450: {}
+Elements stored on proc 451: {}
+Elements stored on proc 452: {}
+Elements stored on proc 453: {}
+Elements stored on proc 454: {}
+Elements stored on proc 455: {}
+Elements stored on proc 456: {}
+Elements stored on proc 457: {}
+Elements stored on proc 458: {}
+Elements stored on proc 459: {}
+Elements stored on proc 460: {}
+Elements stored on proc 461: {}
+Elements stored on proc 462: {}
+Elements stored on proc 463: {}
+Elements stored on proc 464: {}
+Elements stored on proc 465: {}
+Elements stored on proc 466: {}
+Elements stored on proc 467: {}
+Elements stored on proc 468: {}
+Elements stored on proc 469: {}
+Elements stored on proc 470: {}
+Elements stored on proc 471: {}
+Elements stored on proc 472: {}
+Elements stored on proc 473: {}
+Elements stored on proc 474: {}
+Elements stored on proc 475: {}
+Elements stored on proc 476: {}
+Elements stored on proc 477: {}
+Elements stored on proc 478: {}
+Elements stored on proc 479: {464043047,75482552,}
+Elements stored on proc 480: {}
+Elements stored on proc 481: {}
+Elements stored on proc 482: {}
+Elements stored on proc 483: {}
+Elements stored on proc 484: {}
+Elements stored on proc 485: {}
+Elements stored on proc 486: {}
+Elements stored on proc 487: {}
+Elements stored on proc 488: {}
+Elements stored on proc 489: {}
+Elements stored on proc 490: {}
+Elements stored on proc 491: {}
+Elements stored on proc 492: {}
+Elements stored on proc 493: {}
+Elements stored on proc 494: {}
+Elements stored on proc 495: {}
+Elements stored on proc 496: {}
+Elements stored on proc 497: {}
+Elements stored on proc 498: {}
+Elements stored on proc 499: {}
+Elements stored on proc 500: {}
+Elements stored on proc 501: {}
+Elements stored on proc 502: {}
+Elements stored on proc 503: {}
+Elements stored on proc 504: {}
+Elements stored on proc 505: {}
+Elements stored on proc 506: {}
+Elements stored on proc 507: {}
+Elements stored on proc 508: {}
+Elements stored on proc 509: {}
+Elements stored on proc 510: {}
+Elements stored on proc 511: {430583934,11760948,}
+Elements stored on proc 512: {}
+Elements stored on proc 513: {}
+Elements stored on proc 514: {}
+Elements stored on proc 515: {}
+Elements stored on proc 516: {}
+Elements stored on proc 517: {}
+Elements stored on proc 518: {}
+Elements stored on proc 519: {}
+Elements stored on proc 520: {}
+Elements stored on proc 521: {}
+Elements stored on proc 522: {}
+Elements stored on proc 523: {}
+Elements stored on proc 524: {}
+Elements stored on proc 525: {}
+Elements stored on proc 526: {}
+Elements stored on proc 527: {}
+Elements stored on proc 528: {}
+Elements stored on proc 529: {}
+Elements stored on proc 530: {}
+Elements stored on proc 531: {}
+Elements stored on proc 532: {}
+Elements stored on proc 533: {}
+Elements stored on proc 534: {}
+Elements stored on proc 535: {}
+Elements stored on proc 536: {}
+Elements stored on proc 537: {}
+Elements stored on proc 538: {}
+Elements stored on proc 539: {}
+Elements stored on proc 540: {}
+Elements stored on proc 541: {}
+Elements stored on proc 542: {}
+Elements stored on proc 543: {15307658,528685769,}
+Elements stored on proc 544: {}
+Elements stored on proc 545: {}
+Elements stored on proc 546: {}
+Elements stored on proc 547: {}
+Elements stored on proc 548: {}
+Elements stored on proc 549: {}
+Elements stored on proc 550: {}
+Elements stored on proc 551: {}
+Elements stored on proc 552: {}
+Elements stored on proc 553: {}
+Elements stored on proc 554: {}
+Elements stored on proc 555: {}
+Elements stored on proc 556: {}
+Elements stored on proc 557: {}
+Elements stored on proc 558: {}
+Elements stored on proc 559: {}
+Elements stored on proc 560: {}
+Elements stored on proc 561: {}
+Elements stored on proc 562: {}
+Elements stored on proc 563: {}
+Elements stored on proc 564: {}
+Elements stored on proc 565: {}
+Elements stored on proc 566: {}
+Elements stored on proc 567: {}
+Elements stored on proc 568: {}
+Elements stored on proc 569: {}
+Elements stored on proc 570: {}
+Elements stored on proc 571: {}
+Elements stored on proc 572: {}
+Elements stored on proc 573: {}
+Elements stored on proc 574: {}
+Elements stored on proc 575: {120080480,79255950,}
+Elements stored on proc 576: {}
+Elements stored on proc 577: {}
+Elements stored on proc 578: {}
+Elements stored on proc 579: {}
+Elements stored on proc 580: {}
+Elements stored on proc 581: {}
+Elements stored on proc 582: {}
+Elements stored on proc 583: {}
+Elements stored on proc 584: {}
+Elements stored on proc 585: {}
+Elements stored on proc 586: {}
+Elements stored on proc 587: {}
+Elements stored on proc 588: {}
+Elements stored on proc 589: {}
+Elements stored on proc 590: {}
+Elements stored on proc 591: {}
+Elements stored on proc 592: {}
+Elements stored on proc 593: {}
+Elements stored on proc 594: {}
+Elements stored on proc 595: {}
+Elements stored on proc 596: {}
+Elements stored on proc 597: {}
+Elements stored on proc 598: {}
+Elements stored on proc 599: {}
+Elements stored on proc 600: {}
+Elements stored on proc 601: {}
+Elements stored on proc 602: {}
+Elements stored on proc 603: {}
+Elements stored on proc 604: {}
+Elements stored on proc 605: {}
+Elements stored on proc 606: {}
+Elements stored on proc 607: {362698119,214493854,}
+Elements stored on proc 608: {}
+Elements stored on proc 609: {}
+Elements stored on proc 610: {}
+Elements stored on proc 611: {}
+Elements stored on proc 612: {}
+Elements stored on proc 613: {}
+Elements stored on proc 614: {}
+Elements stored on proc 615: {}
+Elements stored on proc 616: {}
+Elements stored on proc 617: {}
+Elements stored on proc 618: {}
+Elements stored on proc 619: {}
+Elements stored on proc 620: {}
+Elements stored on proc 621: {}
+Elements stored on proc 622: {}
+Elements stored on proc 623: {}
+Elements stored on proc 624: {}
+Elements stored on proc 625: {}
+Elements stored on proc 626: {}
+Elements stored on proc 627: {}
+Elements stored on proc 628: {}
+Elements stored on proc 629: {}
+Elements stored on proc 630: {}
+Elements stored on proc 631: {}
+Elements stored on proc 632: {}
+Elements stored on proc 633: {}
+Elements stored on proc 634: {}
+Elements stored on proc 635: {}
+Elements stored on proc 636: {}
+Elements stored on proc 637: {}
+Elements stored on proc 638: {}
+Elements stored on proc 639: {506382022,20756047,}
+Elements stored on proc 640: {}
+Elements stored on proc 641: {}
+Elements stored on proc 642: {}
+Elements stored on proc 643: {}
+Elements stored on proc 644: {}
+Elements stored on proc 645: {}
+Elements stored on proc 646: {}
+Elements stored on proc 647: {}
+Elements stored on proc 648: {}
+Elements stored on proc 649: {}
+Elements stored on proc 650: {}
+Elements stored on proc 651: {}
+Elements stored on proc 652: {}
+Elements stored on proc 653: {}
+Elements stored on proc 654: {}
+Elements stored on proc 655: {}
+Elements stored on proc 656: {}
+Elements stored on proc 657: {}
+Elements stored on proc 658: {}
+Elements stored on proc 659: {}
+Elements stored on proc 660: {}
+Elements stored on proc 661: {}
+Elements stored on proc 662: {}
+Elements stored on proc 663: {}
+Elements stored on proc 664: {}
+Elements stored on proc 665: {}
+Elements stored on proc 666: {}
+Elements stored on proc 667: {}
+Elements stored on proc 668: {}
+Elements stored on proc 669: {}
+Elements stored on proc 670: {}
+Elements stored on proc 671: {142257475,52841342,}
+Elements stored on proc 672: {}
+Elements stored on proc 673: {}
+Elements stored on proc 674: {}
+Elements stored on proc 675: {}
+Elements stored on proc 676: {}
+Elements stored on proc 677: {}
+Elements stored on proc 678: {}
+Elements stored on proc 679: {}
+Elements stored on proc 680: {}
+Elements stored on proc 681: {}
+Elements stored on proc 682: {}
+Elements stored on proc 683: {}
+Elements stored on proc 684: {}
+Elements stored on proc 685: {}
+Elements stored on proc 686: {}
+Elements stored on proc 687: {}
+Elements stored on proc 688: {}
+Elements stored on proc 689: {}
+Elements stored on proc 690: {}
+Elements stored on proc 691: {}
+Elements stored on proc 692: {}
+Elements stored on proc 693: {}
+Elements stored on proc 694: {}
+Elements stored on proc 695: {}
+Elements stored on proc 696: {}
+Elements stored on proc 697: {}
+Elements stored on proc 698: {}
+Elements stored on proc 699: {}
+Elements stored on proc 700: {}
+Elements stored on proc 701: {}
+Elements stored on proc 702: {}
+Elements stored on proc 703: {55663480,287452021,}
+Elements stored on proc 704: {}
+Elements stored on proc 705: {}
+Elements stored on proc 706: {}
+Elements stored on proc 707: {}
+Elements stored on proc 708: {}
+Elements stored on proc 709: {}
+Elements stored on proc 710: {}
+Elements stored on proc 711: {}
+Elements stored on proc 712: {}
+Elements stored on proc 713: {}
+Elements stored on proc 714: {}
+Elements stored on proc 715: {}
+Elements stored on proc 716: {}
+Elements stored on proc 717: {}
+Elements stored on proc 718: {}
+Elements stored on proc 719: {}
+Elements stored on proc 720: {}
+Elements stored on proc 721: {}
+Elements stored on proc 722: {}
+Elements stored on proc 723: {}
+Elements stored on proc 724: {}
+Elements stored on proc 725: {}
+Elements stored on proc 726: {}
+Elements stored on proc 727: {}
+Elements stored on proc 728: {}
+Elements stored on proc 729: {}
+Elements stored on proc 730: {}
+Elements stored on proc 731: {}
+Elements stored on proc 732: {}
+Elements stored on proc 733: {}
+Elements stored on proc 734: {}
+Elements stored on proc 735: {39358923,298440089,}
+Elements stored on proc 736: {}
+Elements stored on proc 737: {}
+Elements stored on proc 738: {}
+Elements stored on proc 739: {}
+Elements stored on proc 740: {}
+Elements stored on proc 741: {}
+Elements stored on proc 742: {}
+Elements stored on proc 743: {}
+Elements stored on proc 744: {}
+Elements stored on proc 745: {}
+Elements stored on proc 746: {}
+Elements stored on proc 747: {}
+Elements stored on proc 748: {}
+Elements stored on proc 749: {}
+Elements stored on proc 750: {}
+Elements stored on proc 751: {}
+Elements stored on proc 752: {}
+Elements stored on proc 753: {}
+Elements stored on proc 754: {}
+Elements stored on proc 755: {}
+Elements stored on proc 756: {}
+Elements stored on proc 757: {}
+Elements stored on proc 758: {}
+Elements stored on proc 759: {}
+Elements stored on proc 760: {}
+Elements stored on proc 761: {}
+Elements stored on proc 762: {}
+Elements stored on proc 763: {}
+Elements stored on proc 764: {}
+Elements stored on proc 765: {}
+Elements stored on proc 766: {}
+Elements stored on proc 767: {7178952,191180669,}
+Elements stored on proc 768: {}
+Elements stored on proc 769: {}
+Elements stored on proc 770: {}
+Elements stored on proc 771: {}
+Elements stored on proc 772: {}
+Elements stored on proc 773: {}
+Elements stored on proc 774: {}
+Elements stored on proc 775: {}
+Elements stored on proc 776: {}
+Elements stored on proc 777: {}
+Elements stored on proc 778: {}
+Elements stored on proc 779: {}
+Elements stored on proc 780: {}
+Elements stored on proc 781: {}
+Elements stored on proc 782: {}
+Elements stored on proc 783: {}
+Elements stored on proc 784: {}
+Elements stored on proc 785: {}
+Elements stored on proc 786: {}
+Elements stored on proc 787: {}
+Elements stored on proc 788: {}
+Elements stored on proc 789: {}
+Elements stored on proc 790: {}
+Elements stored on proc 791: {}
+Elements stored on proc 792: {}
+Elements stored on proc 793: {}
+Elements stored on proc 794: {}
+Elements stored on proc 795: {}
+Elements stored on proc 796: {}
+Elements stored on proc 797: {}
+Elements stored on proc 798: {}
+Elements stored on proc 799: {41801325,442915090,}
+Elements stored on proc 800: {}
+Elements stored on proc 801: {}
+Elements stored on proc 802: {}
+Elements stored on proc 803: {}
+Elements stored on proc 804: {}
+Elements stored on proc 805: {}
+Elements stored on proc 806: {}
+Elements stored on proc 807: {}
+Elements stored on proc 808: {}
+Elements stored on proc 809: {}
+Elements stored on proc 810: {}
+Elements stored on proc 811: {}
+Elements stored on proc 812: {}
+Elements stored on proc 813: {}
+Elements stored on proc 814: {}
+Elements stored on proc 815: {}
+Elements stored on proc 816: {}
+Elements stored on proc 817: {}
+Elements stored on proc 818: {}
+Elements stored on proc 819: {}
+Elements stored on proc 820: {}
+Elements stored on proc 821: {}
+Elements stored on proc 822: {}
+Elements stored on proc 823: {}
+Elements stored on proc 824: {}
+Elements stored on proc 825: {}
+Elements stored on proc 826: {}
+Elements stored on proc 827: {}
+Elements stored on proc 828: {}
+Elements stored on proc 829: {}
+Elements stored on proc 830: {}
+Elements stored on proc 831: {411704055,380635880,}
+Elements stored on proc 832: {}
+Elements stored on proc 833: {}
+Elements stored on proc 834: {}
+Elements stored on proc 835: {}
+Elements stored on proc 836: {}
+Elements stored on proc 837: {}
+Elements stored on proc 838: {}
+Elements stored on proc 839: {}
+Elements stored on proc 840: {}
+Elements stored on proc 841: {}
+Elements stored on proc 842: {}
+Elements stored on proc 843: {}
+Elements stored on proc 844: {}
+Elements stored on proc 845: {}
+Elements stored on proc 846: {}
+Elements stored on proc 847: {}
+Elements stored on proc 848: {}
+Elements stored on proc 849: {}
+Elements stored on proc 850: {}
+Elements stored on proc 851: {}
+Elements stored on proc 852: {}
+Elements stored on proc 853: {}
+Elements stored on proc 854: {}
+Elements stored on proc 855: {}
+Elements stored on proc 856: {}
+Elements stored on proc 857: {}
+Elements stored on proc 858: {}
+Elements stored on proc 859: {}
+Elements stored on proc 860: {}
+Elements stored on proc 861: {}
+Elements stored on proc 862: {}
+Elements stored on proc 863: {273818785,174651543,}
+Elements stored on proc 864: {}
+Elements stored on proc 865: {}
+Elements stored on proc 866: {}
+Elements stored on proc 867: {}
+Elements stored on proc 868: {}
+Elements stored on proc 869: {}
+Elements stored on proc 870: {}
+Elements stored on proc 871: {}
+Elements stored on proc 872: {}
+Elements stored on proc 873: {}
+Elements stored on proc 874: {}
+Elements stored on proc 875: {}
+Elements stored on proc 876: {}
+Elements stored on proc 877: {}
+Elements stored on proc 878: {}
+Elements stored on proc 879: {}
+Elements stored on proc 880: {}
+Elements stored on proc 881: {}
+Elements stored on proc 882: {}
+Elements stored on proc 883: {}
+Elements stored on proc 884: {}
+Elements stored on proc 885: {}
+Elements stored on proc 886: {}
+Elements stored on proc 887: {}
+Elements stored on proc 888: {}
+Elements stored on proc 889: {}
+Elements stored on proc 890: {}
+Elements stored on proc 891: {}
+Elements stored on proc 892: {}
+Elements stored on proc 893: {}
+Elements stored on proc 894: {}
+Elements stored on proc 895: {203807459,471807921,}
+Elements stored on proc 896: {}
+Elements stored on proc 897: {}
+Elements stored on proc 898: {}
+Elements stored on proc 899: {}
+Elements stored on proc 900: {}
+Elements stored on proc 901: {}
+Elements stored on proc 902: {}
+Elements stored on proc 903: {}
+Elements stored on proc 904: {}
+Elements stored on proc 905: {}
+Elements stored on proc 906: {}
+Elements stored on proc 907: {}
+Elements stored on proc 908: {}
+Elements stored on proc 909: {}
+Elements stored on proc 910: {}
+Elements stored on proc 911: {}
+Elements stored on proc 912: {}
+Elements stored on proc 913: {}
+Elements stored on proc 914: {}
+Elements stored on proc 915: {}
+Elements stored on proc 916: {}
+Elements stored on proc 917: {}
+Elements stored on proc 918: {}
+Elements stored on proc 919: {}
+Elements stored on proc 920: {}
+Elements stored on proc 921: {}
+Elements stored on proc 922: {}
+Elements stored on proc 923: {}
+Elements stored on proc 924: {}
+Elements stored on proc 925: {}
+Elements stored on proc 926: {}
+Elements stored on proc 927: {31687108,278510432,}
+Elements stored on proc 928: {}
+Elements stored on proc 929: {}
+Elements stored on proc 930: {}
+Elements stored on proc 931: {}
+Elements stored on proc 932: {}
+Elements stored on proc 933: {}
+Elements stored on proc 934: {}
+Elements stored on proc 935: {}
+Elements stored on proc 936: {}
+Elements stored on proc 937: {}
+Elements stored on proc 938: {}
+Elements stored on proc 939: {}
+Elements stored on proc 940: {}
+Elements stored on proc 941: {}
+Elements stored on proc 942: {}
+Elements stored on proc 943: {}
+Elements stored on proc 944: {}
+Elements stored on proc 945: {}
+Elements stored on proc 946: {}
+Elements stored on proc 947: {}
+Elements stored on proc 948: {}
+Elements stored on proc 949: {}
+Elements stored on proc 950: {}
+Elements stored on proc 951: {}
+Elements stored on proc 952: {}
+Elements stored on proc 953: {}
+Elements stored on proc 954: {}
+Elements stored on proc 955: {}
+Elements stored on proc 956: {}
+Elements stored on proc 957: {}
+Elements stored on proc 958: {}
+Elements stored on proc 959: {407408059,110188537,}
+Elements stored on proc 960: {}
+Elements stored on proc 961: {}
+Elements stored on proc 962: {}
+Elements stored on proc 963: {}
+Elements stored on proc 964: {}
+Elements stored on proc 965: {}
+Elements stored on proc 966: {}
+Elements stored on proc 967: {}
+Elements stored on proc 968: {}
+Elements stored on proc 969: {}
+Elements stored on proc 970: {}
+Elements stored on proc 971: {}
+Elements stored on proc 972: {}
+Elements stored on proc 973: {}
+Elements stored on proc 974: {}
+Elements stored on proc 975: {}
+Elements stored on proc 976: {}
+Elements stored on proc 977: {}
+Elements stored on proc 978: {}
+Elements stored on proc 979: {}
+Elements stored on proc 980: {}
+Elements stored on proc 981: {}
+Elements stored on proc 982: {}
+Elements stored on proc 983: {}
+Elements stored on proc 984: {}
+Elements stored on proc 985: {}
+Elements stored on proc 986: {}
+Elements stored on proc 987: {}
+Elements stored on proc 988: {}
+Elements stored on proc 989: {}
+Elements stored on proc 990: {}
+Elements stored on proc 991: {496446347,406866201,}
+Elements stored on proc 992: {}
+Elements stored on proc 993: {}
+Elements stored on proc 994: {}
+Elements stored on proc 995: {}
+Elements stored on proc 996: {}
+Elements stored on proc 997: {}
+Elements stored on proc 998: {}
+Elements stored on proc 999: {}
+Elements stored on proc 1000: {}
+Elements stored on proc 1001: {}
+Elements stored on proc 1002: {}
+Elements stored on proc 1003: {}
+Elements stored on proc 1004: {}
+Elements stored on proc 1005: {}
+Elements stored on proc 1006: {}
+Elements stored on proc 1007: {}
+Elements stored on proc 1008: {}
+Elements stored on proc 1009: {}
+Elements stored on proc 1010: {}
+Elements stored on proc 1011: {}
+Elements stored on proc 1012: {}
+Elements stored on proc 1013: {}
+Elements stored on proc 1014: {}
+Elements stored on proc 1015: {}
+Elements stored on proc 1016: {}
+Elements stored on proc 1017: {}
+Elements stored on proc 1018: {}
+Elements stored on proc 1019: {}
+Elements stored on proc 1020: {}
+Elements stored on proc 1021: {}
+Elements stored on proc 1022: {}
+Elements stored on proc 1023: {365775592,76416887,}
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+0th starting vertex was 482421580
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3883 seconds
+MTEPS: 693.384
+1th starting vertex was 366477647
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3414 seconds
+MTEPS: 696.019
+2th starting vertex was 491585532
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2596 seconds
+MTEPS: 700.665
+3th starting vertex was 105541699
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6535 seconds
+MTEPS: 678.852
+4th starting vertex was 138065689
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3967 seconds
+MTEPS: 692.914
+5th starting vertex was 326186563
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3938 seconds
+MTEPS: 693.078
+6th starting vertex was 16111733
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4522 seconds
+MTEPS: 689.824
+7th starting vertex was 182041027
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3732 seconds
+MTEPS: 694.229
+8th starting vertex was 471307513
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.353 seconds
+MTEPS: 695.368
+9th starting vertex was 101437168
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3534 seconds
+MTEPS: 695.345
+10th starting vertex was 46019789
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3294 seconds
+MTEPS: 696.696
+11th starting vertex was 476811668
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6689 seconds
+MTEPS: 678.03
+12th starting vertex was 304927366
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.245 seconds
+MTEPS: 701.501
+13th starting vertex was 348874129
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3655 seconds
+MTEPS: 694.665
+14th starting vertex was 333174862
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.627 seconds
+MTEPS: 680.275
+15th starting vertex was 256734023
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.5485 seconds
+MTEPS: 684.53
+16th starting vertex was 40882114
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6969 seconds
+MTEPS: 676.533
+17th starting vertex was 308289169
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6875 seconds
+MTEPS: 677.032
+18th starting vertex was 489273314
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2604 seconds
+MTEPS: 700.621
+19th starting vertex was 293026733
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6958 seconds
+MTEPS: 676.589
+20th starting vertex was 507072442
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.5269 seconds
+MTEPS: 685.712
+21th starting vertex was 199089373
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2503 seconds
+MTEPS: 701.196
+22th starting vertex was 455177224
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7045 seconds
+MTEPS: 676.126
+23th starting vertex was 67558131
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6245 seconds
+MTEPS: 680.41
+24th starting vertex was 245904465
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.348 seconds
+MTEPS: 695.649
+25th starting vertex was 30950373
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7051 seconds
+MTEPS: 676.096
+26th starting vertex was 298674078
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4107 seconds
+MTEPS: 692.132
+27th starting vertex was 472372110
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2906 seconds
+MTEPS: 698.899
+28th starting vertex was 464043047
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7508 seconds
+MTEPS: 673.675
+29th starting vertex was 75482552
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6036 seconds
+MTEPS: 681.541
+30th starting vertex was 430583934
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7355 seconds
+MTEPS: 674.482
+31th starting vertex was 11760948
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4923 seconds
+MTEPS: 687.61
+32th starting vertex was 15307658
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6356 seconds
+MTEPS: 679.816
+33th starting vertex was 528685769
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2122 seconds
+MTEPS: 703.382
+34th starting vertex was 120080480
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3109 seconds
+MTEPS: 697.744
+35th starting vertex was 79255950
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2905 seconds
+MTEPS: 698.905
+36th starting vertex was 362698119
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.8194 seconds
+MTEPS: 670.067
+37th starting vertex was 214493854
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4306 seconds
+MTEPS: 691.025
+38th starting vertex was 506382022
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6313 seconds
+MTEPS: 680.046
+39th starting vertex was 20756047
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7427 seconds
+MTEPS: 674.101
+40th starting vertex was 142257475
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3332 seconds
+MTEPS: 696.483
+41th starting vertex was 52841342
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2787 seconds
+MTEPS: 699.574
+42th starting vertex was 55663480
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3172 seconds
+MTEPS: 697.387
+43th starting vertex was 287452021
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2702 seconds
+MTEPS: 700.059
+44th starting vertex was 39358923
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.655 seconds
+MTEPS: 678.772
+45th starting vertex was 298440089
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2987 seconds
+MTEPS: 698.436
+46th starting vertex was 7178952
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3477 seconds
+MTEPS: 695.664
+47th starting vertex was 191180669
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.1798 seconds
+MTEPS: 705.257
+48th starting vertex was 41801325
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2225 seconds
+MTEPS: 702.792
+49th starting vertex was 442915090
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6126 seconds
+MTEPS: 681.052
+50th starting vertex was 411704055
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3846 seconds
+MTEPS: 693.591
+51th starting vertex was 380635880
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3789 seconds
+MTEPS: 693.91
+52th starting vertex was 273818785
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6947 seconds
+MTEPS: 676.65
+53th starting vertex was 174651543
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4788 seconds
+MTEPS: 688.357
+54th starting vertex was 203807459
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.2958 seconds
+MTEPS: 698.598
+55th starting vertex was 471807921
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7288 seconds
+MTEPS: 674.837
+56th starting vertex was 31687108
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.6153 seconds
+MTEPS: 680.911
+57th starting vertex was 278510432
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.5506 seconds
+MTEPS: 684.421
+58th starting vertex was 407408059
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.7474 seconds
+MTEPS: 673.852
+59th starting vertex was 110188537
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.812 seconds
+MTEPS: 670.455
+60th starting vertex was 496446347
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.3939 seconds
+MTEPS: 693.072
+61th starting vertex was 406866201
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.1786 seconds
+MTEPS: 705.326
+62th starting vertex was 365775592
+Number iterations: 8
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.221 seconds
+MTEPS: 702.88
+63th starting vertex was 76416887
+Number iterations: 9
+Number of vertices found: 235287273
+Number of edges traversed: 8589861112
+BFS time: 12.4391 seconds
+MTEPS: 690.555
+Finished
+Harmonic mean of TEPS: 688.876
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm 1024  (completed)
+# host    : nid08071/x86_64_Linux          mpi_tasks : 1024 on 256 nodes
+# start   : 12/20/10/03:04:29              wallclock : 1003.824190 sec
+# stop    : 12/20/10/03:21:13              %comm     : 22.47 
+# gbytes  : 1.41712e+03 total              gflop/sec : 6.15450e-01 total
+#
+##############################################################################
+# region  : *       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                       1024             1             1             1
+# wallclock              1.02788e+06       1003.79       1003.76       1003.82
+# user                        838812       819.153       792.522       842.089
+# system                      144476        141.09        134.96       147.901
+# mpi                         230951       225.538       215.245       240.612
+# %comm                                    22.4679       21.4432       23.9706
+# gflop/sec                  0.61545   0.000601026   0.000600537   0.000601441
+# gbytes                     1417.12       1.38391       1.35673       1.45213
+#
+# PAPI_TOT_INS           1.81878e+15   1.77615e+12   1.66854e+12   1.87974e+12
+# PAPI_FP_OPS            6.17804e+11   6.03324e+08   6.02834e+08   6.03741e+08
+# PAPI_L1_DCA            6.57908e+14   6.42488e+11   5.98582e+11   6.85324e+11
+# PAPI_L1_DCM            7.24814e+12   7.07826e+09   6.51184e+09   7.35109e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Alltoallv               121139   1.11821e+06         52.45        11.79
+# MPI_Allgatherv             45089.8   1.11002e+06         19.52         4.39
+# MPI_Bcast                  38173.8   2.29376e+06         16.53         3.71
+# MPI_Allreduce               9680.3   1.44896e+06          4.19         0.94
+# MPI_Allgather               8201.9        753664          3.55         0.80
+# MPI_Sendrecv               2472.47   2.22598e+06          1.07         0.24
+# MPI_Alltoall               2368.94        559104          1.03         0.23
+# MPI_Reduce                 2264.74          2048          0.98         0.22
+# MPI_Barrier                1478.25        690176          0.64         0.14
+# MPI_Scatterv               72.8845          2048          0.03         0.01
+# MPI_Gather                 8.12594          2048          0.00         0.00
+# MPI_Comm_size             0.220882   1.12947e+06          0.00         0.00
+# MPI_Comm_rank             0.175305        650240          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                      65536            64            64            64
+# wallclock                   817135       797.983       797.964       797.996
+# user                        644462       629.358       604.958       649.273
+# system                      129774       126.732       122.452       131.268
+# mpi                         173882       169.806       158.766       184.748
+# %comm                                    21.2791       19.8959        23.152
+# gflop/sec              5.73462e-05   5.60021e-08   5.59727e-08   5.60705e-08
+#
+# PAPI_TOT_INS           1.40463e+15   1.37171e+12   1.27224e+12   1.46764e+12
+# PAPI_FP_OPS             4.5762e+07         44689         44666         44744
+# PAPI_L1_DCA            5.29035e+14   5.16636e+11   4.75815e+11    5.5532e+11
+# PAPI_L1_DCM            6.36456e+12   6.21539e+09   5.65485e+09   6.48565e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Alltoallv               115996   1.11002e+06         66.71        14.20
+# MPI_Allgatherv             45089.8   1.11002e+06         25.93         5.52
+# MPI_Allreduce               7535.9   1.17555e+06          4.33         0.92
+# MPI_Alltoall               2349.53        555008          1.35         0.29
+# MPI_Sendrecv               1461.22   2.22003e+06          0.84         0.18
+# MPI_Allgather              796.645        555008          0.46         0.10
+# MPI_Barrier                646.158        555008          0.37         0.08
+# MPI_Bcast                  6.18275        131072          0.00         0.00
+# MPI_Comm_size             0.189802   1.11002e+06          0.00         0.00
+# MPI_Comm_rank             0.128842        555008          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                      67584            66            66            66
+# wallclock                   210691       205.753       205.745       205.763
+# user                        194350       189.795       184.828       193.024
+# system                     14701.8       14.3572       11.3247       17.1771
+# mpi                        57069.3       55.7318        54.947       56.9182
+# %comm                                    27.0854       26.7051       27.6634
+# gflop/sec                  3.00228    0.00293192    0.00292953    0.00293394
+#
+# PAPI_TOT_INS           4.14147e+14   4.04441e+11   3.88399e+11   4.16467e+11
+# PAPI_FP_OPS            6.17758e+11   6.03279e+08   6.02789e+08   6.03696e+08
+# PAPI_L1_DCA            1.28873e+14   1.25853e+11   1.19356e+11   1.30808e+11
+# PAPI_L1_DCM            8.83578e+11   8.62869e+08   8.41996e+08    1.0078e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                  38167.6   2.16269e+06         66.88        18.12
+# MPI_Allgather              7405.25        198656         12.98         3.51
+# MPI_Alltoallv              5143.47          8192          9.01         2.44
+# MPI_Reduce                 2264.74          2048          3.97         1.07
+# MPI_Allreduce               2144.4        273408          3.76         1.02
+# MPI_Sendrecv               1011.25          5952          1.77         0.48
+# MPI_Barrier                 832.09        135168          1.46         0.39
+# MPI_Scatterv               72.8845          2048          0.13         0.03
+# MPI_Alltoall                19.415          4096          0.03         0.01
+# MPI_Gather                 8.12594          2048          0.01         0.00
+# MPI_Comm_rank            0.0464631         95232          0.00         0.00
+# MPI_Comm_size            0.0310804         19456          0.00         0.00
+###############################################################################
+Application 5194993 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024_ipm
+ +          Job Id: 6880508.nid00003
+ +          System: franklin
+ +     Queued Time: Mon Dec 20 00:56:07 2010
+ +      Start Time: Mon Dec 20 03:03:57 2010
+ + Completion Time: Mon Dec 20 03:20:47 2010
+ +            User: abuluc
+ +        MOM Host: nid04099
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:76990:nid00004,walltime=00:55:00
+ +  Used Resources: cput=00:00:00,mem=7228kb,vmem=24296kb,walltime=00:16:49
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script1024_ipm
+ + --------------------------------------------------------------------------
+

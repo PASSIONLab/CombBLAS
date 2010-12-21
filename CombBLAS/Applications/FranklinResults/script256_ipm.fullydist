@@ -1,0 +1,1037 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+export: Command not found.
+export: Command not found.
+Max scale allowed : 29
+Using the Toy problem
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 20489938 and self-loops removed: 0
+Duplicates removed: 20489938 and self-loops removed: 1882
+6.416568 seconds elapsed for Kernel #1
+As a whole: 67108864 rows and 67108864 columns and 2106500008 nonzeros
+Max scale allowed : 29
+Using the Toy problem
+Load balance: 1.03165
+0.449544 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 24765484
+As a whole, Candidates array (permuted) has length 24765484
+Elements stored on proc 0: {}
+Elements stored on proc 1: {}
+Elements stored on proc 2: {}
+Elements stored on proc 3: {}
+Elements stored on proc 4: {}
+Elements stored on proc 5: {}
+Elements stored on proc 6: {}
+Elements stored on proc 7: {}
+Elements stored on proc 8: {}
+Elements stored on proc 9: {}
+Elements stored on proc 10: {}
+Elements stored on proc 11: {}
+Elements stored on proc 12: {}
+Elements stored on proc 13: {}
+Elements stored on proc 14: {}
+Elements stored on proc 15: {0,1,2,3,}
+Elements stored on proc 16: {}
+Elements stored on proc 17: {}
+Elements stored on proc 18: {}
+Elements stored on proc 19: {}
+Elements stored on proc 20: {}
+Elements stored on proc 21: {}
+Elements stored on proc 22: {}
+Elements stored on proc 23: {}
+Elements stored on proc 24: {}
+Elements stored on proc 25: {}
+Elements stored on proc 26: {}
+Elements stored on proc 27: {}
+Elements stored on proc 28: {}
+Elements stored on proc 29: {}
+Elements stored on proc 30: {}
+Elements stored on proc 31: {4,5,6,7,}
+Elements stored on proc 32: {}
+Elements stored on proc 33: {}
+Elements stored on proc 34: {}
+Elements stored on proc 35: {}
+Elements stored on proc 36: {}
+Elements stored on proc 37: {}
+Elements stored on proc 38: {}
+Elements stored on proc 39: {}
+Elements stored on proc 40: {}
+Elements stored on proc 41: {}
+Elements stored on proc 42: {}
+Elements stored on proc 43: {}
+Elements stored on proc 44: {}
+Elements stored on proc 45: {}
+Elements stored on proc 46: {}
+Elements stored on proc 47: {8,9,10,11,}
+Elements stored on proc 48: {}
+Elements stored on proc 49: {}
+Elements stored on proc 50: {}
+Elements stored on proc 51: {}
+Elements stored on proc 52: {}
+Elements stored on proc 53: {}
+Elements stored on proc 54: {}
+Elements stored on proc 55: {}
+Elements stored on proc 56: {}
+Elements stored on proc 57: {}
+Elements stored on proc 58: {}
+Elements stored on proc 59: {}
+Elements stored on proc 60: {}
+Elements stored on proc 61: {}
+Elements stored on proc 62: {}
+Elements stored on proc 63: {12,13,14,15,}
+Elements stored on proc 64: {}
+Elements stored on proc 65: {}
+Elements stored on proc 66: {}
+Elements stored on proc 67: {}
+Elements stored on proc 68: {}
+Elements stored on proc 69: {}
+Elements stored on proc 70: {}
+Elements stored on proc 71: {}
+Elements stored on proc 72: {}
+Elements stored on proc 73: {}
+Elements stored on proc 74: {}
+Elements stored on proc 75: {}
+Elements stored on proc 76: {}
+Elements stored on proc 77: {}
+Elements stored on proc 78: {}
+Elements stored on proc 79: {16,17,18,19,}
+Elements stored on proc 80: {}
+Elements stored on proc 81: {}
+Elements stored on proc 82: {}
+Elements stored on proc 83: {}
+Elements stored on proc 84: {}
+Elements stored on proc 85: {}
+Elements stored on proc 86: {}
+Elements stored on proc 87: {}
+Elements stored on proc 88: {}
+Elements stored on proc 89: {}
+Elements stored on proc 90: {}
+Elements stored on proc 91: {}
+Elements stored on proc 92: {}
+Elements stored on proc 93: {}
+Elements stored on proc 94: {}
+Elements stored on proc 95: {20,21,22,23,}
+Elements stored on proc 96: {}
+Elements stored on proc 97: {}
+Elements stored on proc 98: {}
+Elements stored on proc 99: {}
+Elements stored on proc 100: {}
+Elements stored on proc 101: {}
+Elements stored on proc 102: {}
+Elements stored on proc 103: {}
+Elements stored on proc 104: {}
+Elements stored on proc 105: {}
+Elements stored on proc 106: {}
+Elements stored on proc 107: {}
+Elements stored on proc 108: {}
+Elements stored on proc 109: {}
+Elements stored on proc 110: {}
+Elements stored on proc 111: {24,25,26,27,}
+Elements stored on proc 112: {}
+Elements stored on proc 113: {}
+Elements stored on proc 114: {}
+Elements stored on proc 115: {}
+Elements stored on proc 116: {}
+Elements stored on proc 117: {}
+Elements stored on proc 118: {}
+Elements stored on proc 119: {}
+Elements stored on proc 120: {}
+Elements stored on proc 121: {}
+Elements stored on proc 122: {}
+Elements stored on proc 123: {}
+Elements stored on proc 124: {}
+Elements stored on proc 125: {}
+Elements stored on proc 126: {}
+Elements stored on proc 127: {28,29,30,31,}
+Elements stored on proc 128: {}
+Elements stored on proc 129: {}
+Elements stored on proc 130: {}
+Elements stored on proc 131: {}
+Elements stored on proc 132: {}
+Elements stored on proc 133: {}
+Elements stored on proc 134: {}
+Elements stored on proc 135: {}
+Elements stored on proc 136: {}
+Elements stored on proc 137: {}
+Elements stored on proc 138: {}
+Elements stored on proc 139: {}
+Elements stored on proc 140: {}
+Elements stored on proc 141: {}
+Elements stored on proc 142: {}
+Elements stored on proc 143: {32,33,34,35,}
+Elements stored on proc 144: {}
+Elements stored on proc 145: {}
+Elements stored on proc 146: {}
+Elements stored on proc 147: {}
+Elements stored on proc 148: {}
+Elements stored on proc 149: {}
+Elements stored on proc 150: {}
+Elements stored on proc 151: {}
+Elements stored on proc 152: {}
+Elements stored on proc 153: {}
+Elements stored on proc 154: {}
+Elements stored on proc 155: {}
+Elements stored on proc 156: {}
+Elements stored on proc 157: {}
+Elements stored on proc 158: {}
+Elements stored on proc 159: {36,37,38,39,}
+Elements stored on proc 160: {}
+Elements stored on proc 161: {}
+Elements stored on proc 162: {}
+Elements stored on proc 163: {}
+Elements stored on proc 164: {}
+Elements stored on proc 165: {}
+Elements stored on proc 166: {}
+Elements stored on proc 167: {}
+Elements stored on proc 168: {}
+Elements stored on proc 169: {}
+Elements stored on proc 170: {}
+Elements stored on proc 171: {}
+Elements stored on proc 172: {}
+Elements stored on proc 173: {}
+Elements stored on proc 174: {}
+Elements stored on proc 175: {40,41,42,43,}
+Elements stored on proc 176: {}
+Elements stored on proc 177: {}
+Elements stored on proc 178: {}
+Elements stored on proc 179: {}
+Elements stored on proc 180: {}
+Elements stored on proc 181: {}
+Elements stored on proc 182: {}
+Elements stored on proc 183: {}
+Elements stored on proc 184: {}
+Elements stored on proc 185: {}
+Elements stored on proc 186: {}
+Elements stored on proc 187: {}
+Elements stored on proc 188: {}
+Elements stored on proc 189: {}
+Elements stored on proc 190: {}
+Elements stored on proc 191: {44,45,46,47,}
+Elements stored on proc 192: {}
+Elements stored on proc 193: {}
+Elements stored on proc 194: {}
+Elements stored on proc 195: {}
+Elements stored on proc 196: {}
+Elements stored on proc 197: {}
+Elements stored on proc 198: {}
+Elements stored on proc 199: {}
+Elements stored on proc 200: {}
+Elements stored on proc 201: {}
+Elements stored on proc 202: {}
+Elements stored on proc 203: {}
+Elements stored on proc 204: {}
+Elements stored on proc 205: {}
+Elements stored on proc 206: {}
+Elements stored on proc 207: {48,49,50,51,}
+Elements stored on proc 208: {}
+Elements stored on proc 209: {}
+Elements stored on proc 210: {}
+Elements stored on proc 211: {}
+Elements stored on proc 212: {}
+Elements stored on proc 213: {}
+Elements stored on proc 214: {}
+Elements stored on proc 215: {}
+Elements stored on proc 216: {}
+Elements stored on proc 217: {}
+Elements stored on proc 218: {}
+Elements stored on proc 219: {}
+Elements stored on proc 220: {}
+Elements stored on proc 221: {}
+Elements stored on proc 222: {}
+Elements stored on proc 223: {52,53,54,55,}
+Elements stored on proc 224: {}
+Elements stored on proc 225: {}
+Elements stored on proc 226: {}
+Elements stored on proc 227: {}
+Elements stored on proc 228: {}
+Elements stored on proc 229: {}
+Elements stored on proc 230: {}
+Elements stored on proc 231: {}
+Elements stored on proc 232: {}
+Elements stored on proc 233: {}
+Elements stored on proc 234: {}
+Elements stored on proc 235: {}
+Elements stored on proc 236: {}
+Elements stored on proc 237: {}
+Elements stored on proc 238: {}
+Elements stored on proc 239: {56,57,58,59,}
+Elements stored on proc 240: {}
+Elements stored on proc 241: {}
+Elements stored on proc 242: {}
+Elements stored on proc 243: {}
+Elements stored on proc 244: {}
+Elements stored on proc 245: {}
+Elements stored on proc 246: {}
+Elements stored on proc 247: {}
+Elements stored on proc 248: {}
+Elements stored on proc 249: {}
+Elements stored on proc 250: {}
+Elements stored on proc 251: {}
+Elements stored on proc 252: {}
+Elements stored on proc 253: {}
+Elements stored on proc 254: {}
+Elements stored on proc 255: {60,61,62,63,}
+Elements stored on proc 0: {}
+Elements stored on proc 1: {}
+Elements stored on proc 2: {}
+Elements stored on proc 3: {}
+Elements stored on proc 4: {}
+Elements stored on proc 5: {}
+Elements stored on proc 6: {}
+Elements stored on proc 7: {}
+Elements stored on proc 8: {}
+Elements stored on proc 9: {}
+Elements stored on proc 10: {}
+Elements stored on proc 11: {}
+Elements stored on proc 12: {}
+Elements stored on proc 13: {}
+Elements stored on proc 14: {}
+Elements stored on proc 15: {7263541,16829380,8635571,38339286,}
+Elements stored on proc 16: {}
+Elements stored on proc 17: {}
+Elements stored on proc 18: {}
+Elements stored on proc 19: {}
+Elements stored on proc 20: {}
+Elements stored on proc 21: {}
+Elements stored on proc 22: {}
+Elements stored on proc 23: {}
+Elements stored on proc 24: {}
+Elements stored on proc 25: {}
+Elements stored on proc 26: {}
+Elements stored on proc 27: {}
+Elements stored on proc 28: {}
+Elements stored on proc 29: {}
+Elements stored on proc 30: {}
+Elements stored on proc 31: {30579184,26293418,40299658,42157529,}
+Elements stored on proc 32: {}
+Elements stored on proc 33: {}
+Elements stored on proc 34: {}
+Elements stored on proc 35: {}
+Elements stored on proc 36: {}
+Elements stored on proc 37: {}
+Elements stored on proc 38: {}
+Elements stored on proc 39: {}
+Elements stored on proc 40: {}
+Elements stored on proc 41: {}
+Elements stored on proc 42: {}
+Elements stored on proc 43: {}
+Elements stored on proc 44: {}
+Elements stored on proc 45: {}
+Elements stored on proc 46: {}
+Elements stored on proc 47: {21996519,3594673,36973650,9058825,}
+Elements stored on proc 48: {}
+Elements stored on proc 49: {}
+Elements stored on proc 50: {}
+Elements stored on proc 51: {}
+Elements stored on proc 52: {}
+Elements stored on proc 53: {}
+Elements stored on proc 54: {}
+Elements stored on proc 55: {}
+Elements stored on proc 56: {}
+Elements stored on proc 57: {}
+Elements stored on proc 58: {}
+Elements stored on proc 59: {}
+Elements stored on proc 60: {}
+Elements stored on proc 61: {}
+Elements stored on proc 62: {}
+Elements stored on proc 63: {56852757,23801353,63432295,16893835,}
+Elements stored on proc 64: {}
+Elements stored on proc 65: {}
+Elements stored on proc 66: {}
+Elements stored on proc 67: {}
+Elements stored on proc 68: {}
+Elements stored on proc 69: {}
+Elements stored on proc 70: {}
+Elements stored on proc 71: {}
+Elements stored on proc 72: {}
+Elements stored on proc 73: {}
+Elements stored on proc 74: {}
+Elements stored on proc 75: {}
+Elements stored on proc 76: {}
+Elements stored on proc 77: {}
+Elements stored on proc 78: {}
+Elements stored on proc 79: {15881315,6114878,30970997,59234659,}
+Elements stored on proc 80: {}
+Elements stored on proc 81: {}
+Elements stored on proc 82: {}
+Elements stored on proc 83: {}
+Elements stored on proc 84: {}
+Elements stored on proc 85: {}
+Elements stored on proc 86: {}
+Elements stored on proc 87: {}
+Elements stored on proc 88: {}
+Elements stored on proc 89: {}
+Elements stored on proc 90: {}
+Elements stored on proc 91: {}
+Elements stored on proc 92: {}
+Elements stored on proc 93: {}
+Elements stored on proc 94: {}
+Elements stored on proc 95: {8624058,53327723,44545554,44027541,}
+Elements stored on proc 96: {}
+Elements stored on proc 97: {}
+Elements stored on proc 98: {}
+Elements stored on proc 99: {}
+Elements stored on proc 100: {}
+Elements stored on proc 101: {}
+Elements stored on proc 102: {}
+Elements stored on proc 103: {}
+Elements stored on proc 104: {}
+Elements stored on proc 105: {}
+Elements stored on proc 106: {}
+Elements stored on proc 107: {}
+Elements stored on proc 108: {}
+Elements stored on proc 109: {}
+Elements stored on proc 110: {}
+Elements stored on proc 111: {43435993,55724332,23866626,30589915,}
+Elements stored on proc 112: {}
+Elements stored on proc 113: {}
+Elements stored on proc 114: {}
+Elements stored on proc 115: {}
+Elements stored on proc 116: {}
+Elements stored on proc 117: {}
+Elements stored on proc 118: {}
+Elements stored on proc 119: {}
+Elements stored on proc 120: {}
+Elements stored on proc 121: {}
+Elements stored on proc 122: {}
+Elements stored on proc 123: {}
+Elements stored on proc 124: {}
+Elements stored on proc 125: {}
+Elements stored on proc 126: {}
+Elements stored on proc 127: {47043494,55100342,65993518,56715754,}
+Elements stored on proc 128: {}
+Elements stored on proc 129: {}
+Elements stored on proc 130: {}
+Elements stored on proc 131: {}
+Elements stored on proc 132: {}
+Elements stored on proc 133: {}
+Elements stored on proc 134: {}
+Elements stored on proc 135: {}
+Elements stored on proc 136: {}
+Elements stored on proc 137: {}
+Elements stored on proc 138: {}
+Elements stored on proc 139: {}
+Elements stored on proc 140: {}
+Elements stored on proc 141: {}
+Elements stored on proc 142: {}
+Elements stored on proc 143: {6727418,19466537,8223261,49607668,}
+Elements stored on proc 144: {}
+Elements stored on proc 145: {}
+Elements stored on proc 146: {}
+Elements stored on proc 147: {}
+Elements stored on proc 148: {}
+Elements stored on proc 149: {}
+Elements stored on proc 150: {}
+Elements stored on proc 151: {}
+Elements stored on proc 152: {}
+Elements stored on proc 153: {}
+Elements stored on proc 154: {}
+Elements stored on proc 155: {}
+Elements stored on proc 156: {}
+Elements stored on proc 157: {}
+Elements stored on proc 158: {}
+Elements stored on proc 159: {52867794,26229962,7626742,13366479,}
+Elements stored on proc 160: {}
+Elements stored on proc 161: {}
+Elements stored on proc 162: {}
+Elements stored on proc 163: {}
+Elements stored on proc 164: {}
+Elements stored on proc 165: {}
+Elements stored on proc 166: {}
+Elements stored on proc 167: {}
+Elements stored on proc 168: {}
+Elements stored on proc 169: {}
+Elements stored on proc 170: {}
+Elements stored on proc 171: {}
+Elements stored on proc 172: {}
+Elements stored on proc 173: {}
+Elements stored on proc 174: {}
+Elements stored on proc 175: {46473151,48312877,2203728,63707061,}
+Elements stored on proc 176: {}
+Elements stored on proc 177: {}
+Elements stored on proc 178: {}
+Elements stored on proc 179: {}
+Elements stored on proc 180: {}
+Elements stored on proc 181: {}
+Elements stored on proc 182: {}
+Elements stored on proc 183: {}
+Elements stored on proc 184: {}
+Elements stored on proc 185: {}
+Elements stored on proc 186: {}
+Elements stored on proc 187: {}
+Elements stored on proc 188: {}
+Elements stored on proc 189: {}
+Elements stored on proc 190: {}
+Elements stored on proc 191: {37502279,1199372,35467447,8327226,}
+Elements stored on proc 192: {}
+Elements stored on proc 193: {}
+Elements stored on proc 194: {}
+Elements stored on proc 195: {}
+Elements stored on proc 196: {}
+Elements stored on proc 197: {}
+Elements stored on proc 198: {}
+Elements stored on proc 199: {}
+Elements stored on proc 200: {}
+Elements stored on proc 201: {}
+Elements stored on proc 202: {}
+Elements stored on proc 203: {}
+Elements stored on proc 204: {}
+Elements stored on proc 205: {}
+Elements stored on proc 206: {}
+Elements stored on proc 207: {34047697,3383750,40531408,52412707,}
+Elements stored on proc 208: {}
+Elements stored on proc 209: {}
+Elements stored on proc 210: {}
+Elements stored on proc 211: {}
+Elements stored on proc 212: {}
+Elements stored on proc 213: {}
+Elements stored on proc 214: {}
+Elements stored on proc 215: {}
+Elements stored on proc 216: {}
+Elements stored on proc 217: {}
+Elements stored on proc 218: {}
+Elements stored on proc 219: {}
+Elements stored on proc 220: {}
+Elements stored on proc 221: {}
+Elements stored on proc 222: {}
+Elements stored on proc 223: {4401365,27749068,36197728,35692352,}
+Elements stored on proc 224: {}
+Elements stored on proc 225: {}
+Elements stored on proc 226: {}
+Elements stored on proc 227: {}
+Elements stored on proc 228: {}
+Elements stored on proc 229: {}
+Elements stored on proc 230: {}
+Elements stored on proc 231: {}
+Elements stored on proc 232: {}
+Elements stored on proc 233: {}
+Elements stored on proc 234: {}
+Elements stored on proc 235: {}
+Elements stored on proc 236: {}
+Elements stored on proc 237: {}
+Elements stored on proc 238: {}
+Elements stored on proc 239: {50736906,46346519,35970423,65337903,}
+Elements stored on proc 240: {}
+Elements stored on proc 241: {}
+Elements stored on proc 242: {}
+Elements stored on proc 243: {}
+Elements stored on proc 244: {}
+Elements stored on proc 245: {}
+Elements stored on proc 246: {}
+Elements stored on proc 247: {}
+Elements stored on proc 248: {}
+Elements stored on proc 249: {}
+Elements stored on proc 250: {}
+Elements stored on proc 251: {}
+Elements stored on proc 252: {}
+Elements stored on proc 253: {}
+Elements stored on proc 254: {}
+Elements stored on proc 255: {46107365,686153,30220709,5727945,}
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+0th starting vertex was 7263541
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.76167 seconds
+MTEPS: 225.495
+1th starting vertex was 16829380
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.76099 seconds
+MTEPS: 225.527
+2th starting vertex was 8635571
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.72896 seconds
+MTEPS: 227.054
+3th starting vertex was 38339286
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66783 seconds
+MTEPS: 230.028
+4th starting vertex was 30579184
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.64604 seconds
+MTEPS: 231.107
+5th starting vertex was 26293418
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.68692 seconds
+MTEPS: 229.091
+6th starting vertex was 40299658
+Number iterations: 7
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66136 seconds
+MTEPS: 230.347
+7th starting vertex was 42157529
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.81118 seconds
+MTEPS: 223.174
+8th starting vertex was 21996519
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66013 seconds
+MTEPS: 230.408
+9th starting vertex was 3594673
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.63532 seconds
+MTEPS: 231.641
+10th starting vertex was 36973650
+Number iterations: 7
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.67778 seconds
+MTEPS: 229.539
+11th starting vertex was 9058825
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.77426 seconds
+MTEPS: 224.9
+12th starting vertex was 56852757
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.79188 seconds
+MTEPS: 224.073
+13th starting vertex was 23801353
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.81421 seconds
+MTEPS: 223.034
+14th starting vertex was 63432295
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.70452 seconds
+MTEPS: 228.234
+15th starting vertex was 16893835
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.80873 seconds
+MTEPS: 223.288
+16th starting vertex was 15881315
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.65267 seconds
+MTEPS: 230.778
+17th starting vertex was 6114878
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.69335 seconds
+MTEPS: 228.777
+18th starting vertex was 30970997
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.67967 seconds
+MTEPS: 229.446
+19th starting vertex was 59234659
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.83656 seconds
+MTEPS: 222.003
+20th starting vertex was 8624058
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.70799 seconds
+MTEPS: 228.066
+21th starting vertex was 53327723
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.67017 seconds
+MTEPS: 229.913
+22th starting vertex was 44545554
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.86445 seconds
+MTEPS: 220.73
+23th starting vertex was 44027541
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.8307 seconds
+MTEPS: 222.272
+24th starting vertex was 43435993
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.69792 seconds
+MTEPS: 228.555
+25th starting vertex was 55724332
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.73744 seconds
+MTEPS: 226.648
+26th starting vertex was 23866626
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.71582 seconds
+MTEPS: 227.687
+27th starting vertex was 30589915
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.71777 seconds
+MTEPS: 227.593
+28th starting vertex was 47043494
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66784 seconds
+MTEPS: 230.028
+29th starting vertex was 55100342
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.65275 seconds
+MTEPS: 230.774
+30th starting vertex was 65993518
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.80595 seconds
+MTEPS: 223.417
+31th starting vertex was 56715754
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.68283 seconds
+MTEPS: 229.291
+32th starting vertex was 6727418
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.8505 seconds
+MTEPS: 221.365
+33th starting vertex was 19466537
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.80233 seconds
+MTEPS: 223.586
+34th starting vertex was 8223261
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.81918 seconds
+MTEPS: 222.804
+35th starting vertex was 49607668
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.80401 seconds
+MTEPS: 223.507
+36th starting vertex was 52867794
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.73708 seconds
+MTEPS: 226.665
+37th starting vertex was 26229962
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.65466 seconds
+MTEPS: 230.679
+38th starting vertex was 7626742
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66051 seconds
+MTEPS: 230.389
+39th starting vertex was 13366479
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.8057 seconds
+MTEPS: 223.429
+40th starting vertex was 46473151
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.70221 seconds
+MTEPS: 228.346
+41th starting vertex was 48312877
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.62184 seconds
+MTEPS: 232.317
+42th starting vertex was 2203728
+Number iterations: 9
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.82577 seconds
+MTEPS: 222.499
+43th starting vertex was 63707061
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.71013 seconds
+MTEPS: 227.962
+44th starting vertex was 37502279
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.70289 seconds
+MTEPS: 228.313
+45th starting vertex was 1199372
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66895 seconds
+MTEPS: 229.973
+46th starting vertex was 35467447
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.86062 seconds
+MTEPS: 220.904
+47th starting vertex was 8327226
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.8093 seconds
+MTEPS: 223.261
+48th starting vertex was 34047697
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.74961 seconds
+MTEPS: 226.067
+49th starting vertex was 3383750
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.71684 seconds
+MTEPS: 227.638
+50th starting vertex was 40531408
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.85496 seconds
+MTEPS: 221.162
+51th starting vertex was 52412707
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.70707 seconds
+MTEPS: 228.11
+52th starting vertex was 4401365
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.71828 seconds
+MTEPS: 227.568
+53th starting vertex was 27749068
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.81 seconds
+MTEPS: 223.229
+54th starting vertex was 36197728
+Number iterations: 7
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.78678 seconds
+MTEPS: 224.312
+55th starting vertex was 35692352
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.7497 seconds
+MTEPS: 226.063
+56th starting vertex was 50736906
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.6495 seconds
+MTEPS: 230.935
+57th starting vertex was 46346519
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.62473 seconds
+MTEPS: 232.172
+58th starting vertex was 35970423
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.66931 seconds
+MTEPS: 229.955
+59th starting vertex was 65337903
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.76988 seconds
+MTEPS: 225.107
+60th starting vertex was 46107365
+Number iterations: 7
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.63372 seconds
+MTEPS: 231.722
+61th starting vertex was 686153
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.63587 seconds
+MTEPS: 231.614
+62th starting vertex was 30220709
+Number iterations: 7
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.65262 seconds
+MTEPS: 230.78
+63th starting vertex was 5727945
+Number iterations: 8
+Number of vertices found: 33125071
+Number of edges traversed: 1073731497
+BFS time: 4.6812 seconds
+MTEPS: 229.371
+Finished
+Harmonic mean of TEPS: 227.056
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm 2048  (completed)
+# host    : nid00203/x86_64_Linux          mpi_tasks : 256 on 64 nodes
+# start   : 12/20/10/02:32:48              wallclock : 344.076713 sec
+# stop    : 12/20/10/02:38:32              %comm     : 15.98 
+# gbytes  : 2.01809e+02 total              gflop/sec : 1.97370e-01 total
+#
+##############################################################################
+# region  : *       [ntasks] =    256
+#
+#                           [total]         <avg>           min           max 
+# entries                        256             1             1             1
+# wallclock                    88081       344.066       344.059       344.077
+# user                       71880.7       280.784       278.301       282.782
+# system                     15803.6       61.7326       59.8917        63.716
+# mpi                        14076.2       54.9853       51.6099       57.9273
+# %comm                                    15.9805       15.0002       16.8358
+# gflop/sec                  0.19737   0.000770977     0.0007698   0.000771526
+# gbytes                     201.809      0.788318      0.775707      0.813072
+#
+# PAPI_TOT_INS           1.61429e+14   6.30583e+11   6.16234e+11   6.42822e+11
+# PAPI_FP_OPS            6.79104e+10   2.65275e+08    2.6487e+08   2.65464e+08
+# PAPI_L1_DCA            5.92164e+13   2.31314e+11   2.25083e+11   2.36579e+11
+# PAPI_L1_DCM             6.9299e+11   2.70699e+09   2.51438e+09   2.78437e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Alltoallv              8511.84        262144         60.47         9.66
+# MPI_Allgatherv                2322        260096         16.50         2.64
+# MPI_Bcast                  1029.08        180224          7.31         1.17
+# MPI_Allreduce              833.253        344832          5.92         0.95
+# MPI_Allgather              361.852        174080          2.57         0.41
+# MPI_Alltoall                358.73        131072          2.55         0.41
+# MPI_Sendrecv               310.762        521632          2.21         0.35
+# MPI_Barrier                227.414        163840          1.62         0.26
+# MPI_Reduce                 116.554           512          0.83         0.13
+# MPI_Scatterv               4.33345           512          0.03         0.00
+# MPI_Gather                0.339425           512          0.00         0.00
+# MPI_Comm_size            0.0456574        264960          0.00         0.00
+# MPI_Comm_rank            0.0396404        153856          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =    256
+#
+#                           [total]         <avg>           min           max 
+# entries                      16384            64            64            64
+# wallclock                  77469.5       302.615       302.607       302.621
+# user                       62339.7       243.515       241.291       245.339
+# system                     14842.8       57.9795       56.1635       60.1118
+# mpi                        11838.7       46.2448        42.713       49.0003
+# %comm                                    15.2814       14.1146       16.1926
+# gflop/sec               3.5493e-05   1.38645e-07   1.38589e-07   1.38834e-07
+#
+# PAPI_TOT_INS           1.41273e+14   5.51847e+11   5.41362e+11   5.66178e+11
+# PAPI_FP_OPS            1.07409e+07         41956         41940         42014
+# PAPI_L1_DCA             5.2547e+13   2.05262e+11   2.00671e+11   2.11101e+11
+# PAPI_L1_DCM            6.50127e+11   2.53956e+09    2.3462e+09   2.61618e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Alltoallv              7997.07        260096         67.55        10.32
+# MPI_Allgatherv                2322        260096         19.61         3.00
+# MPI_Allreduce              731.228        276480          6.18         0.94
+# MPI_Alltoall               356.305        130048          3.01         0.46
+# MPI_Sendrecv               192.338        520192          1.62         0.25
+# MPI_Allgather              128.988        130048          1.09         0.17
+# MPI_Barrier                109.114        130048          0.92         0.14
+# MPI_Bcast                  1.56232         32768          0.01         0.00
+# MPI_Comm_size            0.0388054        260096          0.00         0.00
+# MPI_Comm_rank            0.0277347        130048          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =    256
+#
+#                           [total]         <avg>           min           max 
+# entries                      16896            66            66            66
+# wallclock                  10606.1       41.4299        41.425       41.4385
+# user                       9540.96       37.2694       35.9222       37.9744
+# system                     960.776       3.75303        3.1122       4.28827
+# mpi                        2237.56       8.74048       8.44545       9.27719
+# %comm                                    21.0927       20.3821       22.3909
+# gflop/sec                  1.63856    0.00640064    0.00639087    0.00640521
+#
+# PAPI_TOT_INS           2.01564e+13   7.87359e+10   7.37275e+10   8.25613e+10
+# PAPI_FP_OPS            6.78997e+10   2.65233e+08   2.64828e+08   2.65422e+08
+# PAPI_L1_DCA            6.66937e+12   2.60522e+10   2.39699e+10   2.75553e+10
+# PAPI_L1_DCM             4.2863e+10   1.67434e+08   1.60849e+08   2.07518e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                  1027.52        147456         45.92         9.69
+# MPI_Alltoallv              514.762          2048         23.01         4.85
+# MPI_Allgather              232.864         44032         10.41         2.20
+# MPI_Sendrecv               118.424          1440          5.29         1.12
+# MPI_Barrier                118.301         33792          5.29         1.12
+# MPI_Reduce                 116.554           512          5.21         1.10
+# MPI_Allreduce              102.025         68352          4.56         0.96
+# MPI_Scatterv               4.33345           512          0.19         0.04
+# MPI_Alltoall               2.42589          1024          0.11         0.02
+# MPI_Gather                0.339425           512          0.02         0.00
+# MPI_Comm_rank            0.0119057         23808          0.00         0.00
+# MPI_Comm_size           0.00685208          4864          0.00         0.00
+###############################################################################
+Application 5192327 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_ipm
+ +          Job Id: 6880507.nid00003
+ +          System: franklin
+ +     Queued Time: Mon Dec 20 00:55:41 2010
+ +      Start Time: Mon Dec 20 02:32:08 2010
+ + Completion Time: Mon Dec 20 02:37:55 2010
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:75785:nid00004,walltime=00:50:00
+ +  Used Resources: cput=00:00:00,mem=5844kb,vmem=22912kb,walltime=00:05:47
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script256_ipm
+ + --------------------------------------------------------------------------
+
