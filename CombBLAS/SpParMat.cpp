@@ -635,21 +635,22 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	IT perstage = DEL.nedges / stages;
 	IT totrecv = 0;
 	vector<IT> alledges;
-	
+
+	int maxr = r-1;
+	int maxs = s-1;	
 	for(IT s=0; s< stages; ++s)
 	{
 		IT n_befor = s*perstage;
 		IT n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
 
-		cout << "n: " << n_befor << " and " << n_after << endl;
 		// clear the source vertex by setting it to -1
 		int realedges = 0;
 		for (IT i = n_befor; i < n_after; i++)
 		{
 			if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
 			{
-				int rowowner = std::min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), static_cast<int>(r-1));
-				int colowner = std::min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), static_cast<int>(s-1)); 
+				int rowowner = min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), maxr);
+				int colowner = min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), maxs); 
 				int owner = commGrid->GetRank(rowowner, colowner);
 				data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
 				data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
@@ -682,7 +683,6 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 			vector<IT>().swap(data[i]);
 
 		IT thisrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);	// thisrecv = 2*locedges
-		cout << "this recv is" << thisrecv << endl;
 		IT * recvbuf = new IT[thisrecv];
 		totrecv += thisrecv;
 			
