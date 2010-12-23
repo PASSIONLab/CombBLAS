@@ -41,6 +41,7 @@ CombBLAS/Applications/compilertests/icc10.1-btwcent169 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent441 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
 CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
+CombBLAS/Applications/graph_p25_singleiter_scale21 -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
 CombBLAS/Applications/makefile-nersc -text
@@ -69,6 +70,7 @@ CombBLAS/Applications/mpi2script529 -text
 CombBLAS/Applications/mpi2script64 -text
 CombBLAS/Applications/mpi2script81 -text
 CombBLAS/Applications/mpi2script9 -text
+CombBLAS/Applications/prof_p25_64iters_scale21 -text
 CombBLAS/Applications/script1024 -text
 CombBLAS/Applications/script256 -text
 CombBLAS/Applications/script4096 -text

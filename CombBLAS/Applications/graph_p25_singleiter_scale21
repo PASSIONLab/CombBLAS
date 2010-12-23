@@ -1,0 +1,280 @@
+--------------------------------------------------------------------------------
+Command:            ./graph500 Force 21
+Massif arguments:   (none)
+ms_print arguments: massif.out.2364
+--------------------------------------------------------------------------------
+
+
+    MB
+24.33^                                            # : ::                      
+     |                                            # : ::             :@::@::@:
+     |                                          ::#:@:::::::: ::::::::@::@::@:
+     |                                          : #:@:::::::: ::::::::@::@::@:
+     |::::::::::::::::::::::::::::::::::::::::::: #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+     |:                                         : #:@::@:@@:::::@:::::@::@::@:
+   0 +----------------------------------------------------------------------->Gi
+     0                                                                   9.740
+
+Number of snapshots: 88
+ Detailed snapshots: [7 (peak), 11, 19, 23, 26, 38, 58, 68, 78]
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1     46,292,710               56               40            16            0
+  2     63,723,358       21,475,640       21,475,504           136            0
+  3  6,206,060,901       21,475,712       21,475,559           153            0
+  4  6,206,282,335       23,489,128       23,488,968           160            0
+  5  6,413,162,295       23,489,344       23,489,168           176            0
+  6  6,452,961,186       25,508,648       25,508,056           592            0
+  7  6,483,410,403       25,508,648       25,508,056           592            0
+100.00% (25,508,056B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->84.19% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->84.19% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->84.19% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->07.89% (2,013,264B) 0x457559: void PermEdges<long>(DistEdgeList<long>&) (DistEdgeList.cpp:138)
+| ->07.89% (2,013,264B) 0x42C251: main (Graph500.cpp:157)
+|   
+->07.89% (2,013,264B) 0x45725B: void psort::parallel_sort<std::pair<double, std::pair<long, long> >*, std::less<std::pair<double, std::pair<long, long> > >, psort::STLSort, psort::MedianSplit, psort::OOPTreeMerge>(std::pair<double, std::pair<long, long> >*, std::pair<double, std::pair<long, long> >*, std::less<std::pair<double, std::pair<long, long> > >, long*, psort::SeqSort<psort::STLSort>&, psort::Split<psort::MedianSplit>&, psort::Merge<psort::OOPTreeMerge>&, ompi_communicator_t*) (psort.h:81)
+| ->07.89% (2,013,264B) 0x45745B: void psort::parallel_sort<std::pair<double, std::pair<long, long> >*>(std::pair<double, std::pair<long, long> >*, std::pair<double, std::pair<long, long> >*, long*, ompi_communicator_t*) (psort.h:125)
+|   ->07.89% (2,013,264B) 0x4577DA: void PermEdges<long>(DistEdgeList<long>&) (DistEdgeList.cpp:151)
+|     ->07.89% (2,013,264B) 0x42C251: main (Graph500.cpp:157)
+|       
+->00.03% (6,696B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  8  6,486,187,356       21,475,856       21,475,704           152            0
+  9  6,598,177,789       23,489,344       23,489,168           176            0
+ 10  6,654,431,411       21,475,856       21,475,704           152            0
+ 11  6,760,323,952       23,489,344       23,489,168           176            0
+100.00% (23,489,168B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->91.42% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->91.42% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->91.42% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->08.57% (2,013,264B) 0x457559: void PermEdges<long>(DistEdgeList<long>&) (DistEdgeList.cpp:138)
+| ->08.57% (2,013,264B) 0x42C251: main (Graph500.cpp:157)
+|   
+->00.00% (1,072B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 12  6,798,407,432       25,508,648       25,508,056           592            0
+ 13  6,830,656,008       21,475,856       21,475,704           152            0
+ 14  6,936,361,254       23,489,344       23,489,168           176            0
+ 15  6,973,956,048       25,508,648       25,508,056           592            0
+ 16  7,002,753,984       21,475,856       21,475,704           152            0
+ 17  7,109,732,527       23,489,344       23,489,168           176            0
+ 18  7,143,320,685       25,508,648       25,508,056           592            0
+ 19  7,172,827,490       21,475,856       21,475,704           152            0
+100.00% (21,475,704B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->100.00% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->100.00% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->100.00% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->00.00% (872B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 20  7,282,157,803       23,489,344       23,489,168           176            0
+ 21  7,344,033,363       21,475,856       21,475,704           152            0
+ 22  7,453,236,480       23,489,344       23,489,168           176            0
+ 23  7,515,285,490       21,475,856       21,475,704           152            0
+100.00% (21,475,704B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->100.00% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->100.00% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->100.00% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->00.00% (872B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 24  7,623,400,388       23,489,344       23,489,168           176            0
+ 25  7,657,780,881       23,509,656       23,508,232         1,424            0
+ 26  7,687,345,840       21,475,856       21,475,704           152            0
+100.00% (21,475,704B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->100.00% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->100.00% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->100.00% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->00.00% (872B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 27  7,795,050,466       23,489,344       23,489,168           176            0
+ 28  7,834,815,825       23,508,352       23,506,936         1,416            0
+ 29  7,864,562,611       21,475,856       21,475,704           152            0
+ 30  7,973,329,232       23,489,344       23,489,168           176            0
+ 31  8,035,734,742       21,475,856       21,475,704           152            0
+ 32  8,143,431,359       23,489,344       23,489,168           176            0
+ 33  8,206,046,340       21,475,856       21,475,704           152            0
+ 34  8,313,801,578       23,489,344       23,489,168           176            0
+ 35  8,347,551,218       23,507,696       23,506,312         1,384            0
+ 36  8,376,845,543       21,475,856       21,475,704           152            0
+ 37  8,485,753,943       23,489,344       23,489,168           176            0
+ 38  8,548,653,039       21,475,856       21,475,704           152            0
+100.00% (21,475,704B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->100.00% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->100.00% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->100.00% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->00.00% (872B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 39  8,655,789,673       23,489,344       23,489,168           176            0
+ 40  8,692,981,652       23,508,376       23,506,952         1,424            0
+ 41  8,722,267,072       21,475,856       21,475,704           152            0
+ 42  8,831,124,096       23,489,344       23,489,168           176            0
+ 43  8,864,897,047       23,501,064       23,500,136           928            0
+ 44  8,894,161,931       21,475,856       21,475,704           152            0
+ 45  9,001,754,578       23,489,376       23,489,192           184            0
+ 46  9,037,751,142       23,517,992       23,516,576         1,416            0
+ 47  9,086,122,795       23,489,360       23,489,160           200            0
+ 48  9,188,273,208       23,489,576       23,489,360           216            0
+ 49  9,215,184,699       23,525,672       23,523,440         2,232            0
+ 50  9,215,433,896       23,512,704       23,511,256         1,448            0
+ 51  9,215,688,919       23,524,808       23,522,576         2,232            0
+ 52  9,215,910,455       23,513,208       23,511,608         1,600            0
+ 53  9,216,142,904       23,508,776       23,507,336         1,440            0
+ 54  9,240,129,141       23,495,608       23,494,984           624            0
+ 55  9,248,188,986       22,818,272       22,818,072           200            0
+ 56  9,269,677,999       25,502,432       25,502,226           206            0
+ 57  9,354,515,753       24,831,336       24,831,138           198            0
+ 58  9,354,870,511       25,502,432       25,502,226           206            0
+100.00% (25,502,226B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->84.21% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->84.21% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->84.21% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->10.53% (2,684,354B) 0x45C36B: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:187)
+| ->10.53% (2,684,354B) 0x42C2EF: main (Graph500.cpp:160)
+|   
+->02.63% (671,088B) 0x448019: __gnu_cxx::new_allocator<long>::allocate(unsigned long, void const*) (new_allocator.h:88)
+| ->02.63% (671,088B) 0x448041: std::_Vector_base<long, std::allocator<long> >::_M_allocate(unsigned long) (stl_vector.h:127)
+|   ->02.63% (671,088B) 0x448163: std::_Vector_base<long, std::allocator<long> >::_Vector_base(unsigned long, std::allocator<long> const&) (stl_vector.h:113)
+|   | ->02.63% (671,088B) 0x4481E7: std::vector<long, std::allocator<long> >::vector(unsigned long, long const&, std::allocator<long> const&) (stl_vector.h:216)
+|   | | ->02.63% (671,088B) 0x4587D5: FullyDistVec<long, long>::RandPerm() (FullyDistVec.cpp:453)
+|   | | | ->02.63% (671,088B) 0x45C33F: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:182)
+|   | | |   ->02.63% (671,088B) 0x42C2EF: main (Graph500.cpp:160)
+|   | | |     
+|   | | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | | 
+|   | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | 
+|   ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   
+->02.63% (671,088B) 0x45C46D: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:215)
+| ->02.63% (671,088B) 0x42C2EF: main (Graph500.cpp:160)
+|   
+->00.00% (864B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 59  9,430,867,919       24,831,336       24,831,138           198            0
+ 60  9,432,778,944       25,502,432       25,502,226           206            0
+ 61  9,494,892,883       24,831,336       24,831,138           198            0
+ 62  9,495,982,582       25,502,432       25,502,226           206            0
+ 63  9,561,176,722       24,831,336       24,831,138           198            0
+ 64  9,561,760,476       25,502,432       25,502,226           206            0
+ 65  9,622,604,415       24,831,336       24,831,138           198            0
+ 66  9,681,901,051       24,831,336       24,831,138           198            0
+ 67  9,682,304,780       25,502,432       25,502,226           206            0
+ 68  9,748,065,660       24,831,336       24,831,138           198            0
+100.00% (24,831,138B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->86.48% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->86.48% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->86.48% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->10.81% (2,684,354B) 0x45C36B: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:187)
+| ->10.81% (2,684,354B) 0x42C2EF: main (Graph500.cpp:160)
+|   
+->02.70% (671,088B) 0x448019: __gnu_cxx::new_allocator<long>::allocate(unsigned long, void const*) (new_allocator.h:88)
+| ->02.70% (671,088B) 0x448041: std::_Vector_base<long, std::allocator<long> >::_M_allocate(unsigned long) (stl_vector.h:127)
+|   ->02.70% (671,088B) 0x448163: std::_Vector_base<long, std::allocator<long> >::_Vector_base(unsigned long, std::allocator<long> const&) (stl_vector.h:113)
+|   | ->02.70% (671,088B) 0x4481E7: std::vector<long, std::allocator<long> >::vector(unsigned long, long const&, std::allocator<long> const&) (stl_vector.h:216)
+|   | | ->02.70% (671,088B) 0x4587D5: FullyDistVec<long, long>::RandPerm() (FullyDistVec.cpp:453)
+|   | | | ->02.70% (671,088B) 0x45C33F: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:182)
+|   | | |   ->02.70% (671,088B) 0x42C2EF: main (Graph500.cpp:160)
+|   | | |     
+|   | | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | | 
+|   | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | 
+|   ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   
+->00.00% (864B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 69  9,806,868,030       24,831,336       24,831,138           198            0
+ 70  9,863,248,841       24,831,336       24,831,138           198            0
+ 71  9,919,542,347       24,831,336       24,831,138           198            0
+ 72  9,973,565,464       24,831,336       24,831,138           198            0
+ 73 10,025,596,468       24,831,336       24,831,138           198            0
+ 74 10,025,930,576       25,502,432       25,502,226           206            0
+ 75 10,082,601,660       24,831,336       24,831,138           198            0
+ 76 10,134,875,413       24,831,336       24,831,138           198            0
+ 77 10,135,165,125       25,502,432       25,502,226           206            0
+ 78 10,185,711,903       24,831,336       24,831,138           198            0
+100.00% (24,831,138B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->86.48% (21,474,832B) 0x43E8C8: DistEdgeList<long>::SetMemSize(long) (DistEdgeList.cpp:51)
+| ->86.48% (21,474,832B) 0x44FEF9: DistEdgeList<long>::GenGraph500Data(double*, int, long) (DistEdgeList.cpp:100)
+|   ->86.48% (21,474,832B) 0x42C1B3: main (Graph500.cpp:154)
+|     
+->10.81% (2,684,354B) 0x45C36B: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:187)
+| ->10.81% (2,684,354B) 0x42C2EF: main (Graph500.cpp:160)
+|   
+->02.70% (671,088B) 0x448019: __gnu_cxx::new_allocator<long>::allocate(unsigned long, void const*) (new_allocator.h:88)
+| ->02.70% (671,088B) 0x448041: std::_Vector_base<long, std::allocator<long> >::_M_allocate(unsigned long) (stl_vector.h:127)
+|   ->02.70% (671,088B) 0x448163: std::_Vector_base<long, std::allocator<long> >::_Vector_base(unsigned long, std::allocator<long> const&) (stl_vector.h:113)
+|   | ->02.70% (671,088B) 0x4481E7: std::vector<long, std::allocator<long> >::vector(unsigned long, long const&, std::allocator<long> const&) (stl_vector.h:216)
+|   | | ->02.70% (671,088B) 0x4587D5: FullyDistVec<long, long>::RandPerm() (FullyDistVec.cpp:453)
+|   | | | ->02.70% (671,088B) 0x45C33F: void RenameVertices<long>(DistEdgeList<long>&) (DistEdgeList.cpp:182)
+|   | | |   ->02.70% (671,088B) 0x42C2EF: main (Graph500.cpp:160)
+|   | | |     
+|   | | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | | 
+|   | ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   | 
+|   ->00.00% (0B) in 1+ places, all below ms_print's threshold (01.00%)
+|   
+->00.00% (864B) in 1+ places, all below ms_print's threshold (01.00%)
+
+--------------------------------------------------------------------------------
+  n        time(i)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+ 79 10,234,491,759       24,831,336       24,831,138           198            0
+ 80 10,281,421,239       24,831,336       24,831,138           198            0
+ 81 10,282,197,293       25,502,432       25,502,226           206            0
+ 82 10,327,134,301       24,831,336       24,831,138           198            0
+ 83 10,371,312,049       24,831,336       24,831,138           198            0
+ 84 10,414,286,178       24,831,336       24,831,138           198            0
+ 85 10,415,017,836       25,502,432       25,502,226           206            0
+ 86 10,456,175,812       24,831,336       24,831,138           198            0
+ 87 10,457,987,100       25,502,432       25,502,226           206            0
