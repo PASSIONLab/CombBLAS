@@ -55,7 +55,8 @@ namespace psort {
   class MedianSplit : public Split<MedianSplit> {
   public:
     char *real_description () {
-      return ("Median splitter");
+      string s ("Median splitter");
+	return const_cast<char*>(s.c_str());
     }
 
     template<typename _RandomAccessIter, typename _Compare, typename _Distance>
@@ -292,7 +293,8 @@ namespace psort {
   class SampleSplit : public Split<SampleSplit> {
   public:
     char *real_description () {
-      return ("Sample splitter");
+      string s ("Sample splitter");
+	return const_cast<char*>(s.c_str());
     }
     
     template<typename _RandomAccessIter, typename _Compare, typename _Distance>

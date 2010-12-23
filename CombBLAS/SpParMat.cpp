@@ -629,50 +629,71 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	IT m_perproc = DEL.getNumRows() / r;
 	IT n_perproc = DEL.getNumCols() / s;
 
-	// clear the source vertex by setting it to -1
-	int realedges = 0;
-	for (IT i = 0; i < DEL.nedges; i++)
-	{
-		if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
-		{
-			int rowowner = std::min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), r-1);
-			int colowner = std::min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), s-1); 
-			int owner = commGrid->GetRank(rowowner, colowner);
-			data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
-			data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
-			++realedges;
-		}
-	}
-
-  	IT * sendbuf = new IT[2*realedges];
-	int * sendcnt = new int[nprocs];
-	int * sdispls = new int[nprocs];
-	for(int i=0; i<nprocs; ++i)
-		sendcnt[i] = data[i].size();
-
-	int * rdispls = new int[nprocs];
-	int * recvcnt = new int[nprocs];
-	commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
-
-	sdispls[0] = 0;
-	rdispls[0] = 0;
-	for(int i=0; i<nprocs-1; ++i)
-	{
-		sdispls[i+1] = sdispls[i] + sendcnt[i];
-		rdispls[i+1] = rdispls[i] + recvcnt[i];
-	}
-	for(int i=0; i<nprocs; ++i)
-		copy(data[i].begin(), data[i].end(), sendbuf+sdispls[i]);
 	
-	// clear memory
-	for(int i=0; i<nprocs; ++i)
-		vector<IT>().swap(data[i]);
+	// to lower memory consumption, form sparse matrix in stages
+	IT stages = 16;	
+	IT perstage = DEL.nedges / stages;
+	IT totrecv = 0;
+	vector<IT> alledges;
+	
+	for(IT s=0; s< stages; ++s)
+	{
+		IT n_befor = s*perstage;
+		IT n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
 
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);	// totrecv = 2*locedges
-	IT * recvbuf = new IT[totrecv];
+		cout << "n: " << n_befor << " and " << n_after << endl;
+		// clear the source vertex by setting it to -1
+		int realedges = 0;
+		for (IT i = n_befor; i < n_after; i++)
+		{
+			if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
+			{
+				int rowowner = std::min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), static_cast<int>(r-1));
+				int colowner = std::min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), static_cast<int>(s-1)); 
+				int owner = commGrid->GetRank(rowowner, colowner);
+				data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
+				data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
+				++realedges;
+			}
+		}
+
+  		IT * sendbuf = new IT[2*realedges];
+		int * sendcnt = new int[nprocs];
+		int * sdispls = new int[nprocs];
+		for(int i=0; i<nprocs; ++i)
+			sendcnt[i] = data[i].size();
+
+		int * rdispls = new int[nprocs];
+		int * recvcnt = new int[nprocs];
+		commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+		for(int i=0; i<nprocs; ++i)
+			copy(data[i].begin(), data[i].end(), sendbuf+sdispls[i]);
+		
+		// clear memory
+		for(int i=0; i<nprocs; ++i)
+			vector<IT>().swap(data[i]);
+
+		IT thisrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);	// thisrecv = 2*locedges
+		cout << "this recv is" << thisrecv << endl;
+		IT * recvbuf = new IT[thisrecv];
+		totrecv += thisrecv;
 			
-	commGrid->GetWorld().Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>()); 
-	delete [] sendbuf;
+		commGrid->GetWorld().Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>()); 
+		DeleteAll(sendcnt, recvcnt, sdispls, rdispls,sendbuf);
+		copy (recvbuf,recvbuf+thisrecv,back_inserter(alledges));	// copy to all edges
+		delete [] recvbuf;
+	
+		if(rank == 0)	
+			cout << "Rank: " << rank << " at stage " << s << endl; 
+	}
 
 	int myprocrow = commGrid->GetRankInProcCol();
 	int myproccol = commGrid->GetRankInProcRow();
@@ -682,9 +703,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	if(myproccol != s-1)	loccols = n_perproc;
 	else	loccols = DEL.getNumCols() - myproccol * n_perproc;
 
-	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
-  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, recvbuf, removeloops);  	
-	delete [] recvbuf;
+  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, &(alledges[0]), removeloops);  	
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 

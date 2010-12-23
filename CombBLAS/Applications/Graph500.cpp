@@ -163,6 +163,7 @@ int main(int argc, char* argv[])
 			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false);	 // conversion from distributed edge list, keep self-loops
 			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
 			delete G;
+			SpParHelper::Print("Calculated degrees\n");
 
 			// Start Kernel #1
 			MPI::COMM_WORLD.Barrier();

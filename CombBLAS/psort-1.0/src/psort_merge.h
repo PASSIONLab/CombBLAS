@@ -113,7 +113,8 @@ namespace psort {
   class OOPTreeMerge : public Merge<OOPTreeMerge> {
   public:
     char *real_description () {
-      return ("Out-of-place tree merge");
+      string s ("Out-of-place tree merge");
+	return const_cast<char*>(s.c_str());
     };
 
 
