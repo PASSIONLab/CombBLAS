@@ -13,19 +13,21 @@
 
 # LIBADD = -L/opt/gcc/4.5.1/snos/lib/gcc/x86_64-suse-linux/4.5.1/../../../
 
+BOOST = $(HOME)/boost_1_45_0/
+INCADD = -I$(BOOST)
 # notes for configure:
+
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
 
-OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -fPIC
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+GCCOPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
+GCCDEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
 COMPILER = CC #-v
-FLAGS = $(OPT) #-DNOTR1
+GCCFLAGS = $(GCCOPT) 
+PGIFLAGS = -I$(BOOST) $(OPTPGI) -DNOTR1
+FLAGS = $(GCCFLAGS)
 COMBBLAS = ..
-
-#BOOST = $(HOME)/boost_1_45_0/
-#INCADD = -I$(BOOST)
-INCADD = -I$(HOME)
 
 #
 # build Graph500 generator
@@ -34,46 +36,46 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
+	$(COMPILER) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
 
 MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
+	$(COMPILER) $(FLAGS) -c -o MPIType.o ../MPIType.cpp 
 
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
+	$(COMPILER) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp 
 
 Driver.o: Driver.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o Driver.o Driver.cpp
+	$(COMPILER) $(FLAGS) -c -o Driver.o Driver.cpp
 
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
+	$(COMPILER) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
 
 MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp
+	$(COMPILER) $(FLAGS) -c -o MCL.o MCL.cpp
 
 APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp
+	$(COMPILER) $(FLAGS) -c -o APowers.o APowers.cpp
 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
+	$(COMPILER) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
 
 apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
 
 graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	$(COMPILER) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 graph500_withipm:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o graph500_withipm Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(IPM_GNU)
+	$(COMPILER) $(FLAGS) -o graph500_withipm Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(IPM_GNU)
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
 
 clean:
 	rm -f betwcent
