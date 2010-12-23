@@ -106,8 +106,12 @@ void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT nA, const IT 
 template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy)
-{     
-	pair<IT, IT> * wset = new pair<IT, IT>[veclen]; 
+{   
+	IT inf = numeric_limits<IT>::min();
+	IT sup = numeric_limits<IT>::max(); 
+        KNHeap< IT, IT > sHeap(sup, inf); 
+	// pair<IT, IT> * wset = new pair<IT, IT>[veclen];
+
 	// colnums vector keeps column numbers requested from A
 	vector<IT> colnums(veclen);
 
@@ -127,39 +131,44 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT nA, const IT
 	{
 		if(colinds[j].first != colinds[j].second)	// current != end
 		{
-			// pair (key, run)
-			wset[hsize++] = make_pair(Adcsc.ir[colinds[j].first], j);
+			// heap (key, run)
+			sHeap.insert(Adcsc.ir[colinds[j].first], j);
+			++hsize;
+			// wset[hsize++] = make_pair(Adcsc.ir[colinds[j].first], j);
 		} 
 	}	
-	make_heap(wset, wset+hsize);
+	//make_heap(wset, wset+hsize);
 
+	IT key, locv;
 	while(hsize > 0)
 	{
-		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
-		IT locv = wset[hsize-1].second;		// relative location of the nonzero in sparse column vector 
+		sHeap.deleteMin(&key, &locv);
+		// pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
+		// IT locv = wset[hsize-1].second;		// relative location of the nonzero in sparse column vector 
 		NT mrhs = numx[locv];			// no need to call multiply when we know the matrix is boolean
 		// ABAB: For BFS, we don't need numx as well since numx[locv] == wset[hsize-1].first
 
-		if((!indy.empty()) && indy.back() == wset[hsize-1].first)	
+		if((!indy.empty()) && indy.back() == key)	
 		{
 			numy.back() = SR::add(numy.back(), mrhs);
 		}
 		else
 		{
-			indy.push_back(wset[hsize-1].first);
+			indy.push_back(key);
 			numy.push_back(mrhs);	
 		}
 		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
 		{
 			// run stays the same !
-			wset[hsize-1].first = Adcsc.ir[colinds[locv].first];
-			push_heap(wset, wset+hsize);
+			// wset[hsize-1].first = Adcsc.ir[colinds[locv].first];
+			// push_heap(wset, wset+hsize);
+			sHeap.insert(Adcsc.ir[colinds[locv].first], locv);
 		}
 		else
 		{
+			// don't push, one of the lists has been depleted
 			--hsize;
 		}
 	}
-	delete [] wset;
 }
 #endif

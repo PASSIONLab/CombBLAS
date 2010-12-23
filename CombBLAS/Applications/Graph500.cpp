@@ -4,6 +4,7 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
+#include <string>
 #include <sstream>
 #include <stdint.h>
 #ifdef NOTR1
@@ -50,20 +51,15 @@ int main(int argc, char* argv[])
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 
-	bool NOINPUT = true;
-	if(argc < 2)
+	if(argc < 3)
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./Graph500 <Available RAM in MB (per core)>" << endl;
-			cout << "Example: ./Graph500 1024" << endl;
+			cout << "Usage: ./Graph500 <Auto,Force,Input> <Available RAM in MB (per core) | Scale Forced | Input Name>" << endl;
+			cout << "Example: ./Graph500 Auto 1024" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
-	}		
-	else if(argc == 3)
-	{
-		NOINPUT = false;	// we indeed do have to read from input
 	}		
 	{
 		typedef SelectMaxSRing<bool, int64_t> SR;	
@@ -71,55 +67,86 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
 		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 
-		// calculate the problem size that can be solved
-		// number of nonzero columns are at most the matrix dimension (for small p)
-		// for large p, though, nzc = nnz since each subcolumn will have a single nonzero 
-		// so assume (1+8+8+8)*nedges for the uint64 case and (1+4+4+4)*nedges for uint32
-		uint64_t raminbytes = static_cast<uint64_t>(atoi(argv[1])) * 1024 * 1024;	
-		uint64_t peredge = 1+3*sizeof(int64_t);
-		uint64_t maxnedges = raminbytes / peredge;
-		uint64_t maxvertices = maxnedges / 32;	
-		unsigned maxscale = highestbitset(maxvertices * nprocs);
-
-		string name;
-		unsigned scale;
-		if(maxscale > 36)	// at least 37 so it fits comfortably along with vectors 
-		{
-			name = "Medium";	
-			scale = 36;
-		}
-		else if(maxscale > 32)
-		{
-			name = "Small";
-			scale = 32;
-		}
-		else if(maxscale > 29)
-		{
-			name = "Mini";
-			scale = 29;
-		}
-		else if(maxscale > 26)
-		{
-			name = "Toy";
-			scale = 26;
-		}
-		else
-		{
-			name = "Debug";
-			scale = 18;	// fits even to single processor
-		}
-
-		ostringstream outs;
-		outs << "Max scale allowed : " << maxscale << endl;
-		outs << "Using the " << name << " problem" << endl;
-		SpParHelper::Print(outs.str());
-
 		// Declare objects
 		PSpMat_Bool A;	
 		FullyDistVec<int64_t, int64_t> degrees;
+		unsigned scale;
 
-		if(NOINPUT)
+		if(string(argv[1]) == string("Input")) // input option
 		{
+			ifstream input(argv[2]);
+			A.ReadDistribute(input, 0);	// read it from file
+			SpParHelper::Print("Read input");
+
+			PSpMat_Int64 * G = new PSpMat_Int64(A); 
+			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
+			delete G;
+
+			PSpMat_Bool AT = A;
+			AT.Transpose();
+			// boolean addition is practically a "logical or", 
+			// therefore this doesn't destruct any links
+			A += AT;	// symmetricize
+		}
+		else 
+		{	
+			if(string(argv[1]) == string("Auto"))	
+			{
+				// calculate the problem size that can be solved
+				// number of nonzero columns are at most the matrix dimension (for small p)
+				// for large p, though, nzc = nnz since each subcolumn will have a single nonzero 
+				// so assume (1+8+8+8)*nedges for the uint64 case and (1+4+4+4)*nedges for uint32
+				uint64_t raminbytes = static_cast<uint64_t>(atoi(argv[2])) * 1024 * 1024;	
+				uint64_t peredge = 1+3*sizeof(int64_t);
+				uint64_t maxnedges = raminbytes / peredge;
+				uint64_t maxvertices = maxnedges / 32;	
+				unsigned maxscale = highestbitset(maxvertices * nprocs);
+
+				string name;
+				if(maxscale > 36)	// at least 37 so it fits comfortably along with vectors 
+				{
+					name = "Medium";	
+					scale = 36;
+				}
+				else if(maxscale > 32)
+				{
+					name = "Small";
+					scale = 32;
+				}
+				else if(maxscale > 29)
+				{
+					name = "Mini";
+					scale = 29;
+				}
+				else if(maxscale > 26)
+				{
+					name = "Toy";
+					scale = 26;
+				}
+				else
+				{
+					name = "Debug";
+					scale = 20;	// fits even to single processor
+				}
+
+				ostringstream outs;
+				outs << "Max scale allowed : " << maxscale << endl;
+				outs << "Using the " << name << " problem" << endl;
+				SpParHelper::Print(outs.str());
+			}
+			else if(string(argv[1]) == string("Force"))	
+			{
+				scale = static_cast<unsigned>(atoi(argv[2]));
+				ostringstream outs;
+				outs << "Forcing scale to : " << scale << endl;
+				SpParHelper::Print(outs.str());
+			}
+			else
+			{
+				SpParHelper::Print("Unknown option\n");
+				MPI::Finalize(); 
+				return -1;	
+			}
 			// this is an undirected graph, so A*x does indeed BFS
  			double initiator[4] = {.57, .19, .19, .05};
 
@@ -141,6 +168,7 @@ int main(int argc, char* argv[])
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
 
+			// the following constructor distributes edges to their rightful owners as well
 			A = PSpMat_Bool(*DEL);	// remove self loops and duplicates (since this is of type boolean)
 			delete DEL;	// free memory before symmetricizing
 			
@@ -154,26 +182,9 @@ int main(int argc, char* argv[])
 			if(myrank == 0)
 				fprintf(stdout, "%.6lf seconds elapsed for Kernel #1\n", t2-t1);
 		}
-		else
-		{
-			ifstream input(argv[2]);
-			A.ReadDistribute(input, 0);	// read it from file
-			SpParHelper::Print("Read input");
-
-			PSpMat_Int64 * G = new PSpMat_Int64(A); 
-			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
-			delete G;
-
-			PSpMat_Bool AT = A;
-			AT.Transpose();
-			// boolean addition is practically a "logical or", 
-			// therefore this doesn't destruct any links
-			A += AT;	// symmetricize
-		}
-				
 		A.PrintInfo();
-
 		float balance = A.LoadImbalance();
+		ostringstream outs;
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
@@ -201,7 +212,7 @@ int main(int argc, char* argv[])
 		Cands = Cands(First64);		
 		//Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
-		
+	
 		double MTEPS[64]; double INVMTEPS[64];
 		for(int i=0; i<64; ++i)
 		{

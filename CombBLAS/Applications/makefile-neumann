@@ -9,7 +9,7 @@ OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx	
-FLAGS = $(OPT)
+FLAGS = $(PROF)
 COMBBLAS = ..
 
 
@@ -40,7 +40,7 @@ MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFr
 APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp
 
-Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
+Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o

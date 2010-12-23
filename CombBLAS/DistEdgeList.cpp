@@ -97,7 +97,6 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 	uint64_t seed2 = time(NULL);
 	make_mrg_seed(seed1, seed2, seed);
 
-
 	SetMemSize(nedges_in);	
 	nedges = nedges_in;
 	numrows = numcols = (IT)pow((double)2, log_numverts);
@@ -107,88 +106,73 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 		edges[2*i+0] = -1;
 	
 	generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
-
-	//vector < pair<IT, IT> > vec;
-	//for(IT i=0; i< nedges; i++)
-	//{
-	//	vec.push_back(make_pair(edges[2*i], edges[2*i+1]));
-	//}
-	//sort(vec.begin(), vec.end());
-	//vector < pair<IT, IT> > uniqued;
-	//unique_copy(vec.begin(), vec.end(), back_inserter(uniqued));
-	//cout << "before uniqued: " << vec.size() << " and after: " << uniqued.size() << endl;
 }
 
 
 /**
  * Randomly permutes the distributed edge list.
-
-- your PermEdges will be among all processors instead of being among diagonals only. 
-- it will be a friend of your DistEdgeList class. 
-- you are likely to use a vector of "tuples<double,IT,IT>" where double is the random number;
-and the other two IT's are endpoints of the edgelist. 
-- once you call Viral's psort on this vector, everything will go to the right place [tuples are
-sorted lexicographically] and you can reconstruct the int64_t * edges in an embarrassingly parallel way. 
-
-As I understood, the entire purpose of this function is to destroy any locality. It does not
-rename any vertices and edges are not named anyway. 
-For an example, think about the edge (0,1). It will eventually (at the end of kernel 1) be
-owned by processor P(0,0). 
-However, assume that processor P(r1,c1) has a copy of it before the call to PermEdges. After
-this call, some other irrelevant processor P(r2,c2) will own it. So we gained nothing, it is
-just a scrambled egg. 
-*/
+ * Once we call Viral's psort on this vector, everything will go to the right place [tuples are
+ * sorted lexicographically] and you can reconstruct the int64_t * edges in an embarrassingly parallel way. 
+ * As I understood, the entire purpose of this function is to destroy any locality. It does not
+ * rename any vertices and edges are not named anyway. 
+ * For an example, think about the edge (0,1). It will eventually (at the end of kernel 1) be owned by processor P(0,0). 
+ * However, assume that processor P(r1,c1) has a copy of it before the call to PermEdges. After
+ * this call, some other irrelevant processor P(r2,c2) will own it. So we gained nothing, it is just a scrambled egg. 
+**/
 template <typename IT>
 void PermEdges(DistEdgeList<IT> & DEL)
 {
 	IT maxedges = DEL.memedges;	// this can be optimized by calling the clean-up first
-	pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[maxedges];
-
+	
+	// to lower memory consumption, rename in stages
+	// this is not "identical" to a full randomization; 
+	// but more than enough to destroy any possible locality 
+	IT stages = 16;	
+	IT perstage = maxedges / stages;
+	
 	int nproc =(DEL.commGrid)->GetSize();
 	int rank = (DEL.commGrid)->GetRank();
-
 	IT* dist = new IT[nproc];
-	dist[rank] = maxedges;
-	(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
 	MTRand M;	// generate random numbers with Mersenne Twister
-	for (IT i = 0; i < maxedges; i++)
+	for(IT s=0; s< stages; ++s)
 	{
-		vecpair[i].first = M.rand();
-		vecpair[i].second.first = DEL.edges[2*i + 0];
-		vecpair[i].second.second = DEL.edges[2*i + 1];
-	}
+		IT n_sofar = s*perstage;
+		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
+		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
+		dist[rank] = n_thisstage;
+		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+		IT lengthuntil = accumulate(dist, dist+rank, 0);
 
-	// free some space
-	DEL.SetMemSize(0);
-	
-	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-	psort::parallel_sort (vecpair, vecpair + maxedges,  dist, DEL.commGrid->GetWorld());
-	
-	// recreate the edge list
-	DEL.SetMemSize(maxedges);
+		for (IT i = 0; i < n_thisstage; i++)
+		{
+			vecpair[i].first = M.rand();
+			vecpair[i].second.first = DEL.edges[2*(i+n_sofar)];
+			vecpair[i].second.second = DEL.edges[2*(i+n_sofar)+1];
+		}
 
-	for (IT i = 0; i < maxedges; i++)
-	{
-		DEL.edges[2*i + 0] = vecpair[i].second.first;
-		DEL.edges[2*i + 1] = vecpair[i].second.second;
+		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+		psort::parallel_sort (vecpair, vecpair + n_thisstage,  dist, DEL.commGrid->GetWorld());
+		for (IT i = 0; i < n_thisstage; i++)
+		{
+			DEL.edges[2*(i+n_sofar)] = vecpair[i].second.first;
+			DEL.edges[2*(i+n_sofar)+1] = vecpair[i].second.second;
+		}
+		delete [] vecpair;
 	}
 	delete [] dist;
-	delete [] vecpair;
 }
 
-/*
-(AL3) Rename vertices globally. 
-	You first need to do create a random permutation distributed on all processors. 
-	Then the p round robin algorithm will do the renaming: 
-
-For all processors P(i,i)
-            Broadcast local_p to all p processors
-            For j= i*N/p to min((i+1)*N/p, N)
-                      Rename the all j's with local_p(j) inside the edgelist (and mark them
-                      "renamed" so that yeach vertex id is renamed only once)
-*/
+/**
+  * Rename vertices globally. 
+  *	You first need to do create a random permutation distributed on all processors. 
+  *	Then the p round robin algorithm will do the renaming: 
+  * For all processors P(i,i)
+  *          Broadcast local_p to all p processors
+  *          For j= i*N/p to min((i+1)*N/p, N)
+  *                    Rename the all j's with local_p(j) inside the edgelist (and mark them
+  *                    "renamed" so that yeach vertex id is renamed only once)
+  **/
 template <typename IU>
 void RenameVertices(DistEdgeList<IU> & DEL)
 {
