@@ -160,7 +160,8 @@ int main(int argc, char* argv[])
 			RenameVertices<int64_t>(*DEL);
 			SpParHelper::Print("Renamed Vertices\n");
 	
-			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false);	 // conversion from distributed edge list, keep self-loops
+			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); // conversion from distributed edge list, keep self-loops
+			SpParHelper::Print("Created Int64 Sparse Matrix\n");
 			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
 			delete G;
 			SpParHelper::Print("Calculated degrees\n");

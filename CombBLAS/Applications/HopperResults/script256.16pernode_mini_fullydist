@@ -1,0 +1,298 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 29
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Sorted
+Duplicates removed: 90071407 and self-loops removed: 0
+Created Int64 Sparse Matrix
+[192] ERROR - nem_gni_error_handler(): a transaction error was detected,error category 0x4 error code 0xb2e
+Rank 192 [Thu Dec 23 20:52:13 2010] [c6-3c1s5n3] GNI transaction error detected
+[NID 01270] 2010-12-23 20:52:43 Apid 443911: initiated application termination
+[NID 01323] 2010-12-23 20:52:33 Apid 443911: OOM killer terminated this process.
+[NID 01801] 2010-12-23 20:52:35 Apid 443911: OOM killer terminated this process.
+[NID 01802] 2010-12-23 20:52:38 Apid 443911: OOM killer terminated this process.
+[NID 01035] 2010-12-23 20:52:39 Apid 443911: OOM killer terminated this process.
+[NID 01321] 2010-12-23 20:52:48 Apid 443911: OOM killer terminated this process.
+[NID 01270] 2010-12-23 20:52:48 Apid 443911: OOM killer terminated this process.
+[NID 01271] 2010-12-23 20:53:03 Apid 443911: OOM killer terminated this process.
+[NID 01800] 2010-12-23 20:53:09 Apid 443911: OOM killer terminated this process.
+[NID 01034] 2010-12-23 20:53:28 Apid 443911: OOM killer terminated this process.
+[NID 01322] 2010-12-23 20:54:10 Apid 443911: OOM killer terminated this process.
+Application 443911 exit codes: 255
+Application 443911 exit signals: Killed
+Application 443911 resources: utime ~246s, stime ~55s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_hop
+ +          Job Id: 124408.sdb
+ +          System: hopper2
+ +     Queued Time: Thu Dec 23 20:47:14 2010
+ +      Start Time: Thu Dec 23 20:47:31 2010
+ + Completion Time: Thu 23 Dec 2010 08:54:35 PM PST
+ +            User: abuluc
+ +        MOM Host: nid03840
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:662:hopper04,walltime=01:25:00
+ +  Used Resources: cput=00:00:00,mem=5500kb,vmem=36688kb,walltime=00:07:04
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: 
+ +     Submit Args: script256_hop
+ + --------------------------------------------------------------------------
+
