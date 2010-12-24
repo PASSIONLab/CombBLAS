@@ -36,11 +36,13 @@ CombBLAS/Applications/HopperResults/script256.16pernode -text
 CombBLAS/Applications/HopperResults/script256.16pernode_mini_fullydist -text
 CombBLAS/Applications/HopperResults/script256.24pernode -text
 CombBLAS/Applications/HopperResults/script4096.16pernode -text
+CombBLAS/Applications/HopperResults/script4096.24pernode_mini_killed_fullydist -text
 CombBLAS/Applications/HopperResults/script4096.24pernode_toy -text
 CombBLAS/Applications/HopperResults/script4096.8pernode -text
 CombBLAS/Applications/HopperResults/script4096.8pernode_small_outoftime -text
 CombBLAS/Applications/HopperResults/script4096.killedmini -text
 CombBLAS/Applications/HopperResults/script529.24pernode_mini_fullydist -text
+CombBLAS/Applications/HopperResults/script8100.24pernode_mini_killed_fullydist -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text

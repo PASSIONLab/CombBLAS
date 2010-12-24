@@ -1,0 +1,65 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 29
+Generated local RMAT matrices
+[3984] ERROR - nem_gni_error_handler(): a transaction error was detected,error category 0x4 error code 0xb2e
+Rank 3984 [Thu Dec 23 22:01:53 2010] [c6-3c0s1n2] GNI transaction error detected
+[NID 01250] 2010-12-23 22:02:17 Apid 445845: initiated application termination
+[NID 00980] 2010-12-23 22:01:57 Apid 445845: OOM killer terminated this process.
+[1032] ERROR - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_POST had error (SOURCE_SSID_DREQ:MDD_INV)
+Rank 1032 [Thu Dec 23 22:01:57 2010] [c8-3c1s6n3] Fatal error in PMPI_Allgather: Other MPI error, error stack:
+PMPI_Allgather(867)...............: MPI_Allgather(sbuf=0x2aab7d3bbf50, scount=4095, dtype=USER<contig>, rbuf=0x2aab77302010, rcount=4095, dtype=USER<contig>, comm=0xc400000a) failed
+MPIR_CRAY_Allgather(79)...........: 
+MPIR_Allgather(566)...............: 
+MPIC_Sendrecv(162)................: 
+MPIC_Wait(514)....................: 
+MPIDI_CH3I_Progress(150)..........: 
+MPID_nem_mpich2_blocking_recv(938): 
+MPID_nem_gni_poll(1266)...........: 
+MPID_nem_gni_check_localCQ(560)...: unrecoverable network error
+[1584] ERROR - nem_gni_error_handler(): a transaction error was detected,error category 0x4 error code 0xb2e
+Rank 1584 [Thu Dec 23 22:02:07 2010] [c4-3c0s6n2] GNI transaction error detected
+[696] ERROR - MPID_nem_gni_check_localCQ(): GNI_CQ_EVENT_TYPE_POST had error (SOURCE_SSID_DREQ:MDD_INV)
+Rank 696 [Thu Dec 23 22:02:11 2010] [c4-3c1s7n3] Fatal error in PMPI_Allgather: Other MPI error, error stack:
+PMPI_Allgather(867)...............: MPI_Allgather(sbuf=0x2aab7b43ded0, scount=4095, dtype=USER<contig>, rbuf=0x2aab77302010, rcount=4095, dtype=USER<contig>, comm=0xc400000a) failed
+MPIR_CRAY_Allgather(79)...........: 
+MPIR_Allgather(566)...............: 
+MPIC_Sendrecv(162)................: 
+MPIC_Wait(514)....................: 
+MPIDI_CH3I_Progress(150)..........: 
+MPID_nem_mpich2_blocking_recv(938): 
+MPID_nem_gni_poll(1266)...........: 
+MPID_nem_gni_check_localCQ(560)...: unrecoverable network error
+[NID 01341] 2010-12-23 22:02:31 Apid 445845: OOM killer terminated this process.
+[NID 00962] 2010-12-23 22:02:33 Apid 445845: OOM killer terminated this process.
+[NID 01819] 2010-12-23 22:02:37 Apid 445845: OOM killer terminated this process.
+[NID 01052] 2010-12-23 22:03:06 Apid 445845: OOM killer terminated this process.
+[NID 00482] 2010-12-23 22:03:07 Apid 445845: OOM killer terminated this process.
+[NID 01732] 2010-12-23 22:03:08 Apid 445845: OOM killer terminated this process.
+[NID 00564] 2010-12-23 22:03:20 Apid 445845: OOM killer terminated this process.
+[NID 01339] 2010-12-23 22:03:22 Apid 445845: OOM killer terminated this process.
+[NID 01810] 2010-12-23 22:03:29 Apid 445845: OOM killer terminated this process.
+[NID 01813] 2010-12-23 22:03:47 Apid 445845: OOM killer terminated this process.
+[NID 00982] 2010-12-23 22:04:30 Apid 445845: OOM killer terminated this process.
+[NID 00562] 2010-12-23 22:06:19 Apid 445845: OOM killer terminated this process.
+Application 445845 exit codes: 255
+Application 445845 exit signals: Killed
+Application 445845 resources: utime ~68s, stime ~243s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4096_hop_all
+ +          Job Id: 124457.sdb
+ +          System: hopper2
+ +     Queued Time: Thu Dec 23 21:20:13 2010
+ +      Start Time: Thu Dec 23 21:59:45 2010
+ + Completion Time: Thu 23 Dec 2010 10:06:43 PM PST
+ +            User: abuluc
+ +        MOM Host: nid04749
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:10852:hopper04,walltime=01:25:00
+ +  Used Resources: cput=00:00:00,mem=12224kb,vmem=43412kb,walltime=00:06:58
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: 
+ +     Submit Args: script4096_hop_all
+ + --------------------------------------------------------------------------
+
