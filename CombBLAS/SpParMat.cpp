@@ -691,8 +691,8 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 		copy (recvbuf,recvbuf+thisrecv,back_inserter(alledges));	// copy to all edges
 		delete [] recvbuf;
 	
-		if(rank == 0)	
-			cout << "Rank: " << rank << " at stage " << s << endl; 
+//		if(rank == 0)	
+//			cout << "Rank: " << rank << " at stage " << s << endl; 
 	}
 
 	int myprocrow = commGrid->GetRankInProcCol();

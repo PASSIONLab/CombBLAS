@@ -150,6 +150,8 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			vecpair[i].second.first = DEL.edges[2*(i+n_sofar)];
 			vecpair[i].second.second = DEL.edges[2*(i+n_sofar)+1];
 		}
+		if(rank == 0)
+			cout << "Calling parallel_sort" << endl;
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
 		psort::parallel_sort (vecpair, vecpair + n_thisstage,  dist, DEL.commGrid->GetWorld());
@@ -159,6 +161,8 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			DEL.edges[2*(i+n_sofar)+1] = vecpair[i].second.second;
 		}
 		delete [] vecpair;
+		if(rank == 0)
+			cout << "PermEdges: Stage " << s << " completed" << endl;
 	}
 	delete [] dist;
 }

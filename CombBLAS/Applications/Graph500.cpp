@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 		//Cands.DebugPrint();
 		Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
 	
-		double MTEPS[64]; double INVMTEPS[64];
+		double MTEPS[64]; double INVMTEPS[64]; double TIMES[64]; double EDGES[64];
 		for(int i=0; i<64; ++i)
 		{
 			// FullyDistVec (shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
@@ -262,14 +262,58 @@ int main(int argc, char* argv[])
 			outnew << "Number of edges traversed: " << nedges << endl;
 			outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 			outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
+			TIMES[i] = t2-t1;
+			EDGES[i] = nedges;
 			MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
 			SpParHelper::Print(outnew.str());
 		}
 		SpParHelper::Print("Finished\n");
-		transform(MTEPS, MTEPS+64, INVMTEPS, safemultinv<double>()); 	
-		double hteps = 64.0 / accumulate(INVMTEPS, INVMTEPS+64, 0.0);
 		ostringstream os;
-		os << "Harmonic mean of TEPS: " << hteps << endl;
+
+		sort(EDGES, EDGES+64);
+		os << "--------------------------" << endl;
+		os << "Min nedges: " << EDGES[0] << endl;
+		os << "First Quartile nedges: " << (EDGES[15] + EDGES[16])/2 << endl;
+		os << "Median nedges: " << (EDGES[31] + EDGES[32])/2 << endl;
+		os << "Third Quartile nedges: " << (EDGES[47] + EDGES[48])/2 << endl;
+		os << "Max nedges: " << EDGES[63] << endl;
+ 		double mean = accumulate( EDGES, EDGES+64, 0.0 )/ 64;
+		vector<double> zero_mean(64);	// find distances to the mean
+		transform(EDGES, EDGES+64, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+		// self inner-product is sum of sum of squares
+		double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+   		deviation = sqrt( deviation / 63 );
+   		os << "Mean nedges: " << mean << endl;
+		os << "STDDEV nedges: " << deviation << endl;
+		os << "--------------------------" << endl;
+
+		sort(TIMES,TIMES+64);
+		os << "Min time: " << TIMES[0] << " seconds" << endl;
+		os << "First Quartile time: " << (TIMES[15] + TIMES[16])/2 << " seconds" << endl;
+		os << "Median time: " << (TIMES[31] + TIMES[32])/2 << " seconds" << endl;
+		os << "Third Quartile time: " << (TIMES[47] + TIMES[48])/2 << " seconds" << endl;
+		os << "Max time: " << TIMES[63] << " seconds" << endl;
+ 		mean = accumulate( TIMES, TIMES+64, 0.0 )/ 64;
+		transform(TIMES, TIMES+64, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+		deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+   		deviation = sqrt( deviation / 63 );
+   		os << "Mean time: " << mean << " seconds" << endl;
+		os << "STDDEV time: " << deviation << " seconds" << endl;
+		os << "--------------------------" << endl;
+
+		sort(MTEPS, MTEPS+64);
+		os << "Min MTEPS: " << MTEPS[0] << endl;
+		os << "First Quartile MTEPS: " << (MTEPS[15] + MTEPS[16])/2 << endl;
+		os << "Median MTEPS: " << (MTEPS[31] + MTEPS[32])/2 << endl;
+		os << "Third Quartile MTEPS: " << (MTEPS[47] + MTEPS[48])/2 << endl;
+		os << "Max MTEPS: " << MTEPS[63] << endl;
+		transform(MTEPS, MTEPS+64, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
+		double hteps = 64.0 / accumulate(INVMTEPS, INVMTEPS+64, 0.0);	
+		os << "Harmonic mean of MTEPS: " << hteps << endl;
+		transform(INVMTEPS, INVMTEPS+64, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
+		deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+   		deviation = sqrt( deviation / 63 ) * (hteps*hteps);	// harmonic_std_dev
+		os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
 		SpParHelper::Print(os.str());
 	}
 	MPI::Finalize();
