@@ -22,6 +22,90 @@ using namespace std;
 class SpParHelper
 {
 public:
+	// input is already sorted
+	template<typename _ForwardIter, typename IT>
+	static void MEPSortInternal(_ForwardIter __first, _ForwardIter __last, IT * dist, MPI::Intracomm & comm)
+	{
+		
+	}
+
+	// Necessary because psort creates three 2D vectors of size p-by-p
+	// One of those vector with 8 byte data uses 8*(4096)^2 = 128 MB space 
+	// Per processor extra storage becomes:
+	//	24 MB with 1K processors
+	//	96 MB with 2K processors
+	//	384 MB with 4K processors
+	// 	1.5 GB with 8K processors
+	template<typename KEY, typename VAL, typename IT>
+	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
+	{	
+		int nprocs = comm.Get_size();
+		if(nprocs < 2000)
+		{
+			psort::parallel_sort (array, array+length,  dist, comm);
+		}
+		else
+		{
+			IT gl_elements = accumulate(dist, dist+nprocs, 0);
+			IT medianrank = gl_elements /2;	// global rank of the median element
+			sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
+
+			int myrank = comm.Get_rank();
+			int nsize = nprocs / 2;	// new size
+			int color = myrank / nsize;
+			halfcomm = comm.Split(color, myrank);	// split into two communicators
+			
+			IT begin = 0;
+			IT end = length;	// initially everyone is active			
+			KEY * medians = new KEY[nprocs];
+			KEY * actives = new KEY[nprocs];	// KEY is float or double
+			while(true)
+			{
+				KEY median = array[(begin + end)/2].first; 	// median of the active range
+				IT active = end-begin;				// size of the active range
+
+                		medians[myrank] = median;
+				actives[myrank] = static_cast<KEY>(active);
+	                	comm.Allgather(MPI::IN_PLACE, 0, MPIType<KEY>(), medians, 1, MPIType<KEY>());
+	                	comm.Allgather(MPI::IN_PLACE, 0, MPIType<KEY>(), actives, 1, MPIType<KEY>());
+				KEY totact = accumulate(actives, actives+nprocs, 0.0);
+				transform(actives, actives+nprocs, actives, bind2nd(divides<KEY>(), totact));	// normalize
+				transform(medians, medians+nprocs, actives, medians, multiplies<KEY>());	// weight medians
+				nth_element( medians, medians+nprocs/2, medians+nprocs );
+        	        	KEY wmm = medians[nprocs/2];	// weighted median of medians
+				cout << "Weighted median of medians:" << wmm << endl;
+
+				pair<KEY,VAL> wmmpair = make_pair(wmm, VAL());
+				pair<KEY,VAL> * low =lower_bound (array+begin, array+end, wmmpair); 
+				pair<KEY,VAL> * upp =lower_bound (array+begin, array+end, wmmpair); 
+				KEY gl_low, gl_upp;
+				comm.Allreduce( &low.first, &gl_low, 1, MPIType<KEY>(), MPI::SUM);
+				comm.Allreduce( &upp.first, &gl_upp, 1, MPIType<KEY>(), MPI::SUM);
+				cout << "GL_LOW: " << gl_low << ", GL_UPP: " << gl_upp << endl;
+
+				if(gl_upp < gl_median)
+				{
+					begin = low - array;
+				}
+				else if(gl_median < gl_low)
+				{
+					
+				}
+				else
+				{
+					break;
+				}
+			}
+			
+	
+			// __first and __last are local pointers
+			if(color == 0)
+				psort::parallel_sort (__first, __last,  dist, halfcomm);
+			else
+				psort::parallel_sort (__first, __last,  dist+nsize, halfcomm); 
+		}
+	}
+	
 	template<typename IT, typename NT, typename DER>
 	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, vector<MPI::Win> & arrwin, int ownind);
 
