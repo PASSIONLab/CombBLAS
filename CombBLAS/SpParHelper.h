@@ -22,13 +22,6 @@ using namespace std;
 class SpParHelper
 {
 public:
-	// input is already sorted
-	template<typename _ForwardIter, typename IT>
-	static void MEPSortInternal(_ForwardIter __first, _ForwardIter __last, IT * dist, MPI::Intracomm & comm)
-	{
-		
-	}
-
 	// Necessary because psort creates three 2D vectors of size p-by-p
 	// One of those vector with 8 byte data uses 8*(4096)^2 = 128 MB space 
 	// Per processor extra storage becomes:
@@ -40,6 +33,7 @@ public:
 	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
 	{	
 		int nprocs = comm.Get_size();
+		int nsize = nprocs / 2;	// new size
 		if(nprocs < 2000)
 		{
 			psort::parallel_sort (array, array+length,  dist, comm);
@@ -47,11 +41,11 @@ public:
 		else
 		{
 			IT gl_elements = accumulate(dist, dist+nprocs, 0);
-			IT medianrank = gl_elements /2;	// global rank of the median element
+			IT gl_median = accumulate(dist, dist+nsize, 0);	// global rank of the first element of the median processor
+			cout << "Rank of first element in median processor: " << gl_median << endl;
 			sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
 
 			int myrank = comm.Get_rank();
-			int nsize = nprocs / 2;	// new size
 			int color = myrank / nsize;
 			halfcomm = comm.Split(color, myrank);	// split into two communicators
 			
@@ -59,6 +53,10 @@ public:
 			IT end = length;	// initially everyone is active			
 			KEY * medians = new KEY[nprocs];
 			KEY * actives = new KEY[nprocs];	// KEY is float or double
+			KEY wmm;	// our median pick
+			pair<KEY,VAL> * low;
+			pair<KEY,VAL> * upp;
+			int dist_tomedian;
 			while(true)
 			{
 				KEY median = array[(begin + end)/2].first; 	// median of the active range
@@ -72,31 +70,98 @@ public:
 				transform(actives, actives+nprocs, actives, bind2nd(divides<KEY>(), totact));	// normalize
 				transform(medians, medians+nprocs, actives, medians, multiplies<KEY>());	// weight medians
 				nth_element( medians, medians+nprocs/2, medians+nprocs );
-        	        	KEY wmm = medians[nprocs/2];	// weighted median of medians
+        	        	wmm = medians[nprocs/2];	// weighted median of medians
 				cout << "Weighted median of medians:" << wmm << endl;
 
 				pair<KEY,VAL> wmmpair = make_pair(wmm, VAL());
-				pair<KEY,VAL> * low =lower_bound (array+begin, array+end, wmmpair); 
-				pair<KEY,VAL> * upp =lower_bound (array+begin, array+end, wmmpair); 
+				low =lower_bound (array+begin, array+end, wmmpair); 
+				upp =lower_bound (array+begin, array+end, wmmpair); 
 				KEY gl_low, gl_upp;
 				comm.Allreduce( &low.first, &gl_low, 1, MPIType<KEY>(), MPI::SUM);
 				comm.Allreduce( &upp.first, &gl_upp, 1, MPIType<KEY>(), MPI::SUM);
 				cout << "GL_LOW: " << gl_low << ", GL_UPP: " << gl_upp << endl;
 
+				// at this point, we already know low_i and upp_i's for all processors
 				if(gl_upp < gl_median)
 				{
+					// our pick was too small; only recurse to the right
 					begin = low - array;
 				}
 				else if(gl_median < gl_low)
 				{
-					
+					// our pick was too big; only recurse to the left
+					end = upp - array;
 				}
 				else
 				{
+					// our pick is correct, report it
+					dist_tomedian = gl_median - gl_low;
 					break;
 				}
 			}
-			
+			DeleteAll(medians, actives);
+			KEY * lows = new KEY[nprocs];
+			KEY * upps = new KEY[nprocs];
+			lows[myrank] = low.first;
+			upps[myrank] = upp.first;
+			comm.Allgather(MPI::IN_PLACE, 0, MPIType<KEY>(), lows, 1, MPIType<KEY>());
+			comm.Allgather(MPI::IN_PLACE, 0, MPIType<KEY>(), upps, 1, MPIType<KEY>());
+			int shifted = 0;
+			int procid = 0;
+			while(shifted < dist_tomedian && procid < nprocs)
+			{
+				if(lows[procid] < upps[procid])
+				{
+					++shifted;
+					++lows[procid];		// increment the global low pointer by one
+					if(myrank == procid)	++low;	// increment the local pointer too
+				}
+				else
+				{
+					++procid;	// no place to shift in this processor
+				}
+			}
+			DeleteAll(lows,upps);
+			IT * 1sthalves = new IT[nprocs];
+			IT * 2ndhalves = new IT[nprocs];
+			1sthalves[myrank] = low-array;
+			2ndhalves[myrank] = length - (low-array);
+			comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), 1sthalves, 1, MPIType<IT>());
+			comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), 2ndhalves, 1, MPIType<IT>());
+
+			/** Now transpose the data
+			IT * sendbuf = new IT[riloclen];
+			int * sendcnt = new int[nprocs];
+			int * sdispls = new int[nprocs];
+			for(int i=0; i<nprocs; ++i)
+				sendcnt[i] = data_req[i].size();
+
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+	IT * recvbuf = new IT[totrecv];
+
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
+		vector<IT>().swap(data_req[i]);
+	}
+
+	IT * reversemap = new IT[riloclen];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
+
+			**/
 	
 			// __first and __last are local pointers
 			if(color == 0)
