@@ -46,7 +46,7 @@ public:
 			sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
 
 			int myrank = comm.Get_rank();
-			int color = myrank / nsize;
+			int color = (myrank < nsize)? 0: 1;
 			halfcomm = comm.Split(color, myrank);	// split into two communicators
 			
 			IT begin = 0;
@@ -129,39 +129,65 @@ public:
 			comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), 1sthalves, 1, MPIType<IT>());
 			comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), 2ndhalves, 1, MPIType<IT>());
 
-			/** Now transpose the data
-			IT * sendbuf = new IT[riloclen];
-			int * sendcnt = new int[nprocs];
-			int * sdispls = new int[nprocs];
-			for(int i=0; i<nprocs; ++i)
-				sendcnt[i] = data_req[i].size();
+			int * sendcnt = new int[nprocs]();	// zero initialize
+			vector< tuple<int,IT,IT>  > package;	// recipient, begin index, end index
+			int totrecvcnt; 
+			if(color == 0)	// first processor half, only send second half of data
+			{
+				totrecvcnt = length - (low-array);
+			}
+			else if(color == 1)	// second processor half, only send first half of data
+			{
+				totrecvcnt = low-array;
+				// global index (within the second processor half) of the beginning of my data
+				IT beg_oftransfer = accumulate(1sthalves+nsize, 1sthalves+myrank, 0);
+				IT spacebefore = 0;
+				IT spaceafter = spacebefore+2ndhalves[0];
+				int i =0;
+				while( i< nsize && spaceafter < beg_oftransfer)
+				{
+					spacebefore = spaceafter;
+					spaceafter += 2ndhalves[++i];	// pre-incremenet
+				}
+				IT end_oftransfer = beg_oftransfer + 1sthalves[myrank];	// global index (within second half) of the end of my data
+				IT beg_pour = beg_oftransfer;
+				IT end_pour = min(end_oftransfer, spaceafter);
+				package.push_back(make_tuple(i, beg_pour, end_pour));
+				sizes[i] = end_pour - beg_pour;
+				while( i < nsize && spaceafter < end_oftransfer )	// find other recipients until I run out of data
+				{
+					beg_pour = end_pour;
+					spaceafter += 2ndhalves[++i];
+					end_pour = min(end_oftransfer, spaceafter);
+					package.push_back(make_tuple(i, beg_pour, end_pour));
+					sendcnt[i] = end_pour - beg_pour;
+				}
+			}
+			int * recvcnt = new int[nprocs];
+			comm.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// get the recv counts
 
-	int * rdispls = new int[nprocs];
-	int * recvcnt = new int[nprocs];
-	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+    			MPI_Datatype MPI_valueType;
+    			MPI_Type_contiguous (sizeof(pair<KEY,VAL>), MPI_CHAR, &MPI_valueType);
+    			MPI_Type_commit (&MPI_valueType);
 
-	sdispls[0] = 0;
-	rdispls[0] = 0;
-	for(int i=0; i<nprocs-1; ++i)
-	{
-		sdispls[i+1] = sdispls[i] + sendcnt[i];
-		rdispls[i+1] = rdispls[i] + recvcnt[i];
-	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
-	IT * recvbuf = new IT[totrecv];
+			vector< MPI::Request > requests;
+			pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
+			int recvsofar = 0;
+			for (int i=0; i< nprocs; ++i)
+			{
+				if(recvcnt[i] > 0)
+				{
+					MPI::Request req = comm.Irecv(receives + recvsofar, recvcnt[i], MPI_valueType, i, SWAPTAG);
+					requests.push_back(req);
+					recvsofar += recvcnt;
+				}
+			}
+			for(int i=0; i< package.size(); ++i)
+			{
+				comm.Isend();
+			}
+			WaitAll();
 
-	for(int i=0; i<nprocs; ++i)
-	{
-		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
-		vector<IT>().swap(data_req[i]);
-	}
-
-	IT * reversemap = new IT[riloclen];
-	for(int i=0; i<nprocs; ++i)
-	{
-		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
-
-			**/
 	
 			// __first and __last are local pointers
 			if(color == 0)

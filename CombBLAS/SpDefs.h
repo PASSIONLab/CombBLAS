@@ -45,6 +45,7 @@
 #define TRCOLX 133
 #define TRX 134
 #define TROST 135
+#define SWAPTAG 136
 
 enum Dim
 {
