@@ -153,8 +153,9 @@ void PermEdges(DistEdgeList<IT> & DEL)
 		if(rank == 0)
 			cout << "Calling parallel_sort" << endl;
 
-		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-		psort::parallel_sort (vecpair, vecpair + n_thisstage,  dist, DEL.commGrid->GetWorld());
+		// less< pair<T1,T2> > works correctly (sorts w.r.t. first element of type T1)	
+		// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
+		SpParHelper::MemoryEfficientPSort(vecpair, n_thisstage, dist, DEL.commGrid->GetWorld());
 		for (IT i = 0; i < n_thisstage; i++)
 		{
 			DEL.edges[2*(i+n_sofar)] = vecpair[i].second.first;
