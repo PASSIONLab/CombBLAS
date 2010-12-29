@@ -150,8 +150,6 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			vecpair[i].second.first = DEL.edges[2*(i+n_sofar)];
 			vecpair[i].second.second = DEL.edges[2*(i+n_sofar)+1];
 		}
-		if(rank == 0)
-			cout << "Calling parallel_sort" << endl;
 
 		// less< pair<T1,T2> > works correctly (sorts w.r.t. first element of type T1)	
 		// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
