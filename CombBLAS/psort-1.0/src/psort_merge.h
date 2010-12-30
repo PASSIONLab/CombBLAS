@@ -207,8 +207,8 @@ namespace psort {
   class FunnelMerge4 : public Merge<FunnelMerge4> {
   public:
     char *real_description () {
-      string s ("Funnel(4) merge");
-	return s.c_str();
+      std::string s ("Funnel(4) merge");
+	return const_cast<char*>(s.c_str());
     };
 
     template<typename _RandomAccessIter, typename _Compare, typename _Distance>

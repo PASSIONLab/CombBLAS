@@ -1,5 +1,6 @@
 INCDIR = $(HOME)
 INCADD = -I$(INCDIR)
+LIBDIR = -L/home/aydin/localinstall/openmpi_exceptions_1.4.3/lib/
 
 # notes for configure:
 # -fno-exceptions does not work with MPICH2
@@ -8,8 +9,8 @@ INCADD = -I$(INCDIR)
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx	
-FLAGS = $(DEB)
+COMPILER = mpicxx
+FLAGS = $(OPT)
 COMBBLAS = ..
 
 
@@ -20,43 +21,37 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp $(LIBDIR)
 
 MPIType.o:	../MPIType.cpp ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp $(LIBDIR)
 
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp
-
-Driver.o: Driver.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o Driver.o Driver.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o ../MemoryPool.cpp $(LIBDIR)
 
 BetwCent.o: BetwCent.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BetwCent.o BetwCent.cpp $(LIBDIR)
 
 MCL.o:  MCL.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MCL.o MCL.cpp $(LIBDIR)
 
 APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp $(LIBDIR)
 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
-
-driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp $(LIBDIR)
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
 
 apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
 
 graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LIBDIR)
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
 
 clean:
 	rm -f betwcent
@@ -65,6 +60,8 @@ clean:
 	rm -f apowers
 	rm -f graph500
 	rm -f *.o
+	rm -f ../graph500-1.2/generator/*.o
+	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
 
 cleanout:
 	rm out.*

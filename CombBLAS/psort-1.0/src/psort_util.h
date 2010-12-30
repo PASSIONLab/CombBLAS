@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <string>
 #include <functional>
 #include <iterator>
 #include <numeric>

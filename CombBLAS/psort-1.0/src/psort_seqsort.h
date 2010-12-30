@@ -51,7 +51,7 @@ namespace psort {
     }
 
     char *real_description () {
-      string s ("STL sort");
+      std::string s ("STL sort");
 	return const_cast<char*>(s.c_str());
     }
   };
@@ -65,7 +65,7 @@ namespace psort {
     }
 
     char *real_description () {
-      string s("STL stable sort");
+      std::string s("STL stable sort");
 	return const_cast<char*>(s.c_str());
 
     }
