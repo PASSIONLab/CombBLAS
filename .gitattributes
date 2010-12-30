@@ -411,6 +411,7 @@ CombBLAS/SpHelper.h -text
 CombBLAS/SpImpl.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
+CombBLAS/SpParHelper.cpp -text
 CombBLAS/SpParHelper.h -text
 CombBLAS/SpParMat.cpp -text
 CombBLAS/SpParMat.h -text
