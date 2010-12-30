@@ -23,7 +23,7 @@ class SpParHelper
 {
 public:
 	template<typename KEY, typename VAL, typename IT>
-	static void GlobalSelect(IT gl_rank, pair<KEY,VAL> * low,  pair<KEY,VAL> * upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm);
+	static void GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm);
 
 	template<typename KEY, typename VAL, typename IT>
 	static void BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm);

@@ -223,7 +223,8 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 		vecpair[i].second = ind[i] + sizeuntil;	
 	}
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    	psort::parallel_sort (vecpair, vecpair + nnz,  dist, World);
+	// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
+	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
 	vector< IT > nind(nnz);
 	vector< IT > nnum(nnz);

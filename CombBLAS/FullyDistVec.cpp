@@ -448,7 +448,8 @@ void FullyDistVec<IT,NT>::RandPerm()
 	}
 
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    	psort::parallel_sort (vecpair, vecpair + size,  dist, World);
+	// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
+	SpParHelper::MemoryEfficientPSort(vecpair, size, dist, World);
 
 	vector< NT > nnum(size);
 	for(int i=0; i<size; ++i)
