@@ -38,6 +38,9 @@ public:
 	template<typename KEY, typename VAL, typename IT>
 	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm);
 	
+	template<typename KEY, typename VAL, typename IT>
+	static void DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & World);
+
 	template<typename IT, typename NT, typename DER>
 	static void FetchMatrix(SpMat<IT,NT,DER> & MRecv, const vector<IT> & essentials, vector<MPI::Win> & arrwin, int ownind);
 

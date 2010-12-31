@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 			PermEdges<int64_t>(*DEL);
 			SpParHelper::Print("Permuted Edges\n");
 
-			RenameVertices<int64_t>(*DEL);
+			RenameVertices<int64_t>(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
 			SpParHelper::Print("Renamed Vertices\n");
 	
 			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); // conversion from distributed edge list, keep self-loops

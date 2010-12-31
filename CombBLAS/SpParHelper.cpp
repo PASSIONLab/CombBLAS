@@ -10,17 +10,13 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 50)
+	if(nprocs < 5)
 	{
 		psort::parallel_sort (array, array+length,  dist, comm);
 	}
 	else
 	{
 		IT gl_median = accumulate(dist, dist+nsize, 0);	// global rank of the first element of the median processor
-
-//		ostringstream out;
-//		out << "Rank of first element in median processor: " << gl_median << endl;
-//		SpParHelper::Print(out.str());
 		sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
 
 		int myrank = comm.Get_rank();
@@ -82,9 +78,6 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 		}
 
         	wmm = wmminput[wmmloc-1].first;	// weighted median of medians
-//		ostringstream out;
-//		out << "Weighted median of medians:" << wmm << endl;
-//		SpParHelper::Print(out.str());
 
 		pair<KEY,VAL> wmmpair = make_pair(wmm, VAL());
 		low =lower_bound (array+begin, array+end, wmmpair); 
@@ -93,10 +86,6 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 		IT loc_upp = upp-array;	// #{elements smaller or equal to wmm}
 		comm.Allreduce( &loc_low, &gl_low, 1, MPIType<IT>(), MPI::SUM);
 		comm.Allreduce( &loc_upp, &gl_upp, 1, MPIType<IT>(), MPI::SUM);
-//		out.clear();
-//		out.str("");
-//		out << "GL_LOW: " << gl_low << ", GL_UPP: " << gl_upp << ", GL_RANK: " << gl_rank << endl;
-//		SpParHelper::Print(out.str());
 
 		if(gl_upp < gl_rank)
 		{
@@ -114,11 +103,6 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 		}
 		active = end-begin;
 		comm.Allreduce(&active, &nacts, 1, MPI::INT, MPI::SUM);
-
-//		out.clear();
-//		out.str("");
-//		out << "Total actives: "<< nacts << endl;
-//		SpParHelper::Print(out.str());
 	} 
 	while((nacts > 2*nprocs) && (!found));
 	delete [] wmminput;
@@ -295,6 +279,51 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	if(color == 0)	array = low;	// no effect on the calling 'array' as the pointer was passed-by-value
 	copy(receives, receives+totrecvcnt, array);
 	delete [] receives;
+}
+
+
+template<typename KEY, typename VAL, typename IT>
+void SpParHelper::DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & World)
+{
+    	int rank = World.Get_rank();
+    	int nprocs = World.Get_size();
+    	MPI::File thefile = MPI::File::Open(World, "temp_sortedkeys", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	IT sizeuntil = accumulate(dist, dist+rank, 0);
+
+	MPI::Offset disp = sizeuntil * sizeof(KEY);	// displacement is in bytes
+    	thefile.Set_view(disp, MPIType<KEY>(), MPIType<KEY>(), "native", MPI::INFO_NULL);
+
+	KEY * packed = new KEY[length];
+	for(int i=0; i<length; ++i)
+	{
+		packed[i] = array[i].first;
+	}
+	thefile.Write(packed, length, MPIType<KEY>());
+	thefile.Close();
+	delete [] packed;
+	
+	// Now let processor-0 read the file and print
+	if(rank == 0)
+	{
+		FILE * f = fopen("temp_sortedkeys", "r");
+                if(!f)
+                { 
+                        cerr << "Problem reading binary input file\n";
+                        return;
+                }
+		IT maxd = *max_element(dist, dist+nprocs);
+		KEY * data = new KEY[maxd];
+
+		for(int i=0; i<nprocs; ++i)
+		{
+			// read n_per_proc integers and print them
+			fread(data, sizeof(KEY), dist[i],f);
+
+			cout << "Elements stored on proc " << i << ": " << endl;
+			copy(data, data+dist[i], ostream_iterator<KEY>(cout, "\n"));
+		}
+		delete [] data;
+	}
 }
 
 
