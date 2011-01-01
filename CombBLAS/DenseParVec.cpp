@@ -526,7 +526,7 @@ void DenseParVec<IT,NT>::RandPerm()
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + size,  dist, DiagWorld);
+    		vpsort::parallel_sort (vecpair, vecpair + size,  dist, DiagWorld);
 
 		vector< NT > nnum(size);
 		for(int i=0; i<size; ++i)

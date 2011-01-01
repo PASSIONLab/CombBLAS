@@ -208,14 +208,14 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
-	IT nnz = getlocnnz(); 
+	long nnz = (long) getlocnnz(); 
 	pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
-	IT * dist = new IT[nprocs];
+	long * dist = new long[nprocs];
 	dist[rank] = nnz;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
 	IT sizeuntil = accumulate(dist, dist+rank, 0);
 	for(size_t i=0; i<nnz; ++i)
 	{

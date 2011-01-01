@@ -429,15 +429,15 @@ template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	IT size = LocArrSize();
+	long size = (long) LocArrSize();
 	pair<double,IT> * vecpair = new pair<double,IT>[size];
 
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
-	IT * dist = new IT[nprocs];
+	long * dist = new long[nprocs];
 	dist[rank] = size;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
   	MTRand M;	// generate random numbers with Mersenne Twister

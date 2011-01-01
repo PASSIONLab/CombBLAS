@@ -817,7 +817,7 @@ void RandPerm(SpParVec<IU,IU> & V)
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + V.getlocnnz(),  dist, DiagWorld);
+    		vpsort::parallel_sort (vecpair, vecpair + V.getlocnnz(),  dist, DiagWorld);
 
 		vector< IU > nind(V.getlocnnz());
 		vector< IU > nnum(V.getlocnnz());

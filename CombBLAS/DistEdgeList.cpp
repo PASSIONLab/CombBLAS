@@ -132,17 +132,16 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	
 	int nproc =(DEL.commGrid)->GetSize();
 	int rank = (DEL.commGrid)->GetRank();
-	IT* dist = new IT[nproc];
+	long * dist = new long[nproc];
 
 	MTRand M;	// generate random numbers with Mersenne Twister
 	for(IT s=0; s< stages; ++s)
 	{
 		IT n_sofar = s*perstage;
-		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
+		long n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
 		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
 		dist[rank] = n_thisstage;
-		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-		IT lengthuntil = accumulate(dist, dist+rank, 0);
+		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
 
 		for (IT i = 0; i < n_thisstage; i++)
 		{
@@ -153,15 +152,13 @@ void PermEdges(DistEdgeList<IT> & DEL)
 
 		// less< pair<T1,T2> > works correctly (sorts w.r.t. first element of type T1)	
 		SpParHelper::MemoryEfficientPSort(vecpair, n_thisstage, dist, DEL.commGrid->GetWorld());
-		SpParHelper::DebugPrintKeys(vecpair, n_thisstage, dist, DEL.commGrid->GetWorld());
+		// SpParHelper::DebugPrintKeys(vecpair, n_thisstage, dist, DEL.commGrid->GetWorld());
 		for (IT i = 0; i < n_thisstage; i++)
 		{
 			DEL.edges[2*(i+n_sofar)] = vecpair[i].second.first;
 			DEL.edges[2*(i+n_sofar)+1] = vecpair[i].second.second;
 		}
 		delete [] vecpair;
-		if(rank == 0)
-			cout << "PermEdges: Stage " << s << " completed" << endl;
 	}
 	delete [] dist;
 }

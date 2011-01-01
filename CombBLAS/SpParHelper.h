@@ -16,6 +16,7 @@
 #include <mpi.h>
 #include "LocArr.h"
 #include "CommGrid.h"
+#include "psort-1.0/src/psort.h"
 
 using namespace std;
 

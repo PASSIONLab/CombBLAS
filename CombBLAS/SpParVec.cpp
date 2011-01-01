@@ -285,7 +285,7 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 		}
 
 		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		psort::parallel_sort (vecpair, vecpair + nnz,  dist, DiagWorld);
+    		vpsort::parallel_sort (vecpair, vecpair + nnz,  dist, DiagWorld);
 
 		vector< IT > nind(nnz);
 		vector< IT > nnum(nnz);

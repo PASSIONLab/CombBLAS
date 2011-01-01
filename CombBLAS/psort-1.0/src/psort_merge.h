@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "funnel.h"
 #endif
 
-namespace psort {
+namespace vpsort {
   template<typename MergeType>
     class Merge {
     public:

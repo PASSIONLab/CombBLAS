@@ -49,7 +49,7 @@ THE SOFTWARE.
 #include "psort_alltoall.h"
 #include "psort_merge.h"
 
-namespace psort {
+namespace vpsort {
   using namespace std;
 
   static double psort_timing[10];

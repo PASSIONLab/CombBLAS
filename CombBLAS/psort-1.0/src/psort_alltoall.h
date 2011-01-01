@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 #include "psort_util.h"
 
-namespace psort {  
+namespace vpsort {  
   using namespace std;
 
   template <typename _RandomAccessIter, typename _ValueType, typename _Distance>

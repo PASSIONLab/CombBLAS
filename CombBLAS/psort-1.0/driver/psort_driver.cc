@@ -47,7 +47,7 @@ static void check_result (double *work, int mysize) {
   */
 
   if (rank == 0) std::cout << "Verifying result... " << std::endl;
-  if (psort::is_sorted (work, work + mysize, 
+  if (vpsort::is_sorted (work, work + mysize, 
 			std::less<double>(), 
 			MPI_COMM_WORLD)) {
     if (rank == 0) std::cout << "Correctly sorted" << std::endl;
@@ -135,8 +135,8 @@ int main (int argc, char *argv[])
   // Also demonstrate the use of exception handling with psort
 
   try {
-    psort::parallel_sort (work, work + mysize,  dist, MPI_COMM_WORLD); 
-    //psort::parallel_samplesort (work, work + mysize, dist, MPI_COMM_WORLD);
+    vpsort::parallel_sort (work, work + mysize,  dist, MPI_COMM_WORLD); 
+    //vpsort::parallel_samplesort (work, work + mysize, dist, MPI_COMM_WORLD);
   }
   catch (...) {
     std::cerr << "Exception occured - most likely overflow in psort_alltoall.h" << std::endl;
@@ -150,42 +150,42 @@ int main (int argc, char *argv[])
   // Now really start
 
   // Possible sequential sorts
-  psort::STLSort stl_sort;    
-  //psort::STLStableSort stl_stable_sort;
+  vpsort::STLSort stl_sort;    
+  //vpsort::STLStableSort stl_stable_sort;
 
   // Possible splitting strategies
-  psort::MedianSplit median_split;
-  psort::SampleSplit sample_split;
+  vpsort::MedianSplit median_split;
+  vpsort::SampleSplit sample_split;
 
   // Possible merging strategies
-  //psort::FlatMerge flat_merge;
-  psort::TreeMerge tree_merge;
-  psort::OOPTreeMerge oop_tree_merge;
-  psort::FunnelMerge2 funnel_merge2;
-  //psort::FunnelMerge4 funnel_merge4;
+  //vpsort::FlatMerge flat_merge;
+  vpsort::TreeMerge tree_merge;
+  vpsort::OOPTreeMerge oop_tree_merge;
+  vpsort::FunnelMerge2 funnel_merge2;
+  //vpsort::FunnelMerge4 funnel_merge4;
 
   genData (datagen, rank, work, mysize);
 
   if (splitter == 's') {
     if (merger == 'o') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, sample_split, oop_tree_merge,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, sample_split, oop_tree_merge,
 			      MPI_COMM_WORLD);
     } else if (merger == 't') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, sample_split, tree_merge,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, sample_split, tree_merge,
 			      MPI_COMM_WORLD);
     } else if (merger == 'f') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, sample_split, funnel_merge2,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, sample_split, funnel_merge2,
 			      MPI_COMM_WORLD);
     } else {
@@ -193,35 +193,35 @@ int main (int argc, char *argv[])
     }
   } else if (splitter == 'm') {
     if (merger == 'o') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, median_split, oop_tree_merge,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, median_split, oop_tree_merge,
 			      MPI_COMM_WORLD);
     } else if (merger == 't') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, median_split, tree_merge,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, median_split, tree_merge,
 			      MPI_COMM_WORLD);
     } else if (merger == 'f') {
-      psort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
+      vpsort::parallel_sort (work, work + mysize, std::less<double>(), dist, 
 			    stl_sort, median_split, funnel_merge2,
 			    MPI_COMM_WORLD); 
-      psort::print_perf_data (dist, 
+      vpsort::print_perf_data (dist, 
 			      stl_sort, median_split, funnel_merge2,
 			      MPI_COMM_WORLD);
     } else {
       if (rank == 0) std::cerr << "Invalid arguments" << std::endl;
     }
   } else if (splitter == 'l') {
-    psort::parallel_samplesort (work, work+mysize, std::less<double>(), dist,
+    vpsort::parallel_samplesort (work, work+mysize, std::less<double>(), dist,
 				stl_sort, 
 				nproc, nproc,
 				MPI_COMM_WORLD);
-    psort::print_perf_data_samplesort (dist, stl_sort, MPI_COMM_WORLD);
+    vpsort::print_perf_data_samplesort (dist, stl_sort, MPI_COMM_WORLD);
   } else {
     if (rank == 0) std::cerr << "Invalid arguments" << std::endl;
   }

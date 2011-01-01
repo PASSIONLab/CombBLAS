@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 #include "psort_util.h"
 
-namespace psort {
+namespace vpsort {
   template<typename SeqSortType>
     class SeqSort {
     public:

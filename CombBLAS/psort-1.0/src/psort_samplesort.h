@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 #define MPI_PSORT_TAG 31337
 
-namespace psort {
+namespace vpsort {
   using namespace std;
 
   // sample n_out elements from array in _without_ replacement
@@ -357,6 +357,6 @@ namespace psort {
     
   }
 
-} /* namespace psort */
+} /* namespace vpsort */
 
 #endif /* PSORT_SAMPLE_H */

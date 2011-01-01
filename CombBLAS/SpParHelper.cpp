@@ -10,9 +10,9 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 5)
+	if(nprocs < 1000)
 	{
-		psort::parallel_sort (array, array+length,  dist, comm);
+		vpsort::parallel_sort (array, array+length,  dist, comm);
 	}
 	else
 	{
@@ -166,14 +166,15 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	//}
 
 	int * sendcnt = new int[nprocs]();	// zero initialize
-	vector< tuple<int,IT,IT>  > package;	// recipient, begin index, length
+	vector< tuple<int,IT,IT>  > package;	// recipient_proc, offset, length
 	int totrecvcnt; 
 	IT spacebefore = 0;	// receiving part space
 	if(color == 0)	// first processor half, only send second half of data
 	{
-		totrecvcnt = length - (low-array);
+		IT offset = low-array;
+		totrecvcnt = length - offset;
 		IT beg_oftransfer = accumulate(secondhalves, secondhalves+myrank, 0);
-		IT spaceafter = spacebefore+firsthalves[nfirsthalf];
+		IT spaceafter = firsthalves[nfirsthalf];
 		int i=nfirsthalf;
 		while(i < nprocs && spaceafter < beg_oftransfer)
 		{
@@ -183,14 +184,14 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		IT end_oftransfer = beg_oftransfer + secondhalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i, beg_pour-beg_oftransfer, end_pour-beg_pour));	// (recipient, begin, length)
+		package.push_back(make_tuple(i, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));	
 		sendcnt[i] = end_pour - beg_pour;
 		while( i < nprocs && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
 			spaceafter += firsthalves[++i];
 			end_pour = min(end_oftransfer, spaceafter);
-			package.push_back(make_tuple(i, beg_pour-beg_oftransfer, end_pour-beg_pour));
+			package.push_back(make_tuple(i, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));
 			sendcnt[i] = end_pour - beg_pour;
 		}
 	}
@@ -199,7 +200,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		totrecvcnt = low-array;
 		// global index (within the second processor half) of the beginning of my data
 		IT beg_oftransfer = accumulate(firsthalves+nfirsthalf, firsthalves+myrank, 0);
-		IT spaceafter = spacebefore+secondhalves[0];
+		IT spaceafter = secondhalves[0];
 		int i=0;
 		while( i< nfirsthalf && spaceafter < beg_oftransfer)
 		{
@@ -209,14 +210,14 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		IT end_oftransfer = beg_oftransfer + firsthalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i, beg_pour-beg_oftransfer, end_pour-beg_pour));	// (recipient, begin, length)
+		package.push_back(make_tuple(i, (beg_pour-beg_oftransfer), end_pour-beg_pour));	
 		sendcnt[i] = end_pour - beg_pour;
 		while( i < nfirsthalf && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
 			spaceafter += secondhalves[++i];
 			end_pour = min(end_oftransfer, spaceafter);
-			package.push_back(make_tuple(i, beg_pour-beg_oftransfer, end_pour-beg_pour));
+			package.push_back(make_tuple(i, (beg_pour-beg_oftransfer), end_pour-beg_pour));
 			sendcnt[i] = end_pour - beg_pour;
 		}
 	}
@@ -276,7 +277,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	
 	DeleteAll(sendcnt, recvcnt, status);
 	assert(sentsofar == recvsofar);
-	if(color == 0)	array = low;	// no effect on the calling 'array' as the pointer was passed-by-value
+	if(color == 0)	array = low;	// the original pointer is intact (passed by value)
 	copy(receives, receives+totrecvcnt, array);
 	delete [] receives;
 }

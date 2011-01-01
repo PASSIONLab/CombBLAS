@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "psort_util.h"
 
 
-namespace psort {
+namespace vpsort {
   using namespace std;
 
   template<typename SplitType>
@@ -428,7 +428,7 @@ namespace psort {
     }
   };
 
-} /* namespace psort */
+} /* namespace vpsort */
 
 #endif /* PSORT_SPLITTERS_H */
 
