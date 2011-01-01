@@ -175,24 +175,24 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		totrecvcnt = length - offset;
 		IT beg_oftransfer = accumulate(secondhalves, secondhalves+myrank, 0);
 		IT spaceafter = firsthalves[nfirsthalf];
-		int i=nfirsthalf;
+		int i=nfirsthalf+1;
 		while(i < nprocs && spaceafter < beg_oftransfer)
 		{
 			spacebefore = spaceafter;
-			spaceafter += firsthalves[++i];	// pre-incremenet
+			spaceafter += firsthalves[i++];		// post-incremenet
 		}
 		IT end_oftransfer = beg_oftransfer + secondhalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));	
-		sendcnt[i] = end_pour - beg_pour;
+		package.push_back(make_tuple(i-1, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));	// -1 to remedy preincrement
+		sendcnt[i-1] = end_pour - beg_pour;
 		while( i < nprocs && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
-			spaceafter += firsthalves[++i];
+			spaceafter += firsthalves[i];
 			end_pour = min(end_oftransfer, spaceafter);
 			package.push_back(make_tuple(i, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));
-			sendcnt[i] = end_pour - beg_pour;
+			sendcnt[i++] = end_pour - beg_pour;	// post-increment
 		}
 	}
 	else if(color == 1)	// second processor half, only send first half of data
@@ -201,29 +201,35 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		// global index (within the second processor half) of the beginning of my data
 		IT beg_oftransfer = accumulate(firsthalves+nfirsthalf, firsthalves+myrank, 0);
 		IT spaceafter = secondhalves[0];
-		int i=0;
+		int i=1;
 		while( i< nfirsthalf && spaceafter < beg_oftransfer)
 		{
 			spacebefore = spaceafter;
-			spaceafter += secondhalves[++i];	// pre-incremenet
+			spaceafter += secondhalves[i++];	// post-increment
 		}
 		IT end_oftransfer = beg_oftransfer + firsthalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i, (beg_pour-beg_oftransfer), end_pour-beg_pour));	
-		sendcnt[i] = end_pour - beg_pour;
+		package.push_back(make_tuple(i-1, (beg_pour-beg_oftransfer), end_pour-beg_pour));	
+		sendcnt[i-1] = end_pour - beg_pour;
 		while( i < nfirsthalf && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
-			spaceafter += secondhalves[++i];
+			spaceafter += secondhalves[i];
 			end_pour = min(end_oftransfer, spaceafter);
 			package.push_back(make_tuple(i, (beg_pour-beg_oftransfer), end_pour-beg_pour));
-			sendcnt[i] = end_pour - beg_pour;
+			sendcnt[i++] = end_pour - beg_pour;	// post-increment
 		}
 	}
 	DeleteAll(firsthalves, secondhalves);
 	int * recvcnt = new int[nprocs];
 	comm.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// get the recv counts
+	// Alltoall is actually unnecessary, because sendcnt = recvcnt
+	// If I have n_mine > n_yours data to send, then I can send you only n_yours 
+	// as this is your space, and you'll send me identical amount.
+	// Then I can only receive n_mine - n_yours from the third processor and
+	// that processor can only send n_mine - n_yours to me back. 
+	// The proof follows from induction
 
     	MPI_Datatype MPI_valueType;
 	MPI_Type_contiguous (sizeof(pair<KEY,VAL>), MPI_CHAR, &MPI_valueType);
@@ -231,34 +237,47 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 
 	vector< MPI::Request > requests;
 	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
-	int recvsofar = 0;
-	for (int i=0; i< nprocs; ++i)
-	{
-		if(recvcnt[i] > 0)
-		{
-			MPI::Request req = comm.Irecv(receives + recvsofar, recvcnt[i], MPI_valueType, i, SWAPTAG);
-			requests.push_back(req);
-			recvsofar += recvcnt[i];
-		}
-	}
-	int sentsofar = 0;
+	
+	/* Open Debug file
+	stringstream ss;
+        string rank;
+        ss << myrank;
+        ss >> rank;
+        string ofilename = "requests";
+        ofilename += rank;
+        ofstream output(ofilename.c_str(), ios_base::app );
+	copy(sendcnt, sendcnt+nprocs, ostream_iterator<int>(output," ")); output << endl;
+	copy(recvcnt, recvcnt+nprocs, ostream_iterator<int>(output," ")); output << endl; */
 
-	MPI::Status * status = new MPI::Status[requests.size()];
+	vector<MPI::Status> status;
 	try
 	{
+		int sentsofar = 0, recvsofar = 0;
+		for (int i=0; i< nprocs; ++i)
+		{
+			if(recvcnt[i] > 0)
+			{
+				MPI::Request req = comm.Irecv(receives + recvsofar, recvcnt[i], MPI_valueType, i, SWAPTAG);
+				requests.push_back(req);
+				recvsofar += recvcnt[i];
+			}
+		}
 		for(int i=0; i< package.size(); ++i)
 		{
 			int recipient = tr1::get<0>(package[i]);
 			IT beg = tr1::get<1>(package[i]);
 			IT len = tr1::get<2>(package[i]);
+
 			MPI::Request req = comm.Isend(array+beg, len, MPI_valueType, recipient, SWAPTAG);
 			requests.push_back(req);
 			sentsofar += len;
 		}
-		MPI::Request::Waitall(requests.size(), &(requests[0]), status);
+		status.resize(requests.size());
+		MPI::Request::Waitall(requests.size(), &(requests[0]), &(status[0]));
 	}
 	catch ( MPI::Exception failure)
 	{
+		cerr << "MPI Exception caught" << endl;
 		int error = failure.Get_error_code();
 		if ( error == MPI::ERR_IN_STATUS )
 		{
@@ -266,17 +285,22 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 			{
 				if(status[i].Get_error() != MPI::SUCCESS)
 				{
-					cout << "Error @processor " << myrank<< ": " << status[i].Get_error() << endl;
+					cout << "Error @processor " << myrank<< ", at request " << i;
+					cout <<	" with status: " << status[i].Get_error() << endl;
 				}
 			}
 		}
 		else
 		{
-			cout << "Error @processor " << myrank<< ": " << error << endl;;
+			cout << "Error @processor " << myrank<< ": " << failure.Get_error_string() << " while running nprocs=" << nprocs << endl;;
 		}
 	}
+	catch(...)
+	{
+		cerr << "Unknown Exception caught" << endl;
+	}
 	
-	DeleteAll(sendcnt, recvcnt, status);
+	DeleteAll(sendcnt, recvcnt);
 	assert(sentsofar == recvsofar);
 	if(color == 0)	array = low;	// the original pointer is intact (passed by value)
 	copy(receives, receives+totrecvcnt, array);
