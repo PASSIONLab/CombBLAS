@@ -10,7 +10,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 1000)
+	if(nprocs < 5)
 	{
 		vpsort::parallel_sort (array, array+length,  dist, comm);
 	}
@@ -242,18 +242,19 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		}
 	}
 	int sentsofar = 0;
-	for(int i=0; i< package.size(); ++i)
-	{
-		int recipient = tr1::get<0>(package[i]);
-		IT beg = tr1::get<1>(package[i]);
-		IT len = tr1::get<2>(package[i]);
-		MPI::Request req = comm.Isend(array+beg, len, MPI_valueType, recipient, SWAPTAG);
-		requests.push_back(req);
-		sentsofar += len;
-	}
+
 	MPI::Status * status = new MPI::Status[requests.size()];
 	try
 	{
+		for(int i=0; i< package.size(); ++i)
+		{
+			int recipient = tr1::get<0>(package[i]);
+			IT beg = tr1::get<1>(package[i]);
+			IT len = tr1::get<2>(package[i]);
+			MPI::Request req = comm.Isend(array+beg, len, MPI_valueType, recipient, SWAPTAG);
+			requests.push_back(req);
+			sentsofar += len;
+		}
 		MPI::Request::Waitall(requests.size(), &(requests[0]), status);
 	}
 	catch ( MPI::Exception failure)

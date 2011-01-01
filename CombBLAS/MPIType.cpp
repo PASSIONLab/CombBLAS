@@ -40,11 +40,11 @@ template<> MPI::Datatype MPIType< unsigned long int >( void )
 {
 	return MPI::UNSIGNED_LONG;
 };
-template<> MPI::Datatype MPIType< int64_t>(void)
+template<> MPI::Datatype MPIType<long long>(void)
 {
 	return MPI::LONG_LONG;
 };
-template<> MPI::Datatype MPIType< uint64_t>(void)
+template<> MPI::Datatype MPIType< unsigned long long>(void)
 {
 	return MPI::UNSIGNED_LONG_LONG;
 };
