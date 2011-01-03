@@ -10,10 +10,10 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 1200)
+	if(nprocs < 5)
 	{
 		long * dist_in = new long[nprocs];
-		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist;	
+		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
 		vpsort::parallel_sort (array, array+length,  dist_in, comm);
 		delete [] dist_in;
 	}
@@ -270,9 +270,9 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
 	vector< MPI::Request > requests;
 	vector< MPI::Status > status;
+	int sentsofar = 0, recvsofar = 0;
 	try
 	{
-		int sentsofar = 0, recvsofar = 0;
 		for (int i=0; i< nprocs; ++i)
 		{
 			if(recvcnt[i] > 0)
