@@ -44,7 +44,7 @@ public:
 	// Constructors 
 	SpTuples (IT size, IT nRow, IT nCol);
 	SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
-	SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges, bool removeloops = true);	// Graph500 contructor
+	SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
 	SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols

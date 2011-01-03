@@ -208,14 +208,14 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
-	long nnz = (long) getlocnnz(); 
+	IT nnz = getlocnnz(); 
 	pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
-	long * dist = new long[nprocs];
+	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT sizeuntil = accumulate(dist, dist+rank, 0);
 	for(size_t i=0; i<nnz; ++i)
 	{
@@ -223,7 +223,6 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 		vecpair[i].second = ind[i] + sizeuntil;	
 	}
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-	// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
 	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
 	vector< IT > nind(nnz);

@@ -10,9 +10,12 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 5)
+	if(nprocs < 1200)
 	{
-		vpsort::parallel_sort (array, array+length,  dist, comm);
+		long * dist_in = new long[nprocs];
+		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist;	
+		vpsort::parallel_sort (array, array+length,  dist_in, comm);
+		delete [] dist_in;
 	}
 	else
 	{
@@ -38,6 +41,10 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm)
 {
+	
+	comm.Barrier();
+	double t1=MPI_Wtime();
+			
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
 	IT begin = 0;
@@ -53,8 +60,10 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	int active = end-begin;				// size of the active range
 	int nacts = 0; 
 	bool found = 0;
+	int iters = 0;
 	do
 	{
+		iters++;
 		KEY median = array[(begin + end)/2].first; 	// median of the active range
                	wmminput[myrank].first = median;
 		wmminput[myrank].second = static_cast<double>(active);
@@ -132,8 +141,8 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	DeleteAll(recvbuf, dpls, nactives);
 	sort(allactives, allactives+nacts); 
 	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM);	// update
-//	ostringstream out;
-//	out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
+	//ostringstream out;
+	//out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
 	for(int k=gl_low; k < gl_rank; ++k)
 	{		
 		if(allactives[k-gl_low].second == myrank)	
@@ -141,15 +150,23 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	}
 	delete [] allactives;
 
-//	begin = low-array;
-//	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM); 	// update
-//	out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
-//	SpParHelper::Print(out.str());
+	begin = low-array;
+	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM); 	// update
+	//out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
+	//SpParHelper::Print(out.str());
+
+	comm.Barrier();
+	double t2 = MPI::Wtime();
+	if(myrank == 0)
+		fprintf(stdout, "%.6lf seconds and %d iterations elapsed for Median finding\n", t2-t1, iters);
 }
 
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm)
 {
+	comm.Barrier();
+	double t1=MPI_Wtime();
+
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
 	IT * firsthalves = new IT[nprocs];
@@ -159,13 +176,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), firsthalves, 1, MPIType<IT>());
 	comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), secondhalves, 1, MPIType<IT>());
 	
-	//if(myrank == 0)
-	//{
-	//	copy(firsthalves, firsthalves+nprocs, ostream_iterator<IT>(cout, " ")); cout << endl;
-	//	copy(secondhalves, secondhalves+nprocs, ostream_iterator<IT>(cout, " ")); cout << endl;
-	//}
-
-	int * sendcnt = new int[nprocs]();	// zero initialize
+	IT * sendcnt = new IT[nprocs]();	// zero initialize
 	vector< tuple<int,IT,IT>  > package;	// recipient_proc, offset, length
 	int totrecvcnt; 
 	IT spacebefore = 0;	// receiving part space
@@ -222,8 +233,8 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		}
 	}
 	DeleteAll(firsthalves, secondhalves);
-	int * recvcnt = new int[nprocs];
-	comm.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// get the recv counts
+	IT * recvcnt = new IT[nprocs];
+	comm.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// get the recv counts
 	// Alltoall is actually unnecessary, because sendcnt = recvcnt
 	// If I have n_mine > n_yours data to send, then I can send you only n_yours 
 	// as this is your space, and you'll send me identical amount.
@@ -231,12 +242,19 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	// that processor can only send n_mine - n_yours to me back. 
 	// The proof follows from induction
 
+	if(!equal(sendcnt, sendcnt+nprocs, recvcnt))
+	{
+		cout << "recv != send on processor " << myrank << endl;
+	} 
+
     	MPI_Datatype MPI_valueType;
 	MPI_Type_contiguous (sizeof(pair<KEY,VAL>), MPI_CHAR, &MPI_valueType);
 	MPI_Type_commit (&MPI_valueType);
 
-	vector< MPI::Request > requests;
-	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
+	comm.Barrier();
+	double t2 = MPI::Wtime();
+	if(myrank == 0)
+		fprintf(stdout, "%.6lf seconds elapsed for setting up swap structures on %d procs\n", t2-t1, nprocs);
 	
 	/* Open Debug file
 	stringstream ss;
@@ -249,7 +267,9 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	copy(sendcnt, sendcnt+nprocs, ostream_iterator<int>(output," ")); output << endl;
 	copy(recvcnt, recvcnt+nprocs, ostream_iterator<int>(output," ")); output << endl; */
 
-	vector<MPI::Status> status;
+	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
+	vector< MPI::Request > requests;
+	vector< MPI::Status > status;
 	try
 	{
 		int sentsofar = 0, recvsofar = 0;
@@ -257,11 +277,16 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		{
 			if(recvcnt[i] > 0)
 			{
-				MPI::Request req = comm.Irecv(receives + recvsofar, recvcnt[i], MPI_valueType, i, SWAPTAG);
+				MPI::Request req = comm.Irecv(receives + recvsofar, (int) recvcnt[i], MPI_valueType, i, SWAPTAG);
 				requests.push_back(req);
 				recvsofar += recvcnt[i];
 			}
 		}
+		comm.Barrier();
+		SpParHelper::Print("Receives posted\n");
+		if(recvsofar == 0)
+			cout << "Opps, no receive" << endl;
+
 		for(int i=0; i< package.size(); ++i)
 		{
 			int recipient = tr1::get<0>(package[i]);
@@ -299,6 +324,11 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	{
 		cerr << "Unknown Exception caught" << endl;
 	}
+
+	comm.Barrier();
+	double t3 = MPI::Wtime();
+	if(myrank == 0)
+		fprintf(stdout, "%.6lf seconds elapsed for actual data swap on %d procs\n", t3-t2, nprocs);
 	
 	DeleteAll(sendcnt, recvcnt);
 	assert(sentsofar == recvsofar);

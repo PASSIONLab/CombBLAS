@@ -73,7 +73,6 @@ namespace vpsort {
     vector< vector<_Distance> > right_ends(nproc + 1, vector<_Distance>(nproc, 0));
     mysplit.split (first, last, dist, comp, right_ends, 
 		   MPI_valueType, MPI_distanceType, comm);
-
     
     // Communicate to destination
     // progress (rank, 2, "alltoall");

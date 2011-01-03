@@ -127,21 +127,21 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	// to lower memory consumption, rename in stages
 	// this is not "identical" to a full randomization; 
 	// but more than enough to destroy any possible locality 
-	IT stages = 16;	
+	IT stages = 8;	
 	IT perstage = maxedges / stages;
 	
 	int nproc =(DEL.commGrid)->GetSize();
 	int rank = (DEL.commGrid)->GetRank();
-	long * dist = new long[nproc];
+	IT * dist = new IT[nproc];
 
 	MTRand M;	// generate random numbers with Mersenne Twister
 	for(IT s=0; s< stages; ++s)
 	{
 		IT n_sofar = s*perstage;
-		long n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
+		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
 		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
 		dist[rank] = n_thisstage;
-		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
+		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 
 		for (IT i = 0; i < n_thisstage; i++)
 		{

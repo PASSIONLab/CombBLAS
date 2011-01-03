@@ -34,13 +34,13 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytupl
 
 /**
   * Generate a SpTuples object from an edge list
-  * @param[in] edges: edge list that might contain duplicate edges
+  * @param[in,out] edges: edge list that might contain duplicate edges. freed upon return
   * Semantics differ depending on the object created:
   * NT=bool: duplicates are ignored
   * NT='countable' (such as short,int): duplicated as summed to keep count 	 
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges, bool removeloops):m(nRow), n(nCol)
+SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops):m(nRow), n(nCol)
 {
 	if(maxnnz > 0)
 	{
@@ -52,6 +52,8 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, IT * edges, bool removel
 		colindex(i) = edges[2*i+1];
 		numvalue(i) = (NT) 1;
 	}
+	vector<IT>().swap(edges);	// free memory for edges
+
 	nnz = maxnnz;	// for now (to sort)
 	SortColBased();
 

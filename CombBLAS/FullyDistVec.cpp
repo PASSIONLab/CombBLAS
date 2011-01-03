@@ -429,15 +429,15 @@ template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	long size = (long) LocArrSize();
+	IT size = LocArrSize();
 	pair<double,IT> * vecpair = new pair<double,IT>[size];
 
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
-	long * dist = new long[nprocs];
+	IT * dist = new IT[nprocs];
 	dist[rank] = size;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT lengthuntil = accumulate(dist, dist+rank, 0);
 
   	MTRand M;	// generate random numbers with Mersenne Twister
@@ -448,7 +448,6 @@ void FullyDistVec<IT,NT>::RandPerm()
 	}
 
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-	// SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
 	SpParHelper::MemoryEfficientPSort(vecpair, size, dist, World);
 
 	vector< NT > nnum(size);

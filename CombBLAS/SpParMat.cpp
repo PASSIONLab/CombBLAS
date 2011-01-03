@@ -703,7 +703,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	if(myproccol != s-1)	loccols = n_perproc;
 	else	loccols = DEL.getNumCols() - myproccol * n_perproc;
 
-  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, &(alledges[0]), removeloops);  	
+  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
