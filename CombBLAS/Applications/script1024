@@ -5,4 +5,4 @@
 #PBS -V
 
 cd $SCRATCH
-aprun -n 1024 ./graph500 1024
+aprun -n 1024 ./graph500 Force 29

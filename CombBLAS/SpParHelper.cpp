@@ -10,7 +10,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 5)
+	if(nprocs < 1000)
 	{
 		long * dist_in = new long[nprocs];
 		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
@@ -293,8 +293,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 			IT beg = tr1::get<1>(package[i]);
 			IT len = tr1::get<2>(package[i]);
 
-			MPI::Request req = comm.Isend(array+beg, len, MPI_valueType, recipient, SWAPTAG);
-			requests.push_back(req);
+			comm.Send(array+beg, len, MPI_valueType, recipient, SWAPTAG);
 			sentsofar += len;
 		}
 		status.resize(requests.size());

@@ -1,0 +1,161 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 29
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 89951414 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 89951414 and self-loops removed: 3661
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 302 exit signal Aborted
+_pmii_daemon(SIGCHLD): PE 3 exit signal Aborted
+_pmii_daemon(SIGCHLD): PE 272 exit signal Aborted
+[NID 01413] 2011-01-04 02:37:00 Apid 5821685: initiated application termination
+_pmii_daemon(SIGCHLD): PE 213 exit signal Aborted
+_pmii_daemon(SIGCHLD): PE 237 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 194 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 277 exit signal Aborted
+[NID 01443] 2011-01-04 02:38:07 Apid 5821685: OOM killer terminated this process.
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 129 exit signal Aborted
+[NID 01444] 2011-01-04 02:38:34 Apid 5821685: OOM killer terminated this process.
+terminate called after throwing an instance of 'terminate called after throwing an instance of 'std::bad_allocstd::bad_alloc'
+'
+  what():    what():  std::bad_allocstd::bad_alloc
+
+terminate called after throwing an instance of 'std::bad_alloc'
+terminate called after throwing an instance of '  what():  std::bad_alloc
+std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 108 exit signal Aborted
+_pmii_daemon(SIGCHLD): PE 107 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 45 exit signal Aborted
+[NID 01425] 2011-01-04 02:37:59 Apid 5821685: OOM killer terminated this process.
+_pmii_daemon(SIGCHLD): PE 291 exit signal Aborted
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 158 exit signal Aborted
+[NID 01450] 2011-01-04 02:38:19 Apid 5821685: OOM killer terminated this process.
+[NID 01483] 2011-01-04 02:38:15 Apid 5821685: OOM killer terminated this process.
+_pmii_daemon(SIGCHLD): PE 145 exit signal Aborted
+[NID 01438] 2011-01-04 02:38:08 Apid 5821685: OOM killer terminated this process.
+[NID 01475] 2011-01-04 02:38:17 Apid 5821685: OOM killer terminated this process.
+[NID 01478] 2011-01-04 02:38:13 Apid 5821685: OOM killer terminated this process.
+[NID 01433] 2011-01-04 02:38:39 Apid 5821685: OOM killer terminated this process.
+[NID 01448] 2011-01-04 02:38:21 Apid 5821685: OOM killer terminated this process.
+[NID 01447] 2011-01-04 02:38:16 Apid 5821685: OOM killer terminated this process.
+[NID 01437] 2011-01-04 02:38:09 Apid 5821685: OOM killer terminated this process.
+[NID 01421] 2011-01-04 02:38:11 Apid 5821685: OOM killer terminated this process.
+[NID 01420] 2011-01-04 02:38:11 Apid 5821685: OOM killer terminated this process.
+[NID 01428] 2011-01-04 02:38:09 Apid 5821685: OOM killer terminated this process.
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): PE 71 exit signal Aborted
+_pmii_daemon(SIGCHLD): PE 72 exit signal Aborted
+[NID 01429] 2011-01-04 02:38:30 Apid 5821685: OOM killer terminated this process.
+[NID 01469] 2011-01-04 02:38:18 Apid 5821685: OOM killer terminated this process.
+Application 5821685 exit codes: 134
+Application 5821685 exit signals: Killed
+Application 5821685 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script324
+ +          Job Id: 6906711.nid00003
+ +          System: franklin
+ +     Queued Time: Tue Jan  4 01:12:26 2011
+ +      Start Time: Tue Jan  4 02:32:47 2011
+ + Completion Time: Tue Jan  4 02:37:11 2011
+ +            User: abuluc
+ +        MOM Host: nid04099
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:48684:nid00235,walltime=01:50:00
+ +  Used Resources: cput=00:00:00,mem=5688kb,vmem=22740kb,walltime=00:04:24
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script324
+ + --------------------------------------------------------------------------
+

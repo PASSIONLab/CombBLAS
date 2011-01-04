@@ -1,0 +1,556 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 28
+Generated local RMAT matrices
+0.018599 seconds and 18 iterations elapsed for Median finding
+0.001772 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.107888 seconds elapsed for actual data swap on 1024 procs
+0.013372 seconds and 18 iterations elapsed for Median finding
+0.001188 seconds elapsed for setting up swap structures on 512 procs
+0.014846 seconds and 18 iterations elapsed for Median finding
+0.001093 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.098448 seconds elapsed for actual data swap on 512 procs
+0.100852 seconds elapsed for actual data swap on 512 procs
+0.022216 seconds and 18 iterations elapsed for Median finding
+0.001525 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.099268 seconds elapsed for actual data swap on 1024 procs
+0.011856 seconds and 18 iterations elapsed for Median finding
+0.001079 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.101811 seconds elapsed for actual data swap on 512 procs
+0.016395 seconds and 19 iterations elapsed for Median finding
+0.002543 seconds elapsed for setting up swap structures on 512 procs
+0.110293 seconds elapsed for actual data swap on 512 procs
+0.019514 seconds and 18 iterations elapsed for Median finding
+0.001525 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.093159 seconds elapsed for actual data swap on 1024 procs
+0.012085 seconds and 18 iterations elapsed for Median finding
+0.001040 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.095746 seconds elapsed for actual data swap on 512 procs
+0.012263 seconds and 19 iterations elapsed for Median finding
+0.001037 seconds elapsed for setting up swap structures on 512 procs
+0.099250 seconds elapsed for actual data swap on 512 procs
+0.020310 seconds and 18 iterations elapsed for Median finding
+0.001450 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.096515 seconds elapsed for actual data swap on 1024 procs
+0.012658 seconds and 19 iterations elapsed for Median finding
+0.001056 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.097361 seconds elapsed for actual data swap on 512 procs
+0.012571 seconds and 19 iterations elapsed for Median finding
+0.001040 seconds elapsed for setting up swap structures on 512 procs
+0.099782 seconds elapsed for actual data swap on 512 procs
+0.019781 seconds and 18 iterations elapsed for Median finding
+0.001513 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.089058 seconds elapsed for actual data swap on 1024 procs
+0.011935 seconds and 18 iterations elapsed for Median finding
+0.001247 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.105539 seconds elapsed for actual data swap on 512 procs
+0.012089 seconds and 18 iterations elapsed for Median finding
+0.001045 seconds elapsed for setting up swap structures on 512 procs
+0.087119 seconds elapsed for actual data swap on 512 procs
+0.026264 seconds and 19 iterations elapsed for Median finding
+0.003903 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.091734 seconds elapsed for actual data swap on 1024 procs
+0.012960 seconds and 19 iterations elapsed for Median finding
+0.001162 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.095737 seconds elapsed for actual data swap on 512 procs
+0.012789 seconds and 18 iterations elapsed for Median finding
+0.001061 seconds elapsed for setting up swap structures on 512 procs
+0.083198 seconds elapsed for actual data swap on 512 procs
+0.019972 seconds and 18 iterations elapsed for Median finding
+0.001470 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.108325 seconds elapsed for actual data swap on 1024 procs
+0.012915 seconds and 19 iterations elapsed for Median finding
+0.001099 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.123947 seconds elapsed for actual data swap on 512 procs
+0.012371 seconds and 18 iterations elapsed for Median finding
+0.001074 seconds elapsed for setting up swap structures on 512 procs
+0.097725 seconds elapsed for actual data swap on 512 procs
+0.022233 seconds and 19 iterations elapsed for Median finding
+0.001453 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.096747 seconds elapsed for actual data swap on 1024 procs
+0.012678 seconds and 19 iterations elapsed for Median finding
+0.001060 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.092561 seconds elapsed for actual data swap on 512 procs
+0.012772 seconds and 19 iterations elapsed for Median finding
+0.001069 seconds elapsed for setting up swap structures on 512 procs
+0.110159 seconds elapsed for actual data swap on 512 procs
+Permuted Edges
+0.019557 seconds and 17 iterations elapsed for Median finding
+0.001627 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.033231 seconds elapsed for actual data swap on 1024 procs
+0.013468 seconds and 17 iterations elapsed for Median finding
+0.001272 seconds elapsed for setting up swap structures on 512 procs
+0.013491 seconds and 18 iterations elapsed for Median finding
+0.001174 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.034595 seconds elapsed for actual data swap on 512 procs
+0.033079 seconds elapsed for actual data swap on 512 procs
+Renamed Vertices
+Duplicates removed: 55061830 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 55061830 and self-loops removed: 3119
+24.654498 seconds elapsed for Kernel #1
+As a whole: 268435456 rows and 268435456 columns and 8479804694 nonzeros
+Load balance: 1.0285
+2.000274 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 90337602
+0.017051 seconds and 16 iterations elapsed for Median finding
+0.001549 seconds elapsed for setting up swap structures on 1024 procs
+Receives posted
+0.010932 seconds elapsed for actual data swap on 1024 procs
+0.011167 seconds and 16 iterations elapsed for Median finding
+0.011659 seconds and 16 iterations elapsed for Median finding
+0.001193 seconds elapsed for setting up swap structures on 512 procs
+0.001296 seconds elapsed for setting up swap structures on 512 procs
+Receives posted
+0.011197 seconds elapsed for actual data swap on 512 procs
+0.011591 seconds elapsed for actual data swap on 512 procs
+As a whole, Candidates array (permuted) has length 90337602
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+0th starting vertex was 109857944
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.2107 seconds
+MTEPS: 420.631
+1th starting vertex was 50156202
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.79594 seconds
+MTEPS: 438.44
+2th starting vertex was 33173003
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0655 seconds
+MTEPS: 426.7
+3th starting vertex was 123479230
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.89818 seconds
+MTEPS: 433.911
+4th starting vertex was 217940599
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.84139 seconds
+MTEPS: 436.415
+5th starting vertex was 124066361
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0477 seconds
+MTEPS: 427.453
+6th starting vertex was 44246834
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.89158 seconds
+MTEPS: 434.2
+7th starting vertex was 213226824
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.004 seconds
+MTEPS: 429.321
+8th starting vertex was 110634228
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0836 seconds
+MTEPS: 425.932
+9th starting vertex was 17862112
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.87599 seconds
+MTEPS: 434.886
+10th starting vertex was 4402519
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0083 seconds
+MTEPS: 429.137
+11th starting vertex was 128431508
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.91358 seconds
+MTEPS: 433.237
+12th starting vertex was 110353571
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.81933 seconds
+MTEPS: 437.395
+13th starting vertex was 215512624
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0091 seconds
+MTEPS: 429.101
+14th starting vertex was 29809040
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0663 seconds
+MTEPS: 426.666
+15th starting vertex was 2693244
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0325 seconds
+MTEPS: 428.103
+16th starting vertex was 223575359
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.90759 seconds
+MTEPS: 433.499
+17th starting vertex was 202805318
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.90705 seconds
+MTEPS: 433.522
+18th starting vertex was 120680353
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.80025 seconds
+MTEPS: 438.247
+19th starting vertex was 21207718
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0506 seconds
+MTEPS: 427.332
+20th starting vertex was 183566085
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.91058 seconds
+MTEPS: 433.368
+21th starting vertex was 221318975
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0525 seconds
+MTEPS: 427.251
+22th starting vertex was 28317592
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.97791 seconds
+MTEPS: 430.444
+23th starting vertex was 133346523
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0909 seconds
+MTEPS: 425.625
+24th starting vertex was 128975142
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.77345 seconds
+MTEPS: 439.449
+25th starting vertex was 72696610
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0094 seconds
+MTEPS: 429.087
+26th starting vertex was 128155186
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0093 seconds
+MTEPS: 429.095
+27th starting vertex was 163663868
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.86999 seconds
+MTEPS: 435.15
+28th starting vertex was 31913660
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.90787 seconds
+MTEPS: 433.486
+29th starting vertex was 111709772
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0511 seconds
+MTEPS: 427.309
+30th starting vertex was 106860424
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0588 seconds
+MTEPS: 426.984
+31th starting vertex was 36919131
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.98439 seconds
+MTEPS: 430.164
+32th starting vertex was 103719043
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0503 seconds
+MTEPS: 427.345
+33th starting vertex was 38892237
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.96091 seconds
+MTEPS: 431.178
+34th starting vertex was 240506916
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0378 seconds
+MTEPS: 427.877
+35th starting vertex was 213011528
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.89753 seconds
+MTEPS: 433.939
+36th starting vertex was 125053496
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.9224 seconds
+MTEPS: 432.852
+37th starting vertex was 60606708
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.83353 seconds
+MTEPS: 436.764
+38th starting vertex was 98749877
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.80898 seconds
+MTEPS: 437.857
+39th starting vertex was 105387222
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.80702 seconds
+MTEPS: 437.944
+40th starting vertex was 217072544
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.82471 seconds
+MTEPS: 437.156
+41th starting vertex was 57197408
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0521 seconds
+MTEPS: 427.268
+42th starting vertex was 252823839
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0447 seconds
+MTEPS: 427.583
+43th starting vertex was 181997180
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.8201 seconds
+MTEPS: 437.361
+44th starting vertex was 215238969
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.91681 seconds
+MTEPS: 433.096
+45th starting vertex was 151037802
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.96166 seconds
+MTEPS: 431.146
+46th starting vertex was 267278335
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0631 seconds
+MTEPS: 426.8
+47th starting vertex was 38987824
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.87661 seconds
+MTEPS: 434.859
+48th starting vertex was 49521860
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.86196 seconds
+MTEPS: 435.505
+49th starting vertex was 160921076
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0445 seconds
+MTEPS: 427.59
+50th starting vertex was 178121252
+Number iterations: 7
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.96772 seconds
+MTEPS: 430.884
+51th starting vertex was 262300754
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.99874 seconds
+MTEPS: 429.547
+52th starting vertex was 4671905
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.92553 seconds
+MTEPS: 432.715
+53th starting vertex was 21902437
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0793 seconds
+MTEPS: 426.113
+54th starting vertex was 261413440
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.97 seconds
+MTEPS: 430.785
+55th starting vertex was 174201817
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.0012 seconds
+MTEPS: 429.443
+56th starting vertex was 14522180
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.94357 seconds
+MTEPS: 431.93
+57th starting vertex was 224665349
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.9965 seconds
+MTEPS: 429.643
+58th starting vertex was 3936007
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.032 seconds
+MTEPS: 428.122
+59th starting vertex was 195438680
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.9865 seconds
+MTEPS: 430.073
+60th starting vertex was 244570299
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.82245 seconds
+MTEPS: 437.256
+61th starting vertex was 33680417
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.97932 seconds
+MTEPS: 430.383
+62th starting vertex was 147348169
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 9.95649 seconds
+MTEPS: 431.37
+63th starting vertex was 225383720
+Number iterations: 8
+Number of vertices found: 122410262
+Number of edges traversed: 4294928995
+BFS time: 10.061 seconds
+MTEPS: 426.889
+Finished
+--------------------------
+Min nedges: 4.29493e+09
+First Quartile nedges: 4.29493e+09
+Median nedges: 4.29493e+09
+Third Quartile nedges: 4.29493e+09
+Max nedges: 4.29493e+09
+Mean nedges: 4.29493e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 9.77345 seconds
+First Quartile time: 9.89456 seconds
+Median time: 9.97395 seconds
+Third Quartile time: 10.0446 seconds
+Max time: 10.2107 seconds
+Mean time: 9.95985 seconds
+STDDEV time: 0.0945082 seconds
+--------------------------
+Min MTEPS: 420.631
+First Quartile MTEPS: 427.586
+Median MTEPS: 430.615
+Third Quartile MTEPS: 434.07
+Max MTEPS: 439.449
+Harmonic mean of MTEPS: 431.224
+Harmonic standard deviation of MTEPS: 4.09186
+Application 5813848 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024
+ +          Job Id: 6905809.nid00003
+ +          System: franklin
+ +     Queued Time: Mon Jan  3 12:23:15 2011
+ +      Start Time: Mon Jan  3 20:24:47 2011
+ + Completion Time: Mon Jan  3 20:38:31 2011
+ +            User: abuluc
+ +        MOM Host: nid00576
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:97464:nid00160,walltime=00:55:00
+ +  Used Resources: cput=00:00:00,mem=9896kb,vmem=35184kb,walltime=00:13:44
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script1024
+ + --------------------------------------------------------------------------
+
