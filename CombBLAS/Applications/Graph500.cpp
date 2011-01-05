@@ -48,7 +48,7 @@ unsigned int highestbitset(uint64_t v)
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
-	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
+	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 

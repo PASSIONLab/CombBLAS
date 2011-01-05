@@ -30,8 +30,12 @@ CombBLAS/Applications/FranklinResults/script4096.fullydist_Jan02 -text
 CombBLAS/Applications/FranklinResults/script4096.fullydist_Jan02_withIPM -text
 CombBLAS/Applications/FranklinResults/script484.fullydist_Jan02 -text
 CombBLAS/Applications/FranklinResults/script6084.fullydist_Jan02 -text
+CombBLAS/Applications/FranklinResults/script6084.fullydist_Jan03 -text
+CombBLAS/Applications/FranklinResults/script6084.fullydist_Jan04 -text
 CombBLAS/Applications/FranklinResults/script64.debug -text
 CombBLAS/Applications/FranklinResults/script8100.fullydist_Jan02 -text
+CombBLAS/Applications/FranklinResults/script8100.fullydist_Jan04 -text
+CombBLAS/Applications/FranklinResults/script8100.fullydist_Scale30 -text
 CombBLAS/Applications/Graph500.cpp -text
 CombBLAS/Applications/HopperResults/script1024.16pernode -text
 CombBLAS/Applications/HopperResults/script1024.16pernode_mini_fullydist -text
