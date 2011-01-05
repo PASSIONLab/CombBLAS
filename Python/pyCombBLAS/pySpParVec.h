@@ -1,16 +1,6 @@
 #ifndef PY_SP_PAR_VEC_H
 #define PY_SP_PAR_VEC_H
 
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/SpTuples.h"
-#include "../../CombBLAS/SpDCCols.h"
-#include "../../CombBLAS/SpParMat.h"
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/DenseParMat.h"
-#include "../../CombBLAS/DenseParVec.h"
-#include "../../CombBLAS/ParFriends.h"
-#include "../../CombBLAS/Semirings.h"
-
 #include "pyCombBLAS.h"
 class pySpParMat;
 class pySpParVec;
@@ -19,7 +9,7 @@ class pyDenseParVec;
 class pySpParVec {
 protected:
 
-	SpParVec<int64_t, int64_t> v;
+	FullyDistSpVec<int64_t, int64_t> v;
 	
 	//pySpParVec(SpParVec<int64_t, int64_t> & in_v);
 	

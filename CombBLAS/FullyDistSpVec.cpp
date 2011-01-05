@@ -108,7 +108,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	World.Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
 	if(whole == 0)
 	{
-		throw oorex;
+		throw outofrangeexception();
 		return Indexed;
 	}
 

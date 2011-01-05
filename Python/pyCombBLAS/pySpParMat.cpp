@@ -1,4 +1,4 @@
-#include <mpi.h>
+//#include <mpi.h>
 #include <sys/time.h> 
 
 #include <iostream>
@@ -89,7 +89,7 @@ void pySpParMat::GenGraph500Edges(int scale)
 double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 {
 	double k1time = 0;
-	DenseParVec<int64_t, int64_t> degrees;
+	FullyDistVec<int64_t, int64_t> degrees;
 
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int rank = MPI::COMM_WORLD.Get_rank();
@@ -129,27 +129,16 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 
 pyDenseParVec* pySpParMat::GenGraph500Candidates(int howmany)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
-
-	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
-	PSpMat_Int * AInt = new PSpMat_Int(A); 
-	DenseParVec<int64_t, int> * ColSums = new DenseParVec<int64_t, int> (AInt->Reduce(Column, plus<int>(), false)); 
-	DenseParVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int>(), 1));	// only the indices of non-isolated vertices
-	delete AInt;
-	delete ColSums;
+	pyDenseParVec* pyCands = FindIndsOfColsWithSumGreaterThan(1);
 		
-	//Cands.PrintInfo("Candidates array");
-	DenseParVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
-	Cands.RandPerm();
-	//Cands.PrintInfo("Candidates array (permuted)");
+	FullyDistVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
+	pyCands->v.RandPerm();
+
 	First64.iota(howmany, 0);			
-	Cands = Cands(First64);		
-	//Cands.PrintInfo("First 64 of candidates (randomly chosen) array");
+	pyCands->v = pyCands->v(First64);		
+
 	
-	// END COPY
-	
-	ret->v.stealFrom(Cands);
-	return ret;
+	return pyCands;
 }
 
 
@@ -169,12 +158,14 @@ void pySpParMat::Apply_SetTo(int64_t value)
 pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
+	FullyDistVec<int64_t, int> ColSums;
 	
 	// make a temporary int matrix
 	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
-	DenseParVec<int64_t, int> ColSums = AInt->Reduce(Column, plus<int>(), 0); 
-	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	// only the indices of connected vertices
+	AInt->Reduce(ColSums, Row, plus<int>(), 0);
 	delete AInt;	// save memory	
+
+	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	// only the indices of connected vertices
 
 	
 	//DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0);
@@ -188,7 +179,7 @@ pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	SpParVec<int64_t, int64_t> result = SpMV< PlusTimesSRing<bool, int64_t > >(A, x.v);
+	FullyDistSpVec<int64_t, int64_t> result = SpMV< PlusTimesSRing<bool, int64_t > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }
@@ -196,7 +187,7 @@ pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	SpParVec<int64_t, int64_t> result = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
+	FullyDistSpVec<int64_t, int64_t> result = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }

@@ -7,9 +7,9 @@ pyDenseParVec::pyDenseParVec()
 {
 }
 
-pyDenseParVec::pyDenseParVec(int64_t size, int64_t id)
+pyDenseParVec::pyDenseParVec(int64_t size, int64_t id): v(size, id, 0)
 {
-	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
+	/*MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
 	
 	int64_t locsize = 0;
 	
@@ -26,12 +26,13 @@ pyDenseParVec::pyDenseParVec(int64_t size, int64_t id)
 		}
 	}
 
-	DenseParVec<int64_t, int64_t> temp(locsize, id, 0);
-	v.stealFrom(temp);
+	FullyDistVec<int64_t, int64_t> temp(locsize, id, 0);
+	v.stealFrom(temp);*/
 }
 
-pyDenseParVec::pyDenseParVec(int64_t size, int64_t init, int64_t zero)
+pyDenseParVec::pyDenseParVec(int64_t size, int64_t init, int64_t zero): v(size, init, zero)
 {
+	/*
 	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
 	
 	int64_t locsize = 0;
@@ -49,8 +50,8 @@ pyDenseParVec::pyDenseParVec(int64_t size, int64_t init, int64_t zero)
 		}
 	}
 
-	DenseParVec<int64_t, int64_t> temp(locsize, init, zero);
-	v.stealFrom(temp);
+	FullyDistVec<int64_t, int64_t> temp(locsize, init, zero);
+	v.stealFrom(temp);*/
 }
 
 //pyDenseParVec::pyDenseParVec(const pySpParMat& commSource, int64_t zero)
@@ -74,7 +75,7 @@ pySpParVec* pyDenseParVec::sparse(int64_t zero) const
 
 int64_t pyDenseParVec::len() const
 {
-	return v.getTotalLength();
+	return v.TotalLength();
 }
 	
 void pyDenseParVec::load(const char* filename)

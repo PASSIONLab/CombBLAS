@@ -1,4 +1,4 @@
-#include <mpi.h>
+//#include <mpi.h>
 
 #include <iostream>
 #include <math.h>
@@ -11,9 +11,9 @@ pySpParVec::pySpParVec()
 {
 }
 
-pySpParVec::pySpParVec(int64_t size)
+pySpParVec::pySpParVec(int64_t size): v(size)
 {
-	MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
+	/*MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
 	
 	int64_t locsize = 0;
 	
@@ -30,8 +30,8 @@ pySpParVec::pySpParVec(int64_t size)
 		}
 	}
 
-	SpParVec<int64_t, int64_t> temp(locsize);
-	v = temp;
+	FullyDistSpVec<int64_t, int64_t> temp(locsize);
+	v = temp;*/
 }
 
 
@@ -45,7 +45,7 @@ pySpParVec::pySpParVec(int64_t size)
 
 pyDenseParVec* pySpParVec::dense() const
 {
-	pyDenseParVec* ret = new pyDenseParVec(v.getTotalLength(), 0);
+	pyDenseParVec* ret = new pyDenseParVec(v.TotalLength(), 0);
 	ret->v += v;
 	return ret;
 }
@@ -58,7 +58,7 @@ int64_t pySpParVec::getnnz() const
 
 int64_t pySpParVec::len() const
 {
-	return v.getTotalLength();
+	return v.TotalLength();
 }
 
 
@@ -119,7 +119,7 @@ bool pySpParVec::any() const
 
 bool pySpParVec::all() const
 {
-	return getnnz() == v.getTotalLength();
+	return getnnz() == v.TotalLength();
 }
 
 int64_t pySpParVec::intersectSize(const pySpParVec& other)

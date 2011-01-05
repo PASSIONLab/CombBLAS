@@ -1,16 +1,6 @@
 #ifndef PY_DENSE_PAR_VEC_H
 #define PY_DENSE_PAR_VEC_H
 
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/SpTuples.h"
-#include "../../CombBLAS/SpDCCols.h"
-#include "../../CombBLAS/SpParMat.h"
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/DenseParMat.h"
-#include "../../CombBLAS/DenseParVec.h"
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/ParFriends.h"
-
 #include "pyCombBLAS.h"
 class pySpParMat;
 class pySpParVec;
@@ -19,7 +9,7 @@ class pyDenseParVec;
 class pyDenseParVec {
 protected:
 
-	DenseParVec<int64_t, int64_t> v;
+	FullyDistVec<int64_t, int64_t> v;
 	
 	friend class pySpParVec;
 	friend class pySpParMat;

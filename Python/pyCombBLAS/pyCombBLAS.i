@@ -27,6 +27,21 @@ init_pyCombBLAS_MPI();
 %pragma(python) code="atexit.register(DiGraph.finalize())"
 
 
+// Language independent exception handler
+%include exception.i    
+
+%exception {
+	try {
+		$action
+	} catch(string& stringReason) {
+		const char* sData = (char*)stringReason.c_str();
+		SWIG_exception(SWIG_RuntimeError,sData);
+		SWIG_exception(SWIG_IndexError,sData);
+	} catch(...) {
+		SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+	}
+}
+
 // wrapped classes
 
 class pySpParMat {

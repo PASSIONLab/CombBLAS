@@ -486,7 +486,7 @@ void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MP
 }
 
 
-void SpParHelper::Print(const string & s)
+inline void SpParHelper::Print(const string & s)
 {
 	int myrank = MPI::COMM_WORLD.Get_rank();
 	if(myrank == 0)
@@ -495,7 +495,7 @@ void SpParHelper::Print(const string & s)
 	}
 }
 
-void SpParHelper::WaitNFree(vector<MPI::Win> & arrwin)
+inline void SpParHelper::WaitNFree(vector<MPI::Win> & arrwin)
 {
 	// End the exposure epochs for the arrays of the local matrices A and B
 	// The Wait() call matches calls to Complete() issued by ** EACH OF THE ORIGIN PROCESSES ** 
@@ -507,7 +507,7 @@ void SpParHelper::WaitNFree(vector<MPI::Win> & arrwin)
 	FreeWindows(arrwin);
 }		
 	
-void SpParHelper::FreeWindows(vector<MPI::Win> & arrwin)
+inline void SpParHelper::FreeWindows(vector<MPI::Win> & arrwin)
 {
 	for(int i=0; i< arrwin.size(); ++i)
 	{

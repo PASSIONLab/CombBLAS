@@ -11,6 +11,6 @@ class outofrangeexception: public exception
   {
     return "Index out of range exception";
   }
-} oorex;
+};
 
 #endif

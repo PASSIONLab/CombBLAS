@@ -1,17 +1,6 @@
 #ifndef PY_SP_PAR_MAT_H
 #define PY_SP_PAR_MAT_H
 
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/SpTuples.h"
-#include "../../CombBLAS/SpDCCols.h"
-#include "../../CombBLAS/SpParMat.h"
-#include "../../CombBLAS/SpParVec.h"
-#include "../../CombBLAS/DenseParMat.h"
-#include "../../CombBLAS/DenseParVec.h"
-#include "../../CombBLAS/DistEdgeList.h"
-#include "../../CombBLAS/ParFriends.h"
-#include "../../CombBLAS/Semirings.h"
-
 #include "pyCombBLAS.h"
 
 class pySpParMat;
