@@ -6,7 +6,7 @@ COMBBLAS = ../../CombBLAS
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
 
-OPT = -g -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w -DNOTR1
+OPT = -g -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w 
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = $(CC)
 FLAGS = $(OPT) -fPIC 
