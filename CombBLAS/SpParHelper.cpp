@@ -176,14 +176,15 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), firsthalves, 1, MPIType<IT>());
 	comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), secondhalves, 1, MPIType<IT>());
 	
-	IT * sendcnt = new IT[nprocs]();	// zero initialize
-	vector< tuple<int,IT,IT>  > package;	// recipient_proc, offset, length
+	int * sendcnt = new int[nprocs]();	// zero initialize
 	int totrecvcnt; 
 	IT spacebefore = 0;	// receiving part space
+
+	pair<KEY,VAL> * bufbegin;
 	if(color == 0)	// first processor half, only send second half of data
 	{
-		IT offset = low-array;
-		totrecvcnt = length - offset;
+		bufbegin = low;
+		totrecvcnt = length - (low-array);
 		IT beg_oftransfer = accumulate(secondhalves, secondhalves+myrank, 0);
 		IT spaceafter = firsthalves[nfirsthalf];
 		int i=nfirsthalf+1;
@@ -195,19 +196,18 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		IT end_oftransfer = beg_oftransfer + secondhalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i-1, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));	// -1 to remedy preincrement
 		sendcnt[i-1] = end_pour - beg_pour;
 		while( i < nprocs && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
 			spaceafter += firsthalves[i];
 			end_pour = min(end_oftransfer, spaceafter);
-			package.push_back(make_tuple(i, offset+(beg_pour-beg_oftransfer), end_pour-beg_pour));
 			sendcnt[i++] = end_pour - beg_pour;	// post-increment
 		}
 	}
 	else if(color == 1)	// second processor half, only send first half of data
 	{
+		bufbegin = array;
 		totrecvcnt = low-array;
 		// global index (within the second processor half) of the beginning of my data
 		IT beg_oftransfer = accumulate(firsthalves+nfirsthalf, firsthalves+myrank, 0);
@@ -221,20 +221,18 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		IT end_oftransfer = beg_oftransfer + firsthalves[myrank];	// global index (within second half) of the end of my data
 		IT beg_pour = beg_oftransfer;
 		IT end_pour = min(end_oftransfer, spaceafter);
-		package.push_back(make_tuple(i-1, (beg_pour-beg_oftransfer), end_pour-beg_pour));	
 		sendcnt[i-1] = end_pour - beg_pour;
 		while( i < nfirsthalf && spaceafter < end_oftransfer )	// find other recipients until I run out of data
 		{
 			beg_pour = end_pour;
 			spaceafter += secondhalves[i];
 			end_pour = min(end_oftransfer, spaceafter);
-			package.push_back(make_tuple(i, (beg_pour-beg_oftransfer), end_pour-beg_pour));
 			sendcnt[i++] = end_pour - beg_pour;	// post-increment
 		}
 	}
 	DeleteAll(firsthalves, secondhalves);
-	IT * recvcnt = new IT[nprocs];
-	comm.Alltoall(sendcnt, 1, MPIType<IT>(), recvcnt, 1, MPIType<IT>());	// get the recv counts
+	int * recvcnt = new int[nprocs];
+	comm.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// get the recv counts
 	// Alltoall is actually unnecessary, because sendcnt = recvcnt
 	// If I have n_mine > n_yours data to send, then I can send you only n_yours 
 	// as this is your space, and you'll send me identical amount.
@@ -242,97 +240,27 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	// that processor can only send n_mine - n_yours to me back. 
 	// The proof follows from induction
 
-	if(!equal(sendcnt, sendcnt+nprocs, recvcnt))
-	{
-		cout << "recv != send on processor " << myrank << endl;
-	} 
+	MPI::Datatype MPI_valueType = MPI::CHAR.Create_contiguous(sizeof(pair<KEY,VAL>));
+	MPI_valueType.Commit();
 
-    	MPI_Datatype MPI_valueType;
-	MPI_Type_contiguous (sizeof(pair<KEY,VAL>), MPI_CHAR, &MPI_valueType);
-	MPI_Type_commit (&MPI_valueType);
-
-	comm.Barrier();
 	double t2 = MPI::Wtime();
 	if(myrank == 0)
 		fprintf(stdout, "%.6lf seconds elapsed for setting up swap structures on %d procs\n", t2-t1, nprocs);
 	
-	/* Open Debug file
-	stringstream ss;
-        string rank;
-        ss << myrank;
-        ss >> rank;
-        string ofilename = "requests";
-        ofilename += rank;
-        ofstream output(ofilename.c_str(), ios_base::app );
-	copy(sendcnt, sendcnt+nprocs, ostream_iterator<int>(output," ")); output << endl;
-	copy(recvcnt, recvcnt+nprocs, ostream_iterator<int>(output," ")); output << endl; */
-
 	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
-	vector< MPI::Request > requests;
-	vector< MPI::Status > status;
-	int sentsofar = 0, recvsofar = 0;
-	try
-	{
-		for (int i=0; i< nprocs; ++i)
-		{
-			if(recvcnt[i] > 0)
-			{
-				MPI::Request req = comm.Irecv(receives + recvsofar, (int) recvcnt[i], MPI_valueType, i, SWAPTAG);
-				requests.push_back(req);
-				recvsofar += recvcnt[i];
-			}
-		}
-		comm.Barrier();
-		SpParHelper::Print("Receives posted\n");
-		if(recvsofar == 0)
-			cout << "Opps, no receive" << endl;
+	int * sdpls = new int[nprocs]();	// displacements (zero initialized pid) 
+	int * rdpls = new int[nprocs](); 
+	partial_sum(sendcnt, sendcnt+nprocs-1, sdpls+1);
+	partial_sum(recvcnt, recvcnt+nprocs-1, rdpls+1);
 
-		for(int i=0; i< package.size(); ++i)
-		{
-			int recipient = tr1::get<0>(package[i]);
-			IT beg = tr1::get<1>(package[i]);
-			IT len = tr1::get<2>(package[i]);
+	comm.Alltoallv(bufbegin, sendcnt, sdpls, MPI_valueType, receives, recvcnt, rdpls, MPI_valueType);  // sparse swap
 
-			comm.Send(array+beg, len, MPI_valueType, recipient, SWAPTAG);
-			sentsofar += len;
-		}
-		status.resize(requests.size());
-		MPI::Request::Waitall(requests.size(), &(requests[0]), &(status[0]));
-	}
-	catch ( MPI::Exception failure)
-	{
-		cerr << "MPI Exception caught" << endl;
-		int error = failure.Get_error_code();
-		if ( error == MPI::ERR_IN_STATUS )
-		{
-			for(int i=0; i<requests.size(); ++i)
-			{
-				if(status[i].Get_error() != MPI::SUCCESS)
-				{
-					cout << "Error @processor " << myrank<< ", at request " << i;
-					cout <<	" with status: " << status[i].Get_error() << endl;
-				}
-			}
-		}
-		else
-		{
-			cout << "Error @processor " << myrank<< ": " << failure.Get_error_string() << " while running nprocs=" << nprocs << endl;;
-		}
-	}
-	catch(...)
-	{
-		cerr << "Unknown Exception caught" << endl;
-	}
-
-	comm.Barrier();
 	double t3 = MPI::Wtime();
 	if(myrank == 0)
 		fprintf(stdout, "%.6lf seconds elapsed for actual data swap on %d procs\n", t3-t2, nprocs);
 	
-	DeleteAll(sendcnt, recvcnt);
-	assert(sentsofar == recvsofar);
-	if(color == 0)	array = low;	// the original pointer is intact (passed by value)
-	copy(receives, receives+totrecvcnt, array);
+	DeleteAll(sendcnt, recvcnt, sdpls, rdpls);
+	copy(receives, receives+totrecvcnt, bufbegin);
 	delete [] receives;
 }
 
