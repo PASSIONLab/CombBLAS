@@ -1083,49 +1083,52 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	IU yintlen = y.MyRowLength();
 
 	int rowneighs = RowWorld.Get_size();
-	vector< vector<IU> > sendind(rowneighs);
-	vector< vector<T_promote> > sendnum(rowneighs);
 	typename vector<IU>::size_type outnz = indy.size();
-	for(typename vector<IU>::size_type i=0; i< outnz; ++i)
-	{
-		IU locind;
-		int rown = y.OwnerWithinRow(yintlen, indy[i], locind);
-		sendind[rown].push_back(locind);
-		sendnum[rown].push_back(numy[i]);
-	}
 
-	IU * sendindbuf = new IU[outnz];
-	T_promote * sendnumbuf = new T_promote[outnz];
-	int * sendcnt = new int[rowneighs];
+	// at this point, indices of y are sorted
+	IU * sendindbuf = new IU[yintlen];	// max possible message size
+	T_promote * sendnumbuf = new T_promote[yintlen];
+	
+	int * sendcnt = new int[rowneighs]();	// zero initialize
 	int * sdispls = new int[rowneighs];
+	IU n_perproc = yintlen / colneighs;	// typical length per processor (except the last)
 	for(int i=0; i<rowneighs; ++i)
-		sendcnt[i] = sendind[i].size();
+		sdispls[i] = i * n_perproc;
+
+	typename vector<IU>::size_type j=0; 	// j indexes local entries
+	for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
+	{
+		while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
+		{
+			IU locind = indy[j] - sdispls[i-1];
+			int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
+			sendindbuf[inx] = locind;
+			sendnumbuf[inx] = numy[j++]; 
+			++sendcnt[i-1];	// increment the send count
+		}
+	}
+	while(j < outnz)	// remainders go to the last processor
+	{
+		IU locind = indy[j] - sdispls[rowneighs-1];
+		int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
+		sendindbuf[inx] = locind;
+		sendnumbuf[inx] = numy[j++];
+		++sendcnt[rowneighs-1]; 
+	}
 
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
 	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
 
-	sdispls[0] = 0;
+	// receive displacements are exact whereas send displacements have slack
 	rdispls[0] = 0;
 	for(int i=0; i<rowneighs-1; ++i)
 	{
-		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
 	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
-
-	for(int i=0; i<rowneighs; ++i)
-	{
-		copy(sendind[i].begin(), sendind[i].end(), sendindbuf+sdispls[i]);
-		vector<IU>().swap(sendind[i]);
-	}
-	for(int i=0; i<rowneighs; ++i)
-	{
-		copy(sendnum[i].begin(), sendnum[i].end(), sendnumbuf+sdispls[i]);
-		vector<T_promote>().swap(sendnum[i]);
-	}
 		
 	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
