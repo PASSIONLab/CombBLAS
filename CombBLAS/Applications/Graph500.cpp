@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 			{
 				fringe.setNumToInd();
 				//fringe.PrintInfo("fringe before SpMV");
-				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector
+				fringe = SpMV<SR>(A, fringe,true);	// SpMV with sparse vector (with indexisvalue flag set)
 				// fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
 				// fringe.PrintInfo("fringe after cleanup");

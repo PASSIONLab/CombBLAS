@@ -139,6 +139,10 @@ private:
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x );
 
+	template <typename SR, typename IU, typename NUM, typename UDER> 
+	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
+
 	template <typename IU, typename NU1, typename NU2>
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
 	EWiseMult (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero);

@@ -43,9 +43,12 @@
 #define RFCOLIDS 131
 #define TRROWX 132
 #define TRCOLX 133
-#define TRX 134
-#define TROST 135
-#define SWAPTAG 136
+#define TRX 134	
+#define TRI 135
+#define TRNNZ 136
+#define TROST 137
+#define TRLUT 138
+#define SWAPTAG 139
 
 enum Dim
 {

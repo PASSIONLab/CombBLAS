@@ -997,11 +997,180 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	return y;
 }
 
+//! The last parameter is a hint to the function 
+//! If indexisvalues = true, then we do not need to transfer values for x
+//! This happens for BFS iterations with boolean matrices and integer rhs vectors
+template <typename SR, typename IU, typename NUM, typename UDER> 
+FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue)
+{
+	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
+	if(!(*A.commGrid == *x.commGrid)) 		
+	{
+		cout << "Grids are not comparable for SpMV" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	MPI::Intracomm World = x.commGrid->GetWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+
+	IU xlocnz = x.getlocnnz();
+	IU roffst = x.RowLenUntil();
+	IU luntil = x.LengthUntil();
+	IU trxlocnz, roffset, lenuntil;
+
+	int diagneigh = x.commGrid->GetComplementRank();
+	World.Sendrecv(&xlocnz, 1, MPIType<IU>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<IU>(), diagneigh, TRNNZ);
+	World.Sendrecv(&roffst, 1, MPIType<IU>(), diagneigh, TROST, &roffset, 1, MPIType<IU>(), diagneigh, TROST);
+	World.Sendrecv(&luntil, 1, MPIType<IU>(), diagneigh, TRLUT, &lenuntil, 1, MPIType<IU>(), diagneigh, TRLUT);
+	
+	IU * trxinds = new IU[trxlocnz];
+	IU * trxnums;
+	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRI);
+	if(!indexisvalue)
+	{
+		trxnums = new IU[trxlocnz];
+		World.Sendrecv(const_cast<IU*>(&x.num[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	}
+	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
+
+	int colneighs = ColWorld.Get_size();
+	int colrank = ColWorld.Get_rank();
+	int * colnz = new int[colneighs];
+	colnz[colrank] = static_cast<int>(trxlocnz);
+	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
+	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
+	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
+	IU * indacc = new IU[accnz];
+	IU * numacc = new IU[accnz];
+
+	// ABAB: Future issues here, colnz is of type int (MPI limitation)
+	// What if the aggregate vector size along the processor row/column is not 32-bit addressible?
+	// This will happen when n/sqrt(p) > 2^31
+	// Currently we can solve a small problem (scale 32) with 4096 processor
+	// For a medium problem (scale 35), we'll need 32K processors which gives sqrt(p) ~ 180
+	// 2^35 / 180 ~ 2^29 / 3 which is not an issue !
+	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	delete [] trxinds;
+	if(indexisvalue)
+	{
+		IU lenuntilcol;
+		if(colrank = 0)
+		{
+			lenuntilcol = lenuntil;
+		}
+		ColWorld.Bcast(&lenuntilcol, 1, MPIType<IU>(), 0);
+		transform(indacc, indacc+accnz, numacc, bind2nd(plus<IU>(), lenuntilcol));	// fill numerical values from indices
+	}
+	else
+	{
+		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<IU>(), numacc, colnz, dpls, MPIType<IU>());
+		delete [] trxnums;
+	}	
+
+	// serial SpMV with sparse vector
+	vector< IU > indy;
+	vector< T_promote >  numy;
+
+	dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+
+	DeleteAll(indacc, numacc);
+	DeleteAll(colnz, dpls);
+
+	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
+	IU yintlen = y.MyRowLength();
+
+	int rowneighs = RowWorld.Get_size();
+	vector< vector<IU> > sendind(rowneighs);
+	vector< vector<T_promote> > sendnum(rowneighs);
+	typename vector<IU>::size_type outnz = indy.size();
+	for(typename vector<IU>::size_type i=0; i< outnz; ++i)
+	{
+		IU locind;
+		int rown = y.OwnerWithinRow(yintlen, indy[i], locind);
+		sendind[rown].push_back(locind);
+		sendnum[rown].push_back(numy[i]);
+	}
+
+	IU * sendindbuf = new IU[outnz];
+	T_promote * sendnumbuf = new T_promote[outnz];
+	int * sendcnt = new int[rowneighs];
+	int * sdispls = new int[rowneighs];
+	for(int i=0; i<rowneighs; ++i)
+		sendcnt[i] = sendind[i].size();
+
+	int * rdispls = new int[rowneighs];
+	int * recvcnt = new int[rowneighs];
+	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<rowneighs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
+	IU * recvindbuf = new IU[totrecv];
+	T_promote * recvnumbuf = new T_promote[totrecv];
+
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(sendind[i].begin(), sendind[i].end(), sendindbuf+sdispls[i]);
+		vector<IU>().swap(sendind[i]);
+	}
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(sendnum[i].begin(), sendnum[i].end(), sendnumbuf+sdispls[i]);
+		vector<T_promote>().swap(sendnum[i]);
+	}
+		
+	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
+	DeleteAll(sendindbuf, sendnumbuf);
+	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+		
+	// define a SPA-like data structure
+	IU ysize = y.MyLocLength();
+	T_promote * localy = new T_promote[ysize];
+	bool * isthere = new bool[ysize];
+	vector<IU> nzinds;	// nonzero indices		
+	fill_n(isthere, ysize, false);
+	
+	for(IU i=0; i< totrecv; ++i)
+	{
+		if(!isthere[recvindbuf[i]])
+		{
+			localy[recvindbuf[i]] = recvnumbuf[i];	// initial assignment
+			nzinds.push_back(recvindbuf[i]);
+			isthere[recvindbuf[i]] = true;
+		} 
+		else
+		{
+			localy[recvindbuf[i]] = SR::add(localy[recvindbuf[i]], recvnumbuf[i]);	
+		}
+	}
+	DeleteAll(isthere, recvindbuf, recvnumbuf);
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	y.ind.resize(nnzy);
+	y.num.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		y.ind[i] = nzinds[i];
+		y.num[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+	return y;
+}
+	
 
 
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x )
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x)
 {
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
 	if(!(*A.commGrid == *x.commGrid)) 		
