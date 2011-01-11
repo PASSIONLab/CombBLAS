@@ -1,41 +1,69 @@
 import numpy as np
 import scipy as sc
 import scipy.sparse as sp
+import pyCombBLAS as pcb
+import PyCombBLAS as PCB
 import Graph as gr
-import SpParVec as spv
-import SpParMat as spm
 
 class DiGraph(gr.Graph):
 
 	print "in DiGraph"
 
-	def __init__(self, edgev, size):
-		self.spmat = spm.SpParMat(edgev, shape=size);
+	#FIX:  just building a Graph500 graph by default for now
+	def __init__(self):
+		self.spmat = pcb.pySpParMat();
 
 	def degree(self):
 		return self.indegree() + self.outdegree();
 
 	def indegree(self):
-		tmp = spm.reduce(self._spones(self.spmat), 0, +);
+		#tmp = spm.reduce(self._spones(self.spmat), 0, +);
+		print "\n	DiGraph.indegree() not fully implemented!\n"
+		tmp = 1;
 		return tmp;
 
 	def outdegree(self):
-		tmp = spm.reduce(self._spones(self.spmat), 1, +);
+		#tmp = spm.reduce(self._spones(self.spmat), 1, +);
+		print "\n	DiGraph.outdegree() not fully implemented!\n"
+		tmp = 1;
 		return tmp;
 
-		
+#def DiGraphGraph500():
+#	self = DiGraph();
+#	self.spmat = GenGraph500Edges(sc.log2(nvert));
 
+		
 class DiEdgeV(gr.EdgeV):
 	print "in DiEdgeV"
 
 		
+class VertexV:
+	print "in VertexV"
 
-#	No VertexV class for now
+	def __init__(self, length):
+		self.dpv = pcb.pyDenseParVec(length,0);
 
-#class VertexV():
-#	print "in VertexV"
-#
-#	def __init__(self, ndces):
+	def __getitem__(self, key):
+		if type(key) == int:
+			if key > self.dpv.len()-1:
+				raise IndexError;
+			ret = self.dpv.GetElement(key);
+		else:
+			print "__getitem__ only supports scalar subscript"
+		return ret;
+
+class SpVertexV:
+	print "in SpVertexV"
+
+	def __init__(self, length):
+		self.spv = pcb.pySpParVec(length);
+
+def genGraph500Candidates(G, howmany):
+	tmpDpv = G.spmat.GenGraph500Candidates(howmany);
+	tmpVV = VertexV(0);
+	del tmpVV.dpv		# legal?  GC issue with doing this?
+	tmpVV.dpv = tmpDpv;
+	return tmpVV
 
 
 def torusEdges(n):
@@ -57,22 +85,9 @@ def torusEdges(n):
 	col = DPV.append(rowcol, east);
 	return gr.EdgeV((row, col), DPV.ones(N*4))
 
-def Graph500Edges(n):						# NOTE: Not changed yet from SciPy version
-	print "NOTE:  Graph500Edges producing torusEdges currently"
-	N = n*n;
-	nvec = sc.tile(sc.arange(n),(n,1)).T.flatten();	# [0,0,0,...., n-1,n-1,n-1]
-	nvecil = sc.tile(sc.arange(n),n)			# [0,1,...,n-1,0,1,...,n-2,n-1]
-	north = gr.Graph._sub2ind((n,n),sc.mod(nvecil-1,n),nvec);
-	south = gr.Graph._sub2ind((n,n),sc.mod(nvecil+1,n),nvec);
-	west = gr.Graph._sub2ind((n,n),nvecil, sc.mod(nvec-1,n));
-	east = gr.Graph._sub2ind((n,n),nvecil, sc.mod(nvec+1,n));
-	Nvec = sc.arange(N);
-	rowcol = sc.append((Nvec, north), (Nvec, west), axis=1)
-	rowcol = sc.append(rowcol,        (Nvec, south), axis=1)
-	rowcol = sc.append(rowcol,        (Nvec, east), axis=1)
-	rowcol = rowcol.T
-	rowcol = (rowcol[:,0], rowcol[:,1]);
- 	return gr.EdgeV(rowcol, sc.tile(1,(N*4,)))
+def genGraph500Edges(self, scale):
+	elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spmat, scale);
+ 	return elapsedTime;
 
 
 #	creates a breadth-first search tree of a Graph from a starting
@@ -80,49 +95,49 @@ def Graph500Edges(n):						# NOTE: Not changed yet from SciPy version
 #	each vertex in the tree; unreached vertices have parent == -Inf.
 #
 def bfsTree(G, start):
-	parents = pcb.DenseParVec(G.nverts()) - 1;
+	parents = PCB.PyDenseParVec(G.nvert(), -1);
 	# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
 	# distinguish vertex0 from empty element
-	fringe = pcb.SpParVec(G.nverts());
+	fringe = PCB.PySpParVec(G.nvert());
 	parents[start] = start;
 	fringe[start] = start+1;
-	while fringe.getnnz() > 0
+	while fringe.getnnz() > 0:
 		#FIX:  following line needed?
-		fringe = pcb.range(fringe);	# or fringe.setNumToInd();
-		G.SpMV_SelMax_inplace(fringe);	
-		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
-		parents[fringe-1] = 0
-		parents += fringe-1;
-	parents = int(parents);		#FIX: needed?  how done?
+		fringe = PCB.PySpParVec.range(fringe);
+		G.spmat.SpMV_SelMax_inplace(fringe.pySPV);	
+		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents.pyDPV, True, -1);
+		parents[fringe] = 0
+		parents += fringe;
 	return parents;
 
 
 	# returns tuples with elements
 	# 0:  True/False of whether it is a BFS tree or not
-	# 1:  levels of each vertex in the tree (-1 if not reached)
+	# 1:  levels of each vertex in the tree (root is 0, -1 if not reached)
 def isBfsTree(G, root, parents):
 
 	ret = 1;	# assume valid
-	nrowG = G.getnrow();
+	nvertG = G.nvert();
 
 	# calculate level in the tree for each vertex; root is at level 0
 	# about the same calculation as bfsTree, but tracks levels too
-	parents2 = pcb.pyDenseParVec(nrowG, -1);
-	fringe = pcb.pySpParVec(nrowG);
-	parents2.SetElement(root,root);
-	fringe.SetElement(root,root);
-	levels = pcb.pyDenseParVec(nrowG, -1);
-	levels.SetElement(root,0);
+	parents2 = PCB.PyDenseParVec(nvertG, -1);
+	fringe = PCB.PySpParVec(nvertG);
+	parents2[root] = root;
+	fringe[root] = root;
+	levels = PCB.PyDenseParVec(nvertG, -1);
+	levels[root] = 0;
 
 	level = 1;
-	while fringe.getnnz() > 0:
-		fringe.setNumToInd();
-		G.SpMV_SelMax_inplace(fringe);
-		pcb.EWiseMult_inplacefirst(fringe, parents2, True, -1);
-		#fringe.printall();
-		parents2.ApplyMasked_SetTo(fringe,0);
-		parents2.add(fringe);
-		levels.ApplyMasked_SetTo(fringe,level);
+	#old while fringe.getnnz() > 0:
+	while fringe.getnee() > 0:
+		fringe = fringe.range();	#note: sparse range()
+		#FIX:  create PCB graph-level op
+		G.spmat.SpMV_SelMax_inplace(fringe.pySPV);
+		#FIX:  create PCB graph-level op
+		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents2.pyDPV, True, -1);
+		parents2[fringe] = fringe;
+		levels[fringe] = level;
 		level += 1;
 	
 	# spec test #1
@@ -132,18 +147,13 @@ def isBfsTree(G, root, parents):
 	# spec test #2
 	#    tree edges should be between verts whose levels differ by 1
 	
-#FIX: need nonzero() of next stmt?
-	treeEdges = ((parents <> -1) & (parents <> root));  
-	treeI = parents[treeEdges]
-	#treeJ = 1..nrowG[treeEdges]
-	treeJ = pcb.pyDenseParVec.range(nrowG,0)[treeEdges];
-	if any(levels[treeI]-levels[treeJ] <> -1):
+	tmp2 = parents <> PCB.PyDenseParVec(nvertG,0).range(nvertG);
+	treeEdges = (parents <> -1) & tmp2;  
+	treeI = parents[treeEdges.find()]
+	treeJ = PCB.PyDenseParVec(0,0).range(nvertG,0)[treeEdges.find()];
+	if (levels[treeI]-levels[treeJ] <> -1).any():
 		ret = -1;
 
-	
-
-	del G, parents, fringe, levels, treeEdges, treeI, treeJ
-	
 	return (ret, levels)
 
 #ToDo:  move bc() here from KDT.py
