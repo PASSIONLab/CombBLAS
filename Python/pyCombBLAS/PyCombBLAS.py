@@ -238,9 +238,6 @@ class PyDenseParVec:
 				self.pyDPV += tmp;
 			else:			# value is a sparse vector
 				self.pyDPV += value.pySPV;
-			pass
-		elif type(key)==type(str) and key=='existent':
-			self.pyDPV.ApplyMasked_SetTo(key.pySPV, value);
 		else:
 			raise KeyError, "Invalid key in PyDenseParVec:__setitem__";
 		return self;
