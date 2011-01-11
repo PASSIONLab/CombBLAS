@@ -1025,6 +1025,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	World.Sendrecv(&roffst, 1, MPIType<IU>(), diagneigh, TROST, &roffset, 1, MPIType<IU>(), diagneigh, TROST);
 	World.Sendrecv(&luntil, 1, MPIType<IU>(), diagneigh, TRLUT, &lenuntil, 1, MPIType<IU>(), diagneigh, TRLUT);
 	
+	// ABAB: Important observation is that local indices (given by x.ind) is 32-bit addressible
+	// Copy them to 32 bit integers and transfer that to save 50% of off-node bandwidth
 	IU * trxinds = new IU[trxlocnz];
 	IU * trxnums;
 	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRI);
@@ -1057,7 +1059,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	if(indexisvalue)
 	{
 		IU lenuntilcol;
-		if(colrank = 0)
+		if(colrank == 0)
 		{
 			lenuntilcol = lenuntil;
 		}
@@ -1069,21 +1071,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<IU>(), numacc, colnz, dpls, MPIType<IU>());
 		delete [] trxnums;
 	}	
-
 	// serial SpMV with sparse vector
 	vector< IU > indy;
 	vector< T_promote >  numy;
-
 	dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
 
 	DeleteAll(indacc, numacc);
 	DeleteAll(colnz, dpls);
-
 	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	IU yintlen = y.MyRowLength();
-
 	int rowneighs = RowWorld.Get_size();
-	typename vector<IU>::size_type outnz = indy.size();
 
 	// at this point, indices of y are sorted
 	IU * sendindbuf = new IU[yintlen];	// max possible message size
@@ -1095,6 +1092,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	for(int i=0; i<rowneighs; ++i)
 		sdispls[i] = i * n_perproc;
 
+	typename vector<IU>::size_type outnz = indy.size();
 	typename vector<IU>::size_type j=0; 	// j indexes local entries
 	for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
 	{
@@ -1129,43 +1127,62 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
-		
+
 	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 	DeleteAll(sendindbuf, sendnumbuf);
-	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
-		
-	// define a SPA-like data structure
-	IU ysize = y.MyLocLength();
-	T_promote * localy = new T_promote[ysize];
-	bool * isthere = new bool[ysize];
-	vector<IU> nzinds;	// nonzero indices		
-	fill_n(isthere, ysize, false);
-	
-	for(IU i=0; i< totrecv; ++i)
+	DeleteAll(sendcnt, sdispls);
+
+	// Alternative 2: Heap-merge
+	IU hsize = 0;		
+	IU inf = numeric_limits<IU>::min();
+	IU sup = numeric_limits<IU>::max(); 
+        KNHeap< IU, IU > sHeap(sup, inf); 
+	int * processed = new int[rowneighs]();
+	for(int i=0; i<rowneighs; ++i)
 	{
-		if(!isthere[recvindbuf[i]])
+		if(recvcnt[i] > 0)
 		{
-			localy[recvindbuf[i]] = recvnumbuf[i];	// initial assignment
-			nzinds.push_back(recvindbuf[i]);
-			isthere[recvindbuf[i]] = true;
+			// key, proc_id
+			sHeap.insert(recvindbuf[rdispls[i]], i);
+			++hsize;
+		}
+	}	
+	IU key, locv;
+	if(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		y.ind.push_back(key);
+		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
+		
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+		else
+			--hsize;
+	}
+	while(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		IU deref = rdispls[locv] + processed[locv];
+		if(y.ind.back() == key)	// y.ind is surely not empty
+		{
+			y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
+			// ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
+			// We can just skip this addition operator (if it's a max/min select)
 		} 
 		else
 		{
-			localy[recvindbuf[i]] = SR::add(localy[recvindbuf[i]], recvnumbuf[i]);	
+			y.ind.push_back(key);
+			y.num.push_back(recvnumbuf[deref]);
 		}
+
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+		else
+			--hsize;
 	}
-	DeleteAll(isthere, recvindbuf, recvnumbuf);
-	sort(nzinds.begin(), nzinds.end());
-	int nnzy = nzinds.size();
-	y.ind.resize(nnzy);
-	y.num.resize(nnzy);
-	for(int i=0; i< nnzy; ++i)
-	{
-		y.ind[i] = nzinds[i];
-		y.num[i] = localy[nzinds[i]]; 	
-	}
-	delete [] localy;
+	DeleteAll(recvcnt, rdispls,processed);
+	DeleteAll(recvindbuf, recvnumbuf);
 	return y;
 }
 	
