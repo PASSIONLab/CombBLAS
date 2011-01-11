@@ -1,10 +1,10 @@
 import numpy as np
 import scipy as sc
 import scipy.sparse as sp
-import SpParVec as spv
-import SpParMat as spm
+import pyCombBLAS as pcb
+import PyCombBLAS as PCB
 
-class Graph():
+class Graph:
 	#ToDo: privatize .spmat name (to .__spmat)
 	#ToDo: implement bool, not, _sprand
 
@@ -17,11 +17,11 @@ class Graph():
 		self.spmat = spm.SpParMat(edgev, size=size);
 
 	def __len__(self):
-		return self.spmat.nverts();
+		return self.spmat.nvert();
 
-	# NOTE:  no shape() for a graph;  use nverts/nedges instead	
+	# NOTE:  no shape() for a graph;  use nvert/nedge instead	
 	#def shape(self):
-	#	return (self.spmat.nverts(), self.spmat.nverts());
+	#	return (self.spmat.nvert(), self.spmat.nvert());
 
 	#FIX:  should only return 1 of the 2 directed edges for simple graphs
 	def toEdgeV(self):		
@@ -34,14 +34,14 @@ class Graph():
 		v = spmat[i,j];				# not NEW:  looks like already supported by general indexing
 		return ((i,j), v)
 
-	def nedges(self):
+	def nedge(self):
 		return self.spmat.getnnz();
 
-	def nverts(self):
+	def nvert(self):
 		return self.spmat.getnrow();
 
 	def degree(self):
-		tmp = spm.reduce(self._spones(self.spmat), 0, +);	# FIX: syntax
+		tmp = spm.reduce(self._spones(self.spmat), 0, '+');	# FIX: syntax
 		return tmp;
 
 	@staticmethod
@@ -72,8 +72,7 @@ class Graph():
 		return Z
 		
 
-class EdgeV():
-	# NOTE:  implemented in terms of CBLAS' sparse vectors
+class EdgeV:
 	# NOTE:  vertex numbers go from 1 to N unlike Python's 0 to N-1 
 
 
@@ -96,7 +95,7 @@ class EdgeV():
 
 	#FIX: inconsistency between len and getitem;  len returns #verts;  getitem[0] returns verts
 	def __len__(self):
-		return self.__verts.nverts();
+		return self.__verts.nvert();
 
 	def __getitem__(self, i):
 		if i == 0:
@@ -106,8 +105,8 @@ class EdgeV():
 		raise ValueError('index out of range');
 		return;
 
-	def nverts(self):
-		return self.__verts.nverts();
+	def nvert(self):
+		return self.__verts.nvert();
 
 	def nvalues(self):
 		return self.__values.nvalues();
@@ -119,9 +118,15 @@ class EdgeV():
 		return self.__values;
 		
 
-#	No VertexV class for now
+#	VertexV class
 
-#class VertexV():
+class VertexV:
 #	print "in VertexV"
 #
-#	def __init__(self, ndces):
+	def __init__(self, ndces):
+		print "VertexV __init__ not implemented"
+		pass;
+
+
+	def __len__(self):
+		return self.__verts.nvert();
