@@ -71,15 +71,19 @@ class PySpParVec:
 		if type(key) == int:
 			self.pySPV.SetElement(key,value);
 			#self.pySPV[key] = value;
-		elif isinstance(key, PySpParVec):
-			print "\n\n\n ***PySPV:__setitem__: Undebugged...***\n\n\n"
-			#self.EWiseMult_inplacefirst(key.pySPV.dense(), True, 0);
-			#self.pySPV += value.pySPV;
+		elif isinstance(key, PyDenseParVec):
+			if self.pySPV.len() != key.pyDPV.len():
+				raise KeyError, 'Vector and Key different lengths';
+			tmp = PyDenseParVec(self.len(),0);
+			tmp = self.dense();
+			pcb.EWiseMult_inplacefirst(self.pySPV, key.pyDPV, True, 0);
+			tmp.pyDPV += value.pyDPV;
+			self.pySPV = tmp.sparse().pySPV;
 		elif type(key)==str and key=='existent':
 			self.pySPV.Apply_SetTo(value);
 		else:
 			raise KeyError, "Invalid key in PySpParVec:__setitem__";
-		return;
+		return self;
 
 	def __sub__(self, other):
 		ret = PySpParVec(self.getnnz());
@@ -101,8 +105,7 @@ class PySpParVec:
 	def dense(self):
 		ret = PyDenseParVec(self.len(),0)
 		ret.pyDPV = self.pySPV.dense();
-		return ret;
-
+		return ret; 
 	# "get # of existent elements" (name difference from getnnz())
 	def getnee(self):
 		return self.pySPV.getnnz();
@@ -240,7 +243,7 @@ class PyDenseParVec:
 			self.pyDPV.ApplyMasked_SetTo(key.pySPV, value);
 		else:
 			raise KeyError, "Invalid key in PyDenseParVec:__setitem__";
-		return;
+		return self;
 
 	def __sub__(self, other):
 		ret = PyDenseParVec(0, 0);
