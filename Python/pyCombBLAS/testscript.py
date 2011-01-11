@@ -111,9 +111,9 @@ def k2validate(G, root, parents):
 		G.SpMV_SelMax_inplace(fringe);
 		pcb.EWiseMult_inplacefirst(fringe, parents2, True, -1);
 		#fringe.printall();
-		parents2.ApplyMasked_SetTo(fringe,0);
+		parents2.ApplyMasked(pcb.set(0), fringe);
 		parents2.add(fringe);
-		levels.ApplyMasked_SetTo(fringe,level);
+		levels.ApplyMasked(pcb.set(level), fringe);
 		level += 1;
 	
 	# spec test #1
@@ -131,7 +131,7 @@ def k2validate(G, root, parents):
 	#treeEdges = ((parents <> -1) & (parents <> root);
 	tmp1 = parents.copy();
 	tmp1.SetElement(root,-1);
-	treeEdges = tmp1.FindInds_NotEqual(-1);
+	treeEdges = tmp1.FindInds(pcb.bind2nd(pcb.not_equal_to(), -1));
 	#treeI = parents[treeEdges]
 	treeI = parents.SubsRef(treeEdges);
 	#treeJ = 1..nrowG[treeEdges]
@@ -139,7 +139,7 @@ def k2validate(G, root, parents):
 	#if any(levels[treeI]-levels[treeJ] <> -1):
 	tmp1 = levels.SubsRef(treeI);
 	tmp1 -= levels.SubsRef(treeJ);
-	tmp2 = tmp1.FindInds_NotEqual(-1);
+	tmp2 = tmp1.FindInds(pcb.bind2nd(pcb.not_equal_to(), -1));
 	if tmp2.getnnz():
 		ret = -1;
 
@@ -261,7 +261,7 @@ for i in range(0, numCands):
 		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
 		#print "fringe at end of iteration"
 		#fringe.printall();
-		parents.ApplyMasked_SetTo(fringe, 0)
+		parents.ApplyMasked(pcb.set(0), fringe)
 		parents.add(fringe)
 		niter += 1
 	
@@ -271,7 +271,7 @@ for i in range(0, numCands):
 	################## REPORTING:
 
 	#parents.printall()
-	r = parents.Count_GreaterThan(-1)
+	r = parents.Count(pcb.bind2nd(pcb.greater(), -1))
 
 	#find the number of edges we traversed. Some were traversed multiple times, but the spec
 	# says the number of input edges.
@@ -280,7 +280,7 @@ for i in range(0, numCands):
 		pnnz = parentsSP.getnnz()
 		if (pcb.root()):
 			print "oh oh oh oh noooooooo! (parents.nnz) %d != %d (parentsSP.nnz)"%(r, pnnz)
-	parentsSP.Apply_SetTo(1);
+	parentsSP.Apply(pcb.set(1));
 	nedges = pcb.EWiseMult(parentsSP, degrees, False, 0).Reduce_sum()
 	
 	#s = A.SpMV_PlusTimes(parentsSP)

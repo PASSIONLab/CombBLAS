@@ -23,6 +23,7 @@ protected:
 
 	pySpParVec(); // used for initializing temporaries to be returned
 /////////////// everything below this appears in python interface:
+//INTERFACE_INCLUDE_BEGIN
 public:
 	pySpParVec(int64_t length);
 	//pySpParVec(const pySpParMat& commSource);
@@ -41,8 +42,8 @@ public:
 	int64_t GetElement(int64_t index);
 	
 public:	
-	void invert(); // "~";  almost equal to logical_not
-	void abs();
+	//void invert(); // "~";  almost equal to logical_not
+	//void abs();
 	
 	bool any() const; // any nonzeros
 	bool all() const; // all nonzeros
@@ -81,20 +82,25 @@ public:
 	void load(const char* filename);
 
 public:
-	pyDenseParVec* FindInds_GreaterThan(int64_t value);
-	pyDenseParVec* FindInds_NotEqual(int64_t value);
-	
+	// The functions commented out here presently do not exist in CombBLAS
+	//int64_t Count(op::UnaryFunction* op);
+	//pySpParVec* Find(op::UnaryFunction* op);
+	//pyDenseParVec* FindInds(op::UnaryFunction* op);
+	void Apply(op::UnaryFunction* op);
+	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
+
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
 	int64_t Reduce_sum();
+	//int64_t Reduce(op::BinaryFunction* f); // doesn't work yet
 	
 	void setNumToInd();
-	void Apply_SetTo(int64_t v);
 
 public:
 	static pySpParVec* zeros(int64_t howmany);
 	static pySpParVec* range(int64_t howmany, int64_t start);
-	
+
+//INTERFACE_INCLUDE_END
 };
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);

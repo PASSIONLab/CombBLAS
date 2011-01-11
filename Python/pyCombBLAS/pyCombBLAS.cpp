@@ -1,24 +1,5 @@
 #include "pyCombBLAS.h"
 
-////////////////// PREDICATES
-int64_t invert64(int64_t v)
-{
-	return ~v;
-}
-
-int64_t abs64(int64_t v)
-{
-	if (v < 0) return -v;
-	return v;
-}
-
-int64_t negate64(int64_t v)
-{
-	return -v;
-}
-
-
-
 ////////////////// OPERATORS
 
 pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)

@@ -989,13 +989,17 @@ Python/distribCombBLAS/feedback.py -text
 Python/pyCombBLAS/Makefile -text
 Python/pyCombBLAS/Makefile-neumann -text
 Python/pyCombBLAS/PyCombBLAS.py -text
+Python/pyCombBLAS/makei.py -text
 Python/pyCombBLAS/pyCombBLAS.cpp -text
 Python/pyCombBLAS/pyCombBLAS.h -text
 Python/pyCombBLAS/pyCombBLAS.i -text
+Python/pyCombBLAS/pyCombBLAS.i.templ -text
 Python/pyCombBLAS/pyCombBLAS.py -text
 Python/pyCombBLAS/pyCombBLAS_wrap.cpp -text
 Python/pyCombBLAS/pyDenseParVec.cpp -text
 Python/pyCombBLAS/pyDenseParVec.h -text
+Python/pyCombBLAS/pyOperations.cpp -text
+Python/pyCombBLAS/pyOperations.h -text
 Python/pyCombBLAS/pySpParMat.cpp -text
 Python/pyCombBLAS/pySpParMat.h -text
 Python/pyCombBLAS/pySpParVec.cpp -text

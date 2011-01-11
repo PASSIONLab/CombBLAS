@@ -101,16 +101,17 @@ pySpParVec* pySpParVec::copy()
 }
 
 
+/*
 void pySpParVec::invert() // "~";  almost equal to logical_not
 {
 	v.Apply(invert64);
 }
 
-
 void pySpParVec::abs()
 {
 	v.Apply(abs64);
 }
+*/
 
 bool pySpParVec::any() const
 {
@@ -141,6 +142,7 @@ void pySpParVec::printall()
 	v.DebugPrint();
 }
 
+/*
 pyDenseParVec* pySpParVec::FindInds_GreaterThan(int64_t value)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
@@ -163,6 +165,45 @@ pyDenseParVec* pySpParVec::FindInds_NotEqual(int64_t value)
 	return ret;
 }
 
+void pySpParVec::Apply_SetTo(int64_t value)
+{
+	v.Apply(set<int64_t>(value));
+}
+
+*/
+
+/////////////////////////
+/*
+int64_t pySpParVec::Count(op::UnaryFunction* op)
+{
+	return v.Count(*op);
+}
+
+pySpParVec* pySpParVec::Find(op::UnaryFunction* op)
+{
+	pySpParVec* ret = new pySpParVec();
+	ret->v = v.Find(*op);
+	return ret;
+}
+
+pyDenseParVec* pySpParVec::FindInds(op::UnaryFunction* op)
+{
+	pyDenseParVec* ret = new pyDenseParVec();
+	ret->v = v.FindInds(*op);
+	return ret;
+}
+*/
+void pySpParVec::Apply(op::UnaryFunction* op)
+{
+	v.Apply(*op);
+}
+/*
+void pySpParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
+{
+	v.Apply(*op, mask.v);
+}
+*/
+
 
 pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 {
@@ -175,16 +216,18 @@ int64_t pySpParVec::Reduce_sum()
 {
 	return v.Reduce(plus<int64_t>(), 0);
 }
+/*
+// doesn't work yet, bu ideally this would replace the above function
+int64_t pySpParVec::Reduce(op::BinaryFunction* f)
+{
+	return v.Reduce(*f, 0);
+}
+*/
 
 
 void pySpParVec::setNumToInd()
 {
 	v.setNumToInd();
-}
-
-void pySpParVec::Apply_SetTo(int64_t value)
-{
-	v.Apply(set<int64_t>(value));
 }
 
 
