@@ -20,6 +20,7 @@ protected:
 	friend class pySpParVec;
 
 /////////////// everything below this appears in python interface:
+//INTERFACE_INCLUDE_BEGIN
 public:
 	pySpParMat();
 
@@ -44,7 +45,7 @@ public:
 	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
-	
+//INTERFACE_INCLUDE_END
 };
 
 #endif

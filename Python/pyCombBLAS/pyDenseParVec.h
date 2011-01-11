@@ -18,6 +18,7 @@ protected:
 
 	pyDenseParVec();
 /////////////// everything below this appears in python interface:
+//INTERFACE_INCLUDE_BEGIN
 public:
 	pyDenseParVec(int64_t size, int64_t init);
 	pyDenseParVec(int64_t size, int64_t init, int64_t zero);
@@ -51,9 +52,9 @@ public:
 	void printall();
 	
 public:
-	void invert(); // "~";  almost equal to logical_not
-	void abs();
-	void negate();
+	//void invert(); // "~";  almost equal to logical_not
+	//void abs();
+	//void negate();
 	
 	int64_t getnnz() const;
 	int64_t getnz() const;
@@ -63,19 +64,17 @@ public:
 	void load(const char* filename);
 	
 public:
-	int64_t Count_GreaterThan(int64_t value);
-	pySpParVec* Find_totality();
-	pySpParVec* Find_GreaterThan(int64_t value);
-	pySpParVec* Find_NotEqual(int64_t value);
-	pyDenseParVec* FindInds_GreaterThan(int64_t value);
-	pyDenseParVec* FindInds_NotEqual(int64_t value);
+	int64_t Count(op::UnaryFunction* op);
+	pySpParVec* Find(op::UnaryFunction* op);
+	pyDenseParVec* FindInds(op::UnaryFunction* op);
+	void Apply(op::UnaryFunction* op);
+	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	
 	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
-	void ApplyMasked_SetTo(const pySpParVec& mask, int64_t value);
 
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
-
+//INTERFACE_INCLUDE_END
 };
 
 #endif

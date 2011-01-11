@@ -24,8 +24,14 @@
 #include "../../CombBLAS/FullyDistSpVec.h"
 #include "../../CombBLAS/ParFriends.h"
 #include "../../CombBLAS/DistEdgeList.h"
+#include "../../CombBLAS/Operations.h"
 
+namespace op{
+class UnaryFunction;
+class BinaryFunction;
+}
 
+#include "pyOperations.h"
 #include "pySpParMat.h"
 #include "pySpParVec.h"
 #include "pyDenseParVec.h"
@@ -33,11 +39,6 @@
 class pySpParMat;
 class pySpParVec;
 class pyDenseParVec;
-
-int64_t invert64(int64_t v);
-int64_t abs64(int64_t v);
-int64_t negate64(int64_t);
-
 
 extern "C" {
 void init_pyCombBLAS_MPI();

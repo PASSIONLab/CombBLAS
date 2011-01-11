@@ -163,45 +163,37 @@ pyDenseParVec* pyDenseParVec::copy()
 	return ret;
 }
 
-int64_t pyDenseParVec::Count_GreaterThan(int64_t value)
+/////////////////////////
+
+int64_t pyDenseParVec::Count(op::UnaryFunction* op)
 {
-	return v.Count(bind2nd(greater<int64_t>(), value));
+	return v.Count(*op);
 }
 
-pySpParVec* pyDenseParVec::Find_totality()
+pySpParVec* pyDenseParVec::Find(op::UnaryFunction* op)
 {
 	pySpParVec* ret = new pySpParVec();
-	ret->v = v.Find(totality<int64_t>());
+	ret->v = v.Find(*op);
 	return ret;
 }
 
-pySpParVec* pyDenseParVec::Find_GreaterThan(int64_t value)
-{
-	pySpParVec* ret = new pySpParVec();
-	ret->v = v.Find(bind2nd(greater<int64_t>(), value));
-	return ret;
-}
-
-pySpParVec* pyDenseParVec::Find_NotEqual(int64_t value)
-{
-	pySpParVec* ret = new pySpParVec();
-	ret->v = v.Find(bind2nd(not_equal_to<int64_t>(), value));
-	return ret;
-}
-
-pyDenseParVec* pyDenseParVec::FindInds_GreaterThan(int64_t value)
+pyDenseParVec* pyDenseParVec::FindInds(op::UnaryFunction* op)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
-	ret->v = v.FindInds(bind2nd(greater<int64_t>(), value));
+	ret->v = v.FindInds(*op);
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::FindInds_NotEqual(int64_t value)
+void pyDenseParVec::Apply(op::UnaryFunction* op)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
-	ret->v = v.FindInds(bind2nd(not_equal_to<int64_t>(), value));
-	return ret;
+	v.Apply(*op);
 }
+
+void pyDenseParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
+{
+	v.Apply(*op, mask.v);
+}
+
 	
 pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {
@@ -210,7 +202,7 @@ pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 	return ret;
 }
 
-
+/*
 void pyDenseParVec::invert() // "~";  almost equal to logical_not
 {
 	v.Apply(invert64);
@@ -226,6 +218,7 @@ void pyDenseParVec::negate()
 {
 	v.Apply(negate64);
 }
+*/
 
 int64_t pyDenseParVec::getnnz() const
 {
@@ -255,11 +248,6 @@ void pyDenseParVec::RandPerm()
 void pyDenseParVec::printall()
 {
 	v.DebugPrint();
-}
-
-void pyDenseParVec::ApplyMasked_SetTo(const pySpParVec& mask, int64_t value)
-{
-	v.Apply(set<int64_t>(value), mask.v);
 }
 
 pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
