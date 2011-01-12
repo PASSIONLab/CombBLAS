@@ -92,7 +92,7 @@ public:
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
 	int64_t Reduce_sum();
-	//int64_t Reduce(op::BinaryFunction* f); // doesn't work yet
+	//int64_t Reduce(op::BinaryFunction* f); // does not work yet
 	
 	void setNumToInd();
 
