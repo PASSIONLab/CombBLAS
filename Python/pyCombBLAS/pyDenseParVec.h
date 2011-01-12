@@ -35,7 +35,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
