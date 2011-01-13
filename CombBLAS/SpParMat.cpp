@@ -397,7 +397,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 
 		vector< vector<IT> > rowdata_rowid(rowneighs);
 		vector< vector<IT> > rowdata_colid(rowneighs);
-	
 		vector< vector<IT> > coldata_rowid(colneighs);
 		vector< vector<IT> > coldata_colid(colneighs);
 
@@ -690,9 +689,6 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls,sendbuf);
 		copy (recvbuf,recvbuf+thisrecv,back_inserter(alledges));	// copy to all edges
 		delete [] recvbuf;
-	
-//		if(rank == 0)	
-//			cout << "Rank: " << rank << " at stage " << s << endl; 
 	}
 
 	int myprocrow = commGrid->GetRankInProcCol();
@@ -1340,15 +1336,83 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 	DeleteAll(cdispls, rdispls);
 	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];  // the vector will go out of scope, make it stick !
 	copy(localtuples.begin(), localtuples.end(), arrtuples);
-
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
-	
 	spSeq->Create( localtuples.size(), localm, localn, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
-
 	return infile;
 }
 
+
+//! The input parameters' identity (zero) elements as well as 
+//! their communication grid is preserved while outputting
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,IT> & distcols, FullyDistVec<IT,NT> & distvals) const
+{
+	IT globallen = getnnz();
+	SpTuples<IT,NT> Atuples(*spSeq);
+	
+	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0, distrows.zero); 
+	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0, distcols.zero); 
+	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, 0, distvals.zero); 
+	
+	IT prelen = Atuples.getnnz();
+	IT postlen = nrows.MyLocLength();
+
+	int rank = commGrid->GetRank();
+	int nprocs = commGrid->GetSize();
+	IT * prelens = new IT[nprocs];
+	prelens[rank] = prelen;
+	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	IT prelenuntil = accumulate(prelens, prelens+rank, 0);
+
+	int * sendcnt = new int[nprocs]();	// zero initialize
+	IT * rows = new IT[prelen];
+	IT * cols = new IT[prelen];
+	NT * vals = new NT[prelen];
+
+	int rowrank = commGrid->GetRankInProcRow();
+	int colrank = commGrid->GetRankInProcCol(); 
+	int rowneighs = commGrid->GetGridCols();
+	int colneighs = commGrid->GetGridRows();
+	IT * locnrows = new IT[colneighs];	// number of rows is calculated by a reduction among the processor column
+	IT * locncols = new IT[rowneighs];
+	locnrows[colrank] = getlocalrows();
+	locncols[rowrank] = getlocalcols();
+
+	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
+	commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locncols, 1, MPIType<IT>());
+	IT roffset = accumulate(locnrows, locnrows+colrank, 0);
+	IT coffset = accumulate(locncols, locncols+rowrank, 0);
+	
+	DeleteAll(locnrows, locncols);
+	for(int i=0; i< prelen; ++i)
+	{
+		IT locid;	// ignore local id, data will come in order
+		int owner = nrows.Owner(prelenuntil+i, locid);
+		sendcnt[owner]++;
+
+		rows[i] = Atuples.rowindex(i) + roffset;	// need the global row index
+		cols[i] = Atuples.colindex(i) + coffset;	// need the global col index
+		vals[i] = Atuples.numvalue(i);
+	}
+
+	int * recvcnt = new int[nprocs];
+	commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// get the recv counts
+
+	int * sdpls = new int[nprocs]();	// displacements (zero initialized pid) 
+	int * rdpls = new int[nprocs](); 
+	partial_sum(sendcnt, sendcnt+nprocs-1, sdpls+1);
+	partial_sum(recvcnt, recvcnt+nprocs-1, rdpls+1);
+
+	commGrid->GetWorld().Alltoallv(rows, sendcnt, sdpls, MPIType<IT>(), &(nrows.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(cols, sendcnt, sdpls, MPIType<IT>(), &(ncols.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(vals, sendcnt, sdpls, MPIType<NT>(), &(nvals.arr[0]), recvcnt, rdpls, MPIType<NT>()); 
+	DeleteAll(sendcnt, recvcnt, sdpls, rdpls);
+	DeleteAll(prelens, rows, cols, vals);
+	distrows = nrows;
+	distcols = ncols;
+	distvals = nvals;
+}
 
 template <class IT, class NT, class DER>
 ofstream& SpParMat<IT,NT,DER>::put(ofstream& outfile) const

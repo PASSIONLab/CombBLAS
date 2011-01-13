@@ -78,6 +78,7 @@ public:
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
+	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 
 	template <typename _BinaryOperation, typename _UnaryOperation >	
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;

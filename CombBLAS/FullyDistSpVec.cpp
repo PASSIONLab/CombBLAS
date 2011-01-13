@@ -417,7 +417,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					// then, send all buffers that to their recipients ...
 					World.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
 					World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
-	
+		
 					// now push what is ours to tuples
 					for(IT i=zero; i< recvcount; ++i)
 					{					
