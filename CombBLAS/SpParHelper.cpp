@@ -10,7 +10,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 1000)
+	if(nprocs < 100)
 	{
 		long * dist_in = new long[nprocs];
 		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
@@ -19,7 +19,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 	}
 	else
 	{
-		IT gl_median = accumulate(dist, dist+nsize, 0);	// global rank of the first element of the median processor
+		IT gl_median = accumulate(dist, dist+nsize, static_cast<IT>(0));	// global rank of the first element of the median processor
 		sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
 
 		int myrank = comm.Get_rank();
@@ -41,9 +41,8 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm)
 {
-	
 	comm.Barrier();
-	double t1=MPI_Wtime();
+	double t1=MPI::Wtime();
 			
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
@@ -57,8 +56,8 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 
 	KEY wmm;	// our median pick
 	IT gl_low, gl_upp;	
-	int active = end-begin;				// size of the active range
-	int nacts = 0; 
+	IT active = end-begin;				// size of the active range
+	IT nacts = 0; 
 	bool found = 0;
 	int iters = 0;
 	do
@@ -111,7 +110,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 			found = true;	
 		}
 		active = end-begin;
-		comm.Allreduce(&active, &nacts, 1, MPI::INT, MPI::SUM);
+		comm.Allreduce(&active, &nacts, 1, MPIType<IT>(), MPI::SUM);
 	} 
 	while((nacts > 2*nprocs) && (!found));
 	delete [] wmminput;
@@ -121,7 +120,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	MPI_Type_commit (&MPI_pairType);
 
 	int * nactives = new int[nprocs];
-	nactives[myrank] = active;
+	nactives[myrank] = static_cast<int>(active);	// At this point, actives are small enough
 	comm.Allgather(MPI::IN_PLACE, 0, MPI::INT, nactives, 1, MPI::INT);
 	int * dpls = new int[nprocs]();	// displacements (zero initialized pid) 
 	partial_sum(nactives, nactives+nprocs-1, dpls+1);
@@ -141,19 +140,15 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	DeleteAll(recvbuf, dpls, nactives);
 	sort(allactives, allactives+nacts); 
 	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM);	// update
-	//ostringstream out;
-	//out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
-	for(int k=gl_low; k < gl_rank; ++k)
+	int diff = gl_rank - gl_low;
+	for(int k=0; k < diff; ++k)
 	{		
-		if(allactives[k-gl_low].second == myrank)	
+		if(allactives[k].second == myrank)	
 			++low;	// increment the local pointer
 	}
 	delete [] allactives;
-
 	begin = low-array;
 	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM); 	// update
-	//out << "GL_LOW: " << gl_low << ", GL_RANK: " << gl_rank << endl;
-	//SpParHelper::Print(out.str());
 
 	comm.Barrier();
 	double t2 = MPI::Wtime();
@@ -165,7 +160,7 @@ template<typename KEY, typename VAL, typename IT>
 void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm)
 {
 	comm.Barrier();
-	double t1=MPI_Wtime();
+	double t1=MPI::Wtime();
 
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
@@ -185,7 +180,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	{
 		bufbegin = low;
 		totrecvcnt = length - (low-array);
-		IT beg_oftransfer = accumulate(secondhalves, secondhalves+myrank, 0);
+		IT beg_oftransfer = accumulate(secondhalves, secondhalves+myrank, static_cast<IT>(0));
 		IT spaceafter = firsthalves[nfirsthalf];
 		int i=nfirsthalf+1;
 		while(i < nprocs && spaceafter < beg_oftransfer)
@@ -210,7 +205,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		bufbegin = array;
 		totrecvcnt = low-array;
 		// global index (within the second processor half) of the beginning of my data
-		IT beg_oftransfer = accumulate(firsthalves+nfirsthalf, firsthalves+myrank, 0);
+		IT beg_oftransfer = accumulate(firsthalves+nfirsthalf, firsthalves+myrank, static_cast<IT>(0));
 		IT spaceafter = secondhalves[0];
 		int i=1;
 		while( i< nfirsthalf && spaceafter < beg_oftransfer)
@@ -271,7 +266,11 @@ void SpParHelper::DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MP
     	int rank = World.Get_rank();
     	int nprocs = World.Get_size();
     	MPI::File thefile = MPI::File::Open(World, "temp_sortedkeys", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
-	IT sizeuntil = accumulate(dist, dist+rank, 0);
+
+	// The cast in the last parameter is crucial because the signature of the function is
+   	// T accumulate ( InputIterator first, InputIterator last, T init )
+	// Hence if init if of type "int", the output also becomes an it (remember C++ signatures are ignorant of return value)
+	IT sizeuntil = accumulate(dist, dist+rank, static_cast<IT>(0)); 
 
 	MPI::Offset disp = sizeuntil * sizeof(KEY);	// displacement is in bytes
     	thefile.Set_view(disp, MPIType<KEY>(), MPIType<KEY>(), "native", MPI::INFO_NULL);
