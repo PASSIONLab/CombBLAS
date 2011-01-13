@@ -80,7 +80,7 @@ class PySpParVec:
 			tmp.pyDPV += value.pyDPV;
 			self.pySPV = tmp.sparse().pySPV;
 		elif type(key)==str and key=='existent':
-			self.pySPV.Apply_SetTo(value);
+			self.pySPV.Apply(pcb.set(value));
 		else:
 			raise KeyError, "Invalid key in PySpParVec:__setitem__";
 		return self;
@@ -167,8 +167,8 @@ class PyDenseParVec:
 		tmp1.pyDPV = self.pyDPV.copy();
 		tmp1.pyDPV += other.pyDPV;
 		tmp2 = PySpParVec(0);
-		tmp2.pySPV = tmp1.pyDPV.Find_GreaterThan(1);
-		tmp2.pySPV.Apply_SetTo(1);
+		tmp2.pySPV = tmp1.pyDPV.Find(pcb.bind2nd(pcb.greater(),1));
+		tmp2.pySPV.Apply(pcb.set(1));
 		ret = PyDenseParVec(len(self),0);
 		ret[tmp2] = 1;
 		return ret;
@@ -214,10 +214,9 @@ class PyDenseParVec:
 	def __ne__(self, other):
 		if type(other) == int:  # vector <> scalar; expand scalar
 			other = PyDenseParVec(len(self),other)
-	
 		diff = self - other;
 		trues = PySpParVec(0);
-		trues.pySPV = diff.pyDPV.Find_NotEqual(0);
+		trues.pySPV = diff.pyDPV.Find(pcb.bind2nd(pcb.not_equal_to(),0));
 		ret = PyDenseParVec(len(self),0);
 		ret[trues] = 1;
 		return ret;
@@ -231,10 +230,10 @@ class PyDenseParVec:
 			self.pyDPV.SetElement(key,value);
 					# index is a sparse vector
 		elif isinstance(key, PySpParVec):
-			self.pyDPV.ApplyMasked_SetTo(key.pySPV, 0);
+			self.pyDPV.ApplyMasked(pcb.set(0), key.pySPV);
 			if type(value) == int:	# value is a scalar
 				tmp = key.pySPV.copy();
-				tmp.Apply_SetTo(value)
+				tmp.Apply(pcb.set(value));
 				self.pyDPV += tmp;
 			else:			# value is a sparse vector
 				self.pyDPV += value.pySPV;
@@ -249,8 +248,11 @@ class PyDenseParVec:
 		return ret;
 
 	def any(self):
-		tmp = self.pyDPV.Find_NotEqual(0).getnnz()
-		return tmp;
+		tmp = self.pyDPV.Find(pcb.bind2nd(pcb.not_equal_to(),0))
+		if tmp.getnnz() > 0:
+			return True;
+		else:
+			return False;
 
 	def copy(self):
 		ret = PyDenseParVec(0,0);
@@ -259,14 +261,14 @@ class PyDenseParVec:
 		
 	def find(self):
 		ret = PyDenseParVec(0,0);
-		ret.pyDPV = self.pyDPV.FindInds_NotEqual(0);
+		ret.pyDPV = self.pyDPV.FindInds(pcb.bind2nd(pcb.not_equal_to(),0));
 		return ret;
 
 	def findGt(self, value):
 		if type(value) != int:		#HACK, should check length
 			raise TypeError, 'value must be scalar'
 		ret = PyDenseParVec(0,0);
-		ret.pyDPV = self.pyDPV.FindInds_GreaterThan(value);
+		ret.pyDPV = self.pyDPV.FindInds(pcb.bind2nd(pcb.greater(),value));
 		return ret;
 
 	# "get # of existent elements" (name difference from getnnz())
