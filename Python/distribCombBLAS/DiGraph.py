@@ -124,7 +124,7 @@ def isBfsTree(G, root, parents):
 	parents2 = PCB.PyDenseParVec(nvertG, -1);
 	fringe = PCB.PySpParVec(nvertG);
 	parents2[root] = root;
-	fringe[root] = root;
+	fringe[root] = root+1;
 	levels = PCB.PyDenseParVec(nvertG, -1);
 	levels[root] = 0;
 
@@ -152,7 +152,7 @@ def isBfsTree(G, root, parents):
 	treeI = parents[treeEdges.find()]
 	treeJ = PCB.PyDenseParVec(0,0).range(nvertG,0)[treeEdges.find()];
 	if (levels[treeI]-levels[treeJ] <> -1).any():
-		ret = -1;
+		ret = -2;
 
 	return (ret, levels)
 
