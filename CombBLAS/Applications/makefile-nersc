@@ -21,7 +21,7 @@ INCADD = -I$(BOOST)
 # -fno-rtti does not work with tr1:tuples
 
 GCCOPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
-GCCDEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
+GCCDEB = -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
 OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
 COMPILER = CC #-v
 GCCFLAGS = $(GCCOPT) 
@@ -69,7 +69,7 @@ apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
 	$(COMPILER) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o
 
 graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	$(COMPILER) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 graph500_withipm:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) -o graph500_withipm Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(IPM_GNU)

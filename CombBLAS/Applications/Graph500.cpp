@@ -155,10 +155,10 @@ int main(int argc, char* argv[])
 			DEL->GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
 			SpParHelper::Print("Generated local RMAT matrices\n");
 		
-			PermEdges<int64_t>(*DEL);
+			PermEdges(*DEL);
 			SpParHelper::Print("Permuted Edges\n");
 
-			RenameVertices<int64_t>(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
+			RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
 			SpParHelper::Print("Renamed Vertices\n");
 	
 			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); // conversion from distributed edge list, keep self-loops
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 			{
 				fringe.setNumToInd();
 				//fringe.PrintInfo("fringe before SpMV");
-				fringe = SpMV<SR>(A, fringe, true);	// SpMV with sparse vector (with indexisvalue flag set)
+				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector (with indexisvalue flag set)
 				// fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
 				// fringe.PrintInfo("fringe after cleanup");

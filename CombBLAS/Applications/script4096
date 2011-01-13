@@ -5,4 +5,4 @@
 #PBS -j eo
 #PBS -V
 cd $SCRATCH
-aprun -n 4096 ./graph500 Force 32
+aprun -n 4096 ./graph500 Force 31
