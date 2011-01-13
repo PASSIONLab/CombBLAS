@@ -58,11 +58,8 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
-
 		MPI::COMM_WORLD.Barrier();
-	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;
-
 		PARDBMAT A, AID, ACID;		// declare objects
 		SpParVec<int,int> vec1, vec2;
 
@@ -70,11 +67,12 @@ int main(int argc, char* argv[])
 		AID.ReadDistribute(inputindexd, 0);	
 		vec1.ReadDistribute(inputvec1, 0);
 		vec2.ReadDistribute(inputvec2, 0);
-	
+
+		vec1.Apply(bind2nd(minus<int>(), 1));	// For 0-based indexing
+		vec2.Apply(bind2nd(minus<int>(), 1));	
 		ACID = A(vec1, vec2);
 
 		ACID.PrintInfo();
-
 		if (ACID == AID)
 		{
 			SpParHelper::Print("Indexing working correctly\n");	
@@ -86,8 +84,8 @@ int main(int argc, char* argv[])
 
 		// generate random permutations
 		SpParVec<int,int> p, q;
-		p.iota(A.getnrow(), 1);
-		q.iota(A.getncol(), 1);
+		p.iota(A.getnrow(), 0);
+		q.iota(A.getncol(), 0);
 		RandPerm(p);	
 		RandPerm(q);
 

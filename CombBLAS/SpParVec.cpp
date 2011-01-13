@@ -272,20 +272,19 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
-
 		IT * dist = new IT[nproc];
 		dist[diagrank] = nnz;
 		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
-
 		for(size_t i=0; i<nnz; ++i)
 		{
 			vecpair[i].first = num[i];	// we'll sort wrt numerical values
 			vecpair[i].second = ind[i] + lengthuntil;	// return 0-based indices	
 		}
-
-		// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-    		vpsort::parallel_sort (vecpair, vecpair + nnz,  dist, DiagWorld);
+		long * dist_in = new long[nproc];
+		for(int i=0; i< nproc; ++i)	dist_in[i] = (long) dist[i];	
+    		vpsort::parallel_sort (vecpair, vecpair + nnz,  dist_in, DiagWorld);
+		DeleteAll(dist_in,dist);
 
 		vector< IT > nind(nnz);
 		vector< IT > nnum(nnz);
@@ -296,7 +295,6 @@ SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 			nnum[i] = vecpair[i].second;	// inverse permutation stored as numerical values
 		}
 		delete [] vecpair;
-		delete [] dist;
 
 		temp.length = length;
 		temp.ind = nind;

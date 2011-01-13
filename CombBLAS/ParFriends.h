@@ -804,10 +804,9 @@ void RandPerm(SpParVec<IU,IU> & V)
 		int nproc = DiagWorld.Get_size();
 		int diagrank = DiagWorld.Get_rank();
 
-		IU * dist = new IU[nproc];
-		dist[diagrank] = V.getlocnnz();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPIType<IU>(), dist, 1, MPIType<IU>());
-		IU lengthuntil = accumulate(dist, dist+diagrank, 0);
+		long * dist = new long[nproc];
+		dist[diagrank] = (long) V.getlocnnz();
+		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPIType<long>(), dist, 1, MPIType<long>());
 
   		MTRand M;	// generate random numbers with Mersenne Twister
 		for(int i=0; i<V.getlocnnz(); ++i)
@@ -1186,8 +1185,6 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	return y;
 }
 	
-
-
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x)
@@ -1458,6 +1455,8 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
+
+
 
 #endif
 

@@ -42,6 +42,7 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
+	FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
 	arr.resize(rhs.MyLocLength());
 	std::fill(arr.begin(), arr.end(), zero);	
 
