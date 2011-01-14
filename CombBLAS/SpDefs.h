@@ -18,6 +18,7 @@
 #include "CommGrid.h"
 
 #define EPSILON 0.01
+#define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002

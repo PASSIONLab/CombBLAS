@@ -52,7 +52,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
-		SpMXSpV<SR>(*(A.dcsc), A.n, indx, numx, nnzx, indy, numy);
+		SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy);
 	}
 }
 
