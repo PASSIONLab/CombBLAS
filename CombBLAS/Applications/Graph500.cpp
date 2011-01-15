@@ -12,6 +12,10 @@
 #else
         #include <tr1/memory>
 #endif
+
+double alltoalltime;
+double allgathertime;
+
 #include "../SpTuples.h"
 #include "../SpDCCols.h"
 #include "../SpParMat.h"
@@ -21,6 +25,7 @@
 #include "../DistEdgeList.h"
 
 #define ITERS 16
+#define SAVEMEM 1
 using namespace std;
 
 // 64-bit floor(log2(x)) function 
@@ -51,7 +56,9 @@ int main(int argc, char* argv[])
 	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
-
+	allgathertime = 0;
+	alltoalltime = 0;
+	
 	if(argc < 3)
 	{
 		if(myrank == 0)
@@ -160,12 +167,14 @@ int main(int argc, char* argv[])
 
 			RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
 			SpParHelper::Print("Renamed Vertices\n");
-	
+
+			#ifndef SAVEMEM	
 			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); // conversion from distributed edge list, keep self-loops
 			SpParHelper::Print("Created Int64 Sparse Matrix\n");
 			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
 			delete G;
 			SpParHelper::Print("Calculated degrees\n");
+			#endif
 
 			// Start Kernel #1
 			MPI::COMM_WORLD.Barrier();
@@ -194,6 +203,7 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
 
+		#ifndef SAVEMEM
 		FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
 		A.Reduce(*ColSums, Column, plus<int64_t>(), 0); 	// plus<int64_t> matches the type of the output vector
 
@@ -215,6 +225,34 @@ int main(int argc, char* argv[])
 		Cands = Cands(Firsts);		
 		//Cands.DebugPrint();
 		Cands.PrintInfo("First several of candidates (randomly chosen) array");
+		#else 
+		FullyDistVec<int64_t, int64_t> Cands(ITERS, 0, 0);
+		double nver = std::pow(2.0, (double) scale);
+
+		MTRand M;	// generate random numbers with Mersenne Twister
+		vector<double> loccands(ITERS);
+		vector<int64_t> loccandints(ITERS);
+		if(myrank == 0)
+		{
+			for(int i=0; i<ITERS; ++i)
+				loccands[i] = M.rand();
+			copy(loccands.begin(), loccands.end(), ostream_iterator<double>(cout," ")); cout << endl;
+			transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
+			
+			for(int i=0; i<ITERS; ++i)
+				loccandints[i] = static_cast<int64_t>(loccands[i]);
+			copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
+		}
+
+		MPI::COMM_WORLD.Barrier();
+		MPI::COMM_WORLD.Bcast(&(loccandints[0]), ITERS, MPIType<int64_t>(),0);
+		MPI::COMM_WORLD.Barrier();
+		for(int i=0; i<ITERS; ++i)
+		{
+			Cands.SetElement(i,loccandints[i]);
+		}
+		#endif
+		
 	
 		double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 		for(int i=0; i<ITERS; ++i)
@@ -235,7 +273,7 @@ int main(int argc, char* argv[])
 			{
 				fringe.setNumToInd();
 				//fringe.PrintInfo("fringe before SpMV");
-				fringe = SpMV<SR>(A, fringe);	// SpMV with sparse vector (with indexisvalue flag set)
+				fringe = SpMV<SR>(A, fringe,true);	// SpMV with sparse vector (with indexisvalue flag set)
 				// fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
 				// fringe.PrintInfo("fringe after cleanup");
@@ -254,7 +292,11 @@ int main(int argc, char* argv[])
 			parentsp.Apply(set<int64_t>(1));
 
 			// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
+			#ifdef SAVEMEM
+			int64_t nedges = 0;
+			#else
 			int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
+			#endif
 	
 			ostringstream outnew;
 			outnew << i << "th starting vertex was " << Cands[i] << endl;
@@ -271,6 +313,10 @@ int main(int argc, char* argv[])
 		SpParHelper::Print("Finished\n");
 		ostringstream os;
 
+		os << "Per iteration communication times: " << endl;
+		os << "AllGatherv: " << allgathertime / ITERS << endl;
+		os << "AlltoAllv: " << alltoalltime / ITERS << endl;
+
 		sort(EDGES, EDGES+ITERS);
 		os << "--------------------------" << endl;
 		os << "Min nedges: " << EDGES[0] << endl;
@@ -278,7 +324,7 @@ int main(int argc, char* argv[])
 		os << "Median nedges: " << (EDGES[(ITERS/2)-1] + EDGES[ITERS/2])/2 << endl;
 		os << "Third Quartile nedges: " << (EDGES[(3*ITERS/4) -1 ] + EDGES[3*ITERS/4])/2 << endl;
 		os << "Max nedges: " << EDGES[ITERS-1] << endl;
- 		double mean = accumulate( EDGES, EDGES+ITERS, 0.0 )/ 64;
+ 		double mean = accumulate( EDGES, EDGES+ITERS, 0.0 )/ ITERS;
 		vector<double> zero_mean(ITERS);	// find distances to the mean
 		transform(EDGES, EDGES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
 		// self inner-product is sum of sum of squares
@@ -294,7 +340,7 @@ int main(int argc, char* argv[])
 		os << "Median time: " << (TIMES[(ITERS/2)-1] + TIMES[ITERS/2])/2 << " seconds" << endl;
 		os << "Third Quartile time: " << (TIMES[(3*ITERS/4)-1] + TIMES[3*ITERS/4])/2 << " seconds" << endl;
 		os << "Max time: " << TIMES[ITERS-1] << " seconds" << endl;
- 		mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ 64;
+ 		mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ ITERS;
 		transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
 		deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    		deviation = sqrt( deviation / (ITERS-1) );

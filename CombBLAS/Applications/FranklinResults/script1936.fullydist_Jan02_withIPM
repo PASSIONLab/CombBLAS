@@ -1,0 +1,576 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+export: Command not found.
+export: Command not found.
+Forcing scale to : 29
+Generated local RMAT matrices
+0.028027 seconds and 19 iterations elapsed for Median finding
+0.001767 seconds elapsed for setting up swap structures on 1936 procs
+0.060179 seconds elapsed for actual data swap on 1936 procs
+0.023473 seconds and 18 iterations elapsed for Median finding
+0.001943 seconds elapsed for setting up swap structures on 1936 procs
+0.067473 seconds elapsed for actual data swap on 1936 procs
+0.025241 seconds and 18 iterations elapsed for Median finding
+0.001560 seconds elapsed for setting up swap structures on 1936 procs
+0.027928 seconds elapsed for actual data swap on 1936 procs
+0.028683 seconds and 19 iterations elapsed for Median finding
+0.001598 seconds elapsed for setting up swap structures on 1936 procs
+0.028733 seconds elapsed for actual data swap on 1936 procs
+0.023598 seconds and 19 iterations elapsed for Median finding
+0.001665 seconds elapsed for setting up swap structures on 1936 procs
+0.056635 seconds elapsed for actual data swap on 1936 procs
+0.027517 seconds and 18 iterations elapsed for Median finding
+0.001926 seconds elapsed for setting up swap structures on 1936 procs
+0.047992 seconds elapsed for actual data swap on 1936 procs
+0.024213 seconds and 19 iterations elapsed for Median finding
+0.001800 seconds elapsed for setting up swap structures on 1936 procs
+0.074539 seconds elapsed for actual data swap on 1936 procs
+0.028012 seconds and 19 iterations elapsed for Median finding
+0.001854 seconds elapsed for setting up swap structures on 1936 procs
+0.075592 seconds elapsed for actual data swap on 1936 procs
+Permuted Edges
+0.028280 seconds and 18 iterations elapsed for Median finding
+0.001878 seconds elapsed for setting up swap structures on 1936 procs
+0.013997 seconds elapsed for actual data swap on 1936 procs
+Renamed Vertices
+Duplicates removed: 90065090 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 90065090 and self-loops removed: 4096
+10.017901 seconds elapsed for Kernel #1
+As a whole: 536870912 rows and 536870912 columns and 16999728156 nonzeros
+Load balance: 1.04115
+1.942393 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 172294089
+0.022843 seconds and 16 iterations elapsed for Median finding
+0.001842 seconds elapsed for setting up swap structures on 1936 procs
+0.006631 seconds elapsed for actual data swap on 1936 procs
+As a whole, Candidates array (permuted) has length 172294089
+As a whole, First 64 of candidates (randomly chosen) array has length 64
+0th starting vertex was 344712305
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.48815 seconds
+MTEPS: 1323.93
+1th starting vertex was 330311855
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42648 seconds
+MTEPS: 1336.64
+2th starting vertex was 385525997
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33921 seconds
+MTEPS: 1355.04
+3th starting vertex was 245198179
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.36935 seconds
+MTEPS: 1348.62
+4th starting vertex was 36905957
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.4545 seconds
+MTEPS: 1330.83
+5th starting vertex was 255314791
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33302 seconds
+MTEPS: 1356.36
+6th starting vertex was 286746036
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.49246 seconds
+MTEPS: 1323.05
+7th starting vertex was 258736850
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.4704 seconds
+MTEPS: 1327.56
+8th starting vertex was 407498288
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.48365 seconds
+MTEPS: 1324.85
+9th starting vertex was 495528323
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.44716 seconds
+MTEPS: 1332.35
+10th starting vertex was 120483441
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.35616 seconds
+MTEPS: 1351.42
+11th starting vertex was 386499420
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.46659 seconds
+MTEPS: 1328.34
+12th starting vertex was 166900315
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.43523 seconds
+MTEPS: 1334.82
+13th starting vertex was 506847304
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42168 seconds
+MTEPS: 1337.63
+14th starting vertex was 390637656
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.3674 seconds
+MTEPS: 1349.04
+15th starting vertex was 470114682
+Number iterations: 7
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.32558 seconds
+MTEPS: 1357.96
+16th starting vertex was 100330809
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.44306 seconds
+MTEPS: 1333.2
+17th starting vertex was 468413807
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.36023 seconds
+MTEPS: 1350.56
+18th starting vertex was 52233475
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.3501 seconds
+MTEPS: 1352.71
+19th starting vertex was 494847613
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.35021 seconds
+MTEPS: 1352.69
+20th starting vertex was 322734987
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.34497 seconds
+MTEPS: 1353.81
+21th starting vertex was 107203209
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.45684 seconds
+MTEPS: 1330.35
+22th starting vertex was 138958358
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.36199 seconds
+MTEPS: 1350.18
+23th starting vertex was 461712287
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.43085 seconds
+MTEPS: 1335.73
+24th starting vertex was 373688701
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.38964 seconds
+MTEPS: 1344.34
+25th starting vertex was 181267557
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37118 seconds
+MTEPS: 1348.24
+26th starting vertex was 101272196
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.41692 seconds
+MTEPS: 1338.63
+27th starting vertex was 130888794
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.46295 seconds
+MTEPS: 1329.09
+28th starting vertex was 293346562
+Number iterations: 9
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33148 seconds
+MTEPS: 1356.69
+29th starting vertex was 124744597
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.46024 seconds
+MTEPS: 1329.65
+30th starting vertex was 123046864
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.48564 seconds
+MTEPS: 1324.44
+31th starting vertex was 268418057
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42624 seconds
+MTEPS: 1336.68
+32th starting vertex was 103039655
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37525 seconds
+MTEPS: 1347.38
+33th starting vertex was 115261292
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.43739 seconds
+MTEPS: 1334.37
+34th starting vertex was 340580905
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.44087 seconds
+MTEPS: 1333.65
+35th starting vertex was 390509084
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.47586 seconds
+MTEPS: 1326.44
+36th starting vertex was 495608214
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.39843 seconds
+MTEPS: 1342.49
+37th starting vertex was 68634825
+Number iterations: 9
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37157 seconds
+MTEPS: 1348.15
+38th starting vertex was 430978512
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33735 seconds
+MTEPS: 1355.43
+39th starting vertex was 262609570
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.34364 seconds
+MTEPS: 1354.09
+40th starting vertex was 31735104
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42219 seconds
+MTEPS: 1337.53
+41th starting vertex was 299458322
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.49999 seconds
+MTEPS: 1321.52
+42th starting vertex was 96115837
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.51269 seconds
+MTEPS: 1318.94
+43th starting vertex was 327375298
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42541 seconds
+MTEPS: 1336.86
+44th starting vertex was 521943684
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33286 seconds
+MTEPS: 1356.39
+45th starting vertex was 405939230
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.42376 seconds
+MTEPS: 1337.2
+46th starting vertex was 282623799
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.47165 seconds
+MTEPS: 1327.31
+47th starting vertex was 526872403
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.45473 seconds
+MTEPS: 1330.79
+48th starting vertex was 335711964
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.48022 seconds
+MTEPS: 1325.55
+49th starting vertex was 378852395
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.3372 seconds
+MTEPS: 1355.47
+50th starting vertex was 510656007
+Number iterations: 7
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33541 seconds
+MTEPS: 1355.85
+51th starting vertex was 116003472
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37252 seconds
+MTEPS: 1347.95
+52th starting vertex was 435334979
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.41627 seconds
+MTEPS: 1338.76
+53th starting vertex was 97207699
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.45651 seconds
+MTEPS: 1330.42
+54th starting vertex was 513321318
+Number iterations: 7
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.32522 seconds
+MTEPS: 1358.03
+55th starting vertex was 465437278
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.40324 seconds
+MTEPS: 1341.49
+56th starting vertex was 300925272
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37452 seconds
+MTEPS: 1347.53
+57th starting vertex was 67988824
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.37191 seconds
+MTEPS: 1348.08
+58th starting vertex was 206007028
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.47402 seconds
+MTEPS: 1326.82
+59th starting vertex was 521759156
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.31546 seconds
+MTEPS: 1360.13
+60th starting vertex was 416287562
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.35395 seconds
+MTEPS: 1351.89
+61th starting vertex was 109447788
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.49112 seconds
+MTEPS: 1323.33
+62th starting vertex was 407876990
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.36453 seconds
+MTEPS: 1349.65
+63th starting vertex was 231783406
+Number iterations: 8
+Number of vertices found: 235270460
+Number of edges traversed: 8589859944
+BFS time: 6.33808 seconds
+MTEPS: 1355.28
+Finished
+--------------------------
+Min nedges: 8.58986e+09
+First Quartile nedges: 8.58986e+09
+Median nedges: 8.58986e+09
+Third Quartile nedges: 8.58986e+09
+Max nedges: 8.58986e+09
+Mean nedges: 8.58986e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 6.31546 seconds
+First Quartile time: 6.35505 seconds
+Median time: 6.41659 seconds
+Third Quartile time: 6.45667 seconds
+Max time: 6.51269 seconds
+Mean time: 6.40708 seconds
+STDDEV time: 0.0565784 seconds
+--------------------------
+Min MTEPS: 1318.94
+First Quartile MTEPS: 1330.38
+Median MTEPS: 1338.69
+Third Quartile MTEPS: 1351.66
+Max MTEPS: 1360.13
+Harmonic mean of MTEPS: 1340.68
+Harmonic standard deviation of MTEPS: 11.839
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm Force 29  (completed)
+# host    : nid06922/x86_64_Linux          mpi_tasks : 1936 on 484 nodes
+# start   : 01/06/11/18:35:46              wallclock : 641.340277 sec
+# stop    : 01/06/11/18:46:27              %comm     : 21.92 
+# gbytes  : 1.28155e+03 total              gflop/sec : 9.93907e-01 total
+#
+##############################################################################
+# region  : *       [ntasks] =   1936
+#
+#                           [total]         <avg>           min           max 
+# entries                       1936             1             1             1
+# wallclock               1.2416e+06       641.321       641.303        641.34
+# user                   1.12684e+06       582.048       573.568       588.213
+# system                      101579       52.4687       48.8951       58.0076
+# mpi                         272217       140.608       123.049       157.432
+# %comm                                     21.924       19.1866       24.5484
+# gflop/sec                 0.993907   0.000513382   0.000512585   0.000513794
+# gbytes                     1281.55      0.661957      0.658283      0.665768
+#
+# PAPI_TOT_INS           1.93261e+15   9.98247e+11   9.60677e+11   1.04333e+12
+# PAPI_FP_OPS            6.37432e+11   3.29252e+08   3.28742e+08   3.29517e+08
+# PAPI_L1_DCA            7.32332e+14   3.78271e+11   3.61676e+11   3.96649e+11
+# PAPI_L1_DCM            8.51328e+12   4.39736e+09   4.29904e+09   4.84218e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allgatherv             93335.2   1.99795e+06         34.29         7.52
+# MPI_Bcast                  75427.8    7.8679e+06         27.71         6.08
+# MPI_Allgather              40019.7   2.60198e+06         14.70         3.22
+# MPI_Alltoallv              36340.3   2.08507e+06         13.35         2.93
+# MPI_Allreduce              15786.8   3.72099e+06          5.80         1.27
+# MPI_Reduce                 3177.23          3872          1.17         0.26
+# MPI_Sendrecv                2977.5   3.96854e+06          1.09         0.24
+# MPI_Alltoall               2546.99   1.07448e+06          0.94         0.21
+# MPI_Barrier                2503.45   1.30293e+06          0.92         0.20
+# MPI_Scatterv               100.734          3872          0.04         0.01
+# MPI_Comm_size             0.538285    2.1296e+06          0.00         0.00
+# MPI_Comm_rank              0.28047   1.26808e+06          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =   1936
+#
+#                           [total]         <avg>           min           max 
+# entries                     123904            64            64            64
+# wallclock                   793792       410.017       410.007       410.022
+# user                        719061       371.416       368.183       374.911
+# system                     64653.1       33.3952         31.93       35.1382
+# mpi                         134747        69.601       52.6099       86.0739
+# %comm                                    16.9749       12.8311       20.9926
+# gflop/sec              0.000199242   1.02914e-07   1.02882e-07   1.03043e-07
+#
+# PAPI_TOT_INS           1.10657e+15   5.71574e+11    5.4163e+11   6.03279e+11
+# PAPI_FP_OPS            8.16937e+07         42197         42184         42250
+# PAPI_L1_DCA            4.62388e+14   2.38837e+11   2.26896e+11   2.51743e+11
+# PAPI_L1_DCM            6.08097e+12     3.141e+09   3.07777e+09   3.20463e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allgatherv             93316.4   1.97859e+06         69.25        11.76
+# MPI_Alltoallv              22416.7   1.97859e+06         16.64         2.82
+# MPI_Allreduce              13350.9    2.1025e+06          9.91         1.68
+# MPI_Sendrecv               1768.09   3.95718e+06          1.31         0.22
+# MPI_Alltoall               1517.07        989296          1.13         0.19
+# MPI_Allgather              1316.28        989296          0.98         0.17
+# MPI_Barrier                1047.56        989296          0.78         0.13
+# MPI_Bcast                  13.9148        247808          0.01         0.00
+# MPI_Comm_size             0.368275   1.97859e+06          0.00         0.00
+# MPI_Comm_rank             0.157246        989296          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =   1936
+#
+#                           [total]         <avg>           min           max 
+# entries                     127776            66            66            66
+# wallclock                   447732       231.266       231.256       231.274
+# user                        407783       210.632       203.681       214.209
+# system                     36926.1       19.0734        16.137       23.6375
+# mpi                         137469       71.0068       69.8514       72.0624
+# %comm                                    30.7025       30.2039       31.1606
+# gflop/sec                  2.75583    0.00142346    0.00142126    0.00142461
+#
+# PAPI_TOT_INS           8.26038e+14   4.26673e+11   4.06865e+11   4.43043e+11
+# PAPI_FP_OPS            6.37351e+11    3.2921e+08   3.28699e+08   3.29475e+08
+# PAPI_L1_DCA            2.69944e+14   1.39434e+11   1.30512e+11   1.46062e+11
+# PAPI_L1_DCM            2.43231e+12   1.25636e+09   1.21115e+09   1.70109e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                  75413.9    7.6201e+06         54.86        16.84
+# MPI_Allgather              38703.4   1.61269e+06         28.15         8.64
+# MPI_Alltoallv              13923.6        106480         10.13         3.11
+# MPI_Reduce                 3177.23          3872          2.31         0.71
+# MPI_Allreduce              2435.98    1.6185e+06          1.77         0.54
+# MPI_Barrier                1455.88        313632          1.06         0.33
+# MPI_Sendrecv               1209.41         11352          0.88         0.27
+# MPI_Alltoall               1029.92         85184          0.75         0.23
+# MPI_Scatterv               100.734          3872          0.07         0.02
+# MPI_Allgatherv             18.7819         19360          0.01         0.00
+# MPI_Comm_size              0.17001        151008          0.00         0.00
+# MPI_Comm_rank             0.123224        278784          0.00         0.00
+###############################################################################
+Application 5959424 resources: utime 0, stime 3
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1936_ipm
+ +          Job Id: 6910621.nid00003
+ +          System: franklin
+ +     Queued Time: Wed Jan  5 16:18:09 2011
+ +      Start Time: Thu Jan  6 18:33:56 2011
+ + Completion Time: Thu Jan  6 18:45:06 2011
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:25745:nid00004,walltime=00:55:00
+ +  Used Resources: cput=00:00:00,mem=8676kb,vmem=32724kb,walltime=00:11:10
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script1936_ipm
+ + --------------------------------------------------------------------------
+

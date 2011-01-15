@@ -1053,7 +1053,14 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	// Currently we can solve a small problem (scale 32) with 4096 processor
 	// For a medium problem (scale 35), we'll need 32K processors which gives sqrt(p) ~ 180
 	// 2^35 / 180 ~ 2^29 / 3 which is not an issue !
+
+	World.Barrier();
+	double t0=MPI::Wtime();
 	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	World.Barrier();
+	double t1=MPI::Wtime();
+	allgathertime += (t1-t0);
+
 	delete [] trxinds;
 	if(indexisvalue)
 	{
@@ -1127,11 +1134,53 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
+	World.Barrier();
+	double t2=MPI::Wtime();
 	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
+	World.Barrier();
+	double t3=MPI::Wtime();
+	alltoalltime += (t3-t2);
+
 	DeleteAll(sendindbuf, sendnumbuf);
 	DeleteAll(sendcnt, sdispls);
 
+#ifndef HEAPMERGE
+	// Alternative 1: SPA-like data structure
+	DeleteAll(recvcnt, rdispls);
+	IU ysize = y.MyLocLength();
+	T_promote * localy = new T_promote[ysize];
+	bool * isthere = new bool[ysize];
+	vector<IU> nzinds;	// nonzero indices		
+	fill_n(isthere, ysize, false);
+	
+	for(IU i=0; i< totrecv; ++i)
+	{
+		IU topush = recvindbuf[i];
+		if(!isthere[topush])
+		{
+			localy[topush] = recvnumbuf[i];	// initial assignment
+			nzinds.push_back(topush);
+			isthere[topush] = true;
+		} 
+		else
+		{
+			localy[topush] = SR::add(localy[topush], recvnumbuf[i]);	
+		}
+	}
+	DeleteAll(isthere, recvindbuf, recvnumbuf);
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	y.ind.resize(nnzy);
+	y.num.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		y.ind[i] = nzinds[i];
+		y.num[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+
+#else
 	// Alternative 2: Heap-merge
 	IU hsize = 0;		
 	IU inf = numeric_limits<IU>::min();
@@ -1182,6 +1231,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	}
 	DeleteAll(recvcnt, rdispls,processed);
 	DeleteAll(recvindbuf, recvnumbuf);
+#endif
+
 	return y;
 }
 	
