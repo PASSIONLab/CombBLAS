@@ -10,7 +10,7 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 {	
 	int nprocs = comm.Get_size();
 	int nsize = nprocs / 2;	// new size
-	if(nprocs < 100)
+	if(nprocs < 1000)
 	{
 		long * dist_in = new long[nprocs];
 		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
@@ -41,8 +41,8 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm)
 {
-	comm.Barrier();
-	double t1=MPI::Wtime();
+//	comm.Barrier();
+//	double t1=MPI::Wtime();
 			
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
@@ -150,17 +150,17 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	begin = low-array;
 	comm.Allreduce(&begin, &gl_low, 1, MPIType<IT>(), MPI::SUM); 	// update
 
-	comm.Barrier();
-	double t2 = MPI::Wtime();
-	if(myrank == 0)
-		fprintf(stdout, "%.6lf seconds and %d iterations elapsed for Median finding\n", t2-t1, iters);
+//	comm.Barrier();
+//	double t2 = MPI::Wtime();
+//	if(myrank == 0)
+//		fprintf(stdout, "%.6lf seconds and %d iterations elapsed for Median finding\n", t2-t1, iters);
 }
 
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm)
 {
-	comm.Barrier();
-	double t1=MPI::Wtime();
+//	comm.Barrier();
+//	double t1=MPI::Wtime();
 
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
@@ -238,9 +238,9 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	MPI::Datatype MPI_valueType = MPI::CHAR.Create_contiguous(sizeof(pair<KEY,VAL>));
 	MPI_valueType.Commit();
 
-	double t2 = MPI::Wtime();
-	if(myrank == 0)
-		fprintf(stdout, "%.6lf seconds elapsed for setting up swap structures on %d procs\n", t2-t1, nprocs);
+//	double t2 = MPI::Wtime();
+//	if(myrank == 0)
+//		fprintf(stdout, "%.6lf seconds elapsed for setting up swap structures on %d procs\n", t2-t1, nprocs);
 	
 	pair<KEY,VAL> * receives = new pair<KEY,VAL>[totrecvcnt];
 	int * sdpls = new int[nprocs]();	// displacements (zero initialized pid) 
@@ -250,9 +250,9 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 
 	comm.Alltoallv(bufbegin, sendcnt, sdpls, MPI_valueType, receives, recvcnt, rdpls, MPI_valueType);  // sparse swap
 
-	double t3 = MPI::Wtime();
-	if(myrank == 0)
-		fprintf(stdout, "%.6lf seconds elapsed for actual data swap on %d procs\n", t3-t2, nprocs);
+//	double t3 = MPI::Wtime();
+//	if(myrank == 0)
+//		fprintf(stdout, "%.6lf seconds elapsed for actual data swap on %d procs\n", t3-t2, nprocs);
 	
 	DeleteAll(sendcnt, recvcnt, sdpls, rdpls);
 	copy(receives, receives+totrecvcnt, bufbegin);

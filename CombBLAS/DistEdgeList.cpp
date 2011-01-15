@@ -127,7 +127,7 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	// to lower memory consumption, rename in stages
 	// this is not "identical" to a full randomization; 
 	// but more than enough to destroy any possible locality 
-	IT stages = 1;	
+	IT stages = 8;	
 	IT perstage = maxedges / stages;
 	
 	int nproc =(DEL.commGrid)->GetSize();
@@ -140,16 +140,9 @@ void PermEdges(DistEdgeList<IT> & DEL)
 		IT n_sofar = s*perstage;
 		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
 
-		if(rank == 0)
-			fprintf(stdout, "Stage %d of permedges - allocating %d memory\n", s, n_thisstage);
-
-
 		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
 		dist[rank] = n_thisstage;
 		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-
-		if(rank == 0)
-			fprintf(stdout, "Stage %d of permedges - after allgether\n", s);
 
 		for (IT i = 0; i < n_thisstage; i++)
 		{
@@ -157,9 +150,6 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			vecpair[i].second.first = DEL.edges[2*(i+n_sofar)];
 			vecpair[i].second.second = DEL.edges[2*(i+n_sofar)+1];
 		}
-		
-		if(rank == 0)
-			fprintf(stdout, "Stage %d of permedges - before sort\n", s);
 
 		// less< pair<T1,T2> > works correctly (sorts w.r.t. first element of type T1)	
 		SpParHelper::MemoryEfficientPSort(vecpair, n_thisstage, dist, DEL.commGrid->GetWorld());
