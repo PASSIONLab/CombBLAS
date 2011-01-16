@@ -3,9 +3,10 @@ import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
 import PyCombBLAS as PCB
+import feedback
 
 class Graph:
-	#ToDo: privatize .spmat name (to .__spmat)
+	#ToDo: privatize .spm name (to .__spmat)
 	#ToDo: implement bool, not, _sprand
 
 	print "in Graph"
@@ -14,18 +15,18 @@ class Graph:
 		# include edges in both directions
 		# NEW:  not clear that any of the SpParMat constructors actually do the following, so
 		#   may be a new function
-		self.spmat = spm.SpParMat(edgev, size=size);
+		self.spm = spm.SpParMat(edgev, size=size);
 
 	def __len__(self):
-		return self.spmat.nvert();
+		return self.spm.nvert();
 
 	# NOTE:  no shape() for a graph;  use nvert/nedge instead	
 	#def shape(self):
-	#	return (self.spmat.nvert(), self.spmat.nvert());
+	#	return (self.spm.nvert(), self.spm.nvert());
 
 	#FIX:  should only return 1 of the 2 directed edges for simple graphs
 	def toEdgeV(self):		
-		[ij, v] = self._toVectors(self.spmat);
+		[ij, v] = self._toVectors(self.spm);
 		return EdgeV(ij, v);
 
 	@staticmethod
@@ -35,13 +36,13 @@ class Graph:
 		return ((i,j), v)
 
 	def nedge(self):
-		return self.spmat.getnnz();
+		return self.spm.nedge();
 
 	def nvert(self):
-		return self.spmat.getnrow();
+		return self.spm.nvert();
 
 	def degree(self):
-		tmp = spm.reduce(self._spones(self.spmat), 0, '+');	# FIX: syntax
+		tmp = spm.reduce(self._spones(self.spm), 0, '+');	# FIX: syntax
 		return tmp;
 
 	@staticmethod
@@ -130,3 +131,7 @@ class VertexV:
 
 	def __len__(self):
 		return self.__verts.nvert();
+
+
+sendFeedback = feedback.sendFeedback;
+
