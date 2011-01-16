@@ -11,46 +11,208 @@ class DiGraph(gr.Graph):
 
 	#FIX:  just building a Graph500 graph by default for now
 	def __init__(self):
-		self.spmat = pcb.pySpParMat();
+		self.spm = PCB.PySpParMat();
 
 	def degree(self):
 		return self.indegree() + self.outdegree();
 
 	def indegree(self):
-		#tmp = spm.reduce(self._spones(self.spmat), 0, +);
+		#tmp = spm.reduce(self._spones(self.spm), 0, +);
 		print "\n	DiGraph.indegree() not fully implemented!\n"
 		tmp = 1;
 		return tmp;
 
+	def load(self, fname):
+		self.spm.load(fname);
+
 	def outdegree(self):
-		#tmp = spm.reduce(self._spones(self.spmat), 1, +);
+		#tmp = spm.reduce(self._spones(self.spm), 1, +);
 		print "\n	DiGraph.outdegree() not fully implemented!\n"
 		tmp = 1;
 		return tmp;
 
 #def DiGraphGraph500():
 #	self = DiGraph();
-#	self.spmat = GenGraph500Edges(sc.log2(nvert));
+#	self.spm = GenGraph500Edges(sc.log2(nvert));
 
 		
 class DiEdgeV(gr.EdgeV):
 	print "in DiEdgeV"
 
 		
-class VertexV:
-	print "in VertexV"
+class ParVec:
+	print "in ParVec"
 
 	def __init__(self, length):
-		self.dpv = pcb.pyDenseParVec(length,0);
+		if length>0:
+			self.dpv = PCB.PyDenseParVec(length,0);
+
+	def __abs__(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.abs()
+		return ret;
+
+	def __add__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv + other;
+		else:	#elif  instance(other,ParVec):
+			ret.dpv = self.dpv + other.dpv;
+		return ret;
+
+	def __and__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv & other;
+		else: 	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv & other.dpv;
+		return ret;
+
+	def __copy__(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.copy()
+		return ret;
 
 	def __getitem__(self, key):
 		if type(key) == int:
 			if key > self.dpv.len()-1:
 				raise IndexError;
-			ret = self.dpv.GetElement(key);
-		else:
-			print "__getitem__ only supports scalar subscript"
+			ret = self.dpv[key];
+		else:	#elif isinstance(other,ParVec):
+			ret = self.dpv[key.dpv];
 		return ret;
+
+	def __ge__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv >= other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv >= other.dpv;
+		return ret;
+
+	def __gt__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv > other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv > other.dpv;
+		return ret;
+
+	def __iadd__(self, other):
+		if type(other) == int:
+			self.dpv += other;
+		else:	#elif isinstance(other,ParVec):
+			self.dpv += other.dpv;
+		return self;
+
+	def __isub__(self, other):
+		if type(other) == int:
+			self.dpv -= other;
+		else:	#elif isinstance(other,ParVec):
+			self.dpv -= other.dpv;
+		return self;
+
+	def __len__(self):
+		return self.dpv.len();
+
+	def __mod__(self, other):
+		raise AttributeError, "ParVec:__mod__ not implemented yet"
+		ret = self.copy()
+		while (ret >= other).any():
+			tmp = (ret.dpv >= other.dpv).findInds();
+			tmp2 = (ret.dpv[tmp] - other.dpv[tmp]).sparse();
+			tmp2[0] = 0
+			ret.dpv[tmp.sparse()] = tmp2;
+		return ret;
+
+	def __mul__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv * other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
+		return ret;
+
+	def __ne__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv <> other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv <> other.dpv;
+		return ret;
+
+	def __repr__(self):
+		return self.dpv.printall();
+
+	def __setitem__(self, key, value):
+		if type(key) == int:
+			self.dpv[key] = value;
+		else:
+			if type(value) == int:
+				self.dpv[key.dpv] = value;
+			else:
+				self.dpv[key.dpv] = value.dpv;
+
+	def __sub__(self, other):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv - other.dpv;
+		if type(other) == int:
+			ret.dpv = self.dpv - other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv - other.dpv;
+		return ret;
+
+	def any(self):
+		ret = ParVec(-1);
+		ret = self.dpv.any();
+		return ret;
+
+	def copy(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.copy();
+		return ret;
+
+	def find(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.find();
+		return ret;
+
+	def printall(self):
+		return self.dpv.printall();
+
+	def randPerm(self):
+		self.dpv.randPerm()
+		return self;
+
+	def sum(self):
+		return self.dpv.sum();
+
+class VertexV(ParVec):
+	print "in VertexV"
+
+def toVertexV(DPV):
+	ret = VertexV(-1);
+	ret.dpv = DPV;
+	return ret;
+
+def ones(sz):
+	ret = VertexV(-1);
+	ret.dpv = PCB.ones(sz);
+	return ret;
+
+def range(stop):
+	ret = VertexV(-1);
+	ret.dpv = PCB.PyDenseParVec(0,0).range(stop);
+	return ret;
+
+def zeros(sz):
+	ret = VertexV(-1);
+	ret.dpv = PCB.zeros(sz);
+	return ret;
+
+class DiEdgeV(ParVec):
+	print "in DiEdgeV"
+
 
 class SpVertexV:
 	print "in SpVertexV"
@@ -59,11 +221,11 @@ class SpVertexV:
 		self.spv = pcb.pySpParVec(length);
 
 def genGraph500Candidates(G, howmany):
-	tmpDpv = G.spmat.GenGraph500Candidates(howmany);
-	tmpVV = VertexV(0);
-	del tmpVV.dpv		# legal?  GC issue with doing this?
-	tmpVV.dpv = tmpDpv;
-	return tmpVV
+	pyDPV = G.spm.pySPM.GenGraph500Candidates(howmany);
+	ret = toVertexV(PCB.toPyDenseParVec(pyDPV));
+	return ret
+
+sendFeedback = gr.sendFeedback;
 
 
 def torusEdges(n):
@@ -86,7 +248,7 @@ def torusEdges(n):
 	return gr.EdgeV((row, col), DPV.ones(N*4))
 
 def genGraph500Edges(self, scale):
-	elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spmat, scale);
+	elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale);
  	return elapsedTime;
 
 
@@ -104,11 +266,11 @@ def bfsTree(G, start):
 	while fringe.getnnz() > 0:
 		#FIX:  following line needed?
 		fringe = PCB.PySpParVec.range(fringe);
-		G.spmat.SpMV_SelMax_inplace(fringe.pySPV);	
+		G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);	
 		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents.pyDPV, True, -1);
 		parents[fringe] = 0
 		parents += fringe;
-	return parents;
+	return toVertexV(parents);
 
 
 	# returns tuples with elements
@@ -133,7 +295,7 @@ def isBfsTree(G, root, parents):
 	while fringe.getnee() > 0:
 		fringe = fringe.range();	#note: sparse range()
 		#FIX:  create PCB graph-level op
-		G.spmat.SpMV_SelMax_inplace(fringe.pySPV);
+		G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
 		#FIX:  create PCB graph-level op
 		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents2.pyDPV, True, -1);
 		parents2[fringe] = fringe;
@@ -147,13 +309,13 @@ def isBfsTree(G, root, parents):
 	# spec test #2
 	#    tree edges should be between verts whose levels differ by 1
 	
-	tmp2 = parents <> PCB.PyDenseParVec(nvertG,0).range(nvertG);
+	tmp2 = parents <> range(nvertG);
 	treeEdges = (parents <> -1) & tmp2;  
 	treeI = parents[treeEdges.find()]
-	treeJ = PCB.PyDenseParVec(0,0).range(nvertG,0)[treeEdges.find()];
+	treeJ = range(nvertG)[treeEdges.find()];
 	if (levels[treeI]-levels[treeJ] <> -1).any():
 		ret = -2;
 
-	return (ret, levels)
+	return (ret, toVertexV(levels))
 
 #ToDo:  move bc() here from KDT.py

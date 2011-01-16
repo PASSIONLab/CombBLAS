@@ -20,26 +20,26 @@ def k2Validate(G, start, parents):
 	# every input edge has vertices whose levels differ by no more than 1
 	# NOTE:  code implements every _tree_ edge, not input edge
 #FIX:  visited not calculated yet
-	if any((parents <> -2) & (visited <> 1)):
+	if any((parents <> -1) & (visited <> 1)):
 		print "The levels of some input edges' vertices differ by more than 1"
 		good = False;
 
 	# Spec test #4:
 	# the BFS tree spans a connected component's vertices (== all edges either
 	# have both endpoints in the tree or not in the tree)
-	#[[Gi,Gj],Gv] = G._toVectors(G.spmat)
+	#FIND [[Gi,Gj],Gv] = G.find();
 	li = levels[Gi]; 
 	lj = levels[Gj];
-	neither_in = (li == -2) & (lj == -2);
-	both_in = (li > -2) & (lj > -2);
-	if any(~(neither_in | both_in)):
+	neither_in = (li == -1) & (lj == -1);
+	both_in = (li > -1) & (lj > -1);
+	if (~(neither_in | both_in)).any():
 		print "The tree does not span exactly the connected component"
 		good = False;
 
 	# Spec test #5:
 	# a vertex and its parent are joined by an edge of the original graph
 	respects = abs(li-lj) <= 1
-	if any(~(neither_in | respects)):
+	if (~(neither_in | respects)).any():
 		print "At least one vertex and its parent are not joined by an original edge"
 		good = False;
 

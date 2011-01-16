@@ -17,7 +17,7 @@ def startFeedback():
 	ip.magic('logstart %s over' % _kdt_LogFname);
 
 
-def sendFeedback(nlines=_kdt_Nlines2Send):
+def sendFeedback(nlines=_kdt_Nlines2Send,addr=_kdt_Alias):
 	if not os.path.exists(_kdt_LogFname) or not os.path.isfile(_kdt_LogFname):
 		print "logging apparently not enabled for KDT"
 		#return;
@@ -54,12 +54,12 @@ def sendFeedback(nlines=_kdt_Nlines2Send):
 		userFullName = pwdEntry[4];
 		msg['Subject'] = 'KDT feedback from %s' % userFullName;
 		msg['From'] = userAddress;
-		msg['To'] = _kdt_Alias;
+		msg['To'] = addr;
 		s = smtplib.SMTP('localhost');
-		s.sendmail(userAddress, [_kdt_Alias], msg.as_string());
+		s.sendmail(userAddress, [addr], msg.as_string());
 		s.quit();
 	else:
 		print "Canceling the send."
 
 
-#startFeedback();
+startFeedback();
