@@ -37,14 +37,19 @@ public:
 	
 public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
-	//pyDenseParVec* Reduce_ColumnSums();
 	
-	void Apply_SetTo(int64_t v);
+	void Apply(op::UnaryFunction* op);
+	void Prune(op::UnaryFunction* op);
 	
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
 public:
 	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
+	
+public:
+	static int Column() { return ::Column; }
+	static int Row() { return ::Row; }
 //INTERFACE_INCLUDE_END
 };
 
