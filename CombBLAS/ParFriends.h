@@ -1059,7 +1059,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
 	World.Barrier();
 	double t1=MPI::Wtime();
-	allgathertime += (t1-t0);
+	//allgathertime += (t1-t0);
 
 	delete [] trxinds;
 	if(indexisvalue)
@@ -1140,7 +1140,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 	World.Barrier();
 	double t3=MPI::Wtime();
-	alltoalltime += (t3-t2);
+	//alltoalltime += (t3-t2);
 
 	DeleteAll(sendindbuf, sendnumbuf);
 	DeleteAll(sendcnt, sdispls);

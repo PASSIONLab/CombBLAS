@@ -1113,12 +1113,19 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 
 			IT temprow, tempcol;
 			NT tempval;
+			double loadval;
 			IT cnz = 0;
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
 				infile >> temprow >> tempcol;
-				if(nonum)	tempval = static_cast<NT>(1);
-				else 		infile >> tempval;
+				if(nonum)
+					tempval = static_cast<NT>(1);
+				else
+				{
+					//infile >> tempval;
+					infile >> loadval;
+					tempval = static_cast<NT>(loadval);
+				}
 
 				--temprow;	// file is 1-based where C-arrays are 0-based
 				--tempcol;
