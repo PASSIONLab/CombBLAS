@@ -8,6 +8,7 @@ import socket
 
 _kdt_LogFname = '.KDT_log';
 _kdt_EmailFname = 'KDT_email';
+#FIX:  replace the following line by the alias, when the alias exists
 _kdt_Alias = 'steve.reinhardt@microsoft.com';
 _kdt_Nlines2Send = 30;
 
@@ -43,10 +44,10 @@ def sendFeedback(nlines=_kdt_Nlines2Send,addr=_kdt_Alias):
 	logFid.close();
 	emailFid.close();
 		
-	str = "The code example you want to send to the KDT developers is \nin %s/%s.  \nIf you wish, edit it with your favorite editor.  Type 'Go' \nwhen you are ready to send it or 'Cancel' to cancel sending it.\n>>>" % (os.getcwd(),_kdt_EmailFname)
+	str = "The code example you want to send to the KDT developers is \nin %s/%s.  \nIf you wish, edit it with your favorite editor.  Type 'Send' \nwhen you are ready to send it or 'Cancel' to cancel sending it.\n>>>" % (os.getcwd(),_kdt_EmailFname)
 		
 	resp = raw_input(str);
-	if resp == 'Go' or resp == 'go':
+	if resp == 'Send' or resp == 'send':
 		#print "Emailing the file."
 		msg = email.message_from_file(open(_kdt_EmailFname));
 		pwdEntry = pwd.getpwuid(os.getuid());
