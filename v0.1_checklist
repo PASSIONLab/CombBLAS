@@ -7,9 +7,9 @@
 
 - pyCombBLAS / PyCombBLAS
   - [Adam] fold PyCombBLAS into pyCombBLAS
-  - [Adam] implement generalized Reduce
+  - [Adam] implement generalized Reduce - Done for SpVec
   - [Adam] implement needed elemental functions (mod, div, ...)
-  - [Adam] implement wrapper for sort
+  - [Adam] implement wrapper for sort - Done for SpVec
 
 - KDT
   - [Steve] replace VertexV and DiEdgeV with ParVec (and SpParVec?)

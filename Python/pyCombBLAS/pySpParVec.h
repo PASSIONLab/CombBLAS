@@ -91,8 +91,9 @@ public:
 
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
-	int64_t Reduce_sum();
 	int64_t Reduce(op::BinaryFunction* f);
+	
+	pySpParVec* sort();
 	
 	void setNumToInd();
 
