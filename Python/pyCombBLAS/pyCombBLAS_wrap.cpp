@@ -4345,6 +4345,47 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParVec_Reduce(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = (pySpParVec *) 0 ;
+  op::BinaryFunction *arg2 = (op::BinaryFunction *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int64_t result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVec_Reduce",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParVec_Reduce" "', argument " "1"" of type '" "pySpParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParVec_Reduce" "', argument " "2"" of type '" "op::BinaryFunction *""'"); 
+  }
+  arg2 = reinterpret_cast< op::BinaryFunction * >(argp2);
+  {
+    try {
+      result = (arg1)->Reduce(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_long_SS_long(static_cast< long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParVec_setNumToInd(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = (pySpParVec *) 0 ;
@@ -6485,6 +6526,58 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BinaryFunction_commutable_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryFunction *arg1 = (op::BinaryFunction *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BinaryFunction_commutable_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryFunction_commutable_set" "', argument " "1"" of type '" "op::BinaryFunction *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryFunction * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BinaryFunction_commutable_set" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  if (arg1) (arg1)->commutable = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryFunction_commutable_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryFunction *arg1 = (op::BinaryFunction *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BinaryFunction_commutable_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryFunction_commutable_get" "', argument " "1"" of type '" "op::BinaryFunction *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryFunction * >(argp1);
+  result = (bool) ((arg1)->commutable);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_BinaryFunction___call__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunction *arg1 = (op::BinaryFunction *) 0 ;
@@ -7300,6 +7393,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParVec_Apply", _wrap_pySpParVec_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_SubsRef", _wrap_pySpParVec_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_Reduce_sum", _wrap_pySpParVec_Reduce_sum, METH_VARARGS, NULL},
+	 { (char *)"pySpParVec_Reduce", _wrap_pySpParVec_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_setNumToInd", _wrap_pySpParVec_setNumToInd, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_zeros", _wrap_pySpParVec_zeros, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_range", _wrap_pySpParVec_range, METH_VARARGS, NULL},
@@ -7343,6 +7437,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"bitwise_not", _wrap_bitwise_not, METH_VARARGS, NULL},
 	 { (char *)"logical_not", _wrap_logical_not, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryFunction", _wrap_delete_BinaryFunction, METH_VARARGS, NULL},
+	 { (char *)"BinaryFunction_commutable_set", _wrap_BinaryFunction_commutable_set, METH_VARARGS, NULL},
+	 { (char *)"BinaryFunction_commutable_get", _wrap_BinaryFunction_commutable_get, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction___call__", _wrap_BinaryFunction___call__, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction_swigregister", BinaryFunction_swigregister, METH_VARARGS, NULL},
 	 { (char *)"plus", _wrap_plus, METH_VARARGS, NULL},

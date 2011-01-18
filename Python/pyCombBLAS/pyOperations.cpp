@@ -235,4 +235,41 @@ BinaryFunction* not2(BinaryFunction* f)
 	return new BinaryFunction(new binary_not_s<int64_t>(f->op));
 }
 
+/**************************\
+| METHODS
+\**************************/
+BinaryFunction* BinaryFunction::currentlyApplied = NULL;
+MPI_Op BinaryFunction::staticMPIop;
+	
+void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+{
+	int64_t* in = (int64_t*)invec;
+	int64_t* inout = (int64_t*)inoutvec;
+	
+	for (int i = 0; i < *len; i++)
+	{
+		inout[i] = (*currentlyApplied)(in[i], inout[i]);
+	}
+}
+
+MPI_Op* BinaryFunction::getMPIOp()
+{
+	if (currentlyApplied != NULL)
+	{
+		cout << "There is an internal error in creating a MPI version of a BinaryFunction: Conflict between two BFs." << endl;
+		while (currentlyApplied != NULL)
+		{
+		}
+	}
+	currentlyApplied = this;
+	MPI_Op_create(BinaryFunction::apply, commutable, &staticMPIop);
+	return &staticMPIop;
+}
+
+void BinaryFunction::releaseMPIOp()
+{
+	currentlyApplied = NULL;
+}
+
+
 } // namespace op

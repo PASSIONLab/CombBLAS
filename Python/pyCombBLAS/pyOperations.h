@@ -61,12 +61,23 @@ class BinaryFunction {
 	public:
 	ConcreteBinaryFunction<int64_t>* op;
 	
-	BinaryFunction(ConcreteBinaryFunction<int64_t>* opin): op(opin) {  }
+	BinaryFunction(ConcreteBinaryFunction<int64_t>* opin): op(opin), commutable(false) {  }
+
+	// for creating an MPI_Op that can be used with MPI Reduce
+	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
+	static BinaryFunction* currentlyApplied;
+	static MPI_Op staticMPIop;
+	
+	MPI_Op* getMPIOp();
+	void releaseMPIOp();
+	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	BinaryFunction() {}
+	BinaryFunction(): op(NULL), commutable(false) {}
 	public:
 	~BinaryFunction() { /*delete op; op = NULL;*/ }
+	
+	bool commutable;
 	
 	const int64_t operator()(const int64_t& x, const int64_t& y) const
 	{

@@ -167,12 +167,18 @@ scale = 10
 degrees = pcb.pyDenseParVec(4, 0);
 k1time = 0.0
 
-if len(sys.argv) == 2:
+if len(sys.argv) >= 2:
 	scale = int(sys.argv[1])
 
 if (scale < 0):
-	path = "/home/alugowski/matrices/rmat_scale16.mtx";
-	path = "../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt";
+	if len(sys.argv) >= 3:
+		path = sys.argv[2]
+	else:
+		print "Expecting a path to a matrix file as argument."
+		sys.exit();
+
+	#path = "/home/alugowski/matrices/rmat_scale16.mtx";
+	#path = "../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt";
 	print "loading matrix from %s"%(path)
 	A.load(path)
 	A.Apply_SetTo(1)
@@ -281,10 +287,10 @@ for i in range(0, numCands):
 		if (pcb.root()):
 			print "oh oh oh oh noooooooo! (parents.nnz) %d != %d (parentsSP.nnz)"%(r, pnnz)
 	parentsSP.Apply(pcb.set(1));
-	nedges = pcb.EWiseMult(parentsSP, degrees, False, 0).Reduce_sum()
+	nedges = pcb.EWiseMult(parentsSP, degrees, False, 0).Reduce(pcb.plus())
 	
 	#s = A.SpMV_PlusTimes(parentsSP)
-	#nedges = s.Reduce_sum()
+	#nedges = s.Reduce(pcb.plus())
 
 	k2Fail = False;
 	if False:
