@@ -143,7 +143,7 @@ public:
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
 	int64_t Reduce_sum();
-	//int64_t Reduce(op::BinaryFunction* f); // doesn't work yet
+	int64_t Reduce(op::BinaryFunction* f); // doesn't work yet
 	
 	void setNumToInd();
 
@@ -179,7 +179,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
@@ -246,9 +246,11 @@ UnaryFunction* logical_not();
 
 class BinaryFunction {
 	protected:
-	BinaryFunction() {}
+	BinaryFunction(): op(NULL), commutable(false) {}
 	public:
 	~BinaryFunction() { /*delete op; op = NULL;*/ }
+	
+	bool commutable;
 	
 	const int64_t operator()(const int64_t& x, const int64_t& y) const
 	{
