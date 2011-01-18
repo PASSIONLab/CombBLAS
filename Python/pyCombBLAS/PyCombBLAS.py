@@ -83,6 +83,7 @@ class pySpParMat(_object):
     def GenGraph500Edges(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Edges(self, *args)
     def GenGraph500Candidates(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Candidates(self, *args)
     def FindIndsOfColsWithSumGreaterThan(self, *args): return _pyCombBLAS.pySpParMat_FindIndsOfColsWithSumGreaterThan(self, *args)
+    def copy(self): return _pyCombBLAS.pySpParMat_copy(self)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)

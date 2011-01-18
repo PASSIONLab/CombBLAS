@@ -18,6 +18,8 @@ protected:
 	PSpMat_Bool A;
 	
 	friend class pySpParVec;
+	
+	pySpParMat(pySpParMat* copyFrom);
 
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
@@ -37,6 +39,8 @@ public:
 	
 public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
+
+	pySpParMat* copy();
 	
 	void Apply(op::UnaryFunction* op);
 	void Prune(op::UnaryFunction* op);

@@ -63,6 +63,8 @@ public:
 	
 public:
 	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
+
+	pySpParMat* copy();
 	
 	void Apply(op::UnaryFunction* op);
 	void Prune(op::UnaryFunction* op);

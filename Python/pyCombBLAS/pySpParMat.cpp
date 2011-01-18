@@ -8,6 +8,10 @@ pySpParMat::pySpParMat()
 {
 }
 
+pySpParMat::pySpParMat(pySpParMat* copyFrom): A(copyFrom->A)
+{
+}
+
 int64_t pySpParMat::getnnz()
 {
 	return A.getnnz();
@@ -141,6 +145,11 @@ pyDenseParVec* pySpParMat::GenGraph500Candidates(int howmany)
 	return pyCands;
 }
 
+pySpParMat* pySpParMat::copy()
+{
+	pySpParMat* ret = new pySpParMat(this);
+	return ret;
+}
 
 void pySpParMat::Apply(op::UnaryFunction* op)
 {
