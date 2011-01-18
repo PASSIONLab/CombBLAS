@@ -70,47 +70,56 @@ UnaryFunction* safemultinv() {
 | BINARY OPERATIONS
 \**************************/
 
-#define DECL_BINARY_STRUCT(name, operation) 						\
-	template<typename T>											\
-	struct name : public ConcreteBinaryFunction<T>				\
-	{																\
-		const T operator()(const T& x, const T& y) const					\
-		{															\
-			operation;												\
-		}															\
+#define DECL_BINARY_STRUCT(name, operation) 							\
+	template<typename T>												\
+	struct name : public ConcreteBinaryFunction<T>						\
+	{																	\
+		const T operator()(const T& x, const T& y) const				\
+		{																\
+			operation;													\
+		}																\
 	};
 	
-#define DECL_BINARY_FUNC(structname, name, operation)				\
-	DECL_BINARY_STRUCT(structname, operation)						\
-	BinaryFunction* name()											\
-	{																\
-		return new BinaryFunction(new structname<int64_t>());		\
+#define DECL_BINARY_FUNC(structname, name, as, com, operation)			\
+	DECL_BINARY_STRUCT(structname, operation)							\
+	BinaryFunction* name()												\
+	{																	\
+		return new BinaryFunction(new structname<int64_t>(), as, com);	\
 	}																
 
 
+/*
+arguments to DECL_BINARY_FUNC are:
+name of implementing structure (not seen by users),
+name of operation,
+whether it's associative,
+whether it's commutative,
+implementation code w.r.t. arguments x (left) and y (right)
+*/
+DECL_BINARY_FUNC(plus_s, plus, true, true, return x+y;)
+DECL_BINARY_FUNC(minus_s, minus, false, false, return x-y;)
+DECL_BINARY_FUNC(multiplies_s, multiplies, true, true, return x*y;)
+DECL_BINARY_FUNC(divides_s, divides, true, false, return x/y;)
+DECL_BINARY_FUNC(modulus_s, modulus, false, false, return x % y;)
 
-DECL_BINARY_FUNC(plus_s, plus, return x+y;)
-DECL_BINARY_FUNC(minus_s, minus, return x-y;)
-DECL_BINARY_FUNC(multiplies_s, multiplies, return x*y;)
-DECL_BINARY_FUNC(divides_s, divides, return x/y;)
-DECL_BINARY_FUNC(modulus_s, modulus, return x % y;)
+DECL_BINARY_FUNC(max_s, max, true, true, return std::max<int64_t>(x, y);)
+DECL_BINARY_FUNC(min_s, min, true, true, return std::min<int64_t>(x, y);)
 
-DECL_BINARY_FUNC(max_s, max, return std::max<int64_t>(x, y);)
-DECL_BINARY_FUNC(min_s, min, return std::min<int64_t>(x, y);)
+DECL_BINARY_FUNC(bitwise_and_s, bitwise_and, true, true, return x & y;)
+DECL_BINARY_FUNC(bitwise_or_s, bitwise_or, true, true, return x | y;)
+DECL_BINARY_FUNC(bitwise_xor_s, bitwise_xor, true, true, return x ^ y;)
 
-DECL_BINARY_FUNC(bitwise_and_s, bitwise_and, return x & y;)
-DECL_BINARY_FUNC(bitwise_or_s, bitwise_or, return x | y;)
-DECL_BINARY_FUNC(bitwise_xor_s, bitwise_xor, return x ^ y;)
-DECL_BINARY_FUNC(logical_and_s, logical_and, return x && y;)
-DECL_BINARY_FUNC(logical_or_s, logical_or, return x || y;)
-DECL_BINARY_FUNC(logical_xor_s, logical_xor, return (x || y) && !(x && y);)
+// the functions below are predicates, hence return a different type than they accept, so can't be associative
+DECL_BINARY_FUNC(logical_and_s, logical_and, false, true, return x && y;)
+DECL_BINARY_FUNC(logical_or_s, logical_or, false, true, return x || y;)
+DECL_BINARY_FUNC(logical_xor_s, logical_xor, false, true, return (x || y) && !(x && y);)
 
-DECL_BINARY_FUNC(equal_to_s, equal_to, return x == y;)
-DECL_BINARY_FUNC(not_equal_to_s, not_equal_to, return x != y;)
-DECL_BINARY_FUNC(greater_s, greater, return x > y;)
-DECL_BINARY_FUNC(less_s, less, return x < y;)
-DECL_BINARY_FUNC(greater_equal_s, greater_equal, return x >= y;)
-DECL_BINARY_FUNC(less_equal_s, less_equal, return x <= y;)
+DECL_BINARY_FUNC(equal_to_s, equal_to, false, true, return x == y;)
+DECL_BINARY_FUNC(not_equal_to_s, not_equal_to, false, true, return x != y;)
+DECL_BINARY_FUNC(greater_s, greater, false, false, return x > y;)
+DECL_BINARY_FUNC(less_s, less, false, false, return x < y;)
+DECL_BINARY_FUNC(greater_equal_s, greater_equal, false, false, return x >= y;)
+DECL_BINARY_FUNC(less_equal_s, less_equal, false, false, return x <= y;)
 
 /**************************\
 | GLUE OPERATIONS
@@ -232,7 +241,7 @@ struct binary_not_s : public ConcreteBinaryFunction<T>
 
 BinaryFunction* not2(BinaryFunction* f)
 {
-	return new BinaryFunction(new binary_not_s<int64_t>(f->op));
+	return new BinaryFunction(new binary_not_s<int64_t>(f->op), f->associative, f->commutable);
 }
 
 /**************************\

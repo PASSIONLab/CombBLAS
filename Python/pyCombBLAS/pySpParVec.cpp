@@ -212,24 +212,28 @@ pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 	return ret;
 }
 
-int64_t pySpParVec::Reduce_sum()
+
+/*int64_t pySpParVec::Reduce_sum()
 {
 	return v.Reduce(plus<int64_t>(), 0);
-}
+}*/
 
-// doesn't work yet, but ideally this would replace the above function
 int64_t pySpParVec::Reduce(op::BinaryFunction* f)
 {
-	//MPI_Op myOp;
-	//MPI_Op_create((MPI_User_function *)&(f->apply), f->commutable, &myOp);
+	if (!f->associative && root())
+		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
-
-	
 	int64_t ret = v.Reduce(*f, *f->getMPIOp(), 0);
 	f->releaseMPIOp();
 	return ret;
 }
 
+pySpParVec* pySpParVec::sort()
+{
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = v.sort();
+	return ret;
+}
 
 
 void pySpParVec::setNumToInd()

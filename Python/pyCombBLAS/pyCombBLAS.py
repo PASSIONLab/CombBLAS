@@ -117,8 +117,8 @@ class pySpParVec(_object):
     def load(self, *args): return _pyCombBLAS.pySpParVec_load(self, *args)
     def Apply(self, *args): return _pyCombBLAS.pySpParVec_Apply(self, *args)
     def SubsRef(self, *args): return _pyCombBLAS.pySpParVec_SubsRef(self, *args)
-    def Reduce_sum(self): return _pyCombBLAS.pySpParVec_Reduce_sum(self)
     def Reduce(self, *args): return _pyCombBLAS.pySpParVec_Reduce(self, *args)
+    def sort(self): return _pyCombBLAS.pySpParVec_sort(self)
     def setNumToInd(self): return _pyCombBLAS.pySpParVec_setNumToInd(self)
     __swig_getmethods__["zeros"] = lambda x: _pyCombBLAS.pySpParVec_zeros
     if _newclass:zeros = staticmethod(_pyCombBLAS.pySpParVec_zeros)
@@ -240,6 +240,9 @@ class BinaryFunction(_object):
     __swig_setmethods__["commutable"] = _pyCombBLAS.BinaryFunction_commutable_set
     __swig_getmethods__["commutable"] = _pyCombBLAS.BinaryFunction_commutable_get
     if _newclass:commutable = _swig_property(_pyCombBLAS.BinaryFunction_commutable_get, _pyCombBLAS.BinaryFunction_commutable_set)
+    __swig_setmethods__["associative"] = _pyCombBLAS.BinaryFunction_associative_set
+    __swig_getmethods__["associative"] = _pyCombBLAS.BinaryFunction_associative_get
+    if _newclass:associative = _swig_property(_pyCombBLAS.BinaryFunction_associative_get, _pyCombBLAS.BinaryFunction_associative_set)
     def __call__(self, *args): return _pyCombBLAS.BinaryFunction___call__(self, *args)
 BinaryFunction_swigregister = _pyCombBLAS.BinaryFunction_swigregister
 BinaryFunction_swigregister(BinaryFunction)

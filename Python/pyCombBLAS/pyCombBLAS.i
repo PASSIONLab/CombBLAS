@@ -142,8 +142,9 @@ public:
 
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
-	int64_t Reduce_sum();
-	int64_t Reduce(op::BinaryFunction* f); // doesn't work yet
+	int64_t Reduce(op::BinaryFunction* f);
+	
+	pySpParVec* sort();
 	
 	void setNumToInd();
 
@@ -246,11 +247,12 @@ UnaryFunction* logical_not();
 
 class BinaryFunction {
 	protected:
-	BinaryFunction(): op(NULL), commutable(false) {}
+	BinaryFunction(): op(NULL), commutable(false), associative(false) {}
 	public:
 	~BinaryFunction() { /*delete op; op = NULL;*/ }
 	
 	bool commutable;
+	bool associative;
 	
 	const int64_t operator()(const int64_t& x, const int64_t& y) const
 	{
