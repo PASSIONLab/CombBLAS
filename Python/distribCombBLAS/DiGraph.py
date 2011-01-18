@@ -7,7 +7,7 @@ import Graph as gr
 
 class DiGraph(gr.Graph):
 
-	print "in DiGraph"
+	#print "in DiGraph"
 
 	#FIX:  just building a Graph500 graph by default for now
 	def __init__(self):
@@ -36,12 +36,9 @@ class DiGraph(gr.Graph):
 #	self.spm = GenGraph500Edges(sc.log2(nvert));
 
 		
-class DiEdgeV(gr.EdgeV):
-	print "in DiEdgeV"
-
 		
 class ParVec:
-	print "in ParVec"
+	#print "in ParVec"
 
 	def __init__(self, length):
 		if length>0:
@@ -149,10 +146,9 @@ class ParVec:
 			self.dpv[key] = value;
 		else:
 			if type(value) == int:
-				self.dpv[key.dpv] = value;
+				self.dpv[key.dpv.sparse()] = value;
 			else:
-				self.dpv[key.dpv] = value.dpv;
-
+				self.dpv[key.dpv.sparse()] = value.dpv.sparse(); 
 	def __sub__(self, other):
 		ret = ParVec(-1);
 		ret.dpv = self.dpv - other.dpv;
@@ -172,9 +168,15 @@ class ParVec:
 		ret.dpv = self.dpv.copy();
 		return ret;
 
-	def find(self):
+#	NOTE:  no ParVec.find() yet because no SpParVec yet
+#	def find(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.find();
+#		return ret;
+#
+	def findInds(self):
 		ret = ParVec(-1);
-		ret.dpv = self.dpv.find();
+		ret.dpv = self.dpv.findInds();
 		return ret;
 
 	def printall(self):
@@ -187,42 +189,36 @@ class ParVec:
 	def sum(self):
 		return self.dpv.sum();
 
-class VertexV(ParVec):
-	print "in VertexV"
-
-def toVertexV(DPV):
-	ret = VertexV(-1);
+def toParVec(DPV):
+	ret = ParVec(-1);
 	ret.dpv = DPV;
 	return ret;
 
+
 def ones(sz):
-	ret = VertexV(-1);
+	ret = ParVec(-1);
 	ret.dpv = PCB.ones(sz);
 	return ret;
 
 def range(stop):
-	ret = VertexV(-1);
+	ret = ParVec(-1);
 	ret.dpv = PCB.PyDenseParVec(0,0).range(stop);
 	return ret;
 
 def zeros(sz):
-	ret = VertexV(-1);
+	ret = ParVec(-1);
 	ret.dpv = PCB.zeros(sz);
 	return ret;
 
-class DiEdgeV(ParVec):
-	print "in DiEdgeV"
-
-
-class SpVertexV:
-	print "in SpVertexV"
-
-	def __init__(self, length):
-		self.spv = pcb.pySpParVec(length);
+#class SpParVec:
+#	#print "in SpVertexV"
+#
+#	def __init__(self, length):
+#		self.spv = pcb.pySpParVec(length);
 
 def genGraph500Candidates(G, howmany):
 	pyDPV = G.spm.pySPM.GenGraph500Candidates(howmany);
-	ret = toVertexV(PCB.toPyDenseParVec(pyDPV));
+	ret = toParVec(PCB.toPyDenseParVec(pyDPV));
 	return ret
 
 sendFeedback = gr.sendFeedback;
@@ -270,7 +266,7 @@ def bfsTree(G, start):
 		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents.pyDPV, True, -1);
 		parents[fringe] = 0
 		parents += fringe;
-	return toVertexV(parents);
+	return toParVec(parents);
 
 
 	# returns tuples with elements
@@ -311,11 +307,11 @@ def isBfsTree(G, root, parents):
 	
 	tmp2 = parents <> range(nvertG);
 	treeEdges = (parents <> -1) & tmp2;  
-	treeI = parents[treeEdges.find()]
-	treeJ = range(nvertG)[treeEdges.find()];
+	treeI = parents[treeEdges.findInds()]
+	treeJ = range(nvertG)[treeEdges.findInds()];
 	if (levels[treeI]-levels[treeJ] <> -1).any():
 		ret = -2;
 
-	return (ret, toVertexV(levels))
+	return (ret, toParVec(levels))
 
 #ToDo:  move bc() here from KDT.py

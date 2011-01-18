@@ -9,7 +9,7 @@ class Graph:
 	#ToDo: privatize .spm name (to .__spmat)
 	#ToDo: implement bool, not, _sprand
 
-	print "in Graph"
+	#print "in Graph"
 
 	def __init__(self, edgev, size):
 		# include edges in both directions
@@ -62,11 +62,9 @@ class Graph:
 		[nrX, ncX] = X.shape()
 		[nrY, ncY] = Y.shape()
 		if ncX != nrY:
-			print "Inner dimensions of X and Y do not match"
- 			return
+			raise ValueError, "Inner dimensions of X and Y do not match"
 		if ncY > 1:
-			print "Y must be a column vector"
-			return
+			raise ValueError, "Y must be a column vector"
 
 		Z = spm.SpMV_SelMax(X, Y);	# assuming function creates its own output array
 
@@ -121,16 +119,16 @@ class EdgeV:
 
 #	VertexV class
 
-class VertexV:
+#class VertexV:
 #	print "in VertexV"
 #
-	def __init__(self, ndces):
-		print "VertexV __init__ not implemented"
-		pass;
+#	def __init__(self, ndces):
+#		print "VertexV __init__ not implemented"
+#		pass;
 
 
-	def __len__(self):
-		return self.__verts.nvert();
+#	def __len__(self):
+#		return self.__verts.nvert();
 
 
 sendFeedback = feedback.sendFeedback;
