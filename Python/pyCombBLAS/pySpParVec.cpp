@@ -228,7 +228,7 @@ int64_t pySpParVec::Reduce(op::BinaryFunction* f)
 	return ret;
 }
 
-pySpParVec* pySpParVec::sort()
+pySpParVec* pySpParVec::Sort()
 {
 	pySpParVec* ret = new pySpParVec(0);
 	ret->v = v.sort();

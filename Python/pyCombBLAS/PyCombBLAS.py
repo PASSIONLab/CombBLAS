@@ -118,7 +118,7 @@ class pySpParVec(_object):
     def Apply(self, *args): return _pyCombBLAS.pySpParVec_Apply(self, *args)
     def SubsRef(self, *args): return _pyCombBLAS.pySpParVec_SubsRef(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParVec_Reduce(self, *args)
-    def sort(self): return _pyCombBLAS.pySpParVec_sort(self)
+    def Sort(self): return _pyCombBLAS.pySpParVec_Sort(self)
     def setNumToInd(self): return _pyCombBLAS.pySpParVec_setNumToInd(self)
     __swig_getmethods__["zeros"] = lambda x: _pyCombBLAS.pySpParVec_zeros
     if _newclass:zeros = staticmethod(_pyCombBLAS.pySpParVec_zeros)
