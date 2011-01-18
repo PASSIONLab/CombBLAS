@@ -1032,3 +1032,4 @@ Python/pyCombBLAS/val.py -text
 Python/serialSciPy/DiGraph.py -text
 Python/serialSciPy/Graph.py -text
 Python/serialSciPy/Graph500.py -text
+/v0.1_checklist -text
