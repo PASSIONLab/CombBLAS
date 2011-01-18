@@ -223,7 +223,8 @@ int64_t pySpParVec::Reduce(op::BinaryFunction* f)
 	if (!f->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
-	int64_t ret = v.Reduce(*f, *f->getMPIOp(), 0);
+	f->getMPIOp();
+	int64_t ret = v.Reduce(*f, 0);
 	f->releaseMPIOp();
 	return ret;
 }

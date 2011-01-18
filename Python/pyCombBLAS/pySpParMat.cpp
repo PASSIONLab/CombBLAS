@@ -105,7 +105,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	RenameVertices<int64_t>(DEL);
 
 	PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
-	degrees = G->Reduce(Column, plus<int64_t>(), 0); 
+	degrees = G->Reduce(::Column, plus<int64_t>(), 0); 
 	delete G;
 
 	// Start Kernel #1
@@ -142,17 +142,38 @@ pyDenseParVec* pySpParMat::GenGraph500Candidates(int howmany)
 }
 
 
-//pyDenseParVec* pySpParMat::Reduce_ColumnSums()
-//{
-//	pyDenseParVec* ret = new pyDenseParVec();
-//	ret->v.stealFrom(A.Reduce(Column, plus<int64_t>(), 0, upcast));
-//	return ret;
-//}
-
-void pySpParMat::Apply_SetTo(int64_t value)
+void pySpParMat::Apply(op::UnaryFunction* op)
 {
-	A.Apply(set<int64_t>(value));
+	A.Apply(*op);
 }
+
+void pySpParMat::Prune(op::UnaryFunction* op)
+{
+	A.Prune(*op);
+}
+	
+pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identity)
+{
+	int64_t len = 1;
+	if (dim == ::Row)
+		len = getnrow();
+	else
+		len = getncol();
+		
+	pyDenseParVec* ret = new pyDenseParVec(len, identity, identity);
+
+	// make a temporary int matrix
+	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
+	
+	f->getMPIOp();
+	AInt->Reduce(ret->v, (Dim)dim, *f, identity);
+	f->releaseMPIOp();
+	
+	delete AInt;	// delete temporary
+	
+	return ret;
+}
+
 
 
 pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
@@ -162,7 +183,7 @@ pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
 	
 	// make a temporary int matrix
 	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
-	AInt->Reduce(ColSums, Row, plus<int>(), 0);
+	AInt->Reduce(ColSums, ::Row, plus<int>(), 0);
 	delete AInt;	// save memory	
 
 	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	// only the indices of connected vertices
@@ -196,5 +217,4 @@ void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
 {
 	x.v = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
 }
-
 

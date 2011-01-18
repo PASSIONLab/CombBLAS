@@ -83,14 +83,28 @@ class pySpParMat(_object):
     def GenGraph500Edges(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Edges(self, *args)
     def GenGraph500Candidates(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Candidates(self, *args)
     def FindIndsOfColsWithSumGreaterThan(self, *args): return _pyCombBLAS.pySpParMat_FindIndsOfColsWithSumGreaterThan(self, *args)
-    def Apply_SetTo(self, *args): return _pyCombBLAS.pySpParMat_Apply_SetTo(self, *args)
+    def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
+    def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
+    def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)
     def SpMV_PlusTimes(self, *args): return _pyCombBLAS.pySpParMat_SpMV_PlusTimes(self, *args)
     def SpMV_SelMax(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax(self, *args)
     def SpMV_SelMax_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax_inplace(self, *args)
+    __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
+    if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMat_Column)
+    __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMat_Row
+    if _newclass:Row = staticmethod(_pyCombBLAS.pySpParMat_Row)
     __swig_destroy__ = _pyCombBLAS.delete_pySpParMat
     __del__ = lambda self : None;
 pySpParMat_swigregister = _pyCombBLAS.pySpParMat_swigregister
 pySpParMat_swigregister(pySpParMat)
+
+def pySpParMat_Column():
+  return _pyCombBLAS.pySpParMat_Column()
+pySpParMat_Column = _pyCombBLAS.pySpParMat_Column
+
+def pySpParMat_Row():
+  return _pyCombBLAS.pySpParMat_Row()
+pySpParMat_Row = _pyCombBLAS.pySpParMat_Row
 
 class pySpParVec(_object):
     __swig_setmethods__ = {}

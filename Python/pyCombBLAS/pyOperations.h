@@ -125,5 +125,10 @@ BinaryFunction* not2(BinaryFunction* f);
 
 //INTERFACE_INCLUDE_END
 
+// modeled after CombBLAS/Operations.h
+// This call is only safe when between BinaryFunction.getMPIOp() and releaseMPIOp() calls.
+// That should be safe enough, because this is only called from inside CombBLAS reduce operations,
+// which only get called between getMPIOp() and releaseMPIOp().
+template<> struct MPIOp< op::BinaryFunction, int64_t > {  static MPI_Op op() { return op::BinaryFunction::staticMPIop; } };
 
 #endif
