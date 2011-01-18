@@ -4354,7 +4354,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParVec_sort(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParVec_Sort(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = (pySpParVec *) 0 ;
   void *argp1 = 0 ;
@@ -4362,15 +4362,15 @@ SWIGINTERN PyObject *_wrap_pySpParVec_sort(PyObject *SWIGUNUSEDPARM(self), PyObj
   PyObject * obj0 = 0 ;
   pySpParVec *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:pySpParVec_sort",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:pySpParVec_Sort",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParVec_sort" "', argument " "1"" of type '" "pySpParVec *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParVec_Sort" "', argument " "1"" of type '" "pySpParVec *""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
   {
     try {
-      result = (pySpParVec *)(arg1)->sort();
+      result = (pySpParVec *)(arg1)->Sort();
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -7445,7 +7445,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParVec_Apply", _wrap_pySpParVec_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_SubsRef", _wrap_pySpParVec_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_Reduce", _wrap_pySpParVec_Reduce, METH_VARARGS, NULL},
-	 { (char *)"pySpParVec_sort", _wrap_pySpParVec_sort, METH_VARARGS, NULL},
+	 { (char *)"pySpParVec_Sort", _wrap_pySpParVec_Sort, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_setNumToInd", _wrap_pySpParVec_setNumToInd, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_zeros", _wrap_pySpParVec_zeros, METH_VARARGS, NULL},
 	 { (char *)"pySpParVec_range", _wrap_pySpParVec_range, METH_VARARGS, NULL},

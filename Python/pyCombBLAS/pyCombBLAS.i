@@ -144,7 +144,7 @@ public:
 	
 	int64_t Reduce(op::BinaryFunction* f);
 	
-	pySpParVec* sort();
+	pySpParVec* Sort();
 	
 	void setNumToInd();
 
