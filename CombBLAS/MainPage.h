@@ -28,6 +28,10 @@
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
 * can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
 *
+* Sparse and dense vectors can be distributed either along the diagonal processor or to all processor. The latter is more space efficient and provides 
+* much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
+* (sparse matrix-dense vector multiplication) 
+*
 * For example, the standard way to declare a parallel sparse matrix A that uses 32-bit integers for indices, floats for numerical values (nonzeros),
 * SpDCCols <int,float> for the underlying sequential matrix operations is: 
 * - SpParMat<int, float, SpDCCols<int,float> > A; 
@@ -48,7 +52,7 @@
 * - Elementwise operations between sparse and dense matrices: SpParMat::EWiseScale() and operator+=()  
 * 
 * All the binary operations can be performed on matrices with different numerical value representations.
-* The type-traits mechanism will take care of the automatic type promotion.
+* The type-traits mechanism will take care of the automatic type promotion, and automatic MPI data type determination.
 * Of course, you have to declare the return value type appropriately (until C++0x is out, which has <a href="http://www.research.att.com/~bs/C++0xFAQ.html#auto"> auto </a>) 
 *
 * Some features it uses:
@@ -82,6 +86,7 @@
 * <b> Applications </b>  implemented using Combinatorial BLAS:
 * - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/code/CombBLAS/scale17_bc_inp.tar.gz"> here </a>.
 * - MCL.cpp : An implementation of the MCL graph clustering algorithm.
+* - Graph500.cpp: A conformant implementation of the <a href="www.graph500.org">Graph 500 benchmark</a>.
 * 
 * <b> Performance </b> results of both applications can be found in Chapter 5 of my thesis [1].
 *
