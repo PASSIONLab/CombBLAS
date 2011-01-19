@@ -1,0 +1,469 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+export: Command not found.
+export: Command not found.
+Forcing scale to : 30
+Generated local RMAT matrices
+0.069888 seconds and 18 iterations elapsed for Median finding
+0.005937 seconds elapsed for setting up swap structures on 6084 procs
+0.026608 seconds elapsed for actual data swap on 6084 procs
+0.042294 seconds and 18 iterations elapsed for Median finding
+0.002404 seconds elapsed for setting up swap structures on 3042 procs
+0.038444 seconds and 18 iterations elapsed for Median finding
+0.002187 seconds elapsed for setting up swap structures on 3042 procs
+0.025006 seconds elapsed for actual data swap on 3042 procs
+0.041223 seconds elapsed for actual data swap on 3042 procs
+0.022699 seconds and 18 iterations elapsed for Median finding
+0.018987 seconds and 18 iterations elapsed for Median finding
+0.001665 seconds elapsed for setting up swap structures on 1521 procs
+0.001548 seconds elapsed for setting up swap structures on 1521 procs
+0.028020 seconds and 18 iterations elapsed for Median finding
+0.020127 seconds elapsed for actual data swap on 1521 procs
+0.002174 seconds elapsed for setting up swap structures on 1521 procs
+0.016014 seconds elapsed for actual data swap on 1521 procs
+0.030965 seconds elapsed for actual data swap on 1521 procs
+0.041684 seconds and 18 iterations elapsed for Median finding
+0.007230 seconds elapsed for setting up swap structures on 1521 procs
+0.031669 seconds elapsed for actual data swap on 1521 procs
+0.068552 seconds and 18 iterations elapsed for Median finding
+0.005316 seconds elapsed for setting up swap structures on 6084 procs
+0.048771 seconds elapsed for actual data swap on 6084 procs
+0.036794 seconds and 18 iterations elapsed for Median finding
+0.003248 seconds elapsed for setting up swap structures on 3042 procs
+0.041015 seconds and 18 iterations elapsed for Median finding
+0.003255 seconds elapsed for setting up swap structures on 3042 procs
+0.015924 seconds elapsed for actual data swap on 3042 procs
+0.024185 seconds elapsed for actual data swap on 3042 procs
+0.026540 seconds and 18 iterations elapsed for Median finding
+0.001804 seconds elapsed for setting up swap structures on 1521 procs
+0.011282 seconds elapsed for actual data swap on 1521 procs
+0.018943 seconds and 18 iterations elapsed for Median finding
+0.018806 seconds and 18 iterations elapsed for Median finding
+0.001464 seconds elapsed for setting up swap structures on 1521 procs
+0.021560 seconds elapsed for actual data swap on 1521 procs
+0.066683 seconds and 18 iterations elapsed for Median finding
+0.001827 seconds elapsed for setting up swap structures on 1521 procs
+0.041270 seconds elapsed for actual data swap on 1521 procs
+0.001423 seconds elapsed for setting up swap structures on 1521 procs
+0.021972 seconds elapsed for actual data swap on 1521 procs
+0.066250 seconds and 18 iterations elapsed for Median finding
+0.005480 seconds elapsed for setting up swap structures on 6084 procs
+0.022813 seconds elapsed for actual data swap on 6084 procs
+0.034007 seconds and 18 iterations elapsed for Median finding
+0.002839 seconds elapsed for setting up swap structures on 3042 procs
+0.041224 seconds and 18 iterations elapsed for Median finding
+0.011279 seconds elapsed for actual data swap on 3042 procs
+0.017246 seconds elapsed for setting up swap structures on 3042 procs
+0.032222 seconds elapsed for actual data swap on 3042 procs
+0.020455 seconds and 18 iterations elapsed for Median finding
+0.019444 seconds and 18 iterations elapsed for Median finding
+0.001453 seconds elapsed for setting up swap structures on 1521 procs
+0.001487 seconds elapsed for setting up swap structures on 1521 procs
+0.024146 seconds elapsed for actual data swap on 1521 procs
+0.035050 seconds elapsed for actual data swap on 1521 procs
+0.055047 seconds and 18 iterations elapsed for Median finding
+0.003353 seconds elapsed for setting up swap structures on 1521 procs
+0.021591 seconds elapsed for actual data swap on 1521 procs
+0.022421 seconds and 18 iterations elapsed for Median finding
+0.001941 seconds elapsed for setting up swap structures on 1521 procs
+0.022984 seconds elapsed for actual data swap on 1521 procs
+0.069412 seconds and 18 iterations elapsed for Median finding
+0.004528 seconds elapsed for setting up swap structures on 6084 procs
+0.028081 seconds elapsed for actual data swap on 6084 procs
+0.039371 seconds and 18 iterations elapsed for Median finding
+0.040618 seconds and 18 iterations elapsed for Median finding
+0.003444 seconds elapsed for setting up swap structures on 3042 procs
+0.003372 seconds elapsed for setting up swap structures on 3042 procs
+0.017280 seconds elapsed for actual data swap on 3042 procs
+0.029947 seconds elapsed for actual data swap on 3042 procs
+0.020590 seconds and 18 iterations elapsed for Median finding
+0.001589 seconds elapsed for setting up swap structures on 1521 procs
+0.032657 seconds elapsed for actual data swap on 1521 procs
+0.022849 seconds and 18 iterations elapsed for Median finding
+0.056774 seconds and 18 iterations elapsed for Median finding
+0.004766 seconds elapsed for setting up swap structures on 1521 procs
+0.002285 seconds elapsed for setting up swap structures on 1521 procs
+0.033216 seconds elapsed for actual data swap on 1521 procs
+0.027043 seconds elapsed for actual data swap on 1521 procs
+0.024518 seconds and 18 iterations elapsed for Median finding
+0.001548 seconds elapsed for setting up swap structures on 1521 procs
+0.022893 seconds elapsed for actual data swap on 1521 procs
+0.070043 seconds and 18 iterations elapsed for Median finding
+0.007703 seconds elapsed for setting up swap structures on 6084 procs
+0.037353 seconds elapsed for actual data swap on 6084 procs
+0.035596 seconds and 18 iterations elapsed for Median finding
+0.002700 seconds elapsed for setting up swap structures on 3042 procs
+0.043274 seconds and 18 iterations elapsed for Median finding
+0.022545 seconds elapsed for actual data swap on 3042 procs
+0.012619 seconds elapsed for setting up swap structures on 3042 procs
+0.030761 seconds elapsed for actual data swap on 3042 procs
+0.019605 seconds and 18 iterations elapsed for Median finding
+0.001393 seconds elapsed for setting up swap structures on 1521 procs
+0.023752 seconds and 18 iterations elapsed for Median finding
+0.001738 seconds elapsed for setting up swap structures on 1521 procs
+0.025566 seconds elapsed for actual data swap on 1521 procs
+0.021437 seconds elapsed for actual data swap on 1521 procs
+0.070481 seconds and 18 iterations elapsed for Median finding
+0.003511 seconds elapsed for setting up swap structures on 1521 procs
+0.036761 seconds elapsed for actual data swap on 1521 procs
+0.023491 seconds and 18 iterations elapsed for Median finding
+0.001623 seconds elapsed for setting up swap structures on 1521 procs
+0.038587 seconds elapsed for actual data swap on 1521 procs
+0.069345 seconds and 18 iterations elapsed for Median finding
+0.005143 seconds elapsed for setting up swap structures on 6084 procs
+0.042254 seconds elapsed for actual data swap on 6084 procs
+0.035550 seconds and 18 iterations elapsed for Median finding
+0.002331 seconds elapsed for setting up swap structures on 3042 procs
+0.044364 seconds and 18 iterations elapsed for Median finding
+0.021361 seconds elapsed for actual data swap on 3042 procs
+0.008110 seconds elapsed for setting up swap structures on 3042 procs
+0.025882 seconds elapsed for actual data swap on 3042 procs
+0.018769 seconds and 18 iterations elapsed for Median finding
+0.001857 seconds elapsed for setting up swap structures on 1521 procs
+0.023866 seconds elapsed for actual data swap on 1521 procs
+0.061481 seconds and 18 iterations elapsed for Median finding
+0.003100 seconds elapsed for setting up swap structures on 1521 procs
+0.038342 seconds elapsed for actual data swap on 1521 procs
+0.022460 seconds and 18 iterations elapsed for Median finding
+0.001598 seconds elapsed for setting up swap structures on 1521 procs
+0.025613 seconds elapsed for actual data swap on 1521 procs
+0.023555 seconds and 18 iterations elapsed for Median finding
+0.002788 seconds elapsed for setting up swap structures on 1521 procs
+0.017460 seconds elapsed for actual data swap on 1521 procs
+0.070915 seconds and 18 iterations elapsed for Median finding
+0.005333 seconds elapsed for setting up swap structures on 6084 procs
+0.024777 seconds elapsed for actual data swap on 6084 procs
+0.041984 seconds and 18 iterations elapsed for Median finding
+0.038665 seconds and 18 iterations elapsed for Median finding
+0.003763 seconds elapsed for setting up swap structures on 3042 procs
+0.002535 seconds elapsed for setting up swap structures on 3042 procs
+0.017318 seconds elapsed for actual data swap on 3042 procs
+0.032590 seconds elapsed for actual data swap on 3042 procs
+0.024653 seconds and 18 iterations elapsed for Median finding
+0.002573 seconds elapsed for setting up swap structures on 1521 procs
+0.020307 seconds and 18 iterations elapsed for Median finding
+0.001482 seconds elapsed for setting up swap structures on 1521 procs
+0.021192 seconds and 18 iterations elapsed for Median finding
+0.001683 seconds elapsed for setting up swap structures on 1521 procs
+0.029620 seconds elapsed for actual data swap on 1521 procs
+0.035159 seconds elapsed for actual data swap on 1521 procs
+0.049013 seconds and 18 iterations elapsed for Median finding
+0.006188 seconds elapsed for setting up swap structures on 1521 procs
+0.032092 seconds elapsed for actual data swap on 1521 procs
+0.033352 seconds elapsed for actual data swap on 1521 procs
+0.076137 seconds and 18 iterations elapsed for Median finding
+0.005723 seconds elapsed for setting up swap structures on 6084 procs
+0.021497 seconds elapsed for actual data swap on 6084 procs
+0.041904 seconds and 18 iterations elapsed for Median finding
+0.036736 seconds and 18 iterations elapsed for Median finding
+0.003879 seconds elapsed for setting up swap structures on 3042 procs
+0.004958 seconds elapsed for setting up swap structures on 3042 procs
+0.010542 seconds elapsed for actual data swap on 3042 procs
+0.025190 seconds elapsed for actual data swap on 3042 procs
+0.018079 seconds and 18 iterations elapsed for Median finding
+0.001501 seconds elapsed for setting up swap structures on 1521 procs
+0.033164 seconds elapsed for actual data swap on 1521 procs
+0.021463 seconds and 18 iterations elapsed for Median finding
+0.023382 seconds and 18 iterations elapsed for Median finding
+0.001485 seconds elapsed for setting up swap structures on 1521 procs
+0.001556 seconds elapsed for setting up swap structures on 1521 procs
+0.033723 seconds elapsed for actual data swap on 1521 procs
+0.045800 seconds elapsed for actual data swap on 1521 procs
+0.021520 seconds and 18 iterations elapsed for Median finding
+0.001628 seconds elapsed for setting up swap structures on 1521 procs
+0.037257 seconds elapsed for actual data swap on 1521 procs
+Permuted Edges
+0.064838 seconds and 17 iterations elapsed for Median finding
+0.004632 seconds elapsed for setting up swap structures on 6084 procs
+0.006573 seconds elapsed for actual data swap on 6084 procs
+0.034686 seconds and 17 iterations elapsed for Median finding
+0.002827 seconds elapsed for setting up swap structures on 3042 procs
+0.042072 seconds and 17 iterations elapsed for Median finding
+0.008316 seconds elapsed for actual data swap on 3042 procs
+0.005923 seconds elapsed for setting up swap structures on 3042 procs
+0.007146 seconds elapsed for actual data swap on 3042 procs
+0.020896 seconds and 17 iterations elapsed for Median finding
+0.001513 seconds elapsed for setting up swap structures on 1521 procs
+0.023719 seconds and 17 iterations elapsed for Median finding
+0.002697 seconds elapsed for setting up swap structures on 1521 procs
+0.009036 seconds elapsed for actual data swap on 1521 procs
+0.026095 seconds and 17 iterations elapsed for Median finding
+0.001782 seconds elapsed for setting up swap structures on 1521 procs
+0.009635 seconds elapsed for actual data swap on 1521 procs
+0.005486 seconds elapsed for actual data swap on 1521 procs
+0.033796 seconds and 17 iterations elapsed for Median finding
+0.003949 seconds elapsed for setting up swap structures on 1521 procs
+0.004953 seconds elapsed for actual data swap on 1521 procs
+Renamed Vertices
+Duplicates removed: 147006489 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 147006489 and self-loops removed: 5379
+10.886901 seconds elapsed for Kernel #1
+As a whole: 1073741824 rows and 1073741824 columns and 34065706968 nonzeros
+Load balance: 1.03418
+2.554874 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 329304170
+0.054953 seconds and 15 iterations elapsed for Median finding
+0.008493 seconds elapsed for setting up swap structures on 6084 procs
+0.002651 seconds elapsed for actual data swap on 6084 procs
+0.031205 seconds and 15 iterations elapsed for Median finding
+0.002176 seconds elapsed for setting up swap structures on 3042 procs
+0.002016 seconds elapsed for actual data swap on 3042 procs
+0.035523 seconds and 15 iterations elapsed for Median finding
+0.005810 seconds elapsed for setting up swap structures on 3042 procs
+0.003124 seconds elapsed for actual data swap on 3042 procs
+0.019859 seconds and 15 iterations elapsed for Median finding
+0.001501 seconds elapsed for setting up swap structures on 1521 procs
+0.021717 seconds and 15 iterations elapsed for Median finding
+0.002686 seconds elapsed for actual data swap on 1521 procs
+0.001722 seconds elapsed for setting up swap structures on 1521 procs
+0.003638 seconds elapsed for actual data swap on 1521 procs
+0.024604 seconds and 15 iterations elapsed for Median finding
+0.025151 seconds and 15 iterations elapsed for Median finding
+0.002878 seconds elapsed for setting up swap structures on 1521 procs
+0.003115 seconds elapsed for setting up swap structures on 1521 procs
+0.002857 seconds elapsed for actual data swap on 1521 procs
+0.003675 seconds elapsed for actual data swap on 1521 procs
+As a whole, Candidates array (permuted) has length 329304170
+As a whole, First several of candidates (randomly chosen) array has length 16
+0th starting vertex was 1026279151
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.65458 seconds
+MTEPS: 3690.93
+1th starting vertex was 529926918
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.6687 seconds
+MTEPS: 3679.77
+2th starting vertex was 725318758
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.70485 seconds
+MTEPS: 3651.49
+3th starting vertex was 866058015
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.66073 seconds
+MTEPS: 3686.06
+4th starting vertex was 434811303
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.5366 seconds
+MTEPS: 3786.91
+5th starting vertex was 679632765
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.57417 seconds
+MTEPS: 3755.81
+6th starting vertex was 433779658
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.54187 seconds
+MTEPS: 3782.52
+7th starting vertex was 545846488
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.58668 seconds
+MTEPS: 3745.57
+8th starting vertex was 823233535
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.6099 seconds
+MTEPS: 3726.7
+9th starting vertex was 624524647
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.51244 seconds
+MTEPS: 3807.19
+10th starting vertex was 502345584
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.56931 seconds
+MTEPS: 3759.81
+11th starting vertex was 331881591
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.53635 seconds
+MTEPS: 3787.12
+12th starting vertex was 190627340
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.54003 seconds
+MTEPS: 3784.06
+13th starting vertex was 567720645
+Number iterations: 7
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.54296 seconds
+MTEPS: 3781.61
+14th starting vertex was 138250370
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.54189 seconds
+MTEPS: 3782.51
+15th starting vertex was 1047030258
+Number iterations: 8
+Number of vertices found: 452185493
+Number of edges traversed: 17179724985
+BFS time: 4.59644 seconds
+MTEPS: 3737.61
+Finished
+--------------------------
+Min nedges: 1.71797e+10
+First Quartile nedges: 1.71797e+10
+Median nedges: 1.71797e+10
+Third Quartile nedges: 1.71797e+10
+Max nedges: 1.71797e+10
+Mean nedges: 1.71797e+10
+STDDEV nedges: 0
+--------------------------
+Min time: 4.51244 seconds
+First Quartile time: 4.54095 seconds
+Median time: 4.57174 seconds
+Third Quartile time: 4.63224 seconds
+Max time: 4.70485 seconds
+Mean time: 4.58609 seconds
+STDDEV time: 0.0580379 seconds
+--------------------------
+Min MTEPS: 3651.49
+First Quartile MTEPS: 3708.82
+Median MTEPS: 3757.81
+Third Quartile MTEPS: 3783.29
+Max MTEPS: 3807.19
+Harmonic mean of MTEPS: 3746.05
+Harmonic standard deviation of MTEPS: 47.4069
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm Force 30  (completed)
+# host    : nid00599/x86_64_Linux          mpi_tasks : 6084 on 1521 nodes
+# start   : 01/14/11/14:33:13              wallclock : 402.180481 sec
+# stop    : 01/14/11/14:39:55              %comm     : 33.94 
+# gbytes  : 3.98952e+03 total              gflop/sec : 3.42711e+00 total
+#
+##############################################################################
+# region  : *       [ntasks] =   6084
+#
+#                           [total]         <avg>           min           max 
+# entries                       6084             1             1             1
+# wallclock              2.44673e+06       402.157       402.136        402.18
+# user                   2.23539e+06       367.421       357.898       374.147
+# system                      192261       31.6011       25.2576       37.8624
+# mpi                         830410       136.491       130.853       145.199
+# %comm                                    33.9377       32.5374       36.1055
+# gflop/sec                  3.42711   0.000563299   0.000562312   0.000564074
+# gbytes                     3989.52       0.65574      0.653046      0.658051
+#
+# PAPI_TOT_INS           5.25444e+15   8.63649e+11   8.33854e+11   9.01508e+11
+# PAPI_FP_OPS            1.37832e+12   2.26548e+08   2.26151e+08   2.26859e+08
+# PAPI_L1_DCA            1.71343e+15   2.81629e+11   2.67979e+11   2.96264e+11
+# PAPI_L1_DCM             1.0435e+13   1.71515e+09   1.62577e+09   3.26963e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                   528710   7.50948e+07         63.67        21.61
+# MPI_Alltoallv              99497.2   2.00164e+06         11.98         4.07
+# MPI_Allgather              91695.4   8.14191e+06         11.04         3.75
+# MPI_Allgatherv             51286.6        955188          6.18         2.10
+# MPI_Allreduce              22339.4   1.21011e+07          2.69         0.91
+# MPI_Barrier                16087.2   1.53925e+06          1.94         0.66
+# MPI_Reduce                 13322.5         12168          1.60         0.54
+# MPI_Alltoall               4268.39   1.16204e+06          0.51         0.17
+# MPI_Sendrecv               2824.17   3.12671e+06          0.34         0.12
+# MPI_Scatterv                377.61         12168          0.05         0.02
+# MPI_Comm_size             0.808751   2.38493e+06          0.00         0.00
+# MPI_Comm_rank             0.658222   1.72177e+06          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =   6084
+#
+#                           [total]         <avg>           min           max 
+# entries                     109512            18            18            18
+# wallclock              2.00018e+06       328.761       328.744       328.782
+# user                   1.87204e+06       307.699       300.087       314.044
+# system                      116193       19.0981       12.9288       24.6695
+# mpi                         745342       122.509        120.36       127.251
+# %comm                                    37.2613       36.6088       38.7048
+# gflop/sec                  4.19199   0.000689019   0.000687812   0.000689967
+#
+# PAPI_TOT_INS           4.45776e+15   7.32702e+11   7.10123e+11   7.57415e+11
+# PAPI_FP_OPS            1.37825e+12   2.26537e+08    2.2614e+08   2.26849e+08
+# PAPI_L1_DCA            1.38348e+15   2.27397e+11   2.17189e+11   2.36824e+11
+# PAPI_L1_DCM            7.75027e+12   1.27388e+09   1.20005e+09    2.8288e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                   527341   7.41275e+07         70.75        26.36
+# MPI_Allgather              91010.6   7.36924e+06         12.21         4.55
+# MPI_Alltoallv              82247.8        456300         11.03         4.11
+# MPI_Barrier                14922.4        766584          2.00         0.75
+# MPI_Reduce                 13322.5         12168          1.79         0.67
+# MPI_Allreduce              10358.6   1.04584e+07          1.39         0.52
+# MPI_Alltoall               3054.33        389376          0.41         0.15
+# MPI_Sendrecv               2342.87         36036          0.31         0.12
+# MPI_Scatterv                377.61         12168          0.05         0.02
+# MPI_Allgatherv             363.149        182520          0.05         0.02
+# MPI_Comm_size             0.559058        839592          0.00         0.00
+# MPI_Comm_rank             0.491213        949104          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =   6084
+#
+#                           [total]         <avg>           min           max 
+# entries                      97344            16            16            16
+# wallclock                   446406       73.3738        73.367       73.3757
+# user                        363346       59.7216       55.8795       62.3159
+# system                     76068.1        12.503       10.3726       13.8369
+# mpi                          85068       13.9823        9.2863       22.1268
+# %comm                                    19.0557       12.6559       30.1562
+# gflop/sec              0.000869853   1.42974e-07   1.42895e-07   1.43154e-07
+#
+# PAPI_TOT_INS           7.96682e+14   1.30947e+11   1.12039e+11   1.47359e+11
+# PAPI_FP_OPS            6.38261e+07         10490         10485         10504
+# PAPI_L1_DCA            3.29948e+14   5.42321e+10   4.69602e+10   6.06875e+10
+# PAPI_L1_DCM            2.68469e+12   4.41271e+08   4.12496e+08   4.79223e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allgatherv             50923.4        772668         59.86        11.41
+# MPI_Alltoallv              17249.3   1.54534e+06         20.28         3.86
+# MPI_Allreduce              11980.8   1.64268e+06         14.08         2.68
+# MPI_Bcast                  1369.01        967356          1.61         0.31
+# MPI_Alltoall               1214.06        772668          1.43         0.27
+# MPI_Barrier                1164.84        772668          1.37         0.26
+# MPI_Allgather              684.816        772668          0.81         0.15
+# MPI_Sendrecv               481.295   3.09067e+06          0.57         0.11
+# MPI_Comm_size             0.249693   1.54534e+06          0.00         0.00
+# MPI_Comm_rank             0.167008        772668          0.00         0.00
+###############################################################################
+IPM: 0 log IPMLOG_DIR /scratch/usglogs/ipm not available using $CWD 
+Application 6172671 resources: utime 0, stime 1
+
+ + --------------------------------------------------------------------------
+ +        Job name: script6084_ipm
+ +          Job Id: 6930130.nid00003
+ +          System: franklin
+ +     Queued Time: Fri Jan 14 10:17:01 2011
+ +      Start Time: Fri Jan 14 14:32:32 2011
+ + Completion Time: Fri Jan 14 14:41:02 2011
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: reg_med
+ +  Req. Resources: other=QSUBPID:33805:nid00011,walltime=00:20:00
+ +  Used Resources: cput=00:00:01,mem=15744kb,vmem=32836kb,walltime=00:08:30
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script6084_ipm
+ + --------------------------------------------------------------------------
+
