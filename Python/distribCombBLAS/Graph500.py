@@ -55,7 +55,7 @@ def k2Validate(G, start, parents):
 scale = 4;
 
 G = kdtdg.DiGraph();
-K1elapsed = kdtdg.genGraph500Edges(G, scale);
+K1elapsed = G.genGraph500Edges(scale);
 #FIX: genGraph500Edges not returning the time properly
 K1elapsed = 1.0;
 
@@ -67,7 +67,7 @@ if not G500CANDS_BUILTIN:
 	starts = np.random.randint(0,high=len(deg3verts),size=(nstarts,));
 	# deg3verts stays distributed; indices to it (starts) are scalars
 else:
-	starts = kdtdg.genGraph500Candidates(G, nstarts);
+	starts = G.genGraph500Candidates(nstarts);
 K2elapsed = 1e-12;
 K2edges = 0;
 for start in starts:
