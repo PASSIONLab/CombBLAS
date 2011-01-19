@@ -66,7 +66,7 @@ public:
 
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
 	SpParMat (const DistEdgeList< IT > & rhs, bool removeloops = true);	// conversion from distributed edge list
-	SpPatMat (const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
+	SpParMat (const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();

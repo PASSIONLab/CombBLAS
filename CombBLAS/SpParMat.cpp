@@ -616,7 +616,7 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpPatMat (const FullyDistVec<IT,IT> & distrows, const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
+SpParMat< IT,NT,DER >::SpParMat (const FullyDistVec<IT,IT> & distrows, const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
 {
 	if((distrows.commGrid != distcols.commGrid) || (distcols.commGrid != distvals.commGrid))
 	{
