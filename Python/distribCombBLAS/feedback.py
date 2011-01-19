@@ -9,6 +9,9 @@ import socket
 _kdt_LogFname = '.KDT_log';
 _kdt_EmailFname = 'KDT_email';
 #FIX:  replace the following line by the alias, when the alias exists
+#NOTE:  as of 2011Jan17, putting multiple email addresses in the _kdt_Alias
+#	variable, whether separated by spaces, commas, or semicolons, did
+#	not work properly.
 _kdt_Alias = 'steve.reinhardt@microsoft.com';
 _kdt_Nlines2Send = 30;
 
