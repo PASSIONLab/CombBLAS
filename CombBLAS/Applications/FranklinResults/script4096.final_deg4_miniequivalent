@@ -1,0 +1,259 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+export: Command not found.
+export: Command not found.
+Forcing scale to : 31
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 20313691 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 20313691 and self-loops removed: 2070
+7.589382 seconds elapsed for Kernel #1
+As a whole: 2147483648 rows and 2147483648 columns and 17139237662 nonzeros
+Load balance: 1.03059
+6.351907 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 360030327
+As a whole, Candidates array (permuted) has length 360030327
+As a whole, First several of candidates (randomly chosen) array has length 16
+0th starting vertex was 1449084157
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.13353 seconds
+MTEPS: 1400.35
+1th starting vertex was 649196541
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.12911 seconds
+MTEPS: 1401.36
+2th starting vertex was 595914382
+Number iterations: 8
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.00657 seconds
+MTEPS: 1429.95
+3th starting vertex was 638341384
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.14389 seconds
+MTEPS: 1397.99
+4th starting vertex was 589087646
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.07563 seconds
+MTEPS: 1413.7
+5th starting vertex was 856647272
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.06337 seconds
+MTEPS: 1416.55
+6th starting vertex was 1565072864
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.06647 seconds
+MTEPS: 1415.83
+7th starting vertex was 1928306711
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.02891 seconds
+MTEPS: 1424.65
+8th starting vertex was 125796903
+Number iterations: 8
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 5.93614 seconds
+MTEPS: 1446.92
+9th starting vertex was 500614531
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.03847 seconds
+MTEPS: 1422.39
+10th starting vertex was 504301601
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.04859 seconds
+MTEPS: 1420.02
+11th starting vertex was 1158139934
+Number iterations: 8
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 5.96085 seconds
+MTEPS: 1440.92
+12th starting vertex was 1694183280
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.0911 seconds
+MTEPS: 1410.11
+13th starting vertex was 746571720
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.10237 seconds
+MTEPS: 1407.5
+14th starting vertex was 1444714368
+Number iterations: 8
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 5.99037 seconds
+MTEPS: 1433.82
+15th starting vertex was 833986203
+Number iterations: 9
+Number of vertices found: 558679936
+Number of edges traversed: 8589092814
+BFS time: 6.02757 seconds
+MTEPS: 1424.97
+Finished
+--------------------------
+Min nedges: 8.58909e+09
+First Quartile nedges: 8.58909e+09
+Median nedges: 8.58909e+09
+Third Quartile nedges: 8.58909e+09
+Max nedges: 8.58909e+09
+Mean nedges: 8.58909e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 5.93614 seconds
+First Quartile time: 6.01707 seconds
+Median time: 6.05598 seconds
+Third Quartile time: 6.09674 seconds
+Max time: 6.14389 seconds
+Mean time: 6.05268 seconds
+STDDEV time: 0.0605036 seconds
+--------------------------
+Min MTEPS: 1397.99
+First Quartile MTEPS: 1408.8
+Median MTEPS: 1418.29
+Third Quartile MTEPS: 1427.46
+Max MTEPS: 1446.92
+Harmonic mean of MTEPS: 1419.06
+Harmonic standard deviation of MTEPS: 14.1851
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm_deg4 Force 31  (completed)
+# host    : nid03169/x86_64_Linux          mpi_tasks : 4096 on 1024 nodes
+# start   : 01/14/11/12:18:32              wallclock : 404.492946 sec
+# stop    : 01/14/11/12:25:17              %comm     : 53.16 
+# gbytes  : 4.36554e+03 total              gflop/sec : 1.80379e+00 total
+#
+##############################################################################
+# region  : *       [ntasks] =   4096
+#
+#                           [total]         <avg>           min           max 
+# entries                       4096             1             1             1
+# wallclock              1.65673e+06       404.475       404.461       404.493
+# user                   1.42827e+06       348.699       338.145       359.858
+# system                      216216       52.7871       41.6586       60.9398
+# mpi                         880693       215.013       210.477       222.049
+# %comm                                    53.1561       52.0361       54.8973
+# gflop/sec                  1.80379   0.000440379   0.000439643   0.000441198
+# gbytes                     4365.54       1.06581       1.06435       1.06738
+#
+# PAPI_TOT_INS           3.93516e+15   9.60732e+11   9.00201e+11    9.9136e+11
+# PAPI_FP_OPS            7.29621e+11    1.7813e+08   1.77832e+08   1.78461e+08
+# PAPI_L1_DCA            1.46704e+15   3.58164e+11   3.34199e+11   3.69272e+11
+# PAPI_L1_DCM            6.77731e+12   1.65462e+09   1.60528e+09   3.39384e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                   692590   3.43245e+07         78.64        41.80
+# MPI_Alltoallv              49334.5   1.45408e+06          5.60         2.98
+# MPI_Allgatherv             46861.1        696320          5.32         2.83
+# MPI_Allgather              42398.6    5.4487e+06          4.81         2.56
+# MPI_Reduce                 22973.9          8192          2.61         1.39
+# MPI_Allreduce              18067.7   8.21043e+06          2.05         1.09
+# MPI_Barrier                3994.25        720896          0.45         0.24
+# MPI_Alltoall               2075.09        835584          0.24         0.13
+# MPI_Sendrecv               1776.83   2.31795e+06          0.20         0.11
+# MPI_Scatterv               619.839          8192          0.07         0.04
+# MPI_Comm_size             0.565759   1.71213e+06          0.00         0.00
+# MPI_Comm_rank             0.434678   1.21242e+06          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =   4096
+#
+#                           [total]         <avg>           min           max 
+# entries                      73728            18            18            18
+# wallclock              1.26001e+06       307.619       307.609        307.63
+# user                   1.14029e+06       278.392       269.685       289.134
+# system                      112897       27.5627        16.453       35.3502
+# mpi                         810876       197.968       196.634       199.499
+# %comm                                    64.3525       63.9213       64.8536
+# gflop/sec                  2.37159   0.000579002   0.000578035   0.000580079
+#
+# PAPI_TOT_INS           3.34281e+15   8.16115e+11   7.54683e+11   8.45013e+11
+# PAPI_FP_OPS            7.29574e+11   1.78119e+08   1.77821e+08    1.7845e+08
+# PAPI_L1_DCA            1.22364e+15   2.98739e+11   2.74627e+11   3.08802e+11
+# PAPI_L1_DCM            4.81431e+12   1.17537e+09   1.13555e+09   2.91409e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                   690875     3.362e+07         85.20        54.83
+# MPI_Allgather              41731.3   4.87526e+06          5.15         3.31
+# MPI_Alltoallv              37561.5        307200          4.63         2.98
+# MPI_Reduce                 22973.9          8192          2.83         1.82
+# MPI_Allreduce              11233.9   6.99802e+06          1.39         0.89
+# MPI_Barrier                3213.25        147456          0.40         0.26
+# MPI_Alltoall               1280.29        262144          0.16         0.10
+# MPI_Sendrecv               1211.24         24192          0.15         0.10
+# MPI_Scatterv               619.839          8192          0.08         0.05
+# MPI_Allgatherv             175.043        122880          0.02         0.01
+# MPI_Comm_size              0.39354        565248          0.00         0.00
+# MPI_Comm_rank             0.315543        638976          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =   4096
+#
+#                           [total]         <avg>           min           max 
+# entries                      65536            16            16            16
+# wallclock                   396629       96.8332       96.8308       96.8352
+# user                        287980       70.3076       67.9642       71.7045
+# system                      103319       25.2244       24.3215       26.1256
+# mpi                        69816.6       17.0451       13.0649       23.6458
+# %comm                                    17.6021       13.4921        24.419
+# gflop/sec              0.000488249   1.19201e-07   1.19141e-07   1.19316e-07
+#
+# PAPI_TOT_INS           5.92352e+14   1.44617e+11    1.3475e+11   1.50183e+11
+# PAPI_FP_OPS            4.72797e+07         11542         11537         11554
+# PAPI_L1_DCA            2.43401e+14   5.94241e+10   5.55882e+10   6.17438e+10
+# PAPI_L1_DCM              1.963e+12   4.79248e+08   4.67684e+08   4.93119e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allgatherv               46686        573440         66.87        11.77
+# MPI_Alltoallv                11773   1.14688e+06         16.86         2.97
+# MPI_Allreduce              6833.85   1.21242e+06          9.79         1.72
+# MPI_Bcast                  1714.64        704512          2.46         0.43
+# MPI_Alltoall               794.803        573440          1.14         0.20
+# MPI_Barrier                781.002        573440          1.12         0.20
+# MPI_Allgather              667.378        573440          0.96         0.17
+# MPI_Sendrecv               565.596   2.29376e+06          0.81         0.14
+# MPI_Comm_size             0.172219   1.14688e+06          0.00         0.00
+# MPI_Comm_rank             0.119135        573440          0.00         0.00
+###############################################################################
+IPM: 0 log IPMLOG_DIR /scratch/usglogs/ipm not available using $CWD 
+Application 6161219 resources: utime 0, stime 5
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4096_ipm_deg4
+ +          Job Id: 6930127.nid00003
+ +          System: franklin
+ +     Queued Time: Fri Jan 14 10:15:48 2011
+ +      Start Time: Fri Jan 14 12:17:50 2011
+ + Completion Time: Fri Jan 14 12:24:46 2011
+ +            User: abuluc
+ +        MOM Host: nid00259
+ +           Queue: premium
+ +  Req. Resources: other=QSUBPID:33515:nid00011,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=12280kb,vmem=29392kb,walltime=00:06:54
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script4096_ipm_deg4
+ + --------------------------------------------------------------------------
+
