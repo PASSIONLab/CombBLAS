@@ -616,6 +616,20 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 
 
 template <class IT, class NT, class DER>
+SpParMat< IT,NT,DER >::SpPatMat (const FullyDistVec<IT,IT> & distrows, const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
+{
+	if((distrows.commGrid != distcols.commGrid) || (distcols.commGrid != distvals.commGrid))
+	{
+		SpParHelper::Print("Grids are not comparable, Sparse() fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	commGrid.reset(new CommGrid(*(distrows.commGrid)));		
+	int rank = commGrid->GetRank();
+	vector< vector<IT> > data(nprocs);
+}
+
+template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 {
 	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
@@ -627,7 +641,6 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 
 	IT m_perproc = DEL.getNumRows() / r;
 	IT n_perproc = DEL.getNumCols() / s;
-
 	
 	// to lower memory consumption, form sparse matrix in stages
 	IT stages = 16;	
@@ -1433,4 +1446,42 @@ ofstream& operator<<(ofstream& outfile, const SpParMat<IU, NU, UDER> & s)
 {
 	return s.put(outfile) ;	// use the right put() function
 
+}
+
+/**
+  * @param[in] grow {global row index}
+  * @param[in] gcol {global column index}
+  * @param[out] lrow {row index local to the owner}
+  * @param[out] lcol {col index local to the owner}
+  * @returns {owner processor id}
+ **/
+template <class IT, class NT,class DER>
+int SpParMat<IT,NT,DER>::Owner(IT grow, IT gcol, IT & lrow, IT & lcol) const
+{
+	int procrows = commGrid->GetGridRows();
+	int proccols = commGrid->GetGridCols();
+	IT m_perproc = total_m / procrows;
+	IT n_perproc = total_n / proccols;
+
+	int own_procrow;	// owner's processor row
+	if(m_perproc != 0)
+	{
+		own_procrow = std::min(static_cast<int>(grow / m_perproc), procrows-1);	// owner's processor row
+	}
+	else	// all owned by the last processor row
+	{
+		own_procrow = procrows -1;
+	}
+	int own_proccol;
+	if(n_perproc != 0)
+	{
+		own_proccol = std::min(static_cast<int>(gcol / n_perproc), proccols-1);
+	}
+	else
+	{
+		own_proccol = proccols-1;
+	}
+	lrow = grow - (own_procrow * m_perproc);
+	lcol = gcol - (own_proccol * n_perproc);
+	return commGrid->GetRank(own_procrow, own_proccol);
 }
