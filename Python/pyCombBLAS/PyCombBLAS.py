@@ -3,6 +3,25 @@ import pyCombBLAS as pcb
 DenseCheck = False;
 SparseCheck = False;
 
+class PySpParMat:
+	def __init__(self):
+		self.pySPM = pcb.pySpParMat();
+
+	def copy(self):
+		ret = PySpParMat();
+		ret.pySPM = self.pySPM.copy();
+		return ret;
+
+	def nedge(self):
+		return self.pySPM.getnnz();
+
+	def nvert(self):
+		return self.pySPM.getnrow();
+
+	def load(self,fname):
+		self.pySPM.load(fname);
+		return self
+
 class PySpParVec:
 	def __init__(self, sz):
 		self.pySPV = pcb.pySpParVec(sz);
@@ -18,9 +37,6 @@ class PySpParVec:
 		ret.pySPV = self.pySPV.copy();
 		ret.pySPV += other.pySPV;
 		return ret;
-
-	def __copy__(self):
-		return self.pySPV.copy();
 
 	def __delitem__(self, key):
 		if isinstance(key,PyDenseParVec):
@@ -62,12 +78,9 @@ class PySpParVec:
 
 	def __repr__(self):
 		self.pySPV.printall()
-		return ' ';
+		return '';
 
 	def __setitem__(self, key, value):
-		#if type(value) != int:
-		#	print "__setitem__ only supports an integer scalar right-hand side"
-		#	return
 		if type(key) == int:
 			self.pySPV.SetElement(key,value);
 			#self.pySPV[key] = value;
@@ -98,9 +111,9 @@ class PySpParVec:
 		return  self.any()
 
 	def copy(self):
-		ret = PySpParVec(self.len());
-		ret.pyDPV = self.pyDPV.copy()
-		return ret;
+		ret = PySpParVec(len(self));
+		ret.pySPV = copy(self.pySPV);
+		return ret
 
 	def dense(self):
 		ret = PyDenseParVec(self.len(),0)
@@ -118,6 +131,7 @@ class PySpParVec:
 
 	def printall(self):
 		self.pySPV.printall()
+		return '';
 
 	def range(value):
 		if type(value) == int:
@@ -173,21 +187,43 @@ class PyDenseParVec:
 		ret[tmp2] = 1;
 		return ret;
 			
-
-	def __copy__(self):
-		return self.pyDPV.copy();
-
+	def __ge__(self, other):
+		if type(other) == int:  # vector <> scalar; expand scalar
+			other = PyDenseParVec(len(self),other)
+		diff = self - other;
+		trues = PySpParVec(0);
+		trues.pySPV = diff.pyDPV.Find(pcb.bind2nd(pcb.greater_equal(),0));
+		ret = PyDenseParVec(len(self),0);
+		ret[trues] = 1;
+		return ret;
+		
 	def __getitem__(self, key):
 		if type(key) == int:	# scalar index
 			ret = self.pyDPV.GetElement(key);
-		elif type(key) == type(self):	#HACK:  ideally compare for PyDenseParVec
+		elif isinstance(key,PyDenseParVec):
 			ret = PyDenseParVec(0, 0);
-			ret.pyDPV = self.pyDPV.SubsRef(key.pyDPV);
+			tmp1 = len((key<0).findInds())==0;
+			tmp2 = len((key>1).findInds())==0;
+			keybool = tmp1 & tmp2 & (len(self)==len(key));
+			if not keybool:
+				ret.pyDPV = self.pyDPV.SubsRef(key.pyDPV);
+			else:
+				raise NotImplementedError, "PyDenseParVe logical indexing on right-hand side not implemented yet"
 		else:
-			print "__getitem__ only supports scalar or PyDenseParVec subscript"
+			raise KeyError, "PyDenseParVec:__getitem__ only supports scalar or PyDenseParVec subscript"
 			return;
 		return ret;
 
+	def __gt__(self, other):
+		if type(other) == int:  # vector <> scalar; expand scalar
+			other = PyDenseParVec(len(self),other)
+		diff = self - other;
+		trues = PySpParVec(0);
+		trues.pySPV = diff.pyDPV.Find(pcb.bind2nd(pcb.greater(),0));
+		ret = PyDenseParVec(len(self),0);
+		ret[trues] = 1;
+		return ret;
+		
 	def __iadd__(self, other):
                 if 'pyDPV' in other.__dict__:
 		        self.pyDPV += other.pyDPV;
@@ -201,9 +237,29 @@ class PyDenseParVec:
 		self.pyDPV -= other.pyDPV;
 		return self;
 
+	def __le__(self, other):
+		if type(other) == int:  # vector <> scalar; expand scalar
+			other = PyDenseParVec(len(self),other)
+		diff = self - other;
+		trues = PySpParVec(0);
+		trues.pySPV = diff.pyDPV.Find(pcb.bind2nd(pcb.less_equal(),0));
+		ret = PyDenseParVec(len(self),0);
+		ret[trues] = 1;
+		return ret;
+		
 	def __len__(self):
 		return self.pyDPV.len();
 
+	def __lt__(self, other):
+		if type(other) == int:  # vector <> scalar; expand scalar
+			other = PyDenseParVec(len(self),other)
+		diff = self - other;
+		trues = PySpParVec(0);
+		trues.pySPV = diff.pyDPV.Find(pcb.bind2nd(pcb.less(),0));
+		ret = PyDenseParVec(len(self),0);
+		ret[trues] = 1;
+		return ret;
+		
 	def __mul__(self, other):
 		if not isinstance(other,PySpParVec):
 			raise TypeError;
@@ -220,10 +276,10 @@ class PyDenseParVec:
 		ret = PyDenseParVec(len(self),0);
 		ret[trues] = 1;
 		return ret;
-		
+
 	def __repr__(self):
 		self.pyDPV.printall()
-		return ' ';
+		return '';
 
 	def __setitem__(self, key, value):
 		if type(key) == int:	# index is a scalar
@@ -237,13 +293,34 @@ class PyDenseParVec:
 				self.pyDPV += tmp;
 			else:			# value is a sparse vector
 				self.pyDPV += value.pySPV;
+		elif isinstance(key, PyDenseParVec):
+			tmp1 = len((key<0).findInds())==0;
+			tmp2 = len((key>1).findInds())==0;
+			keybool = tmp1 & tmp2 & (len(self)==len(key));
+			if type(value) == int:
+				self.pyDPV.ApplyMasked(pcb.set(0), key.pyDPV.sparse());
+				tmp = key.pyDPV.sparse();
+				tmp.Apply(pcb.set(value));
+				self.pyDPV += tmp;
+			else:			# value is a sparse vector
+				if not keybool:
+					self.pyDPV += value.pyDPV.sparse();
+				else:		#key is boolean; 
+					#restrict updates from values to those indicated by key
+					value[key.logical_not()] = 0;
+					self[key] = 0;
+					self += value;
 		else:
-			raise KeyError, "Invalid key in PyDenseParVec:__setitem__";
+			raise KeyError, "PyDenseParVec indexing on the left-hand side only accepts integer, PyDenseParVec, or PySpParVec keys";
 		return self;
 
 	def __sub__(self, other):
 		ret = PyDenseParVec(0, 0);
 		ret.pyDPV = self.pyDPV.copy();
+		if type(other) == int:
+			otherscalar = other;
+			other = PyDenseParVec(0,0);
+			other.pyDPV = pcb.pyDenseParVec(len(self), otherscalar);
 		ret.pyDPV -= other.pyDPV;
 		return ret;
 
@@ -255,11 +332,16 @@ class PyDenseParVec:
 			return False;
 
 	def copy(self):
-		ret = PyDenseParVec(0,0);
-		ret.pyDPV = self.pyDPV.copy()
+		ret = PyDenseParVec(len(self),0);
+		ret.pyDPV = copy(self.pyDPV);
 		return ret;
 		
 	def find(self):
+		ret = PySpParVec(0);
+		ret.pySPV = self.pyDPV.Find(pcb.bind2nd(pcb.not_equal_to(),0));
+		return ret;
+
+	def findInds(self):
 		ret = PyDenseParVec(0,0);
 		ret.pyDPV = self.pyDPV.FindInds(pcb.bind2nd(pcb.not_equal_to(),0));
 		return ret;
@@ -284,16 +366,32 @@ class PyDenseParVec:
 	def len(self):
 		return self.pyDPV.len();
 
+	def logical_not(self):
+		ret = self.copy();
+		ret.pyDPV.Apply(pcb.logical_not());
+		return ret;
+		
 	def printall(self):
 		self.pyDPV.printall()
+		return '';
 
 	def randPerm(self):
 		self.pyDPV.RandPerm();
 		return self;
 	
-	def range(self, sz, start=0):
-		self.pyDPV = pcb.pyDenseParVec.range(sz, start);
-		return self;
+	@staticmethod
+	def range(arg1, *args):
+                if len(args) == 0:
+                        start = 0;
+                        stop = arg1;
+                elif len(args) == 1:
+                        start = arg1;
+                        stop = args[0];
+                else:
+                        raise NotImplementedError, "No 3-argument range()"
+		ret = PyDenseParVec(0,0);
+		ret.pyDPV = pcb.pyDenseParVec.range(stop-start, start);
+		return ret;
 	
 	def sparse(self):
 		ret = PySpParVec(self.len());
@@ -303,6 +401,18 @@ class PyDenseParVec:
 	def sum(self):
 		return self.pyDPV.Reduce_sum();
 	
+def toPyDenseParVec(pyDPV):
+	ret = PyDenseParVec(0,0);
+	ret.pyDPV = pyDPV;
+	return ret;
+
+def ones(sz):
+	ret = PyDenseParVec(sz,1);
+	return ret;
+
+def zeros(sz):
+	ret = PyDenseParVec(sz,0);
+	return ret;
 
 if DenseCheck:
 	a = PyDenseParVec(12,0);

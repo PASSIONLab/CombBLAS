@@ -10,26 +10,53 @@ class DiGraph(gr.Graph):
 	#print "in DiGraph"
 
 	#FIX:  just building a Graph500 graph by default for now
-	def __init__(self):
-		self.spm = PCB.PySpParMat();
+	def __init__(self,*args):
+		if len(args) == 0:
+			self.spm = PCB.PySpParMat();
+		elif len(args) == 4:
+			#create a DiGraph from i/j/v ParVecs and nv nverts
+			[i,j,v,nv] = args;
+			pass;
 
+	def __getitem__(self, key):
+		if type(key)==tuple:
+			if len(key)==2:
+				[key1, key2] = key;
+			else:
+				raise KeyError, 'Too many indices'
+		else:
+			key1 = key;  key2 = key;
+		#ToDo:  check for isBool, or does lower level handle it?
+		ret = self.copy();	#FIX: do actual indexing here
+		return ret;
+
+	def copy(self):
+		ret = DiGraph();
+		ret.spm = self.spm.copy();
+		return ret;
+		
 	def degree(self):
 		return self.indegree() + self.outdegree();
 
+	def genGraph500Edges(self, scale):
+		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale);
+	 	return elapsedTime;
+
+	def genGraph500Candidates(self, howmany):
+		pyDPV = self.spm.pySPM.GenGraph500Candidates(howmany);
+		ret = ParVec.toParVec(PCB.toPyDenseParVec(pyDPV));
+		return ret
+
 	def indegree(self):
-		#tmp = spm.reduce(self._spones(self.spm), 0, +);
-		print "\n	DiGraph.indegree() not fully implemented!\n"
-		tmp = 1;
-		return tmp;
+		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
+		return ParVec.toParVec(PCB.toPyDenseParVec(ret));
 
 	def load(self, fname):
 		self.spm.load(fname);
 
 	def outdegree(self):
-		#tmp = spm.reduce(self._spones(self.spm), 1, +);
-		print "\n	DiGraph.outdegree() not fully implemented!\n"
-		tmp = 1;
-		return tmp;
+		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+		return ParVec.toParVec(PCB.toPyDenseParVec(ret));
 
 #def DiGraphGraph500():
 #	self = DiGraph();
@@ -65,9 +92,13 @@ class ParVec:
 			ret.dpv = self.dpv & other.dpv;
 		return ret;
 
-	def __copy__(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.copy()
+	def __div__(self, other):
+		selfcopy = self.copy();
+		ret = ParVec(len(self));
+		while (selfcopy >= other).any():
+			tmp = selfcopy >= other;
+			selfcopy[tmp] = selfcopy - other;
+			ret[tmp] = ret+1;
 		return ret;
 
 	def __getitem__(self, key):
@@ -76,6 +107,9 @@ class ParVec:
 				raise IndexError;
 			ret = self.dpv[key];
 		else:	#elif isinstance(other,ParVec):
+			#tmp1 = len((key<0).findInds())==0;
+			#tmp2 = len((key>1).findInds())==0;
+			#keybool = tmp1 & tmp2;
 			ret = self.dpv[key.dpv];
 		return ret;
 
@@ -109,17 +143,30 @@ class ParVec:
 			self.dpv -= other.dpv;
 		return self;
 
+	def __le__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv <= other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv <= other.dpv;
+		return ret;
+
 	def __len__(self):
 		return self.dpv.len();
 
+	def __lt__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv < other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv < other.dpv;
+		return ret;
+
 	def __mod__(self, other):
-		raise AttributeError, "ParVec:__mod__ not implemented yet"
-		ret = self.copy()
+		ret = self.copy();
 		while (ret >= other).any():
-			tmp = (ret.dpv >= other.dpv).findInds();
-			tmp2 = (ret.dpv[tmp] - other.dpv[tmp]).sparse();
-			tmp2[0] = 0
-			ret.dpv[tmp.sparse()] = tmp2;
+			tmp = ret >= other;
+			ret[tmp] = ret - other;
 		return ret;
 
 	def __mul__(self, other):
@@ -146,12 +193,11 @@ class ParVec:
 			self.dpv[key] = value;
 		else:
 			if type(value) == int:
-				self.dpv[key.dpv.sparse()] = value;
+				self.dpv[key.dpv] = value;
 			else:
-				self.dpv[key.dpv.sparse()] = value.dpv.sparse(); 
+				self.dpv[key.dpv] = value.dpv; 
 	def __sub__(self, other):
 		ret = ParVec(-1);
-		ret.dpv = self.dpv - other.dpv;
 		if type(other) == int:
 			ret.dpv = self.dpv - other;
 		else:	#elif isinstance(other,ParVec):
@@ -165,7 +211,7 @@ class ParVec:
 
 	def copy(self):
 		ret = ParVec(-1);
-		ret.dpv = self.dpv.copy();
+		ret.dpv = self.dpv.copy()
 		return ret;
 
 #	NOTE:  no ParVec.find() yet because no SpParVec yet
@@ -179,6 +225,22 @@ class ParVec:
 		ret.dpv = self.dpv.findInds();
 		return ret;
 
+	def isBool(self):
+		tmp1 = len((self<0).findInds())==0;
+		tmp2 = len((self>1).findInds())==0;
+		return tmp1 & tmp2;
+
+	def logical_not(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.logical_not();
+		return ret;
+
+	@staticmethod
+	def ones(sz):
+		ret = ParVec(-1);
+		ret.dpv = PCB.ones(sz);
+		return ret;
+	
 	def printall(self):
 		return self.dpv.printall();
 
@@ -186,40 +248,42 @@ class ParVec:
 		self.dpv.randPerm()
 		return self;
 
+	@staticmethod
+	def range(arg1, *args):
+		if len(args) == 0:
+			start = 0;
+			stop = arg1;
+		elif len(args) == 1:	
+			start = arg1;
+			stop = args[0];
+		else:
+			raise NotImplementedError, "No 3-argument range()"
+		ret = ParVec(0);
+		ret.dpv = PCB.PyDenseParVec.range(start,stop);
+		return ret;
+	
 	def sum(self):
 		return self.dpv.sum();
 
-def toParVec(DPV):
-	ret = ParVec(-1);
-	ret.dpv = DPV;
-	return ret;
-
-
-def ones(sz):
-	ret = ParVec(-1);
-	ret.dpv = PCB.ones(sz);
-	return ret;
-
-def range(stop):
-	ret = ParVec(-1);
-	ret.dpv = PCB.PyDenseParVec(0,0).range(stop);
-	return ret;
-
-def zeros(sz):
-	ret = ParVec(-1);
-	ret.dpv = PCB.zeros(sz);
-	return ret;
+	#TODO:  check for class being PyDenseParVec?
+	@staticmethod
+	def toParVec(DPV):
+		ret = ParVec(-1);
+		ret.dpv = DPV;
+		return ret;
+	
+	@staticmethod
+	def zeros(sz):
+		ret = ParVec(-1);
+		ret.dpv = PCB.zeros(sz);
+		return ret;
+	
 
 #class SpParVec:
 #	#print "in SpVertexV"
 #
 #	def __init__(self, length):
 #		self.spv = pcb.pySpParVec(length);
-
-def genGraph500Candidates(G, howmany):
-	pyDPV = G.spm.pySPM.GenGraph500Candidates(howmany);
-	ret = toParVec(PCB.toPyDenseParVec(pyDPV));
-	return ret
 
 sendFeedback = gr.sendFeedback;
 
@@ -243,10 +307,6 @@ def torusEdges(n):
 	col = DPV.append(rowcol, east);
 	return gr.EdgeV((row, col), DPV.ones(N*4))
 
-def genGraph500Edges(self, scale):
-	elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale);
- 	return elapsedTime;
-
 
 #	creates a breadth-first search tree of a Graph from a starting
 #	set of vertices.  Returns a 1D array with the parent vertex of 
@@ -266,7 +326,7 @@ def bfsTree(G, start):
 		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents.pyDPV, True, -1);
 		parents[fringe] = 0
 		parents += fringe;
-	return toParVec(parents);
+	return ParVec.toParVec(parents);
 
 
 	# returns tuples with elements
@@ -305,13 +365,118 @@ def isBfsTree(G, root, parents):
 	# spec test #2
 	#    tree edges should be between verts whose levels differ by 1
 	
-	tmp2 = parents <> range(nvertG);
+	tmp2 = parents <> ParVec.range(nvertG);
 	treeEdges = (parents <> -1) & tmp2;  
 	treeI = parents[treeEdges.findInds()]
-	treeJ = range(nvertG)[treeEdges.findInds()];
+	treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
 	if (levels[treeI]-levels[treeJ] <> -1).any():
 		ret = -2;
 
-	return (ret, toParVec(levels))
+	return (ret, ParVec.toParVec(levels))
 
-#ToDo:  move bc() here from KDT.py
+def centrality(alg, G, **kwargs):
+#		ToDo:  Normalize option?
+	if alg=='exactBC':
+		cent = approxBC(G, sample=1.0, **kwargs)
+
+	elif alg=='approxBC':
+		cent = approxBC(G, **kwargs);
+
+	elif alg=='kBC':
+		raise NotImplementedError, "k-betweenness centrality unimplemented"
+
+	elif alg=='degree':
+		raise NotImplementedError, "degree centrality unimplemented"
+		
+	else:
+		raise KeyError, "unknown centrality algorithm (%s)" % alg
+
+	return cent;
+
+
+def approxBC(G, sample=0.05, chunk=-1):
+	print "chunk=%d, sample=%5f" % (chunk, sample);
+	# calculate chunk automatically if not specified
+
+def cluster(alg, G, **kwargs):
+#		ToDo:  Normalize option?
+	if alg=='Markov' or alg=='markov':
+		clus = markov(G, **kwargs)
+
+	elif alg=='kNN' or alg=='knn':
+		raise NotImplementedError, "k-nearest neighbors clustering not implemented"
+
+	else:
+		raise KeyError, "unknown clustering algorithm (%s)" % alg
+
+	return clus;
+
+def bc( G, K4approx, batchSize ):
+
+
+    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
+    # by Steve Reinhardt 2010Sep16
+    # 
+
+    A = kdtsp.spbool(G);			# not needed; G already bool
+    Aint = kdtsp.spones(G);			# needed?  non-bool not spted
+    N = A.nvert()
+
+    bc = ParVec(N);
+
+    # ToDo:  original triggers off whether data created via RMAT to set nPasses
+    #        and K4approx
+    if (2**K4approx > N):
+        K4approx = sc.floor(sc.log2(N))
+        nPasses = 2**K4approx;
+    else:
+        nPasses = N;		
+
+    numBatches = sc.ceil(nPasses/batchSize).astype(int)
+
+    for p in range(numBatches):
+        bfs = []		
+
+        batch = ParVec.range(p*batchSize,min((p+1)*batchSize,N));
+        curSize = len(batch);
+
+        # original M version uses accumarray in following line
+	# nsp == number of shortest paths
+        #nsp = sp.csr_matrix((sc.tile(1,(1,curSize)).flatten(), (sc.arange(curSize),sc.array(batch))),shape=(curSize,N));
+	nsp = DiGraph(ParVec.range(curSize), batch, 1, N);
+
+
+        depth = 0;
+        #OLD fringe = Aint[batch,:];   
+	fringe = A[batch,ParVec.range(N)];
+
+        while fringe.getnnz() > 0:
+            depth = depth+1;
+            #print (depth, fringe.getnnz()) 
+            # add in shortest path counts from the fringe
+            nsp = nsp+fringe
+            bfs = sc.append(bfs,kdtsp.spbool(fringe));
+            tmp = fringe * A;		#FIX:  can't be in-line in next line due to SciPy bug
+					#avoid creating not(nsp) if possible
+            fringe = tmp.multiply(kdtsp.spnot(nsp));
+
+        [nspi, nspj, nspv] = kdtsp.find(nsp);
+        nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
+
+        bcu = sp.csr_matrix(sc.ones((curSize, N)));		#FIX:  too big in real cases?
+
+        # compute the bc update for all vertices except the sources
+        for depth in range(depth-1,0,-1):
+            # compute the weights to be applied based on the child values
+            w = bfs[depth].multiply(nspInv).multiply(bcu);
+            # Apply the child value weights and sum them up over the parents
+            # then apply the weights based on parent values
+            bcu = bcu + (A*w.T).T.multiply(bfs[depth-1]).multiply(nsp);
+
+        # upcate the bc with the bc update
+        bc = bc + bcu.sum(0)
+
+    # subtract off the additional values added in by precomputation
+    bc = bc - nPasses;
+    return bc;
+
