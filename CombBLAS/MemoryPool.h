@@ -1,13 +1,13 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 --------------------------------------------------/
-/* date: 01/18/2009 ---------------------------------------------/
-/* description: Simple memory pool implementation ---------------/
-/* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-/* This can be improved by keeping a second index that keeps ----/
-/* track of order in terms of size, so that finding an available /
-/* sized chunk is optimal and fast ------------------------------/
-/****************************************************************/
+/* Sequential and Parallel Sparse Matrix Multiplication Library  /
+/  version 2.3 --------------------------------------------------/
+/  date: 01/18/2009 ---------------------------------------------/
+/  description: Simple memory pool implementation ---------------/
+/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
+/  This can be improved by keeping a second index that keeps ----/
+/  track of order in terms of size, so that finding an available /
+/  sized chunk is optimal and fast ------------------------------/
+\****************************************************************/
 
 #ifndef _MEMORY_POOL_H
 #define _MEMORY_POOL_H

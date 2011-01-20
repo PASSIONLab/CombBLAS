@@ -136,6 +136,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator-=(const FullyDistSpVec< I
 	{
 		arr[rhs.ind[i]] -= rhs.num[i];
 	}
+	return *this;
 }
 
 

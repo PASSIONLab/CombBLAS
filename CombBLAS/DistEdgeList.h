@@ -1,9 +1,9 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 --------------------------------------------------/
-/* date: 10/28/2010 ---------------------------------------------/
-/* author: Adam Lugowski (alugowski@cs.ucsb.edu) ----------------/
-/****************************************************************/
+/* Sequential and Parallel Sparse Matrix Multiplication Library  /
+/  version 2.3 --------------------------------------------------/
+/  date: 10/28/2010 ---------------------------------------------/
+/  author: Adam Lugowski (alugowski@cs.ucsb.edu) ----------------/
+\****************************************************************/
 
 #ifndef _DIST_EDGE_LIST_H_
 #define _DIST_EDGE_LIST_H_
