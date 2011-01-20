@@ -4,7 +4,8 @@
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec (): zero(0), FullyDist<IT,NT>()
-{ }
+{ 
+}
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id), FullyDist<IT,NT>()
@@ -40,6 +41,18 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 }
 
 template <class IT, class NT>
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)	
+{
+	if(this != &rhs)		
+	{
+		FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
+		arr = rhs.arr;
+		zero = rhs.zero;
+	}
+	return *this;
+}	
+
+template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
 	FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
@@ -51,10 +64,8 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	{
 		arr[rhs.ind[i]] = rhs.num[i];
 	}
-	
 	return *this;
 }
-
 
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT > & rhs)		// DenseParVec->FullyDistVec conversion operator

@@ -26,6 +26,12 @@ public:
 	{
 		commGrid.reset(new CommGrid(*grid));		
 	}
+	FullyDist<IT,NT> & operator=(const FullyDist<IT,NT> & rhs)
+	{
+		glen = rhs.glen;
+		commGrid.reset(new CommGrid(*rhs.commGrid));		
+		return *this;
+	}
 
 	IT LengthUntil() const;
 	IT RowLenUntil() const;

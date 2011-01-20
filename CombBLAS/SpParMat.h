@@ -66,7 +66,7 @@ public:
 
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
 	SpParMat (const DistEdgeList< IT > & rhs, bool removeloops = true);	// conversion from distributed edge list
-	SpParMat (const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
+	SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();
@@ -177,7 +177,7 @@ public:
 	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
 
 private:
-	int Owner(IT grow, IT gcol, IT & lrow, IT & lcol) const;
+	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
 	const static IT zero = static_cast<IT>(0);
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
