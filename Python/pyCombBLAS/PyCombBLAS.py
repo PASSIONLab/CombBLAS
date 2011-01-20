@@ -18,9 +18,12 @@ class PySpParMat:
 	def nvert(self):
 		return self.pySPM.getnrow();
 
-	def load(self,fname):
-		self.pySPM.load(fname);
-		return self
+	@staticmethod
+	def load(fname):
+		ret = PySpParMat();
+		ret.pySPM = pcb.pySpParMat();
+		ret.pySPM.load(fname);
+		return ret
 
 class PySpParVec:
 	def __init__(self, sz):
