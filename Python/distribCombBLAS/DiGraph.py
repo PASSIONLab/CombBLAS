@@ -17,6 +17,8 @@ class DiGraph(gr.Graph):
 			#create a DiGraph from i/j/v ParVecs and nv nverts
 			[i,j,v,nv] = args;
 			pass;
+		else:
+			raise NotImplementedError, "only zero and three arguments supported"
 
 	def __getitem__(self, key):
 		if type(key)==tuple:
@@ -49,7 +51,7 @@ class DiGraph(gr.Graph):
 
 	def indegree(self):
 		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-		return ParVec.toParVec(PCB.toPyDenseParVec(ret));
+		return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
 	
 	@staticmethod
 	def load(fname):
@@ -59,234 +61,236 @@ class DiGraph(gr.Graph):
 
 	def outdegree(self):
 		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-		return ParVec.toParVec(PCB.toPyDenseParVec(ret));
+		return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
 
 #def DiGraphGraph500():
 #	self = DiGraph();
 #	self.spm = GenGraph500Edges(sc.log2(nvert));
 
+class ParVec(gr.ParVec):
+	pass;
+
 		
 		
-class ParVec:
-	#print "in ParVec"
-
-	def __init__(self, length):
-		if length>0:
-			self.dpv = PCB.PyDenseParVec(length,0);
-
-	def __abs__(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.abs()
-		return ret;
-
-	def __add__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv + other;
-		else:	#elif  instance(other,ParVec):
-			ret.dpv = self.dpv + other.dpv;
-		return ret;
-
-	def __and__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv & other;
-		else: 	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv & other.dpv;
-		return ret;
-
-	def __div__(self, other):
-		selfcopy = self.copy();
-		ret = ParVec(len(self));
-		while (selfcopy >= other).any():
-			tmp = selfcopy >= other;
-			selfcopy[tmp] = selfcopy - other;
-			ret[tmp] = ret+1;
-		return ret;
-
-	def __getitem__(self, key):
-		if type(key) == int:
-			if key > self.dpv.len()-1:
-				raise IndexError;
-			ret = self.dpv[key];
-		else:	#elif isinstance(other,ParVec):
-			#tmp1 = len((key<0).findInds())==0;
-			#tmp2 = len((key>1).findInds())==0;
-			#keybool = tmp1 & tmp2;
-			ret = self.dpv[key.dpv];
-		return ret;
-
-	def __ge__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv >= other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv >= other.dpv;
-		return ret;
-
-	def __gt__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv > other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv > other.dpv;
-		return ret;
-
-	def __iadd__(self, other):
-		if type(other) == int:
-			self.dpv += other;
-		else:	#elif isinstance(other,ParVec):
-			self.dpv += other.dpv;
-		return self;
-
-	def __isub__(self, other):
-		if type(other) == int:
-			self.dpv -= other;
-		else:	#elif isinstance(other,ParVec):
-			self.dpv -= other.dpv;
-		return self;
-
-	def __le__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv <= other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv <= other.dpv;
-		return ret;
-
-	def __len__(self):
-		return self.dpv.len();
-
-	def __lt__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv < other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv < other.dpv;
-		return ret;
-
-	def __mod__(self, other):
-		ret = self.copy();
-		while (ret >= other).any():
-			tmp = ret >= other;
-			ret[tmp] = ret - other;
-		return ret;
-
-	def __mul__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv * other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
-		return ret;
-
-	def __ne__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv <> other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv <> other.dpv;
-		return ret;
-
-	def __repr__(self):
-		return self.dpv.printall();
-
-	def __setitem__(self, key, value):
-		if type(key) == int:
-			self.dpv[key] = value;
-		else:
-			if type(value) == int:
-				self.dpv[key.dpv] = value;
-			else:
-				self.dpv[key.dpv] = value.dpv; 
-	def __sub__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
-			ret.dpv = self.dpv - other;
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv - other.dpv;
-		return ret;
-
-	def any(self):
-		ret = ParVec(-1);
-		ret = self.dpv.any();
-		return ret;
-
-	def copy(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.copy()
-		return ret;
-
-#	NOTE:  no ParVec.find() yet because no SpParVec yet
-#	def find(self):
-#		ret = ParVec(-1);
-#		ret.dpv = self.dpv.find();
-#		return ret;
-#
-	def findInds(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.findInds();
-		return ret;
-
-	def isBool(self):
-		tmp1 = len((self<0).findInds())==0;
-		tmp2 = len((self>1).findInds())==0;
-		return tmp1 & tmp2;
-
-	def logical_not(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.logical_not();
-		return ret;
-
-	@staticmethod
-	def ones(sz):
-		ret = ParVec(-1);
-		ret.dpv = PCB.PyDenseParVec.ones(sz);
-		return ret;
-	
-	def printall(self):
-		return self.dpv.printall();
-
-	def randPerm(self):
-		self.dpv.randPerm()
-		return self;
-
-	@staticmethod
-	def range(arg1, *args):
-		if len(args) == 0:
-			start = 0;
-			stop = arg1;
-		elif len(args) == 1:	
-			start = arg1;
-			stop = args[0];
-		else:
-			raise NotImplementedError, "No 3-argument range()"
-		ret = ParVec(0);
-		ret.dpv = PCB.PyDenseParVec.range(start,stop);
-		return ret;
-	
-	def sum(self):
-		return self.dpv.sum();
-
-	#TODO:  check for class being PyDenseParVec?
-	@staticmethod
-	def toParVec(DPV):
-		ret = ParVec(-1);
-		ret.dpv = DPV;
-		return ret;
-	
-	@staticmethod
-	def zeros(sz):
-		ret = ParVec(-1);
-		ret.dpv = PCB.PyDenseParVec.zeros(sz);
-		return ret;
-	
-
-#class SpParVec:
-#	#print "in SpVertexV"
+#class ParVec:
+#	#print "in ParVec"
 #
 #	def __init__(self, length):
-#		self.spv = pcb.pySpParVec(length);
+#		if length>0:
+#			self.dpv = PCB.PyDenseParVec(length,0);
+#
+#	def __abs__(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.abs()
+#		return ret;
+#
+#	def __add__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv + other;
+#		else:	#elif  instance(other,ParVec):
+#			ret.dpv = self.dpv + other.dpv;
+#		return ret;
+#
+#	def __and__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv & other;
+#		else: 	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv & other.dpv;
+#		return ret;
+#
+#	def __div__(self, other):
+#		selfcopy = self.copy();
+#		ret = ParVec(len(self));
+#		while (selfcopy >= other).any():
+#			tmp = selfcopy >= other;
+#			selfcopy[tmp] = selfcopy - other;
+#			ret[tmp] = ret+1;
+#		return ret;
+#
+#	def __getitem__(self, key):
+#		if type(key) == int:
+#			if key > self.dpv.len()-1:
+#				raise IndexError;
+#			ret = self.dpv[key];
+#		else:	#elif isinstance(other,ParVec):
+#			ret = self.dpv[key.dpv];
+#		return ret;
+#
+#	def __ge__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv >= other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv >= other.dpv;
+#		return ret;
+#
+#	def __gt__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv > other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv > other.dpv;
+#		return ret;
+#
+#	def __iadd__(self, other):
+#		if type(other) == int:
+#			self.dpv += other;
+#		else:	#elif isinstance(other,ParVec):
+#			self.dpv += other.dpv;
+#		return self;
+#
+#	def __isub__(self, other):
+#		if type(other) == int:
+#			self.dpv -= other;
+#		else:	#elif isinstance(other,ParVec):
+#			self.dpv -= other.dpv;
+#		return self;
+#
+#	def __le__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv <= other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv <= other.dpv;
+#		return ret;
+#
+#	def __len__(self):
+#		return self.dpv.len();
+#
+#	def __lt__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv < other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv < other.dpv;
+#		return ret;
+#
+#	def __mod__(self, other):
+#		ret = self.copy();
+#		while (ret >= other).any():
+#			tmp = ret >= other;
+#			ret[tmp] = ret - other;
+#		return ret;
+#
+#	def __mul__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv * other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
+#		return ret;
+#
+#	def __ne__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv <> other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv <> other.dpv;
+#		return ret;
+#
+#	def __repr__(self):
+#		return self.dpv.printall();
+#
+#	def __setitem__(self, key, value):
+#		if type(key) == int:
+#			self.dpv[key] = value;
+#		else:
+#			if type(value) == int:
+#				self.dpv[key.dpv] = value;
+#			else:
+#				self.dpv[key.dpv] = value.dpv; 
+#
+#	def __sub__(self, other):
+#		ret = ParVec(-1);
+#		if type(other) == int:
+#			ret.dpv = self.dpv - other;
+#		else:	#elif isinstance(other,ParVec):
+#			ret.dpv = self.dpv - other.dpv;
+#		return ret;
+#
+#	def any(self):
+#		ret = ParVec(-1);
+#		ret = self.dpv.any();
+#		return ret;
+#
+#	def copy(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.copy()
+#		return ret;
+#
+##	NOTE:  no ParVec.find() yet because no SpParVec yet
+##	def find(self):
+##		ret = ParVec(-1);
+##		ret.dpv = self.dpv.find();
+##		return ret;
+##
+#	def findInds(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.findInds();
+#		return ret;
+#
+#	def isBool(self):
+#		tmp1 = len((self<0).findInds())==0;
+#		tmp2 = len((self>1).findInds())==0;
+#		return tmp1 & tmp2;
+#
+#	def logical_not(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.logical_not();
+#		return ret;
+#
+#	@staticmethod
+#	def ones(sz):
+#		ret = ParVec(-1);
+#		ret.dpv = PCB.PyDenseParVec.ones(sz);
+#		return ret;
+#	
+#	def printall(self):
+#		return self.dpv.printall();
+#
+#	def randPerm(self):
+#		self.dpv.randPerm();
+#		#FIX:  have no return value, since changing in place?
+#		return self;
+#
+#	@staticmethod
+#	def range(arg1, *args):
+#		if len(args) == 0:
+#			start = 0;
+#			stop = arg1;
+#		elif len(args) == 1:	
+#			start = arg1;
+#			stop = args[0];
+#		else:
+#			raise NotImplementedError, "No 3-argument range()"
+#		ret = ParVec(0);
+#		ret.dpv = PCB.PyDenseParVec.range(start,stop);
+#		return ret;
+#	
+#	def sum(self):
+#		return self.dpv.sum();
+#
+#	#TODO:  check for class being PyDenseParVec?
+#	@staticmethod
+#	def toParVec(DPV):
+#		ret = ParVec(-1);
+#		ret.dpv = DPV;
+#		return ret;
+#	
+#	@staticmethod
+#	def zeros(sz):
+#		ret = ParVec(-1);
+#		ret.dpv = PCB.PyDenseParVec.zeros(sz);
+#		return ret;
+#	
+#
+##class SpParVec:
+##	#print "in SpVertexV"
+##
+##	def __init__(self, length):
+##		self.spv = pcb.pySpParVec(length);
 
 sendFeedback = gr.sendFeedback;
 
