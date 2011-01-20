@@ -137,7 +137,7 @@ struct bind_s : public ConcreteUnaryFunction<T>
 	
 	bind_s(ConcreteBinaryFunction<T>* opin, int w, T val): op(opin), which(w), bindval(val) {}
 	
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		if (which == 1)
 			return (*op)(bindval, x);
@@ -169,7 +169,7 @@ struct compose1_s : public ConcreteUnaryFunction<T>
 	
 	compose1_s(ConcreteUnaryFunction<T>* fin, ConcreteUnaryFunction<T>* gin): f(fin), g(gin) {}
 	
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		return (*f)((*g)(x));
 	}
