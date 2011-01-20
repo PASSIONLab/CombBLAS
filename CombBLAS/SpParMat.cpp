@@ -616,17 +616,71 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (const FullyDistVec<IT,IT> & distrows, const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
+SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & distrows, 
+				const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
 {
-	if((distrows.commGrid != distcols.commGrid) || (distcols.commGrid != distvals.commGrid))
+	if((*(distrows.commGrid) != *(distcols.commGrid)) || (*(distcols.commGrid) != *(distvals.commGrid)))
 	{
 		SpParHelper::Print("Grids are not comparable, Sparse() fails !"); 
 		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}
+	if((distrows.TotalLength() != distcols.TotalLength()) || (distcols.TotalLength() != distvals.TotalLength()))
+	{
+		SpParHelper::Print("Vectors have different sizes, Sparse() fails !");
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
 
 	commGrid.reset(new CommGrid(*(distrows.commGrid)));		
-	int rank = commGrid->GetRank();
-	vector< vector<IT> > data(nprocs);
+	int nprocs = commGrid->GetSize();
+	vector< vector < tuple<IT,IT,NT> > > data(nprocs);
+
+	IT locsize = distrows.LocArrSize();
+	for(IT i=0; i<locsize; ++i)
+	{
+		IT lrow, lcol; 
+		int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
+		data[owner].push_back(make_tuple(lrow,lcol,distvals.arr[i]));	
+	}
+
+	int * sendcnt = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = data[i].size();	// sizes are all the same
+
+	commGrid->GetWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+	int * sdispls = new int[nprocs]();
+	int * rdispls = new int[nprocs]();
+	partial_sum(sendcnt, sendcnt+nprocs-1, sdispls+1);
+	partial_sum(recvcnt, recvcnt+nprocs-1, rdispls+1);
+
+  	tuple<IT,IT,NT> * senddata = new tuple<IT,IT,NT>[locsize];	// re-used for both rows and columns
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(data[i].begin(), data[i].end(), senddata+sdispls[i]);
+		vector< tuple<IT,IT,NT> >().swap(data[i]);	// clear memory
+	}
+	MPI::Datatype MPI_triple = MPI::CHAR.Create_contiguous(sizeof(tuple<IT,IT,NT>));
+	MPI_triple.Commit();
+
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	
+	tuple<IT,IT,NT> * recvdata = new tuple<IT,IT,NT>[totrecv];	
+	commGrid->GetWorld().Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple); 
+	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+
+	int r = commGrid->GetGridRows();
+	int s = commGrid->GetGridCols();
+	IT m_perproc = total_m / r;
+	IT n_perproc = total_n / s;
+	int myprocrow = commGrid->GetRankInProcCol();
+	int myproccol = commGrid->GetRankInProcRow();
+	IT locrows, loccols; 
+	if(myprocrow != r-1)	locrows = m_perproc;
+	else 	locrows = total_m - myprocrow * m_perproc;
+	if(myproccol != s-1)	loccols = n_perproc;
+	else	loccols = total_n - myproccol * n_perproc;
+
+	SpTuples<IT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
+  	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
 template <class IT, class NT, class DER>
@@ -643,7 +697,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	IT n_perproc = DEL.getNumCols() / s;
 	
 	// to lower memory consumption, form sparse matrix in stages
-	IT stages = 16;	
+	IT stages = MEM_EFFICIENT_STAGES;	
 	IT perstage = DEL.nedges / stages;
 	IT totrecv = 0;
 	vector<IT> alledges;
@@ -694,7 +748,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 		for(int i=0; i<nprocs; ++i)
 			vector<IT>().swap(data[i]);
 
-		IT thisrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);	// thisrecv = 2*locedges
+		IT thisrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	// thisrecv = 2*locedges
 		IT * recvbuf = new IT[thisrecv];
 		totrecv += thisrecv;
 			
@@ -1368,6 +1422,11 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,IT> & distcols, FullyDistVec<IT,NT> & distvals) const
 {
+	if((*(distrows.commGrid) != *(distcols.commGrid)) || (*(distcols.commGrid) != *(distvals.commGrid)))
+	{
+		SpParHelper::Print("Grids are not comparable, Find() fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
 	IT globallen = getnnz();
 	SpTuples<IT,NT> Atuples(*spSeq);
 	
@@ -1456,7 +1515,7 @@ ofstream& operator<<(ofstream& outfile, const SpParMat<IU, NU, UDER> & s)
   * @returns {owner processor id}
  **/
 template <class IT, class NT,class DER>
-int SpParMat<IT,NT,DER>::Owner(IT grow, IT gcol, IT & lrow, IT & lcol) const
+int SpParMat<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const
 {
 	int procrows = commGrid->GetGridRows();
 	int proccols = commGrid->GetGridCols();

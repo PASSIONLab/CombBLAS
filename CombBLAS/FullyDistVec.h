@@ -40,6 +40,7 @@ public:
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
 	
 	ifstream& ReadDistribute (ifstream& infile, int master);
+	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
@@ -103,7 +104,6 @@ public:
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
 
-protected:
 	using FullyDist<IT,NT>::glen; 
 	using FullyDist<IT,NT>::commGrid; 
 
