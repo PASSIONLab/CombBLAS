@@ -164,6 +164,7 @@ CombBLAS/MemoryPool.h -text
 CombBLAS/Operations.h -text
 CombBLAS/ParFriends.h -text
 CombBLAS/ReleaseTests/CMakeLists.txt -text
+CombBLAS/ReleaseTests/FindSparse.cpp -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order2 -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order4 -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order8 -text
