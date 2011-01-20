@@ -1,11 +1,9 @@
 import os
-#try:
-#	import IPython.ipapi;
-#	IPYTHON_IMPORTED = True;
-#except:
-#	IPYTHON_IMPORTED = False;
-import IPython.ipapi;
-IPYTHON_IMPORTED = True;
+try:
+	import IPython.ipapi;
+	IPYTHON_IMPORTED = True;
+except:
+	IPYTHON_IMPORTED = False;
 import pwd
 import email
 import smtplib
@@ -18,7 +16,7 @@ _kdt_EmailFname = 'KDT_email';
 #NOTE:  as of 2011Jan17, putting multiple email addresses in the _kdt_Alias
 #	variable, whether separated by spaces, commas, or semicolons, did
 #	not work properly.
-_kdt_Alias = 'steve.reinhardt@microsoft.com';
+_kdt_Alias = 'kdt-suggestions@lists.sourceforge.net'
 _kdt_Nlines2Send = 30;
 
 
