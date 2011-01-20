@@ -81,8 +81,6 @@ class pySpParMat(_object):
     def getncol(self): return _pyCombBLAS.pySpParMat_getncol(self)
     def load(self, *args): return _pyCombBLAS.pySpParMat_load(self, *args)
     def GenGraph500Edges(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Edges(self, *args)
-    def GenGraph500Candidates(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Candidates(self, *args)
-    def FindIndsOfColsWithSumGreaterThan(self, *args): return _pyCombBLAS.pySpParMat_FindIndsOfColsWithSumGreaterThan(self, *args)
     def copy(self): return _pyCombBLAS.pySpParMat_copy(self)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
@@ -180,6 +178,7 @@ class pyDenseParVec(_object):
     def copy(self): return _pyCombBLAS.pyDenseParVec_copy(self)
     def SetElement(self, *args): return _pyCombBLAS.pyDenseParVec_SetElement(self, *args)
     def GetElement(self, *args): return _pyCombBLAS.pyDenseParVec_GetElement(self, *args)
+    def SubsRef(self, *args): return _pyCombBLAS.pyDenseParVec_SubsRef(self, *args)
     def RandPerm(self): return _pyCombBLAS.pyDenseParVec_RandPerm(self)
     def printall(self): return _pyCombBLAS.pyDenseParVec_printall(self)
     def getnnz(self): return _pyCombBLAS.pyDenseParVec_getnnz(self)
@@ -190,7 +189,6 @@ class pyDenseParVec(_object):
     def FindInds(self, *args): return _pyCombBLAS.pyDenseParVec_FindInds(self, *args)
     def Apply(self, *args): return _pyCombBLAS.pyDenseParVec_Apply(self, *args)
     def ApplyMasked(self, *args): return _pyCombBLAS.pyDenseParVec_ApplyMasked(self, *args)
-    def SubsRef(self, *args): return _pyCombBLAS.pyDenseParVec_SubsRef(self, *args)
     __swig_getmethods__["range"] = lambda x: _pyCombBLAS.pyDenseParVec_range
     if _newclass:range = staticmethod(_pyCombBLAS.pyDenseParVec_range)
     __swig_destroy__ = _pyCombBLAS.delete_pyDenseParVec

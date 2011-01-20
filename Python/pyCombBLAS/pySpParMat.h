@@ -8,7 +8,9 @@ class pySpParVec;
 class pyDenseParVec;
 
 
+//INTERFACE_INCLUDE_BEGIN
 class pySpParMat {
+//INTERFACE_INCLUDE_END
 protected:
 
 	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
@@ -35,11 +37,8 @@ public:
 	void load(const char* filename);
 	void GenGraph500Edges(int scale);
 	double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
-	pyDenseParVec* GenGraph500Candidates(int howmany);
 	
 public:
-	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
-
 	pySpParMat* copy();
 	
 	void Apply(op::UnaryFunction* op);
@@ -54,7 +53,7 @@ public:
 public:
 	static int Column() { return ::Column; }
 	static int Row() { return ::Row; }
-//INTERFACE_INCLUDE_END
 };
+//INTERFACE_INCLUDE_END
 
 #endif

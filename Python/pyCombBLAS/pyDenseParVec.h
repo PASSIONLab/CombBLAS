@@ -6,7 +6,9 @@ class pySpParMat;
 class pySpParVec;
 class pyDenseParVec;
 
+//INTERFACE_INCLUDE_BEGIN
 class pyDenseParVec {
+//INTERFACE_INCLUDE_END
 protected:
 
 	FullyDistVec<int64_t, int64_t> v;
@@ -35,7 +37,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
@@ -47,6 +49,8 @@ public:
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
 	int64_t GetElement (int64_t indx);	// element-wise fetch
 	
+	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
+
 	void RandPerm();
 
 	void printall();
@@ -66,15 +70,15 @@ public:
 public:
 	int64_t Count(op::UnaryFunction* op);
 	pySpParVec* Find(op::UnaryFunction* op);
+	pySpParVec* operator[](op::UnaryFunction* op);
+	pyDenseParVec* operator[](const pyDenseParVec& ri);
 	pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	
-	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
-
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
-//INTERFACE_INCLUDE_END
 };
+//INTERFACE_INCLUDE_END
 
 #endif

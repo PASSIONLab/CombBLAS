@@ -131,20 +131,6 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	return k1time;
 }
 
-pyDenseParVec* pySpParMat::GenGraph500Candidates(int howmany)
-{
-	pyDenseParVec* pyCands = FindIndsOfColsWithSumGreaterThan(1);
-		
-	FullyDistVec<int64_t,int64_t> First64(A.getcommgrid(), -1);
-	pyCands->v.RandPerm();
-
-	First64.iota(howmany, 0);			
-	pyCands->v = pyCands->v(First64);		
-
-	
-	return pyCands;
-}
-
 pySpParMat* pySpParMat::copy()
 {
 	pySpParMat* ret = new pySpParMat(this);
@@ -180,28 +166,6 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identi
 	
 	delete AInt;	// delete temporary
 	
-	return ret;
-}
-
-
-
-pyDenseParVec* pySpParMat::FindIndsOfColsWithSumGreaterThan(int64_t gt)
-{
-	pyDenseParVec* ret = new pyDenseParVec();
-	FullyDistVec<int64_t, int> ColSums;
-	
-	// make a temporary int matrix
-	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
-	AInt->Reduce(ColSums, ::Row, plus<int>(), 0);
-	delete AInt;	// save memory	
-
-	ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));	// only the indices of connected vertices
-
-	
-	//DenseParVec<int64_t, int> ColSums = A.Reduce(Column, plus<int>(), 0);
-	//cout << "column sums:------------" << endl;
-	//ColSums.DebugPrint();
-	//ret->v = ColSums.FindInds(bind2nd(greater<int>(), (int)gt));
 	return ret;
 }
 

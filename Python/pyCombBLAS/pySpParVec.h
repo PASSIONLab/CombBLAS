@@ -6,7 +6,9 @@ class pySpParMat;
 class pySpParVec;
 class pyDenseParVec;
 
+//INTERFACE_INCLUDE_BEGIN
 class pySpParVec {
+//INTERFACE_INCLUDE_END
 protected:
 
 	FullyDistSpVec<int64_t, int64_t> v;
@@ -101,11 +103,18 @@ public:
 	static pySpParVec* zeros(int64_t howmany);
 	static pySpParVec* range(int64_t howmany, int64_t start);
 
-//INTERFACE_INCLUDE_END
 };
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+//      EWiseMult has 2 flavors:
+//      - if Exclude is false, will do element-wise multiplication
+//      - if Exclude is true, will remove from the result vector all elements
+//          whose corresponding element of the second vector is "nonzero"
+//          (i.e., not equal to the sparse vector's identity value)  '
+
+//pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+
+//INTERFACE_INCLUDE_END
 
 #endif

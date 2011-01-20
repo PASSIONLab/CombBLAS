@@ -134,6 +134,10 @@ pySpParVec* pyDenseParVec::Find(op::UnaryFunction* op)
 	ret->v = v.Find(*op);
 	return ret;
 }
+pySpParVec* pyDenseParVec::operator[](op::UnaryFunction* op)
+{
+	return Find(op);
+}
 
 pyDenseParVec* pyDenseParVec::FindInds(op::UnaryFunction* op)
 {
@@ -158,6 +162,11 @@ pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 	pyDenseParVec* ret = new pyDenseParVec();
 	ret->v = v(ri.v);
 	return ret;
+}
+
+pyDenseParVec* pyDenseParVec::operator[](const pyDenseParVec& ri)
+{
+	return SubsRef(ri);
 }
 
 /*
