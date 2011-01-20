@@ -11,10 +11,6 @@
 #define SWIG_FILE_WITH_INIT
 
 #include "pyCombBLAS.h"
-//#include "pyOperations.h"
-//#include "pySpParMat.h"
-//#include "pySpParVec.h"
-//#include "pyDenseParVec.h"
 %}
 
 
@@ -46,28 +42,11 @@ init_pyCombBLAS_MPI();
 
 // wrapped classes
 
-class pySpParMat {
 INCLUDE "pySpParMat.h"
-};
 
-
-class pySpParVec {
 INCLUDE "pySpParVec.h"
-};
 
-//      EWiseMult has 2 flavors:
-//      - if Exclude is false, will do element-wise multiplication
-//      - if Exclude is true, will remove from the result vector all elements
-//          whose corresponding element of the second vector is "nonzero"
-//          (i.e., not equal to the sparse vector's identity value)  '
-//pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
-void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
-
-class pyDenseParVec {
 INCLUDE "pyDenseParVec.h"
-};
-
 
 INCLUDE "pyOperations.h"
 

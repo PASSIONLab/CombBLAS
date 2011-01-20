@@ -11,10 +11,6 @@
 #define SWIG_FILE_WITH_INIT
 
 #include "pyCombBLAS.h"
-//#include "pyOperations.h"
-//#include "pySpParMat.h"
-//#include "pySpParVec.h"
-//#include "pyDenseParVec.h"
 %}
 
 
@@ -59,11 +55,8 @@ public:
 	void load(const char* filename);
 	void GenGraph500Edges(int scale);
 	double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
-	pyDenseParVec* GenGraph500Candidates(int howmany);
 	
 public:
-	pyDenseParVec* FindIndsOfColsWithSumGreaterThan(int64_t gt);
-
 	pySpParMat* copy();
 	
 	void Apply(op::UnaryFunction* op);
@@ -79,7 +72,6 @@ public:
 	static int Column() { return ::Column; }
 	static int Row() { return ::Row; }
 };
-
 
 class pySpParVec {
 public:
@@ -166,9 +158,11 @@ public:
 //      - if Exclude is true, will remove from the result vector all elements
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
+
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+
 
 class pyDenseParVec {
 public:
@@ -187,7 +181,7 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG does not allow operator=
+	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
@@ -199,6 +193,8 @@ public:
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
 	int64_t GetElement (int64_t indx);	// element-wise fetch
 	
+	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
+
 	void RandPerm();
 
 	void printall();
@@ -218,16 +214,15 @@ public:
 public:
 	int64_t Count(op::UnaryFunction* op);
 	pySpParVec* Find(op::UnaryFunction* op);
+	pySpParVec* operator[](op::UnaryFunction* op);
+	pyDenseParVec* operator[](const pyDenseParVec& ri);
 	pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	
-	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
-
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
 };
-
 
 namespace op {
 
@@ -238,7 +233,7 @@ class UnaryFunction {
 	public:
 	~UnaryFunction() { /*delete op; op = NULL;*/ }
 	
-	const int64_t operator()(const int64_t x) const
+	int64_t operator()(const int64_t x) const
 	{
 		return (*op)(x);
 	}
@@ -261,7 +256,7 @@ class BinaryFunction {
 	bool commutable;
 	bool associative;
 	
-	const int64_t operator()(const int64_t& x, const int64_t& y) const
+	int64_t operator()(const int64_t& x, const int64_t& y) const
 	{
 		return (*op)(x, y);
 	}

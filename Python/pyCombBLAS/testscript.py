@@ -223,14 +223,13 @@ if (numCands > n):
 #Cands = Cands.SubsRef(First64);
 
 
-Cands = A.GenGraph500Candidates(numCands)
+Cands = degrees.FindInds(pcb.bind2nd(pcb.greater(), 2))
+Cands.RandPerm()
 
-#Cands = degrees.FindInds(pcb.bind2nd(pcb.greater(), 2))
-#Cands.RandPerm()
-
-#Firsts = pcb.pyDenseParVec.range(numCands, 0)
+Firsts = pcb.pyDenseParVec.range(numCands, 0)
 
 #Cands = Cands[Firsts]
+Cands = Cands.SubsRef(Firsts)
 
 #if (pcb.root()):
 #	print "The candidates are:"

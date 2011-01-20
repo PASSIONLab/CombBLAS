@@ -2794,10 +2794,6 @@ namespace swig {
 #define SWIG_FILE_WITH_INIT
 
 #include "pyCombBLAS.h"
-//#include "pyOperations.h"
-//#include "pySpParMat.h"
-//#include "pySpParVec.h"
-//#include "pyDenseParVec.h"
 
 
   #define SWIG_From_long   PyInt_FromLong 
@@ -3421,88 +3417,6 @@ fail:
     "  Possible C/C++ prototypes are:\n"
     "    GenGraph500Edges(pySpParMat *,int)\n"
     "    GenGraph500Edges(pySpParMat *,int,pyDenseParVec &)\n");
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Candidates(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  pyDenseParVec *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_GenGraph500Candidates",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_GenGraph500Candidates" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_GenGraph500Candidates" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  {
-    try {
-      result = (pyDenseParVec *)(arg1)->GenGraph500Candidates(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_FindIndsOfColsWithSumGreaterThan(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  int64_t arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  long long val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  pyDenseParVec *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_FindIndsOfColsWithSumGreaterThan",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_FindIndsOfColsWithSumGreaterThan" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_FindIndsOfColsWithSumGreaterThan" "', argument " "2"" of type '" "int64_t""'");
-  } 
-  arg2 = static_cast< int64_t >(val2);
-  {
-    try {
-      result = (pyDenseParVec *)(arg1)->FindIndsOfColsWithSumGreaterThan(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
-  return resultobj;
-fail:
   return NULL;
 }
 
@@ -6039,6 +5953,50 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pyDenseParVec_SubsRef(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  pyDenseParVec *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec_SubsRef",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVec_SubsRef" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyDenseParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pyDenseParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  {
+    try {
+      result = (pyDenseParVec *)(arg1)->SubsRef((pyDenseParVec const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pyDenseParVec_RandPerm(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
@@ -6417,50 +6375,6 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec_ApplyMasked(PyObject *SWIGUNUSEDPARM(se
     }
   }
   resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pyDenseParVec_SubsRef(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
-  pyDenseParVec *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  pyDenseParVec *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec_SubsRef",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVec_SubsRef" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
-  }
-  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyDenseParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pyDenseParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
-  {
-    try {
-      result = (pyDenseParVec *)(arg1)->SubsRef((pyDenseParVec const &)*arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7720,8 +7634,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_getncol", _wrap_pySpParMat_getncol, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_load", _wrap_pySpParMat_load, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_GenGraph500Edges", _wrap_pySpParMat_GenGraph500Edges, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_GenGraph500Candidates", _wrap_pySpParMat_GenGraph500Candidates, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_FindIndsOfColsWithSumGreaterThan", _wrap_pySpParMat_FindIndsOfColsWithSumGreaterThan, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_copy", _wrap_pySpParMat_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
@@ -7769,6 +7681,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVec_copy", _wrap_pyDenseParVec_copy, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_SetElement", _wrap_pyDenseParVec_SetElement, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_GetElement", _wrap_pyDenseParVec_GetElement, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVec_SubsRef", _wrap_pyDenseParVec_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_RandPerm", _wrap_pyDenseParVec_RandPerm, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_printall", _wrap_pyDenseParVec_printall, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_getnnz", _wrap_pyDenseParVec_getnnz, METH_VARARGS, NULL},
@@ -7779,7 +7692,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVec_FindInds", _wrap_pyDenseParVec_FindInds, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_Apply", _wrap_pyDenseParVec_Apply, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_ApplyMasked", _wrap_pyDenseParVec_ApplyMasked, METH_VARARGS, NULL},
-	 { (char *)"pyDenseParVec_SubsRef", _wrap_pyDenseParVec_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_range", _wrap_pyDenseParVec_range, METH_VARARGS, NULL},
 	 { (char *)"delete_pyDenseParVec", _wrap_delete_pyDenseParVec, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_swigregister", pyDenseParVec_swigregister, METH_VARARGS, NULL},
