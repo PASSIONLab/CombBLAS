@@ -55,9 +55,8 @@ def k2Validate(G, start, parents):
 scale = 4;
 
 G = kdtdg.DiGraph();
-K1elapsed = G.genGraph500Edges(scale);
-#FIX: genGraph500Edges not returning the time properly
-K1elapsed = 1.0;
+degrees = kdtdg.ParVec.zeros(4);
+K1elapsed = G.genGraph500Edges(scale, degrees);
 
 #	indices of vertices with degree > 2
 nstarts = 4;
