@@ -44,7 +44,7 @@ class DiGraph(gr.Graph):
 
 	def genGraph500Candidates(self, howmany):
 		pyDPV = self.spm.pySPM.GenGraph500Candidates(howmany);
-		ret = ParVec.toParVec(PCB.toPyDenseParVec(pyDPV));
+		ret = ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(pyDPV));
 		return ret
 
 	def indegree(self):
@@ -241,7 +241,7 @@ class ParVec:
 	@staticmethod
 	def ones(sz):
 		ret = ParVec(-1);
-		ret.dpv = PCB.ones(sz);
+		ret.dpv = PCB.PyDenseParVec.ones(sz);
 		return ret;
 	
 	def printall(self):
@@ -278,7 +278,7 @@ class ParVec:
 	@staticmethod
 	def zeros(sz):
 		ret = ParVec(-1);
-		ret.dpv = PCB.zeros(sz);
+		ret.dpv = PCB.PyDenseParVec.zeros(sz);
 		return ret;
 	
 

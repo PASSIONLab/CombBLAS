@@ -374,6 +374,11 @@ class PyDenseParVec:
 		ret.pyDPV.Apply(pcb.logical_not());
 		return ret;
 		
+	@staticmethod
+	def ones(sz):
+		ret = PyDenseParVec(sz,1);
+		return ret;
+	
 	def printall(self):
 		self.pyDPV.printall()
 		return '';
@@ -404,19 +409,17 @@ class PyDenseParVec:
 	def sum(self):
 		return self.pyDPV.Reduce_sum();
 	
-def toPyDenseParVec(pyDPV):
-	ret = PyDenseParVec(0,0);
-	ret.pyDPV = pyDPV;
-	return ret;
-
-def ones(sz):
-	ret = PyDenseParVec(sz,1);
-	return ret;
-
-def zeros(sz):
-	ret = PyDenseParVec(sz,0);
-	return ret;
-
+	@staticmethod
+	def toPyDenseParVec(pyDPV):
+		ret = PyDenseParVec(0,0);
+		ret.pyDPV = pyDPV;
+		return ret;
+	
+	@staticmethod
+	def zeros(sz):
+		ret = PyDenseParVec(sz,0);
+		return ret;
+	
 if DenseCheck:
 	a = PyDenseParVec(12,0);
 	b = PyDenseParVec(12,4);
