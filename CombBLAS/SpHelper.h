@@ -1,9 +1,9 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 --------------------------------------------------/
-/* date: 01/18/2009 ---------------------------------------------/
-/* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-/****************************************************************/
+/* Sequential and Parallel Sparse Matrix Multiplication Library  /
+/  version 2.3 --------------------------------------------------/
+/  date: 01/18/2009 ---------------------------------------------/
+/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
+\****************************************************************/
 
 /**
  * Functions that are used by multiple classes, but don't need the "this" pointer

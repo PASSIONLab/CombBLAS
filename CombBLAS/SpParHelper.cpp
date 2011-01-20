@@ -173,7 +173,8 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	
 	int * sendcnt = new int[nprocs]();	// zero initialize
 	int totrecvcnt; 
-	IT spacebefore = 0;	// receiving part space
+	// Adam: I'm commeting out spacebefore because it is never used and some compilers complain about that
+	//IT spacebefore = 0;	// receiving part space
 
 	pair<KEY,VAL> * bufbegin;
 	if(color == 0)	// first processor half, only send second half of data
@@ -185,7 +186,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		int i=nfirsthalf+1;
 		while(i < nprocs && spaceafter < beg_oftransfer)
 		{
-			spacebefore = spaceafter;
+			//spacebefore = spaceafter;
 			spaceafter += firsthalves[i++];		// post-incremenet
 		}
 		IT end_oftransfer = beg_oftransfer + secondhalves[myrank];	// global index (within second half) of the end of my data
@@ -210,7 +211,7 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 		int i=1;
 		while( i< nfirsthalf && spaceafter < beg_oftransfer)
 		{
-			spacebefore = spaceafter;
+			//spacebefore = spaceafter;
 			spaceafter += secondhalves[i++];	// post-increment
 		}
 		IT end_oftransfer = beg_oftransfer + firsthalves[myrank];	// global index (within second half) of the end of my data

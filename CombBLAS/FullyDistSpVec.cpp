@@ -109,7 +109,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	if(whole == 0)
 	{
 		throw outofrangeexception();
-		return Indexed;
+		//return Indexed;
 	}
 
 	for(IT i=0; i < locnnz; ++i)

@@ -1,10 +1,10 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 --------------------------------------------------/
-/* date: 01/18/2009 ---------------------------------------------/
-/* Works well with pre-pinned memory and memory pools	---------/
-/* author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-/****************************************************************/
+/* Sequential and Parallel Sparse Matrix Multiplication Library  /
+/  version 2.3 --------------------------------------------------/
+/  date: 01/18/2009 ---------------------------------------------/
+/  Works well with pre-pinned memory and memory pools	---------/
+/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
+\****************************************************************/
 
 #ifndef _DCSC_H
 #define _DCSC_H

@@ -110,7 +110,7 @@ inline double wallClockTime()
 
 // elapsed CPU time see also /usr/include/sys/time.h
 inline double cpuTime()
-{ struct timespec tp;
+{ //struct timespec tp;
 
   return clock() * 1e-6;
 //  clock_gettime(CLOCK_VIRTUAL, &tp);

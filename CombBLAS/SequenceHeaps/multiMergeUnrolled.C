@@ -8,9 +8,9 @@
 // Similarly I tried introducing LogP as a template
 // parameter but this did not compile on SunCC
   {
-    Entry *currentPos;
-    Key currentKey;
-    int currentIndex; // leaf pointed to by current entry
+    //Entry *currentPos;
+    //Key currentKey;
+    //int currentIndex; // leaf pointed to by current entry
     Element *done = to + l;
     Entry    *regEntry   = entry;
     Element **regCurrent = current;
