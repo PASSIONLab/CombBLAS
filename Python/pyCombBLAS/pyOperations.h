@@ -10,13 +10,13 @@ namespace op {
 template <typename T>
 struct ConcreteUnaryFunction : public std::unary_function<T, T>
 {
-	virtual const T operator()(const T& x) const = 0;
+	virtual T operator()(const T& x) const = 0;
 };
 
 template <typename T>
 struct ConcreteBinaryFunction : public std::binary_function<T, T, T>
 {
-	virtual const T operator()(const T& x, const T& y) const = 0;
+	virtual T operator()(const T& x, const T& y) const = 0;
 };
 
 }
