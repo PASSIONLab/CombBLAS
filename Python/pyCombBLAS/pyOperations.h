@@ -38,7 +38,7 @@ class UnaryFunction {
 	public:
 	~UnaryFunction() { /*delete op; op = NULL;*/ }
 	
-	const int64_t operator()(const int64_t x) const
+	int64_t operator()(const int64_t x) const
 	{
 		return (*op)(x);
 	}
@@ -80,7 +80,7 @@ class BinaryFunction {
 	bool commutable;
 	bool associative;
 	
-	const int64_t operator()(const int64_t& x, const int64_t& y) const
+	int64_t operator()(const int64_t& x, const int64_t& y) const
 	{
 		return (*op)(x, y);
 	}

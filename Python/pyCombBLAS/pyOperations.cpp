@@ -12,7 +12,7 @@ namespace op{
 	template<typename T>											\
 	struct name : public ConcreteUnaryFunction<T>					\
 	{																\
-		const T operator()(const T& x) const						\
+		T operator()(const T& x) const								\
 		{															\
 			operation;												\
 		}															\
@@ -39,7 +39,7 @@ struct set_s: public ConcreteUnaryFunction<T>
 {
 	set_s(T myvalue): value(myvalue) {};
 	/** @returns value regardless of x */
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		return value;
 	} 
@@ -54,7 +54,7 @@ UnaryFunction* set(int64_t val)
 template<typename T>
 struct safemultinv_s : public ConcreteUnaryFunction<T>
 {
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		T inf = std::numeric_limits<T>::max();
 		return (x == 0) ? inf:(1/x);
@@ -74,7 +74,7 @@ UnaryFunction* safemultinv() {
 	template<typename T>												\
 	struct name : public ConcreteBinaryFunction<T>						\
 	{																	\
-		const T operator()(const T& x, const T& y) const				\
+		T operator()(const T& x, const T& y) const						\
 		{																\
 			operation;													\
 		}																\
@@ -190,7 +190,7 @@ struct compose2_s : public ConcreteUnaryFunction<T>
 	
 	compose2_s(ConcreteBinaryFunction<T>* fin, ConcreteUnaryFunction<T>* g1in, ConcreteUnaryFunction<T>* g2in): f(fin), g1(g1in), g2(g2in) {}
 	
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		return (*f)( (*g1)(x), (*g2)(x) );
 	}
@@ -214,7 +214,7 @@ struct unary_not_s : public ConcreteUnaryFunction<T>
 
 	unary_not_s(ConcreteUnaryFunction<T>* operation): op(operation) {}
 
-	const T operator()(const T& x) const
+	T operator()(const T& x) const
 	{
 		return !(*op)(x);
 	}
@@ -233,7 +233,7 @@ struct binary_not_s : public ConcreteBinaryFunction<T>
 
 	binary_not_s(ConcreteBinaryFunction<T>* operation): op(operation) {}
 
-	const T operator()(const T& x, const T& y) const
+	T operator()(const T& x, const T& y) const
 	{
 		return !(*op)(x, y);
 	}

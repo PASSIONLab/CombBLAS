@@ -181,7 +181,7 @@ if (scale < 0):
 	#path = "../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt";
 	print "loading matrix from %s"%(path)
 	A.load(path)
-	A.Apply_SetTo(1)
+	A.Apply(pcb.set(1))
 	n = A.getnrow()
 	
 	colreducer = pcb.pyDenseParVec(n, 1).sparse();
@@ -224,6 +224,13 @@ if (numCands > n):
 
 
 Cands = A.GenGraph500Candidates(numCands)
+
+#Cands = degrees.FindInds(pcb.bind2nd(pcb.greater(), 2))
+#Cands.RandPerm()
+
+#Firsts = pcb.pyDenseParVec.range(numCands, 0)
+
+#Cands = Cands[Firsts]
 
 #if (pcb.root()):
 #	print "The candidates are:"
