@@ -50,9 +50,12 @@ class DiGraph(gr.Graph):
 	def indegree(self):
 		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
 		return ParVec.toParVec(PCB.toPyDenseParVec(ret));
-
-	def load(self, fname):
-		self.spm.load(fname);
+	
+	@staticmethod
+	def load(fname):
+		ret = DiGraph();
+		ret.spm = PCB.PySpParMat.load(fname);
+		return ret;
 
 	def outdegree(self):
 		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
