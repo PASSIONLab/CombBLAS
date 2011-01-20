@@ -11,29 +11,38 @@ class Graph:
 
 	#print "in Graph"
 
-	def __init__(self, edgev, size):
-		# include edges in both directions
-		# NEW:  not clear that any of the SpParMat constructors actually do the following, so
-		#   may be a new function
-		self.spm = spm.SpParMat(edgev, size=size);
+	def __init__(self, *args):
+		if len(args) == 0:
+                        self.spm = PCB.PySpParMat();
+                elif len(args) == 4:
+                        #create a DiGraph from i/j/v ParVecs and nv nverts
+                        [i,j,v,nv] = args;
+                        pass;
+                else:
+                        raise NotImplementedError, "only zero and three arguments supported"
 
-	def __len__(self):
-		return self.spm.nvert();
 
-	# NOTE:  no shape() for a graph;  use nvert/nedge instead	
-	#def shape(self):
-	#	return (self.spm.nvert(), self.spm.nvert());
-
-	#FIX:  should only return 1 of the 2 directed edges for simple graphs
-	def toEdgeV(self):		
-		[ij, v] = self._toVectors(self.spm);
-		return EdgeV(ij, v);
-
+	#FIX:  when pcb.find() exposed
 	@staticmethod
-	def _toVectors(spmat):		# similar to toEdgeV, except returns arrays
+	def toVectors(spmat):		# similar to toEdgeV, except returns arrays
 		[i, j] = spmat.nonzero();		# NEW:  don't see a way to do this with current SpParMat
 		v = spmat[i,j];				# not NEW:  looks like already supported by general indexing
 		return ((i,j), v)
+
+        def copy(self):
+                ret = Graph();
+                ret.spm = self.spm.copy();
+                return ret;
+
+	def degree(self):
+		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+                return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+
+        @staticmethod
+        def load(fname):
+                ret = Graph();
+                ret.spm = PCB.PySpParMat.load(fname);
+                return ret;
 
 	def nedge(self):
 		return self.spm.nedge();
@@ -41,10 +50,7 @@ class Graph:
 	def nvert(self):
 		return self.spm.nvert();
 
-	def degree(self):
-		tmp = spm.reduce(self._spones(self.spm), 0, '+');	# FIX: syntax
-		return tmp;
-
+	#FIX: use Apply();  change name to ones()?
 	@staticmethod
 	def _spones(spmat):		
 		[nr, nc] = spmat.shape();
@@ -71,65 +77,224 @@ class Graph:
 		return Z
 		
 
-class EdgeV:
-	# NOTE:  vertex numbers go from 1 to N unlike Python's 0 to N-1 
+class ParVec:
 
+	def __init__(self, length):
+		if length>0:
+			self.dpv = PCB.PyDenseParVec(length,0);
 
-	# For now, vertex endpoints are each a SpParVec, as is values
-	# ToDo:  create a way for a client edge-vector to become a distributed edge-vector
-	def __init__(self, verts, values):
-		error = False;
-		if type(values).__name__ <> 'SpParVec':
-			error = True;
-		for i in range(len(verts)):		# 'len' overloaded for SPVs
-			if type(verts[i]).__name__ <> 'SpParVec':
-				error = True;
-		if error:
-			raise ValueError('inputs must be SpParVecs')
-		if len(verts[0]) <> len(values):
-			raise ValueError('length of vertex and values vectors must be the same')
-		self.__verts = verts;
-		self.__values = values;
+	def __abs__(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.abs()
+		return ret;
 
+	def __add__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv + other;
+		else:	#elif  instance(other,ParVec):
+			ret.dpv = self.dpv + other.dpv;
+		return ret;
 
-	#FIX: inconsistency between len and getitem;  len returns #verts;  getitem[0] returns verts
+	def __and__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv & other;
+		else: 	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv & other.dpv;
+		return ret;
+
+	def __div__(self, other):
+		selfcopy = self.copy();
+		ret = ParVec(len(self));
+		while (selfcopy >= other).any():
+			tmp = selfcopy >= other;
+			selfcopy[tmp] = selfcopy - other;
+			ret[tmp] = ret+1;
+		return ret;
+
+	def __getitem__(self, key):
+		if type(key) == int:
+			if key > self.dpv.len()-1:
+				raise IndexError;
+			ret = self.dpv[key];
+		else:	#elif isinstance(other,ParVec):
+			ret = self.dpv[key.dpv];
+		return ret;
+
+	def __ge__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv >= other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv >= other.dpv;
+		return ret;
+
+	def __gt__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv > other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv > other.dpv;
+		return ret;
+
+	def __iadd__(self, other):
+		if type(other) == int:
+			self.dpv += other;
+		else:	#elif isinstance(other,ParVec):
+			self.dpv += other.dpv;
+		return self;
+
+	def __isub__(self, other):
+		if type(other) == int:
+			self.dpv -= other;
+		else:	#elif isinstance(other,ParVec):
+			self.dpv -= other.dpv;
+		return self;
+
+	def __le__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv <= other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv <= other.dpv;
+		return ret;
+
 	def __len__(self):
-		return self.__verts.nvert();
+		return self.dpv.len();
 
-	def __getitem__(self, i):
-		if i == 0:
-			return self.__verts;
-		if i == 1:
-			return self.__values;
-		raise ValueError('index out of range');
-		return;
+	def __lt__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv < other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv < other.dpv;
+		return ret;
 
-	def nvert(self):
-		return self.__verts.nvert();
+	def __mod__(self, other):
+		ret = self.copy();
+		while (ret >= other).any():
+			tmp = ret >= other;
+			ret[tmp] = ret - other;
+		return ret;
 
-	def nvalues(self):
-		return self.__values.nvalues();
+	def __mul__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv * other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
+		return ret;
 
-	def verts(self):
-		return self.__verts;
+	def __ne__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv <> other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv <> other.dpv;
+		return ret;
 
-	def values(self):
-		return self.__values;
-		
+	def __repr__(self):
+		return self.dpv.printall();
 
-#	VertexV class
+	def __setitem__(self, key, value):
+		if type(key) == int:
+			self.dpv[key] = value;
+		else:
+			if type(value) == int:
+				self.dpv[key.dpv] = value;
+			else:
+				self.dpv[key.dpv] = value.dpv; 
 
-#class VertexV:
-#	print "in VertexV"
+	def __sub__(self, other):
+		ret = ParVec(-1);
+		if type(other) == int:
+			ret.dpv = self.dpv - other;
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv = self.dpv - other.dpv;
+		return ret;
+
+	def any(self):
+		ret = ParVec(-1);
+		ret = self.dpv.any();
+		return ret;
+
+	def copy(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.copy()
+		return ret;
+
+#	NOTE:  no ParVec.find() yet because no SpParVec yet
+#	def find(self):
+#		ret = ParVec(-1);
+#		ret.dpv = self.dpv.find();
+#		return ret;
 #
-#	def __init__(self, ndces):
-#		print "VertexV __init__ not implemented"
-#		pass;
+	def findInds(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.findInds();
+		return ret;
 
+	def isBool(self):
+		tmp1 = len((self<0).findInds())==0;
+		tmp2 = len((self>1).findInds())==0;
+		return tmp1 & tmp2;
 
-#	def __len__(self):
-#		return self.__verts.nvert();
+	def logical_not(self):
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.logical_not();
+		return ret;
 
+	@staticmethod
+	def ones(sz):
+		ret = ParVec(-1);
+		ret.dpv = PCB.PyDenseParVec.ones(sz);
+		return ret;
+	
+	def printall(self):
+		return self.dpv.printall();
+
+	def randPerm(self):
+		self.dpv.randPerm();
+		#FIX:  have no return value, since changing in place?
+		return self;
+
+	@staticmethod
+	def range(arg1, *args):
+		if len(args) == 0:
+			start = 0;
+			stop = arg1;
+		elif len(args) == 1:	
+			start = arg1;
+			stop = args[0];
+		else:
+			raise NotImplementedError, "No 3-argument range()"
+		ret = ParVec(0);
+		ret.dpv = PCB.PyDenseParVec.range(start,stop);
+		return ret;
+	
+	def sum(self):
+		return self.dpv.sum();
+
+	#TODO:  check for class being PyDenseParVec?
+	@staticmethod
+	def toParVec(DPV):
+		ret = ParVec(-1);
+		ret.dpv = DPV;
+		return ret;
+	
+	@staticmethod
+	def zeros(sz):
+		ret = ParVec(-1);
+		ret.dpv = PCB.PyDenseParVec.zeros(sz);
+		return ret;
+	
+
+#class SpParVec:
+#	#print "in SpVertexV"
+#
+#	def __init__(self, length):
+#		self.spv = pcb.pySpParVec(length);
 
 sendFeedback = feedback.sendFeedback;
 
