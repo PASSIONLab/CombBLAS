@@ -38,8 +38,8 @@ class DiGraph(gr.Graph):
 	def degree(self):
 		return self.indegree() + self.outdegree();
 
-	def genGraph500Edges(self, scale):
-		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale);
+	def genGraph500Edges(self, scale, degrees):
+		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale, degrees.dpv.pyDPV);
 	 	return elapsedTime;
 
 	def genGraph500Candidates(self, howmany):
