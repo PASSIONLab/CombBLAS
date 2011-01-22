@@ -12,6 +12,11 @@ pySpParMat::pySpParMat(pySpParMat* copyFrom): A(copyFrom->A)
 {
 }
 
+//pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals): A(m, n, rows->v, cols->v, vals->v)
+//{
+//}
+
+
 int64_t pySpParMat::getnnz()
 {
 	return A.getnnz();
@@ -169,6 +174,20 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identi
 	return ret;
 }
 
+void pySpParMat::Transpose()
+{
+	A.Transpose();
+}
+
+/*void pySpParMat::EWiseMult(pySpParMat* rhs, bool exclude)
+{
+	A.EWiseMult(rhs->A, exclude);
+}*/
+
+/*void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
+{
+	A.Find(outrows->v, outcols->v, outvals->v);
+}*/
 
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {

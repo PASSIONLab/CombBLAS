@@ -85,6 +85,7 @@ class pySpParMat(_object):
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)
+    def Transpose(self): return _pyCombBLAS.pySpParMat_Transpose(self)
     def SpMV_PlusTimes(self, *args): return _pyCombBLAS.pySpParMat_SpMV_PlusTimes(self, *args)
     def SpMV_SelMax(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax(self, *args)
     def SpMV_SelMax_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax_inplace(self, *args)
