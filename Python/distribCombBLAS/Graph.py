@@ -22,6 +22,19 @@ class Graph:
                         raise NotImplementedError, "only zero and three arguments supported"
 
 
+	# which direction(s) of edges to include
+	@staticmethod
+	def InOut():
+		return 1;
+
+	@staticmethod
+	def In():
+		return 2;
+
+	@staticmethod
+	def Out():
+		return 3;
+
 	#FIX:  when pcb.find() exposed
 	@staticmethod
 	def toVectors(spmat):		# similar to toEdgeV, except returns arrays
@@ -145,6 +158,13 @@ class ParVec:
 			self.dpv += other.dpv;
 		return self;
 
+	def __invert__(self):
+		if not self.isBool():
+			raise NotImplementedError, "only implemented for Boolean"
+		ret = self.copy();
+		ret.dpv.pyDPV.Apply(pcb.logical_not());
+		return ret;
+
 	def __isub__(self, other):
 		if type(other) == int:
 			self.dpv -= other;
@@ -181,7 +201,7 @@ class ParVec:
 	def __mul__(self, other):
 		ret = ParVec(-1);
 		if type(other) == int:
-			ret.dpv = self.dpv * other;
+			ret.dpv = (self.dpv * PCB.PyDenseParVec(len(self),other).sparse()).dense();
 		else:	#elif isinstance(other,ParVec):
 			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
 		return ret;
@@ -204,6 +224,8 @@ class ParVec:
 			if type(value) == int:
 				self.dpv[key.dpv] = value;
 			else:
+				if not key.isBool():
+					raise NotImplementedError, "Only Boolean vector indexing implemented"
 				self.dpv[key.dpv] = value.dpv; 
 
 	def __sub__(self, other):
@@ -229,17 +251,24 @@ class ParVec:
 #		ret = ParVec(-1);
 #		ret.dpv = self.dpv.find();
 #		return ret;
-#
+
 	def findInds(self):
 		ret = ParVec(-1);
 		ret.dpv = self.dpv.findInds();
 		return ret;
+
+	def nn(self):
+		return len(self) - self.dpv.getnnn();
+
+	def nnn(self):
+		return self.dpv.getnnn();
 
 	def isBool(self):
 		tmp1 = len((self<0).findInds())==0;
 		tmp2 = len((self>1).findInds())==0;
 		return tmp1 & tmp2;
 
+	#FIX:  "logicalNot"?
 	def logical_not(self):
 		ret = ParVec(-1);
 		ret.dpv = self.dpv.logical_not();
