@@ -3708,6 +3708,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMat_Transpose(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:pySpParMat_Transpose",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Transpose" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  {
+    try {
+      (arg1)->Transpose();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMat_SpMV_PlusTimes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -7638,6 +7669,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Reduce", _wrap_pySpParMat_Reduce, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_Transpose", _wrap_pySpParMat_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV_PlusTimes", _wrap_pySpParMat_SpMV_PlusTimes, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV_SelMax", _wrap_pySpParMat_SpMV_SelMax, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV_SelMax_inplace", _wrap_pySpParMat_SpMV_SelMax_inplace, METH_VARARGS, NULL},
