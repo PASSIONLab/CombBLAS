@@ -89,7 +89,9 @@ class PySpParVec:
 			#self.pySPV[key] = value;
 		elif isinstance(key, PyDenseParVec):
 			if self.pySPV.len() != key.pyDPV.len():
-				raise KeyError, 'Vector and Key different lengths';
+				raise KeyError, 'Vector and Key different lengths; only Boolean vector-vector indexing supported';
+			if type(value) == int:
+				value = PyDenseParVec(self.len(),value);
 			tmp = PyDenseParVec(self.len(),0);
 			tmp = self.dense();
 			pcb.EWiseMult_inplacefirst(self.pySPV, key.pyDPV, True, 0);
@@ -115,7 +117,7 @@ class PySpParVec:
 
 	def copy(self):
 		ret = PySpParVec(len(self));
-		ret.pySPV = copy(self.pySPV);
+		ret.pySPV = self.pySPV.copy();
 		return ret
 
 	def dense(self):
@@ -123,7 +125,7 @@ class PySpParVec:
 		ret.pyDPV = self.pySPV.dense();
 		return ret; 
 	# "get # of existent elements" (name difference from getnnz())
-	def getnee(self):
+	def getnnn(self):
 		return self.pySPV.getnnz();
 	
 	def getnnz(self):
@@ -336,7 +338,7 @@ class PyDenseParVec:
 
 	def copy(self):
 		ret = PyDenseParVec(len(self),0);
-		ret.pyDPV = copy(self.pyDPV);
+		ret.pyDPV = self.pyDPV.copy();
 		return ret;
 		
 	def find(self):
@@ -357,11 +359,11 @@ class PyDenseParVec:
 		return ret;
 
 	# "get # of existent elements" (name difference from getnnz())
-	def getnee(self):
-		return self.DPV.getnnz();
+	def getnnn(self):
+		return self.pyDPV.getnnz();
 	
 	def getnnz(self):
-		return self.DPV.getnnz();
+		return self.pyDPV.getnnz();
 	
 	def getnz(self):
 		return self.DPV.getnz();

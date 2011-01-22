@@ -60,16 +60,14 @@ K1elapsed = G.genGraph500Edges(scale, degrees);
 
 #	indices of vertices with degree > 2
 nstarts = 4;
-G500CANDS_BUILTIN = True;
-if not G500CANDS_BUILTIN:
-	deg3verts = (G.degree() > 2).nonzero();
-	starts = np.random.randint(0,high=len(deg3verts),size=(nstarts,));
-	# deg3verts stays distributed; indices to it (starts) are scalars
-else:
-	starts = G.genGraph500Candidates(nstarts);
+deg3verts = (G.degree() > 2).findInds();
+starts = sc.random.randint(0,high=len(deg3verts),size=(nstarts,));
+# deg3verts stays distributed; indices to it (starts) are scalars
+
 K2elapsed = 1e-12;
 K2edges = 0;
 for start in starts:
+	start = int(start);
 	before = time.clock();
 	parents = kdtdg.bfsTree(G, start);
 	K2elapsed += time.clock() - before;
