@@ -30,6 +30,7 @@ public:
 	
 public:
 	int64_t len() const;
+	int64_t __len__() const;
 	
 	void add(const pyDenseParVec& other);
 	void add(const pySpParVec& other);
@@ -56,10 +57,8 @@ public:
 	void printall();
 	
 public:
-	//void invert(); // "~";  almost equal to logical_not
-	//void abs();
-	//void negate();
 	
+	int64_t getnee() const;
 	int64_t getnnz() const;
 	int64_t getnz() const;
 
@@ -70,14 +69,35 @@ public:
 public:
 	int64_t Count(op::UnaryFunction* op);
 	pySpParVec* Find(op::UnaryFunction* op);
-	pySpParVec* operator[](op::UnaryFunction* op);
-	pyDenseParVec* operator[](const pyDenseParVec& ri);
+	pySpParVec* __getitem__(op::UnaryFunction* op);
 	pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
+	
+public:
+	// Functions from PyCombBLAS
+	pyDenseParVec* abs();
+	
+	pyDenseParVec& operator+=(int64_t value);
+	pyDenseParVec* operator+(int64_t value);
+	pyDenseParVec& operator-=(int64_t value);
+	pyDenseParVec* operator-(int64_t value);
+	
+	// EWiseApply
+	// and
+	
+	int64_t __getitem__(int64_t key);
+	pyDenseParVec* __getitem__(const pyDenseParVec& key);
+	void __setitem__(int64_t key, int64_t value);
+	void __setitem__(const pySpParVec& key, const pySpParVec& value);
+	void __setitem__(const pySpParVec& key, int64_t value);
+	
+	// int64_t any() const; // same as getnz()
+	int64_t sum();
+
 };
 //INTERFACE_INCLUDE_END
 

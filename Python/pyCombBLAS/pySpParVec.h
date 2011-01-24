@@ -33,11 +33,20 @@ public:
 	pyDenseParVec* dense() const;
 
 public:
+	int64_t getne() const;
 	int64_t getnnz() const;
+	int64_t __len__() const;
 	int64_t len() const;
+
+	pySpParVec* operator+(const pySpParVec& other);
+	pySpParVec* operator-(const pySpParVec& other);
+	pySpParVec* operator+(const pyDenseParVec& other);
+	pySpParVec* operator-(const pyDenseParVec& other);
 
 	pySpParVec& operator+=(const pySpParVec& other);
 	pySpParVec& operator-=(const pySpParVec& other);
+	pySpParVec& operator+=(const pyDenseParVec& other);
+	pySpParVec& operator-=(const pyDenseParVec& other);
 	pySpParVec* copy();
 
 	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
@@ -53,32 +62,6 @@ public:
 	int64_t intersectSize(const pySpParVec& other);
 	
 	void printall();
-
-	/*
-	def __or__(self, other):
-		return blah;
-
-	def __and__(self, other):
-		return blah;
-
-	def __eq__(self, other):
-		return blah;
-
-	def __ne__(self, other):
-		return blah;
-
-	def __getitem__(self, key)
-		return blah;
-
-	def __setitem__(self, key, value)
-		return blah;
-
-	def __int__(self):
-		return blah;
-
-	def bool(self):
-		return blah;
-	*/
 	
 public:	
 	void load(const char* filename);
@@ -102,6 +85,19 @@ public:
 public:
 	static pySpParVec* zeros(int64_t howmany);
 	static pySpParVec* range(int64_t howmany, int64_t start);
+	
+public:
+	// Functions from PyCombBLAS
+	pySpParVec* abs();
+	void __delitem__(const pyDenseParVec& key);
+	void __delitem__(int64_t key);
+	int64_t __getitem__(int64_t key);
+	pySpParVec* __getitem__(const pySpParVec& key);
+	void __setitem__(int64_t key, int64_t value);
+	void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
+	//void __setitem__(const pyDenseParVec& key, int64_t value);
+	void __setitem__(const char* key, int64_t value);	
+	char* __repr__();
 
 };
 
