@@ -123,7 +123,7 @@ public:
 
 public:
 	// The functions commented out here presently do not exist in CombBLAS
-	//int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunction* op);
 	//pySpParVec* Find(op::UnaryFunction* op);
 	//pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
@@ -185,13 +185,20 @@ public:
 	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
 	pyDenseParVec& operator+=(const pySpParVec & rhs);
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
+	pyDenseParVec& operator*=(const pyDenseParVec& rhs);
+	pyDenseParVec& operator*=(const pySpParVec& rhs);
 	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);
 	pyDenseParVec* operator+(const pySpParVec & rhs);
 	pyDenseParVec* operator-(const pySpParVec & rhs);
+	pyDenseParVec* operator*(const pyDenseParVec& rhs);
+	pyDenseParVec* operator*(const pySpParVec& rhs);
 	
+	bool operator==(const pyDenseParVec& other);
+	bool operator!=(const pyDenseParVec& other);
+
 	pyDenseParVec* copy();
 	
 	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
@@ -208,7 +215,7 @@ public:
 	int64_t getnee() const;
 	int64_t getnnz() const;
 	int64_t getnz() const;
-
+	bool any() const;
 	
 public:	
 	void load(const char* filename);
@@ -220,7 +227,8 @@ public:
 	pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
-	
+	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
+
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
 	
@@ -233,18 +241,13 @@ public:
 	pyDenseParVec& operator-=(int64_t value);
 	pyDenseParVec* operator-(int64_t value);
 	
-	// EWiseApply
-	// and
+	pyDenseParVec* __and__(const pyDenseParVec& other);
 	
 	int64_t __getitem__(int64_t key);
 	pyDenseParVec* __getitem__(const pyDenseParVec& key);
 	void __setitem__(int64_t key, int64_t value);
 	void __setitem__(const pySpParVec& key, const pySpParVec& value);
 	void __setitem__(const pySpParVec& key, int64_t value);
-	
-	// int64_t any() const; // same as getnz()
-	int64_t sum();
-
 };
 
 namespace op {

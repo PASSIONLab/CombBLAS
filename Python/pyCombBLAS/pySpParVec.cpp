@@ -29,8 +29,8 @@ int64_t pySpParVec::getne() const
 
 int64_t pySpParVec::getnnz() const
 {
-	//return Count(bind2nd<int64_t>(not_equal_to<int64_t>(), 0));
-	return v.getnnz();
+	return v.Count(bind2nd(not_equal_to<int64_t>(), 0));
+	//return v.getnnz();
 }
 
 int64_t pySpParVec::__len__() const
@@ -191,12 +191,13 @@ void pySpParVec::Apply_SetTo(int64_t value)
 */
 
 /////////////////////////
-/*
+
 int64_t pySpParVec::Count(op::UnaryFunction* op)
 {
 	return v.Count(*op);
 }
 
+/*
 pySpParVec* pySpParVec::Find(op::UnaryFunction* op)
 {
 	pySpParVec* ret = new pySpParVec();
@@ -271,10 +272,12 @@ pySpParVec* pySpParVec::abs()
 
 void pySpParVec::__delitem__(const pyDenseParVec& key)
 {
+	v = EWiseMult(v, key.v, 1, (int64_t)0);
 }
 
 void pySpParVec::__delitem__(int64_t key)
 {
+	v.DelElement(key);
 }
 
 int64_t pySpParVec::__getitem__(int64_t key)
