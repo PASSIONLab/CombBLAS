@@ -332,5 +332,5 @@ class ParVec:
 #	def __init__(self, length):
 #		self.spv = pcb.pySpParVec(length);
 
-sendFeedback = feedback.sendFeedback;
+sendFeedback = feedback.feedback.sendFeedback;
 
