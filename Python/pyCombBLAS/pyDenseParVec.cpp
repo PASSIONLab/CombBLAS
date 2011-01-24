@@ -83,6 +83,18 @@ pyDenseParVec& pyDenseParVec::operator-=(const pySpParVec & rhs)
 	return *this;
 }
 
+pyDenseParVec& pyDenseParVec::operator*=(const pyDenseParVec & rhs)
+{
+	v.EWiseApply(rhs.v, multiplies<int64_t>());
+	return *this;
+}
+
+pyDenseParVec& pyDenseParVec::operator*=(const pySpParVec & rhs)
+{
+	v.EWiseApply(rhs.v, multiplies<int64_t>(), true, 0);
+	return *this;
+}
+
 //pyDenseParVec& pyDenseParVec::operator=(const pyDenseParVec & rhs)
 //{
 //	v.operator=(rhs.v);
@@ -117,7 +129,30 @@ pyDenseParVec* pyDenseParVec::operator-(const pySpParVec & rhs)
 	return ret;
 }
 
+pyDenseParVec* pyDenseParVec::operator*(const pyDenseParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) *= rhs;	
+	return ret;
+}
 
+pyDenseParVec* pyDenseParVec::operator*(const pySpParVec & rhs)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) *= rhs;	
+	return ret;
+}
+
+
+bool pyDenseParVec::operator==(const pyDenseParVec & rhs)
+{
+	return v.operator==(rhs.v);
+}
+
+bool pyDenseParVec::operator!=(const pyDenseParVec & rhs)
+{
+	return !(v.operator==(rhs.v));
+}
 
 pyDenseParVec* pyDenseParVec::copy()
 {
@@ -161,6 +196,10 @@ void pyDenseParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
 	v.Apply(*op, mask.v);
 }
 
+void pyDenseParVec::EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f)
+{
+	v.EWiseApply(other.v, *f);
+}
 	
 pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {
@@ -182,6 +221,11 @@ int64_t pyDenseParVec::getnnz() const
 int64_t pyDenseParVec::getnz() const
 {
 	return v.Count(bind2nd(equal_to<int64_t>(), (int64_t)0));
+}
+
+bool pyDenseParVec::any() const
+{
+	return getnnz() > 0;
 }
 
 void pyDenseParVec::SetElement (int64_t indx, int64_t numx)	// element-wise assignment
@@ -237,9 +281,14 @@ pyDenseParVec* pyDenseParVec::operator-(int64_t value)
 	return ret;
 }
 
-
-// EWiseApply
-// and
+pyDenseParVec* pyDenseParVec::__and__(const pyDenseParVec& other)
+{
+	pyDenseParVec* ret = copy();
+	op::BinaryFunction* a = op::logical_and();
+	ret->EWiseApply(other, a);
+	delete a;
+	return ret;
+}
 
 int64_t pyDenseParVec::__getitem__(int64_t key)
 {
@@ -258,17 +307,13 @@ void pyDenseParVec::__setitem__(int64_t key, int64_t value)
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, const pySpParVec& value)
 {
+	v.Apply(set<int64_t>(0), key.v);
+	v += value.v;
 }
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, int64_t value)
 {
 	v.Apply(set<int64_t>(value), key.v);
-}
-
-// int64_t pyDenseParVec::any() const // same as getnz()
-int64_t pyDenseParVec::sum()
-{
-	return v.Reduce(plus<int64_t>(), 0);
 }
 
 

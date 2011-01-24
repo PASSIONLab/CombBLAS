@@ -68,7 +68,7 @@ public:
 
 public:
 	// The functions commented out here presently do not exist in CombBLAS
-	//int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunction* op);
 	//pySpParVec* Find(op::UnaryFunction* op);
 	//pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
