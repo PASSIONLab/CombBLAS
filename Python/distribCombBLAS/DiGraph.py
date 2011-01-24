@@ -69,6 +69,15 @@ class DiGraph(gr.Graph):
 		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
 		return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
 
+	#in-place, so no return value
+	def reverseEdges(self):
+		self.spm.pySPM.Transpose();
+
+	# ==================================================================
+	#  "complex ops" implemented below here
+	# ==================================================================
+
+
 	# returns a Boolean vector of which vertices are neighbors
 	def neighbors(self, source, nhop=1):
 		dest = PCB.PyDenseParVec(self.nvert(),0)
