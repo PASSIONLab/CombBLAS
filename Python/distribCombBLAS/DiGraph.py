@@ -94,7 +94,7 @@ class DiGraph(gr.Graph):
 	#   - source:  a vector of the source vertex for each new vertex
 	#   - dest:  a Boolean vector of the new vertices
 	#ToDo:  nhop argument?
-	def pathHop(self, source):
+	def pathsHop(self, source):
 		retDest = PCB.PyDenseParVec(self.nvert(),0)
 		retSource = PCB.PyDenseParVec(self.nvert(),0)
 		fringe = PCB.PySpParVec(self.nvert());
@@ -235,10 +235,10 @@ def pathHop(G, source):
 def centrality(alg, G, **kwargs):
 #		ToDo:  Normalize option?
 	if alg=='exactBC':
-		cent = approxBC(G, sample=1.0, **kwargs)
+		cent = _approxBC(G, sample=1.0, **kwargs)
 
-	elif alg=='approxBC':
-		cent = approxBC(G, **kwargs);
+	elif alg=='_approxBC':
+		cent = _approxBC(G, **kwargs);
 
 	elif alg=='kBC':
 		raise NotImplementedError, "k-betweenness centrality unimplemented"
@@ -252,24 +252,11 @@ def centrality(alg, G, **kwargs):
 	return cent;
 
 
-def approxBC(G, sample=0.05, chunk=-1):
+def _approxBC(G, sample=0.05, chunk=-1):
 	print "chunk=%d, sample=%5f" % (chunk, sample);
 	# calculate chunk automatically if not specified
 
-def cluster(alg, G, **kwargs):
-#		ToDo:  Normalize option?
-	if alg=='Markov' or alg=='markov':
-		clus = markov(G, **kwargs)
-
-	elif alg=='kNN' or alg=='knn':
-		raise NotImplementedError, "k-nearest neighbors clustering not implemented"
-
-	else:
-		raise KeyError, "unknown clustering algorithm (%s)" % alg
-
-	return clus;
-
-def bc( G, K4approx, batchSize ):
+def _bc( G, K4approx, batchSize ):
 
 
     # transliteration of Lincoln Labs 2009Feb09 M-language version, 
@@ -337,4 +324,17 @@ def bc( G, K4approx, batchSize ):
     # subtract off the additional values added in by precomputation
     bc = bc - nPasses;
     return bc;
+
+def cluster(alg, G, **kwargs):
+#		ToDo:  Normalize option?
+	if alg=='Markov' or alg=='markov':
+		clus = _markov(G, **kwargs)
+
+	elif alg=='kNN' or alg=='knn':
+		raise NotImplementedError, "k-nearest neighbors clustering not implemented"
+
+	else:
+		raise KeyError, "unknown clustering algorithm (%s)" % alg
+
+	return clus;
 
