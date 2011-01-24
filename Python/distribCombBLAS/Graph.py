@@ -118,12 +118,16 @@ class ParVec:
 		return ret;
 
 	def __div__(self, other):
-		selfcopy = self.copy();
-		ret = ParVec(len(self));
-		while (selfcopy >= other).any():
-			tmp = selfcopy >= other;
-			selfcopy[tmp] = selfcopy - other;
-			ret[tmp] = ret+1;
+		if type(other) == int:
+			ret = self.copy();
+			ret.dpv.pyDPV.Apply(pcb.bind2nd(pcb.divides(), other));
+		else:
+			ret = ParVec(len(self));
+			selfcopy = self.copy();
+			while (selfcopy >= other).any():
+				tmp = selfcopy >= other;
+				selfcopy[tmp] = selfcopy - other;
+				ret[tmp] = ret+1;
 		return ret;
 
 	def __getitem__(self, key):
@@ -193,9 +197,12 @@ class ParVec:
 
 	def __mod__(self, other):
 		ret = self.copy();
-		while (ret >= other).any():
-			tmp = ret >= other;
-			ret[tmp] = ret - other;
+		if type(other) == int:
+			ret.dpv.pyDPV.Apply(pcb.bind2nd(pcb.modulus(), other));
+		else:
+			while (ret >= other).any():
+				tmp = ret >= other;
+				ret[tmp] = ret - other;
 		return ret;
 
 	def __mul__(self, other):
