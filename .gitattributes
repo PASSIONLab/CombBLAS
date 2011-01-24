@@ -995,6 +995,8 @@ CombBLAS/psort-1.0/src/sort.timpl.h -text
 CombBLAS/valgrindout -text
 Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text
+/KDT_User_Guide.doc -text
+/KDT_User_Guide.pdf -text
 Matlab/apsp/apsp.m -text
 Matlab/apsp/min_plus.m -text
 Matlab/spindex/PAQdiary.txt -text
