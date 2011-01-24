@@ -13,35 +13,7 @@ pySpParVec::pySpParVec()
 
 pySpParVec::pySpParVec(int64_t size): v(size)
 {
-	/*MPI::Intracomm comm = v.getCommGrid()->GetDiagWorld();
-	
-	int64_t locsize = 0;
-	
-	if (comm != MPI::COMM_NULL)
-	{
-		int nprocs = comm.Get_size();
-		int dgrank = comm.Get_rank();
-		locsize = (int64_t)floor(static_cast<double>(size)/static_cast<double>(nprocs));
-		
-		if (dgrank == nprocs-1)
-		{
-			// this may be shorter than the others
-			locsize = size - locsize*(nprocs-1);
-		}
-	}
-
-	FullyDistSpVec<int64_t, int64_t> temp(locsize);
-	v = temp;*/
 }
-
-
-//pySpParVec::pySpParVec(const pySpParMat& commSource): v(commSource.A.commGrid);
-//{
-//}
-
-//pySpParVec::pySpParVec(SpParVec<int64_t, int64_t> & in_v): v(in_v)
-//{
-//}
 
 pyDenseParVec* pySpParVec::dense() const
 {
@@ -50,10 +22,20 @@ pyDenseParVec* pySpParVec::dense() const
 	return ret;
 }
 
+int64_t pySpParVec::getne() const
+{
+	return v.getnnz();
+}
 
 int64_t pySpParVec::getnnz() const
 {
+	//return Count(bind2nd<int64_t>(not_equal_to<int64_t>(), 0));
 	return v.getnnz();
+}
+
+int64_t pySpParVec::__len__() const
+{
+	return v.TotalLength();
 }
 
 int64_t pySpParVec::len() const
@@ -61,6 +43,33 @@ int64_t pySpParVec::len() const
 	return v.TotalLength();
 }
 
+pySpParVec* pySpParVec::operator+(const pySpParVec& other)
+{
+	pySpParVec* ret = copy();
+	ret->operator+=(other);
+	return ret;
+}
+
+pySpParVec* pySpParVec::operator-(const pySpParVec& other)
+{
+	pySpParVec* ret = copy();
+	ret->operator-=(other);
+	return ret;
+}
+
+pySpParVec* pySpParVec::operator+(const pyDenseParVec& other)
+{
+	pySpParVec* ret = copy();
+	ret->operator+=(other);
+	return ret;
+}
+
+pySpParVec* pySpParVec::operator-(const pyDenseParVec& other)
+{
+	pySpParVec* ret = copy();
+	ret->operator-=(other);
+	return ret;
+}
 
 pySpParVec& pySpParVec::operator+=(const pySpParVec& other)
 {
@@ -72,6 +81,28 @@ pySpParVec& pySpParVec::operator+=(const pySpParVec& other)
 pySpParVec& pySpParVec::operator-=(const pySpParVec& other)
 {
 	v -= other.v;
+	return *this;
+}
+
+pySpParVec& pySpParVec::operator+=(const pyDenseParVec& other)
+{
+	pyDenseParVec* tmpd = dense();
+	tmpd->v += other.v;
+	pySpParVec* tmps = tmpd->sparse();
+	this->v.stealFrom(tmps->v);
+	delete tmpd;
+	delete tmps;
+	return *this;
+}
+
+pySpParVec& pySpParVec::operator-=(const pyDenseParVec& other)
+{
+	pyDenseParVec* tmpd = dense();
+	tmpd->v -= other.v;
+	pySpParVec* tmps = tmpd->sparse();
+	this->v.stealFrom(tmps->v);
+	delete tmpd;
+	delete tmps;
 	return *this;
 }
 
@@ -99,19 +130,6 @@ pySpParVec* pySpParVec::copy()
 	ret->v = v;
 	return ret;
 }
-
-
-/*
-void pySpParVec::invert() // "~";  almost equal to logical_not
-{
-	v.Apply(invert64);
-}
-
-void pySpParVec::abs()
-{
-	v.Apply(abs64);
-}
-*/
 
 bool pySpParVec::any() const
 {
@@ -240,6 +258,76 @@ pySpParVec* pySpParVec::Sort()
 void pySpParVec::setNumToInd()
 {
 	v.setNumToInd();
+}
+
+pySpParVec* pySpParVec::abs()
+{
+	pySpParVec* ret = copy();
+	op::UnaryFunction* a = op::abs();
+	ret->Apply(a);
+	delete a;
+	return ret;
+}
+
+void pySpParVec::__delitem__(const pyDenseParVec& key)
+{
+}
+
+void pySpParVec::__delitem__(int64_t key)
+{
+}
+
+int64_t pySpParVec::__getitem__(int64_t key)
+{
+	return GetElement(key);
+}
+
+pySpParVec* pySpParVec::__getitem__(const pySpParVec& key)
+{
+	return SubsRef(key);
+}
+
+void pySpParVec::__setitem__(int64_t key, int64_t value)
+{
+	SetElement(key, value);
+}
+
+void pySpParVec::__setitem__(const pyDenseParVec& key, const pyDenseParVec& value)
+{
+/*
+			if self.pySPV.len() != key.pyDPV.len():
+				raise KeyError, 'Vector and Key different lengths';
+			tmp = PyDenseParVec(self.len(),0);
+			tmp = self.dense();
+			pcb.EWiseMult_inplacefirst(self.pySPV, key.pyDPV, True, 0);
+			tmp.pyDPV += value.pyDPV;
+			self.pySPV = tmp.sparse().pySPV;
+*/
+	if (__len__() != key.__len__())
+	{
+		cout << "Vector and Key different lengths" << endl;
+		// throw
+	}
+	EWiseMult_inplacefirst(*this, key, 1, 0);
+	*this += value;
+}
+
+void pySpParVec::__setitem__(const char* key, int64_t value)
+{
+	if (strcmp(key, "existent") == 0)
+	{
+		v.Apply(::set<int64_t>(value));
+	}
+	else
+	{
+		// throw
+	}
+}
+
+char* pySpParVec::__repr__()
+{
+	printall();
+	return " ";
 }
 
 

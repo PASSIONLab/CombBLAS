@@ -8,20 +8,20 @@ namespace op{
 \**************************/
 
 
-#define DECL_UNARY_STRUCT(name, operation) 							\
-	template<typename T>											\
-	struct name : public ConcreteUnaryFunction<T>					\
-	{																\
-		T operator()(const T& x) const								\
-		{															\
-			operation;												\
-		}															\
+#define DECL_UNARY_STRUCT(name, operation) 								\
+	template<typename T>												\
+	struct name : public ConcreteUnaryFunction<T>						\
+	{																	\
+		T operator()(const T& x) const									\
+		{																\
+			operation;													\
+		}																\
 	};
 	
-#define DECL_UNARY_FUNC(structname, name, operation)				\
-	DECL_UNARY_STRUCT(structname, operation)						\
-	UnaryFunction* name()											\
-	{																\
+#define DECL_UNARY_FUNC(structname, name, operation)					\
+	DECL_UNARY_STRUCT(structname, operation)							\
+	UnaryFunction* name()												\
+	{																	\
 		return new UnaryFunction(new structname<int64_t>());			\
 	}																
 
@@ -30,6 +30,7 @@ DECL_UNARY_FUNC(negate_s, negate, return -x;)
 DECL_UNARY_FUNC(bitwise_not_s, bitwise_not, return ~x;)
 DECL_UNARY_FUNC(logical_not_s, logical_not, return !x;)
 DECL_UNARY_FUNC(abs_s, abs, return (x < 0) ? -x : x;)
+DECL_UNARY_FUNC(totality_s, totality, return 1;)
 
 
 // Slightly un-standard ops:

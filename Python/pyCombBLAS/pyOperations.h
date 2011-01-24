@@ -51,6 +51,7 @@ UnaryFunction* abs();
 UnaryFunction* negate();
 UnaryFunction* bitwise_not();
 UnaryFunction* logical_not();
+UnaryFunction* totality();
 
 //INTERFACE_INCLUDE_END
 

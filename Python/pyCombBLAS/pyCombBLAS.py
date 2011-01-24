@@ -111,14 +111,17 @@ class pySpParVec(_object):
     __setattr__ = lambda self, name, value: _swig_setattr(self, pySpParVec, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, pySpParVec, name)
-    __repr__ = _swig_repr
     def __init__(self, *args): 
         this = _pyCombBLAS.new_pySpParVec(*args)
         try: self.this.append(this)
         except: self.this = this
     def dense(self): return _pyCombBLAS.pySpParVec_dense(self)
+    def getne(self): return _pyCombBLAS.pySpParVec_getne(self)
     def getnnz(self): return _pyCombBLAS.pySpParVec_getnnz(self)
+    def __len__(self): return _pyCombBLAS.pySpParVec___len__(self)
     def len(self): return _pyCombBLAS.pySpParVec_len(self)
+    def __add__(self, *args): return _pyCombBLAS.pySpParVec___add__(self, *args)
+    def __sub__(self, *args): return _pyCombBLAS.pySpParVec___sub__(self, *args)
     def __iadd__(self, *args): return _pyCombBLAS.pySpParVec___iadd__(self, *args)
     def __isub__(self, *args): return _pyCombBLAS.pySpParVec___isub__(self, *args)
     def copy(self): return _pyCombBLAS.pySpParVec_copy(self)
@@ -138,6 +141,11 @@ class pySpParVec(_object):
     if _newclass:zeros = staticmethod(_pyCombBLAS.pySpParVec_zeros)
     __swig_getmethods__["range"] = lambda x: _pyCombBLAS.pySpParVec_range
     if _newclass:range = staticmethod(_pyCombBLAS.pySpParVec_range)
+    def abs(self): return _pyCombBLAS.pySpParVec_abs(self)
+    def __delitem__(self, *args): return _pyCombBLAS.pySpParVec___delitem__(self, *args)
+    def __getitem__(self, *args): return _pyCombBLAS.pySpParVec___getitem__(self, *args)
+    def __setitem__(self, *args): return _pyCombBLAS.pySpParVec___setitem__(self, *args)
+    def __repr__(self): return _pyCombBLAS.pySpParVec___repr__(self)
     __swig_destroy__ = _pyCombBLAS.delete_pySpParVec
     __del__ = lambda self : None;
 pySpParVec_swigregister = _pyCombBLAS.pySpParVec_swigregister
@@ -171,17 +179,15 @@ class pyDenseParVec(_object):
         except: self.this = this
     def sparse(self, *args): return _pyCombBLAS.pyDenseParVec_sparse(self, *args)
     def len(self): return _pyCombBLAS.pyDenseParVec_len(self)
+    def __len__(self): return _pyCombBLAS.pyDenseParVec___len__(self)
     def add(self, *args): return _pyCombBLAS.pyDenseParVec_add(self, *args)
-    def __iadd__(self, *args): return _pyCombBLAS.pyDenseParVec___iadd__(self, *args)
-    def __isub__(self, *args): return _pyCombBLAS.pyDenseParVec___isub__(self, *args)
-    def __add__(self, *args): return _pyCombBLAS.pyDenseParVec___add__(self, *args)
-    def __sub__(self, *args): return _pyCombBLAS.pyDenseParVec___sub__(self, *args)
     def copy(self): return _pyCombBLAS.pyDenseParVec_copy(self)
     def SetElement(self, *args): return _pyCombBLAS.pyDenseParVec_SetElement(self, *args)
     def GetElement(self, *args): return _pyCombBLAS.pyDenseParVec_GetElement(self, *args)
     def SubsRef(self, *args): return _pyCombBLAS.pyDenseParVec_SubsRef(self, *args)
     def RandPerm(self): return _pyCombBLAS.pyDenseParVec_RandPerm(self)
     def printall(self): return _pyCombBLAS.pyDenseParVec_printall(self)
+    def getnee(self): return _pyCombBLAS.pyDenseParVec_getnee(self)
     def getnnz(self): return _pyCombBLAS.pyDenseParVec_getnnz(self)
     def getnz(self): return _pyCombBLAS.pyDenseParVec_getnz(self)
     def load(self, *args): return _pyCombBLAS.pyDenseParVec_load(self, *args)
@@ -192,6 +198,14 @@ class pyDenseParVec(_object):
     def ApplyMasked(self, *args): return _pyCombBLAS.pyDenseParVec_ApplyMasked(self, *args)
     __swig_getmethods__["range"] = lambda x: _pyCombBLAS.pyDenseParVec_range
     if _newclass:range = staticmethod(_pyCombBLAS.pyDenseParVec_range)
+    def abs(self): return _pyCombBLAS.pyDenseParVec_abs(self)
+    def __iadd__(self, *args): return _pyCombBLAS.pyDenseParVec___iadd__(self, *args)
+    def __add__(self, *args): return _pyCombBLAS.pyDenseParVec___add__(self, *args)
+    def __isub__(self, *args): return _pyCombBLAS.pyDenseParVec___isub__(self, *args)
+    def __sub__(self, *args): return _pyCombBLAS.pyDenseParVec___sub__(self, *args)
+    def __getitem__(self, *args): return _pyCombBLAS.pyDenseParVec___getitem__(self, *args)
+    def __setitem__(self, *args): return _pyCombBLAS.pyDenseParVec___setitem__(self, *args)
+    def sum(self): return _pyCombBLAS.pyDenseParVec_sum(self)
     __swig_destroy__ = _pyCombBLAS.delete_pyDenseParVec
     __del__ = lambda self : None;
 pyDenseParVec_swigregister = _pyCombBLAS.pyDenseParVec_swigregister
@@ -242,6 +256,10 @@ bitwise_not = _pyCombBLAS.bitwise_not
 def logical_not():
   return _pyCombBLAS.logical_not()
 logical_not = _pyCombBLAS.logical_not
+
+def totality():
+  return _pyCombBLAS.totality()
+totality = _pyCombBLAS.totality
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)

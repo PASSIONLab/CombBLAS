@@ -35,6 +35,11 @@ int64_t pyDenseParVec::len() const
 {
 	return v.TotalLength();
 }
+
+int64_t pyDenseParVec::__len__() const
+{
+	return v.TotalLength();
+}
 	
 void pyDenseParVec::load(const char* filename)
 {
@@ -134,7 +139,7 @@ pySpParVec* pyDenseParVec::Find(op::UnaryFunction* op)
 	ret->v = v.Find(*op);
 	return ret;
 }
-pySpParVec* pyDenseParVec::operator[](op::UnaryFunction* op)
+pySpParVec* pyDenseParVec::__getitem__(op::UnaryFunction* op)
 {
 	return Find(op);
 }
@@ -164,28 +169,10 @@ pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator[](const pyDenseParVec& ri)
+int64_t pyDenseParVec::getnee() const
 {
-	return SubsRef(ri);
+	return __len__();
 }
-
-/*
-void pyDenseParVec::invert() // "~";  almost equal to logical_not
-{
-	v.Apply(invert64);
-}
-
-
-void pyDenseParVec::abs()
-{
-	v.Apply(abs64);
-}
-
-void pyDenseParVec::negate()
-{
-	v.Apply(negate64);
-}
-*/
 
 int64_t pyDenseParVec::getnnz() const
 {
@@ -216,6 +203,74 @@ void pyDenseParVec::printall()
 {
 	v.DebugPrint();
 }
+
+pyDenseParVec* pyDenseParVec::abs()
+{
+	pyDenseParVec* ret = copy();
+	op::UnaryFunction* a = op::abs();
+	ret->Apply(a);
+	delete a;
+	return ret;
+}
+
+pyDenseParVec& pyDenseParVec::operator+=(int64_t value)
+{
+	v.Apply(bind2nd(plus<int64_t>(), value));
+}
+
+pyDenseParVec* pyDenseParVec::operator+(int64_t value)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) += value;
+	return ret;
+}
+
+pyDenseParVec& pyDenseParVec::operator-=(int64_t value)
+{
+	v.Apply(bind2nd(minus<int64_t>(), value));
+}
+
+pyDenseParVec* pyDenseParVec::operator-(int64_t value)
+{
+	pyDenseParVec* ret = this->copy();
+	*(ret) -= value;
+	return ret;
+}
+
+
+// EWiseApply
+// and
+
+int64_t pyDenseParVec::__getitem__(int64_t key)
+{
+	return GetElement(key);
+}
+
+pyDenseParVec* pyDenseParVec::__getitem__(const pyDenseParVec& key)
+{
+	return SubsRef(key);
+}
+
+void pyDenseParVec::__setitem__(int64_t key, int64_t value)
+{
+	SetElement(key, value);
+}
+
+void pyDenseParVec::__setitem__(const pySpParVec& key, const pySpParVec& value)
+{
+}
+
+void pyDenseParVec::__setitem__(const pySpParVec& key, int64_t value)
+{
+	v.Apply(set<int64_t>(value), key.v);
+}
+
+// int64_t pyDenseParVec::any() const // same as getnz()
+int64_t pyDenseParVec::sum()
+{
+	return v.Reduce(plus<int64_t>(), 0);
+}
+
 
 pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
 {
