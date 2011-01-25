@@ -437,6 +437,94 @@ void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec
 	}
 }	
 
+template <class IT, class NT>
+template <typename _BinaryOperation>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT> & other, _BinaryOperation __binary_op)
+{
+	if(*(commGrid) == *(other.commGrid))	
+	{
+		if(glen != other.glen)
+		{
+			cerr << "Vector dimensions don't match for EWiseApply\n";
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		else
+		{
+			typename vector< NT >::iterator thisIter = arr.begin();
+			typename vector< NT >::const_iterator otherIter = other.arr.begin();
+			while (thisIter < arr.end())
+			{
+				*thisIter = __binary_op(*thisIter, *otherIter);
+				thisIter++;
+				otherIter++;
+			}
+		}
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise apply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+}	
+
+template <class IT, class NT>
+template <typename _BinaryOperation>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _BinaryOperation __binary_op, bool applyNulls, NT nullValue)
+{
+	if(*(commGrid) == *(other.commGrid))	
+	{
+		if(glen != other.glen)
+		{
+			cerr << "Vector dimensions don't match for EWiseApply\n";
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		else
+		{
+			typename vector< NT >::const_iterator otherInd = other.ind.begin();
+			typename vector< NT >::const_iterator otherNum = other.num.begin();
+			
+			IT sizelocal = LocArrSize();
+			IT sizesofar = LengthUntil();
+			
+			if (applyNulls) // scan the entire dense vector and apply sparse elements as they appear
+			{
+				for(IT i=0; i<sizelocal; ++i)
+				{
+					if (i+sizesofar < *otherInd)
+					{
+						arr[i] = __binary_op(arr[i], nullValue);
+					}
+					else
+					{
+						arr[i] = __binary_op(arr[i], *otherNum);
+						otherInd++;
+						otherNum++;
+					}
+				}
+			}
+			else // scan the sparse vector only
+			{
+				while (otherInd < other.ind.end())
+				{
+					if (*otherInd - sizesofar < 0 || *otherInd - sizesofar > sizelocal)
+					{
+						cout << "Indexing error in elementwise apply" << endl; 
+						MPI::COMM_WORLD.Abort(DIMMISMATCH);
+					}
+					arr[*otherInd - sizesofar] = __binary_op(arr[*otherInd - sizesofar], *otherNum);
+					otherInd++;
+					otherNum++;
+				}
+			}
+		}
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise apply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+}	
+
 // Randomly permutes an already existing vector
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()

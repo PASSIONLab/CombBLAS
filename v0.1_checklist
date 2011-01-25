@@ -4,7 +4,7 @@
 - CombBLAS
 
 - pyCombBLAS / PyCombBLAS
-  - [Adam] fold PyCombBLAS into pyCombBLAS
+  - [Adam] implement pySpParMat with integer or FP datatype
   - [Adam] implement wrapper for sort - Done for SpVec
 
 - KDT
@@ -28,8 +28,8 @@
 
 
 ----Completed below
-  - [Adam] implement pySpParMat with integer or FP datatype
   - [Adam] implement generalized Reduce
+  - [Adam] fold PyCombBLAS into pyCombBLAS
   - [Aydin] implement find/sparse
   - [Aydin] incorporate psort
   - [Steve] replace VertexV and DiEdgeV with ParVec (and SpParVec?)

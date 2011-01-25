@@ -81,6 +81,22 @@ void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 	}
 }
 
+template <class IT, class NT>
+void FullyDistSpVec<IT,NT>::DelElement (IT indx)
+{
+	IT locind;
+	int owner = Owner(indx, locind);
+	if(commGrid->GetRank() == owner)
+	{
+		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);	
+		if(iter != ind.end() && !(locind < *iter))
+		{
+			num.erase(num.begin() + (iter-ind.begin()));
+			ind.erase(iter);
+		}
+	}
+}
+
 /**
  * The distribution and length are inherited from ri
  * Example: This is [{1,n1},{4,n4},{7,n7},{8,n8},{9,n9}] with P_00 owning {1,4} and P_11 rest
@@ -479,6 +495,16 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	delete [] displs;
 	World.Barrier();
 	return infile;
+}
+
+template <class IT, class NT>
+template <typename _Predicate>
+IT FullyDistSpVec<IT,NT>::Count(_Predicate pred) const
+{
+	IT local = count_if( num.begin(), num.end(), pred );
+	IT whole = 0;
+	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
+	return whole;	
 }
 
 
