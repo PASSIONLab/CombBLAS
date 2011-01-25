@@ -2,7 +2,6 @@ import numpy as np
 import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
-import PyCombBLAS as PCB
 import feedback
 
 class Graph:
@@ -13,7 +12,7 @@ class Graph:
 
 	def __init__(self, *args):
 		if len(args) == 0:
-                        self.spm = PCB.PySpParMat();
+                        self.spm = pcb.pySpParMat();
                 elif len(args) == 4:
                         #create a DiGraph from i/j/v ParVecs and nv nverts
                         [i,j,v,nv] = args;
@@ -48,20 +47,20 @@ class Graph:
                 return ret;
 
 	def degree(self):
-		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-                return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+		ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+                return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret));
 
         @staticmethod
         def load(fname):
                 ret = Graph();
-                ret.spm = PCB.PySpParMat.load(fname);
+                ret.spm = pcb.pySpParMat.load(fname);
                 return ret;
 
 	def nedge(self):
-		return self.spm.nedge();
+		return self.spm.getnnz();
 
 	def nvert(self):
-		return self.spm.nvert();
+		return self.spm.getnrow();
 
 	#FIX: use Apply();  change name to ones()?
 	@staticmethod
@@ -94,7 +93,7 @@ class ParVec:
 
 	def __init__(self, length):
 		if length>0:
-			self.dpv = PCB.PyDenseParVec(length,0);
+			self.dpv = pcb.pyDenseParVec(length,0);
 
 	def __abs__(self):
 		ret = ParVec(-1);
@@ -104,7 +103,8 @@ class ParVec:
 	def __add__(self, other):
 		ret = ParVec(-1);
 		if type(other) == int:
-			ret.dpv = self.dpv + other;
+			ret = self.copy();
+			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:	#elif  instance(other,ParVec):
 			ret.dpv = self.dpv + other.dpv;
 		return ret;
@@ -112,7 +112,8 @@ class ParVec:
 	def __and__(self, other):
 		ret = ParVec(-1);
 		if type(other) == int:
-			ret.dpv = self.dpv & other;
+			ret = self.copy();
+			ret.dpv.Apply(pcb.bind2nd(pcb.logical_and(), other));
 		else: 	#elif isinstance(other,ParVec):
 			ret.dpv = self.dpv & other.dpv;
 		return ret;
@@ -120,8 +121,9 @@ class ParVec:
 	def __div__(self, other):
 		if type(other) == int:
 			ret = self.copy();
-			ret.dpv.pyDPV.Apply(pcb.bind2nd(pcb.divides(), other));
+			ret.dpv.Apply(pcb.bind2nd(pcb.divides(), other));
 		else:
+			#FIX:  only works for positive integers
 			ret = ParVec(len(self));
 			selfcopy = self.copy();
 			while (selfcopy >= other).any():
@@ -130,35 +132,49 @@ class ParVec:
 				ret[tmp] = ret+1;
 		return ret;
 
+	def __eq__(self, other):
+		ret = self.copy();
+		if type(other) == int:
+			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), other));
+		else:	#elif isinstance(other,ParVec):
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), int(0)));
+		return ret;
+
 	def __getitem__(self, key):
 		if type(key) == int:
 			if key > self.dpv.len()-1:
 				raise IndexError;
 			ret = self.dpv[key];
 		else:	#elif isinstance(other,ParVec):
-			ret = self.dpv[key.dpv];
+			ret = ParVec(-1);
+			ret.dpv = self.dpv[key.dpv];
 		return ret;
 
 	def __ge__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = self.dpv >= other;
+			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv >= other.dpv;
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), int(0)));
 		return ret;
 
 	def __gt__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = self.dpv > other;
+			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv > other.dpv;
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), int(0)));
 		return ret;
 
 	def __iadd__(self, other):
 		if type(other) == int:
-			self.dpv += other;
+			self.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:	#elif isinstance(other,ParVec):
+			#ToDo:  need to test that self and other are distinct;
+			#    += doesn't work if same array on both sides
 			self.dpv += other.dpv;
 		return self;
 
@@ -166,88 +182,114 @@ class ParVec:
 		if not self.isBool():
 			raise NotImplementedError, "only implemented for Boolean"
 		ret = self.copy();
-		ret.dpv.pyDPV.Apply(pcb.logical_not());
+		ret.dpv.Apply(pcb.logical_not());
 		return ret;
 
 	def __isub__(self, other):
 		if type(other) == int:
-			self.dpv -= other;
+			self.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:	#elif isinstance(other,ParVec):
 			self.dpv -= other.dpv;
 		return self;
 
 	def __le__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = self.dpv <= other;
+			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv <= other.dpv;
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), int(0)));
 		return ret;
 
 	def __len__(self):
 		return self.dpv.len();
 
 	def __lt__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = self.dpv < other;
+			ret.dpv.Apply(pcb.bind2nd(pcb.less(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv < other.dpv;
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.less(), int(0)));
 		return ret;
 
 	def __mod__(self, other):
 		ret = self.copy();
 		if type(other) == int:
-			ret.dpv.pyDPV.Apply(pcb.bind2nd(pcb.modulus(), other));
+			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
+			#FIX:  only works for non-negative integers
 			while (ret >= other).any():
 				tmp = ret >= other;
 				ret[tmp] = ret - other;
 		return ret;
 
 	def __mul__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = (self.dpv * PCB.PyDenseParVec(len(self),other).sparse()).dense();
+			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = (self.dpv.sparse() * other.dpv).dense();
+			ret.dpv = other.dpv * self.dpv.sparse();
 		return ret;
 
 	def __ne__(self, other):
-		ret = ParVec(-1);
+		ret = self.copy();
 		if type(other) == int:
-			ret.dpv = self.dpv <> other;
+			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv = self.dpv <> other.dpv;
+			ret.dpv -= other.dpv;
+			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), int(0)));
 		return ret;
 
 	def __repr__(self):
-		return self.dpv.printall();
+		self.dpv.printall();
+		return ' ';
 
 	def __setitem__(self, key, value):
 		if type(key) == int:
 			self.dpv[key] = value;
-		else:
-			if type(value) == int:
-				self.dpv[key.dpv] = value;
+		elif isinstance(key,ParVec):
+			if not key.isBool():
+				raise NotImplementedError, "Only Boolean vector indexing implemented"
+			elif type(value) == int:
+                                self.dpv.ApplyMasked(pcb.set(0), key.dpv.sparse());
+                                tmp = key.dpv.sparse();
+                                tmp.Apply(pcb.set(value));
+                                self.dpv += tmp;
 			else:
-				if not key.isBool():
-					raise NotImplementedError, "Only Boolean vector indexing implemented"
-				self.dpv[key.dpv] = value.dpv; 
+				value[key.logical_not()] = 0;
+				self[key] = 0;
+				self += value; 
+		elif isinstance(key,SpParVec):
+			raise NotImplementedError, "indexing of ParVec by SpParVec not implemented"
+		else:
+			raise KeyError, "Unknown key type"
+			
 
 	def __sub__(self, other):
 		ret = ParVec(-1);
 		if type(other) == int:
-			ret.dpv = self.dpv - other;
+			ret = self.copy();
+			ret.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:	#elif isinstance(other,ParVec):
 			ret.dpv = self.dpv - other.dpv;
 		return ret;
 
+	def all(self):
+		ret = self.dpv.all();
+		return ret;
+
 	def any(self):
-		ret = ParVec(-1);
 		ret = self.dpv.any();
 		return ret;
 
+#	ToDo:  is this needed?
+#	@staticmethod
+#	def broadcast(sz,val):
+#		ret = ParVec(-1);
+#		ret.dpv = pcb.pyDenseParVec(sz,val);
+#		return ret;
+	
 	def copy(self):
 		ret = ParVec(-1);
 		ret.dpv = self.dpv.copy()
@@ -261,14 +303,14 @@ class ParVec:
 
 	def findInds(self):
 		ret = ParVec(-1);
-		ret.dpv = self.dpv.findInds();
+		ret.dpv = self.dpv.FindInds(pcb.bind2nd(pcb.not_equal_to(),0));
 		return ret;
 
 	def nn(self):
-		return len(self) - self.dpv.getnnn();
+		return len(self) - self.dpv.getnnz();
 
 	def nnn(self):
-		return self.dpv.getnnn();
+		return self.dpv.getnnz();
 
 	def isBool(self):
 		tmp1 = len((self<0).findInds())==0;
@@ -277,23 +319,18 @@ class ParVec:
 
 	#FIX:  "logicalNot"?
 	def logical_not(self):
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.logical_not();
+		ret = self.copy()
+		ret.dpv.Apply(pcb.logical_not());
 		return ret;
 
 	@staticmethod
 	def ones(sz):
 		ret = ParVec(-1);
-		ret.dpv = PCB.PyDenseParVec.ones(sz);
+		ret.dpv = pcb.pyDenseParVec(sz,1);
 		return ret;
 	
-	def printall(self):
-		return self.dpv.printall();
-
 	def randPerm(self):
-		self.dpv.randPerm();
-		#FIX:  have no return value, since changing in place?
-		return self;
+		self.dpv.RandPerm();
 
 	@staticmethod
 	def range(arg1, *args):
@@ -305,8 +342,10 @@ class ParVec:
 			stop = args[0];
 		else:
 			raise NotImplementedError, "No 3-argument range()"
+		if start > stop:
+			raise ValueError, "start > stop"
 		ret = ParVec(0);
-		ret.dpv = PCB.PyDenseParVec.range(start,stop);
+		ret.dpv = pcb.pyDenseParVec.range(stop-start,start);
 		return ret;
 	
 	def sum(self):
@@ -322,7 +361,7 @@ class ParVec:
 	@staticmethod
 	def zeros(sz):
 		ret = ParVec(-1);
-		ret.dpv = PCB.PyDenseParVec.zeros(sz);
+		ret.dpv = pcb.pyDenseParVec(sz,0);
 		return ret;
 	
 
