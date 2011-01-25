@@ -2,7 +2,6 @@ import numpy as np
 import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
-import PyCombBLAS as PCB
 import Graph as gr
 
 class DiGraph(gr.Graph):
@@ -12,7 +11,7 @@ class DiGraph(gr.Graph):
 	#FIX:  just building a Graph500 graph by default for now
 	def __init__(self,*args):
 		if len(args) == 0:
-			self.spm = PCB.PySpParMat();
+			self.spm = pcb.pySpParMat();
 		elif len(args) == 4:
 			#create a DiGraph from i/j/v ParVecs and nv nverts
 			[i,j,v,nv] = args;
@@ -39,39 +38,39 @@ class DiGraph(gr.Graph):
 		
 	def degree(self, dir=gr.Graph.InOut()):
 		if dir == gr.Graph.InOut():
-			tmp1 = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-			tmp2 = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-			return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(tmp1+tmp2));
+			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
+			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+			return ParVec.toParVec(tmp1+tmp2);
 		elif dir == gr.Graph.In():
-			ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-			return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
+			return ParVec.toParVec(ret);
 		elif dir == gr.Graph.Out():
-			ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-			return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
 
 	def genGraph500Edges(self, scale, degrees):
-		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm.pySPM, scale, degrees.dpv.pyDPV);
+		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale, degrees.dpv);
 	 	return elapsedTime;
 
 	def indegree(self):
-		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-		return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+		ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
+		return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret));
 	
 	@staticmethod
 	def load(fname):
 		ret = DiGraph();
-		ret.spm = PCB.PySpParMat.load(fname);
+		ret.spm = pcb.pySpParMat.load(fname);
 		return ret;
 
 	def outdegree(self):
-		ret = self.spm.pySPM.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-		return ParVec.toParVec(PCB.PyDenseParVec.toPyDenseParVec(ret));
+		ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+		return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret));
 
 	#in-place, so no return value
 	def reverseEdges(self):
-		self.spm.pySPM.Transpose();
+		self.spm.Transpose();
 
 	# ==================================================================
 	#  "complex ops" implemented below here
@@ -80,13 +79,13 @@ class DiGraph(gr.Graph):
 
 	# returns a Boolean vector of which vertices are neighbors
 	def neighbors(self, source, nhop=1):
-		dest = PCB.PyDenseParVec(self.nvert(),0)
-		fringe = PCB.PySpParVec(self.nvert());
+		dest = pcb.pyDenseParVec(self.nvert(),0)
+		fringe = pcb.pySpParVec(self.nvert());
 		dest[fringe] = 1;
 		fringe[source.dpv] = 1;
 		for i in range(nhop):
-			fringe = PCB.PySpParVec.range(fringe);
-			self.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
+			fringe.setNumToInd();
+			self.spm.SpMV_SelMax_inplace(fringe);
 			dest[fringe] = 1;
 		return ParVec.toParVec(dest);
 		
@@ -95,13 +94,13 @@ class DiGraph(gr.Graph):
 	#   - dest:  a Boolean vector of the new vertices
 	#ToDo:  nhop argument?
 	def pathsHop(self, source):
-		retDest = PCB.PyDenseParVec(self.nvert(),0)
-		retSource = PCB.PyDenseParVec(self.nvert(),0)
-		fringe = PCB.PySpParVec(self.nvert());
+		retDest = pcb.pyDenseParVec(self.nvert(),0)
+		retSource = pcb.pyDenseParVec(self.nvert(),0)
+		fringe = pcb.pySpParVec(self.nvert());
 		retDest[fringe] = 1;
 		fringe[source.dpv] = 1;
-		fringe = PCB.PySpParVec.range(fringe);
-		self.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
+		fringe.setNumToInd();
+		self.spm.SpMV_SelMax_inplace(fringe);
 		retDest[fringe] = 1;
 		retSource[fringe] = fringe;
 		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
@@ -143,17 +142,17 @@ def torusEdges(n):
 #	each vertex in the tree; unreached vertices have parent == -Inf.
 #
 def bfsTree(G, start):
-	parents = PCB.PyDenseParVec(G.nvert(), -1);
+	parents = pcb.pyDenseParVec(G.nvert(), -1);
 	# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
 	# distinguish vertex0 from empty element
-	fringe = PCB.PySpParVec(G.nvert());
+	fringe = pcb.pySpParVec(G.nvert());
 	parents[start] = start;
 	fringe[start] = start+1;
 	while fringe.getnnz() > 0:
-		#FIX:  following line needed?
-		fringe = PCB.PySpParVec.range(fringe);
-		G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);	
-		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents.pyDPV, True, -1);
+		#FIX:  setNumToInd -> SPV.range()
+		fringe.setNumToInd();
+		G.spm.SpMV_SelMax_inplace(fringe);	
+		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
 		parents[fringe] = 0
 		parents += fringe;
 	return ParVec.toParVec(parents);
@@ -169,23 +168,23 @@ def isBfsTree(G, root, parents):
 
 	# calculate level in the tree for each vertex; root is at level 0
 	# about the same calculation as bfsTree, but tracks levels too
-	parents2 = PCB.PyDenseParVec(nvertG, -1);
-	fringe = PCB.PySpParVec(nvertG);
+	parents2 = ParVec.zeros(nvertG) - 1;
+	fringe = pcb.pySpParVec(nvertG);
 	parents2[root] = root;
-	fringe[root] = root+1;
-	levels = PCB.PyDenseParVec(nvertG, -1);
+	fringe[root] = root+1;	#fix
+	levels = ParVec.zeros(nvertG) - 1;
 	levels[root] = 0;
 
 	level = 1;
-	#old while fringe.getnnz() > 0:
-	while fringe.getnnn() > 0:
-		fringe = fringe.range();	#note: sparse range()
+	#FIX getnnz() -> SPV.getnnn()
+	while fringe.getnnz() > 0:
+		fringe.setNumToInd();		#ToDo: sparse range()
 		#FIX:  create PCB graph-level op
-		G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
+		G.spm.SpMV_SelMax_inplace(fringe);
 		#FIX:  create PCB graph-level op
-		pcb.EWiseMult_inplacefirst(fringe.pySPV, parents2.pyDPV, True, -1);
-		parents2[fringe] = fringe;
-		levels[fringe] = level;
+		pcb.EWiseMult_inplacefirst(fringe, parents2.dpv, True, -1);
+		parents2.dpv[fringe] = fringe;
+		levels.dpv[fringe] = level;
 		level += 1;
 	
 	# spec test #1
@@ -195,24 +194,24 @@ def isBfsTree(G, root, parents):
 	# spec test #2
 	#    tree edges should be between verts whose levels differ by 1
 	
-	tmp2 = parents <> ParVec.range(nvertG);
-	treeEdges = (parents <> -1) & tmp2;  
+	tmp2 = parents != ParVec.range(nvertG);
+	treeEdges = (parents != -1) & tmp2;  
 	treeI = parents[treeEdges.findInds()]
 	treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
-	if (levels[treeI]-levels[treeJ] <> -1).any():
+	if (levels[treeI]-levels[treeJ] != -1).any():
 		ret = -2;
 
 	return (ret, ParVec.toParVec(levels))
 
 # returns a Boolean vector of which vertices are neighbors
 def neighbors(G, source, nhop=1):
-	dest = PCB.PyDenseParVec(G.nvert(),0)
-	fringe = PCB.PySpParVec(G.nvert());
+	dest = pcb.pyDenseParVec(G.nvert(),0)
+	fringe = pcb.pySpParVec(G.nvert());
 	dest[fringe] = 1;
 	fringe[source.dpv] = 1;
 	for i in range(nhop):
-		fringe = PCB.PySpParVec.range(fringe);
-		G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
+		fringe.setNumToInd();
+		G.spm.SpMV_SelMax_inplace(fringe);
 		dest[fringe] = 1;
 	return ParVec.toParVec(dest);
 	
@@ -221,13 +220,13 @@ def neighbors(G, source, nhop=1):
 #   - dest:  a Boolean vector of the new vertices
 #ToDo:  nhop argument?
 def pathHop(G, source):
-	retDest = PCB.PyDenseParVec(G.nvert(),0)
-	retSource = PCB.PyDenseParVec(G.nvert(),0)
-	fringe = PCB.PySpParVec(G.nvert());
+	retDest = pcb.pyDenseParVec(G.nvert(),0)
+	retSource = pcb.pyDenseParVec(G.nvert(),0)
+	fringe = pcb.pySpParVec(G.nvert());
 	retDest[fringe] = 1;
 	fringe[source.dpv] = 1;
-	fringe = PCB.PySpParVec.range(fringe);
-	G.spm.pySPM.SpMV_SelMax_inplace(fringe.pySPV);
+	fringe.setNumToInd();
+	G.spm.SpMV_SelMax_inplace(fringe);
 	retDest[fringe] = 1;
 	retSource[fringe] = fringe;
 	return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
@@ -260,7 +259,6 @@ def _bc( G, K4approx, batchSize ):
 
 
     # transliteration of Lincoln Labs 2009Feb09 M-language version, 
-    # by Steve Reinhardt 2010Sep16
     # 
 
     A = kdtsp.spbool(G);			# not needed; G already bool
@@ -306,7 +304,7 @@ def _bc( G, K4approx, batchSize ):
             fringe = tmp.multiply(kdtsp.spnot(nsp));
 
         [nspi, nspj, nspv] = kdtsp.find(nsp);
-        nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
+        #nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
 
         bcu = sp.csr_matrix(sc.ones((curSize, N)));		#FIX:  too big in real cases?
 

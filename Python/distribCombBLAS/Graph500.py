@@ -6,7 +6,6 @@ sys.path.append('/home/spr/kdt/trunk/Python/pyCombBLAS')
 sys.path.append('/home/spr/kdt/trunk/Python/distribCombBLAS')
 
 import pyCombBLAS as pcb
-import PyCombBLAS as PCB
 import DiGraph as kdtdg
 #from DiGraph import DiGraph
 
@@ -52,7 +51,7 @@ def k2Validate(G, start, parents):
 
 
 
-scale = 4;
+scale = 10;
 
 G = kdtdg.DiGraph();
 degrees = kdtdg.ParVec.zeros(4);
