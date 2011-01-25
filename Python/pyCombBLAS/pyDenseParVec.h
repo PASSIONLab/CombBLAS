@@ -81,6 +81,7 @@ public:
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
+	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, int64_t nullValue = 0);
 
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);

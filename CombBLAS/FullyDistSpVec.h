@@ -75,6 +75,7 @@ public:
 	void iota(IT globalsize, NT first);
 	FullyDistSpVec<IT,NT> operator() (const FullyDistSpVec<IT,IT> & ri) const;	//!< SpRef (expects NT of ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
+	void DelElement (IT indx); // element-wise deletion
 	NT operator[](IT indx) const;
 
 	// sort the vector itself
@@ -104,6 +105,9 @@ public:
 		IT offset = LengthUntil();
             	transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));
 	}
+
+	template <typename _Predicate>
+	IT Count(_Predicate pred) const;	//!< Return the number of elements for which pred is true
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
