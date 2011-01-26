@@ -12,9 +12,9 @@ pySpParMat::pySpParMat(pySpParMat* copyFrom): A(copyFrom->A)
 {
 }
 
-//pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals): A(m, n, rows->v, cols->v, vals->v)
-//{
-//}
+pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals): A(m, n, rows->v, cols->v, vals->v)
+{
+}
 
 
 int64_t pySpParMat::getnnz()
@@ -82,8 +82,8 @@ void pySpParMat::GenGraph500Edges(int scale)
 	PermEdges<int64_t>(DEL);
 	RenameVertices<int64_t>(DEL);
 
-	A = PSpMat_Bool (DEL);	 // conversion from distributed edge list
-	PSpMat_Bool AT = A;
+	A = MatType (DEL);	 // conversion from distributed edge list
+	MatType AT = A;
 	AT.Transpose();
 	
 	int64_t nnz = A.getnnz();
@@ -121,8 +121,8 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	MPI::COMM_WORLD.Barrier();
 	double t1 = MPI_Wtime();
 
-	A = PSpMat_Bool(DEL);	// remove self loops and duplicates (since this is of type boolean)
-	PSpMat_Bool AT = A;
+	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
+	MatType AT = A;
 	AT.Transpose();
 	A += AT;
 	
@@ -154,6 +154,11 @@ void pySpParMat::Prune(op::UnaryFunction* op)
 	
 pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identity)
 {
+	return Reduce(dim, f, NULL, identity);
+}
+
+pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity)
+{
 	int64_t len = 1;
 	if (dim == ::Row)
 		len = getnrow();
@@ -163,13 +168,16 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identi
 	pyDenseParVec* ret = new pyDenseParVec(len, identity, identity);
 
 	// make a temporary int matrix
-	SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
+	//SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
 	
-	f->getMPIOp();
-	AInt->Reduce(ret->v, (Dim)dim, *f, identity);
-	f->releaseMPIOp();
+	bf->getMPIOp();
+	if (uf == NULL)
+		A.Reduce(ret->v, (Dim)dim, *bf, identity);
+	else
+		A.Reduce(ret->v, (Dim)dim, *bf, identity, *uf);
+	bf->releaseMPIOp();
 	
-	delete AInt;	// delete temporary
+	//delete AInt;	// delete temporary
 	
 	return ret;
 }
@@ -184,10 +192,10 @@ void pySpParMat::Transpose()
 	A.EWiseMult(rhs->A, exclude);
 }*/
 
-/*void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
+void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
 {
 	A.Find(outrows->v, outcols->v, outvals->v);
-}*/
+}
 
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {

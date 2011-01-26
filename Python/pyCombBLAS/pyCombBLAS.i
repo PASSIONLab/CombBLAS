@@ -46,7 +46,7 @@ init_pyCombBLAS_MPI();
 class pySpParMat {
 public:
 	pySpParMat();
-	//pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
+	pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
 
 public:
 	int64_t getnnz();
@@ -65,11 +65,12 @@ public:
 	void Prune(op::UnaryFunction* op);
 	
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity = 0);
 	
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);
 
-	//void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
+	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
 	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
 	pySpParVec* SpMV_SelMax(const pySpParVec& v);
