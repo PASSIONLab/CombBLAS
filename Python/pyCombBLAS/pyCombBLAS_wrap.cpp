@@ -7128,7 +7128,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___eq__(PyObject *SWIGUNUSEDPARM(self), 
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  bool result;
+  pyDenseParVec *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec___eq__",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
@@ -7146,7 +7146,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___eq__(PyObject *SWIGUNUSEDPARM(self), 
   arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
   {
     try {
-      result = (bool)(arg1)->operator ==((pyDenseParVec const &)*arg2);
+      result = (pyDenseParVec *)(arg1)->operator ==((pyDenseParVec const &)*arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -7155,7 +7155,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___eq__(PyObject *SWIGUNUSEDPARM(self), 
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -7172,7 +7172,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___ne__(PyObject *SWIGUNUSEDPARM(self), 
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  bool result;
+  pyDenseParVec *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec___ne__",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
@@ -7190,7 +7190,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___ne__(PyObject *SWIGUNUSEDPARM(self), 
   arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
   {
     try {
-      result = (bool)(arg1)->operator !=((pyDenseParVec const &)*arg2);
+      result = (pyDenseParVec *)(arg1)->operator !=((pyDenseParVec const &)*arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -7199,7 +7199,7 @@ SWIGINTERN PyObject *_wrap_pyDenseParVec___ne__(PyObject *SWIGUNUSEDPARM(self), 
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyDenseParVec, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
