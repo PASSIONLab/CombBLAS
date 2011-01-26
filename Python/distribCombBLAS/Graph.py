@@ -137,8 +137,7 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), other));
 		else:	#elif isinstance(other,ParVec):
-			ret.dpv -= other.dpv;
-			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), int(0)));
+			ret.dpv = self.dpv == other.dpv;
 		return ret;
 
 	def __getitem__(self, key):
@@ -228,7 +227,7 @@ class ParVec:
 		ret = self.copy();
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other));
-		else:	#elif isinstance(other,ParVec):
+		else:
 			ret.dpv = other.dpv * self.dpv.sparse();
 		return ret;
 
@@ -236,9 +235,8 @@ class ParVec:
 		ret = self.copy();
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
-		else:	#elif isinstance(other,ParVec):
-			ret.dpv -= other.dpv;
-			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), int(0)));
+		else:	
+			ret.dpv = self.dpv != other.dpv;
 		return ret;
 
 	def __repr__(self):
@@ -365,13 +363,237 @@ class ParVec:
 		return ret;
 	
 
-#class SpParVec:
-#	#print "in SpVertexV"
-#
-#	def __init__(self, length):
-#		self.spv = pcb.pySpParVec(length);
+class SpParVec:
+	#FIX:  all comparison ops (__ne__, __gt__, etc.) only compare against
+	#   the non-null elements
 
-#	Returns True if master process/thread, False otherwise
+	def __init__(self, length):
+		if length > 0:
+			self.spv = pcb.pySpParVec(length);
+
+	def __abs__(self):
+		ret = self.copy();
+		ret.spv.Apply(pcb.abs())
+		return ret;
+
+	def __add__(self, other):
+		ret = self.copy();
+		ret.spv = self.spv + other.spv;
+		return ret;
+
+	def __and__(self, other):
+		raise NotImplementedError
+		ret = self.copy();
+		ret.spv = self.spv & other.spv;
+		return ret;
+
+	def __delitem__(self, key):
+		if type(key) == int:
+			del self.spv[key];
+		else:
+			del self.spv[key.dpv];	
+		return;
+
+	def __div__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.divides(), other));
+		else:
+			raise NotImplementedError, 'SpParVec:__div__: no SpParVec / SpParVec division'
+			ret = self.copy();
+			#ret.spv.EWiseApply(.....pcb.divides())
+		return ret;
+
+	def __eq__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),int(0)));
+		return ret;
+
+	def __getitem__(self, key):
+		if type(key) == int:
+			if key > len(self.spv)-1:
+				raise IndexError;
+			ret = self.spv[key];
+		elif isinstance(key,SpParVec):
+			ret = SpParVec(-1);
+			ret.spv = self.spv[key.spv];
+		else:
+			raise KeyError, 'SpParVec indexing only by SpParVec or scalar'
+		return ret;
+
+	def __ge__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(),int(0)));
+		return ret;
+
+	def __gt__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.greater(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.greater(),int(0)));
+		return ret;
+
+	def __iadd__(self, other):
+		if type (other) == int:
+			self.spv.Apply(pcb.bind2nd(pcb.plus(), other));
+		else:
+			self.spv += other.spv;
+		return self;
+		
+	def __isub__(self, other):
+		if type (other) == int:
+			self.spv.Apply(pcb.bind2nd(pcb.minus(), other));
+		else:
+			self.spv -= other.spv;
+		return self;
+		
+	def __len__(self):
+		return len(self.spv);
+
+	def __le__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(),int(0)));
+		return ret;
+
+	def __lt__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.less(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.less(),int(0)));
+		return ret;
+
+	def __mod__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.modulus(), other));
+		else:
+			raise NotImplementedError, 'SpParVec:__mod__: no SpParVec / SpParVec modulus'
+			ret = self.copy();
+			#ret.spv.EWiseApply(.....pcb.modulus())
+		return ret;
+
+	def __mul__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.multiplies(), other));
+		else:
+			if not isinstance(other, ParVec):
+				raise NotImplementedError, 'SpParVec:__mul__: only SpParVec * ParVec'
+			if len(self) != len(other):
+				raise ValueError, 'SpParVec:__mul__: different length vectors'
+			ret = self.copy();
+			pcb.EWiseMult_inplacefirst(ret.spv, other.dpv, False, 0);
+		return ret;
+
+	def __ne__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
+		else:
+			ret = self.copy();
+			ret.spv = self.spv - other.spv;
+			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(),int(0)));
+		return ret;
+
+	def __repr__(self):
+		self.spv.printall();
+		return ' ';
+
+	def __setitem__(self, key, value):
+		if type(key) == int:
+			if key > len(self.spv)-1:
+				raise IndexError;
+			self.spv[key] = value;
+		elif isinstance(key,ParVec) and isinstance(value,ParVec):
+			if len(self.spv) != len(key.spv) or len(self.spv) != len(value.spv):
+				raise IndexError, 'Key must same length as SpParVec'
+			self.spv[key.dpv] = value.dpv;
+		elif type(key) == str and key == 'nonnull':
+			self.spv.Apply(pcb.set(value));
+		else:
+			raise KeyError, 'Unknown key type'
+		return;
+		
+
+	def __sub__(self, other):
+		ret = self.copy();
+		ret.spv = self.spv - other.spv;
+		return ret;
+
+	def all(self):
+		return self.spv.all();
+
+	def any(self):
+		return self.spv.any();
+
+	def copy(self):
+		ret = SpParVec(-1);
+		ret.spv = self.spv.copy();
+		return ret;
+
+	def dense(self):	
+		ret = ParVec(-1);
+		ret.dpv = self.spv.dense();
+		return ret;
+
+	#def find(self):
+
+	#def findInds(self):
+
+	def nn(self):
+		return len(self) - self.spv.getnnz();
+
+	def nnn(self):
+		return self.spv.getnnz();
+
+	@staticmethod
+	def ones(sz):
+		ret = SpParVec(-1);
+		ret.spv = pcb.pySpParVec.range(sz,0);
+		ret.spv.Apply(pcb.set(1));
+		return ret;
+
+	@staticmethod
+	def range(arg1, *args):
+		if len(args) == 0:
+			start = 0;
+			stop = arg1;
+		elif len(args) == 1:	
+			start = arg1;
+			stop = args[0];
+		else:
+			raise NotImplementedError, "No 3-argument range()"
+		if start > stop:
+			raise ValueError, "start > stop"
+		ret = SpParVec(-1);
+		ret.spv = pcb.pySpParVec.range(stop-start,start);
+		return ret;
+	
+	def sum(self):
+		ret = self.spv.Reduce(pcb.plus());
+		return ret;
+
 def master():
 	"""
 	Return Boolean value denoting whether calling process is the 
