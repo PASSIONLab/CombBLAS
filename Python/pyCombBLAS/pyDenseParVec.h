@@ -49,8 +49,8 @@ public:
 	pyDenseParVec* operator*(const pyDenseParVec& rhs);
 	pyDenseParVec* operator*(const pySpParVec& rhs);
 	
-	bool operator==(const pyDenseParVec& other);
-	bool operator!=(const pyDenseParVec& other);
+	pyDenseParVec* operator==(const pyDenseParVec& other);
+	pyDenseParVec* operator!=(const pyDenseParVec& other);
 
 	pyDenseParVec* copy();
 	

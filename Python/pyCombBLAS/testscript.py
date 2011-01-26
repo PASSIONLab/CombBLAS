@@ -191,6 +191,7 @@ else:
 	if (pcb.root()):
 		print "Generating RMAT with 2**%d nodes" %(scale)
 	k1time = A.GenGraph500Edges(scale, degrees)
+	A.Apply(pcb.set(1))
 	if (pcb.root()):
 		print "Generation took %lf s"%(k1time)
 	

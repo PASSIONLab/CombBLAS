@@ -144,14 +144,24 @@ pyDenseParVec* pyDenseParVec::operator*(const pySpParVec & rhs)
 }
 
 
-bool pyDenseParVec::operator==(const pyDenseParVec & rhs)
+pyDenseParVec* pyDenseParVec::operator==(const pyDenseParVec & rhs)
 {
-	return v.operator==(rhs.v);
+	//return v.operator==(rhs.v);
+	pyDenseParVec* ret = copy();
+	op::BinaryFunction* eq = op::equal_to();
+	ret->EWiseApply(rhs, eq);
+	delete eq;
+	return ret;
 }
 
-bool pyDenseParVec::operator!=(const pyDenseParVec & rhs)
+pyDenseParVec* pyDenseParVec::operator!=(const pyDenseParVec & rhs)
 {
-	return !(v.operator==(rhs.v));
+	//return !(v.operator==(rhs.v));
+	pyDenseParVec* ret = copy();
+	op::BinaryFunction* neq = op::not_equal_to();
+	ret->EWiseApply(rhs, neq);
+	delete neq;
+	return ret;
 }
 
 pyDenseParVec* pyDenseParVec::copy()
