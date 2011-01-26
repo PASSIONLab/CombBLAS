@@ -77,9 +77,10 @@ for start in starts:
 	# K2edges += len((parents[edges.verts()[0]] <> -2).nonzero());
 	K2edges += 1000;
 
-print "\n	***Timings invalid;  #traversed edges not calculated properly\n"
-print 'Graph500 benchmark run for scale = %2i' % scale
-print 'Kernel 1 time = %8.4f seconds' % K1elapsed
-print 'Kernel 2 time = %8.4f seconds' % K2elapsed
-print '                    %8.4f seconds for each of %i starts' % (K2elapsed/nstarts, nstarts)
-print 'Kernel 2 TEPS = %7.4e' % (K2edges/K2elapsed)
+if kdtdg.master():
+	print "\n	***Timings invalid;  #traversed edges not calculated properly\n"
+	print 'Graph500 benchmark run for scale = %2i' % scale
+	print 'Kernel 1 time = %8.4f seconds' % K1elapsed
+	print 'Kernel 2 time = %8.4f seconds' % K2elapsed
+	print '                    %8.4f seconds for each of %i starts' % (K2elapsed/nstarts, nstarts)
+	print 'Kernel 2 TEPS = %7.4e' % (K2edges/K2elapsed)
