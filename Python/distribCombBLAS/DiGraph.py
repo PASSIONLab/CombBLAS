@@ -105,6 +105,9 @@ class DiGraph(gr.Graph):
 class ParVec(gr.ParVec):
 	pass;
 
+class SpParVec(gr.SpParVec):
+	pass;
+
 		
 
 master = gr.master;
