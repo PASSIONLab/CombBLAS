@@ -371,5 +371,13 @@ class ParVec:
 #	def __init__(self, length):
 #		self.spv = pcb.pySpParVec(length);
 
+#	Returns True if master process/thread, False otherwise
+def master():
+	"""
+	Return Boolean value denoting whether calling process is the 
+	master process or a slave process in a parallel program.
+	"""
+	return pcb.root();
+
 sendFeedback = feedback.feedback.sendFeedback;
 

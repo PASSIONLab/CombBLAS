@@ -54,19 +54,12 @@ class DiGraph(gr.Graph):
 		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale, degrees.dpv);
 	 	return elapsedTime;
 
-	def indegree(self):
-		ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-		return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret));
-	
 	@staticmethod
 	def load(fname):
 		ret = DiGraph();
-		ret.spm = pcb.pySpParMat.load(fname);
+		ret.spm = pcb.pySpParMat();
+		ret.spm.load(fname);
 		return ret;
-
-	def outdegree(self):
-		ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
-		return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret));
 
 	#in-place, so no return value
 	def reverseEdges(self):
@@ -114,6 +107,7 @@ class ParVec(gr.ParVec):
 
 		
 
+master = gr.master;
 sendFeedback = gr.sendFeedback;
 
 
