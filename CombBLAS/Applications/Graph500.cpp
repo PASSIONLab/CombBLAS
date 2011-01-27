@@ -13,8 +13,8 @@
         #include <tr1/memory>
 #endif
 
-double alltoalltime;
-double allgathertime;
+double cblas_alltoalltime;
+double cblas_allgathertime;
 
 #include "../SpTuples.h"
 #include "../SpDCCols.h"
@@ -56,8 +56,8 @@ int main(int argc, char* argv[])
 	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
-	allgathertime = 0;
-	alltoalltime = 0;
+	cblas_allgathertime = 0;
+	cblas_alltoalltime = 0;
 	
 	if(argc < 3)
 	{
@@ -314,8 +314,8 @@ int main(int argc, char* argv[])
 		ostringstream os;
 
 		os << "Per iteration communication times: " << endl;
-		os << "AllGatherv: " << allgathertime / ITERS << endl;
-		os << "AlltoAllv: " << alltoalltime / ITERS << endl;
+		os << "AllGatherv: " << cblas_allgathertime / ITERS << endl;
+		os << "AlltoAllv: " << cblas_alltoalltime / ITERS << endl;
 
 		sort(EDGES, EDGES+ITERS);
 		os << "--------------------------" << endl;
