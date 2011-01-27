@@ -1020,7 +1020,6 @@ Python/distribCombBLAS/DiGraph.py -text
 Python/distribCombBLAS/Graph.py -text
 Python/distribCombBLAS/Graph500.py -text
 Python/distribCombBLAS/feedback.py -text
-Python/pyCombBLAS/Makefile -text
 Python/pyCombBLAS/Makefile-nersc -text
 Python/pyCombBLAS/Makefile-neumann -text
 Python/pyCombBLAS/makei.py -text
