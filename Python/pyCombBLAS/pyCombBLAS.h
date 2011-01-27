@@ -12,6 +12,9 @@
 //#include "../../CombBLAS/Semirings.h"
 
 
+double alltoalltime;
+double allgathertime;
+
 #ifdef NOTR1
         #include <boost/tr1/memory.hpp>
 #else

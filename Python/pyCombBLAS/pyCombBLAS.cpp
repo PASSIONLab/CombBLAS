@@ -31,6 +31,9 @@ void init_pyCombBLAS_MPI()
 {
 	//cout << "calling MPI::Init" << endl;
 	MPI::Init();
+	alltoalltime = 0;
+	allgathertime = 0;	
+
 	/*
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
