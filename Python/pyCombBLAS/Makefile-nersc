@@ -8,13 +8,10 @@ COMBBLAS = ../../CombBLAS
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
-COMPILER = mpicxx
+COMPILER = $(CC)
 FLAGS = $(DEB) -fPIC 
 
 all: pyCombBLAS.py
-
-pyCombBLAS.i: pyCombBLAS.i.templ pyDenseParVec.h pySpParVec.h pySpParMat.h pyOperations.h
-	python makei.py pyCombBLAS.i.templ pyCombBLAS.i
 
 pyCombBLAS_wrap.cpp: pyCombBLAS.i
 	swig -python -c++ -shadow -o pyCombBLAS_wrap.cpp pyCombBLAS.i
@@ -44,8 +41,8 @@ libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-_pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyOperations.o pyOperations.h pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyOperations.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+_pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 # the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
 pyCombBLAS.py:	_pyCombBLAS.so
@@ -59,7 +56,6 @@ clean:
 	rm -f *.pyc
 	rm -f pyCombBLAS_wrap.cpp
 	rm -f pyCombBLAS.py
-	rm -f pyCombBLAS.i
 
 cleanout:
 	rm out.*
