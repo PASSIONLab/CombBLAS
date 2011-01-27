@@ -13,11 +13,12 @@ class DiGraph(gr.Graph):
 		if len(args) == 0:
 			self.spm = pcb.pySpParMat();
 		elif len(args) == 4:
-			#create a DiGraph from i/j/v ParVecs and nv nverts
 			[i,j,v,nv] = args;
-			pass;
+			if type(v) == int:
+				v = ParVec.broadcast(len(i),v);
+			self.spm = pcb.pySpParMat(nv,nv,i.dpv,j.dpv,v.dpv);
 		else:
-			raise NotImplementedError, "only zero and three arguments supported"
+			raise NotImplementedError, "only zero and four argument cases supported"
 
 	def __getitem__(self, key):
 		if type(key)==tuple:
@@ -38,14 +39,14 @@ class DiGraph(gr.Graph):
 		
 	def degree(self, dir=gr.Graph.InOut()):
 		if dir == gr.Graph.InOut():
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
+			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(tmp1+tmp2);
 		elif dir == gr.Graph.In():
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus());
+			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(ret);
 		elif dir == gr.Graph.Out():
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus());
+			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -61,9 +62,52 @@ class DiGraph(gr.Graph):
 		ret.spm.load(fname);
 		return ret;
 
+	def max(self, dir=gr.Graph.InOut()):
+		#ToDo:  is default to InOut best?
+		if dir == gr.Graph.InOut():
+			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max());
+			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max());
+			return ParVec.toParVec(tmp1+tmp2);
+		elif dir == gr.Graph.In():
+			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max());
+			return ParVec.toParVec(ret);
+		elif dir == gr.Graph.Out():
+			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max());
+			return ParVec.toParVec(ret);
+		else:
+			raise KeyError, 'Invalid edge direction'
+
+	def min(self, dir=gr.Graph.InOut()):
+		#ToDo:  is default to InOut best?
+		if dir == gr.Graph.InOut():
+			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min());
+			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min());
+			return ParVec.toParVec(tmp1+tmp2);
+		elif dir == gr.Graph.In():
+			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min());
+			return ParVec.toParVec(ret);
+		elif dir == gr.Graph.Out():
+			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min());
+			return ParVec.toParVec(ret);
+		else:
+			raise KeyError, 'Invalid edge direction'
+
+	#in-place, so no return value
+	def ones(self):
+		self.spm.Apply(pcb.set(1));
+		return;
+
 	#in-place, so no return value
 	def reverseEdges(self):
 		self.spm.Transpose();
+
+	def toParVec(self):
+		nv = self.nvert()
+		reti = ParVec(nv);
+		retj = ParVec(nv);
+		retv = ParVec(nv);
+		self.spm.Find(reti.dpv, retj.dpv, retv.dpv);
+		return (reti, retj, retv);
 
 	# ==================================================================
 	#  "complex ops" implemented below here
@@ -258,8 +302,8 @@ def _bc( G, K4approx, batchSize ):
     # transliteration of Lincoln Labs 2009Feb09 M-language version, 
     # 
 
-    A = kdtsp.spbool(G);			# not needed; G already bool
-    Aint = kdtsp.spones(G);			# needed?  non-bool not spted
+    A = G.ones();			
+    Aint = kdtsp.spones(G);	# not needed;  Gs only int for now
     N = A.nvert()
 
     bc = ParVec(N);

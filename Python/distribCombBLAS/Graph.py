@@ -281,12 +281,11 @@ class ParVec:
 		ret = self.dpv.any();
 		return ret;
 
-#	ToDo:  is this needed?
-#	@staticmethod
-#	def broadcast(sz,val):
-#		ret = ParVec(-1);
-#		ret.dpv = pcb.pyDenseParVec(sz,val);
-#		return ret;
+	@staticmethod
+	def broadcast(sz,val):
+		ret = ParVec(-1);
+		ret.dpv = pcb.pyDenseParVec(sz,val);
+		return ret;
 	
 	def copy(self):
 		ret = ParVec(-1);
@@ -304,22 +303,29 @@ class ParVec:
 		ret.dpv = self.dpv.FindInds(pcb.bind2nd(pcb.not_equal_to(),0));
 		return ret;
 
-	def nn(self):
-		return len(self) - self.dpv.getnnz();
-
-	def nnn(self):
-		return self.dpv.getnnz();
-
 	def isBool(self):
-		tmp1 = len((self<0).findInds())==0;
-		tmp2 = len((self>1).findInds())==0;
-		return tmp1 & tmp2;
+		ret = self.min() == 0 and self.max() == 1;
+		return ret;
 
 	#FIX:  "logicalNot"?
 	def logical_not(self):
 		ret = self.copy()
 		ret.dpv.Apply(pcb.logical_not());
 		return ret;
+
+	def max(self):
+		#ToDo:  avoid conversion to sparse when PV.max() avail
+		return self.dpv.sparse().Reduce(pcb.max())
+
+	def min(self):
+		#ToDo:  avoid conversion to sparse when PV.max() avail
+		return self.dpv.sparse().Reduce(pcb.min())
+
+	def nn(self):
+		return len(self) - self.dpv.getnnz();
+
+	def nnn(self):
+		return self.dpv.getnnz();
 
 	@staticmethod
 	def ones(sz):
@@ -347,7 +353,8 @@ class ParVec:
 		return ret;
 	
 	def sum(self):
-		return self.dpv.sum();
+		#ToDo: avoid converseion to sparse when PV.reduce() avail
+		return self.dpv.sparse().Reduce(pcb.plus());
 
 	#TODO:  check for class being PyDenseParVec?
 	@staticmethod
