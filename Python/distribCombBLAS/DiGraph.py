@@ -35,18 +35,21 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'Too many indices'
 		else:
 			key1 = key;  key2 = key;
+		if type(key1) == int or type(key2) == int:
+			raise NotImplementedError, 'integer indexing'
 		if type(key1)==slice and key1==slice(None,None,None):
 			#ToDo: will need to handle nvert() 2-return case
 			key1mn = 0; key1mx = self.nvert()-1;
 		else:
 			key1mn = key1.min(); key1mx = key1.max()
-			if not (key1==ParVec.range(key1mn,key1mx+1)).all():
+			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
 				raise KeyError, 'Vector first index not a range'
 		if type(key2)==slice and key2==slice(None,None,None):
 			#ToDo: will need to handle nvert() 2-return case
 			key2mn = 0; key2mx = self.nvert()-1;
 		else:
-			if not (key2==ParVec.range(key2mn,key2mx+1)).all():
+			key2mn = key2.min(); key2mx = key2.max()
+			if len(key2)!=(key2mx-key2mn+1) or not (key2==ParVec.range(key2mn,key2mx+1)).all():
 				raise KeyError, 'Vector second index not a range'
 			key2mn = key2.min(); key2mx = key2.max()
 		[i, j, v] = self.toParVec();
@@ -139,11 +142,12 @@ class DiGraph(gr.Graph):
 		self.spm.Transpose();
 
 	def toParVec(self):
-		nv = self.nvert()
-		reti = ParVec(nv);
-		retj = ParVec(nv);
-		retv = ParVec(nv);
+		ne = self.nedge()
+		reti = ParVec(ne);
+		retj = ParVec(ne);
+		retv = ParVec(ne);
 		self.spm.Find(reti.dpv, retj.dpv, retv.dpv);
+		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv);
 
 	# ==================================================================

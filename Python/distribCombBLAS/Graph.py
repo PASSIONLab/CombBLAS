@@ -103,12 +103,15 @@ class ParVec:
 		return ret;
 
 	def __add__(self, other):
-		if isinstance(other,SpParVec):
-			ret = other + self;	# SPV = SPV + DPV
-		elif type(other) == int:
+		if type(other) == int:
 			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
+			return ret;
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
+		if isinstance(other,SpParVec):
+			ret = other + self;	# SPV = SPV + DPV
 		else:	#elif  instance(other,ParVec):
 			ret = ParVec(-1);
 			ret.dpv = self.dpv + other.dpv;
@@ -120,6 +123,8 @@ class ParVec:
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_and(), other));
 		else: 	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv = self.dpv & other.dpv;
 		return ret;
 
@@ -128,6 +133,8 @@ class ParVec:
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.divides(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			#FIX:  only works for positive integers
 			ret = ParVec(len(self));
 			selfcopy = self.copy();
@@ -142,6 +149,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), other));
 		else:	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv = self.dpv == other.dpv;
 		return ret;
 
@@ -162,6 +171,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
 		else:	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv -= other.dpv;
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), int(0)));
 		return ret;
@@ -171,6 +182,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), other));
 		else:	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv -= other.dpv;
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), int(0)));
 		return ret;
@@ -179,6 +192,8 @@ class ParVec:
 		if type(other) == int:
 			self.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
 		elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			#ToDo:  need to test that self and other are distinct;
 			#    += doesn't work if same array on both sides
 			self.dpv += other.dpv;
@@ -197,6 +212,8 @@ class ParVec:
 		if type(other) == int:
 			self.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
 		elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			self.dpv -= other.dpv;
 		elif isinstance(other,SpParVec):
 			raise NotImplementedError, 'ParVec -= SpParVec not implemented'
@@ -207,6 +224,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), other));
 		else:	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv -= other.dpv;
 			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), int(0)));
 		return ret;
@@ -219,6 +238,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.less(), other));
 		else:	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv -= other.dpv;
 			ret.dpv.Apply(pcb.bind2nd(pcb.less(), int(0)));
 		return ret;
@@ -228,6 +249,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			#FIX:  only works for non-negative integers
 			while (ret >= other).any():
 				tmp = ret >= other;
@@ -239,6 +262,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv = other.dpv * self.dpv.sparse();
 		return ret;
 
@@ -247,6 +272,8 @@ class ParVec:
 		if type(other) == int:
 			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
 		else:	
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret.dpv = self.dpv != other.dpv;
 		return ret;
 
@@ -280,12 +307,15 @@ class ParVec:
 			
 
 	def __sub__(self, other):
-		if isinstance(other,SpParVec):
-			raise NotImplementedError, 'ParVec - SpParVec not supported'
-		elif type(other) == int:
+		if type(other) == int:
 			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
+			return ret;
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
+		if isinstance(other,SpParVec):
+			raise NotImplementedError, 'ParVec - SpParVec not supported'
 		else:	#elif isinstance(other,ParVec):
 			ret = ParVec(-1);
 			ret.dpv = self.dpv - other.dpv;
@@ -330,15 +360,23 @@ class ParVec:
 		ret.dpv.Apply(pcb.logical_not());
 		return ret;
 
+	_HACK_OFFSET = 1000000;	#HACK:  remove when hack removed
+
 	def max(self):
-		#FIX: SPV.max() gives wrong answer if all elements negative
 		#ToDo:  avoid conversion to sparse when PV.max() avail
-		return self.dpv.sparse().Reduce(pcb.max())
+		#HACK:  avoid SPV.min() giving wrong answer if all < 0
+		tmp1 = self.copy() + ParVec._HACK_OFFSET;
+		ret = tmp1.dpv.sparse().Reduce(pcb.max()) - ParVec._HACK_OFFSET;
+		#ret = self.dpv.sparse().Reduce(pcb.max())
+		return ret;
 
 	def min(self):
-		#FIX: SPV.min() gives wrong answer if all elements >0
-		#ToDo:  avoid conversion to sparse when PV.max() avail
-		return self.dpv.sparse().Reduce(pcb.min())
+		#ToDo:  avoid conversion to sparse when PV.min() avail
+		#HACK:  avoid SPV.min() giving wrong answer if all > 0
+		tmp1 = self.copy() - ParVec._HACK_OFFSET;
+		ret = tmp1.dpv.sparse().Reduce(pcb.min()) + ParVec._HACK_OFFSET;
+		#ret = self.dpv.sparse().Reduce(pcb.min())
+		return ret;
 
 	def nn(self):
 		return len(self) - self.dpv.getnnz();
@@ -410,6 +448,8 @@ class SpParVec:
 
 	def __add__(self, other):
 		ret = self.copy();
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
 		if isinstance(other,SpParVec):
 			ret.spv = self.spv + other.spv;
 		else:
@@ -435,6 +475,8 @@ class SpParVec:
 			ret.spv.Apply(pcb.bind2nd(pcb.divides(), other));
 		else:
 			raise NotImplementedError, 'SpParVec:__div__: no SpParVec / SpParVec division'
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			#ret.spv.EWiseApply(.....pcb.divides())
 		return ret;
@@ -444,6 +486,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),int(0)));
@@ -466,6 +510,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(),int(0)));
@@ -476,6 +522,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.greater(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.greater(),int(0)));
@@ -485,6 +533,8 @@ class SpParVec:
 		if type (other) == int:
 			self.spv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			if isinstance(other, SpParVec):
 				self.spv += other.spv;
 			else:
@@ -495,6 +545,8 @@ class SpParVec:
 		if type (other) == int:
 			self.spv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			if isinstance(other, SpParVec):
 				self.spv -= other.spv;
 			else:
@@ -509,6 +561,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(),int(0)));
@@ -519,6 +573,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.less(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.less(),int(0)));
@@ -530,6 +586,8 @@ class SpParVec:
 			ret.spv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
 			raise NotImplementedError, 'SpParVec:__mod__: no SpParVec / SpParVec modulus'
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			#ret.spv.EWiseApply(.....pcb.modulus())
 		return ret;
@@ -542,7 +600,7 @@ class SpParVec:
 			if not isinstance(other, ParVec):
 				raise NotImplementedError, 'SpParVec:__mul__: only SpParVec * ParVec'
 			if len(self) != len(other):
-				raise ValueError, 'SpParVec:__mul__: different length vectors'
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			pcb.EWiseMult_inplacefirst(ret.spv, other.dpv, False, 0);
 		return ret;
@@ -552,6 +610,8 @@ class SpParVec:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
 		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
 			ret = self.copy();
 			ret.spv = self.spv - other.spv;
 			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(),int(0)));
@@ -586,6 +646,8 @@ class SpParVec:
 
 	def __sub__(self, other):
 		ret = self.copy();
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
 		if isinstance(other,SpParVec):
 			ret.spv = self.spv - other.spv;
 		else:
