@@ -128,7 +128,7 @@ protected:
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	const static IT zero = static_cast<IT>(0);
+	IT zero;
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;

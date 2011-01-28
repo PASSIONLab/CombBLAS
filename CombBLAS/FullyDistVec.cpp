@@ -388,7 +388,7 @@ void FullyDistVec<IT,NT>::DebugPrint()
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(lengthuntil * sizeof(NT), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
+    	thefile.Set_view(int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
 
 	IT count = LocArrSize();	
 	thefile.Write(&(arr[0]), count, MPIType<NT>());

@@ -37,7 +37,7 @@ struct SpImpl<SR,IT,bool, NT>
 			vector<IT> & indy, vector< NT > & numy);	// specialize this
 };
 
-static int64_t * spmvaux = NULL;
+//static int64_t * spmvaux = NULL; // Adam: this explicit type causes problems
 
 // base template version
 // indx vector practically keeps column numbers requested from A
@@ -45,6 +45,8 @@ template <typename SR, typename IT, typename NT1, typename NT2>
 void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
 {
+	static IT* spmvaux = NULL;
+	
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 	HeapEntry<IT, NT1> * wset = new HeapEntry<IT, NT1>[veclen]; 
 
@@ -108,6 +110,8 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy)
 {   
+	static IT* spmvaux = NULL;
+
 	// colnums vector keeps column numbers requested from A
 	vector<IT> colnums(veclen);
 

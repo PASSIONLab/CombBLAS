@@ -190,7 +190,9 @@ public:
 
 	Arr<IT,NT> GetArrays() const;
 	vector<IT> GetEssentials() const;
-	const static IT esscount = static_cast<IT>(4);
+
+#define SpDCCols_esscount 4
+	//const static IT esscount = static_cast<IT>(4);
 
 	bool isZero() const { return (nnz == zero); }
 	IT getnrow() const { return m; }

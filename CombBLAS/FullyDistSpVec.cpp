@@ -6,20 +6,20 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT>(grid), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist<IT,NT>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min())
+: FullyDist<IT,NT>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist<IT,NT>(), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist<IT,NT>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist<IT,NT>(globallen), NOT_FOUND(numeric_limits<NT>::min())
+FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist<IT,NT>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { }
 
 template <class IT, class NT>
@@ -29,6 +29,7 @@ void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 	ind.swap(victim.ind);
 	num.swap(victim.num);
 	NOT_FOUND = victim.NOT_FOUND;
+	zero = victim.zero;
 }
 
 template <class IT, class NT>
@@ -342,7 +343,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 			if(ind[i] > rhs.ind[j])
 			{	
 				nind.push_back( rhs.ind[j] );
-				nnum.push_back( -rhs.num[j++] );
+				nnum.push_back( -static_cast<NT>(rhs.num[j++]) );
 			}
 			else if(ind[i] < rhs.ind[j])
 			{
@@ -580,7 +581,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(sizeuntil * dsize, datatype, datatype, "native", MPI::INFO_NULL);
+    	thefile.Set_view(static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI::INFO_NULL);
 
 	int count = ind.size();
 	mystruct * packed = new mystruct[count];
