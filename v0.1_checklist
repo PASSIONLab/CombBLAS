@@ -34,6 +34,7 @@
 
 ----Post-v0.1 issues below
   - sparse comparators only compare for nonnulls
+  - spParVec.all() returns 1 even if nulls
 
 ----Completed below
   - [Adam] implement generalized Reduce
