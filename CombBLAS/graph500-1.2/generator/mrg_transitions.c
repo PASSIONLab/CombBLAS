@@ -11,7 +11,7 @@
  * look there for how to rebuild the table. */
 
 #include "splittable_mrg.h"
-const mrg_transition_matrix mrg_skip_matrices[][256] = {
+ mrg_transition_matrix mrg_skip_matrices[][256] = {
 /* Byte 0 */ {
 {0, 0, 0, 0, 1, 0, 0, 0, 1}
 ,{0, 0, 0, 1, 0, 0, 0, 1, 107374182}

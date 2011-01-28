@@ -17,7 +17,7 @@ using namespace std;
   * If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
  **/
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
+SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world): zero(0.0)
 {
 	if(!input.is_open())
 	{
@@ -29,13 +29,13 @@ SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
 }
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq), zero(0.0)
 {
 	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq), zero(0.0)
 {
 	commGrid.reset(new CommGrid(*grid)); 
 }	
@@ -45,7 +45,7 @@ SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(
   * Since this is the default constructor, you don't need to explicitly call it, just a declaration will call it
  **/
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat ()
+SpParMat< IT,NT,DER >::SpParMat (): zero(0.0)
 {
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
@@ -64,6 +64,7 @@ SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
+	zero = rhs.zero;
 	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 }
 
@@ -78,6 +79,7 @@ SpParMat< IT,NT,DER > & SpParMat< IT,NT,DER >::operator=(const SpParMat< IT,NT,D
 		if(rhs.spSeq != NULL)	
 			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
 	
+		zero = rhs.zero;
 		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
 	}
 	return *this;
@@ -684,7 +686,8 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 }
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
+template <class DELIT>
+SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloops)
 {
 	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
 	int rank = commGrid->GetRank();
@@ -707,7 +710,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<IT> & DEL, bool removeloops)
 	for(IT s=0; s< stages; ++s)
 	{
 		IT n_befor = s*perstage;
-		IT n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
+		IT n_after= ((s==(stages-1))? static_cast<IT>(DEL.nedges) : static_cast<IT>(((s+1)*perstage)));
 
 		// clear the source vertex by setting it to -1
 		int realedges = 0;

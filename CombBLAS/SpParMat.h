@@ -64,8 +64,10 @@ public:
 	SpParMat (ifstream & input, MPI::Intracomm & world);
 	SpParMat (DER * myseq, MPI::Intracomm & world);	
 
+	template <class DELIT>
+	SpParMat (const DistEdgeList< DELIT > & rhs, bool removeloops = true);	// conversion from distributed edge list
+
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
-	SpParMat (const DistEdgeList< IT > & rhs, bool removeloops = true);	// conversion from distributed edge list
 	SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
@@ -178,7 +180,7 @@ public:
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
-	const static IT zero = static_cast<IT>(0);
+	IT zero;
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
 	

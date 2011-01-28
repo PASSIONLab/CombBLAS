@@ -303,7 +303,7 @@ void SpDCCols<IT,NT>::EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 template <class IT, class NT>
 void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 {
-	assert(essentials.size() == esscount);
+	assert(essentials.size() == SpDCCols_esscount);
 
 	nnz = essentials[0];
 	m = essentials[1];
