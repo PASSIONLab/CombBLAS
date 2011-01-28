@@ -32,6 +32,9 @@
   - [Adam] implement wrapper for sort - Done for SpVec
   - [Steve] clean up find/etc. behavior so based on nonnull, not nonzero
 
+----Post-v0.1 issues below
+  - sparse comparators only compare for nonnulls
+
 ----Completed below
   - [Adam] implement generalized Reduce
   - [Adam] implement pySpParMat with integer datatype
