@@ -17,19 +17,46 @@ class DiGraph(gr.Graph):
 			if type(v) == int:
 				v = ParVec.broadcast(len(i),v);
 			self.spm = pcb.pySpParMat(nv,nv,i.dpv,j.dpv,v.dpv);
+		elif len(args) == 5:
+			[i,j,v,nv1,nv2] = args;
+			if type(v) == int:
+				v = ParVec.broadcast(len(i),v);
+			self.spm = pcb.pySpParMat(nv1,nv2,i.dpv,j.dpv,v.dpv);
 		else:
-			raise NotImplementedError, "only zero and four argument cases supported"
+			raise NotImplementedError, "only 0, 4, and 5 argument cases supported"
 
 	def __getitem__(self, key):
 		if type(key)==tuple:
-			if len(key)==2:
+			if len(key)==1:
+				[key1] = key; key2 = -1;
+			elif len(key)==2:
 				[key1, key2] = key;
 			else:
 				raise KeyError, 'Too many indices'
 		else:
 			key1 = key;  key2 = key;
+		if type(key1)==slice and key1==slice(None,None,None):
+			#ToDo: will need to handle nvert() 2-return case
+			key1mn = 0; key1mx = self.nvert()-1;
+		else:
+			key1mn = key1.min(); key1mx = key1.max()
+			if not (key1==ParVec.range(key1mn,key1mx+1)).all():
+				raise KeyError, 'Vector first index not a range'
+		if type(key2)==slice and key2==slice(None,None,None):
+			#ToDo: will need to handle nvert() 2-return case
+			key2mn = 0; key2mx = self.nvert()-1;
+		else:
+			if not (key2==ParVec.range(key2mn,key2mx+1)).all():
+				raise KeyError, 'Vector second index not a range'
+			key2mn = key2.min(); key2mx = key2.max()
+		[i, j, v] = self.toParVec();
+		sel = ((i >= key1mn) & (i <= key1mx) & (j >= key2mn) & (j <= key2mx)).findInds();
+		newi = i[sel] - key1mn;
+		newj = j[sel] - key2mn;
+		newv = v[sel];
+		ret = DiGraph(newi, newj, newv, key1mx-key1mn+1, key2mx-key2mn+1);
+		
 		#ToDo:  check for isBool, or does lower level handle it?
-		ret = self.copy();	#FIX: do actual indexing here
 		return ret;
 
 	def copy(self):
@@ -91,6 +118,16 @@ class DiGraph(gr.Graph):
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
+
+	#FIX:  good idea to have this return an int or a tuple?
+	def nvert(self):
+		nrow = self.spm.getnrow();
+		ncol = self.spm.getncol();
+		if nrow==ncol:
+			ret = nrow;
+		else:
+			ret = (nrow, ncol)
+		return ret;
 
 	#in-place, so no return value
 	def ones(self):

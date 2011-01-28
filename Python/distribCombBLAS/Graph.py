@@ -20,6 +20,8 @@ class Graph:
                 else:
                         raise NotImplementedError, "only zero and three arguments supported"
 
+	def __getitem__(self, key):
+                raise NotImplementedError, "__getitem__ not supported"
 
 	# which direction(s) of edges to include
 	@staticmethod
@@ -101,11 +103,14 @@ class ParVec:
 		return ret;
 
 	def __add__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
+		if isinstance(other,SpParVec):
+			ret = other + self;	# SPV = SPV + DPV
+		elif type(other) == int:
+			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:	#elif  instance(other,ParVec):
+			ret = ParVec(-1);
 			ret.dpv = self.dpv + other.dpv;
 		return ret;
 
@@ -141,6 +146,8 @@ class ParVec:
 		return ret;
 
 	def __getitem__(self, key):
+		#ToDo:  when generalized unary operations are supported, 
+		#    support SPV = DPV[unary-op()]
 		if type(key) == int:
 			if key > self.dpv.len()-1:
 				raise IndexError;
@@ -171,10 +178,12 @@ class ParVec:
 	def __iadd__(self, other):
 		if type(other) == int:
 			self.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
-		else:	#elif isinstance(other,ParVec):
+		elif isinstance(other,ParVec):
 			#ToDo:  need to test that self and other are distinct;
 			#    += doesn't work if same array on both sides
 			self.dpv += other.dpv;
+		elif isinstance(other,SpParVec):
+			raise NotImplementedError, 'ParVec += SpParVec not implemented'
 		return self;
 
 	def __invert__(self):
@@ -187,8 +196,10 @@ class ParVec:
 	def __isub__(self, other):
 		if type(other) == int:
 			self.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
-		else:	#elif isinstance(other,ParVec):
+		elif isinstance(other,ParVec):
 			self.dpv -= other.dpv;
+		elif isinstance(other,SpParVec):
+			raise NotImplementedError, 'ParVec -= SpParVec not implemented'
 		return self;
 
 	def __le__(self, other):
@@ -239,6 +250,10 @@ class ParVec:
 			ret.dpv = self.dpv != other.dpv;
 		return ret;
 
+	def __neg__(self):
+		ret = ParVec(len(self)) - self;
+		return ret;
+
 	def __repr__(self):
 		self.dpv.printall();
 		return ' ';
@@ -265,16 +280,19 @@ class ParVec:
 			
 
 	def __sub__(self, other):
-		ret = ParVec(-1);
-		if type(other) == int:
+		if isinstance(other,SpParVec):
+			raise NotImplementedError, 'ParVec - SpParVec not supported'
+		elif type(other) == int:
+			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:	#elif isinstance(other,ParVec):
+			ret = ParVec(-1);
 			ret.dpv = self.dpv - other.dpv;
 		return ret;
 
 	def all(self):
-		ret = self.dpv.all();
+		ret = self.dpv.Count(pcb.identity()) == len(self);
 		return ret;
 
 	def any(self):
@@ -292,11 +310,10 @@ class ParVec:
 		ret.dpv = self.dpv.copy()
 		return ret;
 
-#	NOTE:  no ParVec.find() yet because no SpParVec yet
-#	def find(self):
-#		ret = ParVec(-1);
-#		ret.dpv = self.dpv.find();
-#		return ret;
+	def find(self):
+		ret = SpParVec(-1);
+		ret.spv = self.dpv.Find(pcb.bind2nd(pcb.not_equal_to(),0));
+		return ret;
 
 	def findInds(self):
 		ret = ParVec(-1);
@@ -314,10 +331,12 @@ class ParVec:
 		return ret;
 
 	def max(self):
+		#FIX: SPV.max() gives wrong answer if all elements negative
 		#ToDo:  avoid conversion to sparse when PV.max() avail
 		return self.dpv.sparse().Reduce(pcb.max())
 
 	def min(self):
+		#FIX: SPV.min() gives wrong answer if all elements >0
 		#ToDo:  avoid conversion to sparse when PV.max() avail
 		return self.dpv.sparse().Reduce(pcb.min())
 
@@ -356,6 +375,12 @@ class ParVec:
 		#ToDo: avoid converseion to sparse when PV.reduce() avail
 		return self.dpv.sparse().Reduce(pcb.plus());
 
+	def sparse(self):
+		#ToDo:  allow user to pass/set null value
+		ret = ParVec(-1);
+		ret.dpv = self.dpv.sparse();
+		return ret;
+
 	#TODO:  check for class being PyDenseParVec?
 	@staticmethod
 	def toParVec(DPV):
@@ -385,7 +410,10 @@ class SpParVec:
 
 	def __add__(self, other):
 		ret = self.copy();
-		ret.spv = self.spv + other.spv;
+		if isinstance(other,SpParVec):
+			ret.spv = self.spv + other.spv;
+		else:
+			ret.spv = self.spv + other.dpv;
 		return ret;
 
 	def __and__(self, other):
@@ -457,14 +485,20 @@ class SpParVec:
 		if type (other) == int:
 			self.spv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:
-			self.spv += other.spv;
+			if isinstance(other, SpParVec):
+				self.spv += other.spv;
+			else:
+				self.spv += other.dpv;
 		return self;
 		
 	def __isub__(self, other):
 		if type (other) == int:
 			self.spv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:
-			self.spv -= other.spv;
+			if isinstance(other, SpParVec):
+				self.spv -= other.spv;
+			else:
+				self.spv -= other.dpv;
 		return self;
 		
 	def __len__(self):
@@ -523,6 +557,13 @@ class SpParVec:
 			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(),int(0)));
 		return ret;
 
+	def __neg__(self):
+		#ToDo:  best to do with unary_minus() when available
+		tmp1 = self.copy();
+		tmp1['nonnull'] = 0;
+		ret = tmp1 - self;
+		return ret;
+
 	def __repr__(self):
 		self.spv.printall();
 		return ' ';
@@ -545,11 +586,15 @@ class SpParVec:
 
 	def __sub__(self, other):
 		ret = self.copy();
-		ret.spv = self.spv - other.spv;
+		if isinstance(other,SpParVec):
+			ret.spv = self.spv - other.spv;
+		else:
+			ret.spv = self.spv - other.dpv;
 		return ret;
 
 	def all(self):
-		return self.spv.all();
+		ret = self.spv.Count(pcb.identity()) == self.nnn();
+		return ret;
 
 	def any(self):
 		return self.spv.any();
@@ -559,7 +604,7 @@ class SpParVec:
 		ret.spv = self.spv.copy();
 		return ret;
 
-	def dense(self):	
+	def denseNonnulls(self):	
 		ret = ParVec(-1);
 		ret.dpv = self.spv.dense();
 		return ret;
