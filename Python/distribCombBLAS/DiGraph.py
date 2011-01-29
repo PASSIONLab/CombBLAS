@@ -8,7 +8,6 @@ class DiGraph(gr.Graph):
 
 	#print "in DiGraph"
 
-	#FIX:  just building a Graph500 graph by default for now
 	def __init__(self,*args):
 		if len(args) == 0:
 			self.spm = pcb.pySpParMat();
@@ -26,6 +25,11 @@ class DiGraph(gr.Graph):
 			raise NotImplementedError, "only 0, 4, and 5 argument cases supported"
 
 	def __add__(self, other):
+		#FIX:  ****RESULTS INVALID****
+		if self.nvert() != other.nvert():
+			raise IndexError, 'Graphs must have equal numbers of vertices'
+		return self;
+
 		raise NotImplementedError
 		if type(other) == int:
 			raise NotImplementedError
@@ -73,6 +77,14 @@ class DiGraph(gr.Graph):
 		#ToDo:  check for isBool, or does lower level handle it?
 		return ret;
 
+	def __mul__(self, other):
+		#FIX:  ****RESULTS INVALID****
+		if self.nvert()[1] != other.nvert()[0]:
+			raise IndexError, 'First graph #out-verts must equal second graph #in-verts'
+		ones = ParVec.range(min(self.nvert()[0], other.nvert()[1]));
+		ret = DiGraph(ones, ones, ones, self.nvert()[0], other.nvert()[1]);
+		return ret;
+
 	def boolWeight(self):
 		#ToDo:  change for real Boolean matrices
 		return DiGraph.onesWeight(self);
@@ -102,6 +114,14 @@ class DiGraph(gr.Graph):
 		else:
 			self.spm.Apply(pcb.bind2nd(pcb.divides(),other));
 		return;
+
+	@staticmethod
+	def fullyConnected(n,m):
+		i = ParVec.range(n*m) % n;
+		j = ParVec.range(n*m) / n;
+		v = ParVec.range(n*m);
+		ret = DiGraph(i,j,v,n,m);
+		return ret;
 
 	def genGraph500Edges(self, scale, degrees):
 		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale, degrees.dpv);
@@ -151,6 +171,12 @@ class DiGraph(gr.Graph):
 			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
 		return;
 
+	def notMulWeight(self, other):
+		#FIX:  ****RESULTS INVALID****
+		if self.nvert() != other.nvert():
+			raise IndexError, 'Graphs must have equal numbers of vertices'
+		return self;
+
 	#FIX:  good idea to have this return an int or a tuple?
 	def nvert(self):
 		nrow = self.spm.getnrow();
@@ -183,6 +209,8 @@ class DiGraph(gr.Graph):
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
+
+	T = reverseEdges;
 
 	def toParVec(self):
 		ne = self.nedge()
@@ -226,9 +254,229 @@ class DiGraph(gr.Graph):
 		retSource[fringe] = fringe;
 		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
 	
-#def DiGraphGraph500():
-#	self = DiGraph();
-#	self.spm = GenGraph500Edges(sc.log2(nvert));
+
+
+	@staticmethod
+	def torusEdges(n):
+		N = n*n;
+		#old nvec = sc.tile(sc.arange(n),(n,1)).T.flatten();	# [0,0,0,...., n-1,n-1,n-1]
+		#old nvecil = sc.tile(sc.arange(n),n)			# [0,1,...,n-1,0,1,...,n-2,n-1]
+		nvec = DPV.tile(DPV.range(n), n, interleave=False)	# NEW:  range() as in Py
+												# NEW:  tile() as in SciPy (but just 1D), with
+		nvecil = DPV.tile(DPV.range(n), n, interleave=True)	#    interleave arg
+		north = gr.Graph._sub2ind((n,n),DPV.mod(nvecil-1,n),nvec);	
+		south = gr.Graph._sub2ind((n,n),DPV.mod(nvecil+1,n),nvec);
+		west = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec-1,n));
+		east = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec+1,n));
+		Nvec = DPV.range(N);
+		row = DPV.append(Nvec, Nvec);
+		row = DPV.append(row, row);
+		col = DPV.append(north, west);					# NEW:  append() in just 1D
+		col = DPV.append(col, south);
+		col = DPV.append(rowcol, east);
+		return gr.EdgeV((row, col), DPV.ones(N*4))
+	
+	
+	#	creates a breadth-first search tree of a Graph from a starting
+	#	set of vertices.  Returns a 1D array with the parent vertex of 
+	#	each vertex in the tree; unreached vertices have parent == -Inf.
+	#
+	def bfsTree(self, start):
+		parents = pcb.pyDenseParVec(self.nvert(), -1);
+		# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
+		# distinguish vertex0 from empty element
+		fringe = pcb.pySpParVec(self.nvert());
+		parents[start] = start;
+		fringe[start] = start+1;
+		while fringe.getnnz() > 0:
+			#FIX:  setNumToInd -> SPV.range()
+			fringe.setNumToInd();
+			self.spm.SpMV_SelMax_inplace(fringe);	
+			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
+			parents[fringe] = 0
+			parents += fringe;
+		return ParVec.toParVec(parents);
+	
+	
+		# returns tuples with elements
+		# 0:  True/False of whether it is a BFS tree or not
+		# 1:  levels of each vertex in the tree (root is 0, -1 if not reached)
+	def isBfsTree(self, root, parents):
+	
+		ret = 1;	# assume valid
+		nvertG = self.nvert();
+	
+		# calculate level in the tree for each vertex; root is at level 0
+		# about the same calculation as bfsTree, but tracks levels too
+		parents2 = ParVec.zeros(nvertG) - 1;
+		fringe = pcb.pySpParVec(nvertG);
+		parents2[root] = root;
+		fringe[root] = root+1;	#fix
+		levels = ParVec.zeros(nvertG) - 1;
+		levels[root] = 0;
+	
+		level = 1;
+		#FIX getnnz() -> SPV.getnnn()
+		while fringe.getnnz() > 0:
+			fringe.setNumToInd();		#ToDo: sparse range()
+			#FIX:  create PCB graph-level op
+			self.spm.SpMV_SelMax_inplace(fringe);
+			#FIX:  create PCB graph-level op
+			pcb.EWiseMult_inplacefirst(fringe, parents2.dpv, True, -1);
+			parents2.dpv[fringe] = fringe;
+			levels.dpv[fringe] = level;
+			level += 1;
+		
+		# spec test #1
+		#	Not implemented
+		
+	
+		# spec test #2
+		#    tree edges should be between verts whose levels differ by 1
+		
+		tmp2 = parents != ParVec.range(nvertG);
+		treeEdges = (parents != -1) & tmp2;  
+		treeI = parents[treeEdges.findInds()]
+		treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
+		if (levels[treeI]-levels[treeJ] != -1).any():
+			ret = -2;
+	
+		return (ret, ParVec.toParVec(levels))
+	
+	# returns a Boolean vector of which vertices are neighbors
+	def neighbors(self, source, nhop=1):
+		dest = pcb.pyDenseParVec(self.nvert(),0)
+		fringe = pcb.pySpParVec(self.nvert());
+		dest[fringe] = 1;
+		fringe[source.dpv] = 1;
+		for i in range(nhop):
+			fringe.setNumToInd();
+			self.spm.SpMV_SelMax_inplace(fringe);
+			dest[fringe] = 1;
+		return ParVec.toParVec(dest);
+		
+	# returns:
+	#   - source:  a vector of the source vertex for each new vertex
+	#   - dest:  a Boolean vector of the new vertices
+	#ToDo:  nhop argument?
+	def pathHop(self, source):
+		retDest = pcb.pyDenseParVec(self.nvert(),0)
+		retSource = pcb.pyDenseParVec(self.nvert(),0)
+		fringe = pcb.pySpParVec(self.nvert());
+		retDest[fringe] = 1;
+		fringe[source.dpv] = 1;
+		fringe.setNumToInd();
+		self.spm.SpMV_SelMax_inplace(fringe);
+		retDest[fringe] = 1;
+		retSource[fringe] = fringe;
+		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
+		
+	def centrality(self, alg, **kwargs):
+	#		ToDo:  Normalize option?
+		if alg=='exactBC':
+			cent = _approxBC(self, sample=1.0, **kwargs)
+	
+		elif alg=='_approxBC':
+			cent = _approxBC(self, **kwargs);
+	
+		elif alg=='kBC':
+			raise NotImplementedError, "k-betweenness centrality unimplemented"
+	
+		elif alg=='degree':
+			raise NotImplementedError, "degree centrality unimplemented"
+			
+		else:
+			raise KeyError, "unknown centrality algorithm (%s)" % alg
+	
+		return cent;
+	
+	
+	def _approxBC(self, sample=0.05, chunk=-1):
+		print "chunk=%d, sample=%5f" % (chunk, sample);
+		# calculate chunk automatically if not specified
+	
+	def _bc(self, K4approx, batchSize ):
+	
+	
+	    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
+	    # 
+	
+	    A = self.onesWeight();			
+	    Aint = self.onesWeight();	# not needed;  Gs only int for now
+	    N = A.nvert()
+	
+	    bc = ParVec(N);
+	
+	    # ToDo:  original triggers off whether data created via RMAT to set nPasses
+	    #        and K4approx
+	    if (2**K4approx > N):
+	        K4approx = sc.floor(sc.log2(N))
+	        nPasses = 2**K4approx;
+	    else:
+	        nPasses = N;		
+	
+	    numBatches = sc.ceil(nPasses/batchSize).astype(int)
+	
+	    for p in range(numBatches):
+	        bfs = []		
+	
+	        batch = ParVec.range(p*batchSize,min((p+1)*batchSize,N));
+	        curSize = len(batch);
+	
+	        # original M version uses accumarray in following line
+		# nsp == number of shortest paths
+	        #nsp = sp.csr_matrix((sc.tile(1,(1,curSize)).flatten(), (sc.arange(curSize),sc.array(batch))),shape=(curSize,N));
+		nsp = DiGraph(ParVec.range(curSize), batch, 1, N);
+	
+	
+	        depth = 0;
+	        #OLD fringe = Aint[batch,:];   
+		fringe = A[batch,ParVec.range(N)];
+	
+	        while fringe.getnnz() > 0:
+	            depth = depth+1;
+	            #print (depth, fringe.getnnz()) 
+	            # add in shortest path counts from the fringe
+	            nsp = nsp+fringe
+	            bfs = sc.append(bfs,kdtsp.spbool(fringe));
+	            tmp = fringe * A;		#FIX:  can't be in-line in next line due to SciPy bug
+						#avoid creating not(nsp) if possible
+	            fringe = tmp.notMulWeight(nsp);
+	
+	        #old [nspi, nspj, nspv] = kdtsp.find(nsp);
+	        #nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
+	
+	        #bcu = sp.csr_matrix(sc.ones((curSize, N)));		#FIX:  too big in real cases?
+		bcu = DiGraph.fullyConnected(curSize,N);
+	
+	        # compute the bc update for all vertices except the sources
+	        for depth in range(depth-1,0,-1):
+	            # compute the weights to be applied based on the child values
+	            #old w = bfs[depth].multiply(nspInv).multiply(bcu);
+	            w = bfs[depth].divWeight(nsp).mulWeight(bcu);
+	            # Apply the child value weights and sum them up over the parents
+	            # then apply the weights based on parent values
+	            bcu = bcu + (A*w.T).T.mulWeight(bfs[depth-1]).mulWeight(nsp);
+	
+	        # update the bc with the bc update
+	        bc = bc + bcu.sum(0)	#FIX:  dir?
+	
+	    # subtract off the additional values added in by precomputation
+	    bc = bc - nPasses;
+	    return bc;
+	
+	def cluster(self, alg, **kwargs):
+	#		ToDo:  Normalize option?
+		if alg=='Markov' or alg=='markov':
+			clus = _markov(self, **kwargs)
+	
+		elif alg=='kNN' or alg=='knn':
+			raise NotImplementedError, "k-nearest neighbors clustering not implemented"
+	
+		else:
+			raise KeyError, "unknown clustering algorithm (%s)" % alg
+	
+		return clus;
 
 class ParVec(gr.ParVec):
 	pass;
@@ -241,225 +489,4 @@ class SpParVec(gr.SpParVec):
 master = gr.master;
 sendFeedback = gr.sendFeedback;
 
-
-def torusEdges(n):
-	N = n*n;
-	#old nvec = sc.tile(sc.arange(n),(n,1)).T.flatten();	# [0,0,0,...., n-1,n-1,n-1]
-	#old nvecil = sc.tile(sc.arange(n),n)			# [0,1,...,n-1,0,1,...,n-2,n-1]
-	nvec = DPV.tile(DPV.range(n), n, interleave=False)	# NEW:  range() as in Py
-											# NEW:  tile() as in SciPy (but just 1D), with
-	nvecil = DPV.tile(DPV.range(n), n, interleave=True)	#    interleave arg
-	north = gr.Graph._sub2ind((n,n),DPV.mod(nvecil-1,n),nvec);	
-	south = gr.Graph._sub2ind((n,n),DPV.mod(nvecil+1,n),nvec);
-	west = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec-1,n));
-	east = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec+1,n));
-	Nvec = DPV.range(N);
-	row = DPV.append(Nvec, Nvec);
-	row = DPV.append(row, row);
-	col = DPV.append(north, west);					# NEW:  append() in just 1D
-	col = DPV.append(col, south);
-	col = DPV.append(rowcol, east);
-	return gr.EdgeV((row, col), DPV.ones(N*4))
-
-
-#	creates a breadth-first search tree of a Graph from a starting
-#	set of vertices.  Returns a 1D array with the parent vertex of 
-#	each vertex in the tree; unreached vertices have parent == -Inf.
-#
-def bfsTree(G, start):
-	parents = pcb.pyDenseParVec(G.nvert(), -1);
-	# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
-	# distinguish vertex0 from empty element
-	fringe = pcb.pySpParVec(G.nvert());
-	parents[start] = start;
-	fringe[start] = start+1;
-	while fringe.getnnz() > 0:
-		#FIX:  setNumToInd -> SPV.range()
-		fringe.setNumToInd();
-		G.spm.SpMV_SelMax_inplace(fringe);	
-		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
-		parents[fringe] = 0
-		parents += fringe;
-	return ParVec.toParVec(parents);
-
-
-	# returns tuples with elements
-	# 0:  True/False of whether it is a BFS tree or not
-	# 1:  levels of each vertex in the tree (root is 0, -1 if not reached)
-def isBfsTree(G, root, parents):
-
-	ret = 1;	# assume valid
-	nvertG = G.nvert();
-
-	# calculate level in the tree for each vertex; root is at level 0
-	# about the same calculation as bfsTree, but tracks levels too
-	parents2 = ParVec.zeros(nvertG) - 1;
-	fringe = pcb.pySpParVec(nvertG);
-	parents2[root] = root;
-	fringe[root] = root+1;	#fix
-	levels = ParVec.zeros(nvertG) - 1;
-	levels[root] = 0;
-
-	level = 1;
-	#FIX getnnz() -> SPV.getnnn()
-	while fringe.getnnz() > 0:
-		fringe.setNumToInd();		#ToDo: sparse range()
-		#FIX:  create PCB graph-level op
-		G.spm.SpMV_SelMax_inplace(fringe);
-		#FIX:  create PCB graph-level op
-		pcb.EWiseMult_inplacefirst(fringe, parents2.dpv, True, -1);
-		parents2.dpv[fringe] = fringe;
-		levels.dpv[fringe] = level;
-		level += 1;
-	
-	# spec test #1
-	#	Not implemented
-	
-
-	# spec test #2
-	#    tree edges should be between verts whose levels differ by 1
-	
-	tmp2 = parents != ParVec.range(nvertG);
-	treeEdges = (parents != -1) & tmp2;  
-	treeI = parents[treeEdges.findInds()]
-	treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
-	if (levels[treeI]-levels[treeJ] != -1).any():
-		ret = -2;
-
-	return (ret, ParVec.toParVec(levels))
-
-# returns a Boolean vector of which vertices are neighbors
-def neighbors(G, source, nhop=1):
-	dest = pcb.pyDenseParVec(G.nvert(),0)
-	fringe = pcb.pySpParVec(G.nvert());
-	dest[fringe] = 1;
-	fringe[source.dpv] = 1;
-	for i in range(nhop):
-		fringe.setNumToInd();
-		G.spm.SpMV_SelMax_inplace(fringe);
-		dest[fringe] = 1;
-	return ParVec.toParVec(dest);
-	
-# returns:
-#   - source:  a vector of the source vertex for each new vertex
-#   - dest:  a Boolean vector of the new vertices
-#ToDo:  nhop argument?
-def pathHop(G, source):
-	retDest = pcb.pyDenseParVec(G.nvert(),0)
-	retSource = pcb.pyDenseParVec(G.nvert(),0)
-	fringe = pcb.pySpParVec(G.nvert());
-	retDest[fringe] = 1;
-	fringe[source.dpv] = 1;
-	fringe.setNumToInd();
-	G.spm.SpMV_SelMax_inplace(fringe);
-	retDest[fringe] = 1;
-	retSource[fringe] = fringe;
-	return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
-	
-def centrality(alg, G, **kwargs):
-#		ToDo:  Normalize option?
-	if alg=='exactBC':
-		cent = _approxBC(G, sample=1.0, **kwargs)
-
-	elif alg=='_approxBC':
-		cent = _approxBC(G, **kwargs);
-
-	elif alg=='kBC':
-		raise NotImplementedError, "k-betweenness centrality unimplemented"
-
-	elif alg=='degree':
-		raise NotImplementedError, "degree centrality unimplemented"
-		
-	else:
-		raise KeyError, "unknown centrality algorithm (%s)" % alg
-
-	return cent;
-
-
-def _approxBC(G, sample=0.05, chunk=-1):
-	print "chunk=%d, sample=%5f" % (chunk, sample);
-	# calculate chunk automatically if not specified
-
-def _bc( G, K4approx, batchSize ):
-
-
-    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
-    # 
-
-    A = G.ones();			
-    Aint = kdtsp.spones(G);	# not needed;  Gs only int for now
-    N = A.nvert()
-
-    bc = ParVec(N);
-
-    # ToDo:  original triggers off whether data created via RMAT to set nPasses
-    #        and K4approx
-    if (2**K4approx > N):
-        K4approx = sc.floor(sc.log2(N))
-        nPasses = 2**K4approx;
-    else:
-        nPasses = N;		
-
-    numBatches = sc.ceil(nPasses/batchSize).astype(int)
-
-    for p in range(numBatches):
-        bfs = []		
-
-        batch = ParVec.range(p*batchSize,min((p+1)*batchSize,N));
-        curSize = len(batch);
-
-        # original M version uses accumarray in following line
-	# nsp == number of shortest paths
-        #nsp = sp.csr_matrix((sc.tile(1,(1,curSize)).flatten(), (sc.arange(curSize),sc.array(batch))),shape=(curSize,N));
-	nsp = DiGraph(ParVec.range(curSize), batch, 1, N);
-
-
-        depth = 0;
-        #OLD fringe = Aint[batch,:];   
-	fringe = A[batch,ParVec.range(N)];
-
-        while fringe.getnnz() > 0:
-            depth = depth+1;
-            #print (depth, fringe.getnnz()) 
-            # add in shortest path counts from the fringe
-            nsp = nsp+fringe
-            bfs = sc.append(bfs,kdtsp.spbool(fringe));
-            tmp = fringe * A;		#FIX:  can't be in-line in next line due to SciPy bug
-					#avoid creating not(nsp) if possible
-            fringe = tmp.multiply(kdtsp.spnot(nsp));
-
-        #old [nspi, nspj, nspv] = kdtsp.find(nsp);
-        #nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
-
-        #bcu = sp.csr_matrix(sc.ones((curSize, N)));		#FIX:  too big in real cases?
-	bcu = DiGraph.fullyConnected(curSize,N);
-
-        # compute the bc update for all vertices except the sources
-        for depth in range(depth-1,0,-1):
-            # compute the weights to be applied based on the child values
-            #old w = bfs[depth].multiply(nspInv).multiply(bcu);
-            w = bfs[depth].divide(nsp).multiply(bcu);
-            # Apply the child value weights and sum them up over the parents
-            # then apply the weights based on parent values
-            bcu = bcu + (A*w.T).T.multiply(bfs[depth-1]).multiply(nsp);
-
-        # update the bc with the bc update
-        bc = bc + bcu.sum(0)
-
-    # subtract off the additional values added in by precomputation
-    bc = bc - nPasses;
-    return bc;
-
-def cluster(alg, G, **kwargs):
-#		ToDo:  Normalize option?
-	if alg=='Markov' or alg=='markov':
-		clus = _markov(G, **kwargs)
-
-	elif alg=='kNN' or alg=='knn':
-		raise NotImplementedError, "k-nearest neighbors clustering not implemented"
-
-	else:
-		raise KeyError, "unknown clustering algorithm (%s)" % alg
-
-	return clus;
-
+print "\n\n	***NOTE: DiGraph*DiGraph, DiGraph+DiGraph and \n\t DiGraph.notMulWeight() are dummy functions\n\n";
