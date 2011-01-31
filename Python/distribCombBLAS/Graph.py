@@ -94,7 +94,7 @@ class Graph:
 class ParVec:
 
 	def __init__(self, length):
-		if length>0:
+		if length>=0:
 			self.dpv = pcb.pyDenseParVec(length,0);
 
 	def __abs__(self):
@@ -405,7 +405,7 @@ class ParVec:
 			raise NotImplementedError, "No 3-argument range()"
 		if start > stop:
 			raise ValueError, "start > stop"
-		ret = ParVec(0);
+		ret = ParVec(-1);
 		ret.dpv = pcb.pyDenseParVec.range(stop-start,start);
 		return ret;
 	

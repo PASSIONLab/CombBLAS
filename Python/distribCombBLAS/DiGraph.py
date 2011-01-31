@@ -8,6 +8,8 @@ class DiGraph(gr.Graph):
 
 	#print "in DiGraph"
 
+	# NOTE:  for any vertex, out-edges are in the column and in-edges
+	#	are in the row
 	def __init__(self,*args):
 		if len(args) == 0:
 			self.spm = pcb.pySpParMat();
@@ -195,6 +197,17 @@ class DiGraph(gr.Graph):
 	#in-place, so no return value
 	def reverseEdges(self):
 		self.spm.Transpose();
+
+	def subgraph(self, *args):
+		if len(args) == 1:
+			[ndx1] = args;
+			ret = self[ndx1, ndx1];
+		elif len(args) == 2:
+			[ndx1, ndx2] = args;
+			ret = self[ndx1, ndx2];
+		else:
+			raise IndexError, 'Too many indices'
+		return ret;
 
 	def sumWeight(self, dir=gr.Graph.Out()):
 		if dir == gr.Graph.InOut():
