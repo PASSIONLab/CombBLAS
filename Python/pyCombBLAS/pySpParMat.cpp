@@ -12,14 +12,35 @@ pySpParMat::pySpParMat(pySpParMat* copyFrom): A(copyFrom->A)
 {
 }
 
-pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals): A(m, n, rows->v, cols->v, vals->v)
+pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals)
 {
+	FullyDistVec<int64_t, doubleint> irow = rows->v;
+	FullyDistVec<int64_t, doubleint> icol = cols->v;
+	A = MatType(m, n, irow, icol, vals->v);
 }
 
+int64_t pySpParMat::getnee()
+{
+	return A.getnnz();
+}
 
 int64_t pySpParMat::getnnz()
 {
-	return A.getnnz();
+	// actually count the number of nonzeros
+
+	op::BinaryFunction *p = op::plus();
+	op::BinaryFunction *ne = op::not_equal_to();
+	op::UnaryFunction *ne0 = op::bind2nd(ne, 0);
+	pyDenseParVec* colsums = Reduce(Column(), p, ne0, 0);
+
+	int64_t ret = colsums->Reduce(p);
+
+	delete colsums;
+	delete ne0;
+	delete ne;
+	delete p;
+	
+	return ret;
 }
 
 int64_t pySpParMat::getnrow()
@@ -41,36 +62,6 @@ void pySpParMat::load(const char* filename)
 
 void pySpParMat::GenGraph500Edges(int scale)
 {
-	/*
-	DistEdgeList<int64_t> DEL;
-	
-	double a = 0.57;
-	double b = 0.19;
-	double c = 0.19;
-	double d = 1-(a+b+c); // = 0.05
-	double abcd[] = {a, b, c, d};
-	
-	bool mayiprint = false;
-	
-	if (mayiprint)
-		cout << "GenGraph500" << endl;
-		
-	DEL.GenGraph500Data(abcd, scale, (int64_t)(pow(2., scale)*16));
-	
-	if (mayiprint)
-		cout << "PermEdges" << endl;
-	PermEdges<int64_t>(DEL);
-
-	if (mayiprint)
-		cout << "RenameVertices" << endl;
-	RenameVertices<int64_t>(DEL);
-	
-	if (mayiprint)
-		cout << "Convert To Matrix" << endl;
-		
-	A = SpParMat<int64_t, int, SpDCCols<int64_t, int> > (DEL);
-	*/
-	
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int rank = MPI::COMM_WORLD.Get_rank();
 	
@@ -98,7 +89,7 @@ void pySpParMat::GenGraph500Edges(int scale)
 double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 {
 	double k1time = 0;
-	FullyDistVec<int64_t, int64_t> degrees;
+	FullyDistVec<INDEXTYPE, doubleint> degrees;
 
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int rank = MPI::COMM_WORLD.Get_rank();
@@ -113,8 +104,14 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	PermEdges<int64_t>(DEL);
 	RenameVertices<int64_t>(DEL);
 
-	PSpMat_Int64 * G = new PSpMat_Int64(DEL, false);	 // conversion from distributed edge list, keep self-loops
-	degrees = G->Reduce(::Column, plus<int64_t>(), 0); 
+	PSpMat_DoubleInt * G = new PSpMat_DoubleInt(DEL, false);	 // conversion from distributed edge list, keep self-loops
+	
+	op::BinaryFunction* p = op::plus();
+	p->getMPIOp();
+	degrees = G->Reduce(::Column, *p, doubleint(0)); 
+	p->releaseMPIOp();
+	delete p;
+	
 	delete G;
 
 	// Start Kernel #1
@@ -142,6 +139,16 @@ pySpParMat* pySpParMat::copy()
 	return ret;
 }
 
+pySpParMat& pySpParMat::operator+=(const pySpParMat& other)
+{
+	A += other.A;
+}
+
+pySpParMat& pySpParMat::assign(const pySpParMat& other)
+{
+	A = other.A;
+}
+
 void pySpParMat::Apply(op::UnaryFunction* op)
 {
 	A.Apply(*op);
@@ -167,17 +174,12 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunc
 		
 	pyDenseParVec* ret = new pyDenseParVec(len, identity, identity);
 
-	// make a temporary int matrix
-	//SpParMat<int64_t, int, SpDCCols<int64_t, int> > * AInt = new SpParMat<int64_t, int, SpDCCols<int64_t, int> >(A);
-	
 	bf->getMPIOp();
 	if (uf == NULL)
 		A.Reduce(ret->v, (Dim)dim, *bf, identity);
 	else
 		A.Reduce(ret->v, (Dim)dim, *bf, identity, *uf);
 	bf->releaseMPIOp();
-	
-	//delete AInt;	// delete temporary
 	
 	return ret;
 }
@@ -194,13 +196,17 @@ void pySpParMat::Transpose()
 
 void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
 {
-	A.Find(outrows->v, outcols->v, outvals->v);
+	FullyDistVec<int64_t, int64_t> irows, icols;
+	A.Find(irows, icols, outvals->v);
+	outrows->v = irows;
+	outcols->v = icols;
+	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<int64_t, int64_t> result = SpMV< PlusTimesSRing<bool, int64_t > >(A, x.v);
+	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< PlusTimesSRing<INDEXTYPE, doubleint > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }
@@ -208,13 +214,13 @@ pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<int64_t, int64_t> result = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
+	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< SelectMaxSRing<INDEXTYPE, doubleint > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }
 
 void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	x.v = SpMV< SelectMaxSRing<bool, int64_t > >(A, x.v);
+	x.v = SpMV< SelectMaxSRing<INDEXTYPE, doubleint > >(A, x.v);
 }
 

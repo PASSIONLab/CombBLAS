@@ -22,14 +22,14 @@ pyDenseParVec* pySpParVec::dense() const
 	return ret;
 }
 
-int64_t pySpParVec::getne() const
+int64_t pySpParVec::getnee() const
 {
 	return v.getnnz();
 }
 
 int64_t pySpParVec::getnnz() const
 {
-	return v.Count(bind2nd(not_equal_to<int64_t>(), 0));
+	return v.Count(bind2nd(not_equal_to<doubleint>(), doubleint(0)));
 	//return v.getnnz();
 }
 
@@ -106,24 +106,6 @@ pySpParVec& pySpParVec::operator-=(const pyDenseParVec& other)
 	return *this;
 }
 
-void pySpParVec::SetElement(int64_t index, int64_t numx)	// element-wise assignment
-{
-	v.SetElement(index, numx);
-}
-
-int64_t pySpParVec::GetElement(int64_t index)
-{
-	int64_t val = v[index];
-	
-	if (val == v.NOT_FOUND)
-	{
-		cout << "Element " << index << " not found." << endl;
-	}
-	
-	return val;
-}
-
-
 pySpParVec* pySpParVec::copy()
 {
 	pySpParVec* ret = new pySpParVec(0);
@@ -160,35 +142,6 @@ void pySpParVec::printall()
 	v.DebugPrint();
 }
 
-/*
-pyDenseParVec* pySpParVec::FindInds_GreaterThan(int64_t value)
-{
-	pyDenseParVec* ret = new pyDenseParVec();
-	
-	// cheapen out and use the dense version for now
-	pyDenseParVec* temp = dense();
-	ret->v = temp->v.FindInds(bind2nd(greater<int64_t>(), value));
-	delete temp;
-	return ret;
-}
-
-pyDenseParVec* pySpParVec::FindInds_NotEqual(int64_t value)
-{
-	pyDenseParVec* ret = new pyDenseParVec();
-	
-	// cheapen out and use the dense version for now
-	pyDenseParVec* temp = dense();
-	ret->v = temp->v.FindInds(bind2nd(not_equal_to<int64_t>(), value));
-	delete temp;
-	return ret;
-}
-
-void pySpParVec::Apply_SetTo(int64_t value)
-{
-	v.Apply(set<int64_t>(value));
-}
-
-*/
 
 /////////////////////////
 
@@ -232,18 +185,13 @@ pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 }
 
 
-/*int64_t pySpParVec::Reduce_sum()
-{
-	return v.Reduce(plus<int64_t>(), 0);
-}*/
-
-int64_t pySpParVec::Reduce(op::BinaryFunction* f)
+double pySpParVec::Reduce(op::BinaryFunction* f)
 {
 	if (!f->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
 	f->getMPIOp();
-	int64_t ret = v.Reduce(*f, 0);
+	double ret = v.Reduce(*f, 0);
 	f->releaseMPIOp();
 	return ret;
 }
@@ -272,7 +220,7 @@ pySpParVec* pySpParVec::abs()
 
 void pySpParVec::__delitem__(const pyDenseParVec& key)
 {
-	v = EWiseMult(v, key.v, 1, (int64_t)0);
+	v = EWiseMult(v, key.v, 1, doubleint(0));
 }
 
 void pySpParVec::__delitem__(int64_t key)
@@ -280,9 +228,21 @@ void pySpParVec::__delitem__(int64_t key)
 	v.DelElement(key);
 }
 
-int64_t pySpParVec::__getitem__(int64_t key)
+double pySpParVec::__getitem__(int64_t key)
 {
-	return GetElement(key);
+	doubleint val = v[key];
+	
+	if (val == v.NOT_FOUND)
+	{
+		cout << "Element " << key << " not found." << endl;
+	}
+	
+	return val;
+}
+
+double pySpParVec::__getitem__(double key)
+{
+	return __getitem__(static_cast<int64_t>(key));
 }
 
 pySpParVec* pySpParVec::__getitem__(const pySpParVec& key)
@@ -290,9 +250,14 @@ pySpParVec* pySpParVec::__getitem__(const pySpParVec& key)
 	return SubsRef(key);
 }
 
-void pySpParVec::__setitem__(int64_t key, int64_t value)
+void pySpParVec::__setitem__(int64_t key, double value)
 {
-	SetElement(key, value);
+	v.SetElement(key, doubleint(value));
+}
+
+void pySpParVec::__setitem__(double  key, double value)
+{
+	__setitem__(static_cast<int64_t>(key), value);
 }
 
 void pySpParVec::__setitem__(const pyDenseParVec& key, const pyDenseParVec& value)
@@ -315,11 +280,11 @@ void pySpParVec::__setitem__(const pyDenseParVec& key, const pyDenseParVec& valu
 	*this += value;
 }
 
-void pySpParVec::__setitem__(const char* key, int64_t value)
+void pySpParVec::__setitem__(const char* key, double value)
 {
 	if (strcmp(key, "existent") == 0)
 	{
-		v.Apply(::set<int64_t>(value));
+		v.Apply(::set<doubleint>(doubleint(value)));
 	}
 	else
 	{

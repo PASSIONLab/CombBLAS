@@ -11,7 +11,8 @@ class pySpParVec {
 //INTERFACE_INCLUDE_END
 protected:
 
-	FullyDistSpVec<int64_t, int64_t> v;
+	typedef int64_t INDEXTYPE;
+	FullyDistSpVec<INDEXTYPE, doubleint> v;
 	
 	//pySpParVec(SpParVec<int64_t, int64_t> & in_v);
 	
@@ -19,8 +20,8 @@ protected:
 	friend class pyDenseParVec;
 	
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
-	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 
 	pySpParVec(); // used for initializing temporaries to be returned
@@ -33,7 +34,7 @@ public:
 	pyDenseParVec* dense() const;
 
 public:
-	int64_t getne() const;
+	int64_t getnee() const;
 	int64_t getnnz() const;
 	int64_t __len__() const;
 	int64_t len() const;
@@ -49,9 +50,6 @@ public:
 	pySpParVec& operator-=(const pyDenseParVec& other);
 	pySpParVec* copy();
 
-	void SetElement(int64_t index, int64_t numx);	// element-wise assignment
-	int64_t GetElement(int64_t index);
-	
 public:	
 	//void invert(); // "~";  almost equal to logical_not
 	//void abs();
@@ -76,7 +74,7 @@ public:
 
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
-	int64_t Reduce(op::BinaryFunction* f);
+	double Reduce(op::BinaryFunction* f);
 	
 	pySpParVec* Sort();
 	
@@ -91,12 +89,17 @@ public:
 	pySpParVec* abs();
 	void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
-	int64_t __getitem__(int64_t key);
+	
+	double __getitem__(int64_t key);
+	double __getitem__(double  key);
 	pySpParVec* __getitem__(const pySpParVec& key);
-	void __setitem__(int64_t key, int64_t value);
+	
+	void __setitem__(int64_t key, double value);
+	void __setitem__(double  key, double value);
 	void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
 	//void __setitem__(const pyDenseParVec& key, int64_t value);
-	void __setitem__(const char* key, int64_t value);	
+	void __setitem__(const char* key, double value);	
+	
 	char* __repr__();
 
 };
@@ -108,8 +111,11 @@ public:
 //          (i.e., not equal to the sparse vector's identity value)  '
 
 //pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
-void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+
+// compiler can't find the CombBLAS EWiseMult for some strange reason
+//pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 
 //INTERFACE_INCLUDE_END
 

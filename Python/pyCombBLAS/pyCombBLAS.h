@@ -34,6 +34,8 @@ class UnaryFunction;
 class BinaryFunction;
 }
 
+#include "doubleint.h"
+
 #include "pyOperations.h"
 #include "pySpParMat.h"
 #include "pySpParVec.h"

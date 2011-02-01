@@ -8,9 +8,9 @@ namespace op{
 \**************************/
 
 
-#define DECL_UNARY_STRUCT(name, operation) 								\
+#define DECL_UNARY_STRUCT(structname, operation) 						\
 	template<typename T>												\
-	struct name : public ConcreteUnaryFunction<T>						\
+	struct structname : public ConcreteUnaryFunction<T>					\
 	{																	\
 		T operator()(const T& x) const									\
 		{																\
@@ -22,14 +22,14 @@ namespace op{
 	DECL_UNARY_STRUCT(structname, operation)							\
 	UnaryFunction* name()												\
 	{																	\
-		return new UnaryFunction(new structname<int64_t>());			\
+		return new UnaryFunction(new structname<doubleint>());			\
 	}																
 
 DECL_UNARY_FUNC(identity_s, identity, return x;)
-DECL_UNARY_FUNC(negate_s, negate, return -x;)
+DECL_UNARY_FUNC(negate_s, negate, return -static_cast<doubleint>(x);)
 DECL_UNARY_FUNC(bitwise_not_s, bitwise_not, return ~x;)
 DECL_UNARY_FUNC(logical_not_s, logical_not, return !x;)
-DECL_UNARY_FUNC(abs_s, abs, return (x < 0) ? -x : x;)
+DECL_UNARY_FUNC(abs_s, abs, return (x < 0) ? -static_cast<doubleint>(x) : x;)
 DECL_UNARY_FUNC(totality_s, totality, return 1;)
 
 
@@ -47,9 +47,9 @@ struct set_s: public ConcreteUnaryFunction<T>
 	T value;
 };
 
-UnaryFunction* set(int64_t val)
+UnaryFunction* set(double val)
 {
-	return new UnaryFunction(new set_s<int64_t>(val));
+	return new UnaryFunction(new set_s<doubleint>(doubleint(val)));
 }
 
 template<typename T>
@@ -63,7 +63,7 @@ struct safemultinv_s : public ConcreteUnaryFunction<T>
 };
 
 UnaryFunction* safemultinv() {
-	return new UnaryFunction(new safemultinv_s<int64_t>());
+	return new UnaryFunction(new safemultinv_s<doubleint>());
 }
 
 
@@ -85,7 +85,7 @@ UnaryFunction* safemultinv() {
 	DECL_BINARY_STRUCT(structname, operation)							\
 	BinaryFunction* name()												\
 	{																	\
-		return new BinaryFunction(new structname<int64_t>(), as, com);	\
+		return new BinaryFunction(new structname<doubleint>(), as, com);	\
 	}																
 
 
@@ -103,19 +103,19 @@ DECL_BINARY_FUNC(multiplies_s, multiplies, true, true, return x*y;)
 DECL_BINARY_FUNC(divides_s, divides, true, false, return x/y;)
 DECL_BINARY_FUNC(modulus_s, modulus, false, false, return x % y;)
 
-DECL_BINARY_FUNC(max_s, max, true, true, return std::max<int64_t>(x, y);)
-DECL_BINARY_FUNC(min_s, min, true, true, return std::min<int64_t>(x, y);)
+DECL_BINARY_FUNC(max_s, max, true, true, return std::max<doubleint>(x, y);)
+DECL_BINARY_FUNC(min_s, min, true, true, return std::min<doubleint>(x, y);)
 
 DECL_BINARY_FUNC(bitwise_and_s, bitwise_and, true, true, return x & y;)
 DECL_BINARY_FUNC(bitwise_or_s, bitwise_or, true, true, return x | y;)
 DECL_BINARY_FUNC(bitwise_xor_s, bitwise_xor, true, true, return x ^ y;)
 
-// the functions below are predicates, hence return a different type than they accept, so can't be associative
-DECL_BINARY_FUNC(logical_and_s, logical_and, false, true, return x && y;)
-DECL_BINARY_FUNC(logical_or_s, logical_or, false, true, return x || y;)
-DECL_BINARY_FUNC(logical_xor_s, logical_xor, false, true, return (x || y) && !(x && y);)
+DECL_BINARY_FUNC(logical_and_s, logical_and, true, true, return x && y;)
+DECL_BINARY_FUNC(logical_or_s, logical_or, true, true, return x || y;)
+DECL_BINARY_FUNC(logical_xor_s, logical_xor, true, true, return (x || y) && !(x && y);)
 
-DECL_BINARY_FUNC(equal_to_s, equal_to, false, true, return x == y;)
+DECL_BINARY_FUNC(equal_to_s, equal_to, true, true, return x == y;)
+// not sure about the associativity of these
 DECL_BINARY_FUNC(not_equal_to_s, not_equal_to, false, true, return x != y;)
 DECL_BINARY_FUNC(greater_s, greater, false, false, return x > y;)
 DECL_BINARY_FUNC(less_s, less, false, false, return x < y;)
@@ -147,15 +147,15 @@ struct bind_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* bind1st(BinaryFunction* op, int64_t val)
+UnaryFunction* bind1st(BinaryFunction* op, double val)
 {
-	return new UnaryFunction(new bind_s<int64_t>(op->op, 1, val));
+	return new UnaryFunction(new bind_s<doubleint>(op->op, 1, doubleint(val)));
 	//return new UnaryFunction(bind1st(op->op, val));
 }
 
-UnaryFunction* bind2nd(BinaryFunction* op, int64_t val)
+UnaryFunction* bind2nd(BinaryFunction* op, double val)
 {
-	return new UnaryFunction(new bind_s<int64_t>(op->op, 2, val));
+	return new UnaryFunction(new bind_s<doubleint>(op->op, 2, doubleint(val)));
 	//return new UnaryFunction(bind2nd(op->op, val));
 }
 
@@ -179,7 +179,7 @@ struct compose1_s : public ConcreteUnaryFunction<T>
 UnaryFunction* compose1(UnaryFunction* f, UnaryFunction* g) // h(x) is the same as f(g(x))
 {
 	//return new UnaryFunction(compose1(f->op, g->op));
-	return new UnaryFunction(new compose1_s<int64_t>(f->op, g->op));
+	return new UnaryFunction(new compose1_s<doubleint>(f->op, g->op));
 }
 
 
@@ -200,7 +200,7 @@ struct compose2_s : public ConcreteUnaryFunction<T>
 UnaryFunction* compose2(BinaryFunction* f, UnaryFunction* g1, UnaryFunction* g2) // h(x) is the same as f(g1(x), g2(x))
 {
 	//return new BinaryFunction(compose2(f->op, g1->op, g2->op));
-	return new UnaryFunction(new compose2_s<int64_t>(f->op, g1->op, g2->op));
+	return new UnaryFunction(new compose2_s<doubleint>(f->op, g1->op, g2->op));
 }
 
 // NOT
@@ -223,7 +223,7 @@ struct unary_not_s : public ConcreteUnaryFunction<T>
 
 UnaryFunction* not1(UnaryFunction* f)
 {
-	return new UnaryFunction(new unary_not_s<int64_t>(f->op));
+	return new UnaryFunction(new unary_not_s<doubleint>(f->op));
 }
 
 
@@ -242,7 +242,7 @@ struct binary_not_s : public ConcreteBinaryFunction<T>
 
 BinaryFunction* not2(BinaryFunction* f)
 {
-	return new BinaryFunction(new binary_not_s<int64_t>(f->op), f->associative, f->commutable);
+	return new BinaryFunction(new binary_not_s<doubleint>(f->op), f->associative, f->commutable);
 }
 
 /**************************\
@@ -253,8 +253,8 @@ MPI_Op BinaryFunction::staticMPIop;
 	
 void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
-	int64_t* in = (int64_t*)invec;
-	int64_t* inout = (int64_t*)inoutvec;
+	doubleint* in = (doubleint*)invec;
+	doubleint* inout = (doubleint*)inoutvec;
 	
 	for (int i = 0; i < *len; i++)
 	{

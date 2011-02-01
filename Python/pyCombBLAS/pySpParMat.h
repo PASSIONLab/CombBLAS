@@ -16,13 +16,17 @@ protected:
 	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 	typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
 	typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-
-	typedef PSpMat_Int64 MatType;
-	MatType A;
+	
+	typedef int64_t INDEXTYPE;
+	typedef SpParMat < INDEXTYPE, doubleint, SpDCCols<INDEXTYPE,doubleint> > PSpMat_DoubleInt;
+	typedef PSpMat_DoubleInt MatType;
 	
 	friend class pySpParVec;
 	
 	pySpParMat(pySpParMat* copyFrom);
+
+public:
+	MatType A;
 
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
@@ -32,6 +36,7 @@ public:
 
 public:
 	int64_t getnnz();
+	int64_t getnee();
 	int64_t getnrow();
 	int64_t getncol();
 	
@@ -42,10 +47,13 @@ public:
 	
 public:
 	pySpParMat* copy();
+	pySpParMat& operator+=(const pySpParMat& other);
+	pySpParMat& assign(const pySpParMat& other);
 	
 	void Apply(op::UnaryFunction* op);
 	void Prune(op::UnaryFunction* op);
 	
+	// Be wary of identity value with min()!!!!!!!
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity = 0);
 	
