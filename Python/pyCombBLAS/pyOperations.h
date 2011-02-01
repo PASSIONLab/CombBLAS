@@ -4,6 +4,7 @@
 #include "pyCombBLAS.h"
 #include <functional>
 #include <iostream>
+#include <math.h>
 
 namespace op {
 

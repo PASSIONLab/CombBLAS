@@ -523,6 +523,30 @@ NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
 }
 
 template <class IT, class NT>
+template <typename _BinaryOperation, typename _UnaryOperation>
+NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op)
+{
+	// std::accumulate returns identity for empty sequences
+	NT localsum = default_val; 
+	
+	if (num.size() > 0)
+	{
+		typename vector< NT >::const_iterator iter = num.begin();
+		localsum = __unary_op(*iter);
+		iter++;
+		while (iter < num.end())
+		{
+			localsum = __binary_op(localsum, __unary_op(*iter));
+			iter++;
+		}
+	}
+
+	NT totalsum = default_val;
+	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	return totalsum;
+}
+
+template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	IT nznz = getnnz();

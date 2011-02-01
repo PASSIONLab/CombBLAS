@@ -178,14 +178,19 @@ int64_t pyDenseParVec::Count(op::UnaryFunction* op)
 	return v.Count(*op);
 }
 
-double pyDenseParVec::Reduce(op::BinaryFunction* f)
+double pyDenseParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 {
-	if (!f->associative && root())
+	if (!bf->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
-	f->getMPIOp();
-	doubleint ret = v.Reduce(*f, 0);
-	f->releaseMPIOp();
+	doubleint ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+		ret = v.Reduce(*bf, doubleint::nan(), identity<int64_t>());
+	else
+		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+	bf->releaseMPIOp();
 	return ret;
 }
 

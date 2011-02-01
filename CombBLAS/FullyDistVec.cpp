@@ -54,6 +54,30 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 }
 
 template <class IT, class NT>
+template <typename _BinaryOperation, typename _UnaryOperation>
+NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op)
+{
+	// std::accumulate returns identity for empty sequences
+	NT localsum = default_val; 
+	
+	if (arr.size() > 0)
+	{
+		typename vector< NT >::const_iterator iter = arr.begin();
+		localsum = __unary_op(*iter);
+		iter++;
+		while (iter < arr.end())
+		{
+			localsum = __binary_op(localsum, __unary_op(*iter));
+			iter++;
+		}
+	}
+
+	NT totalsum = default_val;
+	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	return totalsum;
+}
+
+template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRHS,NTRHS > & rhs)	
 {
