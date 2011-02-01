@@ -352,7 +352,7 @@ void pyDenseParVec::__setitem__(const pySpParVec& key, double value)
 pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
 {
 	pyDenseParVec* ret = new pyDenseParVec();
-	ret->v.iota(howmany, start);
+	ret->v.iota(howmany, start-1);
 	return ret;
 }
 

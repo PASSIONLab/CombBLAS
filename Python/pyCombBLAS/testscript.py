@@ -141,6 +141,7 @@ def k2validate(G, root, parents):
 	tmp1 -= levels.SubsRef(treeJ);
 	tmp2 = tmp1.FindInds(pcb.bind2nd(pcb.not_equal_to(), -1));
 	if tmp2.getnee():
+		print "spec test #2 failed."
 		ret = -1;
 
 	# spec test #3
@@ -207,8 +208,9 @@ if (pcb.root()):
 
 ###############################################
 ###########    CANDIDATE SELECTION
+debugprint = False
 
-numCands = 4
+numCands = 64
 if (numCands > n):
 	numCands = n
 
@@ -260,26 +262,32 @@ for i in range(0, numCands):
 	fringe[c] = c;
 	parents[c] = c;
 	
-	if (pcb.root()):
-		print "start fringe:" 
-	fringe.printall()
+	if debugprint:
+		if (pcb.root()):
+			print "start fringe:" 
+		fringe.printall()
 	
 	niter = 0
 	while (fringe.getnee() > 0):
-		print "----- on iteration %d"%(niter+1) 
+		if debugprint:
+			print "----- on iteration %d"%(niter+1) 
 		fringe.setNumToInd()
-		print "fringe at start of iteration"
-		fringe.printall();
+		if debugprint:
+			print "fringe at start of iteration"
+			fringe.printall();
 		A.SpMV_SelMax_inplace(fringe) #
-		print "fringe after SpMV"
-		fringe.printall();
+		if debugprint:
+			print "fringe after SpMV"
+			fringe.printall();
 		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
-		print "fringe at end of iteration"
-		fringe.printall();
+		if debugprint:
+			print "fringe at end of iteration"
+			fringe.printall();
 		parents.ApplyMasked(pcb.set(0), fringe)
 		parents.add(fringe)
-		print "parents at end of iteration"
-		parents.printall()
+		if debugprint:
+			print "parents at end of iteration"
+			parents.printall()
 		niter += 1
 	
 	#------------------------- TIMED --------------------------------------------
@@ -287,8 +295,9 @@ for i in range(0, numCands):
 
 	################## REPORTING:
 
-	print "------------------------- resulting parents vector:"
-	parents.printall()
+	if debugprint:
+		print "------------------------- resulting parents vector:"
+		parents.printall()
 	r = parents.Count(pcb.bind2nd(pcb.greater(), -1))
 
 	#find the number of edges we traversed. Some were traversed multiple times, but the spec
