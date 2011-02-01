@@ -117,6 +117,10 @@ public:
 
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT init);
+	
+	template <typename _BinaryOperation, typename _UnaryOperation>
+	NT Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op);
+
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 	NT NOT_FOUND; 

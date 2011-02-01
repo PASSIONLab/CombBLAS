@@ -185,16 +185,22 @@ pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
 }
 
 
-double pySpParVec::Reduce(op::BinaryFunction* f)
+double pySpParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 {
-	if (!f->associative && root())
+	if (!bf->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
-	f->getMPIOp();
-	double ret = v.Reduce(*f, 0);
-	f->releaseMPIOp();
+	doubleint ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+		ret = v.Reduce(*bf, doubleint::nan(), identity<int64_t>());
+	else
+		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+	bf->releaseMPIOp();
 	return ret;
 }
+
 
 pySpParVec* pySpParVec::Sort()
 {

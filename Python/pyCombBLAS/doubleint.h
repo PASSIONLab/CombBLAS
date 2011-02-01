@@ -2,21 +2,26 @@
 #define DOUBLEINT_H
 
 #include <iostream>
+#include <math.h>
+#include <limits>
 
 struct doubleint 
 {
 	double d;
 	
-	doubleint(): d(0) {}
-	doubleint(double v): d(v) {}
-	doubleint(const doubleint & v): d(v.d) {}
+	doubleint():					d(0) {}
+	doubleint(double v):			d(v) {}
+	doubleint(const doubleint & v):	d(v.d) {}
 	
-	operator int64_t() const		{ return static_cast<int64_t>(d); }
-	operator uint64_t() const		{ return static_cast<uint64_t>(d); }
-	operator int() const			{ return static_cast<int>(d); }
-	operator bool() const			{ return static_cast<bool>(d); }
-	operator float() const			{ return static_cast<float>(d); }
-	operator double() const			{ return d; }
+	bool isnan() const							{ return std::isnan(d); }
+	static doubleint nan()						{ return doubleint(numeric_limits<double>::quiet_NaN()); } 
+	
+	operator int64_t() const					{ return static_cast<int64_t>(d); }
+	operator uint64_t() const					{ return static_cast<uint64_t>(d); }
+	operator int() const						{ return static_cast<int>(d); }
+	operator bool() const						{ return static_cast<bool>(d); }
+	operator float() const						{ return static_cast<float>(d); }
+	operator double() const						{ return d; }
 	
 	double operator=(const double v) 			{ d = v; return d; }
 	int operator=(const int v) 					{ d = static_cast<int>(v); return static_cast<int>(d); }
@@ -24,14 +29,14 @@ struct doubleint
 	doubleint& operator=(const doubleint& v) 	{ d = v.d; return *this; }
 
 	// unary operations: ++, --, ~, !
-	doubleint& operator++()			{ d += 1; return *this; }
-	doubleint& operator++(int)		{ d += 1; return *this; }
-	doubleint& operator--()			{ d -= 1; return *this; }
-	doubleint& operator--(int)		{ d -= 1; return *this; }
+	doubleint& operator++()						{ d += 1; return *this; }
+	doubleint& operator++(int)					{ d += 1; return *this; }
+	doubleint& operator--()						{ d -= 1; return *this; }
+	doubleint& operator--(int)					{ d -= 1; return *this; }
 
-	doubleint operator-()			{ return doubleint(-d); }
-	doubleint operator~() const		{ return doubleint(~static_cast<int64_t>(d)); }
-	bool operator!() const			{ return !d; }
+	doubleint operator-()						{ return doubleint(-d); }
+	doubleint operator~() const					{ return doubleint(~static_cast<int64_t>(d)); }
+	bool operator!() const						{ return !d; }
 };
 
 // Binary operators. The preprocessor can help save a lot of monotony.

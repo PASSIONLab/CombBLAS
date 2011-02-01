@@ -73,7 +73,7 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
-	double Reduce(op::BinaryFunction* f);
+	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	pySpParVec* Find(op::UnaryFunction* op);
 	pySpParVec* __getitem__(op::UnaryFunction* op);
 	pyDenseParVec* FindInds(op::UnaryFunction* op);

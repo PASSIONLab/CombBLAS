@@ -114,6 +114,9 @@ public:
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
 
+	template <typename _BinaryOperation, typename _UnaryOperation>
+	NT Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op);
+
 	using FullyDist<IT,NT>::glen; 
 	using FullyDist<IT,NT>::commGrid; 
 

@@ -74,7 +74,7 @@ public:
 
 	pySpParVec* SubsRef(const pySpParVec& ri);
 	
-	double Reduce(op::BinaryFunction* f);
+	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
 	pySpParVec* Sort();
 	
