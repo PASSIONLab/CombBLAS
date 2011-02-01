@@ -100,13 +100,13 @@ def k2validate(G, root, parents):
 	# about the same calculation as bfsTree, but tracks levels too
 	parents2 = pcb.pyDenseParVec(nrowG, -1);
 	fringe = pcb.pySpParVec(nrowG);
-	parents2.SetElement(root,root);
-	fringe.SetElement(root,root);
+	parents2[root] = root;
+	fringe[root] = root;
 	levels = pcb.pyDenseParVec(nrowG, -1);
-	levels.SetElement(root,0);
+	levels[root] = 0;
 
 	level = 1;
-	while fringe.getnnz() > 0:
+	while fringe.getnee() > 0:
 		fringe.setNumToInd();
 		G.SpMV_SelMax_inplace(fringe);
 		pcb.EWiseMult_inplacefirst(fringe, parents2, True, -1);
@@ -130,7 +130,7 @@ def k2validate(G, root, parents):
 	##root = tmp1.FindInds_NotEqual(0);
 	#treeEdges = ((parents <> -1) & (parents <> root);
 	tmp1 = parents.copy();
-	tmp1.SetElement(root,-1);
+	tmp1[root] = -1;
 	treeEdges = tmp1.FindInds(pcb.bind2nd(pcb.not_equal_to(), -1));
 	#treeI = parents[treeEdges]
 	treeI = parents.SubsRef(treeEdges);
@@ -140,7 +140,7 @@ def k2validate(G, root, parents):
 	tmp1 = levels.SubsRef(treeI);
 	tmp1 -= levels.SubsRef(treeJ);
 	tmp2 = tmp1.FindInds(pcb.bind2nd(pcb.not_equal_to(), -1));
-	if tmp2.getnnz():
+	if tmp2.getnee():
 		ret = -1;
 
 	# spec test #3
@@ -198,16 +198,17 @@ else:
 
 n = A.getnrow()
 m = A.getncol()
+nee = A.getnee()
 nnz = A.getnnz()
 edgefactor = nnz/n;
 if (pcb.root()):
-	print "A is %d by %d with %d nonzeros." % (n, m, nnz)
+	print "A is %d by %d with %d elements (%d nonzeros)." % (n, m, nee, nnz)
 
 
 ###############################################
 ###########    CANDIDATE SELECTION
 
-numCands = 64
+numCands = 4
 if (numCands > n):
 	numCands = n
 
@@ -248,7 +249,7 @@ TEPS = [];
 iterations = [];
 
 for i in range(0, numCands):
-	c = Cands.GetElement(i)
+	c = Cands[i]
 
 	# start the clock
 	tstart = time.time()
@@ -256,26 +257,29 @@ for i in range(0, numCands):
 	
 	parents = pcb.pyDenseParVec(n, -1);
 	fringe = pcb.pySpParVec(n)
-	fringe.SetElement(c, c);
-	parents.SetElement(c, c);
+	fringe[c] = c;
+	parents[c] = c;
 	
-	#if (pcb.root()):
-	#	print "start fringe:" 
-	#fringe.printall()
+	if (pcb.root()):
+		print "start fringe:" 
+	fringe.printall()
 	
 	niter = 0
-	while (fringe.getnnz() > 0):
+	while (fringe.getnee() > 0):
+		print "----- on iteration %d"%(niter+1) 
 		fringe.setNumToInd()
-		#print "fringe at start of iteration"
-		#fringe.printall();
+		print "fringe at start of iteration"
+		fringe.printall();
 		A.SpMV_SelMax_inplace(fringe) #
-		#print "fringe after SpMV"
-		#fringe.printall();
+		print "fringe after SpMV"
+		fringe.printall();
 		pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)	#// clean-up vertices that already have parents 
-		#print "fringe at end of iteration"
-		#fringe.printall();
+		print "fringe at end of iteration"
+		fringe.printall();
 		parents.ApplyMasked(pcb.set(0), fringe)
 		parents.add(fringe)
+		print "parents at end of iteration"
+		parents.printall()
 		niter += 1
 	
 	#------------------------- TIMED --------------------------------------------
@@ -283,16 +287,21 @@ for i in range(0, numCands):
 
 	################## REPORTING:
 
-	#parents.printall()
+	print "------------------------- resulting parents vector:"
+	parents.printall()
 	r = parents.Count(pcb.bind2nd(pcb.greater(), -1))
 
 	#find the number of edges we traversed. Some were traversed multiple times, but the spec
 	# says the number of input edges.
 	parentsSP = parents.sparse(-1);
-	if (parentsSP.getnnz() != r):
-		pnnz = parentsSP.getnnz()
+	if (parentsSP.getnee() != r):
+		pnnz = parentsSP.getnee()
 		if (pcb.root()):
-			print "oh oh oh oh noooooooo! (parents.nnz) %d != %d (parentsSP.nnz)"%(r, pnnz)
+			print "oh oh oh oh noooooooo! (parents.nnz) %d != %d (parentsSP.nee)"%(r, pnnz)
+			print "parents: "
+			parents.printall()
+			print "parentsSP: "
+			parentsSP.printall()
 	parentsSP.Apply(pcb.set(1));
 	nedges = pcb.EWiseMult(parentsSP, degrees, False, 0).Reduce(pcb.plus())
 	

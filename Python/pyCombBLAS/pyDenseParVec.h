@@ -11,22 +11,23 @@ class pyDenseParVec {
 //INTERFACE_INCLUDE_END
 protected:
 
-	FullyDistVec<int64_t, int64_t> v;
+	typedef int64_t INDEXTYPE;
+	FullyDistVec<INDEXTYPE, doubleint> v;
 	
 	friend class pySpParVec;
 	friend class pySpParMat;
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
-	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, int64_t zero);
+	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 	pyDenseParVec();
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
 public:
-	pyDenseParVec(int64_t size, int64_t init);
-	pyDenseParVec(int64_t size, int64_t init, int64_t zero);
+	pyDenseParVec(int64_t size, double init);
+	pyDenseParVec(int64_t size, double init, double zero);
 	
 	pySpParVec* sparse() const;
-	pySpParVec* sparse(int64_t zero) const;
+	pySpParVec* sparse(double zero) const;
 	
 public:
 	int64_t len() const;
@@ -54,9 +55,6 @@ public:
 
 	pyDenseParVec* copy();
 	
-	void SetElement (int64_t indx, int64_t numx);	// element-wise assignment
-	int64_t GetElement (int64_t indx);	// element-wise fetch
-	
 	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
 
 	void RandPerm();
@@ -75,13 +73,14 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
+	double Reduce(op::BinaryFunction* f);
 	pySpParVec* Find(op::UnaryFunction* op);
 	pySpParVec* __getitem__(op::UnaryFunction* op);
 	pyDenseParVec* FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
-	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, int64_t nullValue = 0);
+	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
 
 public:
 	static pyDenseParVec* range(int64_t howmany, int64_t start);
@@ -90,18 +89,21 @@ public:
 	// Functions from PyCombBLAS
 	pyDenseParVec* abs();
 	
-	pyDenseParVec& operator+=(int64_t value);
-	pyDenseParVec* operator+(int64_t value);
-	pyDenseParVec& operator-=(int64_t value);
-	pyDenseParVec* operator-(int64_t value);
+	pyDenseParVec& operator+=(double value);
+	pyDenseParVec* operator+(double value);
+	pyDenseParVec& operator-=(double value);
+	pyDenseParVec* operator-(double value);
 	
 	pyDenseParVec* __and__(const pyDenseParVec& other);
 	
-	int64_t __getitem__(int64_t key);
+	double __getitem__(int64_t key);
+	double __getitem__(double  key);
 	pyDenseParVec* __getitem__(const pyDenseParVec& key);
-	void __setitem__(int64_t key, int64_t value);
+
+	void __setitem__(int64_t key, double value);
+	void __setitem__(double  key, double value);
 	void __setitem__(const pySpParVec& key, const pySpParVec& value);
-	void __setitem__(const pySpParVec& key, int64_t value);
+	void __setitem__(const pySpParVec& key, double value);
 };
 //INTERFACE_INCLUDE_END
 

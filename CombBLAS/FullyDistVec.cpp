@@ -29,6 +29,19 @@ FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT
 }
 
 template <class IT, class NT>
+template <class ITRHS, class NTRHS>
+FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
+: FullyDist<IT,NT>(rhs.commGrid, static_cast<IT>(rhs.glen)), zero(static_cast<NT>(rhs.zero))
+{
+	arr.resize(static_cast<IT>(rhs.arr.size()), zero);
+	
+	for(IT i=0; i< arr.size(); ++i)
+	{
+		arr[i] = static_cast<NT>(rhs.arr[static_cast<ITRHS>(i)]);
+	}
+}
+
+template <class IT, class NT>
 template <typename _BinaryOperation>
 NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 {
@@ -39,6 +52,26 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
 	return totalsum;
 }
+
+template <class IT, class NT>
+template <class ITRHS, class NTRHS>
+FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRHS,NTRHS > & rhs)	
+{
+	if(static_cast<const void*>(this) != static_cast<const void*>(&rhs))		
+	{
+		//FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
+		glen = static_cast<IT>(rhs.glen);
+		commGrid.reset(new CommGrid(*rhs.commGrid));
+		zero = static_cast<NT>(rhs.zero);
+		
+		arr.resize(rhs.arr.size(), zero);
+		for(IT i=0; i< arr.size(); ++i)
+		{
+			arr[i] = static_cast<NT>(rhs.arr[static_cast<ITRHS>(i)]);
+		}
+	}
+	return *this;
+}	
 
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)	
@@ -480,7 +513,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _Binar
 		}
 		else
 		{
-			typename vector< NT >::const_iterator otherInd = other.ind.begin();
+			typename vector< IT >::const_iterator otherInd = other.ind.begin();
 			typename vector< NT >::const_iterator otherNum = other.num.begin();
 			
 			IT sizelocal = LocArrSize();

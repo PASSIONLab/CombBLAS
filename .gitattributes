@@ -1022,6 +1022,7 @@ Python/distribCombBLAS/Graph500.py -text
 Python/distribCombBLAS/feedback.py -text
 Python/pyCombBLAS/Makefile-nersc -text
 Python/pyCombBLAS/Makefile-neumann -text
+Python/pyCombBLAS/doubleint.h -text
 Python/pyCombBLAS/makei.py -text
 Python/pyCombBLAS/pyCombBLAS.cpp -text
 Python/pyCombBLAS/pyCombBLAS.h -text

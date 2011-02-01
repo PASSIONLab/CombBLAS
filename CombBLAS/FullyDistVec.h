@@ -38,8 +38,13 @@ public:
 	FullyDistVec ( IT globallen, NT initval, NT id); 
 	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
-	
+
+	template <class ITRHS, class NTRHS>
+	FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs ); // type converter constructor
+
 	ifstream& ReadDistribute (ifstream& infile, int master);
+	template <class ITRHS, class NTRHS>
+	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
