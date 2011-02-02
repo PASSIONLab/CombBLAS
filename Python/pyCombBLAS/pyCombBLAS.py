@@ -163,10 +163,6 @@ def pySpParVec_range(*args):
 pySpParVec_range = _pyCombBLAS.pySpParVec_range
 
 
-def EWiseMult(*args):
-  return _pyCombBLAS.EWiseMult(*args)
-EWiseMult = _pyCombBLAS.EWiseMult
-
 def EWiseMult_inplacefirst(*args):
   return _pyCombBLAS.EWiseMult_inplacefirst(*args)
 EWiseMult_inplacefirst = _pyCombBLAS.EWiseMult_inplacefirst
@@ -218,6 +214,10 @@ class pyDenseParVec(_object):
     __del__ = lambda self : None;
 pyDenseParVec_swigregister = _pyCombBLAS.pyDenseParVec_swigregister
 pyDenseParVec_swigregister(pyDenseParVec)
+
+def EWiseMult(*args):
+  return _pyCombBLAS.EWiseMult(*args)
+EWiseMult = _pyCombBLAS.EWiseMult
 
 def pyDenseParVec_range(*args):
   return _pyCombBLAS.pyDenseParVec_range(*args)
