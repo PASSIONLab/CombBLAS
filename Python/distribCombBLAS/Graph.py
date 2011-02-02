@@ -118,13 +118,13 @@ class ParVec:
 		return ret;
 
 	def __and__(self, other):
-		ret = ParVec(-1);
 		if type(other) == int:
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_and(), other));
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
+			ret = ParVec(-1);
 			ret.dpv = self.dpv & other.dpv;
 		return ret;
 
@@ -161,9 +161,14 @@ class ParVec:
 			if key > self.dpv.len()-1:
 				raise IndexError;
 			ret = self.dpv[key];
-		else:	#elif isinstance(other,ParVec):
+		elif isinstance(key,ParVec):
 			ret = ParVec(-1);
 			ret.dpv = self.dpv[key.dpv];
+		elif isinstance(key,SpParVec):
+			ret = SpParVec(-1);
+			ret.spv = self.dpv.sparse()[key.spv];
+		else:
+			raise KeyError, 'Key must be integer, ParVec, or SpParVec'
 		return ret;
 
 	def __ge__(self, other):
@@ -281,6 +286,20 @@ class ParVec:
 		ret = ParVec(len(self)) - self;
 		return ret;
 
+	def __or__(self, other):
+		if type(other) == int:
+			ret = self.copy();
+			ret.dpv.Apply(pcb.bind2nd(pcb.logical_or(), other));
+		else: 	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			ret = ParVec.zeros(len(self));
+			tmp1 = self.copy();
+			tmp1 += other;
+			tmp2 = SpParVec.toSpParVec(tmp1.dpv.Find(pcb.bind2nd(pcb.greater(),0)));
+			ret[tmp2] = 1;
+		return ret;
+
 	def __repr__(self):
 		self.dpv.printall();
 		return ' ';
@@ -301,7 +320,15 @@ class ParVec:
 				self[key] = 0;
 				self += value; 
 		elif isinstance(key,SpParVec):
-			raise NotImplementedError, "indexing of ParVec by SpParVec not implemented"
+			if type(value) == int:
+				self.dpv.ApplyMasked(pcb.set(value), key.spv);
+			elif isinstance(value, SpParVec):
+				#ToDo:  check that key and value have the same
+				# nonnull positions
+				self.dpv.ApplyMasked(pcb.set(0),key.spv);
+				self.dpv.add(value.spv);
+			else:
+				raise NotImplementedError, "Indexing of ParVec by SpParVec only allowed for scalar or SpParVec right-hand side"
 		else:
 			raise KeyError, "Unknown key type"
 			
@@ -671,8 +698,10 @@ class SpParVec:
 		ret.dpv = self.spv.dense();
 		return ret;
 
+	#ToDO:  need to implement Find when pyCombBLAS method available
 	#def find(self):
 
+	#ToDO:  need to implement FindInds when pyCombBLAS method available
 	#def findInds(self):
 
 	def nn(self):
@@ -704,10 +733,26 @@ class SpParVec:
 		ret.spv = pcb.pySpParVec.range(stop-start,start);
 		return ret;
 	
+	#in-place, so no return value;
+	def spones(self):
+		self.spv.Apply(pcb.set(1));
+		return;
+
+	#in-place, so no return value;
+	def sprange(self):
+		self.spv.setNumToInd();
+
 	def sum(self):
 		ret = self.spv.Reduce(pcb.plus());
 		return ret;
 
+	#TODO:  check for class being PyDenseParVec?
+	@staticmethod
+	def toSpParVec(SPV):
+		ret = SpParVec(-1);
+		ret.spv = SPV;
+		return ret;
+	
 def master():
 	"""
 	Return Boolean value denoting whether calling process is the 
