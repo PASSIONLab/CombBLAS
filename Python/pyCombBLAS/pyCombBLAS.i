@@ -174,7 +174,7 @@ pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude,
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 // compiler can't find the CombBLAS EWiseMult for some strange reason
-//pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
+pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 
 
 class pyDenseParVec {

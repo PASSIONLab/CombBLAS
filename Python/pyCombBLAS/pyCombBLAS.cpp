@@ -23,13 +23,13 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 	a.v = EWiseMult(a.v, b.v, exclude, doubleint(zero));
 }
 
-/*pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
+pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
 {
 	pySpParMat* ret = new pySpParMat();
 	//ret->A = EWiseMult<int64_t, int64_t, int64_t, SpDCCols<int64_t,int64_t>, SpDCCols<int64_t,int64_t> >(A1.A, A2.A, exclude);
 	ret->A = EWiseMult(A1.A, A2.A, exclude);
 	return ret;
-}*/
+}
 
 ////////////////////////// INITALIZATION/FINALIZE
 

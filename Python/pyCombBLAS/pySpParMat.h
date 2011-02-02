@@ -16,10 +16,14 @@ protected:
 	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 	typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
 	typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-	
+
+public:
 	typedef int64_t INDEXTYPE;
-	typedef SpParMat < INDEXTYPE, doubleint, SpDCCols<INDEXTYPE,doubleint> > PSpMat_DoubleInt;
+	typedef SpDCCols<INDEXTYPE,doubleint> DCColsType;
+	typedef SpParMat < INDEXTYPE, doubleint, DCColsType > PSpMat_DoubleInt;
 	typedef PSpMat_DoubleInt MatType;
+	
+protected:
 	
 	friend class pySpParVec;
 	
@@ -71,5 +75,22 @@ public:
 	static int Row() { return ::Row; }
 };
 //INTERFACE_INCLUDE_END
+
+
+// From CombBLAS/promote.h:
+/*
+template <class T1, class T2>
+struct promote_trait  { };
+
+#define DECLARE_PROMOTE(A,B,C)                  \
+    template <> struct promote_trait<A,B>       \
+    {                                           \
+        typedef C T_promote;                    \
+    };
+*/
+DECLARE_PROMOTE(pySpParMat::MatType, pySpParMat::MatType, pySpParMat::MatType)
+DECLARE_PROMOTE(pySpParMat::DCColsType, pySpParMat::DCColsType, pySpParMat::DCColsType)
+
+
 
 #endif
