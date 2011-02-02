@@ -52,8 +52,14 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'Too many indices'
 		else:
 			key1 = key;  key2 = key;
-		if type(key1) == int or type(key2) == int:
-			raise NotImplementedError, 'No integer indexing'
+		if type(key1) == int:
+			tmp = ParVec(1);
+			tmp[0] = key1;
+			key1 = tmp;
+		if type(key2) == int:
+			tmp = ParVec(1);
+			tmp[0] = key2;
+			key2 = tmp;
 		if type(key1)==slice and key1==slice(None,None,None):
 			#ToDo: will need to handle nvert() 2-return case
 			key1mn = 0; key1mx = self.nvert()-1;
@@ -119,6 +125,7 @@ class DiGraph(gr.Graph):
 
 	@staticmethod
 	def fullyConnected(n,m):
+		#ToDo:  if only 1 input, assume square
 		i = ParVec.range(n*m) % n;
 		j = ParVec.range(n*m) / n;
 		v = ParVec.range(n*m);
@@ -292,7 +299,7 @@ class DiGraph(gr.Graph):
 	
 	#	creates a breadth-first search tree of a Graph from a starting
 	#	set of vertices.  Returns a 1D array with the parent vertex of 
-	#	each vertex in the tree; unreached vertices have parent == -Inf.
+	#	each vertex in the tree; unreached vertices have parent == -1.
 	#
 	def bfsTree(self, start):
 		parents = pcb.pyDenseParVec(self.nvert(), -1);
@@ -300,7 +307,7 @@ class DiGraph(gr.Graph):
 		# distinguish vertex0 from empty element
 		fringe = pcb.pySpParVec(self.nvert());
 		parents[start] = start;
-		fringe[start] = start+1;
+		fringe[start] = start;
 		while fringe.getnnz() > 0:
 			#FIX:  setNumToInd -> SPV.range()
 			fringe.setNumToInd();
@@ -322,39 +329,68 @@ class DiGraph(gr.Graph):
 		# calculate level in the tree for each vertex; root is at level 0
 		# about the same calculation as bfsTree, but tracks levels too
 		parents2 = ParVec.zeros(nvertG) - 1;
-		fringe = pcb.pySpParVec(nvertG);
 		parents2[root] = root;
-		fringe[root] = root+1;	#fix
+		fringe = SpParVec(nvertG);
+		fringe[root] = root;	#fix
 		levels = ParVec.zeros(nvertG) - 1;
 		levels[root] = 0;
 	
 		level = 1;
-		#FIX getnnz() -> SPV.getnnn()
-		while fringe.getnnz() > 0:
-			fringe.setNumToInd();		#ToDo: sparse range()
+		while fringe.nnn() > 0:
+			fringe.sprange();
 			#FIX:  create PCB graph-level op
-			self.spm.SpMV_SelMax_inplace(fringe);
+			self.spm.SpMV_SelMax_inplace(fringe.spv);
 			#FIX:  create PCB graph-level op
-			pcb.EWiseMult_inplacefirst(fringe, parents2.dpv, True, -1);
-			parents2.dpv[fringe] = fringe;
-			levels.dpv[fringe] = level;
+			pcb.EWiseMult_inplacefirst(fringe.spv, parents2.dpv, True, -1);
+			parents2[fringe] = fringe;
+			levels[fringe] = level;
 			level += 1;
 		
 		# spec test #1
-		#	Not implemented
-		
-	
-		# spec test #2
-		#    tree edges should be between verts whose levels differ by 1
-		
+		# Confirm that the tree is a tree;  i.e., that it does not
+		# have any cycles (visited more than once while building
+		# the tree) and that every vertex with a parent is
+		# in the tree. 
+
+		# build a new graph from just tree edges
 		tmp2 = parents != ParVec.range(nvertG);
 		treeEdges = (parents != -1) & tmp2;  
 		treeI = parents[treeEdges.findInds()]
 		treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
+		# root cannot be destination of any tree edge
+		if (treeJ == root).any():
+			ret = -1;
+			return ret;
+		builtGT = DiGraph(treeI, treeJ, 1, nvertG);
+		builtGT.reverseEdges();
+		visited = ParVec.zeros(nvertG);
+		visited[root] = 1;
+		fringe = SpParVec(nvertG);
+		fringe[root] = root;
+		cycle = False;
+		multiparents = False;
+		while fringe.nnn() > 0 and not cycle and not multiparents:
+			fringe.spones();
+			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv));
+			if visited[newfringe.denseNonnulls().findInds()].any():
+				cycle = True;
+				break;
+			if (newfringe > 1).any():
+				multiparents = True;
+			fringe = newfringe;
+			visited[fringe] = 1;
+		if cycle or multiparents:
+			ret = -1;	
+			return ret;
+		
+		# spec test #2
+		#    tree edges should be between verts whose levels differ by 1
+		
 		if (levels[treeI]-levels[treeJ] != -1).any():
 			ret = -2;
+			return ret;
 	
-		return (ret, ParVec.toParVec(levels))
+		return (ret, levels)
 	
 	# returns a Boolean vector of which vertices are neighbors
 	def neighbors(self, source, nhop=1):
