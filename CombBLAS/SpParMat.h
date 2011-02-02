@@ -180,9 +180,9 @@ public:
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
-	IT zero;
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
+	IT zero;
 	
 	template <class IU, class NU>
 	friend class DenseParMat;

@@ -3,27 +3,27 @@
 #include "Operations.h"
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (): zero(0), FullyDist<IT,NT>()
+FullyDistVec<IT, NT>::FullyDistVec (): FullyDist<IT,NT>(), zero(0)
 { 
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (NT id): zero(id), FullyDist<IT,NT>()
+FullyDistVec<IT, NT>::FullyDistVec (NT id): FullyDist<IT,NT>(), zero(id)
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id): zero(id), FullyDist<IT,NT>(globallen)
+FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id):FullyDist<IT,NT>(globallen), zero(id)
 {
 	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): zero(id), FullyDist<IT,NT>(grid)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): FullyDist<IT,NT>(grid), zero(id)
 { }
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
-: zero(id), FullyDist<IT,NT>(grid,globallen)
+: FullyDist<IT,NT>(grid,globallen), zero(id)
 {
 	arr.resize(MyLocLength(), initval);
 }
@@ -35,7 +35,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 {
 	arr.resize(static_cast<IT>(rhs.arr.size()), zero);
 	
-	for(IT i=0; i< arr.size(); ++i)
+	for(IT i=0; (unsigned)i < arr.size(); ++i)
 	{
 		arr[i] = static_cast<NT>(rhs.arr[static_cast<ITRHS>(i)]);
 	}
@@ -89,7 +89,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRH
 		zero = static_cast<NT>(rhs.zero);
 		
 		arr.resize(rhs.arr.size(), zero);
-		for(IT i=0; i< arr.size(); ++i)
+		for(IT i=0; (unsigned)i < arr.size(); ++i)
 		{
 			arr[i] = static_cast<NT>(rhs.arr[static_cast<ITRHS>(i)]);
 		}
@@ -139,8 +139,8 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 		arr.resize(MyLocLength());	// once glen is set, MyLocLength() works
 		fill(arr.begin(), arr.end(), zero);	
 
-		int * sendcnts;
-		int * dpls;
+		int * sendcnts = NULL;
+		int * dpls = NULL;
 		if(rhs.diagonal)
 		{
 			int proccols = commGrid->GetGridCols();	
@@ -596,7 +596,8 @@ void FullyDistVec<IT,NT>::RandPerm()
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(dist, dist+rank, 0);
+	//IT lengthuntil = accumulate(dist, dist+rank, 0);
+	accumulate(dist, dist+rank, 0);
 
   	MTRand M;	// generate random numbers with Mersenne Twister
 	for(int i=0; i<size; ++i)
@@ -638,7 +639,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, ri.zero, ri.zero);	// length(Indexed) = length(ri)
-	int rank = World.Get_rank();
+	//int rank = World.Get_rank();
 	int nprocs = World.Get_size();
 	vector< vector< IT > > data_req(nprocs);	
 	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	

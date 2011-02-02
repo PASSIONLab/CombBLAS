@@ -41,7 +41,7 @@ public:
 		if(diagWorld != MPI::COMM_NULL) diagWorld.Free();
 	}
 	CommGrid (const CommGrid & rhs): grrows(rhs.grrows), grcols(rhs.grcols),
-			myrank(rhs.myrank), myprocrow(rhs.myprocrow), myproccol(rhs.myproccol) // copy constructor
+			myprocrow(rhs.myprocrow), myproccol(rhs.myproccol), myrank(rhs.myrank) // copy constructor
 	{
 		commWorld = rhs.commWorld.Dup();
 		rowWorld = rhs.rowWorld.Dup();
@@ -129,8 +129,8 @@ private:
 
 	// Processor grid is (grrow X grcol)
 	int grrows, grcols;
-	int myproccol;
 	int myprocrow;
+	int myproccol;
 	int myrank;
 	
 	template <class IT, class NT, class DER>

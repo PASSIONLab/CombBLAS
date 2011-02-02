@@ -134,7 +134,8 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	{
 		for(int j=0; j<nactives[i]; ++j)
 		{
-			allactives[k++] = make_pair(recvbuf[k].first, i);
+			allactives[k] = make_pair(recvbuf[k].first, i);
+			k++;
 		}
 	}
 	DeleteAll(recvbuf, dpls, nactives);
@@ -172,11 +173,10 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 	comm.Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), secondhalves, 1, MPIType<IT>());
 	
 	int * sendcnt = new int[nprocs]();	// zero initialize
-	int totrecvcnt; 
-	// Adam: I'm commeting out spacebefore because it is never used and some compilers complain about that
+	int totrecvcnt = 0; 
 	//IT spacebefore = 0;	// receiving part space
 
-	pair<KEY,VAL> * bufbegin;
+	pair<KEY,VAL> * bufbegin = NULL;
 	if(color == 0)	// first processor half, only send second half of data
 	{
 		bufbegin = low;
@@ -390,7 +390,7 @@ void SpParHelper::SetWindows(MPI::Intracomm & comm1d, const SpMat< IT,NT,DER > &
 
 inline void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
 {
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Lock(MPI::LOCK_SHARED, ownind, 0);
 	}
@@ -398,7 +398,7 @@ inline void SpParHelper::LockWindows(int ownind, vector<MPI::Win> & arrwin)
 
 inline void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin) 
 {
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Unlock(ownind);
 	}
@@ -407,7 +407,7 @@ inline void SpParHelper::UnlockWindows(int ownind, vector<MPI::Win> & arrwin)
 
 inline void SpParHelper::SetWinErrHandler(vector<MPI::Win> & arrwin)
 {
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Set_errhandler(MPI::ERRORS_THROW_EXCEPTIONS);
 	}
@@ -426,7 +426,7 @@ inline void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, 
 
 	// begin the ACCESS epochs for the arrays of the remote matrices A and B
 	// Start() *may* block until all processes in the target group have entered their exposure epoch
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 		arrwin[i].Start(access, 0); 
 }
 
@@ -438,7 +438,7 @@ inline void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, 
 	MPI::Group exposure = group;
 	
 	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 		arrwin[i].Post(exposure, MPI_MODE_NOPUT);
 }
 
@@ -500,7 +500,7 @@ inline void SpParHelper::WaitNFree(vector<MPI::Win> & arrwin)
 	// End the exposure epochs for the arrays of the local matrices A and B
 	// The Wait() call matches calls to Complete() issued by ** EACH OF THE ORIGIN PROCESSES ** 
 	// that were granted access to the window during this epoch.
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Wait();
 	}
@@ -509,7 +509,7 @@ inline void SpParHelper::WaitNFree(vector<MPI::Win> & arrwin)
 	
 inline void SpParHelper::FreeWindows(vector<MPI::Win> & arrwin)
 {
-	for(int i=0; i< arrwin.size(); ++i)
+	for(unsigned int i=0; i< arrwin.size(); ++i)
 	{
 		arrwin[i].Free();
 	}

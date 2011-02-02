@@ -744,7 +744,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 //! Construct SpDCCols from Dcsc
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
-:m(nRow), n(nCol), localpool(NULL), dcsc(mydcsc)
+:dcsc(mydcsc), m(nRow), n(nCol), localpool(NULL)
 {
 	if (mydcsc == NULL) 
 		nnz = 0;

@@ -69,6 +69,7 @@ public:
 		CVT.num = vector<NNT>(num.begin(), num.end());
 		CVT.glen = glen;
 		CVT.NOT_FOUND = NOT_FOUND;
+		return CVT;
 	}
 
 	void PrintInfo(string vecname) const;
