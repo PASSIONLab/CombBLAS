@@ -17,7 +17,7 @@ using namespace std;
   * If every processor has a distinct triples file such as {A_0, A_1, A_2,... A_p} for p processors
  **/
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world): zero(0.0)
+SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world): zero(0)
 {
 	if(!input.is_open())
 	{
@@ -29,13 +29,13 @@ SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world): zero
 }
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq), zero(0.0)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq), zero(0)
 {
 	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq), zero(0.0)
+SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq), zero(0)
 {
 	commGrid.reset(new CommGrid(*grid)); 
 }	
@@ -45,7 +45,7 @@ SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(
   * Since this is the default constructor, you don't need to explicitly call it, just a declaration will call it
  **/
 template <class IT, class NT, class DER>
-SpParMat< IT,NT,DER >::SpParMat (): zero(0.0)
+SpParMat< IT,NT,DER >::SpParMat (): zero(0)
 {
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
@@ -690,7 +690,7 @@ template <class DELIT>
 SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloops)
 {
 	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
-	int rank = commGrid->GetRank();
+	//int rank = commGrid->GetRank();
 	int nprocs = commGrid->GetSize();
 	int r = commGrid->GetGridRows();
 	int s = commGrid->GetGridCols();
@@ -1113,7 +1113,7 @@ template <class IT, class NT, class DER>
 ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum)
 {
 	IT total_m, total_n, total_nnz;
-	IT m_perproc, n_perproc;
+	IT m_perproc = 0, n_perproc = 0;
 
 	int colneighs = commGrid->GetGridRows();	// number of neighbors along this processor column (including oneself)
 	int rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
@@ -1139,12 +1139,12 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 	for (IT i=0; i<rowneighs; ++i)
 		rdispls[i] = i*buffperrowneigh;		
 
-	int *ccurptrs, *rcurptrs;	// MPI doesn't support sending int64_t send/recv counts
-	int recvcount;
+	int *ccurptrs = NULL, *rcurptrs = NULL;	// MPI doesn't support sending int64_t send/recv counts
+	int recvcount = 0;
 
-	IT * rows; 
-	IT * cols;
-	NT * vals;
+	IT * rows = NULL; 
+	IT * cols = NULL;
+	NT * vals = NULL;
 
 	// Note: all other column heads that initiate the horizontal communication has the same "rankinrow" with the master
 	int rankincol = commGrid->GetRankInProcCol(master);	// get master's rank in its processor column
@@ -1438,7 +1438,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, 0, distvals.zero); 
 	
 	IT prelen = Atuples.getnnz();
-	IT postlen = nrows.MyLocLength();
+	//IT postlen = nrows.MyLocLength();
 
 	int rank = commGrid->GetRank();
 	int nprocs = commGrid->GetSize();

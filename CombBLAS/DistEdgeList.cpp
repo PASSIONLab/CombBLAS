@@ -23,7 +23,7 @@
 using namespace std;
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(): nedges(0), edges(NULL)
+DistEdgeList<IT>::DistEdgeList(): edges(NULL), nedges(0)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
@@ -193,7 +193,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	fill_n(renamed, locedgelist, 0);
 	
 	// permutation for one round
-	IU * localPerm;
+	IU * localPerm = NULL;
 	IU permsize;
 	IU startInd = 0;
 
@@ -222,7 +222,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 		World.Bcast(localPerm, permsize, MPIType<IU>(), round);
 	
 		// iterate over 	
-		for (typename vector<IU>::size_type j = 0; j < locedgelist ; j++)
+		for (typename vector<IU>::size_type j = 0; j < (unsigned)locedgelist ; j++)
 		{
 			// We are renaming vertices, not edges
 			if (startInd <= DEL.edges[j] && DEL.edges[j] < (startInd + permsize) && !renamed[j])

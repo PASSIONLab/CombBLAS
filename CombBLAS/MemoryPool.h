@@ -50,7 +50,7 @@ class MemoryPool
 public:
 	MemoryPool(void * m_beg, size_t m_size);
 
-	void * alloc(int size);
+	void * alloc(size_t size);
 	void dealloc (void * base, size_t size);
 
 	friend ofstream& operator<< (ofstream& outfile, const MemoryPool & mpool);	

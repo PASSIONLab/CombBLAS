@@ -136,7 +136,7 @@ struct bind_s : public ConcreteUnaryFunction<T>
 	T bindval;
 	ConcreteBinaryFunction<T>* op;
 	
-	bind_s(ConcreteBinaryFunction<T>* opin, int w, T val): op(opin), which(w), bindval(val) {}
+	bind_s(ConcreteBinaryFunction<T>* opin, int w, T val): which(w), bindval(val), op(opin) {}
 	
 	T operator()(const T& x) const
 	{

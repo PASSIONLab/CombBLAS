@@ -33,7 +33,7 @@ int64_t pySpParMat::getnnz()
 	op::UnaryFunction *ne0 = op::bind2nd(ne, 0);
 	pyDenseParVec* colsums = Reduce(Column(), p, ne0, 0);
 
-	int64_t ret = colsums->Reduce(p);
+	int64_t ret = static_cast<int64_t>(colsums->Reduce(p));
 
 	delete colsums;
 	delete ne0;
@@ -92,7 +92,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	FullyDistVec<INDEXTYPE, doubleint> degrees;
 
 	int nprocs = MPI::COMM_WORLD.Get_size();
-	int rank = MPI::COMM_WORLD.Get_rank();
+	//int rank = MPI::COMM_WORLD.Get_rank();
 
 
 	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
@@ -142,11 +142,13 @@ pySpParMat* pySpParMat::copy()
 pySpParMat& pySpParMat::operator+=(const pySpParMat& other)
 {
 	A += other.A;
+	return *this;
 }
 
 pySpParMat& pySpParMat::assign(const pySpParMat& other)
 {
 	A = other.A;
+	return *this;
 }
 
 void pySpParMat::Apply(op::UnaryFunction* op)

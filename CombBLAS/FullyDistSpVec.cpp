@@ -234,7 +234,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	dist[rank] = nnz;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT sizeuntil = accumulate(dist, dist+rank, 0);
-	for(size_t i=0; i<nnz; ++i)
+	for(size_t i=0; i<(unsigned)nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
 		vecpair[i].second = ind[i] + sizeuntil;	
@@ -244,7 +244,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 
 	vector< IT > nind(nnz);
 	vector< IT > nnum(nnz);
-	for(size_t i=0; i<nnz; ++i)
+	for(size_t i=0; i<(unsigned)nnz; ++i)
 	{
 		num[i] = vecpair[i].first;	// sorted range (change the object itself)
 		nind[i] = ind[i];		// make sure the sparsity distribution is the same
@@ -390,10 +390,10 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	for (int i=0; i<neighs; ++i)
 		displs[i] = i*buffperneigh;
 
-	int * curptrs; 
-	int recvcount;
-	IT * inds; 
-	NT * vals;
+	int * curptrs = NULL; 
+	int recvcount = 0;
+	IT * inds = NULL; 
+	NT * vals = NULL;
 	int rank = World.Get_rank();	
 	if(rank == master)	// 1 processor only
 	{		

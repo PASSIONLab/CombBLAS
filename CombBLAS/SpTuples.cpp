@@ -29,7 +29,7 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
-:m(nRow), n(nCol), nnz(size), tuples(mytuples)
+:tuples(mytuples), m(nRow), n(nCol), nnz(size)
 {}
 
 /**

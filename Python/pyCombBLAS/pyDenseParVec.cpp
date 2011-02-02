@@ -287,6 +287,7 @@ pyDenseParVec* pyDenseParVec::abs()
 pyDenseParVec& pyDenseParVec::operator+=(double value)
 {
 	v.Apply(bind2nd(plus<doubleint>(), doubleint(value)));
+	return *this;
 }
 
 pyDenseParVec* pyDenseParVec::operator+(double value)
@@ -299,6 +300,7 @@ pyDenseParVec* pyDenseParVec::operator+(double value)
 pyDenseParVec& pyDenseParVec::operator-=(double value)
 {
 	v.Apply(bind2nd(minus<doubleint>(), doubleint(value)));
+	return *this;
 }
 
 pyDenseParVec* pyDenseParVec::operator-(double value)

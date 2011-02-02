@@ -61,7 +61,8 @@ void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, co
         IT csize = static_cast<IT>(ceil(cf));   // chunk size
 	if(spmvaux == NULL)
 	{
-		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
+		//IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
+		Adcsc.ConstructAux(nA, spmvaux);
 	}
 
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	

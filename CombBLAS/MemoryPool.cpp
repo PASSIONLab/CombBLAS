@@ -7,11 +7,11 @@ MemoryPool::MemoryPool(void * m_beg, size_t m_size):initbeg((char*)m_beg), inite
 	freelist.push_back(m);
 }
 
-void * MemoryPool::alloc(int size)
+void * MemoryPool::alloc(size_t size)
 {
 	for(list<Memory>::iterator iter = freelist.begin(); iter != freelist.end(); ++iter)
 	{
-    		if ((*iter).size > size)	// return the first 'big enough' chunk of memory
+    	if ((*iter).size > size)	// return the first 'big enough' chunk of memory
 		{
 			char * free = (*iter).begin;
 			(*iter).begin += size;		// modify the beginning of the remaining chunk
