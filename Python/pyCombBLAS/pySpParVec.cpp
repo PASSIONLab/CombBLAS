@@ -314,7 +314,7 @@ pySpParVec* pySpParVec::zeros(int64_t howmany)
 pySpParVec* pySpParVec::range(int64_t howmany, int64_t start)
 {
 	pySpParVec* ret = new pySpParVec(howmany);
-	ret->v.iota(howmany, start);
+	ret->v.iota(howmany, start-1);
 	return ret;
 }
 
