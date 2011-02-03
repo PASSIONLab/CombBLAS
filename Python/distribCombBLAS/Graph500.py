@@ -12,11 +12,13 @@ import DiGraph as kdtdg
 def k2Validate(G, start, parents):
 	good = True;
 	
-	(valid, levels) = G.isBfsTree(start, parents);
+	ret = G.isBfsTree(start, parents);
 	#	isBfsTree implements Graph500 tests 1 and 2 
-	if valid < 0:
-		print "isBfsTree detected failure of Graph500 test %d" % abs(valid);
+	if type(ret) != tuple:
+		print "isBfsTree detected failure of Graph500 test %d" % abs(ret);
 		good = False;
+		return;
+	(valid, levels) = ret;
 
 	# Spec test #3:
 	# every input edge has vertices whose levels differ by no more than 1
@@ -37,7 +39,7 @@ def k2Validate(G, start, parents):
 	both_in = (li > -1) & (lj > -1);
 	out2root = (li == -1) & (origJ == start);
 	if not (neither_in | both_in | out2root).all():
-		print "The tree does not span exactly the connected component"
+		print "The tree does not span exactly the connected component, root=%d" % start
 		good = False;
 
 	# Spec test #5:
@@ -51,11 +53,12 @@ def k2Validate(G, start, parents):
 
 
 
-scale = 4;
-nstarts = 4;
+scale = 8;
+nstarts = 64;
 
-GRAPH500 = True;
-if GRAPH500:
+GRAPH500 = 2;
+if GRAPH500 == 1:
+	print 'Using Graph500 graph generator'
 	G = kdtdg.DiGraph();
 	degrees = kdtdg.ParVec.zeros(4);
 	K1elapsed = G.genGraph500Edges(scale, degrees);
@@ -64,11 +67,18 @@ if GRAPH500:
 	deg3verts = (G.degree() > 2).findInds();
 	starts = sc.random.randint(0, high=len(deg3verts), size=(nstarts,));
 	# deg3verts stays distributed; indices to it (starts) are scalars
-else:
+elif GRAPH500 == 2:
+	print 'Using fully connected graph generator'
 	G = kdtdg.DiGraph.fullyConnected(2**scale,2**scale)
 	K1elapsed = 0.00005;
 	starts = sc.random.randint(0, high=2**scale, size=(nstarts,));
+elif GRAPH500 == 3:
+	print 'Loading small_nonsym_int.mtx'
+	G = kdtdg.DiGraph.load('small_nonsym_int.mtx')
+	K1elapsed = 0.00005;
+	starts = sc.random.randint(0, 9, size=(nstarts,));
 
+G.onesWeight();		# set all values to 1
 
 K2elapsed = 1e-12;
 K2edges = 0;

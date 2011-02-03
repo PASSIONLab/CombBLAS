@@ -22,6 +22,10 @@ class DiGraph(gr.Graph):
 			[i,j,v,nv1,nv2] = args;
 			if type(v) == int:
 				v = ParVec.broadcast(len(i),v);
+			if i.max() > nv1-1:
+				raise KeyError, 'at least one first index greater than #vertices'
+			if j.max() > nv2-1:
+				raise KeyError, 'at least one second index greater than #vertices'
 			self.spm = pcb.pySpParMat(nv1,nv2,i.dpv,j.dpv,v.dpv);
 		else:
 			raise NotImplementedError, "only 0, 4, and 5 argument cases supported"
@@ -64,17 +68,16 @@ class DiGraph(gr.Graph):
 			#ToDo: will need to handle nvert() 2-return case
 			key1mn = 0; key1mx = self.nvert()-1;
 		else:
-			key1mn = key1.min(); key1mx = key1.max()
+			key1mn = int(key1.min()); key1mx = int(key1.max());
 			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
 				raise KeyError, 'Vector first index not a range'
 		if type(key2)==slice and key2==slice(None,None,None):
 			#ToDo: will need to handle nvert() 2-return case
 			key2mn = 0; key2mx = self.nvert()-1;
 		else:
-			key2mn = key2.min(); key2mx = key2.max()
+			key2mn = int(key2.min()); key2mx = int(key2.max());
 			if len(key2)!=(key2mx-key2mn+1) or not (key2==ParVec.range(key2mn,key2mx+1)).all():
 				raise KeyError, 'Vector second index not a range'
-			key2mn = key2.min(); key2mx = key2.max()
 		[i, j, v] = self.toParVec();
 		sel = ((i >= key1mn) & (i <= key1mx) & (j >= key2mn) & (j <= key2mx)).findInds();
 		newi = i[sel] - key1mn;
@@ -126,8 +129,8 @@ class DiGraph(gr.Graph):
 	@staticmethod
 	def fullyConnected(n,m):
 		#ToDo:  if only 1 input, assume square
-		i = ParVec.range(n*m) % n;
-		j = ParVec.range(n*m) / n;
+		i = (ParVec.range(n*m) % n).floor();
+		j = (ParVec.range(n*m) / n).floor();
 		v = ParVec.range(n*m);
 		ret = DiGraph(i,j,v,n,m);
 		return ret;
@@ -173,6 +176,7 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, 'Invalid edge direction'
 
+	#in-place, so no return value
 	def mulWeight(self, other):
 		if type(other) != int:
 			raise NotImplementedError
@@ -394,31 +398,29 @@ class DiGraph(gr.Graph):
 	
 	# returns a Boolean vector of which vertices are neighbors
 	def neighbors(self, source, nhop=1):
-		dest = pcb.pyDenseParVec(self.nvert(),0)
-		fringe = pcb.pySpParVec(self.nvert());
-		dest[fringe] = 1;
-		fringe[source.dpv] = 1;
+		dest = ParVec(self.nvert(),0)
+		fringe = SpParVec(self.nvert());
+		fringe[source] = 1;
 		for i in range(nhop):
-			fringe.setNumToInd();
-			self.spm.SpMV_SelMax_inplace(fringe);
+			fringe.sprange();
+			self.spm.SpMV_SelMax_inplace(fringe.spv);
 			dest[fringe] = 1;
-		return ParVec.toParVec(dest);
+		return dest;
 		
 	# returns:
 	#   - source:  a vector of the source vertex for each new vertex
 	#   - dest:  a Boolean vector of the new vertices
 	#ToDo:  nhop argument?
-	def pathHop(self, source):
-		retDest = pcb.pyDenseParVec(self.nvert(),0)
-		retSource = pcb.pyDenseParVec(self.nvert(),0)
-		fringe = pcb.pySpParVec(self.nvert());
+	def pathsHop(self, source):
+		retDest = ParVec(self.nvert(),0)
+		retSource = ParVec(self.nvert(),0)
+		fringe = SpParVec(self.nvert());
 		retDest[fringe] = 1;
-		fringe[source.dpv] = 1;
-		fringe.setNumToInd();
-		self.spm.SpMV_SelMax_inplace(fringe);
+		fringe.sprange();
+		self.spm.SpMV_SelMax_inplace(fringe.spv);
 		retDest[fringe] = 1;
 		retSource[fringe] = fringe;
-		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
+		return (retSource, retDest);
 		
 	def centrality(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
@@ -538,4 +540,4 @@ class SpParVec(gr.SpParVec):
 master = gr.master;
 sendFeedback = gr.sendFeedback;
 
-print "\n\n	***NOTE: DiGraph*DiGraph, DiGraph+DiGraph and \n\t DiGraph.notMulWeight() are dummy functions\n\n";
+print "\n	***NOTE: DiGraph*DiGraph, DiGraph+DiGraph and \n\t DiGraph.notMulWeight() are dummy functions\n";
