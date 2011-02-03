@@ -151,6 +151,18 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 	return *this;
 }
 
+pySpParMat* pySpParMat::operator*(const pySpParMat& other)
+{
+	return SpMM(other);
+}
+
+pySpParMat* pySpParMat::SpMM(const pySpParMat& other)
+{
+	pySpParMat* ret = new pySpParMat();
+	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<INDEXTYPE, doubleint > >(A, other.A);
+	return ret;
+}
+
 void pySpParMat::Apply(op::UnaryFunction* op)
 {
 	A.Apply(*op);

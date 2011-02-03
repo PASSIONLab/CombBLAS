@@ -1,5 +1,6 @@
 #include "pyOperations.h"
 #include <iostream>
+#include <math.h>
 
 namespace op{
 
@@ -101,7 +102,7 @@ DECL_BINARY_FUNC(plus_s, plus, true, true, return x+y;)
 DECL_BINARY_FUNC(minus_s, minus, false, false, return x-y;)
 DECL_BINARY_FUNC(multiplies_s, multiplies, true, true, return x*y;)
 DECL_BINARY_FUNC(divides_s, divides, true, false, return x/y;)
-DECL_BINARY_FUNC(modulus_s, modulus, false, false, return x % y;)
+DECL_BINARY_FUNC(modulus_s, modulus, false, false, return std::fmod(double(x), double(y));)
 
 DECL_BINARY_FUNC(max_s, max, true, true, return std::max<doubleint>(x, y);)
 DECL_BINARY_FUNC(min_s, min, true, true, return std::min<doubleint>(x, y);)
