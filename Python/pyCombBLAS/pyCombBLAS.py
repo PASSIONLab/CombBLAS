@@ -85,6 +85,8 @@ class pySpParMat(_object):
     def copy(self): return _pyCombBLAS.pySpParMat_copy(self)
     def __iadd__(self, *args): return _pyCombBLAS.pySpParMat___iadd__(self, *args)
     def assign(self, *args): return _pyCombBLAS.pySpParMat_assign(self, *args)
+    def SpMM(self, *args): return _pyCombBLAS.pySpParMat_SpMM(self, *args)
+    def __mul__(self, *args): return _pyCombBLAS.pySpParMat___mul__(self, *args)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)

@@ -53,11 +53,13 @@ public:
 	pySpParMat* copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
+	pySpParMat* SpMM(const pySpParMat& other);
+	pySpParMat* operator*(const pySpParMat& other);
 	
 	void Apply(op::UnaryFunction* op);
 	void Prune(op::UnaryFunction* op);
 	
-	// Be wary of identity value with min()!!!!!!!
+	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity = 0);
 	

@@ -3723,6 +3723,94 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMat_SpMM(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  pySpParMat *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_SpMM",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpMM" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpMM" "', argument " "2"" of type '" "pySpParMat const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpMM" "', argument " "2"" of type '" "pySpParMat const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  {
+    try {
+      result = (pySpParMat *)(arg1)->SpMM((pySpParMat const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat___mul__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  pySpParMat *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat___mul__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat___mul__" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat___mul__" "', argument " "2"" of type '" "pySpParMat const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat___mul__" "', argument " "2"" of type '" "pySpParMat const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  {
+    try {
+      result = (pySpParMat *)(arg1)->operator *((pySpParMat const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMat_Apply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -11284,6 +11372,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_copy", _wrap_pySpParMat_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat___iadd__", _wrap_pySpParMat___iadd__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_assign", _wrap_pySpParMat_assign, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_SpMM", _wrap_pySpParMat_SpMM, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat___mul__", _wrap_pySpParMat___mul__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Reduce", _wrap_pySpParMat_Reduce, METH_VARARGS, NULL},
