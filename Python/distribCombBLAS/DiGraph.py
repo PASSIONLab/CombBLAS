@@ -11,16 +11,20 @@ class DiGraph(gr.Graph):
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
 	def __init__(self,*args):
-		if len(args) == 0:
-			self.spm = pcb.pySpParMat();
+		if len(args) == 1:
+			[arg] = args;
+			if arg < 0:
+				self.spm = pcb.pySpParMat();
+			else:
+				raise NotImplementedError, '1-argument case only accepts negative value'
 		elif len(args) == 4:
 			[i,j,v,nv] = args;
-			if type(v) == int:
+			if type(v) == int or type(v) == long or type(v) == float:
 				v = ParVec.broadcast(len(i),v);
 			self.spm = pcb.pySpParMat(nv,nv,i.dpv,j.dpv,v.dpv);
 		elif len(args) == 5:
 			[i,j,v,nv1,nv2] = args;
-			if type(v) == int:
+			if type(v) == int or type(v) == long or type(v) == float:
 				v = ParVec.broadcast(len(i),v);
 			if i.max() > nv1-1:
 				raise KeyError, 'at least one first index greater than #vertices'
@@ -28,22 +32,16 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'at least one second index greater than #vertices'
 			self.spm = pcb.pySpParMat(nv1,nv2,i.dpv,j.dpv,v.dpv);
 		else:
-			raise NotImplementedError, "only 0, 4, and 5 argument cases supported"
+			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
 
 	def __add__(self, other):
-		#FIX:  ****RESULTS INVALID****
-		if self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
-		return self;
-
-		raise NotImplementedError
-		if type(other) == int:
+		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
 			ret = self.copy();
-			#ret.spm.xxxxxxx
+			ret.spm += other.spm;
 		return ret;
 
 	def __getitem__(self, key):
@@ -56,11 +54,11 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'Too many indices'
 		else:
 			key1 = key;  key2 = key;
-		if type(key1) == int:
+		if type(key1) == int or type(key1) == long or type(key1) == float:
 			tmp = ParVec(1);
 			tmp[0] = key1;
 			key1 = tmp;
-		if type(key2) == int:
+		if type(key2) == int or type(key1) == long or type(key1) == float:
 			tmp = ParVec(1);
 			tmp[0] = key2;
 			key2 = tmp;
@@ -84,24 +82,49 @@ class DiGraph(gr.Graph):
 		newj = j[sel] - key2mn;
 		newv = v[sel];
 		ret = DiGraph(newi, newj, newv, key1mx-key1mn+1, key2mx-key2mn+1);
-		
-		#ToDo:  check for isBool, or does lower level handle it?
 		return ret;
 
+	def __iadd__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			raise NotImplementedError
+		if self.nvert() != other.nvert():
+			raise IndexError, 'Graphs must have equal numbers of vertices'
+		elif isinstance(other, DiGraph):
+			self.spm += other.spm;
+		return self;
+
+	def __imul__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
+		elif isinstance(other,DiGraph):
+			self.spm *= other.spm;
+		else:
+			raise NotImplementedError
+		return self;
+
 	def __mul__(self, other):
-		#FIX:  ****RESULTS INVALID****
-		if self.nvert()[1] != other.nvert()[0]:
-			raise IndexError, 'First graph #out-verts must equal second graph #in-verts'
-		ones = ParVec.range(min(self.nvert()[0], other.nvert()[1]));
-		ret = DiGraph(ones, ones, ones, self.nvert()[0], other.nvert()[1]);
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret = self.copy();
+			ret.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
+		elif isinstance(other,DiGraph):
+			ret = self.copy();
+			ret.spm = self.spm * other.spm;
+		else:
+			raise NotImplementedError
 		return ret;
+
+	def __repr__(self):
+		if self.nvert()==1:
+			[i, j, v] = self.toParVec();
+			print "%d %f" % (v[0], v[0]);
+		return ' ';
 
 	def boolWeight(self):
 		#ToDo:  change for real Boolean matrices
 		return DiGraph.onesWeight(self);
 
 	def copy(self):
-		ret = DiGraph();
+		ret = DiGraph(-1);
 		ret.spm = self.spm.copy();
 		return ret;
 		
@@ -127,8 +150,9 @@ class DiGraph(gr.Graph):
 		return;
 
 	@staticmethod
-	def fullyConnected(n,m):
-		#ToDo:  if only 1 input, assume square
+	def fullyConnected(n,m=None):
+		if m == None:
+			m = n;
 		i = (ParVec.range(n*m) % n).floor();
 		j = (ParVec.range(n*m) / n).floor();
 		v = ParVec.range(n*m);
@@ -141,7 +165,7 @@ class DiGraph(gr.Graph):
 
 	@staticmethod
 	def load(fname):
-		ret = DiGraph();
+		ret = DiGraph(-1);
 		ret.spm = pcb.pySpParMat();
 		ret.spm.load(fname);
 		return ret;
@@ -176,6 +200,23 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, 'Invalid edge direction'
 
+	def matMul(self, other):
+		selfnv = self.nvert();
+		if type(selfnv) == tuple:
+			[selfnv1, selfnv2] = selfnv;
+		else:
+			selfnv1 = selfnv; selfnv2 = selfnv;
+		othernv = other.nvert();
+		if type(othernv) == tuple:
+			[othernv1, othernv2] = othernv;
+		else:
+			othernv1 = othernv; othernv2 = othernv;
+		if selfnv2 != othernv1:
+			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
+		ret = DiGraph(-1);
+		ret.spm = self.spm.SpMM(other.spm);
+		return ret;
+
 	#in-place, so no return value
 	def mulWeight(self, other):
 		if type(other) != int:
@@ -208,6 +249,11 @@ class DiGraph(gr.Graph):
 	#in-place, so no return value
 	def reverseEdges(self):
 		self.spm.Transpose();
+
+	#in-place, so no return value
+	def setWeight(self, value):
+		self.spm.Apply(pcb.set(value));
+		return;
 
 	def subgraph(self, *args):
 		if len(args) == 1:

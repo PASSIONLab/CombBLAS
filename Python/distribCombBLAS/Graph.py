@@ -101,7 +101,7 @@ class ParVec:
 		return ret;
 
 	def __add__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
@@ -116,7 +116,7 @@ class ParVec:
 		return ret;
 
 	def __and__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_and(), other));
 		else: 	#elif isinstance(other,ParVec):
@@ -128,7 +128,7 @@ class ParVec:
 
 	def __div__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.divides(), other));
 		else:
 			if len(self) != len(other):
@@ -140,7 +140,7 @@ class ParVec:
 
 	def __eq__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.equal_to(), other));
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -151,7 +151,7 @@ class ParVec:
 	def __getitem__(self, key):
 		#ToDo:  when generalized unary operations are supported, 
 		#    support SPV = DPV[unary-op()]
-		if type(key) == int or type(key) == float:
+		if type(key) == int or type(key) == long or type(key) == float:
 			if key > self.dpv.len()-1:
 				raise IndexError;
 			ret = self.dpv[key];
@@ -163,15 +163,21 @@ class ParVec:
 		elif isinstance(key,SpParVec):
 			if not key.allCloseToInt():
 				raise KeyError, 'SpParVec key must be all integer'
-			ret = SpParVec(-1);
-			ret.spv = self.dpv.sparse()[key.spv];
+			if key.isBool():
+				ret = ParVec(-1);
+				ndx = key.copy();
+				ndx.sprange();
+				ret.dpv = self.dpv[ndx.spv.dense()]
+			else:
+				ret = SpParVec(-1);
+				ret.spv = self.dpv.sparse()[key.spv];
 		else:
 			raise KeyError, 'Key must be integer scalar, ParVec, or SpParVec'
 		return ret;
 
 	def __ge__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -182,7 +188,7 @@ class ParVec:
 
 	def __gt__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), other));
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -192,7 +198,7 @@ class ParVec:
 		return ret;
 
 	def __iadd__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			self.dpv.Apply(pcb.bind2nd(pcb.plus(), other));
 		elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -212,7 +218,7 @@ class ParVec:
 		return ret;
 
 	def __isub__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			self.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
 		elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -224,7 +230,7 @@ class ParVec:
 
 	def __le__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), other));
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -238,7 +244,7 @@ class ParVec:
 
 	def __lt__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.less(), other));
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
@@ -249,7 +255,7 @@ class ParVec:
 
 	def __mod__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
 			if len(self) != len(other):
@@ -261,7 +267,7 @@ class ParVec:
 
 	def __mul__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other));
 		else:
 			if len(self) != len(other):
@@ -271,7 +277,7 @@ class ParVec:
 
 	def __ne__(self, other):
 		ret = self.copy();
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
 		else:	
 			if len(self) != len(other):
@@ -284,7 +290,7 @@ class ParVec:
 		return ret;
 
 	def __or__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_or(), other));
 		else: 	#elif isinstance(other,ParVec):
@@ -302,24 +308,23 @@ class ParVec:
 		return ' ';
 
 	def __setitem__(self, key, value):
-		if type(key) == int or type(key) == float:
+		if type(key) == int or type(key) == long or type(key) == float:
 			self.dpv[key] = value;
 		elif isinstance(key,ParVec):
 			if not key.isBool():
 				raise NotImplementedError, "Only Boolean vector indexing implemented"
-			elif type(value) == int or type(value) == float:
-                                self.dpv.ApplyMasked(pcb.set(0), key.dpv.sparse());
-                                tmp = key.dpv.sparse();
-                                tmp.Apply(pcb.set(value));
-                                self.dpv += tmp;
 			else:
-				value[key.logical_not()] = 0;
-				self[key] = 0;
-				self += value; 
+                                self.dpv.ApplyMasked(pcb.set(0), key.dpv.sparse());
+				if type(value) == int or type(value) == long or type(value) == float:
+                                	tmp = key.dpv.sparse();
+                                	tmp.Apply(pcb.set(value));
+				else:
+					tmp = value.dpv.sparse();
+                                self.dpv += tmp;
 		elif isinstance(key,SpParVec):
 			if not key.allCloseToInt():
 				raise KeyError, 'SpParVec key must be all integer'
-			if type(value) == int or type(value) == float:
+			if type(value) == int or type(value) == long or type(value) == float:
 				self.dpv.ApplyMasked(pcb.set(value), key.spv);
 			elif isinstance(value, SpParVec):
 				#ToDo:  check that key and value have the same
@@ -333,7 +338,7 @@ class ParVec:
 			
 
 	def __sub__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = ParVec(-1);
 			ret = self.copy();
 			ret.dpv.Apply(pcb.bind2nd(pcb.minus(), other));
@@ -462,7 +467,7 @@ class ParVec:
 		return ret;
 
 	def sign(self):
-		ret = self / abs(self);
+		ret = (self >= 0) - (self < 0);
 		return ret;
 	
 	def sum(self):
@@ -519,14 +524,14 @@ class SpParVec:
 		return ret;
 
 	def __delitem__(self, key):
-		if type(key) == int or type(key) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			del self.spv[key];
 		else:
 			del self.spv[key.dpv];	
 		return;
 
 	def __div__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.divides(), other));
 		else:
@@ -538,7 +543,7 @@ class SpParVec:
 		return ret;
 
 	def __eq__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(), other));
 		else:
@@ -550,7 +555,7 @@ class SpParVec:
 		return ret;
 
 	def __getitem__(self, key):
-		if type(key) == int or type(key) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			if key > len(self.spv)-1:
 				raise IndexError;
 			ret = self.spv[key];
@@ -562,7 +567,7 @@ class SpParVec:
 		return ret;
 
 	def __ge__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(), other));
 		else:
@@ -574,7 +579,7 @@ class SpParVec:
 		return ret;
 
 	def __gt__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.greater(), other));
 		else:
@@ -586,7 +591,7 @@ class SpParVec:
 		return ret;
 
 	def __iadd__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			self.spv.Apply(pcb.bind2nd(pcb.plus(), other));
 		else:
 			if len(self) != len(other):
@@ -598,7 +603,7 @@ class SpParVec:
 		return self;
 		
 	def __isub__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			self.spv.Apply(pcb.bind2nd(pcb.minus(), other));
 		else:
 			if len(self) != len(other):
@@ -613,7 +618,7 @@ class SpParVec:
 		return len(self.spv);
 
 	def __le__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(), other));
 		else:
@@ -625,7 +630,7 @@ class SpParVec:
 		return ret;
 
 	def __lt__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.less(), other));
 		else:
@@ -637,7 +642,7 @@ class SpParVec:
 		return ret;
 
 	def __mod__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
@@ -649,7 +654,7 @@ class SpParVec:
 		return ret;
 
 	def __mul__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.multiplies(), other));
 		else:
@@ -662,7 +667,7 @@ class SpParVec:
 		return ret;
 
 	def __ne__(self, other):
-		if type(other) == int or type(other) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(), other));
 		else:
@@ -680,19 +685,29 @@ class SpParVec:
 		ret = tmp1 - self;
 		return ret;
 
+	def __or__(self, other):
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
+		ret = SpParVec(len(self));
+		tmp1 = self.copy();
+		tmp1 += other;
+		ret = SpParVec.toSpParVec(tmp1.spv.dense().Find(pcb.bind2nd(pcb.greater(),0)));
+		ret['nonnull'] = 1;
+		return ret;
+
 	def __repr__(self):
 		self.spv.printall();
 		return ' ';
 
 	def __setitem__(self, key, value):
-		if type(key) == int or type(key) == float:
+		if type(other) == int or type(other) == long or type(other) == float:
 			if key > len(self.spv)-1:
 				raise IndexError;
 			self.spv[key] = value;
 		elif isinstance(key,ParVec):
 			if isinstance(value,ParVec):
 				pass;
-			elif type(value) == float or type(value) == int:
+			elif type(value) == float or type(value) == long or type(value) == int:
 				value = ParVec(len(key),value);
 			else:
 				raise KeyError, 'Unknown value type'
@@ -707,9 +722,13 @@ class SpParVec:
 		
 
 	def __sub__(self, other):
-		ret = self.copy();
-		if len(self) != len(other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			otherscalar = other;
+			other = self.copy();
+			other['nonnull'] = otherscalar;
+		elif len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
+		ret = self.copy();
 		if isinstance(other,SpParVec):
 			ret.spv = self.spv - other.spv;
 		else:
@@ -744,6 +763,11 @@ class SpParVec:
 
 	#ToDO:  need to implement FindInds when pyCombBLAS method available
 	#def findInds(self):
+
+	def isBool(self):
+		eps = float(np.finfo(np.float).eps);
+		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all();
+		return ret;
 
 	def nn(self):
 		return len(self) - self.spv.getnnz();
