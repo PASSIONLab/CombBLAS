@@ -168,10 +168,32 @@ void pySpParMat::Apply(op::UnaryFunction* op)
 	A.Apply(*op);
 }
 
+pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
+{
+	pySpParMat* ret = new pySpParMat();
+	ret->A = EWiseApply(A.A, B.A, *bf, notB, doubleint(defaultBValue));
+	return ret;
+}
+
 void pySpParMat::Prune(op::UnaryFunction* op)
 {
 	A.Prune(*op);
 }
+
+int64_t pySpParMat::Count(op::UnaryFunction* pred)
+{
+	// use Reduce to count along the columns, then reduce the result vector into one value
+	op::BinaryFunction *p = op::plus();
+	pyDenseParVec* colsums = Reduce(Column(), p, pred, 0);
+
+	int64_t ret = static_cast<int64_t>(colsums->Reduce(p));
+
+	delete colsums;
+	delete p;
+	
+	return ret;
+}
+
 	
 pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identity)
 {

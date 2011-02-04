@@ -1400,6 +1400,26 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 }
 
+template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> EWiseApply 
+	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
+
+	if(*(A.commGrid) == *(B.commGrid))	
+	{
+		DER_promote * result = new DER_promote( EWiseApply(*(A.spSeq),*(B.spSeq), __binary_op, notB, defaultBVal) );
+		return SpParMat<IU, N_promote, DER_promote> (result, A.commGrid);
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise apply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
+	}
+}
+
 
 /**
  * if exclude is true, then we prune all entries W[i] != zero from V 

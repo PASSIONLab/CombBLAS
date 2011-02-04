@@ -6,7 +6,6 @@
 - pyCombBLAS / PyCombBLAS
   - [Adam] expose DimScale from CombBLAS
   - [Adam] expose SpParMat full-row/-column indexing from CombBLAS
-  - [Adam] expose functions needed for SPM.*notSPM
 
 - KDT
   - [Steve] implement wrappers for find/sparse
@@ -41,6 +40,7 @@
   - [Adam] expose SpParMat += SpParMat from CombBLAS
   - [Adam] fold PyCombBLAS into pyCombBLAS
   - [Adam] expose SpParMat * SpParMat from CombBLAS
+  - [Adam] expose functions needed for SPM.*notSPM
   - [Aydin] implement find/sparse
   - [Aydin] incorporate psort
   - [Steve] implement SpParVec

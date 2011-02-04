@@ -358,6 +358,126 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	return temp;
 }	
 
+template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	IU estnzc, estnz;
+	if(notB)
+	{	
+		estnzc = A.nzc;
+		estnz = A.nz; 
+	} 
+	else
+	{
+		estnzc = std::min(A.nzc, B.nzc);
+		estnz  = std::min(A.nz, B.nz);
+	}
+
+	Dcsc<IU,N_promote> temp(estnz, estnzc);
+
+	IU curnzc = 0;
+	IU curnz = 0;
+	IU i = 0;
+	IU j = 0;
+	temp.cp[0] = Dcsc<IU,NU1>::zero;
+	
+	if(!notB)	// A = A .* B
+	{
+		while(i< A.nzc && j<B.nzc)
+		{
+			if(A.jc[i] > B.jc[j]) 		++j;
+			else if(A.jc[i] < B.jc[j]) 	++i;
+			else
+			{
+				IU ii = A.cp[i];
+				IU jj = B.cp[j];
+				IU prevnz = curnz;		
+				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				{
+					if (A.ir[ii] < B.ir[jj])	++ii;
+					else if (A.ir[ii] > B.ir[jj])	++jj;
+					else
+					{
+						temp.ir[curnz] = A.ir[ii];
+						temp.numx[curnz++] = __binary_op(A.numx[ii++], B.numx[jj++]);	
+					}
+				}
+				if(prevnz < curnz)	// at least one nonzero exists in this column
+				{
+					temp.jc[curnzc++] = A.jc[i];	
+					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
+				}
+				++i;
+				++j;
+			}
+		}
+	}
+	else	// A = A .* not(B)
+	{
+		while(i< A.nzc && j< B.nzc)
+		{
+			if(A.jc[i] > B.jc[j])		++j;
+			else if(A.jc[i] < B.jc[j])
+			{
+				temp.jc[curnzc++] = A.jc[i++];
+				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)	
+				{
+					temp.ir[curnz] 		= A.ir[k];
+					temp.numx[curnz++] 	= __binary_op(A.numx[k], defaultBVal);
+				}
+				temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+			}
+			else
+			{
+				IU ii = A.cp[i];
+				IU jj = B.cp[j];
+				IU prevnz = curnz;		
+				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				{
+					if (A.ir[ii] > B.ir[jj])	++jj;
+					else if (A.ir[ii] < B.ir[jj])
+					{
+						temp.ir[curnz] = A.ir[ii];
+						temp.numx[curnz++] = __binary_op(A.numx[ii++], defaultBVal);
+					}
+					else	// eliminate those existing nonzeros
+					{
+						++ii;	
+						++jj;	
+					}
+				}
+				while (ii < A.cp[i+1])
+				{
+					temp.ir[curnz] = A.ir[ii];
+					temp.numx[curnz++] = __binary_op(A.numx[ii++], defaultBVal);
+				}
+
+				if(prevnz < curnz)	// at least one nonzero exists in this column
+				{
+					temp.jc[curnzc++] = A.jc[i];	
+					temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
+				}
+				++i;
+				++j;
+			}
+		}
+		while(i< A.nzc)
+		{
+			temp.jc[curnzc++] = A.jc[i++];
+			for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
+			{
+				temp.ir[curnz] 	= A.ir[k];
+				temp.numx[curnz++] = __binary_op(A.numx[k], defaultBVal);
+			}
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+		}
+	}
+
+	temp.Resize(curnzc, curnz);
+	return temp;
+}
+
 
 template<typename IU, typename NU1, typename NU2>
 SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude)
@@ -370,6 +490,26 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCC
 	if(A.nnz > 0 && B.nnz > 0)
 	{ 
 		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
+	}
+	else
+	{
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
+	}
+}
+
+
+template<typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote; 
+	assert(A.m == B.m);
+	assert(A.n == B.n);
+
+	Dcsc<IU, N_promote> * tdcsc = NULL;
+	if(A.nnz > 0 && B.nnz > 0)
+	{ 
+		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), *(B.dcsc), __binary_op, notB, defaultBVal));
 		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else

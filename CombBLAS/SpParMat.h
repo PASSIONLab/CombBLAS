@@ -106,6 +106,12 @@ public:
 	{
 		spSeq->Apply(__unary_op);	
 	}
+	
+	/*
+	template <typename NU2, typename UDER2> 
+	template <typename _BinaryOperation>
+	void EWiseApply (const SpParMat<IT,NU2,UDER2> & B, _BinaryOperation __binary_op);
+	*/
 
 	template <typename _UnaryOperation>
 	void Prune(_UnaryOperation __unary_op) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
@@ -177,6 +183,10 @@ public:
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	EWiseMult (const SpParMat<IU,NU1,UDER1> & A, const SpParMat<IU,NU2,UDER2> & B , bool exclude);
+
+	template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote>
+	EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal);
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
