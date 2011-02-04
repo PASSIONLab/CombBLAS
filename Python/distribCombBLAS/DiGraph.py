@@ -586,4 +586,4 @@ class SpParVec(gr.SpParVec):
 master = gr.master;
 sendFeedback = gr.sendFeedback;
 
-print "\n	***NOTE: DiGraph*DiGraph, DiGraph+DiGraph and \n\t DiGraph.notMulWeight() are dummy functions\n";
+print "\n	***NOTE: DiGraph.notMulWeight() is a dummy function\n";
