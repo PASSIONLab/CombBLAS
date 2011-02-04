@@ -700,7 +700,7 @@ class SpParVec:
 		return ' ';
 
 	def __setitem__(self, key, value):
-		if type(other) == int or type(other) == long or type(other) == float:
+		if type(key) == int or type(key) == long or type(key) == float:
 			if key > len(self.spv)-1:
 				raise IndexError;
 			self.spv[key] = value;
