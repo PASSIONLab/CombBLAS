@@ -252,6 +252,9 @@ private:
 	template<typename IU, typename NU1, typename NU2>
 	friend SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude);
 
+	template<typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+	friend SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal);
+
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);

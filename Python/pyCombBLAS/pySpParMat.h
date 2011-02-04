@@ -58,6 +58,7 @@ public:
 	
 	void Apply(op::UnaryFunction* op);
 	void Prune(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
@@ -76,6 +77,9 @@ public:
 	static int Column() { return ::Column; }
 	static int Row() { return ::Row; }
 };
+
+pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+
 //INTERFACE_INCLUDE_END
 
 

@@ -89,6 +89,7 @@ class pySpParMat(_object):
     def __mul__(self, *args): return _pyCombBLAS.pySpParMat___mul__(self, *args)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
+    def Count(self, *args): return _pyCombBLAS.pySpParMat_Count(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)
     def Transpose(self): return _pyCombBLAS.pySpParMat_Transpose(self)
     def Find(self, *args): return _pyCombBLAS.pySpParMat_Find(self, *args)
@@ -155,6 +156,10 @@ class pySpParVec(_object):
     __del__ = lambda self : None;
 pySpParVec_swigregister = _pyCombBLAS.pySpParVec_swigregister
 pySpParVec_swigregister(pySpParVec)
+
+def EWiseApply(*args):
+  return _pyCombBLAS.EWiseApply(*args)
+EWiseApply = _pyCombBLAS.EWiseApply
 
 def pySpParVec_zeros(*args):
   return _pyCombBLAS.pySpParVec_zeros(*args)
