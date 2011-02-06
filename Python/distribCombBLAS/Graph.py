@@ -23,25 +23,13 @@ class Graph:
 	def __getitem__(self, key):
                 raise NotImplementedError, "__getitem__ not supported"
 
-	# which direction(s) of edges to include
-	@staticmethod
-	def InOut():
-		return 1;
-
-	@staticmethod
-	def In():
-		return 2;
-
-	@staticmethod
-	def Out():
-		return 3;
-
-	#FIX:  when pcb.find() exposed
-	@staticmethod
-	def toVectors(spmat):		# similar to toEdgeV, except returns arrays
-		[i, j] = spmat.nonzero();		# NEW:  don't see a way to do this with current SpParMat
-		v = spmat[i,j];				# not NEW:  looks like already supported by general indexing
-		return ((i,j), v)
+	def toParVec(self):	
+		ne = self.nedge();
+		reti = ParVec(ne);
+		retj = ParVec(ne);
+		retv = ParVec(ne);
+		self.spm.Find(reti.dpv, retj.dpv, retv.dpv);
+		return (reti, retj, rev);
 
         def copy(self):
                 ret = Graph();
@@ -826,4 +814,9 @@ def master():
 	return pcb.root();
 
 sendFeedback = feedback.feedback.sendFeedback;
+
+# which direction(s) of edges to include
+InOut = 1;
+In = 2;
+Out = 1;
 
