@@ -128,15 +128,15 @@ class DiGraph(gr.Graph):
 		ret.spm = self.spm.copy();
 		return ret;
 		
-	def degree(self, dir=gr.Graph.Out()):
-		if dir == gr.Graph.InOut():
+	def degree(self, dir=gr.Out):
+		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(tmp1+tmp2);
-		elif dir == gr.Graph.In():
+		elif dir == gr.In:
 			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(ret);
-		elif dir == gr.Graph.Out():
+		elif dir == gr.Out:
 			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(ret);
 		else:
@@ -170,31 +170,31 @@ class DiGraph(gr.Graph):
 		ret.spm.load(fname);
 		return ret;
 
-	def maxWeight(self, dir=gr.Graph.InOut()):
+	def maxWeight(self, dir=gr.InOut):
 		#ToDo:  is default to InOut best?
-		if dir == gr.Graph.InOut():
+		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max());
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max());
 			return ParVec.toParVec(tmp1+tmp2);
-		elif dir == gr.Graph.In():
+		elif dir == gr.In:
 			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max());
 			return ParVec.toParVec(ret);
-		elif dir == gr.Graph.Out():
+		elif dir == gr.Out:
 			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max());
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
 
-	def minWeight(self, dir=gr.Graph.InOut()):
+	def minWeight(self, dir=gr.InOut):
 		#ToDo:  is default to InOut best?
-		if dir == gr.Graph.InOut():
+		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min());
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min());
 			return ParVec.toParVec(tmp1+tmp2);
-		elif dir == gr.Graph.In():
+		elif dir == gr.In:
 			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min());
 			return ParVec.toParVec(ret);
-		elif dir == gr.Graph.Out():
+		elif dir == gr.Out:
 			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min());
 			return ParVec.toParVec(ret);
 		else:
@@ -225,11 +225,13 @@ class DiGraph(gr.Graph):
 			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
 		return;
 
-	def notMulWeight(self, other):
-		#FIX:  ****RESULTS INVALID****
+	def mulNotWeight(self, other):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
-		return self;
+		else:
+			ret = DiGraph(-1);
+			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies(), True);
+		return ret;
 
 	#FIX:  good idea to have this return an int or a tuple?
 	def nvert(self):
@@ -266,15 +268,15 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Too many indices'
 		return ret;
 
-	def sumWeight(self, dir=gr.Graph.Out()):
-		if dir == gr.Graph.InOut():
+	def sumWeight(self, dir=gr.Out):
+		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity());
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity());
 			return ParVec.toParVec(tmp1+tmp2);
-		elif dir == gr.Graph.In():
+		elif dir == gr.In:
 			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity());
 			return ParVec.toParVec(ret);
-		elif dir == gr.Graph.Out():
+		elif dir == gr.Out:
 			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity());
 			return ParVec.toParVec(ret);
 		else:
@@ -585,5 +587,6 @@ class SpParVec(gr.SpParVec):
 
 master = gr.master;
 sendFeedback = gr.sendFeedback;
-
-print "\n	***NOTE: DiGraph.notMulWeight() is a dummy function\n";
+InOut = gr.InOut;
+In = gr.In;
+Out = gr.Out;

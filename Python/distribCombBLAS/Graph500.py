@@ -56,27 +56,31 @@ def k2Validate(G, start, parents):
 scale = 8;
 nstarts = 64;
 
-GRAPH500 = 2;
+GRAPH500 = 1;
 if GRAPH500 == 1:
 	print 'Using Graph500 graph generator'
-	G = kdtdg.DiGraph();
+	G = kdtdg.DiGraph(-1);
 	degrees = kdtdg.ParVec.zeros(4);
 	K1elapsed = G.genGraph500Edges(scale, degrees);
 
 	#	indices of vertices with degree > 2
 	deg3verts = (G.degree() > 2).findInds();
-	starts = sc.random.randint(0, high=len(deg3verts), size=(nstarts,));
+	#FIX: following should be randint(1, ...); masking root=0 bug for now
+	starts = sc.random.randint(1, high=len(deg3verts), size=(nstarts,));
 	# deg3verts stays distributed; indices to it (starts) are scalars
 elif GRAPH500 == 2:
 	print 'Using fully connected graph generator'
 	G = kdtdg.DiGraph.fullyConnected(2**scale,2**scale)
 	K1elapsed = 0.00005;
-	starts = sc.random.randint(0, high=2**scale, size=(nstarts,));
+	#FIX: following should be randint(1, ...); masking root=0 bug for now
+	starts = sc.random.randint(1, high=2**scale, size=(nstarts,));
 elif GRAPH500 == 3:
 	print 'Loading small_nonsym_int.mtx'
 	G = kdtdg.DiGraph.load('small_nonsym_int.mtx')
 	K1elapsed = 0.00005;
-	starts = sc.random.randint(0, 9, size=(nstarts,));
+	#
+	#FIX: following should be randint(1, ...); masking root=0 bug for now
+	starts = sc.random.randint(1, 9, size=(nstarts,));
 
 G.onesWeight();		# set all values to 1
 
