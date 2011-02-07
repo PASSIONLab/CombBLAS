@@ -315,6 +315,10 @@ def modulus():
   return _pyCombBLAS.modulus()
 modulus = _pyCombBLAS.modulus
 
+def fmod():
+  return _pyCombBLAS.fmod()
+fmod = _pyCombBLAS.fmod
+
 def max():
   return _pyCombBLAS.max()
 max = _pyCombBLAS.max

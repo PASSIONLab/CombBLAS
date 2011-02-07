@@ -98,6 +98,7 @@ BinaryFunction* minus();
 BinaryFunction* multiplies();
 BinaryFunction* divides();
 BinaryFunction* modulus();
+BinaryFunction* fmod();
 
 BinaryFunction* max();
 BinaryFunction* min();
