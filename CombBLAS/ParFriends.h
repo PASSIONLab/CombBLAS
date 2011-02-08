@@ -113,7 +113,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 			
 	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
-	for(int i=0; i<tomerge.size(); ++i)
+	for(unsigned int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
 	}

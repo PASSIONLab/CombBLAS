@@ -277,7 +277,8 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
 	IT csize = static_cast<IT>(ceil(cf));   // chunk size
 	IT * aux;
-	IT auxsize = Adcsc.ConstructAux(nA, aux);
+	//IT auxsize = Adcsc.ConstructAux(nA, aux);
+	Adcsc.ConstructAux(nA, aux);
 
 	for(IT i=0; i< Bdcsc.nzc; ++i)		// for all the columns of B
 	{
@@ -300,7 +301,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		IT maxnnz = 0;	// max number of nonzeros in C(:,i)	
 		IT hsize = 0;
 		
-		for(IT j =0; j< colnums.size(); ++j)		// create the initial heap 
+		for(IT j = 0; (unsigned)j < colnums.size(); ++j)		// create the initial heap 
 		{
 			if(colinds[j].first != colinds[j].second)	// current != end
 			{

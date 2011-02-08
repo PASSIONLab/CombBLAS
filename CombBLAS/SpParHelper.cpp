@@ -357,11 +357,11 @@ void SpParHelper::BCastMatrix(MPI::Intracomm & comm1d, SpMat<IT,NT,DER> & Matrix
 	}
 
 	Arr<IT,NT> arrinfo = Matrix.GetArrays();
-	for(int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
+	for(unsigned int i=0; i< arrinfo.indarrs.size(); ++i)	// get index arrays
 	{
 		comm1d.Bcast(arrinfo.indarrs[i].addr, arrinfo.indarrs[i].count, MPIType<IT>(), root);					
 	}
-	for(int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
+	for(unsigned int i=0; i< arrinfo.numarrs.size(); ++i)	// get numerical arrays
 	{
 		comm1d.Bcast(arrinfo.numarrs[i].addr, arrinfo.numarrs[i].count, MPIType<NT>(), root);					
 	}			
@@ -478,7 +478,7 @@ void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MP
 {
 	vector<IT> essentials = Matrix.GetEssentials();
 	int index = comm1d.Get_rank();
-	for(IT i=0; i< essentials.size(); ++i)
+	for(IT i=0; (unsigned)i < essentials.size(); ++i)
 	{
 		sizes[i][index] = essentials[i]; 
 		comm1d.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), sizes[i], 1, MPIType<IT>());
