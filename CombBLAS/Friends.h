@@ -27,6 +27,24 @@ class Dcsc;
 /**************************** FRIEND FUNCTIONS ******************************/
 /****************************************************************************/
 
+template <typename _BinaryOperation, typename IU, typename NU, typename RHS>
+void dcsc_apply_colwise (const SpDCCols<IU, NU> & A, const RHS * x, _BinaryOperation __binary_op)
+{
+	if(A.nnz > 0)
+	{	
+		for(IU j =0; j<A.dcsc->nzc; ++j)	// for all nonzero columns
+		{
+			IU colid = A.dcsc->jc[j];
+			for(IU i = A.dcsc->cp[j]; i< A.dcsc->cp[j+1]; ++i)
+			{
+				//IU rowid = A.dcsc->ir[i];
+				//SR::axpy(A.dcsc->numx[i], x[colid], y[rowid]);
+				A.dcsc->numx[i] = __binary_op(A.dcsc->numx[i], x[colid]);
+			}
+		}
+	}
+}
+
 //! SpMV with dense vector
 template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
 void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
