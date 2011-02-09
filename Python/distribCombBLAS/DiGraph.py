@@ -42,6 +42,7 @@ class DiGraph(gr.Graph):
 		elif isinstance(other, DiGraph):
 			ret = self.copy();
 			ret.spm += other.spm;
+			#ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.plus());  # only adds if both mats have nonnull elems!!
 		return ret;
 
 	def __div__(self, other):
@@ -104,16 +105,15 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
-			tmp = pcb.EWiseApply(self.spm, other.spm, pcb.plus());
-			self.spm = tmp;
+			#dead tmp = pcb.EWiseApply(self.spm, other.spm, pcb.plus());
+			self.spm += other.spm;
 		return self;
 
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
 		elif isinstance(other,DiGraph):
-			tmp = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies());
-			self.spm = tmp;
+			self.spm = pcb.EWiseApply(self.spm,other.spm, pcb.multiplies());
 		else:
 			raise NotImplementedError
 		return self;
@@ -126,7 +126,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy();
-			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies());
+			ret.spm = pcb.EWiseApply(self.spm,other.spm, pcb.multiplies());
 		else:
 			raise NotImplementedError
 		return ret;
@@ -189,7 +189,7 @@ class DiGraph(gr.Graph):
 			m = n;
 		i = (ParVec.range(n*m) % n).floor();
 		j = (ParVec.range(n*m) / n).floor();
-		v = ParVec.range(n*m);
+		v = ParVec.ones(n*m);
 		ret = DiGraph(i,j,v,n,m);
 		return ret;
 
@@ -199,6 +199,8 @@ class DiGraph(gr.Graph):
 
 	@staticmethod
 	def load(fname):
+		#FIX:  crashes if any out-of-bound indices in file; easy to
+		#      fall into with file being 1-based and Py being 0-based
 		ret = DiGraph(-1);
 		ret.spm = pcb.pySpParMat();
 		ret.spm.load(fname);
