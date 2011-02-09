@@ -67,27 +67,40 @@ int main(int argc, char* argv[])
 			FullyDistVec<int64_t, ValueType> dpvi(64, 0, 0);
 			FullyDistVec<int64_t, ValueType> dpvj(64, 0, 0);
 			FullyDistVec<int64_t, ValueType> dpvv(64, 1, 0);
-			for (int i = 0; i < 64; i++)
+			for (int i = 0; i <64; i++)
 			{
 				dpvi.SetElement(i, torusi[i]);
 				dpvj.SetElement(i, torusj[i]);
 			}
+			dpvi.DebugPrint();
+			dpvj.DebugPrint();
 			G1 = MatType(16, 16, dpvi, dpvj, dpvv);
 			G2 = MatType(16, 16, dpvi, dpvj, dpvv);
+
+			ofstream out1("G1.txt");
+			ofstream out2("G2.txt");
+			out1 << G1;
+			out2 << G2;
 		}
-		G1.PrintInfo();
-		SpParHelper::Print("The nnz values should be 112, 112, 112:\n");
 
 		MatType G3(G1);
+		G1.PrintInfo();
+		G2.PrintInfo();
+		G3.PrintInfo();
+		SpParHelper::Print("The nnz values should be 112, 112, 112:\n");
+
 
 		MatType G12 = Mult_AnXBn_Synch<PlusTimesSRing<int64_t, ValueType> >(G1, G2);
 		G12.PrintInfo();
+		ofstream out12("G12.txt");
+		out12 << G12;
 
 		MatType G13 = Mult_AnXBn_Synch<PlusTimesSRing<int64_t, ValueType> >(G1, G3);
 		G13.PrintInfo();
 
 		MatType G23 = Mult_AnXBn_Synch<PlusTimesSRing<int64_t, ValueType> >(G2, G3);
 		G23.PrintInfo();
+
 	}
 	MPI::Finalize();
 	return 0;

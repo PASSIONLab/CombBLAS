@@ -36,6 +36,7 @@ class Dcsc;
 /**
  * Triplets are represented using the boost::tuple class of the Boost library
  * \remarks Indices start from 0 in this class
+ * \remarks Sorted with respect to columns (Column-sorted triples)
  */
 template <class IT, class NT>
 class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
