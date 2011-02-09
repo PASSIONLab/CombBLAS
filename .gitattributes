@@ -88,6 +88,7 @@ CombBLAS/Applications/HopperResults/script529.24pernode_mini_fullydist -text
 CombBLAS/Applications/HopperResults/script8100.24pernode_mini_killed_fullydist -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
+CombBLAS/Applications/SpMMError.cpp -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx13 -text
@@ -129,6 +130,7 @@ CombBLAS/Applications/prof_p25_64iters_scale21 -text
 CombBLAS/Applications/script1024 -text
 CombBLAS/Applications/script256 -text
 CombBLAS/Applications/script4096 -text
+CombBLAS/Applications/torus.mtx -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BranchTrial/Friends.h -text
 CombBLAS/BranchTrial/ParFriends.h -text
