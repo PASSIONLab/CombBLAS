@@ -82,7 +82,7 @@ elif GRAPH500 == 3:
 	#FIX: following should be randint(1, ...); masking root=0 bug for now
 	starts = sc.random.randint(1, 9, size=(nstarts,));
 
-G.onesWeight();		# set all values to 1
+G.ones();		# set all values to 1
 
 K2elapsed = 1e-12;
 K2edges = 0;
