@@ -135,7 +135,10 @@ class DiGraph(gr.Graph):
 	def __repr__(self):
 		if self.nvert()==1:
 			[i, j, v] = self.toParVec();
-			print "%d %f" % (v[0], v[0]);
+			if len(v) > 0:
+				print "%d %f" % (v[0], v[0]);
+			else:
+				print "%d %f" % (0, 0.0);
 		else:
 			[i, j, v] = self.toParVec();
 			if len(i) < DiGraph._REPR_MAX:
@@ -483,8 +486,8 @@ class DiGraph(gr.Graph):
 	def centrality(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
 		if alg=='exactBC':
-			#cent = DiGraph._approxBC(self, sample=1.0, **kwargs)
-			cent = DiGraph._bc(self, 1.0, self.nvert())
+			cent = DiGraph._approxBC(self, sample=1.0, **kwargs)
+			#cent = DiGraph._bc(self, 1.0, self.nvert())
 		elif alg=='approxBC':
 			cent = DiGraph._approxBC(self, **kwargs);
 		elif alg=='kBC':
@@ -497,83 +500,91 @@ class DiGraph(gr.Graph):
 		return cent;
 	
 	
-	def _approxBC(self, sample=0.05, chunk=-1):
-		print "chunk=%d, sample=%5f" % (chunk, sample);
-		# calculate chunk automatically if not specified
+	def _approxBC(self, sample=0.05):
+		print "sample=%5f" % (sample);
 	
-	def _bc(self, K4approx, batchSize ):
-	
-	
+	#def _bc(self, K4approx, batchSize ):
 	    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
 	    # 
+		A = self.copy();
+		self.ones();			
+		#Aint = self.ones();	# not needed;  Gs only int for now
+		N = A.nvert()
+		bc = ParVec(N);
+	
+		#if (2**K4approx > N):
+		#    K4approx = sc.floor(sc.log2(N))
+		#    nPasses = 2**K4approx;
+		#else:
+		#    nPasses = N;		
 
-            A = self.copy();
-	    self.ones();			
-	    #Aint = self.ones();	# not needed;  Gs only int for now
-	    N = A.nvert()
+		nProcs = pcb._nprocs()
+
+#formerly nPasses
+		nVertToCalc = int(self.nvert() * sample)
+		# batchsize = # rows/cols that will fit in memory simultaneously.
+		# bcu has a value in every element, even though it's literally
+		# a sparse array (DiGraph).  So batchsize is calculated as
+		#   nrow = memory size / (memory/row)
+		#   memory size (in edges)
+		#        = 2GB * 0.1 (other vars) / 18 (bytes/edge) * nProcs
+		#   memory/row (in edges)
+		#        = self.nvert()
+		physMemPCore = 2e9; memFract = 0.1; bytesPEdge = 18
+		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
+		nBatches = int(sc.ceil(nVertToCalc / batchSize))
+		if sample == 1.0:
+			startVs = range(0,nVertToCalc,batchSize)
+			endVs = range(batchSize, nVertToCalc, batchSize)
+			if nVertToCalc % batchSize != 0:
+				endVs.append(nVertToCalc);
+			numVs = [y-x for [x,y] in zip(startVs,endVs)]
+		else:
+			startVs = sc.random.randint(0,sc.ceil(nVertToCalc/batchSize),nBatches) * batchSize
+			numVs = sc.ones(nBatches) * batchSize;
+
+		#numBatches = sc.ceil(nPasses/batchSize).astype(int)
 	
-	    bc = ParVec(N);
+		for [startV, numV] in zip(startVs, numVs):
+			bfs = []		
 	
-	    # ToDo:  original triggers off whether data created via RMAT to set nPasses
-	    #        and K4approx
-	    if (2**K4approx > N):
-	        K4approx = sc.floor(sc.log2(N))
-	        nPasses = 2**K4approx;
-	    else:
-	        nPasses = N;		
+			batch = ParVec.range(startV, startV+numV)
+			curSize = len(batch);
 	
-	    numBatches = sc.ceil(nPasses/batchSize).astype(int)
+			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N);
+			depth = 0;
+			fringe = A[batch,ParVec.range(N)];
 	
-	    for p in range(numBatches):
-	        bfs = []		
+			while fringe.nedge() > 0:
+				depth = depth+1;
+				nsp = nsp+fringe
+				tmp = fringe.copy();
+				tmp.bool();
+				bfs.append(tmp);
+				tmp = fringe._SpMM(A);
+				fringe = tmp.mulNot(nsp);
 	
-	        batch = ParVec.range(p*batchSize,min((p+1)*batchSize,N));
-	        curSize = len(batch);
+			bcu = DiGraph.fullyConnected(curSize,N);
 	
-	        # original M version uses accumarray in following line
-		# nsp == number of shortest paths
-	        #nsp = sp.csr_matrix((sc.tile(1,(1,curSize)).flatten(), (sc.arange(curSize),sc.array(batch))),shape=(curSize,N));
-		nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N);
+			# compute the bc update for all vertices except the sources
+			for depth in range(depth-1,0,-1):
+				# compute the weights to be applied based on the child values
+				w = bfs[depth] / nsp * bcu;
+				# Apply the child value weights and sum them up over the parents
+				# then apply the weights based on parent values
+				w.T()
+				w = A._SpMM(w)
+				w.T()
+				w *= bfs[depth-1]
+				w *= nsp
+				bcu += w
 	
+			# update the bc with the bc update
+			bc = bc + bcu.sum(Out)	# column sums
 	
-	        depth = 0;
-	        #OLD fringe = Aint[batch,:];   
-		fringe = A[batch,ParVec.range(N)];
-	
-	        while fringe.nedge() > 0:
-	            depth = depth+1;
-	            #print (depth, fringe.getnnz()) 
-	            # add in shortest path counts from the fringe
-	            nsp = nsp+fringe
-                    tmp = fringe.copy();
-                    tmp.bool();
-	            bfs.append(tmp);
-	            tmp = fringe._SpMM(A);
-	            fringe = tmp.mulNot(nsp);
-	
-		bcu = DiGraph.fullyConnected(curSize,N);
-	
-	        # compute the bc update for all vertices except the sources
-	        for depth in range(depth-1,0,-1):
-	            # compute the weights to be applied based on the child values
-	            #old w = bfs[depth].multiply(nspInv).multiply(bcu);
-                    w = bfs[depth] / nsp * bcu;
-	            # Apply the child value weights and sum them up over the parents
-	            # then apply the weights based on parent values
-                    w.T()
-                    w = A._SpMM(w)
-                    w.T()
-                    w *= bfs[depth-1]
-                    w *= nsp
-	            bcu += w
-	            #old bcu = bcu + (A*w.T).T.mul(bfs[depth-1]).mul(nsp);
-	
-	        # update the bc with the bc update
-	        bc = bc + bcu.sum(Out)	# column sums
-	
-	    # subtract off the additional values added in by precomputation
-	    bc = bc - nPasses;
-	    return bc;
+		# subtract off the additional values added in by precomputation
+		bc = bc - nVertToCalc;
+		return bc;
 	
 	def cluster(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
