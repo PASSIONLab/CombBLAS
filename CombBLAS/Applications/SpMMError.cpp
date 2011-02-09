@@ -72,8 +72,8 @@ int main(int argc, char* argv[])
 				dpvi.SetElement(i, torusi[i]);
 				dpvj.SetElement(i, torusj[i]);
 			}
-			G1 = MatType(64, 64, dpvi, dpvj, dpvv);
-			G2 = MatType(64, 64, dpvi, dpvj, dpvv);
+			G1 = MatType(16, 16, dpvi, dpvj, dpvv);
+			G2 = MatType(16, 16, dpvi, dpvj, dpvv);
 		}
 		G1.PrintInfo();
 		SpParHelper::Print("The nnz values should be 112, 112, 112:\n");
