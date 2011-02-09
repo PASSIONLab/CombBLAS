@@ -244,6 +244,11 @@ class ParVec:
 	def __mod__(self, other):
 		ret = self.copy();
 		if type(other) == int or type(other) == long or type(other) == float:
+			#HACK:  for modulus() not handling negative numbers
+			# properly
+			if (self < 0).any():
+				ret += other*other
+			#ENDHACK
 			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
 			if len(self) != len(other):
@@ -292,6 +297,7 @@ class ParVec:
 		return ret;
 
 	def __repr__(self):
+		#ToDo:  print only part/none of the data for large vectors
 		self.dpv.printall();
 		return ' ';
 
@@ -302,12 +308,14 @@ class ParVec:
 			if not key.isBool():
 				raise NotImplementedError, "Only Boolean vector indexing implemented"
 			else:
-                                self.dpv.ApplyMasked(pcb.set(0), key.dpv.sparse());
+				# zero the target elements
+                                self.dpv.ApplyMasked(pcb.set(0), key.dpv.sparse(0));
 				if type(value) == int or type(value) == long or type(value) == float:
                                 	tmp = key.dpv.sparse();
                                 	tmp.Apply(pcb.set(value));
 				else:
-					tmp = value.dpv.sparse();
+					# restrict the changed elements to key
+					tmp = (value * key).dpv.sparse();
                                 self.dpv += tmp;
 		elif isinstance(key,SpParVec):
 			if not key.allCloseToInt():
@@ -408,12 +416,12 @@ class ParVec:
 
 	def max(self):
 		#ToDo:  avoid conversion to sparse when PV.max() avail
-		ret = self.dpv.sparse().Reduce(pcb.max())
+		ret = self.dpv.sparse(np.nan).Reduce(pcb.max())
 		return ret;
 
 	def min(self):
 		#ToDo:  avoid conversion to sparse when PV.min() avail
-		ret = self.dpv.sparse().Reduce(pcb.min())
+		ret = self.dpv.sparse(np.nan).Reduce(pcb.min())
 		return ret;
 
 	def nn(self):
@@ -684,6 +692,7 @@ class SpParVec:
 		return ret;
 
 	def __repr__(self):
+		#ToDo:  print only none/part of the data for large vectors
 		self.spv.printall();
 		return ' ';
 
@@ -818,5 +827,5 @@ sendFeedback = feedback.feedback.sendFeedback;
 # which direction(s) of edges to include
 InOut = 1;
 In = 2;
-Out = 1;
+Out = 3;
 

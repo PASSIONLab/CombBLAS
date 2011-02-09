@@ -44,7 +44,21 @@ class DiGraph(gr.Graph):
 			ret.spm += other.spm;
 		return ret;
 
+	def __div__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret = self.copy();
+			ret.spm.Apply(pcb.bind2nd(pcb.divides(),other));
+		elif self.nvert() != other.nvert():
+			raise IndexError, 'Graphs must have equal numbers of vertices'
+		elif isinstance(other,DiGraph):
+			ret = self.copy();
+			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.divides());
+		else:
+			raise NotImplementedError
+		return ret;
+
 	def __getitem__(self, key):
+		#ToDo:  accept slices for key1/key2 besides ParVecs
 		if type(key)==tuple:
 			if len(key)==1:
 				[key1] = key; key2 = -1;
@@ -90,14 +104,16 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
-			self.spm += other.spm;
+			tmp = pcb.EWiseApply(self.spm, other.spm, pcb.plus());
+			self.spm = tmp;
 		return self;
 
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
 		elif isinstance(other,DiGraph):
-			self.spm *= other.spm;
+			tmp = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies());
+			self.spm = tmp;
 		else:
 			raise NotImplementedError
 		return self;
@@ -106,22 +122,46 @@ class DiGraph(gr.Graph):
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy();
 			ret.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
+		elif self.nvert() != other.nvert():
+			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy();
-			ret.spm = self.spm * other.spm;
+			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies());
 		else:
 			raise NotImplementedError
 		return ret;
 
+	_REPR_MAX = 100;
 	def __repr__(self):
 		if self.nvert()==1:
 			[i, j, v] = self.toParVec();
 			print "%d %f" % (v[0], v[0]);
+		else:
+			[i, j, v] = self.toParVec();
+			if len(i) < DiGraph._REPR_MAX:
+				print i,j,v
 		return ' ';
 
-	def boolWeight(self):
+	def _SpMM(self, other):
+		selfnv = self.nvert()
+		if type(selfnv) == tuple:
+			[selfnv1, selfnv2] = selfnv;
+		else:
+			selfnv1 = selfnv; selfnv2 = selfnv;
+		othernv = other.nvert()
+		if type(othernv) == tuple:
+			[othernv1, othernv2] = othernv;
+		else:
+			othernv1 = othernv; othernv2 = othernv;
+		if selfnv2 != othernv1:
+			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
+		ret = DiGraph(-1);
+		ret.spm = self.spm.SpMM(other.spm);
+		return ret;
+
+	def bool(self):
 		#ToDo:  change for real Boolean matrices
-		return DiGraph.onesWeight(self);
+		return DiGraph.ones(self);
 
 	def copy(self):
 		ret = DiGraph(-1);
@@ -130,6 +170,7 @@ class DiGraph(gr.Graph):
 		
 	def degree(self, dir=gr.Out):
 		if dir == gr.InOut:
+			#ToDo:  can't do InOut if nonsquare graph
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
 			return ParVec.toParVec(tmp1+tmp2);
@@ -141,13 +182,6 @@ class DiGraph(gr.Graph):
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
-
-	def divWeight(self, other):
-		if type(other) != int:
-			raise NotImplementedError
-		else:
-			self.spm.Apply(pcb.bind2nd(pcb.divides(),other));
-		return;
 
 	@staticmethod
 	def fullyConnected(n,m=None):
@@ -170,7 +204,7 @@ class DiGraph(gr.Graph):
 		ret.spm.load(fname);
 		return ret;
 
-	def maxWeight(self, dir=gr.InOut):
+	def max(self, dir=gr.InOut):
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max());
@@ -185,7 +219,7 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, 'Invalid edge direction'
 
-	def minWeight(self, dir=gr.InOut):
+	def min(self, dir=gr.InOut):
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min());
@@ -197,35 +231,8 @@ class DiGraph(gr.Graph):
 		elif dir == gr.Out:
 			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min());
 			return ParVec.toParVec(ret);
-		else:
-			raise KeyError, 'Invalid edge direction'
 
-	def matMul(self, other):
-		selfnv = self.nvert();
-		if type(selfnv) == tuple:
-			[selfnv1, selfnv2] = selfnv;
-		else:
-			selfnv1 = selfnv; selfnv2 = selfnv;
-		othernv = other.nvert();
-		if type(othernv) == tuple:
-			[othernv1, othernv2] = othernv;
-		else:
-			othernv1 = othernv; othernv2 = othernv;
-		if selfnv2 != othernv1:
-			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
-		ret = DiGraph(-1);
-		ret.spm = self.spm.SpMM(other.spm);
-		return ret;
-
-	#in-place, so no return value
-	def mulWeight(self, other):
-		if type(other) != int:
-			raise NotImplementedError
-		else:
-			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other));
-		return;
-
-	def mulNotWeight(self, other):
+	def mulNot(self, other):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
@@ -244,7 +251,7 @@ class DiGraph(gr.Graph):
 		return ret;
 
 	#in-place, so no return value
-	def onesWeight(self):
+	def ones(self):
 		self.spm.Apply(pcb.set(1));
 		return;
 
@@ -253,7 +260,7 @@ class DiGraph(gr.Graph):
 		self.spm.Transpose();
 
 	#in-place, so no return value
-	def setWeight(self, value):
+	def set(self, value):
 		self.spm.Apply(pcb.set(value));
 		return;
 
@@ -268,7 +275,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Too many indices'
 		return ret;
 
-	def sumWeight(self, dir=gr.Out):
+	def sum(self, dir=gr.Out):
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity());
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity());
@@ -292,6 +299,29 @@ class DiGraph(gr.Graph):
 		self.spm.Find(reti.dpv, retj.dpv, retv.dpv);
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv);
+
+	@staticmethod
+	def twoDTorus(n):
+		N = n*n;
+		nvec =   ((ParVec.range(N*4)%N) / n).floor()	 # [0,0,0,...., n-1,n-1,n-1]
+		nvecil = ((ParVec.range(N*4)%N) % n).floor()	 # [0,1,...,n-1,0,1,...,n-2,n-1]
+		north = gr.Graph._sub2ind((n,n),(nvecil-1) % n,nvec)	
+		south = gr.Graph._sub2ind((n,n),(nvecil+1) % n,nvec)
+		west = gr.Graph._sub2ind((n,n),nvecil, (nvec-1) % n)
+		east = gr.Graph._sub2ind((n,n),nvecil, (nvec+1) % n)
+		Ndx = ParVec.range(N*4)
+		northNdx = Ndx < N
+		southNdx = (Ndx >= N) & (Ndx < 2*N)
+		westNdx = (Ndx >= 2*N) & (Ndx < 3*N)
+		eastNdx = Ndx >= 3*N
+		col = ParVec.zeros(N*4)
+		col[northNdx] = north
+		col[southNdx] = south
+		col[westNdx] = west
+		col[eastNdx] = east
+		row = ParVec.range(N*4) % N;
+		ret = DiGraph(row, col, 1, N)
+		return ret
 
 	# ==================================================================
 	#  "complex ops" implemented below here
@@ -325,28 +355,6 @@ class DiGraph(gr.Graph):
 		retDest[fringe] = 1;
 		retSource[fringe] = fringe;
 		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
-	
-
-
-	@staticmethod
-	def torusEdges(n):
-		N = n*n;
-		#old nvec = sc.tile(sc.arange(n),(n,1)).T.flatten();	# [0,0,0,...., n-1,n-1,n-1]
-		#old nvecil = sc.tile(sc.arange(n),n)			# [0,1,...,n-1,0,1,...,n-2,n-1]
-		nvec = DPV.tile(DPV.range(n), n, interleave=False)	# NEW:  range() as in Py
-												# NEW:  tile() as in SciPy (but just 1D), with
-		nvecil = DPV.tile(DPV.range(n), n, interleave=True)	#    interleave arg
-		north = gr.Graph._sub2ind((n,n),DPV.mod(nvecil-1,n),nvec);	
-		south = gr.Graph._sub2ind((n,n),DPV.mod(nvecil+1,n),nvec);
-		west = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec-1,n));
-		east = gr.Graph._sub2ind((n,n),nvecil, DPV.mod(nvec+1,n));
-		Nvec = DPV.range(N);
-		row = DPV.append(Nvec, Nvec);
-		row = DPV.append(row, row);
-		col = DPV.append(north, west);					# NEW:  append() in just 1D
-		col = DPV.append(col, south);
-		col = DPV.append(rowcol, east);
-		return gr.EdgeV((row, col), DPV.ones(N*4))
 	
 	
 	#	creates a breadth-first search tree of a Graph from a starting
@@ -473,17 +481,14 @@ class DiGraph(gr.Graph):
 	def centrality(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
 		if alg=='exactBC':
-			cent = _approxBC(self, sample=1.0, **kwargs)
-	
-		elif alg=='_approxBC':
-			cent = _approxBC(self, **kwargs);
-	
+			#cent = DiGraph._approxBC(self, sample=1.0, **kwargs)
+			cent = DiGraph._bc(self, 1.0, self.nvert())
+		elif alg=='approxBC':
+			cent = DiGraph._approxBC(self, **kwargs);
 		elif alg=='kBC':
 			raise NotImplementedError, "k-betweenness centrality unimplemented"
-	
 		elif alg=='degree':
 			raise NotImplementedError, "degree centrality unimplemented"
-			
 		else:
 			raise KeyError, "unknown centrality algorithm (%s)" % alg
 	
@@ -499,9 +504,10 @@ class DiGraph(gr.Graph):
 	
 	    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
 	    # 
-	
-	    A = self.onesWeight();			
-	    Aint = self.onesWeight();	# not needed;  Gs only int for now
+
+            A = self.copy();
+	    self.ones();			
+	    #Aint = self.ones();	# not needed;  Gs only int for now
 	    N = A.nvert()
 	
 	    bc = ParVec(N);
@@ -525,40 +531,43 @@ class DiGraph(gr.Graph):
 	        # original M version uses accumarray in following line
 		# nsp == number of shortest paths
 	        #nsp = sp.csr_matrix((sc.tile(1,(1,curSize)).flatten(), (sc.arange(curSize),sc.array(batch))),shape=(curSize,N));
-		nsp = DiGraph(ParVec.range(curSize), batch, 1, N);
+		nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N);
 	
 	
 	        depth = 0;
 	        #OLD fringe = Aint[batch,:];   
 		fringe = A[batch,ParVec.range(N)];
 	
-	        while fringe.getnnz() > 0:
+	        while fringe.nedge() > 0:
 	            depth = depth+1;
 	            #print (depth, fringe.getnnz()) 
 	            # add in shortest path counts from the fringe
 	            nsp = nsp+fringe
-	            bfs = sc.append(bfs,kdtsp.spbool(fringe));
-	            tmp = fringe * A;		#FIX:  can't be in-line in next line due to SciPy bug
-						#avoid creating not(nsp) if possible
-	            fringe = tmp.notMulWeight(nsp);
+                    tmp = fringe.copy();
+                    tmp.bool();
+	            bfs.append(tmp);
+	            tmp = fringe._SpMM(A);
+	            fringe = tmp.mulNot(nsp);
 	
-	        #old [nspi, nspj, nspv] = kdtsp.find(nsp);
-	        #nspInv = sp.csr_matrix((1/(nspv.astype(sc.float64)),(nspi,nspj)), shape=(curSize, N));
-	
-	        #bcu = sp.csr_matrix(sc.ones((curSize, N)));		#FIX:  too big in real cases?
 		bcu = DiGraph.fullyConnected(curSize,N);
 	
 	        # compute the bc update for all vertices except the sources
 	        for depth in range(depth-1,0,-1):
 	            # compute the weights to be applied based on the child values
 	            #old w = bfs[depth].multiply(nspInv).multiply(bcu);
-	            w = bfs[depth].divWeight(nsp).mulWeight(bcu);
+                    w = bfs[depth] / nsp * bcu;
 	            # Apply the child value weights and sum them up over the parents
 	            # then apply the weights based on parent values
-	            bcu = bcu + (A*w.T).T.mulWeight(bfs[depth-1]).mulWeight(nsp);
+                    w.T()
+                    w = A._SpMM(w)
+                    w.T()
+                    w *= bfs[depth-1]
+                    w *= nsp
+	            bcu += w
+	            #old bcu = bcu + (A*w.T).T.mul(bfs[depth-1]).mul(nsp);
 	
 	        # update the bc with the bc update
-	        bc = bc + bcu.sum(0)	#FIX:  dir?
+	        bc = bc + bcu.sum(Out)	# column sums
 	
 	    # subtract off the additional values added in by precomputation
 	    bc = bc - nPasses;
