@@ -60,6 +60,13 @@ void pySpParMat::load(const char* filename)
 	input.close();
 }
 
+void pySpParMat::save(const char* filename)
+{
+	ofstream output(filename);
+	A.put(output);
+	output.close();
+}
+
 void pySpParMat::GenGraph500Edges(int scale)
 {
 	int nprocs = MPI::COMM_WORLD.Get_size();

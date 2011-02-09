@@ -60,6 +60,11 @@ bool root()
 	return MPI::COMM_WORLD.Get_rank() == 0;
 }
 
+int _nprocs()
+{
+	return MPI::COMM_WORLD.Get_size();
+}
+
 MPI::Datatype doubleint_MPI_datatype;
 
 template<> MPI::Datatype MPIType< doubleint >( void )

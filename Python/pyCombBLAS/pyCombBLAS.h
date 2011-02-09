@@ -12,9 +12,6 @@
 //#include "../../CombBLAS/Semirings.h"
 
 
-//double cblas_alltoalltime;
-//double cblas_allgathertime;
-
 #ifdef NOTR1
         #include <boost/tr1/memory.hpp>
 #else
@@ -51,5 +48,6 @@ void init_pyCombBLAS_MPI();
 
 void finalize();
 bool root();
+int _nprocs();
 
 #endif
