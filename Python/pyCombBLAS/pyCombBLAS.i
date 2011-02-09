@@ -352,3 +352,4 @@ BinaryFunction* not2(BinaryFunction* f);
 //void init();
 void finalize();
 bool root();
+int _nprocs();

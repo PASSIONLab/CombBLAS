@@ -408,4 +408,8 @@ def root():
   return _pyCombBLAS.root()
 root = _pyCombBLAS.root
 
+def _nprocs():
+  return _pyCombBLAS._nprocs()
+_nprocs = _pyCombBLAS._nprocs
+
 

@@ -11752,6 +11752,29 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap__nprocs(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":_nprocs")) SWIG_fail;
+  {
+    try {
+      result = (int)_nprocs();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"new_pySpParMat", _wrap_new_pySpParMat, METH_VARARGS, NULL},
@@ -11896,6 +11919,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"not2", _wrap_not2, METH_VARARGS, NULL},
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
+	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
