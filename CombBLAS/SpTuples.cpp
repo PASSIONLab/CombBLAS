@@ -107,6 +107,7 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool
 /**
   * Generate a SpTuples object from StackEntry array, then delete that array
   * @param[in] multstack {value-key pairs where keys are pair<col_ind, row_ind> sorted lexicographically} 
+  * \remark Since input is column sorted, the tuples are automatically generated in that way too
  **/  
 template <class IT, class NT>
 SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
