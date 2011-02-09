@@ -3455,6 +3455,49 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMat_save(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_save",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_save" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_save" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  {
+    try {
+      (arg1)->save((char const *)arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -11717,6 +11760,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_getnrow", _wrap_pySpParMat_getnrow, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_getncol", _wrap_pySpParMat_getncol, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_load", _wrap_pySpParMat_load, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_save", _wrap_pySpParMat_save, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_GenGraph500Edges", _wrap_pySpParMat_GenGraph500Edges, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_copy", _wrap_pySpParMat_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat___iadd__", _wrap_pySpParMat___iadd__, METH_VARARGS, NULL},

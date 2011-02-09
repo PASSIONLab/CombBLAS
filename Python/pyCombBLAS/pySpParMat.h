@@ -46,6 +46,8 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
+	
 	void GenGraph500Edges(int scale);
 	double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	

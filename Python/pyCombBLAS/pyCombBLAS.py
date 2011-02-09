@@ -81,6 +81,7 @@ class pySpParMat(_object):
     def getnrow(self): return _pyCombBLAS.pySpParMat_getnrow(self)
     def getncol(self): return _pyCombBLAS.pySpParMat_getncol(self)
     def load(self, *args): return _pyCombBLAS.pySpParMat_load(self, *args)
+    def save(self, *args): return _pyCombBLAS.pySpParMat_save(self, *args)
     def GenGraph500Edges(self, *args): return _pyCombBLAS.pySpParMat_GenGraph500Edges(self, *args)
     def copy(self): return _pyCombBLAS.pySpParMat_copy(self)
     def __iadd__(self, *args): return _pyCombBLAS.pySpParMat___iadd__(self, *args)
