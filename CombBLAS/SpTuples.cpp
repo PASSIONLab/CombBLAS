@@ -30,7 +30,9 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
 :tuples(mytuples), m(nRow), n(nCol), nnz(size)
-{}
+{
+	SortColBased();
+}
 
 /**
   * Generate a SpTuples object from an edge list
