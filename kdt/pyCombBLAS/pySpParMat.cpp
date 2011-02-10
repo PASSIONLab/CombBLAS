@@ -67,11 +67,14 @@ void pySpParMat::save(const char* filename)
 	output.close();
 }
 
-void pySpParMat::GenGraph500Edges(int scale)
+double pySpParMat::GenGraph500Edges(int scale)
 {
+	double k1time = 0;
+
 	int nprocs = MPI::COMM_WORLD.Get_size();
-	int rank = MPI::COMM_WORLD.Get_rank();
-	
+
+
+	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
 	// this is an undirected graph, so A*x does indeed BFS
 	double initiator[4] = {.57, .19, .19, .05};
 
@@ -80,19 +83,25 @@ void pySpParMat::GenGraph500Edges(int scale)
 	PermEdges<int64_t>(DEL);
 	RenameVertices<int64_t>(DEL);
 
-	A = MatType (DEL);	 // conversion from distributed edge list
+	// Start Kernel #1
+	MPI::COMM_WORLD.Barrier();
+	double t1 = MPI_Wtime();
+
+	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
 	MatType AT = A;
 	AT.Transpose();
-	
-	int64_t nnz = A.getnnz();
-	if (rank == 0)
-		cout << "Generator: A.getnnz() before A += AT: " << nnz << endl;
 	A += AT;
-	nnz = A.getnnz();
-	if (rank == 0)
-		cout << "Generator: A.getnnz() after A += AT: " << nnz << endl;
+	
+	MPI::COMM_WORLD.Barrier();
+	double t2=MPI_Wtime();
+	
+	// END OF COPY
+	
+	k1time = t2-t1;
+	return k1time;
 }
 
+/*
 double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 {
 	double k1time = 0;
@@ -139,7 +148,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	pyDegrees.v.stealFrom(degrees);
 	return k1time;
 }
-
+*/
 pySpParMat* pySpParMat::copy()
 {
 	pySpParMat* ret = new pySpParMat(this);

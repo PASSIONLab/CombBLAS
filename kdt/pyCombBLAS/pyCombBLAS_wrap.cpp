@@ -3498,7 +3498,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   int arg2 ;
@@ -3508,6 +3508,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_0(PyObject *SWIGUNU
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  double result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_GenGraph500Edges",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
@@ -3522,60 +3523,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_0(PyObject *SWIGUNU
   arg2 = static_cast< int >(val2);
   {
     try {
-      (arg1)->GenGraph500Edges(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  int arg2 ;
-  pyDenseParVec *arg3 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  double result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_GenGraph500Edges",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec &""'"); 
-  }
-  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
-  {
-    try {
-      result = (double)(arg1)->GenGraph500Edges(arg2,*arg3);
+      result = (double)(arg1)->GenGraph500Edges(arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -3587,61 +3535,6 @@ SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges__SWIG_1(PyObject *SWIGUNU
   resultobj = SWIG_From_double(static_cast< double >(result));
   return resultobj;
 fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_GenGraph500Edges(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = (int)PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
-      if (_v) {
-        return _wrap_pySpParMat_GenGraph500Edges__SWIG_0(self, args);
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMat_GenGraph500Edges__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'pySpParMat_GenGraph500Edges'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    GenGraph500Edges(pySpParMat *,int)\n"
-    "    GenGraph500Edges(pySpParMat *,int,pyDenseParVec &)\n");
   return NULL;
 }
 
