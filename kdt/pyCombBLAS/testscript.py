@@ -165,7 +165,7 @@ def k2validate(G, root, parents):
 A = pcb.pySpParMat()
 scale = 10
 
-degrees = pcb.pyDenseParVec(4, 0);
+#degrees = pcb.pyDenseParVec(4, 0);
 k1time = 0.0
 
 if len(sys.argv) >= 2:
@@ -191,8 +191,9 @@ if (scale < 0):
 else:
 	if (pcb.root()):
 		print "Generating RMAT with 2**%d nodes" %(scale)
-	k1time = A.GenGraph500Edges(scale, degrees)
+	k1time = A.GenGraph500Edges(scale)
 	A.Apply(pcb.set(1))
+	degrees = A.Reduce(pcb.pySpParMat.Column(), pcb.plus());
 	if (pcb.root()):
 		print "Generation took %lf s"%(k1time)
 	
