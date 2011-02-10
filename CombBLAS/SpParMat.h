@@ -90,22 +90,24 @@ public:
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;
 
 	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
 
 	template <typename VT, typename _BinaryOperation>	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const;
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
 
 	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
-	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
+	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
 
 	template <typename VT, typename _BinaryOperation>	
-	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const;
+	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
 	{
 		spSeq->Apply(__unary_op);	
 	}
+
+	IT RemoveLoops();	// returns the number of loops removed
 	
 	/*
 	template <typename NU2, typename UDER2> 
