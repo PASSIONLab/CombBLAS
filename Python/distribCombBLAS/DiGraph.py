@@ -265,6 +265,14 @@ class DiGraph(gr.Graph):
 		self.spm.Transpose();
 
 	#in-place, so no return value
+	def scale(self, other):
+		#FIX:  why is isinstance() check not working?
+		#if not isinstance(other,SpParVec):
+		#	raise KeyError, 'Invalid type for scale vector'
+		self.spm.ColWiseApply(other.spv, pcb.multiplies())
+		return
+
+	#in-place, so no return value
 	def set(self, value):
 		self.spm.Apply(pcb.set(value));
 		return;
