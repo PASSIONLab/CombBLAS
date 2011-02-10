@@ -46,6 +46,8 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 
 _pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyOperations.o pyOperations.h pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParVec.o pyDenseParVec.o pyOperations.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	cp -f _pyCombBLAS.so ..
+	cp -f pyCombBLAS.py ..
 
 # the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
 pyCombBLAS.py:	_pyCombBLAS.so
