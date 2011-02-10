@@ -1026,6 +1026,7 @@ Python/serialSciPy/Graph500.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/Graph500.py -text
+kdt/UFget.py -text
 kdt/feedback.py -text
 kdt/pyCombBLAS/Makefile-nersc -text
 kdt/pyCombBLAS/Makefile-neumann -text
