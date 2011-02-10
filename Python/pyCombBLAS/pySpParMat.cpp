@@ -175,6 +175,12 @@ void pySpParMat::Apply(op::UnaryFunction* op)
 	A.Apply(*op);
 }
 
+void pySpParMat::ColWiseApply(const pySpParVec& values, op::BinaryFunction* f)
+{
+	::ColWiseApply(A, values.v, *f);
+}
+
+
 pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
 {
 	pySpParMat* ret = new pySpParMat();

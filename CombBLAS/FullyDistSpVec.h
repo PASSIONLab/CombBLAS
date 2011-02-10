@@ -151,6 +151,10 @@ private:
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
+	
+	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
+	friend void
+	ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op);
 
 	template <typename IU, typename NU1, typename NU2>
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
