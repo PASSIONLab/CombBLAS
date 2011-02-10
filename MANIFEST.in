@@ -1,0 +1,11 @@
+include kdt/*.py
+include kdt/pyCombBLAS/*.cpp
+include kdt/pyCombBLAS/*.h
+include kdt/pyCombBLAS/pyCombBLAS.i
+include CombBLAS/*.h
+include CombBLAS/*.cpp
+include CombBLAS/graph500-1.2/generator/*.h
+include CombBLAS/graph500-1.2/generator/*.c
+include CombBLAS/graph500-1.2/generator/*.cpp
+include setup.py
+include README.txt
