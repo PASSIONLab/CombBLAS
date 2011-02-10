@@ -70,6 +70,8 @@ CombBLAS/Applications/HopperResults/script1024.16pernode_toy -text
 CombBLAS/Applications/HopperResults/script1024.24pernode -text
 CombBLAS/Applications/HopperResults/script1024.24pernode_mini+_fullydist -text
 CombBLAS/Applications/HopperResults/script1024.24pernode_mini_fullydist -text
+CombBLAS/Applications/HopperResults/script1024_hop_all.mini+_Jan11 -text
+CombBLAS/Applications/HopperResults/script1024_hop_all.mini_Jan11 -text
 CombBLAS/Applications/HopperResults/script16384.final_small -text
 CombBLAS/Applications/HopperResults/script16384.killedmini -text
 CombBLAS/Applications/HopperResults/script16384.killedsmall -text
@@ -83,9 +85,7 @@ CombBLAS/Applications/HopperResults/script4096.24pernode_toy -text
 CombBLAS/Applications/HopperResults/script4096.8pernode -text
 CombBLAS/Applications/HopperResults/script4096.8pernode_small_outoftime -text
 CombBLAS/Applications/HopperResults/script4096.final_small- -text
-CombBLAS/Applications/HopperResults/script4096.killedmini -text
 CombBLAS/Applications/HopperResults/script529.24pernode_mini_fullydist -text
-CombBLAS/Applications/HopperResults/script8100.24pernode_mini_killed_fullydist -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/SpMMError.cpp -text
