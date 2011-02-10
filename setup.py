@@ -19,12 +19,12 @@ print ""
 #print "KDT uses smart pointers which are available through the Boost library. Please make sure Boost is in your include path."
 
 COMBBLAS = "CombBLAS/"
-PCB = "Python/pyCombBLAS/"
+PCB = "kdt/pyCombBLAS/"
 GENERATOR = "CombBLAS/graph500-1.2/generator/"
 
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
 
-pyCombBLAS_ext = Extension('_pyCombBLAS',
+pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
 	#, include_dirs=['/usr/include/X11'],
 	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')],
@@ -37,7 +37,7 @@ setup(name='kdt',
 	url='http://kdt.sourceforge.net',
 #	packages=['kdt', 'kdt'],
 	ext_modules=[pyCombBLAS_ext],
-	py_modules = ['pyCombBLAS']
+	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.Graph500', 'kdt.feedback']
 	#package_dir={"pyCombBLAS": 'Python/pyCombBLAS/'}
 	)
 	

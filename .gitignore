@@ -7,8 +7,8 @@ Graph500cpp/graph500
 Graph500cpp/makefile
 Python/distribCombBLAS/*.pyc
 Python/distribCombBLAS/.KDT_log
-Python/pyCombBLAS/*.a
-Python/pyCombBLAS/*.o
-Python/pyCombBLAS/*.pyc
-Python/pyCombBLAS/*.so
-Python/pyCombBLAS/Makefile
+kdt/pyCombBLAS/*.a
+kdt/pyCombBLAS/*.o
+kdt/pyCombBLAS/*.pyc
+kdt/pyCombBLAS/*.so
+kdt/pyCombBLAS/Makefile
