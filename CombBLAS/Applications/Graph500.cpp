@@ -25,7 +25,6 @@ double cblas_allgathertime;
 #include "../DistEdgeList.h"
 
 #define ITERS 16
-#define SAVEMEM 1
 using namespace std;
 
 // 64-bit floor(log2(x)) function 
@@ -77,7 +76,8 @@ int main(int argc, char* argv[])
 
 		// Declare objects
 		PSpMat_Bool A;	
-		FullyDistVec<int64_t, int64_t> degrees;
+		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 		unsigned scale;
 
 		if(string(argv[1]) == string("Input")) // input option
@@ -87,12 +87,18 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Read input");
 
 			PSpMat_Int64 * G = new PSpMat_Int64(A); 
-			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
+			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// identity is 0 
 			delete G;
+
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
+			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			delete ColSums;
+			A = A(nonisov, nonisov);
 
 			PSpMat_Bool AT = A;
 			AT.Transpose();
-			// boolean addition is practically a "logical or", 
+			// boolean addition is practically a "logical or"
 			// therefore this doesn't destruct any links
 			A += AT;	// symmetricize
 		}
@@ -168,22 +174,42 @@ int main(int argc, char* argv[])
 			RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
 			SpParHelper::Print("Renamed Vertices\n");
 
-			#ifndef SAVEMEM	
-			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); // conversion from distributed edge list, keep self-loops
-			SpParHelper::Print("Created Int64 Sparse Matrix\n");
-			G->Reduce(degrees, Row, plus<int64_t>(), 0);	// identity is 0 
-			delete G;
-			SpParHelper::Print("Calculated degrees\n");
-			#endif
-
 			// Start Kernel #1
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI_Wtime();
 
-			// the following constructor distributes edges to their rightful owners as well
-			A = PSpMat_Bool(*DEL);	// remove self loops and duplicates (since this is of type boolean)
+			// conversion from distributed edge list, keeps self-loops, sums duplicates
+			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); 
 			delete DEL;	// free memory before symmetricizing
-			
+			SpParHelper::Print("Created Int64 Sparse Matrix\n");
+
+			MPI::COMM_WORLD.Barrier();
+			double redts = MPI_Wtime();
+			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
+			MPI::COMM_WORLD.Barrier();
+			double redtf = MPI_Wtime();
+
+			ostringstream redtimeinfo;
+			redtimeinfo << "Calculated degrees in " << redtf-redts << " seconds" << endl;
+			SpParHelper::Print(redtimeinfo.str());
+			A =  PSpMat_Bool(*G);			// Convert to Boolean
+			delete G;
+			int64_t removed  = A.RemoveLoops();
+
+			ostringstream loopinfo;
+			loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
+			SpParHelper::Print(loopinfo.str());
+
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
+			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			delete ColSums;
+			SpParHelper::Print("Found non-isolated vertices\n");	
+			A.PrintInfo();
+			A = A(nonisov, nonisov);
+			SpParHelper::Print("Dropped isolated vertices from input\n");	
+			A.PrintInfo();
+
 			PSpMat_Bool AT = A;
 			AT.Transpose();
 			A += AT;
@@ -191,8 +217,9 @@ int main(int argc, char* argv[])
 			MPI::COMM_WORLD.Barrier();
 			double t2=MPI_Wtime();
 			
-			if(myrank == 0)
-				fprintf(stdout, "%.6lf seconds elapsed for Kernel #1\n", t2-t1);
+			ostringstream k1timeinfo;
+			k1timeinfo << (t2-t1) - (redtf-redts) << "seconds elapsed for Kernel #1" << endl;
+			SpParHelper::Print(k1timeinfo.str());
 		}
 		A.PrintInfo();
 		float balance = A.LoadImbalance();
@@ -203,31 +230,12 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
 
-		#ifndef SAVEMEM
-		FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
-		A.Reduce(*ColSums, Column, plus<int64_t>(), 0); 	// plus<int64_t> matches the type of the output vector
-
-		MPI::COMM_WORLD.Barrier();
-		double t2=MPI_Wtime();
-		if(myrank == 0)
-			fprintf(stdout, "%.6lf seconds elapsed for getting column sums\n", t2-t1);
-
-		FullyDistVec<int64_t, int64_t> Cands = ColSums->FindInds(bind2nd(greater<int64_t>(), 1));	// only the indices of non-isolated vertices
-		delete ColSums;
-		SpParHelper::Print("Found non-isolated vertices\n");	
-	
-		Cands.PrintInfo("Candidates array");
-		FullyDistVec<int64_t,int64_t> Firsts(A.getcommgrid(), -1);
-		Cands.RandPerm();
-		Cands.PrintInfo("Candidates array (permuted)");
-		Firsts.iota(ITERS, 0);			
-		//Firsts.DebugPrint();
-		Cands = Cands(Firsts);		
-		//Cands.DebugPrint();
-		Cands.PrintInfo("First several of candidates (randomly chosen) array");
-		#else 
+		// Now that every remaining vertex is non-isolated, randomly pick ITERS many of them as starting vertices
+		degrees = degrees(nonisov);	// fix the degrees array too
+		degrees.PrintInfo("Degrees array");
+		// degrees.DebugPrint();
 		FullyDistVec<int64_t, int64_t> Cands(ITERS, 0, 0);
-		double nver = std::pow(2.0, (double) scale);
+		double nver = (double) degrees.TotalLength();
 
 		MTRand M;	// generate random numbers with Mersenne Twister
 		vector<double> loccands(ITERS);
@@ -251,7 +259,6 @@ int main(int argc, char* argv[])
 		{
 			Cands.SetElement(i,loccandints[i]);
 		}
-		#endif
 		
 	
 		double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
@@ -279,7 +286,6 @@ int main(int argc, char* argv[])
 				// fringe.PrintInfo("fringe after cleanup");
 				parents += fringe;
 				// parents.PrintInfo("Parents after addition");
-				// SpParHelper::Print("Iteration finished\n");
 				iterations++;
 				MPI::COMM_WORLD.Barrier();
 			}
@@ -292,11 +298,7 @@ int main(int argc, char* argv[])
 			parentsp.Apply(set<int64_t>(1));
 
 			// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
-			#ifdef SAVEMEM
-			int64_t nedges = 0;
-			#else
 			int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
-			#endif
 	
 			ostringstream outnew;
 			outnew << i << "th starting vertex was " << Cands[i] << endl;

@@ -227,14 +227,14 @@ DenseParVec<IT,NT> SpParMat<IT,NT,DER>::Reduce(Dim dim, _BinaryOperation __binar
 
 template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const
+void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
 {
 	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );			
 }
 
 template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id) const
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
 {
 	DenseParVec<IT,VT> parvec(commGrid, id);
 	Reduce(parvec, dim, __binary_op, id, myidentity<NT>() );				
@@ -243,7 +243,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOpe
 
 template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
 	DenseParVec<IT,VT> parvec(commGrid, id);
 	Reduce(parvec, dim, __binary_op, id, __unary_op );				
@@ -259,7 +259,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOpe
  **/ 
 template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const
+void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
 	if(rvec.zero != id)
 	{
@@ -773,6 +773,22 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
+template <class IT, class NT, class DER>
+IT SpParMat<IT,NT,DER>::RemoveLoops()
+{
+	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	IT totrem;
+	IT removed = 0;
+	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	{
+		SpTuples<IT,NT> tuples(*spSeq);
+		delete spSeq;
+		removed  = tuples.RemoveLoops();
+		spSeq = new DER(tuples, false, NULL);	// Convert to DER
+	}
+	commGrid->GetWorld().Allreduce( &removed, & totrem, 1, MPIType<IT>(), MPI::SUM); 
+	return totrem;
+}		
 
 /**
  * Parallel routine that returns A*A on the semiring SR

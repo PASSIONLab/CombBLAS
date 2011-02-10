@@ -74,6 +74,32 @@ public:
 			sort(tuples , tuples+nnz, collexicogcmp );
 	}
 
+	/**
+	 *  @pre {should only be called on diagonal processors (others will remove non-loop nonzeros)}
+	 **/
+	IT RemoveLoops()
+	{
+		IT loop = 0;
+		for(IT i=0; i< nnz; ++i)
+		{
+			if(tr1::get<0>(tuples[i]) == tr1::get<1>(tuples[i])) ++loop;
+		}
+		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz-loop];
+
+		IT ni = 0;
+		for(IT i=0; i< nnz; ++i)
+		{
+			if(tr1::get<0>(tuples[i]) != tr1::get<1>(tuples[i])) 
+			{
+				ntuples[ni++] = tuples[i];
+			}
+		}
+		delete [] tuples;
+		tuples = ntuples;
+		nnz = nnz-loop;
+		return loop;
+	}
+
 	pair<IT,IT> RowLimits()
 	{
 		if(nnz > 0)
