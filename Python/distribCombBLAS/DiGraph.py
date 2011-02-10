@@ -131,8 +131,11 @@ class DiGraph(gr.Graph):
 			raise NotImplementedError
 		return ret;
 
+	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 100;
 	def __repr__(self):
+		if self.nvert() == 0:
+			return 'Null DiGraph object'
 		if self.nvert()==1:
 			[i, j, v] = self.toParVec();
 			if len(v) > 0:
@@ -141,7 +144,7 @@ class DiGraph(gr.Graph):
 				print "%d %f" % (0, 0.0);
 		else:
 			[i, j, v] = self.toParVec();
-			if len(i) < DiGraph._REPR_MAX:
+			if len(i) < self._REPR_MAX:
 				print i,j,v
 		return ' ';
 
