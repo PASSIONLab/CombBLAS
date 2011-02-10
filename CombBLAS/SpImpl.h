@@ -259,11 +259,10 @@ void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, c
 	IT hsize = 0;		
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 
 	{
-		if(colinds[j].first != colinds[j].second)	// current != end
+		while(colinds[j].first != colinds[j].second)	// current != end
 		{
-			// HeapEntry(key, run, num)
-			//wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
 			Adcsc.numx[colinds[j].first] = __binary_op(Adcsc.numx[colinds[j].first], numx[j]);
+			++(colinds[j].first);
 		} 
 	}	
 }
