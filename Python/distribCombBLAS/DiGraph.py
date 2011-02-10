@@ -265,11 +265,27 @@ class DiGraph(gr.Graph):
 		self.spm.Transpose();
 
 	#in-place, so no return value
-	def scale(self, other):
-		#FIX:  why is isinstance() check not working?
-		#if not isinstance(other,SpParVec):
-		#	raise KeyError, 'Invalid type for scale vector'
-		self.spm.ColWiseApply(other.spv, pcb.multiplies())
+	def scale(self, other, dir=gr.Out):
+		#Note:  have to compare against gr.SpParVec, not (local) SpParVec
+		if not isinstance(other,gr.SpParVec):
+			raise KeyError, 'Invalid type for scale vector'
+		selfnv = self.nvert()
+		if type(selfnv) == tuple:
+			[selfnv1, selfnv2] = selfnv
+		else:
+			selfnv1 = selfnv; selfnv2 = selfnv;
+		if dir == gr.Out:
+			if selfnv2 != len(other):
+				raise IndexError, 'graph.nvert()[1] != len(scale)'
+			self.spm.ColWiseApply(other.spv, pcb.multiplies())
+		elif dir == gr.In:
+			if selfnv1 != len(other):
+				raise IndexError, 'graph.nvert()[1] != len(scale)'
+			self.T()
+			self.spm.ColWiseApply(other.spv,pcb.multiplies())
+			self.T()
+		else:
+			raise KeyError, 'Invalid edge direction'
 		return
 
 	#in-place, so no return value
