@@ -363,11 +363,3 @@ pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
 	return ret;
 }
 
-void testfunc()
-{
-	doubleint one(1), zero(0);
-	FullyDistVec<doubleint, doubleint> a(10, one, zero);
-	FullyDistVec<doubleint, doubleint> b(10, one, zero);
-	
-	FullyDistVec<doubleint, doubleint> x = a(b);
-}
