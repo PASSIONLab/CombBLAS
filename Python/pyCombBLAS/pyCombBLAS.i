@@ -68,8 +68,9 @@ public:
 	pySpParMat* SpMM(const pySpParMat& other);
 	pySpParMat* operator*(const pySpParMat& other);
 	
-	void Apply(op::UnaryFunction* op);
-	void Prune(op::UnaryFunction* op);
+	void Apply(op::UnaryFunction* f);
+	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
+	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!

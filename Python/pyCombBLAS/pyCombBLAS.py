@@ -89,6 +89,7 @@ class pySpParMat(_object):
     def SpMM(self, *args): return _pyCombBLAS.pySpParMat_SpMM(self, *args)
     def __mul__(self, *args): return _pyCombBLAS.pySpParMat___mul__(self, *args)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
+    def ColWiseApply(self, *args): return _pyCombBLAS.pySpParMat_ColWiseApply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
     def Count(self, *args): return _pyCombBLAS.pySpParMat_Count(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)

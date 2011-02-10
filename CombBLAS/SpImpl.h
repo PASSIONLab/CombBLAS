@@ -230,4 +230,44 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+// Apply
+
+// based on base SpMV above
+template <typename _BinaryOperation, typename IT, typename NT1>
+void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT1 * numx, IT veclen, _BinaryOperation __binary_op)
+{
+	static IT* spmvaux = NULL;
+	
+	// colnums vector keeps column numbers requested from A
+	//vector<IT> colnums(veclen);
+
+	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
+	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+	vector< pair<IT,IT> > colinds(veclen);		
+
+	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
+	IT csize = static_cast<IT>(ceil(cf));   // chunk size
+	if(spmvaux == NULL)
+	{
+		//IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
+		Adcsc.ConstructAux(nA, spmvaux);
+	}
+
+	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
+	IT hsize = 0;		
+	for(IT j =0; j< veclen; ++j)		// create the initial heap 
+	{
+		if(colinds[j].first != colinds[j].second)	// current != end
+		{
+			// HeapEntry(key, run, num)
+			//wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
+			Adcsc.numx[colinds[j].first] = __binary_op(Adcsc.numx[colinds[j].first], numx[j]);
+		} 
+	}	
+}
+
+
+
 #endif

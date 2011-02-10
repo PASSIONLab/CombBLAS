@@ -28,7 +28,7 @@ class Dcsc;
 /****************************************************************************/
 
 template <typename _BinaryOperation, typename IU, typename NU, typename RHS>
-void dcsc_apply_colwise (const SpDCCols<IU, NU> & A, const RHS * x, _BinaryOperation __binary_op)
+void dcsc_colwise_apply (const SpDCCols<IU, NU> & A, const RHS * x, _BinaryOperation __binary_op)
 {
 	if(A.nnz > 0)
 	{	
@@ -71,6 +71,16 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
 		SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy);
+	}
+}
+
+//! ColWiseApply with sparse vector
+template <typename _BinaryOperation, typename IU, typename NUM, typename NUV>
+void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, _BinaryOperation __binary_op)
+{
+	if(A.getnnz() > 0 && nnzx > 0)
+	{
+		SpColWiseApply(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, __binary_op);
 	}
 }
 

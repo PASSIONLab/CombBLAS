@@ -1378,6 +1378,66 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	delete [] localy;
 	return y;
 }
+
+/////////////////////
+// Apply
+
+// based on SpMV
+template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
+void ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op)
+{
+	if(!(*A.commGrid == *x.commGrid)) 		
+	{
+		cout << "Grids are not comparable for ColWiseApply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	MPI::Intracomm World = x.commGrid->GetWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+
+	int xlocnz = (int) x.getlocnnz();
+	int trxlocnz = 0;
+	int roffst = x.RowLenUntil();
+	int offset;
+
+	int diagneigh = x.commGrid->GetComplementRank();
+	World.Sendrecv(&xlocnz, 1, MPI::INT, diagneigh, TRX, &trxlocnz, 1, MPI::INT, diagneigh, TRX);
+	World.Sendrecv(&roffst, 1, MPI::INT, diagneigh, TROST, &offset, 1, MPI::INT, diagneigh, TROST);
+	
+	IU * trxinds = new IU[trxlocnz];
+	NUV * trxnums = new NUV[trxlocnz];
+	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
+
+	int colneighs = ColWorld.Get_size();
+	int colrank = ColWorld.Get_rank();
+	int * colnz = new int[colneighs];
+	colnz[colrank] = trxlocnz;
+	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
+	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
+	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
+	IU * indacc = new IU[accnz];
+	NUV * numacc = new NUV[accnz];
+
+	// ABAB: Future issues here, colnz is of type int (MPI limitation)
+	// What if the aggregate vector size along the processor row/column is not 32-bit addressible?
+	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>());
+	DeleteAll(trxinds, trxnums);
+
+	// serial SpMV with sparse vector
+
+	//dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+	dcsc_colwise_apply(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), __binary_op);	// actual operation
+
+	DeleteAll(indacc, numacc);
+	DeleteAll(colnz, dpls);
+}
+
+/////////////////////
 	
 
 template <typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
