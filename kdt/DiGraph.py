@@ -199,8 +199,8 @@ class DiGraph(gr.Graph):
 		ret = DiGraph(i,j,v,n,m);
 		return ret;
 
-	def genGraph500Edges(self, scale, degrees):
-		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale, degrees.dpv);
+	def genGraph500Edges(self, scale):
+		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale);
 	 	return elapsedTime;
 
 	@staticmethod
@@ -392,8 +392,11 @@ class DiGraph(gr.Graph):
 	#	creates a breadth-first search tree of a Graph from a starting
 	#	set of vertices.  Returns a 1D array with the parent vertex of 
 	#	each vertex in the tree; unreached vertices have parent == -1.
+	#	sym arg denotes whether graph is symmetric; if not, need to transpose
 	#
-	def bfsTree(self, start):
+	def bfsTree(self, start, sym=False):
+		if not sym:
+			self.T()
 		parents = pcb.pyDenseParVec(self.nvert(), -1);
 		# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
 		# distinguish vertex0 from empty element
@@ -407,6 +410,8 @@ class DiGraph(gr.Graph):
 			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
 			parents[fringe] = 0
 			parents += fringe;
+		if not sym:
+			self.T()
 		return ParVec.toParVec(parents);
 	
 	
