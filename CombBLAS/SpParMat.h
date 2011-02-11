@@ -135,6 +135,8 @@ public:
 	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
 
 	//! General indexing with serial semantics
+
+	SpParMat<IT,NT,DER> operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const;
 	SpParMat<IT,NT,DER> operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const;
 
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;

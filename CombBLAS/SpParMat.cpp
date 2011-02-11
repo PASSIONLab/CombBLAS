@@ -352,6 +352,20 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
 
 /** 
  * Generalized sparse matrix indexing (ri/ci are 0-based indexed)
+ * Both the storage and the actual values in FullyDistVec should be IT
+ * The index vectors are dense and FULLY distributed on all processors
+ * We can use this function to apply a permutation like A(p,q) 
+ * Sequential indexing subroutine (via multiplication) is general enough.
+ */
+template <class IT, class NT, class DER>
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const
+{
+	cout << "Currently a placeholder" << endl;
+	return SpParMat<IT,NT,DER>();
+}
+
+/** 
+ * Generalized sparse matrix indexing (ri/ci are 0-based indexed)
  * Both the storage and the actual values in SpParVec should be IT
  * The index vectors are distributed on diagonal processors
  * We can use this function to apply a permutation like A(p,q) 
