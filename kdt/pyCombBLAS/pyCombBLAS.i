@@ -294,6 +294,7 @@ UnaryFunction* negate();
 UnaryFunction* bitwise_not();
 UnaryFunction* logical_not();
 UnaryFunction* totality();
+UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, UnaryFunction* runFalse);
 
 class BinaryFunction {
 	protected:

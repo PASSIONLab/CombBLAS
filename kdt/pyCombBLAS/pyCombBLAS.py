@@ -277,6 +277,10 @@ logical_not = _pyCombBLAS.logical_not
 def totality():
   return _pyCombBLAS.totality()
 totality = _pyCombBLAS.totality
+
+def ifthenelse(*args):
+  return _pyCombBLAS.ifthenelse(*args)
+ifthenelse = _pyCombBLAS.ifthenelse
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)

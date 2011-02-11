@@ -67,6 +67,28 @@ UnaryFunction* safemultinv() {
 	return new UnaryFunction(new safemultinv_s<doubleint>());
 }
 
+//// ifthenelse
+
+template<typename T>
+struct ifthenelse_s: public ConcreteUnaryFunction<T>
+{
+	ConcreteUnaryFunction<T> *predicate, *runTrue, *runFalse;
+
+	ifthenelse_s(ConcreteUnaryFunction<T> *pred, ConcreteUnaryFunction<T> *t, ConcreteUnaryFunction<T> *f): predicate(pred), runTrue(t), runFalse(f) {};
+	/** @returns value regardless of x */
+	T operator()(const T& x) const
+	{
+		if ((*predicate)(x))
+			return (*runTrue)(x);
+		else
+			return (*runFalse)(x);
+	} 
+};
+
+UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, UnaryFunction* runFalse)
+{
+	return new UnaryFunction(new ifthenelse_s<doubleint>(predicate->op, runTrue->op, runFalse->op));
+}
 
 /**************************\
 | BINARY OPERATIONS
