@@ -532,39 +532,26 @@ class DiGraph(gr.Graph):
 		return cent;
 	
 	
-	def _approxBC(self, sample=0.05):
-		print "sample=%5f" % (sample);
-	
-	#def _bc(self, K4approx, batchSize ):
-	    # transliteration of Lincoln Labs 2009Feb09 M-language version, 
-	    # 
+	def _approxBC(self, sample=0.05, normalize=True):
 		A = self.copy();
 		self.ones();			
 		#Aint = self.ones();	# not needed;  Gs only int for now
 		N = A.nvert()
 		bc = ParVec(N);
-	
-		#if (2**K4approx > N):
-		#    K4approx = sc.floor(sc.log2(N))
-		#    nPasses = 2**K4approx;
-		#else:
-		#    nPasses = N;		
-
 		nProcs = pcb._nprocs()
-
-#formerly nPasses
 		nVertToCalc = int(self.nvert() * sample)
-		# batchsize = # rows/cols that will fit in memory simultaneously.
+		# batchSize = #rows/cols that will fit in memory simultaneously.
 		# bcu has a value in every element, even though it's literally
-		# a sparse array (DiGraph).  So batchsize is calculated as
+		# a sparse matrix (DiGraph).  So batchsize is calculated as
 		#   nrow = memory size / (memory/row)
 		#   memory size (in edges)
 		#        = 2GB * 0.1 (other vars) / 18 (bytes/edge) * nProcs
 		#   memory/row (in edges)
 		#        = self.nvert()
-		physMemPCore = 2e9; memFract = 0.1; bytesPEdge = 18
+		physMemPCore = 2e9; memFract = 0.01; bytesPEdge = 18
 		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
-		nBatches = int(sc.ceil(nVertToCalc / batchSize))
+		nBatches = int(sc.ceil(float(nVertToCalc) / float(batchSize)))
+		nPossBatches = int(sc.ceil(float(N) / float(batchSize)))
 		if sample == 1.0:
 			startVs = range(0,nVertToCalc,batchSize)
 			endVs = range(batchSize, nVertToCalc, batchSize)
@@ -572,21 +559,16 @@ class DiGraph(gr.Graph):
 				endVs.append(nVertToCalc);
 			numVs = [y-x for [x,y] in zip(startVs,endVs)]
 		else:
-			startVs = sc.random.randint(0,sc.ceil(nVertToCalc/batchSize),nBatches) * batchSize
-			numVs = sc.ones(nBatches) * batchSize;
+			startVs = (sc.random.randint(0,nPossBatches,nBatches)*batchSize).tolist()
+			numVs = [min(x+batchSize,N)-x for x in startVs]
 
-		#numBatches = sc.ceil(nPasses/batchSize).astype(int)
-	
 		for [startV, numV] in zip(startVs, numVs):
 			bfs = []		
-	
 			batch = ParVec.range(startV, startV+numV)
 			curSize = len(batch);
-	
 			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N);
-			depth = 0;
 			fringe = A[batch,ParVec.range(N)];
-	
+			depth = 0;
 			while fringe.nedge() > 0:
 				depth = depth+1;
 				nsp = nsp+fringe
@@ -597,7 +579,6 @@ class DiGraph(gr.Graph):
 				fringe = tmp.mulNot(nsp);
 	
 			bcu = DiGraph.fullyConnected(curSize,N);
-	
 			# compute the bc update for all vertices except the sources
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
@@ -616,6 +597,9 @@ class DiGraph(gr.Graph):
 	
 		# subtract off the additional values added in by precomputation
 		bc = bc - nVertToCalc;
+		if normalize:
+			nVertSampled = sum(numVs)
+			bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
 		return bc;
 	
 	def cluster(self, alg, **kwargs):

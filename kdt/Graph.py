@@ -468,7 +468,7 @@ class ParVec:
 	
 	def sum(self):
 		#ToDo: avoid converseion to sparse when PV.reduce() avail
-		return self.dpv.sparse().Reduce(pcb.plus());
+		return self.dpv.sparse(np.nan).Reduce(pcb.plus());
 
 	def sparse(self):
 		#ToDo:  allow user to pass/set null value
@@ -795,6 +795,11 @@ class SpParVec:
 		ret.spv = pcb.pySpParVec.range(stop-start,start);
 		return ret;
 	
+	#in-place, so no return value;
+	def set(self, value):
+		self.spv.Apply(pcb.set(value));
+		return;
+
 	#in-place, so no return value;
 	def spones(self):
 		self.spv.Apply(pcb.set(1));
