@@ -194,7 +194,7 @@ double pySpParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	
 	bf->getMPIOp();
 	if (uf == NULL)
-		ret = v.Reduce(*bf, doubleint::nan(), identity<int64_t>());
+		ret = v.Reduce(*bf, doubleint::nan(), identity<doubleint>());
 	else
 		ret = v.Reduce(*bf, doubleint::nan(), *uf);
 	bf->releaseMPIOp();
