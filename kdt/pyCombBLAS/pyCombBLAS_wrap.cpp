@@ -3925,14 +3925,14 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce__SWIG_0(PyObject *SWIGUNUSEDPARM(se
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   int arg2 ;
   op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
-  int64_t arg4 ;
+  double arg4 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  long long val4 ;
+  double val4 ;
   int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -3956,11 +3956,11 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce__SWIG_0(PyObject *SWIGUNUSEDPARM(se
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_Reduce" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
-  ecode4 = SWIG_AsVal_long_SS_long(obj3, &val4);
+  ecode4 = SWIG_AsVal_double(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMat_Reduce" "', argument " "4"" of type '" "int64_t""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMat_Reduce" "', argument " "4"" of type '" "double""'");
   } 
-  arg4 = static_cast< int64_t >(val4);
+  arg4 = static_cast< double >(val4);
   {
     try {
       result = (pyDenseParVec *)(arg1)->Reduce(arg2,arg3,arg4);
@@ -4035,7 +4035,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce__SWIG_2(PyObject *SWIGUNUSEDPARM(se
   int arg2 ;
   op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
   op::UnaryFunction *arg4 = (op::UnaryFunction *) 0 ;
-  int64_t arg5 ;
+  double arg5 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -4044,7 +4044,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce__SWIG_2(PyObject *SWIGUNUSEDPARM(se
   int res3 = 0 ;
   void *argp4 = 0 ;
   int res4 = 0 ;
-  long long val5 ;
+  double val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -4074,11 +4074,11 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce__SWIG_2(PyObject *SWIGUNUSEDPARM(se
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "pySpParMat_Reduce" "', argument " "4"" of type '" "op::UnaryFunction *""'"); 
   }
   arg4 = reinterpret_cast< op::UnaryFunction * >(argp4);
-  ecode5 = SWIG_AsVal_long_SS_long(obj4, &val5);
+  ecode5 = SWIG_AsVal_double(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMat_Reduce" "', argument " "5"" of type '" "int64_t""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMat_Reduce" "', argument " "5"" of type '" "double""'");
   } 
-  arg5 = static_cast< int64_t >(val5);
+  arg5 = static_cast< double >(val5);
   {
     try {
       result = (pyDenseParVec *)(arg1)->Reduce(arg2,arg3,arg4,arg5);
@@ -4227,7 +4227,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce(PyObject *self, PyObject *args) {
         _v = SWIG_CheckState(res);
         if (_v) {
           {
-            int res = SWIG_AsVal_long_SS_long(argv[3], NULL);
+            int res = SWIG_AsVal_double(argv[3], NULL);
             _v = SWIG_CheckState(res);
           }
           if (_v) {
@@ -4257,7 +4257,7 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce(PyObject *self, PyObject *args) {
           _v = SWIG_CheckState(res);
           if (_v) {
             {
-              int res = SWIG_AsVal_long_SS_long(argv[4], NULL);
+              int res = SWIG_AsVal_double(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
@@ -4272,9 +4272,9 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Reduce(PyObject *self, PyObject *args) {
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'pySpParMat_Reduce'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    Reduce(pySpParMat *,int,op::BinaryFunction *,int64_t)\n"
+    "    Reduce(pySpParMat *,int,op::BinaryFunction *,double)\n"
     "    Reduce(pySpParMat *,int,op::BinaryFunction *)\n"
-    "    Reduce(pySpParMat *,int,op::BinaryFunction *,op::UnaryFunction *,int64_t)\n"
+    "    Reduce(pySpParMat *,int,op::BinaryFunction *,op::UnaryFunction *,double)\n"
     "    Reduce(pySpParMat *,int,op::BinaryFunction *,op::UnaryFunction *)\n");
   return NULL;
 }

@@ -64,8 +64,8 @@ public:
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, int64_t identity = 0);
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity = 0);
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
 	
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);

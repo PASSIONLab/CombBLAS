@@ -217,12 +217,12 @@ int64_t pySpParMat::Count(op::UnaryFunction* pred)
 }
 
 	
-pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, int64_t identity)
+pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, double identity)
 {
 	return Reduce(dim, f, NULL, identity);
 }
 
-pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, int64_t identity)
+pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity)
 {
 	int64_t len = 1;
 	if (dim == ::Row)
@@ -234,9 +234,9 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunc
 
 	bf->getMPIOp();
 	if (uf == NULL)
-		A.Reduce(ret->v, (Dim)dim, *bf, identity);
+		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity));
 	else
-		A.Reduce(ret->v, (Dim)dim, *bf, identity, *uf);
+		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity), *uf);
 	bf->releaseMPIOp();
 	
 	return ret;
