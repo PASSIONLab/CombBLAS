@@ -10757,6 +10757,56 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_ifthenelse(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunction *arg1 = (op::UnaryFunction *) 0 ;
+  op::UnaryFunction *arg2 = (op::UnaryFunction *) 0 ;
+  op::UnaryFunction *arg3 = (op::UnaryFunction *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  op::UnaryFunction *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:ifthenelse",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ifthenelse" "', argument " "1"" of type '" "op::UnaryFunction *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunction * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "ifthenelse" "', argument " "2"" of type '" "op::UnaryFunction *""'"); 
+  }
+  arg2 = reinterpret_cast< op::UnaryFunction * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "ifthenelse" "', argument " "3"" of type '" "op::UnaryFunction *""'"); 
+  }
+  arg3 = reinterpret_cast< op::UnaryFunction * >(argp3);
+  {
+    try {
+      result = (op::UnaryFunction *)op::ifthenelse(arg1,arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_BinaryFunction(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunction *arg1 = (op::BinaryFunction *) 0 ;
@@ -11830,6 +11880,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"bitwise_not", _wrap_bitwise_not, METH_VARARGS, NULL},
 	 { (char *)"logical_not", _wrap_logical_not, METH_VARARGS, NULL},
 	 { (char *)"totality", _wrap_totality, METH_VARARGS, NULL},
+	 { (char *)"ifthenelse", _wrap_ifthenelse, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryFunction", _wrap_delete_BinaryFunction, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction_commutable_set", _wrap_BinaryFunction_commutable_set, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction_commutable_get", _wrap_BinaryFunction_commutable_get, METH_VARARGS, NULL},
