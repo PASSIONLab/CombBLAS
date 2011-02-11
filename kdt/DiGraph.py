@@ -362,35 +362,6 @@ class DiGraph(gr.Graph):
 	# ==================================================================
 
 
-	# returns a Boolean vector of which vertices are neighbors
-	def neighbors(self, source, nhop=1):
-		dest = pcb.pyDenseParVec(self.nvert(),0)
-		fringe = pcb.pySpParVec(self.nvert());
-		dest[fringe] = 1;
-		fringe[source.dpv] = 1;
-		for i in range(nhop):
-			fringe.setNumToInd();
-			self.spm.SpMV_SelMax_inplace(fringe);
-			dest[fringe] = 1;
-		return ParVec.toParVec(dest);
-		
-	# returns:
-	#   - source:  a vector of the source vertex for each new vertex
-	#   - dest:  a Boolean vector of the new vertices
-	#ToDo:  nhop argument?
-	def pathsHop(self, source):
-		retDest = pcb.pyDenseParVec(self.nvert(),0)
-		retSource = pcb.pyDenseParVec(self.nvert(),0)
-		fringe = pcb.pySpParVec(self.nvert());
-		retDest[fringe] = 1;
-		fringe[source.dpv] = 1;
-		fringe.setNumToInd();
-		self.spm.SpMV_SelMax_inplace(fringe);
-		retDest[fringe] = 1;
-		retSource[fringe] = fringe;
-		return ParVec.toParVec(retSource), ParVec.toParVec(retDest);
-	
-	
 	#	creates a breadth-first search tree of a Graph from a starting
 	#	set of vertices.  Returns a 1D array with the parent vertex of 
 	#	each vertex in the tree; unreached vertices have parent == -1.
