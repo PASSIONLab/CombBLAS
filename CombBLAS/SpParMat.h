@@ -83,6 +83,9 @@ public:
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 
+	template <typename _BinaryOperation>
+	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
+
 	template <typename _BinaryOperation, typename _UnaryOperation >	
 	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
 

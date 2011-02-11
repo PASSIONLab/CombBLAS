@@ -5,18 +5,58 @@
 
 from distutils.core import setup, Extension
 from distutils import sysconfig
+import sys
 
 print "Remember to set your preferred MPI C++ compiler in the CC and CXX environment variables. For example,"
 print "export CC=mpicxx"
 print "export CXX=mpicxx"
 print ""
 
+def check_for_header(header):
+	from distutils.ccompiler import new_compiler, CompileError
+	from shutil import rmtree
+	import tempfile
+	import os
+	
+	tmpdir = tempfile.mkdtemp()
+	old = os.getcwd()
+	
+	os.chdir(tmpdir)
+	
+	# Try to include the relevant iXxx.h header, and disable the module
+	# if it can't be found
+	f = open('headertest.cpp', 'w')
+	f.write("#include <%s>\n" % header)
+	f.close()
+	try:
+		sys.stdout.write("Checking for %s... " % header)
+		#include_dirs = self.include_dirs + ext.include_dirs
+		new_compiler().compile([f.name])#, include_dirs=include_dirs)
+		success = True
+		sys.stdout.write("OK\n");
+	except CompileError:
+		sys.stdout.write("Not found\n");
+		success = False
+	
+	os.chdir(old)
+	rmtree(tmpdir)
+	return success
+
 # see if the compiler has TR1
-#print "Checking for TR1..."
-# nope, see if boost is available
-#print "No TR1. Checking for Boost instead..."
-# nope, then sorry
-#print "KDT uses smart pointers which are available through the Boost library. Please make sure Boost is in your include path."
+hasTR1 = False
+hasBoost = False
+print "Checking for TR1..."
+if (check_for_header("tr1/memory") and check_for_header("tr1/tuple")):
+	hasTR1 = True
+else:
+	# nope, see if boost is available
+	print "No TR1. Checking for Boost instead..."
+	if (check_for_header("boost/tr1/memory") and check_for_header("boost/tr1/tuple")):
+		hasBoost = True
+	else:
+		# nope, then sorry
+		print "KDT uses features from TR1. These are available from some compilers or through the Boost C++ library (www.boost.org). Please make sure Boost is in your include path."
+		sys.exit();
 
 COMBBLAS = "CombBLAS/"
 PCB = "kdt/pyCombBLAS/"

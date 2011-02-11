@@ -1027,6 +1027,7 @@ kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/Graph500.py -text
 kdt/UFget.py -text
+kdt/__init__.py -text
 kdt/feedback.py -text
 kdt/pyCombBLAS/Makefile-nersc -text
 kdt/pyCombBLAS/Makefile-neumann -text
@@ -1047,6 +1048,5 @@ kdt/pyCombBLAS/pySpParMat.h -text
 kdt/pyCombBLAS/pySpParVec.cpp -text
 kdt/pyCombBLAS/pySpParVec.h -text
 kdt/pyCombBLAS/testscript.py -text
-kdt/pyCombBLAS/val.py -text
 /setup.py -text
 /v0.1_checklist -text
