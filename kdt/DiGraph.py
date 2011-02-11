@@ -11,7 +11,9 @@ class DiGraph(gr.Graph):
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
 	def __init__(self,*args):
-		if len(args) == 1:
+		if len(args) == 0:
+			self.spm = pcb.pySpParMat();
+		elif len(args) == 1:	# no longer used
 			[arg] = args;
 			if arg < 0:
 				self.spm = pcb.pySpParMat();
@@ -161,7 +163,7 @@ class DiGraph(gr.Graph):
 			othernv1 = othernv; othernv2 = othernv;
 		if selfnv2 != othernv1:
 			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
-		ret = DiGraph(-1);
+		ret = DiGraph();
 		ret.spm = self.spm.SpMM(other.spm);
 		return ret;
 
@@ -170,7 +172,7 @@ class DiGraph(gr.Graph):
 		return DiGraph.ones(self);
 
 	def copy(self):
-		ret = DiGraph(-1);
+		ret = DiGraph();
 		ret.spm = self.spm.copy();
 		return ret;
 		
@@ -207,7 +209,7 @@ class DiGraph(gr.Graph):
 	def load(fname):
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
-		ret = DiGraph(-1);
+		ret = DiGraph();
 		ret.spm = pcb.pySpParMat();
 		ret.spm.load(fname);
 		return ret;
@@ -244,7 +246,7 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
-			ret = DiGraph(-1);
+			ret = DiGraph();
 			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies(), True);
 		return ret;
 
@@ -469,7 +471,7 @@ class DiGraph(gr.Graph):
 		while fringe.nnn() > 0 and not cycle and not multiparents:
 			fringe.spones();
 			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv));
-			if visited[newfringe.denseNonnulls().findInds()].any():
+			if visited[newfringe.toParVec().findInds()].any():
 				cycle = True;
 				break;
 			if (newfringe > 1).any():
@@ -490,21 +492,26 @@ class DiGraph(gr.Graph):
 		return (ret, levels)
 	
 	# returns a Boolean vector of which vertices are neighbors
-	def neighbors(self, source, nhop=1):
+	def neighbors(self, source, nhop=1, sym=False):
+		if not sym:
+			self.T()
 		dest = ParVec(self.nvert(),0)
 		fringe = SpParVec(self.nvert());
 		fringe[source] = 1;
 		for i in range(nhop):
-			fringe.sprange();
 			self.spm.SpMV_SelMax_inplace(fringe.spv);
-			dest[fringe] = 1;
+			dest[fringe.toParVec()] = 1;
+		if not sym:
+			self.T()
 		return dest;
 		
 	# returns:
 	#   - source:  a vector of the source vertex for each new vertex
 	#   - dest:  a Boolean vector of the new vertices
 	#ToDo:  nhop argument?
-	def pathsHop(self, source):
+	def pathsHop(self, source, sym=False):
+		if not sym:
+			self.T()
 		retDest = ParVec(self.nvert(),0)
 		retSource = ParVec(self.nvert(),0)
 		fringe = SpParVec(self.nvert());
@@ -513,6 +520,8 @@ class DiGraph(gr.Graph):
 		self.spm.SpMV_SelMax_inplace(fringe.spv);
 		retDest[fringe] = 1;
 		retSource[fringe] = fringe;
+		if not sym:
+			self.T()
 		return (retSource, retDest);
 		
 	def centrality(self, alg, **kwargs):

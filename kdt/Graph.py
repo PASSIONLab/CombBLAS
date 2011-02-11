@@ -399,10 +399,6 @@ class ParVec:
 		ret[neg.logical_not()] = retpos;
 		return ret;
 
-	def int_(self):
-		ret = (self + 0.5).floor();
-		return ret;
-
 	def isBool(self):
 		eps = float(np.finfo(np.float).eps);
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all();
@@ -462,6 +458,10 @@ class ParVec:
 		ret.dpv = pcb.pyDenseParVec.range(stop-start,start);
 		return ret;
 
+	def round(self):
+		ret = (self + 0.5).floor();
+		return ret;
+
 	def sign(self):
 		ret = (self >= 0) - (self < 0);
 		return ret;
@@ -470,12 +470,6 @@ class ParVec:
 		#ToDo: avoid converseion to sparse when PV.reduce() avail
 		return self.dpv.sparse(np.nan).Reduce(pcb.plus());
 
-	def sparse(self):
-		#ToDo:  allow user to pass/set null value
-		ret = ParVec(-1);
-		ret.dpv = self.dpv.sparse();
-		return ret;
-
 	#TODO:  check for class being PyDenseParVec?
 	@staticmethod
 	def toParVec(DPV):
@@ -483,6 +477,12 @@ class ParVec:
 		ret.dpv = DPV;
 		return ret;
 	
+	def toSpParVec(self):
+		#ToDo:  allow user to pass/set null value
+		ret = SpParVec(-1);
+		ret.spv = self.dpv.sparse();
+		return ret;
+
 	@staticmethod
 	def zeros(sz):
 		ret = ParVec(-1);
@@ -750,11 +750,6 @@ class SpParVec:
 		ret.spv = self.spv.copy();
 		return ret;
 
-	def denseNonnulls(self):	
-		ret = ParVec(-1);
-		ret.dpv = self.spv.dense();
-		return ret;
-
 	#ToDO:  need to implement Find when pyCombBLAS method available
 	#def find(self):
 
@@ -811,6 +806,11 @@ class SpParVec:
 
 	def sum(self):
 		ret = self.spv.Reduce(pcb.plus());
+		return ret;
+
+	def toParVec(self):	
+		ret = ParVec(-1);
+		ret.dpv = self.spv.dense();
 		return ret;
 
 	#TODO:  check for class being PyDenseParVec?
