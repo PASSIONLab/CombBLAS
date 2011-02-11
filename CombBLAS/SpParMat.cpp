@@ -205,6 +205,68 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 		}
 	}
 }
+/*
+template <typename _BinaryOperation, class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op)
+{
+	switch(dim)
+	{
+		case Column:	// scale each "Column", using a row vector
+		{
+			// Diagonal processor broadcast data so that everyone gets the scaling vector 
+			NT * scaler = NULL;
+			int root = commGrid->GetDiagOfProcCol();
+			if(v.diagonal)
+			{	
+				scaler = const_cast<NT*>(&v.arr[0]);	
+			}
+			else
+			{	
+				scaler = new NT[getlocalcols()];	
+			}
+			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<NT>(), root);	
+
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+			{
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+				{
+					nzit.value() *=  scaler[colit.colid()];
+				}
+			}
+			if(!v.diagonal)	delete [] scaler;
+			break;
+		}
+		case Row:
+		{
+			NT * scaler = NULL;
+			int root = commGrid->GetDiagOfProcRow();
+			if(v.diagonal)
+			{	
+				scaler = const_cast<NT*>(&v.arr[0]);	
+			}
+			else
+			{	
+				scaler = new NT[getlocalrows()];	
+			}
+			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<NT>(), root);	
+
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
+			{
+				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+				{
+					nzit.value() *= scaler[nzit.rowid()];
+				}
+			}
+			if(!v.diagonal)	delete [] scaler;			
+			break;
+		}
+		default:
+		{
+			cout << "Unknown scaling dimension, returning..." << endl;
+			break;
+		}
+	}
+}*/
 
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation, typename _UnaryOperation >	
