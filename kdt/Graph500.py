@@ -59,7 +59,7 @@ nstarts = 64;
 GRAPH500 = 1;
 if GRAPH500 == 1:
 	print 'Using Graph500 graph generator'
-	G = kdtdg.DiGraph(-1);
+	G = kdtdg.DiGraph();
 	K1elapsed = G.genGraph500Edges(scale);
 
 	#	indices of vertices with degree > 2
