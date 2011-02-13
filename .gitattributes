@@ -1029,6 +1029,7 @@ kdt/Graph500.py -text
 kdt/UFget.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text
+kdt/pyCombBLAS.py -text
 kdt/pyCombBLAS/Makefile-nersc -text
 kdt/pyCombBLAS/Makefile-neumann -text
 kdt/pyCombBLAS/doubleint.h -text

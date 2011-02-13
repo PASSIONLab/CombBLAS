@@ -10,5 +10,6 @@ The build and installation is performed by the standard Distutils setup command:
 $ python setup.py build
 $ sudo python setup.py install
 
-Note that KDT makes use of some features from TR1. If your compiler does not support TR1 then the free Boost C++ library (http://www.boost.org/) supplies the required headers as well. Make sure boost/ is in your include path.
+Note that KDT makes use of some features from TR1. If your compiler does not support TR1 then the free Boost C++ library (http://www.boost.org/) supplies the required headers as well. Make sure boost/ is in your include path. If it is not, you can append the include path with the -I switch to the setup.py script. For example, if you installed Boost in /home/username/include/boost:
+$ python setup.py build -I/home/username/include
 
