@@ -1,9 +1,10 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 01/18/2009 ---------------------------------------------/
-/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-\****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/****************************************************************/
+
 
 #ifndef _SP_PAR_MAT_H_
 #define _SP_PAR_MAT_H_

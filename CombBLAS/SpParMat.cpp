@@ -1,8 +1,8 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library */
-/* version 2.3 -------------------------------------------------*/
-/* date: 01/18/2009 --------------------------------------------*/
-/* author: Aydin Buluc (aydin@cs.ucsb.edu) ---------------------*/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
 /****************************************************************/
 
 #include "SpParMat.h"
@@ -420,10 +420,157 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
  * Sequential indexing subroutine (via multiplication) is general enough.
  */
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const 
 {
-	cout << "Currently a placeholder" << endl;
-	return SpParMat<IT,NT,DER>();
+	// infer the concrete type SpMat<IT,IT>
+	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+
+	// The indices for FullyDistVec are offset'd to 1/p pieces
+	// The matrix indices are offset'd to 1/sqrt(p) pieces
+	// Add the corresponding offset before sending the data 
+	IT roffset = ri.RowLenUntil();
+	IT rrowlen = ri.MyRowLength();
+	IT coffset = ci.RowLenUntil();
+	IT crowlen = ci.MyRowLength();
+
+	// We create two boolean matrices P and Q
+	// Dimensions:  P is size(ri) x m
+	//		Q is n x size(ci) 
+	// Range(ri) = {0,...,m-1}
+	// Range(ci) = {0,...,n-1}
+
+	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
+	IT totalm = getnrow();	// collective call
+	IT totaln = getncol();
+	IT m_perproccol = totalm / rowneighs;
+	IT n_perproccol = totaln / rowneighs;
+
+	// Get the right local dimensions
+	IT diagneigh = commGrid->GetComplementRank();
+	IT mylocalrows = getlocalrows();
+	IT mylocalcols = getlocalcols();
+	IT trlocalrows, trlocalcols;
+	commGrid->GetWorld().Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX);
+	commGrid->GetWorld().Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX);
+
+	vector< vector<IT> > rowid(rowneighs);	// reuse for P and Q 
+	vector< vector<IT> > colid(rowneighs);
+
+	// Step 1: Create P
+	IT locvec = ri.arr.size();	// nnz in local vector
+	for(typename vector<IT>::size_type i=0; i< locvec; ++i)
+	{
+		// numerical values (permutation indices) are 0-based
+		// recipient alone progessor row
+		IT rowrec = (m_perproccol!=0) ? std::min(ri.arr[i] / m_perproccol, rowneighs-1) : (rowneighs-1);	
+
+		// ri's numerical values give the colids and its local indices give rowids
+		rowid[rowrec].push_back( i + roffset);	
+		colid[rowrec].push_back(ri.arr[i] - (rowrec * m_perproccol));
+	}
+
+	int * sendcnt = new int[rowneighs];	// reuse in Q as well
+	int * recvcnt = new int[rowneighs];
+	for(IT i=0; i<rowneighs; ++i)
+		sendcnt[i] = rowid[i].size();
+
+	commGrid->GetRowWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+	int * sdispls = new int[rowneighs]();
+	int * rdispls = new int[rowneighs]();
+	partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+	partial_sum(recvcnt, recvcnt+rowneighs-1, rdispls+1);
+	IT p_nnz = accumulate(recvcnt,recvcnt+rowneighs, static_cast<IT>(0));	
+
+	// create space for incoming data ... 
+	IT * p_rows = new IT[p_nnz];
+	IT * p_cols = new IT[p_nnz];
+  	IT * senddata = new IT[locvec];	// re-used for both rows and columns
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(rowid[i]);	// clear memory of rowid
+	}
+	commGrid->GetRowWorld().Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>()); 
+
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(colid[i]);	// clear memory of colid
+	}
+	commGrid->GetRowWorld().Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>()); 
+	delete [] senddata;
+
+	tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz]; 
+	for(IT i=0; i< p_nnz; ++i)
+	{
+		p_tuples[i] = make_tuple(p_rows[i], p_cols[i], 1);
+	}
+	DeleteAll(p_rows, p_cols);
+	DER_IT * PSeq = new DER_IT(); 
+	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+
+	// Step 2: Create Q  (use the same row-wise communication and transpose at the end)
+	// This temporary to-be-transposed Q is size(ci) x n 
+
+	locvec = ci.arr.size();	// nnz in local vector (reset variable)
+	for(typename vector<IT>::size_type i=0; i< locvec; ++i)
+	{
+		// numerical values (permutation indices) are 0-based
+		IT rowrec = (n_perproccol!=0) ? std::min(ci.arr[i] / n_perproccol, rowneighs-1) : (rowneighs-1);	
+
+		// ri's numerical values give the colids and its local indices give rowids
+		rowid[rowrec].push_back( i + coffset);	
+		colid[rowrec].push_back(ci.arr[i] - (rowrec * n_perproccol));
+	}
+
+	for(IT i=0; i<rowneighs; ++i)
+		sendcnt[i] = rowid[i].size();	// update with new sizes
+
+	commGrid->GetRowWorld().Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+	fill(sdispls, sdispls+rowneighs, 0);	// reset
+	fill(rdispls, rdispls+rowneighs, 0);
+	partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+	partial_sum(recvcnt, recvcnt+rowneighs-1, rdispls+1);
+	IT q_nnz = accumulate(recvcnt,recvcnt+rowneighs, static_cast<IT>(0));	
+
+	// create space for incoming data ... 
+	IT * q_rows = new IT[q_nnz];
+	IT * q_cols = new IT[q_nnz];
+  	senddata = new IT[locvec];	
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(rowid[i]);	// clear memory of rowid
+	}
+	commGrid->GetRowWorld().Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), q_rows, recvcnt, rdispls, MPIType<IT>()); 
+
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(colid[i]);	// clear memory of colid
+	}
+	commGrid->GetRowWorld().Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), q_cols, recvcnt, rdispls, MPIType<IT>()); 
+	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+
+	tuple<IT,IT,bool> * q_tuples = new tuple<IT,IT,bool>[q_nnz]; 
+	for(IT i=0; i< q_nnz; ++i)
+	{
+		q_tuples[i] = make_tuple(q_rows[i], q_cols[i], 1);
+	}
+	DeleteAll(q_rows, q_cols);
+	DER_IT * QSeq = new DER_IT(); 
+	QSeq->Create( q_nnz, crowlen, trlocalcols, q_tuples);		// Creating Q' instead
+
+	// Step 3: Form PAQ
+	// Distributed matrix generation (collective call)
+	SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
+	SpParMat<IT,bool,DER_IT> Q (QSeq, commGrid);
+	Q.Transpose();	
+
+	// Do parallel matrix-matrix multiply
+	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
+        return Mult_AnXBn_Synch<PTNTBOOL>(Mult_AnXBn_Synch<PTBOOLNT>(P, *this), Q);
 }
 
 /** 
@@ -444,8 +591,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
 	IT totalm = getnrow();	// collective call
 	IT totaln = getncol();
-	IT m_perproc = totalm / rowneighs;
-	IT n_perproc = totaln / colneighs;
+	IT m_perproc = totalm / rowneighs;	// these are CORRECT, as P's column dimension is m
+	IT n_perproc = totaln / colneighs;	// and Q's row dimension is n
 	IT p_nnz, q_nnz, rilen, cilen; 
 	IT * pcnts;
 	IT * qcnts;
@@ -482,7 +629,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		for(IT i=0; i < locvecr; ++i)
 		{	
 			// numerical values (permutation indices) are 0-based
-			IT rowrec = std::min(ri.num[i] / m_perproc, rowneighs-1);	// precipient processor along the column
+			IT rowrec = std::min(ri.num[i] / m_perproc, rowneighs-1);	// recipient processor along the column
 
 			// ri's numerical values give the colids and its indices give rowids
 			// thus, the rowid's are already offset'd where colid's are not
@@ -498,7 +645,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		for(IT i=0; i < locvecc; ++i)
 		{	
 			// numerical values (permutation indices) are 0-based
-			IT colrec = std::min(ci.num[i] / n_perproc, colneighs-1);	// precipient processor along the column
+			IT colrec = std::min(ci.num[i] / n_perproc, colneighs-1);	// recipient processor along the column
 
 			// ci's numerical values give the rowids and its indices give colids
 			// thus, the colid's are already offset'd where rowid's are not
@@ -979,7 +1126,6 @@ void SpParMat<IT,NT,DER>::Transpose()
 			cols[i] = Atuples.rowindex(i);
 			vals[i] = Atuples.numvalue(i);
 		}
-
 		IT locm = getlocalcols();
 		IT locn = getlocalrows();
 		delete spSeq;
@@ -991,8 +1137,7 @@ void SpParMat<IT,NT,DER>::Transpose()
 		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
 		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
 		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
-
-		
+	
 		IT * rowsrecv = new IT[remotennz];
 		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<IT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGROWS);
 		delete [] rows;

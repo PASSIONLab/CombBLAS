@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 			}
 		}
 		MPI::COMM_WORLD.Barrier();
-		typedef SpParMat <int, double, SpDCCols<int,double> > PARDBMAT;
+		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
 		PARDBMAT A, AID, ACID;		// declare objects
 		SpParVec<int,int> vec1, vec2;
 
@@ -112,9 +112,9 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			A.PrintForPatoh("Original.patoh");
-			B.PrintForPatoh("Permuted.patoh");	
-			C.PrintForPatoh("Restored.patoh");
+			//A.PrintForPatoh("Original.patoh");
+			//B.PrintForPatoh("Permuted.patoh");	
+			//C.PrintForPatoh("Restored.patoh");
 		}
 
 		inputnormal.clear();
