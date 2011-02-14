@@ -357,6 +357,9 @@ class DiGraph(gr.Graph):
 		ret = DiGraph(row, col, 1, N)
 		return ret
 
+	UFget = gr.UFget;
+	UFdownload = gr.UFdownload;
+
 	# ==================================================================
 	#  "complex ops" implemented below here
 	# ==================================================================

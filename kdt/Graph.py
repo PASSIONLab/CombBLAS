@@ -3,6 +3,7 @@ import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
 import feedback
+import UFget as uf
 
 class Graph:
 	#ToDo: privatize .spm name (to .__spmat)
@@ -828,6 +829,8 @@ def master():
 	return pcb.root();
 
 sendFeedback = feedback.feedback.sendFeedback;
+UFget = uf.UFget;
+UFdownload = uf.UFdownload;
 
 # which direction(s) of edges to include
 InOut = 1;
