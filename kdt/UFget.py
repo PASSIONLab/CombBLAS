@@ -39,11 +39,14 @@ def UFdownload(filename):
         #Now get rid of that pesky tar file..
         #os.remove(tarFile)
     else:
-        print 'Matrix', filename, 'already exists, doing nothing.'
+        print 'Matrix', filename, 'already local, so just loading.'
     #Return the file path of the .mtx file...
     return mtxFile
 
 #Download the matrix at index i from the
 #sparse matrix database and read it into a Matrix object
-def UFget(self, filename):
-    return self.spm.load(UFdownload(filename))
+@staticmethod
+def UFget(filename):
+    G = dg.DiGraph()
+    G.spm.load(UFdownload(filename))
+    return G
