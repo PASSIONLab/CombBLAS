@@ -256,7 +256,6 @@ void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, c
 	}
 
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
-	IT hsize = 0;		
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 
 	{
 		while(colinds[j].first != colinds[j].second)	// current != end

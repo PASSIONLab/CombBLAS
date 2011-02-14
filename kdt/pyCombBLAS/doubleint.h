@@ -16,10 +16,10 @@ struct doubleint
 	bool isnan() const							{ return std::isnan(d); }
 	static doubleint nan()						{ return doubleint(numeric_limits<double>::quiet_NaN()); } 
 	
-	operator unsigned long() const				{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<unsigned long>(ret); }
-	operator long() const						{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<long>(ret); }
-	//operator int64_t() const					{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<int64_t>(ret); }
-	//operator uint64_t() const					{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<uint64_t>(ret); }
+	//operator unsigned long() const				{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<unsigned long>(ret); }
+	//operator long() const						{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<long>(ret); }
+	operator int64_t() const					{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<int64_t>(ret); }
+	operator uint64_t() const					{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<uint64_t>(ret); }
 	operator int() const						{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<int>(ret); }
 	operator unsigned int() const				{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<unsigned int>(ret); }
 	operator bool() const						{ double ret = (d < 0 ? std::ceil(d-0.5) : std::floor(d+0.5)); return static_cast<bool>(ret); }
