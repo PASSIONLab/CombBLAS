@@ -45,5 +45,5 @@ def UFdownload(filename):
 
 #Download the matrix at index i from the
 #sparse matrix database and read it into a Matrix object
-def UFget(filename):
-    return dg.spm.load(UFdownload(filename))
+def UFget(self, filename):
+    return self.spm.load(UFdownload(filename))
