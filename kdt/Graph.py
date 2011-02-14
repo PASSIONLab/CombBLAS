@@ -380,6 +380,9 @@ class ParVec:
 		ret.dpv = self.dpv.copy()
 		return ret;
 
+	def count(self):
+		return self.dpv.Count(pcb.identity())
+
 	def find(self):
 		ret = SpParVec(-1);
 		ret.spv = self.dpv.Find(pcb.bind2nd(pcb.not_equal_to(),0.0));
