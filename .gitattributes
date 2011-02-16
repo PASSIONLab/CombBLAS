@@ -1048,6 +1048,8 @@ kdt/pyCombBLAS/pyOperations.cpp -text
 kdt/pyCombBLAS/pyOperations.h -text
 kdt/pyCombBLAS/pySpParMat.cpp -text
 kdt/pyCombBLAS/pySpParMat.h -text
+kdt/pyCombBLAS/pySpParMatBool.cpp -text
+kdt/pyCombBLAS/pySpParMatBool.h -text
 kdt/pyCombBLAS/pySpParVec.cpp -text
 kdt/pyCombBLAS/pySpParVec.h -text
 kdt/pyCombBLAS/testscript.py -text
