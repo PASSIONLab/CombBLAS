@@ -3,11 +3,6 @@
 
 #include "pyCombBLAS.h"
 
-class pySpParMat;
-class pySpParVec;
-class pyDenseParVec;
-
-
 //INTERFACE_INCLUDE_BEGIN
 class pySpParMat {
 //INTERFACE_INCLUDE_END
@@ -81,6 +76,7 @@ public:
 	static int Row() { return ::Row; }
 };
 
+pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 //INTERFACE_INCLUDE_END

@@ -31,6 +31,7 @@ pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
 	return ret;
 }
 
+
 ////////////////////////// INITALIZATION/FINALIZE
 
 void init_pyCombBLAS_MPI()

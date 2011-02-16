@@ -91,13 +91,67 @@ public:
 	static int Row() { return ::Row; }
 };
 
+pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+
+
+class pySpParMatBool {
+public:
+	pySpParMatBool();
+	pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
+	
+	pySpParMatBool(const pySpParMat& copyFrom);
+
+public:
+	int64_t getnnz();
+	int64_t getnee();
+	int64_t getnrow();
+	int64_t getncol();
+	
+public:	
+	void load(const char* filename);
+	void save(const char* filename);
+	
+	double GenGraph500Edges(int scale);
+	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
+	
+public:
+	pySpParMatBool* copy();
+	pySpParMatBool& operator+=(const pySpParMatBool& other);
+	pySpParMatBool& assign(const pySpParMatBool& other);
+	pySpParMatBool* SpMM(const pySpParMatBool& other);
+	pySpParMatBool* operator*(const pySpParMatBool& other);
+	
+	void Apply(op::UnaryFunction* f);
+	//void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f); // doesn't work with bool because of the special way in which std::vector<bool> handles storage
+	void Prune(op::UnaryFunction* f);
+	int64_t Count(op::UnaryFunction* pred);
+	
+	// Be wary of identity value with min()/max()!!!!!!!
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
+	
+	void Transpose();
+	//void EWiseMult(pySpParMatBool* rhs, bool exclude);
+
+	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
+public:
+	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
+	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	void SpMV_SelMax_inplace(pySpParVec& v);
+	
+public:
+	static int Column() { return ::Column; }
+	static int Row() { return ::Row; }
+};
+
+pySpParMatBool* EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
+pySpParMatBool* EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 
 class pySpParVec {
 public:
 	pySpParVec(int64_t length);
-	//pySpParVec(const pySpParMat& commSource);
 	
 	pyDenseParVec* dense() const;
 
@@ -119,9 +173,6 @@ public:
 	pySpParVec* copy();
 
 public:	
-	//void invert(); // "~";  almost equal to logical_not
-	//void abs();
-	
 	bool any() const; // any nonzeros
 	bool all() const; // all nonzeros
 	
@@ -183,8 +234,6 @@ public:
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
-// compiler can't find the CombBLAS EWiseMult for some strange reason
-pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 
 
 class pyDenseParVec {
@@ -207,7 +256,6 @@ public:
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
 	pyDenseParVec& operator*=(const pyDenseParVec& rhs);
 	pyDenseParVec& operator*=(const pySpParVec& rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);

@@ -115,6 +115,54 @@ def pySpParMat_Row():
   return _pyCombBLAS.pySpParMat_Row()
 pySpParMat_Row = _pyCombBLAS.pySpParMat_Row
 
+class pySpParMatBool(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, pySpParMatBool, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, pySpParMatBool, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_pySpParMatBool(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def getnnz(self): return _pyCombBLAS.pySpParMatBool_getnnz(self)
+    def getnee(self): return _pyCombBLAS.pySpParMatBool_getnee(self)
+    def getnrow(self): return _pyCombBLAS.pySpParMatBool_getnrow(self)
+    def getncol(self): return _pyCombBLAS.pySpParMatBool_getncol(self)
+    def load(self, *args): return _pyCombBLAS.pySpParMatBool_load(self, *args)
+    def save(self, *args): return _pyCombBLAS.pySpParMatBool_save(self, *args)
+    def GenGraph500Edges(self, *args): return _pyCombBLAS.pySpParMatBool_GenGraph500Edges(self, *args)
+    def copy(self): return _pyCombBLAS.pySpParMatBool_copy(self)
+    def __iadd__(self, *args): return _pyCombBLAS.pySpParMatBool___iadd__(self, *args)
+    def assign(self, *args): return _pyCombBLAS.pySpParMatBool_assign(self, *args)
+    def SpMM(self, *args): return _pyCombBLAS.pySpParMatBool_SpMM(self, *args)
+    def __mul__(self, *args): return _pyCombBLAS.pySpParMatBool___mul__(self, *args)
+    def Apply(self, *args): return _pyCombBLAS.pySpParMatBool_Apply(self, *args)
+    def Prune(self, *args): return _pyCombBLAS.pySpParMatBool_Prune(self, *args)
+    def Count(self, *args): return _pyCombBLAS.pySpParMatBool_Count(self, *args)
+    def Reduce(self, *args): return _pyCombBLAS.pySpParMatBool_Reduce(self, *args)
+    def Transpose(self): return _pyCombBLAS.pySpParMatBool_Transpose(self)
+    def Find(self, *args): return _pyCombBLAS.pySpParMatBool_Find(self, *args)
+    def SpMV_PlusTimes(self, *args): return _pyCombBLAS.pySpParMatBool_SpMV_PlusTimes(self, *args)
+    def SpMV_SelMax(self, *args): return _pyCombBLAS.pySpParMatBool_SpMV_SelMax(self, *args)
+    def SpMV_SelMax_inplace(self, *args): return _pyCombBLAS.pySpParMatBool_SpMV_SelMax_inplace(self, *args)
+    __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatBool_Column
+    if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatBool_Column)
+    __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatBool_Row
+    if _newclass:Row = staticmethod(_pyCombBLAS.pySpParMatBool_Row)
+    __swig_destroy__ = _pyCombBLAS.delete_pySpParMatBool
+    __del__ = lambda self : None;
+pySpParMatBool_swigregister = _pyCombBLAS.pySpParMatBool_swigregister
+pySpParMatBool_swigregister(pySpParMatBool)
+
+def pySpParMatBool_Column():
+  return _pyCombBLAS.pySpParMatBool_Column()
+pySpParMatBool_Column = _pyCombBLAS.pySpParMatBool_Column
+
+def pySpParMatBool_Row():
+  return _pyCombBLAS.pySpParMatBool_Row()
+pySpParMatBool_Row = _pyCombBLAS.pySpParMatBool_Row
+
 class pySpParVec(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, pySpParVec, name, value)

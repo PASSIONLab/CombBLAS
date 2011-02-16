@@ -33,14 +33,16 @@ class BinaryFunction;
 
 #include "doubleint.h"
 
-#include "pyOperations.h"
-#include "pySpParMat.h"
-#include "pySpParVec.h"
-#include "pyDenseParVec.h"
-
 class pySpParMat;
+class pySpParMatBool;
 class pySpParVec;
 class pyDenseParVec;
+
+#include "pyOperations.h"
+#include "pySpParMat.h"
+#include "pySpParMatBool.h"
+#include "pySpParVec.h"
+#include "pyDenseParVec.h"
 
 extern "C" {
 void init_pyCombBLAS_MPI();
