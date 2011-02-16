@@ -199,6 +199,15 @@ class ParVec:
 			raise NotImplementedError, 'ParVec += SpParVec not implemented'
 		return self;
 
+	def __imul__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			self.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other));
+		else:
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			self.dpv *= other.dpv
+		return self;
+
 	def __invert__(self):
 		if not self.isBool():
 			raise NotImplementedError, "only implemented for Boolean"
@@ -266,7 +275,7 @@ class ParVec:
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv = other.dpv * self.dpv.sparse();
+			ret.dpv = other.dpv * self.dpv
 		return ret;
 
 	def __ne__(self, other):
@@ -713,7 +722,23 @@ class SpParVec:
 			else:
 				raise KeyError, 'Unknown value type'
 			if len(self.spv) != len(key.dpv) or len(self.spv) != len(value.dpv):
-				raise IndexError, 'Key must same length as SpParVec'
+				raise IndexError, 'Key and Value must be same length as SpParVec'
+			self.spv[key.dpv] = value.dpv;
+		elif isinstance(key,SpParVec):
+			if isinstance(value,ParVec):
+				pass;
+			elif isinstance(value,SpParVec):
+				value = value.toParVec();
+			elif type(value) == float or type(value) == long or type(value) == int:
+				tmp = value
+				value = key.copy()
+				value.set(tmp)
+				value = value.toParVec()
+			else:
+				raise KeyError, 'Unknown value type'
+			key = key.toParVec();
+			if len(self.spv) != len(key.dpv) or len(self.spv) != len(value.dpv):
+				raise IndexError, 'Key and Value must be same length as SpParVec'
 			self.spv[key.dpv] = value.dpv;
 		elif type(key) == str and key == 'nonnull':
 			self.spv.Apply(pcb.set(value));
@@ -754,11 +779,21 @@ class SpParVec:
 		ret.spv = self.spv.copy();
 		return ret;
 
-	#ToDO:  need to implement Find when pyCombBLAS method available
+	#ToDo:  implement find/findInds when problem of any zero elements
+	#         in the sparse vector getting stripped out is solved
+	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
 	#def find(self):
+	#	ret = SpParVec(-1);
+	#	ret.spv = self.spv.dense().Find(pcb.bind2nd(pcb.not_equal_to(),0.0));
+	#	return ret;
 
-	#ToDO:  need to implement FindInds when pyCombBLAS method available
+
+	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
 	#def findInds(self):
+	#	ret = ParVec(-1);
+	#	ret.dpv = self.spv.dense().FindInds(pcb.bind2nd(pcb.not_equal_to(),0.0));
+	#	return ret;
+
 
 	def isBool(self):
 		eps = float(np.finfo(np.float).eps);
