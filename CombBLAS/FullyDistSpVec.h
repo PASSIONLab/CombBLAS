@@ -79,6 +79,9 @@ public:
 	void DelElement (IT indx); // element-wise deletion
 	NT operator[](IT indx) const;
 
+	NT GetZero() const			{ return zero; }
+	void SetZero(const NT& z)	{ zero = z; }
+
 	// sort the vector itself
 	// return the permutation vector (0-based)
 	FullyDistSpVec<IT, IT> sort();	

@@ -12,8 +12,8 @@ print "export CC=mpicxx"
 print "export CXX=mpicxx"
 print ""
 
-def check_for_header(header, include_dirs):
-	"""Check for the existence of a header file by creating a small program which includes it and see if it compiles."""
+def see_if_compiles(program, include_dirs):
+	""" Try to compile the passed in program and report if it compiles successfully or not. """
 	from distutils.ccompiler import new_compiler, CompileError
 	from shutil import rmtree
 	import tempfile
@@ -23,7 +23,7 @@ def check_for_header(header, include_dirs):
 		tmpdir = tempfile.mkdtemp()
 	except AttributeError:
 		# Python 2.2 doesn't have mkdtemp().
-		tmpdir = "header_check_tempdir"
+		tmpdir = "compile_check_tempdir"
 		try:
 			os.mkdir(tmpdir)
 		except OSError:
@@ -35,22 +35,51 @@ def check_for_header(header, include_dirs):
 	os.chdir(tmpdir)
 	
 	# Try to include the header
-	f = open('headertest.cpp', 'w')
-	f.write("#include <%s>\n" % header)
+	f = open('compiletest.cpp', 'w')
+	f.write(program)
 	f.close()
 	try:
-		sys.stdout.write("Checking for <%s>... " % header)
 		new_compiler().compile([f.name], include_dirs=include_dirs)
 		success = True
-		sys.stdout.write("OK\n");
 	except CompileError:
-		sys.stdout.write("Not found\n");
 		success = False
 	
 	os.chdir(old)
 	rmtree(tmpdir)
 	return success
+
+def check_for_header(header, include_dirs):
+	"""Check for the existence of a header file by creating a small program which includes it and see if it compiles."""
+	program = "#include <%s>\n" % header
+	sys.stdout.write("Checking for <%s>... " % header)
+	success = see_if_compiles(program, include_dirs)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("Not found\n");
+	return success
+
+def check_for_MPI_IN_PLACE(include_dirs):
+	""" Check for the existence of the MPI_IN_PLACE constant. """
 	
+	program = """
+#include <mpi.h>
+
+int main(int argc, const char** argv) {
+	void* buf = NULL;
+	MPI_Allreduce(MPI_IN_PLACE, buf, 10, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+	return 0;
+}
+
+"""
+	sys.stdout.write("Checking for MPI_IN_PLACE... ")
+	success = see_if_compiles(program, include_dirs)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("Not found\n");
+	return success
+
 # parse out additional include dirs from the command line
 include_dirs = []
 copy_args=sys.argv[1:]
@@ -80,7 +109,12 @@ else:
 		print "$ python setup.py build -I/home/username/include"
 		sys.exit();
 
-
+#if (not check_for_MPI_IN_PLACE(include_dirs)):
+#	print "Please use a more recent MPI implementation."
+#	print "If you system has multiple MPI implementations you can set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
+#	print "export CC=mpicxx"
+#	print "export CXX=mpicxx"
+#	sys.exit();
 
 
 COMBBLAS = "CombBLAS/"

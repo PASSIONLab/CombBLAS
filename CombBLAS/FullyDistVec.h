@@ -64,7 +64,9 @@ public:
 	NT operator[](IT indx) const		// more c++ like API
 	{
 		return GetElement(indx);
-	} 
+	}
+	NT GetZero() const			{ return zero; }
+	void SetZero(const NT& z)	{ zero = z; }
 	
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
