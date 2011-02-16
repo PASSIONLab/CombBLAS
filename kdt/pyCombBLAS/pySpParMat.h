@@ -52,6 +52,10 @@ public:
 	pySpParMat& assign(const pySpParMat& other);
 	pySpParMat* SpMM(const pySpParMat& other);
 	pySpParMat* operator*(const pySpParMat& other);
+	pySpParMat* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	
+	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
 	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
@@ -96,6 +100,11 @@ struct promote_trait  { };
 DECLARE_PROMOTE(pySpParMat::MatType, pySpParMat::MatType, pySpParMat::MatType)
 DECLARE_PROMOTE(pySpParMat::DCColsType, pySpParMat::DCColsType, pySpParMat::DCColsType)
 
+// Based on what's in CombBLAS/SpDCCols.h:
+template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, doubleint> , NIT, NNT >
+    {
+        typedef SpDCCols<NIT,NNT> T_inferred;
+    };
 
 
 #endif

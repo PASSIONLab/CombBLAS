@@ -3748,6 +3748,150 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMat_SubsRef(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  pyDenseParVec *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  pySpParMat *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_SubsRef",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SubsRef" "', argument " "1"" of type '" "pySpParMat const *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_SubsRef" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SubsRef" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  {
+    try {
+      result = (pySpParMat *)((pySpParMat const *)arg1)->SubsRef((pyDenseParVec const &)*arg2,(pyDenseParVec const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat___getitem__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  pyDenseParVec *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  pySpParMat *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat___getitem__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat___getitem__" "', argument " "1"" of type '" "pySpParMat const *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat___getitem__" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat___getitem__" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  {
+    try {
+      result = (pySpParMat *)((pySpParMat const *)arg1)->__getitem__((pyDenseParVec const &)*arg2,(pyDenseParVec const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_removeSelfLoops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int64_t result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:pySpParMat_removeSelfLoops",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_removeSelfLoops" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  {
+    try {
+      result = (arg1)->removeSelfLoops();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_long_SS_long(static_cast< long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMat_Apply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -5482,6 +5626,150 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool___mul__(PyObject *SWIGUNUSEDPARM(self)
     }
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SubsRef(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  pyDenseParVec *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  pySpParMatBool *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SubsRef",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SubsRef" "', argument " "1"" of type '" "pySpParMatBool const *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SubsRef" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SubsRef" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  {
+    try {
+      result = (pySpParMatBool *)((pySpParMatBool const *)arg1)->SubsRef((pyDenseParVec const &)*arg2,(pyDenseParVec const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool___getitem__(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  pyDenseParVec *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  pySpParMatBool *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool___getitem__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool___getitem__" "', argument " "1"" of type '" "pySpParMatBool const *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool___getitem__" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool___getitem__" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  {
+    try {
+      result = (pySpParMatBool *)((pySpParMatBool const *)arg1)->__getitem__((pyDenseParVec const &)*arg2,(pyDenseParVec const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_removeSelfLoops(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int64_t result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:pySpParMatBool_removeSelfLoops",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_removeSelfLoops" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  {
+    try {
+      result = (arg1)->removeSelfLoops();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_long_SS_long(static_cast< long long >(result));
   return resultobj;
 fail:
   return NULL;
@@ -13606,6 +13894,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_assign", _wrap_pySpParMat_assign, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMM", _wrap_pySpParMat_SpMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat___mul__", _wrap_pySpParMat___mul__, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_SubsRef", _wrap_pySpParMat_SubsRef, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat___getitem__", _wrap_pySpParMat___getitem__, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_removeSelfLoops", _wrap_pySpParMat_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_ColWiseApply", _wrap_pySpParMat_ColWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
@@ -13633,6 +13924,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_assign", _wrap_pySpParMatBool_assign, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_SpMM", _wrap_pySpParMatBool_SpMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool___mul__", _wrap_pySpParMatBool___mul__, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_SubsRef", _wrap_pySpParMatBool_SubsRef, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool___getitem__", _wrap_pySpParMatBool___getitem__, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_removeSelfLoops", _wrap_pySpParMatBool_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Apply", _wrap_pySpParMatBool_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Prune", _wrap_pySpParMatBool_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Count", _wrap_pySpParMatBool_Count, METH_VARARGS, NULL},

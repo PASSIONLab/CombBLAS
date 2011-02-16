@@ -179,6 +179,23 @@ pySpParMat* pySpParMat::SpMM(const pySpParMat& other)
 	return ret;
 }
 
+pySpParMat* pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+{
+	return SubsRef(rows, cols);
+}
+
+pySpParMat* pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+{
+	pySpParMat* ret = new pySpParMat();
+	cout << "pySpParMat.SubsRef() not implemented" << endl; //ret->A = A(rows.v, cols.v);
+	return ret;
+}
+	
+int64_t pySpParMat::removeSelfLoops()
+{
+	return A.RemoveLoops();
+}
+
 void pySpParMat::Apply(op::UnaryFunction* op)
 {
 	A.Apply(*op);

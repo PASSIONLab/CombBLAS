@@ -67,6 +67,10 @@ public:
 	pySpParMat& assign(const pySpParMat& other);
 	pySpParMat* SpMM(const pySpParMat& other);
 	pySpParMat* operator*(const pySpParMat& other);
+	pySpParMat* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	
+	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
 	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
@@ -121,6 +125,10 @@ public:
 	pySpParMatBool& assign(const pySpParMatBool& other);
 	pySpParMatBool* SpMM(const pySpParMatBool& other);
 	pySpParMatBool* operator*(const pySpParMatBool& other);
+	pySpParMatBool* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	
+	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
 	//void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f); // doesn't work with bool because of the special way in which std::vector<bool> handles storage
