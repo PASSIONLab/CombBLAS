@@ -61,44 +61,52 @@ class DiGraph(gr.Graph):
 		return ret;
 
 	def __getitem__(self, key):
-		#ToDo:  accept slices for key1/key2 besides ParVecs
+		#ToDo:  accept slices for key0/key1 besides ParVecs
 		if type(key)==tuple:
 			if len(key)==1:
-				[key1] = key; key2 = -1;
+				[key0] = key; key1 = -1;
 			elif len(key)==2:
-				[key1, key2] = key;
+				[key0, key1] = key;
 			else:
 				raise KeyError, 'Too many indices'
 		else:
-			key1 = key;  key2 = key;
-		if type(key1) == int or type(key1) == long or type(key1) == float:
+			key0 = key;  key1 = key;
+		if type(key0) == int or type(key0) == long or type(key0) == float:
+			tmp = ParVec(1);
+			tmp[0] = key0;
+			key0 = tmp;
+		if type(key1) == int or type(key0) == long or type(key0) == float:
 			tmp = ParVec(1);
 			tmp[0] = key1;
 			key1 = tmp;
-		if type(key2) == int or type(key1) == long or type(key1) == float:
-			tmp = ParVec(1);
-			tmp[0] = key2;
-			key2 = tmp;
+		if type(key0)==slice and key0==slice(None,None,None):
+			key0mn = 0; 
+			key0tmp = self.nvert();
+			if type(key0tmp) == tuple:
+				key0mx = key0tmp[0] - 1
+			else:
+				key0mx = key0tmp - 1
+		else:
+			key0mn = int(key0.min()); key0mx = int(key0.max());
+			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
+				raise KeyError, 'Vector first index not a range'
 		if type(key1)==slice and key1==slice(None,None,None):
-			#ToDo: will need to handle nvert() 2-return case
-			key1mn = 0; key1mx = self.nvert()-1;
+			key1mn = 0 
+			key1tmp = self.nvert();
+			if type(key1tmp) == tuple:
+				key1mx = key1tmp[1] - 1
+			else:
+				key1mx = key1tmp - 1
 		else:
 			key1mn = int(key1.min()); key1mx = int(key1.max());
 			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
-				raise KeyError, 'Vector first index not a range'
-		if type(key2)==slice and key2==slice(None,None,None):
-			#ToDo: will need to handle nvert() 2-return case
-			key2mn = 0; key2mx = self.nvert()-1;
-		else:
-			key2mn = int(key2.min()); key2mx = int(key2.max());
-			if len(key2)!=(key2mx-key2mn+1) or not (key2==ParVec.range(key2mn,key2mx+1)).all():
 				raise KeyError, 'Vector second index not a range'
 		[i, j, v] = self.toParVec();
-		sel = ((i >= key1mn) & (i <= key1mx) & (j >= key2mn) & (j <= key2mx)).findInds();
-		newi = i[sel] - key1mn;
-		newj = j[sel] - key2mn;
+		sel = ((i >= key0mn) & (i <= key0mx) & (j >= key1mn) & (j <= key1mx)).findInds();
+		newi = i[sel] - key0mn;
+		newj = j[sel] - key1mn;
 		newv = v[sel];
-		ret = DiGraph(newi, newj, newv, key1mx-key1mn+1, key2mx-key2mn+1);
+		ret = DiGraph(newi, newj, newv, key0mx-key0mn+1, key1mx-key1mn+1);
 		return ret;
 
 	def __iadd__(self, other):
@@ -179,14 +187,14 @@ class DiGraph(gr.Graph):
 	def degree(self, dir=gr.Out):
 		if dir == gr.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
+			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(tmp1+tmp2);
 		elif dir == gr.In:
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.set(1));
+			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret);
 		elif dir == gr.Out:
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.set(1));
+			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret);
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -268,6 +276,10 @@ class DiGraph(gr.Graph):
 	#in-place, so no return value
 	def reverseEdges(self):
 		self.spm.Transpose();
+
+	def save(self, fname):
+		self.spm.save(fname)
+		return
 
 	#in-place, so no return value
 	def scale(self, other, dir=gr.Out):
@@ -434,8 +446,9 @@ class DiGraph(gr.Graph):
 		if (treeJ == root).any():
 			ret = -1;
 			return ret;
-		builtGT = DiGraph(treeI, treeJ, 1, nvertG);
-		builtGT.reverseEdges();
+		# note treeJ/TreeK reverse, so builtGT is transpose, as
+		#   needed by SpMV
+		builtGT = DiGraph(treeJ, treeI, 1, nvertG);
 		visited = ParVec.zeros(nvertG);
 		visited[root] = 1;
 		fringe = SpParVec(nvertG);
