@@ -540,14 +540,11 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _Binar
 			typename vector< IT >::const_iterator otherInd = other.ind.begin();
 			typename vector< NT >::const_iterator otherNum = other.num.begin();
 			
-			IT sizelocal = LocArrSize();
-			IT sizesofar = LengthUntil();
-			
 			if (applyNulls) // scan the entire dense vector and apply sparse elements as they appear
 			{
-				for(IT i=0; i<sizelocal; ++i)
+				for(IT i=0; (unsigned)i < arr.size(); ++i)
 				{
-					if (i+sizesofar < *otherInd)
+					if (i < *otherInd)
 					{
 						arr[i] = __binary_op(arr[i], nullValue);
 					}
@@ -563,12 +560,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _Binar
 			{
 				while (otherInd < other.ind.end())
 				{
-					if (*otherInd - sizesofar < 0 || *otherInd - sizesofar > sizelocal)
-					{
-						cout << "Indexing error in elementwise apply" << endl; 
-						MPI::COMM_WORLD.Abort(DIMMISMATCH);
-					}
-					arr[*otherInd - sizesofar] = __binary_op(arr[*otherInd - sizesofar], *otherNum);
+					arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum);
 					otherInd++;
 					otherNum++;
 				}

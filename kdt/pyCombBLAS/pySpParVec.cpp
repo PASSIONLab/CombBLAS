@@ -209,6 +209,16 @@ pySpParVec* pySpParVec::Sort()
 	return ret;
 }
 
+pySpParVec* pySpParVec::TopK(int64_t k)
+{
+	FullyDistSpVec<INDEXTYPE, doubleint> sel(k);
+	sel.iota(k, 0 -1);
+
+	pySpParVec* ret = new pySpParVec(0);
+	ret->v = v.sort()(sel);
+	
+	return ret;
+}
 
 void pySpParVec::setNumToInd()
 {
@@ -240,7 +250,8 @@ double pySpParVec::__getitem__(int64_t key)
 	
 	if (val == v.NOT_FOUND)
 	{
-		cout << "Element " << key << " not found." << endl;
+		//cout << "Element " << key << " not found." << endl;
+		return v.GetZero();
 	}
 	
 	return val;

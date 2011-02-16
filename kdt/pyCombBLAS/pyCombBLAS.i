@@ -145,6 +145,7 @@ public:
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
 	pySpParVec* Sort();
+	pySpParVec* TopK(int64_t k);
 	
 	void setNumToInd();
 
