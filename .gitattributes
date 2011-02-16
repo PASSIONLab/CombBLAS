@@ -1023,9 +1023,10 @@ Python/serialSciPy/DiGraph.py -text
 Python/serialSciPy/Graph.py -text
 Python/serialSciPy/Graph500.py -text
 /README.txt -text
+examples/Graph500.py -text
+examples/note_for_kdt_developers.txt -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
-kdt/Graph500.py -text
 kdt/UFget.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text

@@ -16,7 +16,7 @@
   - [Steve] implement 2D torus graph generator
   - [Steve] implement generalized Reduce in ParVec/SPM [really needed?]
   - [Steve] implement wrapper for sort
-  - [???]  implement topK based on sort
+  - [Adam]  implement topK based on sort - Done for SpVec
 
 - parallel execution
   - [Steve] understand how to debug with Python instead of IPython
