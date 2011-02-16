@@ -2,12 +2,10 @@ import time
 import scipy as sc
 
 import sys
-sys.path.append('/home/spr/kdt/trunk/Python/pyCombBLAS')
-sys.path.append('/home/spr/kdt/trunk/Python/distribCombBLAS')
 
-import pyCombBLAS as pcb
-import DiGraph as dg
-#from DiGraph import DiGraph
+import kdt.pyCombBLAS as pcb
+import kdt.DiGraph as dg
+#from kdt.DiGraph import DiGraph
 
 def k2Validate(G, start, parents):
 	good = True;
