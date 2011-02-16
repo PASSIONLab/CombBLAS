@@ -2,9 +2,6 @@
 #define PY_DENSE_PAR_VEC_H
 
 #include "pyCombBLAS.h"
-class pySpParMat;
-class pySpParVec;
-class pyDenseParVec;
 
 //INTERFACE_INCLUDE_BEGIN
 class pyDenseParVec {
@@ -16,6 +13,7 @@ protected:
 	
 	friend class pySpParVec;
 	friend class pySpParMat;
+	friend class pySpParMatBool;
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
@@ -41,7 +39,6 @@ public:
 	pyDenseParVec& operator-=(const pySpParVec & rhs);
 	pyDenseParVec& operator*=(const pyDenseParVec& rhs);
 	pyDenseParVec& operator*=(const pySpParVec& rhs);
-	//pyDenseParVec& operator=(const pyDenseParVec & rhs); // SWIG doesn't allow operator=
 	
 	pyDenseParVec* operator+(const pyDenseParVec & rhs);
 	pyDenseParVec* operator-(const pyDenseParVec & rhs);

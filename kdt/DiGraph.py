@@ -6,6 +6,10 @@ import Graph as gr
 
 class DiGraph(gr.Graph):
 
+	def toBool(self):
+		if isinstance(self.spm, pcb.pySpParMat):
+			self.spm = pcb.pySpParMatBool(self.spm)
+
 	#print "in DiGraph"
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
@@ -210,7 +214,7 @@ class DiGraph(gr.Graph):
 		return ret;
 
 	def genGraph500Edges(self, scale):
-		elapsedTime = pcb.pySpParMat.GenGraph500Edges(self.spm, scale);
+		elapsedTime = self.spm.GenGraph500Edges(scale);
 	 	return elapsedTime;
 
 	@staticmethod

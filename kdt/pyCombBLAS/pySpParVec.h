@@ -2,9 +2,6 @@
 #define PY_SP_PAR_VEC_H
 
 #include "pyCombBLAS.h"
-class pySpParMat;
-class pySpParVec;
-class pyDenseParVec;
 
 //INTERFACE_INCLUDE_BEGIN
 class pySpParVec {
@@ -14,22 +11,20 @@ protected:
 	typedef int64_t INDEXTYPE;
 	FullyDistSpVec<INDEXTYPE, doubleint> v;
 	
-	//pySpParVec(SpParVec<int64_t, int64_t> & in_v);
-	
 	friend class pySpParMat;
+	friend class pySpParMatBool;
 	friend class pyDenseParVec;
 	
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
 	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
-
 	pySpParVec(); // used for initializing temporaries to be returned
+
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
 public:
 	pySpParVec(int64_t length);
-	//pySpParVec(const pySpParMat& commSource);
 	
 	pyDenseParVec* dense() const;
 
@@ -51,9 +46,6 @@ public:
 	pySpParVec* copy();
 
 public:	
-	//void invert(); // "~";  almost equal to logical_not
-	//void abs();
-	
 	bool any() const; // any nonzeros
 	bool all() const; // all nonzeros
 	
@@ -115,8 +107,6 @@ public:
 pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
-// compiler can't find the CombBLAS EWiseMult for some strange reason
-pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 
 //INTERFACE_INCLUDE_END
 
