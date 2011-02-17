@@ -126,7 +126,7 @@ generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittab
 
 #pyCombBLAS extension which wraps the templated C++ Combinatorial BLAS library. 
 pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
-	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
+	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pySpParMatBool.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
 	include_dirs=include_dirs,
 	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs)
 
@@ -137,7 +137,7 @@ setup(name='kdt',
 	url='http://kdt.sourceforge.net',
 #	packages=['kdt', 'kdt'],
 	ext_modules=[pyCombBLAS_ext],
-	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.Graph500', 'kdt.feedback'],
+	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.feedback'],
 	script_args=copy_args
 	)
 	

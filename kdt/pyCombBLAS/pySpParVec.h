@@ -68,8 +68,8 @@ public:
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
-	pySpParVec* Sort();
-	pySpParVec* TopK(int64_t k);
+	pySpParVec* Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pySpParVec* TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
