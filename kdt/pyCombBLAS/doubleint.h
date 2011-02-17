@@ -137,6 +137,8 @@ DECLARE_PROMOTE(double, doubleint, doubleint)
 DECLARE_PROMOTE(doubleint, double, doubleint)
 DECLARE_PROMOTE(int, doubleint, doubleint)
 DECLARE_PROMOTE(doubleint, int, doubleint)
+DECLARE_PROMOTE(bool, doubleint, doubleint)
+DECLARE_PROMOTE(doubleint, bool, doubleint)
 DECLARE_PROMOTE(int64_t, doubleint, doubleint)
 DECLARE_PROMOTE(doubleint, int64_t, doubleint)
 

@@ -187,7 +187,8 @@ pySpParMat* pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParV
 pySpParMat* pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
 {
 	pySpParMat* ret = new pySpParMat();
-	cout << "pySpParMat.SubsRef() not implemented" << endl; //ret->A = A(rows.v, cols.v);
+	//cout << "pySpParMat.SubsRef() not implemented" << endl; //ret->A = A(rows.v, cols.v);
+	ret->A = A(rows.v, cols.v);
 	return ret;
 }
 	
