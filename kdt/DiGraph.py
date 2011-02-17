@@ -203,6 +203,11 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, 'Invalid edge direction'
 
+	# in-place, so no return value
+	def removeSelfLoops(self):
+		self.spm.removeSelfLoops()
+		return
+
 	@staticmethod
 	def fullyConnected(n,m=None):
 		if m == None:

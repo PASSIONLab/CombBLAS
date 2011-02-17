@@ -254,11 +254,6 @@ class ParVec:
 	def __mod__(self, other):
 		ret = self.copy();
 		if type(other) == int or type(other) == long or type(other) == float:
-			#HACK:  for modulus() not handling negative numbers
-			# properly
-			if (self < 0).any():
-				ret += other*other
-			#ENDHACK
 			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other));
 		else:
 			if len(self) != len(other):
@@ -782,17 +777,21 @@ class SpParVec:
 	#ToDo:  implement find/findInds when problem of any zero elements
 	#         in the sparse vector getting stripped out is solved
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
-	#def find(self):
-	#	ret = SpParVec(-1);
-	#	ret.spv = self.spv.dense().Find(pcb.bind2nd(pcb.not_equal_to(),0.0));
-	#	return ret;
+	def find(self):
+		if not self.isBool():
+			raise NotImplementedError, 'only implemented for Boolean vectors'
+		ret = SpParVec(-1);
+		ret.spv = self.spv.dense().Find(pcb.bind2nd(pcb.not_equal_to(),0.0));
+		return ret;
 
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
-	#def findInds(self):
-	#	ret = ParVec(-1);
-	#	ret.dpv = self.spv.dense().FindInds(pcb.bind2nd(pcb.not_equal_to(),0.0));
-	#	return ret;
+	def findInds(self):
+		if not self.isBool():
+			raise NotImplementedError, 'only implemented for Boolean vectors'
+		ret = ParVec(-1);
+		ret.dpv = self.spv.dense().FindInds(pcb.bind2nd(pcb.not_equal_to(),0.0));
+		return ret;
 
 
 	def isBool(self):
