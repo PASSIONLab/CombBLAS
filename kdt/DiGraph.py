@@ -27,6 +27,10 @@ class DiGraph(gr.Graph):
 			[i,j,v,nv] = args
 			if type(v) == int or type(v) == long or type(v) == float:
 				v = ParVec.broadcast(len(i),v)
+			if i.max() > nv-1:
+				raise KeyError, 'at least one first index greater than #vertices'
+			if j.max() > nv-1:
+				raise KeyError, 'at least one second index greater than #vertices'
 			self.spm = pcb.pySpParMat(nv,nv,i.dpv,j.dpv,v.dpv)
 		elif len(args) == 5:
 			[i,j,v,nv1,nv2] = args
@@ -178,10 +182,6 @@ class DiGraph(gr.Graph):
 		ret = DiGraph()
 		ret.spm = self.spm.SpMM(other.spm)
 		return ret
-
-	def bool(self):
-		#ToDo:  change for real Boolean matrices
-		return DiGraph.ones(self)
 
 	def copy(self):
 		ret = DiGraph()
