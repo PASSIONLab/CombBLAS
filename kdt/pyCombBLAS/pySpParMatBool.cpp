@@ -189,7 +189,7 @@ pySpParMatBool* pySpParMatBool::operator*(const pySpParMatBool& other)
 pySpParMatBool* pySpParMatBool::SpMM(const pySpParMatBool& other)
 {
 	pySpParMatBool* ret = new pySpParMatBool();
-	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<INDEXTYPE, bool > >(A, other.A);
+	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<bool, bool > >(A, other.A);
 	return ret;
 }
 
@@ -306,33 +306,22 @@ void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-pySpParVec* pySpParMatBool::SpMV_PlusTimes(const pySpParVec& xin)
+pySpParVec* pySpParMatBool::SpMV_PlusTimes(const pySpParVec& x)
 {
-	// convert to bool
-	FullyDistSpVec<INDEXTYPE, bool> x = xin.v;
-	
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, bool> result; cout << "SpMV on bool not implemented!" << endl; // = SpMV< PlusTimesSRing<INDEXTYPE, bool > >(A, x);
-	ret->v = result;
+	ret->v = SpMV< PlusTimesSRing<bool, doubleint > >(A, x.v);
 	return ret;
 }
 
-pySpParVec* pySpParMatBool::SpMV_SelMax(const pySpParVec& xin)
+pySpParVec* pySpParMatBool::SpMV_SelMax(const pySpParVec& x)
 {
-	// convert to bool
-	FullyDistSpVec<INDEXTYPE, bool> x = xin.v;
-
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, bool> result; cout << "SpMV on bool not implemented!" << endl; //= SpMV< SelectMaxSRing<INDEXTYPE, bool > >(A, x);
-	ret->v = result;
+	ret->v = SpMV< SelectMaxSRing<bool, doubleint > >(A, x.v);
 	return ret;
 }
 
-void pySpParMatBool::SpMV_SelMax_inplace(pySpParVec& xin)
+void pySpParMatBool::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	// convert to bool
-	FullyDistSpVec<INDEXTYPE, bool> x = xin.v;
-
-	; cout << "SpMV on bool not implemented!" << endl; //xin.v = SpMV< SelectMaxSRing<INDEXTYPE, bool > >(A, x);
+	x.v = SpMV< SelectMaxSRing<bool, doubleint> >(A, x.v);
 }
 
