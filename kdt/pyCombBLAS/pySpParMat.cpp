@@ -175,7 +175,7 @@ pySpParMat* pySpParMat::operator*(const pySpParMat& other)
 pySpParMat* pySpParMat::SpMM(const pySpParMat& other)
 {
 	pySpParMat* ret = new pySpParMat();
-	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<INDEXTYPE, doubleint > >(A, other.A);
+	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A);
 	return ret;
 }
 
@@ -282,7 +282,7 @@ void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDensePar
 pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< PlusTimesSRing<INDEXTYPE, doubleint > >(A, x.v);
+	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }
@@ -290,13 +290,13 @@ pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
 	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< SelectMaxSRing<INDEXTYPE, doubleint > >(A, x.v);
+	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 	ret->v.stealFrom(result);
 	return ret;
 }
 
 void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	x.v = SpMV< SelectMaxSRing<INDEXTYPE, doubleint > >(A, x.v);
+	x.v = SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 }
 
