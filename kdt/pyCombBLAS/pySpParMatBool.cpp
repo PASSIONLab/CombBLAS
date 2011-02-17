@@ -215,14 +215,11 @@ void pySpParMatBool::Apply(op::UnaryFunction* op)
 	A.Apply(*op);
 }
 
-/*
-void pySpParMatBool::ColWiseApply(const pySpParVec& values, op::BinaryFunction* f)
-{
-	// convert to bool
-	FullyDistSpVec<INDEXTYPE, bool> x = values;
 
-	::ColWiseApply(A, x, *f);
-}*/
+void pySpParMatBool::ColWiseApply(const pySpParVec& x, op::BinaryFunction* f)
+{
+	::ColWiseApply(A, x.v, *f);
+}
 
 
 pySpParMatBool* EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
@@ -303,6 +300,13 @@ void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	outrows->v = irows;
 	outcols->v = icols;
 	outvals->v = vals;
+	/*
+	cout << "Find::vals:  ";
+	for (int i = 0; i < vals.TotalLength(); i++)
+	{
+		bool v = vals.GetElement(i);
+		cout << v << ", ";
+	}*/
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 

@@ -235,8 +235,8 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 // Apply
 
 // based on base SpMV above
-template <typename _BinaryOperation, typename IT, typename NT1>
-void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT1 * numx, IT veclen, _BinaryOperation __binary_op)
+template <typename _BinaryOperation, typename IT, typename NT1, typename NT2>
+void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen, _BinaryOperation __binary_op)
 {
 	static IT* spmvaux = NULL;
 	

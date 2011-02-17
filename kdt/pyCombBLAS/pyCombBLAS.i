@@ -131,7 +131,7 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
-	//void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f); // doesn't work with bool because of the special way in which std::vector<bool> handles storage
+	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
