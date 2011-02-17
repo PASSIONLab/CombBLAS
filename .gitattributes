@@ -441,6 +441,7 @@ CombBLAS/ReleaseTests/rangerscript64 -text
 CombBLAS/ReleaseTests/rangerscript81 -text
 CombBLAS/ReleaseTests/rangerscript841 -text
 CombBLAS/ReleaseTests/rangerscript9 -text
+CombBLAS/ReleaseTests/small_nonsym.mtx -text
 CombBLAS/Semirings.h -text
 CombBLAS/SequenceHeaps/heap-CLR.h -text
 CombBLAS/SequenceHeaps/heap2.h -text
