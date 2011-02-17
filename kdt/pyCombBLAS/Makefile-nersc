@@ -1,5 +1,5 @@
 INCDIR = $(HOME)
-INCADD = -I$(INCDIR) -I/usr/common/usg/python/2.6.2/include/python2.6/
+INCADD = -I$(INCDIR) -I/usr/include/python2.6
 COMBBLAS = ../../CombBLAS
 
 # notes for configure:
@@ -9,7 +9,7 @@ COMBBLAS = ../../CombBLAS
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = $(CC)
-FLAGS = $(OPT) -fPIC 
+FLAGS = $(OPT) -fPIC -dynamic
 
 all: pyCombBLAS.py
 
