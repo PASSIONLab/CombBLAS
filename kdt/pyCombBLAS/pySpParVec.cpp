@@ -212,10 +212,14 @@ pySpParVec* pySpParVec::Sort()
 pySpParVec* pySpParVec::TopK(int64_t k)
 {
 	FullyDistSpVec<INDEXTYPE, doubleint> sel(k);
-	sel.iota(k, 0 -1);
+	sel.iota(k, len()-k -1);
 
+	pySpParVec* sorted = copy();
+	sorted->v.sort();
+	
 	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v.sort()(sel);
+	ret->v = (sorted->v)(sel);
+	delete sorted;
 	
 	return ret;
 }
