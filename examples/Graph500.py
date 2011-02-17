@@ -1,12 +1,8 @@
-import getlocal
 import time
 import scipy as sc
 
 import sys
-
-#import kdt.pyCombBLAS as pcb
-import DiGraph as dg
-#from kdt.DiGraph import DiGraph
+import kdt.DiGraph as dg
 
 def k2Validate(G, start, parents):
 	good = True
@@ -94,8 +90,8 @@ elif GRAPH500 == 3:
 	#FIX: following should be randint(1, ...); masking root=0 bug for now
 	starts = sc.random.randint(1, 9, size=(nstarts,))
 
-G.toBool()
-#G.ones();		# set all values to 1
+#G.toBool()
+G.ones();		# set all values to 1
 
 K2elapsed = 1e-12
 K2edges = 0

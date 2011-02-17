@@ -144,6 +144,7 @@ class pySpParMatBool(_object):
     def __getitem__(self, *args): return _pyCombBLAS.pySpParMatBool___getitem__(self, *args)
     def removeSelfLoops(self): return _pyCombBLAS.pySpParMatBool_removeSelfLoops(self)
     def Apply(self, *args): return _pyCombBLAS.pySpParMatBool_Apply(self, *args)
+    def ColWiseApply(self, *args): return _pyCombBLAS.pySpParMatBool_ColWiseApply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMatBool_Prune(self, *args)
     def Count(self, *args): return _pyCombBLAS.pySpParMatBool_Count(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMatBool_Reduce(self, *args)
