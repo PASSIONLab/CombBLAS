@@ -559,7 +559,7 @@ class SpParVec:
 		return ret
 
 	def __getitem__(self, key):
-		if type(other) == int or type(other) == long or type(other) == float:
+		if type(key) == int or type(key) == long or type(key) == float:
 			if key > len(self.spv)-1:
 				raise IndexError
 			ret = self.spv[key]
@@ -844,6 +844,16 @@ class SpParVec:
 
 	def sum(self):
 		ret = self.spv.Reduce(pcb.plus())
+		return ret
+
+	def topK(self, k):
+		raise NotImplementedError
+		tmp = SpParVec(0)
+		tmp.spv = self.spv.TopK(k)
+		tmp = -tmp
+		tmp.spv.Sort()
+		tmp = -tmp
+		# turn SpParVec into ParVec without dense()...
 		return ret
 
 	def toParVec(self):	
