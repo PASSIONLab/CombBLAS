@@ -623,7 +623,7 @@ class DiGraph(gr.Graph):
 		return cent
 	
 	
-	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), BCdebug=0):
+	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0):
 		A = self.copy()
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now
@@ -639,7 +639,8 @@ class DiGraph(gr.Graph):
 		#        = 2GB * 0.1 (other vars) / 18 (bytes/edge) * nProcs
 		#   memory/row (in edges)
 		#        = self.nvert()
-		physMemPCore = 2e9; memFract = 0.1; bytesPEdge = 18
+		physMemPCore = 2e9; bytesPEdge = 18
+		#memFract = 0.1;
 		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
 		nBatches = int(sc.ceil(float(nVertToCalc) / float(batchSize)))
 		nPossBatches = int(sc.ceil(float(N) / float(batchSize)))
@@ -666,11 +667,21 @@ class DiGraph(gr.Graph):
 			depth = 0
 			while fringe.nedge() > 0:
 				depth = depth+1
+				if BCdebug and depth==5:
+					print tmp.nvert(), fringe.nvert()
+					print tmp[:,fringe.nvert()[1]-1], nsp[:,fringe.nvert()[1]-1], fringe[:,fringe.nvert()[1]-1]
+					import sys; sys.exit()
 				nsp = nsp+fringe
 				tmp = fringe.copy()
-				tmp.bool()
+				tmp.ones()
 				bfs.append(tmp)
 				tmp = fringe._SpMM(A)
+				if BCdebug:
+					nspsum = nsp.sum(Out).sum() 
+					fringesum = fringe.sum(Out).sum()
+					tmpsum = tmp.sum(Out).sum()
+					if master():
+						print depth, nspsum, fringesum, tmpsum
 				fringe = tmp.mulNot(nsp)
 	
 			bcu = DiGraph.fullyConnected(curSize,N)
@@ -678,6 +689,9 @@ class DiGraph(gr.Graph):
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
 				w = bfs[depth] / nsp * bcu
+				if BCdebug:
+					print w.sum(Out).sum()
+					import sys; sys.exit()
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
 				w.T()
@@ -688,6 +702,9 @@ class DiGraph(gr.Graph):
 				bcu += w
 	
 			# update the bc with the bc update
+			if BCdebug:
+				print bcu.sum(Out).sum()
+				import sys; sys.exit()
 			bc = bc + bcu.sum(Out)	# column sums
 	
 		# subtract off the additional values added in by precomputation
