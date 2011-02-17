@@ -391,55 +391,124 @@ class DiGraph(gr.Graph):
 	#	each vertex in the tree; unreached vertices have parent == -1.
 	#	sym arg denotes whether graph is symmetric; if not, need to transpose
 	#
-	def bfsTree(self, start, sym=False):
+	def bfsTree(self, root, sym=False):
+		"""
+		calculates a breadth-first search tree from the edges in the
+		passed DiGraph, starting from the root vertex.  "Breadth-first"
+		in the sense that all vertices reachable in step i are added
+		to the tree before any of the newly-reachable vertices' reachable
+		vertices are explored.
+
+		Input Arguments:
+			root:  an integer denoting the root vertex for the tree
+			sym:  a Boolean denoting whether the DiGraph is symmetric
+			    (i.e., each edge from vertex i to vertex j has a
+			    companion edge from j to i).  If the DiGraph is 
+			    symmetric, the operation is faster.  The default is 
+			    False.
+
+		Input Arguments:
+			parents:  a ParVec instance of length equal to the number
+			    of vertices in the DiGraph, with each element denoting 
+			    the vertex number of that vertex's parent in the tree.
+			    The root is its own parent.  Unreachable vertices
+			    have a parent of -1. 
+
+		SEE ALSO: isBfsTree 
+		"""
 		if not sym:
 			self.T()
-		parents = pcb.pyDenseParVec(self.nvert(), -1);
+		parents = pcb.pyDenseParVec(self.nvert(), -1)
 		# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
 		# distinguish vertex0 from empty element
-		fringe = pcb.pySpParVec(self.nvert());
-		parents[start] = start;
-		fringe[start] = start;
+		fringe = pcb.pySpParVec(self.nvert())
+		parents[root] = root
+		fringe[root] = root
 		while fringe.getnnz() > 0:
 			#FIX:  setNumToInd -> SPV.range()
-			fringe.setNumToInd();
-			self.spm.SpMV_SelMax_inplace(fringe);	
-			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1);
+			fringe.setNumToInd()
+			self.spm.SpMV_SelMax_inplace(fringe)
+			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)
 			parents[fringe] = 0
-			parents += fringe;
+			parents += fringe
 		if not sym:
 			self.T()
-		return ParVec.toParVec(parents);
+		return ParVec.toParVec(parents)
 	
 	
 		# returns tuples with elements
 		# 0:  True/False of whether it is a BFS tree or not
 		# 1:  levels of each vertex in the tree (root is 0, -1 if not reached)
-	def isBfsTree(self, root, parents):
-	
-		ret = 1;	# assume valid
-		nvertG = self.nvert();
+	def isBfsTree(self, root, parents, sym=False):
+		"""
+		validates that a breadth-first search tree in the style created
+		by bfsTree is correct.
+
+		Input Arguments:
+			root:  an integer denoting the root vertex for the tree
+			parents:  a ParVec instance of length equal to the number
+			    vertices in the DiGraph, with each element denoting 
+			    the vertex number of that vertex's parent in the tree.
+			    The root is its own parent.  Unreachable vertices
+			    have a parent of -1. 
+			sym:  a Boolean denoting whether the DiGraph is symmetric
+			    (i.e., each edge from vertex i to vertex j has a
+			    companion edge from j to i).  If the DiGraph is 
+			    symmetric, the operation is faster.  The default is 
+			    False.
+		
+		Output Arguments:
+			ret:  The return value may be an integer (in the case of
+			    an error detected) or a tuple (in the case of no
+			    error detected).  If it's an integer, its value will
+			    be the negative of the first test below that failed.
+			    If it's a tuple, its first element will be the 
+			    the integer 1 and its second element will be a 
+			    ParVec of length equal to the number of vertices
+			    in the DiGraph, with each element denoting the
+			    level in the tree at which the vertex resides.  The
+			    root resides in level 0, its direct neighbors in
+			    level 1, and so forth.  Unreachable vertices have a
+			    level value of -1.
+		
+		Tests:
+			The tests implement some of the Graph500 (www.graph500.org) 
+			specification. (Some of the Graph500 tests also depend on 
+			input edges.)
+			1:  The tree does not contain cycles,  that every vertex
+			    with a parent is in the tree, and that the root is
+			    not the destination of any tree edge.
+			2:  Tree edges are between vertices whose levels differ 
+			    by exactly 1.
+		SEE ALSO: bfsTree 
+		"""
+		ret = 1		# assume valid
+		nvertG = self.nvert()
 	
 		# calculate level in the tree for each vertex; root is at level 0
 		# about the same calculation as bfsTree, but tracks levels too
-		parents2 = ParVec.zeros(nvertG) - 1;
-		parents2[root] = root;
-		fringe = SpParVec(nvertG);
-		fringe[root] = root;	#fix
-		levels = ParVec.zeros(nvertG) - 1;
-		levels[root] = 0;
+		if not sym:
+			self.reverseEdges()
+		parents2 = ParVec.zeros(nvertG) - 1
+		parents2[root] = root
+		fringe = SpParVec(nvertG)
+		fringe[root] = root
+		levels = ParVec.zeros(nvertG) - 1
+		levels[root] = 0
 	
-		level = 1;
+		level = 1
 		while fringe.nnn() > 0:
-			fringe.sprange();
+			fringe.sprange()
 			#FIX:  create PCB graph-level op
-			self.spm.SpMV_SelMax_inplace(fringe.spv);
+			self.spm.SpMV_SelMax_inplace(fringe.spv)
 			#FIX:  create PCB graph-level op
-			pcb.EWiseMult_inplacefirst(fringe.spv, parents2.dpv, True, -1);
-			parents2[fringe] = fringe;
-			levels[fringe] = level;
-			level += 1;
-		
+			pcb.EWiseMult_inplacefirst(fringe.spv, parents2.dpv, True, -1)
+			parents2[fringe] = fringe
+			levels[fringe] = level
+			level += 1
+		if not sym:
+			self.reverseEdges()
+
 		# spec test #1
 		# Confirm that the tree is a tree;  i.e., that it does not
 		# have any cycles (visited more than once while building
@@ -447,43 +516,43 @@ class DiGraph(gr.Graph):
 		# in the tree. 
 
 		# build a new graph from just tree edges
-		tmp2 = parents != ParVec.range(nvertG);
-		treeEdges = (parents != -1) & tmp2;  
+		tmp2 = parents != ParVec.range(nvertG)
+		treeEdges = (parents != -1) & tmp2
 		treeI = parents[treeEdges.findInds()]
-		treeJ = ParVec.range(nvertG)[treeEdges.findInds()];
+		treeJ = ParVec.range(nvertG)[treeEdges.findInds()]
 		# root cannot be destination of any tree edge
 		if (treeJ == root).any():
-			ret = -1;
-			return ret;
-		# note treeJ/TreeK reverse, so builtGT is transpose, as
+			ret = -1
+			return ret
+		# note treeJ/TreeI reversed, so builtGT is transpose, as
 		#   needed by SpMV
-		builtGT = DiGraph(treeJ, treeI, 1, nvertG);
-		visited = ParVec.zeros(nvertG);
-		visited[root] = 1;
-		fringe = SpParVec(nvertG);
-		fringe[root] = root;
-		cycle = False;
-		multiparents = False;
+		builtGT = DiGraph(treeJ, treeI, 1, nvertG)
+		visited = ParVec.zeros(nvertG)
+		visited[root] = 1
+		fringe = SpParVec(nvertG)
+		fringe[root] = root
+		cycle = False
+		multiparents = False
 		while fringe.nnn() > 0 and not cycle and not multiparents:
-			fringe.spones();
-			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv));
+			fringe.spones()
+			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv))
 			if visited[newfringe.toParVec().findInds()].any():
-				cycle = True;
-				break;
+				cycle = True
+				break
 			if (newfringe > 1).any():
-				multiparents = True;
-			fringe = newfringe;
-			visited[fringe] = 1;
+				multiparents = True
+			fringe = newfringe
+			visited[fringe] = 1
 		if cycle or multiparents:
-			ret = -1;	
-			return ret;
+			ret = -1
+			return ret
 		
 		# spec test #2
 		#    tree edges should be between verts whose levels differ by 1
 		
 		if (levels[treeI]-levels[treeJ] != -1).any():
-			ret = -2;
-			return ret;
+			ret = -2
+			return ret
 	
 		return (ret, levels)
 	
@@ -521,12 +590,29 @@ class DiGraph(gr.Graph):
 		return (retSource, retDest);
 		
 	def centrality(self, alg, **kwargs):
-	#		ToDo:  Normalize option?
+		"""
+		where 'alg' can be one of 
+		    'exactBC':  exact betweenness centrality
+		    'approxBC':  approximate betweenness centrality
+
+		Each algorithm may have algorithm-specific arguments as follows:
+		    'exactBC':  
+		        normalize=True:  normalizes the values by dividing by 
+		                (nVert-1)*(nVert-2)
+		    'approxBC':
+			sample=0.05:  the fraction of the vertices to use as sources 
+				and destinations;  sample=1.0 is the same as exactBC
+		        normalize=True:  normalizes the values by multiplying by 
+				nVerts / (nVertsCalculated * (nVerts-1) * (nVerts-2))
+		The return value is a ParVec with length equal to the number of
+		vertices in the DiGraph, with each element of the ParVec containing
+		the centrality value of the vertex.
+		"""
 		if alg=='exactBC':
 			cent = DiGraph._approxBC(self, sample=1.0, **kwargs)
 			#cent = DiGraph._bc(self, 1.0, self.nvert())
 		elif alg=='approxBC':
-			cent = DiGraph._approxBC(self, **kwargs);
+			cent = DiGraph._approxBC(self, **kwargs)
 		elif alg=='kBC':
 			raise NotImplementedError, "k-betweenness centrality unimplemented"
 		elif alg=='degree':
@@ -537,13 +623,13 @@ class DiGraph(gr.Graph):
 		return cent;
 	
 	
-	def _approxBC(self, sample=0.05, normalize=True):
-		A = self.copy();
-		self.ones();			
-		#Aint = self.ones();	# not needed;  Gs only int for now
+	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), BCdebug=0):
+		A = self.copy()
+		self.ones()
+		#Aint = self.ones()	# not needed;  Gs only int for now
 		N = A.nvert()
-		bc = ParVec(N);
-		nProcs = pcb._nprocs()
+		bc = ParVec(N)
+		#nProcs = pcb._nprocs()
 		nVertToCalc = int(self.nvert() * sample)
 		# batchSize = #rows/cols that will fit in memory simultaneously.
 		# bcu has a value in every element, even though it's literally
@@ -553,7 +639,7 @@ class DiGraph(gr.Graph):
 		#        = 2GB * 0.1 (other vars) / 18 (bytes/edge) * nProcs
 		#   memory/row (in edges)
 		#        = self.nvert()
-		physMemPCore = 2e9; memFract = 0.01; bytesPEdge = 18
+		physMemPCore = 2e9; memFract = 0.1; bytesPEdge = 18
 		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
 		nBatches = int(sc.ceil(float(nVertToCalc) / float(batchSize)))
 		nPossBatches = int(sc.ceil(float(N) / float(batchSize)))
@@ -561,33 +647,37 @@ class DiGraph(gr.Graph):
 			startVs = range(0,nVertToCalc,batchSize)
 			endVs = range(batchSize, nVertToCalc, batchSize)
 			if nVertToCalc % batchSize != 0:
-				endVs.append(nVertToCalc);
+				endVs.append(nVertToCalc)
 			numVs = [y-x for [x,y] in zip(startVs,endVs)]
 		else:
 			startVs = (sc.random.randint(0,nPossBatches,nBatches)*batchSize).tolist()
 			numVs = [min(x+batchSize,N)-x for x in startVs]
 
+		if BCdebug:
+			print "batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches)
 		for [startV, numV] in zip(startVs, numVs):
+			if BCdebug:
+				print "startV=%d, numV=%d" % (startV, numV)
 			bfs = []		
 			batch = ParVec.range(startV, startV+numV)
-			curSize = len(batch);
-			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N);
-			fringe = A[batch,ParVec.range(N)];
-			depth = 0;
+			curSize = len(batch)
+			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N)
+			fringe = A[batch,ParVec.range(N)]
+			depth = 0
 			while fringe.nedge() > 0:
-				depth = depth+1;
+				depth = depth+1
 				nsp = nsp+fringe
-				tmp = fringe.copy();
-				tmp.bool();
-				bfs.append(tmp);
-				tmp = fringe._SpMM(A);
-				fringe = tmp.mulNot(nsp);
+				tmp = fringe.copy()
+				tmp.bool()
+				bfs.append(tmp)
+				tmp = fringe._SpMM(A)
+				fringe = tmp.mulNot(nsp)
 	
 			bcu = DiGraph.fullyConnected(curSize,N);
 			# compute the bc update for all vertices except the sources
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
-				w = bfs[depth] / nsp * bcu;
+				w = bfs[depth] / nsp * bcu
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
 				w.T()
@@ -601,7 +691,7 @@ class DiGraph(gr.Graph):
 			bc = bc + bcu.sum(Out)	# column sums
 	
 		# subtract off the additional values added in by precomputation
-		bc = bc - nVertToCalc;
+		bc = bc - nVertToCalc
 		if normalize:
 			nVertSampled = sum(numVs)
 			bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
@@ -609,6 +699,11 @@ class DiGraph(gr.Graph):
 	
 	def cluster(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
+		"""
+		Deferred implementation for KDT v0.1
+			
+		"""
+		raise NotImplementedError, "clustering not implemented for v0.1"
 		if alg=='Markov' or alg=='markov':
 			clus = _markov(self, **kwargs)
 	
@@ -618,13 +713,13 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, "unknown clustering algorithm (%s)" % alg
 	
-		return clus;
+		return clus
 
 class ParVec(gr.ParVec):
-	pass;
+	pass
 
 class SpParVec(gr.SpParVec):
-	pass;
+	pass
 
 		
 
