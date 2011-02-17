@@ -100,6 +100,16 @@ struct promote_trait  { };
 DECLARE_PROMOTE(pySpParMat::MatType, pySpParMat::MatType, pySpParMat::MatType)
 DECLARE_PROMOTE(pySpParMat::DCColsType, pySpParMat::DCColsType, pySpParMat::DCColsType)
 
+template <> struct promote_trait< SpDCCols<int64_t,doubleint> , SpDCCols<int64_t,bool> >       
+    {                                           
+        typedef SpDCCols<int64_t,doubleint> T_promote;                    
+    };
+
+template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,doubleint> >       
+    {                                           
+        typedef SpDCCols<int64_t,doubleint> T_promote;                    
+    };
+
 // Based on what's in CombBLAS/SpDCCols.h:
 template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, doubleint> , NIT, NNT >
     {
