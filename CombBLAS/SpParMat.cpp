@@ -423,7 +423,7 @@ template <class IT, class NT, class DER>
 SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const 
 {
 	// infer the concrete type SpMat<IT,IT>
-	typedef typename create_trait<DER, IT, NT>::T_inferred DER_IT;
+	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
 
 	// The indices for FullyDistVec are offset'd to 1/p pieces
 	// The matrix indices are offset'd to 1/sqrt(p) pieces
