@@ -999,6 +999,7 @@ Graph500cpp/Makefile-neumann -text
 Graph500cpp/graph500.cpp -text
 /KDT_User_Guide.doc -text
 /KDT_User_Guide.pdf -text
+/LICENSE.txt -text
 /MANIFEST.in -text
 Matlab/apsp/apsp.m -text
 Matlab/apsp/min_plus.m -text
