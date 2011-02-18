@@ -1,5 +1,5 @@
 import time
-import scipy as sc
+#import scipy as sc
 
 import sys
 import kdt.DiGraph as dg
