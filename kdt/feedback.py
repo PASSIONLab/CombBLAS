@@ -3,7 +3,6 @@ import pwd
 import email
 import smtplib
 import socket
-import IPython.ipapi;
 
 class feedback:
 
@@ -20,6 +19,12 @@ class feedback:
 	
 	@staticmethod
 	def startFeedback():
+		try:
+			import IPython.ipapi
+		except ImportError:
+			feedback.IPYTHON_ACTIVE = False;
+			return
+
 		ip = IPython.ipapi.get()
 		if ip == None:
 			feedback.IPYTHON_ACTIVE = False;
