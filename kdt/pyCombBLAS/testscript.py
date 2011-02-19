@@ -213,10 +213,9 @@ if (pcb.root()):
 ###########    CANDIDATE SELECTION
 debugprint = False
 
-numCands = 1064
-#if (numCands > n):
-#	numCands = n
-import gc;
+numCands = 64
+if (numCands > n):
+	numCands = n
 
 
 #Cands = A.FindIndsOfColsWithSumGreaterThan(4);

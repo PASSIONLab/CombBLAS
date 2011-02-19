@@ -29,7 +29,7 @@ pySpParMatBool::pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDens
 	A = MatType(m, n, irow, icol, vals->v);
 }
 
-pySpParMatBool::pySpParMatBool(const pySpParMat& copyFrom)
+pySpParMatBool::pySpParMatBool(const pySpParMat& copyFrom): A()
 {
 	A = copyFrom.A;
 }
@@ -273,11 +273,13 @@ void pySpParMatBool::Transpose()
 void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
 {
 	FullyDistVec<int64_t, int64_t> irows, icols;
-	FullyDistVec<int64_t, bool> vals;
-	A.Find(irows, icols, vals);
+	//FullyDistVec<int64_t, bool> vals;
+	A.Find(irows, icols);
 	outrows->v = irows;
 	outcols->v = icols;
-	outvals->v = vals;
+	
+	FullyDistVec<int64_t, bool> ones(irows.TotalLength(), 1, 0);
+	outvals->v = ones;
 	/*
 	cout << "Find::vals:  ";
 	for (int i = 0; i < vals.TotalLength(); i++)
