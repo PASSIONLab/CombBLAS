@@ -18,11 +18,10 @@ public:
 	typedef SpParMat < INDEXTYPE, bool, DCColsType > PSpMat_DoubleInt;
 	typedef PSpMat_DoubleInt MatType;
 	
-protected:
+public:
 	
-	friend class pySpParVec;
-	
-	pySpParMatBool(pySpParMatBool* copyFrom);
+	pySpParMatBool(MatType other);
+	pySpParMatBool(const pySpParMatBool& copyFrom);
 
 public:
 	MatType A;
@@ -49,13 +48,13 @@ public:
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
-	pySpParMatBool* copy();
+	pySpParMatBool copy();
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
-	pySpParMatBool* SpMM(const pySpParMatBool& other);
-	pySpParMatBool* operator*(const pySpParMatBool& other);
-	pySpParMatBool* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
-	pySpParMatBool* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool SpMM(const pySpParMatBool& other);
+	pySpParMatBool operator*(const pySpParMatBool& other);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
 	
 	int64_t removeSelfLoops();
 	
@@ -65,16 +64,16 @@ public:
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
 	
 	void Transpose();
-	//void EWiseMult(pySpParMatBool* rhs, bool exclude);
+	//void EWiseMult(pySpParMatBool rhs, bool exclude);
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
+	pySpParVec SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
 	
 public:
@@ -82,8 +81,8 @@ public:
 	static int Row() { return ::Row; }
 };
 
-pySpParMatBool* EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
-pySpParMatBool* EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 //INTERFACE_INCLUDE_END
 

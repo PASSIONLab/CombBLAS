@@ -72,6 +72,9 @@ def checkvect(v, name):
 		saveVect(v, "checkfile_%s"%(name))
 	else:
 		one = loadDenseVect("checkfile_%s"%(name), len(v))
+		if (len(one) != len(v)):
+			print "%s failed. length_1 = %d, lengh_p = %d"%(name, len(one), len(v))
+			return
 		one.EWiseApply(v, pcb.equal_to())
 		if (one.Count(pcb.bind2nd(pcb.equal_to(), 1)) != v.getnee()):
 			if (pcb.root()):

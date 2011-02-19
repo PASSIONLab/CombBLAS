@@ -1,3 +1,5 @@
+#!
+
 import sys
 import time
 import math
@@ -211,9 +213,11 @@ if (pcb.root()):
 ###########    CANDIDATE SELECTION
 debugprint = False
 
-numCands = 64
-if (numCands > n):
-	numCands = n
+numCands = 1064
+#if (numCands > n):
+#	numCands = n
+import gc;
+
 
 #Cands = A.FindIndsOfColsWithSumGreaterThan(4);
 
@@ -233,8 +237,8 @@ Cands.RandPerm()
 
 Firsts = pcb.pyDenseParVec.range(numCands, 0)
 
-#Cands = Cands[Firsts]
-Cands = Cands.SubsRef(Firsts)
+Cands = Cands[Firsts]
+#Cands = Cands.SubsRef(Firsts)
 
 #if (pcb.root()):
 #	print "The candidates are:"
@@ -253,7 +257,15 @@ iterations = [];
 
 for i in range(0, numCands):
 	c = Cands[i]
-
+	try:
+		print "c=%d"%(c)
+	except TypeError:
+		print "------------------------------ TYPE ERROR on c! setting c=0"
+		c = 0
+		print "i=%d, len(Cands)=%d"%(i, len(Cands))
+		Cands.printall()
+		Cands.sparse().printall()
+	
 	# start the clock
 	tstart = time.time()
 	#------------------------- TIMED --------------------------------------------
@@ -366,7 +378,5 @@ del A
 del parents, parentsSP
 del fringe, Cands 
 del degrees
-
-
 
 pcb.finalize()

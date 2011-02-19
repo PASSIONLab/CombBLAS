@@ -49,15 +49,15 @@ class UnaryFunction {
 	}
 };
 
-UnaryFunction* set(double val);
-UnaryFunction* identity();
-UnaryFunction* safemultinv();
-UnaryFunction* abs();
-UnaryFunction* negate();
-UnaryFunction* bitwise_not();
-UnaryFunction* logical_not();
-UnaryFunction* totality();
-UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, UnaryFunction* runFalse);
+UnaryFunction set(double val);
+UnaryFunction identity();
+UnaryFunction safemultinv();
+UnaryFunction abs();
+UnaryFunction negate();
+UnaryFunction bitwise_not();
+UnaryFunction logical_not();
+UnaryFunction totality();
+UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
 
 //INTERFACE_INCLUDE_END
 
@@ -94,39 +94,39 @@ class BinaryFunction {
 
 };
 
-BinaryFunction* plus();
-BinaryFunction* minus();
-BinaryFunction* multiplies();
-BinaryFunction* divides();
-BinaryFunction* modulus();
-BinaryFunction* fmod();
+BinaryFunction plus();
+BinaryFunction minus();
+BinaryFunction multiplies();
+BinaryFunction divides();
+BinaryFunction modulus();
+BinaryFunction fmod();
 
-BinaryFunction* max();
-BinaryFunction* min();
+BinaryFunction max();
+BinaryFunction min();
 
-BinaryFunction* bitwise_and();
-BinaryFunction* bitwise_or();
-BinaryFunction* bitwise_xor();
-BinaryFunction* logical_and();
-BinaryFunction* logical_or();
-BinaryFunction* logical_xor();
+BinaryFunction bitwise_and();
+BinaryFunction bitwise_or();
+BinaryFunction bitwise_xor();
+BinaryFunction logical_and();
+BinaryFunction logical_or();
+BinaryFunction logical_xor();
 
-BinaryFunction* equal_to();
-BinaryFunction* not_equal_to();
-BinaryFunction* greater();
-BinaryFunction* less();
-BinaryFunction* greater_equal();
-BinaryFunction* less_equal();
+BinaryFunction equal_to();
+BinaryFunction not_equal_to();
+BinaryFunction greater();
+BinaryFunction less();
+BinaryFunction greater_equal();
+BinaryFunction less_equal();
 
 
 // Glue functions
 
-UnaryFunction* bind1st(BinaryFunction* op, double val);
-UnaryFunction* bind2nd(BinaryFunction* op, double val);
-UnaryFunction* compose1(UnaryFunction* f, UnaryFunction* g); // h(x) is the same as f(g(x))
-UnaryFunction* compose2(BinaryFunction* f, UnaryFunction* g1, UnaryFunction* g2); // h(x) is the same as f(g1(x), g2(x))
-UnaryFunction* not1(UnaryFunction* f);
-BinaryFunction* not2(BinaryFunction* f);
+UnaryFunction bind1st(BinaryFunction& op, double val);
+UnaryFunction bind2nd(BinaryFunction& op, double val);
+UnaryFunction compose1(UnaryFunction& f, UnaryFunction& g); // h(x) is the same as f(g(x))
+UnaryFunction compose2(BinaryFunction& f, UnaryFunction& g1, UnaryFunction& g2); // h(x) is the same as f(g1(x), g2(x))
+UnaryFunction not1(UnaryFunction& f);
+BinaryFunction not2(BinaryFunction& f);
 
 } // namespace op
 

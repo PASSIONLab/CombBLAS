@@ -62,13 +62,13 @@ public:
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
-	pySpParMat* copy();
+	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat* SpMM(const pySpParMat& other);
-	pySpParMat* operator*(const pySpParMat& other);
-	pySpParMat* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
-	pySpParMat* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat SpMM(const pySpParMat& other);
+	pySpParMat operator*(const pySpParMat& other);
+	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
 	
 	int64_t removeSelfLoops();
 	
@@ -78,16 +78,16 @@ public:
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
 	
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
+	pySpParVec SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
 	
 public:
@@ -95,8 +95,8 @@ public:
 	static int Row() { return ::Row; }
 };
 
-pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
-pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 
 class pySpParMatBool {
@@ -120,13 +120,13 @@ public:
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
-	pySpParMatBool* copy();
+	pySpParMatBool copy();
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
-	pySpParMatBool* SpMM(const pySpParMatBool& other);
-	pySpParMatBool* operator*(const pySpParMatBool& other);
-	pySpParMatBool* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
-	pySpParMatBool* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool SpMM(const pySpParMatBool& other);
+	pySpParMatBool operator*(const pySpParMatBool& other);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
 	
 	int64_t removeSelfLoops();
 	
@@ -136,16 +136,16 @@ public:
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
 	
 	void Transpose();
-	//void EWiseMult(pySpParMatBool* rhs, bool exclude);
+	//void EWiseMult(pySpParMatBool rhs, bool exclude);
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
+	pySpParVec SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
 	
 public:
@@ -153,15 +153,15 @@ public:
 	static int Row() { return ::Row; }
 };
 
-pySpParMatBool* EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
-pySpParMatBool* EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 
 class pySpParVec {
 public:
 	pySpParVec(int64_t length);
 	
-	pyDenseParVec* dense() const;
+	pyDenseParVec dense() const;
 
 public:
 	int64_t getnee() const;
@@ -169,16 +169,16 @@ public:
 	int64_t __len__() const;
 	int64_t len() const;
 
-	pySpParVec* operator+(const pySpParVec& other);
-	pySpParVec* operator-(const pySpParVec& other);
-	pySpParVec* operator+(const pyDenseParVec& other);
-	pySpParVec* operator-(const pyDenseParVec& other);
+	pySpParVec operator+(const pySpParVec& other);
+	pySpParVec operator-(const pySpParVec& other);
+	pySpParVec operator+(const pyDenseParVec& other);
+	pySpParVec operator-(const pyDenseParVec& other);
 
 	pySpParVec& operator+=(const pySpParVec& other);
 	pySpParVec& operator-=(const pySpParVec& other);
 	pySpParVec& operator+=(const pyDenseParVec& other);
 	pySpParVec& operator-=(const pyDenseParVec& other);
-	pySpParVec* copy();
+	pySpParVec copy();
 
 public:	
 	bool any() const; // any nonzeros
@@ -194,33 +194,33 @@ public:
 public:
 	// The functions commented out here presently do not exist in CombBLAS
 	int64_t Count(op::UnaryFunction* op);
-	//pySpParVec* Find(op::UnaryFunction* op);
-	//pyDenseParVec* FindInds(op::UnaryFunction* op);
+	//pySpParVec Find(op::UnaryFunction* op);
+	//pyDenseParVec FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 
-	pySpParVec* SubsRef(const pySpParVec& ri);
+	pySpParVec SubsRef(const pySpParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
-	pySpParVec* Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	pySpParVec* TopK(int64_t k); // Returns a vector of the k largest elements.
+	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pySpParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
 public:
-	static pySpParVec* zeros(int64_t howmany);
-	static pySpParVec* range(int64_t howmany, int64_t start);
+	static pySpParVec zeros(int64_t howmany);
+	static pySpParVec range(int64_t howmany, int64_t start);
 	
 public:
 	// Functions from PyCombBLAS
-	pySpParVec* abs();
+	pySpParVec abs();
 	void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
 	double __getitem__(int64_t key);
 	double __getitem__(double  key);
-	pySpParVec* __getitem__(const pySpParVec& key);
+	pySpParVec __getitem__(const pySpParVec& key);
 	
 	void __setitem__(int64_t key, double value);
 	void __setitem__(double  key, double value);
@@ -238,8 +238,8 @@ public:
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
 
-//pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+//pySpParVec EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+pySpParVec EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 
@@ -249,8 +249,8 @@ public:
 	pyDenseParVec(int64_t size, double init);
 	pyDenseParVec(int64_t size, double init, double zero);
 	
-	pySpParVec* sparse() const;
-	pySpParVec* sparse(double zero) const;
+	pySpParVec sparse() const;
+	pySpParVec sparse(double zero) const;
 	
 public:
 	int64_t len() const;
@@ -265,19 +265,19 @@ public:
 	pyDenseParVec& operator*=(const pyDenseParVec& rhs);
 	pyDenseParVec& operator*=(const pySpParVec& rhs);
 	
-	pyDenseParVec* operator+(const pyDenseParVec & rhs);
-	pyDenseParVec* operator-(const pyDenseParVec & rhs);
-	pyDenseParVec* operator+(const pySpParVec & rhs);
-	pyDenseParVec* operator-(const pySpParVec & rhs);
-	pyDenseParVec* operator*(const pyDenseParVec& rhs);
-	pyDenseParVec* operator*(const pySpParVec& rhs);
+	pyDenseParVec operator+(const pyDenseParVec & rhs);
+	pyDenseParVec operator-(const pyDenseParVec & rhs);
+	pyDenseParVec operator+(const pySpParVec & rhs);
+	pyDenseParVec operator-(const pySpParVec & rhs);
+	pyDenseParVec operator*(const pyDenseParVec& rhs);
+	pyDenseParVec operator*(const pySpParVec& rhs);
 	
-	pyDenseParVec* operator==(const pyDenseParVec& other);
-	pyDenseParVec* operator!=(const pyDenseParVec& other);
+	pyDenseParVec operator==(const pyDenseParVec& other);
+	pyDenseParVec operator!=(const pyDenseParVec& other);
 
-	pyDenseParVec* copy();
+	pyDenseParVec copy();
 	
-	pyDenseParVec* SubsRef(const pyDenseParVec& ri);
+	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 
 	void RandPerm();
 
@@ -296,31 +296,31 @@ public:
 public:
 	int64_t Count(op::UnaryFunction* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
-	pySpParVec* Find(op::UnaryFunction* op);
-	pySpParVec* __getitem__(op::UnaryFunction* op);
-	pyDenseParVec* FindInds(op::UnaryFunction* op);
+	pySpParVec Find(op::UnaryFunction* op);
+	pySpParVec __getitem__(op::UnaryFunction* op);
+	pyDenseParVec FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
 	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
 
 public:
-	static pyDenseParVec* range(int64_t howmany, int64_t start);
+	static pyDenseParVec range(int64_t howmany, int64_t start);
 	
 public:
 	// Functions from PyCombBLAS
-	pyDenseParVec* abs();
+	pyDenseParVec abs();
 	
 	pyDenseParVec& operator+=(double value);
-	pyDenseParVec* operator+(double value);
+	pyDenseParVec operator+(double value);
 	pyDenseParVec& operator-=(double value);
-	pyDenseParVec* operator-(double value);
+	pyDenseParVec operator-(double value);
 	
-	pyDenseParVec* __and__(const pyDenseParVec& other);
+	pyDenseParVec __and__(const pyDenseParVec& other);
 	
 	double __getitem__(int64_t key);
 	double __getitem__(double  key);
-	pyDenseParVec* __getitem__(const pyDenseParVec& key);
+	pyDenseParVec __getitem__(const pyDenseParVec& key);
 
 	void __setitem__(int64_t key, double value);
 	void __setitem__(double  key, double value);
@@ -343,15 +343,15 @@ class UnaryFunction {
 	}
 };
 
-UnaryFunction* set(double val);
-UnaryFunction* identity();
-UnaryFunction* safemultinv();
-UnaryFunction* abs();
-UnaryFunction* negate();
-UnaryFunction* bitwise_not();
-UnaryFunction* logical_not();
-UnaryFunction* totality();
-UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, UnaryFunction* runFalse);
+UnaryFunction set(double val);
+UnaryFunction identity();
+UnaryFunction safemultinv();
+UnaryFunction abs();
+UnaryFunction negate();
+UnaryFunction bitwise_not();
+UnaryFunction logical_not();
+UnaryFunction totality();
+UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
 
 class BinaryFunction {
 	protected:
@@ -369,39 +369,39 @@ class BinaryFunction {
 
 };
 
-BinaryFunction* plus();
-BinaryFunction* minus();
-BinaryFunction* multiplies();
-BinaryFunction* divides();
-BinaryFunction* modulus();
-BinaryFunction* fmod();
+BinaryFunction plus();
+BinaryFunction minus();
+BinaryFunction multiplies();
+BinaryFunction divides();
+BinaryFunction modulus();
+BinaryFunction fmod();
 
-BinaryFunction* max();
-BinaryFunction* min();
+BinaryFunction max();
+BinaryFunction min();
 
-BinaryFunction* bitwise_and();
-BinaryFunction* bitwise_or();
-BinaryFunction* bitwise_xor();
-BinaryFunction* logical_and();
-BinaryFunction* logical_or();
-BinaryFunction* logical_xor();
+BinaryFunction bitwise_and();
+BinaryFunction bitwise_or();
+BinaryFunction bitwise_xor();
+BinaryFunction logical_and();
+BinaryFunction logical_or();
+BinaryFunction logical_xor();
 
-BinaryFunction* equal_to();
-BinaryFunction* not_equal_to();
-BinaryFunction* greater();
-BinaryFunction* less();
-BinaryFunction* greater_equal();
-BinaryFunction* less_equal();
+BinaryFunction equal_to();
+BinaryFunction not_equal_to();
+BinaryFunction greater();
+BinaryFunction less();
+BinaryFunction greater_equal();
+BinaryFunction less_equal();
 
 
 // Glue functions
 
-UnaryFunction* bind1st(BinaryFunction* op, double val);
-UnaryFunction* bind2nd(BinaryFunction* op, double val);
-UnaryFunction* compose1(UnaryFunction* f, UnaryFunction* g); // h(x) is the same as f(g(x))
-UnaryFunction* compose2(BinaryFunction* f, UnaryFunction* g1, UnaryFunction* g2); // h(x) is the same as f(g1(x), g2(x))
-UnaryFunction* not1(UnaryFunction* f);
-BinaryFunction* not2(BinaryFunction* f);
+UnaryFunction bind1st(BinaryFunction& op, double val);
+UnaryFunction bind2nd(BinaryFunction& op, double val);
+UnaryFunction compose1(UnaryFunction& f, UnaryFunction& g); // h(x) is the same as f(g(x))
+UnaryFunction compose2(BinaryFunction& f, UnaryFunction& g1, UnaryFunction& g2); // h(x) is the same as f(g1(x), g2(x))
+UnaryFunction not1(UnaryFunction& f);
+BinaryFunction not2(BinaryFunction& f);
 
 } // namespace op
 

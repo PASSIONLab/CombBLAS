@@ -21,9 +21,9 @@ namespace op{
 	
 #define DECL_UNARY_FUNC(structname, name, operation)					\
 	DECL_UNARY_STRUCT(structname, operation)							\
-	UnaryFunction* name()												\
+	UnaryFunction name()												\
 	{																	\
-		return new UnaryFunction(new structname<doubleint>());			\
+		return UnaryFunction(new structname<doubleint>());			\
 	}																
 
 DECL_UNARY_FUNC(identity_s, identity, return x;)
@@ -48,9 +48,9 @@ struct set_s: public ConcreteUnaryFunction<T>
 	T value;
 };
 
-UnaryFunction* set(double val)
+UnaryFunction set(double val)
 {
-	return new UnaryFunction(new set_s<doubleint>(doubleint(val)));
+	return UnaryFunction(new set_s<doubleint>(doubleint(val)));
 }
 
 template<typename T>
@@ -63,8 +63,8 @@ struct safemultinv_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* safemultinv() {
-	return new UnaryFunction(new safemultinv_s<doubleint>());
+UnaryFunction safemultinv() {
+	return UnaryFunction(new safemultinv_s<doubleint>());
 }
 
 //// ifthenelse
@@ -85,9 +85,9 @@ struct ifthenelse_s: public ConcreteUnaryFunction<T>
 	} 
 };
 
-UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, UnaryFunction* runFalse)
+UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse)
 {
-	return new UnaryFunction(new ifthenelse_s<doubleint>(predicate->op, runTrue->op, runFalse->op));
+	return UnaryFunction(new ifthenelse_s<doubleint>(predicate.op, runTrue.op, runFalse.op));
 }
 
 /**************************\
@@ -106,9 +106,9 @@ UnaryFunction* ifthenelse(UnaryFunction* predicate, UnaryFunction* runTrue, Unar
 	
 #define DECL_BINARY_FUNC(structname, name, as, com, operation)			\
 	DECL_BINARY_STRUCT(structname, operation)							\
-	BinaryFunction* name()												\
+	BinaryFunction name()												\
 	{																	\
-		return new BinaryFunction(new structname<doubleint>(), as, com);	\
+		return BinaryFunction(new structname<doubleint>(), as, com);	\
 	}																
 
 
@@ -171,16 +171,14 @@ struct bind_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* bind1st(BinaryFunction* op, double val)
+UnaryFunction bind1st(BinaryFunction& op, double val)
 {
-	return new UnaryFunction(new bind_s<doubleint>(op->op, 1, doubleint(val)));
-	//return new UnaryFunction(bind1st(op->op, val));
+	return UnaryFunction(new bind_s<doubleint>(op.op, 1, doubleint(val)));
 }
 
-UnaryFunction* bind2nd(BinaryFunction* op, double val)
+UnaryFunction bind2nd(BinaryFunction& op, double val)
 {
-	return new UnaryFunction(new bind_s<doubleint>(op->op, 2, doubleint(val)));
-	//return new UnaryFunction(bind2nd(op->op, val));
+	return UnaryFunction(new bind_s<doubleint>(op.op, 2, doubleint(val)));
 }
 
 // COMPOSE
@@ -200,10 +198,10 @@ struct compose1_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* compose1(UnaryFunction* f, UnaryFunction* g) // h(x) is the same as f(g(x))
+UnaryFunction compose1(UnaryFunction& f, UnaryFunction& g) // h(x) is the same as f(g(x))
 {
 	//return new UnaryFunction(compose1(f->op, g->op));
-	return new UnaryFunction(new compose1_s<doubleint>(f->op, g->op));
+	return UnaryFunction(new compose1_s<doubleint>(f.op, g.op));
 }
 
 
@@ -221,10 +219,10 @@ struct compose2_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* compose2(BinaryFunction* f, UnaryFunction* g1, UnaryFunction* g2) // h(x) is the same as f(g1(x), g2(x))
+UnaryFunction compose2(BinaryFunction& f, UnaryFunction& g1, UnaryFunction& g2) // h(x) is the same as f(g1(x), g2(x))
 {
 	//return new BinaryFunction(compose2(f->op, g1->op, g2->op));
-	return new UnaryFunction(new compose2_s<doubleint>(f->op, g1->op, g2->op));
+	return UnaryFunction(new compose2_s<doubleint>(f.op, g1.op, g2.op));
 }
 
 // NOT
@@ -245,9 +243,9 @@ struct unary_not_s : public ConcreteUnaryFunction<T>
 	}
 };
 
-UnaryFunction* not1(UnaryFunction* f)
+UnaryFunction not1(UnaryFunction& f)
 {
-	return new UnaryFunction(new unary_not_s<doubleint>(f->op));
+	return UnaryFunction(new unary_not_s<doubleint>(f.op));
 }
 
 
@@ -264,9 +262,9 @@ struct binary_not_s : public ConcreteBinaryFunction<T>
 	}
 };
 
-BinaryFunction* not2(BinaryFunction* f)
+BinaryFunction not2(BinaryFunction& f)
 {
-	return new BinaryFunction(new binary_not_s<doubleint>(f->op), f->associative, f->commutable);
+	return BinaryFunction(new binary_not_s<doubleint>(f.op), f.associative, f.commutable);
 }
 
 /**************************\
