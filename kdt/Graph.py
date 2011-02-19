@@ -123,41 +123,49 @@ class ParVec:
 		return ret
 
 	def __add__(self, other):
+		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
-			ret = ParVec(-1)
-			ret = self.copy()
 			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other))
 			return ret
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		if isinstance(other,SpParVec):
-			ret = other + self;	# SPV = SPV + DPV
-		else:	#elif  instance(other,ParVec):
-			ret = ParVec(-1)
-			ret.dpv = self.dpv + other.dpv
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			if isinstance(other, ParVec):
+				ret.dpv.EWiseApply(other.dpv,pcb.plus())
+			else:
+				ret.dpv.EWiseApply(other.spv,pcb.plus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
 	def __and__(self, other):
+		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
-			ret = self.copy()
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_and(), other))
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret = ParVec(-1)
-			ret.dpv = self.dpv & other.dpv
+			ret.dpv.EWiseApply(other.dpv,pcb.logical_and())
 		return ret
 
 	def __div__(self, other):
 		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
+			if other==0 or other==0.0:
+				raise ZeroDivisionError
 			ret.dpv.Apply(pcb.bind2nd(pcb.divides(), other))
-		else:
+			return ret
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
 			if (other==0).any():
 				raise ZeroDivisionError
-			ret.dpv.EWiseApply(other.dpv, pcb.divides())
+			if isinstance(other, ParVec):
+				ret.dpv.EWiseApply(other.dpv,pcb.divides())
+			else:
+				ret.dpv.EWiseApply(other.spv,pcb.divides())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
 	def __eq__(self, other):
@@ -167,7 +175,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv = self.dpv == other.dpv
+			ret.dpv.EWiseApply(other.dpv,pcb.equal_to())
 		return ret
 
 	def __getitem__(self, key):
@@ -204,8 +212,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv -= other.dpv
-			ret.dpv.Apply(pcb.bind2nd(pcb.greater_equal(), int(0)))
+			ret.dpv.EWiseApply(other.dpv,pcb.greater_equal())
 		return ret
 
 	def __gt__(self, other):
@@ -215,30 +222,36 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv -= other.dpv
-			ret.dpv.Apply(pcb.bind2nd(pcb.greater(), int(0)))
+			ret.dpv.EWiseApply(other.dpv,pcb.greater())
 		return ret
 
 	def __iadd__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.dpv.Apply(pcb.bind2nd(pcb.plus(), other))
-		elif isinstance(other,ParVec):
+			return 
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			#ToDo:  need to test that self and other are distinct
-			#    += doesn't work if same array on both sides
-			self.dpv += other.dpv
-		elif isinstance(other,SpParVec):
-			raise NotImplementedError, 'ParVec += SpParVec not implemented'
+			if isinstance(other, ParVec):
+				self.dpv.EWiseApply(other.dpv,pcb.plus())
+			else:
+				self.dpv.EWiseApply(other.spv,pcb.plus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
 
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other))
-		else:
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			self.dpv *= other.dpv
+			if isinstance(other, ParVec):
+				self.dpv.EWiseApply(other.dpv,pcb.multiplies())
+			else:
+				self.dpv.EWiseApply(other.spv,pcb.multiplies())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
 
 	def __invert__(self):
@@ -251,12 +264,15 @@ class ParVec:
 	def __isub__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.dpv.Apply(pcb.bind2nd(pcb.minus(), other))
-		elif isinstance(other,ParVec):
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			self.dpv -= other.dpv
-		elif isinstance(other,SpParVec):
-			raise NotImplementedError, 'ParVec -= SpParVec not implemented'
+			if isinstance(other, ParVec):
+				self.dpv.EWiseApply(other.dpv,pcb.minus())
+			else:
+				self.dpv.EWiseApply(other.spv,pcb.minus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
 
 	def __le__(self, other):
@@ -266,8 +282,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv -= other.dpv
-			ret.dpv.Apply(pcb.bind2nd(pcb.less_equal(), int(0)))
+			ret.dpv.EWiseApply(other.dpv,pcb.less_equal())
 		return ret
 
 	def __len__(self):
@@ -280,30 +295,41 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv -= other.dpv
-			ret.dpv.Apply(pcb.bind2nd(pcb.less(), int(0)))
+			ret.dpv.EWiseApply(other.dpv,pcb.less())
 		return ret
 
 	def __mod__(self, other):
 		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
+			if other==0 or other==0.0:
+				raise ZeroDivisionError
 			ret.dpv.Apply(pcb.bind2nd(pcb.modulus(), other))
-		else:
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
 			if (other==0).any():
 				raise ZeroDivisionError
-			ret.dpv.EWiseApply(other.dpv, pcb.modulus())
+			if isinstance(other, ParVec):
+				ret.dpv.EWiseApply(other.dpv,pcb.modulus())
+			else:
+				ret.dpv.EWiseApply(other.spv,pcb.modulus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
 	def __mul__(self, other):
 		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other))
-		else:
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv = other.dpv * self.dpv
+			if isinstance(other, ParVec):
+				ret.dpv.EWiseApply(other.dpv,pcb.multiplies())
+			else:
+				ret.dpv.EWiseApply(other.spv,pcb.multiplies())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
 	def __ne__(self, other):
@@ -313,31 +339,62 @@ class ParVec:
 		else:	
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret.dpv = self.dpv != other.dpv
+			ret.dpv.EWiseApply(other.dpv,pcb.not_equal_to())
 		return ret
 
 	def __neg__(self):
-		ret = ParVec(len(self)) - self
+		ret = self.copy()
+		ret.dpv.Apply(pcb.negate())
 		return ret
 
 	def __or__(self, other):
+		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
-			ret = self.copy()
 			ret.dpv.Apply(pcb.bind2nd(pcb.logical_or(), other))
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret = ParVec.zeros(len(self))
-			tmp1 = self.copy()
-			tmp1 += other
-			tmp2 = SpParVec.toSpParVec(tmp1.dpv.Find(pcb.bind2nd(pcb.greater(),0)))
-			ret[tmp2] = 1
+			ret.dpv.EWiseApply(other.dpv,pcb.logical_or())
+		return ret
+
+	def __radd__(self, other):
+		ret = self.copy()
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret.dpv.Apply(pcb.bind2nd(pcb.plus(), other))
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
+		return ret
+
+	def __rdiv__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			if (self == 0).any():
+				raise ZeroDivisionError
+			ret = ParVec.zeros(len(self)) + other
+			ret.dpv.EWiseApply(self.dpv, pcb.divides())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
+		return ret
+	def __rmul__(self, other):
+		ret = self.copy()
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret.dpv.Apply(pcb.bind2nd(pcb.multiplies(), other))
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
 	def __repr__(self):
-		#ToDo:  print only part/none of the data for large vectors
+		##ToDo:  print only part/none of the data for large vectors
 		self.dpv.printall()
 		return ' '
+
+	def __rsub__(self, other):
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret = ParVec.zeros(len(self)) + other
+			
+			ret.dpv.EWiseApply(self.dpv, pcb.minus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
+		return ret
 
 	def __setitem__(self, key, value):
 		if type(key) == int or type(key) == long or type(key) == float:
@@ -372,34 +429,44 @@ class ParVec:
 			
 
 	def __sub__(self, other):
+		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
-			ret = ParVec(-1)
-			ret = self.copy()
 			ret.dpv.Apply(pcb.bind2nd(pcb.minus(), other))
-			return ret
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		if isinstance(other,SpParVec):
-			raise NotImplementedError, 'ParVec - SpParVec not supported'
-		else:	#elif isinstance(other,ParVec):
-			ret = ParVec(-1)
-			ret.dpv = self.dpv - other.dpv
+		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			if isinstance(other, ParVec):
+				ret.dpv.EWiseApply(other.dpv,pcb.minus())
+			else:
+				ret.dpv.EWiseApply(other.spv,pcb.minus())
+		else:
+			raise NotImplementedError, 'unimplemented type for 2nd operand'
+		return ret
+
+	def __xor__(self, other):
+		ret = self.copy()
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret.dpv.Apply(pcb.bind2nd(pcb.logical_or(), other))
+		else: 	#elif isinstance(other,ParVec):
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			ret.dpv.EWiseApply(other.dpv,pcb.logical_xor())
 		return ret
 
 	def abs(self):
 		return abs(self)
 
 	def all(self):
-		ret = self.dpv.Count(pcb.identity()) == len(self)
+		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == len(self)
 		return ret
 
 	def allCloseToInt(self):
 		eps = float(np.finfo(np.float).eps)
-		ret = ((self % 1.0) < eps).all()
+		ret = (((self % 1.0) < eps) | ((1.0-(self % 1.0)) < eps)).all()
 		return ret
 
 	def any(self):
-		ret = self.dpv.any()
+		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) > 0
 		return ret
 
 	@staticmethod
@@ -416,9 +483,6 @@ class ParVec:
 		ret = ParVec(-1)
 		ret.dpv = self.dpv.copy()
 		return ret
-
-	def count(self):
-		return self.dpv.Count(pcb.identity())
 
 	def find(self):
 		ret = SpParVec(-1)
@@ -445,27 +509,28 @@ class ParVec:
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
-	#FIX:  "logicalNot"?
 	def logical_not(self):
 		ret = self.copy()
 		ret.dpv.Apply(pcb.logical_not())
 		return ret
 
+	#ToDo:  avoid conversion to sparse when PV.max() /min avail
+
 	def max(self):
-		#ToDo:  avoid conversion to sparse when PV.max() avail
-		ret = self.dpv.sparse(np.nan).Reduce(pcb.max())
+		ret = self.dpv.Reduce(pcb.max(), pcb.identity())
 		return ret
 
 	def min(self):
-		#ToDo:  avoid conversion to sparse when PV.min() avail
-		ret = self.dpv.sparse(np.nan).Reduce(pcb.min())
+		ret = self.dpv.Reduce(pcb.min(), pcb.identity())
 		return ret
 
 	def nn(self):
-		return len(self) - self.dpv.getnnz()
+		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(),0), pcb.set(1), pcb.set(0)))
+		return ret
 
 	def nnn(self):
-		return self.dpv.getnnz()
+		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+		return ret
 
 	def norm(self,ord=None):
 		if ord==1:
@@ -508,18 +573,20 @@ class ParVec:
 		return ret
 	
 	def sum(self):
-		#ToDo: avoid converseion to sparse when PV.reduce() avail
-		return self.dpv.sparse(np.nan).Reduce(pcb.plus())
+		ret = self.dpv.Reduce(pcb.plus(), pcb.identity())
+		return ret
 
-	#TODO:  check for class being PyDenseParVec?
 	@staticmethod
 	def toParVec(DPV):
+		if not isinstance(DPV, pyDenseParVec):
+			raise TypeError, 'ParVec:toParVec only supported for pyDenseParVec input'
 		ret = ParVec(-1)
 		ret.dpv = DPV
 		return ret
 	
+	#ToDo:  allow user to pass/set null value
+
 	def toSpParVec(self):
-		#ToDo:  allow user to pass/set null value
 		ret = SpParVec(-1)
 		ret.spv = self.dpv.sparse()
 		return ret
