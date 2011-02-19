@@ -98,6 +98,7 @@ CombBLAS/Applications/compilertests/icc10.1-btwcent441 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
 CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
 CombBLAS/Applications/graph_p25_singleiter_scale21 -text
+CombBLAS/Applications/makefile-carver -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
 CombBLAS/Applications/makefile-nersc -text

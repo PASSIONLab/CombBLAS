@@ -6,5 +6,5 @@
 #PBS -V
 export CRAY_ROOTFS=DSL
 
-cd $SCRATCH
-aprun -n 1024 -a xt ./testscript.py 29
+cd $PBS_O_WORKDIR
+aprun -n 1024 python ./testscript.py 29
