@@ -49,6 +49,16 @@ unsigned int highestbitset(uint64_t v)
 	return r;
 }
 
+template <typename PARMAT>
+void Symmetricize(PARMAT & A)
+{
+	// boolean addition is practically a "logical or"
+	// therefore this doesn't destruct any links
+	PARMAT AT = A;
+	AT.Transpose();
+	A += AT;
+}
+
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
@@ -90,17 +100,12 @@ int main(int argc, char* argv[])
 			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// identity is 0 
 			delete G;
 
+			Symmetricize(A);	// A += A';
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 			A = A(nonisov, nonisov);
-
-			PSpMat_Bool AT = A;
-			AT.Transpose();
-			// boolean addition is practically a "logical or"
-			// therefore this doesn't destruct any links
-			A += AT;	// symmetricize
 		}
 		else 
 		{	
@@ -199,7 +204,9 @@ int main(int argc, char* argv[])
 			ostringstream loopinfo;
 			loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
 			SpParHelper::Print(loopinfo.str());
+			A.PrintInfo();
 
+			Symmetricize(A);	// A += A';
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
@@ -209,10 +216,6 @@ int main(int argc, char* argv[])
 			A = A(nonisov, nonisov);
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
-
-			PSpMat_Bool AT = A;
-			AT.Transpose();
-			A += AT;
 			
 			MPI::COMM_WORLD.Barrier();
 			double t2=MPI_Wtime();
