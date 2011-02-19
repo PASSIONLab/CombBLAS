@@ -15,10 +15,14 @@ pySpParVec::pySpParVec(int64_t size): v(size)
 {
 }
 
-pyDenseParVec* pySpParVec::dense() const
+pySpParVec::pySpParVec(VectType other): v(other)
 {
-	pyDenseParVec* ret = new pyDenseParVec(v.TotalLength(), 0);
-	ret->v += v;
+}
+
+pyDenseParVec pySpParVec::dense() const
+{
+	pyDenseParVec ret(v.TotalLength(), 0, v.GetZero());
+	ret.v += v;
 	return ret;
 }
 
@@ -30,7 +34,6 @@ int64_t pySpParVec::getnee() const
 int64_t pySpParVec::getnnz() const
 {
 	return v.Count(bind2nd(not_equal_to<doubleint>(), doubleint(0)));
-	//return v.getnnz();
 }
 
 int64_t pySpParVec::__len__() const
@@ -43,31 +46,31 @@ int64_t pySpParVec::len() const
 	return v.TotalLength();
 }
 
-pySpParVec* pySpParVec::operator+(const pySpParVec& other)
+pySpParVec pySpParVec::operator+(const pySpParVec& other)
 {
-	pySpParVec* ret = copy();
-	ret->operator+=(other);
+	pySpParVec ret = copy();
+	ret.operator+=(other);
 	return ret;
 }
 
-pySpParVec* pySpParVec::operator-(const pySpParVec& other)
+pySpParVec pySpParVec::operator-(const pySpParVec& other)
 {
-	pySpParVec* ret = copy();
-	ret->operator-=(other);
+	pySpParVec ret = copy();
+	ret.operator-=(other);
 	return ret;
 }
 
-pySpParVec* pySpParVec::operator+(const pyDenseParVec& other)
+pySpParVec pySpParVec::operator+(const pyDenseParVec& other)
 {
-	pySpParVec* ret = copy();
-	ret->operator+=(other);
+	pySpParVec ret = copy();
+	ret.operator+=(other);
 	return ret;
 }
 
-pySpParVec* pySpParVec::operator-(const pyDenseParVec& other)
+pySpParVec pySpParVec::operator-(const pyDenseParVec& other)
 {
-	pySpParVec* ret = copy();
-	ret->operator-=(other);
+	pySpParVec ret = copy();
+	ret.operator-=(other);
 	return ret;
 }
 
@@ -86,30 +89,27 @@ pySpParVec& pySpParVec::operator-=(const pySpParVec& other)
 
 pySpParVec& pySpParVec::operator+=(const pyDenseParVec& other)
 {
-	pyDenseParVec* tmpd = dense();
-	tmpd->v += other.v;
-	pySpParVec* tmps = tmpd->sparse();
-	this->v.stealFrom(tmps->v);
-	delete tmpd;
-	delete tmps;
+	pyDenseParVec tmpd = dense();
+	tmpd.v += other.v;
+	pySpParVec tmps = tmpd.sparse();
+	this->v.stealFrom(tmps.v);
 	return *this;
 }
 
 pySpParVec& pySpParVec::operator-=(const pyDenseParVec& other)
 {
-	pyDenseParVec* tmpd = dense();
-	tmpd->v -= other.v;
-	pySpParVec* tmps = tmpd->sparse();
-	this->v.stealFrom(tmps->v);
-	delete tmpd;
-	delete tmps;
+	pyDenseParVec tmpd = dense();
+	tmpd.v -= other.v;
+	pySpParVec tmps = tmpd.sparse();
+	this->v.stealFrom(tmps.v);
+
 	return *this;
 }
 
-pySpParVec* pySpParVec::copy()
+pySpParVec pySpParVec::copy()
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v;
+	pySpParVec ret(0);
+	ret.v = v;
 	return ret;
 }
 
@@ -151,16 +151,16 @@ int64_t pySpParVec::Count(op::UnaryFunction* op)
 }
 
 /*
-pySpParVec* pySpParVec::Find(op::UnaryFunction* op)
+pySpParVec pySpParVec::Find(op::UnaryFunction* op)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec ret;
 	ret->v = v.Find(*op);
 	return ret;
 }
 
-pyDenseParVec* pySpParVec::FindInds(op::UnaryFunction* op)
+pyDenseParVec pySpParVec::FindInds(op::UnaryFunction* op)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
+	pyDenseParVec ret = new pyDenseParVec();
 	ret->v = v.FindInds(*op);
 	return ret;
 }
@@ -177,11 +177,9 @@ void pySpParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
 */
 
 
-pySpParVec* pySpParVec::SubsRef(const pySpParVec& ri)
+pySpParVec pySpParVec::SubsRef(const pySpParVec& ri)
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v(ri.v);
-	return ret;
+	return pySpParVec(v(ri.v));
 }
 
 
@@ -202,26 +200,22 @@ double pySpParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 }
 
 
-pySpParVec* pySpParVec::Sort()
+pySpParVec pySpParVec::Sort()
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v.sort();
-	return ret;
+	pySpParVec ret(0);
+	ret.v = v.sort();
+	return ret; // Sort is in-place. The return value is the permutation used.
 }
 
-pySpParVec* pySpParVec::TopK(int64_t k)
+pySpParVec pySpParVec::TopK(int64_t k)
 {
-	FullyDistSpVec<INDEXTYPE, doubleint> sel(k);
+	VectType sel(k);
 	sel.iota(k, len()-k -1);
 
-	pySpParVec* sorted = copy();
-	sorted->v.sort();
+	pySpParVec sorted = copy();
+	sorted.v.sort();
 	
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = (sorted->v)(sel);
-	delete sorted;
-	
-	return ret;
+	return pySpParVec(v(sel));
 }
 
 void pySpParVec::setNumToInd()
@@ -229,12 +223,10 @@ void pySpParVec::setNumToInd()
 	v.setNumToInd();
 }
 
-pySpParVec* pySpParVec::abs()
+pySpParVec pySpParVec::abs()
 {
-	pySpParVec* ret = copy();
-	op::UnaryFunction* a = op::abs();
-	ret->Apply(a);
-	delete a;
+	pySpParVec ret = copy();
+	ret.Apply(&op::abs());
 	return ret;
 }
 
@@ -266,7 +258,7 @@ double pySpParVec::__getitem__(double key)
 	return __getitem__(static_cast<int64_t>(key));
 }
 
-pySpParVec* pySpParVec::__getitem__(const pySpParVec& key)
+pySpParVec pySpParVec::__getitem__(const pySpParVec& key)
 {
 	return SubsRef(key);
 }
@@ -320,16 +312,15 @@ char* pySpParVec::__repr__()
 }
 
 
-pySpParVec* pySpParVec::zeros(int64_t howmany)
+pySpParVec pySpParVec::zeros(int64_t howmany)
 {
-	pySpParVec* ret = new pySpParVec(howmany);
-	return ret;
+	return pySpParVec(howmany);
 }
 
-pySpParVec* pySpParVec::range(int64_t howmany, int64_t start)
+pySpParVec pySpParVec::range(int64_t howmany, int64_t start)
 {
-	pySpParVec* ret = new pySpParVec(howmany);
-	ret->v.iota(howmany, start-1);
+	pySpParVec ret(howmany);
+	ret.v.iota(howmany, start-1);
 	return ret;
 }
 

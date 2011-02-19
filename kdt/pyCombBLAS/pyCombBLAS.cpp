@@ -2,35 +2,29 @@
 
 ////////////////// OPERATORS
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
+pySpParVec EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)
 {
-	pySpParVec* ret = new pySpParVec();
+	pySpParVec ret;
 	//ret->v = ::EWiseMult(a.v, b.v, exclude);
 	cout << "EWiseMult(sparse, sparse) not implemented!" << endl;
 	return ret;
 }
 
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero)
+pySpParVec EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero)
 {
-	pySpParVec* ret = new pySpParVec();
+	/*
+	pySpParVec ret = new pySpParVec();
 	FullyDistSpVec<pySpParVec::INDEXTYPE, doubleint> result = EWiseMult(a.v, b.v, exclude, doubleint(zero));
 	ret->v.stealFrom(result);
 	return ret;
+	*/
+	return pySpParVec(EWiseMult(a.v, b.v, exclude, doubleint(zero)));
 }
 
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero)
 {
 	a.v = EWiseMult(a.v, b.v, exclude, doubleint(zero));
 }
-
-pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
-{
-	pySpParMat* ret = new pySpParMat();
-	//ret->A = EWiseMult<int64_t, int64_t, int64_t, SpDCCols<int64_t,int64_t>, SpDCCols<int64_t,int64_t> >(A1.A, A2.A, exclude);
-	ret->A = EWiseMult(A1.A, A2.A, exclude);
-	return ret;
-}
-
 
 ////////////////////////// INITALIZATION/FINALIZE
 

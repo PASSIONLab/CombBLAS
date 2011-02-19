@@ -8,7 +8,11 @@ pySpParMat::pySpParMat()
 {
 }
 
-pySpParMat::pySpParMat(pySpParMat* copyFrom): A(copyFrom->A)
+pySpParMat::pySpParMat(const pySpParMat& copyFrom): A(copyFrom.A)
+{
+}
+
+pySpParMat::pySpParMat(MatType other): A(other)
 {
 }
 
@@ -28,19 +32,9 @@ int64_t pySpParMat::getnnz()
 {
 	// actually count the number of nonzeros
 
-	op::BinaryFunction *p = op::plus();
-	op::BinaryFunction *ne = op::not_equal_to();
-	op::UnaryFunction *ne0 = op::bind2nd(ne, 0);
-	pyDenseParVec* colsums = Reduce(Column(), p, ne0, 0);
-
-	int64_t ret = static_cast<int64_t>(colsums->Reduce(p));
-
-	delete colsums;
-	delete ne0;
-	delete ne;
-	delete p;
-	
-	return ret;
+	op::BinaryFunction ne = op::not_equal_to();
+	op::UnaryFunction ne0 = op::bind2nd(ne, 0);
+	return Count(&ne0);
 }
 
 int64_t pySpParMat::getnrow()
@@ -149,10 +143,9 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	return k1time;
 }
 */
-pySpParMat* pySpParMat::copy()
+pySpParMat pySpParMat::copy()
 {
-	pySpParMat* ret = new pySpParMat(this);
-	return ret;
+	return pySpParMat(*this);
 }
 
 pySpParMat& pySpParMat::operator+=(const pySpParMat& other)
@@ -167,29 +160,24 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 	return *this;
 }
 
-pySpParMat* pySpParMat::operator*(const pySpParMat& other)
+pySpParMat pySpParMat::operator*(const pySpParMat& other)
 {
 	return SpMM(other);
 }
 
-pySpParMat* pySpParMat::SpMM(const pySpParMat& other)
+pySpParMat pySpParMat::SpMM(const pySpParMat& other)
 {
-	pySpParMat* ret = new pySpParMat();
-	ret->A = Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A);
-	return ret;
+	return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
 }
 
-pySpParMat* pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const
 {
 	return SubsRef(rows, cols);
 }
 
-pySpParMat* pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMat pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
 {
-	pySpParMat* ret = new pySpParMat();
-	//cout << "pySpParMat.SubsRef() not implemented" << endl; //ret->A = A(rows.v, cols.v);
-	ret->A = A(rows.v, cols.v);
-	return ret;
+	return pySpParMat(A(rows.v, cols.v));
 }
 	
 int64_t pySpParMat::removeSelfLoops()
@@ -207,12 +195,14 @@ void pySpParMat::ColWiseApply(const pySpParVec& values, op::BinaryFunction* f)
 	::ColWiseApply(A, values.v, *f);
 }
 
-
-pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
+pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
 {
-	pySpParMat* ret = new pySpParMat();
-	ret->A = EWiseApply(A.A, B.A, *bf, notB, doubleint(defaultBValue));
-	return ret;
+	return pySpParMat(EWiseMult(A1.A, A2.A, exclude));
+}
+
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
+{
+	return pySpParMat(EWiseApply(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
 }
 
 void pySpParMat::Prune(op::UnaryFunction* op)
@@ -223,24 +213,17 @@ void pySpParMat::Prune(op::UnaryFunction* op)
 int64_t pySpParMat::Count(op::UnaryFunction* pred)
 {
 	// use Reduce to count along the columns, then reduce the result vector into one value
-	op::BinaryFunction *p = op::plus();
-	pyDenseParVec* colsums = Reduce(Column(), p, pred, 0);
-
-	int64_t ret = static_cast<int64_t>(colsums->Reduce(p));
-
-	delete colsums;
-	delete p;
-	
-	return ret;
+	op::BinaryFunction p = op::plus();
+	return static_cast<int64_t>(Reduce(Column(), &p, pred, 0).Reduce(&p));
 }
 
 	
-pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* f, double identity)
+pyDenseParVec pySpParMat::Reduce(int dim, op::BinaryFunction* f, double identity)
 {
 	return Reduce(dim, f, NULL, identity);
 }
 
-pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity)
+pyDenseParVec pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity)
 {
 	int64_t len = 1;
 	if (dim == ::Row)
@@ -248,13 +231,13 @@ pyDenseParVec* pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunc
 	else
 		len = getncol();
 		
-	pyDenseParVec* ret = new pyDenseParVec(len, identity, identity);
+	pyDenseParVec ret(len, identity, identity);
 
 	bf->getMPIOp();
 	if (uf == NULL)
-		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity));
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity));
 	else
-		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity), *uf);
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity), *uf);
 	bf->releaseMPIOp();
 	
 	return ret;
@@ -279,24 +262,19 @@ void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDensePar
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-pySpParVec* pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
+pySpParVec pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
-	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	ret->v.stealFrom(result);
-	return ret;
+	return pySpParVec( SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
 }
 
-pySpParVec* pySpParMat::SpMV_SelMax(const pySpParVec& x)
+pySpParVec pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
-	pySpParVec* ret = new pySpParVec();
-	FullyDistSpVec<INDEXTYPE, doubleint> result = SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
-	ret->v.stealFrom(result);
-	return ret;
+	return pySpParVec( SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
 }
 
 void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
 {
 	x.v = SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 }
+
 

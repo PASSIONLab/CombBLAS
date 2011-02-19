@@ -7,6 +7,10 @@ pyDenseParVec::pyDenseParVec()
 {
 }
 
+pyDenseParVec::pyDenseParVec(VectType other): v(other)
+{
+}
+
 pyDenseParVec::pyDenseParVec(int64_t size, double id): v(size, id, 0)
 {
 }
@@ -16,19 +20,14 @@ pyDenseParVec::pyDenseParVec(int64_t size, double init, double zero): v(size, in
 }
 
 
-pySpParVec* pyDenseParVec::sparse() const
+pySpParVec pyDenseParVec::sparse() const
 {
-	pySpParVec* ret = new pySpParVec(0);
-	ret->v = v.Find(bind2nd(not_equal_to<doubleint>(), doubleint(0)));
-	return ret;
+	return pySpParVec(v.Find(bind2nd(not_equal_to<doubleint>(), doubleint(0))));
 }
 
-pySpParVec* pyDenseParVec::sparse(double zero) const
+pySpParVec pyDenseParVec::sparse(double zero) const
 {
-	pySpParVec* ret = new pySpParVec(0);
-	
-	ret->v = v.Find(bind2nd(not_equal_to<doubleint>(), doubleint(zero)));
-	return ret;
+	return pySpParVec(v.Find(bind2nd(not_equal_to<doubleint>(), doubleint(zero))));
 }
 
 int64_t pyDenseParVec::len() const
@@ -101,73 +100,69 @@ pyDenseParVec& pyDenseParVec::operator*=(const pySpParVec & rhs)
 //	return *this;
 //}
 
-pyDenseParVec* pyDenseParVec::operator+(const pyDenseParVec & rhs)
+pyDenseParVec pyDenseParVec::operator+(const pyDenseParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) += rhs;	
+	pyDenseParVec ret = this->copy();
+	ret += rhs;	
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator-(const pyDenseParVec & rhs)
+pyDenseParVec pyDenseParVec::operator-(const pyDenseParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) -= rhs;	
+	pyDenseParVec ret = this->copy();
+	ret -= rhs;	
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator+(const pySpParVec & rhs)
+pyDenseParVec pyDenseParVec::operator+(const pySpParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) += rhs;	
+	pyDenseParVec ret = this->copy();
+	ret += rhs;	
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator-(const pySpParVec & rhs)
+pyDenseParVec pyDenseParVec::operator-(const pySpParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) -= rhs;	
+	pyDenseParVec ret = this->copy();
+	ret -= rhs;	
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator*(const pyDenseParVec & rhs)
+pyDenseParVec pyDenseParVec::operator*(const pyDenseParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) *= rhs;	
+	pyDenseParVec ret = this->copy();
+	ret *= rhs;	
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator*(const pySpParVec & rhs)
+pyDenseParVec pyDenseParVec::operator*(const pySpParVec & rhs)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) *= rhs;	
+	pyDenseParVec ret = this->copy();
+	ret *= rhs;	
 	return ret;
 }
 
 
-pyDenseParVec* pyDenseParVec::operator==(const pyDenseParVec & rhs)
+pyDenseParVec pyDenseParVec::operator==(const pyDenseParVec & rhs)
 {
 	//return v.operator==(rhs.v);
-	pyDenseParVec* ret = copy();
-	op::BinaryFunction* eq = op::equal_to();
-	ret->EWiseApply(rhs, eq);
-	delete eq;
+	pyDenseParVec ret = copy();
+	ret.EWiseApply(rhs, &op::equal_to());
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::operator!=(const pyDenseParVec & rhs)
+pyDenseParVec pyDenseParVec::operator!=(const pyDenseParVec & rhs)
 {
 	//return !(v.operator==(rhs.v));
-	pyDenseParVec* ret = copy();
-	op::BinaryFunction* neq = op::not_equal_to();
-	ret->EWiseApply(rhs, neq);
-	delete neq;
+	pyDenseParVec ret = copy();
+	ret.EWiseApply(rhs, &op::not_equal_to());
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::copy()
+pyDenseParVec pyDenseParVec::copy()
 {
-	pyDenseParVec* ret = new pyDenseParVec();
-	ret->v = v;
+	pyDenseParVec ret;
+	ret.v = v;
 	return ret;
 }
 
@@ -194,25 +189,21 @@ double pyDenseParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	return ret;
 }
 
-pySpParVec* pyDenseParVec::Find(op::UnaryFunction* op)
+pySpParVec pyDenseParVec::Find(op::UnaryFunction* op)
 {
-	pySpParVec* ret = new pySpParVec();
-	ret->v = v.Find(*op);
-	return ret;
+	return pySpParVec(v.Find(*op));
 }
-pySpParVec* pyDenseParVec::__getitem__(op::UnaryFunction* op)
+pySpParVec pyDenseParVec::__getitem__(op::UnaryFunction* op)
 {
 	return Find(op);
 }
 
-pyDenseParVec* pyDenseParVec::FindInds(op::UnaryFunction* op)
+pyDenseParVec pyDenseParVec::FindInds(op::UnaryFunction* op)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
+	pyDenseParVec ret;
 	
 	FullyDistVec<INDEXTYPE, INDEXTYPE> fi_ret = v.FindInds(*op);
-	ret->v = fi_ret;
-	//ret->v = v.FindInds(*op);
-	//cout << "FindInds commented out " << endl;
+	ret.v = fi_ret;
 	return ret;
 }
 
@@ -236,13 +227,10 @@ void pyDenseParVec::EWiseApply(const pySpParVec& other, op::BinaryFunction *f, b
 	v.EWiseApply(other.v, *f, doNulls, nullValue);
 }
 	
-pyDenseParVec* pyDenseParVec::SubsRef(const pyDenseParVec& ri)
+pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
 	FullyDistVec<INDEXTYPE, INDEXTYPE> indexv = ri.v;
-	ret->v = v(indexv);
-	//cout << "SubsRef commented out " << endl;
-	return ret;
+	return pyDenseParVec(v(indexv));
 }
 
 int64_t pyDenseParVec::getnee() const
@@ -275,12 +263,10 @@ void pyDenseParVec::printall()
 	v.DebugPrint();
 }
 
-pyDenseParVec* pyDenseParVec::abs()
+pyDenseParVec pyDenseParVec::abs()
 {
-	pyDenseParVec* ret = copy();
-	op::UnaryFunction* a = op::abs();
-	ret->Apply(a);
-	delete a;
+	pyDenseParVec ret = copy();
+	ret.Apply(&op::abs());
 	return ret;
 }
 
@@ -290,10 +276,10 @@ pyDenseParVec& pyDenseParVec::operator+=(double value)
 	return *this;
 }
 
-pyDenseParVec* pyDenseParVec::operator+(double value)
+pyDenseParVec pyDenseParVec::operator+(double value)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) += value;
+	pyDenseParVec ret = this->copy();
+	ret += value;
 	return ret;
 }
 
@@ -303,19 +289,17 @@ pyDenseParVec& pyDenseParVec::operator-=(double value)
 	return *this;
 }
 
-pyDenseParVec* pyDenseParVec::operator-(double value)
+pyDenseParVec pyDenseParVec::operator-(double value)
 {
-	pyDenseParVec* ret = this->copy();
-	*(ret) -= value;
+	pyDenseParVec ret = this->copy();
+	ret -= value;
 	return ret;
 }
 
-pyDenseParVec* pyDenseParVec::__and__(const pyDenseParVec& other)
+pyDenseParVec pyDenseParVec::__and__(const pyDenseParVec& other)
 {
-	pyDenseParVec* ret = copy();
-	op::BinaryFunction* a = op::logical_and();
-	ret->EWiseApply(other, a);
-	delete a;
+	pyDenseParVec ret = copy();
+	ret.EWiseApply(other, &op::logical_and());
 	return ret;
 }
 
@@ -329,7 +313,7 @@ double pyDenseParVec::__getitem__(double  key)
 	return v.GetElement(static_cast<int64_t>(key));
 }
 
-pyDenseParVec* pyDenseParVec::__getitem__(const pyDenseParVec& key)
+pyDenseParVec pyDenseParVec::__getitem__(const pyDenseParVec& key)
 {
 	return SubsRef(key);
 }
@@ -356,10 +340,10 @@ void pyDenseParVec::__setitem__(const pySpParVec& key, double value)
 }
 
 
-pyDenseParVec* pyDenseParVec::range(int64_t howmany, int64_t start)
+pyDenseParVec pyDenseParVec::range(int64_t howmany, int64_t start)
 {
-	pyDenseParVec* ret = new pyDenseParVec();
-	ret->v.iota(howmany, start-1);
+	pyDenseParVec ret;
+	ret.v.iota(howmany, start-1);
 	return ret;
 }
 

@@ -9,24 +9,26 @@ class pySpParVec {
 protected:
 
 	typedef int64_t INDEXTYPE;
-	FullyDistSpVec<INDEXTYPE, doubleint> v;
+	typedef FullyDistSpVec<INDEXTYPE, doubleint> VectType;
+	VectType v;
 	
 	friend class pySpParMat;
 	friend class pySpParMatBool;
 	friend class pyDenseParVec;
 	
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-	friend pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+	friend pySpParVec EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+	friend pySpParVec EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 	pySpParVec(); // used for initializing temporaries to be returned
+	pySpParVec(VectType other);
 
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
 public:
 	pySpParVec(int64_t length);
 	
-	pyDenseParVec* dense() const;
+	pyDenseParVec dense() const;
 
 public:
 	int64_t getnee() const;
@@ -34,16 +36,16 @@ public:
 	int64_t __len__() const;
 	int64_t len() const;
 
-	pySpParVec* operator+(const pySpParVec& other);
-	pySpParVec* operator-(const pySpParVec& other);
-	pySpParVec* operator+(const pyDenseParVec& other);
-	pySpParVec* operator-(const pyDenseParVec& other);
+	pySpParVec operator+(const pySpParVec& other);
+	pySpParVec operator-(const pySpParVec& other);
+	pySpParVec operator+(const pyDenseParVec& other);
+	pySpParVec operator-(const pyDenseParVec& other);
 
 	pySpParVec& operator+=(const pySpParVec& other);
 	pySpParVec& operator-=(const pySpParVec& other);
 	pySpParVec& operator+=(const pyDenseParVec& other);
 	pySpParVec& operator-=(const pyDenseParVec& other);
-	pySpParVec* copy();
+	pySpParVec copy();
 
 public:	
 	bool any() const; // any nonzeros
@@ -59,33 +61,33 @@ public:
 public:
 	// The functions commented out here presently do not exist in CombBLAS
 	int64_t Count(op::UnaryFunction* op);
-	//pySpParVec* Find(op::UnaryFunction* op);
-	//pyDenseParVec* FindInds(op::UnaryFunction* op);
+	//pySpParVec Find(op::UnaryFunction* op);
+	//pyDenseParVec FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
 	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 
-	pySpParVec* SubsRef(const pySpParVec& ri);
+	pySpParVec SubsRef(const pySpParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
-	pySpParVec* Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	pySpParVec* TopK(int64_t k); // Returns a vector of the k largest elements.
+	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pySpParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
 public:
-	static pySpParVec* zeros(int64_t howmany);
-	static pySpParVec* range(int64_t howmany, int64_t start);
+	static pySpParVec zeros(int64_t howmany);
+	static pySpParVec range(int64_t howmany, int64_t start);
 	
 public:
 	// Functions from PyCombBLAS
-	pySpParVec* abs();
+	pySpParVec abs();
 	void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
 	double __getitem__(int64_t key);
 	double __getitem__(double  key);
-	pySpParVec* __getitem__(const pySpParVec& key);
+	pySpParVec __getitem__(const pySpParVec& key);
 	
 	void __setitem__(int64_t key, double value);
 	void __setitem__(double  key, double value);
@@ -103,8 +105,8 @@ public:
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
 
-//pySpParVec* EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
-pySpParVec* EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
+//pySpParVec EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude);
+pySpParVec EWiseMult(const pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 

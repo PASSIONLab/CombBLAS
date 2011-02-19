@@ -18,11 +18,10 @@ public:
 	typedef SpParMat < INDEXTYPE, doubleint, DCColsType > PSpMat_DoubleInt;
 	typedef PSpMat_DoubleInt MatType;
 	
-protected:
+public:
 	
-	friend class pySpParVec;
-	
-	pySpParMat(pySpParMat* copyFrom);
+	pySpParMat(MatType other);
+	pySpParMat(const pySpParMat& copyFrom);
 
 public:
 	MatType A;
@@ -47,13 +46,13 @@ public:
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
-	pySpParMat* copy();
+	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat* SpMM(const pySpParMat& other);
-	pySpParMat* operator*(const pySpParMat& other);
-	pySpParMat* SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
-	pySpParMat* __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat SpMM(const pySpParMat& other);
+	pySpParMat operator*(const pySpParMat& other);
+	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
 	
 	int64_t removeSelfLoops();
 	
@@ -63,16 +62,16 @@ public:
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* f, double identity = 0);
-	pyDenseParVec* Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
+	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
 	
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec* SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec* SpMV_SelMax(const pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
+	pySpParVec SpMV_SelMax(const pySpParVec& v);
 	void SpMV_SelMax_inplace(pySpParVec& v);
 	
 public:
@@ -80,8 +79,8 @@ public:
 	static int Row() { return ::Row; }
 };
 
-pySpParMat* EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
-pySpParMat* EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 //INTERFACE_INCLUDE_END
 
