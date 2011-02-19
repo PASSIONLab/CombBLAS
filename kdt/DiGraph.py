@@ -618,7 +618,7 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  DiGraph.__getitem__
 		"""
-		if ndx2 == None:
+		if type(ndx2) == type(None) and (ndx2 == None):
 			ndx2 = ndx1
 		ret = self[ndx1, ndx2]
 		return ret
