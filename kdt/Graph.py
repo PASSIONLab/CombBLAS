@@ -48,13 +48,46 @@ class Graph:
                 return ret
 
 	def nedge(self):
+		"""
+		returns the number of edges in the Graph instance, including 
+		edges with zero weight.
+		"""
 		return self.spm.getnnz()
 
 	def nvert(self):
 		return self.spm.getnrow()
 
 	# works in place, so no return value
-	def spones(self):		
+	def ones(self):		
+		"""
+		sets every edge in the Graph to the value 1.
+
+		Input Argument:
+			self:  a Graph instance, modified in place.
+
+		Output Argument:  
+			None.
+
+		SEE ALSO:  set
+		"""
+		self.spm.Apply(pcb.set(1))
+		return
+
+	# works in place, so no return value
+	def set(self, value):		
+		"""
+		sets every edge in the Graph to the passed value.
+
+		Input Argument:
+			self:  a Graph instance, modified in place.
+			value:  a scalar integer or double-precision floating-
+			    point value.
+
+		Output Argument:  
+			None.
+
+		SEE ALSO:  ones
+		"""
 		self.spm.Apply(pcb.set(1))
 		return
 

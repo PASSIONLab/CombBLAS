@@ -35,6 +35,23 @@ class feedback:
 	
 	@staticmethod
 	def sendFeedback(nlines=_kdt_Nlines2Send,addr=_kdt_Alias):
+		"""
+		sends feedback to KDT developers, consisting of the last several lines
+		of input from the user (possibly edited by an external program).
+	
+		sendFeedback only works when IPython is the Python language processor
+		used to execute KDT.  It places the last several lines of user input,
+		places them into a temporary file, gives the user the chance to edit
+		the file to add any other relevant information, then emails the file
+		to the KDT feedback alias.
+	
+		Input Arguments:  
+			nlines:  an optional argument denoting the number of prior 
+			    lines of input to send, default 30.
+			addr:  an optinal argument denoting the email address to which 
+			    to send feedback, default
+			    kdt-suggestions@lists.sourceforge.net.
+		"""
 		if feedback.IPYTHON_ACTIVE:
 			if not os.path.exists(feedback._kdt_LogFname) or not os.path.isfile(feedback._kdt_LogFname):
 				print "logging apparently not enabled for KDT"

@@ -3,18 +3,47 @@ import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
 import Graph as gr
+import feedback 
 
 class DiGraph(gr.Graph):
-
-	def toBool(self):
-		if isinstance(self.spm, pcb.pySpParMat):
-			self.spm = pcb.pySpParMatBool(self.spm)
-
-	#print "in DiGraph"
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
 	def __init__(self,*args):
+		"""
+		creates a new DiGraph instance.  Can be called in one of the 
+		following forms:
+
+	DiGraph():  creates a DiGraph instance with no vertices or edges.  Useful as input for genGraph500Edges.
+
+	DiGraph(sourceV, destV, weightV, n)
+	DiGraph(sourceV, destV, weightV, n, m)
+		create a DiGraph Instance with edges with source represented by 
+		each element of sourceV and destination represented by each 
+		element of destV with weight represented by each element of 
+		weightV.  In the 4-argument form, the resulting DiGraph will 
+		have n out- and in-vertices.  In the 5-argument form, the 
+		resulting DiGraph will have n out-vertices and m in-vertices.
+
+		Input Arguments:
+			sourceV:  a ParVec containing integers denoting the 
+			    source vertex of each edge.
+			destV:  a ParVec containing integers denoting the 
+			    destination vertex of each edge.
+			weightV:  a ParVec containing double-precision floating-
+			    point numbers denoting the weight of each edge.
+			n:  an integer scalar denoting the number of out-vertices 
+			    (and also in-vertices in the 4-argument case).
+			m:  an integer scalar denoting the number of in-vertices.
+
+		Output Argument:  
+			ret:  a DiGraph instance
+
+		Note:  If two or more edges have the same source and destination
+		vertices, their weights are summed in the output DiGraph instance.
+
+		SEE ALSO:  toParVec
+		"""
 		if len(args) == 0:
 			self.spm = pcb.pySpParMat()
 		elif len(args) == 1:	# no longer used
@@ -45,6 +74,11 @@ class DiGraph(gr.Graph):
 			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
 
 	def __add__(self, other):
+		"""
+		adds corresponding edges of two DiGraph instances together,
+		resulting in edges in the result only where an edge exist in at
+		least one of the input DiGraph instances.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
 		if self.nvert() != other.nvert():
@@ -56,6 +90,11 @@ class DiGraph(gr.Graph):
 		return ret
 
 	def __div__(self, other):
+		"""
+		divides corresponding edges of two DiGraph instances together,
+		resulting in edges in the result only where edges exist in both
+		input DiGraph instances.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spm.Apply(pcb.bind2nd(pcb.divides(),other))
@@ -69,6 +108,31 @@ class DiGraph(gr.Graph):
 		return ret
 
 	def __getitem__(self, key):
+		"""
+		implements indexing on the right-hand side of an assignment.
+		Usually accessed through the "[]" syntax.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			key:  one of the following forms:
+			    - a non-tuple denoting the key for both dimensions
+			    - a tuple of length 2, with the first element denoting
+			        the key for the first dimension and the second 
+			        element denoting for the second dimension.
+			    Each key denotes the out-/in-vertices to be addressed,
+			    and may be one of the following:
+				- an integer scalar
+				- the ":" slice denoting all vertices, represented
+				  as slice(None,None,None)
+				- a ParVec object containing a contiguous range
+				  of monotonically increasing integers 
+		
+		Output Argument:
+			ret:  a DiGraph instance, containing the indicated vertices
+			    and their incident edges from the input DiGraph.
+
+		SEE ALSO:  subgraph
+		"""
 		#ToDo:  accept slices for key0/key1 besides ParVecs
 		if type(key)==tuple:
 			if len(key)==1:
@@ -137,6 +201,12 @@ class DiGraph(gr.Graph):
 		return self
 
 	def __mul__(self, other):
+		"""
+		multiplies corresponding edges of two DiGraph instances together,
+		resulting in edges in the result only where edges exist in both
+		input DiGraph instances.
+
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
@@ -167,6 +237,11 @@ class DiGraph(gr.Graph):
 		return ' '
 
 	def _SpMM(self, other):
+		"""
+		"multiplies" two DiGraph instances together as though each was
+		represented by a sparse matrix, with rows representing out-edges
+		and columns representing in-edges.
+		"""
 		selfnv = self.nvert()
 		if type(selfnv) == tuple:
 			[selfnv1, selfnv2] = selfnv
@@ -184,11 +259,35 @@ class DiGraph(gr.Graph):
 		return ret
 
 	def copy(self):
+		"""
+		creates a deep copy of a DiGraph instance.
+
+		Input Argument:
+			self:  a DiGraph instance.
+
+		Output Argument:
+			ret:  a DiGraph instance containing a copy of the input.
+		"""
 		ret = DiGraph()
 		ret.spm = self.spm.copy()
 		return ret
 		
 	def degree(self, dir=gr.Out):
+		"""
+		calculates the degrees of the appropriate edges of each vertex of 
+		the passed DiGraph instance.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			dir:  a direction of edges to count, with choices being
+			    DiGraph.Out (default), DiGraph.In, or DiGraph.InOut.
+
+		Output Argument:
+			ret:  a ParVec instance with each element containing the
+			    degree of the weights of the corresponding vertex.
+
+		SEE ALSO:  sum 
+		"""
 		if dir == gr.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
@@ -205,11 +304,34 @@ class DiGraph(gr.Graph):
 
 	# in-place, so no return value
 	def removeSelfLoops(self):
+		"""
+		removes all edges whose source and destination are the same
+		vertex, in-place in a DiGraph instance.
+
+		Input Argument:
+			self:  a DiGraph instance, modified in-place.
+
+		"""
 		self.spm.removeSelfLoops()
 		return
 
 	@staticmethod
 	def fullyConnected(n,m=None):
+		"""
+		creates edges in a DiGraph instance that connects each vertex
+		directly to every other vertex.
+
+		Input Arguments:
+			n:  an integer scalar denoting the number of vertices in
+			    the graph that may potentially have out-edges.
+			m:  an optional argument, which if specified is an integer
+			    scalar denoting the number of vertices in the graph
+			    that may potentially have in-edges.
+
+		Output Argument:
+			ret:  a DiGraph instance with directed edges from each
+			    vertex to every other vertex. 
+		"""
 		if m == None:
 			m = n
 		i = (ParVec.range(n*m) % n).floor()
@@ -219,11 +341,44 @@ class DiGraph(gr.Graph):
 		return ret
 
 	def genGraph500Edges(self, scale):
+		"""
+		creates edges in a DiGraph instance that meet the Graph500 
+		specification.  The graph is symmetric. (See www.graph500.org 
+		for details.)
+
+		Input Arguments:
+			self:  a DiGraph instance, usually with no edges
+			scale:  an integer scalar representing the logarithm base
+			    2 of the number of vertices in the resulting DiGraph.
+			    
+		Output Argument:
+			ret:  a double-precision floating-point scalar denoting
+			    the amount of time to converted the created edges into
+			    the DiGraph instance.  This equals the value of Kernel 1
+			    of the Graph500 benchmark.
+		"""
 		elapsedTime = self.spm.GenGraph500Edges(scale)
 	 	return elapsedTime
 
 	@staticmethod
 	def load(fname):
+		"""
+		loads the contents of the file named fname (in the Coordinate Format 
+		of the Matrix Market Exchange Format) into a DiGraph instance.
+
+		Input Argument:
+			fname:  a filename from which the DiGraph data will be loaded.
+		Output Argument:
+			ret:  a DiGraph instance containing the graph represented
+			    by the file's contents.
+
+		NOTE:  The Matrix Market format numbers vertex numbers from 1 to
+		N.  Python and KDT number vertex numbers from 0 to N-1.  The load
+		method makes this conversion while reading the data and creating
+		the graph.
+
+		SEE ALSO:  save, UFget
+		"""
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
 		ret = DiGraph()
@@ -232,6 +387,22 @@ class DiGraph(gr.Graph):
 		return ret
 
 	def max(self, dir=gr.InOut):
+		"""
+		finds the maximum weights of the appropriate edges of each vertex 
+		of the passed DiGraph instance.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			dir:  a direction of edges over which to find the maximum,
+			    with choices being DiGraph.Out (default), DiGraph.In, or 
+			    DiGraph.InOut.
+
+		Output Argument:
+			ret:  a ParVec instance with each element containing the
+			    maximum of the weights of the corresponding vertex.
+
+		SEE ALSO:  degree, min 
+		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
@@ -247,6 +418,22 @@ class DiGraph(gr.Graph):
 			raise KeyError, 'Invalid edge direction'
 
 	def min(self, dir=gr.InOut):
+		"""
+		finds the minimum weights of the appropriate edges of each vertex 
+		of the passed DiGraph instance.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			dir:  a direction of edges over which to find the minimum,
+			    with choices being DiGraph.Out (default), DiGraph.In, or 
+			    DiGraph.InOut.
+
+		Output Argument:
+			ret:  a ParVec instance with each element containing the
+			    minimum of the weights of the corresponding vertex.
+
+		SEE ALSO:  degree, max 
+		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
@@ -260,6 +447,19 @@ class DiGraph(gr.Graph):
 			return ParVec.toParVec(ret)
 
 	def mulNot(self, other):
+		"""
+		multiplies corresponding edge weights of two DiGraph instances,
+		taking the logical not of the second argument before doing the 
+		multiplication.  In effect, each nonzero edge of the second
+		argument deletes its corresponding edge of the first argument.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			other:  another DiGraph instance
+
+		Output arguments:
+			ret:  a DiGraph instance 
+		"""
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
@@ -269,6 +469,24 @@ class DiGraph(gr.Graph):
 
 	#FIX:  good idea to have this return an int or a tuple?
 	def nvert(self):
+		"""
+		returns the number of vertices in the given DiGraph instance.
+
+		Input Argument:
+			self:  a DiGraph instance.
+
+		Output Argument:
+			ret:  if the DiGraph was created with the same number of
+			    vertices potentially having in- and out-edges, the
+			    return value is a scalar integer of that number.  If
+			    the DiGraph was created with different numbers of
+			    vertices potentially having in- and out-edges, the
+			    return value is a tuple of length 2, with the first
+			    (second) element being the number of vertices potentially 
+			    having out-(in-)edges.
+
+		SEE ALSO:  nedge, degree
+		"""
 		nrow = self.spm.getnrow()
 		ncol = self.spm.getncol()
 		if nrow==ncol:
@@ -277,21 +495,68 @@ class DiGraph(gr.Graph):
 			ret = (nrow, ncol)
 		return ret
 
-	#in-place, so no return value
-	def ones(self):
-		self.spm.Apply(pcb.set(1))
-		return
+	##in-place, so no return value
+	#def ones(self):
+	#	"""
+	#	sets every edge in the graph to the value 1.
+
+	#	Input Argument:
+	#		self:  a DiGraph instance, modified in place.
+
+	#	Output Argument:
+	#		None.
+
+	#	SEE ALSO:  set
+	#	"""
+	#	self.spm.Apply(pcb.set(1))
+	#	return
 
 	#in-place, so no return value
 	def reverseEdges(self):
+		"""
+		reverses the direction of each edge of a DiGraph instance in-place,
+		switching its source and destination vertices.
+
+		Input Argument:
+			self:  a DiGraph instance, modified in-place.
+		"""
 		self.spm.Transpose()
 
 	def save(self, fname):
+		"""
+		saves the contents of the passed DiGraph instance to a file named
+		fname in the Coordinate Format of the Matrix Market Exchange Format.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			fname:  a filename to which the DiGraph data will be saved.
+
+		NOTE:  The Matrix Market format numbers vertex numbers from 1 to
+		N.  Python and KDT number vertex numbers from 0 to N-1.  The save
+		method makes this conversion while writing the data.
+
+		SEE ALSO:  load, UFget
+		"""
 		self.spm.save(fname)
 		return
 
 	#in-place, so no return value
 	def scale(self, other, dir=gr.Out):
+		"""
+		multiplies the weights of the appropriate edges of each vertex of
+		the passed DiGraph instance in-place by a vertex-specific scale 
+		factor.
+
+		Input Arguments:
+			self:  a DiGraph instance, modified in-place
+			dir:  a direction of edges to scale, with choices being
+			    DiGraph.Out (default) or DiGraph.In.
+
+		Output Argument:
+			None.
+
+		SEE ALSO:  * (DiGraph.__mul__), mulNot
+		"""
 		#Note:  have to compare against gr.SpParVec, not (local) SpParVec
 		if not isinstance(other,gr.SpParVec):
 			raise KeyError, 'Invalid type for scale vector'
@@ -314,23 +579,66 @@ class DiGraph(gr.Graph):
 			raise KeyError, 'Invalid edge direction'
 		return
 
-	#in-place, so no return value
-	def set(self, value):
-		self.spm.Apply(pcb.set(value))
-		return
+	##in-place, so no return value
+	#def set(self, value):
+	#	"""
+	#	sets every edge in the graph to the given value.
 
-	def subgraph(self, *args):
-		if len(args) == 1:
-			[ndx1] = args
-			ret = self[ndx1, ndx1]
-		elif len(args) == 2:
-			[ndx1, ndx2] = args
-			ret = self[ndx1, ndx2]
-		else:
-			raise IndexError, 'Too many indices'
+	#	Input Arguments:
+	#		self:  a DiGraph instance, modified in place.
+	#		value:  a scalar integer or double-precision floating-
+	#		    point value.
+
+	#	Output Argument:
+	#		None.
+
+	#	SEE ALSO:  ones
+	#	"""
+	#	self.spm.Apply(pcb.set(value))
+	#	return
+
+	def subgraph(self, ndx1, ndx2=None):
+		"""
+		creates a new DiGraph instance consisting of only designated vertices 
+		of the input graph and their indicent edges.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			ndx1:  an integer scalar or a ParVec of consecutive vertex
+			    numbers to be included in the subgraph along with edges
+			    starting from these vertices.
+			ndx2:  an optional argument; if specified, is an integer
+			    scalar or a ParVec of consecutive vertex numbers to
+			    be included in the subgraph along with any edges ending
+			    at these vertices.
+			 
+		Output Argument:
+			ret:  a DiGraph instance composed of the selected vertices
+			    and their incident edges.
+
+		SEE ALSO:  DiGraph.__getitem__
+		"""
+		if ndx2 == None:
+			ndx2 = ndx1
+		ret = self[ndx1, ndx2]
 		return ret
 
 	def sum(self, dir=gr.Out):
+		"""
+		adds the weights of the appropriate edges of each vertex of the
+		passed DiGraph instance.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			dir:  a direction of edges to sum, with choices being
+			    DiGraph.Out (default), DiGraph.In, or DiGraph.InOut.
+
+		Output Argument:
+			ret:  a ParVec instance with each element containing the
+			    sum of the weights of the corresponding vertex.
+
+		SEE ALSO:  degree 
+		"""
 		if dir == gr.InOut:
 			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
@@ -346,7 +654,39 @@ class DiGraph(gr.Graph):
 
 	T = reverseEdges
 
+	# in-place, so no return value
+	def toBool(self):
+		"""
+		converts the DiGraph instance in-place such that each edge has only
+		a Boolean (True) value, thereby consuming less space and making
+		some operations faster.
+
+		Input Argument:
+			self:  a DiGraph instance that is overwritten by the method
+
+		Output Argument:
+			None.
+		"""
+		if isinstance(self.spm, pcb.pySpParMat):
+			self.spm = pcb.pySpParMatBool(self.spm)
+
 	def toParVec(self):
+		"""
+		decomposes a DiGraph instance to 3 DiGraph instances, with each
+		element of the first DiGraph denoting the source vertex of an edge,
+		the corresponding element of the second DiGraph denoting the 
+		destination vertex of the edge, and the corresponding element of
+		the third DiGraph denoting the value or weight of the edge.
+
+		Input Argument:
+			self:  a DiGraph instance
+
+		Output Argument:
+			ret:  a 3-element tuple with ParVec instances denoting the
+			    source vertex, destination vertex, and weight, respectively.
+
+		SEE ALSO:  DiGraph 
+		"""
 		ne = self.nedge()
 		reti = ParVec(ne)
 		retj = ParVec(ne)
@@ -357,6 +697,21 @@ class DiGraph(gr.Graph):
 
 	@staticmethod
 	def twoDTorus(n):
+		"""
+		constructs a DiGraph instance with the connectivity pattern of a 2D
+		torus;  i.e., each vertex has edges to its north, west, south, and
+		east neighbors, where the neighbor may be wrapped around to the
+		other side of the torus.  
+
+		Input Parameter:
+			nnodes:  an integer scalar that denotes the number of nodes
+			    on each axis of the 2D torus.  The resulting DiGraph
+			    instance will have nnodes**2 vertices.
+
+		Output Parameter:
+			ret:  a DiGraph instance with nnodes**2 vertices and edges
+			    in the pattern of a 2D torus. 
+		"""
 		N = n*n
 		nvec =   ((ParVec.range(N*4)%N) / n).floor()	 # [0,0,0,...., n-1,n-1,n-1]
 		nvecil = ((ParVec.range(N*4)%N) % n).floor()	 # [0,1,...,n-1,0,1,...,n-2,n-1]
@@ -451,11 +806,11 @@ class DiGraph(gr.Graph):
 			    the vertex number of that vertex's parent in the tree.
 			    The root is its own parent.  Unreachable vertices
 			    have a parent of -1. 
-			sym:  a Boolean denoting whether the DiGraph is symmetric
-			    (i.e., each edge from vertex i to vertex j has a
-			    companion edge from j to i).  If the DiGraph is 
-			    symmetric, the operation is faster.  The default is 
-			    False.
+			sym:  a scalar Boolean denoting whether the DiGraph is 
+			    symmetric (i.e., each edge from vertex i to vertex j
+			    has a companion edge from j to i).  If the DiGraph 
+			    is symmetric, the operation is faster.  The default 
+			    is False.
 		
 		Output Arguments:
 			ret:  The return value may be an integer (in the case of
@@ -480,6 +835,7 @@ class DiGraph(gr.Graph):
 			    not the destination of any tree edge.
 			2:  Tree edges are between vertices whose levels differ 
 			    by exactly 1.
+
 		SEE ALSO: bfsTree 
 		"""
 		ret = 1		# assume valid
@@ -558,6 +914,33 @@ class DiGraph(gr.Graph):
 	
 	# returns a Boolean vector of which vertices are neighbors
 	def neighbors(self, source, nhop=1, sym=False):
+		"""
+		calculates, for the given DiGraph instance and starting vertices,
+		the vertices that are neighbors of the starting vertices (i.e.,
+		reachable within nhop hops in the graph).
+
+		Input Arguments:
+			self:  a DiGraph instance
+			source:  a Boolean ParVec with True (1) in the positions
+			    of the starting vertices.  
+			nhop:  a scalar integer denoting the number of hops to 
+			    use in the calculation. The default is 1.
+			sym:  a scalar Boolean denoting whether the DiGraph is 
+			    symmetric (i.e., each edge from vertex i to vertex j
+			    has a companion edge from j to i).  If the DiGraph 
+			    is symmetric, the operation is faster.  The default 
+			    is False.
+
+		Output Arguments:
+			ret:  a ParVec of length equal to the number of vertices
+			    in the DiGraph, with a True (1) in each position for
+			    which the corresponding vertex is a neighbor.
+
+			    Note:  vertices from the start vector may appear in
+			    the return value.
+
+		SEE ALSO:  pathsHop
+		"""
 		if not sym:
 			self.T()
 		dest = ParVec(self.nvert(),0)
@@ -575,22 +958,54 @@ class DiGraph(gr.Graph):
 	#   - dest:  a Boolean vector of the new vertices
 	#ToDo:  nhop argument?
 	def pathsHop(self, source, sym=False):
+		"""
+		calculates, for the given DiGraph instance and starting vertices,
+		which can be viewed as the fringe of a set of paths, the vertices
+		that are reachable by traversing one graph edge from one of the 
+		starting vertices.  The paths are kept distinct, as only one path
+		will extend to a given vertex.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			source:  a Boolean ParVec with True (1) in the positions
+			    of the starting vertices.  
+			sym:  a scalar Boolean denoting whether the DiGraph is 
+			    symmetric (i.e., each edge from vertex i to vertex j
+			    has a companion edge from j to i).  If the DiGraph 
+			    is symmetric, the operation is faster.  The default 
+			    is False.
+
+		Output Arguments:
+			ret:  a ParVec of length equal to the number of vertices
+			    in the DiGraph.  The value of each element of the ParVec 
+			    with a value other than -1 denotes the starting vertex
+			    whose path extended to the corresponding vertex.  In
+			    the case of multiple paths potentially extending to
+			    a single vertex, the highest-numbered starting vertex
+			    is chosen as the source. 
+
+		SEE ALSO:  neighbors
+		"""
 		if not sym:
 			self.T()
-		retDest = ParVec(self.nvert(),0)
-		retSource = ParVec(self.nvert(),0)
-		fringe = SpParVec(self.nvert())
-		retDest[fringe] = 1
+		#HACK:  SelMax is actually doing a Multiply instead of a Select,
+		#    so it doesn't work "properly" on a general DiGraph, whose
+		#    values can't be counted on to be 1.  So, make a copy of
+		#    the DiGraph and set all the values to 1 as a work-around. 
+		self2 = self.copy()
+		self2.ones()
+		ret = ParVec(self2.nvert(),-1)
+		fringe = source.find()
 		fringe.sprange()
-		self.spm.SpMV_SelMax_inplace(fringe.spv)
-		retDest[fringe] = 1
-		retSource[fringe] = fringe
+		self2.spm.SpMV_SelMax_inplace(fringe.spv)
+		ret[fringe] = fringe
 		if not sym:
 			self.T()
-		return (retSource, retDest)
+		return ret
 		
 	def centrality(self, alg, **kwargs):
 		"""
+		calculates the centrality of each vertex in the DiGraph instance,
 		where 'alg' can be one of 
 		    'exactBC':  exact betweenness centrality
 		    'approxBC':  approximate betweenness centrality
@@ -624,6 +1039,17 @@ class DiGraph(gr.Graph):
 	
 	
 	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0):
+		"""
+		calculates the approximate or exact (with sample=1.0) betweenness
+		centrality of the input DiGraph instance.  _approxBC is an internal
+		method of the user-visible centrality method, and as such is
+		subject to change without notice.  Currently the following expert
+		argument is supported:
+		    - memFract:  the fraction of node memory that will be considered
+			available for a single strip in the strip-mining
+			algorithm.  Fractions that lead to paging will likely
+			deliver atrocious performance.  The default is 0.1.  
+		"""
 		A = self.copy()
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now

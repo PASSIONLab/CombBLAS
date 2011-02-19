@@ -17,7 +17,7 @@ import DiGraph as dg
 #The folder you want to download files into
 UFfolder = 'UFget/'
 
-#Download and extract the ith matrix from the sparse matrix library
+#Download and extract the named matrix from the sparse matrix library
 def UFdownload(filename):
     global UFfolder
     baseURL = 'http://www.cise.ufl.edu/research/sparse/MM/'
@@ -47,6 +47,18 @@ def UFdownload(filename):
 #sparse matrix database and read it into a Matrix object
 @staticmethod
 def UFget(filename):
+    """
+	downloads a file of the given base name from the University of Florida 
+	Sparse Matrix Library (http://www.cise.ufl.edu/research/sparse/MM/), 
+	extracts the file as needed, and loads the results into a DiGraph 
+	instance.
+	
+	Note:  Matrix Market format numbers vertices from 1 to N.  Python and
+	KDT number vertices from 0 to N-1.  UFget makes this conversion as it
+	loads the file.
+
+	Original Python version written by Kevin Oelze, July 2008
+    """
     G = dg.DiGraph()
     G.spm.load(UFdownload(filename))
     return G
