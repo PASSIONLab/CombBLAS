@@ -3,27 +3,31 @@
 #include "Operations.h"
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (): FullyDist<IT,NT>(), zero(0)
+FullyDistVec<IT, NT>::FullyDistVec ()
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0)
 { 
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (NT id): FullyDist<IT,NT>(), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec (NT id)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(id)
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id):FullyDist<IT,NT>(globallen), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id)
+:FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), zero(id)
 {
 	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id): FullyDist<IT,NT>(grid), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), zero(id)
 { }
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
-: FullyDist<IT,NT>(grid,globallen), zero(id)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), zero(id)
 {
 	arr.resize(MyLocLength(), initval);
 }
@@ -31,7 +35,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT
 template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
-: FullyDist<IT,NT>(rhs.commGrid, static_cast<IT>(rhs.glen)), zero(static_cast<NT>(rhs.zero))
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen)), zero(static_cast<NT>(rhs.zero))
 {
 	arr.resize(static_cast<IT>(rhs.arr.size()), zero);
 	
@@ -102,7 +106,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,N
 {
 	if(this != &rhs)		
 	{
-		FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
+		FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		arr = rhs.arr;
 		zero = rhs.zero;
 	}
@@ -112,7 +116,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,N
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
-	FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
+	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 	arr.resize(rhs.MyLocLength());
 	std::fill(arr.begin(), arr.end(), zero);	
 
@@ -165,7 +169,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & victim)
 {
-	FullyDist<IT,NT>::operator= (victim);	// to update glen and commGrid
+	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	arr.swap(victim.arr);
 	zero = victim.zero;
 	return *this;
@@ -573,6 +577,43 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _Binar
 		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
 	}
 }	
+
+
+template <class IT, class NT>
+FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
+{
+	MPI::Intracomm World = commGrid->GetWorld();
+	FullyDistVec<IT,IT> temp(commGrid,zero);
+	IT nnz = LocArrSize(); 
+	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
+	int nprocs = World.Get_size();
+	int rank = World.Get_rank();
+
+	IT * dist = new IT[nprocs];
+	dist[rank] = nnz;
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	IT sizeuntil = LengthUntil();	// size = length, for dense vectors
+	for(IT i=0; i< nnz; ++i)
+	{
+		vecpair[i].first = arr[i];	// we'll sort wrt numerical values
+		vecpair[i].second = i + sizeuntil;	
+	}
+	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
+
+	vector< IT > narr(nnz);
+	for(IT i=0; i< nnz; ++i)
+	{
+		arr[i] = vecpair[i].first;	// sorted range (change the object itself)
+		narr[i] = vecpair[i].second;	// inverse permutation stored as numerical values
+	}
+	delete [] vecpair;
+	delete [] dist;
+
+	temp.glen = glen;
+	temp.arr = narr;
+	return temp;
+}
+		
 
 // Randomly permutes an already existing vector
 template <class IT, class NT>

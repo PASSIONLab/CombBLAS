@@ -6,8 +6,33 @@
 
 using namespace std;
 
-template <class IT, class NT>
+// ABAB: Future enable_if
+// #ifdef NOTR1
+// 	#include <boost/utility/enable_if.hpp>
+// 	#include <boost/type_traits/is_integral.hpp>
+// 	#include <boost/type_traits/is_float.hpp>
+// 	using namespace boost;
+// #else
+// 	#include <tr1/type_traits>
+// 	using namespace std::tr1;
+// #endif
+
+// ABAB: A simple enable_if construct for now
+template <bool, class T = void> struct enable_if {};
+template <class T> struct enable_if<true, T> { typedef T type; };
+
+template <bool, class T = void> struct disable_if { typedef T type; };
+template <class T> struct disable_if<true, T> {};
+
+template <typename T> struct is_boolean { static const bool value = false; };
+template <> struct is_boolean<bool> { static const bool value = true; };
+
+template <class IT, class NT, class Enable=void>
 class FullyDist
+{};	// dummy generic template
+
+template <class IT, class NT>
+class FullyDist<IT, NT, typename disable_if< is_boolean<NT>::value, NT >::type >
 {
 public:
 	FullyDist():glen(0)
@@ -51,7 +76,8 @@ protected:
 //! Return the owner processor id, and
 //! Assign the local index to lind
 template <class IT, class NT>
-int FullyDist<IT,NT>::Owner(IT gind, IT & lind) const
+int FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
+::Owner(IT gind, IT & lind) const
 {
 	int procrows = commGrid->GetGridRows();
 	IT n_perprocrow = glen / procrows;	// length on a typical processor row
@@ -97,7 +123,8 @@ int FullyDist<IT,NT>::Owner(IT gind, IT & lind) const
  * Return the owner processor id (within processor row)
  **/
 template <class IT, class NT>
-int FullyDist<IT,NT>::OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) const
+int FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+::OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) const
 {
 	int proccols = commGrid->GetGridCols();
 	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
@@ -128,7 +155,8 @@ int FullyDist<IT,NT>::OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) 
 // All processors P_3j for j=0,1,2 get (102-25*3)/4 = 6 elements
 // Processor P_33 gets 27-6*3 = 9 elements  
 template <class IT, class NT>
-IT FullyDist<IT,NT>::LengthUntil() const
+IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+::LengthUntil() const
 {
 	int procrows = commGrid->GetGridRows();
 	int my_procrow = commGrid->GetRankInProcCol();
@@ -149,7 +177,8 @@ IT FullyDist<IT,NT>::LengthUntil() const
 
 // Return the length until this processor, within this processor row only
 template <class IT, class NT>
-IT FullyDist<IT,NT>::RowLenUntil() const
+IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+::RowLenUntil() const
 {
 	int procrows = commGrid->GetGridRows();
 	int my_procrow = commGrid->GetRankInProcCol();
@@ -170,7 +199,8 @@ IT FullyDist<IT,NT>::RowLenUntil() const
 
 
 template <class IT, class NT>
-IT FullyDist<IT,NT>::MyLocLength() const
+IT FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
+::MyLocLength() const
 {
 	int procrows = commGrid->GetGridRows();
 	int my_procrow = commGrid->GetRankInProcCol();
@@ -192,7 +222,8 @@ IT FullyDist<IT,NT>::MyLocLength() const
 
 
 template <class IT, class NT>
-IT FullyDist<IT,NT>::MyRowLength() const
+IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>
+::MyRowLength() const
 {
 	int procrows = commGrid->GetGridRows();
 	int my_procrow = commGrid->GetRankInProcCol();

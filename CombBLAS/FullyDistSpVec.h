@@ -47,7 +47,7 @@ class FullyDistVec;
  **/
   
 template <class IT, class NT>
-class FullyDistSpVec: public FullyDist<IT,NT>
+class FullyDistSpVec: public FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>
 {
 public:
 	FullyDistSpVec ( );
@@ -97,12 +97,12 @@ public:
 		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
-	using FullyDist<IT,NT>::LengthUntil;
-	using FullyDist<IT,NT>::MyLocLength;
-	using FullyDist<IT,NT>::MyRowLength;
-	using FullyDist<IT,NT>::TotalLength;
-	using FullyDist<IT,NT>::Owner;
-	using FullyDist<IT,NT>::RowLenUntil;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::LengthUntil;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyLocLength;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyRowLength;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::TotalLength;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::Owner;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::RowLenUntil;
 
 	void setNumToInd()
 	{
@@ -130,8 +130,8 @@ public:
 	NT NOT_FOUND; 
 
 protected:
-	using FullyDist<IT,NT>::glen; 
-	using FullyDist<IT,NT>::commGrid; 
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros

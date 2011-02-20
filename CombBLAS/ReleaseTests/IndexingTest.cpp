@@ -15,6 +15,19 @@
 
 using namespace std;
 
+template <typename IT, typename NT>
+FullyDistSpVec<IT,NT> TopK(FullyDistSpVec<IT,NT> & v, IT k)
+{
+	FullyDistSpVec<IT,IT> sel(k);
+	
+	//void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
+	sel.iota(k, v.TotalLength() - k -1);
+
+	FullyDistSpVec<IT,NT> sorted(v);
+	sorted.sort();	// ignore the return value
+	return sorted(sel);
+} 
+
 
 int main(int argc, char* argv[])
 {
@@ -61,7 +74,7 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
 		PARDBMAT A, AID, ACID;		// declare objects
-		SpParVec<int,int> vec1, vec2;
+		FullyDistVec<int,int> vec1, vec2;
 
 		A.ReadDistribute(inputnormal, 0);	
 		AID.ReadDistribute(inputindexd, 0);	
@@ -83,11 +96,11 @@ int main(int argc, char* argv[])
 		}
 
 		// generate random permutations
-		SpParVec<int,int> p, q;
+		FullyDistVec<int,int> p, q;
 		p.iota(A.getnrow(), 0);
 		q.iota(A.getncol(), 0);
-		RandPerm(p);	
-		RandPerm(q);
+		p.RandPerm();	
+		q.RandPerm();
 
 		PARDBMAT B = A(p,q);
 		A.PrintInfo();
@@ -103,8 +116,9 @@ int main(int argc, char* argv[])
 
 		// B = P A Q
 		// get the inverse permutations
-		SpParVec<int, int> pinv = p.sort();
-		SpParVec<int, int> qinv = q.sort();
+		FullyDistVec<int, int> pinv = p.sort();
+		FullyDistVec<int, int> qinv = q.sort();
+		SpParHelper::Print("Sorts are done\n");
 		PARDBMAT C = B(pinv,qinv);
 		if(C == A)
 		{

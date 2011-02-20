@@ -6,26 +6,28 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (): FullyDist<IT,NT>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+FullyDistSpVec<IT, NT>::FullyDistSpVec ()
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen): FullyDist<IT,NT>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { }
 
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {
-	FullyDist<IT,NT>::operator= (victim);	// to update glen and commGrid
+	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	ind.swap(victim.ind);
 	num.swap(victim.num);
 	NOT_FOUND = victim.NOT_FOUND;
@@ -226,7 +228,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
 	IT nnz = getlocnnz(); 
-	pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
+	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 
@@ -234,17 +236,16 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	dist[rank] = nnz;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
 	IT sizeuntil = accumulate(dist, dist+rank, 0);
-	for(size_t i=0; i<(unsigned)nnz; ++i)
+	for(IT i=0; i< nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
 		vecpair[i].second = ind[i] + sizeuntil;	
 	}
-	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
 	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
 	vector< IT > nind(nnz);
 	vector< IT > nnum(nnz);
-	for(size_t i=0; i<(unsigned)nnz; ++i)
+	for(IT i=0; i< nnz; ++i)
 	{
 		num[i] = vecpair[i].first;	// sorted range (change the object itself)
 		nind[i] = ind[i];		// make sure the sparsity distribution is the same
