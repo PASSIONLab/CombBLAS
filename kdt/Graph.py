@@ -807,6 +807,10 @@ class SpParVec:
 		return self
 		
 	def __len__(self):
+		"""
+		returns the length (the maximum number of potential nonnull elements
+		that could exist) of a SpParVec instance.
+		"""
 		return len(self.spv)
 
 	def __le__(self, other):
@@ -1062,17 +1066,10 @@ class SpParVec:
 		ret = self.spv.Reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
 		return ret
 
-	#in-place, so no return value
-	def bool(self):
-		"""
-		converts the input SpParVec instance, in-place, into Boolean
-		values (1.0 for True, 0.0 for False) according to whether the
-		initial values are nonzero or zero, respectively.
-		"""
-		self.spv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-		return
-
 	def copy(self):
+		"""
+		creates a deep copy of the input argument.
+		"""
 		ret = SpParVec(-1)
 		ret.spv = self.spv.copy()
 		return ret
@@ -1081,6 +1078,18 @@ class SpParVec:
 	#         in the sparse vector getting stripped out is solved
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
 	def find(self):
+		"""
+		returns the elements of a Boolean SpParVec instance that are both
+		nonnull and nonzero.
+
+		Input Argument:
+			self:  a SpParVec instance
+
+		Output Argument:
+			ret:  a SpParVec instance
+
+		SEE ALSO:  findInds
+		"""
 		if not self.isBool():
 			raise NotImplementedError, 'only implemented for Boolean vectors'
 		ret = SpParVec(-1)
@@ -1090,6 +1099,19 @@ class SpParVec:
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
 	def findInds(self):
+		"""
+		returns the indices of the elements of a Boolean SpParVec instance
+		that are both nonnull and nonzero.
+
+		Input Argument:
+			self:  a SpParVec instance
+
+		Output Argument:
+			ret:  a ParVec instance of length equal to the number of
+			    nonnull and nonzero elements in self
+
+		SEE ALSO:  find
+		"""
 		if not self.isBool():
 			raise NotImplementedError, 'only implemented for Boolean vectors'
 		ret = ParVec(-1)
@@ -1098,6 +1120,10 @@ class SpParVec:
 
 
 	def isBool(self):
+		"""
+		returns a Boolean scalar denoting whether all elements of the input 
+		SpParVec instance are equal to either True (1) or False (0).
+		"""
 		eps = float(np.finfo(np.float).eps)
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
@@ -1158,6 +1184,10 @@ class SpParVec:
 
 	@staticmethod
 	def ones(sz):
+		"""
+		creates a SpParVec instance of the specified size whose elements
+		are all nonnull with the value 1.
+		"""
 		ret = SpParVec(-1)
 		ret.spv = pcb.pySpParVec.range(sz,0)
 		ret.spv.Apply(pcb.set(1))
@@ -1165,6 +1195,17 @@ class SpParVec:
 
 	@staticmethod
 	def range(arg1, *args):
+		"""
+		creates a SpParVec instance with consecutive integer values.
+
+	range(stop)
+	range(start, stop)
+		The first form creates a SpParVec instance of length stop whose
+		values are all nonnull, starting at 0 and stopping at stop-1.
+		The second form creates a SpParVec instance of length stop-start
+		whose values are all nonnull, starting at start and stopping at
+		stop-1.
+		"""
 		if len(args) == 0:
 			start = 0
 			stop = arg1
@@ -1210,6 +1251,16 @@ class SpParVec:
 		"""
 		ret = self.spv.Reduce(pcb.plus())
 		return ret
+
+	#in-place, so no return value
+	def toBool(self):
+		"""
+		converts the input SpParVec instance, in-place, into Boolean
+		values (1.0 for True, 0.0 for False) according to whether the
+		initial values are nonzero or zero, respectively.
+		"""
+		self.spv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+		return
 
 	def topK(self, k):
 		"""
