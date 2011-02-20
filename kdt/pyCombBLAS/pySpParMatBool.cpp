@@ -24,9 +24,14 @@ pySpParMatBool::pySpParMatBool(MatType other): A(other)
 
 pySpParMatBool::pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals)
 {
+	/*
+	// This should work, but it gives a compile error complaining about FullyDistVec<int64, bool> on that matrix constructor.
 	FullyDistVec<INDEXTYPE, INDEXTYPE> irow = rows->v;
 	FullyDistVec<INDEXTYPE, INDEXTYPE> icol = cols->v;
 	A = MatType(m, n, irow, icol, 1);
+	*/
+	pySpParMat B(m, n, rows, cols, vals);
+	A = B.A;
 }
 
 pySpParMatBool::pySpParMatBool(const pySpParMat& copyFrom): A()
