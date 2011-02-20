@@ -76,7 +76,7 @@ class DiGraph(gr.Graph):
 	def __add__(self, other):
 		"""
 		adds corresponding edges of two DiGraph instances together,
-		resulting in edges in the result only where an edge exist in at
+		resulting in edges in the result only where an edge exists in at
 		least one of the input DiGraph instances.
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
