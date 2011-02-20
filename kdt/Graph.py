@@ -382,9 +382,25 @@ class ParVec:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
 
+	_REPR_MAX = 100;
+	_REPR_WARN = 0
 	def __repr__(self):
-		##ToDo:  print only part/none of the data for large vectors
-		self.dpv.printall()
+		"""
+		prints the first N elements of the ParVec instance, where N
+		is equal to the value of self._REPR_MAX.
+
+		SEE ALSO:  printAll
+		"""
+		if len(self) > self._REPR_MAX:
+			tmp = self[ParVec.range(self._REPR_MAX)]
+			if self._REPR_WARN == 0:
+				print "Limiting print-out to first %d elements" % self._REPR_MAX
+				# NOTE: not setting WARN to 1, so will print
+				# every time
+				#self._REPR_WARN = 1
+			tmp.dpv.printall()
+		else:
+			self.dpv.printall()
 		return ' '
 
 	def __rsub__(self, other):
@@ -547,6 +563,16 @@ class ParVec:
 		ret.dpv = pcb.pyDenseParVec(sz,1)
 		return ret
 	
+	def printAll(self):
+		"""
+		prints all elements of a ParVec instance (which may number millions
+		or billions).
+
+		SEE ALSO:  print, __repr__
+		"""
+		self.dpv.printall()
+		return ' '
+
 	def randPerm(self):
 		self.dpv.RandPerm()
 
@@ -961,10 +987,28 @@ class SpParVec:
 		ret.spv.Apply(pcb.bind2nd(pcb.greater(),0))
 		return ret
 
+	_REPR_MAX = 100;
+	_REPR_WARN = 0
 	def __repr__(self):
-		#ToDo:  print only none/part of the data for large vectors
-		self.spv.printall()
+		"""
+		prints the first N elements of the SpParVec instance, where N
+		is roughly equal to the value of self._REPR_MAX.
+
+		SEE ALSO:  printAll
+		"""
+		if self.nnn() > self._REPR_MAX:
+			tmplen = self._REPR_MAX*len(self)/self.nnn()
+			tmpndx = SpParVec.range(tmplen)
+			tmp = self[tmpndx]
+			if self._REPR_WARN == 0:
+				print "Limiting print-out to first %d elements" % tmp.nnn()
+				# NOTE:  not setting WARN to 1
+				#self._REPR_WARN = 1
+			tmp.spv.printall()
+		else:
+			self.spv.printall()
 		return ' '
+
 
 	def __setitem__(self, key, value):
 		if type(key) == int or type(key) == long or type(key) == float:
@@ -1198,6 +1242,16 @@ class SpParVec:
 		ret.spv = pcb.pySpParVec.range(sz,0)
 		ret.spv.Apply(pcb.set(1))
 		return ret
+
+	def printAll(self):
+		"""
+		prints all elements of a SpParVec instance (which may number millions
+		or billions).
+
+		SEE ALSO:  print, __repr__
+		"""
+		self.spv.printall()
+		return ' '
 
 	@staticmethod
 	def range(arg1, *args):
