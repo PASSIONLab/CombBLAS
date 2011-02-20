@@ -209,13 +209,13 @@ pySpParVec pySpParVec::Sort()
 
 pySpParVec pySpParVec::TopK(int64_t k)
 {
-	VectType sel(k);
-	sel.iota(k, len()-k -1);
+	FullyDistSpVec<INDEXTYPE, INDEXTYPE> sel(k);
+	sel.iota(k, len()-k);
 
 	pySpParVec sorted = copy();
 	sorted.v.sort();
 	
-	return pySpParVec(v(sel));
+	return pySpParVec(sorted.v(sel));
 }
 
 void pySpParVec::setNumToInd()
