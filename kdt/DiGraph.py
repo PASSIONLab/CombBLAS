@@ -774,13 +774,10 @@ class DiGraph(gr.Graph):
 		if not sym:
 			self.T()
 		parents = pcb.pyDenseParVec(self.nvert(), -1)
-		# NOTE:  values in fringe go from 1:n instead of 0:(n-1) so can
-		# distinguish vertex0 from empty element
 		fringe = pcb.pySpParVec(self.nvert())
 		parents[root] = root
 		fringe[root] = root
 		while fringe.getnnz() > 0:
-			#FIX:  setNumToInd -> SPV.range()
 			fringe.setNumToInd()
 			self.spm.SpMV_SelMax_inplace(fringe)
 			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)
@@ -855,9 +852,9 @@ class DiGraph(gr.Graph):
 		level = 1
 		while fringe.nnn() > 0:
 			fringe.sprange()
-			#FIX:  create PCB graph-level op
+			#ToDo:  create PCB graph-level op
 			self.spm.SpMV_SelMax_inplace(fringe.spv)
-			#FIX:  create PCB graph-level op
+			#ToDo:  create PCB graph-level op
 			pcb.EWiseMult_inplacefirst(fringe.spv, parents2.dpv, True, -1)
 			parents2[fringe] = fringe
 			levels[fringe] = level

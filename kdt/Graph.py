@@ -528,7 +528,7 @@ class ParVec:
 		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(),0), pcb.set(1), pcb.set(0)))
 		return ret
 
-	def nnn(self):
+	def nnz(self):
 		ret = self.dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		return ret
 
@@ -599,7 +599,7 @@ class ParVec:
 	
 
 class SpParVec:
-	#FIX:  all comparison ops (__ne__, __gt__, etc.) only compare against
+	#Note:  all comparison ops (__ne__, __gt__, etc.) only compare against
 	#   the non-null elements
 
 	def __init__(self, length):
@@ -612,20 +612,40 @@ class SpParVec:
 		return ret
 
 	def __add__(self, other):
+		"""
+		adds the corresponding elements of two SpParVec instances into the
+		result SpParVec instance, with a nonnull element where either of
+		the two input vectors was nonnull.
+		"""
 		ret = self.copy()
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		if isinstance(other,SpParVec):
-			ret.spv = self.spv + other.spv
+		if type(other) == int or type(other) == long or type(other) == float:
+			ret.spv.Apply(pcb.bind2nd(pcb.plus(), other))
 		else:
-			ret.spv = self.spv + other.dpv
+			if len(self) != len(other):
+				raise IndexError, 'arguments must be of same length'
+			if isinstance(other,SpParVec):
+				ret.spv = self.spv + other.spv
+			else:
+				ret.spv = self.spv + other.dpv
 		return ret
 
 	def __and__(self, other):
-		raise NotImplementedError
+		"""
+		performs a logical And between the corresponding elements of two
+		SpParVec instances into the result SpParVec instance, with a non-
+		null element where either of the two input vectors is nonnull,
+		and a True value where both of the input vectors are True.
+		"""
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
 		ret = self.copy()
-		ret.spv = self.spv & other.spv
+		ret.bool()
+		tmpOther = other.copy()
+		tmpOther.bool()
+		ret += tmpOther
+		ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),2))
 		return ret
+
 
 	def __delitem__(self, key):
 		if type(other) == int or type(other) == long or type(other) == float:
@@ -635,18 +655,43 @@ class SpParVec:
 		return
 
 	def __div__(self, other):
+		"""
+		divides each element of the first argument (a SpParVec instance),
+		by either a scalar or the corresonding element of the second 
+		SpParVec instance, with a non-null element where either of the 
+		two input vectors was nonnull.
+		
+		Note:  ZeroDivisionException will be raised if any element of 
+		the second argument is zero.
+
+		Note:  For v0.1, the second argument may only be a scalar.
+		"""
+		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
-			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.divides(), other))
 		else:
 			raise NotImplementedError, 'SpParVec:__div__: no SpParVec / SpParVec division'
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret = self.copy()
 			#ret.spv.EWiseApply(.....pcb.divides())
 		return ret
 
 	def __eq__(self, other):
+		"""
+		calculates the Boolean equality of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the scalar and the corresponding
+		element of the first argument are equal.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and equal.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.equal_to(), other))
@@ -671,6 +716,22 @@ class SpParVec:
 		return ret
 
 	def __ge__(self, other):
+		"""
+		calculates the Boolean greater-than-or-equal relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is greater than or equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is greater than or equal to the second.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.greater_equal(), other))
@@ -683,6 +744,22 @@ class SpParVec:
 		return ret
 
 	def __gt__(self, other):
+		"""
+		calculates the Boolean greater-than relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is greater than the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is greater than the second.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.greater(), other))
@@ -695,6 +772,11 @@ class SpParVec:
 		return ret
 
 	def __iadd__(self, other):
+		"""
+		adds the corresponding elements of two SpParVec instances into the
+		result SpParVec instance, with a nonnull element where either of
+		the two input vectors was nonnull.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.spv.Apply(pcb.bind2nd(pcb.plus(), other))
 		else:
@@ -707,6 +789,12 @@ class SpParVec:
 		return self
 		
 	def __isub__(self, other):
+		"""
+		subtracts the corresponding elements of the second argument (a
+		scalar or a SpParVec instance) from the first argument (a SpParVec
+		instance), with a nonnull element where either of the two input 
+		arguments was nonnull.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.spv.Apply(pcb.bind2nd(pcb.minus(), other))
 		else:
@@ -722,6 +810,22 @@ class SpParVec:
 		return len(self.spv)
 
 	def __le__(self, other):
+		"""
+		calculates the Boolean less-than-or-equal relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is less than or equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is less than or equal to the second.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.less_equal(), other))
@@ -734,6 +838,22 @@ class SpParVec:
 		return ret
 
 	def __lt__(self, other):
+		"""
+		calculates the Boolean less-than relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is less than the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is less than the second.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.less(), other))
@@ -746,6 +866,13 @@ class SpParVec:
 		return ret
 
 	def __mod__(self, other):
+		"""
+		calculates the modulus of each element of the first argument by the
+		second argument (a scalar or a SpParVec instance), with a nonnull
+		element where the input SpParVec argument(s) were nonnull.
+
+		Note:  for v0.1, only a scalar divisor is supported.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.modulus(), other))
@@ -758,6 +885,11 @@ class SpParVec:
 		return ret
 
 	def __mul__(self, other):
+		"""
+		multiplies each element of the first argument by the second argument 
+		(a scalar or a SpParVec instance), with a nonnull element where 
+		the input SpParVec argument(s) were nonnull.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.multiplies(), other))
@@ -771,6 +903,22 @@ class SpParVec:
 		return ret
 
 	def __ne__(self, other):
+		"""
+		calculates the Boolean not-equal relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is not equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is not equal to the second.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.spv.Apply(pcb.bind2nd(pcb.not_equal_to(), other))
@@ -783,20 +931,28 @@ class SpParVec:
 		return ret
 
 	def __neg__(self):
-		#ToDo:  best to do with unary_minus() when available
-		tmp1 = self.copy()
-		tmp1['nonnull'] = 0
-		ret = tmp1 - self
+		"""
+		negates each nonnull element of the passed SpParVec instance.
+		"""
+		ret = self.copy()
+		ret.spv.Apply(pcb.negate())
 		return ret
 
 	def __or__(self, other):
+		"""
+		performs a logical Or between the corresponding elements of two
+		SpParVec instances into the result SpParVec instance, with a non-
+		null element where either of the two input vectors is nonnull,
+		and a True value where at least one of the input vectors is True.
+		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = SpParVec(len(self))
-		tmp1 = self.copy()
-		tmp1 += other
-		ret = SpParVec.toSpParVec(tmp1.spv.dense().Find(pcb.bind2nd(pcb.greater(),0)))
-		ret['nonnull'] = 1
+		ret = self.copy()
+		ret.bool()
+		tmpOther = other.copy()
+		tmpOther.bool()
+		ret += tmpOther
+		ret.spv.Apply(pcb.bind2nd(pcb.greater(),0))
 		return ret
 
 	def __repr__(self):
@@ -843,10 +999,16 @@ class SpParVec:
 		
 
 	def __sub__(self, other):
+		"""
+		subtracts the corresponding elements of the second argument (a
+		scalar or a SpParVec instance) from the first argument (a SpParVec
+		instance), with a nonnull element where the input SpParVec argument(s)
+		are nonnull.
+		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			otherscalar = other
 			other = self.copy()
-			other['nonnull'] = otherscalar
+			other.set(otherscalar)
 		elif len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
 		ret = self.copy()
@@ -856,18 +1018,59 @@ class SpParVec:
 			ret.spv = self.spv - other.dpv
 		return ret
 
+	def __xor__(self, other):
+		"""
+		performs a logical Xor between the corresponding elements of two
+		SpParVec instances into the result SpParVec instance, with a non-
+		null element where either of the two input vectors is nonnull,
+		and a True value where exactly one of the input vectors is True.
+		"""
+		if len(self) != len(other):
+			raise IndexError, 'arguments must be of same length'
+		ret = self.copy()
+		ret.bool()
+		tmpOther = other.copy()
+		tmpOther.bool()
+		ret += tmpOther
+		ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),1))
+		return ret
+
+
 	def all(self):
-		#FIX: is counting #nonnulls, not #Trues (nonzeros)
-		ret = self.spv.Count(pcb.identity()) == self.nnn()
+		"""
+		returns a Boolean True if all the nonnull elements of the
+		SpParVec instance are True (nonzero), and False otherwise.
+		"""
+		ret = self.spv.Reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
 		return ret
 
 	def allCloseToInt(self):
-		return True
+		"""
+		returns a Boolean Ture if all the nonnull elements of the
+		SpParVec instance have values within epsilon of an integer,
+		and False otherwise.
+		"""
 		eps = float(np.finfo(np.float).eps)
-		ret = ((self % 1.0) < eps).all()
+		ret = (((self % 1.0) < eps) | (((-(self%1.0))+1.0)< eps)).all()
+		return ret
 
 	def any(self):
-		return self.spv.any()
+		"""
+		returns a Boolean True if any of the nonnull elements of the
+		SpParVec instance are True (nonzero), and False otherwise.
+		"""
+		ret = self.spv.Reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
+		return ret
+
+	#in-place, so no return value
+	def bool(self):
+		"""
+		converts the input SpParVec instance, in-place, into Boolean
+		values (1.0 for True, 0.0 for False) according to whether the
+		initial values are nonzero or zero, respectively.
+		"""
+		self.spv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+		return
 
 	def copy(self):
 		ret = SpParVec(-1)
@@ -899,11 +1102,59 @@ class SpParVec:
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
+	def max(self):
+		"""
+		returns the maximum value of the nonnull elements in the SpParVec 
+		instance.
+		"""
+		ret = self.spv.Reduce(pcb.max())
+		return ret
+
+	def min(self):
+		"""
+		returns the minimum value of the nonnull elements in the SpParVec 
+		instance.
+		"""
+		ret = self.spv.Reduce(pcb.min())
+		return ret
+
 	def nn(self):
+		"""
+		returns the number of nulls (non-existent entries) in the 
+		SpParVec instance.
+
+		Note:  for x a SpParVec instance, x.nnn()+x.nn() always equals 
+		len(x).
+
+		SEE ALSO:  nnn, nnz
+		"""
 		return len(self) - self.spv.getnnz()
 
 	def nnn(self):
-		return self.spv.getnnz()
+		"""
+		returns the number of non-nulls (existent entries) in the
+		SpParVec instance.
+	
+		Note:  for x a SpParVec instance, x.nnn()+x.nn() always equals 
+		len(x).
+
+		SEE ALSO:  nn, nnz
+		"""
+		ret = self.spv.Reduce(pcb.plus(), pcb.set(1))
+		return ret
+
+	def nnz(self):
+		"""
+		returns the number of non-zero entries in the SpParVec
+		instance.
+
+		Note:  for x a SpParVec instance, x.nnz() is always less than or
+		equal to x.nnn().
+
+		SEE ALSO:  nn, nnn
+		"""
+		ret = self.spv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
+		return ret
 
 	@staticmethod
 	def ones(sz):
@@ -930,23 +1181,48 @@ class SpParVec:
 	
 	#in-place, so no return value
 	def set(self, value):
+		"""
+		sets every non-null value in the SpParVec instance to the second
+		argument, in-place.
+		"""
 		self.spv.Apply(pcb.set(value))
 		return
 
 	#in-place, so no return value
 	def spones(self):
+		"""
+		sets every non-null value in the SpParVec instance to 1, in-place.
+		"""
 		self.spv.Apply(pcb.set(1))
 		return
 
 	#in-place, so no return value
 	def sprange(self):
+		"""
+		sets every non-null value in the SpParVec instance to its position
+		(offset) in the vector, in-place.
+		"""
 		self.spv.setNumToInd()
 
 	def sum(self):
+		"""
+		returns the sum of all the non-null values in the SpParVec instance.
+		"""
 		ret = self.spv.Reduce(pcb.plus())
 		return ret
 
 	def topK(self, k):
+		"""
+		returns the largest k non-null values in the passed SpParVec instance.
+
+		Input Arguments:
+			self:  a SpParVec instance.
+			k:  a scalar integer denoting how many values to return.
+
+		Output Argument:
+			ret:  a ParVec instance of length k containing the k largest
+			    values from the input vector, in descending order.
+		"""
 		raise NotImplementedError
 		tmp = SpParVec(0)
 		tmp.spv = self.spv.TopK(k)
@@ -957,13 +1233,19 @@ class SpParVec:
 		return ret
 
 	def toParVec(self):	
+		"""
+		converts a SpParVec instance into a ParVec instance of the same
+		length with the non-null elements of the SpParVec instance placed 
+		in their corresonding positions in the ParVec instance.
+		"""
 		ret = ParVec(-1)
 		ret.dpv = self.spv.dense()
 		return ret
 
-	#TODO:  check for class being PyDenseParVec?
 	@staticmethod
 	def toSpParVec(SPV):
+		if not isinstance(SPV, pySpParVec):
+			raise TypeError, 'Only accepts pySpParVec instances'
 		ret = SpParVec(-1)
 		ret.spv = SPV
 		return ret
