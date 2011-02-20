@@ -461,6 +461,8 @@ class ParVec:
 		return ret
 
 	def allCloseToInt(self):
+		if len(self) == 0:
+			return True;
 		eps = float(np.finfo(np.float).eps)
 		ret = (((self % 1.0) < eps) | ((1.0-(self % 1.0)) < eps)).all()
 		return ret
@@ -639,9 +641,9 @@ class SpParVec:
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
 		ret = self.copy()
-		ret.bool()
+		ret.toBool()
 		tmpOther = other.copy()
-		tmpOther.bool()
+		tmpOther.toBool()
 		ret += tmpOther
 		ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),2))
 		return ret
@@ -952,9 +954,9 @@ class SpParVec:
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
 		ret = self.copy()
-		ret.bool()
+		ret.toBool()
 		tmpOther = other.copy()
-		tmpOther.bool()
+		tmpOther.toBool()
 		ret += tmpOther
 		ret.spv.Apply(pcb.bind2nd(pcb.greater(),0))
 		return ret
@@ -1032,9 +1034,9 @@ class SpParVec:
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
 		ret = self.copy()
-		ret.bool()
+		ret.toBool()
 		tmpOther = other.copy()
-		tmpOther.bool()
+		tmpOther.toBool()
 		ret += tmpOther
 		ret.spv.Apply(pcb.bind2nd(pcb.equal_to(),1))
 		return ret
@@ -1050,10 +1052,12 @@ class SpParVec:
 
 	def allCloseToInt(self):
 		"""
-		returns a Boolean Ture if all the nonnull elements of the
+		returns a Boolean True if all the nonnull elements of the
 		SpParVec instance have values within epsilon of an integer,
 		and False otherwise.
 		"""
+		if self.nnn() == 0:
+			return True;
 		eps = float(np.finfo(np.float).eps)
 		ret = (((self % 1.0) < eps) | (((-(self%1.0))+1.0)< eps)).all()
 		return ret
@@ -1166,7 +1170,9 @@ class SpParVec:
 
 		SEE ALSO:  nn, nnz
 		"""
-		ret = self.spv.Reduce(pcb.plus(), pcb.set(1))
+		#ret = self.spv.Reduce(pcb.plus(), pcb.set(1))
+		# FIX: get Reduce version working
+		ret = self.spv.getnee()
 		return ret
 
 	def nnz(self):
