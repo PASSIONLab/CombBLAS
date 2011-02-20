@@ -70,6 +70,7 @@ public:
 
 	SpParMat (const SpParMat< IT,NT,DER > & rhs);				// copy constructor
 	SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const FullyDistVec<IT,NT> & );	// matlab sparse
+	SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & , const FullyDistVec<IT,IT> & , const NT & );	// matlab sparse
 	SpParMat< IT,NT,DER > & operator=(const SpParMat< IT,NT,DER > & rhs);	// assignment operator
 	SpParMat< IT,NT,DER > & operator+=(const SpParMat< IT,NT,DER > & rhs);
 	~SpParMat ();

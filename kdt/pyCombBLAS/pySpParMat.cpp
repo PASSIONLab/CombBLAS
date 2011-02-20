@@ -18,8 +18,8 @@ pySpParMat::pySpParMat(MatType other): A(other)
 
 pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals)
 {
-	FullyDistVec<int64_t, doubleint> irow = rows->v;
-	FullyDistVec<int64_t, doubleint> icol = cols->v;
+	FullyDistVec<INDEXTYPE, INDEXTYPE> irow = rows->v;
+	FullyDistVec<INDEXTYPE, INDEXTYPE> icol = cols->v;
 	A = MatType(m, n, irow, icol, vals->v);
 }
 
@@ -255,7 +255,7 @@ void pySpParMat::Transpose()
 
 void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
 {
-	FullyDistVec<int64_t, int64_t> irows, icols;
+	FullyDistVec<INDEXTYPE, INDEXTYPE> irows, icols;
 	A.Find(irows, icols, outvals->v);
 	outrows->v = irows;
 	outcols->v = icols;
