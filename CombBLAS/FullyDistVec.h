@@ -30,7 +30,7 @@ template <class IT>
 class DistEdgeList;
 
 template <class IT, class NT>
-class FullyDistVec: public FullyDist<IT,NT>
+class FullyDistVec: public FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type >
 {
 public:
 	FullyDistVec ( );
@@ -70,11 +70,12 @@ public:
 	
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
+	FullyDistVec<IT,IT> sort();	// sort and return the permutation
 
-	using FullyDist<IT,NT>::LengthUntil;
-	using FullyDist<IT,NT>::TotalLength;
-	using FullyDist<IT,NT>::Owner;
-	using FullyDist<IT,NT>::MyLocLength;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::LengthUntil;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::TotalLength;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::Owner;
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyLocLength;
 	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resized
 	
 	template <typename _Predicate>
@@ -119,8 +120,8 @@ public:
 	template <typename _BinaryOperation, typename _UnaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op);
 
-	using FullyDist<IT,NT>::glen; 
-	using FullyDist<IT,NT>::commGrid; 
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
+	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
 	vector< NT > arr;

@@ -19,31 +19,6 @@ int main(int argc, char* argv[])
 	MPI::Init(argc, argv);
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
-	
-	{
-		SpParMat <int, bool, SpDCCols<int, bool> > A;
-		SpParHelper::Print("loading from small_nonsym.mtx\n");
-		ifstream in("small_nonsym.mtx");
-		A.ReadDistribute(in, 0);
-
-		FullyDistVec<int,int> crow, ccol;
-		FullyDistVec<int,bool> cval;
-
-		A.Find(crow, ccol, cval);
-		//SpParHelper::Print("row vector, ok: ");
-		//crow.DebugPrint();
-		//SpParHelper::Print("column vector, ok: ");
-		//ccol.DebugPrint();
-		SpParHelper::Print("value vector printed with DebugPrint, should be all ones: ");
-		cval.DebugPrint();
-		SpParHelper::Print("value vector printed with GetElement, should be all ones: ");
-		for (int i = 0; i < cval.TotalLength(); i++)
-		{
-			bool v = cval.GetElement(i);
-			cout << v << ", ";
-		}
-		SpParHelper::Print("\n\nNow to your regularly scheduled FindSparse....\n\n");
-	}
 
 	if(argc < 3)
 	{
