@@ -55,7 +55,7 @@ def k2Validate(G, start, parents):
 
 
 
-scale = 14
+scale = 15
 nstarts = 6
 
 GRAPH500 = 1
