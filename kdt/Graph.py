@@ -578,8 +578,8 @@ class ParVec:
 
 	@staticmethod
 	def toParVec(DPV):
-		if not isinstance(DPV, pyDenseParVec):
-			raise TypeError, 'ParVec:toParVec only supported for pyDenseParVec input'
+		if not isinstance(DPV, pcb.pyDenseParVec):
+			raise TypeError, 'Only supported for pyDenseParVec instances'
 		ret = ParVec(-1)
 		ret.dpv = DPV
 		return ret
@@ -1244,7 +1244,7 @@ class SpParVec:
 
 	@staticmethod
 	def toSpParVec(SPV):
-		if not isinstance(SPV, pySpParVec):
+		if not isinstance(SPV, pcb.pySpParVec):
 			raise TypeError, 'Only accepts pySpParVec instances'
 		ret = SpParVec(-1)
 		ret.spv = SPV
