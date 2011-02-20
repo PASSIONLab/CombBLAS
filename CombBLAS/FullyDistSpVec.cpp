@@ -24,6 +24,21 @@ FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen)
 : FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { }
 
+
+template <class IT, class NT>
+FullyDistSpVec< IT,NT > &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)	
+{
+	if(this != &rhs)		
+	{
+		FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+		ind = rhs.ind;
+		num = rhs.num;
+		zero = rhs.zero;
+		NOT_FOUND = rhs.NOT_FOUND;
+	}
+	return *this;
+}
+
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 {
