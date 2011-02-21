@@ -424,6 +424,26 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 {
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
+	{
+		SpParHelper::Print("Grids are not comparable, SpRef fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	// Safety check
+	IT locmax_ri = 0;
+	IT locmax_ci = 0;
+	if(!ri.arr.empty())
+		locmax_ri = *max_element(ri.arr.begin(), ri.arr.end());
+	if(!ci.arr.empty())
+		locmax_ci = *max_element(ci.arr.begin(), ci.arr.end());
+
+	IT total_m = getnrow();
+	IT total_n = getncol();
+	if(locmax_ri > total_m || locmax_ci > total_n)	
+	{
+		throw outofrangeexception();
+	}
 
 	// The indices for FullyDistVec are offset'd to 1/p pieces
 	// The matrix indices are offset'd to 1/sqrt(p) pieces
@@ -449,9 +469,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	IT diagneigh = commGrid->GetComplementRank();
 	IT mylocalrows = getlocalrows();
 	IT mylocalcols = getlocalcols();
-	IT trlocalrows, trlocalcols;
+	IT trlocalrows;
 	commGrid->GetWorld().Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX);
-	commGrid->GetWorld().Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX);
+	// we don't need trlocalcols because Q.Transpose() will take care of it
 
 	vector< vector<IT> > rowid(rowneighs);	// reuse for P and Q 
 	vector< vector<IT> > colid(rowneighs);
@@ -506,6 +526,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 		p_tuples[i] = make_tuple(p_rows[i], p_cols[i], 1);
 	}
 	DeleteAll(p_rows, p_cols);
+
 	DER_IT * PSeq = new DER_IT(); 
 	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
@@ -559,7 +580,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	}
 	DeleteAll(q_rows, q_cols);
 	DER_IT * QSeq = new DER_IT(); 
-	QSeq->Create( q_nnz, crowlen, trlocalcols, q_tuples);		// Creating Q' instead
+	QSeq->Create( q_nnz, crowlen, mylocalcols, q_tuples);		// Creating Q' instead
 
 	// Step 3: Form PAQ
 	// Distributed matrix generation (collective call)

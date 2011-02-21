@@ -30,10 +30,15 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
-	
-	if(A.getncol() != B.getnrow())
+	IU ncolA = A.getncol();
+	IU nrowB = B.getnrow();	
+
+	if(ncolA != nrowB)
 	{
-		cout<<"Can not multiply, dimensions does not match"<<endl;
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << nrowB << endl;
+		SpParHelper::Print(outs.str());
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
