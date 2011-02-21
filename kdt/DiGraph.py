@@ -1001,16 +1001,51 @@ class DiGraph(gr.Graph):
 		return ret
 
 
+	def normalizeEdgeWeights(self):
+		"""
+		Normalize the outward edge weights of each vertex such
+		that for Vertex v, each outward edge weight is
+		1/outdegree(v).
+		"""
+		degscale = self.degree(gr.Out)
+		for ind in range(len(degscale)):
+			if degscale[ind] != 0:
+				degscale[ind] = 1./degscale[ind]
+		self.scale(degscale.toSpParVec())
+		
 	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 		"""
-
 		Compute the PageRank of vertices in the graph.
+
+		The PageRank algorithm computes the percentage of time
+		that a "random surfer" spends at each vertex in the
+		graph. If the random surfer is at Vertex v, she will
+		take one of two actions:
+		    1) She will hop to another vertex to which Vertex
+                       v has an outward edge. Self loops are ignored.
+		    2) She will become "bored" and randomly hop to any
+                       vertex in the graph. This action is taken with
+                       probability (1 - dampingFactor).
+
+		When the surfer is visiting a vertex that is a sinks
+		(i.e., has no outward edges), she hops to any vertex
+		in the graph with probability one.
+
+		Optional argument epsilon controls the stopping
+		condition. Iteration stops when the 1-norm of the
+		difference in two successive result vectors is less
+		than epsilon.
+
+		Optional parameter dampingFactor alters the results
+		and speed of convergence, and in the model described
+		above dampingFactor is the percentage of time that the
+		random surfer hops to an adjacent vertex (rather than
+		hopping to a random vertex in the graph).
 
 		See "The PageRank Citation Ranking: Bringing Order to
 		the Web" by Page, Brin, Motwani, and Winograd, 1998
 		(http://ilpubs.stanford.edu:8090/422/) for more
 		information.
-		
 		"""
 
 		# We don't want to modify the user's graph.
@@ -1044,17 +1079,8 @@ class DiGraph(gr.Graph):
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
 		# outgoing edges).
-		degscale = G.degree(gr.Out)
-		for ind in range(len(degscale)):
-			if degscale[ind] != 0:
-				degscale[ind] = 1./degscale[ind]
-		G.scale(degscale.toSpParVec())
-
-		degscale = sinkG.degree(gr.Out)
-		for ind in range(len(degscale)):
-			if degscale[ind] != 0:
-				degscale[ind] = 1./degscale[ind]
-		sinkG.scale(degscale.toSpParVec())
+		G.normalizeEdgeWeights()
+		sinkG.normalizeEdgeWeights()
 
 		# PageRank loop.
 		delta = 1
