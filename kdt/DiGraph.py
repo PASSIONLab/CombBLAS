@@ -851,7 +851,7 @@ class DiGraph(gr.Graph):
 	
 		level = 1
 		while fringe.nnn() > 0:
-			fringe.sprange()
+			fringe.spRange()
 			#ToDo:  create PCB graph-level op
 			self.spm.SpMV_SelMax_inplace(fringe.spv)
 			#ToDo:  create PCB graph-level op
@@ -887,7 +887,7 @@ class DiGraph(gr.Graph):
 		cycle = False
 		multiparents = False
 		while fringe.nnn() > 0 and not cycle and not multiparents:
-			fringe.spones()
+			fringe.spOnes()
 			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv))
 			if visited[newfringe.toParVec().findInds()].any():
 				cycle = True
@@ -993,7 +993,7 @@ class DiGraph(gr.Graph):
 		self2.ones()
 		ret = ParVec(self2.nvert(),-1)
 		fringe = source.find()
-		fringe.sprange()
+		fringe.spRange()
 		self2.spm.SpMV_SelMax_inplace(fringe.spv)
 		ret[fringe] = fringe
 		if not sym:
