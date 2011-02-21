@@ -196,7 +196,7 @@ class ParVec:
 			if key.isBool():
 				ret = ParVec(-1)
 				ndx = key.copy()
-				ndx.sprange()
+				ndx.spRange()
 				ret.dpv = self.dpv[ndx.spv.dense()]
 			else:
 				ret = SpParVec(-1)
@@ -1290,7 +1290,7 @@ class SpParVec:
 		return
 
 	#in-place, so no return value
-	def spones(self):
+	def spOnes(self):
 		"""
 		sets every non-null value in the SpParVec instance to 1, in-place.
 		"""
@@ -1298,7 +1298,7 @@ class SpParVec:
 		return
 
 	#in-place, so no return value
-	def sprange(self):
+	def spRange(self):
 		"""
 		sets every non-null value in the SpParVec instance to its position
 		(offset) in the vector, in-place.
