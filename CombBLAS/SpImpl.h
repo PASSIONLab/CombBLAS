@@ -37,16 +37,12 @@ struct SpImpl<SR,IT,bool, NT>
 			vector<IT> & indy, vector< NT > & numy);	// specialize this
 };
 
-//static int64_t * spmvaux = NULL; // Adam: this explicit type causes problems
-
 // base template version
 // indx vector practically keeps column numbers requested from A
 template <typename SR, typename IT, typename NT1, typename NT2>
 void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
 {
-	static IT* spmvaux = NULL;
-	
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 	HeapEntry<IT, NT1> * wset = new HeapEntry<IT, NT1>[veclen]; 
 
@@ -59,11 +55,19 @@ void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, co
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
         IT csize = static_cast<IT>(ceil(cf));   // chunk size
+
+
+#ifdef UNIQUEMATRIXSPMV
+	static IT* spmvaux = NULL;	// set only once over the whole program execution
 	if(spmvaux == NULL)
 	{
-		//IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
 		Adcsc.ConstructAux(nA, spmvaux);
 	}
+#else
+	// ABAB: Short term fix (may have performance hit or not)
+	// Long term idea is to piggyback aux to dcsc in a proper way.
+	IT* spmvaux = NULL;
+#endif
 
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 	IT hsize = 0;		
@@ -111,8 +115,6 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy)
 {   
-	static IT* spmvaux = NULL;
-
 	// colnums vector keeps column numbers requested from A
 	vector<IT> colnums(veclen);
 
@@ -122,10 +124,18 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
         IT csize = static_cast<IT>(ceil(cf));   // chunk size
+
+#ifdef UNIQUEMATRIXSPMV
+	static IT* spmvaux = NULL;	// set only once over the whole program execution
 	if(spmvaux == NULL)
 	{
-		IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
+		Adcsc.ConstructAux(nA, spmvaux);
 	}
+#else
+	// ABAB: Short term fix (may have performance hit or not)
+	// Long term idea is to piggyback aux to dcsc in a proper way.
+	IT* spmvaux = NULL;
+#endif
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 
 	IT flops = 0;	
@@ -238,8 +248,6 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 template <typename _BinaryOperation, typename IT, typename NT1, typename NT2>
 void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen, _BinaryOperation __binary_op)
 {
-	static IT* spmvaux = NULL;
-	
 	// colnums vector keeps column numbers requested from A
 	//vector<IT> colnums(veclen);
 
@@ -249,11 +257,18 @@ void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, c
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
 	IT csize = static_cast<IT>(ceil(cf));   // chunk size
+
+#ifdef UNIQUEMATRIXSPMV
+	static IT* spmvaux = NULL;	// set only once over the whole program execution
 	if(spmvaux == NULL)
 	{
-		//IT auxsize = Adcsc.ConstructAux(nA, spmvaux);
 		Adcsc.ConstructAux(nA, spmvaux);
 	}
+#else
+	// ABAB: Short term fix (may have performance hit or not)
+	// Long term idea is to piggyback aux to dcsc in a proper way.
+	IT* spmvaux = NULL;
+#endif
 
 	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 
