@@ -60,5 +60,5 @@ def UFget(filename):
 	Original Python version written by Kevin Oelze, July 2008
     """
     G = dg.DiGraph()
-    G.spm.load(UFdownload(filename))
+    G._spm.load(UFdownload(filename))
     return G
