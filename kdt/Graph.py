@@ -1331,16 +1331,12 @@ class SpParVec:
 			k:  a scalar integer denoting how many values to return.
 
 		Output Argument:
-			ret:  a ParVec instance of length k containing the k largest
-			    values from the input vector, in descending order.
+			ret:  a SpParVec instance of length k containing the k largest
+			    values from the input vector, in ascending order.
 		"""
-		raise NotImplementedError
-		tmp = SpParVec(0)
-		tmp.spv = self.spv.TopK(k)
-		tmp = -tmp
-		tmp.spv.Sort()
-		tmp = -tmp
-		# turn SpParVec into ParVec without dense()...
+		# ToDo:  not sure a SpParVec return is that useful
+		ret = SpParVec(0)
+		ret.spv = self.spv.TopK(k)
 		return ret
 
 	def toParVec(self):	

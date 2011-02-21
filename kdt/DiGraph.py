@@ -1027,7 +1027,7 @@ class DiGraph(gr.Graph):
                        vertex in the graph. This action is taken with
                        probability (1 - dampingFactor).
 
-		When the surfer is visiting a vertex that is a sinks
+		When the surfer is visiting a vertex that is a sink
 		(i.e., has no outward edges), she hops to any vertex
 		in the graph with probability one.
 
