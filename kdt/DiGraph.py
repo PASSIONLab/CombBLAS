@@ -999,6 +999,78 @@ class DiGraph(gr.Graph):
 		if not sym:
 			self.T()
 		return ret
+
+
+	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
+		"""
+
+		Compute the PageRank of vertices in the graph.
+
+		See "The PageRank Citation Ranking: Bringing Order to
+		the Web" by Page, Brin, Motwani, and Winograd, 1998
+		(http://ilpubs.stanford.edu:8090/422/) for more
+		information.
+		
+		"""
+
+		# We don't want to modify the user's graph.
+		G = self.copy()
+		nvert = G.nvert()
+
+		# Remove self loops.
+		G.spm.removeSelfLoops()
+
+		# Handle sink nodes (nodes with no outgoing edges) by
+		# connecting them to all other nodes.
+		degout = G.degree(gr.Out)
+		nonSinkNodes = degout.findInds()
+		nSinkNodes = nvert - len(nonSinkNodes)
+		iInd = ParVec(nSinkNodes*(nvert))
+		jInd = ParVec(nSinkNodes*(nvert))
+		wInd = ParVec(nSinkNodes*(nvert), 1)
+		sinkSuppInd = 0
+		
+		for ind in range(nvert):
+			if degout[ind] == 0:
+				# Connect to all nodes.
+				for sInd in range(nvert):
+					iInd[sinkSuppInd] = sInd
+					jInd[sinkSuppInd] = ind
+					sinkSuppInd = sinkSuppInd + 1
+		sinkMat = pcb.pySpParMat(nvert, nvert, iInd.dpv, jInd.dpv, wInd.dpv)
+		sinkG = DiGraph()
+		sinkG.spm = sinkMat
+
+		# Normalize edge weights such that for each vertex,
+		# each outgoing edge weight is equal to 1/(number of
+		# outgoing edges).
+		degscale = G.degree(gr.Out)
+		for ind in range(len(degscale)):
+			if degscale[ind] != 0:
+				degscale[ind] = 1./degscale[ind]
+		G.scale(degscale.toSpParVec())
+
+		degscale = sinkG.degree(gr.Out)
+		for ind in range(len(degscale)):
+			if degscale[ind] != 0:
+				degscale[ind] = 1./degscale[ind]
+		sinkG.scale(degscale.toSpParVec())
+
+		# PageRank loop.
+		delta = 1
+		dv1 = ParVec(nvert, 1./nvert)
+		v1 = dv1.toSpParVec()
+		prevV = SpParVec(nvert)
+		dampingVec = SpParVec.ones(nvert) * ((1 - dampingFactor)/nvert)
+		while delta > epsilon:
+			prevV = v1.copy()
+			v2 = G.spm.SpMV_PlusTimes(v1.spv) + \
+			     sinkG.spm.SpMV_PlusTimes(v1.spv)
+			v1.spv = v2
+			v1 = v1*dampingFactor + dampingVec
+			delta = (v1 - prevV).spv.Reduce(pcb.plus(), pcb.abs())
+		return v1
+
 		
 	def centrality(self, alg, **kwargs):
 		"""

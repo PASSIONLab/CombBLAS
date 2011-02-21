@@ -1059,4 +1059,5 @@ kdt/pyCombBLAS/pySpParVec.h -text
 kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
+test/TestDiGraph.py -text
 /v0.1_checklist -text
