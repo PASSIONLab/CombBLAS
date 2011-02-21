@@ -45,11 +45,11 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  toParVec
 		"""
 		if len(args) == 0:
-			self.spm = pcb.pySpParMat()
+			self._spm = pcb.pySpParMat()
 		elif len(args) == 1:	# no longer used
 			[arg] = args
 			if arg < 0:
-				self.spm = pcb.pySpParMat()
+				self._spm = pcb.pySpParMat()
 			else:
 				raise NotImplementedError, '1-argument case only accepts negative value'
 		elif len(args) == 4:
@@ -60,7 +60,7 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'at least one first index greater than #vertices'
 			if j.max() > nv-1:
 				raise KeyError, 'at least one second index greater than #vertices'
-			self.spm = pcb.pySpParMat(nv,nv,i.dpv,j.dpv,v.dpv)
+			self._spm = pcb.pySpParMat(nv,nv,i._dpv,j._dpv,v._dpv)
 		elif len(args) == 5:
 			[i,j,v,nv1,nv2] = args
 			if type(v) == int or type(v) == long or type(v) == float:
@@ -69,7 +69,7 @@ class DiGraph(gr.Graph):
 				raise KeyError, 'at least one first index greater than #vertices'
 			if j.max() > nv2-1:
 				raise KeyError, 'at least one second index greater than #vertices'
-			self.spm = pcb.pySpParMat(nv1,nv2,i.dpv,j.dpv,v.dpv)
+			self._spm = pcb.pySpParMat(nv1,nv2,i._dpv,j._dpv,v._dpv)
 		else:
 			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
 
@@ -85,8 +85,8 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
 			ret = self.copy()
-			ret.spm += other.spm
-			#ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.plus());  # only adds if both mats have nonnull elems!!
+			ret._spm += other._spm
+			#ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.plus());  # only adds if both mats have nonnull elems!!
 		return ret
 
 	def __div__(self, other):
@@ -97,12 +97,12 @@ class DiGraph(gr.Graph):
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
-			ret.spm.Apply(pcb.bind2nd(pcb.divides(),other))
+			ret._spm.Apply(pcb.bind2nd(pcb.divides(),other))
 		elif self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy()
-			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.divides())
+			ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.divides())
 		else:
 			raise NotImplementedError
 		return ret
@@ -187,15 +187,15 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
-			#dead tmp = pcb.EWiseApply(self.spm, other.spm, pcb.plus())
-			self.spm += other.spm
+			#dead tmp = pcb.EWiseApply(self._spm, other._spm, pcb.plus())
+			self._spm += other._spm
 		return self
 
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
-			self.spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
+			self._spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
 		elif isinstance(other,DiGraph):
-			self.spm = pcb.EWiseApply(self.spm,other.spm, pcb.multiplies())
+			self._spm = pcb.EWiseApply(self._spm,other._spm, pcb.multiplies())
 		else:
 			raise NotImplementedError
 		return self
@@ -209,12 +209,12 @@ class DiGraph(gr.Graph):
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
-			ret.spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
+			ret._spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
 		elif self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy()
-			ret.spm = pcb.EWiseApply(self.spm,other.spm, pcb.multiplies())
+			ret._spm = pcb.EWiseApply(self._spm,other._spm, pcb.multiplies())
 		else:
 			raise NotImplementedError
 		return ret
@@ -255,7 +255,7 @@ class DiGraph(gr.Graph):
 		if selfnv2 != othernv1:
 			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
 		ret = DiGraph()
-		ret.spm = self.spm.SpMM(other.spm)
+		ret._spm = self._spm.SpMM(other._spm)
 		return ret
 
 	def copy(self):
@@ -269,7 +269,7 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
 		ret = DiGraph()
-		ret.spm = self.spm.copy()
+		ret._spm = self._spm.copy()
 		return ret
 		
 	def degree(self, dir=gr.Out):
@@ -290,14 +290,14 @@ class DiGraph(gr.Graph):
 		"""
 		if dir == gr.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -312,7 +312,7 @@ class DiGraph(gr.Graph):
 			self:  a DiGraph instance, modified in-place.
 
 		"""
-		self.spm.removeSelfLoops()
+		self._spm.removeSelfLoops()
 		return
 
 	@staticmethod
@@ -357,7 +357,7 @@ class DiGraph(gr.Graph):
 			    the DiGraph instance.  This equals the value of Kernel 1
 			    of the Graph500 benchmark.
 		"""
-		elapsedTime = self.spm.GenGraph500Edges(scale)
+		elapsedTime = self._spm.GenGraph500Edges(scale)
 	 	return elapsedTime
 
 	@staticmethod
@@ -382,8 +382,8 @@ class DiGraph(gr.Graph):
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
 		ret = DiGraph()
-		ret.spm = pcb.pySpParMat()
-		ret.spm.load(fname)
+		ret._spm = pcb.pySpParMat()
+		ret._spm.load(fname)
 		return ret
 
 	def max(self, dir=gr.InOut):
@@ -405,14 +405,14 @@ class DiGraph(gr.Graph):
 		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -436,14 +436,14 @@ class DiGraph(gr.Graph):
 		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
 			return ParVec.toParVec(ret)
 
 	def mulNot(self, other):
@@ -464,7 +464,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
 			ret = DiGraph()
-			ret.spm = pcb.EWiseApply(self.spm, other.spm, pcb.multiplies(), True)
+			ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.multiplies(), True)
 		return ret
 
 	#FIX:  good idea to have this return an int or a tuple?
@@ -487,8 +487,8 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  nedge, degree
 		"""
-		nrow = self.spm.getnrow()
-		ncol = self.spm.getncol()
+		nrow = self._spm.getnrow()
+		ncol = self._spm.getncol()
 		if nrow==ncol:
 			ret = nrow
 		else:
@@ -508,7 +508,7 @@ class DiGraph(gr.Graph):
 
 	#	SEE ALSO:  set
 	#	"""
-	#	self.spm.Apply(pcb.set(1))
+	#	self._spm.Apply(pcb.set(1))
 	#	return
 
 	#in-place, so no return value
@@ -520,7 +520,7 @@ class DiGraph(gr.Graph):
 		Input Argument:
 			self:  a DiGraph instance, modified in-place.
 		"""
-		self.spm.Transpose()
+		self._spm.Transpose()
 
 	def save(self, fname):
 		"""
@@ -537,7 +537,7 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  load, UFget
 		"""
-		self.spm.save(fname)
+		self._spm.save(fname)
 		return
 
 	#in-place, so no return value
@@ -568,12 +568,12 @@ class DiGraph(gr.Graph):
 		if dir == gr.Out:
 			if selfnv2 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
-			self.spm.ColWiseApply(other.spv, pcb.multiplies())
+			self._spm.ColWiseApply(other._spv, pcb.multiplies())
 		elif dir == gr.In:
 			if selfnv1 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
 			self.T()
-			self.spm.ColWiseApply(other.spv,pcb.multiplies())
+			self._spm.ColWiseApply(other._spv,pcb.multiplies())
 			self.T()
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -594,7 +594,7 @@ class DiGraph(gr.Graph):
 
 	#	SEE ALSO:  ones
 	#	"""
-	#	self.spm.Apply(pcb.set(value))
+	#	self._spm.Apply(pcb.set(value))
 	#	return
 
 	def subgraph(self, ndx1, ndx2=None):
@@ -640,14 +640,14 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  degree 
 		"""
 		if dir == gr.InOut:
-			tmp1 = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
-			tmp2 = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self.spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self.spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -667,8 +667,8 @@ class DiGraph(gr.Graph):
 		Output Argument:
 			None.
 		"""
-		if isinstance(self.spm, pcb.pySpParMat):
-			self.spm = pcb.pySpParMatBool(self.spm)
+		if isinstance(self._spm, pcb.pySpParMat):
+			self._spm = pcb.pySpParMatBool(self._spm)
 
 	def toParVec(self):
 		"""
@@ -691,7 +691,7 @@ class DiGraph(gr.Graph):
 		reti = ParVec(ne)
 		retj = ParVec(ne)
 		retv = ParVec(ne)
-		self.spm.Find(reti.dpv, retj.dpv, retv.dpv)
+		self._spm.Find(reti._dpv, retj._dpv, retv._dpv)
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv)
 
@@ -779,7 +779,7 @@ class DiGraph(gr.Graph):
 		fringe[root] = root
 		while fringe.getnnz() > 0:
 			fringe.setNumToInd()
-			self.spm.SpMV_SelMax_inplace(fringe)
+			self._spm.SpMV_SelMax_inplace(fringe)
 			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)
 			parents[fringe] = 0
 			parents += fringe
@@ -853,9 +853,9 @@ class DiGraph(gr.Graph):
 		while fringe.nnn() > 0:
 			fringe.spRange()
 			#ToDo:  create PCB graph-level op
-			self.spm.SpMV_SelMax_inplace(fringe.spv)
+			self._spm.SpMV_SelMax_inplace(fringe._spv)
 			#ToDo:  create PCB graph-level op
-			pcb.EWiseMult_inplacefirst(fringe.spv, parents2.dpv, True, -1)
+			pcb.EWiseMult_inplacefirst(fringe._spv, parents2._dpv, True, -1)
 			parents2[fringe] = fringe
 			levels[fringe] = level
 			level += 1
@@ -888,7 +888,7 @@ class DiGraph(gr.Graph):
 		multiparents = False
 		while fringe.nnn() > 0 and not cycle and not multiparents:
 			fringe.spOnes()
-			newfringe = SpParVec.toSpParVec(builtGT.spm.SpMV_PlusTimes(fringe.spv))
+			newfringe = SpParVec.toSpParVec(builtGT._spm.SpMV_PlusTimes(fringe._spv))
 			if visited[newfringe.toParVec().findInds()].any():
 				cycle = True
 				break
@@ -944,7 +944,7 @@ class DiGraph(gr.Graph):
 		fringe = SpParVec(self.nvert())
 		fringe[source] = 1
 		for i in range(nhop):
-			self.spm.SpMV_SelMax_inplace(fringe.spv)
+			self._spm.SpMV_SelMax_inplace(fringe._spv)
 			dest[fringe.toParVec()] = 1
 		if not sym:
 			self.T()
@@ -994,7 +994,7 @@ class DiGraph(gr.Graph):
 		ret = ParVec(self2.nvert(),-1)
 		fringe = source.find()
 		fringe.spRange()
-		self2.spm.SpMV_SelMax_inplace(fringe.spv)
+		self2._spm.SpMV_SelMax_inplace(fringe._spv)
 		ret[fringe] = fringe
 		if not sym:
 			self.T()
@@ -1053,7 +1053,7 @@ class DiGraph(gr.Graph):
 		nvert = G.nvert()
 
 		# Remove self loops.
-		G.spm.removeSelfLoops()
+		G._spm.removeSelfLoops()
 
 		# Handle sink nodes (nodes with no outgoing edges) by
 		# connecting them to all other nodes.
@@ -1072,9 +1072,9 @@ class DiGraph(gr.Graph):
 					iInd[sinkSuppInd] = sInd
 					jInd[sinkSuppInd] = ind
 					sinkSuppInd = sinkSuppInd + 1
-		sinkMat = pcb.pySpParMat(nvert, nvert, iInd.dpv, jInd.dpv, wInd.dpv)
+		sinkMat = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, wInd._dpv)
 		sinkG = DiGraph()
-		sinkG.spm = sinkMat
+		sinkG._spm = sinkMat
 
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
@@ -1090,11 +1090,11 @@ class DiGraph(gr.Graph):
 		dampingVec = SpParVec.ones(nvert) * ((1 - dampingFactor)/nvert)
 		while delta > epsilon:
 			prevV = v1.copy()
-			v2 = G.spm.SpMV_PlusTimes(v1.spv) + \
-			     sinkG.spm.SpMV_PlusTimes(v1.spv)
-			v1.spv = v2
+			v2 = G._spm.SpMV_PlusTimes(v1._spv) + \
+			     sinkG._spm.SpMV_PlusTimes(v1._spv)
+			v1._spv = v2
 			v1 = v1*dampingFactor + dampingVec
-			delta = (v1 - prevV).spv.Reduce(pcb.plus(), pcb.abs())
+			delta = (v1 - prevV)._spv.Reduce(pcb.plus(), pcb.abs())
 		return v1
 
 		

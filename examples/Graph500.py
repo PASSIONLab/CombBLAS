@@ -64,7 +64,7 @@ if GRAPH500 == 1:
 		print 'Using Graph500 graph generator'
 	G = dg.DiGraph()
 	K1elapsed = G.genGraph500Edges(scale)
-	#G.spm.save("testgraph.mtx")
+	#G.save("testgraph.mtx")
 
 	if nstarts > G.nvert():
 		nstarts = G.nvert()
