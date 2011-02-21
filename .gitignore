@@ -1,4 +1,6 @@
+/.KDT_log
 CombBLAS/ReleaseTests/.dep.inc
+CombBLAS/graph500-1.2/generator/libgraph_generator_seq.a
 CombBLAS/makefile
 Graph500cpp/*.o
 Graph500cpp/Makefile
@@ -8,8 +10,12 @@ Graph500cpp/makefile
 Python/distribCombBLAS/*.pyc
 Python/distribCombBLAS/.KDT_log
 kdt/*.pyc
+kdt/.KDT_log
+kdt/_pyCombBLAS.so
 kdt/pyCombBLAS/*.a
 kdt/pyCombBLAS/*.o
 kdt/pyCombBLAS/*.pyc
 kdt/pyCombBLAS/*.so
 kdt/pyCombBLAS/Makefile
+/temp_fullydistspvec
+/temp_fullydistvec
