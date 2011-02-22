@@ -252,6 +252,8 @@ class pyDenseParVec(_object):
     def copy(self): return _pyCombBLAS.pyDenseParVec_copy(self)
     def SubsRef(self, *args): return _pyCombBLAS.pyDenseParVec_SubsRef(self, *args)
     def RandPerm(self): return _pyCombBLAS.pyDenseParVec_RandPerm(self)
+    def Sort(self): return _pyCombBLAS.pyDenseParVec_Sort(self)
+    def TopK(self, *args): return _pyCombBLAS.pyDenseParVec_TopK(self, *args)
     def printall(self): return _pyCombBLAS.pyDenseParVec_printall(self)
     def getnee(self): return _pyCombBLAS.pyDenseParVec_getnee(self)
     def getnnz(self): return _pyCombBLAS.pyDenseParVec_getnnz(self)

@@ -56,7 +56,9 @@ public:
 	
 	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 
-	void RandPerm();
+	void RandPerm(); // Randomly permutes the vector
+	pyDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 
 	void printall();
 	
