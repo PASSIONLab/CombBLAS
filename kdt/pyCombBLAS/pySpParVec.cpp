@@ -210,12 +210,26 @@ pySpParVec pySpParVec::Sort()
 pySpParVec pySpParVec::TopK(int64_t k)
 {
 	FullyDistSpVec<INDEXTYPE, INDEXTYPE> sel(k);
-	sel.iota(k, len()-k);
+	sel.iota(k, 0);
 
 	pySpParVec sorted = copy();
-	sorted.v.sort();
-	
+	op::UnaryFunction negate = op::negate();
+	sorted.Apply(&negate); // the negation is so that the sort direction is reversed
+//	sorted.printall();
+	FullyDistSpVec<INDEXTYPE, INDEXTYPE> perm = sorted.v.sort();
+//	sorted.printall();
+//	perm.DebugPrint();
+	sorted.Apply(&negate);
+
+	// return dense	
 	return pySpParVec(sorted.v(sel));
+	
+/*	
+vcop = v;
+perm = vcop.sort();
+lastk = iota(k,len-k-1);
+return v(perm(lastk));
+*/
 }
 
 void pySpParVec::setNumToInd()
