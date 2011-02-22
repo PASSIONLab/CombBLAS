@@ -10620,6 +10620,79 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pyDenseParVec_Sort(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< pyDenseParVec > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:pyDenseParVec_Sort",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVec_Sort" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
+  {
+    try {
+      result = (arg1)->Sort();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyDenseParVec_TopK(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
+  int64_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  long long val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  SwigValueWrapper< pyDenseParVec > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec_TopK",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVec_TopK" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pyDenseParVec_TopK" "', argument " "2"" of type '" "int64_t""'");
+  } 
+  arg2 = static_cast< int64_t >(val2);
+  {
+    try {
+      result = (arg1)->TopK(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pyDenseParVec_printall(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
@@ -14076,6 +14149,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVec_copy", _wrap_pyDenseParVec_copy, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_SubsRef", _wrap_pyDenseParVec_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_RandPerm", _wrap_pyDenseParVec_RandPerm, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVec_Sort", _wrap_pyDenseParVec_Sort, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVec_TopK", _wrap_pyDenseParVec_TopK, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_printall", _wrap_pyDenseParVec_printall, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_getnee", _wrap_pyDenseParVec_getnee, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_getnnz", _wrap_pyDenseParVec_getnnz, METH_VARARGS, NULL},

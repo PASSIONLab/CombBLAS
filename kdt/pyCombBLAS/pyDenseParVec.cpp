@@ -258,6 +258,31 @@ void pyDenseParVec::RandPerm()
 	v.RandPerm();
 }
 
+pyDenseParVec pyDenseParVec::Sort()
+{
+	pyDenseParVec ret(1, 0, 0);
+	ret.v = v.sort();
+	return ret; // Sort is in-place. The return value is the permutation used.
+}
+
+pyDenseParVec pyDenseParVec::TopK(int64_t k)
+{
+	FullyDistVec<INDEXTYPE, INDEXTYPE> sel(k);
+	sel.iota(k, 0);
+
+	pyDenseParVec sorted = copy();
+	op::UnaryFunction negate = op::negate();
+	sorted.Apply(&negate); // the negation is so that the sort direction is reversed
+//	sorted.printall();
+	FullyDistVec<INDEXTYPE, INDEXTYPE> perm = sorted.v.sort();
+//	sorted.printall();
+//	perm.DebugPrint();
+	sorted.Apply(&negate);
+
+	// return dense	
+	return pyDenseParVec(sorted.v(sel));
+}
+
 void pyDenseParVec::printall()
 {
 	v.DebugPrint();
