@@ -1,0 +1,157 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 26
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed (or summed): 20484466 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees in 0.523963 seconds
+Converted to Boolean and removed 1707 loops
+As a whole: 67108864 rows and 67108864 columns and 1053255651 nonzeros
+Found non-isolated vertices
+As a whole: 67108864 rows and 67108864 columns and 2106511302 nonzeros
+Dropped isolated vertices from input
+As a whole: 33144195 rows and 33144195 columns and 2106511302 nonzeros
+117.153seconds elapsed for Kernel #1
+As a whole: 33144195 rows and 33144195 columns and 2106511302 nonzeros
+Load balance: 1.02594
+As a whole, Degrees array has length 33144195
+0.161621 0.864688 0.657047 0.607573 0.438504 0.452978 0.350736 0.657934 0.933136 0.575919 0.741408 0.822465 0.056332 0.439607 0.478955 0.644366 
+5.35678e+06 2.86594e+07 2.17773e+07 2.01375e+07 1.45338e+07 1.50136e+07 1.16249e+07 2.18067e+07 3.0928e+07 1.90884e+07 2.45734e+07 2.72599e+07 1.86708e+06 1.45704e+07 1.58746e+07 2.1357e+07 
+0th starting vertex was 5356784
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.27485 seconds
+MTEPS: 842.239
+1th starting vertex was 28659388
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.11255 seconds
+MTEPS: 965.109
+2th starting vertex was 21777277
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.15055 seconds
+MTEPS: 933.234
+3th starting vertex was 20137518
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.12323 seconds
+MTEPS: 955.931
+4th starting vertex was 14533847
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.1944 seconds
+MTEPS: 898.974
+5th starting vertex was 15013592
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.16673 seconds
+MTEPS: 920.289
+6th starting vertex was 11624853
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.16444 seconds
+MTEPS: 922.1
+7th starting vertex was 21806704
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.16338 seconds
+MTEPS: 922.94
+8th starting vertex was 30928036
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.17803 seconds
+MTEPS: 911.463
+9th starting vertex was 19088372
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.15967 seconds
+MTEPS: 925.892
+10th starting vertex was 24573376
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.18719 seconds
+MTEPS: 904.432
+11th starting vertex was 27259936
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.17215 seconds
+MTEPS: 916.035
+12th starting vertex was 1867079
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.11862 seconds
+MTEPS: 959.867
+13th starting vertex was 14570433
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.21107 seconds
+MTEPS: 886.596
+14th starting vertex was 15874581
+Number iterations: 7
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.17495 seconds
+MTEPS: 913.851
+15th starting vertex was 21356988
+Number iterations: 8
+Number of vertices found: 33123636
+Number of edges traversed: 1073731522
+BFS time: 1.12926 seconds
+MTEPS: 950.831
+Finished
+Per iteration communication times: 
+AllGatherv: 0
+AlltoAllv: 0
+--------------------------
+Min nedges: 1.07373e+09
+First Quartile nedges: 1.07373e+09
+Median nedges: 1.07373e+09
+Third Quartile nedges: 1.07373e+09
+Max nedges: 1.07373e+09
+Mean nedges: 1.07373e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 1.11255 seconds
+First Quartile time: 1.1399 seconds
+Median time: 1.16559 seconds
+Third Quartile time: 1.18261 seconds
+Max time: 1.27485 seconds
+Mean time: 1.16757 seconds
+STDDEV time: 0.0399405 seconds
+--------------------------
+Min MTEPS: 842.239
+First Quartile MTEPS: 907.947
+Median MTEPS: 921.195
+Third Quartile MTEPS: 942.032
+Max MTEPS: 965.109
+Harmonic mean of MTEPS: 919.631
+Harmonic standard deviation of MTEPS: 31.459
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/543278.cvrsvc09-ib completed Sat Feb 19 05:17:49 PST 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=32:ppn=8,nodes=32:ppn=8,walltime=00:10:00
+Job Resources used: cput=11:47:19,mem=119968172kb,vmem=162991816kb,walltime=00:02:55
+Nodes used: c0458-ib c0478-ib c0703-ib c0704-ib c0725-ib c0726-ib c0729-ib c0730-ib c0740-ib c0743-ib c0762-ib c0763-ib c0764-ib c0765-ib c0767-ib c0768-ib c0770-ib c0771-ib c0774-ib c0775-ib c0805-ib c0806-ib c0807-ib c0821-ib c0822-ib c0824-ib c0830-ib c0834-ib c0836-ib c0842-ib c0852-ib c0880-ib 
+
+Killing any leftover processes...
+
+Job completed.
