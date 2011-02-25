@@ -179,6 +179,44 @@ class ParVec:
 		return ret
 
 	def __getitem__(self, key):
+		"""
+		performs indexing of a ParVec instance on the right-hand side of 
+		an equation.  The following forms are supported:
+	scalar = parvec[integer scalar]
+	parvec = parvec[boolean parvec]
+	parvec = parvec[non-boolean parvec]
+	parvec = parvec[boolean spparvec]
+	spparvec = parvec[non-boolean spparvec]
+
+		Warning:  A boolean ParVec or SpParVec instance is defined as one
+		in which every element has a value of True (1.0) or False (0.0).
+		The v0.1 implementation does not distinguish a vector which happens
+		to have those values from a vector created from a Boolean operation.
+
+		The first form takes as the index an integer scalar and returns
+		the corresponding element of the ParVec instance.  This is for
+		convenience and is not high performance.
+
+		The second form takes as the index a Boolean ParVec instance and
+		returns a ParVec instance with length equal to the number of True
+		elements in the ParVec index containing the values of those elements.
+
+		The third form takes as the index a non-Boolean ParVec instance
+		containing the integer indices of the desired elements
+		and returns a ParVec instance with length equal to the index
+		ParVec instance containing the values of the indicated elements
+
+		The fourth form takes as the index a Boolean SpParVec instance
+		and returns a ParVec instance with length equal to the number of
+		True elements in the SpParVec index containing the values of the
+		corresponding elements.
+
+		The fifth form takes as the input a non-Boolean SpParVec instance
+		containing the integer indices of the desired elements and returns
+		an SpParVec instance with the number of nonnulls equal to the 
+		number of nonnulls in the SpParVec index and containing the values
+		of the corresponding elements. 
+		"""
 		#ToDo:  when generalized unary operations are supported, 
 		#    support SPV = DPV[unary-op()]
 		if type(key) == int or type(key) == long or type(key) == float:
@@ -418,6 +456,36 @@ class ParVec:
 		return ret
 
 	def __setitem__(self, key, value):
+		"""
+		performs assignment of a ParVec instance on the left-hand side of
+		an equation.  The following forms are supported:
+	parvec[integer scalar] = scalar
+	parvec[Boolean parvec] = scalar
+	parvec[Boolean parvec] = parvec
+	parvec[non-Boolean spparvec] = scalar
+	parvec[non-Boolean spparvec] = spparvec
+
+		For the first form, the element of the ParVec instance indicated
+		by the index is set to the scalar value.
+
+		For the second form, the elements of the ParVec instance corresponding
+		to the True elements of the index ParVec instance are set to the
+		scalar value.
+
+		For the third form, the elements of the ParVec instance corresponding
+		to the True elements of the index ParVec instance are set to the
+		corresponding elements of the value ParVec instance.
+
+		For the fourth form, the elements of the ParVec instance corresponding 
+		to the nonnull elements of the index SpParVec instance are set to the
+		scalar value.
+
+		For the fifth form, the elements of the ParVec instance corresponding
+		to the nonnull elements of the index SpParVec instance are set to
+		the corresponding values of the value SpParVec instance.  Note that
+		key and value SpParVec instances must have nonnull elements in the
+		same locations.
+		"""
 		if type(key) == int or type(key) == long or type(key) == float:
 			self._dpv[key] = value
 		elif isinstance(key,ParVec):
@@ -742,6 +810,21 @@ class SpParVec:
 		return ret
 
 	def __getitem__(self, key):
+		"""
+		performs indexing of a SpParVec instance on the right-han side
+		of an equation.  The following forms are supported:
+	scalar = spparvec[integer scalar]
+	spparvec = spparvec[non-boolean spparvec]
+
+		The first form takes as the index an integer scalar and returns
+		the corresponding element of the SpParVec instance.  This form is
+		for convenience and is not highly performing.
+
+		The second form takes as the index a non-Boolean SpParVec instance
+		and returns an SpParVec instance of the same length with the 
+		corresponding elements of the index set to the values of the
+		base SpParVec instance. 
+		"""
 		if type(key) == int or type(key) == long or type(key) == float:
 			if key > len(self._spv)-1:
 				raise IndexError
@@ -1023,6 +1106,37 @@ class SpParVec:
 
 
 	def __setitem__(self, key, value):
+		"""
+		performs assignment of an SpParVec instance on the left-hand side of
+		an equation.  The following forms are supported.
+	spparvec[integer scalar] = scalar
+	spparvec[Boolean parvec] = scalar
+	spparvec[Boolean parvec] = parvec
+	spparvec[non-Boolean spparvec] = scalar
+	spparvec[non-Boolean spparvec] = spparvec
+
+		For the first form, the element of the SpParVec instance indicated 
+		by the index to the is set to the scalar value.
+
+		For the second form, the elements of the SpParVec instance
+		corresponding to the True elements of the index ParVec instance
+		are set to the scalar value.
+
+		For the third form, the elements of the SpParVec instance 
+		corresponding to the True elements of the index ParVec instance
+		are set to the corresponding element of the value ParVec instance.
+
+		For the fourth form, the elements of the SpParVec instance
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the scalar value.
+
+		For the fifth form, the elements of the SpParVec instance 
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the corresponding value of the value
+		SpParVec instance.  Note that the base, key, and value SpParVec
+		instances must all be of the same length, though the base may
+		have a different number of nonzeros from the key and value. 
+		"""
 		if type(key) == int or type(key) == long or type(key) == float:
 			if key > len(self._spv)-1:
 				raise IndexError
