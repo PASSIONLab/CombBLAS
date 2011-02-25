@@ -188,16 +188,21 @@ class ParVec:
 		elif isinstance(key,ParVec):
 			if not key.allCloseToInt():
 				raise KeyError, 'ParVec key must be all integer'
-			ret = ParVec(-1)
-			ret._dpv = self._dpv[key._dpv]
+			if not key.isBool():
+				ret = ParVec(-1)
+				ret._dpv = self._dpv[key._dpv]
+			else:
+				ret = self[key.toSpParVec().findInds()]
 		elif isinstance(key,SpParVec):
 			if not key.allCloseToInt():
 				raise KeyError, 'SpParVec key must be all integer'
 			if key.isBool():
 				ret = ParVec(-1)
 				ndx = key.copy()
+				ndx2 = (ndx.toParVec()) == 0
+				del ndx._spv[ndx2._dpv]
 				ndx.spRange()
-				ret._dpv = self._dpv[ndx._spv.dense()]
+				ret = self[ndx.toParVec().findInds()]
 			else:
 				ret = SpParVec(-1)
 				ret._spv = self._dpv.sparse()[key._spv]
@@ -434,8 +439,13 @@ class ParVec:
 			if type(value) == int or type(value) == long or type(value) == float:
 				self._dpv.ApplyMasked(pcb.set(value), key._spv)
 			elif isinstance(value, SpParVec):
-				#ToDo:  check that key and value have the same
-				# nonnull positions
+				keytmp = key.copy()
+				valuetmp = value.copy()
+				keytmp.set(1)
+				valuetmp.set(1)
+				diffpos = ((keytmp+valuetmp) != 2).any()
+				if (key.nnn() != value.nnn()) or diffpos:
+					raise KeyError, 'SpParVec key and value must have nonnulls in the same positions'
 				self._dpv.ApplyMasked(pcb.set(0),key._spv)
 				self._dpv.add(value._spv)
 			else:
@@ -737,6 +747,8 @@ class SpParVec:
 				raise IndexError
 			ret = self._spv[key]
 		elif isinstance(key,SpParVec):
+			if key.isBool():
+				raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
 			ret = SpParVec(-1)
 			ret._spv = self._spv[key._spv]
 		else:
@@ -1026,6 +1038,8 @@ class SpParVec:
 				raise IndexError, 'Key and Value must be same length as SpParVec'
 			self._spv[key._dpv] = value._dpv
 		elif isinstance(key,SpParVec):
+			if key.isBool():
+				raise KeyError, 'Boolean indexing of SpParVecs not supported'
 			if isinstance(value,ParVec):
 				pass
 			elif isinstance(value,SpParVec):
