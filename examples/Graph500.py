@@ -10,7 +10,7 @@ The variables in this script that will commonly be changed are:
 	nstarts:  The number of times to create a BFS tree from a random
 	    root vertex.
 
-The edge factor is not easily changeable.
+The edge factor, whose default value is 16, is not easily changeable.
 """
 import time
 import math
