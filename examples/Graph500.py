@@ -1,9 +1,24 @@
+"""
+The Graph500 module implements the Graph500 benchmark (v1.1), which includes
+kernels 1 (graph construction) and 2 (breadth-first search).  In addition to
+constructing the graph as specified, the module implements all 5 validation
+steps in the spec. See www.graph500.org/Specifications.html for more detail.  
+
+The variables in this script that will commonly be changed are:
+	scale:  The logarithm base 2 of the number of vertices in the 
+	    resulting graph.
+	nstarts:  The number of times to create a BFS tree from a random
+	    root vertex.
+
+The edge factor is not easily changeable.
+"""
 import time
 import math
 import scipy as sc
 
 import sys
 import DiGraph as dg
+
 
 def k2Validate(G, start, parents):
 	good = True
@@ -56,7 +71,7 @@ def k2Validate(G, start, parents):
 
 
 scale = 15
-nstarts = 640
+nstarts = 64
 
 GRAPH500 = 1
 if GRAPH500 == 1:
