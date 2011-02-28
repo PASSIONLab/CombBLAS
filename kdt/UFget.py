@@ -45,7 +45,7 @@ def UFdownload(filename):
 
 #Download the matrix at index i from the
 #sparse matrix database and read it into a Matrix object
-@staticmethod
+#	@staticmethod
 def UFget(filename):
     """
 	downloads a file of the given base name from the University of Florida 
