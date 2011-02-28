@@ -31,6 +31,10 @@ template <class IT, class NT, class Enable=void>
 class FullyDist
 {};	// dummy generic template
 
+
+// ABAB: Both derived classes, whether sparse or dense, are distributed
+// to processors based on their "length", so that a conversion does not
+// need any communication between sparse and dense formats
 template <class IT, class NT>
 class FullyDist<IT, NT, typename disable_if< is_boolean<NT>::value, NT >::type >
 {

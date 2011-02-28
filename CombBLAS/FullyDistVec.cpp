@@ -117,6 +117,7 @@ template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+	zero = rhs.zero;	// inherit zero from rhs
 	arr.resize(rhs.MyLocLength());
 	std::fill(arr.begin(), arr.end(), zero);	
 

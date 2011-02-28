@@ -59,6 +59,14 @@ public:
 		while (__first != __last)
 	     		*__first++ = __value++;
 	}
+	template<typename In, typename Out, typename UnPred>
+	static Out copyIf(In first, In last, Out result, UnPred pred) 
+	{
+   		for ( ;first != last; ++first)
+      			if (pred(*first))
+         			*result++ = *first;
+   		return(result);
+	}
 	
 	template<typename T, typename I1, typename I2>
 	static T ** allocate2D(I1 m, I2 n)
