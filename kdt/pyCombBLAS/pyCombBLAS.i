@@ -199,12 +199,12 @@ public:
 	void Apply(op::UnaryFunction* op);
 	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 
-	pySpParVec SubsRef(const pySpParVec& ri);
+	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	pySpParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
@@ -220,7 +220,7 @@ public:
 	
 	double __getitem__(int64_t key);
 	double __getitem__(double  key);
-	pySpParVec __getitem__(const pySpParVec& key);
+	pyDenseParVec __getitem__(const pyDenseParVec& key);
 	
 	void __setitem__(int64_t key, double value);
 	void __setitem__(double  key, double value);
