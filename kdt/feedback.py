@@ -97,3 +97,4 @@ class feedback:
 	
 	
 feedback.startFeedback();
+sendFeedback = feedback.sendFeedback

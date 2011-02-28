@@ -3,7 +3,7 @@ import scipy as sc
 import scipy.sparse as sp
 import pyCombBLAS as pcb
 import Graph as gr
-import feedback 
+from Graph import ParVec, SpParVec, master
 
 class DiGraph(gr.Graph):
 
@@ -733,9 +733,6 @@ class DiGraph(gr.Graph):
 		ret = DiGraph(row, col, 1, N)
 		return ret
 
-	UFget = gr.UFget
-	UFdownload = gr.UFdownload
-
 	# ==================================================================
 	#  "complex ops" implemented below here
 	# ==================================================================
@@ -1253,16 +1250,6 @@ class DiGraph(gr.Graph):
 	
 		return clus
 
-class ParVec(gr.ParVec):
-	pass
-
-class SpParVec(gr.SpParVec):
-	pass
-
-		
-
-master = gr.master
-sendFeedback = gr.sendFeedback
 InOut = gr.InOut
 In = gr.In
 Out = gr.Out

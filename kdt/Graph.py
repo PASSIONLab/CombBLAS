@@ -1492,10 +1492,6 @@ def master():
 	"""
 	return pcb.root()
 
-sendFeedback = feedback.feedback.sendFeedback
-UFget = uf.UFget
-UFdownload = uf.UFdownload
-
 # which direction(s) of edges to include
 InOut = 1
 In = 2
