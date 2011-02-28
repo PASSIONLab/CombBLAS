@@ -176,10 +176,15 @@ void pySpParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
 }
 */
 
-
+/*
 pySpParVec pySpParVec::SubsRef(const pySpParVec& ri)
 {
 	return pySpParVec(v(ri.v));
+}*/
+
+pyDenseParVec pySpParVec::SubsRef(const pyDenseParVec& ri)
+{
+	return pyDenseParVec(v(ri.v));
 }
 
 
@@ -207,8 +212,26 @@ pySpParVec pySpParVec::Sort()
 	return ret; // Sort is in-place. The return value is the permutation used.
 }
 
-pySpParVec pySpParVec::TopK(int64_t k)
+pyDenseParVec pySpParVec::TopK(int64_t k)
 {
+	// FullyDistVec::FullyDistVec(IT glen, NT initval, NT id) 
+	FullyDistVec<INDEXTYPE,INDEXTYPE> sel(k, 0, 0);
+	
+	//void FullyDistVec::iota(IT globalsize, NT first)
+	sel.iota(k, v.TotalLength() - k);
+	
+	FullyDistSpVec<INDEXTYPE,doubleint> sorted(v);
+	FullyDistSpVec<INDEXTYPE,INDEXTYPE> perm = sorted.sort();
+	
+	// FullyDistVec FullyDistSpVec::operator(FullyDistVec & v)
+	FullyDistVec<INDEXTYPE,INDEXTYPE> topkind = perm(sel);
+	FullyDistVec<INDEXTYPE,doubleint> topkele = v(topkind);
+	//return make_pair(topkind, topkele);
+
+	return pyDenseParVec(topkele);
+
+
+/*
 	FullyDistSpVec<INDEXTYPE, INDEXTYPE> sel(k);
 	sel.iota(k, 0);
 
@@ -223,12 +246,6 @@ pySpParVec pySpParVec::TopK(int64_t k)
 
 	// return dense	
 	return pySpParVec(sorted.v(sel));
-	
-/*	
-vcop = v;
-perm = vcop.sort();
-lastk = iota(k,len-k-1);
-return v(perm(lastk));
 */
 }
 
@@ -272,7 +289,13 @@ double pySpParVec::__getitem__(double key)
 	return __getitem__(static_cast<int64_t>(key));
 }
 
+/*
 pySpParVec pySpParVec::__getitem__(const pySpParVec& key)
+{
+	return SubsRef(key);
+}*/
+
+pyDenseParVec pySpParVec::__getitem__(const pyDenseParVec& key)
 {
 	return SubsRef(key);
 }

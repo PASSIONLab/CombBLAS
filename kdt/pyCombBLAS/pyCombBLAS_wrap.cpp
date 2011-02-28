@@ -8046,14 +8046,14 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParVec_SubsRef(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = (pySpParVec *) 0 ;
-  pySpParVec *arg2 = 0 ;
+  pyDenseParVec *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  SwigValueWrapper< pySpParVec > result;
+  SwigValueWrapper< pyDenseParVec > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVec_SubsRef",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
@@ -8061,17 +8061,17 @@ SWIGINTERN PyObject *_wrap_pySpParVec_SubsRef(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParVec_SubsRef" "', argument " "1"" of type '" "pySpParVec *""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParVec_SubsRef" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParVec_SubsRef" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParVec_SubsRef" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
   {
     try {
-      result = (arg1)->SubsRef((pySpParVec const &)*arg2);
+      result = (arg1)->SubsRef((pyDenseParVec const &)*arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -8080,7 +8080,7 @@ SWIGINTERN PyObject *_wrap_pySpParVec_SubsRef(PyObject *SWIGUNUSEDPARM(self), Py
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -8273,7 +8273,7 @@ SWIGINTERN PyObject *_wrap_pySpParVec_TopK(PyObject *SWIGUNUSEDPARM(self), PyObj
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  SwigValueWrapper< pySpParVec > result;
+  SwigValueWrapper< pyDenseParVec > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVec_TopK",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
@@ -8297,7 +8297,7 @@ SWIGINTERN PyObject *_wrap_pySpParVec_TopK(PyObject *SWIGUNUSEDPARM(self), PyObj
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -8656,14 +8656,14 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParVec___getitem____SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = (pySpParVec *) 0 ;
-  pySpParVec *arg2 = 0 ;
+  pyDenseParVec *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  SwigValueWrapper< pySpParVec > result;
+  SwigValueWrapper< pyDenseParVec > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVec___getitem__",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
@@ -8671,17 +8671,17 @@ SWIGINTERN PyObject *_wrap_pySpParVec___getitem____SWIG_2(PyObject *SWIGUNUSEDPA
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParVec___getitem__" "', argument " "1"" of type '" "pySpParVec *""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParVec___getitem__" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParVec___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParVec___getitem__" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParVec___getitem__" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
   {
     try {
-      result = (arg1)->__getitem__((pySpParVec const &)*arg2);
+      result = (arg1)->__getitem__((pyDenseParVec const &)*arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -8690,7 +8690,7 @@ SWIGINTERN PyObject *_wrap_pySpParVec___getitem____SWIG_2(PyObject *SWIGUNUSEDPA
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -8713,7 +8713,7 @@ SWIGINTERN PyObject *_wrap_pySpParVec___getitem__(PyObject *self, PyObject *args
     int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pyDenseParVec, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_pySpParVec___getitem____SWIG_2(self, args);
@@ -8756,7 +8756,7 @@ fail:
     "  Possible C/C++ prototypes are:\n"
     "    __getitem__(pySpParVec *,int64_t)\n"
     "    __getitem__(pySpParVec *,double)\n"
-    "    __getitem__(pySpParVec *,pySpParVec const &)\n");
+    "    __getitem__(pySpParVec *,pyDenseParVec const &)\n");
   return NULL;
 }
 
