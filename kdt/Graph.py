@@ -38,6 +38,7 @@ class Graph:
                 return ret
 
 	def degree(self):
+		# ToDo:  double-check that Column is the right direction
 		ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus())
                 return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret))
 
@@ -610,8 +611,6 @@ class ParVec:
 		ret._dpv.Apply(pcb.logical_not())
 		return ret
 
-	#ToDo:  avoid conversion to sparse when PV.max() /min avail
-
 	def max(self):
 		ret = self._dpv.Reduce(pcb.max(), pcb.identity())
 		return ret
@@ -811,7 +810,7 @@ class SpParVec:
 
 	def __getitem__(self, key):
 		"""
-		performs indexing of a SpParVec instance on the right-han side
+		performs indexing of a SpParVec instance on the right-hand side
 		of an equation.  The following forms are supported:
 	scalar = spparvec[integer scalar]
 	spparvec = spparvec[non-boolean spparvec]
@@ -822,8 +821,8 @@ class SpParVec:
 
 		The second form takes as the index a non-Boolean SpParVec instance
 		and returns an SpParVec instance of the same length with the 
-		corresponding elements of the index set to the values of the
-		base SpParVec instance. 
+		elements of the result corresponding to the nonnull values of the
+		index set to the values of the base SpParVec instance. 
 		"""
 		if type(key) == int or type(key) == long or type(key) == float:
 			if key > len(self._spv)-1:

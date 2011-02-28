@@ -290,14 +290,14 @@ class DiGraph(gr.Graph):
 		"""
 		if dir == gr.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -405,14 +405,14 @@ class DiGraph(gr.Graph):
 		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -436,14 +436,14 @@ class DiGraph(gr.Graph):
 		"""
 		#ToDo:  is default to InOut best?
 		if dir == gr.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
 			return ParVec.toParVec(ret)
 
 	def mulNot(self, other):
@@ -557,7 +557,6 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  * (DiGraph.__mul__), mulNot
 		"""
-		#Note:  have to compare against gr.SpParVec, not (local) SpParVec
 		if not isinstance(other,gr.SpParVec):
 			raise KeyError, 'Invalid type for scale vector'
 		selfnv = self.nvert()
@@ -565,11 +564,11 @@ class DiGraph(gr.Graph):
 			[selfnv1, selfnv2] = selfnv
 		else:
 			selfnv1 = selfnv; selfnv2 = selfnv
-		if dir == gr.Out:
+		if dir == gr.In:
 			if selfnv2 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
 			self._spm.ColWiseApply(other._spv, pcb.multiplies())
-		elif dir == gr.In:
+		elif dir == gr.Out:
 			if selfnv1 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
 			self.T()
@@ -640,14 +639,14 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  degree 
 		"""
 		if dir == gr.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
+			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
+			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(tmp1+tmp2)
 		elif dir == gr.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
+			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
 		elif dir == gr.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
+			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -1223,7 +1222,7 @@ class DiGraph(gr.Graph):
 			if BCdebug:
 				print bcu.sum(Out).sum()
 				import sys; sys.exit()
-			bc = bc + bcu.sum(Out)	# column sums
+			bc = bc + bcu.sum(In)	# column sums
 	
 		# subtract off the additional values added in by precomputation
 		bc = bc - nVertToCalc
