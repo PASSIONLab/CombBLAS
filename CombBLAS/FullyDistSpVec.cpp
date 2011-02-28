@@ -180,7 +180,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 		IT locind;
 		int owner = Owner(ri.arr[i], locind);	// numerical values in ri are 0-based
 		data_req[owner].push_back(locind);
-                revr_map.insert(unordered_map<IT, IT>::value_type(locind, i));
+                revr_map.insert(typename unordered_map<IT, IT>::value_type(locind, i));
 	}
 	IT * sendbuf = new IT[locnnz];
 	int * sendcnt = new int[nprocs];
