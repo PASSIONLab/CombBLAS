@@ -9,6 +9,8 @@ Graph500cpp/graph500
 Graph500cpp/makefile
 Python/distribCombBLAS/*.pyc
 Python/distribCombBLAS/.KDT_log
+examples/.KDT_log
+examples/Graph500.pyc
 kdt/*.pyc
 kdt/.KDT_log
 kdt/_pyCombBLAS.so
