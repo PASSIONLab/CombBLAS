@@ -7,8 +7,10 @@
 
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
+	#include <boost/tr1/undered_map.hpp>
 #else
 	#include <tr1/memory>
+	#include <tr1/unordered_map>
 #endif
 
 #include "CommGrid.h"
@@ -55,10 +57,13 @@ public:
 	FullyDistSpVec ( shared_ptr<CommGrid> grid);
 	FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 
+	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
+
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
 	void stealFrom(FullyDistSpVec<IT,NT> & victim); 
 	FullyDistSpVec<IT,NT> &  operator=(const FullyDistSpVec< IT,NT > & rhs);
+	FullyDistSpVec<IT,NT> &  operator=(const FullyDistVec< IT,NT > & rhs);	// convert from dense
 	FullyDistSpVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);
 	FullyDistSpVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);
 	ifstream& ReadDistribute (ifstream& infile, int master);	
@@ -75,7 +80,7 @@ public:
 
 	void PrintInfo(string vecname) const;
 	void iota(IT globalsize, NT first);
-	FullyDistSpVec<IT,NT> operator() (const FullyDistSpVec<IT,IT> & ri) const;	//!< SpRef (expects NT of ri to be 0-based)
+	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	void DelElement (IT indx); // element-wise deletion
 	NT operator[](IT indx) const;

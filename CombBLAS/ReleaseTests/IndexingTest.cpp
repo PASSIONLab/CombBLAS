@@ -16,16 +16,21 @@
 using namespace std;
 
 template <typename IT, typename NT>
-FullyDistSpVec<IT,NT> TopK(FullyDistSpVec<IT,NT> & v, IT k)
+pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v, IT k)
 {
-	FullyDistSpVec<IT,IT> sel(k);
+	// FullyDistVec::FullyDistVec(IT glen, NT initval, NT id) 
+	FullyDistVec<IT,IT> sel(k, 0, 0);
 	
-	//void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
-	sel.iota(k, v.TotalLength() - k -1);
+	//void FullyDistVec::iota(IT globalsize, NT first)
+	sel.iota(k, v.TotalLength() - k);
 
 	FullyDistSpVec<IT,NT> sorted(v);
-	sorted.sort();	// ignore the return value
-	return sorted(sel);
+	FullyDistSpVec<IT,IT> perm = sorted.sort();	
+
+	// FullyDistVec FullyDistSpVec::operator(FullyDistVec & v)
+	FullyDistVec<IT,IT> topkind = perm(sel);   
+	FullyDistVec<IT,NT> topkele = v(topkind);	
+	return make_pair(topkind, topkele);
 } 
 
 
@@ -94,6 +99,17 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in indexing, go fix it!\n");	
 		}
+
+		FullyDistVec<int,int> crow, ccol;
+		FullyDistVec<int,double> cval;
+		A.Find(crow, ccol, cval);
+		FullyDistSpVec<int, double> sval = cval;	
+		sval.DebugPrint();
+
+		pair< FullyDistVec<int,int> , FullyDistVec<int,double> > ptopk; 
+		ptopk = TopK(sval, 3);
+		ptopk.first.DebugPrint();
+		ptopk.second.DebugPrint();
 
 		// generate random permutations
 		FullyDistVec<int,int> p, q;

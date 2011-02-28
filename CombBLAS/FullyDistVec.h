@@ -139,6 +139,9 @@ private:
 	template <class IU, class NU>
 	friend class FullyDistVec;
 
+	template <class IU, class NU>
+	friend class FullyDistSpVec;
+
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x );

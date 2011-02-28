@@ -15,18 +15,18 @@ FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec ()
+FullyDistSpVec<IT,NT>::FullyDistSpVec ()
 : FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
-FullyDistSpVec<IT, NT>::FullyDistSpVec (IT globallen)
+FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
 : FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { }
 
 
 template <class IT, class NT>
-FullyDistSpVec< IT,NT > &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)	
+FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)	
 {
 	if(this != &rhs)		
 	{
@@ -35,6 +35,31 @@ FullyDistSpVec< IT,NT > &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec
 		num = rhs.num;
 		zero = rhs.zero;
 		NOT_FOUND = rhs.NOT_FOUND;
+	}
+	return *this;
+}
+
+template <class IT, class NT>
+FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs)		// Conversion copy-constructor
+{
+	*this = rhs;
+}
+
+template <class IT, class NT>
+FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
+{
+	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+	NOT_FOUND = numeric_limits<NT>::min();
+	zero = rhs.zero;
+
+	IT vecsize = rhs.LocArrSize();
+	for(IT i=0; i< vecsize; ++i)
+	{
+		if(rhs.arr[i] != rhs.zero)
+		{
+			ind.push_back(i);
+			num.push_back(rhs.arr[i]);
+		}
 	}
 	return *this;
 }
@@ -117,24 +142,29 @@ void FullyDistSpVec<IT,NT>::DelElement (IT indx)
 
 /**
  * The distribution and length are inherited from ri
+ * Its zero is inherited from *this (because ri is of type IT)
  * Example: This is [{1,n1},{4,n4},{7,n7},{8,n8},{9,n9}] with P_00 owning {1,4} and P_11 rest
- * Assume ri = [{1,4},{2,1}] is distributed as one element per processor
- * Then result has length 2, distrubuted one element per processor
+ * Assume ri = [4,1,5,7] is distributed as two elements per processor
+ * Then result has length 4, distrubuted two element per processor, even though 5 and 7 doesn't exist
+ * This is because we are returning a "dense" output, so the absent elements will be padded with 0
 **/
 template <class IT, class NT>
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT,IT> & ri) const
+FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT> & ri) const
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	FullyDistSpVec<IT,NT> Indexed(commGrid);
+	// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
+	FullyDistVec<IT,NT> Indexed(ri.commGrid, ri.glen, zero, zero);
 	int nprocs = World.Get_size();
+        unordered_map<IT, IT> revr_map;       // inverted index that maps indices of *this to indices of output
 	vector< vector<IT> > data_req(nprocs);
-	IT locnnz = ri.getlocnnz();
+	IT locnnz = ri.LocArrSize();
 
+	// ABAB: Input sanity check
 	int local = 1;
 	int whole = 1;
 	for(IT i=0; i < locnnz; ++i)
 	{
-		if(ri.num[i] >= glen || ri.num[i] < 0)
+		if(ri.arr[i] >= glen || ri.arr[i] < 0)
 		{
 			local = 0;
 		} 
@@ -143,14 +173,14 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	if(whole == 0)
 	{
 		throw outofrangeexception();
-		//return Indexed;
 	}
 
 	for(IT i=0; i < locnnz; ++i)
 	{
 		IT locind;
-		int owner = Owner(ri.num[i], locind);	// numerical values in ri are 0-based
+		int owner = Owner(ri.arr[i], locind);	// numerical values in ri are 0-based
 		data_req[owner].push_back(locind);
+                revr_map.insert(unordered_map<IT, IT>::value_type(locind, i));
 	}
 	IT * sendbuf = new IT[locnnz];
 	int * sendcnt = new int[nprocs];
@@ -173,8 +203,10 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	IT * recvbuf = new IT[totrecv];
 
 	for(int i=0; i<nprocs; ++i)
+	{
 		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
-
+		vector<IT>().swap(data_req[i]);
+	}
 	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
 		
 	// We will return the requested data, 
@@ -202,26 +234,27 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistSpVec<IT
 	}
 		
 	DeleteAll(recvbuf, ddispls);
-	NT * databuf = new NT[ri.num.size()];
+	NT * databuf = new NT[ri.LocArrSize()];
 
 	World.Alltoall(recvcnt, 1, MPI::INT, sendcnt, 1, MPI::INT);	// share the response counts, overriding request counts 
-	World.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send data
+	World.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send indices
 	World.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
 	DeleteAll(rdispls, recvcnt, indsback, databack);
 
-	// Now create the output from databuf 
+	// Now create the output from databuf (holds numerical values) and sendbuf (holds indices)
+	// arr is already resized during its construction
 	for(int i=0; i<nprocs; ++i)
 	{
 		// data will come globally sorted from processors 
 		// i.e. ind owned by proc_i is always smaller than 
 		// ind owned by proc_j for j < i
-		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
+		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)	
 		{
-			Indexed.ind.push_back(sendbuf[j]);
-			Indexed.num.push_back(databuf[j]);
+			typename unordered_map<IT,IT>::iterator it = revr_map.find(sendbuf[j]);
+			Indexed.arr[it->second] = databuf[j];
+			// cout << it->second << "(" << sendbuf[j] << "):" << databuf[j] << endl;
 		}
 	}
-	Indexed.glen = ri.glen;
 	DeleteAll(sdispls, sendcnt, sendbuf, databuf);
 	return Indexed;
 }
@@ -590,32 +623,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	};
 	mystruct data;
 
-	MPI::Aint addr1 = MPI::Get_address(&data.ind);
-	MPI::Aint addr2 = MPI::Get_address(&data.num);
-	MPI::Aint disp[2];
-	disp[0] = 0;
-	disp[1] = addr2 - addr1;
-	int blocklen[2] = {1, 1}; 
-	MPI::Datatype type[2] = { MPIType<IT>(), MPIType<NT>() };
-
-	// inline MPI::Datatype
-	// MPI::Datatype::Create_struct(int count, const int array_of_blocklengths[],
-        //                            const MPI::Aint array_of_displacements[],
-        //                            const MPI::Datatype array_of_types[])
-	// {
-  	// 	MPI_Datatype newtype;
-  	// 	int i;
-  	// 	MPI_Datatype* type_array = new MPI_Datatype[count];
-  	//	for (i=0; i < count; i++)
-    	//		type_array[i] = array_of_types[i];
-
-  	// 	(void)MPI_Type_create_struct(count, const_cast<int *>(array_of_blocklengths),
-        //                       const_cast<MPI_Aint*>(array_of_displacements),
-        //                       type_array, &newtype);
-  	// 	delete[] type_array;
- 	//	return newtype;
-	// }
-	MPI::Datatype datatype = MPI::Datatype::Create_struct(2, blocklen, disp, type);	// static function without a "this" pointer
+	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
 	datatype.Commit();
 	int dsize = datatype.Get_size();
 
@@ -649,7 +657,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, dsize, dist[i],f);
+			fread(data, dsize, dist[i],f);	
 
 			cout << "Elements stored on proc " << i << ": {";
 			for (int j = 0; j < dist[i]; j++)
