@@ -23,7 +23,7 @@ class DiGraphTests(unittest.TestCase):
             iInd[ind] = i[ind]
             jInd[ind] = j[ind]
 
-        spm = pcb.pySpParMat(nvert, nvert, iInd.dpv, jInd.dpv, vInd.dpv)
+        spm = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, vInd._dpv)
         G = DiGraph()
         G.spm = spm
         return G

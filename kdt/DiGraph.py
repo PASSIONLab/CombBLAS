@@ -1049,7 +1049,7 @@ class DiGraph(gr.Graph):
 		nvert = G.nvert()
 
 		# Remove self loops.
-		G._spm.removeSelfLoops()
+		G.removeSelfLoops()
 
 		# Handle sink nodes (nodes with no outgoing edges) by
 		# connecting them to all other nodes.
