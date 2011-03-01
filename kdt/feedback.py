@@ -19,12 +19,18 @@ class feedback:
 	@staticmethod
 	def startFeedback():
 		try:
-			import IPython.ipapi
+			import IPython.ipapi                     
 		except ImportError:
-			feedback.IPYTHON_ACTIVE = False;
-			return
-
-		ip = IPython.ipapi.get()
+			try:
+				import IPython.core.ipapi                           
+			except ImportError:
+				feedback.IPYTHON_ACTIVE = False;
+				return
+			else:                                   
+				ip = IPython.core.ipapi.get()
+		else:
+			ip = IPython.ipapi.get()
+		
 		if ip == None:
 			feedback.IPYTHON_ACTIVE = False;
 			return;
