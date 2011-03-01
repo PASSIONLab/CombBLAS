@@ -692,6 +692,22 @@ class ParVec:
 		ret._dpv = DPV
 		return ret
 	
+	def topK(self, k):
+		"""
+		returns the largest k values in the passed SpParVec instance.
+
+		Input Arguments:
+			self:  a ParVec instance.
+			k:  a scalar integer denoting how many values to return.
+
+		Output Argument:
+			ret:  a ParVec instance of length k containing the k largest
+			    values from the input vector, in ascending order.
+		"""
+		ret = ParVec(0)
+		ret._dpv = self._dpv.TopK(k)
+		return ret
+
 	#ToDo:  allow user to pass/set null value
 
 	def toSpParVec(self):
@@ -831,13 +847,13 @@ class SpParVec:
 			if key > len(self._spv)-1:
 				raise IndexError
 			ret = self._spv[key]
-		elif isinstance(key,SpParVec):
+		elif isinstance(key,ParVec):
 			if key.isBool():
 				raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
-			ret = SpParVec(-1)
-			ret._spv = self._spv[key._spv]
+			ret = ParVec(-1)
+			ret._dpv = self._spv[key._dpv]
 		else:
-			raise KeyError, 'SpParVec indexing only by SpParVec or integer scalar'
+			raise KeyError, 'SpParVec indexing only by ParVec or integer scalar'
 		return ret
 
 	def __ge__(self, other):
@@ -1461,12 +1477,11 @@ class SpParVec:
 			k:  a scalar integer denoting how many values to return.
 
 		Output Argument:
-			ret:  a SpParVec instance of length k containing the k largest
+			ret:  a ParVec instance of length k containing the k largest
 			    values from the input vector, in ascending order.
 		"""
-		# ToDo:  not sure a SpParVec return is that useful
-		ret = SpParVec(0)
-		ret._spv = self._spv.TopK(k)
+		ret = ParVec(0)
+		ret._dpv = self._spv.TopK(k)
 		return ret
 
 	def toParVec(self):	
