@@ -680,6 +680,45 @@ class ParVec:
 		ret = (self >= 0) - (self < 0)
 		return ret
 	
+	# in-place, so no return value
+	def sort(self):
+		"""
+		sorts the values in the passed ParVec instance in-place, in
+		ascending order.
+
+		Input Arguments:
+			self:  a ParVec instance.
+
+		Output Argument:
+			None
+
+		See Also:  sorted
+		"""
+		self._dpv.Sort()
+		return
+
+	def sorted(self):
+		"""
+		returns a new ParVec instance with the sorted values (in ascending
+		order) from the input ParVec instance and a ParVec permutation 
+		vector.
+
+		Input Arguments:
+			self:  a ParVec instance.
+
+		Output Argument:
+			ret:  a tuple containing as its first element a ParVec 
+			    instance of the same length containing the sorted
+			    values and as its second element the indices of the
+			    sorted values in the input vector.
+
+		See Also:  sort
+		"""
+		ret1 = self.copy();
+		ret2 = ParVec(-1)
+		ret2._dpv = ret1._dpv.Sort()
+		return (ret1, ret2)
+
 	def sum(self):
 		ret = self._dpv.Reduce(pcb.plus(), pcb.identity())
 		return ret
@@ -1434,6 +1473,44 @@ class SpParVec:
 		"""
 		self._spv.Apply(pcb.set(value))
 		return
+
+	# in-place, so no return value
+	def sort(self):
+		"""
+		sorts the non-null values in the passed SpParVec instance in-place
+		in ascending order.
+
+		Input Arguments:
+			self:  a SpParVec instance.
+
+		Output Argument:
+			None
+		"""
+		self._spv.Sort()
+		return
+
+	def sorted(self):
+		"""
+		returns a new SpParVec instance with the sorted values (in ascending
+		order) from the input SpParVec instance and a SpParVec permutation 
+		vector.
+
+		Input Arguments:
+			self:  a SpParVec instance.
+
+		Output Argument:
+			ret:  a tuple containing as its first element a SpParVec 
+			    instance of the same length and same number and position
+			    of non-nulls containing the sorted non-null values and
+			    as its second element the indices of the sorted values
+			    in the input vector.
+
+		See Also:  sort
+		"""
+		ret1 = self.copy();
+		ret2 = SpParVec(-1)
+		ret2._spv = ret1._spv.Sort()
+		return (ret1, ret2)
 
 	#in-place, so no return value
 	def spOnes(self):
