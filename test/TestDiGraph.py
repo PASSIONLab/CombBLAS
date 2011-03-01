@@ -25,7 +25,7 @@ class DiGraphTests(unittest.TestCase):
 
         spm = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, vInd._dpv)
         G = DiGraph()
-        G.spm = spm
+        G._spm = spm
         return G
 
 class PageRankTests(DiGraphTests):
@@ -100,7 +100,7 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
         G = self.initializeGraph(nvert, nedge, i, j)
         G.normalizeEdgeWeights()
         [iInd, jInd, eW] = G.toParVec()
-        w = [0.5, 0.5, 1., 1., 0.5, 0.5]
+        w = [0.5, 1., 0.5, 0.5, 1., 0.5]
 
         for ind in range(nedge):
             self.assertEqual(i[ind], iInd[ind])
@@ -147,8 +147,8 @@ class DegreeTests(DiGraphTests):
         G = self.initializeGraph(nvert, nedge, i, j)
         inDeg = G.degree(Graph.In)
         outDeg = G.degree(Graph.Out)
-        inExpected = [1, 7, 1, 1, 6, 1, 0, 0, 0, 0, 0]
-        outExpected = [0, 1, 1, 2, 3, 2, 2, 2, 2, 1, 1]
+        inExpected = [0, 1, 1, 2, 3, 2, 2, 2, 2, 1, 1]
+        outExpected = [1, 7, 1, 1, 6, 1, 0, 0, 0, 0, 0]
 
         for ind in range(nvert):
             self.assertEqual(inDeg[ind], inExpected[ind])
@@ -165,8 +165,8 @@ class DegreeTests(DiGraphTests):
         G = self.initializeGraph(nvert, nedge, i, j)
         inDeg = G.degree(Graph.In)
         outDeg = G.degree(Graph.Out)
-        inExpected = [1, 1, 2, 2]
-        outExpected = [2, 1, 1, 2]
+        inExpected = [2, 1, 1, 2]
+        outExpected = [1, 1, 2, 2]
 
         for ind in range(nvert):
             self.assertEqual(inDeg[ind], inExpected[ind])

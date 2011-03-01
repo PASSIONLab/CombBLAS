@@ -53,7 +53,10 @@ class Graph:
 		returns the number of edges in the Graph instance, including 
 		edges with zero weight.
 		"""
-		return self._spm.getnnz()
+		if self.nvert() == 0:
+			return 0
+		else:
+			return self._spm.getnnz()
 
 	def nvert(self):
 		return self._spm.getnrow()
