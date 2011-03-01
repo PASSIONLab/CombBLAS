@@ -312,7 +312,8 @@ class DiGraph(gr.Graph):
 			self:  a DiGraph instance, modified in-place.
 
 		"""
-		self._spm.removeSelfLoops()
+		if self.nvert() > 0:
+			self._spm.removeSelfLoops()
 		return
 
 	@staticmethod
