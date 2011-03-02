@@ -206,15 +206,24 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(loopinfo.str());
 			A.PrintInfo();
 
-			Symmetricize(A);	// A += A';
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
-			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
+			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ColSums->EWiseApply(*RowSums, plus<int64_t>());
+			delete RowSums;
+
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
+
 			SpParHelper::Print("Found non-isolated vertices\n");	
 			A.PrintInfo();
 			A = A(nonisov, nonisov);
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
+			A.PrintInfo();
+
+			Symmetricize(A);	// A += A';
+			SpParHelper::Print("Symmetricized\n");	
 			A.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();
