@@ -239,9 +239,9 @@ class LoadTests(DiGraphTests):
 	self.assertEqual(G.nvert(),9)
 	self.assertEqual(G.nedge(),18)
 	[i, j, v] = G.toParVec()
-	self.assertTrue(len(i),18)
-	self.assertTrue(len(j),18)
-	self.assertTrue(len(v),18)
+	self.assertEqual(len(i),18)
+	self.assertEqual(len(j),18)
+	self.assertEqual(len(v),18)
 	expectedI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 3, 1, 1, 8, 1, 8, 1, 6, 7]
 	expectedJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8]
 	expectedV = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
@@ -255,8 +255,8 @@ class LoadTests(DiGraphTests):
 class MaxTests(DiGraphTests):
     def test_max_out(self):
 	G = DiGraph.load('small_nonsym_int.mtx')
-	self.assertTrue(G.nvert(), 9)
-	self.assertTrue(G.nedge(), 19)
+	self.assertEqual(G.nvert(), 9)
+	self.assertEqual(G.nedge(), 19)
 	
 
 def runTests(verbosity = 1):
