@@ -267,7 +267,7 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
  * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
  **/
 template <typename IU, typename NU1, typename NU2>
-Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude)
+Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, bool exclude)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	IU estnzc, estnz;
@@ -278,8 +278,8 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	} 
 	else
 	{
-		estnzc = std::min(A.nzc, B.nzc);
-		estnz  = std::min(A.nz, B.nz);
+		estnzc = std::min(A.nzc, B->nzc);
+		estnz  = std::min(A.nz, B->nz);
 	}
 
 	Dcsc<IU,N_promote> temp(estnz, estnzc);
@@ -292,23 +292,23 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	
 	if(!exclude)	// A = A .* B
 	{
-		while(i< A.nzc && j<B.nzc)
+		while(i< A.nzc && B != NULL && j<B->nzc)
 		{
-			if(A.jc[i] > B.jc[j]) 		++j;
-			else if(A.jc[i] < B.jc[j]) 	++i;
+			if(A.jc[i] > B->jc[j]) 		++j;
+			else if(A.jc[i] < B->jc[j]) 	++i;
 			else
 			{
 				IU ii = A.cp[i];
-				IU jj = B.cp[j];
+				IU jj = B->cp[j];
 				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				while (ii < A.cp[i+1] && jj < B->cp[j+1])
 				{
-					if (A.ir[ii] < B.ir[jj])	++ii;
-					else if (A.ir[ii] > B.ir[jj])	++jj;
+					if (A.ir[ii] < B->ir[jj])	++ii;
+					else if (A.ir[ii] > B->ir[jj])	++jj;
 					else
 					{
 						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = A.numx[ii++] * B.numx[jj++];	
+						temp.numx[curnz++] = A.numx[ii++] * B->numx[jj++];	
 					}
 				}
 				if(prevnz < curnz)	// at least one nonzero exists in this column
@@ -323,10 +323,10 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	}
 	else	// A = A .* not(B)
 	{
-		while(i< A.nzc && j< B.nzc)
+		while(i< A.nzc && B != NULL && j< B->nzc)
 		{
-			if(A.jc[i] > B.jc[j])		++j;
-			else if(A.jc[i] < B.jc[j])
+			if(A.jc[i] > B->jc[j])		++j;
+			else if(A.jc[i] < B->jc[j])
 			{
 				temp.jc[curnzc++] = A.jc[i++];
 				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)	
@@ -339,12 +339,12 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 			else
 			{
 				IU ii = A.cp[i];
-				IU jj = B.cp[j];
+				IU jj = B->cp[j];
 				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				while (ii < A.cp[i+1] && jj < B->cp[j+1])
 				{
-					if (A.ir[ii] > B.ir[jj])	++jj;
-					else if (A.ir[ii] < B.ir[jj])
+					if (A.ir[ii] > B->ir[jj])	++jj;
+					else if (A.ir[ii] < B->ir[jj])
 					{
 						temp.ir[curnz] = A.ir[ii];
 						temp.numx[curnz++] = A.numx[ii++];
@@ -387,7 +387,7 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 }	
 
 template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	IU estnzc, estnz;
@@ -398,8 +398,8 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU
 	} 
 	else
 	{
-		estnzc = std::min(A.nzc, B.nzc);
-		estnz  = std::min(A.nz, B.nz);
+		estnzc = std::min(A.nzc, B->nzc);
+		estnz  = std::min(A.nz, B->nz);
 	}
 
 	Dcsc<IU,N_promote> temp(estnz, estnzc);
@@ -412,23 +412,23 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU
 	
 	if(!notB)	// A = A .* B
 	{
-		while(i< A.nzc && j<B.nzc)
+		while(i< A.nzc && B != NULL && j<B->nzc)
 		{
-			if(A.jc[i] > B.jc[j]) 		++j;
-			else if(A.jc[i] < B.jc[j]) 	++i;
+			if(A.jc[i] > B->jc[j]) 		++j;
+			else if(A.jc[i] < B->jc[j]) 	++i;
 			else
 			{
 				IU ii = A.cp[i];
-				IU jj = B.cp[j];
+				IU jj = B->cp[j];
 				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				while (ii < A.cp[i+1] && jj < B->cp[j+1])
 				{
-					if (A.ir[ii] < B.ir[jj])	++ii;
-					else if (A.ir[ii] > B.ir[jj])	++jj;
+					if (A.ir[ii] < B->ir[jj])	++ii;
+					else if (A.ir[ii] > B->ir[jj])	++jj;
 					else
 					{
 						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = __binary_op(A.numx[ii++], B.numx[jj++]);	
+						temp.numx[curnz++] = __binary_op(A.numx[ii++], B->numx[jj++]);	
 					}
 				}
 				if(prevnz < curnz)	// at least one nonzero exists in this column
@@ -443,10 +443,10 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU
 	}
 	else	// A = A .* not(B)
 	{
-		while(i< A.nzc && j< B.nzc)
+		while(i< A.nzc && B != NULL && j< B->nzc)
 		{
-			if(A.jc[i] > B.jc[j])		++j;
-			else if(A.jc[i] < B.jc[j])
+			if(A.jc[i] > B->jc[j])		++j;
+			else if(A.jc[i] < B->jc[j])
 			{
 				temp.jc[curnzc++] = A.jc[i++];
 				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)	
@@ -459,12 +459,12 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU
 			else
 			{
 				IU ii = A.cp[i];
-				IU jj = B.cp[j];
+				IU jj = B->cp[j];
 				IU prevnz = curnz;		
-				while (ii < A.cp[i+1] && jj < B.cp[j+1])
+				while (ii < A.cp[i+1] && jj < B->cp[j+1])
 				{
-					if (A.ir[ii] > B.ir[jj])	++jj;
-					else if (A.ir[ii] < B.ir[jj])
+					if (A.ir[ii] > B->ir[jj])	++jj;
+					else if (A.ir[ii] < B->ir[jj])
 					{
 						temp.ir[curnz] = A.ir[ii];
 						temp.numx[curnz++] = __binary_op(A.numx[ii++], defaultBVal);
@@ -517,7 +517,12 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCC
 	Dcsc<IU, N_promote> * tdcsc = NULL;
 	if(A.nnz > 0 && B.nnz > 0)
 	{ 
-		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), *(B.dcsc), exclude));
+		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), B.dcsc, exclude));
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
+	}
+	else if (A.nnz > 0 && exclude) // && B.nnz == 0
+	{
+		tdcsc = new Dcsc<IU, N_promote>(EWiseMult(*(A.dcsc), (const Dcsc<IU,NU2>*)NULL, exclude));
 		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else
@@ -537,7 +542,12 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseApply (const SpDC
 	Dcsc<IU, N_promote> * tdcsc = NULL;
 	if(A.nnz > 0 && B.nnz > 0)
 	{ 
-		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), *(B.dcsc), __binary_op, notB, defaultBVal));
+		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), B.dcsc, __binary_op, notB, defaultBVal));
+		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
+	}
+	else if (A.nnz > 0 && notB) // && B.nnz == 0
+	{
+		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), (const Dcsc<IU,NU2>*)NULL, __binary_op, notB, defaultBVal));
 		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else
