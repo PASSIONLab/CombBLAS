@@ -1183,7 +1183,7 @@ class DiGraph(gr.Graph):
 			depth = 0
 			while fringe.nedge() > 0:
 				depth = depth+1
-				if BCdebug and depth==5:
+				if BCdebug>1 and depth==5:
 					print tmp.nvert(), fringe.nvert()
 					print tmp[:,fringe.nvert()[1]-1], nsp[:,fringe.nvert()[1]-1], fringe[:,fringe.nvert()[1]-1]
 					import sys; sys.exit()
@@ -1192,7 +1192,7 @@ class DiGraph(gr.Graph):
 				tmp.ones()
 				bfs.append(tmp)
 				tmp = fringe._SpMM(A)
-				if BCdebug:
+				if BCdebug>1:
 					nspsum = nsp.sum(Out).sum() 
 					fringesum = fringe.sum(Out).sum()
 					tmpsum = tmp.sum(Out).sum()
@@ -1205,7 +1205,7 @@ class DiGraph(gr.Graph):
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
 				w = bfs[depth] / nsp * bcu
-				if BCdebug:
+				if BCdebug>1:
 					print w.sum(Out).sum()
 					import sys; sys.exit()
 				# Apply the child value weights and sum them up over the parents
@@ -1220,7 +1220,7 @@ class DiGraph(gr.Graph):
 			# update the bc with the bc update
 			if BCdebug:
 				print bcu.sum(Out).sum()
-				import sys; sys.exit()
+				#import sys; sys.exit()
 			bc = bc + bcu.sum(In)	# column sums
 	
 		# subtract off the additional values added in by precomputation
