@@ -12,16 +12,21 @@ from kdt import Graph
 from kdt import pyCombBLAS as pcb
 
 class DiGraphTests(unittest.TestCase):
-    def initializeGraph(self, nvert, nedge, i, j):
+    def initializeGraph(self, nvert, nedge, i, j, v=1):
         """
-        Initialize a graph with edge weights equal to one.
+        Initialize a graph with edge weights equal to one or the input value.
         """
         iInd = ParVec(nedge)
         jInd = ParVec(nedge)
-        vInd = ParVec(nedge, 1)
+	if type(v) == int or type(v) == float:
+            vInd = ParVec(nedge, v)
+	else:
+	    vInd = ParVec(nedge)
         for ind in range(nedge):
             iInd[ind] = i[ind]
             jInd[ind] = j[ind]
+	    if type(v) != int and type(v) != float:
+		vInd[ind] = v[ind]
 
         spm = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, vInd._dpv)
         G = DiGraph()
@@ -296,9 +301,47 @@ class LoadTests(DiGraphTests):
 
 class MaxTests(DiGraphTests):
     def test_max_out(self):
-	G = DiGraph.load('small_nonsym_int.mtx')
-	self.assertEqual(G.nvert(), 9)
-	self.assertEqual(G.nedge(), 19)
+	nvert = 9
+	nedge = 19
+	i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
+	j = [1, 0, 2, 1, 3, 1, 3, 2, 4, 3, 8, 6, 8, 7, 4, 5, 6, 7, 8]
+	v = [01, 10, 12, 21, 13, 31, 23, 32, 34, 43, 68, 1.6e10, 78, 87, 14,
+		15, 16, 17, 18]
+        G = self.initializeGraph(nvert, nedge, i, j, v)
+	self.assertEqual(G.nvert(), nvert)
+	self.assertEqual(G.nedge(), nedge)
+	outmax = G.max(dir=Graph.Out)
+	inmax = G.max(dir=Graph.In)
+	outmaxExpected = [1, 18, 23, 34, 43, 0, 68, 78, 1.6e10]
+	inmaxExpected = [10, 31, 32, 43, 34, 15, 1.6e+10, 87, 78]
+	self.assertEqual(len(outmax), len(outmaxExpected))
+	self.assertEqual(len(inmax), len(inmaxExpected))
+
+	for ind in range(len(outmax)):
+		self.assertEqual(outmax[ind], outmaxExpected[ind])
+		self.assertEqual(inmax[ind], inmaxExpected[ind])
+	
+class MinTests(DiGraphTests):
+    def test_min_out(self):
+	nvert = 9
+	nedge = 19
+	i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
+	j = [1, 0, 2, 1, 3, 1, 3, 2, 4, 3, 8, 6, 8, 7, 4, 5, 6, 7, 8]
+	v = [-01, -10, -12, -21, -13, -31, -23, -32, -34, -43, -68, -1.6e10, 
+		-78, -87, -14, -15, -16, -17, -18]
+        G = self.initializeGraph(nvert, nedge, i, j, v)
+	self.assertEqual(G.nvert(), nvert)
+	self.assertEqual(G.nedge(), nedge)
+	outmin = G.min(dir=Graph.Out)
+	inmin = G.min(dir=Graph.In)
+	outminExpected = [-1, -18, -23, -34, -43, 0, -68, -78, -1.6e10]
+	inminExpected = [-10, -31, -32, -43, -34, -15, -1.6e+10, -87, -78]
+	self.assertEqual(len(outmin), len(outminExpected))
+	self.assertEqual(len(inmin), len(inminExpected))
+
+	for ind in range(len(outmin)):
+		self.assertEqual(outmin[ind], outminExpected[ind])
+		self.assertEqual(inmin[ind], inminExpected[ind])
 	
 
 def runTests(verbosity = 1):
@@ -314,6 +357,8 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BFSTreeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MaxTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MinTests))
     return suite
 
 if __name__ == '__main__':
