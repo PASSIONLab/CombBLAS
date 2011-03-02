@@ -1045,6 +1045,7 @@ class DiGraph(gr.Graph):
 
 		# We don't want to modify the user's graph.
 		G = self.copy()
+		G.T()
 		nvert = G.nvert()
 
 		# Remove self loops.
@@ -1052,7 +1053,7 @@ class DiGraph(gr.Graph):
 
 		# Handle sink nodes (nodes with no outgoing edges) by
 		# connecting them to all other nodes.
-		degout = G.degree(gr.Out)
+		degout = G.degree(gr.In)
 		nonSinkNodes = degout.findInds()
 		nSinkNodes = nvert - len(nonSinkNodes)
 		iInd = ParVec(nSinkNodes*(nvert))
@@ -1074,8 +1075,8 @@ class DiGraph(gr.Graph):
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
 		# outgoing edges).
-		G.normalizeEdgeWeights()
-		sinkG.normalizeEdgeWeights()
+		G.normalizeEdgeWeights(gr.In)
+		sinkG.normalizeEdgeWeights(gr.In)
 
 		# PageRank loop.
 		delta = 1
