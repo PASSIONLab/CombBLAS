@@ -236,9 +236,9 @@ class IsBFSTreeTests(DiGraphTests):
 class LoadTests(DiGraphTests):
     def test_load(self):
 	G = DiGraph.load('small_nonsym_fp.mtx')
+	self.assertEqual(G.nvert(),9)
+	self.assertEqual(G.nedge(),18)
 	[i, j, v] = G.toParVec()
-	self.assertTrue(G.nvert(),9)
-	self.assertTrue(G.nedge(),18)
 	self.assertTrue(len(i),18)
 	self.assertTrue(len(j),18)
 	self.assertTrue(len(v),18)
@@ -252,6 +252,11 @@ class LoadTests(DiGraphTests):
 		self.assertEqual(j[ind], expectedJ[ind])
 		self.assertEqual(v[ind], expectedV[ind])
 
+class MaxTests(DiGraphTests):
+    def test_max_out(self):
+	G = DiGraph.load('small_nonsym_int.mtx')
+	self.assertTrue(G.nvert(), 9)
+	self.assertTrue(G.nedge(), 19)
 	
 
 def runTests(verbosity = 1):
