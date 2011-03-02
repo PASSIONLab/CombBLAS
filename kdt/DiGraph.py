@@ -998,15 +998,15 @@ class DiGraph(gr.Graph):
 		return ret
 
 
-	def normalizeEdgeWeights(self):
+	def normalizeEdgeWeights(self, dir=gr.Out):
 		"""
 		Normalize the outward edge weights of each vertex such
 		that for Vertex v, each outward edge weight is
 		1/outdegree(v).
 		"""
-		degscale = self.degree(gr.Out)
+		degscale = self.degree(dir)
 		degscale._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
-		self.scale(degscale.toSpParVec())
+		self.scale(degscale.toSpParVec(), dir)
 		
 	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 		"""

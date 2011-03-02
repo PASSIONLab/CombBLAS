@@ -77,7 +77,7 @@ class PageRankTests(DiGraphTests):
             self.assertAlmostEqual(pr[ind], expected[ind], 4)
 
 class NormalizeEdgeWeightsTests(DiGraphTests):
-    def test_no_edges(self):
+    def no_edge_graph(self):
         nvert = 4
         nedge = 0
         i = []
@@ -85,11 +85,28 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
         self.assertEqual(len(i), nedge)
         self.assertEqual(len(j), nedge)
 
-        G = self.initializeGraph(nvert, nedge, i, j)
+        return self.initializeGraph(nvert, nedge, i, j)
+
+    def test_no_edges_default(self):
+        G = self.no_edge_graph()
         G.normalizeEdgeWeights()
         self.assertEqual(G.nedge(), 0)
 
-    def test_simple(self):
+    def test_no_edges_out(self):
+        G = self.no_edge_graph()
+        G.normalizeEdgeWeights(Graph.Out)
+        self.assertEqual(G.nedge(), 0)
+
+    def test_no_edges_in(self):
+        G = self.no_edge_graph()
+        G.normalizeEdgeWeights(Graph.In)
+        self.assertEqual(G.nedge(), 0)
+
+    def small_test_graph(self):
+        # 1 0 1 0
+        # 0 0 0 1
+        # 0 1 0 1
+        # 1 0 0 0
         nvert = 4
         nedge = 6
         i = [0, 3, 2, 0, 1, 2]
@@ -97,10 +114,35 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
         self.assertEqual(len(i), nedge)
         self.assertEqual(len(j), nedge)
 
-        G = self.initializeGraph(nvert, nedge, i, j)
+        return [nvert, nedge, i, j, self.initializeGraph(nvert, nedge, i, j)]
+        
+    def test_small_default(self):
+        [nvert, nedge, i, j, G] = self.small_test_graph()
         G.normalizeEdgeWeights()
         [iInd, jInd, eW] = G.toParVec()
         w = [0.5, 1., 0.5, 0.5, 1., 0.5]
+
+        for ind in range(nedge):
+            self.assertEqual(i[ind], iInd[ind])
+            self.assertEqual(j[ind], jInd[ind])
+            self.assertEqual(eW[ind], w[ind])
+
+    def test_small_out(self):
+        [nvert, nedge, i, j, G] = self.small_test_graph()
+        G.normalizeEdgeWeights(Graph.Out)
+        [iInd, jInd, eW] = G.toParVec()
+        w = [0.5, 1., 0.5, 0.5, 1., 0.5]
+
+        for ind in range(nedge):
+            self.assertEqual(i[ind], iInd[ind])
+            self.assertEqual(j[ind], jInd[ind])
+            self.assertEqual(eW[ind], w[ind])
+
+    def test_small_in(self):
+        [nvert, nedge, i, j, G] = self.small_test_graph()
+        G.normalizeEdgeWeights(Graph.In)
+        [iInd, jInd, eW] = G.toParVec()
+        w = [0.5, 0.5, 1., 1., 0.5, 0.5]
 
         for ind in range(nedge):
             self.assertEqual(i[ind], iInd[ind])
