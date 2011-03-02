@@ -1005,9 +1005,7 @@ class DiGraph(gr.Graph):
 		1/outdegree(v).
 		"""
 		degscale = self.degree(gr.Out)
-		for ind in range(len(degscale)):
-			if degscale[ind] != 0:
-				degscale[ind] = 1./degscale[ind]
+		degscale._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
 		self.scale(degscale.toSpParVec())
 		
 	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
