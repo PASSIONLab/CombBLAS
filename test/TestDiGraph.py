@@ -172,6 +172,87 @@ class DegreeTests(DiGraphTests):
             self.assertEqual(inDeg[ind], inExpected[ind])
             self.assertEqual(outDeg[ind], outExpected[ind])
 
+class CentralityTests(DiGraphTests):
+    def test_exactBC_twoDTorus(self):
+	n = 16
+	G = DiGraph.twoDTorus(n)
+	nv = G.nvert()
+	bc = G.centrality('exactBC',normalize=True)
+	bcExpected = 0.0276826
+	for ind in range(nv):
+		self.assertAlmostEqual(bc[ind],bcExpected, 6)	
+
+    def test_approxBC_twoDTorus(self):
+	n = 16
+	G = DiGraph.twoDTorus(n)
+	nv = G.nvert()
+	bc = G.centrality('approxBC',sample=1.0, normalize=True)
+	bcExpected = 0.0276826
+	for ind in range(nv):
+		self.assertAlmostEqual(bc[ind],bcExpected, 6)	
+
+    def test_approxBC_twoDTorus_sample(self):
+	n = 16
+	G = DiGraph.twoDTorus(n)
+	nv = G.nvert()
+	bc = G.centrality('approxBC',sample=0.05, normalize=True)
+	bcExpected = 0.0276
+	for ind in range(nv):
+		self.assertAlmostEqual(bc[ind],bcExpected,2)	
+
+class BFSTreeTests(DiGraphTests):
+    def test_bfsTree(self):
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	parentsExpected = [-1, 1, 1, 4, 1, 2, 5, 4]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	parents = G.bfsTree(1)
+	for ind in range(nvert):
+		self.assertEqual(parents[ind], parentsExpected[ind])
+
+class IsBFSTreeTests(DiGraphTests):
+    def test_isBfsTree(self):
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	parentsExpected = [-1, 1, 1, 4, 1, 2, 5, 4]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	root = 1
+	parents = G.bfsTree(root)
+	ret = G.isBfsTree(root, parents)
+	self.assertTrue(type(ret)==tuple)
+	[ret2, levels] = ret
+	self.assertTrue(ret2)
+
+class LoadTests(DiGraphTests):
+    def test_load(self):
+	G = DiGraph.load('small_nonsym_fp.mtx')
+	[i, j, v] = G.toParVec()
+	self.assertTrue(G.nvert(),9)
+	self.assertTrue(G.nedge(),18)
+	self.assertTrue(len(i),18)
+	self.assertTrue(len(j),18)
+	self.assertTrue(len(v),18)
+	expectedI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	expectedJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	expectedV = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
+			0.02, 0.01, 0.01, 1.6e+10, 0.01, 0.01, 0.01, 0.01, 0.01]
+
+	for ind in range(len(i)):
+		self.assertEqual(i[ind], expectedI[ind])
+		self.assertEqual(j[ind], expectedJ[ind])
+		self.assertEqual(v[ind], expectedV[ind])
+
+	
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -182,6 +263,10 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PageRankTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NormalizeEdgeWeightsTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(DegreeTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CentralityTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BFSTreeTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
     return suite
 
 if __name__ == '__main__':
