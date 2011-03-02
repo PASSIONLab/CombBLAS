@@ -3,10 +3,26 @@
 
 - CombBLAS
 
-- pyCombBLAS / PyCombBLAS
-  - [Adam] expose SpParMat full-row/-column indexing from CombBLAS
+- pyCombBLAS 
 
 - KDT
+
+- parallel execution
+  - [Steve] understand how to debug with Python instead of IPython
+
+- documentation
+  - [Steve] add examples of centrality/pageRank use
+
+----Post-v0.1 below
+  - [Adam] expose SpParMat full-row/-column indexing from CombBLAS
+  - [Steve] clean up find/etc. behavior so based on nonnull, not nonzero
+
+----Post-v0.1 issues below
+  - sparse comparators only compare for nonnulls
+  - spParVec.all() returns 1 even if nulls
+
+----Completed below
+  - [Adam] implement wrapper for sort - Done for SpVec
   - [Steve] implement wrappers for find/sparse
   - [Steve] implement SPM full row-column indexing
   - [Steve] implement 1-norm on DPVs
@@ -17,22 +33,6 @@
   - [Steve] implement generalized Reduce in ParVec/SPM [really needed?]
   - [Steve] implement wrapper for sort
   - [Adam]  implement topK based on sort - Done for SpVec
-
-- parallel execution
-  - [Steve] understand how to debug with Python instead of IPython
-
-- documentation
-  - [Steve] add examples of centrality/cluster use
-
-----Post-v0.1 below
-  - [Adam] implement wrapper for sort - Done for SpVec
-  - [Steve] clean up find/etc. behavior so based on nonnull, not nonzero
-
-----Post-v0.1 issues below
-  - sparse comparators only compare for nonnulls
-  - spParVec.all() returns 1 even if nulls
-
-----Completed below
   - [Adam] implement generalized Reduce
   - [Adam] implement pySpParMat with integer datatype
   - [Adam] implement generalized Reduce
