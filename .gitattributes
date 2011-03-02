@@ -1061,4 +1061,5 @@ kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
+test/small_nonsym_fp.mtx -text
 /v0.1_checklist -text
