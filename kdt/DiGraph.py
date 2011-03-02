@@ -219,6 +219,11 @@ class DiGraph(gr.Graph):
 			raise NotImplementedError
 		return ret
 
+	def __neg__(self):
+		ret = self.copy()
+		ret._spm.Apply(pcb.negate())
+		return ret
+
 	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 100
 	def __repr__(self):
