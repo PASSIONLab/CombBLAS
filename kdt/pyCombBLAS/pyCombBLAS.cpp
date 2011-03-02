@@ -28,20 +28,26 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 
 ////////////////////////// INITALIZATION/FINALIZE
 
+bool has_MPI_Init_been_called = false;
+
 void init_pyCombBLAS_MPI()
 {
-	//cout << "calling MPI::Init" << endl;
-	MPI::Init();
+	if (!has_MPI_Init_been_called)
+	{
+		//cout << "calling MPI::Init" << endl;
+		MPI::Init();
+		
+		MPI::Datatype type[1] = {MPI::DOUBLE};
+		int blocklen[1] = {1};
+		MPI::Aint disp[1];
+		
+		doubleint data;
+		disp[0] = (MPI::Get_address(&data.d) - MPI::Get_address(&data));
 	
-	MPI::Datatype type[1] = {MPI::DOUBLE};
-	int blocklen[1] = {1};
-	MPI::Aint disp[1];
-	
-	doubleint data;
-	disp[0] = (MPI::Get_address(&data.d) - MPI::Get_address(&data));
-
-	doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
-	doubleint_MPI_datatype.Commit();
+		doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
+		doubleint_MPI_datatype.Commit();
+		has_MPI_Init_been_called = true;
+	}
 }
 
 void finalize()
