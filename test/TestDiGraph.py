@@ -19,10 +19,7 @@ class DiGraphTests(unittest.TestCase):
 	    if type(v) != int and type(v) != float:
 		vInd[ind] = v[ind]
 
-        spm = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, vInd._dpv)
-        G = DiGraph()
-        G._spm = spm
-        return G
+        return DiGraph(iInd, jInd, vInd, nvert)
 
 class PageRankTests(DiGraphTests):
     def test_connected(self):
