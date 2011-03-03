@@ -87,12 +87,12 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
 
     def test_no_edges_out(self):
         G = self.no_edge_graph()
-        G.normalizeEdgeWeights(Graph.Out)
+        G.normalizeEdgeWeights(DiGraph.Out)
         self.assertEqual(G.nedge(), 0)
 
     def test_no_edges_in(self):
         G = self.no_edge_graph()
-        G.normalizeEdgeWeights(Graph.In)
+        G.normalizeEdgeWeights(DiGraph.In)
         self.assertEqual(G.nedge(), 0)
 
     def small_test_graph(self):
@@ -122,7 +122,7 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
 
     def test_small_out(self):
         [nvert, nedge, i, j, G] = self.small_test_graph()
-        G.normalizeEdgeWeights(Graph.Out)
+        G.normalizeEdgeWeights(DiGraph.Out)
         [iInd, jInd, eW] = G.toParVec()
         w = [0.5, 1., 0.5, 0.5, 1., 0.5]
 
@@ -133,7 +133,7 @@ class NormalizeEdgeWeightsTests(DiGraphTests):
 
     def test_small_in(self):
         [nvert, nedge, i, j, G] = self.small_test_graph()
-        G.normalizeEdgeWeights(Graph.In)
+        G.normalizeEdgeWeights(DiGraph.In)
         [iInd, jInd, eW] = G.toParVec()
         w = [0.5, 0.5, 1., 1., 0.5, 0.5]
 
@@ -152,8 +152,8 @@ class DegreeTests(DiGraphTests):
         self.assertEqual(len(j), nedge)
 
         G = self.initializeGraph(nvert, nedge, i, j)
-        inDeg = G.degree(Graph.Out)
-        outDeg = G.degree(Graph.Out)
+        inDeg = G.degree(DiGraph.Out)
+        outDeg = G.degree(DiGraph.Out)
         for ind in range(nvert):
             self.assertEqual(inDeg[ind], 0)
             self.assertEqual(outDeg[ind], 0)
@@ -167,7 +167,7 @@ class DegreeTests(DiGraphTests):
         self.assertEqual(len(j), nedge)
 
         G = self.initializeGraph(nvert, nedge, i, j)
-        deg = G.degree(Graph.In)
+        deg = G.degree(DiGraph.In)
         for vdeg in deg:
             self.assertEqual(vdeg, 0)
 
@@ -180,8 +180,8 @@ class DegreeTests(DiGraphTests):
         self.assertEqual(len(j), nedge)
         
         G = self.initializeGraph(nvert, nedge, i, j)
-        inDeg = G.degree(Graph.In)
-        outDeg = G.degree(Graph.Out)
+        inDeg = G.degree(DiGraph.In)
+        outDeg = G.degree(DiGraph.Out)
         inExpected = [0, 1, 1, 2, 3, 2, 2, 2, 2, 1, 1]
         outExpected = [1, 7, 1, 1, 6, 1, 0, 0, 0, 0, 0]
 
@@ -198,8 +198,8 @@ class DegreeTests(DiGraphTests):
         self.assertEqual(len(j), nedge)
         
         G = self.initializeGraph(nvert, nedge, i, j)
-        inDeg = G.degree(Graph.In)
-        outDeg = G.degree(Graph.Out)
+        inDeg = G.degree(DiGraph.In)
+        outDeg = G.degree(DiGraph.Out)
         inExpected = [2, 1, 1, 2]
         outExpected = [1, 1, 2, 2]
 
@@ -298,8 +298,8 @@ class MaxTests(DiGraphTests):
         G = self.initializeGraph(nvert, nedge, i, j, v)
 	self.assertEqual(G.nvert(), nvert)
 	self.assertEqual(G.nedge(), nedge)
-	outmax = G.max(dir=Graph.Out)
-	inmax = G.max(dir=Graph.In)
+	outmax = G.max(dir=DiGraph.Out)
+	inmax = G.max(dir=DiGraph.In)
 	outmaxExpected = [1, 18, 23, 34, 43, 0, 68, 78, 1.6e10]
 	inmaxExpected = [10, 31, 32, 43, 34, 15, 1.6e+10, 87, 78]
 	self.assertEqual(len(outmax), len(outmaxExpected))
@@ -320,8 +320,8 @@ class MinTests(DiGraphTests):
         G = self.initializeGraph(nvert, nedge, i, j, v)
 	self.assertEqual(G.nvert(), nvert)
 	self.assertEqual(G.nedge(), nedge)
-	outmin = G.min(dir=Graph.Out)
-	inmin = G.min(dir=Graph.In)
+	outmin = G.min(dir=DiGraph.Out)
+	inmin = G.min(dir=DiGraph.In)
 	outminExpected = [-1, -18, -23, -34, -43, 0, -68, -78, -1.6e10]
 	inminExpected = [-10, -31, -32, -43, -34, -15, -1.6e+10, -87, -78]
 	self.assertEqual(len(outmin), len(outminExpected))

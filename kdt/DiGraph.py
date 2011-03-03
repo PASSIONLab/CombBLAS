@@ -6,6 +6,9 @@ import Graph as gr
 from Graph import ParVec, SpParVec, master
 
 class DiGraph(gr.Graph):
+	InOut = 1
+	In = 2
+	Out = 3
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -277,7 +280,7 @@ class DiGraph(gr.Graph):
 		ret._spm = self._spm.copy()
 		return ret
 		
-	def degree(self, dir=gr.Out):
+	def degree(self, dir=Out):
 		"""
 		calculates the degrees of the appropriate edges of each vertex of 
 		the passed DiGraph instance.
@@ -293,15 +296,15 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  sum 
 		"""
-		if dir == gr.InOut:
+		if dir == DiGraph.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
 			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == gr.In:
+		elif dir == DiGraph.In:
 			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
-		elif dir == gr.Out:
+		elif dir == DiGraph.Out:
 			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 			return ParVec.toParVec(ret)
 		else:
@@ -392,7 +395,7 @@ class DiGraph(gr.Graph):
 		ret._spm.load(fname)
 		return ret
 
-	def max(self, dir=gr.InOut):
+	def max(self, dir=InOut):
 		"""
 		finds the maximum weights of the appropriate edges of each vertex 
 		of the passed DiGraph instance.
@@ -410,20 +413,20 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  degree, min 
 		"""
 		#ToDo:  is default to InOut best?
-		if dir == gr.InOut:
+		if dir == DiGraph.InOut:
 			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
 			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
 			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == gr.In:
+		elif dir == DiGraph.In:
 			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
 			return ParVec.toParVec(ret)
-		elif dir == gr.Out:
+		elif dir == DiGraph.Out:
 			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
 			return ParVec.toParVec(ret)
 		else:
 			raise KeyError, 'Invalid edge direction'
 
-	def min(self, dir=gr.InOut):
+	def min(self, dir=InOut):
 		"""
 		finds the minimum weights of the appropriate edges of each vertex 
 		of the passed DiGraph instance.
@@ -441,14 +444,14 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  degree, max 
 		"""
 		#ToDo:  is default to InOut best?
-		if dir == gr.InOut:
+		if dir == DiGraph.InOut:
 			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
 			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
 			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == gr.In:
+		elif dir == DiGraph.In:
 			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
 			return ParVec.toParVec(ret)
-		elif dir == gr.Out:
+		elif dir == DiGraph.Out:
 			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
 			return ParVec.toParVec(ret)
 
@@ -547,7 +550,7 @@ class DiGraph(gr.Graph):
 		return
 
 	#in-place, so no return value
-	def scale(self, other, dir=gr.Out):
+	def scale(self, other, dir=Out):
 		"""
 		multiplies the weights of the appropriate edges of each vertex of
 		the passed DiGraph instance in-place by a vertex-specific scale 
@@ -570,11 +573,11 @@ class DiGraph(gr.Graph):
 			[selfnv1, selfnv2] = selfnv
 		else:
 			selfnv1 = selfnv; selfnv2 = selfnv
-		if dir == gr.In:
+		if dir == DiGraph.In:
 			if selfnv2 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
 			self._spm.ColWiseApply(other._spv, pcb.multiplies())
-		elif dir == gr.Out:
+		elif dir == DiGraph.Out:
 			if selfnv1 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
 			self.T()
@@ -628,7 +631,7 @@ class DiGraph(gr.Graph):
 		ret = self[ndx1, ndx2]
 		return ret
 
-	def sum(self, dir=gr.Out):
+	def sum(self, dir=Out):
 		"""
 		adds the weights of the appropriate edges of each vertex of the
 		passed DiGraph instance.
@@ -644,14 +647,14 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  degree 
 		"""
-		if dir == gr.InOut:
+		if dir == DiGraph.InOut:
 			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
 			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == gr.In:
+		elif dir == DiGraph.In:
 			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
-		elif dir == gr.Out:
+		elif dir == DiGraph.Out:
 			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
 			return ParVec.toParVec(ret)
 		else:
@@ -1003,7 +1006,7 @@ class DiGraph(gr.Graph):
 		return ret
 
 
-	def normalizeEdgeWeights(self, dir=gr.Out):
+	def normalizeEdgeWeights(self, dir=Out):
 		"""
 		Normalize the outward edge weights of each vertex such
 		that for Vertex v, each outward edge weight is
@@ -1059,13 +1062,13 @@ class DiGraph(gr.Graph):
 		# Handle sink nodes (nodes with no outgoing edges) by
 		# connecting them to all other nodes.
 
-		sinkV = G.degree(gr.In)
+		sinkV = G.degree(DiGraph.In)
 		sinkV._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
 
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
 		# outgoing edges).
-		G.normalizeEdgeWeights(gr.In)
+		G.normalizeEdgeWeights(DiGraph.In)
 
 		# PageRank loop.
 		delta = 1
@@ -1202,7 +1205,7 @@ class DiGraph(gr.Graph):
 				# compute the weights to be applied based on the child values
 				w = bfs[depth] / nsp * bcu
 				if BCdebug>1:
-					print w.sum(Out).sum()
+					print w.sum(DiGraph.Out).sum()
 					import sys; sys.exit()
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
@@ -1215,9 +1218,9 @@ class DiGraph(gr.Graph):
 	
 			# update the bc with the bc update
 			if BCdebug:
-				print bcu.sum(Out).sum()
+				print bcu.sum(DiGraph.Out).sum()
 				#import sys; sys.exit()
-			bc = bc + bcu.sum(In)	# column sums
+			bc = bc + bcu.sum(DiGraph.In)	# column sums
 	
 		# subtract off the additional values added in by precomputation
 		bc = bc - nVertToCalc
@@ -1243,7 +1246,3 @@ class DiGraph(gr.Graph):
 			raise KeyError, "unknown clustering algorithm (%s)" % alg
 	
 		return clus
-
-InOut = gr.InOut
-In = gr.In
-Out = gr.Out
