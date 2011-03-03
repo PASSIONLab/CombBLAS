@@ -21,5 +21,6 @@ kdt/pyCombBLAS/*.so
 kdt/pyCombBLAS/Makefile
 /temp_fullydistspvec
 /temp_fullydistvec
+test/.KDT_log
 test/temp_fullydistspvec
 test/temp_fullydistvec
