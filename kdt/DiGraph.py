@@ -1058,42 +1058,32 @@ class DiGraph(gr.Graph):
 
 		# Handle sink nodes (nodes with no outgoing edges) by
 		# connecting them to all other nodes.
-		degout = G.degree(gr.In)
-		nonSinkNodes = degout.findInds()
-		nSinkNodes = nvert - len(nonSinkNodes)
-		iInd = ParVec(nSinkNodes*(nvert))
-		jInd = ParVec(nSinkNodes*(nvert))
-		wInd = ParVec(nSinkNodes*(nvert), 1)
-		sinkSuppInd = 0
-		
-		for ind in range(nvert):
-			if degout[ind] == 0:
-				# Connect to all nodes.
-				for sInd in range(nvert):
-					iInd[sinkSuppInd] = sInd
-					jInd[sinkSuppInd] = ind
-					sinkSuppInd = sinkSuppInd + 1
-		sinkMat = pcb.pySpParMat(nvert, nvert, iInd._dpv, jInd._dpv, wInd._dpv)
-		sinkG = DiGraph()
-		sinkG._spm = sinkMat
+
+		sinkV = G.degree(gr.In)
+		sinkV._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
 
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
 		# outgoing edges).
 		G.normalizeEdgeWeights(gr.In)
-		sinkG.normalizeEdgeWeights(gr.In)
 
 		# PageRank loop.
 		delta = 1
 		dv1 = ParVec(nvert, 1./nvert)
 		v1 = dv1.toSpParVec()
 		prevV = SpParVec(nvert)
-		dampingVec = SpParVec.ones(nvert) * ((1 - dampingFactor)/nvert)
+		onesVec = SpParVec.ones(nvert)
+		dampingVec = onesVec * ((1 - dampingFactor)/nvert)
 		while delta > epsilon:
 			prevV = v1.copy()
-			v2 = G._spm.SpMV_PlusTimes(v1._spv) + \
-			     sinkG._spm.SpMV_PlusTimes(v1._spv)
-			v1._spv = v2
+			v2 = G._spm.SpMV_PlusTimes(v1._spv)
+
+			# Compute the inner product of sinkV and v1.
+			sinkContrib = sinkV.copy()
+			sinkContrib._dpv.EWiseApply(v1._spv, pcb.multiplies())
+			sinkContrib = sinkContrib._dpv.Reduce(pcb.plus())
+			
+			v1._spv = v2 + (onesVec*sinkContrib)._spv
 			v1 = v1*dampingFactor + dampingVec
 			delta = (v1 - prevV)._spv.Reduce(pcb.plus(), pcb.abs())
 		return v1
