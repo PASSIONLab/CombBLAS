@@ -1585,9 +1585,3 @@ def master():
 	master process or a slave process in a parallel program.
 	"""
 	return pcb.root()
-
-# which direction(s) of edges to include
-InOut = 1
-In = 2
-Out = 3
-
