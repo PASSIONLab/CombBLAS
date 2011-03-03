@@ -1,14 +1,5 @@
 import unittest
-
-# This block allows the tests to be run from the command line from
-# either this directory or the directory above. This should be
-# temporary until more about the packaging is understood.
-import sys
-sys.path.append('.')
-sys.path.append('..')
-
-from kdt.DiGraph import DiGraph, ParVec
-from kdt import Graph
+from kdt import *
 from kdt import pyCombBLAS as pcb
 
 class DiGraphTests(unittest.TestCase):
