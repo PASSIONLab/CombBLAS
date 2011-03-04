@@ -1062,5 +1062,5 @@ kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
 test/note_for_kdt_developers.txt -text
-test/small_nonsym_fp.mtx -text
+test/testfiles/small_nonsym_fp.mtx -text
 /v0.1_checklist -text
