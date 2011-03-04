@@ -388,6 +388,10 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  save, UFget
 		"""
+		# Verify file exists.
+		file = open(fname, 'r')
+		file.close()
+		
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
 		ret = DiGraph()
