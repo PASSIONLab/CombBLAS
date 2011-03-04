@@ -13,6 +13,7 @@
         #include <tr1/memory>
 #endif
 
+#include "include/pat_api.h"
 double cblas_alltoalltime;
 double cblas_allgathertime;
 
