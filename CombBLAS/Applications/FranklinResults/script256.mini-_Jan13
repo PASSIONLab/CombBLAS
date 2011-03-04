@@ -1,0 +1,158 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 28
+Generated local RMAT matrices
+Permuted Edges
+Renamed Vertices
+Duplicates removed: 54987620 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Calculated degrees
+Duplicates removed: 54987620 and self-loops removed: 2796
+29.362151 seconds elapsed for Kernel #1
+As a whole: 268435456 rows and 268435456 columns and 8479953760 nonzeros
+Load balance: 1.02638
+1.902823 seconds elapsed for getting column sums
+Found non-isolated vertices
+As a whole, Candidates array has length 90346609
+As a whole, Candidates array (permuted) has length 90346609
+As a whole, First several of candidates (randomly chosen) array has length 16
+0th starting vertex was 117514195
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.2834 seconds
+MTEPS: 462.646
+1th starting vertex was 239421564
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.13116 seconds
+MTEPS: 470.359
+2th starting vertex was 137471040
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.12773 seconds
+MTEPS: 470.536
+3th starting vertex was 193826670
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.12568 seconds
+MTEPS: 470.642
+4th starting vertex was 5996905
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.28537 seconds
+MTEPS: 462.548
+5th starting vertex was 263688050
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.10302 seconds
+MTEPS: 471.814
+6th starting vertex was 22890867
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.25288 seconds
+MTEPS: 464.172
+7th starting vertex was 263934142
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.16566 seconds
+MTEPS: 468.589
+8th starting vertex was 98257394
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.23979 seconds
+MTEPS: 464.83
+9th starting vertex was 152652433
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.12629 seconds
+MTEPS: 470.611
+10th starting vertex was 262452892
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.14382 seconds
+MTEPS: 469.708
+11th starting vertex was 223772344
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.86677 seconds
+MTEPS: 435.292
+12th starting vertex was 245446710
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.26152 seconds
+MTEPS: 463.739
+13th starting vertex was 28091768
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.31451 seconds
+MTEPS: 461.101
+14th starting vertex was 193575564
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 9.21876 seconds
+MTEPS: 465.89
+15th starting vertex was 212037233
+Number iterations: 8
+Number of vertices found: 122427841
+Number of edges traversed: 4294928666
+BFS time: 11.1319 seconds
+MTEPS: 385.822
+Finished
+--------------------------
+Min nedges: 4.29493e+09
+First Quartile nedges: 4.29493e+09
+Median nedges: 4.29493e+09
+Third Quartile nedges: 4.29493e+09
+Max nedges: 4.29493e+09
+Mean nedges: 1.07373e+09
+STDDEV nedges: 3.32684e+09
+--------------------------
+Min time: 9.10302 seconds
+First Quartile time: 9.12945 seconds
+Median time: 9.22928 seconds
+Third Quartile time: 9.28439 seconds
+Max time: 11.1319 seconds
+Mean time: 2.34029 seconds
+STDDEV time: 7.2687 seconds
+--------------------------
+Min MTEPS: 385.822
+First Quartile MTEPS: 462.597
+Median MTEPS: 465.36
+Third Quartile MTEPS: 470.448
+Max MTEPS: 471.814
+Harmonic mean of MTEPS: 458.804
+Harmonic standard deviation of MTEPS: 24.7716
+Application 6130139 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256
+ +          Job Id: 6929294.nid00003
+ +          System: franklin
+ +     Queued Time: Thu Jan 13 22:13:12 2011
+ +      Start Time: Thu Jan 13 23:40:31 2011
+ + Completion Time: Thu Jan 13 23:45:48 2011
+ +            User: abuluc
+ +        MOM Host: nid00576
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:60793:nid00256,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=5648kb,vmem=22752kb,walltime=00:05:17
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script256
+ + --------------------------------------------------------------------------
+
