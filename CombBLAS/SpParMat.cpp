@@ -424,6 +424,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 {
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
+	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
 		SpParHelper::Print("Grids are not comparable, SpRef fails !"); 
@@ -529,10 +532,31 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 
 	DER_IT * PSeq = new DER_IT(); 
 	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+	SpParHelper::Print("PSeq created\n");
+
+	SpParMat<IT,NT,DER> PA;
+	if(ri == ci)	// Symmetric permutation
+	{
+		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+		SpParHelper::Print("Symmetric permutation\n");
+		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
+        	PA = Mult_AnXBn_Synch<PTBOOLNT>(P, *this);
+		P.Transpose();
+       	 	return Mult_AnXBn_Synch<PTNTBOOL>(PA, P);
+	}
+	else
+	{
+		// Intermediate step (to save memory): Form PA and store it in P
+		// Distributed matrix generation (collective call)
+		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
+
+		// Do parallel matrix-matrix multiply
+        	PA = Mult_AnXBn_Synch<PTBOOLNT>(P, *this);
+	}	// P is destructed here
+	PA.PrintInfo();
 
 	// Step 2: Create Q  (use the same row-wise communication and transpose at the end)
 	// This temporary to-be-transposed Q is size(ci) x n 
-
 	locvec = ci.arr.size();	// nnz in local vector (reset variable)
 	for(typename vector<IT>::size_type i=0; i< locvec; ++i)
 	{
@@ -584,14 +608,14 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 
 	// Step 3: Form PAQ
 	// Distributed matrix generation (collective call)
-	SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 	SpParMat<IT,bool,DER_IT> Q (QSeq, commGrid);
+	SpParHelper::Print("PA, Q ready\n");
 	Q.Transpose();	
+	SpParHelper::Print("Q transposed\n");
 
 	// Do parallel matrix-matrix multiply
-	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
 	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
-        return Mult_AnXBn_Synch<PTNTBOOL>(Mult_AnXBn_Synch<PTBOOLNT>(P, *this), Q);
+        return Mult_AnXBn_Synch<PTNTBOOL>(PA, Q);
 }
 
 /** 
