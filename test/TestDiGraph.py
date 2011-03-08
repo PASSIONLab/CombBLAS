@@ -334,6 +334,113 @@ class MinTests(DiGraphTests):
 		self.assertEqual(outmin[ind], outminExpected[ind])
 		self.assertEqual(inmin[ind], inminExpected[ind])
 	
+class BuiltInMethodTests(DiGraphTests):
+    def test_DiGraph_simple(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	[actualI, actualJ, actualV] = G.toParVec()
+        self.assertEqual(len(origI), len(actualI))
+        self.assertEqual(len(origJ), len(actualJ))
+        self.assertEqual(len(origV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(origI[ind], actualI[ind])
+		self.assertEqual(origJ[ind], actualJ[ind])
+		self.assertEqual(origV[ind], actualV[ind])
+        
+    def test_DiGraph_duplicates(self):
+	# ensure that a DiGraph constructor creates the number, source/
+        # destination, and value pairs expected when 3 input edges have
+        # the same source and destination.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 3, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	expI = [1, 0, 2, 3, 1, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	expJ = [0, 1, 1, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	expV = [10, 1, 21, 31, 12, 32, 79, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	[actualI, actualJ, actualV] = G.toParVec()
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_add_simple(self):
+	# ensure that a DiGraph constructor creates the number, source/
+        # destination, and value pairs expected when all edges are 
+        # in both DiGraphs.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	origV2 = [11, 2, 22, 32, 13, 33, 14, 24, 44, 15, 35, 16, 17, (1.6e+10)+1,
+		18, 88, 19, 69, 79]
+	expV = [21, 3, 43, 63, 25, 65, 27, 47, 87, 29, 69, 31, 33, (3.2e+10)+1,
+		35, 175, 37, 137, 157]
+	G1 = self.initializeGraph(nvert, nedge, origI, origJ, origV1)
+	G2 = self.initializeGraph(nvert, nedge, origI, origJ, origV2)
+        G3 = G1+G2
+	[actualI, actualJ, actualV] = G3.toParVec()
+        self.assertEqual(len(origI), len(actualI))
+        self.assertEqual(len(origJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(origI[ind], actualI[ind])
+		self.assertEqual(origJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_add_union(self):
+	# ensure that a DiGraph constructor creates the number, source/
+        # destination, and value pairs expected when some edges are not
+        # in both DiGraphs.
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [1, 0, 2, 4, 1, 3, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ1 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 21, 41, 12, 32, 13, 23, 33, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nvert2 = 9
+	nedge2 = 19
+	origI2 = [7, 3, 6, 8, 5, 7, 4, 5, 6, 5, 7, 7, 2, 7, 2, 7, 0, 2, 5]
+	origJ2 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV2 = [70, 31, 61, 81, 52, 72, 43, 53, 63, 54, 74, 75, 26, 1.6e+10,
+		27, 77, 8, 28, 58]
+	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
+        G3 = G1 + G2
+	[actualI, actualJ, actualV] = G3.toParVec()
+	expNvert = 9
+	expNedge = 38
+        expI = [1, 7, 0, 2, 3, 4, 6, 8, 1, 3, 5, 7, 1, 2, 3, 4, 5, 6, 1, 3, 5,
+		 7, 1, 7, 1, 2, 7, 8, 1, 2, 7, 8, 0, 1, 2, 5, 6, 7]
+        expJ = [0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4,
+		 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8]
+	expV = [10,70, 1,21,31,41,61,81,12,32,52,72,13,23,33,43,53,63,14,34,54,
+		74,15,75,16,26,1.6e+10,1.6e+10,17,27,77,87,8,18,28,58,68,78]
+	[actualI, actualJ, actualV] = G3.toParVec()
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -350,6 +457,7 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MaxTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MinTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
     return suite
 
 if __name__ == '__main__':
