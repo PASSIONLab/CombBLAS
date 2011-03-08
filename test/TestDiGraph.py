@@ -268,6 +268,38 @@ class IsBFSTreeTests(DiGraphTests):
 	[ret2, levels] = ret
 	self.assertTrue(ret2)
 
+class NeighborsTests(DiGraphTests):
+    def test_neighbors(self):
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	neighborsExpected = [0, 1, 0, 1, 0, 0, 0, 1]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	neighbors = G.neighbors(4)
+	for ind in range(nvert):
+		self.assertEqual(neighbors[ind], neighborsExpected[ind])
+
+class PathsHopTests(DiGraphTests):
+    def test_pathsHop(self):
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	neighborsExpected = [-1, 4, -1, 4, -1, 2, -1, 4]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	tmp = ParVec.range(8)
+        starts = (tmp == 2) | (tmp == 4)
+	neighbors = G.pathsHop(starts)
+	for ind in range(nvert):
+		self.assertEqual(neighbors[ind], neighborsExpected[ind])
+
 class LoadTests(DiGraphTests):
     def test_load(self):
 	G = DiGraph.load('testfiles/small_nonsym_fp.mtx')
@@ -353,6 +385,33 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(origI[ind], actualI[ind])
 		self.assertEqual(origJ[ind], actualJ[ind])
 		self.assertEqual(origV[ind], actualV[ind])
+        
+    def test_indexing_simple(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(3)
+	ndx[0] = 2
+	ndx[1] = 3
+	ndx[2] = 4
+	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [1, 0, 2, 1]
+	expJ = [0, 1, 1, 2]
+	expV = [32, 23, 43, 34]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
         
     def test_DiGraph_duplicates(self):
 	# ensure that a DiGraph constructor creates the number, source/
@@ -454,6 +513,8 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CentralityTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BFSTreeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MaxTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MinTests))
