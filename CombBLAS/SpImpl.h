@@ -146,6 +146,7 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 
 	if(flops > FLOPSPERLOC * mA)
 	{
+		//PAT_region_begin(1, "SPA_Multiply");
 		NT * localy = new NT[mA];
 		bool * isthere = new bool[mA];
 		vector<IT> nzinds;	// nonzero indices		
@@ -179,9 +180,11 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 			numy[i] = localy[nzinds[i]]; 	
 		}
 		DeleteAll(localy, isthere);
+		//PAT_region_end(1);
 	}
 	else
 	{
+		//PAT_region_begin(2, "Heap_Multiply");
 		IT inf = numeric_limits<IT>::min();
 		IT sup = numeric_limits<IT>::max(); 
        	 	KNHeap< IT, IT > sHeap(sup, inf); 
@@ -238,6 +241,7 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 				--hsize;
 			}
 		}
+		//PAT_region_end(2);
 	}
 }
 
