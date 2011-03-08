@@ -1070,6 +1070,8 @@ kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
+test/TestParVec.py -text
+test/TestSpParVec.py -text
 test/note_for_kdt_developers.txt -text
 test/testfiles/small_nonsym_fp.mtx -text
 /v0.1_checklist -text
