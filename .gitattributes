@@ -1,4 +1,5 @@
 * text=auto !eol
+CombBLAS/Applications/2DBFS_optimizations.txt -text
 CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/CMakeLists.txt -text
