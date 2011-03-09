@@ -386,7 +386,105 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(origJ[ind], actualJ[ind])
 		self.assertEqual(origV[ind], actualV[ind])
         
-    def test_indexing_simple(self):
+    def test_indexing_simple_scalar_scalar(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 2, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = 2
+	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [0]
+	expJ = [0]
+	expV = [21]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_indexing_simple_scalar_null(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = 2
+	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = []
+	expJ = []
+	expV = []
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_indexing_simple_ParVeclen1_scalar(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 2, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(1)
+	ndx[0] = 2
+	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [0]
+	expJ = [0]
+	expV = [21]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_indexing_simple_ParVeclen1_null(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(1)
+	ndx[0] = 2
+	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = []
+	expJ = []
+	expV = []
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_indexing_simple_ParVeclenk(self):
 	# ensure that a simple DiGraph constructor creates the number, source/
         # destination, and value pairs expected.
 	nvert = 9
@@ -401,6 +499,131 @@ class BuiltInMethodTests(DiGraphTests):
 	ndx[1] = 3
 	ndx[2] = 4
 	G2 = G[ndx,ndx]
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [1, 0, 2, 1]
+	expJ = [0, 1, 1, 2]
+	expV = [32, 23, 43, 34]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_subgraph_simple_scalar_scalar(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 2, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = 2
+	G2 = G.subgraph(ndx,ndx)
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [0]
+	expJ = [0]
+	expV = [21]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_subgraph_simple_scalar_null(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = 2
+	G2 = G.subgraph(ndx,ndx)
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = []
+	expJ = []
+	expV = []
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_subgraph_simple_ParVeclen1_scalar(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 2, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(1)
+	ndx[0] = 2
+	G2 = G.subgraph(ndx,ndx)
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = [0]
+	expJ = [0]
+	expV = [21]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_subgraph_simple_ParVeclen1_null(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(1)
+	ndx[0] = 2
+	G2 = G.subgraph(ndx,ndx)
+	[actualI, actualJ, actualV] = G2.toParVec()
+	expI = []
+	expJ = []
+	expV = []
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_subgraph_simple_ParVeclenk(self):
+	# ensure that a simple DiGraph constructor creates the number, source/
+        # destination, and value pairs expected.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	ndx = ParVec(3)
+	ndx[0] = 2
+	ndx[1] = 3
+	ndx[2] = 4
+	G2 = G.subgraph(ndx,ndx)
 	[actualI, actualJ, actualV] = G2.toParVec()
 	expI = [1, 0, 2, 1]
 	expJ = [0, 1, 1, 2]
