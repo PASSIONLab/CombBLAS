@@ -183,7 +183,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IU, class NU>
-SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0)
+SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
 {
 	int hsize =  ArrSpTups.size();		
 	if(hsize == 0)
@@ -249,11 +249,20 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 		}
 		SpHelper::ShrinkArray(ntuples, cnz);
 		DeleteAll(heap, curptr);
+	
+		if(delarrs)
+		{	
+			for(size_t i=0; i<ArrSpTups.size(); ++i)
+				delete ArrSpTups[i];
+		}
 		return SpTuples<IU,NU> (cnz, mstar, nstar, ntuples);
 	}
 	else
 	{
-		return SpTuples<IU,NU> (*ArrSpTups[0]);
+		SpTuples<IU,NU> ret = *ArrSpTups[0];
+		if(delarrs)
+			delete ArrSpTups[0];
+		return ret;
 	}
 }
 
