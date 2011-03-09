@@ -420,7 +420,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
  * Sequential indexing subroutine (via multiplication) is general enough.
  */
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci) const 
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace)
 {
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
@@ -532,7 +532,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 
 	DER_IT * PSeq = new DER_IT(); 
 	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
-	SpParHelper::Print("PSeq created\n");
 
 	SpParMat<IT,NT,DER> PA;
 	if(ri == ci)	// Symmetric permutation
@@ -540,9 +539,21 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 		SpParHelper::Print("Symmetric permutation\n");
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
-        	PA = Mult_AnXBn_Synch<PTBOOLNT>(P, *this);
-		P.Transpose();
-       	 	return Mult_AnXBn_Synch<PTNTBOOL>(PA, P);
+		if(inplace)
+		{
+			SpParHelper::Print("In place multiplication\n");
+        		*this = Mult_AnXBn_Synch<PTBOOLNT>(P, *this, false, true);	// clear the memory of *this
+			SpParHelper::Print("PA generated\n");
+			P.Transpose();	
+       	 		*this = Mult_AnXBn_Synch<PTNTBOOL>(*this, P, true, true);	// clear the memory of both *this and P
+			return SpParMat<IT,NT,DER>();	// dummy return to match signature
+		}
+		else
+		{
+			PA = Mult_AnXBn_Synch<PTBOOLNT>(P,*this);
+			P.Transpose();
+			return Mult_AnXBn_Synch<PTNTBOOL>(PA, P);
+		}
 	}
 	else
 	{
@@ -609,13 +620,17 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	// Step 3: Form PAQ
 	// Distributed matrix generation (collective call)
 	SpParMat<IT,bool,DER_IT> Q (QSeq, commGrid);
-	SpParHelper::Print("PA, Q ready\n");
 	Q.Transpose();	
-	SpParHelper::Print("Q transposed\n");
 
-	// Do parallel matrix-matrix multiply
-	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
-        return Mult_AnXBn_Synch<PTNTBOOL>(PA, Q);
+	if(inplace)
+	{
+       		*this = Mult_AnXBn_Synch<PTNTBOOL>(PA, Q, true, true);	// clear the memory of both PA and P
+		return SpParMat<IT,NT,DER>();	// dummy return to match signature
+	}
+	else
+	{
+        	return Mult_AnXBn_Synch<PTNTBOOL>(PA, Q);
+	}
 }
 
 /** 

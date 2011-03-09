@@ -25,7 +25,7 @@ class SpParMat;
  **/  
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_Synch 
-		(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B )
+		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
@@ -113,17 +113,27 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			delete BRecv;
 		}
 	}
+	if(clearA && A.spSeq != NULL) 
+	{	
+		delete A.spSeq;
+		A.spSeq = NULL;
+	}	
+	if(clearB && B.spSeq != NULL) 
+	{
+		delete B.spSeq;
+		B.spSeq = NULL;
+	}
 
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 			
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
-	for(unsigned int i=0; i<tomerge.size(); ++i)
-	{
-		delete tomerge[i];
-	}
-	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
-	
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false, NULL);	
+	// First get the result in SpTuples, then convert to UDER
+	// the last parameter to MergeAll deletes tomerge arrays
+
+	if(!clearB)
+		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
 

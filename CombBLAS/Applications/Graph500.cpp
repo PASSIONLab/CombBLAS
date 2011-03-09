@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 
 			SpParHelper::Print("Found non-isolated vertices\n");	
 			A.PrintInfo();
-			A = A(nonisov, nonisov);
+			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
 

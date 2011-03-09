@@ -127,7 +127,7 @@ public:
 
 	// Performs a balanced merge of the array of SpTuples
 	template<typename SR, typename IU, typename NU>
-	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
+	friend SpTuples<IU,NU> MergeAll(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar, bool delarrs); 
 
 	template<typename SR, typename IU, typename NU>
 	friend SpTuples<IU,NU> * MergeAllRec(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
