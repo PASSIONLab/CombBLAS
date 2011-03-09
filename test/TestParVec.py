@@ -114,6 +114,18 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
+    def test_negate(self):
+	sz = 25
+        i1 = [0, 2, 4, 6, 8, 10]
+        v1 = [0, -4, 16, -36, 64, 100]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        vec3 = -vec1
+        expI = [0, 0, 4, 0, -16, 0, 36, 0, -64, 0, -100, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
     def test_multiply_constant(self):
 	sz = 25
         i = [0, 2, 4, 6, 8, 10]
@@ -441,6 +453,39 @@ class GeneralPurposeTests(ParVecTests):
 	vec = ParVec.zeros(sz)
 	res = vec.any()
 	self.assertEqual(False, res)
+
+    def test_sum_zeros(self):
+	sz = 10
+	vec = ParVec(sz)
+	res = vec.sum()
+	self.assertEqual(0, res)
+
+    def test_sum_ones(self):
+	sz = 10
+	vec = ParVec.ones(sz)
+	res = vec.sum()
+	self.assertEqual(sz, res)
+
+    def test_sum_range(self):
+	sz = 10
+	vec = ParVec.range(sz)
+	res = vec.sum()
+	self.assertEqual((sz*(sz-1))/2, res)
+
+    def test_sum_range2(self):
+	sz = 11
+	vec = ParVec.range(-(sz/2), (sz/2)+1)
+	res = vec.sum()
+	self.assertEqual(0, res)
+
+    def test_sum_fixed(self):
+	sz = 11
+	vec = ParVec(sz)
+	vec[2] = 23
+	vec[4] = 9
+	vec[5] = -32
+	res = vec.sum()
+	self.assertEqual(0, res)
 
 
 def runTests(verbosity = 1):
