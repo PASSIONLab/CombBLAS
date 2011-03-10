@@ -104,18 +104,15 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 		SpParHelper::Print("B Broadcast\n");
 
-		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
+		DeletePtrIf deleter;
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+						(*ARecv, *BRecv, // parameters themselves
+						false, true,	// transpose information (B is transposed)
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
-
-		if(i != Aself)	
-		{
-			delete ARecv;		
-		}
-		if(i != Bself)	
-		{
-			delete BRecv;
-		}
 
 		ostringstream outs;
 		outs << i << "th SUMMA iteration"<< endl;

@@ -8,6 +8,7 @@
 #include "Isect.h"
 #include "Deleter.h"
 #include "SpImpl.h"
+#include "SpParHelper.h"
 #include "Compare.h"
 
 using namespace std;
@@ -94,7 +95,8 @@ void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV
 template<class SR, class IU, class NU1, class NU2>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B)
+					 const SpDCCols<IU, NU2> & B,
+					bool clearA = false, bool clearB = false)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;  
 	const static IU zero = static_cast<IU>(0);		
@@ -117,8 +119,16 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 	}
 	
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
+	SpParHelper::Print("Pre-Cartesian\n");
 	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
+
+	if(clearA)	
+		delete const_cast<SpDCCols<IU, NU1> *>(&A);
+	if(clearB)
+		delete const_cast<SpDCCols<IU, NU2> *>(&B);
+
+	SpParHelper::Print("Post-Cartesian\n");
 
 	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }
@@ -132,7 +142,8 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 template<class SR, class IU, class NU1, class NU2>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
+					 const SpDCCols<IU, NU2> & B,
+					bool clearA = false, bool clearB = false)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
 	const static IU zero = static_cast<IU>(0);	
@@ -146,6 +157,11 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
 	IU cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n,  multstack);  
 	
+	if(clearA)	
+		delete const_cast<SpDCCols<IU, NU1> *>(&A);
+	if(clearB)
+		delete const_cast<SpDCCols<IU, NU2> *>(&B);
+
 	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }
 
@@ -153,7 +169,8 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn
 template<class SR, class IU, class NU1, class NU2>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
+					 const SpDCCols<IU, NU2> & B, 
+					bool clearA = false, bool clearB = false)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
 	const static IU zero = static_cast<IU>(0);
@@ -168,7 +185,8 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt
 template<class SR, class IU, class NU1, class NU2>
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
 					(const SpDCCols<IU, NU1> & A, 
-					 const SpDCCols<IU, NU2> & B )
+					 const SpDCCols<IU, NU2> & B,
+					bool clearA = false, bool clearB = false)
 {
 	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 	// T_promote is a type (so the extra "typename"), NOT a value
 	const static IU zero = static_cast<IU>(0);	

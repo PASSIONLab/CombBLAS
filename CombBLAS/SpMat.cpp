@@ -104,7 +104,8 @@ template<typename SR, typename IU, typename NU1, typename NU2, typename DER1, ty
 SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * MultiplyReturnTuples
 					(const SpMat<IU, NU1, DER1> & A, 
 					 const SpMat<IU, NU2, DER2> & B, 
-					 bool isAT, bool isBT)
+					 bool isAT, bool isBT,
+					bool clearA = false, bool clearB = false)
 
 {
 	IU A_m, A_n, B_m, B_n;
@@ -134,19 +135,19 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * MultiplyReturnTuples
 	{
 		if(isAT && isBT)
 		{
-			return Tuples_AtXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B));
+			return Tuples_AtXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else if(isAT && (!isBT))
 		{
-			return Tuples_AtXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B));
+			return Tuples_AtXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else if((!isAT) && isBT)
 		{
-			return Tuples_AnXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B));
+			return Tuples_AnXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else
 		{
-			return Tuples_AnXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B));
+			return Tuples_AnXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}				
 	}
 	else
