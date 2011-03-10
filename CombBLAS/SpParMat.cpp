@@ -298,18 +298,135 @@ template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation>	
 void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
 {
-	DenseParVec<IT,VT> parvec(commGrid, id);
-	Reduce(parvec, dim, __binary_op, id, myidentity<NT>() );				
-	rvec = parvec;	
+	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );				
 }
 
 template <class IT, class NT, class DER>
 template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
 void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
-	DenseParVec<IT,VT> parvec(commGrid, id);
-	Reduce(parvec, dim, __binary_op, id, __unary_op );				
-	rvec = parvec;	
+	if(rvec.zero != id)
+	{
+		ostringstream outs;
+		outs << "SpParMat::Reduce(): Return vector's zero is different than set id"  << endl;
+		outs << "Setting rvec.zero to id (" << id << ") instead" << endl;
+		SpParHelper::Print(outs.str());
+		rvec.zero = id;
+	}
+	if(*rvec.commGrid != *commGrid)
+	{
+		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	switch(dim)
+	{
+		case Column:	// pack along the columns, result is a vector of size n
+		{
+			// We can't use rvec's distribution (rows first, columns later) here
+        		IT n_thiscol = getlocalcols();   // length assigned to this processor column
+			int colneighs = commGrid->GetGridRows();	// including oneself
+        		int colrank = commGrid->GetRankInProcCol();
+
+			IT * loclens = new IT[colneighs];
+			IT * lensums = new IT[colneighs+1]();	// begin/end points of local lengths
+
+        		IT n_perproc = n_thiscol / colneighs;    // length on a typical processor
+        		if(colrank == colneighs-1)
+                		loclens[colrank] = n_thiscol - (n_perproc*colrank);
+        		else
+                		loclens[colrank] = n_perproc;
+
+			commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
+			partial_sum(loclens, loclens+colneighs, lensums+1);
+
+			vector<VT> trarr;
+			typename DER::SpColIter colit = spSeq->begcol();
+			for(int i=0; i< colneighs; ++i)
+			{
+				VT * sendbuf = new VT[loclens[i]];
+				fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
+
+				for(; colit != spSeq->endcol() && colit.colid() < lensums[i+1]; ++colit)	// iterate over a portion of columns
+				{
+					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)	// all nonzeros in this column
+					{
+						sendbuf[colit.colid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[colit.colid()-lensums[i]]);
+					}
+				}
+				VT * recvbuf = NULL;
+				if(colrank == i)
+				{
+					trarr.resize(loclens[i]);
+					recvbuf = &trarr[0];	
+				}
+				(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root  = i
+				delete [] sendbuf;
+			}
+			DeleteAll(loclens, lensums);
+
+			IT reallen;	// Now we have the transpose the vector
+			IT trlen = trarr.size();
+			int diagneigh = commGrid->GetComplementRank();
+			(commGrid->GetWorld()).Sendrecv(&trlen, 1, MPIType<IT>(), diagneigh, TRNNZ, &reallen, 1, MPIType<IT>(), diagneigh, TRNNZ);
+	
+			rvec.arr.resize(reallen);
+			(commGrid->GetWorld()).Sendrecv(&trarr[0], trlen, MPIType<VT>(), diagneigh, TRX, &rvec.arr[0], reallen, MPIType<VT>(), diagneigh, TRX);
+			rvec.glen = getncol();	// ABAB: Put a sanity chech here
+			break;
+
+		}
+		case Row:	// pack along the rows, result is a vector of size m
+		{
+			rvec.glen = getnrow();
+			int rowneighs = commGrid->GetGridCols();
+			int rowrank = commGrid->GetRankInProcRow();
+			IT * loclens = new IT[rowneighs];
+			IT * lensums = new IT[rowneighs+1]();	// begin/end points of local lengths
+			loclens[rowrank] = rvec.MyLocLength();
+			commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
+			partial_sum(loclens, loclens+rowneighs, lensums+1);
+
+			vector<typename DER::SpColIter::NzIter> nziters;	// keep track of nonzero iterators within columns
+			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	
+			{
+				nziters.push_back(spSeq->begnz(colit));
+			}
+
+			for(int i=0; i< rowneighs; ++i)		// step by step to save memory
+			{
+				VT * sendbuf = new VT[loclens[i]];
+				fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
+		
+				typename DER::SpColIter colit = spSeq->begcol();		
+				IT colcnt = 0;	// column counter
+				for(; colit != spSeq->endcol(); ++colit, ++colcnt)	// iterate over all columns
+				{
+					typename DER::SpColIter::NzIter nzit = nziters[colcnt];
+					for(; nzit != spSeq->endnz(colit) && nzit.rowid() < lensums[i+1]; ++nzit)	// a portion of nonzeros in this column
+					{
+						sendbuf[nzit.rowid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()-lensums[i]]);
+					}
+					nziters[colcnt] = nzit;	// set the new finger
+				}
+
+				VT * recvbuf = NULL;
+				if(rowrank == i)
+				{
+					rvec.arr.resize(loclens[i]);
+					recvbuf = &rvec.arr[0];	
+				}
+				(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
+				delete [] sendbuf;
+			}
+			DeleteAll(loclens, lensums);	
+			break;
+		}
+		default:
+		{
+			cout << "Unknown reduction dimension, returning empty vector" << endl;
+			break;
+		}
+	}
 }
 
 /**
