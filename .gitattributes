@@ -1071,6 +1071,7 @@ kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
+test/TestKDT.py -text
 test/TestParVec.py -text
 test/TestSpParVec.py -text
 test/note_for_kdt_developers.txt -text
