@@ -48,8 +48,10 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
 	
+	SpParHelper::Print("Pre transpose\n");
 	const_cast< UDERB* >(B.spSeq)->Transpose();	
 	GridC->GetWorld().Barrier();
+	SpParHelper::Print("B transposed\n");
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -83,6 +85,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		}
 
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		SpParHelper::Print("A Broadcast\n");
 		ess.clear();	
 		
 		if(i == Bself)
@@ -99,6 +102,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+		SpParHelper::Print("B Broadcast\n");
 
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv, *BRecv, false, true);
 		if(!C_cont->isZero()) 
@@ -112,14 +116,20 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		{
 			delete BRecv;
 		}
+
+		ostringstream outs;
+		outs << i << "th SUMMA iteration"<< endl;
+		SpParHelper::Print(outs.str());
 	}
 	if(clearA && A.spSeq != NULL) 
 	{	
+		SpParHelper::Print("Freeing memory of A\n");
 		delete A.spSeq;
 		A.spSeq = NULL;
 	}	
 	if(clearB && B.spSeq != NULL) 
 	{
+		SpParHelper::Print("Freeing memory of B\n");
 		delete B.spSeq;
 		B.spSeq = NULL;
 	}
