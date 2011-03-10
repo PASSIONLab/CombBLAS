@@ -52,6 +52,7 @@ CombBLAS/Applications/FranklinResults/script4096.fullydist -text
 CombBLAS/Applications/FranklinResults/script4096.fullydist_Jan02 -text
 CombBLAS/Applications/FranklinResults/script4096.fullydist_Jan02_withIPM -text
 CombBLAS/Applications/FranklinResults/script4096.mini+_Jan07 -text
+CombBLAS/Applications/FranklinResults/script4096.reducedgraph_small- -text
 CombBLAS/Applications/FranklinResults/script484.final_mini -text
 CombBLAS/Applications/FranklinResults/script484.final_mini_ipm -text
 CombBLAS/Applications/FranklinResults/script484.fullydist_Jan02 -text
@@ -78,6 +79,7 @@ CombBLAS/Applications/HopperResults/script1024.16pernode_toy -text
 CombBLAS/Applications/HopperResults/script1024.24pernode -text
 CombBLAS/Applications/HopperResults/script1024.24pernode_mini+_fullydist -text
 CombBLAS/Applications/HopperResults/script1024.24pernode_mini_fullydist -text
+CombBLAS/Applications/HopperResults/script1024.reducedgraph_mini -text
 CombBLAS/Applications/HopperResults/script1024_hop_all.mini+_Jan11 -text
 CombBLAS/Applications/HopperResults/script1024_hop_all.mini_Jan11 -text
 CombBLAS/Applications/HopperResults/script16384.final_small -text
