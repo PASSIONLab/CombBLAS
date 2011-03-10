@@ -180,11 +180,11 @@ if (scale < 0):
 		print "Expecting a path to a matrix file as argument."
 		sys.exit();
 
-	#path = "/home/alugowski/matrices/rmat_scale16.mtx";
-	#path = "../../CombBLAS/TESTDATA/SCALE16BTW-TRANSBOOL/input.txt";
 	print "loading matrix from %s"%(path)
 	A.load(path)
 	A.Apply(pcb.set(1))
+	print "converting to boolean"
+	A = pcb.pySpParMatBool(A)
 	n = A.getnrow()
 	
 	colreducer = pcb.pyDenseParVec(n, 1).sparse();
@@ -199,7 +199,7 @@ else:
 	if (pcb.root()):
 		print "Generation took %lf s"%(k1time)
 	
-
+#A.save("/home/alugowski-ucsb/matrices/rmat%d.mtx"%(scale))
 n = A.getnrow()
 m = A.getncol()
 nee = A.getnee()
@@ -213,7 +213,7 @@ if (pcb.root()):
 ###########    CANDIDATE SELECTION
 debugprint = False
 
-numCands = 64
+numCands = 10
 if (numCands > n):
 	numCands = n
 
@@ -256,14 +256,14 @@ iterations = [];
 
 for i in range(0, numCands):
 	c = Cands[i]
-	try:
-		print "c=%d"%(c)
-	except TypeError:
-		print "------------------------------ TYPE ERROR on c! setting c=0"
-		c = 0
-		print "i=%d, len(Cands)=%d"%(i, len(Cands))
-		Cands.printall()
-		Cands.sparse().printall()
+	#try:
+	#	print "c=%d"%(c)
+	#except TypeError:
+	#	print "------------------------------ TYPE ERROR on c! setting c=0"
+	#	c = 0
+	#	print "i=%d, len(Cands)=%d"%(i, len(Cands))
+	#	Cands.printall()
+	#	Cands.sparse().printall()
 	
 	# start the clock
 	tstart = time.time()

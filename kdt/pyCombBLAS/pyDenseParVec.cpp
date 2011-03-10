@@ -182,7 +182,7 @@ double pyDenseParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	
 	bf->getMPIOp();
 	if (uf == NULL)
-		ret = v.Reduce(*bf, doubleint::nan(), identity<doubleint>());
+		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
 	else
 		ret = v.Reduce(*bf, doubleint::nan(), *uf);
 	bf->releaseMPIOp();
@@ -355,13 +355,13 @@ void pyDenseParVec::__setitem__(double  key, double value)
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, const pySpParVec& value)
 {
-	v.Apply(set<doubleint>(doubleint(0)), key.v);
+	v.Apply(::set<doubleint>(doubleint(0)), key.v);
 	v += value.v;
 }
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, double value)
 {
-	v.Apply(set<doubleint>(value), key.v);
+	v.Apply(::set<doubleint>(value), key.v);
 }
 
 

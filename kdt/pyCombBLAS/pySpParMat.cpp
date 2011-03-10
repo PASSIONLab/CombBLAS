@@ -72,19 +72,29 @@ double pySpParMat::GenGraph500Edges(int scale)
 	// this is an undirected graph, so A*x does indeed BFS
 	double initiator[4] = {.57, .19, .19, .05};
 
-	DistEdgeList<int64_t> DEL;
-	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-	PermEdges<int64_t>(DEL);
-	RenameVertices<int64_t>(DEL);
+	DistEdgeList<int64_t> *DEL = new DistEdgeList<int64_t>();
+	DEL->GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+	PermEdges(*DEL);
+	RenameVertices(*DEL);
 
 	// Start Kernel #1
 	MPI::COMM_WORLD.Barrier();
 	double t1 = MPI_Wtime();
 
-	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
-	MatType AT = A;
-	AT.Transpose();
-	A += AT;
+	// conversion from distributed edge list, keeps self-loops, sums duplicates
+	A = MatType(*DEL, false);
+	delete DEL; // free the distributed edge list before making another copy through the matrix transpose
+	
+
+	//int rank;
+	//MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	MatType *AT = new MatType(A);
+	//cout << rank << ": A: nnz=" << G->getnnz() << ", local nnz=" << G->seq().getnnz() << endl;
+	//cout << rank << ": AT: nnz=" << AT->getnnz() << ", local nnz=" << AT->seq().getnnz() << endl;
+	AT->Transpose();
+	A += *AT;
+	delete AT;
 	
 	MPI::COMM_WORLD.Barrier();
 	double t2=MPI_Wtime();

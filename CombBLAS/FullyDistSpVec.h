@@ -7,7 +7,7 @@
 
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
-	#include <boost/tr1/undered_map.hpp>
+	#include <boost/tr1/unordered_map.hpp>
 #else
 	#include <tr1/memory>
 	#include <tr1/unordered_map>

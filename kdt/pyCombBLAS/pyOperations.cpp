@@ -280,11 +280,11 @@ void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatyp
 	
 	for (int i = 0; i < *len; i++)
 	{
-		if (in[i].isnan() && inout[i].isnan())
+		if (in[i].is_nan() && inout[i].is_nan())
 			inout[i] = inout[i];	// both NaN, return NaN
-		else if (in[i].isnan())
+		else if (in[i].is_nan())
 			inout[i] = inout[i];	// LHS is NaN, return RHS
-		else if (inout[i].isnan())
+		else if (inout[i].is_nan())
 			inout[i] = in[i];		//  RHS is Nan, return LHS
 		else
 			inout[i] = (*currentlyApplied)(in[i], inout[i]);
