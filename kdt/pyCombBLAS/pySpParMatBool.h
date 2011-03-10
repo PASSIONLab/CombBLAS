@@ -51,10 +51,10 @@ public:
 	pySpParMatBool copy();
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
-	pySpParMatBool SpMM(const pySpParMatBool& other);
-	pySpParMatBool operator*(const pySpParMatBool& other);
-	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
-	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const;
+	pySpParMatBool SpMM(pySpParMatBool& other);
+	pySpParMatBool operator*(pySpParMatBool& other);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();
 	

@@ -170,22 +170,22 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 	return *this;
 }
 
-pySpParMat pySpParMat::operator*(const pySpParMat& other)
+pySpParMat pySpParMat::operator*(pySpParMat& other)
 {
 	return SpMM(other);
 }
 
-pySpParMat pySpParMat::SpMM(const pySpParMat& other)
+pySpParMat pySpParMat::SpMM(pySpParMat& other)
 {
 	return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
 }
 
-pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return SubsRef(rows, cols);
 }
 
-pySpParMat pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMat pySpParMat::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return pySpParMat(A(rows.v, cols.v));
 }

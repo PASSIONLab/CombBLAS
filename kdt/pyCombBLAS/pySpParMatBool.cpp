@@ -177,22 +177,22 @@ pySpParMatBool& pySpParMatBool::assign(const pySpParMatBool& other)
 	return *this;
 }
 
-pySpParMatBool pySpParMatBool::operator*(const pySpParMatBool& other)
+pySpParMatBool pySpParMatBool::operator*(pySpParMatBool& other)
 {
 	return SpMM(other);
 }
 
-pySpParMatBool pySpParMatBool::SpMM(const pySpParMatBool& other)
+pySpParMatBool pySpParMatBool::SpMM(pySpParMatBool& other)
 {
 	return pySpParMatBool( Mult_AnXBn_Synch<PlusTimesSRing<bool, bool > >(A, other.A) );
 }
 
-pySpParMatBool pySpParMatBool::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMatBool pySpParMatBool::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return SubsRef(rows, cols);
 }
 
-pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols) const
+pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return pySpParMatBool( A(rows.v, cols.v) );
 }
