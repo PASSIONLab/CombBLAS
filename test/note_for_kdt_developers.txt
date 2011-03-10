@@ -1,5 +1,7 @@
-Place tests in this directory. Note that test must currently be run inside
-this directory by doing 'python TestDiGraph.py'.
+Place tests in this directory. Note that tests must currently be run inside
+this directory by doing 'python TestKDT.py'.
+
+Tests for packages may also be run separately (e.g., 'python TestDiGraph.py').
 
 Note that kdt must be in your Python search path.
 If you're doing active development and don't want to continually install new
