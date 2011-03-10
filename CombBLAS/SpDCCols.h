@@ -257,19 +257,19 @@ private:
 
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template<class SR, class IU, class NU1, class NU2>
 	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
-		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B);
+		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
         friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);

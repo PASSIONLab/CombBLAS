@@ -4,6 +4,18 @@
 #include <iostream>
 using namespace std;
 
+
+struct DeletePtrIf
+{
+        template<typename T, typename _BinaryPredicate, typename Pred>
+        void operator()(const T *ptr, _BinaryPredicate cond, Pred first, Pred second) const
+        {
+                if(cond(first,second))
+                        delete ptr;
+        }
+};
+
+
 template<typename A>
 void DeleteAll(A arr1)
 {
