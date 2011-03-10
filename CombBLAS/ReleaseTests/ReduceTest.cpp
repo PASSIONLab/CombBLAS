@@ -15,7 +15,7 @@
 #include "../SpDCCols.h"
 #include "../SpParMat.h"
 #include "../DenseParMat.h"
-#include "../DenseParVec.h"
+#include "../FullyDistVec.h"
 #include "../SpDefs.h"
 
 using namespace std;
@@ -60,22 +60,17 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<double>::MPI_DCCols A;	
-		DenseParVec<int,double> colsums(A.getcommgrid(), 0.0);
-		DenseParVec<int,double> rowsums(A.getcommgrid(), 0.0);
+		FullyDistVec<int,double> colsums(A.getcommgrid(), 0.0);
+		FullyDistVec<int,double> rowsums(A.getcommgrid(), 0.0);
 
 		A.ReadDistribute(inputA, 0);
 		colsums.ReadDistribute(inputB, 0);
 		rowsums.ReadDistribute(inputC, 0);
 		
-		DenseParMat<int, double> bcu(0.0, A.getcommgrid(), A.getlocalrows(), A.getlocalcols() );
-		bcu += A;
-
-		DenseParVec< int, double > rowsums_control = bcu.Reduce(Row, std::plus<double>() , 0.0);
-		DenseParVec< int, double > colsums_control = bcu.Reduce(Column, std::plus<double>() , 0.0);
+		FullyDistVec< int, double > rowsums_control, colsums_control;
+		A.Reduce(rowsums_control, Row, std::plus<double>() , 0.0);
+		A.Reduce(colsums_control, Column, std::plus<double>() , 0.0);
 		
-		//ofstream rsout;
-		//rowsums_control.PrintToFile("rowsums_countrol", rsout);	
-
 		if (rowsums_control == rowsums && colsums_control == colsums)
 		{
 			SpParHelper::Print("Reduction via summation working correctly\n");	
