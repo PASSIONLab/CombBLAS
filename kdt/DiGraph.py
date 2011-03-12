@@ -5,6 +5,8 @@ import pyCombBLAS as pcb
 import Graph as gr
 from Graph import ParVec, SpParVec, master
 
+import time
+
 class DiGraph(gr.Graph):
 	InOut = 1
 	In = 2
@@ -1144,6 +1146,9 @@ class DiGraph(gr.Graph):
 			deliver atrocious performance.  The default is 0.1.  
 		"""
 		A = self.copy()
+		Anv = A.nvert()
+		if BCdebug>0:
+			print "in _approxBC, A.nvert=%d, nproc=%d" % (Anv, nProcs)
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now
 		N = A.nvert()
@@ -1170,13 +1175,25 @@ class DiGraph(gr.Graph):
 				endVs.append(nVertToCalc)
 			numVs = [y-x for [x,y] in zip(startVs,endVs)]
 		else:
-			startVs = (sc.random.randint(0,nPossBatches,nBatches)*batchSize).tolist()
-			numVs = [min(x+batchSize,N)-x for x in startVs]
+			perm = ParVec.range(nPossBatches)
+			perm.randPerm()
+			#   ideally, could use following 2 lines, but may have
+			#   only 1-2 batches, which makes index vector look
+			#   like a Boolean, which doesn't work right
+			#startVs = ParVec.range(nBatches)[perm[ParVec.range(nBatches]]
+			#numVs = [min(x+batchSize,N)-x for x in startVs]
+			tmpRange = ParVec.range(nPossBatches)
+			startVs = ParVec.zeros(nBatches)
+			numVs = ParVec.zeros(nBatches)
+			for i in range(nBatches):
+				startVs[i] = tmpRange[perm[i]]*batchSize
+				numVs[i] = min(startVs[i]+batchSize,N)-startVs[i]
 
-		if BCdebug:
+		if BCdebug>0:
 			print "batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches)
 		for [startV, numV] in zip(startVs, numVs):
-			if BCdebug:
+			startV = int(startV); numV = int(numV)
+			if BCdebug>0:
 				print "startV=%d, numV=%d" % (startV, numV)
 			bfs = []		
 			batch = ParVec.range(startV, startV+numV)
@@ -1185,32 +1202,37 @@ class DiGraph(gr.Graph):
 			fringe = A[batch,ParVec.range(N)]
 			depth = 0
 			while fringe.nedge() > 0:
+				before = time.time()
 				depth = depth+1
-				if BCdebug>1 and depth==5:
-					print tmp.nvert(), fringe.nvert()
-					print tmp[:,fringe.nvert()[1]-1], nsp[:,fringe.nvert()[1]-1], fringe[:,fringe.nvert()[1]-1]
-					import sys; sys.exit()
+				if BCdebug>1 and depth>1:
+					nspne = tmp.nedge(); tmpne = tmp.nedge(); fringene = fringe.nedge()
+					if master():
+					    print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
 				nsp = nsp+fringe
 				tmp = fringe.copy()
 				tmp.ones()
 				bfs.append(tmp)
 				tmp = fringe._SpMM(A)
 				if BCdebug>1:
-					nspsum = nsp.sum(Out).sum() 
-					fringesum = fringe.sum(Out).sum()
-					tmpsum = tmp.sum(Out).sum()
+					#nspsum = nsp.sum(DiGraph.Out).sum() 
+					#fringesum = fringe.sum(DiGraph.Out).sum()
+					#tmpsum = tmp.sum(DiGraph.Out).sum()
 					if master():
-						print depth, nspsum, fringesum, tmpsum
+						#print depth, nspsum, fringesum, tmpsum
+						pass
 				fringe = tmp.mulNot(nsp)
+				if BCdebug>1 and master():
+					print "    %f seconds" % (time.time()-before)
 	
 			bcu = DiGraph.fullyConnected(curSize,N)
 			# compute the bc update for all vertices except the sources
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
 				w = bfs[depth] / nsp * bcu
-				if BCdebug>1:
-					print w.sum(DiGraph.Out).sum()
-					import sys; sys.exit()
+				if BCdebug>2:
+					tmptmp = w.sum(DiGraph.Out).sum()
+					if master():
+						print tmptmp
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
 				w.T()
@@ -1221,9 +1243,10 @@ class DiGraph(gr.Graph):
 				bcu += w
 	
 			# update the bc with the bc update
-			if BCdebug:
-				print bcu.sum(DiGraph.Out).sum()
-				#import sys; sys.exit()
+			if BCdebug>2:
+				tmptmp = bcu.sum(DiGraph.Out).sum()
+				if master():
+					print tmptmp
 			bc = bc + bcu.sum(DiGraph.In)	# column sums
 	
 		# subtract off the additional values added in by precomputation

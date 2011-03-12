@@ -441,7 +441,8 @@ class ParVec:
 		if len(self) > self._REPR_MAX:
 			tmp = self[ParVec.range(self._REPR_MAX)]
 			if self._REPR_WARN == 0:
-				print "Limiting print-out to first %d elements" % self._REPR_MAX
+				if master():
+					print "Limiting print-out to first %d elements" % self._REPR_MAX
 				# NOTE: not setting WARN to 1, so will print
 				# every time
 				#self._REPR_WARN = 1
@@ -501,6 +502,8 @@ class ParVec:
 				if type(value) == int or type(value) == long or type(value) == float:
                                 	tmp = key._dpv.sparse()
                                 	tmp.Apply(pcb.set(value))
+				elif len(key) != len(value):
+					raise ValueError, "Value must be same length as Key"
 				else:
 					# restrict the changed elements to key
 					tmp = (value * key)._dpv.sparse()
@@ -598,7 +601,7 @@ class ParVec:
 		ret = ParVec.zeros(len(self))
 		neg = self < 0
 		sgn = self.sign()
-		retneg = -(abs(self) + 1 - abs(self % 1))
+		retneg = -(abs(self) + abs(self % 1))
 		retpos = self - (self % 1)
 		ret[neg] = retneg
 		ret[neg.logical_not()] = retpos
@@ -618,6 +621,13 @@ class ParVec:
 		ret = self._dpv.Reduce(pcb.max(), pcb.identity())
 		return ret
 
+	def mean(self):
+		"""
+		calculates the mean (average) of a ParVec instance, returning
+		a scalar.
+		"""
+		return self.sum() / len(self)
+
 	def min(self):
 		ret = self._dpv.Reduce(pcb.min(), pcb.identity())
 		return ret
@@ -631,6 +641,11 @@ class ParVec:
 		return ret
 
 	def norm(self,ord=None):
+		"""
+		calculates the norm of a ParVec instance.  The supported norms
+		include:
+		- 1:  defined as max(sum(abs(x)))
+		"""
 		if ord==1:
 			ret = self._dpv.Reduce(pcb.plus(),pcb.abs())
 			return ret
@@ -673,7 +688,17 @@ class ParVec:
 		return ret
 
 	def round(self):
-		ret = (self + 0.5).floor()
+		"""
+		"""
+		#FIX:  still not quite right on x.5 values
+		eps = float(np.finfo(np.float).eps)
+		ret = self.copy()
+		neg = self < 0
+		sgn = self.sign()
+		#identify values == x.5 where x is odd
+		mask = abs((abs(self)%2.0) - 1.5) < eps
+		ret[mask]               = (self+sgn*0.6).floor()
+		ret[mask.logical_not()] = (self+    0.5).floor()
 		return ret
 
 	def sign(self):
@@ -718,6 +743,16 @@ class ParVec:
 		ret2 = ParVec(-1)
 		ret2._dpv = ret1._dpv.Sort()
 		return (ret1, ret2)
+
+	def std(self):
+		"""
+		calculates the standard deviation of a ParVec instance, returning
+		a scalar.  Calculated as sqrt((self-self.mean()).sum)
+		"""
+		mean = self.mean();
+		diff = self - mean
+		ret = np.sqrt((diff*diff).sum())
+		return ret 
 
 	def sum(self):
 		ret = self._dpv.Reduce(pcb.plus(), pcb.identity())
@@ -871,7 +906,7 @@ class SpParVec:
 		performs indexing of a SpParVec instance on the right-hand side
 		of an equation.  The following forms are supported:
 	scalar = spparvec[integer scalar]
-	spparvec = spparvec[non-boolean spparvec]
+	spparvec = spparvec[non-boolean parvec]
 
 		The first form takes as the index an integer scalar and returns
 		the corresponding element of the SpParVec instance.  This form is
@@ -883,7 +918,7 @@ class SpParVec:
 		index set to the values of the base SpParVec instance. 
 		"""
 		if type(key) == int or type(key) == long or type(key) == float:
-			if key > len(self._spv)-1:
+			if key < 0 or key > len(self._spv)-1:
 				raise IndexError
 			ret = self._spv[key]
 		elif isinstance(key,ParVec):
@@ -1153,7 +1188,8 @@ class SpParVec:
 			tmpndx = SpParVec.range(tmplen)
 			tmp = self[tmpndx]
 			if self._REPR_WARN == 0:
-				print "Limiting print-out to first %d elements" % tmp.nnn()
+				if master():
+					print "Limiting print-out to first %d elements" % tmp.nnn()
 				# NOTE:  not setting WARN to 1
 				#self._REPR_WARN = 1
 			tmp._spv.printall()
@@ -1199,6 +1235,8 @@ class SpParVec:
 				raise IndexError
 			self._spv[key] = value
 		elif isinstance(key,ParVec):
+			if not key.isBool():
+				raise KeyError, 'only Boolean ParVec indexing of SpParVecs supported'
 			if isinstance(value,ParVec):
 				pass
 			elif type(value) == float or type(value) == long or type(value) == int:
@@ -1210,7 +1248,7 @@ class SpParVec:
 			self._spv[key._dpv] = value._dpv
 		elif isinstance(key,SpParVec):
 			if key.isBool():
-				raise KeyError, 'Boolean indexing of SpParVecs not supported'
+				raise KeyError, 'Boolean SpParVec indexing of SpParVecs not supported'
 			if isinstance(value,ParVec):
 				pass
 			elif isinstance(value,SpParVec):
@@ -1532,7 +1570,10 @@ class SpParVec:
 		"""
 		returns the sum of all the non-null values in the SpParVec instance.
 		"""
-		ret = self._spv.Reduce(pcb.plus())
+		if self.nnn() == 0:
+			ret = 0
+		else:
+			ret = self._spv.Reduce(pcb.plus())
 		return ret
 
 	#in-place, so no return value
