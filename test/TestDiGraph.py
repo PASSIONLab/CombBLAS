@@ -661,7 +661,7 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expV[ind], actualV[ind])
         
     def test_add_simple(self):
-	# ensure that a DiGraph constructor creates the number, source/
+	# ensure that DiGraph addition creates the number, source/
         # destination, and value pairs expected when all edges are 
         # in both DiGraphs.
 	nvert = 9
@@ -687,7 +687,7 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expV[ind], actualV[ind])
         
     def test_add_union(self):
-	# ensure that a DiGraph constructor creates the number, source/
+	# ensure that DiGraph addition creates the number, source/
         # destination, and value pairs expected when some edges are not
         # in both DiGraphs.
 	nvert1 = 9
@@ -723,6 +723,151 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertEqual(expV[ind], actualV[ind])
         
+    def test_multiply_simple(self):
+	# ensure that DiGraph addition creates the number, source/
+        # destination, and value pairs expected when all edges are 
+        # in both DiGraphs.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 7.3,
+		17, 87, 18, 68, 78]
+	origV2 = [11, 2, 22, 32, 13, 33, 14, 24, 44, 15, 35, 16, 17, 8.3,
+		18, 88, 19, 69, 79]
+	expV = [110, 2, 462, 992, 156, 1056, 182, 552, 1892, 210, 1190, 240,
+		272, 60.59, 306, 7656, 342, 4692, 6162]
+	G1 = self.initializeGraph(nvert, nedge, origI, origJ, origV1)
+	G2 = self.initializeGraph(nvert, nedge, origI, origJ, origV2)
+        G3 = G1*G2
+	[actualI, actualJ, actualV] = G3.toParVec()
+        self.assertEqual(len(origI), len(actualI))
+        self.assertEqual(len(origJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(origI[ind], actualI[ind])
+		self.assertEqual(origJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+        
+    def test_multiply_intersection(self):
+	# ensure that DiGraph addition creates the number, source/
+        # destination, and value pairs expected when some edges are not
+        # in both DiGraphs.
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [1, 0, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 16, 7.7,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nvert2 = 9
+	nedge2 = 19
+	origI2 = [7, 3, 4, 8, 5, 7, 3, 5, 6, 3, 7, 7, 2, 8, 2, 7, 0, 2, 5]
+	origJ2 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV2 = [70, 31, 41, 81, 52, 72, 33, 53, 63, 34, 74, 75, 26, 7.7,
+		27, 77, 8, 28, 58]
+	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
+        G3 = G1*G2
+	[actualI, actualJ, actualV] = G3.toParVec()
+	expNvert = 9
+	expNedge = 6
+        expI = [4, 5, 3, 3, 8, 0]
+        expJ = [1, 2, 3, 4, 6, 8]
+	expV = [1681, 2704, 1089, 1156, 59.29, 64]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+
+class GeneralPurposeTests(DiGraphTests):
+    def test_multNot(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [1, 0, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nvert2 = 9
+	nedge2 = 10
+	origI2 = [7, 0, 4, 8, 5, 2, 7, 8, 1, 7]
+	origJ2 = [0, 1, 1, 1, 2, 3, 5, 6, 7, 8]
+	origV2 = [70, 1, 41, 81, 52, 23, 75, 8.6, 17, 78]
+	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
+        G3 = G1.mulNot(G2)
+	[actualI, actualJ, actualV] = G3.toParVec()
+	expNvert = 9
+	expNedge = 13
+	expI = [1, 6, 1, 1, 3, 1, 3, 1, 1, 8, 0, 6]
+	expJ = [0, 1, 2, 3, 3, 4, 4, 5, 6, 7, 8, 8]
+	expV = [10, 61, 12, 13, 33, 14, 34, 15, 1.6, 87, 8, 68]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+
+
+        
+class LinearAlgebraTests(DiGraphTests):
+    def test_matMul_1row1col(self):
+	nvert1 = 16
+	nedge1 = 4
+	origI1 = [0, 0, 0, 0]
+	origJ1 = [1, 3, 4, 12]
+	origV1 = [1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nvert2 = 16
+	nedge2 = 4
+	origI2 = [1, 3, 4, 12]
+	origJ2 = [0, 0, 0, 0]
+	origV2 = [1, 1, 1, 1]
+	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
+	G3 = G1._SpMM(G2)
+	self.assertEqual(G1.nvert(), G3.nvert())
+	[i3, j3, v3] = G3.toParVec()
+	expLen = 1
+	self.assertEqual(len(i3),expLen)
+	self.assertEqual(len(j3),expLen)
+	self.assertEqual(len(v3),expLen)
+	expectedI = [0]
+	expectedJ = [0]
+	expectedV = [4]
+
+	for ind in range(len(expectedI)):
+		self.assertEqual(i3[ind], expectedI[ind])
+		self.assertEqual(j3[ind], expectedJ[ind])
+		self.assertEqual(v3[ind], expectedV[ind])
+
+    def test_matMul_simple(self):
+	G = DiGraph.load('testfiles/small_nonsym_fp.mtx')
+	GT = G.copy()
+	GT.T()
+	G2 = G._SpMM(GT)
+	self.assertEqual(G.nvert(),9)
+	[i2, j2, v2] = G2.toParVec()
+	self.assertEqual(len(i2),30)
+	self.assertEqual(len(j2),30)
+	self.assertEqual(len(v2),30)
+	expectedI = [0, 2, 3, 1, 2, 3, 4, 6, 7, 8, 0, 1, 2, 3, 4, 0, 1, 2, 3, 
+		1, 2, 4, 1, 6, 7, 1, 6, 7, 1, 8]
+	expectedJ = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 
+		4, 4, 4, 6, 6, 6, 7, 7, 7, 8, 8]
+	expectedV = [0.0001, 0.0001, 0.0001, 0.001, 0.0001, 0.0001, 0.0001, 
+		0.0001, 0.0001, 1.6e+8, 0.0001, 0.0001, 0.0002, 0.0001, 0.0001,
+		0.0001, 0.0001, 0.0001, 0.0003, 0.0001, 0.0001, 0.0001, 0.0001,
+		0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 1.6e+8, 2.56e+20]
+
+	for ind in range(len(expectedI)):
+		self.assertEqual(i2[ind], expectedI[ind])
+		self.assertEqual(j2[ind], expectedJ[ind])
+		self.assertAlmostEqual(v2[ind], expectedV[ind], places=3)
+
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -742,6 +887,8 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MaxTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MinTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
     return suite
 
 if __name__ == '__main__':
