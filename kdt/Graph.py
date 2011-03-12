@@ -690,15 +690,15 @@ class ParVec:
 	def round(self):
 		"""
 		"""
-		#FIX:  still not quite right on x.5 values
 		eps = float(np.finfo(np.float).eps)
-		ret = self.copy()
 		neg = self < 0
 		sgn = self.sign()
-		#identify values == x.5 where x is odd
-		mask = abs((abs(self)%2.0) - 1.5) < eps
-		ret[mask]               = (self+sgn*0.6).floor()
-		ret[mask.logical_not()] = (self+    0.5).floor()
+		ret = abs(self.copy())
+		evenp5 = (abs((ret%2.0) - 0.5)) < eps
+		oddp5 =  (abs((ret%2.0) - 1.5)) < eps
+		ret[evenp5] = ret-0.1
+		ret[oddp5] = ret+0.1
+		ret = ((ret+0.5).floor()) * sgn
 		return ret
 
 	def sign(self):
