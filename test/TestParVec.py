@@ -185,21 +185,21 @@ class BuiltInTests(ParVecTests):
 
     def test_modulus_constant(self):
 	sz = 25
-        i = [0, 2, 4, 6, 8, 10, 12]
-        v1 = [1, 4, 16, 36, 64, 100, 144]
+        i =  [0,   2,  4,  6,     8,  10,  12]
+        v1 = [1, 4.1, 16, 36, -64.3, 100, 144]
         vec = self.initializeParVec(sz, i, v1)
         vec2 = vec % 5
-        expI = [1, 0, 4, 0, 1, 0, 1, 0, 4, 0, 
+        expI = [1, 0, 4.1, 0, 1, 0, 1, 0, 0.7, 0, 
 		0, 0, 4, 0, 0, 0, 0, 0, 0, 
 		0, 0, 0, 0, 0, 0]
 	self.assertEqual(sz, len(vec2))
         for ind in range(sz):
-	    self.assertEqual(expI[ind], vec2[ind])
+	    self.assertAlmostEqual(expI[ind], vec2[ind])
 
     def test_modulus_vector(self):
 	sz = 25
-        i1 = [0, 2, 4, 6, 8, 10, 12]
-        v1 = [1, 4, 16, 36, 64, 100, 144]
+        i1 = [   0,  2,  4,  6,  8,     10,  12]
+        v1 = [1.04, -4, 16,-36, 64, -100.1, 144]
         vec1 = self.initializeParVec(sz, i1, v1)
         i2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
 		19, 20, 21, 22, 23, 24]
@@ -207,7 +207,7 @@ class BuiltInTests(ParVecTests):
 		3, 2, 3, 2, 3]
         vec2 = self.initializeParVec(sz, i2, v2)
         vec3 = vec1 % vec2
-        expI = [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        expI = [1.04, 0, 2, 0, 1, 0, 0, 0, 1, 0, 1.9, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0,]
 	self.assertEqual(sz, len(vec3))
         for ind in range(sz):
@@ -401,6 +401,35 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expV[ind], lt4[ind])
 
+    def test_and_vector(self):
+	sz = 18
+        i1 = [0, 2, 4, 6, 8, 10, 12, 14]
+        v1 = [1, 1, 1, 1, 1,  1,  1,  1]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        v2 = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0,  0,  1,  0,  0,  1,  0,  0,  1]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec3 = vec1 & vec2
+        expI = [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
+    def test_or_vector(self):
+	sz = 18
+        i1 = [0, 2, 4, 6, 8, 10, 12, 14]
+        v1 = [1, 1, 1, 1, 1,  1,  1,  1]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        v2 = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0,  0,  1,  0,  0,  1,  0,  0,  1]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec3 = vec1 | vec2
+        expI = [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
+
 class GeneralPurposeTests(ParVecTests):
     def test_all_all_true(self):
 	sz = 10
@@ -486,6 +515,89 @@ class GeneralPurposeTests(ParVecTests):
 	vec[5] = -32
 	res = vec.sum()
 	self.assertEqual(0, res)
+
+    def test_floor_vector(self):
+	sz = 11
+	vec = ParVec(sz)
+	vec[0] = 0.01
+	vec[1] = 0.99999
+	vec[2] = 3
+	vec[3] = -0.01
+	vec[4] = -0.99999
+	vec[5] = 9.01
+	vec[6] = 9.99999
+	vec[7] = -9.01
+	vec[8] = -9.99999
+	vec2 = vec.floor()
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(sz, len(vec2))
+        expI = [0, 0, 3, -1, -1, 9, 9, -10, -10, 0, 0]
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_ceil_vector(self):
+	sz = 11
+	vec = ParVec(sz)
+	vec[0] = 0.01
+	vec[1] = 0.99999
+	vec[2] = 3
+	vec[3] = -0.01
+	vec[4] = -0.99999
+	vec[5] = 9.01
+	vec[6] = 9.99999
+	vec[7] = -9.01
+	vec[8] = -9.99999
+	vec2 = vec.ceil()
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(sz, len(vec2))
+        expI = [1, 1, 3, 0, 0, 10, 10, -9, -9, 0, 0]
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_round_vector(self):
+	sz = 14
+	vec = ParVec(sz)
+	vec[0] = 0.01
+	vec[1] = 0.99999
+	vec[2] = 3
+	vec[3] = -0.01
+	vec[4] = -0.99999
+	vec[5] = 9.01
+	vec[6] = 9.99999
+	vec[7] = -9.01
+	vec[8] = -9.99999
+	vec[9] = -9.5
+	vec[10] = -10.5
+	vec[11] = 9.5
+	vec[12] = 10.5
+	vec2 = vec.round()
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(sz, len(vec2))
+        expI = [0, 1, 3, 0, -1, 9, 10, -9, -10, -10, -10, 10, 10, 0]
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_find(self):
+	sz = 14
+	vec = (ParVec.range(sz)*3) > 8
+	vec2 = vec.find()
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(sz, len(vec2))
+        expI = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_findInds(self):
+	sz = 14
+	vec = (ParVec.range(sz)*3) > 8
+	vec2 = vec.findInds()
+	expSz = 11
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(expSz, len(vec2))
+        expI = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        for ind in range(expSz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
 
 
 def runTests(verbosity = 1):
