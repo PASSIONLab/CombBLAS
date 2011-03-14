@@ -1667,8 +1667,10 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			NT tempval;
 			double loadval;
 			IT cnz = 0;
+			char line[1024];
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
+				/*
 				infile >> temprow >> tempcol;
 				if(nonum)
 					tempval = static_cast<NT>(1);
@@ -1677,6 +1679,27 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					//infile >> tempval;
 					infile >> loadval;
 					tempval = static_cast<NT>(loadval);
+				}*/
+				
+				// read one line at a time so that missing numerical values can be detected
+				infile.getline(line, 1024);
+				stringstream linestream(line);
+				linestream >> temprow >> tempcol;
+				if(nonum)
+					tempval = static_cast<NT>(1);
+				else
+				{
+					linestream >> skipws;
+					if (linestream.eof())
+					{
+						// there isn't a value
+						tempval = static_cast<NT>(1);
+					}
+					else
+					{
+						linestream >> loadval;
+						tempval = static_cast<NT>(loadval);
+					}
 				}
 
 				--temprow;	// file is 1-based where C-arrays are 0-based
