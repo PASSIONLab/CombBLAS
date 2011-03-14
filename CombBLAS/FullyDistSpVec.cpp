@@ -413,7 +413,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 		while( j < rsize) 	// *this was depleted first
 		{
 			nind.push_back( rhs.ind[j] );
-			nnum.push_back( rhs.num[j++] );
+			nnum.push_back( zero - (rhs.num[j++]) );
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
