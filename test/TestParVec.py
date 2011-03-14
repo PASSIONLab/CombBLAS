@@ -598,6 +598,56 @@ class GeneralPurposeTests(ParVecTests):
         for ind in range(expSz):
 	    self.assertEqual(expI[ind], vec2[ind])
 
+    def test_mean_simple(self):
+	sz = 11
+	vec = ParVec.range(sz)
+	res = vec.mean()
+	self.assertAlmostEqual(((sz*(sz-1))/2)/sz, res)
+
+    def test_mean_fixed(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -2.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 2.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.mean()
+	self.assertAlmostEqual(0, res)
+
+    def test_std_fixed(self):
+	sz = 8
+	vec = ParVec(sz)
+	vec[0] = 2
+	vec[1] = 4
+	vec[2] = 4
+	vec[3] = 4
+	vec[4] = 5
+	vec[5] = 5
+	vec[6] = 7
+	vec[7] = 9
+	res = vec.std()
+	self.assertAlmostEqual(2.0, res)
+
+    def test_std_fixed2(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -2.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 2.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.std()
+	self.assertAlmostEqual(3.0542333098686338, res)
+
 
 
 def runTests(verbosity = 1):
