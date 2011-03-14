@@ -751,7 +751,7 @@ class ParVec:
 		"""
 		mean = self.mean();
 		diff = self - mean
-		ret = np.sqrt((diff*diff).sum())
+		ret = np.sqrt((diff*diff).sum()/len(self))
 		return ret 
 
 	def sum(self):
