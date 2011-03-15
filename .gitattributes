@@ -1050,6 +1050,7 @@ kdt/__init__.py -text
 kdt/feedback.py -text
 kdt/multiproccheck.py -text
 kdt/pyCombBLAS.py -text
+kdt/pyCombBLAS/Makefile-dist -text
 kdt/pyCombBLAS/Makefile-nersc -text
 kdt/pyCombBLAS/Makefile-neumann -text
 kdt/pyCombBLAS/Makefile-triton -text
