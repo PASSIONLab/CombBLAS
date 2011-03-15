@@ -119,7 +119,11 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 	}
 	
 	StackEntry< T_promote, pair<IU,IU> > * multstack;
+
+	#ifndef NDEBUG
 	SpParHelper::Print("Pre-Cartesian\n");
+	#endif
+
 	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
@@ -128,7 +132,9 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 	if(clearB)
 		delete const_cast<SpDCCols<IU, NU2> *>(&B);
 
+	#ifndef NDEBUG
 	SpParHelper::Print("Post-Cartesian\n");
+	#endif
 
 	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
 }
