@@ -224,7 +224,7 @@ class ParVec:
 		#ToDo:  when generalized unary operations are supported, 
 		#    support SPV = DPV[unary-op()]
 		if type(key) == int or type(key) == long or type(key) == float:
-			if key > self._dpv.len()-1:
+			if key < 0 or key >= self._dpv.len():
 				raise IndexError
 			ret = self._dpv[key]
 		elif isinstance(key,ParVec):
@@ -492,6 +492,8 @@ class ParVec:
 		same locations.
 		"""
 		if type(key) == int or type(key) == long or type(key) == float:
+			if key < 0 or key >= len(self):
+				raise IndexError, 'Index out of bounds'
 			self._dpv[key] = value
 		elif isinstance(key,ParVec):
 			if not key.isBool():
@@ -1626,3 +1628,15 @@ def master():
 	master process or a slave process in a parallel program.
 	"""
 	return pcb.root()
+
+def version():
+	"""
+	Return KDT version number, as a string.
+	"""
+	return "1.0.0"
+
+def revision():
+	"""
+	Return KDT revision number, as a string.
+	"""
+	return "rXXX"
