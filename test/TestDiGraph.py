@@ -250,6 +250,20 @@ class BFSTreeTests(DiGraphTests):
 	for ind in range(nvert):
 		self.assertEqual(parents[ind], parentsExpected[ind])
 
+    def test_bfsTree_sym(self):
+        nvert = 8
+        nedge = 20
+        i = [2, 4, 1, 5, 7, 4, 6, 7, 1, 3, 7, 2, 6, 7, 3, 5, 2, 3, 4, 5]
+        j = [1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	parentsExpected = [-1, 1, 1, 4, 1, 2, 5, 4]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	parents = G.bfsTree(1, sym=True)
+	for ind in range(nvert):
+		self.assertEqual(parents[ind], parentsExpected[ind])
+
 class IsBFSTreeTests(DiGraphTests):
     def test_isBfsTree(self):
         nvert = 8
@@ -280,6 +294,20 @@ class NeighborsTests(DiGraphTests):
         
         G = self.initializeGraph(nvert, nedge, i, j)
 	neighbors = G.neighbors(4)
+	for ind in range(nvert):
+		self.assertEqual(neighbors[ind], neighborsExpected[ind])
+
+    def test_neighbors_2hop(self):
+        nvert = 8
+        nedge = 12
+        i = [1, 1, 2, 2, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	neighborsExpected = [0, 1, 1, 1, 1, 1, 0, 1]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	neighbors = G.neighbors(4, nhop=2)
 	for ind in range(nvert):
 		self.assertEqual(neighbors[ind], neighborsExpected[ind])
 
@@ -321,6 +349,16 @@ class LoadTests(DiGraphTests):
 
     def test_load_bad_file(self):
         self.assertRaises(IOError, DiGraph.load, 'not_a_real_file.mtx')
+
+    def test_UFget_simple_unsym(self):
+	G = UFget('Pajek/CSphd')
+        self.assertEqual(G.nvert(), 1882)
+	self.assertEqual(G.nedge(), 1740)
+
+    def test_UFget_simple_sym(self):
+	G = UFget('Pajek/dictionary28')
+        self.assertEqual(G.nvert(), 52652)
+	self.assertEqual(G.nedge(), 178076)
 
 class MaxTests(DiGraphTests):
     def test_max_out(self):
@@ -782,6 +820,33 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
 
+    def test_div_simple(self):
+	# ensure that DiGraph addition creates the number, source/
+        # destination, and value pairs expected when all edges are 
+        # in both DiGraphs.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	origV2 = [11, 2, 22, 32, 13, 33, 14, 24, 44, 15, 35, 16, 17, (1.6e+10)+1,
+		18, 88, 19, 69, 79]
+	expV = [0.9090909091, 0.5, 0.9545454545, 0.96875, 0.92307692, 0.96969696, 
+		0.92857142, 0.95833333, 0.97727272, 0.93333333, 0.97142857, 0.93750000, 
+		0.94117647, 1, 0.94444444, 0.98863636, 0.94736842, 0.98550724, 0.98734177]
+	G1 = self.initializeGraph(nvert, nedge, origI, origJ, origV1)
+	G2 = self.initializeGraph(nvert, nedge, origI, origJ, origV2)
+        G3 = G1/G2
+	[actualI, actualJ, actualV] = G3.toParVec()
+        self.assertEqual(len(origI), len(actualI))
+        self.assertEqual(len(origJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(origI[ind], actualI[ind])
+		self.assertEqual(origJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+        
 class GeneralPurposeTests(DiGraphTests):
     def test_multNot(self):
 	nvert1 = 9
@@ -804,6 +869,70 @@ class GeneralPurposeTests(DiGraphTests):
 	expI = [1, 6, 1, 1, 3, 1, 3, 1, 1, 8, 0, 6]
 	expJ = [0, 1, 2, 3, 3, 4, 4, 5, 6, 7, 8, 8]
 	expV = [10, 61, 12, 13, 33, 14, 34, 15, 1.6, 87, 8, 68]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+
+    def test_scale_out(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	vec1 = SpParVec(nvert1)
+	# vec[0] null, scaling a null column in G1
+	vec1[1] = 1
+	vec1[2] = 2
+	vec1[3] = 3
+	vec1[4] = 4
+	vec1[5] = 5
+	# vec[6] null, scaling a non-null column in G1
+	vec1[7] = 7
+	vec1[8] = 8
+        G1.scale(vec1, dir=DiGraph.Out)
+	[actualI, actualJ, actualV] = G1.toParVec()
+	expI = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	expJ = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	expV = [10, 1, 164, 61, 12, 260, 13, 46, 99, 14, 102, 15, 1.6, 68.8,
+		17, 696, 8, 68, 546]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+
+    def test_scale_in(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	vec1 = SpParVec(nvert1)
+	# vec[0] null, scaling a null column in G1
+	vec1[1] = 1
+	vec1[2] = 2
+	vec1[3] = 3
+	vec1[4] = 4
+	vec1[5] = 5
+	# vec[6] null, scaling a non-null column in G1
+	vec1[7] = 7
+	vec1[8] = 8
+        G1.scale(vec1, dir=DiGraph.In)
+	[actualI, actualJ, actualV] = G1.toParVec()
+	expI = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	expJ = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	expV = [10, 1, 41, 61, 24, 104, 39, 69, 99, 56, 136, 75, 1.6, 8.6,
+		119, 609, 64, 544, 624]
         self.assertEqual(len(expI), len(actualI))
         self.assertEqual(len(expJ), len(actualJ))
         self.assertEqual(len(expV), len(actualV))
