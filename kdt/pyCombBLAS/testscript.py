@@ -164,7 +164,7 @@ def k2validate(G, root, parents):
 ###############################################
 ###########    MATRIX CREATION
 
-A = pcb.pySpParMat()
+A = pcb.pySpParMatBool()
 scale = 10
 
 #degrees = pcb.pyDenseParVec(4, 0);
@@ -183,8 +183,8 @@ if (scale < 0):
 	print "loading matrix from %s"%(path)
 	A.load(path)
 	A.Apply(pcb.set(1))
-	print "converting to boolean"
-	A = pcb.pySpParMatBool(A)
+	#print "converting to boolean" # already boolean
+	#A = pcb.pySpParMatBool(A)
 	n = A.getnrow()
 	
 	colreducer = pcb.pyDenseParVec(n, 1).sparse();

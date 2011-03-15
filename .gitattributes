@@ -1043,6 +1043,7 @@ Python/serialSciPy/Graph500.py -text
 /README.txt -text
 examples/Graph500.py -text
 examples/note_for_kdt_developers.txt -text
+examples/stats.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/UFget.py -text

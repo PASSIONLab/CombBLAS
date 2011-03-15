@@ -800,7 +800,7 @@ class DiGraph(gr.Graph):
 		fringe = pcb.pySpParVec(self.nvert())
 		parents[root] = root
 		fringe[root] = root
-		while fringe.getnnz() > 0:
+		while fringe.getnee() > 0:
 			fringe.setNumToInd()
 			self._spm.SpMV_SelMax_inplace(fringe)
 			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)
