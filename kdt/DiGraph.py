@@ -298,6 +298,18 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  sum 
 		"""
+		if self.nedge() == 0:
+			nv = self.nvert()
+			if type(nv) == tuple:
+				nv0 = nv[0]; nv1 = nv[1];
+			else:
+				nv0 = nv; nv1 = nv;
+			if dir == DiGraph.In or dir == DiGraph.InOut:
+				return ParVec.zeros(nv0)
+			elif dir == DiGraph.Out:
+				return ParVec.zeros(nv1)
+			else:
+				raise KeyError, 'Unknown edge-direction'
 		if dir == DiGraph.InOut:
 			#ToDo:  can't do InOut if nonsquare graph
 			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
