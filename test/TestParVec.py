@@ -307,14 +307,14 @@ class BuiltInTests(ParVecTests):
         vec1 = ParVec.range(sz)*ParVec.range(sz)
         ndx = -4
         value = 777
-	self.assertRaises(KeyError,ParVec.__setitem__,vec1, ndx, value)
+	self.assertRaises(IndexError,ParVec.__setitem__,vec1, ndx, value)
 
     def test_indexing_LHS_ParVec_scalar_scalar_tooBig(self):
 	sz = 18
         vec1 = ParVec.range(sz)*ParVec.range(sz)
         ndx = 2**36
         value = 777
-	self.assertRaises(KeyError,ParVec.__setitem__,vec1, ndx, value)
+	self.assertRaises(IndexError,ParVec.__setitem__,vec1, ndx, value)
 
     def test_indexing_LHS_ParVec_booleanParVec_scalar(self):
 	sz = 18
@@ -687,6 +687,26 @@ class GeneralPurposeTests(ParVecTests):
 	res = vec.std()
 	self.assertAlmostEqual(3.0542333098686338, res)
 
+    def test_sort(self):
+	sz = 9
+	vec = ParVec.range(-sz/2, sz/2).abs()
+	vec.sort()
+	self.assertEqual(sz, len(vec))
+	expV = [0, 1, 1, 2, 2, 3, 3, 4, 5]
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], vec[ind])
+
+    def test_sorted(self):
+	sz = 9
+	vec = ParVec.range(-sz/2, sz/2).abs()
+	[sortedVec, permVec] = vec.sorted()
+	self.assertEqual(sz, len(sortedVec))
+	self.assertEqual(sz, len(permVec))
+	expV = [0, 1, 1, 2, 2, 3, 3, 4, 5]
+	expPerm = [ 5, 4, 6, 3, 7, 2, 8, 1, 0]
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], sortedVec[ind])
+	    self.assertEqual(expPerm[ind], permVec[ind])
 
 
 def runTests(verbosity = 1):
