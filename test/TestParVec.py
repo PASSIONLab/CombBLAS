@@ -59,6 +59,17 @@ class ConstructorTests(ParVecTests):
         for ind in range(sz):
             self.assertEqual(ind,vec[ind]-offset)
 
+    def test_ParVec_toSpParVec(self):
+	sz = 25
+	offset = -13
+        vec = (ParVec.range(offset, sz+offset) % 3).toSpParVec()
+        expV = [2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 
+		2, 0, 1, 2]
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(17, vec.nnn())
+        for ind in range(sz):
+            self.assertEqual(expV[ind], vec[ind])
+
 class BuiltInTests(ParVecTests):
     def test_add_constant(self):
 	sz = 25
@@ -220,6 +231,20 @@ class BuiltInTests(ParVecTests):
         value = vec1[ndx]
 	self.assertEqual(ndx*ndx, value)
 
+    def test_indexing_RHS_ParVec_scalar_scalar_negative(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+        ndx = -4
+        value = 777
+	self.assertRaises(IndexError,ParVec.__getitem__,vec1, ndx)
+
+    def test_indexing_RHS_ParVec_scalar_scalar_tooBig(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+        ndx = 2**36
+        value = 777
+	self.assertRaises(IndexError,ParVec.__getitem__,vec1, ndx)
+
     def test_indexing_RHS_ParVec_ParVec(self):
 	sz = 25
         vec1 = ParVec.range(sz)*ParVec.range(sz)
@@ -276,6 +301,20 @@ class BuiltInTests(ParVecTests):
 	self.assertEqual(len(expI), len(vec1))
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec1[ind])
+
+    def test_indexing_LHS_ParVec_scalar_scalar_negative(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+        ndx = -4
+        value = 777
+	self.assertRaises(KeyError,ParVec.__setitem__,vec1, ndx, value)
+
+    def test_indexing_LHS_ParVec_scalar_scalar_tooBig(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+        ndx = 2**36
+        value = 777
+	self.assertRaises(KeyError,ParVec.__setitem__,vec1, ndx, value)
 
     def test_indexing_LHS_ParVec_booleanParVec_scalar(self):
 	sz = 18
