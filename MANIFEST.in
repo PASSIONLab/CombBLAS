@@ -2,13 +2,21 @@ include kdt/*.py
 include kdt/pyCombBLAS/*.cpp
 include kdt/pyCombBLAS/*.h
 include kdt/pyCombBLAS/pyCombBLAS.i
+include kdt/pyCombBLAS/Makefile-dist
 include CombBLAS/*.h
 include CombBLAS/*.cpp
+recursive-include CombBLAS/psort-1.0/ *
+include CombBLAS/SequenceHeaps/*
 include CombBLAS/graph500-1.2/generator/*.h
 include CombBLAS/graph500-1.2/generator/*.c
 include CombBLAS/graph500-1.2/generator/*.cpp
+include CombBLAS/graph500-1.2/generator/Makefile
+include CombBLAS/graph500-1.2/generator/README
+include CombBLAS/graph500-1.2/generator/*.txt
 include setup.py
 include README.txt
 include LICENSE.txt
 include KDT_User_Guide.pdf
 include examples/*.py
+include test/*.py
+include test/testfiles/*
