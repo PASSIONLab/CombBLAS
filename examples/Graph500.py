@@ -86,8 +86,6 @@ if GRAPH500 == 1:
 	#	indices of vertices with degree > 2
 	deg3verts = (G.degree() > 2).findInds()
 	deg3verts.randPerm()
-	#FIX: following should be randint(1, ...); masking root=0 bug for now
-	#starts = sc.random.randint(1, high=len(deg3verts), size=(nstarts,))
 	starts = deg3verts[kdt.ParVec.range(nstarts)]
 	# deg3verts stays distributed; indices to it (starts) are scalars
 	#starts = kdt.ParVec.range(nstarts);
