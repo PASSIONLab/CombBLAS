@@ -25,7 +25,7 @@ not, you can append the include path with the -I switch to the setup.py
 script. For example, if you installed Boost in /home/username/include/boost:
 $ python setup.py build -I/home/username/include
 
-MPI library must be compiled with -fPIC. Python modules must be compiled
+The MPI library must be compiled with -fPIC. Python modules must be compiled
 with -fPIC, and that includes all libraries that get linked into the module.
 That includes the MPI library in the case of KDT. If your MPI was not
 compiled with -fPIC then the link step will fail. If this happens, contact your

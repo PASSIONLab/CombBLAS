@@ -1639,4 +1639,4 @@ def revision():
 	"""
 	Return KDT revision number, as a string.
 	"""
-	return "rXXX"
+	return "r354"
