@@ -18,6 +18,200 @@ class SpParMat;
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
 
+/**
+ * Parallel C = A*B routine that uses a double buffered broadcasting scheme 
+ * Most memory efficient version available. Total stages: 2*sqrt(p)
+ * Memory requirement during first sqrt(p) stages: <= (3/2)*(nnz(A)+nnz(B))+(1/2)*nnz(C)
+ * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
+ * Final memory requirement: nnz(C) if clearA and clearB are true 
+ **/  
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_DoubleBuff
+		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
+
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
+	IU ncolA = A.getncol();
+	IU nrowB = B.getnrow();	
+
+	if(ncolA != nrowB)
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << nrowB << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		return SpParMat< IU,N_promote,DER_promote >();
+	}
+
+	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
+	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
+	IU C_m = A.spSeq->getnrow();
+	IU C_n = B.spSeq->getncol();
+
+	UDERA * A1seq = new UDERA();
+	UDERA * A2seq = new UDERA(); 
+	UDERB * B1seq = new UDERB();
+	UDERB * B2seq = new UDERB();
+	(A.spSeq)->Split( *A1seq, *A2seq); 
+	const_cast< UDERB* >(B.spSeq)->Transpose();
+	(B.spSeq)->Split( *B1seq, *B2seq);
+	GridC->GetWorld().Barrier();
+
+	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
+	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
+
+	SpParHelper::GetSetSizes( *A1seq, ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *B1seq, BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Remotely fetched matrices are stored as pointers
+	UDERA * ARecv; 
+	UDERB * BRecv;
+	vector< SpTuples<IU,N_promote>  *> tomerge;
+
+	int Aself = (A.commGrid)->GetRankInProcRow();
+	int Bself = (B.commGrid)->GetRankInProcCol();	
+
+	for(int i = 0; i < stages; ++i) 
+	{
+		vector<IU> ess;	
+		if(i == Aself)
+		{	
+			ARecv = A1seq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();				// first, create the object
+		}
+
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		ess.clear();	
+		
+		if(i == Bself)
+		{
+			BRecv = B1seq;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+						(*ARecv, *BRecv, // parameters themselves
+						false, true,	// transpose information (B is transposed)
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
+	}
+
+	if(clearA) 
+	{	
+		delete A1seq;
+	}	
+	if(clearB) 
+	{
+		delete B1seq;
+	}
+
+	// Set the new dimensions
+	SpParHelper::GetSetSizes( *A2seq, ARecvSizes, (A.commGrid)->GetRowWorld());
+	SpParHelper::GetSetSizes( *B2seq, BRecvSizes, (B.commGrid)->GetColWorld());
+
+	// Start the second round
+	for(int i = 0; i < stages; ++i) 
+	{
+		vector<IU> ess;	
+		if(i == Aself)
+		{	
+			ARecv = A2seq;	// shallow-copy 
+		}
+		else
+		{
+			ess.resize(UDERA::esscount);
+			for(int j=0; j< UDERA::esscount; ++j)	
+			{
+				ess[j] = ARecvSizes[j][i];		// essentials of the ith matrix in this row	
+			}
+			ARecv = new UDERA();				// first, create the object
+		}
+
+		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
+		ess.clear();	
+		
+		if(i == Bself)
+		{
+			BRecv = B2seq;	// shallow-copy
+		}
+		else
+		{
+			ess.resize(UDERB::esscount);		
+			for(int j=0; j< UDERB::esscount; ++j)	
+			{
+				ess[j] = BRecvSizes[j][i];	
+			}	
+			BRecv = new UDERB();
+		}
+		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
+
+		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+						(*ARecv, *BRecv, // parameters themselves
+						false, true,	// transpose information (B is transposed)
+						i != Aself, 	// 'delete A' condition
+						i != Bself);	// 'delete B' condition
+
+		if(!C_cont->isZero()) 
+			tomerge.push_back(C_cont);
+	}
+
+	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
+	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
+
+	if(clearA) 
+	{
+		delete A2seq;
+		delete A.spSeq;
+		A.spSeq = NULL;
+	}
+	else
+	{
+		(A.spSeq)->Merge(*A1seq, *A2seq);
+		delete A1seq;
+		delete A2seq;
+	}
+	if(clearB) 
+	{
+		delete B2seq;
+		delete B.spSeq;
+		B.spSeq = NULL;	
+	}
+	else
+	{
+		(B.spSeq)->Merge(*B1seq, *B2seq);	
+		delete B1seq;
+		delete B2seq;
+		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
+	}
+			
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false, NULL);	
+	// First get the result in SpTuples, then convert to UDER
+
+	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
+}
+
 
 /**
  * Parallel A = B*C routine that uses only MPI-1 features
@@ -48,14 +242,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
 	
-	#ifndef NDEBUG
-	SpParHelper::Print("Pre transpose\n");
-	#endif
 	const_cast< UDERB* >(B.spSeq)->Transpose();	
 	GridC->GetWorld().Barrier();
-	#ifndef NDEBUG
-	SpParHelper::Print("B transposed\n");
-	#endif
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -89,9 +277,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		}
 
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
-		#ifndef NDEBUG
-		SpParHelper::Print("A Broadcast\n");
-		#endif
 		ess.clear();	
 		
 		if(i == Bself)
@@ -108,11 +293,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-		#ifndef NDEBUG
-		SpParHelper::Print("B Broadcast\n");
-		#endif
 
-		DeletePtrIf deleter;
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
@@ -130,17 +311,11 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	if(clearA && A.spSeq != NULL) 
 	{	
-		#ifndef NDEBUG
-		SpParHelper::Print("Freeing memory of A\n");
-		#endif
 		delete A.spSeq;
 		A.spSeq = NULL;
 	}	
 	if(clearB && B.spSeq != NULL) 
 	{
-		#ifndef NDEBUG
-		SpParHelper::Print("Freeing memory of B\n");
-		#endif
 		delete B.spSeq;
 		B.spSeq = NULL;
 	}

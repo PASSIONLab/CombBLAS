@@ -157,7 +157,11 @@ public:
 	IT getlocalnnz() const { return spSeq->getnnz(); }
 	DER & seq() { return (*spSeq); }
 
-	//! Friend declaration
+	//! Friend declarations
+	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	Mult_AnXBn_DoubleBuff (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
+
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
 	Mult_AnXBn_Synch (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
