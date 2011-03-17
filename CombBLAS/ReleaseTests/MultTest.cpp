@@ -88,8 +88,6 @@ int main(int argc, char* argv[])
 		}
 
 		SpParVec<int, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
-		spycontrol.PrintInfo();
-		spy.PrintInfo();
 		y = spy;	// convert to dense
 		ycontrol = spycontrol;
 		
@@ -110,6 +108,16 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Synchronous Multiplication, go fix it!\n");	
+		}
+
+		C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A,B);
+		if (CControl == C)
+		{
+			SpParHelper::Print("Double buffered multiplication working correctly\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in double buffered multiplication, go fix it!\n");	
 		}
 
 
