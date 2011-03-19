@@ -217,7 +217,8 @@ int main(int argc, char* argv[])
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 
-			SpParHelper::Print("Found non-isolated vertices\n");	
+			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			A.PrintInfo();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
