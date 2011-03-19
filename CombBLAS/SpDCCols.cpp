@@ -3,7 +3,7 @@
 /  version 2.3 --------------------------------------------------/
 /  date: 01/18/2009 ---------------------------------------------/
 /  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-\****************************************************************/
+/****************************************************************/
 
 #include "SpDCCols.h"
 #include "Deleter.h"
@@ -469,6 +469,7 @@ void SpDCCols<IT,NT>::Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB)
 	else if(partA.nnz == 0)
 	{
 		Cdcsc = new Dcsc<IT,NT>(*(partB.dcsc));
+		transform(Cdcsc->jc, Cdcsc->jc + Cdcsc->nzc, Cdcsc->jc, bind2nd(plus<IT>(), partA.n));
 	}
 	else if(partB.nnz == 0)
 	{

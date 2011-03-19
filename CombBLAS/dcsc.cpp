@@ -803,11 +803,14 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	}
 }
 
+// Assumes A and B are not NULL
+// When any is NULL, this function is not called anyway
 template<class IT, class NT>
 void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 {
+	assert((A != NULL) && (B != NULL)); 	// handled at higher level
 	IT cnz = A->nz + B->nz;
-	IT cnzc =  A->nzc + B->nzc;
+	IT cnzc = A->nzc + B->nzc;
 	if(cnz > 0)
 	{
 		*this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
@@ -819,7 +822,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 		memcpy(cp, A->cp, A->nzc * sizeof(IT));
 		memcpy(cp + A->nzc, B->cp, (B->nzc+1) * sizeof(IT));
 		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
-
+		
 		memcpy(ir, A->ir, A->nz * sizeof(IT));
 		memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
 

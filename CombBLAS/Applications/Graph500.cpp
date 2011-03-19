@@ -25,7 +25,7 @@ double cblas_allgathertime;
 #include "../ParFriends.h"
 #include "../DistEdgeList.h"
 
-#define ITERS 16
+#define ITERS 4 
 using namespace std;
 
 // 64-bit floor(log2(x)) function 

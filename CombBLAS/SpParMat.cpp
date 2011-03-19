@@ -656,11 +656,16 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 		SpParHelper::Print("Symmetric permutation\n");
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
-		if(inplace)
+		if(inplace) 
 		{
 			SpParHelper::Print("In place multiplication\n");
-        		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this, false, true);	// clear the memory of *this
-			SpParHelper::Print("PA generated\n");
+        		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this); // , false, true);	// clear the memory of *this
+
+			//ostringstream outb;
+			//outb << "P_after_" << commGrid->myrank;
+			//ofstream ofb(outb.str().c_str());
+			//P.put(ofb);
+
 			P.Transpose();	
        	 		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL>(*this, P, true, true);	// clear the memory of both *this and P
 			return SpParMat<IT,NT,DER>();	// dummy return to match signature
