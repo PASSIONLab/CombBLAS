@@ -25,7 +25,7 @@ double cblas_allgathertime;
 #include "../ParFriends.h"
 #include "../DistEdgeList.h"
 
-#define ITERS 4 
+#define ITERS 16
 using namespace std;
 
 // 64-bit floor(log2(x)) function 
@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
-			//A.OptimizeForGraph500(optbuf);
+			A.OptimizeForGraph500(optbuf);
 			A.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();
