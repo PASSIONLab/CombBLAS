@@ -277,6 +277,10 @@ private:
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 	//!< SpMV with sparse vector
 		vector<IU> & indy, vector<typename promote_trait<NUM,NUV>::T_promote>  & numy);
+
+	template <typename SR, typename IU, typename NUM, typename NUV>	
+	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
+		IU * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c);
 		
 	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV>
 	friend void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, _BinaryOperation __binary_op);

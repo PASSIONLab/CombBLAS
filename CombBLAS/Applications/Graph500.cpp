@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 		unsigned scale;
+		OptBuf<int64_t, int64_t> optbuf;
 
 		if(string(argv[1]) == string("Input")) // input option
 		{
@@ -226,6 +227,7 @@ int main(int argc, char* argv[])
 
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
+			A.OptimizeForGraph500(optbuf);
 			A.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();
@@ -294,7 +296,7 @@ int main(int argc, char* argv[])
 			{
 				fringe.setNumToInd();
 				//fringe.PrintInfo("fringe before SpMV");
-				fringe = SpMV<SR>(A, fringe,true);	// SpMV with sparse vector (with indexisvalue flag set)
+				fringe = SpMV<SR>(A, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 				// fringe.PrintInfo("fringe after SpMV");
 				fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
 				// fringe.PrintInfo("fringe after cleanup");

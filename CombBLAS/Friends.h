@@ -75,6 +75,18 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 	}
 }
 
+//! SpMV with sparse vector
+template <typename SR, typename IU, typename NUM, typename NUV>
+void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
+		IU * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c)
+{
+	if(A.getnnz() > 0 && nnzx > 0)
+	{
+		SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+	}
+}
+
+
 //! ColWiseApply with sparse vector
 template <typename _BinaryOperation, typename IU, typename NUM, typename NUV>
 void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, _BinaryOperation __binary_op)

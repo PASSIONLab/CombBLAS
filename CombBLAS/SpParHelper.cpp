@@ -428,6 +428,7 @@ inline void SpParHelper::StartAccessEpoch(int owner, vector<MPI::Win> & arrwin, 
 	// Start() *may* block until all processes in the target group have entered their exposure epoch
 	for(unsigned int i=0; i< arrwin.size(); ++i)
 		arrwin[i].Start(access, 0); 
+	access.Free();
 }
 
 /**
@@ -440,6 +441,7 @@ inline void SpParHelper::PostExposureEpoch(int self, vector<MPI::Win> & arrwin, 
 	// begin the EXPOSURE epochs for the arrays of the local matrices A and B
 	for(unsigned int i=0; i< arrwin.size(); ++i)
 		arrwin[i].Post(exposure, MPI_MODE_NOPUT);
+	exposure.Free();
 }
 
 template <class IT, class DER>
