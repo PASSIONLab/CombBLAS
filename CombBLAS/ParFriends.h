@@ -1382,10 +1382,10 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		DeleteAll(sendcnt, sdispls);
 	}
 
-	ofstream output;
-	A.commGrid->OpenDebugFile("Recv", output);
-	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
-	output.close();
+//	ofstream output;
+//	A.commGrid->OpenDebugFile("Recv", output);
+//	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
+//	output.close();
 
 #ifndef HEAPMERGE
 	// Alternative 1: SPA-like data structure
@@ -1804,12 +1804,13 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 			{
 				for(IU i=0; i<size; ++i)
 				{
-					IU vind = V.ind[i];
-					if(W.arr.size() < vind)
+					#ifdef DEBUG
+					if(W.arr.size() < V.ind[i])
 					{
 						cout << "Trying to set " << vind << "th element, where only " << W.arr.size() << " exists" << endl;
 					}
-					if(W.arr[vind] == zero) 	// keep only those
+					#endif
+					if(W.arr[V.ind[i]] == zero) 	// keep only those
 					{
 						Product.ind.push_back(V.ind[i]);
 						Product.num.push_back(V.num[i]);

@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
-			A.OptimizeForGraph500(optbuf);
+			//A.OptimizeForGraph500(optbuf);
 			A.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();

@@ -23,7 +23,13 @@ public:
 	};
 	~OptBuf()
 	{
-		DeleteAll(inds,nums,dspls);
+		if(totmax > 0)
+		{
+			delete [] inds;
+			delete [] nums;
+		}
+		if(p_c > 0)
+			delete dspls;
 	}
 	OptBuf(const OptBuf<IT,NT> & rhs)
 	{
