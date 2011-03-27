@@ -157,8 +157,8 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 		//PAT_region_begin(1, "SPA_Multiply");
 		NT * localy = new NT[mA];
 		bool * isthere = new bool[mA];
+		fill(isthere, isthere+mA, false);
 		vector<IT> nzinds;	// nonzero indices		
-		fill_n(isthere, mA, false);
 	
 		for(IT j=0; j< veclen; ++j)
 		{
@@ -187,7 +187,8 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 			indy[i] = nzinds[i];
 			numy[i] = localy[nzinds[i]]; 	
 		}
-		DeleteAll(localy, isthere);
+		delete [] localy;
+		delete [] isthere;
 		//PAT_region_end(1);
 	}
 	else
@@ -263,12 +264,24 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 {   
 	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds(veclen);		
-	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// last parameter is irrelevant if aux is NULL	
+	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
+        IT csize = static_cast<IT>(ceil(cf));   // chunk size
+
+#ifdef UNIQUEMATRIXSPMV
+	static IT* spmvaux = NULL;	// set only once over the whole program execution
+	if(spmvaux == NULL)
+	{
+		Adcsc.ConstructAux(nA, spmvaux);
+	}
+#else
+	IT* spmvaux = NULL;
+#endif
+	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
 
 	NT * localy = new NT[mA];
 	bool * isthere = new bool[mA];
+	fill(isthere, isthere+mA, false);
 	vector< vector<IT> > nzinds(p_c);	// nonzero indices		
-	fill_n(isthere, mA, false);
 
 	IT perproc = mA / static_cast<IT>(p_c);	
 	for(IT j=0; j< veclen; ++j)
@@ -302,7 +315,8 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 			numy[dspls[p]+i] = localy[locnzinds[i]]; 	
 		}
 	}
-	DeleteAll(localy, isthere);
+	delete [] localy;
+	delete [] isthere;
 }
 
 //////////////////////////////////////////////////////////////////////////////////

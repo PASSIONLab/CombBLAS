@@ -1270,12 +1270,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	// For a medium problem (scale 35), we'll need 32K processors which gives sqrt(p) ~ 180
 	// 2^35 / 180 ~ 2^29 / 3 which is not an issue !
 
+	#ifdef TIMING
 	World.Barrier();
 	double t0=MPI::Wtime();
+	#endif
 	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	#ifdef TIMING
 	World.Barrier();
 	double t1=MPI::Wtime();
 	cblas_allgathertime += (t1-t0);
+	#endif
 
 	delete [] trxinds;
 	if(indexisvalue)
@@ -1296,7 +1300,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 
 	DeleteAll(colnz,dpls);
 	int rowneighs = RowWorld.Get_size();
-	int * sendcnt = new int[rowneighs];	
+	int * sendcnt = new int[rowneighs]();	
 	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 
 	IU * sendindbuf;
@@ -1314,7 +1318,6 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
 		DeleteAll(indacc, numacc);
 		IU yintlen = y.MyRowLength();
-		fill(sendcnt, sendcnt+rowneighs, 0);
 
 		// at this point, indices of y are sorted
 		sendindbuf = new IU[yintlen];	// max possible message size
@@ -1362,25 +1365,28 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
+	#ifdef TIMING
+	World.Barrier();
+	double t2=MPI::Wtime();
+	#endif
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{
-		World.Barrier();
-		double t2=MPI::Wtime();
 		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM
-		World.Barrier();
-		double t3=MPI::Wtime();
-		cblas_alltoalltime += (t3-t2);
 		delete [] sendcnt;
 	}
 	else
 	{
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
-
 		DeleteAll(sendindbuf, sendnumbuf);
 		DeleteAll(sendcnt, sdispls);
 	}
+	#ifdef TIMING
+	World.Barrier();
+	double t3=MPI::Wtime();
+	cblas_alltoalltime += (t3-t2);
+	#endif
 
 //	ofstream output;
 //	A.commGrid->OpenDebugFile("Recv", output);
