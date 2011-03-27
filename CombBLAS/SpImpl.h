@@ -22,11 +22,23 @@ void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT
 	SpImpl<SR,IT,NT1,NT2>::SpMXSpV(Adcsc, mA, nA, indx, numx, veclen, indy, numy);	// don't touch this
 };
 
+
+template <class SR, class IT, class NT1, class NT2>
+void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
+		IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c)
+{
+	SpImpl<SR,IT,NT1,NT2>::SpMXSpV(Adcsc, mA, nA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
+};
+
+
 template <class SR, class IT, class NT1, class NT2>
 struct SpImpl
 {
 	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy);	// specialize this
+
+	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
+			IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
 };
 
 
@@ -34,8 +46,12 @@ template <class SR, class IT, class NT>
 struct SpImpl<SR,IT,bool, NT>
 {
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
-			vector<IT> & indy, vector< NT > & numy);	// specialize this
+			vector<IT> & indy, vector< NT > & numy);	
+
+	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
+			IT * indy, NT * numy, int * cnts, int * dspls, int p_c);
 };
+
 
 // base template version
 // indx vector practically keeps column numbers requested from A
@@ -46,11 +62,7 @@ void SpImpl<SR,IT,NT1,NT2>::SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, co
 	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
 	HeapEntry<IT, NT1> * wset = new HeapEntry<IT, NT1>[veclen]; 
 
-	// colnums vector keeps column numbers requested from A
-	vector<IT> colnums(veclen);
-
-	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds(veclen);		
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
@@ -115,11 +127,7 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy)
 {   
-	// colnums vector keeps column numbers requested from A
-	vector<IT> colnums(veclen);
-
-	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds(veclen);		
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
@@ -245,6 +253,58 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 	}
 }
 
+/**
+ * @param[in,out]   	indy,numy,cnts 	{preallocated arrays to be filled}
+ * @param[in] 		dspls	{displacements to preallocated indy,numy buffers}
+**/
+template <typename SR, typename IT, typename NT>
+void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
+			IT * indy, NT * numy, int * cnts, int * dspls, int p_c)
+{   
+	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
+	vector< pair<IT,IT> > colinds(veclen);		
+	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// last parameter is irrelevant if aux is NULL	
+
+	NT * localy = new NT[mA];
+	bool * isthere = new bool[mA];
+	vector< vector<IT> > nzinds(p_c);	// nonzero indices		
+	fill_n(isthere, mA, false);
+
+	IT perproc = mA / static_cast<IT>(p_c);	
+	for(IT j=0; j< veclen; ++j)
+	{
+		while(colinds[j].first != colinds[j].second)	// current != end
+		{
+			IT deref = colinds[j].first++;	// dereferencer to ind & num arrays
+			IT rowid = Adcsc.ir[deref];
+			if(!isthere[rowid])
+			{
+				localy[rowid] = numx[j];	// initial assignment
+				IT owner = min(rowid / perproc, static_cast<IT>(p_c-1)); 			
+				nzinds[owner].push_back(rowid);
+				isthere[rowid] = true;
+			}
+			else
+			{
+				localy[rowid] = SR::add(localy[rowid], numx[j]);
+			}	
+		}
+	}
+	for(int p = 0; p< p_c; ++p)
+	{
+		sort(nzinds[p].begin(), nzinds[p].end());
+		cnts[p] = nzinds[p].size();
+		IT * locnzinds = &nzinds[p][0];
+		IT offset = perproc * p;
+		for(int i=0; i< cnts[p]; ++i)
+		{
+			indy[dspls[p]+i] = locnzinds[i] - offset;	// conver to local offset
+			numy[dspls[p]+i] = localy[locnzinds[i]]; 	
+		}
+	}
+	DeleteAll(localy, isthere);
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 // Apply
 
@@ -252,11 +312,7 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 template <typename _BinaryOperation, typename IT, typename NT1, typename NT2>
 void SpColWiseApply(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen, _BinaryOperation __binary_op)
 {
-	// colnums vector keeps column numbers requested from A
-	//vector<IT> colnums(veclen);
-
-	// colinds.first vector keeps indices to A.cp, i.e. it dereferences "colnums" vector (above),
-	// colinds.second vector keeps the end indices (i.e. it gives the index to the last valid element of A.cpnack)
+	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds(veclen);		
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);

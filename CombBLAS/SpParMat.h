@@ -115,6 +115,9 @@ public:
 
 	IT RemoveLoops();	// returns the number of loops removed
 	
+	template <typename OT>
+	void OptimizeForGraph500(OptBuf<IT,OT> & optbuf);
+	
 	/*
 	template <typename NU2, typename UDER2> 
 	template <typename _BinaryOperation>
@@ -192,7 +195,7 @@ public:
 
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
 	
 	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend void ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op);

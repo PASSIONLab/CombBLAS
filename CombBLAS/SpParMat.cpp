@@ -1263,6 +1263,40 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 	return totrem;
 }		
 
+
+template <class IT, class NT, class DER>
+template <typename OT>
+void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
+{
+	// if (multithreaded)
+	// 	spSeq.RowSplit(commGrid->GetGridCols());
+
+	// Set up communication buffers, one for all
+	IT mA = spSeq->getnrow();
+	IT p_c = commGrid->GetGridCols();
+	vector<bool> isthere(mA, false); // perhaps the only appropriate use of this crippled data structure
+	IT perproc = mA / p_c;
+	vector<int> maxlens(p_c,0);	// maximum data size to be sent to any neighbor along the processor row
+
+	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
+	{
+		for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+		{
+			IT rowid = nzit.rowid();
+			if(!isthere[rowid])
+			{
+				IT owner = min(nzit.rowid() / perproc, p_c-1); 			
+				maxlens[owner]++;
+				isthere[rowid] = true;
+			}
+		}
+	}
+	cout << "Maxbuffs: "; 
+	copy(maxlens.begin(),maxlens.end(), ostream_iterator<int>(cout," ")); cout << endl; 
+	optbuf.Set(maxlens);
+}
+
+
 /**
  * Parallel routine that returns A*A on the semiring SR
  * Uses only MPI-1 features (relies on simple blocking broadcast)

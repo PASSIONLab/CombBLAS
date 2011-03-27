@@ -8,6 +8,7 @@
 #include "SpParHelper.h"
 #include "MPIType.h"
 #include "Friends.h"
+#include "OptBuf.h"
 
 using namespace std;
 
@@ -567,6 +568,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	(A.spSeq)->Merge(A1seq, A2seq);
 	(B.spSeq)->Merge(B1seq, B2seq);	
 	
+	row_group.Free();
+	col_group.Free();
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
@@ -721,9 +724,10 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 
 	(A.spSeq)->Merge(A1seq, A2seq);
 	(B.spSeq)->Merge(B1seq, B2seq);	
-	
-	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 
+	row_group.Free();
+	col_group.Free();	
+	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
 
@@ -1212,7 +1216,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 //! This happens for BFS iterations with boolean matrices and integer rhs vectors
 template <typename SR, typename IU, typename NUM, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue)
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, 
+	OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf = OptBuf<IU, typename promote_trait<NUM,IU>::T_promote >())
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
 	if(!(*A.commGrid == *x.commGrid)) 		
@@ -1270,7 +1275,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
 	World.Barrier();
 	double t1=MPI::Wtime();
-	//allgathertime += (t1-t0);
+	cblas_allgathertime += (t1-t0);
 
 	delete [] trxinds;
 	if(indexisvalue)
@@ -1288,47 +1293,59 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<IU>(), numacc, colnz, dpls, MPIType<IU>());
 		delete [] trxnums;
 	}	
-	// serial SpMV with sparse vector
-	vector< IU > indy;
-	vector< T_promote >  numy;
-	dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
 
-	DeleteAll(indacc, numacc);
-	DeleteAll(colnz, dpls);
-	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
-	IU yintlen = y.MyRowLength();
+	DeleteAll(colnz,dpls);
 	int rowneighs = RowWorld.Get_size();
+	int * sendcnt = new int[rowneighs];	
+	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 
-	// at this point, indices of y are sorted
-	IU * sendindbuf = new IU[yintlen];	// max possible message size
-	T_promote * sendnumbuf = new T_promote[yintlen];
-	
-	int * sendcnt = new int[rowneighs]();	// zero initialize
-	int * sdispls = new int[rowneighs];
-	IU n_perproc = yintlen / colneighs;	// typical length per processor (except the last)
-	for(int i=0; i<rowneighs; ++i)
-		sdispls[i] = i * n_perproc;
-
-	typename vector<IU>::size_type outnz = indy.size();
-	typename vector<IU>::size_type j=0; 	// j indexes local entries
-	for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
-	{
-		while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
-		{
-			IU locind = indy[j] - sdispls[i-1];
-			int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
-			sendindbuf[inx] = locind;
-			sendnumbuf[inx] = numy[j++]; 
-			++sendcnt[i-1];	// increment the send count
-		}
+	IU * sendindbuf;
+	T_promote * sendnumbuf;
+	int * sdispls;
+	if(optbuf.totmax > 0)	// graph500 optimization enabled
+	{ 
+		dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 	}
-	while(j < outnz)	// remainders go to the last processor
+	else
 	{
-		IU locind = indy[j] - sdispls[rowneighs-1];
-		int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
-		sendindbuf[inx] = locind;
-		sendnumbuf[inx] = numy[j++];
-		++sendcnt[rowneighs-1]; 
+		// serial SpMV with sparse vector
+		vector< IU > indy;
+		vector< T_promote >  numy;
+		dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+		DeleteAll(indacc, numacc);
+		IU yintlen = y.MyRowLength();
+		fill(sendcnt, sendcnt+rowneighs, 0);
+
+		// at this point, indices of y are sorted
+		sendindbuf = new IU[yintlen];	// max possible message size
+		sendnumbuf = new T_promote[yintlen];
+	
+		sdispls = new int[rowneighs];
+		IU n_perproc = yintlen / rowneighs;	// typical length per processor (except the last)
+		for(int i=0; i<rowneighs; ++i)
+			sdispls[i] = i * n_perproc;
+
+		typename vector<IU>::size_type outnz = indy.size();
+		typename vector<IU>::size_type j=0; 	// j indexes local entries
+		for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
+		{
+			while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
+			{
+				IU locind = indy[j] - sdispls[i-1];
+				int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
+				sendindbuf[inx] = locind;
+				sendnumbuf[inx] = numy[j++]; 
+				++sendcnt[i-1];	// increment the send count
+			}
+		}
+		while(j < outnz)	// remainders go to the last processor
+		{
+			IU locind = indy[j] - sdispls[rowneighs-1];
+			int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
+			sendindbuf[inx] = locind;
+			sendnumbuf[inx] = numy[j++];
+			++sendcnt[rowneighs-1]; 
+		}
 	}
 
 	int * rdispls = new int[rowneighs];
@@ -1341,20 +1358,34 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	{
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
+	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
-	World.Barrier();
-	double t2=MPI::Wtime();
-	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
-	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
-	World.Barrier();
-	double t3=MPI::Wtime();
-	//alltoalltime += (t3-t2);
+	if(optbuf.totmax > 0)	// graph500 optimization enabled
+	{
+		World.Barrier();
+		double t2=MPI::Wtime();
+		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM
+		World.Barrier();
+		double t3=MPI::Wtime();
+		cblas_alltoalltime += (t3-t2);
+		delete [] sendcnt;
+	}
+	else
+	{
+		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 
-	DeleteAll(sendindbuf, sendnumbuf);
-	DeleteAll(sendcnt, sdispls);
+		DeleteAll(sendindbuf, sendnumbuf);
+		DeleteAll(sendcnt, sdispls);
+	}
+
+	ofstream output;
+	A.commGrid->OpenDebugFile("Recv", output);
+	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
+	output.close();
 
 #ifndef HEAPMERGE
 	// Alternative 1: SPA-like data structure
@@ -1446,6 +1477,10 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 
 	return y;
 }
+
+
+
+
 	
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
@@ -1769,7 +1804,12 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 			{
 				for(IU i=0; i<size; ++i)
 				{
-					if(W.arr[V.ind[i]] == zero) 	// keep only those
+					IU vind = V.ind[i];
+					if(W.arr.size() < vind)
+					{
+						cout << "Trying to set " << vind << "th element, where only " << W.arr.size() << " exists" << endl;
+					}
+					if(W.arr[vind] == zero) 	// keep only those
 					{
 						Product.ind.push_back(V.ind[i]);
 						Product.num.push_back(V.num[i]);

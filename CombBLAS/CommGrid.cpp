@@ -53,11 +53,13 @@ void CommGrid::CreateDiagWorld()
 	}
 	MPI::Group group = commWorld.Get_group();
 	MPI::Group diag_group = group.Incl(grcols, process_ranks);
+	group.Free();
 
 	delete [] process_ranks;
 
 	// The Create() function returns MPI_COMM_NULL to processes that are NOT in group	
 	diagWorld = commWorld.Create(diag_group);		
+	diag_group.Free();
 }
 
 bool CommGrid::OnSameProcCol( int rhsrank)
