@@ -179,6 +179,7 @@ CombBLAS/MainPage.h -text
 CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
 CombBLAS/Operations.h -text
+CombBLAS/OptBuf.h -text
 CombBLAS/ParFriends.h -text
 CombBLAS/README -text
 CombBLAS/ReleaseTests/CMakeLists.txt -text
