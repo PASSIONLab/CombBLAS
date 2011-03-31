@@ -56,6 +56,8 @@ public:
 	void Prune(_UnaryOperation __unary_op);
 
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
+	
+	void RowSplit(int numsplits);
 	void Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut); 	
 	void Merge(const Dcsc<IT,NT> * Adcsc, const Dcsc<IT,NT> * B, IT cut);		
 
@@ -72,7 +74,7 @@ public:
 	IT * jc ;		//!<  col indices, size nzc
 	IT * ir ;		//!<  row indices, size nz
 	NT * numx;		//!<  generic values, size nz
-
+	
 	IT nz;
 	IT nzc;			//!<  number of columns with at least one non-zero in them
 
