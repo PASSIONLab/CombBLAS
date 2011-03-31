@@ -1,8 +1,8 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 01/18/2009 ---------------------------------------------/
-/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
 /****************************************************************/
 
 #include "SpDCCols.h"
@@ -25,13 +25,13 @@ const IT SpDCCols<IT,NT>::zero = static_cast<IT>(0);
 
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL){
+SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL), splits(0){
 }
 
 // Allocate all the space necessary
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool)
-:m(nRow), n(nCol), nnz(size), localpool(mpool)
+:m(nRow), n(nCol), nnz(size), localpool(mpool), splits(0)
 {
 	if(nnz > 0)
 		dcsc = new Dcsc<IT,NT>(nnz, nzc);
@@ -45,7 +45,17 @@ SpDCCols<IT,NT>::~SpDCCols()
 	if(nnz > 0)
 	{
 		if(dcsc != NULL) 
-		{	delete dcsc;	// call Dcsc's destructor
+		{	
+			if(splits > 0)
+			{
+				for(int i=0; i<splits; ++i)
+					delete dcscarr[i];
+				delete [] dcscarr;
+			}
+			else
+			{
+				delete dcsc;	
+			}
 		}
 	}
 }
@@ -55,7 +65,7 @@ SpDCCols<IT,NT>::~SpDCCols()
 // Derived's copy constructor can safely call Base's default constructor as base has no data members 
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
-: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool), splits(rhs.splits)
 {
 	CopyDcsc(rhs.dcsc);
 }
@@ -71,7 +81,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
  */
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool)
-: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(mpool)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(mpool), splits(0)
 {	 
 	if(nnz == 0)	// m by n matrix of complete zeros
 	{
@@ -197,6 +207,7 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator=(const SpDCCols<IT,NT> & rhs)
 		
 		m = rhs.m; 
 		n = rhs.n;
+		splits = rhs.splits;
 	}
 	return *this;
 }
@@ -709,12 +720,12 @@ void SpDCCols<IT,NT>::PrintInfo() const
 	if(m < 8 && n < 8)	// small enough to print
 	{
 		NT ** A = SpHelper::allocate2D<NT>(m,n);
-		for(IT i=zero; i< m; ++i)
-			for(IT j=zero; j<n; ++j)
+		for(IT i=0; i< m; ++i)
+			for(IT j=0; j<n; ++j)
 				A[i][j] = static_cast<NT>(0);
 		if(dcsc != NULL)
 		{
-			for(IT i=zero; i< dcsc->nzc; ++i)
+			for(IT i=0; i< dcsc->nzc; ++i)
 			{
 				for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
 				{
@@ -745,7 +756,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 //! Construct SpDCCols from Dcsc
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
-:dcsc(mydcsc), m(nRow), n(nCol), localpool(NULL)
+:dcsc(mydcsc), m(nRow), n(nCol), localpool(NULL), splits(0)
 {
 	if (mydcsc == NULL) 
 		nnz = 0;
@@ -756,7 +767,7 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 //! Create a logical matrix from (row/column) indices array, used for indexing only
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
-:m(nRow), n(nCol), nnz(size), localpool(NULL)
+:m(nRow), n(nCol), nnz(size), localpool(NULL), splits(0)
 {
 	if(size > 0)
 		dcsc = new Dcsc<IT,NT>(size,indices,isRow);

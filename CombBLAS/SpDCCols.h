@@ -1,10 +1,9 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 01/18/2009 ---------------------------------------------/
-/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-\****************************************************************/
-
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/****************************************************************/
 
 #ifndef _SP_DCCOLS_H
 #define _SP_DCCOLS_H
@@ -182,6 +181,44 @@ public:
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
 
+	void RowSplit(int numsplits)
+	{
+		splits = numsplits;
+		IT perpiece = m / splits;
+		cout << "Per piece: " << perpiece << endl;
+		vector<IT> prevcolids(splits, -1);	// previous column id's are set to -1
+		vector<IT> nzcs(splits, 0);
+		vector<IT> nnzs(splits, 0);
+		if(nnz > 0 && dcsc != NULL)
+		{
+			for(IT i=0; i< dcsc->nzc; ++i)
+			{
+				for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
+				{
+					IT colid = dcsc->jc[i];
+					IT rowid = dcsc->ir[j];
+					IT owner = min(rowid / perpiece, static_cast<IT>(splits-1));
+					if(prevcolids[owner] != colid)
+					{
+						prevcolids[owner] = colid;
+						++nzcs[owner];
+					}
+					++nnzs[owner];
+				}
+			}
+		}
+
+		copy(nzcs.begin(), nzcs.end(), ostream_iterator<IT>(cout," " )); cout << endl;
+		copy(nnzs.begin(), nnzs.end(), ostream_iterator<IT>(cout," " )); cout << endl;
+		
+		//dcscarr = new Dcsc<IT,NT>*[splits];	
+		//for(int i=0; i< splits; ++i)
+		//{
+		//	dcscarr[i] = new Dcsc<IT,NT>(nnzs[i],nzcs[i]);	
+		//}
+		splits = 0;
+	}
+
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
 	void Merge(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB);	//!< \attention Destroys its parameters (partA & partB)
 
@@ -216,6 +253,7 @@ public:
 	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 
 private:
+	int splits;	// ABAB: Future multithreaded extension
 	void CopyDcsc(Dcsc<IT,NT> * source);
 	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci) const;	//!< col indexing without multiplication	
 
@@ -228,8 +266,11 @@ private:
 	SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow);	// Constructor for indexing
 	SpDCCols (IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc);			// Constructor for multiplication
 
-	// Private member variables
-	Dcsc<IT, NT> * dcsc;
+	// Anonymous union
+	union {
+		Dcsc<IT, NT> * dcsc;
+		Dcsc<IT, NT> ** dcscarr;
+	};
 
 	IT m;
 	IT n;

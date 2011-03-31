@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
 			double t2=MPI_Wtime();
 			
 			ostringstream k1timeinfo;
-			k1timeinfo << (t2-t1) - (redtf-redts) << "seconds elapsed for Kernel #1" << endl;
+			k1timeinfo << (t2-t1) - (redtf-redts) << " seconds elapsed for Kernel #1" << endl;
 			SpParHelper::Print(k1timeinfo.str());
 		}
 		A.PrintInfo();
