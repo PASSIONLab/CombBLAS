@@ -1309,6 +1309,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
 		dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+		DeleteAll(indacc,numacc);
 	}
 	else
 	{

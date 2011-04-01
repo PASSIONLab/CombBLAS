@@ -1288,11 +1288,11 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
 			}
 		}
 	}
-	// cout << "Maxbuffs: "; 
-	// copy(maxlens.begin(),maxlens.end(), ostream_iterator<int>(cout," ")); cout << endl; 
+	cout << "Maxbuffs: "; 
+	copy(maxlens.begin(),maxlens.end(), ostream_iterator<int>(cout," ")); cout << endl; 
 	optbuf.Set(maxlens);
 
-	spSeq->RowSplit(commGrid->GetGridCols()+5);
+	//spSeq->RowSplit(commGrid->GetGridCols()+5);
 }
 
 
