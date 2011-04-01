@@ -13386,6 +13386,29 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pow(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SwigValueWrapper< op::BinaryFunction > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":pow")) SWIG_fail;
+  {
+    try {
+      result = op::pow();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new op::BinaryFunction(static_cast< const op::BinaryFunction& >(result))), SWIGTYPE_p_op__BinaryFunction, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_max(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   SwigValueWrapper< op::BinaryFunction > result;
@@ -14200,6 +14223,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"divides", _wrap_divides, METH_VARARGS, NULL},
 	 { (char *)"modulus", _wrap_modulus, METH_VARARGS, NULL},
 	 { (char *)"fmod", _wrap_fmod, METH_VARARGS, NULL},
+	 { (char *)"pow", _wrap_pow, METH_VARARGS, NULL},
 	 { (char *)"max", _wrap_max, METH_VARARGS, NULL},
 	 { (char *)"min", _wrap_min, METH_VARARGS, NULL},
 	 { (char *)"bitwise_and", _wrap_bitwise_and, METH_VARARGS, NULL},

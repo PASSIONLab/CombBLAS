@@ -383,6 +383,10 @@ def fmod():
   return _pyCombBLAS.fmod()
 fmod = _pyCombBLAS.fmod
 
+def pow():
+  return _pyCombBLAS.pow()
+pow = _pyCombBLAS.pow
+
 def max():
   return _pyCombBLAS.max()
 max = _pyCombBLAS.max
