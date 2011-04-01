@@ -100,7 +100,7 @@ UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, Unary
 	{																	\
 		T operator()(const T& x, const T& y) const						\
 		{																\
-			operation;													\
+			return operation;											\
 		}																\
 	};
 	
@@ -120,31 +120,32 @@ whether it's associative,
 whether it's commutative,
 implementation code w.r.t. arguments x (left) and y (right)
 */
-DECL_BINARY_FUNC(plus_s, plus, true, true, return x+y;)
-DECL_BINARY_FUNC(minus_s, minus, false, false, return x-y;)
-DECL_BINARY_FUNC(multiplies_s, multiplies, true, true, return x*y;)
-DECL_BINARY_FUNC(divides_s, divides, true, false, return x/y;)
-DECL_BINARY_FUNC(modulus_s, modulus, false, false, return (double(x)) - (double(y))*std::floor((double(x))/(double(y))); )
-DECL_BINARY_FUNC(fmod_s, fmod, false, false, return std::fmod(double(x), double(y));)
+DECL_BINARY_FUNC(plus_s, plus, true, true, x+y)
+DECL_BINARY_FUNC(minus_s, minus, false, false, x-y)
+DECL_BINARY_FUNC(multiplies_s, multiplies, true, true, x*y)
+DECL_BINARY_FUNC(divides_s, divides, true, false, x/y)
+DECL_BINARY_FUNC(modulus_s, modulus, false, false, (double(x)) - (double(y))*std::floor((double(x))/(double(y))) )
+DECL_BINARY_FUNC(fmod_s, fmod, false, false, std::fmod(double(x), double(y)))
+DECL_BINARY_FUNC(pow_s, pow, true, false, doubleint(::pow(static_cast<double>(x), static_cast<double>(y))) )
 
-DECL_BINARY_FUNC(max_s, max, true, true, return std::max<doubleint>(x, y);)
-DECL_BINARY_FUNC(min_s, min, true, true, return std::min<doubleint>(x, y);)
+DECL_BINARY_FUNC(max_s, max, true, true, std::max<doubleint>(x, y))
+DECL_BINARY_FUNC(min_s, min, true, true, std::min<doubleint>(x, y))
 
-DECL_BINARY_FUNC(bitwise_and_s, bitwise_and, true, true, return x & y;)
-DECL_BINARY_FUNC(bitwise_or_s, bitwise_or, true, true, return x | y;)
-DECL_BINARY_FUNC(bitwise_xor_s, bitwise_xor, true, true, return x ^ y;)
+DECL_BINARY_FUNC(bitwise_and_s, bitwise_and, true, true, x & y)
+DECL_BINARY_FUNC(bitwise_or_s, bitwise_or, true, true, x | y)
+DECL_BINARY_FUNC(bitwise_xor_s, bitwise_xor, true, true, x ^ y)
 
-DECL_BINARY_FUNC(logical_and_s, logical_and, true, true, return x && y;)
-DECL_BINARY_FUNC(logical_or_s, logical_or, true, true, return x || y;)
-DECL_BINARY_FUNC(logical_xor_s, logical_xor, true, true, return (x || y) && !(x && y);)
+DECL_BINARY_FUNC(logical_and_s, logical_and, true, true, x && y)
+DECL_BINARY_FUNC(logical_or_s, logical_or, true, true, x || y)
+DECL_BINARY_FUNC(logical_xor_s, logical_xor, true, true, (x || y) && !(x && y))
 
-DECL_BINARY_FUNC(equal_to_s, equal_to, true, true, return x == y;)
+DECL_BINARY_FUNC(equal_to_s, equal_to, true, true, x == y)
 // not sure about the associativity of these
-DECL_BINARY_FUNC(not_equal_to_s, not_equal_to, false, true, return x != y;)
-DECL_BINARY_FUNC(greater_s, greater, false, false, return x > y;)
-DECL_BINARY_FUNC(less_s, less, false, false, return x < y;)
-DECL_BINARY_FUNC(greater_equal_s, greater_equal, false, false, return x >= y;)
-DECL_BINARY_FUNC(less_equal_s, less_equal, false, false, return x <= y;)
+DECL_BINARY_FUNC(not_equal_to_s, not_equal_to, false, true, x != y)
+DECL_BINARY_FUNC(greater_s, greater, false, false, x > y)
+DECL_BINARY_FUNC(less_s, less, false, false, x < y)
+DECL_BINARY_FUNC(greater_equal_s, greater_equal, false, false, x >= y)
+DECL_BINARY_FUNC(less_equal_s, less_equal, false, false, x <= y)
 
 /**************************\
 | GLUE OPERATIONS

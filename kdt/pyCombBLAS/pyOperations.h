@@ -100,6 +100,7 @@ BinaryFunction multiplies();
 BinaryFunction divides();
 BinaryFunction modulus();
 BinaryFunction fmod();
+BinaryFunction pow();
 
 BinaryFunction max();
 BinaryFunction min();
