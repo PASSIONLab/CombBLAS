@@ -336,6 +336,7 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	// data is already in the right order in found.arr
 	World.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
 	found.arr.swap(recvbuf);
+	delete [] dist;
 	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 
 	return found;
@@ -719,6 +720,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		vector<IT>().swap(revr_map[i]);
 	}
 	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+	delete [] sendbuf;
 		
 	// We will return the requested data,
 	// our return will be as big as the request 

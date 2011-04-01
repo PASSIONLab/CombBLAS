@@ -51,10 +51,10 @@ namespace vpsort {
 
     MPI_Datatype MPI_valueType, MPI_distanceType;
     MPI_Type_contiguous (sizeof(_ValueType), MPI_CHAR, &MPI_valueType);
-    MPI_Type_commit (&MPI_valueType);
+    MPI_Type_commit (&MPI_valueType);	// ABAB: Any type committed needs to be freed to claim storage
     MPI_Type_contiguous (sizeof(_Distance), MPI_CHAR, &MPI_distanceType);
     MPI_Type_commit (&MPI_distanceType);
-
+    
     _Distance dist[nproc];
     for (int i=0; i<nproc; ++i) dist[i] = (_Distance) dist_in[i]; 
 
@@ -64,7 +64,12 @@ namespace vpsort {
     // progress (rank, 0, mysort.description());
     mysort.seqsort (first, last, comp);
   
-    if (nproc == 1) return;
+    if (nproc == 1)
+    {
+    	MPI_Type_free(&MPI_valueType);
+    	MPI_Type_free(&MPI_distanceType);
+	return;
+    }
 
     // Find splitters
     // progress (rank, 1, mysplit.description());

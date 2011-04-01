@@ -29,7 +29,7 @@ public:
 			delete [] nums;
 		}
 		if(p_c > 0)
-			delete dspls;
+			delete [] dspls;
 	}
 	OptBuf(const OptBuf<IT,NT> & rhs)
 	{
@@ -43,6 +43,14 @@ public:
 	{
 		if(this != &rhs)
 		{
+			if(totmax > 0)
+			{
+				delete [] inds;
+				delete [] nums;
+			}
+			if(p_c > 0)
+				delete [] dspls;
+	
 			p_c = rhs.p_c;
 			totmax = rhs.totmax;
 			inds = new IT[totmax];
