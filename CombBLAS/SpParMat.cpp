@@ -651,7 +651,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	PSeq->Create( p_nnz, rrowlen, trlocalrows, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
 
 	SpParMat<IT,NT,DER> PA;
-	if(ri == ci)	// Symmetric permutation
+	if(&ri == &ci)	// Symmetric permutation
 	{
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 		SpParHelper::Print("Symmetric permutation\n");
@@ -1288,8 +1288,7 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
 			}
 		}
 	}
-	cout << "Maxbuffs: "; 
-	copy(maxlens.begin(),maxlens.end(), ostream_iterator<int>(cout," ")); cout << endl; 
+	SpParHelper::Print("Optimization buffers set\n");
 	optbuf.Set(maxlens);
 
 	//spSeq->RowSplit(commGrid->GetGridCols()+5);

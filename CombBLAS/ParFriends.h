@@ -1211,13 +1211,21 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	return y;
 }
 
+template <typename SR, typename IU, typename NUM, typename UDER> 
+FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue)
+{
+	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
+	OptBuf<IU, T_promote > optbuf = OptBuf<IU, T_promote >();
+	return SpMV<SR>(A, x, indexisvalue, optbuf);
+}
+
 //! The last parameter is a hint to the function 
 //! If indexisvalues = true, then we do not need to transfer values for x
 //! This happens for BFS iterations with boolean matrices and integer rhs vectors
 template <typename SR, typename IU, typename NUM, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, 
-	OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf = OptBuf<IU, typename promote_trait<NUM,IU>::T_promote >())
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf)
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
 	if(!(*A.commGrid == *x.commGrid)) 		
