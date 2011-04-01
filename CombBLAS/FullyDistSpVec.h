@@ -159,6 +159,10 @@ private:
 
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
+
+	template <typename SR, typename IU, typename NUM, typename UDER> 
+	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
 	
 	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
