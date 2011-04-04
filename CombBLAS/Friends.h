@@ -97,6 +97,73 @@ void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV
 	}
 }
 
+template<typename IU>
+void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
+{
+	A.splits = numsplits;
+	IU perpiece = A.m / A.splits;
+	cout << "Per piece: " << perpiece << endl;
+	vector<IU> prevcolids(A.splits, -1);	// previous column id's are set to -1
+	vector<IU> nzcs(A.splits, 0);
+	vector<IU> nnzs(A.splits, 0);
+	vector < vector < pair<IU,IU> > > colrowpairs(A.splits);
+	if(A.nnz > 0 && A.dcsc != NULL)
+	{
+		for(IU i=0; i< A.dcsc->nzc; ++i)
+		{
+			for(IU j = A.dcsc->cp[i]; j< A.dcsc->cp[i+1]; ++j)
+			{
+				IU colid = A.dcsc->jc[i];
+				IU rowid = A.dcsc->ir[j];
+				IU owner = min(rowid / perpiece, static_cast<IU>(A.splits-1));
+				colrowpairs[owner].push_back(make_pair(colid, rowid));
+
+				if(prevcolids[owner] != colid)
+				{
+					prevcolids[owner] = colid;
+					++nzcs[owner];
+				}
+				++nnzs[owner];
+			}
+		}
+	}
+	delete A.dcsc;	// claim memory
+
+	copy(nzcs.begin(), nzcs.end(), ostream_iterator<IU>(cout," " )); cout << endl;
+	copy(nnzs.begin(), nnzs.end(), ostream_iterator<IU>(cout," " )); cout << endl;
+		
+	A.dcscarr = new Dcsc<IU,bool>*[A.splits];	
+	
+	// To be parallelized with OpenMP
+	for(int i=0; i< A.splits; ++i)
+	{
+		sort(colrowpairs[i].begin(), colrowpairs[i].end());	// sort w.r.t. columns
+		A.dcscarr[i] = new Dcsc<IU,bool>(nnzs[i],nzcs[i]);	
+		fill(A.dcscarr[i]->numx, A.dcscarr[i]->numx+nnzs[i], static_cast<bool>(1));
+		IU curnzc = 0;				// number of nonzero columns constructed so far
+		IU cindex = colrowpairs[i][0].first;
+		IU rindex = colrowpairs[i][0].second;
+
+		A.dcscarr[i]->ir[0] = rindex;
+		A.dcscarr[i]->jc[curnzc] = cindex;
+		A.dcscarr[i]->cp[curnzc++] = 0; 
+
+		for(IU j=1; j<nnzs[i]; ++j)
+		{
+			cindex = colrowpairs[i][j].first;
+			rindex = colrowpairs[i][j].second;
+
+			A.dcscarr[i]->ir[j] = rindex;
+			if(cindex != A.dcscarr[i]->jc[curnzc-1])
+			{
+				A.dcscarr[i]->jc[curnzc] = cindex;
+				A.dcscarr[i]->cp[curnzc++] = j;
+			}
+		}
+		A.dcscarr[i]->cp[curnzc] = nnzs[i];
+	}
+}
+
 
 /**
  * SpTuples(A*B') (Using OuterProduct Algorithm)

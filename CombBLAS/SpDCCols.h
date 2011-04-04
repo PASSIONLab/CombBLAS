@@ -19,6 +19,7 @@
 #include "Semirings.h"
 #include "MemoryPool.h"
 #include "LocArr.h"
+#include "Friends.h"
 
 
 template <class IT, class NT>
@@ -183,40 +184,7 @@ public:
 
 	void RowSplit(int numsplits)
 	{
-		splits = numsplits;
-		IT perpiece = m / splits;
-		cout << "Per piece: " << perpiece << endl;
-		vector<IT> prevcolids(splits, -1);	// previous column id's are set to -1
-		vector<IT> nzcs(splits, 0);
-		vector<IT> nnzs(splits, 0);
-		if(nnz > 0 && dcsc != NULL)
-		{
-			for(IT i=0; i< dcsc->nzc; ++i)
-			{
-				for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
-				{
-					IT colid = dcsc->jc[i];
-					IT rowid = dcsc->ir[j];
-					IT owner = min(rowid / perpiece, static_cast<IT>(splits-1));
-					if(prevcolids[owner] != colid)
-					{
-						prevcolids[owner] = colid;
-						++nzcs[owner];
-					}
-					++nnzs[owner];
-				}
-			}
-		}
-
-		copy(nzcs.begin(), nzcs.end(), ostream_iterator<IT>(cout," " )); cout << endl;
-		copy(nnzs.begin(), nnzs.end(), ostream_iterator<IT>(cout," " )); cout << endl;
-		
-		//dcscarr = new Dcsc<IT,NT>*[splits];	
-		//for(int i=0; i< splits; ++i)
-		//{
-		//	dcscarr[i] = new Dcsc<IT,NT>(nnzs[i],nzcs[i]);	
-		//}
-		splits = 0;
+		BooleanRowSplit(*this, numsplits);	// only works with boolean arrays
 	}
 
 	void Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB); 	//!< \attention Destroys calling object (*this)
@@ -289,6 +257,8 @@ private:
 	template <class IU, class NU>
 	friend class SpDCCols<IU, NU>::SpColIter;
 	
+	template<typename IU>
+	friend void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits);
 
 	template<typename IU, typename NU1, typename NU2>
 	friend SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, bool exclude);

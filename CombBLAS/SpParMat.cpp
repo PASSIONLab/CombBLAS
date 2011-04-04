@@ -1291,7 +1291,7 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
 	SpParHelper::Print("Optimization buffers set\n");
 	optbuf.Set(maxlens);
 
-	//spSeq->RowSplit(commGrid->GetGridCols()+5);
+	spSeq->RowSplit(commGrid->GetGridCols()+5);
 }
 
 
