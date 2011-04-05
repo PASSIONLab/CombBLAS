@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <math.h>
+#include <Python.h>
 
 namespace op {
 
@@ -58,6 +59,8 @@ UnaryFunction bitwise_not();
 UnaryFunction logical_not();
 UnaryFunction totality();
 UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
+
+UnaryFunction unary(PyObject *pyfunc);
 
 //INTERFACE_INCLUDE_END
 
@@ -119,6 +122,7 @@ BinaryFunction less();
 BinaryFunction greater_equal();
 BinaryFunction less_equal();
 
+BinaryFunction binary(PyObject *pyfunc);
 
 // Glue functions
 

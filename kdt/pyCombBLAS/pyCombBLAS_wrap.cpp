@@ -2688,14 +2688,15 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 
 #define SWIGTYPE_p_char swig_types[0]
 #define SWIGTYPE_p_doubleint swig_types[1]
-#define SWIGTYPE_p_op__BinaryFunction swig_types[2]
-#define SWIGTYPE_p_op__UnaryFunction swig_types[3]
-#define SWIGTYPE_p_pyDenseParVec swig_types[4]
-#define SWIGTYPE_p_pySpParMat swig_types[5]
-#define SWIGTYPE_p_pySpParMatBool swig_types[6]
-#define SWIGTYPE_p_pySpParVec swig_types[7]
-static swig_type_info *swig_types[9];
-static swig_module_info swig_module = {swig_types, 8, 0, 0, 0, 0};
+#define SWIGTYPE_p_f_double__double swig_types[2]
+#define SWIGTYPE_p_op__BinaryFunction swig_types[3]
+#define SWIGTYPE_p_op__UnaryFunction swig_types[4]
+#define SWIGTYPE_p_pyDenseParVec swig_types[5]
+#define SWIGTYPE_p_pySpParMat swig_types[6]
+#define SWIGTYPE_p_pySpParMatBool swig_types[7]
+#define SWIGTYPE_p_pySpParVec swig_types[8]
+static swig_type_info *swig_types[10];
+static swig_module_info swig_module = {swig_types, 9, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -13050,6 +13051,32 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_unary(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = (PyObject *) 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< op::UnaryFunction > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:unary",&obj0)) SWIG_fail;
+  arg1 = obj0;
+  {
+    try {
+      result = op::unary(arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new op::UnaryFunction(static_cast< const op::UnaryFunction& >(result))), SWIGTYPE_p_op__UnaryFunction, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_BinaryFunction(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunction *arg1 = (op::BinaryFunction *) 0 ;
@@ -13731,6 +13758,32 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_binary(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = (PyObject *) 0 ;
+  PyObject * obj0 = 0 ;
+  SwigValueWrapper< op::BinaryFunction > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:binary",&obj0)) SWIG_fail;
+  arg1 = obj0;
+  {
+    try {
+      result = op::binary(arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new op::BinaryFunction(static_cast< const op::BinaryFunction& >(result))), SWIGTYPE_p_op__BinaryFunction, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_bind1st(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunction *arg1 = 0 ;
@@ -14063,6 +14116,36 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_testFunc(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  double (*arg1)(double) = (double (*)(double)) 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:testFunc",&obj0)) SWIG_fail;
+  {
+    int res = SWIG_ConvertFunctionPtr(obj0, (void**)(&arg1), SWIGTYPE_p_f_double__double);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "testFunc" "', argument " "1"" of type '" "double (*)(double)""'"); 
+    }
+  }
+  {
+    try {
+      testFunc(arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"new_pySpParMat", _wrap_new_pySpParMat, METH_VARARGS, NULL},
@@ -14210,6 +14293,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"logical_not", _wrap_logical_not, METH_VARARGS, NULL},
 	 { (char *)"totality", _wrap_totality, METH_VARARGS, NULL},
 	 { (char *)"ifthenelse", _wrap_ifthenelse, METH_VARARGS, NULL},
+	 { (char *)"unary", _wrap_unary, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryFunction", _wrap_delete_BinaryFunction, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction_commutable_set", _wrap_BinaryFunction_commutable_set, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunction_commutable_get", _wrap_BinaryFunction_commutable_get, METH_VARARGS, NULL},
@@ -14238,6 +14322,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"less", _wrap_less, METH_VARARGS, NULL},
 	 { (char *)"greater_equal", _wrap_greater_equal, METH_VARARGS, NULL},
 	 { (char *)"less_equal", _wrap_less_equal, METH_VARARGS, NULL},
+	 { (char *)"binary", _wrap_binary, METH_VARARGS, NULL},
 	 { (char *)"bind1st", _wrap_bind1st, METH_VARARGS, NULL},
 	 { (char *)"bind2nd", _wrap_bind2nd, METH_VARARGS, NULL},
 	 { (char *)"compose1", _wrap_compose1, METH_VARARGS, NULL},
@@ -14247,6 +14332,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
 	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},
+	 { (char *)"testFunc", _wrap_testFunc, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -14255,6 +14341,7 @@ static PyMethodDef SwigMethods[] = {
 
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_doubleint = {"_p_doubleint", "doubleint *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_double__double = {"_p_f_double__double", "double (*)(double)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__BinaryFunction = {"_p_op__BinaryFunction", "op::BinaryFunction *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__UnaryFunction = {"_p_op__UnaryFunction", "op::UnaryFunction *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_pyDenseParVec = {"_p_pyDenseParVec", "pyDenseParVec *", 0, 0, (void*)0, 0};
@@ -14265,6 +14352,7 @@ static swig_type_info _swigt__p_pySpParVec = {"_p_pySpParVec", "pySpParVec *", 0
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_char,
   &_swigt__p_doubleint,
+  &_swigt__p_f_double__double,
   &_swigt__p_op__BinaryFunction,
   &_swigt__p_op__UnaryFunction,
   &_swigt__p_pyDenseParVec,
@@ -14275,6 +14363,7 @@ static swig_type_info *swig_type_initial[] = {
 
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_doubleint[] = {  {&_swigt__p_doubleint, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_double__double[] = {  {&_swigt__p_f_double__double, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__BinaryFunction[] = {  {&_swigt__p_op__BinaryFunction, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__UnaryFunction[] = {  {&_swigt__p_op__UnaryFunction, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pyDenseParVec[] = {  {&_swigt__p_pyDenseParVec, 0, 0, 0},{0, 0, 0, 0}};
@@ -14285,6 +14374,7 @@ static swig_cast_info _swigc__p_pySpParVec[] = {  {&_swigt__p_pySpParVec, 0, 0, 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_char,
   _swigc__p_doubleint,
+  _swigc__p_f_double__double,
   _swigc__p_op__BinaryFunction,
   _swigc__p_op__UnaryFunction,
   _swigc__p_pyDenseParVec,

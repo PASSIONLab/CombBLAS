@@ -1,5 +1,11 @@
 #include "pyCombBLAS.h"
 
+void testFunc(double (*f)(double))
+{
+	cout << "f(10) = " << f(10) << endl;
+}
+
+
 ////////////////// OPERATORS
 
 pySpParVec EWiseMult(const pySpParVec& a, const pySpParVec& b, bool exclude)

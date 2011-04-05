@@ -40,6 +40,19 @@ init_pyCombBLAS_MPI();
 	}
 }
 
+// Grab a Python function object as a Python object.
+// Based on example from SWIG docs: http://www.swig.org/Doc1.1/HTML/Python.html#n11
+#ifdef SWIG<python>
+%typemap(in) PyObject *pyfunc {
+  if (!PyCallable_Check($input)) {
+      PyErr_SetString(PyExc_TypeError, "Need a callable object!");
+      return NULL;
+  }
+  $1 = $input;
+}
+#else
+// Please define a way to handle callbacks in your target language.
+#endif
 
 // wrapped classes
 
@@ -355,6 +368,8 @@ UnaryFunction logical_not();
 UnaryFunction totality();
 UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
 
+UnaryFunction unary(PyObject *pyfunc);
+
 class BinaryFunction {
 	protected:
 	BinaryFunction(): op(NULL), commutable(false), associative(false) {}
@@ -396,6 +411,7 @@ BinaryFunction less();
 BinaryFunction greater_equal();
 BinaryFunction less_equal();
 
+BinaryFunction binary(PyObject *pyfunc);
 
 // Glue functions
 
@@ -411,7 +427,10 @@ BinaryFunction not2(BinaryFunction& f);
 
 
 
-//void init();
 void finalize();
 bool root();
 int _nprocs();
+
+void testFunc(double (*f)(double));
+
+
