@@ -48,8 +48,14 @@ extern "C" {
 void init_pyCombBLAS_MPI();
 }
 
+//INTERFACE_INCLUDE_BEGIN
+
 void finalize();
 bool root();
 int _nprocs();
+
+void testFunc(double (*f)(double));
+
+//INTERFACE_INCLUDE_END
 
 #endif

@@ -1,6 +1,7 @@
 #include "pyOperations.h"
 #include <iostream>
 #include <math.h>
+#include <Python.h>
 
 namespace op{
 
@@ -75,7 +76,7 @@ struct ifthenelse_s: public ConcreteUnaryFunction<T>
 	ConcreteUnaryFunction<T> *predicate, *runTrue, *runFalse;
 
 	ifthenelse_s(ConcreteUnaryFunction<T> *pred, ConcreteUnaryFunction<T> *t, ConcreteUnaryFunction<T> *f): predicate(pred), runTrue(t), runFalse(f) {};
-	/** @returns value regardless of x */
+
 	T operator()(const T& x) const
 	{
 		if ((*predicate)(x))
@@ -89,6 +90,45 @@ UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, Unary
 {
 	return UnaryFunction(new ifthenelse_s<doubleint>(predicate.op, runTrue.op, runFalse.op));
 }
+
+//// Custom Python callback
+template<typename T>
+struct unary_s: public ConcreteUnaryFunction<T>
+{
+	PyObject *pyfunc;
+
+	unary_s(PyObject *pyfunc_in): pyfunc(pyfunc_in)
+	{
+		Py_INCREF(pyfunc);
+	}
+	
+	~unary_s()
+	{
+		Py_DECREF(pyfunc);
+	}
+	
+	T operator()(const T& x) const
+	{
+		PyObject *arglist;
+		PyObject *result;
+		double dres = 0;
+		
+		arglist = Py_BuildValue("(d)", static_cast<double>(x));  // Build argument list
+		result = PyEval_CallObject(pyfunc,arglist);              // Call Python
+		Py_DECREF(arglist);                                      // Trash arglist
+		if (result) {                                            // If no errors, return double
+			dres = PyFloat_AsDouble(result);
+		}
+		Py_XDECREF(result);
+		return T(dres);
+	} 
+};
+
+UnaryFunction unary(PyObject *pyfunc)
+{
+	return UnaryFunction(new unary_s<doubleint>(pyfunc));
+}
+
 
 /**************************\
 | BINARY OPERATIONS
@@ -146,6 +186,45 @@ DECL_BINARY_FUNC(greater_s, greater, false, false, x > y)
 DECL_BINARY_FUNC(less_s, less, false, false, x < y)
 DECL_BINARY_FUNC(greater_equal_s, greater_equal, false, false, x >= y)
 DECL_BINARY_FUNC(less_equal_s, less_equal, false, false, x <= y)
+
+//// Custom Python callback
+template<typename T>
+struct binary_s: public ConcreteBinaryFunction<T>
+{
+	PyObject *pyfunc;
+
+	binary_s(PyObject *pyfunc_in): pyfunc(pyfunc_in)
+	{
+		Py_INCREF(pyfunc);
+	}
+	
+	~binary_s()
+	{
+		Py_DECREF(pyfunc);
+	}
+	
+	T operator()(const T& x, const T& y) const
+	{
+		PyObject *arglist;
+		PyObject *result;
+		double dres = 0;
+		
+		arglist = Py_BuildValue("(d d)", static_cast<double>(x), static_cast<double>(y));    // Build argument list
+		result = PyEval_CallObject(pyfunc,arglist);     // Call Python
+		Py_DECREF(arglist);                             // Trash arglist
+		if (result) {                                   // If no errors, return double
+			dres = PyFloat_AsDouble(result);
+		}
+		Py_XDECREF(result);
+		return T(dres);
+	} 
+};
+
+BinaryFunction binary(PyObject *pyfunc)
+{
+	// assumed to be associative but not commutative
+	return BinaryFunction(new binary_s<doubleint>(pyfunc), true, false);
+}
 
 /**************************\
 | GLUE OPERATIONS

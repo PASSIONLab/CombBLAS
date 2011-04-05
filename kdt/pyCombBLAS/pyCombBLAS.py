@@ -339,6 +339,10 @@ totality = _pyCombBLAS.totality
 def ifthenelse(*args):
   return _pyCombBLAS.ifthenelse(*args)
 ifthenelse = _pyCombBLAS.ifthenelse
+
+def unary(*args):
+  return _pyCombBLAS.unary(*args)
+unary = _pyCombBLAS.unary
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)
@@ -443,6 +447,10 @@ def less_equal():
   return _pyCombBLAS.less_equal()
 less_equal = _pyCombBLAS.less_equal
 
+def binary(*args):
+  return _pyCombBLAS.binary(*args)
+binary = _pyCombBLAS.binary
+
 def bind1st(*args):
   return _pyCombBLAS.bind1st(*args)
 bind1st = _pyCombBLAS.bind1st
@@ -478,5 +486,9 @@ root = _pyCombBLAS.root
 def _nprocs():
   return _pyCombBLAS._nprocs()
 _nprocs = _pyCombBLAS._nprocs
+
+def testFunc(*args):
+  return _pyCombBLAS.testFunc(*args)
+testFunc = _pyCombBLAS.testFunc
 
 
