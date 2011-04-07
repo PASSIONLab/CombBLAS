@@ -33,6 +33,12 @@ FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT
 }
 
 template <class IT, class NT>
+FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conversion copy-constructor
+{
+	*this = rhs;
+}
+
+template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 : FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen)), zero(static_cast<NT>(rhs.zero))
@@ -124,6 +130,8 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
 	{
+		if(rhs.ind[i] > arr.size())
+			cout << "rhs.ind[i]: " << rhs.ind[i] <<  endl;
 		arr[rhs.ind[i]] = rhs.num[i];
 	}
 	return *this;

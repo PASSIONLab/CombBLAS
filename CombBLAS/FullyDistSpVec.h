@@ -78,6 +78,13 @@ public:
 		return CVT;
 	}
 
+	bool operator==(const FullyDistSpVec<IT,NT> & rhs) const
+	{
+		FullyDistVec<IT,NT> v =  *this;
+		FullyDistVec<IT,NT> w =  rhs;
+		return (v == w);
+	}
+
 	void PrintInfo(string vecname) const;
 	void iota(IT globalsize, NT first);
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)

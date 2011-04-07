@@ -64,6 +64,123 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 	}
 }
 
+
+//! Multithreaded SpMV with sparse vector
+//! the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
+//! TODO {Make another layer for this multithreaded assembly?}
+template <typename SR, typename IU, typename NUM, typename NUV>
+int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
+		IU * & sendindbuf, typename promote_trait<NUM,NUV>::T_promote * & sendnumbuf, int * & sdispls, int p_c)
+{
+	// FACTS: Split boundaries (for multithreaded execution) are independent of recipient boundaries
+	// Two splits might create output to the same recipient (needs to be merged)
+	// However, each split's output is distinct (no duplicate elimination is needed after merge) 
+
+	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
+	if(A.getnnz() > 0 && nnzx > 0)
+	{
+		int splits = A.getnsplit();
+		if(splits > 0)
+		{
+			IU perpiece = A.getnrow() / splits;
+			vector< vector<IU> > indy(splits);
+			vector< vector<T_promote> > numy(splits);
+
+			// Parallelize with OpenMP
+			#pragma omp parallel for num_threads(6)
+			for(int i=0; i<splits; ++i)
+			{
+				if(i != splits-1)
+					SpMXSpV_ForThreading<SR>(*(A.dcscarr[i]), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+				else
+					SpMXSpV_ForThreading<SR>(*(A.dcscarr[i]), A.getnrow() - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+			}
+
+			vector<int> accum(splits+1, 0);
+			for(int i=0; i<splits; ++i)
+				accum[i+1] = accum[i] + indy[i].size();
+
+			sendindbuf = new IU[accum[splits]];
+			sendnumbuf = new T_promote[accum[splits]];
+			sdispls = new int[p_c];
+			IU perproc = A.getnrow() / static_cast<IU>(p_c);	
+			IU last_rec = static_cast<IU>(p_c-1);
+			
+			// keep recipients of last entries in each split (-1 for an empty split)
+			// so that we can delete indy[] and numy[] contents as soon as they are processed		
+			vector<IU> end_recs(splits);
+			for(int i=0; i<splits; ++i)
+			{
+				if(indy[i].empty())
+					end_recs[i] = -1;
+				else
+					end_recs[i] = min(indy[i].back() / perproc, last_rec);
+			}
+
+			#pragma omp parallel for num_threads(6)
+			for(int i=0; i<splits; ++i)
+			{
+				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
+				{
+					// FACT: Data is sorted, so if the recipient of begin is the same as the owner of end, 
+					// then the whole data is sent to the same processor
+					IU beg_rec = min( indy[i].front() / perproc, last_rec); 			
+
+					// We have to test the previous "split", to see if we are marking a "recipient head" 
+					// set displacement markers for the completed (previous) buffers only
+					if(i != 0)
+					{
+						int k = i-1;
+						while (k >= 0 && end_recs[k] == -1) k--;	// loop backwards until seeing an non-empty split
+						if(k >= 0)	// we found a non-empty split
+						{
+							fill(sdispls+end_recs[k]+1, sdispls+beg_rec+1, accum[i]);	// last entry to be set is sdispls[beg_rec]
+						}
+						else
+						{
+							fill(sdispls+1, sdispls+beg_rec+1, 0);	// all previous entries were zero, clearly a recepient head
+						}
+					}
+					else
+					{	
+						sdispls[0] = 0;
+					}
+					if(beg_rec == end_recs[i])	// fast case
+					{
+						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<IU>(), perproc*beg_rec));
+						copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
+						copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
+					}
+					else	// slow case
+					{
+						// FACT: No matter how many splits or threads, there will be only one "recipient head"
+						// Therefore there are no race conditions for marking send displacements (sdispls)
+						int end = indy[i].size();
+						for(int cur=0; cur< end; ++cur)	
+						{
+							IU cur_rec = min( indy[i][cur] / perproc, last_rec); 			
+							while(beg_rec != cur_rec)	
+							{
+								sdispls[++beg_rec] = accum[i] + cur;	// first entry to be set is sdispls[beg_rec+1]
+							}
+							sendindbuf[ accum[i] + cur ] = indy[i][cur] - perproc*beg_rec;	// convert to receiver's local index
+							sendnumbuf[ accum[i] + cur ] = numy[i][cur];
+						}
+					}
+					vector<IU>().swap(indy[i]);
+					vector<T_promote>().swap(numy[i]);
+				}	// end_if(!indy[i].empty)
+			}	// end parallel for	
+			return accum[splits];
+		}
+		else
+		{
+			cout << "Something is wrong, splits should be nonzero for multithreaded execution" << endl;
+			return 0;
+		}
+	}
+}
+
 //! SpMV with sparse vector
 template <typename SR, typename IU, typename NUM, typename NUV>
 void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
@@ -71,7 +188,14 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
-		SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy);
+		if(A.getnsplit() > 0)
+		{
+			cout << "Call dcsc_gespmv_threaded instead" << endl;
+		}
+		else
+		{
+			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy);
+		}
 	}
 }
 
@@ -82,7 +206,14 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
-		SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+		if(A.getnsplit() > 0)
+		{
+			cout << "Call dcsc_gespmv_threaded instead" << endl;
+		}
+		else
+		{
+			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+		}
 	}
 }
 
@@ -102,7 +233,6 @@ void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
 {
 	A.splits = numsplits;
 	IU perpiece = A.m / A.splits;
-	cout << "Per piece: " << perpiece << endl;
 	vector<IU> prevcolids(A.splits, -1);	// previous column id's are set to -1
 	vector<IU> nzcs(A.splits, 0);
 	vector<IU> nnzs(A.splits, 0);
@@ -116,7 +246,7 @@ void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
 				IU colid = A.dcsc->jc[i];
 				IU rowid = A.dcsc->ir[j];
 				IU owner = min(rowid / perpiece, static_cast<IU>(A.splits-1));
-				colrowpairs[owner].push_back(make_pair(colid, rowid));
+				colrowpairs[owner].push_back(make_pair(colid, rowid - owner*perpiece));
 
 				if(prevcolids[owner] != colid)
 				{
@@ -128,10 +258,8 @@ void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
 		}
 	}
 	delete A.dcsc;	// claim memory
-
-	copy(nzcs.begin(), nzcs.end(), ostream_iterator<IU>(cout," " )); cout << endl;
-	copy(nnzs.begin(), nnzs.end(), ostream_iterator<IU>(cout," " )); cout << endl;
-		
+	//copy(nzcs.begin(), nzcs.end(), ostream_iterator<IU>(cout," " )); cout << endl;
+	//copy(nnzs.begin(), nnzs.end(), ostream_iterator<IU>(cout," " )); cout << endl;	
 	A.dcscarr = new Dcsc<IU,bool>*[A.splits];	
 	
 	// To be parallelized with OpenMP

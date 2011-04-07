@@ -1268,6 +1268,12 @@ template <class IT, class NT, class DER>
 template <typename OT>
 void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
 {
+	if(spSeq->getnsplit() > 0)
+	{
+		SpParHelper::Print("Can not declare preallocated buffers for multithreaded execution");
+		return;
+	}
+
 	// Set up communication buffers, one for all
 	IT mA = spSeq->getnrow();
 	IT p_c = commGrid->GetGridCols();
@@ -1290,8 +1296,13 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
 	}
 	SpParHelper::Print("Optimization buffers set\n");
 	optbuf.Set(maxlens);
+}
 
-	spSeq->RowSplit(commGrid->GetGridCols()+5);
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::ActivateThreading(int numsplits)
+{
+	spSeq->RowSplit(numsplits);
 }
 
 
