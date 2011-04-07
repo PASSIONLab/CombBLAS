@@ -30,6 +30,13 @@ void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT
 	SpImpl<SR,IT,NT1,NT2>::SpMXSpV(Adcsc, mA, nA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
 };
 
+template <class SR, class IT, class NT1, class NT2>
+void SpMXSpV_ForThreading(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
+		vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy, IT offset)
+{
+	SpImpl<SR,IT,NT1,NT2>::SpMXSpV_ForThreading(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
+};
+
 
 template <class SR, class IT, class NT1, class NT2>
 struct SpImpl
@@ -39,6 +46,9 @@ struct SpImpl
 
 	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, IT nA, const IT * indx, const NT2 * numx, IT veclen,  
 			IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
+
+	static void SpMXSpV_ForThreading(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
+			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy, IT offset);
 };
 
 
@@ -50,6 +60,9 @@ struct SpImpl<SR,IT,bool, NT>
 
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			IT * indy, NT * numy, int * cnts, int * dspls, int p_c);
+
+	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
+			vector<IT> & indy, vector<NT> & numy, IT offset);
 };
 
 
@@ -257,6 +270,7 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 /**
  * @param[in,out]   	indy,numy,cnts 	{preallocated arrays to be filled}
  * @param[in] 		dspls	{displacements to preallocated indy,numy buffers}
+ * This version determines the receiving column neighbor and adjust the indices to the receiver's local index
 **/
 template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
@@ -314,6 +328,52 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 			indy[dspls[p]+i] = locnzinds[i] - offset;	// conver to local offset
 			numy[dspls[p]+i] = localy[locnzinds[i]]; 	
 		}
+	}
+	delete [] localy;
+	delete [] isthere;
+}
+
+
+template <typename SR, typename IT, typename NT>
+void SpImpl<SR,IT,bool,NT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
+			vector<IT> & indy, vector<NT> & numy, IT offset)
+{   
+	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
+	vector< pair<IT,IT> > colinds(veclen);		
+	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
+
+	NT * localy = new NT[mA];
+	bool * isthere = new bool[mA];
+	fill(isthere, isthere+mA, false);
+	vector<IT> nzinds;	// nonzero indices		
+
+	for(IT j=0; j< veclen; ++j)
+	{
+		while(colinds[j].first != colinds[j].second)	// current != end
+		{
+			IT deref = colinds[j].first++;	// dereferencer to ind & num arrays
+			IT rowid = Adcsc.ir[deref];
+			if(!isthere[rowid])
+			{
+				localy[rowid] = numx[j];	// initial assignment
+				nzinds.push_back(rowid);
+				isthere[rowid] = true;
+			}
+			else
+			{
+				localy[rowid] = SR::add(localy[rowid], numx[j]);
+			}	
+		}
+	}
+
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	indy.resize(nnzy);
+	numy.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
+		numy[i] = localy[nzinds[i]]; 	
 	}
 	delete [] localy;
 	delete [] isthere;

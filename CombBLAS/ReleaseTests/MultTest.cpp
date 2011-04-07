@@ -16,9 +16,12 @@
 #include "../SpParMat.h"
 #include "../DenseParMat.h"
 #include "../DenseParVec.h"
-
+#include "../FullyDistVec.h"
+#include "../FullyDistSpVec.h"
+#include "../ParFriends.h"
 
 using namespace std;
+#define NOGEMM
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -27,8 +30,8 @@ template <class NT>
 class PSpMat 
 { 
 public: 
-	typedef SpDCCols < int, NT > DCCols;
-	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
+	typedef SpDCCols < int64_t, NT > DCCols;
+	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 };
 
 
@@ -64,42 +67,43 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 	
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
+		typedef SelectMaxSRing<bool, int64_t> SR;	
 
 		PSpMat<double>::MPI_DCCols A, B, C, CControl;	// construct objects
-		DenseParVec<int, double> ycontrol, x;
-		SpParVec<int, double> spycontrol, spx;
+		DenseParVec<int64_t, double> ycontrol, x;
+		FullyDistSpVec<int64_t, double> spycontrol, spx;
 		
 		A.ReadDistribute(inputA, 0);
+#ifndef NOGEMM
 		B.ReadDistribute(inputB, 0);
 		CControl.ReadDistribute(inputC, 0);
+#endif
 		x.ReadDistribute(vecinpx, 0);
 		spx.ReadDistribute(vecinpx, 0);
 		ycontrol.ReadDistribute(vecinpy,0);
 		spycontrol.ReadDistribute(vecinpy,0);
 
-		DenseParVec<int, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
+		DenseParVec<int64_t, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
 		if (ycontrol == y)
 		{
-			SpParHelper::Print("Dense SpMV working correctly\n");	
+			SpParHelper::Print("Dense SpMV (diagonally dist) working correctly\n");	
 		}
 		else
 		{
 			SpParHelper::Print("ERROR in Dense SpMV, go fix it!\n");	
 		}
 
-		SpParVec<int, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
-		y = spy;	// convert to dense
-		ycontrol = spycontrol;
+		FullyDistSpVec<int64_t, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
 		
-		if (ycontrol == y)
+		if (spycontrol == spy)
 		{
-			SpParHelper::Print("Sparse SpMV working correctly\n");	
+			SpParHelper::Print("Sparse SpMV (fully dist) working correctly\n");	
 		}
 		else
 		{
 			SpParHelper::Print("ERROR in Sparse SpMV, go fix it!\n");	
 		}
-
+#ifndef NOGEMM
 		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);
 		if (CControl == C)
 		{
@@ -119,7 +123,36 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in double buffered multiplication, go fix it!\n");	
 		}
+#endif
+		OptBuf<int64_t, int64_t> optbuf;
+		PSpMat<bool>::MPI_DCCols ABool(A);
 
+		spx.Apply(bind1st (multiplies<double>(), 100));
+		FullyDistSpVec<int64_t, int64_t> spxint64 (spx);
+		FullyDistSpVec<int64_t, int64_t> spyint64 = SpMV<SR>(ABool, spxint64, false);
+
+		ABool.OptimizeForGraph500(optbuf);
+		FullyDistSpVec<int64_t, int64_t> spyint64buf = SpMV<SR>(ABool, spxint64, false, optbuf);
+		
+		if (spyint64 == spyint64buf)
+		{
+			SpParHelper::Print("Graph500 Optimizations are correct\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in graph500 optimizations, go fix it!\n");	
+		}
+		ABool.ActivateThreading(4);
+		FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
+
+		if (spyint64 == spyint64_threaded)
+		{
+			SpParHelper::Print("Multithreaded Sparse SpMV works\n");	
+		}
+		else
+		{
+			SpParHelper::Print("ERROR in multithreaded sparse SpMV, go fix it!\n");	
+		}
 
 		inputA.clear();
 		inputA.close();

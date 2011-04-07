@@ -38,6 +38,7 @@ public:
 	FullyDistVec ( IT globallen, NT initval, NT id); 
 	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
 	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
+	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
 
 	template <class ITRHS, class NTRHS>
 	FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs ); // type converter constructor

@@ -117,6 +117,8 @@ public:
 	
 	template <typename OT>
 	void OptimizeForGraph500(OptBuf<IT,OT> & optbuf);
+
+	void ActivateThreading(int numsplits);
 	
 	/*
 	template <typename NU2, typename UDER2> 

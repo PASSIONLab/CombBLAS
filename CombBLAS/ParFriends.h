@@ -1213,6 +1213,10 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 template <typename SR, typename IU, typename NUM, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
+
+template <typename SR, typename IU, typename NUM, typename UDER> 
+FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue)
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
@@ -1316,47 +1320,73 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	int * sdispls;
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
-		dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+		if(A.spSeq->getnsplit() > 0)
+		{
+			SpParHelper::Print("Preallocated buffers can not be used with multithreaded code yet\n");
+
+			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);				
+			for(int i=0; i<rowneighs-1; ++i)
+				sendcnt[i] = sdispls[i+1] + sdispls[i];
+			
+			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
+		}
+		else
+		{
+			dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+		}
 		DeleteAll(indacc,numacc);
 	}
 	else
 	{
-		// serial SpMV with sparse vector
-		vector< IU > indy;
-		vector< T_promote >  numy;
-		dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
-		DeleteAll(indacc, numacc);
-		IU yintlen = y.MyRowLength();
-
-		// at this point, indices of y are sorted
-		sendindbuf = new IU[yintlen];	// max possible message size
-		sendnumbuf = new T_promote[yintlen];
-	
-		sdispls = new int[rowneighs];
-		IU n_perproc = yintlen / rowneighs;	// typical length per processor (except the last)
-		for(int i=0; i<rowneighs; ++i)
-			sdispls[i] = i * n_perproc;
-
-		typename vector<IU>::size_type outnz = indy.size();
-		typename vector<IU>::size_type j=0; 	// j indexes local entries
-		for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
+		if(A.spSeq->getnsplit() > 0)
 		{
-			while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
-			{
-				IU locind = indy[j] - sdispls[i-1];
-				int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
-				sendindbuf[inx] = locind;
-				sendnumbuf[inx] = numy[j++]; 
-				++sendcnt[i-1];	// increment the send count
-			}
+			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);	
+			DeleteAll(indacc, numacc);
+			for(int i=0; i<rowneighs-1; ++i)
+				sendcnt[i] = sdispls[i+1] - sdispls[i];
+			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
 		}
-		while(j < outnz)	// remainders go to the last processor
+		else
 		{
-			IU locind = indy[j] - sdispls[rowneighs-1];
-			int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
-			sendindbuf[inx] = locind;
-			sendnumbuf[inx] = numy[j++];
-			++sendcnt[rowneighs-1]; 
+			// serial SpMV with sparse vector
+			vector< IU > indy;
+			vector< T_promote >  numy;
+			dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+			DeleteAll(indacc, numacc);
+			IU yintlen = y.MyRowLength();
+
+			// at this point, indices of y are sorted
+			sendindbuf = new IU[yintlen];	// max possible message size
+			sendnumbuf = new T_promote[yintlen];
+	
+			sdispls = new int[rowneighs];
+			IU n_perproc = yintlen / rowneighs;	// typical length per processor (except the last)
+			for(int i=0; i<rowneighs; ++i)
+				sdispls[i] = i * n_perproc;
+
+			typename vector<IU>::size_type outnz = indy.size();
+			typename vector<IU>::size_type j=0; 	// j indexes local entries
+			for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
+			{
+				while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
+				{
+					IU locind = indy[j] - sdispls[i-1];
+					int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
+					sendindbuf[inx] = locind;
+					sendnumbuf[inx] = numy[j++]; 
+					++sendcnt[i-1];	// increment the send count
+				}
+			}
+			while(j < outnz)	// remainders go to the last processor
+			{
+				IU locind = indy[j] - sdispls[rowneighs-1];
+				int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
+				sendindbuf[inx] = locind;
+				sendnumbuf[inx] = numy[j++];
+				++sendcnt[rowneighs-1]; 
+			}
 		}
 	}
 
@@ -1378,7 +1408,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	World.Barrier();
 	double t2=MPI::Wtime();
 	#endif
-	if(optbuf.totmax > 0)	// graph500 optimization enabled
+	if(optbuf.totmax > 0 && A.spSeq->getnsplit() == 0)	// graph500 optimization enabled
 	{
 		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM
@@ -1386,6 +1416,18 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	}
 	else
 	{
+	//	ofstream oput;
+	//	x.commGrid->OpenDebugFile("Send", oput);
+	//	oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+	//	oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+	//	for(int i=0; i< rowneighs; ++i)
+	//	{
+	//		oput << "To neighbor: " << i << endl; 
+	//		copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
+	//		copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
+	//	}
+	//	oput.close();
+
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 		DeleteAll(sendindbuf, sendnumbuf);
@@ -1405,7 +1447,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 #ifndef HEAPMERGE
 	// Alternative 1: SPA-like data structure
 	DeleteAll(recvcnt, rdispls);
-	IU ysize = y.MyLocLength();
+	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
 	T_promote * localy = new T_promote[ysize];
 	bool * isthere = new bool[ysize];
 	vector<IU> nzinds;	// nonzero indices		
