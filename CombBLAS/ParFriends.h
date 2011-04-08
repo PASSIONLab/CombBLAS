@@ -1400,7 +1400,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	{
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
+	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
@@ -1416,17 +1416,17 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	}
 	else
 	{
-	//	ofstream oput;
-	//	x.commGrid->OpenDebugFile("Send", oput);
-	//	oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-	//	oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-	//	for(int i=0; i< rowneighs; ++i)
-	//	{
-	//		oput << "To neighbor: " << i << endl; 
-	//		copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
-	//		copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
-	//	}
-	//	oput.close();
+	/*	ofstream oput;
+		x.commGrid->OpenDebugFile("Send", oput);
+		oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+		oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+		for(int i=0; i< rowneighs; ++i)
+		{
+			oput << "To neighbor: " << i << endl; 
+			copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
+			copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
+		}
+		oput.close(); */
 
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
@@ -1453,7 +1453,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	vector<IU> nzinds;	// nonzero indices		
 	fill_n(isthere, ysize, false);
 	
-	for(IU i=0; i< totrecv; ++i)
+	for(int i=0; i< totrecv; ++i)
 	{
 		IU topush = recvindbuf[i];
 		if(!isthere[topush])
@@ -1628,7 +1628,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IU totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
+	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);
 	IU * recvindbuf = new IU[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
@@ -1655,7 +1655,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	vector<IU> nzinds;	// nonzero indices		
 	fill_n(isthere, ysize, false);
 	
-	for(IU i=0; i< totrecv; ++i)
+	for(int i=0; i< totrecv; ++i)
 	{
 		if(!isthere[recvindbuf[i]])
 		{
