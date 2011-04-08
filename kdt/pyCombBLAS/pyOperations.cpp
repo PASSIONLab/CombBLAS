@@ -380,6 +380,11 @@ MPI_Op* BinaryFunction::getMPIOp()
 		{
 		}
 	}
+	else if (currentlyApplied == this)
+	{
+		return &staticMPIop;
+	}
+
 	currentlyApplied = this;
 	MPI_Op_create(BinaryFunction::apply, commutable, &staticMPIop);
 	return &staticMPIop;
@@ -387,8 +392,85 @@ MPI_Op* BinaryFunction::getMPIOp()
 
 void BinaryFunction::releaseMPIOp()
 {
-	currentlyApplied = NULL;
+	if (currentlyApplied == this)
+		currentlyApplied = NULL;
 }
 
 
+/**************************\
+| SEMIRING
+\**************************/
+template <>
+Semiring* SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
+
+Semiring::Semiring(PyObject *add, PyObject *multiply)
+	: pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+{
+	Py_INCREF(pyfunc_add);
+	Py_INCREF(pyfunc_multiply);
+}
+Semiring::~Semiring()
+{
+	Py_DECREF(pyfunc_add);
+	Py_DECREF(pyfunc_multiply);
+	assert((SemiringTemplArg<doubleint, doubleint>::currentlyApplied != this));
+}
+
+void Semiring::enableSemiring()
+{
+	if (SemiringTemplArg<doubleint, doubleint>::currentlyApplied != NULL)
+	{
+		cout << "There is an internal error in selecting a Semiring: Conflict between two Semirings." << endl;
+		while (SemiringTemplArg<doubleint, doubleint>::currentlyApplied != NULL)
+		{
+		}
+	}
+	SemiringTemplArg<doubleint, doubleint>::currentlyApplied = this;
+	binfunc_add->getMPIOp();
+}
+
+void Semiring::disableSemiring()
+{
+	binfunc_add->releaseMPIOp();
+	SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
+}
+
+doubleint Semiring::add(const doubleint & arg1, const doubleint & arg2)
+{
+	PyObject *arglist;
+	PyObject *result;
+	double dres = 0;
+	
+	arglist = Py_BuildValue("(d d)", arg1.d, arg2.d);    // Build argument list
+	result = PyEval_CallObject(pyfunc_add, arglist);     // Call Python
+	Py_DECREF(arglist);                                  // Trash arglist
+	if (result) {                                        // If no errors, return double
+		dres = PyFloat_AsDouble(result);
+	}
+	Py_XDECREF(result);
+	return doubleint(dres);
+}
+
+doubleint Semiring::multiply(const doubleint & arg1, const doubleint & arg2)
+{
+	PyObject *arglist;
+	PyObject *result;
+	double dres = 0;
+	
+	arglist = Py_BuildValue("(d d)", arg1.d, arg2.d);         // Build argument list
+	result = PyEval_CallObject(pyfunc_multiply, arglist);     // Call Python
+	Py_DECREF(arglist);                                       // Trash arglist
+	if (result) {                                             // If no errors, return double
+		dres = PyFloat_AsDouble(result);
+	}
+	Py_XDECREF(result);
+	return doubleint(dres);
+}
+
+void Semiring::axpy(doubleint a, const doubleint & x, doubleint & y)
+{
+	y = add(y, multiply(a, x));
+}
+
+	
 } // namespace op

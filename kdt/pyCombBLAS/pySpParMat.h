@@ -49,7 +49,7 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SpMM(pySpParMat& other);
+	pySpParMat SpMM(pySpParMat& other, op::Semiring* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -70,9 +70,12 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec SpMV_SelMax(const pySpParVec& v);
-	void SpMV_SelMax_inplace(pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
+	pySpParVec SpMV_SelMax(const pySpParVec& x);
+	void SpMV_SelMax_inplace(pySpParVec& x);
+
+	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	
 public:
 	static int Column() { return ::Column; }

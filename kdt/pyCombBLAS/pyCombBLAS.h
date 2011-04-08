@@ -29,6 +29,7 @@
 namespace op{
 class UnaryFunction;
 class BinaryFunction;
+class Semiring;
 }
 
 #include "doubleint.h"

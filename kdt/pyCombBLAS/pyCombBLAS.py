@@ -101,6 +101,8 @@ class pySpParMat(_object):
     def SpMV_PlusTimes(self, *args): return _pyCombBLAS.pySpParMat_SpMV_PlusTimes(self, *args)
     def SpMV_SelMax(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax(self, *args)
     def SpMV_SelMax_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax_inplace(self, *args)
+    def SpMV(self, *args): return _pyCombBLAS.pySpParMat_SpMV(self, *args)
+    def SpMV_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_inplace(self, *args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMat_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMat_Row
@@ -474,6 +476,25 @@ not1 = _pyCombBLAS.not1
 def not2(*args):
   return _pyCombBLAS.not2(*args)
 not2 = _pyCombBLAS.not2
+class Semiring(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Semiring, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, Semiring, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_Semiring(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_Semiring
+    __del__ = lambda self : None;
+    def mpi_op(self): return _pyCombBLAS.Semiring_mpi_op(self)
+    def add(self, *args): return _pyCombBLAS.Semiring_add(self, *args)
+    def multiply(self, *args): return _pyCombBLAS.Semiring_multiply(self, *args)
+    def axpy(self, *args): return _pyCombBLAS.Semiring_axpy(self, *args)
+Semiring_swigregister = _pyCombBLAS.Semiring_swigregister
+Semiring_swigregister(Semiring)
+
 
 def finalize():
   return _pyCombBLAS.finalize()

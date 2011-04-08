@@ -175,9 +175,19 @@ pySpParMat pySpParMat::operator*(pySpParMat& other)
 	return SpMM(other);
 }
 
-pySpParMat pySpParMat::SpMM(pySpParMat& other)
+pySpParMat pySpParMat::SpMM(pySpParMat& other, op::Semiring* sring)
 {
-	return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
+	if (sring == NULL)
+	{
+		return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
+	}
+	else
+	{
+		sring->enableSemiring();
+		pySpParMat ret( Mult_AnXBn_Synch<op::SemiringTemplArg<doubleint, doubleint > >(A, other.A) );
+		sring->disableSemiring();
+		return ret;
+	}
 }
 
 pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
@@ -274,17 +284,45 @@ void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDensePar
 
 pySpParVec pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
 {
-	return pySpParVec( SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
 }
 
 pySpParVec pySpParMat::SpMV_SelMax(const pySpParVec& x)
 {
-	return pySpParVec( SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+	return pySpParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
 }
 
 void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	x.v = SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
+	x.v = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 }
 
+pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else
+	{
+		sring->enableSemiring();
+		pySpParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
+}
+
+void pySpParMat::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else
+	{
+		sring->enableSemiring();
+		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
+		sring->disableSemiring();
+	}
+}
 
