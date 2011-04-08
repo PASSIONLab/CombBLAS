@@ -25,6 +25,39 @@ struct ConcreteBinaryFunction : public std::binary_function<T, T, T>
 	virtual ~ConcreteBinaryFunction() {}
 };
 
+/*
+template <class T1, class T2>
+struct ConcreteSemiring
+{
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static MPI_Op mpi_op()
+	{
+//		return MPI_MAX;
+	}
+	
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+//		return std::max(arg1, arg2);
+	}
+	
+	static T_promote multiply(const T1 & arg1, const T2 & arg2)
+	{
+		// we could have just returned arg2 but it would be
+		// fragile since it wouldn't work with y <- x*A
+//		return (static_cast<T_promote>(arg1) * 
+//			static_cast<T_promote>(arg2) );
+	}
+	
+	static void axpy(T1 a, const T2 & x, T_promote & y)
+	{
+//		y = std::max(y, static_cast<T_promote>(a*x));
+	}
+};
+*/
+
+template <class T1, class T2>
+struct SemiringTemplArg;
+
 }
 
 //INTERFACE_INCLUDE_BEGIN
@@ -132,6 +165,71 @@ UnaryFunction compose1(UnaryFunction& f, UnaryFunction& g); // h(x) is the same 
 UnaryFunction compose2(BinaryFunction& f, UnaryFunction& g1, UnaryFunction& g2); // h(x) is the same as f(g1(x), g2(x))
 UnaryFunction not1(UnaryFunction& f);
 BinaryFunction not2(BinaryFunction& f);
+
+
+
+class Semiring {
+//INTERFACE_INCLUDE_END
+	protected:
+
+	PyObject *pyfunc_add;
+	PyObject *pyfunc_multiply;
+	
+	BinaryFunction *binfunc_add;
+	
+	public:
+	// CombBLAS' template mechanism means we have to compile in only one C++ semiring.
+	// So to support different Python semirings, we have to switch them in.
+	void enableSemiring();
+	void disableSemiring();
+	
+//INTERFACE_INCLUDE_BEGIN
+	protected:
+	Semiring(): pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	public:
+	Semiring(PyObject *add, PyObject *multiply);
+	~Semiring();
+	
+	MPI_Op mpi_op()
+	{
+		return *(binfunc_add->getMPIOp());
+	}
+	
+	doubleint add(const doubleint & arg1, const doubleint & arg2);	
+	doubleint multiply(const doubleint & arg1, const doubleint & arg2);
+	void axpy(doubleint a, const doubleint & x, doubleint & y);
+
+};
+//INTERFACE_INCLUDE_END
+
+template <class T1, class T2>
+struct SemiringTemplArg
+{
+	static Semiring *currentlyApplied;
+	
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static MPI_Op mpi_op()
+	{
+		return currentlyApplied->mpi_op();
+	}
+	
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+		return currentlyApplied->add(arg1, arg2);
+	}
+	
+	static T_promote multiply(const T1 & arg1, const T2 & arg2)
+	{
+		return currentlyApplied->multiply(arg1, arg2);
+	}
+	
+	static void axpy(T1 a, const T2 & x, T_promote & y)
+	{
+		currentlyApplied->axpy(a, x, y);
+	}
+};
+
+//INTERFACE_INCLUDE_BEGIN
 
 } // namespace op
 

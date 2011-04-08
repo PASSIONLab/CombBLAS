@@ -78,7 +78,7 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SpMM(pySpParMat& other);
+	pySpParMat SpMM(pySpParMat& other, op::Semiring* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -99,9 +99,12 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec SpMV_SelMax(const pySpParVec& v);
-	void SpMV_SelMax_inplace(pySpParVec& v);
+	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
+	pySpParVec SpMV_SelMax(const pySpParVec& x);
+	void SpMV_SelMax_inplace(pySpParVec& x);
+
+	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	
 public:
 	static int Column() { return ::Column; }
@@ -421,6 +424,26 @@ UnaryFunction compose1(UnaryFunction& f, UnaryFunction& g); // h(x) is the same 
 UnaryFunction compose2(BinaryFunction& f, UnaryFunction& g1, UnaryFunction& g2); // h(x) is the same as f(g1(x), g2(x))
 UnaryFunction not1(UnaryFunction& f);
 BinaryFunction not2(BinaryFunction& f);
+
+
+
+class Semiring {
+	protected:
+	Semiring(): pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	public:
+	Semiring(PyObject *add, PyObject *multiply);
+	~Semiring();
+	
+	MPI_Op mpi_op()
+	{
+		return *(binfunc_add->getMPIOp());
+	}
+	
+	doubleint add(const doubleint & arg1, const doubleint & arg2);	
+	doubleint multiply(const doubleint & arg1, const doubleint & arg2);
+	void axpy(doubleint a, const doubleint & x, doubleint & y);
+
+};
 
 } // namespace op
 
