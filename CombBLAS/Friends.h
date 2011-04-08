@@ -76,6 +76,8 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 	// Two splits might create output to the same recipient (needs to be merged)
 	// However, each split's output is distinct (no duplicate elimination is needed after merge) 
 
+	sdispls = new int[p_c];	// initialize to zero (as all indy might be empty)
+	fill_n(sdispls, p_c, 0);
 	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -87,7 +89,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 			vector< vector<T_promote> > numy(splits);
 
 			// Parallelize with OpenMP
-			#pragma omp parallel for num_threads(6)
+			#pragma omp parallel for // num_threads(6)
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
@@ -102,7 +104,6 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 
 			sendindbuf = new IU[accum[splits]];
 			sendnumbuf = new T_promote[accum[splits]];
-			sdispls = new int[p_c];
 			IU perproc = A.getnrow() / static_cast<IU>(p_c);	
 			IU last_rec = static_cast<IU>(p_c-1);
 			
@@ -117,7 +118,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 					end_recs[i] = min(indy[i].back() / perproc, last_rec);
 			}
 
-			#pragma omp parallel for num_threads(6)
+			#pragma omp parallel for // num_threads(6)
 			for(int i=0; i<splits; ++i)
 			{
 				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
@@ -136,15 +137,9 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 						{
 							fill(sdispls+end_recs[k]+1, sdispls+beg_rec+1, accum[i]);	// last entry to be set is sdispls[beg_rec]
 						}
-						else
-						{
-							fill(sdispls+1, sdispls+beg_rec+1, 0);	// all previous entries were zero, clearly a recepient head
-						}
+						// else fill sdispls[1...beg_rec] with zero (already done)
 					}
-					else
-					{	
-						sdispls[0] = 0;
-					}
+					// else set sdispls[0] to zero (already done)
 					if(beg_rec == end_recs[i])	// fast case
 					{
 						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<IU>(), perproc*beg_rec));
@@ -169,6 +164,14 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 					}
 					vector<IU>().swap(indy[i]);
 					vector<T_promote>().swap(numy[i]);
+					bool lastnonzero = true;	// am I the last nonzero split?
+					for(int k=i+1; k < splits; ++k)
+					{
+						if(end_recs[k] != -1)
+							lastnonzero = false;
+					} 
+					if(lastnonzero)
+						fill(sdispls+end_recs[i]+1, sdispls+p_c, accum[i+1]);
 				}	// end_if(!indy[i].empty)
 			}	// end parallel for	
 			return accum[splits];
@@ -178,6 +181,12 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 			cout << "Something is wrong, splits should be nonzero for multithreaded execution" << endl;
 			return 0;
 		}
+	}
+	else
+	{
+		sendindbuf = new IU[0];
+		sendnumbuf = new T_promote[0];
+		return 0;
 	}
 }
 
