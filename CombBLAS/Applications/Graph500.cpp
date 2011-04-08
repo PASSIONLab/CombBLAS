@@ -227,7 +227,12 @@ int main(int argc, char* argv[])
 
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
+
+		#ifdef THREADED	
+			A.ActivateThreading(12);	// 12 is the number of splits
+		#else
 			A.OptimizeForGraph500(optbuf);
+		#endif
 			A.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();
@@ -276,7 +281,6 @@ int main(int argc, char* argv[])
 			Cands.SetElement(i,loccandints[i]);
 		}
 		
-	
 		double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 		for(int i=0; i<ITERS; ++i)
 		{

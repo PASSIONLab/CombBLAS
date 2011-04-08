@@ -276,6 +276,7 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			IT * indy, NT * numy, int * cnts, int * dspls, int p_c)
 {   
+
 	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds(veclen);		
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
@@ -331,6 +332,7 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 	}
 	delete [] localy;
 	delete [] isthere;
+
 }
 
 
