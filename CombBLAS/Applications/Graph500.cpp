@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Symmetricized\n");	
 
 		#ifdef THREADED	
-			A.ActivateThreading(12);	// 12 is the number of splits
+			A.ActivateThreading(SPLITS);	
 		#else
 			A.OptimizeForGraph500(optbuf);
 		#endif
