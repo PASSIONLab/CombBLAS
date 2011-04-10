@@ -26,7 +26,8 @@ OPTPGI = -fast -Mipa=fast,inline -Msmartalloc --zc_eh -DMPICH_IGNORE_CXX_SEEK -D
 COMPILER = CC
 GCCFLAGS = $(GCCOPT) 
 PGIFLAGS = -I$(BOOST) $(OPTPGI) -DNOTR1
-FLAGS = $(GCCFLAGS) # -fopenmp -DTIMING -DTHREADED #-DUNIQUEMATRIXSPMV $(INCADD) -finstrument-functions
+THREADING = -fopenmp -DTHREADED
+FLAGS = $(GCCFLAGS) -DTIMING $(THREADING) #-DUNIQUEMATRIXSPMV $(INCADD) -finstrument-functions
 COMBBLAS = ..
 
 #

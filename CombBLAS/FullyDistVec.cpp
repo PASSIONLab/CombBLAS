@@ -188,6 +188,7 @@ template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< IT,NT > & rhs)		
 {
 	IT spvecsize = rhs.getlocnnz();
+	#pragma omp parallel for
 	for(IT i=0; i< spvecsize; ++i)
 	{
 		if(arr[rhs.ind[i]] == zero) // not set before

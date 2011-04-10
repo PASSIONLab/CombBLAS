@@ -120,7 +120,10 @@ public:
 	void setNumToInd()
 	{
 		IT offset = LengthUntil();
-            	transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));
+		IT spsize = ind.size();
+		#pragma omp parallel for
+		for(IT i=0; i< spsize; ++i)
+			num[i] = ind[i] + offset;
 	}
 
 	template <typename _Predicate>
