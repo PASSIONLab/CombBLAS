@@ -203,7 +203,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy);
+			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy);
 		}
 	}
 }
@@ -221,7 +221,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }
