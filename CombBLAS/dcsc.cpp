@@ -831,6 +831,7 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 	}
 }
 
+
 // nind, =length(colsums), gives number of columns of A that contributes to C(:,i)
 template<class IT, class NT>
 void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
