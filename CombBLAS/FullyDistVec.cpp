@@ -130,8 +130,8 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT
 	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
 	{
-		if(rhs.ind[i] > arr.size())
-			cout << "rhs.ind[i]: " << rhs.ind[i] <<  endl;
+		//if(rhs.ind[i] > arr.size())
+		//	cout << "rhs.ind[i]: " << rhs.ind[i] <<  endl;
 		arr[rhs.ind[i]] = rhs.num[i];
 	}
 	return *this;

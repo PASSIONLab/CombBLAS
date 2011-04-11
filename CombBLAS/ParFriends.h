@@ -1353,38 +1353,26 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 			vector< T_promote >  numy;
 			dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
 			DeleteAll(indacc, numacc);
-			IU yintlen = y.MyRowLength();
 
-			// at this point, indices of y are sorted
-			sendindbuf = new IU[yintlen];	// max possible message size
-			sendnumbuf = new T_promote[yintlen];
-	
-			sdispls = new int[rowneighs];
-			IU n_perproc = yintlen / rowneighs;	// typical length per processor (except the last)
-			for(int i=0; i<rowneighs; ++i)
-				sdispls[i] = i * n_perproc;
+			IU bufsize = indy.size();	// as compact as possible
+			sendindbuf = new IU[bufsize];	
+			sendnumbuf = new T_promote[bufsize];
+			IU perproc = A.getlocalrows() / static_cast<IU>(rowneighs);	
 
-			typename vector<IU>::size_type outnz = indy.size();
-			typename vector<IU>::size_type j=0; 	// j indexes local entries
-			for(int i=1; i<rowneighs; ++i)		// i indexes processors to send data
+			int k = 0;	// index to buffer
+			for(int i=0; i<rowneighs; ++i)		
 			{
-				while(j < outnz && indy[j] < sdispls[i])	// owner is (i-1)th processor
+				IU end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
+				while(k < bufsize && indy[k] < end_this) 
 				{
-					IU locind = indy[j] - sdispls[i-1];
-					int inx = sdispls[i-1] + sendcnt[i-1];	// index in the buffer
-					sendindbuf[inx] = locind;
-					sendnumbuf[inx] = numy[j++]; 
-					++sendcnt[i-1];	// increment the send count
+					sendindbuf[k] = indy[k] - i*perproc;
+					sendnumbuf[k] = numy[k];
+					++sendcnt[i];
+					++k; 
 				}
 			}
-			while(j < outnz)	// remainders go to the last processor
-			{
-				IU locind = indy[j] - sdispls[rowneighs-1];
-				int inx = sdispls[rowneighs-1] + sendcnt[rowneighs-1];	// index in the buffer
-				sendindbuf[inx] = locind;
-				sendnumbuf[inx] = numy[j++];
-				++sendcnt[rowneighs-1]; 
-			}
+			sdispls = new int[rowneighs]();	
+			partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1); 
 		}
 	}
 
@@ -1414,7 +1402,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	}
 	else
 	{
-	/*	ofstream oput;
+/*		ofstream oput;
 		x.commGrid->OpenDebugFile("Send", oput);
 		oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
 		oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
@@ -1424,8 +1412,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 			copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
 			copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
 		}
-		oput.close(); */
-
+		oput.close(); 
+*/
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 		DeleteAll(sendindbuf, sendnumbuf);
