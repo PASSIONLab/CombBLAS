@@ -1323,12 +1323,10 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		if(A.spSeq->getnsplit() > 0)
 		{
 			SpParHelper::Print("Preallocated buffers can not be used with multithreaded code yet\n");
-
 			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);				
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);	
 			for(int i=0; i<rowneighs-1; ++i)
-				sendcnt[i] = sdispls[i+1] + sdispls[i];
-			
+				sendcnt[i] = sdispls[i+1] + sdispls[i];	
 			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
 		}
 		else
