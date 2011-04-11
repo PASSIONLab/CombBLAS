@@ -276,48 +276,40 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, const IT * indx, const NT * numx, IT veclen,  
 			IT * indy, NT * numy, int * cnts, int * dspls, int p_c)
 {   
-
-	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
-	vector< pair<IT,IT> > colinds(veclen);		
-	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
-        IT csize = static_cast<IT>(ceil(cf));   // chunk size
-
-#ifdef UNIQUEMATRIXSPMV
-	static IT* spmvaux = NULL;	// set only once over the whole program execution
-	if(spmvaux == NULL)
-	{
-		Adcsc.ConstructAux(nA, spmvaux);
-	}
-#else
-	IT* spmvaux = NULL;
-#endif
-	Adcsc.FillColInds(indx, veclen, colinds, spmvaux, csize);	// csize is irrelevant if aux is NULL	
-
 	NT * localy = new NT[mA];
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
 	vector< vector<IT> > nzinds(p_c);	// nonzero indices		
 
 	IT perproc = mA / static_cast<IT>(p_c);	
-	for(IT j=0; j< veclen; ++j)
+	IT k = 0; 	// index to indx vector
+	IT i = 0; 	// index to columns of matrix
+	while(i< Adcsc.nzc && k < veclen)
 	{
-		while(colinds[j].first != colinds[j].second)	// current != end
+		if(Adcsc.jc[i] < indx[k]) ++i;
+		else if(indx[k] < Adcsc.jc[i]) ++k;
+		else
 		{
-			IT deref = colinds[j].first++;	// dereferencer to ind & num arrays
-			IT rowid = Adcsc.ir[deref];
-			if(!isthere[rowid])
+			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
-				localy[rowid] = numx[j];	// initial assignment
-				IT owner = min(rowid / perproc, static_cast<IT>(p_c-1)); 			
-				nzinds[owner].push_back(rowid);
-				isthere[rowid] = true;
+				IT rowid = Adcsc.ir[j];
+				if(!isthere[rowid])
+				{
+					localy[rowid] = numx[k];	// initial assignment
+					IT owner = min(rowid / perproc, static_cast<IT>(p_c-1)); 			
+					nzinds[owner].push_back(rowid);
+					isthere[rowid] = true;
+				}
+				else
+				{
+					localy[rowid] = SR::add(localy[rowid], numx[k]);
+				}	
 			}
-			else
-			{
-				localy[rowid] = SR::add(localy[rowid], numx[j]);
-			}	
+			++i;
+			++k;
 		}
 	}
+
 	for(int p = 0; p< p_c; ++p)
 	{
 		sort(nzinds[p].begin(), nzinds[p].end());
@@ -332,7 +324,6 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 	}
 	delete [] localy;
 	delete [] isthere;
-
 }
 
 
@@ -340,31 +331,36 @@ template <typename SR, typename IT, typename NT>
 void SpImpl<SR,IT,bool,NT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy, IT offset)
 {   
-	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
-	vector< pair<IT,IT> > colinds(veclen);		
-	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
-
 	NT * localy = new NT[mA];
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
 	vector<IT> nzinds;	// nonzero indices		
 
-	for(IT j=0; j< veclen; ++j)
+	// The following piece of code is not general, but it's more memory efficient than FillColInds
+	IT k = 0; 	// index to indx vector
+	IT i = 0; 	// index to columns of matrix
+	while(i< Adcsc.nzc && k < veclen)
 	{
-		while(colinds[j].first != colinds[j].second)	// current != end
+		if(Adcsc.jc[i] < indx[k]) ++i;
+		else if(indx[k] < Adcsc.jc[i]) ++k;
+		else
 		{
-			IT deref = colinds[j].first++;	// dereferencer to ind & num arrays
-			IT rowid = Adcsc.ir[deref];
-			if(!isthere[rowid])
+			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
-				localy[rowid] = numx[j];	// initial assignment
-				nzinds.push_back(rowid);
-				isthere[rowid] = true;
+				IT rowid = Adcsc.ir[j];
+				if(!isthere[rowid])
+				{
+					localy[rowid] = numx[k];	// initial assignment
+					nzinds.push_back(rowid);
+					isthere[rowid] = true;
+				}
+				else
+				{
+					localy[rowid] = SR::add(localy[rowid], numx[k]);
+				}	
 			}
-			else
-			{
-				localy[rowid] = SR::add(localy[rowid], numx[j]);
-			}	
+			++i;
+			++k;
 		}
 	}
 
