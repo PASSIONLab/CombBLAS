@@ -178,8 +178,11 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, IT nA, c
 		{
 			numy.back() = SR::add(numy.back(), num);
 		}
-		indy.push_back(row);
-		numy.push_back(num);
+		else
+		{
+			indy.push_back(row);
+			numy.push_back(num);
+		}
 	}		
 }
 
