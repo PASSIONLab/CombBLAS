@@ -66,8 +66,6 @@ int main(int argc, char* argv[])
 	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
-	cblas_allgathertime = 0;
-	cblas_alltoalltime = 0;
 	
 	if(argc < 3)
 	{
@@ -172,7 +170,7 @@ int main(int argc, char* argv[])
  			double initiator[4] = {.57, .19, .19, .05};
 
 			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-			DEL->GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+			DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
 			SpParHelper::Print("Generated local RMAT matrices\n");
 		
 			PermEdges(*DEL);
@@ -286,10 +284,16 @@ int main(int argc, char* argv[])
 		#endif		
 		for(int trials =0; trials < MAXTRIALS; trials++)	// try different algorithms for BFS
 		{
+			cblas_allgathertime = 0;
+			cblas_alltoalltime = 0;
 			if(trials == 1)		// second run for multithreaded turned off
 			{
-	                       A.OptimizeForGraph500(optbuf);	
+	                       	A.OptimizeForGraph500(optbuf);	
+				MPI_Pcontrol(1,"BFS_SPA_Buf");
 			}
+			else
+				MPI_Pcontrol(1,"BFS");
+
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 			for(int i=0; i<ITERS; ++i)
 			{
@@ -301,7 +305,6 @@ int main(int argc, char* argv[])
 
 				MPI::COMM_WORLD.Barrier();
 				double t1 = MPI_Wtime();
-				MPI_Pcontrol(1,"BFS");
 
 				fringe.SetElement(Cands[i], Cands[i]);
 				int iterations = 0;
@@ -318,8 +321,6 @@ int main(int argc, char* argv[])
 					iterations++;
 					MPI::COMM_WORLD.Barrier();
 				}
-
-				MPI_Pcontrol(-1,"BFS");
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();
 	
@@ -344,6 +345,11 @@ int main(int argc, char* argv[])
 			}
 			SpParHelper::Print("Finished\n");
 			ostringstream os;
+			if(trials == 1)
+				MPI_Pcontrol(-1,"BFS_SPA_Buf");
+			else
+				MPI_Pcontrol(-1,"BFS");
+			
 
 			os << "Per iteration communication times: " << endl;
 			os << "AllGatherv: " << cblas_allgathertime / ITERS << endl;
