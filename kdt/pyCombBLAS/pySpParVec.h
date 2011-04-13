@@ -6,12 +6,13 @@
 //INTERFACE_INCLUDE_BEGIN
 class pySpParVec {
 //INTERFACE_INCLUDE_END
-protected:
-
+public:
 	typedef int64_t INDEXTYPE;
 	typedef FullyDistSpVec<INDEXTYPE, doubleint> VectType;
 	VectType v;
 	
+protected:
+
 	friend class pySpParMat;
 	friend class pySpParMatBool;
 	friend class pyDenseParVec;

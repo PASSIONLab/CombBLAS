@@ -2686,19 +2686,21 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_MPI_Op swig_types[0]
-#define SWIGTYPE_p_char swig_types[1]
-#define SWIGTYPE_p_doubleint swig_types[2]
-#define SWIGTYPE_p_f_double__double swig_types[3]
-#define SWIGTYPE_p_op__BinaryFunction swig_types[4]
-#define SWIGTYPE_p_op__Semiring swig_types[5]
-#define SWIGTYPE_p_op__UnaryFunction swig_types[6]
-#define SWIGTYPE_p_pyDenseParVec swig_types[7]
-#define SWIGTYPE_p_pySpParMat swig_types[8]
-#define SWIGTYPE_p_pySpParMatBool swig_types[9]
-#define SWIGTYPE_p_pySpParVec swig_types[10]
-static swig_type_info *swig_types[12];
-static swig_module_info swig_module = {swig_types, 11, 0, 0, 0, 0};
+#define SWIGTYPE_p_EWiseArg swig_types[0]
+#define SWIGTYPE_p_EWiseArgDescriptor swig_types[1]
+#define SWIGTYPE_p_MPI_Op swig_types[2]
+#define SWIGTYPE_p_char swig_types[3]
+#define SWIGTYPE_p_doubleint swig_types[4]
+#define SWIGTYPE_p_f_double__double swig_types[5]
+#define SWIGTYPE_p_op__BinaryFunction swig_types[6]
+#define SWIGTYPE_p_op__Semiring swig_types[7]
+#define SWIGTYPE_p_op__UnaryFunction swig_types[8]
+#define SWIGTYPE_p_pyDenseParVec swig_types[9]
+#define SWIGTYPE_p_pySpParMat swig_types[10]
+#define SWIGTYPE_p_pySpParMatBool swig_types[11]
+#define SWIGTYPE_p_pySpParVec swig_types[12]
+static swig_type_info *swig_types[14];
+static swig_module_info swig_module = {swig_types, 13, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -14671,6 +14673,294 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_new_EWiseArg(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  EWiseArg *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_EWiseArg")) SWIG_fail;
+  {
+    try {
+      result = (EWiseArg *)new EWiseArg();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_EWiseArg, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_EWiseArg(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  EWiseArg *arg1 = (EWiseArg *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_EWiseArg",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_EWiseArg, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_EWiseArg" "', argument " "1"" of type '" "EWiseArg *""'"); 
+  }
+  arg1 = reinterpret_cast< EWiseArg * >(argp1);
+  {
+    try {
+      delete arg1;
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *EWiseArg_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_EWiseArg, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_EWise_Index(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  EWiseArg result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":EWise_Index")) SWIG_fail;
+  {
+    try {
+      result = EWise_Index();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new EWiseArg(static_cast< const EWiseArg& >(result))), SWIGTYPE_p_EWiseArg, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWise_OnlyNZ__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = (pySpParVec *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  EWiseArg result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:EWise_OnlyNZ",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWise_OnlyNZ" "', argument " "1"" of type '" "pySpParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  {
+    try {
+      result = EWise_OnlyNZ(arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new EWiseArg(static_cast< const EWiseArg& >(result))), SWIGTYPE_p_EWiseArg, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWise_OnlyNZ__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  EWiseArg result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:EWise_OnlyNZ",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWise_OnlyNZ" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
+  {
+    try {
+      result = EWise_OnlyNZ(arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new EWiseArg(static_cast< const EWiseArg& >(result))), SWIGTYPE_p_EWiseArg, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWise_OnlyNZ(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[2];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = (int)PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 1); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_EWise_OnlyNZ__SWIG_0(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_EWise_OnlyNZ__SWIG_1(self, args);
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'EWise_OnlyNZ'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    EWise_OnlyNZ(pySpParVec *)\n"
+    "    EWise_OnlyNZ(pyDenseParVec *)\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWise(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = (PyObject *) 0 ;
+  int arg2 ;
+  EWiseArgDescriptor *arg3 = (EWiseArgDescriptor *) 0 ;
+  PyObject *arg4 = (PyObject *) 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:EWise",&obj0,&obj1)) SWIG_fail;
+  arg1 = obj0;
+  {
+    /* Check if is a list */
+    if (PyList_Check(obj1)) {
+      int size = PyList_Size(obj1);
+      int i = 0;
+      
+      arg2 = size;
+      arg3 = new EWiseArgDescriptor[size];
+      arg4 = obj1;
+      
+      pyDenseParVec* dptr;
+      pySpParVec* sptr;
+      EWiseArg* argptr;
+      for (i = 0; i < size; i++)
+      {
+        PyObject *o = PyList_GetItem(obj1,i);
+        if (SWIG_ConvertPtr(o, (void**)&dptr, SWIGTYPE_p_pyDenseParVec, 0) != -1)
+        {
+          arg3[i].type = EWiseArgDescriptor::ITERATOR;
+          arg3[i].onlyNZ = false;
+          arg3[i].iter = new DenseVectorLocalIterator<int64_t, doubleint>(dptr->v);
+        }
+        else if (SWIG_ConvertPtr(o, (void**)&dptr, SWIGTYPE_p_pySpParVec, 0) != -1)
+        {
+          arg3[i].type = EWiseArgDescriptor::ITERATOR;
+          arg3[i].onlyNZ = false;
+          arg3[i].iter = new SparseVectorLocalIterator<int64_t, doubleint>(sptr->v);
+        }
+        else if (SWIG_ConvertPtr(o, (void**)&argptr, SWIGTYPE_p_EWiseArg, 0) != -1)
+        {
+          switch (argptr->type)
+          {
+          case EWiseArg::GLOBAL_INDEX:
+            arg3[i].type = EWiseArgDescriptor::GLOBAL_INDEX;
+            break;
+          case EWiseArg::DENSE:
+            arg3[i].type = EWiseArgDescriptor::ITERATOR;
+            arg3[i].onlyNZ = false;
+            arg3[i].iter = new DenseVectorLocalIterator<int64_t, doubleint>(argptr->dptr->v);
+            break;
+          case EWiseArg::SPARSE:
+            arg3[i].type = EWiseArgDescriptor::ITERATOR;
+            arg3[i].onlyNZ = false;
+            arg3[i].iter = new SparseVectorLocalIterator<int64_t, doubleint>(argptr->sptr->v);
+            break;
+          case EWiseArg::SPARSE_NZ:
+            arg3[i].type = EWiseArgDescriptor::ITERATOR;
+            arg3[i].onlyNZ = true;
+            arg3[i].iter = new SparseVectorLocalIterator<int64_t, doubleint>(argptr->sptr->v);
+            break;
+          default:
+            cout << "AAAHHH! What are you passing to EWise()?" << endl;
+            break;
+          }
+        }
+        else
+        {
+          // python object
+          arg3[i].type = EWiseArgDescriptor::PYTHON_OBJ;
+        }
+      }
+      
+    } else {
+      PyErr_SetString(PyExc_TypeError,"not a list");
+      return NULL;
+    }
+  }
+  {
+    try {
+      EWise(arg1,arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  {
+    delete [] arg3;
+  }
+  return resultobj;
+fail:
+  {
+    delete [] arg3;
+  }
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"new_pySpParMat", _wrap_new_pySpParMat, METH_VARARGS, NULL},
@@ -14867,12 +15157,20 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
 	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},
 	 { (char *)"testFunc", _wrap_testFunc, METH_VARARGS, NULL},
+	 { (char *)"new_EWiseArg", _wrap_new_EWiseArg, METH_VARARGS, NULL},
+	 { (char *)"delete_EWiseArg", _wrap_delete_EWiseArg, METH_VARARGS, NULL},
+	 { (char *)"EWiseArg_swigregister", EWiseArg_swigregister, METH_VARARGS, NULL},
+	 { (char *)"EWise_Index", _wrap_EWise_Index, METH_VARARGS, NULL},
+	 { (char *)"EWise_OnlyNZ", _wrap_EWise_OnlyNZ, METH_VARARGS, NULL},
+	 { (char *)"EWise", _wrap_EWise, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
+static swig_type_info _swigt__p_EWiseArg = {"_p_EWiseArg", "EWiseArg *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_EWiseArgDescriptor = {"_p_EWiseArgDescriptor", "EWiseArgDescriptor *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_MPI_Op = {"_p_MPI_Op", "MPI_Op *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_doubleint = {"_p_doubleint", "doubleint *", 0, 0, (void*)0, 0};
@@ -14886,6 +15184,8 @@ static swig_type_info _swigt__p_pySpParMatBool = {"_p_pySpParMatBool", "pySpParM
 static swig_type_info _swigt__p_pySpParVec = {"_p_pySpParVec", "pySpParVec *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
+  &_swigt__p_EWiseArg,
+  &_swigt__p_EWiseArgDescriptor,
   &_swigt__p_MPI_Op,
   &_swigt__p_char,
   &_swigt__p_doubleint,
@@ -14899,6 +15199,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_pySpParVec,
 };
 
+static swig_cast_info _swigc__p_EWiseArg[] = {  {&_swigt__p_EWiseArg, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_EWiseArgDescriptor[] = {  {&_swigt__p_EWiseArgDescriptor, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_MPI_Op[] = {  {&_swigt__p_MPI_Op, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_doubleint[] = {  {&_swigt__p_doubleint, 0, 0, 0},{0, 0, 0, 0}};
@@ -14912,6 +15214,8 @@ static swig_cast_info _swigc__p_pySpParMatBool[] = {  {&_swigt__p_pySpParMatBool
 static swig_cast_info _swigc__p_pySpParVec[] = {  {&_swigt__p_pySpParVec, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
+  _swigc__p_EWiseArg,
+  _swigc__p_EWiseArgDescriptor,
   _swigc__p_MPI_Op,
   _swigc__p_char,
   _swigc__p_doubleint,

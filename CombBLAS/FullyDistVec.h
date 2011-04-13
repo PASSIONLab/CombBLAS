@@ -29,6 +29,10 @@ class SpParMat;
 template <class IT>
 class DistEdgeList;
 
+template <class IU, class NU>
+class DenseVectorLocalIterator;
+
+
 template <class IT, class NT>
 class FullyDistVec: public FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type >
 {
@@ -142,6 +146,9 @@ private:
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;
+	
+	template <class IU, class NU>
+	friend class DenseVectorLocalIterator;
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote> 

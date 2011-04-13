@@ -511,5 +511,32 @@ _nprocs = _pyCombBLAS._nprocs
 def testFunc(*args):
   return _pyCombBLAS.testFunc(*args)
 testFunc = _pyCombBLAS.testFunc
+class EWiseArg(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, EWiseArg, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, EWiseArg, name)
+    __repr__ = _swig_repr
+    def __init__(self): 
+        this = _pyCombBLAS.new_EWiseArg()
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_EWiseArg
+    __del__ = lambda self : None;
+EWiseArg_swigregister = _pyCombBLAS.EWiseArg_swigregister
+EWiseArg_swigregister(EWiseArg)
 
+
+def EWise_Index():
+  return _pyCombBLAS.EWise_Index()
+EWise_Index = _pyCombBLAS.EWise_Index
+
+def EWise(*args):
+  return _pyCombBLAS.EWise(*args)
+EWise = _pyCombBLAS.EWise
+
+
+def EWise_OnlyNZ(*args):
+  return _pyCombBLAS.EWise_OnlyNZ(*args)
+EWise_OnlyNZ = _pyCombBLAS.EWise_OnlyNZ
 

@@ -13,7 +13,7 @@ FLAGS = $(OPT) -fPIC
 
 all: pyCombBLAS.py
 
-pyCombBLAS.i: pyCombBLAS.i.templ pyDenseParVec.h pySpParVec.h pySpParMat.h pySpParMatBool.h pyOperations.h
+pyCombBLAS.i: pyCombBLAS.i.templ pyDenseParVec.h pySpParVec.h pySpParMat.h pySpParMatBool.h pyOperations.h pyCombBLAS.h
 	python makei.py pyCombBLAS.i.templ pyCombBLAS.i
 
 pyCombBLAS_wrap.cpp: pyCombBLAS.i
