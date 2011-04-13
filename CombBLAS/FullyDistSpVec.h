@@ -33,6 +33,9 @@ class DistEdgeList;
 template <class IU, class NU>
 class FullyDistVec;
 
+template <class IU, class NU>
+class SparseVectorLocalIterator;
+
 /** 
   * A sparse vector of length n (with nnz <= n of them being nonzeros) is distributed to 
   * "all the processors" in a way that "respects ordering" of the nonzero indices
@@ -162,6 +165,9 @@ private:
 	
 	template <class IU, class NU, class UDER>
 	friend class SpParMat;
+	
+	template <class IU, class NU>
+	friend class SparseVectorLocalIterator;
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote> 

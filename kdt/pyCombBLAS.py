@@ -101,6 +101,8 @@ class pySpParMat(_object):
     def SpMV_PlusTimes(self, *args): return _pyCombBLAS.pySpParMat_SpMV_PlusTimes(self, *args)
     def SpMV_SelMax(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax(self, *args)
     def SpMV_SelMax_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_SelMax_inplace(self, *args)
+    def SpMV(self, *args): return _pyCombBLAS.pySpParMat_SpMV(self, *args)
+    def SpMV_inplace(self, *args): return _pyCombBLAS.pySpParMat_SpMV_inplace(self, *args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMat_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMat_Row
@@ -339,6 +341,10 @@ totality = _pyCombBLAS.totality
 def ifthenelse(*args):
   return _pyCombBLAS.ifthenelse(*args)
 ifthenelse = _pyCombBLAS.ifthenelse
+
+def unary(*args):
+  return _pyCombBLAS.unary(*args)
+unary = _pyCombBLAS.unary
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)
@@ -382,6 +388,10 @@ modulus = _pyCombBLAS.modulus
 def fmod():
   return _pyCombBLAS.fmod()
 fmod = _pyCombBLAS.fmod
+
+def pow():
+  return _pyCombBLAS.pow()
+pow = _pyCombBLAS.pow
 
 def max():
   return _pyCombBLAS.max()
@@ -439,6 +449,10 @@ def less_equal():
   return _pyCombBLAS.less_equal()
 less_equal = _pyCombBLAS.less_equal
 
+def binary(*args):
+  return _pyCombBLAS.binary(*args)
+binary = _pyCombBLAS.binary
+
 def bind1st(*args):
   return _pyCombBLAS.bind1st(*args)
 bind1st = _pyCombBLAS.bind1st
@@ -462,6 +476,25 @@ not1 = _pyCombBLAS.not1
 def not2(*args):
   return _pyCombBLAS.not2(*args)
 not2 = _pyCombBLAS.not2
+class Semiring(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Semiring, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, Semiring, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_Semiring(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_Semiring
+    __del__ = lambda self : None;
+    def mpi_op(self): return _pyCombBLAS.Semiring_mpi_op(self)
+    def add(self, *args): return _pyCombBLAS.Semiring_add(self, *args)
+    def multiply(self, *args): return _pyCombBLAS.Semiring_multiply(self, *args)
+    def axpy(self, *args): return _pyCombBLAS.Semiring_axpy(self, *args)
+Semiring_swigregister = _pyCombBLAS.Semiring_swigregister
+Semiring_swigregister(Semiring)
+
 
 def finalize():
   return _pyCombBLAS.finalize()
@@ -475,4 +508,35 @@ def _nprocs():
   return _pyCombBLAS._nprocs()
 _nprocs = _pyCombBLAS._nprocs
 
+def testFunc(*args):
+  return _pyCombBLAS.testFunc(*args)
+testFunc = _pyCombBLAS.testFunc
+class EWiseArg(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, EWiseArg, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, EWiseArg, name)
+    __repr__ = _swig_repr
+    def __init__(self): 
+        this = _pyCombBLAS.new_EWiseArg()
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_EWiseArg
+    __del__ = lambda self : None;
+EWiseArg_swigregister = _pyCombBLAS.EWiseArg_swigregister
+EWiseArg_swigregister(EWiseArg)
+
+
+def EWise_Index():
+  return _pyCombBLAS.EWise_Index()
+EWise_Index = _pyCombBLAS.EWise_Index
+
+def EWise(*args):
+  return _pyCombBLAS.EWise(*args)
+EWise = _pyCombBLAS.EWise
+
+
+def EWise_OnlyNZ(*args):
+  return _pyCombBLAS.EWise_OnlyNZ(*args)
+EWise_OnlyNZ = _pyCombBLAS.EWise_OnlyNZ
 
