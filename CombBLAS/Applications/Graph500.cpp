@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 
 			RenameVertices(*DEL);	
 			string result = string(argv[2])+"_permuted";
-			DEL->Dump(result);
+			//DEL->Dump(result);
 			SpParHelper::Print("Renamed Vertices\n");
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
