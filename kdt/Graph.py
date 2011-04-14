@@ -1,6 +1,5 @@
+import math
 import numpy as np
-import scipy as sc
-import scipy.sparse as sp
 import pyCombBLAS as pcb
 import feedback
 import UFget as uf
@@ -228,6 +227,8 @@ class ParVec:
 				raise IndexError
 			ret = self._dpv[key]
 		elif isinstance(key,ParVec):
+			if len(key) == 0:
+				return ParVec(0)
 			if not key.allCloseToInt():
 				raise KeyError, 'ParVec key must be all integer'
 			if not key.isBool():
@@ -236,6 +237,8 @@ class ParVec:
 			else:
 				ret = self[key.toSpParVec().findInds()]
 		elif isinstance(key,SpParVec):
+			if len(key) == 0:
+				return SpParVec(0)
 			if not key.allCloseToInt():
 				raise KeyError, 'SpParVec key must be all integer'
 			if key.isBool():
@@ -610,6 +613,8 @@ class ParVec:
 		return ret
 
 	def isBool(self):
+		if len(self) == 0:
+			return True
 		eps = float(np.finfo(np.float).eps)
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
@@ -753,7 +758,7 @@ class ParVec:
 		"""
 		mean = self.mean();
 		diff = self - mean
-		ret = np.sqrt((diff*diff).sum()/len(self))
+		ret = math.sqrt((diff*diff).sum()/len(self))
 		return ret 
 
 	def sum(self):
@@ -1397,6 +1402,8 @@ class SpParVec:
 		returns a Boolean scalar denoting whether all elements of the input 
 		SpParVec instance are equal to either True (1) or False (0).
 		"""
+		if self.nnn() == 0:
+			return True
 		eps = float(np.finfo(np.float).eps)
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret

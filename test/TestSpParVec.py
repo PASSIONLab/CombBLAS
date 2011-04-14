@@ -1,4 +1,5 @@
 import unittest
+import math
 from kdt import *
 from kdt import pyCombBLAS as pcb
 import numpy as np
@@ -246,14 +247,14 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_RHS_SpParVec_scalar(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndx = 9
         value = vec1[ndx]
 	self.assertEqual(-3, value)
 
     def test_indexing_RHS_SpParVec_scalar_outofbounds(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndx = 7777
 	self.assertRaises(IndexError, SpParVec.__getitem__, vec1, ndx)
         #value = vec1[ndx]
@@ -261,7 +262,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_RHS_SpParVec_scalar_outofbounds2(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndx = -333
 	self.assertRaises(IndexError, SpParVec.__getitem__, vec1, ndx)
         #value = vec1[ndx]
@@ -269,7 +270,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_RHS_SpParVec_SpParVec(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 4
         ndxI = [0, 1, 2,  3]
         ndxV = [1, 4, 9, 16]
@@ -282,7 +283,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_RHS_SpParVec_ParVec(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 4
 	ndx = ParVec(4)
 	ndx[0] = 1
@@ -297,7 +298,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_RHS_SpParVec_booleanSpParVec(self):
 	sz = 25
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 25
 	ndxTrue = 4
         ndxI = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
@@ -314,7 +315,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_booleanParVec_scalar(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 18
 	ndx = ParVec(sz)
 	ndx[1] = 1
@@ -329,7 +330,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_nonbooleanParVec_scalar(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 18
 	ndx = ParVec(sz)
 	ndx[1] = 7
@@ -345,7 +346,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_scalar_scalar(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
         ndx = 11
         value = 777
         vec1[ndx] = value
@@ -357,7 +358,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_booleanSpParVec_scalar(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 18
 	ndxTrue = 4
         ndxI = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
@@ -374,7 +375,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_booleanSpParVec_SpParVec(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 18
 	ndxTrue = 4
         ndxI = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
@@ -393,7 +394,7 @@ class BuiltInTests(SpParVecTests):
 
     def test_indexing_LHS_SpParVec_ParVec(self):
 	sz = 18
-        vec1 = SpParVec.range(int(-np.floor(sz/2.0)),int(np.ceil(sz/2.0)))
+        vec1 = SpParVec.range(int(-math.floor(sz/2.0)),int(math.ceil(sz/2.0)))
 	ndxLen = 4
         ndxI = [0, 1, 2, 3]
         ndxV = [1, 4, 9, 16]
