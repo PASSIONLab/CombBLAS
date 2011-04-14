@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 		else if(string(argv[1]) == string("Binary"))
 		{
 			uint64_t n = static_cast<uint64_t>(atoi(argv[3]));
-			uint64_t m = static_cast<uint64_t>(atoi(argv[4]));
+			uint64_t m = 5507679822; // static_cast<uint64_t>(atoi(argv[4]));
 			ostringstream outs;
 			outs << "Reading " << argv[2] << " with " << n << " vertices and " << m << " edges" << endl;
 			SpParHelper::Print(outs.str());
@@ -121,6 +121,8 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Permuted Edges\n");
 
 			RenameVertices(*DEL);	
+			string result = string(argv[2])+"_permuted";
+			DEL->Dump(result);
 			SpParHelper::Print("Renamed Vertices\n");
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
@@ -277,7 +279,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			A.PrintInfo();
-			A(nonisov, nonisov, true);	// in-place permute to save memory
+			A(nonisov, nonisov, true);	// in-place permute to save memory	
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
 
