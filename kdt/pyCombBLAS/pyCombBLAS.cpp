@@ -105,6 +105,8 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 	}
 	if (nnz_iters == 0)
 		nnz_iters = 1; // Just use the first iterator's nonzero values
+		
+	PyObject* arglistlist = Py_BuildValue("(O)", argList);  // Build argument list
 	
 	bool hasNext = true;
 	bool continue_;
@@ -175,9 +177,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		}
 		
 		// call the visitor
-		PyObject* arglistlist = Py_BuildValue("(O)", argList);  // Build argument list
 		PyEval_CallObject(pyfunc, arglistlist);                 // Call Python
-		Py_DECREF(arglistlist);                                 // Trash arglist
 	
 		// update the vectors to reflect changes by the visitor
 		for (int i = 0; i < argc; i++)
@@ -228,6 +228,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		index = iters[0]->GetLocIndex();
 	}
 	
+	Py_DECREF(arglistlist);                                 // Trash arglist
 	delete [] iters;
 }
 
