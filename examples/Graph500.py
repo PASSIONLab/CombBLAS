@@ -63,14 +63,12 @@ for o, a in opts:
 def k2Validate(G, start, parents):
 	good = True
 	
-	ret = G.isBfsTree(start, parents)
+	(valid, levels) = G.isBfsTree(start, parents)
 	#	isBfsTree implements Graph500 tests 1 and 2 
-	if type(ret) != tuple:
+	if not valid:
 		if kdt.master():
 			print "isBfsTree detected failure of Graph500 test %d" % abs(ret)
-		good = False
-		return good
-	(valid, levels) = ret
+		return False
 
 	# Spec test #3:
 	# every input edge has vertices whose levels differ by no more than 1
@@ -107,45 +105,6 @@ def k2Validate(G, start, parents):
 		good = False
 
 	return good
-
-
-if len(file) == 0:
-	if kdt.master():
-		print "Generating a Graph500 RMAT graph with 2^%d vertices..."%(scale)
-	G = kdt.DiGraph()
-	K1elapsed = G.genGraph500Edges(scale)
-	#G.save("testgraph.mtx")
-	if kdt.master():
-		print "Generation took %fs."%(K1elapsed)
-
-	if nstarts > G.nvert():
-		nstarts = G.nvert()
-	#	indices of vertices with degree > 2
-	deg3verts = (G.degree() > 2).findInds()
-	deg3verts.randPerm()
-	starts = deg3verts[kdt.ParVec.range(nstarts)]
-else:
-	if kdt.master():
-		print 'Loading %s'%(file)
-	G = kdt.DiGraph.load(file)
-	K1elapsed = 0.0
-	import scipy as sc
-	starts = sc.random.randint(1, 9, size=(nstarts,))
-
-
-if False:
-	if kdt.master():
-		print 'Using 2D torus graph generator'
-	G = kdt.DiGraph.twoDTorus(2**(scale/2))
-	K1elapsed = 0.00005
-	starts = kdt.ParVec.range(nstarts)
-	#FIX: following should be randint(1, ...); masking root=0 bug for now
-	import scipy as sc
-	starts = sc.random.randint(1, high=2**scale, size=(nstarts,))
-
-
-
-
 
 ########################
 # Test BFS with EWise()
@@ -184,21 +143,44 @@ def bfsTreeEWise(G, root, sym=False):
 		G.T()
 	return kdt.ParVec.toParVec(parents)
 
-
-
-
-
-
 ###########################
 
 
 
+if len(file) == 0:
+	if kdt.master():
+		print "Generating a Graph500 RMAT graph with 2^%d vertices..."%(scale)
+	G = kdt.DiGraph()
+	K1elapsed = G.genGraph500Edges(scale)
+	#G.save("testgraph.mtx")
+	if kdt.master():
+		print "Generation took %fs."%(K1elapsed)
 
+	if nstarts > G.nvert():
+		nstarts = G.nvert()
+	#	indices of vertices with degree > 2
+else:
+	if kdt.master():
+		print 'Loading %s'%(file)
+	G = kdt.DiGraph.load(file)
+	K1elapsed = 0.0
+
+
+if False:
+	if kdt.master():
+		print 'Using 2D torus graph generator'
+	G = kdt.DiGraph.twoDTorus(2**(scale/2))
+	K1elapsed = 0.00005
+	starts = kdt.ParVec.range(nstarts)
+
+deg3verts = (G.degree() > 2).findInds()
+deg3verts.randPerm()
+starts = deg3verts[kdt.ParVec.range(nstarts)]
 
 G.toBool()
-#G.ones();		# set all values to 1
 
-[origI, origJ, ign] = G.toParVec()
+[origI, ign, ign2] = G.toParVec()
+del ign, ign2
 
 K2elapsed = [];
 K2edges = [];

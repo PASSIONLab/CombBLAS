@@ -1,6 +1,4 @@
-import numpy as np
-import scipy as sc
-import scipy.sparse as sp
+import math
 import pyCombBLAS as pcb
 import Graph as gr
 from Graph import ParVec, SpParVec, master
@@ -421,8 +419,8 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges over which to find the maximum,
-			    with choices being DiGraph.Out (default), DiGraph.In, or 
-			    DiGraph.InOut.
+			    with choices being DiGraph.InOut (default), DiGraph.In, or 
+			    DiGraph.Out.
 
 		Output Argument:
 			ret:  a ParVec instance with each element containing the
@@ -598,9 +596,9 @@ class DiGraph(gr.Graph):
 		elif dir == DiGraph.Out:
 			if selfnv1 != len(other):
 				raise IndexError, 'graph.nvert()[1] != len(scale)'
-			self.T()
+			self._T()
 			self._spm.ColWiseApply(other._spv,pcb.multiplies())
-			self.T()
+			self._T()
 		else:
 			raise KeyError, 'Invalid edge direction'
 		return
@@ -678,7 +676,7 @@ class DiGraph(gr.Graph):
 		else:
 			raise KeyError, 'Invalid edge direction'
 
-	T = reverseEdges
+	_T = reverseEdges
 
 	# in-place, so no return value
 	def toBool(self):
@@ -795,7 +793,7 @@ class DiGraph(gr.Graph):
 		SEE ALSO: isBfsTree 
 		"""
 		if not sym:
-			self.T()
+			self._T()
 		parents = pcb.pyDenseParVec(self.nvert(), -1)
 		fringe = pcb.pySpParVec(self.nvert())
 		parents[root] = root
@@ -807,7 +805,7 @@ class DiGraph(gr.Graph):
 			parents[fringe] = 0
 			parents += fringe
 		if not sym:
-			self.T()
+			self._T()
 		return ParVec.toParVec(parents)
 	
 	
@@ -833,18 +831,18 @@ class DiGraph(gr.Graph):
 			    is False.
 		
 		Output Arguments:
-			ret:  The return value may be an integer (in the case of
-			    an error detected) or a tuple (in the case of no
-			    error detected).  If it's an integer, its value will
-			    be the negative of the first test below that failed.
-			    If it's a tuple, its first element will be the 
-			    the integer 1 and its second element will be a 
-			    ParVec of length equal to the number of vertices
-			    in the DiGraph, with each element denoting the
-			    level in the tree at which the vertex resides.  The
-			    root resides in level 0, its direct neighbors in
-			    level 1, and so forth.  Unreachable vertices have a
-			    level value of -1.
+			ret:  a 2-element tuple.  The first element is an integer,
+			    whose value is 1 if the graph is a BFS tree and whose
+			    value is the negative of the first test below that failed,
+			    if one of them failed.  If the graph is a BFS tree,
+			    the second element of the tuple is a ParVec of length 
+			    equal to the number of vertices in the DiGraph, with 
+			    each element denoting the level in the tree at which 
+			    the vertex resides.  The root resides in level 0, its
+			    direct neighbors in level 1, and so forth.  Unreachable vertices have a
+			    level value of -1.  If the graph is not a BFS tree (one
+			    of the tests failed), the second element of the
+			    tuple is None.
 		
 		Tests:
 			The tests implement some of the Graph500 (www.graph500.org) 
@@ -898,8 +896,7 @@ class DiGraph(gr.Graph):
 		treeJ = ParVec.range(nvertG)[treeEdges.findInds()]
 		# root cannot be destination of any tree edge
 		if (treeJ == root).any():
-			ret = -1
-			return ret
+			return (-1, None)
 		# note treeJ/TreeI reversed, so builtGT is transpose, as
 		#   needed by SpMV
 		builtGT = DiGraph(treeJ, treeI, 1, nvertG)
@@ -920,15 +917,13 @@ class DiGraph(gr.Graph):
 			fringe = newfringe
 			visited[fringe] = 1
 		if cycle or multiparents:
-			ret = -1
-			return ret
+			return (-1, None)
 		
 		# spec test #2
 		#    tree edges should be between verts whose levels differ by 1
 		
 		if (levels[treeI]-levels[treeJ] != -1).any():
-			ret = -2
-			return ret
+			return (-2, None)
 	
 		return (ret, levels)
 	
@@ -962,7 +957,7 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  pathsHop
 		"""
 		if not sym:
-			self.T()
+			self._T()
 		dest = ParVec(self.nvert(),0)
 		fringe = SpParVec(self.nvert())
 		fringe[source] = 1
@@ -970,7 +965,7 @@ class DiGraph(gr.Graph):
 			self._spm.SpMV_SelMax_inplace(fringe._spv)
 			dest[fringe.toParVec()] = 1
 		if not sym:
-			self.T()
+			self._T()
 		return dest
 		
 	# returns:
@@ -1007,7 +1002,7 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  neighbors
 		"""
 		if not sym:
-			self.T()
+			self._T()
 		#HACK:  SelMax is actually doing a Multiply instead of a Select,
 		#    so it doesn't work "properly" on a general DiGraph, whose
 		#    values can't be counted on to be 1.  So, make a copy of
@@ -1020,7 +1015,7 @@ class DiGraph(gr.Graph):
 		self2._spm.SpMV_SelMax_inplace(fringe._spv)
 		ret[fringe] = fringe
 		if not sym:
-			self.T()
+			self._T()
 		return ret
 
 
@@ -1071,7 +1066,7 @@ class DiGraph(gr.Graph):
 
 		# We don't want to modify the user's graph.
 		G = self.copy()
-		G.T()
+		G._T()
 		nvert = G.nvert()
 
 		# Remove self loops.
@@ -1178,8 +1173,8 @@ class DiGraph(gr.Graph):
 		physMemPCore = 2e9; bytesPEdge = 18
 		#memFract = 0.1;
 		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
-		nBatches = int(sc.ceil(float(nVertToCalc) / float(batchSize)))
-		nPossBatches = int(sc.ceil(float(N) / float(batchSize)))
+		nBatches = int(math.ceil(float(nVertToCalc) / float(batchSize)))
+		nPossBatches = int(math.ceil(float(N) / float(batchSize)))
 		if sample == 1.0:
 			startVs = range(0,nVertToCalc,batchSize)
 			endVs = range(batchSize, nVertToCalc, batchSize)
@@ -1210,7 +1205,9 @@ class DiGraph(gr.Graph):
 			bfs = []		
 			batch = ParVec.range(startV, startV+numV)
 			curSize = len(batch)
+			#next:  nsp is really a SpParMat
 			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N)
+			#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
 			fringe = A[batch,ParVec.range(N)]
 			depth = 0
 			while fringe.nedge() > 0:
@@ -1224,6 +1221,7 @@ class DiGraph(gr.Graph):
 				tmp = fringe.copy()
 				tmp.ones()
 				bfs.append(tmp)
+				#next:  changes how???
 				tmp = fringe._SpMM(A)
 				if BCdebug>1:
 					#nspsum = nsp.sum(DiGraph.Out).sum() 
@@ -1232,6 +1230,7 @@ class DiGraph(gr.Graph):
 					if master():
 						#print depth, nspsum, fringesum, tmpsum
 						pass
+				# prune new-fringe to new verts
 				fringe = tmp.mulNot(nsp)
 				if BCdebug>1 and master():
 					print "    %f seconds" % (time.time()-before)
@@ -1247,9 +1246,9 @@ class DiGraph(gr.Graph):
 						print tmptmp
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
-				w.T()
+				w._T()
 				w = A._SpMM(w)
-				w.T()
+				w._T()
 				w *= bfs[depth-1]
 				w *= nsp
 				bcu += w

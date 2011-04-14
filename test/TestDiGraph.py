@@ -976,7 +976,7 @@ class LinearAlgebraTests(DiGraphTests):
     def test_matMul_simple(self):
 	G = DiGraph.load('testfiles/small_nonsym_fp.mtx')
 	GT = G.copy()
-	GT.T()
+	GT._T()
 	G2 = G._SpMM(GT)
 	self.assertEqual(G.nvert(),9)
 	[i2, j2, v2] = G2.toParVec()
