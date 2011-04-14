@@ -23,6 +23,9 @@ scale = 15
 nstarts = 64
 file = ""
 
+doValidation = False
+useEWise = False
+
 def usage():
 	print "Graph500 [-sSCALE] [-nNUM_STARTS] [-fFILE]"
 	print "SCALE refers to the size of the generated RMAT graph G. G will have 2^SCALE vertices and edge factor 16. Default scale is 15."
@@ -31,7 +34,7 @@ def usage():
 	print "Default is: python Graph500.py -s15 -n64"
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "hs:n:f:", ["help", "scale=", "nstarts=", "file="])
+	opts, args = getopt.getopt(sys.argv[1:], "hs:n:f:ve", ["help", "scale=", "nstarts=", "file=", "validate","ewise"])
 except getopt.GetoptError, err:
 	# print help information and exit:
 	print str(err) # will print something like "option -a not recognized"
@@ -49,6 +52,10 @@ for o, a in opts:
 		nstarts = int(a)
 	elif o in ("-f", "--file"):
 		file = a
+	elif o in ("-v", "--validate"):
+		doValidation = True
+	elif o in ("-e", "--ewise"):
+		useEWise = True
 	else:
 		assert False, "unhandled option"
 
@@ -137,6 +144,57 @@ if False:
 	starts = sc.random.randint(1, high=2**scale, size=(nstarts,))
 
 
+
+
+
+########################
+# Test BFS with EWise()
+
+def bfsTreeEWise(G, root, sym=False):
+	import kdt.pyCombBLAS as pcb
+	
+	if not sym:
+		G.T()
+	parents = pcb.pyDenseParVec(G.nvert(), -1)
+	fringe = pcb.pySpParVec(G.nvert())
+	parents[root] = root
+	fringe[root] = root
+	
+	def iterop(vals):
+		#print "visiting ",vals[2]
+		# vals[0] = fringe value
+		# vals[1] = parents value
+		# vals[2] = index
+		if (vals[1] == -1):
+			# discovered new vertex. Update parents and do a setNumToInd on the fringe
+			vals[1] = vals[0]
+			vals[0] = vals[2]
+		else:
+			# vertex already discovered. Remove it from the fringe
+			vals[0] = None
+	
+	i = 1
+	while fringe.getnee() > 0:
+		print "on iteration %d: -----------------",(i)
+		i += 1
+		G._spm.SpMV_SelMax_inplace(fringe)
+		pcb.EWise(iterop, [pcb.EWise_OnlyNZ(fringe), parents, pcb.EWise_Index()])
+		
+	if not sym:
+		G.T()
+	return kdt.ParVec.toParVec(parents)
+
+
+
+
+
+
+###########################
+
+
+
+
+
 G.toBool()
 #G.ones();		# set all values to 1
 
@@ -152,7 +210,10 @@ for start in starts:
 	before = time.time()
 	
 	# the actual BFS
-	parents = G.bfsTree(start, sym=True)
+	if (useEWise):
+		parents = bfsTreeEWise(G, start, sym=True)
+	else:
+		parents = G.bfsTree(start, sym=True)
 	
 	itertime = time.time() - before
 	nedges = len((parents[origI] != -1).find())
@@ -162,11 +223,15 @@ for start in starts:
 	K2TEPS.append(nedges/itertime)
 	
 	i += 1
-	verifyInitTime = time.time()
-	verifyResult = "succeeded"
-	if not k2Validate(G, start, parents):
-		verifyResult = "FAILED"
-	verifyTime = time.time() - verifyInitTime
+	if (doValidation):
+		verifyInitTime = time.time()
+		verifyResult = "succeeded"
+		if not k2Validate(G, start, parents):
+			verifyResult = "FAILED"
+		verifyTime = time.time() - verifyInitTime
+	else:
+		verifyTime = 0
+		verifyResult = "not done (use -v switch)"
 
 	if kdt.master():
 		print "iteration %d: start=%d, BFS took %fs, verification took %fs and %s, TEPS=%s"%(i, start, (itertime), verifyTime, verifyResult, splitthousands(nedges/itertime))

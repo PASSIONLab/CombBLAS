@@ -14886,19 +14886,19 @@ SWIGINTERN PyObject *_wrap_EWise(PyObject *SWIGUNUSEDPARM(self), PyObject *args)
       for (i = 0; i < size; i++)
       {
         PyObject *o = PyList_GetItem(obj1,i);
-        if (SWIG_ConvertPtr(o, (void**)&dptr, SWIGTYPE_p_pyDenseParVec, 0) != -1)
+        if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&dptr, SWIGTYPE_p_pyDenseParVec, 0)))
         {
           arg3[i].type = EWiseArgDescriptor::ITERATOR;
           arg3[i].onlyNZ = false;
           arg3[i].iter = new DenseVectorLocalIterator<int64_t, doubleint>(dptr->v);
         }
-        else if (SWIG_ConvertPtr(o, (void**)&dptr, SWIGTYPE_p_pySpParVec, 0) != -1)
+        else if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&sptr, SWIGTYPE_p_pySpParVec, 0)))
         {
           arg3[i].type = EWiseArgDescriptor::ITERATOR;
           arg3[i].onlyNZ = false;
           arg3[i].iter = new SparseVectorLocalIterator<int64_t, doubleint>(sptr->v);
         }
-        else if (SWIG_ConvertPtr(o, (void**)&argptr, SWIGTYPE_p_EWiseArg, 0) != -1)
+        else if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&argptr, SWIGTYPE_p_EWiseArg, 0)))
         {
           switch (argptr->type)
           {
