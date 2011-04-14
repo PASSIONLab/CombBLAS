@@ -58,6 +58,33 @@ DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(N
 }
 
 template <typename IT>
+void DistEdgeList<IT>::Dump(string filename)
+{
+	MPI::Intracomm World = commGrid->GetWorld();
+    	int rank = World.Get_rank();
+    	int nprocs = World.Get_size();
+    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+	IT * prelens = new IT[nprocs];
+	prelens[rank] = 2*nedges;
+	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
+
+	// The disp displacement argument specifies the position 
+	// (absolute offset in bytes from the beginning of the file) 
+    	thefile.Set_view(int64_t(lengthuntil * sizeof(uint32_t)), MPI_UNSIGNED, MPI_UNSIGNED, "native", MPI::INFO_NULL);
+	uint32_t * gen_edges = new uint32_t[prelens[rank]];
+	for(IT i=0; i< prelens[rank]; ++i)
+		gen_edges[i] = (uint32_t) edges[i];
+
+	thefile.Write(gen_edges, prelens[rank], MPI_UNSIGNED);
+	thefile.Close();
+
+	delete [] prelens;
+	delete [] gen_edges;
+}	
+
+template <typename IT>
 DistEdgeList<IT>::~DistEdgeList()
 {
 	delete [] edges;

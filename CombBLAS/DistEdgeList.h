@@ -48,6 +48,7 @@ public:
 	DistEdgeList (char * filename, IT globaln, IT globalm);	// read from binary in parallel
 	~DistEdgeList ();
 
+	void Dump(string filename);
 	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges);
 	void CleanupEmpties();
 	
