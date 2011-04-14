@@ -512,19 +512,19 @@ EWiseArg EWise_OnlyNZ(pyDenseParVec* v); // shouldn't be used, but here for comp
 		for (i = 0; i < size; i++)
 		{
 			PyObject *o = PyList_GetItem($input,i);
-			if (SWIG_ConvertPtr(o, (void**)&dptr, $descriptor(pyDenseParVec *), 0) != -1)
+			if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&dptr, $descriptor(pyDenseParVec *), 0)))
 			{
 				$2[i].type = EWiseArgDescriptor::ITERATOR;
 				$2[i].onlyNZ = false;
 				$2[i].iter = new DenseVectorLocalIterator<int64_t, doubleint>(dptr->v);
 			}
-			else if (SWIG_ConvertPtr(o, (void**)&dptr, $descriptor(pySpParVec *), 0) != -1)
+			else if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&sptr, $descriptor(pySpParVec *), 0)))
 			{
 				$2[i].type = EWiseArgDescriptor::ITERATOR;
 				$2[i].onlyNZ = false;
 				$2[i].iter = new SparseVectorLocalIterator<int64_t, doubleint>(sptr->v);
 			}
-			else if (SWIG_ConvertPtr(o, (void**)&argptr, $descriptor(EWiseArg *), 0) != -1)
+			else if (SWIG_IsOK(SWIG_ConvertPtr(o, (void**)&argptr, $descriptor(EWiseArg *), 0)))
 			{
 				switch (argptr->type)
 				{

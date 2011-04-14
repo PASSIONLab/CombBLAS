@@ -152,13 +152,13 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 						if (idx == -1 || idx > index)
 						{
 							// This is vector doesn't have an element in for this index, so pass None instead
-							PyObject* value = Py_BuildValue("s", NULL); // build None
-							PyList_SetItem(argList, i, value);
+							PyList_SetItem(argList, i, Py_None);
 						}
 						else
 						{
 							doubleint& v = argv[i].iter->GetValue();
-							PyList_SetItem(argList, i, Py_None);
+							PyObject* value = Py_BuildValue("d", v.d); // build None
+							PyList_SetItem(argList, i, value);
 						}
 					}
 					break;
@@ -175,8 +175,10 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		}
 		
 		// call the visitor
-		PyEval_CallObject(pyfunc, argList);
-		
+		PyObject* arglistlist = Py_BuildValue("(O)", argList);  // Build argument list
+		PyEval_CallObject(pyfunc, arglistlist);                 // Call Python
+		Py_DECREF(arglistlist);                                 // Trash arglist
+	
 		// update the vectors to reflect changes by the visitor
 		for (int i = 0; i < argc; i++)
 		{
@@ -189,13 +191,29 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 						{
 							// see if there used to be a value
 							if (argv[i].iter->GetLocIndex() == index)
+							{
+								//cout << "Deleting arg_" << i << "[" << index << "]" << endl;
 								argv[i].iter->Del();
+							}
+							else
+							{
+								//cout << "Found None, but not deleting arg_" << i << "[" << index << "]" << endl;
+							}
+						}
+						else if (PyFloat_Check(value) || PyInt_Check(value))
+						{
+							doubleint val;
+							if (PyFloat_Check(value))
+								val.d = PyFloat_AsDouble(value);
+							else
+								val.d = PyInt_AsLong(value);
+
+							argv[i].iter->Set(index, val);
+							//cout << "Setting arg_" << i << "[" << index << "] = " << val.d << endl;
 						}
 						else
 						{
-							doubleint val;
-							PyArg_ParseTuple(value, "d", &val.d);
-							argv[i].iter->Set(index, val);
+							cout << "Ignoring arg_" << i << "[" << index << "]. Got something unknown." << endl;
 						}
 					}
 					break;
