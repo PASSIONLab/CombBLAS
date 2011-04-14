@@ -1,9 +1,9 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 10/28/2010 ---------------------------------------------/
-/  author: Adam Lugowski (alugowski@cs.ucsb.edu) ----------------/
-\****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Adam Lugowski (alugowski@cs.ucsb.edu), Aydin Buluc--*/
+/****************************************************************/
 
 #ifndef _DIST_EDGE_LIST_H_
 #define _DIST_EDGE_LIST_H_
@@ -45,6 +45,7 @@ class DistEdgeList
 public:	
 	// Constructors
 	DistEdgeList ();
+	DistEdgeList (char * filename, IT globaln, IT globalm);	// read from binary in parallel
 	~DistEdgeList ();
 
 	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges);

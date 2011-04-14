@@ -107,6 +107,62 @@ int main(int argc, char* argv[])
 			delete ColSums;
 			A = A(nonisov, nonisov);
 		}
+		else if(string(argv[1]) == string("Binary"))
+		{
+			uint64_t n = static_cast<uint64_t>(atoi(argv[3]));
+			uint64_t m = static_cast<uint64_t>(atoi(argv[4]));
+			ostringstream outs;
+			outs << "Reading " << argv[2] << " with " << n << " vertices and " << m << " edges" << endl;
+			SpParHelper::Print(outs.str());
+			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(argv[2], n, m);
+			SpParHelper::Print("Read binary input to distributed edge list\n");
+
+			PermEdges(*DEL);
+			SpParHelper::Print("Permuted Edges\n");
+
+			RenameVertices(*DEL);	
+			SpParHelper::Print("Renamed Vertices\n");
+
+			// conversion from distributed edge list, keeps self-loops, sums duplicates
+			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); 
+			delete DEL;	// free memory before symmetricizing
+			SpParHelper::Print("Created Int64 Sparse Matrix\n");
+
+			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
+
+			A =  PSpMat_Bool(*G);			// Convert to Boolean
+			delete G;
+			int64_t removed  = A.RemoveLoops();
+
+			ostringstream loopinfo;
+			loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
+			SpParHelper::Print(loopinfo.str());
+			A.PrintInfo();
+
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ColSums->EWiseApply(*RowSums, plus<int64_t>());
+			delete RowSums;
+
+			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			delete ColSums;
+
+			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+			A.PrintInfo();
+			A(nonisov, nonisov, true);	// in-place permute to save memory
+			SpParHelper::Print("Dropped isolated vertices from input\n");	
+			A.PrintInfo();
+
+			Symmetricize(A);	// A += A';
+			SpParHelper::Print("Symmetricized\n");	
+
+		#ifdef THREADED	
+			A.ActivateThreading(SPLITS);	
+		#endif
+		}
 		else 
 		{	
 			if(string(argv[1]) == string("Auto"))	
@@ -210,7 +266,9 @@ int main(int argc, char* argv[])
 			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			SpParHelper::Print("Reductions done\n");
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
+			SpParHelper::Print("Intersection of colsums and rowsums found\n");
 			delete RowSums;
 
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
