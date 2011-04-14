@@ -1,9 +1,9 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 10/28/2010 ---------------------------------------------/
-/  author: Adam Lugowski (alugowski@cs.ucsb.edu) ----------------/
-\****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.1 -------------------------------------------------*/
+/* date: 12/25/2010 --------------------------------------------*/
+/* authors: Adam Lugowski (alugowski@cs.ucsb.edu), Aydin Buluc--*/
+/****************************************************************/
 
 #include <mpi.h>
 
@@ -26,6 +26,35 @@ template <typename IT>
 DistEdgeList<IT>::DistEdgeList(): edges(NULL), nedges(0)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+}
+
+template <typename IT>
+DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL)
+{
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
+
+	nedges = (rank == nprocs-1)? (globalm - rank * (globalm / nprocs)) : (globalm / nprocs);
+	numrows = numcols = globaln;
+
+	FILE * infp = fopen(filename, "rb");
+	assert(infp != NULL);
+	IT read_offset_start, read_offset_end;
+	read_offset_start = rank * 8 * (globalm / nprocs);
+	read_offset_end = (rank+1) * 8 * (globalm / nprocs);
+	if (rank == nprocs - 1)
+   		read_offset_end = 8*globalm;
+	
+	/* gen_edges is an array of unsigned ints of size 2*nedges */
+	uint32_t * gen_edges = new uint32_t[2*nedges];
+	fseek(infp, read_offset_start, SEEK_SET);
+	fread(gen_edges, 2*nedges, sizeof(uint32_t), infp);
+	SetMemSize(nedges);
+	for(IT i=0; i< 2*nedges; ++i)
+		edges[i] = (IT) gen_edges[i];
+	delete [] gen_edges;
 }
 
 template <typename IT>
