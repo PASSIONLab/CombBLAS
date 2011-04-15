@@ -1,0 +1,807 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Reading /global/scratch/sd/kmadduri/graphs/uk-union.graph.bin with 133633040 vertices and 5507679822 edges
+Read binary input to distributed edge list
+Permuted Edges
+Renamed Vertices
+Duplicates removed (or summed): 0 and self-loops removed: 0
+Created Int64 Sparse Matrix
+Converted to Boolean and removed 32569898 loops
+As a whole: 133633040 rows and 133633040 columns and 5475109924 nonzeros
+Found (and permuted) non-isolated vertices
+As a whole: 133633040 rows and 133633040 columns and 5475109924 nonzeros
+Symmetric permutation
+In place multiplication
+Dropped isolated vertices from input
+As a whole: 131572430 rows and 131572430 columns and 5475109924 nonzeros
+Symmetricized
+As a whole: 131572430 rows and 131572430 columns and 9326785182 nonzeros
+Displacement: 0
+Displacement: 70315804296
+Displacement: 71549992392
+Displacement: 59204391336
+Displacement: 61817021744
+Displacement: 61202981768
+Displacement: 48050257992
+Displacement: 50531253680
+Displacement: 48205191752
+Displacement: 49289542664
+Displacement: 36959157528
+Displacement: 37570889624
+Displacement: 40030270000
+Displacement: 25963461632
+Displacement: 28418730312
+Displacement: 27200108376
+Displacement: 26273271840
+Displacement: 14742689280
+Displacement: 17216097688
+Displacement: 17533447864
+Displacement: 17374873128
+Displacement: 3686791072
+Displacement: 6293772280
+Displacement: 4913435560
+Displacement: 3991946304
+Displacement: 74001724688
+Displacement: 74462185456
+Displacement: 74154802840
+Displacement: 74308449392
+Displacement: 69082089192
+Displacement: 67841534504
+Displacement: 57974688288
+Displacement: 57821930712
+Displacement: 55644981880
+Displacement: 55491496608
+Displacement: 46813888168
+Displacement: 45573374168
+Displacement: 33285495920
+Displacement: 35730679440
+Displacement: 33590670864
+Displacement: 22257423864
+Displacement: 22566783824
+Displacement: 11054475608
+Displacement: 13505710536
+Displacement: 14274205136
+Displacement: 72927861824
+Displacement: 72775655240
+Displacement: 71702515152
+Displacement: 70936104480
+Displacement: 73386939216
+Displacement: 70626260392
+Displacement: 70780902928
+Displacement: 72166416520
+Displacement: 73540728912
+Displacement: 72319998720
+Displacement: 73694363312
+Displacement: 72008068232
+Displacement: 71854874968
+Displacement: 73080430968
+Displacement: 73233009416
+Displacement: 71091378160
+Displacement: 71245114224
+Displacement: 72473310728
+Displacement: 70472068568
+Displacement: 71397766648
+Displacement: 72624294272
+Displacement: 62895911056
+Displacement: 66292728808
+Displacement: 64593520720
+Displacement: 54242676200
+Displacement: 55179489792
+Displacement: 51770956296
+Displacement: 40644727728
+Displacement: 41876920544
+Displacement: 32065501976
+Displacement: 32368748456
+Displacement: 29630107304
+Displacement: 21020692336
+Displacement: 20559267896
+Displacement: 18808851032
+Displacement: 7365175248
+Displacement: 9979234744
+Displacement: 9055368312
+Displacement: 73849044952
+Displacement: 69234636432
+Displacement: 66602166296
+Displacement: 67687887952
+Displacement: 68772173856
+Displacement: 69541303264
+Displacement: 68457508976
+Displacement: 67223018240
+Displacement: 68149583824
+Displacement: 69695504784
+Displacement: 69387570376
+Displacement: 67532686400
+Displacement: 68927277216
+Displacement: 68303672656
+Displacement: 68612267696
+Displacement: 67377582160
+Displacement: 67068832128
+Displacement: 70005274424
+Displacement: 67995786112
+Displacement: 66757488520
+Displacement: 66912597808
+Displacement: 69849727336
+Displacement: 57668682208
+Displacement: 56420646048
+Displacement: 55953741960
+Displacement: 58593202312
+Displacement: 58127764832
+Displacement: 58280609088
+Displacement: 58901102120
+Displacement: 56890590072
+Displacement: 56264161712
+Displacement: 57357736296
+Displacement: 56733312616
+Displacement: 55798956888
+Displacement: 56108917272
+Displacement: 57201501976
+Displacement: 56577089976
+Displacement: 57514000568
+Displacement: 57045843040
+Displacement: 58747292584
+Displacement: 58434320744
+Displacement: 46968724416
+Displacement: 44333202776
+Displacement: 47433570008
+Displacement: 44957016952
+Displacement: 45727292352
+Displacement: 47124093120
+Displacement: 44641728976
+Displacement: 47587980128
+Displacement: 47279640208
+Displacement: 45112391552
+Displacement: 45420285736
+Displacement: 46191828392
+Displacement: 45881652888
+Displacement: 47741985056
+Displacement: 44796754528
+Displacement: 46036067352
+Displacement: 46502941440
+Displacement: 46347495872
+Displacement: 45267514216
+Displacement: 46659425776
+Displacement: 44487571184
+Displacement: 35883412320
+Displacement: 36037330504
+Displacement: 33437816560
+Displacement: 35578070480
+Displacement: 36344894680
+Displacement: 35123463672
+Displacement: 34816595064
+Displacement: 33894965776
+Displacement: 34199997400
+Displacement: 34970179904
+Displacement: 34047708208
+Displacement: 36652332720
+Displacement: 34658181440
+Displacement: 36499679752
+Displacement: 36191244360
+Displacement: 33743604808
+Displacement: 35425846640
+Displacement: 34352558160
+Displacement: 35274426720
+Displacement: 34504989232
+Displacement: 24733794224
+Displacement: 23496751568
+Displacement: 24888502984
+Displacement: 25347415736
+Displacement: 25654492560
+Displacement: 24112690664
+Displacement: 25500699504
+Displacement: 23651854928
+Displacement: 23187243952
+Displacement: 24574269960
+Displacement: 25042854040
+Displacement: 25194931456
+Displacement: 23959255800
+Displacement: 23033153680
+Displacement: 24419898896
+Displacement: 24266394048
+Displacement: 23341726944
+Displacement: 22877023488
+Displacement: 22411409224
+Displacement: 22721997576
+Displacement: 23805437128
+Displacement: 13812877656
+Displacement: 11208239240
+Displacement: 13659532848
+Displacement: 11361744088
+Displacement: 12430785312
+Displacement: 12584686608
+Displacement: 12276715616
+Displacement: 14119896400
+Displacement: 14433679816
+Displacement: 13199514400
+Displacement: 12122557824
+Displacement: 11664486504
+Displacement: 12892422744
+Displacement: 11969713112
+Displacement: 11512932856
+Displacement: 13966450576
+Displacement: 12739578488
+Displacement: 13045676464
+Displacement: 11816917576
+Displacement: 13353350720
+Displacement: 65369847472
+Displacement: 65524872096
+Displacement: 64286128752
+Displacement: 63513623736
+Displacement: 65679693792
+Displacement: 65984899928
+Displacement: 64131486216
+Displacement: 63049449264
+Displacement: 65832045624
+Displacement: 63976922296
+Displacement: 63822864248
+Displacement: 64439206904
+Displacement: 65055306928
+Displacement: 64901468992
+Displacement: 65210042032
+Displacement: 63359035904
+Displacement: 63669282672
+Displacement: 63204285512
+Displacement: 64747376016
+Displacement: 66138622560
+Displacement: 54089041800
+Displacement: 53778821800
+Displacement: 52693890576
+Displacement: 55018490680
+Displacement: 53003419152
+Displacement: 54397920264
+Displacement: 53158726448
+Displacement: 53624233968
+Displacement: 43101797024
+Displacement: 40797966992
+Displacement: 43257041464
+Displacement: 40950744568
+Displacement: 43563725568
+Displacement: 43872016904
+Displacement: 41410217024
+Displacement: 44024595352
+Displacement: 42485895096
+Displacement: 42332802888
+Displacement: 41723074136
+Displacement: 42793425880
+Displacement: 41256538944
+Displacement: 42028280504
+Displacement: 41103694232
+Displacement: 43410187360
+Displacement: 43717794352
+Displacement: 42947714016
+Displacement: 42180070008
+Displacement: 41569088776
+Displacement: 42639011416
+Displacement: 30846142912
+Displacement: 30239280496
+Displacement: 32216921896
+Displacement: 30997853512
+Displacement: 32673626392
+Displacement: 32520537960
+Displacement: 30086928664
+Displacement: 31459494016
+Displacement: 31149407160
+Displacement: 30694672328
+Displacement: 31764820640
+Displacement: 31612336360
+Displacement: 32826749648
+Displacement: 31301866384
+Displacement: 32979670016
+Displacement: 29935030896
+Displacement: 29783592576
+Displacement: 31914954680
+Displacement: 30391827736
+Displacement: 30542811280
+Displacement: 19767788112
+Displacement: 18649958120
+Displacement: 18491544496
+Displacement: 21644643200
+Displacement: 18967722784
+Displacement: 21335056232
+Displacement: 21796961776
+Displacement: 20405148224
+Displacement: 21489934440
+Displacement: 20712958280
+Displacement: 21949804120
+Displacement: 20086893776
+Displacement: 19447907432
+Displacement: 21175330736
+Displacement: 19608906544
+Displacement: 20246799936
+Displacement: 19127985208
+Displacement: 20866928704
+Displacement: 19288021624
+Displacement: 19927088336
+Displacement: 9825145912
+Displacement: 8288263808
+Displacement: 8901165072
+Displacement: 9364488808
+Displacement: 10437145232
+Displacement: 10131757504
+Displacement: 7677523608
+Displacement: 8746796664
+Displacement: 7985197416
+Displacement: 8593847000
+Displacement: 10742455048
+Displacement: 8440824568
+Displacement: 9671052936
+Displacement: 9517565352
+Displacement: 8136553208
+Displacement: 7831494032
+Displacement: 7518748168
+Displacement: 10284646360
+Displacement: 9209405648
+Displacement: 10589921784
+Displacement: 70160693584
+Displacement: 55335619984
+Displacement: 36805434896
+Displacement: 25808338968
+Displacement: 14588318216
+Displacement: 66446797592
+Displacement: 59052540440
+Displacement: 33133645024
+Displacement: 22103388960
+Displacement: 10895900872
+Displacement: 59357044304
+Displacement: 61662897480
+Displacement: 60434704824
+Displacement: 60588286400
+Displacement: 59510090616
+Displacement: 62285009656
+Displacement: 60742472512
+Displacement: 61976321968
+Displacement: 62589228064
+Displacement: 61509643760
+Displacement: 62436907424
+Displacement: 60281479784
+Displacement: 59663236512
+Displacement: 61356156176
+Displacement: 60896664336
+Displacement: 59972077856
+Displacement: 61049344072
+Displacement: 59817698904
+Displacement: 60126226816
+Displacement: 62130804960
+Displacement: 50840462536
+Displacement: 49443830800
+Displacement: 49599498280
+Displacement: 50375931456
+Displacement: 49135149968
+Displacement: 50221181064
+Displacement: 51302413680
+Displacement: 49910358184
+Displacement: 48365228168
+Displacement: 51148376344
+Displacement: 48520441920
+Displacement: 50686672840
+Displacement: 48828112856
+Displacement: 50066802112
+Displacement: 50994658416
+Displacement: 49755050888
+Displacement: 51456314976
+Displacement: 48675471488
+Displacement: 48981236112
+Displacement: 27351593280
+Displacement: 26737162696
+Displacement: 26429148464
+Displacement: 28568383272
+Displacement: 29020906720
+Displacement: 27805194424
+Displacement: 26582958000
+Displacement: 26891984392
+Displacement: 29325038200
+Displacement: 27046796368
+Displacement: 28266652896
+Displacement: 28718517312
+Displacement: 27654005656
+Displacement: 29172266680
+Displacement: 28869480360
+Displacement: 28114334320
+Displacement: 27957181872
+Displacement: 26118491200
+Displacement: 27502649864
+Displacement: 15972404688
+Displacement: 16281869376
+Displacement: 17057605656
+Displacement: 16898680728
+Displacement: 17692922544
+Displacement: 17857514656
+Displacement: 15817649176
+Displacement: 16745487464
+Displacement: 14894676728
+Displacement: 15354011784
+Displacement: 15047135952
+Displacement: 15507689864
+Displacement: 15200328160
+Displacement: 18176764416
+Displacement: 16435993640
+Displacement: 15662715416
+Displacement: 18017240152
+Displacement: 16590728744
+Displacement: 16128157720
+Displacement: 6140597872
+Displacement: 5525275096
+Displacement: 4761964976
+Displacement: 5065724752
+Displacement: 5832997952
+Displacement: 5371199384
+Displacement: 6906742224
+Displacement: 5218421808
+Displacement: 5987840296
+Displacement: 5679280024
+Displacement: 6447627576
+Displacement: 4457473528
+Displacement: 6601425288
+Displacement: 4610908392
+Displacement: 7059398584
+Displacement: 4303783144
+Displacement: 4145291112
+Displacement: 3839447432
+Displacement: 6753651032
+Displacement: 62742330240
+Displacement: 52847973584
+Displacement: 52080762848
+Displacement: 54552762608
+Displacement: 54862737648
+Displacement: 53933931088
+Displacement: 52539761272
+Displacement: 53470085008
+Displacement: 52233190584
+Displacement: 54707845768
+Displacement: 51925982208
+Displacement: 52386110952
+Displacement: 53313862368
+Displacement: 29477679568
+Displacement: 18333916864
+Displacement: 7212398696
+Displacement: 51611070488
+Displacement: 2458304112
+Displacement: 3074748192
+Displacement: 1078924512
+Displacement: 612057600
+Displacement: 2613548176
+Displacement: 1232743184
+Displacement: 765879912
+Displacement: 1384228088
+Displacement: 1688831568
+Displacement: 306077552
+Displacement: 3381652224
+Displacement: 459168744
+Displacement: 1995166400
+Displacement: 2149698112
+Displacement: 2920434376
+Displacement: 1536089136
+Displacement: 153248032
+Displacement: 1841927136
+Displacement: 924804840
+Displacement: 3228999800
+Displacement: 2304108232
+Displacement: 2766796680
+Displacement: 3534481744
+Displacement: 38343319032
+Displacement: 39413526376
+Displacement: 39567919072
+Displacement: 40183850816
+Displacement: 39106073632
+Displacement: 37876707592
+Displacement: 40337957064
+Displacement: 37265097000
+Displacement: 38189284128
+Displacement: 37723912056
+Displacement: 37418192568
+Displacement: 39259165840
+Displacement: 38030391216
+Displacement: 38952973968
+Displacement: 38648538448
+Displacement: 37112890416
+Displacement: 38800365008
+Displacement: 39722048376
+Displacement: 39877223688
+Displacement: 38497112088
+Displacement: 44179127064
+Displacement: 47896188296
+Displacement: 40492158584
+As a whole: 131572430 rows and 131572430 columns and 9326785182 nonzeros
+Load balance: 1.06766
+As a whole, Degrees array has length 131572430
+0.297997 0.207706 0.0931754 0.14903 0.498715 0.949142 0.420891 0.631067 0.63964 0.0362532 0.202734 0.567802 0.306276 0.442324 0.42823 0.103037 
+3.92082e+07 2.73284e+07 1.22593e+07 1.96082e+07 6.56171e+07 1.24881e+08 5.53776e+07 8.3031e+07 8.4159e+07 4.76993e+06 2.66742e+07 7.47071e+07 4.02974e+07 5.81977e+07 5.63433e+07 1.35568e+07 
+0th starting vertex was 39208208
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.75748 seconds
+MTEPS: 708.456
+Total communication (average so far): 0.861569
+1th starting vertex was 27328405
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.72795 seconds
+MTEPS: 711.163
+Total communication (average so far): 0.836492
+2th starting vertex was 12259307
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.70091 seconds
+MTEPS: 713.659
+Total communication (average so far): 0.833997
+3th starting vertex was 19608198
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.72797 seconds
+MTEPS: 711.161
+Total communication (average so far): 0.834763
+4th starting vertex was 65617101
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.69462 seconds
+MTEPS: 714.243
+Total communication (average so far): 0.833898
+5th starting vertex was 124880879
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.7583 seconds
+MTEPS: 708.381
+Total communication (average so far): 0.834772
+6th starting vertex was 55377619
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.71647 seconds
+MTEPS: 712.22
+Total communication (average so far): 0.834154
+7th starting vertex was 83031004
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.67452 seconds
+MTEPS: 716.114
+Total communication (average so far): 0.830695
+8th starting vertex was 84159031
+Number iterations: 143
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.80694 seconds
+MTEPS: 703.967
+Total communication (average so far): 0.83285
+9th starting vertex was 4769926
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.74603 seconds
+MTEPS: 709.502
+Total communication (average so far): 0.832872
+10th starting vertex was 26674230
+Number iterations: 145
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.82535 seconds
+MTEPS: 702.311
+Total communication (average so far): 0.831494
+11th starting vertex was 74707118
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.74032 seconds
+MTEPS: 710.026
+Total communication (average so far): 0.830909
+12th starting vertex was 40297420
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.69931 seconds
+MTEPS: 713.808
+Total communication (average so far): 0.829849
+13th starting vertex was 58197666
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.6943 seconds
+MTEPS: 714.273
+Total communication (average so far): 0.829077
+14th starting vertex was 56343323
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.77977 seconds
+MTEPS: 706.426
+Total communication (average so far): 0.830721
+15th starting vertex was 13556803
+Number iterations: 143
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.75232 seconds
+MTEPS: 708.927
+Total communication (average so far): 0.831621
+Finished
+Per iteration communication times: 
+AllGatherv: 0.399321
+AlltoAllv: 0.4323
+--------------------------
+Min nedges: 5.49583e+09
+First Quartile nedges: 5.49583e+09
+Median nedges: 5.49583e+09
+Third Quartile nedges: 5.49583e+09
+Max nedges: 5.49583e+09
+Mean nedges: 5.49583e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 7.67452 seconds
+First Quartile time: 7.70011 seconds
+Median time: 7.73415 seconds
+Third Quartile time: 7.75789 seconds
+Max time: 7.82535 seconds
+Mean time: 7.73766 seconds
+STDDEV time: 0.0420715 seconds
+--------------------------
+Min MTEPS: 702.311
+First Quartile MTEPS: 708.418
+Median MTEPS: 710.593
+Third Quartile MTEPS: 713.734
+Max MTEPS: 716.114
+Harmonic mean of MTEPS: 710.27
+Harmonic standard deviation of MTEPS: 3.86191
+Optimization buffers set
+0th starting vertex was 39208208
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.33746 seconds
+MTEPS: 749.01
+Total communication (average so far): 0.831127
+1th starting vertex was 27328405
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.20643 seconds
+MTEPS: 762.629
+Total communication (average so far): 0.82154
+2th starting vertex was 12259307
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.21449 seconds
+MTEPS: 761.776
+Total communication (average so far): 0.816104
+3th starting vertex was 19608198
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.27739 seconds
+MTEPS: 755.193
+Total communication (average so far): 0.820935
+4th starting vertex was 65617101
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.24038 seconds
+MTEPS: 759.053
+Total communication (average so far): 0.817115
+5th starting vertex was 124880879
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.38823 seconds
+MTEPS: 743.863
+Total communication (average so far): 0.819757
+6th starting vertex was 55377619
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.3427 seconds
+MTEPS: 748.476
+Total communication (average so far): 0.820415
+7th starting vertex was 83031004
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.25463 seconds
+MTEPS: 757.561
+Total communication (average so far): 0.817383
+8th starting vertex was 84159031
+Number iterations: 143
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.43759 seconds
+MTEPS: 738.926
+Total communication (average so far): 0.818269
+9th starting vertex was 4769926
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.32077 seconds
+MTEPS: 750.718
+Total communication (average so far): 0.817711
+10th starting vertex was 26674230
+Number iterations: 145
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.31043 seconds
+MTEPS: 751.779
+Total communication (average so far): 0.818109
+11th starting vertex was 74707118
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.26858 seconds
+MTEPS: 756.108
+Total communication (average so far): 0.81741
+12th starting vertex was 40297420
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.32078 seconds
+MTEPS: 750.717
+Total communication (average so far): 0.816175
+13th starting vertex was 58197666
+Number iterations: 141
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.23048 seconds
+MTEPS: 760.092
+Total communication (average so far): 0.814288
+14th starting vertex was 56343323
+Number iterations: 142
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.31959 seconds
+MTEPS: 750.838
+Total communication (average so far): 0.815946
+15th starting vertex was 13556803
+Number iterations: 143
+Number of vertices found: 130831972
+Number of edges traversed: 5495829062
+BFS time: 7.33968 seconds
+MTEPS: 748.783
+Total communication (average so far): 0.816621
+Finished
+Per iteration communication times: 
+AllGatherv: 0.393925
+AlltoAllv: 0.422696
+--------------------------
+Min nedges: 5.49583e+09
+First Quartile nedges: 5.49583e+09
+Median nedges: 5.49583e+09
+Third Quartile nedges: 5.49583e+09
+Max nedges: 5.49583e+09
+Mean nedges: 5.49583e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 7.20643 seconds
+First Quartile time: 7.2475 seconds
+Median time: 7.31501 seconds
+Third Quartile time: 7.33857 seconds
+Max time: 7.43759 seconds
+Mean time: 7.3006 seconds
+STDDEV time: 0.0637074 seconds
+--------------------------
+Min MTEPS: 738.926
+First Quartile MTEPS: 748.896
+Median MTEPS: 751.309
+Third Quartile MTEPS: 758.307
+Max MTEPS: 762.629
+Harmonic mean of MTEPS: 752.791
+Harmonic standard deviation of MTEPS: 6.5691
+Application 1855279 resources: utime ~293813s, stime ~20147s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script484_ukunion
+ +          Job Id: 290578.sdb
+ +          System: hopper2
+ +     Queued Time: Thu Apr 14 22:31:36 2011
+ +      Start Time: Thu Apr 14 23:48:24 2011
+ + Completion Time: Fri 15 Apr 2011 12:02:01 AM PDT
+ +            User: abuluc
+ +        MOM Host: nid04942
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:8531:hopper08,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=5248kb,vmem=36428kb,walltime=00:13:37
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script484_ukunion
+ + --------------------------------------------------------------------------
+
