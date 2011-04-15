@@ -131,6 +131,9 @@ CombBLAS/Applications/SC2011_FranklinResults/script4096_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script4096_scale32 -text
 CombBLAS/Applications/SC2011_FranklinResults/script484_hybrid_scale29 -text
 CombBLAS/Applications/SC2011_FranklinResults/script484_scale29 -text
+CombBLAS/Applications/SC2011_FranklinResults/script6400_hybrid_scale32 -text
+CombBLAS/Applications/SC2011_FranklinResults/script8100_hybrid_scale32 -text
+CombBLAS/Applications/SC2011_FranklinResults/script8100_scale32 -text
 CombBLAS/Applications/SC2011_HopperResults/script10000_scale30_flat -text
 CombBLAS/Applications/SC2011_HopperResults/script10000_scale32_flat -text
 CombBLAS/Applications/SC2011_HopperResults/script10086_hybrid_scale30_split6 -text
