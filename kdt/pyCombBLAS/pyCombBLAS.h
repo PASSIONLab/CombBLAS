@@ -93,7 +93,7 @@ EWiseArg EWise_OnlyNZ(pyDenseParVec* v); // shouldn't be used, but here for comp
 
 //INTERFACE_INCLUDE_END
 // Swig doesn't seem to handle this, actually
-#ifdef SWIG<python>
+#ifdef SWIG_python
 //INTERFACE_INCLUDE_BEGIN
 /*
 %typemap(in) char ** {
@@ -202,6 +202,7 @@ EWiseArg EWise_OnlyNZ(pyDenseParVec* v); // shouldn't be used, but here for comp
 //INTERFACE_INCLUDE_BEGIN
 
 void EWise(PyObject *pyewisefunc, int argc, EWiseArgDescriptor* argv, PyObject *argList);
+void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v);
 
 //INTERFACE_INCLUDE_END
 

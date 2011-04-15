@@ -535,6 +535,10 @@ def EWise(*args):
   return _pyCombBLAS.EWise(*args)
 EWise = _pyCombBLAS.EWise
 
+def Graph500VectorOps(*args):
+  return _pyCombBLAS.Graph500VectorOps(*args)
+Graph500VectorOps = _pyCombBLAS.Graph500VectorOps
+
 
 def EWise_OnlyNZ(*args):
   return _pyCombBLAS.EWise_OnlyNZ(*args)

@@ -142,7 +142,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		}
 		if (continue_)
 			continue;
-		
+				
 		// Now that we've found a position with non-nulls, assemble the arguments
 		for (int i = 0; i < argc; i++)
 		{
@@ -153,13 +153,13 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 						int64_t idx = argv[i].iter->GetLocIndex();
 						if (idx == -1 || idx > index)
 						{
-							// This is vector doesn't have an element in for this index, so pass None instead
+							// This vector doesn't have an element in for this index, so pass None instead
 							PyList_SetItem(argList, i, Py_None);
 						}
 						else
 						{
 							doubleint& v = argv[i].iter->GetValue();
-							PyObject* value = Py_BuildValue("d", v.d); // build None
+							PyObject* value = Py_BuildValue("d", v.d);
 							PyList_SetItem(argList, i, value);
 						}
 					}
@@ -224,12 +224,49 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		}
 
 		// advance
-		iters[0]->Next();
+		if (iters[0]->GetLocIndex() == index) // we might have already advanced by deleting an element
+			iters[0]->Next();
 		index = iters[0]->GetLocIndex();
 	}
 	
 	Py_DECREF(arglistlist);                                 // Trash arglist
 	delete [] iters;
+}
+
+void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v)
+{
+	SparseVectorLocalIterator<int64_t, doubleint> fringe(fringe_v.v);
+	DenseVectorLocalIterator<int64_t, doubleint> parents(parents_v.v);
+
+	pySpParVec newfringe_v(fringe_v.__len__());	
+	SparseVectorLocalIterator<int64_t, doubleint> newfringe(newfringe_v.v);
+
+	int64_t index;
+	int64_t globalIndexStart = fringe.LocalToGlobal(0);
+	while ((index = fringe.GetLocIndex()) >= 0)
+	{
+		parents.NextTo(index);
+		doubleint& f = fringe.GetValue();
+		doubleint& p = parents.GetValue();
+		
+		if (p == -1)
+		{
+			// discovered new vertex, set its parent
+			parents.Set(index, f);
+			//newfringe.Set(index, doubleint(globalIndexStart+index));
+			newfringe.Append(index, doubleint(globalIndexStart+index));
+			//fringe.Set(index, doubleint(globalIndexStart+index));
+			//fringe.Next();
+		}
+		else
+		{
+			// this has already been discovered
+			//fringe.Del();
+		}
+		fringe.Next();
+	}
+	fringe_v.v.stealFrom(newfringe_v.v);
+	//fringe_v.v = newfringe_v.v;
 }
 
 ////////////////////////// INITALIZATION/FINALIZE

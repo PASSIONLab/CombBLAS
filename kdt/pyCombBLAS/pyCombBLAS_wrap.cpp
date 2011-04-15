@@ -14961,6 +14961,52 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Graph500VectorOps(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Graph500VectorOps",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Graph500VectorOps" "', argument " "1"" of type '" "pySpParVec &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Graph500VectorOps" "', argument " "1"" of type '" "pySpParVec &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Graph500VectorOps" "', argument " "2"" of type '" "pyDenseParVec &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Graph500VectorOps" "', argument " "2"" of type '" "pyDenseParVec &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  {
+    try {
+      Graph500VectorOps(*arg1,*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"new_pySpParMat", _wrap_new_pySpParMat, METH_VARARGS, NULL},
@@ -15163,6 +15209,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"EWise_Index", _wrap_EWise_Index, METH_VARARGS, NULL},
 	 { (char *)"EWise_OnlyNZ", _wrap_EWise_OnlyNZ, METH_VARARGS, NULL},
 	 { (char *)"EWise", _wrap_EWise, METH_VARARGS, NULL},
+	 { (char *)"Graph500VectorOps", _wrap_Graph500VectorOps, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
