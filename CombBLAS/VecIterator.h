@@ -99,7 +99,11 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	IT iter_idx;
 	
 	public:
-	SparseVectorLocalIterator(FullyDistSpVec<IT, NT>& in_v): v(in_v), iter_idx(0) {}
+	SparseVectorLocalIterator(FullyDistSpVec<IT, NT>& in_v): v(in_v), iter_idx(0)
+	{
+		if (v.ind.size() == 0)
+			iter_idx = -1;
+	}
 	
 	IT LocalToGlobal(IT loc_idx) const
 	{
@@ -171,11 +175,11 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	void Set(const IT loc_idx, const NT& val)
 	{
 		// see if we're just replacing the current value
-		if (loc_idx == v.ind[iter_idx])
+		/*if (loc_idx >= 0 && loc_idx == v.ind[iter_idx])
 		{
 			v.num[iter_idx] = val;
 			return;
-		}
+		}*/
 		
 		// inserted elsewhere
 		// This is from FullyDistSpVec::SetElement():
@@ -196,6 +200,12 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 		{
 			*(v.num.begin() + (iter-v.ind.begin())) = val;
 		}
+	}
+	
+	void Append(const IT loc_idx, const NT& val)
+	{
+		v.ind.push_back(loc_idx);
+		v.num.push_back(val);
 	}
 };
 

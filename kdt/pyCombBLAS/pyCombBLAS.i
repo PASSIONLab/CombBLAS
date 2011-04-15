@@ -571,5 +571,6 @@ EWiseArg EWise_OnlyNZ(pyDenseParVec* v); // shouldn't be used, but here for comp
 
 
 void EWise(PyObject *pyewisefunc, int argc, EWiseArgDescriptor* argv, PyObject *argList);
+void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v);
 
 

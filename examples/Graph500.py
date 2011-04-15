@@ -132,13 +132,16 @@ def bfsTreeEWise(G, root, sym=False):
 			# vertex already discovered. Remove it from the fringe
 			vals[0] = None
 	
-	i = 1
+	ops = 0;
 	while fringe.getnee() > 0:
-		print "on iteration %d: -----------------",(i)
-		i += 1
 		G._spm.SpMV_SelMax_inplace(fringe)
-		pcb.EWise(iterop, [pcb.EWise_OnlyNZ(fringe), parents, pcb.EWise_Index()])
-		
+		#opss = time.time()
+		#pcb.EWise(iterop, [pcb.EWise_OnlyNZ(fringe), parents, pcb.EWise_Index()])
+		pcb.Graph500VectorOps(fringe, parents)
+		#ops = ops + (time.time() - opss)
+	
+	#print "time: %fs"%(ops)
+	
 	if not sym:
 		G.T()
 	return kdt.ParVec.toParVec(parents)
