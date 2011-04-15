@@ -135,6 +135,7 @@ public:
 	template <typename _BinaryOperation>
 	void UpdateDense(DenseParMat<IT, NT> & rhs, _BinaryOperation __binary_op) const;
 
+	void Dump(string filename) const;
 	void PrintInfo() const;
 
 	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	//!< Type conversion operator

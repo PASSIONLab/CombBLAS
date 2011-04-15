@@ -59,6 +59,61 @@ SpParMat< IT,NT,DER >::~SpParMat ()
 
 
 template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::Dump(string filename) const
+{
+	MPI::Intracomm World = commGrid->GetWorld();
+    	int rank = World.Get_rank();
+    	int nprocs = World.Get_size();
+    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+	int rankinrow = commGrid->GetRankInProcRow();
+	int rankincol = commGrid->GetRankInProcCol();
+	int rowneighs = commGrid->GetGridCols();	// get # of processors on the row
+	int colneighs = commGrid->GetGridRows();
+
+	IT * colcnts = new IT[rowneighs];
+	IT * rowcnts = new IT[colneighs];
+	rowcnts[rankincol] = getlocalrows();
+	colcnts[rankinrow] = getlocalcols();
+
+	commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), colcnts, 1, MPIType<IT>());
+	IT coloffset = accumulate(colcnts, colcnts+rankinrow, 0);
+
+	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), rowcnts, 1, MPIType<IT>());
+	IT rowoffset = accumulate(rowcnts, rowcnts+rankincol, 0);
+	
+	DeleteAll(colcnts, rowcnts);
+
+	IT * prelens = new IT[nprocs];
+	prelens[rank] = 2*getlocalnnz();
+	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
+
+	// The disp displacement argument specifies the position 
+	// (absolute offset in bytes from the beginning of the file) 
+    	thefile.Set_view(int64_t(lengthuntil * sizeof(uint32_t)), MPI::UNSIGNED, MPI::UNSIGNED, "native", MPI::INFO_NULL);
+	uint32_t * gen_edges = new uint32_t[prelens[rank]];
+
+	IT k = 0;
+	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+	{
+		for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+		{
+			gen_edges[k++] = (uint32_t) (nzit.rowid() + rowoffset);
+			gen_edges[k++] = (uint32_t) (colit.colid() +  coloffset);
+		}
+	}
+	assert(k == prelens[rank]);
+
+	thefile.Write(gen_edges, prelens[rank], MPI::UNSIGNED);
+	thefile.Close();
+
+	delete [] prelens;
+	delete [] gen_edges;
+}
+
+
+template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)
 {
 	if(rhs.spSeq != NULL)	
