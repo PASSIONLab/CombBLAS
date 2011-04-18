@@ -274,6 +274,20 @@ class BuiltInTests(ParVecTests):
         for ind in range(ndxTrue):
 	    self.assertEqual(expI[ind], vec3[ind])
 
+    def test_indexing_RHS_ParVec_ParVec_scalar_negative(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+	ndx = ParVec(1)
+        ndx[0] = -4
+	self.assertRaises(IndexError,ParVec.__getitem__,vec1, ndx)
+
+    def test_indexing_RHS_ParVec_ParVec_scalar_tooBig(self):
+	sz = 18
+        vec1 = ParVec.range(sz)*ParVec.range(sz)
+	ndx = ParVec(1)
+        ndx[0] = 2**36
+	self.assertRaises(IndexError,ParVec.__getitem__,vec1, ndx)
+
     def test_indexing_LHS_ParVec_ParVec(self):
 	# Disabled because underlying ParVec method not implemented
 	return	
