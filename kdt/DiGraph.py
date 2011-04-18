@@ -57,6 +57,8 @@ class DiGraph(gr.Graph):
 				raise NotImplementedError, '1-argument case only accepts negative value'
 		elif len(args) == 4:
 			[i,j,v,nv] = args
+			if len(i) != len(j):
+				raise KeyError, 'source and destination vectors must be same length'
 			if type(v) == int or type(v) == long or type(v) == float:
 				v = ParVec.broadcast(len(i),v)
 			if i.max() > nv-1:
@@ -66,6 +68,8 @@ class DiGraph(gr.Graph):
 			self._spm = pcb.pySpParMat(nv,nv,i._dpv,j._dpv,v._dpv)
 		elif len(args) == 5:
 			[i,j,v,nv1,nv2] = args
+			if len(i) != len(j):
+				raise KeyError, 'source and destination vectors must be same length'
 			if type(v) == int or type(v) == long or type(v) == float:
 				v = ParVec.broadcast(len(i),v)
 			if i.max() > nv1-1:
@@ -696,11 +700,11 @@ class DiGraph(gr.Graph):
 
 	def toParVec(self):
 		"""
-		decomposes a DiGraph instance to 3 DiGraph instances, with each
-		element of the first DiGraph denoting the source vertex of an edge,
-		the corresponding element of the second DiGraph denoting the 
+		decomposes a DiGraph instance to 3 ParVec instances, with each
+		element of the first ParVec denoting the source vertex of an edge,
+		the corresponding element of the second ParVec denoting the 
 		destination vertex of the edge, and the corresponding element of
-		the third DiGraph denoting the value or weight of the edge.
+		the third ParVec denoting the value or weight of the edge.
 
 		Input Argument:
 			self:  a DiGraph instance
@@ -822,8 +826,8 @@ class DiGraph(gr.Graph):
 			parents:  a ParVec instance of length equal to the number
 			    vertices in the DiGraph, with each element denoting 
 			    the vertex number of that vertex's parent in the tree.
-			    The root is its own parent.  Unreachable vertices
-			    have a parent of -1. 
+			    The root is its own parent.  Vertices unreachable
+			    from the root have a parent of -1. 
 			sym:  a scalar Boolean denoting whether the DiGraph is 
 			    symmetric (i.e., each edge from vertex i to vertex j
 			    has a companion edge from j to i).  If the DiGraph 

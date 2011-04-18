@@ -1110,10 +1110,12 @@ Python/serialSciPy/Graph.py -text
 Python/serialSciPy/Graph500.py -text
 /README.txt -text
 examples/Graph500.py -text
+examples/Graph500_HyGraph.py -text
 examples/note_for_kdt_developers.txt -text
 examples/stats.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
+kdt/HyGraph.py -text
 kdt/UFget.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text
@@ -1145,9 +1147,11 @@ kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
+test/TestHyGraph.py -text
 test/TestKDT.py -text
 test/TestParVec.py -text
 test/TestSpParVec.py -text
 test/note_for_kdt_developers.txt -text
+test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
 /v0.1_checklist -text

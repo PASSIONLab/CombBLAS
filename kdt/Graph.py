@@ -224,7 +224,7 @@ class ParVec:
 		#    support SPV = DPV[unary-op()]
 		if type(key) == int or type(key) == long or type(key) == float:
 			if key < 0 or key >= self._dpv.len():
-				raise IndexError
+				raise IndexError, 'scalar index out of bounds'
 			ret = self._dpv[key]
 		elif isinstance(key,ParVec):
 			if len(key) == 0:
@@ -232,6 +232,8 @@ class ParVec:
 			if not key.allCloseToInt():
 				raise KeyError, 'ParVec key must be all integer'
 			if not key.isBool():
+				if key.min() < 0 or key.max() >= self._dpv.len():
+					raise IndexError, 'at least one index out of bounds'
 				ret = ParVec(-1)
 				ret._dpv = self._dpv[key._dpv]
 			else:
@@ -241,16 +243,18 @@ class ParVec:
 				return SpParVec(0)
 			if not key.allCloseToInt():
 				raise KeyError, 'SpParVec key must be all integer'
-			if key.isBool():
+			if not key.isBool():
+				if key.min() < 0 or key.max() >= self._dpv.len():
+					raise IndexError, 'at least one index out of bounds'
+				ret = SpParVec(-1)
+				ret._spv = self._dpv.sparse()[key._spv]
+			else:
 				ret = ParVec(-1)
 				ndx = key.copy()
 				ndx2 = (ndx.toParVec()) == 0
 				del ndx._spv[ndx2._dpv]
 				ndx.spRange()
 				ret = self[ndx.toParVec().findInds()]
-			else:
-				ret = SpParVec(-1)
-				ret._spv = self._dpv.sparse()[key._spv]
 		else:
 			raise KeyError, 'Key must be integer scalar, ParVec, or SpParVec'
 		return ret
@@ -645,7 +649,7 @@ class ParVec:
 
 	def nnz(self):
 		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
-		return ret
+		return int(ret)
 
 	def norm(self,ord=None):
 		"""
@@ -767,7 +771,8 @@ class ParVec:
 
 	@staticmethod
 	def toParVec(DPV):
-		if not isinstance(DPV, pcb.pyDenseParVec):
+		#if not isinstance(DPV, pcb.pyDenseParVec):
+		if not DPV.__class__.__name__ == 'pyDenseParVec':
 			raise TypeError, 'Only supported for pyDenseParVec instances'
 		ret = ParVec(-1)
 		ret._dpv = DPV
@@ -794,6 +799,16 @@ class ParVec:
 	def toSpParVec(self):
 		ret = SpParVec(-1)
 		ret._spv = self._dpv.sparse()
+		return ret
+
+	def toSpParVecAll(self):
+		"""
+		is a hack place-holder for a routine that converts a ParVec to
+		an SpParVec, preserving all zeros in the ParVec as nonnull zeros
+		in the SpParVec.  This hack version is suitable for use on 
+		integer ParVecs, as those deriving from indices.
+		"""
+		ret = ((self+0.1).toSpParVec())-0.1
 		return ret
 
 	@staticmethod
@@ -1192,7 +1207,7 @@ class SpParVec:
 		"""
 		if self.nnn() > self._REPR_MAX:
 			tmplen = self._REPR_MAX*len(self)/self.nnn()
-			tmpndx = SpParVec.range(tmplen)
+			tmpndx = ParVec.range(tmplen)
 			tmp = self[tmpndx]
 			if self._REPR_WARN == 0:
 				if master():
@@ -1462,7 +1477,7 @@ class SpParVec:
 		SEE ALSO:  nn, nnn
 		"""
 		ret = self._spv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
-		return ret
+		return int(ret)
 
 	@staticmethod
 	def ones(sz):
@@ -1623,7 +1638,8 @@ class SpParVec:
 
 	@staticmethod
 	def toSpParVec(SPV):
-		if not isinstance(SPV, pcb.pySpParVec):
+		#if not isinstance(SPV, pcb.pySpParVec):
+		if SPV.__class__.__name__ != 'pySpParVec':
 			raise TypeError, 'Only accepts pySpParVec instances'
 		ret = SpParVec(-1)
 		ret._spv = SPV
