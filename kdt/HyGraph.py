@@ -368,6 +368,20 @@ class HyGraph(gr.Graph):
 #		elapsedTime = self._spm.GenGraph500Edges(scale)
 #	 	return elapsedTime
 #
+	#in-place, so no return value
+	def invertEdgesVertices(self):
+		"""
+		inverts in-place the meaning of vertex and edge in a HyGraph 
+		instance.  Each edge incident to a set of vertices becomes a vertex
+		incident to a set of edges and vice versa.
+
+		Input Argument:
+			self:  a HyGraph instance, modified in-place.
+		"""
+		tmp = self._spm
+		self._spm = self._spmT
+		self._spmT = tmp
+
 	@staticmethod
 	def load(fname):
 		"""
@@ -533,20 +547,6 @@ class HyGraph(gr.Graph):
 #	#	self._spm.Apply(pcb.set(1))
 #	#	return
 #
-	#in-place, so no return value
-	def reverseEdges(self):
-		"""
-		interchanges in-place the meaning of vertex and edge in a HyGraph 
-		instance.  Each edge incident to a set of vertices becomes a vertex
-		incident to a set of edges and vice versa.
-
-		Input Argument:
-			self:  a HyGraph instance, modified in-place.
-		"""
-		tmp = self._spm
-		self._spm = self._spmT
-		self._spmT = tmp
-
 #	def save(self, fname):
 #		"""
 #		saves the contents of the passed DiGraph instance to a file named
@@ -678,7 +678,7 @@ class HyGraph(gr.Graph):
 #		else:
 #			raise KeyError, 'Invalid edge direction'
 #
-	_T = reverseEdges
+	_T = invertEdgesVertices
 
 	# in-place, so no return value
 	def toBool(self):
