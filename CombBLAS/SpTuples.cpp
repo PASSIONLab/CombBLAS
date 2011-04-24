@@ -9,9 +9,6 @@
 #include "SpParHelper.h"
 #include <iomanip>
 
-template <class IT, class NT>
-const IT SpTuples<IT,NT>::zero = static_cast<IT>(0);
-
 
 template <class IT,class NT>
 SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
@@ -215,7 +212,7 @@ template <class IT,class NT>
 ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 {
 	cout << "Getting... SpTuples" << endl;
-	IT cnz = SpTuples<IT,NT>::zero;
+	IT cnz = 0;
 	if (infile.is_open())
 	{
 		while ( (!infile.eof()) && cnz < nnz)
@@ -279,11 +276,11 @@ void SpTuples<IT,NT>::PrintInfo()
 	if(m < 8 && n < 8)	// small enough to print
 	{
 		NT ** A = SpHelper::allocate2D<NT>(m,n);
-		for(IT i=zero; i< m; ++i)
-			for(IT j=zero; j<n; ++j)
+		for(IT i=0; i< m; ++i)
+			for(IT j=0; j<n; ++j)
 				A[i][j] = 0.0;
 		
-		for(IT i=zero; i< nnz; ++i)
+		for(IT i=0; i< nnz; ++i)
 		{
 			A[rowindex(i)][colindex(i)] = numvalue(i);			
 		} 

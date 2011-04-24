@@ -6,22 +6,22 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
 { }
 
 
@@ -266,7 +266,7 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 	IT length = MyLocLength();
 	ind.resize(length);
 	num.resize(length);
-	SpHelper::iota(ind.begin(), ind.end(), zero);	// offset'd within processors
+	SpHelper::iota(ind.begin(), ind.end(), 0);	// offset'd within processors
 	SpHelper::iota(num.begin(), num.end(), LengthUntil() + first);	// global across processors
 }
 
@@ -488,7 +488,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 		
 					// now push what is ours to tuples
-					for(IT i=zero; i< recvcount; ++i)
+					for(IT i=0; i< recvcount; ++i)
 					{					
 						ind.push_back( tempinds[i] );	// already offset'd by the sender
 						num.push_back( tempvals[i] );
@@ -534,7 +534,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
 
 			// now push what is ours to tuples
-			for(IT i=zero; i< recvcount; ++i)
+			for(IT i=0; i< recvcount; ++i)
 			{					
 				ind.push_back( tempinds[i] );
 				num.push_back( tempvals[i] );

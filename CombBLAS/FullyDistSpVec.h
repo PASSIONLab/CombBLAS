@@ -155,7 +155,7 @@ protected:
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	IT zero;
+	NT zero;
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;

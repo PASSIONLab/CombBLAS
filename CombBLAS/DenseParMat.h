@@ -86,7 +86,6 @@ public:
 	shared_ptr<CommGrid> getcommgrid () { return commGrid; }	
 
 private:
-	const static IT zero = static_cast<IT>(0);
 	shared_ptr<CommGrid> commGrid; 
 	NT ** array;
 	IT m, n;	// Local columns and rows

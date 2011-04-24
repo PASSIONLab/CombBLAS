@@ -126,7 +126,6 @@ private:
 	vector< NT > num;
 	IT length;		// actual local length of the vector (including zeros)
 	bool diagonal;
-	const static IT zero = static_cast<IT>(0);
 
 	template <class IU, class NU>
 	friend class SpParVec;

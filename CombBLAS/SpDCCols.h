@@ -195,10 +195,9 @@ public:
 
 	Arr<IT,NT> GetArrays() const;
 	vector<IT> GetEssentials() const;
+	const static IT esscount;
 
-	const static IT esscount = static_cast<IT>(4);
-
-	bool isZero() const { return (nnz == zero); }
+	bool isZero() const { return (nnz == 0); }
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
@@ -244,7 +243,6 @@ private:
 	IT m;
 	IT n;
 	IT nnz;
-	const static IT zero;
 	
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;
