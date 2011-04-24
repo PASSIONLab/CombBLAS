@@ -16,9 +16,6 @@
 
 using namespace std;
 
-template <class IT, class NT>
-const IT Dcsc<IT,NT>::zero = static_cast<IT>(0);
-
 
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0),pool(NULL){}
@@ -251,7 +248,7 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 	ir[0]	= rindex;
 	numx[0] = multstack[0].value;
 	jc[curnzc] = cindex;
-	cp[curnzc] = zero; 
+	cp[curnzc] = 0; 
 	++curnzc;
 
 	for(IT i=1; i<nz; ++i)
@@ -427,7 +424,7 @@ Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assig
 	IT curnz = 0;
 	IT i = 0;
 	IT j = 0;
-	temp.cp[0] = zero;
+	temp.cp[0] = 0;
 	while(i< nzc && j<rhs.nzc)
 	{
 		if(jc[i] > rhs.jc[j])
@@ -656,8 +653,8 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 	aux  = new IT[colchunks+1]; 
 
 	IT chunksize	= static_cast<IT>(ceil(cf));
-	IT reg		= zero;
-	IT curchunk	= zero;
+	IT reg		= 0;
+	IT curchunk	= 0;
 	aux[curchunk++] = 0;
 	for(IT i = 0; i< nzc; ++i)
 	{
@@ -776,7 +773,7 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	IT * itr = lower_bound(jc, jc+nzc, cut);
 	IT pos = itr - jc;
 
-	if(cp[pos] == zero)
+	if(cp[pos] == 0)
 	{
 		A = NULL;
 	}
@@ -788,7 +785,7 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 		memcpy(A->ir, ir, cp[pos] * sizeof(IT));
 		memcpy(A->numx, numx, cp[pos] * sizeof(NT));
 	}	
-	if(nz-cp[pos] == zero)
+	if(nz-cp[pos] == 0)
 	{
 		B = NULL;
 	}

@@ -21,7 +21,7 @@ using namespace std;
 /****************************************************************************/
 
 template <class IT, class NT>
-const IT SpDCCols<IT,NT>::zero = static_cast<IT>(0);
+const IT SpDCCols<IT,NT>::esscount = static_cast<IT>(4);
 
 
 template <class IT, class NT>
@@ -111,8 +111,8 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 				dcsc = new Dcsc<IT,NT>(rhs.nnz, localnzc, localpool);
 	 		}		
 
-			dcsc->jc[zero]  = rhs.rowindex(zero); 
-			dcsc->cp[zero] = zero;
+			dcsc->jc[0]  = rhs.rowindex(0); 
+			dcsc->cp[0] = 0;
 
 			for(IT i=0; i<rhs.nnz; ++i)
 	 		{
@@ -150,8 +150,8 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc, localpool);
 			}
 
-			dcsc->jc[zero]  = rhs.colindex(zero); 
-			dcsc->cp[zero] = zero;
+			dcsc->jc[0]  = rhs.colindex(0); 
+			dcsc->cp[0] = 0;
 
 			for(IT i=0; i<rhs.nnz; ++i)
 			{
@@ -270,7 +270,7 @@ void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 		{
 			if(rhs.nnz == 0 && exclude)
 			{
-				*this = SpDCCols<IT,NT>(zero,m,n,zero);	// completely reset the matrix
+				*this = SpDCCols<IT,NT>(0,m,n,0);	// completely reset the matrix
 			}
 			else if (rhs.nnz != 0 && nnz != 0)
 			{
@@ -314,8 +314,7 @@ void SpDCCols<IT,NT>::EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 template <class IT, class NT>
 void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 {
-	//assert(essentials.size() == SpDCCols_esscount);
-
+	assert(essentials.size() == esscount);
 	nnz = essentials[0];
 	m = essentials[1];
 	n = essentials[2];
@@ -349,7 +348,7 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 template <class IT, class NT>
 vector<IT> SpDCCols<IT,NT>::GetEssentials() const
 {
-	vector<IT> essentials(4);
+	vector<IT> essentials(esscount);
 	essentials[0] = nnz;
 	essentials[1] = m;
 	essentials[2] = n;
@@ -384,10 +383,10 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 	}
 	else
 	{
-		arr.indarrs[0] = LocArr<IT,IT>(NULL, zero);
-		arr.indarrs[1] = LocArr<IT,IT>(NULL, zero);
-		arr.indarrs[2] = LocArr<IT,IT>(NULL, zero);
-		arr.numarrs[0] = LocArr<NT,IT>(NULL, zero);
+		arr.indarrs[0] = LocArr<IT,IT>(NULL, 0);
+		arr.indarrs[1] = LocArr<IT,IT>(NULL, 0);
+		arr.indarrs[2] = LocArr<IT,IT>(NULL, 0);
+		arr.numarrs[0] = LocArr<NT,IT>(NULL, 0);
 	
 	}
 	return arr;
@@ -412,7 +411,7 @@ void SpDCCols<IT,NT>::Transpose()
 	}
 	else
 	{
-		*this = SpDCCols<IT,NT>(zero, n, m, zero, localpool);
+		*this = SpDCCols<IT,NT>(0, n, m, 0, localpool);
 	}
 }
 
@@ -441,7 +440,7 @@ template <class IT, class NT>
 void SpDCCols<IT,NT>::Split(SpDCCols<IT,NT> & partA, SpDCCols<IT,NT> & partB) 
 {
 	IT cut = n/2;
-	if(cut == zero)
+	if(cut == 0)
 	{
 		cout<< "Matrix is too small to be splitted" << endl;
 		return;
@@ -514,7 +513,7 @@ int SpDCCols<IT,NT>::PlusEq_AnXBt(const SpDCCols<IT,NT> & A, const SpDCCols<IT,N
 	SpHelper::SpIntersect(*(A.dcsc), *(B.dcsc), cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
-	if(kisect == zero)
+	if(kisect == 0)
 	{
 		DeleteAll(isect1, isect2, cols, rows);
 		return -1;
@@ -637,7 +636,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::operator() (const vector<IT> & ri, const vector
 	{
 		// return an m x n matrix of complete zeros
 		// since we don't know whether columns or rows are indexed
-		return SpDCCols<IT,NT> (zero, m, n, zero);		
+		return SpDCCols<IT,NT> (0, m, n, 0);		
 	}
 	else if(rsize == 0)
 	{
@@ -802,16 +801,16 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci) const
 	IT csize = ci.size();
 	if(nnz == 0)	// nothing to index
 	{
-		return SpDCCols<IT,NT>(zero, m, csize, zero);	
+		return SpDCCols<IT,NT>(0, m, csize, 0);	
 	}
 	else if(ci.empty())
 	{
-		return SpDCCols<IT,NT>(zero, m,zero, zero);
+		return SpDCCols<IT,NT>(0, m,0, 0);
 	}
 
 	// First pass for estimation
-	IT estsize = zero;
-	IT estnzc = zero;
+	IT estsize = 0;
+	IT estnzc = 0;
 	for(IT i=0, j=0;  i< dcsc->nzc && j < csize;)
 	{
 		if((dcsc->jc)[i] < ci[j])
@@ -832,7 +831,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::ColIndex(const vector<IT> & ci) const
 	}
 	
 	SpDCCols<IT,NT> SubA(estsize, m, csize, estnzc);	
-	if(estnzc == zero)
+	if(estnzc == 0)
 	{
 		return SubA;		// no need to run the second pass
 	}
@@ -872,7 +871,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 
 	if(isZero() || rhs.isZero())
 	{
-		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);		// return an empty matrix	
+		return SpDCCols< IT, T_promote > (0, m, rhs.n, 0);		// return an empty matrix	
 	}
 	SpDCCols<IT,NTR> Btrans = rhs.TransposeConst();
 
@@ -880,10 +879,10 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdOu
 	SpHelper::SpIntersect(*dcsc, *(Btrans.dcsc), cols, rows, isect1, isect2, itr1, itr2);
 	
 	IT kisect = static_cast<IT>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
-	if(kisect == zero)
+	if(kisect == 0)
 	{
 		DeleteAll(isect1, isect2, cols, rows);
-		return SpDCCols< IT, T_promote > (zero, m, rhs.n, zero);	
+		return SpDCCols< IT, T_promote > (0, m, rhs.n, 0);	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpCartesian< SR > (*dcsc, *(Btrans.dcsc), kisect, isect1, isect2, multstack);  
@@ -907,7 +906,7 @@ SpDCCols< IT, typename promote_trait<NT,NTR>::T_promote > SpDCCols<IT,NT>::OrdCo
 
 	if(isZero() || rhs.isZero())
 	{
-		return SpDCCols<IT, T_promote> (zero, m, rhs.n, zero);		// return an empty matrix	
+		return SpDCCols<IT, T_promote> (0, m, rhs.n, 0);		// return an empty matrix	
 	}
 	StackEntry< T_promote, pair<IT,IT> > * multstack;
 	IT cnz = SpHelper::SpColByCol< SR > (*dcsc, *(rhs.dcsc), n, multstack);  

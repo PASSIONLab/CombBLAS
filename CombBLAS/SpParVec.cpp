@@ -5,7 +5,7 @@
 using namespace std;
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(zero), NOT_FOUND(numeric_limits<NT>::min())
+SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid): commGrid(grid), length(0), NOT_FOUND(numeric_limits<NT>::min())
 {
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -24,12 +24,12 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid, IT loclen): commGrid(gri
 	else
 	{
 		diagonal = false;	
-		length = zero;
+		length = 0;
 	}
 };
 
 template <class IT, class NT>
-SpParVec<IT, NT>::SpParVec (): length(zero), NOT_FOUND(numeric_limits<NT>::min())
+SpParVec<IT, NT>::SpParVec (): length(0), NOT_FOUND(numeric_limits<NT>::min())
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 	
@@ -51,7 +51,7 @@ SpParVec<IT, NT>::SpParVec (IT loclen): NOT_FOUND(numeric_limits<NT>::min())
 	else
 	{
 		diagonal = false;	
-		length = zero;
+		length = 0;
 	}
 }
 
@@ -183,7 +183,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 			sdispls[i+1] = sdispls[i] + sendcnt[i];
 			rdispls[i+1] = rdispls[i] + recvcnt[i];
 		}
-		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,0);
 		IT * recvbuf = new IT[totrecv];
 
 		for(int i=0; i<nprocs; ++i)
@@ -255,7 +255,7 @@ void SpParVec<IT,NT>::iota(IT size, NT first)
 		length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
 		ind.resize(length);
 		num.resize(length);
-		SpHelper::iota(ind.begin(), ind.end(), zero);	// offset'd within processors
+		SpHelper::iota(ind.begin(), ind.end(), 0);	// offset'd within processors
 		SpHelper::iota(num.begin(), num.end(), (dgrank * n_perproc) + first);	// global across processors
 	}
 }
@@ -437,7 +437,7 @@ SpParVec<IT,NT> & SpParVec<IT, NT>::operator-=(const SpParVec<IT,NT> & rhs)
 template <class IT, class NT>
 ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
-	length = zero;	// will be updated for diagonal processors
+	length = 0;	// will be updated for diagonal processors
 	IT total_n, total_nnz, n_perproc;
 	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
 	if(DiagWorld != MPI::COMM_NULL)	// Diagonal processors only
@@ -500,7 +500,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 	
 						// now push what is ours to tuples
 						IT offset = master * n_perproc;
-						for(IT i=zero; i< recvcount; ++i)
+						for(IT i=0; i< recvcount; ++i)
 						{					
 							ind.push_back( tempinds[i]-offset );
 							num.push_back( tempvals[i] );
@@ -548,7 +548,7 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 
 				// now push what is ours to tuples
 				IT offset = diagrank * n_perproc;
-				for(IT i=zero; i< recvcount; ++i)
+				for(IT i=0; i< recvcount; ++i)
 				{					
 					ind.push_back( tempinds[i]-offset );
 					num.push_back( tempvals[i] );

@@ -78,7 +78,6 @@ public:
 	IT nz;
 	IT nzc;			//!<  number of columns with at least one non-zero in them
 
-	const static IT zero;
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
 

@@ -90,10 +90,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			}
 			ARecv = new UDERA();				// first, create the object
 		}
-
 		SpParHelper::BCastMatrix(GridC->GetRowWorld(), *ARecv, ess, i);	// then, receive its elements	
 		ess.clear();	
-		
 		if(i == Bself)
 		{
 			BRecv = B1seq;	// shallow-copy
@@ -108,7 +106,6 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)

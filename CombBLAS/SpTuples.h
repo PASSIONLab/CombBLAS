@@ -110,7 +110,7 @@ public:
 			return make_pair(tr1::get<0>(*minit), tr1::get<0>(*maxit));
 		}
 		else
-			return make_pair(zero,zero);
+			return make_pair(0,0);
 	}
 	pair<IT,IT> ColLimits()
 	{	
@@ -122,7 +122,7 @@ public:
 			return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
 		}
 		else
-			return make_pair(zero,zero);
+			return make_pair(0,0);
 	}
 
 	// Performs a balanced merge of the array of SpTuples
@@ -135,7 +135,7 @@ public:
 	ofstream& put (ofstream& outfile) const;		
 	ifstream& get (ifstream& infile); 
 
-	bool isZero() const { return (nnz == zero); }	
+	bool isZero() const { return (nnz == 0); }	
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
@@ -154,8 +154,6 @@ private:
 	IT m;
 	IT n;
 	IT nnz;	
-
-	const static IT zero;	
 
 	SpTuples (){};		// Default constructor does nothing, hide it
 	
