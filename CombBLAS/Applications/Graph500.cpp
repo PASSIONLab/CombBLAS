@@ -50,6 +50,14 @@ unsigned int highestbitset(uint64_t v)
 	return r;
 }
 
+template <class T>
+bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
+{
+        istringstream iss(s);
+        return !(iss >> f >> t).fail();
+}
+
+
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
 {
@@ -109,8 +117,10 @@ int main(int argc, char* argv[])
 		}
 		else if(string(argv[1]) == string("Binary"))
 		{
-			uint64_t n = static_cast<uint64_t>(atoi(argv[3]));
-			uint64_t m = 9326785182; // static_cast<uint64_t>(atoi(argv[4]));
+			uint64_t n, m;
+			from_string(n,string(argv[3]),std::dec);
+			from_string(m,string(argv[4]),std::dec);
+			
 			ostringstream outs;
 			outs << "Reading " << argv[2] << " with " << n << " vertices and " << m << " edges" << endl;
 			SpParHelper::Print(outs.str());

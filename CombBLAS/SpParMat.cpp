@@ -64,52 +64,61 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 	MPI::Intracomm World = commGrid->GetWorld();
     	int rank = World.Get_rank();
     	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
-
-	int rankinrow = commGrid->GetRankInProcRow();
-	int rankincol = commGrid->GetRankInProcCol();
-	int rowneighs = commGrid->GetGridCols();	// get # of processors on the row
-	int colneighs = commGrid->GetGridRows();
-
-	IT * colcnts = new IT[rowneighs];
-	IT * rowcnts = new IT[colneighs];
-	rowcnts[rankincol] = getlocalrows();
-	colcnts[rankinrow] = getlocalcols();
-
-	commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), colcnts, 1, MPIType<IT>());
-	IT coloffset = accumulate(colcnts, colcnts+rankinrow, 0);
-
-	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), rowcnts, 1, MPIType<IT>());
-	IT rowoffset = accumulate(rowcnts, rowcnts+rankincol, 0);
-	
-	DeleteAll(colcnts, rowcnts);
-
-	IT * prelens = new IT[nprocs];
-	prelens[rank] = 2*getlocalnnz();
-	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
-
-	// The disp displacement argument specifies the position 
-	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(int64_t(lengthuntil * sizeof(uint32_t)), MPI::UNSIGNED, MPI::UNSIGNED, "native", MPI::INFO_NULL);
-	uint32_t * gen_edges = new uint32_t[prelens[rank]];
-
-	IT k = 0;
-	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
+	try 
 	{
-		for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+    		MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+		int rankinrow = commGrid->GetRankInProcRow();
+		int rankincol = commGrid->GetRankInProcCol();
+		int rowneighs = commGrid->GetGridCols();	// get # of processors on the row
+		int colneighs = commGrid->GetGridRows();
+
+		IT * colcnts = new IT[rowneighs];
+		IT * rowcnts = new IT[colneighs];
+		rowcnts[rankincol] = getlocalrows();
+		colcnts[rankinrow] = getlocalcols();
+
+		commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), colcnts, 1, MPIType<IT>());
+		IT coloffset = accumulate(colcnts, colcnts+rankinrow, 0);
+	
+		commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), rowcnts, 1, MPIType<IT>());
+		IT rowoffset = accumulate(rowcnts, rowcnts+rankincol, 0);
+		DeleteAll(colcnts, rowcnts);
+
+		IT * prelens = new IT[nprocs];
+		prelens[rank] = 2*getlocalnnz();
+		commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+		IT lengthuntil = accumulate(prelens, prelens+rank, static_cast<IT>(0));
+
+		// The disp displacement argument specifies the position 
+		// (absolute offset in bytes from the beginning of the file) 
+		MPI::Offset disp = lengthuntil * sizeof(uint32_t);
+		cout << "Displacement: " << disp << endl;
+    		thefile.Set_view(disp, MPI::UNSIGNED, MPI::UNSIGNED, "native", MPI::INFO_NULL);
+		uint32_t * gen_edges = new uint32_t[prelens[rank]];
+	
+		IT k = 0;
+		for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 		{
-			gen_edges[k++] = (uint32_t) (nzit.rowid() + rowoffset);
-			gen_edges[k++] = (uint32_t) (colit.colid() +  coloffset);
+			for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+			{
+				gen_edges[k++] = (uint32_t) (nzit.rowid() + rowoffset);
+				gen_edges[k++] = (uint32_t) (colit.colid() +  coloffset);
+			}
 		}
+		assert(k == prelens[rank]);
+	
+		thefile.Write(gen_edges, prelens[rank], MPI::UNSIGNED);
+		thefile.Close();
+
+		delete [] prelens;
+		delete [] gen_edges;
+	} 
+    	catch(MPI::Exception e)
+	{
+		cerr << "Exception while dumping file" << endl;
+       		cerr << e.Get_error_string() << endl;
 	}
-	assert(k == prelens[rank]);
-
-	thefile.Write(gen_edges, prelens[rank], MPI::UNSIGNED);
-	thefile.Close();
-
-	delete [] prelens;
-	delete [] gen_edges;
 }
 
 
@@ -707,11 +716,15 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	if(&ri == &ci)	// Symmetric permutation
 	{
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+		#ifdef DEBUG
 		SpParHelper::Print("Symmetric permutation\n");
+		#endif
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 		if(inplace) 
 		{
+			#ifdef DEBUG	
 			SpParHelper::Print("In place multiplication\n");
+			#endif
         		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this, false, true);	// clear the memory of *this
 
 			//ostringstream outb;
@@ -739,8 +752,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 		// Do parallel matrix-matrix multiply
         	PA = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this);
 	}	// P is destructed here
+#ifndef NDEBUG
 	PA.PrintInfo();
-
+#endif
 	// Step 2: Create Q  (use the same row-wise communication and transpose at the end)
 	// This temporary to-be-transposed Q is size(ci) x n 
 	locvec = ci.arr.size();	// nnz in local vector (reset variable)
@@ -796,7 +810,6 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	// Distributed matrix generation (collective call)
 	SpParMat<IT,bool,DER_IT> Q (QSeq, commGrid);
 	Q.Transpose();	
-
 	if(inplace)
 	{
        		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL>(PA, Q, true, true);	// clear the memory of both PA and P
@@ -1455,7 +1468,6 @@ void SpParMat<IT,NT,DER>::Square ()
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Transpose()
 {
-	SpParHelper::Print("Transposing\n");
 	if(commGrid->myproccol == commGrid->myprocrow)	// Diagonal
 	{
 		spSeq->Transpose();			
