@@ -4,7 +4,7 @@
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0.0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0)
 { 
 }
 

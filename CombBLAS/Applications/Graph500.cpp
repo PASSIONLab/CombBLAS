@@ -97,6 +97,7 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 		unsigned scale;
 		OptBuf<int64_t, int64_t> optbuf;
+		bool scramble = false;
 
 		if(string(argv[1]) == string("Input")) // input option
 		{
@@ -227,6 +228,12 @@ int main(int argc, char* argv[])
 				ostringstream outs;
 				outs << "Forcing scale to : " << scale << endl;
 				SpParHelper::Print(outs.str());
+
+				if(argc > 3 && string(argv[3]) == string("FastGen"))
+				{
+					SpParHelper::Print("Using fast vertex permutations; skipping edge permutations (like v2.1)\n");	
+					scramble = true;
+				}
 			}
 			else
 			{
@@ -238,14 +245,22 @@ int main(int argc, char* argv[])
  			double initiator[4] = {.57, .19, .19, .05};
 
 			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-			DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-			SpParHelper::Print("Generated local RMAT matrices\n");
+			if(!scramble)
+			{
+				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+				SpParHelper::Print("Generated edge lists\n");
 		
-			PermEdges(*DEL);
-			SpParHelper::Print("Permuted Edges\n");
+				PermEdges(*DEL);
+				SpParHelper::Print("Permuted Edges\n");
 
-			RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
-			SpParHelper::Print("Renamed Vertices\n");
+				RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
+				SpParHelper::Print("Renamed Vertices\n");
+			}
+			else	// fast generation
+			{
+				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs, true );
+				SpParHelper::Print("Generated renamed edge lists\n");
+			}
 
 			// Start Kernel #1
 			MPI::COMM_WORLD.Barrier();

@@ -6,22 +6,22 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0.0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
 { }
 
 

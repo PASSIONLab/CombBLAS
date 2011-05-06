@@ -17,6 +17,7 @@
 
 #include "graph500-1.2/generator/graph_generator.h"
 #include "graph500-1.2/generator/utils.h"
+#include "RefGen21.h"
 
 #include <fstream>
 #include <algorithm>
@@ -145,13 +146,16 @@ void DistEdgeList<IT>::CleanupEmpties()
  * Generates an edge list consisting of an RMAT matrix suitable for the Graph500 benchmark.
 */
 template <typename IT>
-void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in)
+void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in, bool scramble)
 {
+	// The generations use different seeds on different processors, generating independent 
+	// local RMAT matrices all having vertex ranges [0,...,globalmax-1]
+
 	// Spread the two 64-bit numbers into five nonzero values in the correct range
 	uint_fast32_t seed[5];
-	uint64_t seed1 = MPI::COMM_WORLD.Get_rank();
+	uint64_t rank = MPI::COMM_WORLD.Get_rank();
 	uint64_t seed2 = time(NULL);
-	make_mrg_seed(seed1, seed2, seed);
+	make_mrg_seed(rank, seed2, seed);
 
 	SetMemSize(nedges_in);	
 	nedges = nedges_in;
@@ -162,6 +166,35 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 		edges[2*i+0] = -1;
 	
 	generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
+	
+	if(scramble)
+	{
+		// we need a single global mapping (for all processors)
+		// therefore, only the seed of proc0 is used for renaming
+
+		uint64_t val0, val1; /* Values for scrambling */
+		if(rank == 0)		
+		{
+			mrg_state state;
+			mrg_seed(&state, seed);
+    			mrg_state new_state = state;
+    			mrg_skip(&new_state, 50, 7, 0);
+    			val0 = mrg_get_uint_orig(&new_state);
+    			val0 *= UINT64_C(0xFFFFFFFF);
+    			val0 += mrg_get_uint_orig(&new_state);
+    			val1 = mrg_get_uint_orig(&new_state);
+    			val1 *= UINT64_C(0xFFFFFFFF);
+    			val1 += mrg_get_uint_orig(&new_state);
+		}
+		MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
+		MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
+		
+		for(IT i=0; i < nedges; ++i)
+		{
+			edges[2*i+0] = RefGen21::scramble(edges[2*i+0], log_numverts, val0, val1),
+			edges[2*i+1] = RefGen21::scramble(edges[2*i+1], log_numverts, val0, val1);
+		}
+	}
 }
 
 

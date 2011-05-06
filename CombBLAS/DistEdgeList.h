@@ -49,7 +49,7 @@ public:
 	~DistEdgeList ();
 
 	void Dump(string filename);
-	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges);
+	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges, bool scramble =false);
 	void CleanupEmpties();
 	
 	IT getNumRows() const { return numrows; }
