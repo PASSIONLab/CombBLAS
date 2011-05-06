@@ -247,6 +247,7 @@ CombBLAS/Operations.h -text
 CombBLAS/OptBuf.h -text
 CombBLAS/ParFriends.h -text
 CombBLAS/README -text
+CombBLAS/RefGen21.h -text
 CombBLAS/ReleaseTests/CMakeLists.txt -text
 CombBLAS/ReleaseTests/FindSparse.cpp -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order2 -text
