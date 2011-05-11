@@ -2,7 +2,7 @@ AR = ar
 RANLIB = ranlib
 # CC is the C++ compiler, while cc is the C compiler
 COMPILER = CC
-CFLAGS = -Drestrict=__restrict__ -O2 -DNDEBUG -DGRAPH_GENERATOR_SEQ -fPIC  # -g # -pg
+CFLAGS = -Drestrict=__restrict__ -O2 -DNDEBUG -DGRAPH_GENERATOR_SEQ -fPIC # -g # -pg
 # CFLAGS = -Drestrict=__restrict__
 LDFLAGS = #-g # -pg
 

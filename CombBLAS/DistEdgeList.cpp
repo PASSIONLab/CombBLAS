@@ -24,13 +24,13 @@
 using namespace std;
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(): edges(NULL), nedges(0)
+DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL)
+DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 
@@ -59,7 +59,29 @@ DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(N
 }
 
 template <typename IT>
-void DistEdgeList<IT>::Dump(string filename)
+void DistEdgeList<IT>::Dump64bit(string filename)
+{
+	MPI::Intracomm World = commGrid->GetWorld();
+    	int rank = World.Get_rank();
+    	int nprocs = World.Get_size();
+    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+	IT * prelens = new IT[nprocs];
+	prelens[rank] = 2*nedges;
+	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
+
+	// The disp displacement argument specifies the position 
+	// (absolute offset in bytes from the beginning of the file) 
+    	thefile.Set_view(int64_t(lengthuntil * sizeof(IT)), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
+	thefile.Write(edges, prelens[rank], MPIType<IT>());
+	thefile.Close();
+
+	delete [] prelens;
+}	
+
+template <typename IT>
+void DistEdgeList<IT>::Dump32bit(string filename)
 {
 	MPI::Intracomm World = commGrid->GetWorld();
     	int rank = World.Get_rank();
@@ -88,7 +110,8 @@ void DistEdgeList<IT>::Dump(string filename)
 template <typename IT>
 DistEdgeList<IT>::~DistEdgeList()
 {
-	delete [] edges;
+	if(edges) delete [] edges;
+	if(pedges) delete [] pedges;
 }
 
 //! Allocates enough space
@@ -146,7 +169,7 @@ void DistEdgeList<IT>::CleanupEmpties()
  * Generates an edge list consisting of an RMAT matrix suitable for the Graph500 benchmark.
 */
 template <typename IT>
-void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in, bool scramble)
+void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in, bool scramble, bool packed)
 {
 	// The generations use different seeds on different processors, generating independent 
 	// local RMAT matrices all having vertex ranges [0,...,globalmax-1]
@@ -157,42 +180,68 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 	uint64_t seed2 = time(NULL);
 	make_mrg_seed(rank, seed2, seed);
 
-	SetMemSize(nedges_in);	
 	nedges = nedges_in;
 	numrows = numcols = (IT)pow((double)2, log_numverts);
-	
-	// clear the source vertex by setting it to -1
-	for (IT i = 0; i < nedges; i++)
-		edges[2*i+0] = -1;
-	
-	generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
-	
-	if(scramble)
+	if(packed)
 	{
-		// we need a single global mapping (for all processors)
-		// therefore, only the seed of proc0 is used for renaming
+		nedges = nedges_in;
+		int64_t perstage = nedges / MEM_EFFICIENT_STAGES;
+		pedges = new packed_edge[nedges];
 
-		uint64_t val0, val1; /* Values for scrambling */
-		if(rank == 0)		
+		for(IT s=0; s< MEM_EFFICIENT_STAGES; ++s)
 		{
-			mrg_state state;
-			mrg_seed(&state, seed);
-    			mrg_state new_state = state;
-    			mrg_skip(&new_state, 50, 7, 0);
-    			val0 = mrg_get_uint_orig(&new_state);
-    			val0 *= UINT64_C(0xFFFFFFFF);
-    			val0 += mrg_get_uint_orig(&new_state);
-    			val1 = mrg_get_uint_orig(&new_state);
-    			val1 *= UINT64_C(0xFFFFFFFF);
-    			val1 += mrg_get_uint_orig(&new_state);
+			int64_t n_befor = s*perstage;
+			int64_t n_after= ((s==(MEM_EFFICIENT_STAGES-1))? nedges : ((s+1)*perstage));
+			int64_t * tempedges = new int64_t[2*(n_after-n_befor)];	
+			generate_kronecker(0, 1, seed, log_numverts, n_after-n_befor, initiator, tempedges);
+			if(scramble)
+			{
+				uint64_t val0, val1; /* Values for scrambling */
+				if(rank == 0)		
+					RefGen21::MakeScrambleValues(val0, val1, seed);
+
+				MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
+				MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
+	
+				for(IT i=n_befor; i < n_after; ++i)
+				{
+					write_edge(&(pedges[i]), 
+						RefGen21::scramble(tempedges[2*(i-n_befor)+0], log_numverts, val0, val1),
+						RefGen21::scramble(tempedges[2*(i-n_befor)+1], log_numverts, val0, val1));
+				}
+			}
+			else
+			{
+				for(IT i=n_befor; i < n_after; ++i)
+					write_edge(&(pedges[i]), tempedges[2*(i-n_befor)+0], tempedges[2*(i-n_befor)+1]);
+			}
+			delete [] tempedges;
 		}
-		MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
-		MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
-		
-		for(IT i=0; i < nedges; ++i)
+	}
+	else
+	{
+		SetMemSize(nedges_in);	
+		// clear the source vertex by setting it to -1
+		for (IT i = 0; i < nedges; i++)
+			edges[2*i+0] = -1;
+	
+		generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
+		if(scramble)
 		{
-			edges[2*i+0] = RefGen21::scramble(edges[2*i+0], log_numverts, val0, val1),
-			edges[2*i+1] = RefGen21::scramble(edges[2*i+1], log_numverts, val0, val1);
+			// we need a single global mapping (for all processors)
+			// therefore, only the seed of proc0 is used for renaming
+			uint64_t val0, val1; /* Values for scrambling */
+			if(rank == 0)		
+				RefGen21::MakeScrambleValues(val0, val1, seed);
+
+			MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
+			MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
+	
+			for(IT i=0; i < nedges; ++i)
+			{
+				edges[2*i+0] = RefGen21::scramble(edges[2*i+0], log_numverts, val0, val1),
+				edges[2*i+1] = RefGen21::scramble(edges[2*i+1], log_numverts, val0, val1);
+			}
 		}
 	}
 }
@@ -226,6 +275,9 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	MTRand M;	// generate random numbers with Mersenne Twister
 	for(IT s=0; s< stages; ++s)
 	{
+		SpParHelper::Print("PermEdges stage starting\n");	
+		double st = MPI_Wtime();
+	
 		IT n_sofar = s*perstage;
 		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
 
@@ -249,6 +301,11 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			DEL.edges[2*(i+n_sofar)+1] = vecpair[i].second.second;
 		}
 		delete [] vecpair;
+
+		double et = MPI_Wtime();
+		ostringstream timeinfo;
+		timeinfo << "Stage " << s << " in " << st-et << " seconds" << endl;
+		SpParHelper::Print(timeinfo.str());
 	}
 	delete [] dist;
 }

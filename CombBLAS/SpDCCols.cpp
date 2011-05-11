@@ -369,6 +369,21 @@ SpDCCols<IT,NT>::operator SpDCCols<IT,NNT> () const
 	return SpDCCols<IT,NNT>(m, n, convert);
 }
 
+
+template <class IT, class NT>
+template <typename NIT, typename NNT>
+SpDCCols<IT,NT>::operator SpDCCols<NIT,NNT> () const
+{
+	Dcsc<NIT,NNT> * convert;
+	if(nnz > 0)
+		convert = new Dcsc<NIT,NNT>(*dcsc);
+	else
+		convert = NULL;
+
+	return SpDCCols<NIT,NNT>(m, n, convert);
+}
+
+
 template <class IT, class NT>
 Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
 {

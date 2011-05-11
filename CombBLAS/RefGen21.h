@@ -25,18 +25,20 @@
 #include "graph500-1.2/generator/utils.h"
 
 
-#ifdef __cplusplus
-	#ifndef __STDC_CONSTANT_MACROS
- 	#define __STDC_CONSTANT_MACROS
-	#endif
-	#ifndef __STDC_LIMIT_MACROS
-	#define __STDC_LIMIT_MACROS
-	#endif
- 	#ifdef _STDINT_H
-  		#undef _STDINT_H
- 	#endif
- 	#include <stdint.h>
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
 #endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#ifdef _STDINT_H
+	#undef _STDINT_H
+#endif
+#ifdef _GCC_STDINT_H 	// for cray
+	#undef _GCC_STDINT_H // original stdint does #include_next<"/opt/gcc/4.5.2/snos/lib/gcc/x86_64-suse-linux/4.5.2/include/stdint-gcc.h">
+#endif
+#include <stdint.h>
+#include <inttypes.h>
 
 
 using namespace std;
@@ -107,6 +109,20 @@ public:
   		v = (RefGen21::bitreverse(v) >> (64 - lgN));
   		assert ((v >> lgN) == 0);
   		return (int64_t)v;
+	}
+
+	static inline void MakeScrambleValues(uint64_t & val0, uint64_t & val1, uint_fast32_t seed[])
+	{
+		mrg_state state;
+		mrg_seed(&state, seed);
+    		mrg_state new_state = state;
+    		mrg_skip(&new_state, 50, 7, 0);
+    		val0 = mrg_get_uint_orig(&new_state);
+    		val0 *= UINT64_C(0xFFFFFFFF);
+    		val0 += mrg_get_uint_orig(&new_state);
+    		val1 = mrg_get_uint_orig(&new_state);
+    		val1 *= UINT64_C(0xFFFFFFFF);
+    		val1 += mrg_get_uint_orig(&new_state);
 	}
 };
 

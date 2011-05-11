@@ -6,6 +6,14 @@
 #include <vector>
 #include <string>
 #include <sstream>
+
+// These macros should be defined before stdint.h is included
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
 #include <stdint.h>
 #ifdef NOTR1
         #include <boost/tr1/memory.hpp>
@@ -90,6 +98,7 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
 		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
+		typedef SpParMat < int32_t, int32_t, SpDCCols<int32_t,int32_t> > PSpMat_Int32;
 
 		// Declare objects
 		PSpMat_Bool A;	
@@ -132,7 +141,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Permuted Edges\n");
 
 			RenameVertices(*DEL);	
-			//DEL->Dump("graph_permuted");
+			//DEL->Dump32bit("graph_permuted");
 			SpParHelper::Print("Renamed Vertices\n");
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
@@ -244,14 +253,22 @@ int main(int argc, char* argv[])
 			// this is an undirected graph, so A*x does indeed BFS
  			double initiator[4] = {.57, .19, .19, .05};
 
+			double t01 = MPI_Wtime();
+			double t02;
 			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
 			if(!scramble)
 			{
 				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
 				SpParHelper::Print("Generated edge lists\n");
+				t02 = MPI_Wtime();
+				ostringstream tinfo;
+				tinfo << "Generation took " << t02-t01 << " seconds" << endl;
+				SpParHelper::Print(tinfo.str());
 		
 				PermEdges(*DEL);
 				SpParHelper::Print("Permuted Edges\n");
+				//DEL->Dump64bit("edges_permuted");
+				//SpParHelper::Print("Dumped\n");
 
 				RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
 				SpParHelper::Print("Renamed Vertices\n");
@@ -260,6 +277,10 @@ int main(int argc, char* argv[])
 			{
 				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs, true );
 				SpParHelper::Print("Generated renamed edge lists\n");
+				t02 = MPI_Wtime();
+				ostringstream tinfo;
+				tinfo << "Generation took " << t02-t01 << " seconds" << endl;
+				SpParHelper::Print(tinfo.str());
 			}
 
 			// Start Kernel #1
@@ -267,9 +288,9 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
-			PSpMat_Int64 * G = new PSpMat_Int64(*DEL, false); 
+			PSpMat_Int32 * G = new PSpMat_Int32(*DEL, false); 
 			delete DEL;	// free memory before symmetricizing
-			SpParHelper::Print("Created Int64 Sparse Matrix\n");
+			SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 
 			MPI::COMM_WORLD.Barrier();
 			double redts = MPI_Wtime();
