@@ -39,6 +39,7 @@ public:
 	
 	bool operator==(const Dcsc<IT,NT> & rhs);	
 	template <typename NNT> operator Dcsc<IT,NNT>() const;	//<! numeric type conversion
+	template <typename NIT, typename NNT> operator Dcsc<NIT,NNT>() const;	//<! index+numeric type conversion
 	
 	void EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude); 
 	void EWiseScale(NT ** scaler);				//<! scale elements of "this" with the elements dense rhs matrix

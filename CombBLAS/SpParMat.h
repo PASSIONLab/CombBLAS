@@ -101,11 +101,11 @@ public:
 	template <typename VT, typename _BinaryOperation>	
 	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
 
-	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
-	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
+	template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >	
+	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
 
-	template <typename VT, typename _BinaryOperation>	
-	void Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
+	template <typename VT, typename GIT, typename _BinaryOperation>	
+	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)
@@ -139,6 +139,7 @@ public:
 	void PrintInfo() const;
 
 	template <typename NNT, typename NDER> operator SpParMat< IT,NNT,NDER > () const;	//!< Type conversion operator
+	template <typename NIT, typename NNT, typename NDER> operator SpParMat< NIT,NNT,NDER > () const;	//!< Type conversion operator (for indices as well)
 
 	IT getnrow() const;
 	IT getncol() const;

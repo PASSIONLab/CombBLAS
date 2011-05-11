@@ -317,6 +317,23 @@ Dcsc<IT,NT>::operator Dcsc<IT,NNT>() const
 	return convert;
 }
 
+template <class IT, class NT>
+template <typename NIT, typename NNT>
+Dcsc<IT,NT>::operator Dcsc<NIT,NNT>() const
+{
+	Dcsc<NIT,NNT> convert(nz, nzc);	
+	
+	for(IT i=0; i< nz; ++i)
+		convert.numx[i] = static_cast<NNT>(numx[i]);		
+	for(IT i=0; i< nz; ++i)
+		convert.ir[i] = static_cast<NIT>(ir[i]);
+	for(IT i=0; i< nzc; ++i)
+		convert.jc[i] = static_cast<NIT>(jc[i]);
+	for(IT i=0; i<= nzc; ++i)
+		convert.cp[i] = static_cast<NIT>(cp[i]);
+	return convert;
+}
+
 /**
   * Copy constructor that respects the memory pool
   */

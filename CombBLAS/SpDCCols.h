@@ -34,6 +34,7 @@ public:
 	~SpDCCols();
 
 	template <typename NNT> operator SpDCCols<IT,NNT> () const;		//!< NNT: New numeric type
+	template <typename NIT, typename NNT> operator SpDCCols<NIT,NNT> () const;		//!< NNT: New numeric type, NIT: New index type
 
 	// Member Functions and Operators: 
 	SpDCCols<IT,NT> & operator= (const SpDCCols<IT, NT> & rhs);

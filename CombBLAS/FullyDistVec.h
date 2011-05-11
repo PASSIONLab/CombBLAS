@@ -33,6 +33,9 @@ template <class IU, class NU>
 class DenseVectorLocalIterator;
 
 
+
+// ABAB: As opposed to SpParMat, IT here is used to encode global size and global indices;
+// therefore it can not be 32-bits, in general.
 template <class IT, class NT>
 class FullyDistVec: public FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type >
 {

@@ -357,15 +357,15 @@ void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOper
 }
 
 template <class IT, class NT, class DER>
-template <typename VT, typename _BinaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
+template <typename VT, typename GIT, typename _BinaryOperation>	
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const
 {
 	Reduce(rvec, dim, __binary_op, id, myidentity<NT>() );				
 }
 
 template <class IT, class NT, class DER>
-template <typename VT, typename _BinaryOperation, typename _UnaryOperation>	
-void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
+template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector	
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
 	if(rvec.zero != id)
 	{
@@ -399,7 +399,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOpe
                 		loclens[colrank] = n_perproc;
 
 			commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
-			partial_sum(loclens, loclens+colneighs, lensums+1);
+			partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits
 
 			vector<VT> trarr;
 			typename DER::SpColIter colit = spSeq->begcol();
@@ -426,14 +426,14 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<IT,VT> & rvec, Dim dim, _BinaryOpe
 			}
 			DeleteAll(loclens, lensums);
 
-			IT reallen;	// Now we have the transpose the vector
+			IT reallen;	// Now we have to transpose the vector
 			IT trlen = trarr.size();
 			int diagneigh = commGrid->GetComplementRank();
 			(commGrid->GetWorld()).Sendrecv(&trlen, 1, MPIType<IT>(), diagneigh, TRNNZ, &reallen, 1, MPIType<IT>(), diagneigh, TRNNZ);
 	
 			rvec.arr.resize(reallen);
 			(commGrid->GetWorld()).Sendrecv(&trarr[0], trlen, MPIType<VT>(), diagneigh, TRX, &rvec.arr[0], reallen, MPIType<VT>(), diagneigh, TRX);
-			rvec.glen = getncol();	// ABAB: Put a sanity chech here
+			rvec.glen = getncol();	// ABAB: Put a sanity check here
 			break;
 
 		}
@@ -577,6 +577,15 @@ SpParMat<IT,NT,DER>::operator SpParMat<IT,NNT,NDER> () const
 {
 	NDER * convert = new NDER(*spSeq);
 	return SpParMat<IT,NNT,NDER> (convert, commGrid);
+}
+
+//! Change index type as well
+template <class IT, class NT, class DER>
+template <typename NIT, typename NNT,typename NDER>	 
+SpParMat<IT,NT,DER>::operator SpParMat<NIT,NNT,NDER> () const
+{
+	NDER * convert = new NDER(*spSeq);
+	return SpParMat<NIT,NNT,NDER> (convert, commGrid);
 }
 
 /** 
@@ -1237,10 +1246,20 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 
 	IT m_perproc = DEL.getNumRows() / r;
 	IT n_perproc = DEL.getNumCols() / s;
+
+	if(sizeof(IT) < sizeof(DELIT))
+	{
+		ostringstream outs;
+		outs << "Warning: Using smaller indices for the matrix than DistEdgeList\n";
+		outs << "Local matrices are " << m_perproc << "-by-" << n_perproc << endl;
+		SpParHelper::Print(outs.str());
+	}	
 	
 	// to lower memory consumption, form sparse matrix in stages
 	IT stages = MEM_EFFICIENT_STAGES;	
-	IT perstage = DEL.nedges / stages;
+	
+	// even if local indices (IT) are 32-bits, we should work with 64-bits for global info
+	int64_t perstage = DEL.nedges / stages;
 	IT totrecv = 0;
 	vector<IT> alledges;
 
@@ -1248,21 +1267,45 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	int maxs = s-1;	
 	for(IT s=0; s< stages; ++s)
 	{
-		IT n_befor = s*perstage;
-		IT n_after= ((s==(stages-1))? static_cast<IT>(DEL.nedges) : static_cast<IT>(((s+1)*perstage)));
+		SpParHelper::Print("Stage done\n");
+		int64_t n_befor = s*perstage;
+		int64_t n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
 
 		// clear the source vertex by setting it to -1
-		int realedges = 0;
-		for (IT i = n_befor; i < n_after; i++)
+		int realedges = 0;	// these are "local" realedges
+
+		if(DEL.pedges)	
 		{
-			if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
+			SpParHelper::Print("Using packed edges\n");
+			for (IT i = n_befor; i < n_after; i++)
 			{
-				int rowowner = min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), maxr);
-				int colowner = min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), maxs); 
-				int owner = commGrid->GetRank(rowowner, colowner);
-				data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
-				data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
-				++realedges;
+				int64_t fr = get_v0_from_edge(&(DEL.pedges[i]));
+				int64_t to = get_v1_from_edge(&(DEL.pedges[i]));
+
+				if(fr >= 0 && to >= 0)	// otherwise skip
+				{
+					int rowowner = min(static_cast<int>(fr / m_perproc), maxr);
+					int colowner = min(static_cast<int>(to / n_perproc), maxs); 
+					int owner = commGrid->GetRank(rowowner, colowner);
+					data[owner].push_back(fr - (rowowner * m_perproc));	// row_id
+					data[owner].push_back(to - (colowner * n_perproc));	// col_id
+					++realedges;
+				}
+			}
+		}
+		else
+		{
+			for (IT i = n_befor; i < n_after; i++)
+			{
+				if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
+				{
+					int rowowner = min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), maxr);
+					int colowner = min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), maxs); 
+					int owner = commGrid->GetRank(rowowner, colowner);
+					data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
+					data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
+					++realedges;
+				}
 			}
 		}
 
