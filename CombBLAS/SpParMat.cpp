@@ -1244,8 +1244,8 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	int s = commGrid->GetGridCols();
 	vector< vector<IT> > data(nprocs);
 
-	IT m_perproc = DEL.getNumRows() / r;
-	IT n_perproc = DEL.getNumCols() / s;
+	IT m_perproc = DEL.getGlobalV() / r;
+	IT n_perproc = DEL.getGlobalV() / s;
 
 	if(sizeof(IT) < sizeof(DELIT))
 	{
@@ -1276,7 +1276,6 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 
 		if(DEL.pedges)	
 		{
-			SpParHelper::Print("Using packed edges\n");
 			for (IT i = n_befor; i < n_after; i++)
 			{
 				int64_t fr = get_v0_from_edge(&(DEL.pedges[i]));
@@ -1347,9 +1346,9 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	int myproccol = commGrid->GetRankInProcRow();
 	IT locrows, loccols; 
 	if(myprocrow != r-1)	locrows = m_perproc;
-	else 	locrows = DEL.getNumRows() - myprocrow * m_perproc;
+	else 	locrows = DEL.getGlobalV() - myprocrow * m_perproc;
 	if(myproccol != s-1)	loccols = n_perproc;
-	else	loccols = DEL.getNumCols() - myproccol * n_perproc;
+	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
   	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
   	spSeq = new DER(A,false);        // Convert SpTuples to DER

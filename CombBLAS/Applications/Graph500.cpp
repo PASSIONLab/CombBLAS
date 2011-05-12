@@ -34,6 +34,7 @@ double cblas_allgathertime;
 #include "../DistEdgeList.h"
 
 #define ITERS 16
+#define EDGEFACTOR 16
 using namespace std;
 
 // 64-bit floor(log2(x)) function 
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
 			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
 			if(!scramble)
 			{
-				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
+				DEL->GenGraph500Data(initiator, scale, EDGEFACTOR);
 				SpParHelper::Print("Generated edge lists\n");
 				t02 = MPI_Wtime();
 				ostringstream tinfo;
@@ -275,7 +276,7 @@ int main(int argc, char* argv[])
 			}
 			else	// fast generation
 			{
-				DEL->GenGraph500Data(initiator, scale, 64 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs, true );
+				DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
 				SpParHelper::Print("Generated renamed edge lists\n");
 				t02 = MPI_Wtime();
 				ostringstream tinfo;

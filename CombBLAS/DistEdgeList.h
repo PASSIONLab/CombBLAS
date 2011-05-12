@@ -74,11 +74,10 @@ public:
 
 	void Dump64bit(string filename);
 	void Dump32bit(string filename);
-	void GenGraph500Data(double initiator[4], int log_numverts, IT nedges, bool scramble =false, bool packed=false);
+	void GenGraph500Data(double initiator[4], int log_numverts, int edgefactor, bool scramble =false, bool packed=false);
 	void CleanupEmpties();
 	
-	IT getNumRows() const { return numrows; }
-	IT getNumCols() const { return numcols; }
+	int64_t getGlobalV() const { return globalV; }
 	IT getNumLocalEdges() const { return nedges; }
 	
 private:
@@ -88,11 +87,9 @@ private:
 	           // Edge i goes from edges[2*i+0] to edges[2*i+1]
 	packed_edge * pedges;
 	           
-	IT nedges; // number of edges
-	IT memedges; // number of edges for which there is space. nedges <= memedges
-	
-	IT numrows;
-	IT numcols;
+	IT nedges; 	// number of local edges
+	IT memedges; 	// number of edges for which there is space. nedges <= memedges
+	int64_t globalV;
 	
 	void SetMemSize(IT ne);
 	
