@@ -24,13 +24,13 @@
 using namespace std;
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0)
+DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0), globalV(0)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL)
+DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL), globalV(globaln)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 
@@ -38,7 +38,6 @@ DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(N
 	int rank = commGrid->GetRank();
 
 	nedges = (rank == nprocs-1)? (globalm - rank * (globalm / nprocs)) : (globalm / nprocs);
-	numrows = numcols = globaln;
 
 	FILE * infp = fopen(filename, "rb");
 	assert(infp != NULL);
@@ -169,58 +168,44 @@ void DistEdgeList<IT>::CleanupEmpties()
  * Generates an edge list consisting of an RMAT matrix suitable for the Graph500 benchmark.
 */
 template <typename IT>
-void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT nedges_in, bool scramble, bool packed)
+void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, int edgefactor, bool scramble, bool packed)
 {
-	// The generations use different seeds on different processors, generating independent 
-	// local RMAT matrices all having vertex ranges [0,...,globalmax-1]
+	if(packed && (!scramble))
+	{
+		SpParHelper::Print("WARNING: Packed version does always generate scrambled vertex identifiers\n");
+	}
 
-	// Spread the two 64-bit numbers into five nonzero values in the correct range
-	uint_fast32_t seed[5];
-	uint64_t rank = MPI::COMM_WORLD.Get_rank();
-	uint64_t seed2 = time(NULL);
-	make_mrg_seed(rank, seed2, seed);
+	globalV = ((int64_t)1)<< log_numverts;
+	int64_t globaledges = globalV * static_cast<int64_t>(edgefactor);
 
-	nedges = nedges_in;
-	numrows = numcols = (IT)pow((double)2, log_numverts);
 	if(packed)
 	{
-		nedges = nedges_in;
-		int64_t perstage = nedges / MEM_EFFICIENT_STAGES;
-		pedges = new packed_edge[nedges];
-
-		for(IT s=0; s< MEM_EFFICIENT_STAGES; ++s)
-		{
-			int64_t n_befor = s*perstage;
-			int64_t n_after= ((s==(MEM_EFFICIENT_STAGES-1))? nedges : ((s+1)*perstage));
-			int64_t * tempedges = new int64_t[2*(n_after-n_befor)];	
-			generate_kronecker(0, 1, seed, log_numverts, n_after-n_befor, initiator, tempedges);
-			if(scramble)
-			{
-				uint64_t val0, val1; /* Values for scrambling */
-				if(rank == 0)		
-					RefGen21::MakeScrambleValues(val0, val1, seed);
-
-				MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
-				MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
-	
-				for(IT i=n_befor; i < n_after; ++i)
-				{
-					write_edge(&(pedges[i]), 
-						RefGen21::scramble(tempedges[2*(i-n_befor)+0], log_numverts, val0, val1),
-						RefGen21::scramble(tempedges[2*(i-n_befor)+1], log_numverts, val0, val1));
-				}
-			}
-			else
-			{
-				for(IT i=n_befor; i < n_after; ++i)
-					write_edge(&(pedges[i]), tempedges[2*(i-n_befor)+0], tempedges[2*(i-n_befor)+1]);
-			}
-			delete [] tempedges;
-		}
+		RefGen21::make_graph (log_numverts, globaledges, &nedges, (packed_edge**)(&pedges));
 	}
 	else
 	{
-		SetMemSize(nedges_in);	
+		// The generations use different seeds on different processors, generating independent 
+		// local RMAT matrices all having vertex ranges [0,...,globalmax-1]
+		// Spread the two 64-bit numbers into five nonzero values in the correct range
+		uint_fast32_t seed[5];
+		uint64_t rank = MPI::COMM_WORLD.Get_rank();
+		uint64_t size = MPI::COMM_WORLD.Get_size();
+		uint64_t seed2 = time(NULL);
+		make_mrg_seed(rank, seed2, seed);
+
+		// a single pair of [val0,val1] for all the computation, global across all processors
+		uint64_t val0, val1; /* Values for scrambling */
+		if(scramble)
+		{
+			if(rank == 0)		
+				RefGen21::MakeScrambleValues(val0, val1, seed);	// ignore the return value
+
+			MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
+			MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
+		}
+
+		nedges = globaledges/size;
+		SetMemSize(nedges);	
 		// clear the source vertex by setting it to -1
 		for (IT i = 0; i < nedges; i++)
 			edges[2*i+0] = -1;
@@ -228,15 +213,6 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, IT
 		generate_kronecker(0, 1, seed, log_numverts, nedges, initiator, edges);
 		if(scramble)
 		{
-			// we need a single global mapping (for all processors)
-			// therefore, only the seed of proc0 is used for renaming
-			uint64_t val0, val1; /* Values for scrambling */
-			if(rank == 0)		
-				RefGen21::MakeScrambleValues(val0, val1, seed);
-
-			MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
-			MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
-	
 			for(IT i=0; i < nedges; ++i)
 			{
 				edges[2*i+0] = RefGen21::scramble(edges[2*i+0], log_numverts, val0, val1),
@@ -275,8 +251,10 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	MTRand M;	// generate random numbers with Mersenne Twister
 	for(IT s=0; s< stages; ++s)
 	{
+		#ifdef DEBUG
 		SpParHelper::Print("PermEdges stage starting\n");	
 		double st = MPI_Wtime();
+		#endif
 	
 		IT n_sofar = s*perstage;
 		IT n_thisstage = ((s==(stages-1))? (maxedges - n_sofar): perstage);
@@ -301,11 +279,12 @@ void PermEdges(DistEdgeList<IT> & DEL)
 			DEL.edges[2*(i+n_sofar)+1] = vecpair[i].second.second;
 		}
 		delete [] vecpair;
-
+		#ifdef DEBUG
 		double et = MPI_Wtime();
 		ostringstream timeinfo;
-		timeinfo << "Stage " << s << " in " << st-et << " seconds" << endl;
+		timeinfo << "Stage " << s << " in " << et-st << " seconds" << endl;
 		SpParHelper::Print(timeinfo.str());
+		#endif
 	}
 	delete [] dist;
 }
@@ -329,7 +308,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 
 	// create permutation
 	FullyDistVec<IU, IU> globalPerm(DEL.commGrid, -1);
-	globalPerm.iota(DEL.getNumRows(), 0);
+	globalPerm.iota(DEL.getGlobalV(), 0);
 	globalPerm.RandPerm();	// now, randperm can return a 0-based permutation
 	IU locrows = globalPerm.MyLocLength(); 
 	
