@@ -75,8 +75,10 @@ def k2Validate(G, start, parents):
 	# Note:  don't actually have input edges, will use the edges in
 	#    the resulting graph as a proxy
 	[origI, origJ, ign] = G.toParVec()
+	del ign
 	li = levels[origI]; 
 	lj = levels[origJ]
+	del origI
 	if not ((abs(li-lj) <= 1) | ((li==-1) & (lj==-1))).all():
 		if kdt.master():
 			print "At least one graph edge has endpoints whose levels differ by more than one and is in the BFS tree"
@@ -90,11 +92,13 @@ def k2Validate(G, start, parents):
 	neither_in = (li == -1) & (lj == -1)
 	both_in = (li > -1) & (lj > -1)
 	out2root = (li == -1) & (origJ == start)
+	del origJ
 	if not (neither_in | both_in | out2root).all():
 		if kdt.master():
 			print "The tree does not span exactly the connected component, root=%d" % start
 			#print levels, neither_in, both_in, out2root, (neither_in | both_in | out2root)
 		good = False
+	del both_in, out2root
 
 	# Spec test #5:
 	# a vertex and its parent are joined by an edge of the original graph
