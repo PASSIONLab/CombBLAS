@@ -1,8 +1,34 @@
 import math
-import numpy as np
+#import numpy as np # Adam: TRY TO AVOID THIS IF AT ALL POSSIBLE.
 import pyCombBLAS as pcb
 import feedback
 import UFget as uf
+
+class info:
+	@staticmethod
+	def eps():
+		"""
+		Return IEEE floating point machine epsilon.
+		The problem with this operation is that Python only provides a portable way to get this
+		value in v2.6 and NumPy isn't always available. This function attempts to use whatever
+		knows this value or returns a reasonable default otherwise.
+		"""
+		# try Python v2.6+ float_info
+		try:
+			from sys import float_info as fi
+			return fi.epsilon
+		except ImportError:
+			pass
+			
+		# try Numpy
+		try:
+			import numpy as np
+			return float(np.finfo(np.float).eps)
+		except ImportError:
+			pass
+			
+		# return a reasonable value
+		return 2.220446049250313e-16;
 
 class Graph:
 	#ToDo: privatize ._spm name (to .__spmat)
@@ -573,7 +599,7 @@ class ParVec:
 	def allCloseToInt(self):
 		if len(self) == 0:
 			return True;
-		eps = float(np.finfo(np.float).eps)
+		eps = info.eps()
 		ret = (((self % 1.0) < eps) | ((1.0-(self % 1.0)) < eps)).all()
 		return ret
 
@@ -619,7 +645,7 @@ class ParVec:
 	def isBool(self):
 		if len(self) == 0:
 			return True
-		eps = float(np.finfo(np.float).eps)
+		eps = info.eps()
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
@@ -701,7 +727,7 @@ class ParVec:
 	def round(self):
 		"""
 		"""
-		eps = float(np.finfo(np.float).eps)
+		eps = info.eps()
 		neg = self < 0
 		sgn = self.sign()
 		ret = abs(self.copy())
@@ -1347,7 +1373,7 @@ class SpParVec:
 		"""
 		if self.nnn() == 0:
 			return True;
-		eps = float(np.finfo(np.float).eps)
+		eps = info.eps()
 		ret = (((self % 1.0) < eps) | (((-(self%1.0))+1.0)< eps)).all()
 		return ret
 
@@ -1419,7 +1445,7 @@ class SpParVec:
 		"""
 		if self.nnn() == 0:
 			return True
-		eps = float(np.finfo(np.float).eps)
+		eps = info.eps()
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
