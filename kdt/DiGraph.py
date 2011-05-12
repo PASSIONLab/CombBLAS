@@ -863,6 +863,49 @@ class DiGraph(gr.Graph):
 		ret = 1		# assume valid
 		nvertG = self.nvert()
 	
+
+		# spec test #1
+		# Confirm that the tree is a tree;  i.e., that it does not
+		# have any cycles (visited more than once while building
+		# the tree) and that every vertex with a parent is
+		# in the tree. 
+
+		# build a new graph from just tree edges
+		tmp2 = parents != ParVec.range(nvertG)
+		treeEdges = (parents != -1) & tmp2
+		treeI = parents[treeEdges.findInds()]
+		treeJ = ParVec.range(nvertG)[treeEdges.findInds()]
+		del tmp2, treeEdges
+		# root cannot be destination of any tree edge
+		if (treeJ == root).any():
+			return (-1, None)
+		# note treeJ/TreeI reversed, so builtGT is transpose, as
+		#   needed by SpMV
+		builtGT = DiGraph(treeJ, treeI, 1, nvertG)
+		visited = ParVec.zeros(nvertG)
+		visited[root] = 1
+		fringe = SpParVec(nvertG)
+		fringe[root] = root
+		cycle = False
+		multiparents = False
+		while fringe.nnn() > 0 and not cycle and not multiparents:
+			fringe.spOnes()
+			newfringe = SpParVec.toSpParVec(builtGT._spm.SpMV_PlusTimes(fringe._spv))
+			if visited[newfringe.toParVec().findInds()].any():
+				cycle = True
+				break
+			if (newfringe > 1).any():
+				multiparents = True
+				break
+			fringe = newfringe
+			visited[fringe] = 1
+		if cycle or multiparents:
+			return (-1, None)
+		del visited, builtGT
+		
+		# spec test #2
+		#    tree edges should be between verts whose levels differ by 1
+		
 		# calculate level in the tree for each vertex; root is at level 0
 		# about the same calculation as bfsTree, but tracks levels too
 		if not sym:
@@ -886,46 +929,7 @@ class DiGraph(gr.Graph):
 			level += 1
 		if not sym:
 			self.reverseEdges()
-
-		# spec test #1
-		# Confirm that the tree is a tree;  i.e., that it does not
-		# have any cycles (visited more than once while building
-		# the tree) and that every vertex with a parent is
-		# in the tree. 
-
-		# build a new graph from just tree edges
-		tmp2 = parents != ParVec.range(nvertG)
-		treeEdges = (parents != -1) & tmp2
-		treeI = parents[treeEdges.findInds()]
-		treeJ = ParVec.range(nvertG)[treeEdges.findInds()]
-		# root cannot be destination of any tree edge
-		if (treeJ == root).any():
-			return (-1, None)
-		# note treeJ/TreeI reversed, so builtGT is transpose, as
-		#   needed by SpMV
-		builtGT = DiGraph(treeJ, treeI, 1, nvertG)
-		visited = ParVec.zeros(nvertG)
-		visited[root] = 1
-		fringe = SpParVec(nvertG)
-		fringe[root] = root
-		cycle = False
-		multiparents = False
-		while fringe.nnn() > 0 and not cycle and not multiparents:
-			fringe.spOnes()
-			newfringe = SpParVec.toSpParVec(builtGT._spm.SpMV_PlusTimes(fringe._spv))
-			if visited[newfringe.toParVec().findInds()].any():
-				cycle = True
-				break
-			if (newfringe > 1).any():
-				multiparents = True
-			fringe = newfringe
-			visited[fringe] = 1
-		if cycle or multiparents:
-			return (-1, None)
-		
-		# spec test #2
-		#    tree edges should be between verts whose levels differ by 1
-		
+		del parents2
 		if (levels[treeI]-levels[treeJ] != -1).any():
 			return (-2, None)
 	
