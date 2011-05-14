@@ -51,6 +51,10 @@ init_pyCombBLAS_MPI();
   $1 = $input;
 }
 
+%typemap(in) PyObject* {
+  $1 = $input;
+}
+
 #else
  // #warning Please define a way to handle callbacks in your target language.
 #endif
@@ -64,6 +68,8 @@ INCLUDE "pySpParMatBool.h"
 INCLUDE "pySpParVec.h"
 
 INCLUDE "pyDenseParVec.h"
+
+INCLUDE "pyObjDenseParVec.h"
 
 INCLUDE "pyOperations.h"
 

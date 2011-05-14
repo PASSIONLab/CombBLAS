@@ -158,7 +158,10 @@ if len(file) == 0:
 	if kdt.master():
 		print "Generating a Graph500 RMAT graph with 2^%d vertices..."%(scale)
 	G = kdt.DiGraph()
-	K1elapsed = G.genGraph500Edges(scale)
+	G.toBool()
+	
+	deg3verts = kdt.ParVec(1);
+	K1elapsed, deg3verts = G.genGraph500Edges(scale)
 	#G.save("testgraph.mtx")
 	if kdt.master():
 		print "Generation took %fs."%(K1elapsed)
@@ -166,12 +169,21 @@ if len(file) == 0:
 	if nstarts > G.nvert():
 		nstarts = G.nvert()
 	#	indices of vertices with degree > 2
+
+	#deg3verts = (G.degree() > 2).findInds()
+	#deg3verts.randPerm()
+	starts = deg3verts[kdt.ParVec.range(nstarts)]
+
 else:
 	if kdt.master():
 		print 'Loading %s'%(file)
 	G = kdt.DiGraph.load(file)
 	K1elapsed = 0.0
 
+	deg3verts = (G.degree() > 2).findInds()
+	deg3verts.randPerm()
+	starts = deg3verts[kdt.ParVec.range(nstarts)]
+	G.toBool()
 
 if False:
 	if kdt.master():
@@ -180,11 +192,7 @@ if False:
 	K1elapsed = 0.00005
 	starts = kdt.ParVec.range(nstarts)
 
-deg3verts = (G.degree() > 2).findInds()
-deg3verts.randPerm()
-starts = deg3verts[kdt.ParVec.range(nstarts)]
 
-G.toBool()
 
 [origI, ign, ign2] = G.toParVec()
 del ign, ign2
@@ -194,6 +202,10 @@ K2edges = [];
 K2TEPS = [];
 
 i = 0
+
+print "=========================== starts"
+print starts
+
 for start in starts:
 	start = int(start)
 	before = time.time()

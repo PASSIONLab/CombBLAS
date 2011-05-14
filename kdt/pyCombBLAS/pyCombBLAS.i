@@ -51,6 +51,10 @@ init_pyCombBLAS_MPI();
   $1 = $input;
 }
 
+%typemap(in) PyObject* {
+  $1 = $input;
+}
+
 #else
  // #warning Please define a way to handle callbacks in your target language.
 #endif
@@ -133,7 +137,7 @@ public:
 	void load(const char* filename);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
@@ -347,6 +351,94 @@ public:
 	void __setitem__(const pySpParVec& key, double value);
 };
 
+class pyObjDenseParVec {
+public:
+	pyObjDenseParVec(int64_t size, PyObject* init);
+	pyObjDenseParVec(int64_t size, PyObject* init, PyObject* zero);
+	
+	//pySpParVec sparse() const;
+	//pySpParVec sparse(PyObject* zero) const;
+	
+public:
+	int64_t len() const;
+	int64_t __len__() const;
+	/*
+	void add(const pyObjDenseParVec& other);
+	void add(const pySpParVec& other);
+	pyObjDenseParVec& operator+=(const pyObjDenseParVec & rhs);
+	pyObjDenseParVec& operator-=(const pyObjDenseParVec & rhs);
+	pyObjDenseParVec& operator+=(const pySpParVec & rhs);
+	pyObjDenseParVec& operator-=(const pySpParVec & rhs);
+	pyObjDenseParVec& operator*=(const pyObjDenseParVec& rhs);
+	pyObjDenseParVec& operator*=(const pySpParVec& rhs);
+	
+	pyObjDenseParVec operator+(const pyObjDenseParVec & rhs);
+	pyObjDenseParVec operator-(const pyObjDenseParVec & rhs);
+	pyObjDenseParVec operator+(const pySpParVec & rhs);
+	pyObjDenseParVec operator-(const pySpParVec & rhs);
+	pyObjDenseParVec operator*(const pyObjDenseParVec& rhs);
+	pyObjDenseParVec operator*(const pySpParVec& rhs);
+	
+	pyObjDenseParVec operator==(const pyObjDenseParVec& other);
+	pyObjDenseParVec operator!=(const pyObjDenseParVec& other);
+	*/
+	pyObjDenseParVec copy();
+	
+	//pyObjDenseParVec SubsRef(const pyObjDenseParVec& ri);
+
+	//void RandPerm(); // Randomly permutes the vector
+	//pyObjDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	//pyObjDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+
+	void printall();
+	
+public:
+	
+	int64_t getnee() const;
+	//int64_t getnnz() const;
+	//int64_t getnz() const;
+	//bool any() const;
+	
+public:	
+	//void load(const char* filename);
+	
+public:
+	//int64_t Count(op::UnaryFunction* op);
+	//double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
+	//pySpParVec Find(op::UnaryFunction* op);
+	//pySpParVec __getitem__(op::UnaryFunction* op);
+	//pyDenseParVec FindInds(op::UnaryFunction* op);
+	void Apply(op::ObjUnaryFunction* op);
+	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
+	//void EWiseApply(const pyObjDenseParVec& other, op::BinaryFunction *f);
+	//void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, PyObject* nullValue = 0);
+
+public:
+	//static pyObjDenseParVec range(int64_t howmany, int64_t start);
+	
+public:
+	// Functions from PyCombBLAS
+	/*
+	pyObjDenseParVec abs();
+	
+	pyObjDenseParVec& operator+=(double value);
+	pyObjDenseParVec operator+(double value);
+	pyObjDenseParVec& operator-=(double value);
+	pyObjDenseParVec operator-(double value);
+	
+	pyObjDenseParVec __and__(const pyObjDenseParVec& other);
+	*/
+	
+	PyObject* __getitem__(int64_t key);
+	PyObject* __getitem__(double  key);
+	//pyObjDenseParVec __getitem__(const pyObjDenseParVec& key);
+
+	void __setitem__(int64_t key, PyObject* value);
+	void __setitem__(double  key, PyObject* value);
+	//void __setitem__(const pySpParVec& key, const pySpParVec& value);
+	//void __setitem__(const pySpParVec& key, double value);
+};
+
 namespace op {
 
 class UnaryFunction {
@@ -373,6 +465,22 @@ UnaryFunction totality();
 UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
 
 UnaryFunction unary(PyObject *pyfunc);
+
+
+class ObjUnaryFunction {
+
+	protected:
+	ObjUnaryFunction(): pyfunc(NULL), arglist(NULL) {}
+	public:
+	
+	ObjUnaryFunction(PyObject *pyfunc_in);
+	
+	~ObjUnaryFunction();
+	
+	PyObject* operator()(PyObject* x);
+};
+
+ObjUnaryFunction obj_unary(PyObject *pyfunc);
 
 class BinaryFunction {
 	protected:

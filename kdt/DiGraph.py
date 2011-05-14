@@ -380,10 +380,14 @@ class DiGraph(gr.Graph):
 			ret:  a double-precision floating-point scalar denoting
 			    the amount of time to converted the created edges into
 			    the DiGraph instance.  This equals the value of Kernel 1
-			    of the Graph500 benchmark.
+			    of the Graph500 benchmark. Timing the entire genGraph500Edges
+			    call would also time the edge generation, which is not part
+			    of Kernel 1.
+			    Degrees of all vertices.
 		"""
-		elapsedTime = self._spm.GenGraph500Edges(scale)
-	 	return elapsedTime
+		degrees = pcb.pyDenseParVec(1, 1)
+		elapsedTime = self._spm.GenGraph500Edges(scale, degrees)
+	 	return (elapsedTime, ParVec.toParVec(degrees))
 
 	@staticmethod
 	def load(fname):

@@ -1136,6 +1136,8 @@ kdt/pyCombBLAS/pyCombBLAS.py -text
 kdt/pyCombBLAS/pyCombBLAS_wrap.cpp -text
 kdt/pyCombBLAS/pyDenseParVec.cpp -text
 kdt/pyCombBLAS/pyDenseParVec.h -text
+kdt/pyCombBLAS/pyObjDenseParVec.cpp -text
+kdt/pyCombBLAS/pyObjDenseParVec.h -text
 kdt/pyCombBLAS/pyOperations.cpp -text
 kdt/pyCombBLAS/pyOperations.h -text
 kdt/pyCombBLAS/pySpParMat.cpp -text

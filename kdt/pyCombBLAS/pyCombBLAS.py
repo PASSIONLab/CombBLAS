@@ -292,6 +292,29 @@ def pyDenseParVec_range(*args):
   return _pyCombBLAS.pyDenseParVec_range(*args)
 pyDenseParVec_range = _pyCombBLAS.pyDenseParVec_range
 
+class pyObjDenseParVec(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, pyObjDenseParVec, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, pyObjDenseParVec, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_pyObjDenseParVec(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def len(self): return _pyCombBLAS.pyObjDenseParVec_len(self)
+    def __len__(self): return _pyCombBLAS.pyObjDenseParVec___len__(self)
+    def copy(self): return _pyCombBLAS.pyObjDenseParVec_copy(self)
+    def printall(self): return _pyCombBLAS.pyObjDenseParVec_printall(self)
+    def getnee(self): return _pyCombBLAS.pyObjDenseParVec_getnee(self)
+    def Apply(self, *args): return _pyCombBLAS.pyObjDenseParVec_Apply(self, *args)
+    def __getitem__(self, *args): return _pyCombBLAS.pyObjDenseParVec___getitem__(self, *args)
+    def __setitem__(self, *args): return _pyCombBLAS.pyObjDenseParVec___setitem__(self, *args)
+    __swig_destroy__ = _pyCombBLAS.delete_pyObjDenseParVec
+    __del__ = lambda self : None;
+pyObjDenseParVec_swigregister = _pyCombBLAS.pyObjDenseParVec_swigregister
+pyObjDenseParVec_swigregister(pyObjDenseParVec)
+
 class UnaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryFunction, name, value)
@@ -345,6 +368,26 @@ ifthenelse = _pyCombBLAS.ifthenelse
 def unary(*args):
   return _pyCombBLAS.unary(*args)
 unary = _pyCombBLAS.unary
+class ObjUnaryFunction(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, ObjUnaryFunction, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, ObjUnaryFunction, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_ObjUnaryFunction(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_ObjUnaryFunction
+    __del__ = lambda self : None;
+    def __call__(self, *args): return _pyCombBLAS.ObjUnaryFunction___call__(self, *args)
+ObjUnaryFunction_swigregister = _pyCombBLAS.ObjUnaryFunction_swigregister
+ObjUnaryFunction_swigregister(ObjUnaryFunction)
+
+
+def obj_unary(*args):
+  return _pyCombBLAS.obj_unary(*args)
+obj_unary = _pyCombBLAS.obj_unary
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)
