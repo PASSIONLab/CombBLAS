@@ -202,10 +202,6 @@ K2edges = [];
 K2TEPS = [];
 
 i = 0
-
-print "=========================== starts"
-print starts
-
 for start in starts:
 	start = int(start)
 	before = time.time()
