@@ -101,7 +101,7 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	//PSpMat_Bool A;	
 	FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 	FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
-	bool scramble = false;
+	bool scramble = true;
 
 
 
