@@ -21,7 +21,7 @@
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors
 #define MEM_EFFICIENT_STAGES 16
-#define SPLITS 6
+#define SPLITS 4
 
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002

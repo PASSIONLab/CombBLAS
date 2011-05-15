@@ -1267,7 +1267,6 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	int maxs = s-1;	
 	for(IT s=0; s< stages; ++s)
 	{
-		SpParHelper::Print("Stage done\n");
 		int64_t n_befor = s*perstage;
 		int64_t n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
 
