@@ -26,6 +26,8 @@ class info:
 			return float(np.finfo(np.float).eps)
 		except ImportError:
 			pass
+		except AttributeError:
+			pass
 			
 		# return a reasonable value
 		return 2.220446049250313e-16;
