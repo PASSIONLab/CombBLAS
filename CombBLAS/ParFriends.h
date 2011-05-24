@@ -1050,6 +1050,16 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	(const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x )
 {
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+
+	IU ncolA = A.getncol();
+	if(ncolA != x.getTotalLength())
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << x.getTotalLength() << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
@@ -1106,6 +1116,16 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	(const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x )
 {
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+
+	IU ncolA = A.getncol();
+	if(ncolA != x.getTotalLength())
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << x.getTotalLength() << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
@@ -1229,6 +1249,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf)
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
+
+	IU ncolA = A.getncol();
+	if(ncolA != x.TotalLength())
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << x.TotalLength() << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
@@ -1527,6 +1557,15 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x)
 {
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+	IU ncolA = A.getncol();
+	if(ncolA != x.TotalLength())
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << x.TotalLength() << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 

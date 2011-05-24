@@ -100,6 +100,9 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 {
+	if(glen == 0)
+		SpParHelper::Print("WARNING: SetElement() called on a vector with zero length\n");
+
 	IT locind;
 	int owner = Owner(indx, locind);
 	if(commGrid->GetRank() == owner)
