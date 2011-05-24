@@ -48,7 +48,7 @@ class SparseVectorLocalIterator;
   * It is possibly that nonzero counts are distributed unevenly
   * Example: x=[1,2,3,4,5] and length(x) = 20, then P_00 would own all the nonzeros and the rest will hold empry vectors
   * Just like in SpParMat case, indices are local to processors (they belong to range [0,...,length-1] on each processor)
-  *
+  * \warning Always create vectors with the right length, setting elements won't increase its length (similar to operator[] on std::vector)
  **/
   
 template <class IT, class NT>
