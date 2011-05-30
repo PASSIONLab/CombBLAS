@@ -197,6 +197,10 @@ public:
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x );
 
+	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+	friend FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x );
+
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);

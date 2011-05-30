@@ -64,6 +64,7 @@ public:
 
 	IT LengthUntil() const;
 	IT RowLenUntil() const;
+	IT RowLenUntil(int k) const;
 	IT MyLocLength() const;
 	IT MyRowLength() const;
 	IT TotalLength() const { return glen; }
@@ -199,6 +200,27 @@ IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
 	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
 
 	return (n_perproc*my_proccol);
+}
+
+// Return the length until the kth processor, within this processor row only
+template <class IT, class NT>
+IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+::RowLenUntil(int k) const
+{
+	int procrows = commGrid->GetGridRows();
+	int my_procrow = commGrid->GetRankInProcCol();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	IT n_thisrow;	// length assigned to this processor row	
+	if(my_procrow == procrows-1)
+		n_thisrow = glen - (n_perprocrow*(procrows-1));
+	else
+		n_thisrow = n_perprocrow;	
+
+	int proccols = commGrid->GetGridCols();
+	IT n_perproc = n_thisrow / proccols;	// length on a typical processor
+
+	assert(k < proccols);
+	return (n_perproc*k);
 }
 
 

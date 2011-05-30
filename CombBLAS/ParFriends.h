@@ -1549,6 +1549,93 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 }
 
 
+template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
+FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x )
+{
+	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
+
+	IU ncolA = A.getncol();
+	if(ncolA != x.TotalLength())
+	{
+		ostringstream outs;
+		outs << "Can not multiply, dimensions does not match"<< endl;
+		outs << ncolA << " != " << x.TotalLength() << endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
+	if(!(*A.commGrid == *x.commGrid)) 		
+	{
+		cout << "Grids are not comparable for SpMV" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	MPI::Intracomm World = x.commGrid->GetWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+
+	int xsize = (int) x.arr.size();
+	int trxsize = 0;
+	int roffst = x.RowLenUntil();
+	int offset = 0;
+
+	int diagneigh = x.commGrid->GetComplementRank();
+	World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
+	World.Sendrecv(&roffst, 1, MPI::INT, diagneigh, TROST, &offset, 1, MPI::INT, diagneigh, TROST);
+	
+	NUV * trxnums = new NUV[trxsize];
+	World.Sendrecv(const_cast<NUV*>(&x.arr[0]), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX);
+
+	int colneighs = ColWorld.Get_size();
+	int colrank = ColWorld.Get_rank();
+	int * colsize = new int[colneighs];
+	colsize[colrank] = trxsize;
+	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colsize, 1, MPI::INT);
+	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+	std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
+	int accsize = std::accumulate(colsize, colsize+colneighs, 0);
+	NUV * numacc = new NUV[accsize];
+
+	ColWorld.Allgatherv(trxnums, trxsize, MPIType<NUV>(), numacc, colsize, dpls, MPIType<NUV>());
+	delete [] trxnums;
+
+	// serial SpMV with dense vector
+	T_promote id = SR::id();
+	IU ysize = A.getlocalrows();
+	T_promote * localy = new T_promote[ysize];
+	fill_n(localy, ysize, id);		
+	dcsc_gespmv<SR>(*(A.spSeq), numacc, localy);	
+	
+	//ofstream oput;
+	//A.commGrid->OpenDebugFile("localy", oput);
+	//copy(localy, localy+ysize, ostream_iterator<T_promote>(oput, " ")); oput << endl;
+	//oput.close();
+
+	DeleteAll(numacc,colsize, dpls);
+
+	// FullyDistVec<IT,NT>(shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
+	FullyDistVec<IU, T_promote> y ( x.commGrid, A.getnrow(), id, id);
+	IU yintlen = y.MyRowLength();
+	
+	int rowneighs = RowWorld.Get_size();
+	int rowrank = RowWorld.Get_rank();
+	IU begptr, endptr;
+	for(int i=0; i< rowneighs; ++i)
+	{
+		begptr = y.RowLenUntil(i);
+		if(i == rowneighs-1)
+		{
+			endptr = ysize;
+		}
+		else
+		{
+			endptr = y.RowLenUntil(i+1);
+		}
+		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root), recvbuf is irrelevant except root
+                RowWorld.Reduce(localy+begptr, &(y.arr[0]), endptr-begptr, MPIType<T_promote>(), SR::mpi_op(), i);
+	}
+	delete [] localy;
+	return y;
+}
 
 
 	
@@ -1706,7 +1793,6 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 /////////////////////
 // Apply
-
 // based on SpMV
 template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
 void ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op)

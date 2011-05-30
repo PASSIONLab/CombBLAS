@@ -22,6 +22,7 @@ template <class T1, class T2>
 struct Select2ndSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static T_promote id() { return -1;}
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -42,6 +43,7 @@ template <class T1, class T2>
 struct SelectMaxSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static T_promote id() {  return -1; };
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -66,6 +68,7 @@ template <class T2>
 struct SelectMaxSRing<bool, T2>
 {
 	typedef T2 T_promote;
+	static T_promote id(){ return -1; };
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -85,6 +88,7 @@ template <class T1, class T2>
 struct PlusTimesSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static T_promote id(){ return 0; }
 	static MPI_Op mpi_op() { return MPI_SUM; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -106,6 +110,7 @@ template <class T1, class T2>
 struct MinPlusSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static T_promote id() { return  std::numeric_limits<T_promote>::max(); };
 	static MPI_Op mpi_op() { return MPI_MIN; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{

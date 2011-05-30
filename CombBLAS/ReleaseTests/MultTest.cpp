@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 
 		PSpMat<double>::MPI_DCCols A, B, C, CControl;	// construct objects
-		DenseParVec<int64_t, double> ycontrol, x;
+		FullyDistVec<int64_t, double> ycontrol, x;
 		FullyDistSpVec<int64_t, double> spycontrol, spx;
 		
 		A.ReadDistribute(inputA, 0);
@@ -83,10 +83,10 @@ int main(int argc, char* argv[])
 		ycontrol.ReadDistribute(vecinpy,0);
 		spycontrol.ReadDistribute(vecinpy,0);
 
-		DenseParVec<int64_t, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
+		FullyDistVec<int64_t, double> y = SpMV<PTDOUBLEDOUBLE>(A, x);
 		if (ycontrol == y)
 		{
-			SpParHelper::Print("Dense SpMV (diagonally dist) working correctly\n");	
+			SpParHelper::Print("Dense SpMV (fully dist) working correctly\n");	
 		}
 		else
 		{
