@@ -42,7 +42,7 @@ public:
 	void load(const char* filename);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:

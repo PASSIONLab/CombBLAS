@@ -61,8 +61,136 @@ void pySpParMat::save(const char* filename)
 	output.close();
 }
 
-double pySpParMat::GenGraph500Edges(int scale)
+// Copied directly from Aydin's C++ Graph500 code
+template <typename PARMAT>
+void Symmetricize(PARMAT & A)
 {
+	// boolean addition is practically a "logical or"
+	// therefore this doesn't destruct any links
+	PARMAT AT = A;
+	AT.Transpose();
+	A += AT;
+}
+
+double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR)
+{
+	typedef SpParMat < int64_t, doubleint, SpDCCols<int64_t,doubleint> > PSpMat_DoubleInt;
+
+	// Copied directly from Aydin's C++ Graph500 code
+	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
+	typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
+	typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
+	typedef SpParMat < int32_t, int32_t, SpDCCols<int32_t,int32_t> > PSpMat_Int32;
+
+	// Declare objects
+	//PSpMat_Bool A;	
+	FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
+	FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+	bool scramble = true;
+
+
+
+	// this is an undirected graph, so A*x does indeed BFS
+	double initiator[4] = {.57, .19, .19, .05};
+	
+	double t01 = MPI_Wtime();
+	double t02;
+	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
+	if(!scramble)
+	{
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR);
+		SpParHelper::Print("Generated edge lists\n");
+		t02 = MPI_Wtime();
+		ostringstream tinfo;
+		tinfo << "Generation took " << t02-t01 << " seconds" << endl;
+		SpParHelper::Print(tinfo.str());
+		
+		PermEdges(*DEL);
+		SpParHelper::Print("Permuted Edges\n");
+		//DEL->Dump64bit("edges_permuted");
+		//SpParHelper::Print("Dumped\n");
+		
+		RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
+		SpParHelper::Print("Renamed Vertices\n");
+	}
+	else	// fast generation
+	{
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+		SpParHelper::Print("Generated renamed edge lists\n");
+		t02 = MPI_Wtime();
+		ostringstream tinfo;
+		tinfo << "Generation took " << t02-t01 << " seconds" << endl;
+		SpParHelper::Print(tinfo.str());
+	}
+	
+	// Start Kernel #1
+	MPI::COMM_WORLD.Barrier();
+	double t1 = MPI_Wtime();
+	
+	// conversion from distributed edge list, keeps self-loops, sums duplicates
+	PSpMat_Int32 * G = new PSpMat_Int32(*DEL, false); 
+	delete DEL;	// free memory before symmetricizing
+	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
+	
+	MPI::COMM_WORLD.Barrier();
+	double redts = MPI_Wtime();
+	G->Reduce(degrees, ::Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
+	MPI::COMM_WORLD.Barrier();
+	double redtf = MPI_Wtime();
+	
+	ostringstream redtimeinfo;
+	redtimeinfo << "Calculated degrees in " << redtf-redts << " seconds" << endl;
+	SpParHelper::Print(redtimeinfo.str());
+	A =  PSpMat_DoubleInt(*G);			// Convert to Boolean
+	delete G;
+	int64_t removed  = A.RemoveLoops();
+	
+	ostringstream loopinfo;
+	loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
+	SpParHelper::Print(loopinfo.str());
+	A.PrintInfo();
+	
+	FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+	FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+	A.Reduce(*ColSums, ::Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+	A.Reduce(*RowSums, ::Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+	SpParHelper::Print("Reductions done\n");
+	ColSums->EWiseApply(*RowSums, plus<int64_t>());
+	SpParHelper::Print("Intersection of colsums and rowsums found\n");
+	delete RowSums;
+	
+	nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+	delete ColSums;
+	
+	SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+	nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+	A.PrintInfo();
+	A(nonisov, nonisov, true);	// in-place permute to save memory	
+	SpParHelper::Print("Dropped isolated vertices from input\n");	
+	A.PrintInfo();
+	
+	Symmetricize(A);	// A += A';
+	SpParHelper::Print("Symmetricized\n");	
+	
+	#ifdef THREADED	
+	A.ActivateThreading(SPLITS);	
+	#endif
+	A.PrintInfo();
+	
+	MPI::COMM_WORLD.Barrier();
+	double t2=MPI_Wtime();
+	
+	//ostringstream k1timeinfo;
+	//k1timeinfo << (t2-t1) - (redtf-redts) << " seconds elapsed for Kernel #1" << endl;
+	//SpParHelper::Print(k1timeinfo.str());
+	
+	if (pyDegrees != NULL)
+	{
+		pyDegrees->v = degrees;
+	}
+	return (t2-t1) - (redtf-redts);
+
+/*
 	double k1time = 0;
 
 	int nprocs = MPI::COMM_WORLD.Get_size();
@@ -103,6 +231,7 @@ double pySpParMat::GenGraph500Edges(int scale)
 	
 	k1time = t2-t1;
 	return k1time;
+*/
 }
 
 /*
