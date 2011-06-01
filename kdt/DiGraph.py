@@ -1285,7 +1285,6 @@ class DiGraph(gr.Graph):
 		Deferred implementation for KDT v0.1
 			
 		"""
-		raise NotImplementedError, "clustering not implemented for v0.1"
 		if alg=='Markov' or alg=='markov':
 			clus = _markov(self, **kwargs)
 	
@@ -1296,3 +1295,75 @@ class DiGraph(gr.Graph):
 			raise KeyError, "unknown clustering algorithm (%s)" % alg
 	
 		return clus
+
+	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False):
+		"""
+		filler  
+		"""
+		
+		EPS = 0.001
+		#EPS = 10**(-100)
+		chaos = 1000
+		
+		#Check parameters
+		if expansion <= 1:
+			raise KeyError, 'expansion parameter must be greater than 1'
+		if inflation <= 1:
+			raise KeyError, 'inflation parameter must be greater than 1'
+		
+		A = self.copy()
+		#if not sym:
+			#A = A + A.Transpose() at the points where A is 0 or null
+		
+		#Add self loop
+		N = A.nvert()
+		if addSelfLoops:
+			A += DiGraph(ParVec.range(N), ParVec.range(N), ParVec(N,selfLoopWeight), N)
+		
+		#Create stochastic matrix
+	
+		#Avoid divide-by-zero error
+		sums = A.sum()
+		sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
+			pcb.set(1),
+			pcb.identity()))
+		
+		A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec() )
+		
+		#Iterations tally
+		iterNum = 0
+		
+		#MCL Loop
+		while chaos > EPS:
+			iterNum += 1;
+		
+		#Expansion - A^(expansion)
+		#for i in (1,expansion):
+			A = A._SpMM(A)
+		
+		#Inflation - Hadamard power - greater inflation parameter -> more granular results
+			A._spm.Apply(pcb.bind2nd(pcb.pow(), inflation))
+			
+			#Re-normalize
+			#Agian avoid divide-by-zero error
+			sums = A.sum()
+			sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
+				pcb.set(1),
+				pcb.identity()))
+			A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec() )
+		
+		#Looping Condition:
+			colssqs = A._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.bind2nd(pcb.pow(), 2))
+			colmaxs = A._spm.Reduce(pcb.pySpParMat.Column(), pcb.max(), 0.0)
+			chaos = ParVec.toParVec(colmaxs - colssqs).max()
+			print "chaos=",chaos
+		# Pruning implementation - switch out with TopK / give option
+			A._spm.Prune(pcb.bind2nd(pcb.less(), prunelimit))
+			print "number of edges remaining =", A._spm.getnee()
+		
+		#A = A + A.Transpose() at the points where A is 0 or null
+		#Either re-add opposite edge or prune directed edge
+		
+		print "Iterations = %d" % iterNum
+		
+		return A
