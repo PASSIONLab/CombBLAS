@@ -1323,12 +1323,12 @@ class DiGraph(gr.Graph):
 		#Create stochastic matrix
 	
 		#Avoid divide-by-zero error
-		sums = A.sum()
+		sums = A.sum(DiGraph.In)
 		sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
 			pcb.set(1),
 			pcb.identity()))
 		
-		A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec() )
+		A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec(), dir=DiGraph.In )
 		
 		#Iterations tally
 		iterNum = 0
@@ -1337,27 +1337,33 @@ class DiGraph(gr.Graph):
 		while chaos > EPS:
 			iterNum += 1;
 		
-		#Expansion - A^(expansion)
-		#for i in (1,expansion):
-			A = A._SpMM(A)
+			#Expansion - A^(expansion)
+			for i in range(1, expansion):
+				A = A._SpMM(A)
 		
-		#Inflation - Hadamard power - greater inflation parameter -> more granular results
+			#Inflation - Hadamard power - greater inflation parameter -> more granular results
 			A._spm.Apply(pcb.bind2nd(pcb.pow(), inflation))
 			
 			#Re-normalize
 			#Agian avoid divide-by-zero error
-			sums = A.sum()
+			sums = A.sum(DiGraph.In)
 			sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
 				pcb.set(1),
 				pcb.identity()))
-			A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec() )
+
+			A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec(), dir=DiGraph.In)
+			
+			#print "sums=",sums
+			#[iv, jv, vv] = A.toParVec()
+			#print "A:", iv, jv, vv
 		
-		#Looping Condition:
+			#Looping Condition:
 			colssqs = A._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.bind2nd(pcb.pow(), 2))
 			colmaxs = A._spm.Reduce(pcb.pySpParMat.Column(), pcb.max(), 0.0)
 			chaos = ParVec.toParVec(colmaxs - colssqs).max()
 			print "chaos=",chaos
-		# Pruning implementation - switch out with TopK / give option
+
+			# Pruning implementation - switch out with TopK / give option
 			A._spm.Prune(pcb.bind2nd(pcb.less(), prunelimit))
 			print "number of edges remaining =", A._spm.getnee()
 		
