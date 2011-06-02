@@ -13,18 +13,6 @@
 #ifndef _REF_GEN_2_1_H_
 #define _REF_GEN_2_1_H_
 
-#include <vector>
-#include <limits>
-#include "SpDefs.h"
-#include "StackEntry.h"
-#include "promote.h"
-#include "Isect.h"
-#include "HeapEntry.h"
-#include "SpImpl.h"
-#include "graph500-1.2/generator/graph_generator.h"
-#include "graph500-1.2/generator/utils.h"
-
-
 #ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
 #endif
@@ -40,6 +28,18 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <errno.h>
+
+#include <vector>
+#include <limits>
+#include "SpDefs.h"
+#include "StackEntry.h"
+#include "promote.h"
+#include "Isect.h"
+#include "HeapEntry.h"
+#include "SpImpl.h"
+#include "graph500-1.2/generator/graph_generator.h"
+#include "graph500-1.2/generator/utils.h"
+
 
 /* Initiator settings: for faster random number generation, the initiator
  * probabilities are defined as fractions (a = INITIATOR_A_NUMERATOR /

@@ -9,6 +9,21 @@
 #ifndef _SP_DEFS_H_
 #define _SP_DEFS_H_
 
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#ifdef _STDINT_H
+	#undef _STDINT_H
+#endif
+#ifdef _GCC_STDINT_H 	// for cray
+	#undef _GCC_STDINT_H // original stdint does #include_next<"/opt/gcc/4.5.2/snos/lib/gcc/x86_64-suse-linux/4.5.2/include/stdint-gcc.h">
+#endif
+#include <stdint.h>
+#include <inttypes.h>
+
 #include <cmath>
 #include <limits.h>
 #include "SequenceHeaps/knheap.C"
@@ -21,13 +36,12 @@
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors
 #define MEM_EFFICIENT_STAGES 16
-#define SPLITS 4
+#define SPLITS 6
 
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
 #define NOTSQUARE 3003
 #define NOFILE 3004
-
 
 // MPI Message tags 
 // Prefixes denote functions
