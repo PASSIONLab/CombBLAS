@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 			}
 			else	// fast generation
 			{
-				DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+				DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );	// generate packed edges
 				SpParHelper::Print("Generated renamed edge lists\n");
 				t02 = MPI_Wtime();
 				ostringstream tinfo;

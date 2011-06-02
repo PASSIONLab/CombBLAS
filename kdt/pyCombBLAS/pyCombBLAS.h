@@ -11,7 +11,6 @@
 //#include "../../CombBLAS/ParFriends.h"
 //#include "../../CombBLAS/Semirings.h"
 
-
 #ifdef NOTR1
         #include <boost/tr1/memory.hpp>
 #else

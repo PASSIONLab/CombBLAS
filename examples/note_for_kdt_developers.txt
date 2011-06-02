@@ -5,3 +5,13 @@ If you're doing active development and don't want to continually install new
 kdt builds then point the PYTHONPATH environment variable at the svn trunk:
 $ export PYTHONPATH=/path/to/kdt/svn/trunk
 (that's ../ from where this file is)
+
+
+For Hopper runs, in the parent folder:
+
+> module load python
+> setenv CC cc
+> setenv CXX CC
+> python setup.py build
+> python setup.py install --home=$HOME
+> setenv PYTHONPATH $HOME":$HOME/kdt/trunk"

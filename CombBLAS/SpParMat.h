@@ -22,6 +22,7 @@
 	#include <tr1/memory>	// for shared_ptr
 	#include <tr1/tuple>
 #endif
+
 #include "SpMat.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"

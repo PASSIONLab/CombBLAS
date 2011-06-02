@@ -7,4 +7,4 @@
 export CRAY_ROOTFS=DSL
 
 cd $PBS_O_WORKDIR
-aprun -n 1024 python ./testscript.py 29
+aprun -n 1024 python ./testscript.py 27
