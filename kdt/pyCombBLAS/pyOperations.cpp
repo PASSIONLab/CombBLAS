@@ -486,15 +486,15 @@ template <>
 Semiring* SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
 
 Semiring::Semiring(PyObject *add, PyObject *multiply)
-	: pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+	: type(CUSTOM), pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
 {
 	Py_INCREF(pyfunc_add);
 	Py_INCREF(pyfunc_multiply);
 }
 Semiring::~Semiring()
 {
-	Py_DECREF(pyfunc_add);
-	Py_DECREF(pyfunc_multiply);
+	Py_XDECREF(pyfunc_add);
+	Py_XDECREF(pyfunc_multiply);
 	assert((SemiringTemplArg<doubleint, doubleint>::currentlyApplied != this));
 }
 
@@ -554,5 +554,19 @@ void Semiring::axpy(doubleint a, const doubleint & x, doubleint & y)
 	y = add(y, multiply(a, x));
 }
 
-	
+Semiring PlusTimesSemiring()
+{
+	return Semiring(Semiring::PLUSTIMES);
+}
+
+Semiring MinPlusSemiring()
+{
+	return Semiring(Semiring::MINPLUS);
+}
+
+Semiring Max2ndSemiring()
+{
+	return Semiring(Semiring::MAX2ND);
+}
+
 } // namespace op

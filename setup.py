@@ -12,7 +12,7 @@ print "export CC=mpicxx"
 print "export CXX=mpicxx"
 print ""
 
-def see_if_compiles(program, include_dirs):
+def see_if_compiles(program, include_dirs, define_macros):
 	""" Try to compile the passed in program and report if it compiles successfully or not. """
 	from distutils.ccompiler import new_compiler, CompileError
 	from shutil import rmtree
@@ -39,7 +39,10 @@ def see_if_compiles(program, include_dirs):
 	f.write(program)
 	f.close()
 	try:
-		new_compiler().compile([f.name], include_dirs=include_dirs)
+		c = new_compiler()
+		for macro in define_macros:
+			c.define_macro(name=macro[0], value=macro[1])
+		c.compile([f.name], include_dirs=include_dirs)
 		success = True
 	except CompileError:
 		success = False
@@ -48,18 +51,18 @@ def see_if_compiles(program, include_dirs):
 	rmtree(tmpdir)
 	return success
 
-def check_for_header(header, include_dirs):
+def check_for_header(header, include_dirs, define_macros):
 	"""Check for the existence of a header file by creating a small program which includes it and see if it compiles."""
 	program = "#include <%s>\n" % header
 	sys.stdout.write("Checking for <%s>... " % header)
-	success = see_if_compiles(program, include_dirs)
+	success = see_if_compiles(program, include_dirs, define_macros)
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
 		sys.stdout.write("Not found\n");
 	return success
 
-def check_for_MPI_IN_PLACE(include_dirs):
+def check_for_MPI_IN_PLACE(include_dirs, define_macros):
 	""" Check for the existence of the MPI_IN_PLACE constant. """
 	
 	program = """
@@ -73,7 +76,7 @@ int main(int argc, const char** argv) {
 
 """
 	sys.stdout.write("Checking for MPI_IN_PLACE... ")
-	success = see_if_compiles(program, include_dirs)
+	success = see_if_compiles(program, include_dirs, define_macros)
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
@@ -82,10 +85,18 @@ int main(int argc, const char** argv) {
 
 # parse out additional include dirs from the command line
 include_dirs = []
+define_macros = []
 copy_args=sys.argv[1:]
 for a in copy_args:
 	if a.startswith('-I'):
 		include_dirs.append(a[2:])
+		copy_args.remove(a)
+	if a.startswith('-D'):
+		# macros can be a single value or a constant=value pair
+		macro = tuple(a[2:].split("="))
+		if (len(macro) == 1):
+			macro.append(None)
+		define_macros.append(macro)
 		copy_args.remove(a)
 
 # see if the compiler has TR1
@@ -93,12 +104,12 @@ hasTR1 = False
 hasBoost = False
 headerDefs = []
 print "Checking for TR1..."
-if (check_for_header("tr1/memory", include_dirs) and check_for_header("tr1/tuple", include_dirs)):
+if (check_for_header("tr1/memory", include_dirs, define_macros) and check_for_header("tr1/tuple", include_dirs, define_macros)):
 	hasTR1 = True
 else:
 	# nope, see if boost is available
-	print "No TR1. Checking for Boost instead..."
-	if (check_for_header("boost/tr1/memory.hpp", include_dirs) and check_for_header("boost/tr1/tuple.hpp", include_dirs)):
+	print "No TR1. Checking for Boost..."
+	if (check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros) and check_for_header("boost/tr1/tuple.hpp", include_dirs, define_macros)):
 		hasBoost = True
 		headerDefs = [('NOTR1', '1')]
 	else:
@@ -109,7 +120,7 @@ else:
 		print "$ python setup.py build -I/home/username/include"
 		sys.exit();
 
-#if (not check_for_MPI_IN_PLACE(include_dirs)):
+#if (not check_for_MPI_IN_PLACE(include_dirs, define_macros)):
 #	print "Please use a more recent MPI implementation."
 #	print "If you system has multiple MPI implementations you can set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
 #	print "export CC=mpicxx"
@@ -128,7 +139,7 @@ generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittab
 pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pyObjDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pySpParMatBool.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
 	include_dirs=include_dirs,
-	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs)
+	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
 
 setup(name='kdt',
 	version='0.1',

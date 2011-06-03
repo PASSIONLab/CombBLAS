@@ -186,6 +186,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	
 	if (pyDegrees != NULL)
 	{
+		degrees = degrees(nonisov);	// fix the degrees array too
 		pyDegrees->v = degrees;
 	}
 	return (t2-t1) - (redtf-redts);
@@ -432,6 +433,14 @@ pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::Semiring* sring)
 	{
 		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
 	}
+	else if (sring->getType() == op::Semiring::PLUSTIMES)
+	{
+		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::MAX2ND)
+	{
+		return pySpParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+	}
 	else
 	{
 		sring->enableSemiring();
@@ -446,6 +455,14 @@ void pySpParMat::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 	if (sring == NULL)
 	{
 		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::PLUSTIMES)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::MAX2ND)
+	{
+		x = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 	}
 	else
 	{

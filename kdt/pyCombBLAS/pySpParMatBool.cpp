@@ -201,6 +201,7 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	
 	if (pyDegrees != NULL)
 	{
+		degrees = degrees(nonisov);	// fix the degrees array too
 		pyDegrees->v = degrees;
 	}
 	return (t2-t1) - (redtf-redts);

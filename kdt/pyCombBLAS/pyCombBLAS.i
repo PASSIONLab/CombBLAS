@@ -538,7 +538,7 @@ BinaryFunction not2(BinaryFunction& f);
 
 class Semiring {
 	protected:
-	Semiring(): pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
 	public:
 	Semiring(PyObject *add, PyObject *multiply);
 	~Semiring();
@@ -553,6 +553,9 @@ class Semiring {
 	void axpy(doubleint a, const doubleint & x, doubleint & y);
 
 };
+Semiring PlusTimesSemiring();
+//Semiring MinPlusSemiring();
+Semiring Max2ndSemiring();
 
 } // namespace op
 

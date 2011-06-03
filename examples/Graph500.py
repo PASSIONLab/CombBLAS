@@ -119,29 +119,29 @@ def bfsTreeEWise(G, root, sym=False):
 	if not sym:
 		G.T()
 	parents = pcb.pyDenseParVec(G.nvert(), -1)
-	fringe = pcb.pySpParVec(G.nvert())
+	frontier = pcb.pySpParVec(G.nvert())
 	parents[root] = root
-	fringe[root] = root
+	frontier[root] = root
 	
 	def iterop(vals):
 		#print "visiting ",vals[2]
-		# vals[0] = fringe value
+		# vals[0] = frontier value
 		# vals[1] = parents value
 		# vals[2] = index
 		if (vals[1] == -1):
-			# discovered new vertex. Update parents and do a setNumToInd on the fringe
+			# discovered new vertex. Update parents and set frontier's value to its index
 			vals[1] = vals[0]
 			vals[0] = vals[2]
 		else:
-			# vertex already discovered. Remove it from the fringe
+			# vertex already discovered. Remove it from the frontier
 			vals[0] = None
 	
 	ops = 0;
-	while fringe.getnee() > 0:
-		G._spm.SpMV_SelMax_inplace(fringe)
+	while frontier.getnee() > 0:
+		G._spm.SpMV_SelMax_inplace(frontier)
 		#opss = time.time()
-		#pcb.EWise(iterop, [pcb.EWise_OnlyNZ(fringe), parents, pcb.EWise_Index()])
-		pcb.Graph500VectorOps(fringe, parents)
+		#pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier), parents, pcb.EWise_Index()])
+		pcb.Graph500VectorOps(frontier, parents)
 		#ops = ops + (time.time() - opss)
 	
 	#print "time: %fs"%(ops)
@@ -160,8 +160,8 @@ if len(file) == 0:
 	G = kdt.DiGraph()
 	G.toBool()
 	
-	deg3verts = kdt.ParVec(1);
-	K1elapsed, deg3verts = G.genGraph500Edges(scale)
+	#deg3verts = kdt.ParVec(1);
+	K1elapsed, degrees = G.genGraph500Edges(scale)
 	#G.save("testgraph.mtx")
 	if kdt.master():
 		print "Generation took %fs."%(K1elapsed)
@@ -171,16 +171,20 @@ if len(file) == 0:
 	#	indices of vertices with degree > 2
 
 	#deg3verts = (G.degree() > 2).findInds()
-	#deg3verts.randPerm()
+	deg3verts = (degrees > 2).findInds()
+	deg3verts.randPerm()
 	starts = deg3verts[kdt.ParVec.range(nstarts)]
 
 else:
 	if kdt.master():
 		print 'Loading %s'%(file)
+	before = time.time()
 	G = kdt.DiGraph.load(file)
-	K1elapsed = 0.0
+	K1elapsed = time.time() - before
+	
+	degrees = G.degree()
 
-	deg3verts = (G.degree() > 2).findInds()
+	deg3verts = (degrees > 2).findInds()
 	deg3verts.randPerm()
 	starts = deg3verts[kdt.ParVec.range(nstarts)]
 	G.toBool()
@@ -191,11 +195,12 @@ if False:
 	G = kdt.DiGraph.twoDTorus(2**(scale/2))
 	K1elapsed = 0.00005
 	starts = kdt.ParVec.range(nstarts)
+	degrees = G.degree()
 
 
 
-[origI, ign, ign2] = G.toParVec()
-del ign, ign2
+#[origI, ign, ign2] = G.toParVec()
+#del ign, ign2
 
 K2elapsed = [];
 K2edges = [];
@@ -213,7 +218,22 @@ for start in starts:
 		parents = G.bfsTree(start, sym=True)
 	
 	itertime = time.time() - before
-	nedges = len((parents[origI] != -1).find())
+	
+	# // Aydin's code for finding number of edges:
+	# FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+	# parentsp.Apply(set<int64_t>(1));
+	# // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
+	# int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
+	import kdt.pyCombBLAS as pcb
+	parentsp_pcb = parents._dpv.Find(pcb.bind2nd(pcb.greater(), -1))
+	parentsp_pcb.Apply(pcb.set(1))
+	#print "number of discovered verts: ",parentsp_pcb.getnee()," total: ",len(parents)
+	nedges = pcb.EWiseMult(parentsp_pcb, degrees._dpv, False, 0).Reduce(pcb.plus())
+	
+	#nedges2 = len((parents[origI] != -1).find())
+	#if kdt.master():
+	#	if (nedges != nedges2):
+	#		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
 	
 	K2elapsed.append(itertime)
 	K2edges.append(nedges)
