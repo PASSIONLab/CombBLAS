@@ -11,21 +11,6 @@
 #define SWIGPYTHON
 #define SWIG_PYTHON_DIRECTOR_NO_VTABLE
 
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-#ifdef _STDINT_H
-	#undef _STDINT_H
-#endif
-#ifdef _GCC_STDINT_H 	// for cray
-	#undef _GCC_STDINT_H // original stdint does #include_next<"/opt/gcc/4.5.2/snos/lib/gcc/x86_64-suse-linux/4.5.2/include/stdint-gcc.h">
-#endif
-#include <stdint.h>
-#include <inttypes.h>
-
 
 #ifdef __cplusplus
 /* SwigValueWrapper is described in swig.swg */
@@ -15758,6 +15743,52 @@ SWIGINTERN PyObject *Semiring_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObj
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_PlusTimesSemiring(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SwigValueWrapper< op::Semiring > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":PlusTimesSemiring")) SWIG_fail;
+  {
+    try {
+      result = op::PlusTimesSemiring();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new op::Semiring(static_cast< const op::Semiring& >(result))), SWIGTYPE_p_op__Semiring, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Max2ndSemiring(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  SwigValueWrapper< op::Semiring > result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":Max2ndSemiring")) SWIG_fail;
+  {
+    try {
+      result = op::Max2ndSemiring();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new op::Semiring(static_cast< const op::Semiring& >(result))), SWIGTYPE_p_op__Semiring, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_finalize(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   
@@ -16398,6 +16429,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Semiring_multiply", _wrap_Semiring_multiply, METH_VARARGS, NULL},
 	 { (char *)"Semiring_axpy", _wrap_Semiring_axpy, METH_VARARGS, NULL},
 	 { (char *)"Semiring_swigregister", Semiring_swigregister, METH_VARARGS, NULL},
+	 { (char *)"PlusTimesSemiring", _wrap_PlusTimesSemiring, METH_VARARGS, NULL},
+	 { (char *)"Max2ndSemiring", _wrap_Max2ndSemiring, METH_VARARGS, NULL},
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
 	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},

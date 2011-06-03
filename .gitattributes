@@ -1081,8 +1081,6 @@ CombBLAS/psort-1.0/src/psort_util.h -text
 CombBLAS/psort-1.0/src/sort.h -text
 CombBLAS/psort-1.0/src/sort.timpl.h -text
 CombBLAS/valgrindout -text
-Graph500cpp/Makefile-neumann -text
-Graph500cpp/graph500.cpp -text
 /KDT_User_Guide.doc -text
 /KDT_User_Guide.pdf -text
 /LICENSE.txt -text

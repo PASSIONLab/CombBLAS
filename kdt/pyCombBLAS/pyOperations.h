@@ -165,8 +165,14 @@ BinaryFunction not2(BinaryFunction& f);
 
 class Semiring {
 //INTERFACE_INCLUDE_END
-	protected:
+	public:
+	// CUSTOM is a semiring with Python-defined methods
+	// The others are pre-implemented in C++ for speed.
+	typedef enum {CUSTOM, NONE, PLUSTIMES, MINPLUS, MAX2ND} SRingType;
 
+	protected:
+	SRingType type;
+	
 	PyObject *pyfunc_add;
 	PyObject *pyfunc_multiply;
 	
@@ -178,9 +184,17 @@ class Semiring {
 	void enableSemiring();
 	void disableSemiring();
 	
+	public:
+	Semiring(SRingType t): type(t), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {
+		//if (t == CUSTOM)
+			// scream bloody murder
+	}
+	
+	SRingType getType() { return type; }
+	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	Semiring(): pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
 	public:
 	Semiring(PyObject *add, PyObject *multiply);
 	~Semiring();
@@ -225,6 +239,9 @@ struct SemiringTemplArg
 };
 
 //INTERFACE_INCLUDE_BEGIN
+Semiring PlusTimesSemiring();
+//Semiring MinPlusSemiring();
+Semiring Max2ndSemiring();
 
 } // namespace op
 

@@ -539,6 +539,14 @@ Semiring_swigregister = _pyCombBLAS.Semiring_swigregister
 Semiring_swigregister(Semiring)
 
 
+def PlusTimesSemiring():
+  return _pyCombBLAS.PlusTimesSemiring()
+PlusTimesSemiring = _pyCombBLAS.PlusTimesSemiring
+
+def Max2ndSemiring():
+  return _pyCombBLAS.Max2ndSemiring()
+Max2ndSemiring = _pyCombBLAS.Max2ndSemiring
+
 def finalize():
   return _pyCombBLAS.finalize()
 finalize = _pyCombBLAS.finalize
