@@ -76,11 +76,35 @@ int main(int argc, const char** argv) {
 
 """
 	sys.stdout.write("Checking for MPI_IN_PLACE... ")
+	sys.stdout.flush()
 	success = see_if_compiles(program, include_dirs, define_macros)
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
 		sys.stdout.write("Not found\n");
+	return success
+
+def check_for_C99_CONSTANTS(include_dirs, define_macros):
+	""" See if C99 constants for integers are defined. """
+	
+	program = """
+#include <iostream>
+#include <stdint.h>
+
+int main()
+{
+        uint64_t v, val0;
+        v *= (val0 | UINT64_C(0x4519840211493211));
+        return v;
+}
+
+"""
+	sys.stdout.write("Checking for C99 constants... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("Not found, will use __STDC_CONSTANT_MACROS\n");
 	return success
 
 # parse out additional include dirs from the command line
@@ -104,17 +128,17 @@ hasCpp0x = False
 hasTR1 = False
 hasBoost = False
 headerDefs = []
-print "Checking for C++0x..."
+print "Checking for C++0x:"
 if check_for_header("memory", include_dirs, define_macros):
 	hasCpp0x = True
 else:
-	print "No C++0x. Checking for TR1..."
+	print "No C++0x. Checking for TR1:"
 	if check_for_header("tr1/memory", include_dirs, define_macros):
 		hasTR1 = True
 		headerDefs = [('COMBBLAS_TR1', None)]
 	else:
 		# nope, see if boost is available
-		print "No TR1. Checking for Boost..."
+		print "No TR1. Checking for Boost:"
 		if check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros):
 			hasBoost = True
 			headerDefs = [('COMBBLAS_BOOST', None)]
@@ -133,7 +157,9 @@ else:
 #	print "export CXX=mpicxx"
 #	sys.exit();
 
-
+if (not check_for_C99_CONSTANTS(include_dirs, define_macros)):
+	define_macros.append(("__STDC_CONSTANT_MACROS", None))
+	
 COMBBLAS = "CombBLAS/"
 PCB = "kdt/pyCombBLAS/"
 GENERATOR = "CombBLAS/graph500-1.2/generator/"
