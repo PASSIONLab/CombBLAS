@@ -216,6 +216,7 @@ CombBLAS/BranchTrial/Friends.h -text
 CombBLAS/BranchTrial/ParFriends.h -text
 CombBLAS/BranchTrial/SpParMat.cpp -text
 CombBLAS/CMakeLists.txt -text
+CombBLAS/CombBLAS.h -text
 CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text

@@ -100,25 +100,31 @@ for a in copy_args:
 		copy_args.remove(a)
 
 # see if the compiler has TR1
+hasCpp0x = False
 hasTR1 = False
 hasBoost = False
 headerDefs = []
-print "Checking for TR1..."
-if (check_for_header("tr1/memory", include_dirs, define_macros) and check_for_header("tr1/tuple", include_dirs, define_macros)):
-	hasTR1 = True
+print "Checking for C++0x..."
+if check_for_header("memory", include_dirs, define_macros):
+	hasCpp0x = True
 else:
-	# nope, see if boost is available
-	print "No TR1. Checking for Boost..."
-	if (check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros) and check_for_header("boost/tr1/tuple.hpp", include_dirs, define_macros)):
-		hasBoost = True
-		headerDefs = [('NOTR1', '1')]
+	print "No C++0x. Checking for TR1..."
+	if check_for_header("tr1/memory", include_dirs, define_macros):
+		hasTR1 = True
+		headerDefs = [('COMBBLAS_TR1', None)]
 	else:
-		# nope, then sorry
-		print "KDT uses features from C++ TR1. These are available from some compilers or through the Boost C++ library (www.boost.org)."
-		print "Please make sure Boost is in your system include path or append the include path with the -I switch."
-		print "For example, if you have Boost installed in /home/username/include/boost:"
-		print "$ python setup.py build -I/home/username/include"
-		sys.exit();
+		# nope, see if boost is available
+		print "No TR1. Checking for Boost..."
+		if check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros):
+			hasBoost = True
+			headerDefs = [('COMBBLAS_BOOST', None)]
+		else:
+			# nope, then sorry
+			print "KDT uses features from C++0x (TR1). These are available from some compilers or through the Boost C++ library (www.boost.org)."
+			print "Please make sure Boost is in your system include path or append the include path with the -I switch."
+			print "For example, if you have Boost installed in /home/username/include/boost:"
+			print "$ python setup.py build -I/home/username/include"
+			sys.exit();
 
 #if (not check_for_MPI_IN_PLACE(include_dirs, define_macros)):
 #	print "Please use a more recent MPI implementation."

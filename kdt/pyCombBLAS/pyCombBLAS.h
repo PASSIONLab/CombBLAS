@@ -11,6 +11,8 @@
 //#include "../../CombBLAS/ParFriends.h"
 //#include "../../CombBLAS/Semirings.h"
 
+
+/*
 #ifdef NOTR1
         #include <boost/tr1/memory.hpp>
 #else
@@ -25,8 +27,9 @@
 #include "../../CombBLAS/ParFriends.h"
 #include "../../CombBLAS/DistEdgeList.h"
 #include "../../CombBLAS/Operations.h"
-
+*/
 #include <Python.h>
+#include "../../CombBLAS/CombBLAS.h"
 
 namespace op{
 class UnaryFunction;

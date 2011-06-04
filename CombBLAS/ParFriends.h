@@ -1993,7 +1993,7 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 					Product.ind.resize(prefix_sum[SPLITS]);
 					Product.num.resize(prefix_sum[SPLITS]);
 			
-					#pragma opm parallel for
+					#pragma omp parallel for
 					for(IU t=0; t< SPLITS; ++t)
 					{
 						copy(tlinds[t].begin(), tlinds[t].end(), Product.ind.begin()+prefix_sum[t]);

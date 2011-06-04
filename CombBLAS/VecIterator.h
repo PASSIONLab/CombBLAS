@@ -50,7 +50,7 @@ class DenseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	bool Next()
 	{
 		iter_idx++;
-		bool exists = (iter_idx < v.arr.size());
+		bool exists = ((unsigned)iter_idx < v.arr.size());
 		if (!exists)
 			iter_idx = -1;
 		return exists;
@@ -59,17 +59,17 @@ class DenseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	bool NextTo(IT loc_idx)
 	{
 		iter_idx = loc_idx;
-		return iter_idx > 0 && iter_idx < v.arr.size();
+		return iter_idx > 0 && (unsigned)iter_idx < v.arr.size();
 	}
 
 	bool HasNext()
 	{
-		return iter_idx >= 0 && iter_idx < v.arr.size();
+		return iter_idx >= 0 && (unsigned)iter_idx < v.arr.size();
 	}
 	
 	IT GetLocIndex() const
 	{
-		if (iter_idx < v.arr.size())
+		if ((unsigned)iter_idx < v.arr.size())
 			return iter_idx;
 		else
 			return -1;
@@ -120,7 +120,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	bool Next()
 	{
 		iter_idx++;
-		bool exists = (iter_idx < v.ind.size());
+		bool exists = ((unsigned)iter_idx < v.ind.size());
 		if (!exists)
 			iter_idx = -1;
 		return exists;
@@ -148,7 +148,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	
 	bool HasNext()
 	{
-		return iter_idx >= 0 && iter_idx < v.ind.size();
+		return iter_idx >= 0 && (unsigned)iter_idx < v.ind.size();
 	}
 	
 	IT GetLocIndex() const
@@ -168,7 +168,7 @@ class SparseVectorLocalIterator: public VectorLocalIterator<IT, NT>
 	{
 		v.ind.erase(v.ind.begin()+iter_idx);
 		v.num.erase(v.num.begin()+iter_idx);
-		if (iter_idx >= v.ind.size())
+		if ((unsigned)iter_idx >= v.ind.size())
 			iter_idx = -1;
 	}
 	
