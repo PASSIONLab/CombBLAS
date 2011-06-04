@@ -89,7 +89,9 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 			vector< vector<T_promote> > numy(splits);
 
 			// Parallelize with OpenMP
+			#ifdef _OPENMP
 			#pragma omp parallel for // num_threads(6)
+			#endif
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
@@ -117,8 +119,9 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 				else
 					end_recs[i] = min(indy[i].back() / perproc, last_rec);
 			}
-
+			#ifdef _OPENMP
 			#pragma omp parallel for // num_threads(6)
+			#endif	
 			for(int i=0; i<splits; ++i)
 			{
 				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
@@ -184,8 +187,8 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 	}
 	else
 	{
-		sendindbuf = new IU[0];
-		sendnumbuf = new T_promote[0];
+		sendindbuf = NULL;
+		sendnumbuf = NULL;
 		return 0;
 	}
 }

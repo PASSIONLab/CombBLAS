@@ -320,6 +320,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Intersection of colsums and rowsums found\n");
 			delete RowSums;
 
+			// TODO: seg fault in FindInds for scale 33 
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 
@@ -354,6 +355,7 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
 
+		// TODO: Threaded code crashes in FullyDistVec()
 		// Now that every remaining vertex is non-isolated, randomly pick ITERS many of them as starting vertices
 		degrees = degrees(nonisov);	// fix the degrees array too
 		degrees.PrintInfo("Degrees array");
