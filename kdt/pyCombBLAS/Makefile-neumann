@@ -7,7 +7,7 @@ COMBBLAS = ../../CombBLAS
 # -fno-rtti does not work with tr1:tuples
 
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w 
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DTR1 #-DDEBUG
 COMPILER = mpicxx
 FLAGS = $(OPT) -fPIC 
 
