@@ -1967,50 +1967,47 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 			IU size= V.getlocnnz();
 			if(exclude)
 			{
-				if(false)	// save this idea for later
+				#ifdef _OPENMP
+				vector <IU> tlosizes (SPLITS, 0);
+				vector < vector<IU> > tlinds(SPLITS);
+				vector < vector<T_promote> > tlnums(SPLITS);
+				IU tlsize = size / SPLITS;
+				#pragma omp parallel for
+				for(IU t = 0; t < SPLITS; ++t)
 				{
-					vector <IU> tlosizes (SPLITS, 0);
-					vector < vector<IU> > tlinds(SPLITS);
-					vector < vector<T_promote> > tlnums(SPLITS);
-					IU tlsize = size / SPLITS;
-					#pragma omp parallel for
-					for(IU t = 0; t < SPLITS; ++t)
+					IU tlbegin = t*tlsize;
+					IU tlend = max((t+1)*tlsize, size);
+					for(IU i=tlbegin; i<tlend; ++i)
 					{
-						IU tlbegin = t*tlsize;
-						IU tlend = max((t+1)*tlsize, size);
-						for(IU i=tlbegin; i<tlend; ++i)
+						if(W.arr[V.ind[i]] == zero) 	// keep only those
 						{
-							if(W.arr[V.ind[i]] == zero) 	// keep only those
-							{
-								tlinds[t].push_back(V.ind[i]);
-								tlnums[t].push_back(V.num[i]);
-								tlosizes[t]++;
-							}
+							tlinds[t].push_back(V.ind[i]);
+							tlnums[t].push_back(V.num[i]);
+							tlosizes[t]++;
 						}
 					}
-					vector<IU> prefix_sum(SPLITS+1,0);
-					partial_sum(tlosizes.begin(), tlosizes.end(), prefix_sum.begin()+1); 
-					Product.ind.resize(prefix_sum[SPLITS]);
-					Product.num.resize(prefix_sum[SPLITS]);
+				}
+				vector<IU> prefix_sum(SPLITS+1,0);
+				partial_sum(tlosizes.begin(), tlosizes.end(), prefix_sum.begin()+1); 
+				Product.ind.resize(prefix_sum[SPLITS]);
+				Product.num.resize(prefix_sum[SPLITS]);
 			
-					#pragma omp parallel for
-					for(IU t=0; t< SPLITS; ++t)
-					{
-						copy(tlinds[t].begin(), tlinds[t].end(), Product.ind.begin()+prefix_sum[t]);
-						copy(tlnums[t].begin(), tlnums[t].end(), Product.num.begin()+prefix_sum[t]);
-					}
-				}	
-				else
+				#pragma omp parallel for
+				for(IU t=0; t< SPLITS; ++t)
 				{
-					for(IU i=0; i<size; ++i)
-	                                {
-        	                                if(W.arr[V.ind[i]] == zero)     // keep only those
-                	                        {
-                        	                        Product.ind.push_back(V.ind[i]);
-                                	                Product.num.push_back(V.num[i]);
-                                        	}	
-					}
-                                }
+					copy(tlinds[t].begin(), tlinds[t].end(), Product.ind.begin()+prefix_sum[t]);
+					copy(tlnums[t].begin(), tlnums[t].end(), Product.num.begin()+prefix_sum[t]);
+				}
+				#else
+				for(IU i=0; i<size; ++i)
+				{
+					if(W.arr[V.ind[i]] == zero)     // keep only those
+					{
+                        	       		Product.ind.push_back(V.ind[i]);
+                                		Product.num.push_back(V.num[i]);
+                                      	}	
+				}
+				#endif
 			}
 			else
 			{

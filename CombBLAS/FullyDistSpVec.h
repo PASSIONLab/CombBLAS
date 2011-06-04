@@ -124,7 +124,9 @@ public:
 	{
 		IT offset = LengthUntil();
 		IT spsize = ind.size();
+		#ifdef _OPENMP
 		#pragma omp parallel for
+		#endif
 		for(IT i=0; i< spsize; ++i)
 			num[i] = ind[i] + offset;
 	}
