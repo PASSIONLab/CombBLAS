@@ -95,7 +95,7 @@ for a in copy_args:
 		# macros can be a single value or a constant=value pair
 		macro = tuple(a[2:].split("="))
 		if (len(macro) == 1):
-			macro.append(None)
+			macro = (macro[0], None)
 		define_macros.append(macro)
 		copy_args.remove(a)
 
