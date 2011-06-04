@@ -95,6 +95,7 @@ int main()
 {
         uint64_t v, val0;
         v *= (val0 | UINT64_C(0x4519840211493211));
+        uint32_t l = (uint32_t)(x & UINT32_MAX);
         return v;
 }
 
@@ -104,7 +105,7 @@ int main()
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
-		sys.stdout.write("Not found, will use __STDC_CONSTANT_MACROS\n");
+		sys.stdout.write("Not found, will use __STDC_CONSTANT_MACROS and __STDC_LIMIT_MACRO\n");
 	return success
 
 # parse out additional include dirs from the command line
@@ -159,6 +160,7 @@ else:
 
 if (not check_for_C99_CONSTANTS(include_dirs, define_macros)):
 	define_macros.append(("__STDC_CONSTANT_MACROS", None))
+	define_macros.append(("__STDC_LIMIT_MACRO", None))
 	
 COMBBLAS = "CombBLAS/"
 PCB = "kdt/pyCombBLAS/"
