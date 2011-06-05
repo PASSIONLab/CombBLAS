@@ -167,8 +167,8 @@ class DiGraph(gr.Graph):
 				key0mx = key0tmp - 1
 		else:
 			key0mn = int(key0.min()); key0mx = int(key0.max())
-			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
-				raise KeyError, 'Vector first index not a range'
+#			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
+#				raise KeyError, 'Vector first index not a range'
 		if type(key1)==slice and key1==slice(None,None,None):
 			key1mn = 0 
 			key1tmp = self.nvert()
@@ -178,8 +178,8 @@ class DiGraph(gr.Graph):
 				key1mx = key1tmp - 1
 		else:
 			key1mn = int(key1.min()); key1mx = int(key1.max())
-			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
-				raise KeyError, 'Vector second index not a range'
+#			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
+#				raise KeyError, 'Vector second index not a range'
 		[i, j, v] = self.toParVec()
 		sel = ((i >= key0mn) & (i <= key0mx) & (j >= key1mn) & (j <= key1mx)).findInds()
 		newi = i[sel] - key0mn
@@ -1307,17 +1307,31 @@ class DiGraph(gr.Graph):
 		
 		G = self.copy()
 		n = G.nvert()
-		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
 		
-		component = ParVec.range(G.nvert())
-		frontier = component.toSpParVec()._spv
+		G._T()
+		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
+		G._spm.Apply(pcb.set(1))
+		
+		#print G.toParVec()
+		
+		#component = ParVec.range(G.nvert())
+		#frontier = component.toSpParVec()._spv
+		frontier = SpParVec.range(n)._spv
+		
+		def iterop(vals):
+			#print "visiting ",vals[2]
+			# vals[0] = frontier value
+			# vals[1] = last_frontier value
+			vals[1] = int(vals[0] != vals[1])
 		
 		delta = 1
 		while delta > 0:
 			last_frontier = frontier
 			frontier = G._spm.SpMV(frontier, pcb.Max2ndSemiring())
-			
-			delta = (frontier - last_frontier).Reduce(pcb.plus(), pcb.abs())
+			#frontier = G._spm.SpMV_SelMax(frontier)
+
+			pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier), last_frontier])
+			delta = last_frontier.Reduce(pcb.plus())
 			print "delta:",delta
 		
 		return ParVec.toParVec(frontier.dense())
@@ -1343,9 +1357,14 @@ class DiGraph(gr.Graph):
 		maxCount = counts.Reduce(pcb.max())
 		maxV = counts.FindInds(pcb.bind2nd(pcb.equal_to(), maxCount))[0]
 		
+		counts.printall()
+		
 		# Create a list of vertices in this component
 		verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
 		verts = ParVec.toParVec(verts)
+		
+		#verts -= 1
+		print verts
 		
 		# return the subgraph
 		return self.subgraph(verts)
