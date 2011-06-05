@@ -6,6 +6,12 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#ifdef THREADED
+	#ifndef _OPENMP
+	#define _OPENMP
+	#endif
+	#include <omp.h>
+#endif
 
 // These macros should be defined before stdint.h is included
 #ifndef __STDC_CONSTANT_MACROS
@@ -24,6 +30,12 @@
 //#include "include/pat_api.h"
 double cblas_alltoalltime;
 double cblas_allgathertime;
+#ifdef _OPENMP
+int cblas_splits = omp_get_max_threads(); 
+#else
+int cblas_splits = 1;
+#endif
+
 
 #include "../SpTuples.h"
 #include "../SpDCCols.h"
@@ -183,7 +195,10 @@ int main(int argc, char* argv[])
 			//A.Dump("graph_symmetric");
 
 		#ifdef THREADED	
-			A.ActivateThreading(SPLITS);	
+			ostringstream tinfo;
+			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
+			SpParHelper::Print(tinfo.str());
+			A.ActivateThreading(cblas_splits);	
 		#endif
 		}
 		else 
@@ -335,7 +350,10 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Symmetricized\n");	
 
 		#ifdef THREADED	
-			A.ActivateThreading(SPLITS);	
+			ostringstream tinfo;
+			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
+			SpParHelper::Print(tinfo.str());
+			A.ActivateThreading(cblas_splits);	
 		#endif
 			A.PrintInfo();
 			
@@ -423,7 +441,19 @@ int main(int argc, char* argv[])
 					//fringe.PrintInfo("fringe before SpMV");
 					fringe = SpMV<SR>(A, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
+	
+					#ifdef TIMING
+					MPI::COMM_WORLD.Barrier();
+					double t_a1 = MPI_Wtime();
+					#endif
 					fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
+					#ifdef TIMING
+					MPI::COMM_WORLD.Barrier();
+					double t_a2 = MPI_Wtime();
+					ostringstream ewisemtime;
+					ewisemtime << "EWiseMult took " << t_a2-t_a1 << " seconds" << endl;
+					SpParHelper::Print(ewisemtime.str());
+					#endif
 					// fringe.PrintInfo("fringe after cleanup");
 					parents += fringe;
 					// parents.PrintInfo("Parents after addition");

@@ -36,7 +36,6 @@
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors
 #define MEM_EFFICIENT_STAGES 16
-#define SPLITS 6
 
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
@@ -67,6 +66,8 @@
 #define TROST 137
 #define TRLUT 138
 #define SWAPTAG 139
+
+extern int cblas_splits;
 
 enum Dim
 {

@@ -1967,16 +1967,17 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 			IU size= V.getlocnnz();
 			if(exclude)
 			{
-				#ifdef _OPENMP
-				vector <IU> tlosizes (SPLITS, 0);
-				vector < vector<IU> > tlinds(SPLITS);
-				vector < vector<T_promote> > tlnums(SPLITS);
-				IU tlsize = size / SPLITS;
-				#pragma omp parallel for
-				for(IU t = 0; t < SPLITS; ++t)
+				#if defined(_OPENMP) && defined(CBLAS_EXPERIMENTAL)	// not faster than serial
+				int actual_splits = cblas_splits * 1;	// 1 is the parallel slackness
+				vector <IU> tlosizes (actual_splits, 0);
+				vector < vector<IU> > tlinds(actual_splits);
+				vector < vector<T_promote> > tlnums(actual_splits);
+				IU tlsize = size / actual_splits;
+				#pragma omp parallel for //schedule(dynamic, 1)
+				for(IU t = 0; t < actual_splits; ++t)
 				{
 					IU tlbegin = t*tlsize;
-					IU tlend = max((t+1)*tlsize, size);
+					IU tlend = (t==actual_splits-1)? size : (t+1)*tlsize;
 					for(IU i=tlbegin; i<tlend; ++i)
 					{
 						if(W.arr[V.ind[i]] == zero) 	// keep only those
@@ -1987,13 +1988,13 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 						}
 					}
 				}
-				vector<IU> prefix_sum(SPLITS+1,0);
+				vector<IU> prefix_sum(actual_splits+1,0);
 				partial_sum(tlosizes.begin(), tlosizes.end(), prefix_sum.begin()+1); 
-				Product.ind.resize(prefix_sum[SPLITS]);
-				Product.num.resize(prefix_sum[SPLITS]);
+				Product.ind.resize(prefix_sum[actual_splits]);
+				Product.num.resize(prefix_sum[actual_splits]);
 			
-				#pragma omp parallel for
-				for(IU t=0; t< SPLITS; ++t)
+				#pragma omp parallel for //schedule(dynamic, 1)
+				for(IU t=0; t< actual_splits; ++t)
 				{
 					copy(tlinds[t].begin(), tlinds[t].end(), Product.ind.begin()+prefix_sum[t]);
 					copy(tlnums[t].begin(), tlnums[t].end(), Product.num.begin()+prefix_sum[t]);
