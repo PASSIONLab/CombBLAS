@@ -1296,6 +1296,60 @@ class DiGraph(gr.Graph):
 	
 		return clus
 
+	def _BFSConnectedComponents(self):
+		"""
+		Finds the connected components of the graph by BFS.
+		Output Arguments:
+			ret:  a ParVec of length equal to the number of vertices
+			    in the DiGraph.  The value of each element of the ParVec 
+			    denotes a cluster root for that vertex.
+		"""
+		
+		G = self.copy()
+		n = G.nvert()
+		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
+		
+		component = ParVec.range(G.nvert())
+		frontier = component.toSpParVec()._spv
+		
+		delta = 1
+		while delta > 0:
+			last_frontier = frontier
+			frontier = G._spm.SpMV(frontier, pcb.Max2ndSemiring())
+			
+			delta = (frontier - last_frontier).Reduce(pcb.plus(), pcb.abs())
+			print "delta:",delta
+		
+		return ParVec.toParVec(frontier.dense())
+	
+	def _getLargestComponent(self):
+		"""
+		Finds the connected components of the graph by BFS 
+		Output Arguments:
+			ret:  a DiGraph consisting of the largest connected component
+			    in this graph.
+		"""
+		
+		components = self._BFSConnectedComponents()
+		n = self.nvert()
+		
+		# Find the largest component
+		
+		# Count the number of elements in each component
+		countM = DiGraph(components, ParVec.range(n), ParVec.ones(n), n)
+		counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
+		
+		# Find the element with the largest count
+		maxCount = counts.Reduce(pcb.max())
+		maxV = counts.FindInds(pcb.bind2nd(pcb.equal_to(), maxCount))[0]
+		
+		# Create a list of vertices in this component
+		verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
+		verts = ParVec.toParVec(verts)
+		
+		# return the subgraph
+		return self.subgraph(verts)
+
 	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False):
 		"""
 		filler  
