@@ -267,59 +267,79 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 		}
 	}
 }
-/*
-template <typename _BinaryOperation, class IT, class NT, class DER>
-void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op)
+template <class IT, class NT, class DER>
+template <typename _BinaryOperation>	
+void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _BinaryOperation __binary_op)
 {
+
+	if(!(*commGrid == *(x.commGrid))) 		
+	{
+		cout << "Grids are not comparable for SpParMat::DimApply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	MPI::Intracomm World = x.commGrid->GetWorld();
+	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
+	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
 	switch(dim)
 	{
-		case Column:	// scale each "Column", using a row vector
+		case Column:	// scale each column
 		{
-			// Diagonal processor broadcast data so that everyone gets the scaling vector 
-			NT * scaler = NULL;
-			int root = commGrid->GetDiagOfProcCol();
-			if(v.diagonal)
-			{	
-				scaler = const_cast<NT*>(&v.arr[0]);	
-			}
-			else
-			{	
-				scaler = new NT[getlocalcols()];	
-			}
-			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<NT>(), root);	
+			int xsize = (int) x.LocArrSize();
+			int trxsize = 0;
+			int diagneigh = x.commGrid->GetComplementRank();
+			World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
+	
+			NT * trxnums = new NT[trxsize];
+			World.Sendrecv(const_cast<NT*>(&x.arr[0]), xsize, MPIType<NT>(), diagneigh, TRX, trxnums, trxsize, MPIType<NT>(), diagneigh, TRX);
+
+			int colneighs = ColWorld.Get_size();
+			int colrank = ColWorld.Get_rank();
+			int * colsize = new int[colneighs];
+			colsize[colrank] = trxsize;
+			ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colsize, 1, MPI::INT);
+			int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
+			std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
+			int accsize = std::accumulate(colsize, colsize+colneighs, 0);
+			NT * scaler = new NT[accsize];
+
+			ColWorld.Allgatherv(trxnums, trxsize, MPIType<NT>(), scaler, colsize, dpls, MPIType<NT>());
+			DeleteAll(trxnums,colsize, dpls);
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					nzit.value() *=  scaler[colit.colid()];
+					nzit.value() = __binary_op(nzit.value(), scaler[colit.colid()]);
 				}
 			}
-			if(!v.diagonal)	delete [] scaler;
+			delete [] scaler;
 			break;
 		}
 		case Row:
 		{
-			NT * scaler = NULL;
-			int root = commGrid->GetDiagOfProcRow();
-			if(v.diagonal)
-			{	
-				scaler = const_cast<NT*>(&v.arr[0]);	
-			}
-			else
-			{	
-				scaler = new NT[getlocalrows()];	
-			}
-			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<NT>(), root);	
+			int xsize = (int) x.LocArrSize();
+			int rowneighs = RowWorld.Get_size();
+			int rowrank = RowWorld.Get_rank();
+			int * rowsize = new int[rowneighs];
+			rowsize[rowrank] = xsize;
+			RowWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, rowsize, 1, MPI::INT);
+			int * dpls = new int[rowneighs]();	// displacements (zero initialized pid) 
+			std::partial_sum(rowsize, rowsize+rowneighs-1, dpls+1);
+			int accsize = std::accumulate(rowsize, rowsize+rowneighs, 0);
+			NT * scaler = new NT[accsize];
+
+			RowWorld.Allgatherv(const_cast<NT*>(&x.arr[0]), xsize, MPIType<NT>(), scaler, rowsize, dpls, MPIType<NT>());
+			DeleteAll(rowsize, dpls);
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 			{
 				for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 				{
-					nzit.value() *= scaler[nzit.rowid()];
+					nzit.value() = __binary_op(nzit.value(), scaler[nzit.rowid()]);
 				}
 			}
-			if(!v.diagonal)	delete [] scaler;			
+			delete [] scaler;			
 			break;
 		}
 		default:
@@ -328,7 +348,7 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _Bina
 			break;
 		}
 	}
-}*/
+}
 
 template <class IT, class NT, class DER>
 template <typename _BinaryOperation, typename _UnaryOperation >	
