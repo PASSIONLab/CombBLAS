@@ -92,6 +92,7 @@ public:
 	
 	void Apply(op::UnaryFunction* f);
 	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
+	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	

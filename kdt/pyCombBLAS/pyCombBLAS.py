@@ -93,6 +93,7 @@ class pySpParMat(_object):
     def removeSelfLoops(self): return _pyCombBLAS.pySpParMat_removeSelfLoops(self)
     def Apply(self, *args): return _pyCombBLAS.pySpParMat_Apply(self, *args)
     def ColWiseApply(self, *args): return _pyCombBLAS.pySpParMat_ColWiseApply(self, *args)
+    def DimWiseApply(self, *args): return _pyCombBLAS.pySpParMat_DimWiseApply(self, *args)
     def Prune(self, *args): return _pyCombBLAS.pySpParMat_Prune(self, *args)
     def Count(self, *args): return _pyCombBLAS.pySpParMat_Count(self, *args)
     def Reduce(self, *args): return _pyCombBLAS.pySpParMat_Reduce(self, *args)
