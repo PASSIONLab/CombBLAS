@@ -110,7 +110,7 @@ int main()
 
 # parse out additional include dirs from the command line
 include_dirs = []
-define_macros = []
+define_macros = [("MPICH_IGNORE_CXX_SEEK", None)]
 copy_args=sys.argv[1:]
 for a in copy_args:
 	if a.startswith('-I'):
