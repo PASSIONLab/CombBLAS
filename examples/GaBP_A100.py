@@ -13,9 +13,9 @@ import getopt
 import kdt
 
 
-A = kdt.DiGraph.load('A100.mtx')
-b = kdt.ParVec(10000)
-for i in range(100):
+A = kdt.DiGraph.load('G3_circuit.mtx');
+b = kdt.ParVec(A.nvert());
+for i in range(A.nvert()/100):
     b[i]=100.0
 
 
@@ -58,21 +58,27 @@ def gabp(A, b, maxround, epsilon):
     t2 = time.time()
     init_time = t2-t1
     while r<=maxround:
-        #if kdt.master():
-            #print "starting GBP round %d" % r       
+        if kdt.master():
+            print "starting GBP round %d" % r       
 	preRes = ha
 
 	t3 = time.time()
 	Mhtemp = stencil.copy()
 	MJtemp = stencil.copy()
+	hh = h.toSpParVec()
+	jj = J.toSpParVec()
+
 	t4 = time.time()
 	copy_time += (t4-t3)
 	
-	Mhtemp.scale(h.toSpParVec())	
-	MJtemp.scale(J.toSpParVec())
+	Mhtemp.scale(hh,dir=kdt.In) #somehow reformulate to use dir=kdt.In
+	MJtemp.scale(jj,dir=kdt.In)
 	
         t5 = time.time()
         scale_time += t5-t4
+
+	if kdt.master():
+            print "scale time: %f" % (t5-t4)
 
         Mh.reverseEdges()
         MJ.reverseEdges()
