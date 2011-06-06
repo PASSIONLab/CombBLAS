@@ -167,8 +167,8 @@ class DiGraph(gr.Graph):
 				key0mx = key0tmp - 1
 		else:
 			key0mn = int(key0.min()); key0mx = int(key0.max())
-#			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
-#				raise KeyError, 'Vector first index not a range'
+			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
+				raise KeyError, 'Vector first index not a range'
 		if type(key1)==slice and key1==slice(None,None,None):
 			key1mn = 0 
 			key1tmp = self.nvert()
@@ -178,8 +178,8 @@ class DiGraph(gr.Graph):
 				key1mx = key1tmp - 1
 		else:
 			key1mn = int(key1.min()); key1mx = int(key1.max())
-#			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
-#				raise KeyError, 'Vector second index not a range'
+			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
+				raise KeyError, 'Vector second index not a range'
 		[i, j, v] = self.toParVec()
 		sel = ((i >= key0mn) & (i <= key0mx) & (j >= key1mn) & (j <= key1mx)).findInds()
 		newi = i[sel] - key0mn
@@ -1367,7 +1367,11 @@ class DiGraph(gr.Graph):
 		print verts
 		
 		# return the subgraph
-		return self.subgraph(verts)
+		subs = self._spm.SubsRef(verts._dpv, verts._dpv)
+		ret = DiGraph()
+		ret._spm = subs
+		return ret
+#		return self.subgraph(verts)
 
 	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False):
 		"""

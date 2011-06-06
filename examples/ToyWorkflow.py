@@ -60,7 +60,7 @@ OrigVertLocSource = draw(Comp, None, outfile.replace(".", "-2-largestcomp."), di
 G = Comp
 
 print "Clustering:"
-C = G._markov(addSelfLoops=True, expansion=3, inflation=2, prunelimit=0.00001)
+C = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
 C.removeSelfLoops()
 draw(C, OrigVertLocSource, outfile.replace(".", "-3-clusters."), directed=False)
 
