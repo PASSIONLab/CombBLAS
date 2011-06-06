@@ -345,6 +345,11 @@ void pySpParMat::ColWiseApply(const pySpParVec& values, op::BinaryFunction* f)
 	::ColWiseApply(A, values.v, *f);
 }
 
+void pySpParMat::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f)
+{
+	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
+}
+
 pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
 {
 	return pySpParMat(EWiseMult(A1.A, A2.A, exclude));
