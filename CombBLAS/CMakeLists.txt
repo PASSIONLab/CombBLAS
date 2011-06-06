@@ -51,4 +51,4 @@ ADD_TEST( Iterator_Test aprun -n 4 ReleaseTests/IteratorTest TESTDATA sprand1000
 ADD_TEST( Transpose_Test aprun -n 4 ReleaseTests/TransposeTest TESTDATA betwinput_scale16 betwinput_transposed_scale16)
 ADD_TEST( Indexing_Test aprun -n 4 ReleaseTests/IndexingTest TESTDATA B_100x100.txt B_10x30_Indexed.txt rand10outta100.txt rand30outta100.txt)
 ADD_TEST( FindSparse_Test aprun -n 4 ReleaseTests/FindSparse TESTDATA findmatrix.txt)
-
+ADD_TEST( Scale_Timing aprun -n 4 ReleaseTests/ScaleTiming TESTDATA/matrix100.txt TESTDATA/scaler.txt TESTDATA/matrix100_scaled.txt)

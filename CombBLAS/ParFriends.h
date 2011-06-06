@@ -1573,14 +1573,11 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
 
-	int xsize = (int) x.arr.size();
+	int xsize = (int) x.LocArrSize();
 	int trxsize = 0;
-	int roffst = x.RowLenUntil();
-	int offset = 0;
 
 	int diagneigh = x.commGrid->GetComplementRank();
 	World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
-	World.Sendrecv(&roffst, 1, MPI::INT, diagneigh, TROST, &offset, 1, MPI::INT, diagneigh, TROST);
 	
 	NUV * trxnums = new NUV[trxsize];
 	World.Sendrecv(const_cast<NUV*>(&x.arr[0]), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX);
