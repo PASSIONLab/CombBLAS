@@ -1357,14 +1357,10 @@ class DiGraph(gr.Graph):
 		maxCount = counts.Reduce(pcb.max())
 		maxV = counts.FindInds(pcb.bind2nd(pcb.equal_to(), maxCount))[0]
 		
-		counts.printall()
-		
 		# Create a list of vertices in this component
 		verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
 		verts = ParVec.toParVec(verts)
-		
 		#verts -= 1
-		print verts
 		
 		# return the subgraph
 		subs = self._spm.SubsRef(verts._dpv, verts._dpv)
@@ -1373,7 +1369,7 @@ class DiGraph(gr.Graph):
 		return ret
 #		return self.subgraph(verts)
 
-	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False):
+	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
 		"""
 		filler  
 		"""
@@ -1407,6 +1403,9 @@ class DiGraph(gr.Graph):
 		
 		A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec(), dir=DiGraph.In )
 		
+		if retNEdges:
+			nedges = 0
+		
 		#Iterations tally
 		iterNum = 0
 		
@@ -1415,7 +1414,13 @@ class DiGraph(gr.Graph):
 			iterNum += 1;
 		
 			#Expansion - A^(expansion)
+			if retNEdges:
+				AA = A.copy()
 			for i in range(1, expansion):
+				if retNEdges:
+					AA._spm.Apply(pcb.set(1))
+					AA = AA._SpMM(AA)
+					nedges += AA.sum(DiGraph.In)._dpv.Reduce(pcb.plus())
 				A = A._SpMM(A)
 		
 			#Inflation - Hadamard power - greater inflation parameter -> more granular results
@@ -1449,4 +1454,7 @@ class DiGraph(gr.Graph):
 		
 		print "Iterations = %d" % iterNum
 		
+		if retNEdges:
+			return A,nedges
+
 		return A

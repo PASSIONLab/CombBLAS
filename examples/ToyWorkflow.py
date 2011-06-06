@@ -11,7 +11,15 @@ if (len(sys.argv) < 2):
 inmatrixfile = sys.argv[1]
 outfile = sys.argv[2]
 
-def draw(G, copyLocationFrom, outfile, directed = False):
+def draw(G, outfile, copyLocationFrom = None, directed = False):
+	"""
+	Draws the graph G using pyGraphViz and saves the result to outfile.
+	If copyLocationFrom is a pyGraphViz graph. If it is not None, then the
+	position of each vertex in G is copied from its counterpart in
+	copyLocationFrom. This is so that the same vertex occupies the same location
+	on multiple graphs (vertecies line up). Directed specifies if the graph is 
+	directed (show arrows and self loops) or not.
+	"""
 	[iv, jv, vv] = G.toParVec()
 	n = G.nvert()
 	m = len(iv)
@@ -52,17 +60,17 @@ G._spm.Apply(kdt.pyCombBLAS.set(1))
 #G.removeSelfLoops()
 
 print "drawing the original graph:"
-OrigVertLocSource = draw(G, None, outfile.replace(".", "-1-original."), directed=True)
+OrigVertLocSource = draw(G, outfile.replace(".", "-1-original."), None, directed=True)
 
 print "Finding the largest component:"
 Comp = G._getLargestComponent()
-OrigVertLocSource = draw(Comp, None, outfile.replace(".", "-2-largestcomp."), directed=True)
+OrigVertLocSource = draw(Comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
 G = Comp
 
 print "Clustering:"
 C = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
 C.removeSelfLoops()
-draw(C, OrigVertLocSource, outfile.replace(".", "-3-clusters."), directed=False)
+draw(C, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
 
 print "Collapsing:"
-#draw(C, OrigVertLocSource, outfile.replace(".", "-4-collapsed."), directed=True)
+#draw(C, outfile.replace(".", "-4-collapsed."), OrigVertLocSource, directed=True)
