@@ -63,7 +63,7 @@ print "drawing the original graph:"
 OrigVertLocSource = draw(G, outfile.replace(".", "-1-original."), None, directed=True)
 
 print "Finding the largest component:"
-Comp = G._getLargestComponent()
+Comp = G._findLargestComponent()
 OrigVertLocSource = draw(Comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
 G = Comp
 
@@ -72,5 +72,5 @@ C = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
 C.removeSelfLoops()
 draw(C, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
 
-print "Collapsing:"
+print "Contracting:"
 #draw(C, outfile.replace(".", "-4-collapsed."), OrigVertLocSource, directed=True)
