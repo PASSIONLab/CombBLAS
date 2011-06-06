@@ -611,6 +611,40 @@ class DiGraph(gr.Graph):
 			raise KeyError, 'Invalid edge direction'
 		return
 
+	def DimWiseApply_scale(self, other, dir=Out):
+		"""
+		multiplies the weights of the appropriate edges of each vertex of
+		the passed DiGraph instance in-place by a vertex-specific scale 
+		factor.
+
+		Input Arguments:
+			self:  a DiGraph instance, modified in-place
+			dir:  a direction of edges to scale, with choices being
+			    DiGraph.Out (default) or DiGraph.In.
+
+		Output Argument:
+			None.
+
+		SEE ALSO:  * (DiGraph.__mul__), mulNot
+		"""
+		if not isinstance(other,gr.ParVec):
+			raise KeyError, 'Invalid type for scale vector'
+		selfnv = self.nvert()
+		if type(selfnv) == tuple:
+			[selfnv1, selfnv2] = selfnv
+		else:
+			selfnv1 = selfnv; selfnv2 = selfnv
+		if dir == DiGraph.In:
+			if selfnv2 != len(other):
+				raise IndexError, 'graph.nvert()[1] != len(scale)'
+			self._spm.DimWiseApply(pcb.pySpParMat.Column(), other._dpv, pcb.multiplies())
+		elif dir == DiGraph.Out:
+			if selfnv1 != len(other):
+				raise IndexError, 'graph.nvert()[1] != len(scale)'
+			self._spm.DimWiseApply(pcb.pySpParMat.Row(), other._dpv, pcb.multiplies())
+		else:
+			raise KeyError, 'Invalid edge direction'
+		return
 	##in-place, so no return value
 	#def set(self, value):
 	#	"""
@@ -1296,7 +1330,7 @@ class DiGraph(gr.Graph):
 	
 		return clus
 
-	def _BFSConnectedComponents(self):
+	def connComp(self, sym=False):
 		"""
 		Finds the connected components of the graph by BFS.
 		Output Arguments:
@@ -1308,7 +1342,9 @@ class DiGraph(gr.Graph):
 		G = self.copy()
 		n = G.nvert()
 		
-		G._T()
+		if not sym:
+			G._T()
+
 		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
 		G._spm.Apply(pcb.set(1))
 		
@@ -1336,7 +1372,7 @@ class DiGraph(gr.Graph):
 		
 		return ParVec.toParVec(frontier.dense())
 	
-	def _getLargestComponent(self):
+	def _findLargestComponent(self):
 		"""
 		Finds the connected components of the graph by BFS 
 		Output Arguments:
@@ -1344,7 +1380,7 @@ class DiGraph(gr.Graph):
 			    in this graph.
 		"""
 		
-		components = self._BFSConnectedComponents()
+		components = self.connComp()
 		n = self.nvert()
 		
 		# Find the largest component
