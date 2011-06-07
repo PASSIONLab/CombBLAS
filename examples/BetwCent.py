@@ -33,7 +33,7 @@ for o, a in opts:
 	elif o in ("-s", "--scale"):
 		scale = int(a)
 	elif o in ("-x", "--sample"):
-		nstarts = int(a)
+		sample = float(a)
 	elif o in ("-f", "--file"):
 		file = a
 		useTorus = False
