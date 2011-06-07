@@ -22,12 +22,12 @@ addSelfLoops=False
 
 # nedges run
 if kdt.master():
-	print "Starting run to find number or edges..."
+	print "Starting run to find number of edges..."
 C, nedges = B._markov(addSelfLoops=addSelfLoops, expansion=expansion, inflation=inflation, prunelimit=prunelimit, retNEdges=True)
 
 # timed run
 if kdt.master():
-	print "Starting timed run..."
+	print "nedges=%d. Starting timed run..."%(nedges)
 before = time.time()
 B._markov(addSelfLoops=addSelfLoops, expansion=expansion, inflation=inflation, prunelimit=prunelimit)
 time = time.time() - before

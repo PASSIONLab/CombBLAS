@@ -1368,7 +1368,7 @@ class DiGraph(gr.Graph):
 		#if not sym:
 			#A = A + A.Transpose() at the points where A is 0 or null
 		
-		#Add self loop
+		#Add self loops
 		N = A.nvert()
 		if addSelfLoops:
 			A += DiGraph(ParVec.range(N), ParVec.range(N), ParVec(N,selfLoopWeight), N)
@@ -1390,7 +1390,7 @@ class DiGraph(gr.Graph):
 		iterNum = 0
 		
 		#MCL Loop
-		while chaos > EPS:
+		while chaos > EPS and iterNum < 300:
 			iterNum += 1;
 		
 			#Expansion - A^(expansion)
@@ -1407,32 +1407,24 @@ class DiGraph(gr.Graph):
 			A._spm.Apply(pcb.bind2nd(pcb.pow(), inflation))
 			
 			#Re-normalize
-			#Agian avoid divide-by-zero error
 			sums = A.sum(DiGraph.In)
 			sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
 				pcb.set(1),
 				pcb.identity()))
 
 			A.scale( ParVec.ones(A.nvert()) / sums, dir=DiGraph.In)
-			
-			#print "sums=",sums
-			#[iv, jv, vv] = A.toParVec()
-			#print "A:", iv, jv, vv
 		
 			#Looping Condition:
 			colssqs = A._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.bind2nd(pcb.pow(), 2))
 			colmaxs = A._spm.Reduce(pcb.pySpParMat.Column(), pcb.max(), 0.0)
 			chaos = ParVec.toParVec(colmaxs - colssqs).max()
-			print "chaos=",chaos
+			#print "chaos=",chaos
 
 			# Pruning implementation - switch out with TopK / give option
 			A._spm.Prune(pcb.bind2nd(pcb.less(), prunelimit))
-			print "number of edges remaining =", A._spm.getnee()
+			#print "number of edges remaining =", A._spm.getnee()
 		
-		#A = A + A.Transpose() at the points where A is 0 or null
-		#Either re-add opposite edge or prune directed edge
-		
-		print "Iterations = %d" % iterNum
+		#print "Iterations = %d" % iterNum
 		
 		if retNEdges:
 			return A,nedges
