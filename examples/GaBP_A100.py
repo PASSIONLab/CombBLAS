@@ -65,14 +65,16 @@ def gabp(A, b, maxround, epsilon):
 	t3 = time.time()
 	Mhtemp = stencil.copy()
 	MJtemp = stencil.copy()
-	hh = h.toSpParVec()
-	jj = J.toSpParVec()
 
 	t4 = time.time()
 	copy_time += (t4-t3)
+
+	Mhtemp.DimWiseApply_scale(h)	# default direction: dir=kdt.DiGraph.Out, which scales rows
+	MJtemp.DimWiseApply_scale(J)
 	
-	Mhtemp.scale(hh, dir=kdt.DiGraph.In)
-	MJtemp.scale(jj, dir=kdt.DiGraph.In)
+#	Mhtemp.scale(h.toSpParVec())
+#	MJtemp.scale(J.toSpParVec())
+#	print MJtemp.toParVec()
 	
         t5 = time.time()
         scale_time += t5-t4
