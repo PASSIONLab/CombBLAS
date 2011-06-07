@@ -71,8 +71,8 @@ def gabp(A, b, maxround, epsilon):
 	t4 = time.time()
 	copy_time += (t4-t3)
 	
-	Mhtemp.scale(hh,dir=kdt.In) #somehow reformulate to use dir=kdt.In
-	MJtemp.scale(jj,dir=kdt.In)
+	Mhtemp.scale(hh, dir=kdt.DiGraph.In)
+	MJtemp.scale(jj, dir=kdt.DiGraph.In)
 	
         t5 = time.time()
         scale_time += t5-t4
