@@ -1273,7 +1273,8 @@ class DiGraph(gr.Graph):
 			# compute the bc update for all vertices except the sources
 			for depth in range(depth-1,0,-1):
 				# compute the weights to be applied based on the child values
-				w = bfs[depth] / nsp * bcu
+				w = bfs[depth] / nsp 
+				w *= bcu
 				if BCdebug>2:
 					tmptmp = w.sum(DiGraph.Out).sum()
 					if master():
