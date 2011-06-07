@@ -83,7 +83,7 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SpMM(pySpParMat& other, op::Semiring* sring = NULL);
+	pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -145,7 +145,7 @@ public:
 	pySpParMatBool copy();
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
-	pySpParMatBool SpMM(pySpParMatBool& other);
+	pySpParMatBool SpGEMM(pySpParMatBool& other);
 	pySpParMatBool operator*(pySpParMatBool& other);
 	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -554,9 +554,9 @@ class Semiring {
 	void axpy(doubleint a, const doubleint & x, doubleint & y);
 
 };
-Semiring PlusTimesSemiring();
+Semiring TimesPlusSemiring();
 //Semiring MinPlusSemiring();
-Semiring Max2ndSemiring();
+Semiring SecondMaxSemiring();
 
 } // namespace op
 

@@ -168,7 +168,7 @@ class Semiring {
 	public:
 	// CUSTOM is a semiring with Python-defined methods
 	// The others are pre-implemented in C++ for speed.
-	typedef enum {CUSTOM, NONE, PLUSTIMES, MINPLUS, MAX2ND} SRingType;
+	typedef enum {CUSTOM, NONE, TIMESPLUS, PLUSMIN, SECONDMAX} SRingType;
 
 	protected:
 	SRingType type;
@@ -239,9 +239,9 @@ struct SemiringTemplArg
 };
 
 //INTERFACE_INCLUDE_BEGIN
-Semiring PlusTimesSemiring();
+Semiring TimesPlusSemiring();
 //Semiring MinPlusSemiring();
-Semiring Max2ndSemiring();
+Semiring SecondMaxSemiring();
 
 } // namespace op
 

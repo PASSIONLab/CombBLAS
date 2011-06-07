@@ -49,7 +49,7 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SpMM(pySpParMat& other, op::Semiring* sring = NULL);
+	pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
