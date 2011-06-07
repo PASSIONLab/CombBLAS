@@ -2,6 +2,7 @@ import kdt
 import time
 import getopt
 import sys
+from stats import splitthousands
 
 scale = 12
 sample = 0.05
@@ -49,6 +50,9 @@ if len(file) == 0:
 		print "Generating a Torus graph with 2^%d vertices..."%(scale)
 
 	G1 = kdt.DiGraph.twoDTorus(scale)
+	nverts = G1.nvert()
+	if kdt.master():
+		print "Graph has",nverts,"vertices."
 	#G1.toBool()
 else:
 	if kdt.master():
@@ -67,6 +71,10 @@ if useTorus and ((bc - bc[0]) > 1e-15).any():
 		print "not all vertices have same BC value"
 
 # Report
+TEPS = -1
+if sample == 1.0:
+	nedges = G1._spm.getnee()*G1.nvert()
+	TEPS = float(nedges)/time
 min = bc.min()
 max = bc.max()
 mean = bc.mean()
@@ -74,4 +82,6 @@ std = bc.std()
 if kdt.master():
 	print "bc[0] = %f, min=%f, max=%f, mean=%f, std=%f" % (bc[0], min, max, mean, std)
 	print "   took %4.3f seconds" % time
+	if (TEPS > 0):
+		print "   TEPS =",splitthousands(TEPS), " (assumes the graph was connected)"
 
