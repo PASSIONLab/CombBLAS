@@ -52,10 +52,7 @@ def draw(G, outfile, copyLocationFrom = None, directed = False):
 
 
 	
-G = kdt.DiGraph()
-#G.genGraph500Edges(8)
-
-G._spm.load(inmatrixfile)
+G = kdt.DiGraph.load(inmatrixfile)
 G._spm.Apply(kdt.pyCombBLAS.set(1))
 #G.removeSelfLoops()
 
@@ -63,7 +60,7 @@ print "drawing the original graph:"
 OrigVertLocSource = draw(G, outfile.replace(".", "-1-original."), None, directed=True)
 
 print "Finding the largest component:"
-Comp = G._findLargestComponent()
+Comp = G.getLargestComponent()
 OrigVertLocSource = draw(Comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
 G = Comp
 
