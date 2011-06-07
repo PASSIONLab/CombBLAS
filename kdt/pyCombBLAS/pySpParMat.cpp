@@ -302,10 +302,10 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 
 pySpParMat pySpParMat::operator*(pySpParMat& other)
 {
-	return SpMM(other);
+	return SpGEMM(other);
 }
 
-pySpParMat pySpParMat::SpMM(pySpParMat& other, op::Semiring* sring)
+pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
 {
 	if (sring == NULL)
 	{
@@ -438,11 +438,11 @@ pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::Semiring* sring)
 	{
 		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
 	}
-	else if (sring->getType() == op::Semiring::PLUSTIMES)
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
 	{
 		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
 	}
-	else if (sring->getType() == op::Semiring::MAX2ND)
+	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
 		return pySpParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
 	}
@@ -461,11 +461,11 @@ void pySpParMat::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 	{
 		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
 	}
-	else if (sring->getType() == op::Semiring::PLUSTIMES)
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
 	{
 		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
 	}
-	else if (sring->getType() == op::Semiring::MAX2ND)
+	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
 		x = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
 	}

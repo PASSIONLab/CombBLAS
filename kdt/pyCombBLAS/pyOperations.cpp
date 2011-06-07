@@ -554,19 +554,19 @@ void Semiring::axpy(doubleint a, const doubleint & x, doubleint & y)
 	y = add(y, multiply(a, x));
 }
 
-Semiring PlusTimesSemiring()
+Semiring TimesPlusSemiring()
 {
-	return Semiring(Semiring::PLUSTIMES);
+	return Semiring(Semiring::TIMESPLUS);
 }
 
 Semiring MinPlusSemiring()
 {
-	return Semiring(Semiring::MINPLUS);
+	return Semiring(Semiring::PLUSMIN);
 }
 
-Semiring Max2ndSemiring()
+Semiring SecondMaxSemiring()
 {
-	return Semiring(Semiring::MAX2ND);
+	return Semiring(Semiring::SECONDMAX);
 }
 
 } // namespace op

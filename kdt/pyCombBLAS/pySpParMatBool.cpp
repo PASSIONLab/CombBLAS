@@ -307,10 +307,10 @@ pySpParMatBool& pySpParMatBool::assign(const pySpParMatBool& other)
 
 pySpParMatBool pySpParMatBool::operator*(pySpParMatBool& other)
 {
-	return SpMM(other);
+	return SpGEMM(other);
 }
 
-pySpParMatBool pySpParMatBool::SpMM(pySpParMatBool& other)
+pySpParMatBool pySpParMatBool::SpGEMM(pySpParMatBool& other)
 {
 	return pySpParMatBool( Mult_AnXBn_Synch<PlusTimesSRing<bool, bool > >(A, other.A) );
 }

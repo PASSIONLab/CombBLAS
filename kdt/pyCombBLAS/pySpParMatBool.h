@@ -51,7 +51,7 @@ public:
 	pySpParMatBool copy();
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
-	pySpParMatBool SpMM(pySpParMatBool& other);
+	pySpParMatBool SpGEMM(pySpParMatBool& other);
 	pySpParMatBool operator*(pySpParMatBool& other);
 	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
