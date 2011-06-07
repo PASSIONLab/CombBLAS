@@ -1309,7 +1309,7 @@ class DiGraph(gr.Graph):
 			
 		"""
 		if alg=='Markov' or alg=='markov':
-			clus = _markov(self, **kwargs)
+			clus = DiGraph._markov(self, **kwargs)
 	
 		elif alg=='kNN' or alg=='knn':
 			raise NotImplementedError, "k-nearest neighbors clustering not implemented"
