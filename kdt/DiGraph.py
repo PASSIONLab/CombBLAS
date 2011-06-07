@@ -259,6 +259,41 @@ class DiGraph(gr.Graph):
 		ret._spm = self._spm.SpGEMM(other._spm)
 		return ret
 
+	def contract(self, groups):
+		"""
+		contracts all vertices that are like-numbered in the groups
+		argument into single vertices, removing all edges between
+		vertices in the same group and retaining edges where any
+		vertex in a group has an edge to a vertex in another group.
+		The result DiGraph will have as many vertices as the maximum
+		value in groups.
+
+		Input Arguments:
+			self:  a DiGraph instance.
+			groups:  a ParVec denoting into which group (result
+				vertex) each input vertex should be placed
+
+		Output Argument:
+			ret:  a DiGraph instance
+		"""
+		#ToDo:  implement weighting properly
+
+		if type(self.nvert()) == tuple:
+			raise NotImplementedError, 'only implemented for square graphs'
+		if len(groups) != self.nvert():
+			raise KeyError, 'groups.len() does not match self.nvert()'
+		if groups.min < 0 or groups.max() > len(groups)-1:
+			raise KeyError, 'at least one groups value negative or greater than groups.len()-1'
+		nvRes = int(groups.max()+1)
+		origVtx = ParVec.range(self.nvert())
+		# lhrMat == left-/right-hand-side matrix
+		lrhMat = DiGraph(groups, origVtx, ParVec.ones(self.nvert()), nvRes, self.nvert())
+		tmpMat = lrhMat._SpMM(self)
+		lrhMat._T()
+		res = tmpMat._SpMM(lrhMat)
+		return res;
+
+
 	def copy(self):
 		"""
 		creates a deep copy of a DiGraph instance.
@@ -1216,7 +1251,7 @@ class DiGraph(gr.Graph):
 					nspne = tmp.nedge(); tmpne = tmp.nedge(); fringene = fringe.nedge()
 					if master():
 					    print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
-				nsp = nsp+fringe
+				nsp += fringe
 				tmp = fringe.copy()
 				tmp.ones()
 				bfs.append(tmp)
