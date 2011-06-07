@@ -158,34 +158,23 @@ class DiGraph(gr.Graph):
 			tmp = ParVec(1)
 			tmp[0] = key1
 			key1 = tmp
-		if type(key0)==slice and key0==slice(None,None,None):
-			key0mn = 0; 
-			key0tmp = self.nvert()
-			if type(key0tmp) == tuple:
-				key0mx = key0tmp[0] - 1
-			else:
-				key0mx = key0tmp - 1
-		else:
-			key0mn = int(key0.min()); key0mx = int(key0.max())
-			if len(key0)!=(key0mx-key0mn+1) or not (key0==ParVec.range(key0mn,key0mx+1)).all():
-				raise KeyError, 'Vector first index not a range'
-		if type(key1)==slice and key1==slice(None,None,None):
-			key1mn = 0 
-			key1tmp = self.nvert()
-			if type(key1tmp) == tuple:
-				key1mx = key1tmp[1] - 1
-			else:
-				key1mx = key1tmp - 1
-		else:
-			key1mn = int(key1.min()); key1mx = int(key1.max())
-			if len(key1)!=(key1mx-key1mn+1) or not (key1==ParVec.range(key1mn,key1mx+1)).all():
-				raise KeyError, 'Vector second index not a range'
-		[i, j, v] = self.toParVec()
-		sel = ((i >= key0mn) & (i <= key0mx) & (j >= key1mn) & (j <= key1mx)).findInds()
-		newi = i[sel] - key0mn
-		newj = j[sel] - key1mn
-		newv = v[sel]
-		ret = DiGraph(newi, newj, newv, key0mx-key0mn+1, key1mx-key1mn+1)
+		#if type(key0)==slice and key0==slice(None,None,None):
+		#	key0mn = 0; 
+		#	key0tmp = self.nvert()
+		#	if type(key0tmp) == tuple:
+		#		key0mx = key0tmp[0] - 1
+		#	else:
+		#		key0mx = key0tmp - 1
+		#if type(key1)==slice and key1==slice(None,None,None):
+		#	key1mn = 0 
+		#	key1tmp = self.nvert()
+		#	if type(key1tmp) == tuple:
+		#		key1mx = key1tmp[1] - 1
+		#	else:
+		#		key1mx = key1tmp - 1
+		
+		ret = DiGraph()
+		ret._spm = self._spm.SubsRef(key0._dpv, key1._dpv)
 		return ret
 
 	def __iadd__(self, other):
@@ -248,7 +237,7 @@ class DiGraph(gr.Graph):
 				print i,j,v
 		return ' '
 
-	def _SpMM(self, other):
+	def _SpGEMM(self, other):
 		"""
 		"multiplies" two DiGraph instances together as though each was
 		represented by a sparse matrix, with rows representing out-edges
@@ -267,7 +256,7 @@ class DiGraph(gr.Graph):
 		if selfnv2 != othernv1:
 			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
 		ret = DiGraph()
-		ret._spm = self._spm.SpMM(other._spm)
+		ret._spm = self._spm.SpGEMM(other._spm)
 		return ret
 
 	def copy(self):
@@ -582,43 +571,7 @@ class DiGraph(gr.Graph):
 
 		Input Arguments:
 			self:  a DiGraph instance, modified in-place
-			dir:  a direction of edges to scale, with choices being
-			    DiGraph.Out (default) or DiGraph.In.
-
-		Output Argument:
-			None.
-
-		SEE ALSO:  * (DiGraph.__mul__), mulNot
-		"""
-		if not isinstance(other,gr.SpParVec):
-			raise KeyError, 'Invalid type for scale vector'
-		selfnv = self.nvert()
-		if type(selfnv) == tuple:
-			[selfnv1, selfnv2] = selfnv
-		else:
-			selfnv1 = selfnv; selfnv2 = selfnv
-		if dir == DiGraph.In:
-			if selfnv2 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(scale)'
-			self._spm.ColWiseApply(other._spv, pcb.multiplies())
-		elif dir == DiGraph.Out:
-			if selfnv1 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(scale)'
-			self._T()
-			self._spm.ColWiseApply(other._spv,pcb.multiplies())
-			self._T()
-		else:
-			raise KeyError, 'Invalid edge direction'
-		return
-
-	def DimWiseApply_scale(self, other, dir=Out):
-		"""
-		multiplies the weights of the appropriate edges of each vertex of
-		the passed DiGraph instance in-place by a vertex-specific scale 
-		factor.
-
-		Input Arguments:
-			self:  a DiGraph instance, modified in-place
+			other: a ParVec whose elements are used
 			dir:  a direction of edges to scale, with choices being
 			    DiGraph.Out (default) or DiGraph.In.
 
@@ -1073,7 +1026,7 @@ class DiGraph(gr.Graph):
 		"""
 		degscale = self.degree(dir)
 		degscale._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
-		self.scale(degscale.toSpParVec(), dir)
+		self.scale(degscale, dir)
 		
 	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 		"""
@@ -1268,7 +1221,7 @@ class DiGraph(gr.Graph):
 				tmp.ones()
 				bfs.append(tmp)
 				#next:  changes how???
-				tmp = fringe._SpMM(A)
+				tmp = fringe._SpGEMM(A)
 				if BCdebug>1:
 					#nspsum = nsp.sum(DiGraph.Out).sum() 
 					#fringesum = fringe.sum(DiGraph.Out).sum()
@@ -1293,7 +1246,7 @@ class DiGraph(gr.Graph):
 				# Apply the child value weights and sum them up over the parents
 				# then apply the weights based on parent values
 				w._T()
-				w = A._SpMM(w)
+				w = A._SpGEMM(w)
 				w._T()
 				w *= bfs[depth-1]
 				w *= nsp
@@ -1348,33 +1301,29 @@ class DiGraph(gr.Graph):
 		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
 		G._spm.Apply(pcb.set(1))
 		
-		#print G.toParVec()
-		
+		# Future: use a dense accumulator and a sparse frontier to take advantage
+		# of vertices that are found in the correct component and will not be
+		# reshuffled.
 		#component = ParVec.range(G.nvert())
 		#frontier = component.toSpParVec()._spv
 		frontier = SpParVec.range(n)._spv
 		
 		def iterop(vals):
-			#print "visiting ",vals[2]
-			# vals[0] = frontier value
-			# vals[1] = last_frontier value
 			vals[1] = int(vals[0] != vals[1])
 		
 		delta = 1
 		while delta > 0:
 			last_frontier = frontier
-			frontier = G._spm.SpMV(frontier, pcb.Max2ndSemiring())
-			#frontier = G._spm.SpMV_SelMax(frontier)
+			frontier = G._spm.SpMV(frontier, pcb.SecondMaxSemiring())
 
 			pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier), last_frontier])
 			delta = last_frontier.Reduce(pcb.plus())
-			print "delta:",delta
 		
 		return ParVec.toParVec(frontier.dense())
 	
-	def _findLargestComponent(self):
+	def getLargestComponent(self):
 		"""
-		Finds the connected components of the graph by BFS 
+		Returns a subgraph that consists of the largest component of self. 
 		Output Arguments:
 			ret:  a DiGraph consisting of the largest connected component
 			    in this graph.
@@ -1396,18 +1345,13 @@ class DiGraph(gr.Graph):
 		# Create a list of vertices in this component
 		verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
 		verts = ParVec.toParVec(verts)
-		#verts -= 1
 		
 		# return the subgraph
-		subs = self._spm.SubsRef(verts._dpv, verts._dpv)
-		ret = DiGraph()
-		ret._spm = subs
-		return ret
-#		return self.subgraph(verts)
+		return self.subgraph(verts)
 
 	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
 		"""
-		filler  
+		Performs Markov Clustering (MCL) on self and returns a graph representing the clusters.
 		"""
 		
 		EPS = 0.001
@@ -1437,7 +1381,7 @@ class DiGraph(gr.Graph):
 			pcb.set(1),
 			pcb.identity()))
 		
-		A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec(), dir=DiGraph.In )
+		A.scale( ParVec.ones(A.nvert()) / sums , dir=DiGraph.In )
 		
 		if retNEdges:
 			nedges = 0
@@ -1455,9 +1399,9 @@ class DiGraph(gr.Graph):
 			for i in range(1, expansion):
 				if retNEdges:
 					AA._spm.Apply(pcb.set(1))
-					AA = AA._SpMM(AA)
+					AA = AA._SpGEMM(AA)
 					nedges += AA.sum(DiGraph.In)._dpv.Reduce(pcb.plus())
-				A = A._SpMM(A)
+				A = A._SpGEMM(A)
 		
 			#Inflation - Hadamard power - greater inflation parameter -> more granular results
 			A._spm.Apply(pcb.bind2nd(pcb.pow(), inflation))
@@ -1469,7 +1413,7 @@ class DiGraph(gr.Graph):
 				pcb.set(1),
 				pcb.identity()))
 
-			A.scale( (ParVec.ones(A.nvert()) / sums ).toSpParVec(), dir=DiGraph.In)
+			A.scale( ParVec.ones(A.nvert()) / sums, dir=DiGraph.In)
 			
 			#print "sums=",sums
 			#[iv, jv, vv] = A.toParVec()

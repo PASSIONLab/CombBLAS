@@ -11,8 +11,7 @@ else:
 	inmatrixfile = sys.argv[1]
 	if (kdt.master()):
 		print "Loading matrix from",inmatrixfile
-	B = kdt.DiGraph()
-	B._spm.load(inmatrixfile)
+	B = kdt.DiGraph.load(inmatrixfile)
 
 bedges = B._spm.getnee()
 
