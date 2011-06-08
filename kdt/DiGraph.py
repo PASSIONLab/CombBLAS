@@ -1195,6 +1195,8 @@ class DiGraph(gr.Graph):
 		N = A.nvert()
 		bc = ParVec(N)
 		nVertToCalc = int(math.ceil(self.nvert() * sample))
+		nVertToCalc = min(nVertToCalc, self.nvert())
+		
 		# batchSize = #rows/cols that will fit in memory simultaneously.
 		# bcu has a value in every element, even though it's literally
 		# a sparse matrix (DiGraph).  So batchsize is calculated as
@@ -1210,7 +1212,11 @@ class DiGraph(gr.Graph):
 		
 		nBatches = int(math.ceil(float(nVertToCalc) / float(batchSize)))
 		nPossBatches = int(math.ceil(float(N) / float(batchSize)))
-		if sample == 1.0:
+		if (batchSize >= nVertToCalc):
+			startVs = [0]
+			endVs = [nVertToCalc]
+			numVs = [nVertToCalc]
+		elif sample == 1.0:
 			startVs = range(0,nVertToCalc,batchSize)
 			endVs = range(batchSize, nVertToCalc, batchSize)
 			if nVertToCalc % batchSize != 0:

@@ -69,8 +69,14 @@ int main(int argc, char* argv[])
 		ifstream input(ifilename.c_str());
 		if( !input ) 
 		{
-		    	SpParHelper::Print( "Error opening input stream\n");
-    			return -1;
+			// maybe the user passed in a filename
+			input.open(directory.c_str());
+			
+			if ( !input )
+			{
+				SpParHelper::Print( "Error opening input stream\n");
+				return -1;
+			}
   		}
 		MPI::COMM_WORLD.Barrier();
 	
