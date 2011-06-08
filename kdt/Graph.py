@@ -148,6 +148,7 @@ class ParVec:
 		if length >= 0:
 			self._dpv = pcb.pyDenseParVec(length, init)
 	
+	@staticmethod
 	def load(filename):
 		ret = ParVec(-1)
 		ret._dpv.load(filename)
@@ -858,6 +859,12 @@ class SpParVec:
 	def __init__(self, length):
 		if length > 0:
 			self._spv = pcb.pySpParVec(length)
+
+	@staticmethod
+	def load(filename):
+		ret = ParVec(-1)
+		ret._dpv.load(filename)
+		return ret
 
 	def __abs__(self):
 		ret = self.copy()
