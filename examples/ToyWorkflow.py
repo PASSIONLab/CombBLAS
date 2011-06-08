@@ -52,23 +52,25 @@ def draw(G, outfile, copyLocationFrom = None, directed = False):
 
 
 	
-G = kdt.DiGraph.load(inmatrixfile)
-G._spm.Apply(kdt.pyCombBLAS.set(1))
+bigG = kdt.DiGraph.load(inmatrixfile)
+bigG._spm.Apply(kdt.pyCombBLAS.set(1))
 #G.removeSelfLoops()
 
 print "drawing the original graph:"
-OrigVertLocSource = draw(G, outfile.replace(".", "-1-original."), None, directed=True)
+OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=True)
 
 print "Finding the largest component:"
-Comp = G.getLargestComponent()
-OrigVertLocSource = draw(Comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
-G = Comp
+comp = bigG.getLargestComponent()
+OrigVertLocSource = draw(comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
+G = comp
 
 print "Clustering:"
-#C = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
-C = G.cluster('markov',addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
-C.removeSelfLoops()
-draw(C, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
+markovG = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
+markovG.removeSelfLoops()
+draw(markovG, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
+clus = markovG.connComp()
 
 print "Contracting:"
-#draw(C, outfile.replace(".", "-4-collapsed."), OrigVertLocSource, directed=True)
+print "clusters:",clus
+smallG = G.contract(groups=clus, collapseInto=clus)
+draw(smallG, outfile.replace(".", "-4-contracted."), None, directed=True)
