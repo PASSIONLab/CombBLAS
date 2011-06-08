@@ -1174,7 +1174,7 @@ class DiGraph(gr.Graph):
 		return cent
 	
 	
-	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0):
+	def _approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0, batchSize=-1, retNVerts=False):
 		"""
 		calculates the approximate or exact (with sample=1.0) betweenness
 		centrality of the input DiGraph instance.  _approxBC is an internal
@@ -1188,14 +1188,13 @@ class DiGraph(gr.Graph):
 		"""
 		A = self.copy()
 		Anv = A.nvert()
-		if BCdebug>0:
+		if BCdebug>0 and master():
 			print "in _approxBC, A.nvert=%d, nproc=%d" % (Anv, nProcs)
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now
 		N = A.nvert()
 		bc = ParVec(N)
-		#nProcs = pcb._nprocs()
-		nVertToCalc = int(self.nvert() * sample)
+		nVertToCalc = int(math.ceil(self.nvert() * sample))
 		# batchSize = #rows/cols that will fit in memory simultaneously.
 		# bcu has a value in every element, even though it's literally
 		# a sparse matrix (DiGraph).  So batchsize is calculated as
@@ -1205,8 +1204,10 @@ class DiGraph(gr.Graph):
 		#   memory/row (in edges)
 		#        = self.nvert()
 		physMemPCore = 2e9; bytesPEdge = 18
-		#memFract = 0.1;
-		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
+		if (batchSize < 0):
+			batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
+		batchSize = min(nVertToCalc, batchSize)
+		
 		nBatches = int(math.ceil(float(nVertToCalc) / float(batchSize)))
 		nPossBatches = int(math.ceil(float(N) / float(batchSize)))
 		if sample == 1.0:
@@ -1230,11 +1231,11 @@ class DiGraph(gr.Graph):
 				startVs[i] = tmpRange[perm[i]]*batchSize
 				numVs[i] = min(startVs[i]+batchSize,N)-startVs[i]
 
-		if BCdebug>0:
+		if BCdebug>0 and master():
 			print "batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches)
 		for [startV, numV] in zip(startVs, numVs):
 			startV = int(startV); numV = int(numV)
-			if BCdebug>0:
+			if BCdebug>0 and master():
 				print "startV=%d, numV=%d" % (startV, numV)
 			bfs = []		
 			batch = ParVec.range(startV, startV+numV)
@@ -1300,7 +1301,11 @@ class DiGraph(gr.Graph):
 		if normalize:
 			nVertSampled = sum(numVs)
 			bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
-		return bc
+		
+		if retNVerts:
+			return bc,nVertSampled
+		else:
+			return bc
 	
 	def cluster(self, alg, **kwargs):
 	#		ToDo:  Normalize option?
