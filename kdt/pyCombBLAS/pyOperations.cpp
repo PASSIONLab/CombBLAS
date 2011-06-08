@@ -1,6 +1,7 @@
 #include "pyOperations.h"
 #include <iostream>
 #include <math.h>
+#include <cstdlib>
 #include <Python.h>
 
 namespace op{
@@ -455,12 +456,11 @@ void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatyp
 
 MPI_Op* BinaryFunction::getMPIOp()
 {
+	//cout << "setting mpi op" << endl;
 	if (currentlyApplied != NULL)
 	{
 		cout << "There is an internal error in creating a MPI version of a BinaryFunction: Conflict between two BFs." << endl;
-		while (currentlyApplied != NULL)
-		{
-		}
+		std::exit(1);
 	}
 	else if (currentlyApplied == this)
 	{
@@ -474,6 +474,8 @@ MPI_Op* BinaryFunction::getMPIOp()
 
 void BinaryFunction::releaseMPIOp()
 {
+	//cout << "free mpi op" << endl;
+
 	if (currentlyApplied == this)
 		currentlyApplied = NULL;
 }
@@ -503,9 +505,7 @@ void Semiring::enableSemiring()
 	if (SemiringTemplArg<doubleint, doubleint>::currentlyApplied != NULL)
 	{
 		cout << "There is an internal error in selecting a Semiring: Conflict between two Semirings." << endl;
-		while (SemiringTemplArg<doubleint, doubleint>::currentlyApplied != NULL)
-		{
-		}
+		std::exit(1);
 	}
 	SemiringTemplArg<doubleint, doubleint>::currentlyApplied = this;
 	binfunc_add->getMPIOp();

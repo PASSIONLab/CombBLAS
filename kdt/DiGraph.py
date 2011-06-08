@@ -259,7 +259,7 @@ class DiGraph(gr.Graph):
 		ret._spm = self._spm.SpGEMM(other._spm)
 		return ret
 
-	def contract(self, groups):
+	def contract(self, groups=None, collapseInto=None):
 		"""
 		contracts all vertices that are like-numbered in the groups
 		argument into single vertices, removing all edges between
@@ -277,22 +277,94 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance
 		"""
 		#ToDo:  implement weighting properly
+		n = self.nvert()
 
 		if type(self.nvert()) == tuple:
 			raise NotImplementedError, 'only implemented for square graphs'
-		if len(groups) != self.nvert():
-			raise KeyError, 'groups.len() does not match self.nvert()'
-		if groups.min < 0 or groups.max() > len(groups)-1:
-			raise KeyError, 'at least one groups value negative or greater than groups.len()-1'
-		nvRes = int(groups.max()+1)
-		origVtx = ParVec.range(self.nvert())
-		# lhrMat == left-/right-hand-side matrix
-		lrhMat = DiGraph(groups, origVtx, ParVec.ones(self.nvert()), nvRes, self.nvert())
-		tmpMat = lrhMat._SpMM(self)
-		lrhMat._T()
-		res = tmpMat._SpMM(lrhMat)
-		return res;
+		if groups is None and collapseInto is None:
+			raise KeyError, 'groups or collapseInto must be specified'
 
+		if groups is not None and len(groups) != n:
+			raise KeyError, 'len(groups) does not match self.nvert()'
+		if groups is not None and (groups.min < 0 or groups.max() >= len(groups)):
+			raise KeyError, 'at least one groups value negative or greater than len(groups)-1'
+		if collapseInto is not None and len(collapseInto) != n:
+			raise KeyError, 'len(collapseInto) does not match self.nvert()'
+		if collapseInto is not None and (collapseInto.min < 0 or collapseInto.max() >= n):
+			raise KeyError, 'at least one groups value negative or greater than len(collapseInto)-1'
+			
+		if collapseInto is not None:
+			# convert to groups
+			DiGraph._convClusterParentToGroup(collapseInto)
+		
+		nvRes = int(groups.max()+1)
+		origVtx = ParVec.range(n)
+		# lhrMat == left-/right-hand-side matrix
+		lrhMat = DiGraph(groups, origVtx, ParVec.ones(n), nvRes, n)
+		tmpMat = lrhMat._SpGEMM(self)
+		lrhMat._T()
+		res = tmpMat._SpGEMM(lrhMat)
+		return res;
+	
+	@staticmethod
+	def _convClusterParentToGroup(collapseInto):
+		"""
+		Turn [0, 2, 2, 0] into [0,1,1,0]
+		"""
+		
+		n = len(collapseInto)
+		print "collapseInto:"
+		collapseInto._dpv.printall()
+		
+		# Count the number of elements in each component
+		countM = DiGraph(collapseInto, ParVec.range(n), ParVec.ones(n), n)
+		counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
+		del countM
+		
+		print "counts:"
+		counts.printall()
+		
+		# sort
+		sorted = counts.copy()
+		sorted.Apply(pcb.negate())
+		perm = sorted.Sort()
+		sorted.Apply(pcb.negate())
+		
+		print "sorted:"
+		sorted.printall()
+		print "permutation:"
+		perm.printall()
+		
+		# find inverse permutation
+		#invRange = ParVec.range(-n+1, 1)
+		#invRange._dpv.Apply(pcb.negate())
+		#invRange[n-1] = 0 # to get rid of -0
+		#print "invRange:"
+		#print invRange
+		#invPerm = perm.SubsRef(invRange._dpv)
+
+		invM = DiGraph(ParVec.range(n), ParVec.toParVec(perm), ParVec.toParVec(perm), n)
+		
+		#def plus(x, y):
+		#	return x+y
+		#def mul(x, y):
+		#	return x*y
+		#sring = pcb.Semiring(plus, mul)
+		invPerm = invM._spm.SpMV(SpParVec.range(n)._spv, pcb.TimesPlusSemiring()).dense()
+		#invPerm = invM._spm.Reduce(pcb.pySpParMat.Column(), pcb.plus())
+		del invM
+		print "inv perm:"
+		invPerm.printall()
+		
+		
+		# put group numbers where counts used to be (i.e. parents of cluster)
+		r = ParVec.range(n)
+		p = counts.SubsRef(perm)
+		print "group numbers:"
+		p.printall()
+		
+		print ""
+		
 
 	def copy(self):
 		"""
@@ -364,6 +436,20 @@ class DiGraph(gr.Graph):
 			self._spm.removeSelfLoops()
 		return
 
+	def addSelfLoops(self, selfLoopAttr=1):
+		"""
+		removes all edges whose source and destination are the same
+		vertex, in-place in a DiGraph instance.
+
+		Input Argument:
+			self:  a DiGraph instance, modified in-place.
+			selfLoopAttr: the value to put on each self loop
+
+		"""
+		if self.nvert() > 0:
+			self += DiGraph.eye(self.nvert(), selfLoopAttr=selfLoopAttr)
+		return
+
 	@staticmethod
 	def fullyConnected(n,m=None):
 		"""
@@ -381,13 +467,30 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to every other vertex. 
 		"""
-		if m == None:
+		if m is None:
 			m = n
 		i = (ParVec.range(n*m) % n).floor()
 		j = (ParVec.range(n*m) / n).floor()
 		v = ParVec.ones(n*m)
 		ret = DiGraph(i,j,v,n,m)
 		return ret
+	
+	@staticmethod
+	def eye(n, selfLoopAttr=1):
+		"""
+		creates edges in a DiGraph instance where each vertex
+		has exactly one edge connecting to itself.
+
+		Input Arguments:
+			n:  an integer scalar denoting the number of vertices in
+			    the graph.
+			selfLoopAttr: the value to put on the self loop.
+
+		Output Argument:
+			ret:  a DiGraph instance with directed edges from each
+			    vertex to itself. 
+		"""
+		return DiGraph(ParVec.range(n),ParVec.range(n),ParVec(n, selfLoopAttr),n,n)
 
 	def genGraph500Edges(self, scale):
 		"""
@@ -672,7 +775,7 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  DiGraph.__getitem__
 		"""
-		if type(ndx2) == type(None) and (ndx2 == None):
+		if ndx2 is None:
 			ndx2 = ndx1
 		ret = self[ndx1, ndx2]
 		return ret
@@ -1320,7 +1423,8 @@ class DiGraph(gr.Graph):
 			
 		"""
 		if alg=='Markov' or alg=='markov':
-			clus = DiGraph._markov(self, **kwargs)
+			G = DiGraph._markov(self, **kwargs)
+			clus = G.connComp()
 	
 		elif alg=='kNN' or alg=='knn':
 			raise NotImplementedError, "k-nearest neighbors clustering not implemented"
@@ -1418,7 +1522,7 @@ class DiGraph(gr.Graph):
 		#Add self loops
 		N = A.nvert()
 		if addSelfLoops:
-			A += DiGraph(ParVec.range(N), ParVec.range(N), ParVec(N,selfLoopWeight), N)
+			A.addSelfLoops(selfLoopWeight)
 		
 		#Create stochastic matrix
 	
