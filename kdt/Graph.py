@@ -69,11 +69,11 @@ class Graph:
 		ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus())
                 return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret))
 
-        @staticmethod
-        def load(fname):
-                ret = Graph()
-                ret._spm = pcb.pySpParMat.load(fname)
-                return ret
+	@staticmethod
+	def load(fname):
+		ret = Graph()
+		ret._spm = pcb.pySpParMat.load(fname)
+		return ret
 
 	def nedge(self):
 		"""
@@ -147,6 +147,11 @@ class ParVec:
 	def __init__(self, length, init=0):
 		if length >= 0:
 			self._dpv = pcb.pyDenseParVec(length, init)
+	
+	def load(filename):
+		ret = ParVec(-1)
+		ret._dpv.load(filename)
+		return ret
 
 	def __abs__(self):
 		ret = ParVec(-1)
