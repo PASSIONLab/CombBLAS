@@ -277,6 +277,25 @@ class HyGraph(gr.Graph):
 #		ret._spm = self._spm.SpMM(other._spm)
 #		return ret
 #
+	def npin(self):
+		"""
+		calculates the cardinality of each edge of the passed HyGraph 
+		instance.
+
+		Input Arguments:
+			self:  a HyGraph instance
+
+		Output Argument:
+			ret:  a ParVec instance with each element containing the
+			    cardinality of the corresponding edge.
+
+		SEE ALSO:  rank, antirank 
+		"""
+		if self.nedge() == 0:
+			return ParVec.zeros(self.nedge())
+		ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+		return ParVec.toParVec(ret)
+
 #	def copy(self):
 #		"""
 #		creates a deep copy of a DiGraph instance.
@@ -546,6 +565,37 @@ class HyGraph(gr.Graph):
 #	#	"""
 #	#	self._spm.Apply(pcb.set(1))
 #	#	return
+
+	def antirank(self):
+		"""
+		calculates the antirank (the minimum cardinality of any edge) of the
+		passed HyGraph instance.
+
+		Input Arguments:
+			self:  a HyGraph instance
+
+		Output Argument:
+			ret:  the antirank of the HyGraph instance
+
+		SEE ALSO:  npin, rank 
+		"""
+		return self.npin().min()
+
+	def rank(self):
+		"""
+		calculates the rank (the maximum cardinality of any edge) of the
+		passed HyGraph instance.
+
+		Input Arguments:
+			self:  a HyGraph instance
+
+		Output Argument:
+			ret:  the rank of the HyGraph instance
+
+		SEE ALSO:  npin, antirank 
+		"""
+		return self.npin().max()
+
 #
 #	def save(self, fname):
 #		"""
