@@ -71,6 +71,6 @@ draw(markovG, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=
 clus = markovG.connComp()
 
 print "Contracting:"
-print "clusters:",clus
-smallG = G.contract(groups=clus, collapseInto=clus)
+#print "clusters:",clus
+smallG = G.contract(collapseInto=clus)
 draw(smallG, outfile.replace(".", "-4-contracted."), None, directed=True)
