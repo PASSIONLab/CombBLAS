@@ -27,7 +27,7 @@ doValidation = False
 useEWise = False
 
 def usage():
-	print "Graph500 [-sSCALE] [-nNUM_STARTS] [-fFILE]"
+	print "Graph500.py [-sSCALE] [-nNUM_STARTS] [-fFILE]"
 	print "SCALE refers to the size of the generated RMAT graph G. G will have 2^SCALE vertices and edge factor 16. Default scale is 15."
 	print "NUM_STARTS is the number of randomly chosen starting vertices. The Graph500 spec requires 64 starts."
 	print "FILE is a MatrixMarket .mtx file with graph to use. Graph should be directed and symmetric"
