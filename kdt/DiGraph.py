@@ -261,7 +261,7 @@ class DiGraph(gr.Graph):
 		ret._spm = self._spm.SpGEMM(other._spm)
 		return ret
 
-	def contract(self, groups=None, collapseInto=None):
+	def contract(self, groups=None, clusterParents=None):
 		"""
 		contracts all vertices that are like-numbered in the groups
 		argument into single vertices, removing all edges between
@@ -272,8 +272,12 @@ class DiGraph(gr.Graph):
 
 		Input Arguments:
 			self:  a DiGraph instance.
+			
+			Specify exactly one of the following:
 			groups:  a ParVec denoting into which group (result
 				vertex) each input vertex should be placed
+			clusterParents: a ParVec denoting which vertex an input vertex
+			    should be collapsed into.
 
 		Output Argument:
 			ret:  a DiGraph instance
@@ -283,21 +287,21 @@ class DiGraph(gr.Graph):
 
 		if type(self.nvert()) == tuple:
 			raise NotImplementedError, 'only implemented for square graphs'
-		if groups is None and collapseInto is None:
+		if groups is None and clusterParents is None:
 			raise KeyError, 'groups or collapseInto must be specified'
 
 		if groups is not None and len(groups) != n:
 			raise KeyError, 'len(groups) does not match self.nvert()'
 		if groups is not None and (groups.min < 0 or groups.max() >= len(groups)):
 			raise KeyError, 'at least one groups value negative or greater than len(groups)-1'
-		if collapseInto is not None and len(collapseInto) != n:
-			raise KeyError, 'len(collapseInto) does not match self.nvert()'
-		if collapseInto is not None and (collapseInto.min < 0 or collapseInto.max() >= n):
-			raise KeyError, 'at least one groups value negative or greater than len(collapseInto)-1'
+		if clusterParents is not None and len(clusterParents) != n:
+			raise KeyError, 'len(clusterParents) does not match self.nvert()'
+		if clusterParents is not None and (clusterParents.min < 0 or clusterParents.max() >= n):
+			raise KeyError, 'at least one groups value negative or greater than len(clusterParents)-1'
 			
-		if collapseInto is not None:
+		if clusterParents is not None:
 			# convert to groups
-			groups = DiGraph._convClusterParentToGroup(collapseInto)
+			groups = DiGraph.convClusterParentToGroup(clusterParents)
 		
 		nvRes = int(groups.max()+1)
 		origVtx = ParVec.range(n)
@@ -309,27 +313,42 @@ class DiGraph(gr.Graph):
 		return res;
 	
 	@staticmethod
-	def _convClusterParentToGroup(collapseInto):
+	def convClusterParentToGroup(clusterParents, retInvPerm = False):
 		"""
-		Turn [0, 2, 2, 0] into [0,1,1,0]
+		converts a component list composed of parent vertices into
+		a component list composed of cluster numbers.
+		For k clusters, each cluster number will be in the range [0,k).
+
+		Input Arguments:
+			clusterParents:  a vector where each element specifies which vertex
+			    is its cluster parent. It is assumed that each cluster has only
+			    one parent vertex.
+			retInvPerm:  if True, says to return a permutation going from group
+			    number to original parent vertex.
+
+		Output Argument:
+			ret:  a vertex of the same length as clusterParents where the elements
+			    are in the range [0,k) and correspond to cluster group numbers.
+			    If retInvPerm is True, the return is a tuple which also contains
+			    a permutation going from group number to original parent vertex.
 		"""
 		
-		n = len(collapseInto)
+		n = len(clusterParents)
 		
-		# Count the number of elements in each component
-		countM = DiGraph(collapseInto, ParVec.range(n), ParVec.ones(n), n)
+		# Count the number of elements in each parent's component to identify the parents
+		countM = DiGraph(clusterParents, ParVec.range(n), ParVec.ones(n), n)
 		counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
 		del countM
 		
-		# sort
+		# sort to put them all at the front
 		sorted = counts.copy()
 		sorted.Apply(pcb.negate())
 		perm = sorted.Sort()
 		sorted.Apply(pcb.negate())
 		
-		# find inverse permutation
+		# find inverse of sort permutation so that [1,2,3,4...] can be put back into the
+		# original parent locations
 		invM = DiGraph(ParVec.toParVec(perm), ParVec.range(n), ParVec.ones(n), n)
-		
 		invPerm = invM._spm.SpMV(SpParVec.range(n)._spv, pcb.TimesPlusSemiring()).dense()
 		del invM
 		
@@ -337,10 +356,13 @@ class DiGraph(gr.Graph):
 		groupNum = invPerm
 		
 		# Broadcast group number to all vertices in cluster
-		broadcastM = DiGraph(ParVec.range(n), collapseInto, ParVec.ones(n), n)
+		broadcastM = DiGraph(ParVec.range(n), clusterParents, ParVec.ones(n), n)
 		ret = broadcastM._spm.SpMV(groupNum.sparse(), pcb.TimesPlusSemiring()).dense()
 		
-		return ParVec.toParVec(ret)
+		if retInvPerm:
+			return ParVec.toParVec(ret), ParVec.toParVec(perm)
+		else:
+			return ParVec.toParVec(ret)
 
 	def copy(self):
 		"""
@@ -1452,6 +1474,7 @@ class DiGraph(gr.Graph):
 		if alg=='Markov' or alg=='markov':
 			G = DiGraph._markov(self, **kwargs)
 			clus = G.connComp()
+			return clus, G
 	
 		elif alg=='kNN' or alg=='knn':
 			raise NotImplementedError, "k-nearest neighbors clustering not implemented"
@@ -1499,15 +1522,22 @@ class DiGraph(gr.Graph):
 		
 		return ParVec.toParVec(frontier.dense())
 	
-	def getLargestComponent(self):
+	def findLargestComponent(self, sym=False):
 		"""
 		Returns a subgraph that consists of the largest component of self. 
+		Components are found on an undirected version of self.
 		Output Arguments:
 			ret:  a DiGraph consisting of the largest connected component
 			    in this graph.
 		"""
 		
-		components = self.connComp()
+		if sym:
+			G = self
+		else:
+			G = self.copy()
+			G._T()
+			G += self
+		components = G.connComp(sym=True)
 		n = self.nvert()
 		
 		# Find the largest component
@@ -1524,8 +1554,7 @@ class DiGraph(gr.Graph):
 		verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
 		verts = ParVec.toParVec(verts)
 		
-		# return the subgraph
-		return self.subgraph(verts)
+		return verts
 
 	def _markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
 		"""

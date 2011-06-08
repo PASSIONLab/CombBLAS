@@ -2,6 +2,7 @@ import sys
 import kdt
 import pygraphviz as pgv
 
+directed = False
 
 #parse arguments
 if (len(sys.argv) < 2):
@@ -11,7 +12,7 @@ if (len(sys.argv) < 2):
 inmatrixfile = sys.argv[1]
 outfile = sys.argv[2]
 
-def draw(G, outfile, copyLocationFrom = None, directed = False):
+def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, directed = False, selfLoopsOK = False):
 	"""
 	Draws the graph G using pyGraphViz and saves the result to outfile.
 	If copyLocationFrom is a pyGraphViz graph. If it is not None, then the
@@ -24,19 +25,23 @@ def draw(G, outfile, copyLocationFrom = None, directed = False):
 	n = G.nvert()
 	m = len(iv)
 	
+	if copyFromIndexLookup is None:
+		copyFromIndexLookup = range(0,n)
+	
 	DG = pgv.AGraph(directed=directed)
 	DG.graph_attr["outputorder"] = "edgesfirst"
 	
 	# add vertices
 	for i in range(0, n):
 		if copyLocationFrom != None:
-			DG.add_node(i, label="", color="blue3", width=0.1, height=0.1, pin=True, pos=copyLocationFrom.get_node(i).attr["pos"]);
+			DG.add_node(i, label="", color="blue3", width=0.1, height=0.1, pin=True, pos=copyLocationFrom.get_node(int(copyFromIndexLookup[i])).attr["pos"]);
 		else:
 			DG.add_node(i, label="", color="blue3", width=0.1, height=0.1);
 		
 	# add edges
 	for i in range(0, m):
-		DG.add_edge(int(iv[i]), int(jv[i]), color="orange")
+		if selfLoopsOK or (not selfLoopsOK and int(iv[i]) != int(jv[i])):
+			DG.add_edge(int(iv[i]), int(jv[i]), color="orange")
 		
 	print "Graph created. %d nodes, %d edges. Doing layout..."%(DG.number_of_nodes(), DG.number_of_edges())
 	
@@ -54,23 +59,24 @@ def draw(G, outfile, copyLocationFrom = None, directed = False):
 	
 bigG = kdt.DiGraph.load(inmatrixfile)
 bigG._spm.Apply(kdt.pyCombBLAS.set(1))
-#G.removeSelfLoops()
 
 print "drawing the original graph:"
-OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=True)
+OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=directed)
 
 print "Finding the largest component:"
-comp = bigG.getLargestComponent()
-OrigVertLocSource = draw(comp, outfile.replace(".", "-2-largestcomp."), None, directed=True)
-G = comp
+comp = bigG.findLargestComponent()
+G = bigG.subgraph(comp)
+OrigVertLocSource = draw(G, outfile.replace(".", "-2-largestcomp."), OrigVertLocSource, copyFromIndexLookup=comp, directed=directed)
 
 print "Clustering:"
-markovG = G._markov(addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
-markovG.removeSelfLoops()
+clus, markovG = G.cluster('Markov', addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
 draw(markovG, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
-clus = markovG.connComp()
 
 print "Contracting:"
-#print "clusters:",clus
-smallG = G.contract(collapseInto=clus)
-draw(smallG, outfile.replace(".", "-4-contracted."), None, directed=True)
+smallG = G.contract(clusterParents=clus)
+
+# Make a lookup table to convert a contracted vertex number into its old cluster parent so it can
+# use the same position in the graph.
+clusterGroup, perm = kdt.DiGraph.convClusterParentToGroup(clus, retInvPerm=True)
+
+draw(smallG, outfile.replace(".", "-4-contracted."), OrigVertLocSource, copyFromIndexLookup=perm, directed=directed)
