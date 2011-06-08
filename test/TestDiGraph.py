@@ -997,6 +997,35 @@ class LinearAlgebraTests(DiGraphTests):
 		self.assertEqual(j2[ind], expectedJ[ind])
 		self.assertAlmostEqual(v2[ind], expectedV[ind], places=3)
 
+class ContractTests(DiGraphTests):
+    def test_contract_simple(self):
+	nvert1 = 5
+	nedge1 = 5
+	origI1 = [4, 0, 0, 1, 2]
+	origJ1 = [0, 1, 2, 3, 4]
+	origV1 = [1, 1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	groups = ParVec(5)
+	groups[0] = 0
+	groups[1] = 0
+	groups[2] = 0
+	groups[3] = 1
+	groups[4] = 1
+	smallG = G1.contract(groups)
+	self.assertEqual(smallG.nvert(), 2)
+	[i3, j3, v3] = smallG.toParVec()
+	expLen = 3
+	self.assertEqual(len(i3),expLen)
+	self.assertEqual(len(j3),expLen)
+	self.assertEqual(len(v3),expLen)
+	expectedI = [0, 1, 0]
+	expectedJ = [0, 0, 1]
+	expectedV = [4, 3, 3]
+
+	for ind in range(len(expectedI)):
+		self.assertEqual(i3[ind], expectedI[ind])
+		self.assertEqual(j3[ind], expectedJ[ind])
+#		self.assertEqual(v3[ind], expectedV[ind])
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -1018,6 +1047,7 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
     return suite
 
 if __name__ == '__main__':
