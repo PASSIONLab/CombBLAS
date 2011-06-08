@@ -455,6 +455,29 @@ pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::Semiring* sring)
 	}
 }
 
+pyDenseParVec pySpParMat::SpMV(const pyDenseParVec& x, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pyDenseParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else
+	{
+		sring->enableSemiring();
+		pyDenseParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
+}
+
 void pySpParMat::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 {
 	if (sring == NULL)
@@ -477,3 +500,24 @@ void pySpParMat::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 	}
 }
 
+void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		x = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else
+	{
+		sring->enableSemiring();
+		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
+		sring->disableSemiring();
+	}
+}
