@@ -110,7 +110,9 @@ public:
 	void SpMV_SelMax_inplace(pySpParVec& x);
 
 	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 	
 public:
 	static int Column() { return ::Column; }
