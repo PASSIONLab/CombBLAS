@@ -295,7 +295,7 @@ class DiGraph(gr.Graph):
 			
 		if collapseInto is not None:
 			# convert to groups
-			DiGraph._convClusterParentToGroup(collapseInto)
+			groups = DiGraph._convClusterParentToGroup(collapseInto)
 		
 		nvRes = int(groups.max()+1)
 		origVtx = ParVec.range(n)
@@ -313,16 +313,11 @@ class DiGraph(gr.Graph):
 		"""
 		
 		n = len(collapseInto)
-		print "collapseInto:"
-		collapseInto._dpv.printall()
 		
 		# Count the number of elements in each component
 		countM = DiGraph(collapseInto, ParVec.range(n), ParVec.ones(n), n)
 		counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
 		del countM
-		
-		print "counts:"
-		counts.printall()
 		
 		# sort
 		sorted = counts.copy()
@@ -330,41 +325,20 @@ class DiGraph(gr.Graph):
 		perm = sorted.Sort()
 		sorted.Apply(pcb.negate())
 		
-		print "sorted:"
-		sorted.printall()
-		print "permutation:"
-		perm.printall()
-		
 		# find inverse permutation
-		#invRange = ParVec.range(-n+1, 1)
-		#invRange._dpv.Apply(pcb.negate())
-		#invRange[n-1] = 0 # to get rid of -0
-		#print "invRange:"
-		#print invRange
-		#invPerm = perm.SubsRef(invRange._dpv)
-
-		invM = DiGraph(ParVec.range(n), ParVec.toParVec(perm), ParVec.toParVec(perm), n)
+		invM = DiGraph(ParVec.toParVec(perm), ParVec.range(n), ParVec.ones(n), n)
 		
-		#def plus(x, y):
-		#	return x+y
-		#def mul(x, y):
-		#	return x*y
-		#sring = pcb.Semiring(plus, mul)
 		invPerm = invM._spm.SpMV(SpParVec.range(n)._spv, pcb.TimesPlusSemiring()).dense()
-		#invPerm = invM._spm.Reduce(pcb.pySpParMat.Column(), pcb.plus())
 		del invM
-		print "inv perm:"
-		invPerm.printall()
 		
+		# Find group number for each parent vertex
+		groupNum = invPerm
 		
-		# put group numbers where counts used to be (i.e. parents of cluster)
-		r = ParVec.range(n)
-		p = counts.SubsRef(perm)
-		print "group numbers:"
-		p.printall()
+		# Broadcast group number to all vertices in cluster
+		broadcastM = DiGraph(ParVec.range(n), collapseInto, ParVec.ones(n), n)
+		ret = broadcastM._spm.SpMV(groupNum.sparse(), pcb.TimesPlusSemiring()).dense()
 		
-		print ""
-		
+		return ParVec.toParVec(ret)
 
 	def copy(self):
 		"""
