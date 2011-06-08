@@ -179,7 +179,7 @@ class DegreeTests(HyGraphTests):
         for ind in range(nvert):
             self.assertEqual(deg[ind], 0)
             
-    def test_simple(self):
+    def test_degree_simple(self):
         nvert = 11
         nedge = 17
         i = [0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4,  4, 5] 
@@ -193,6 +193,94 @@ class DegreeTests(HyGraphTests):
 
         for ind in range(nvert):
             self.assertEqual(deg[ind], degExpected[ind])
+
+    def test_npin_no_edges(self):
+        nvert = 4
+        nedge = 0
+        i = []
+        j = []
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+
+        G = self.initializeGraph(nvert, nedge, i, j)
+        npin = G.npin()
+        for ind in range(nedge):
+            self.assertEqual(npin[ind], 0)
+            
+    def test_npin_simple(self):
+        nSvert = 11
+        nSedge = 17
+        i = [0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4,  4, 5] 
+        j = [3, 2, 3, 4, 5, 6, 7, 8, 1, 4, 5, 6, 7, 8, 9, 10, 4]
+        self.assertEqual(len(i), nSedge)
+        self.assertEqual(len(j), nSedge)
+        
+        G = self.initializeGraph(nSvert, nSedge, i, j)
+	nvert = G.nvert()
+        self.assertEqual(11, nvert)
+	nedge = G.nedge()
+        self.assertEqual(6, nedge)
+        npin = G.npin()
+        npinExpected = [1, 7, 1, 1, 6, 1]
+
+        for ind in range(nedge):
+            self.assertEqual(npin[ind], npinExpected[ind])
+
+    def test_rank_no_edges(self):
+        nvert = 4
+        nedge = 0
+        i = []
+        j = []
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+
+        G = self.initializeGraph(nvert, nedge, i, j)
+        rank = G.rank()
+        self.assertEqual(rank, 0)
+            
+    def test_rank_simple(self):
+        nSvert = 11
+        nSedge = 17
+        i = [0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4,  4, 5] 
+        j = [3, 2, 3, 4, 5, 6, 7, 8, 1, 4, 5, 6, 7, 8, 9, 10, 4]
+        self.assertEqual(len(i), nSedge)
+        self.assertEqual(len(j), nSedge)
+        
+        G = self.initializeGraph(nSvert, nSedge, i, j)
+	nvert = G.nvert()
+        self.assertEqual(11, nvert)
+	nedge = G.nedge()
+        self.assertEqual(6, nedge)
+        rank = G.rank()
+        self.assertEqual(rank, 7)
+
+    def test_antirank_no_edges(self):
+        nvert = 4
+        nedge = 0
+        i = []
+        j = []
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+
+        G = self.initializeGraph(nvert, nedge, i, j)
+        antirank = G.antirank()
+        self.assertEqual(antirank, 0)
+            
+    def test_antirank_simple(self):
+        nSvert = 11
+        nSedge = 17
+        i = [0, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4,  4, 5] 
+        j = [3, 2, 3, 4, 5, 6, 7, 8, 1, 4, 5, 6, 7, 8, 9, 10, 4]
+        self.assertEqual(len(i), nSedge)
+        self.assertEqual(len(j), nSedge)
+        
+        G = self.initializeGraph(nSvert, nSedge, i, j)
+	nvert = G.nvert()
+        self.assertEqual(11, nvert)
+	nedge = G.nedge()
+        self.assertEqual(6, nedge)
+        antirank = G.antirank()
+        self.assertEqual(antirank, 1)
 
 class CentralityTests(HyGraphTests):
     def test_exactBC_twoDTorus(self):
