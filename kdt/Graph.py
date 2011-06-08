@@ -150,7 +150,7 @@ class ParVec:
 	
 	@staticmethod
 	def load(filename):
-		ret = ParVec(-1)
+		ret = ParVec(1)
 		ret._dpv.load(filename)
 		return ret
 
@@ -862,8 +862,8 @@ class SpParVec:
 
 	@staticmethod
 	def load(filename):
-		ret = ParVec(-1)
-		ret._dpv.load(filename)
+		ret = SpParVec(1)
+		ret._spv.load(filename)
 		return ret
 
 	def __abs__(self):
