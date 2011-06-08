@@ -13,10 +13,8 @@ import getopt
 import kdt
 
 
-A = kdt.DiGraph.load('G3_circuit.mtx');
-b = kdt.ParVec(A.nvert());
-for i in range(A.nvert()/100):
-    b[i]=100.0
+A = kdt.DiGraph.load('thermal2/thermal2.mtx');
+b = kdt.ParVec.load('thermal2/thermal2_b.mtx');
 
 
 def gabp(A, b, maxround, epsilon):
@@ -69,18 +67,15 @@ def gabp(A, b, maxround, epsilon):
 	t4 = time.time()
 	copy_time += (t4-t3)
 
-	Mhtemp.DimWiseApply_scale(h)	# default direction: dir=kdt.DiGraph.Out, which scales rows
-	MJtemp.DimWiseApply_scale(J)
-	
-#	Mhtemp.scale(h.toSpParVec())
-#	MJtemp.scale(J.toSpParVec())
+	Mhtemp.scale(h)	# default direction: dir=kdt.DiGraph.Out, which scales rows
+	MJtemp.scale(J)
 #	print MJtemp.toParVec()
 	
         t5 = time.time()
         scale_time += t5-t4
 
-	if kdt.master():
-            print "scale time: %f" % (t5-t4)
+#	if kdt.master():
+#           print "scale time: %f" % (t5-t4)
 
         Mh.reverseEdges()
         MJ.reverseEdges()
