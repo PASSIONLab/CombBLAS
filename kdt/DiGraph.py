@@ -116,6 +116,8 @@ class DiGraph(gr.Graph):
 
 	def __getitem__(self, key):
 		"""
+		FIX:  fix documentation
+
 		implements indexing on the right-hand side of an assignment.
 		Usually accessed through the "[]" syntax.
 
@@ -600,6 +602,58 @@ class DiGraph(gr.Graph):
 			ret = DiGraph()
 			ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.multiplies(), True)
 		return ret
+
+	def nedge(self, vpart=None):
+		"""
+		returns the number of edges in (each partition of the vertices
+		of) the DiGraph instance, including edges with zero weight.
+
+		Input Arguments:
+			self:  a DiGraph instance
+			vpart: an optional argument; a ParVec instance denoting a 
+			    partition of the vertices of the graph.  The value of
+			    each element of vpart denotes the partition in which
+			    the corresponding vertex resides.  Note that this is
+			    the same format as the return value from cluster().
+
+		Output Arguments:
+			ret:  the number of edges in the DiGraph (if vpart not
+			    specified) or a ParVec instance with each element
+			    denoting the number of edges in the corresponding
+			    partition (if vpart specified).
+
+		SEE ALSO:  npart, contract
+		"""
+		nv = self.nvert()
+		if vpart is None:
+			retLen = 1
+			vpart = ParVec.zeros(nv)
+		else:
+			if self.nvert() != len(vpart):
+				raise KeyError,'vpart must be same length as number of vertices in DiGraph instance'
+			retLen = int(vpart.max())+1
+		if self.nvert() == 0:
+			if retLen == 1:
+				return 0
+			else:
+				return ParVec.zeros(retLen)
+		if retLen == 1:
+			ret = self._spm.getnnz()
+		else:
+			selfcopy = self.copy()
+			selfcopy.set(1)
+			C = DiGraph(vpart,ParVec.range(nv),
+				ParVec.ones(nv), retLen, nv)
+			tmpMat = C._SpGEMM(selfcopy)
+			C._T()
+			tmpMat = tmpMat._SpGEMM(C)
+			#HACK!!
+			#ret = tmpMat[diag]
+			ret = ParVec(retLen)
+			for i in range(retLen):
+				ret[i] = int(tmpMat[i].sum()[0])
+		return ret
+			
 
 	#FIX:  good idea to have this return an int or a tuple?
 	def nvert(self):

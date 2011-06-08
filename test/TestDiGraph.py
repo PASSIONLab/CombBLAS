@@ -1027,6 +1027,28 @@ class ContractTests(DiGraphTests):
 		self.assertEqual(j3[ind], expectedJ[ind])
 #		self.assertEqual(v3[ind], expectedV[ind])
 
+class EdgeStatTests(DiGraphTests):
+    def test_nedge_vpart_simple(self):
+	nvert1 = 5
+	nedge1 = 5
+	origI1 = [4, 0, 0, 1, 2]
+	origJ1 = [0, 1, 2, 3, 4]
+	origV1 = [1, 1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	groups = ParVec(5)
+	groups[0] = 0
+	groups[1] = 0
+	groups[2] = 0
+	groups[3] = 1
+	groups[4] = 1
+	ne = G1.nedge(groups)
+	expLen = 2
+	self.assertEqual(len(ne),expLen)
+	expectedNe = [2, 0]
+
+	for ind in range(len(expectedNe)):
+		self.assertEqual(ne[ind], expectedNe[ind])
+
 def runTests(verbosity = 1):
     testSuite = suite()
     unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
@@ -1048,6 +1070,7 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
     return suite
 
 if __name__ == '__main__':
