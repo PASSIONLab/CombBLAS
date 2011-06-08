@@ -626,8 +626,7 @@ class DiGraph(gr.Graph):
 		"""
 		nv = self.nvert()
 		if vpart is None:
-			retLen = 1
-			vpart = ParVec.zeros(nv)
+			return self._spm.getnee()
 		else:
 			if self.nvert() != len(vpart):
 				raise KeyError,'vpart must be same length as number of vertices in DiGraph instance'
@@ -638,7 +637,7 @@ class DiGraph(gr.Graph):
 			else:
 				return ParVec.zeros(retLen)
 		if retLen == 1:
-			ret = self._spm.getnnz()
+			ret = self._spm.getnee()
 		else:
 			selfcopy = self.copy()
 			selfcopy.set(1)
