@@ -1348,10 +1348,19 @@ class DiGraph(gr.Graph):
 		Anv = A.nvert()
 		if BCdebug>0 and master():
 			print "in _approxBC, A.nvert=%d, nproc=%d" % (Anv, nProcs)
+
+		if BCdebug>1 and master():
+			print "Apply(set(1))"
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now
+		if BCdebug>1 and master():
+			print "spm.getnrow and col()"
 		N = A.nvert()
+		if BCdebug>1 and master():
+			print "densevec(%d, 0)"%N
 		bc = ParVec(N)
+		if BCdebug>1 and master():
+			print "getnrow()"
 		nVertToCalc = int(math.ceil(self.nvert() * sample))
 		nVertToCalc = min(nVertToCalc, self.nvert())
 		
@@ -1381,18 +1390,32 @@ class DiGraph(gr.Graph):
 				endVs.append(nVertToCalc)
 			numVs = [y-x for [x,y] in zip(startVs,endVs)]
 		else:
+			if BCdebug>1 and master():
+				print "densevec iota(0, %d) (i think in that order)"%nPossBatches
 			perm = ParVec.range(nPossBatches)
+			if BCdebug>1 and master():
+				print "densevec randperm()"
 			perm.randPerm()
 			#   ideally, could use following 2 lines, but may have
 			#   only 1-2 batches, which makes index vector look
 			#   like a Boolean, which doesn't work right
 			#startVs = ParVec.range(nBatches)[perm[ParVec.range(nBatches]]
 			#numVs = [min(x+batchSize,N)-x for x in startVs]
+			if BCdebug>1 and master():
+				print "densevec iota(0, %d) (i think in that order)"%nPossBatches
 			tmpRange = ParVec.range(nPossBatches)
+			if BCdebug>1 and master():
+				print "densevec(%d, 0)"%nBatches
 			startVs = ParVec.zeros(nBatches)
+			if BCdebug>1 and master():
+				print "densevec(%d, 0)"%nBatches
 			numVs = ParVec.zeros(nBatches)
 			for i in range(nBatches):
+				if BCdebug>1 and master():
+					print "dense vec SubsRef, GetElement and SetElement"
 				startVs[i] = tmpRange[perm[i]]*batchSize
+				if BCdebug>1 and master():
+					print "dense vec GetElement and SetElement"
 				numVs[i] = min(startVs[i]+batchSize,N)-startVs[i]
 
 		if BCdebug>0 and master():

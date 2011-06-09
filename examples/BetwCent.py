@@ -33,7 +33,7 @@ def usage():
 	print "python BetwCent.py -g12 -x0.1"
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "ht:g:f:x:b:d", ["help", "torus=", "g500", "file=", "sample=", "batchsize", "debug"])
+	opts, args = getopt.getopt(sys.argv[1:], "ht:g:f:x:b:dD", ["help", "torus=", "g500", "file=", "sample=", "batchsize", "debug", "DEBUG"])
 except getopt.GetoptError, err:
 	# print help information and exit:
 	if kdt.master():
@@ -61,6 +61,8 @@ for o, a in opts:
 		file = a
 	elif o in ("-d", "--debug"):
 		BCdebug = 1
+	elif o in ("-D", "--DEBUG"):
+		BCdebug = 2
 	else:
 		assert False, "unhandled option"
 		
