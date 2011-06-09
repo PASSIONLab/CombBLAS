@@ -957,7 +957,7 @@ class LinearAlgebraTests(DiGraphTests):
 	origJ2 = [0, 0, 0, 0]
 	origV2 = [1, 1, 1, 1]
 	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
-	G3 = G1._SpMM(G2)
+	G3 = G1._SpGEMM(G2)
 	self.assertEqual(G1.nvert(), G3.nvert())
 	[i3, j3, v3] = G3.toParVec()
 	expLen = 1
@@ -977,7 +977,7 @@ class LinearAlgebraTests(DiGraphTests):
 	G = DiGraph.load('testfiles/small_nonsym_fp.mtx')
 	GT = G.copy()
 	GT._T()
-	G2 = G._SpMM(GT)
+	G2 = G._SpGEMM(GT)
 	self.assertEqual(G.nvert(),9)
 	[i2, j2, v2] = G2.toParVec()
 	self.assertEqual(len(i2),30)
@@ -1028,6 +1028,28 @@ class ContractTests(DiGraphTests):
 #		self.assertEqual(v3[ind], expectedV[ind])
 
 class EdgeStatTests(DiGraphTests):
+    def test_nedge_simple(self):
+	nvert1 = 5
+	nedge1 = 5
+	origI1 = [4, 0, 0, 1, 2]
+	origJ1 = [0, 1, 2, 3, 4]
+	origV1 = [1, 1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	ne = G1.nedge()
+	expNe = 5
+	self.assertEqual(expNe, ne)
+
+    def test_nvert_simple(self):
+	nvert1 = 5
+	nedge1 = 5
+	origI1 = [4, 0, 0, 1, 2]
+	origJ1 = [0, 1, 2, 3, 4]
+	origV1 = [1, 1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nv = G1.nvert()
+	expNv = 5
+	self.assertEqual(nv,expNv)
+
     def test_nedge_vpart_simple(self):
 	nvert1 = 5
 	nedge1 = 5
@@ -1035,19 +1057,40 @@ class EdgeStatTests(DiGraphTests):
 	origJ1 = [0, 1, 2, 3, 4]
 	origV1 = [1, 1, 1, 1, 1]
 	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
-	groups = ParVec(5)
-	groups[0] = 0
-	groups[1] = 0
-	groups[2] = 0
-	groups[3] = 1
-	groups[4] = 1
-	ne = G1.nedge(groups)
+	vpart = ParVec(5)
+	vpart[0] = 0
+	vpart[1] = 0
+	vpart[2] = 0
+	vpart[3] = 1
+	vpart[4] = 1
+	ne = G1.nedge(vpart)
 	expLen = 2
 	self.assertEqual(len(ne),expLen)
 	expectedNe = [2, 0]
 
 	for ind in range(len(expectedNe)):
 		self.assertEqual(ne[ind], expectedNe[ind])
+
+    def test_nvert_vpart_simple(self):
+	nvert1 = 5
+	nedge1 = 5
+	origI1 = [4, 0, 0, 1, 2]
+	origJ1 = [0, 1, 2, 3, 4]
+	origV1 = [1, 1, 1, 1, 1]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	vpart = ParVec(5)
+	vpart[0] = 0
+	vpart[1] = 0
+	vpart[2] = 0
+	vpart[3] = 1
+	vpart[4] = 1
+	nv = G1.nvert(vpart)
+	expLen = 2
+	self.assertEqual(len(nv),expLen)
+	expectedNv = [3, 2]
+
+	for ind in range(len(expectedNv)):
+		self.assertEqual(nv[ind], expectedNv[ind])
 
 def runTests(verbosity = 1):
     testSuite = suite()
