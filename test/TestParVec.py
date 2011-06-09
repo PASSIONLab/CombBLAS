@@ -722,6 +722,15 @@ class GeneralPurposeTests(ParVecTests):
 	    self.assertEqual(expV[ind], sortedVec[ind])
 	    self.assertEqual(expPerm[ind], permVec[ind])
 
+    def test_hist(self):
+	sz = 14
+	vec = ParVec.range(sz) % 3
+	actualV = vec.hist()
+	expLen = 3
+	self.assertEqual(sz, len(vec))
+	expV = [5, 5, 4]
+        for ind in range(expLen):
+	    self.assertEqual(expV[ind], actualV[ind])
 
 def runTests(verbosity = 1):
     testSuite = suite()

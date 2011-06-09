@@ -75,15 +75,15 @@ class Graph:
 		ret._spm = pcb.pySpParMat.load(fname)
 		return ret
 
-	def nedge(self):
-		"""
-		returns the number of edges in the Graph instance, including 
-		edges with zero weight.
-		"""
-		if self.nvert() == 0:
-			return 0
-		else:
-			return self._spm.getnnz()
+#	def nedge(self):
+#		"""
+#		returns the number of edges in the Graph instance, including 
+#		edges with zero weight.
+#		"""
+#		if self.nvert() == 0:
+#			return 0
+#		else:
+#			return self._spm.getnnz()
 
 	def nvert(self):
 		return self._spm.getnrow()
@@ -648,6 +648,24 @@ class ParVec:
 		retpos = self - (self % 1)
 		ret[neg] = retneg
 		ret[neg.logical_not()] = retpos
+		return ret
+
+	def hist(self):
+		"""
+		ToDo:  write docstring
+		"""
+		if not self.allCloseToInt():
+			raise KeyError, 'input values must be all integer'
+		selfInt = self.round()
+		rngV = ParVec.range(len(self))
+		oneV = ParVec.ones(len(self))
+		selfMax = int(self.max())
+		tmpMat = pcb.pySpParMat(len(self), selfMax+1, 
+				rngV._dpv, selfInt._dpv, oneV._dpv);
+		retDPV = tmpMat.Reduce(pcb.pySpParMat.Column(), pcb.plus(),
+					pcb.identity())
+		ret = ParVec(-1)
+		ret._dpv = retDPV
 		return ret
 
 	def isBool(self):

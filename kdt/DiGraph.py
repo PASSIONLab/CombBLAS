@@ -677,8 +677,10 @@ class DiGraph(gr.Graph):
 			
 
 	#FIX:  good idea to have this return an int or a tuple?
-	def nvert(self):
+	def nvert(self, vpart=None):
 		"""
+		ToDo:  fix docstring for vertex-partition angle
+
 		returns the number of vertices in the given DiGraph instance.
 
 		Input Argument:
@@ -698,11 +700,15 @@ class DiGraph(gr.Graph):
 		"""
 		nrow = self._spm.getnrow()
 		ncol = self._spm.getncol()
-		if nrow==ncol:
-			ret = nrow
-		else:
-			ret = (nrow, ncol)
+		if nrow!=ncol:
+			return (nrow, ncol)
+		if vpart is None:
+			return nrow
+		if len(vpart) != nrow:
+			raise KeyError, 'vertex partition length not equal to number of vertices'
+		ret = vpart.hist()
 		return ret
+
 
 	##in-place, so no return value
 	#def ones(self):
