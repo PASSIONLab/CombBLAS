@@ -1,6 +1,6 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>, <a href="http://gauss.cs.ucsb.edu/~gilbert"> John R. Gilbert </a>
+* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>
 *
 * <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) </i>
 *

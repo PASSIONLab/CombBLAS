@@ -9,9 +9,19 @@ $ export PYTHONPATH=/path/to/kdt/svn/trunk
 
 For Hopper runs, in the parent folder:
 
+> module unload xt-shmem
+> module swap PrgEnv-pgi PrgEnv-gnu 
 > module load python
-> setenv CC cc
-> setenv CXX CC
+> setenv CC "cc -shared -dynamic"
+> setenv CXX "CC -shared -dynamic"
+> setenv XTPE_LINK_TYPE dynamic
 > python setup.py build
-> python setup.py install --home=$HOME
-> setenv PYTHONPATH $HOME":$HOME/kdt/trunk"
+> python setup.py install --home=${SCRATCH}
+> setenv PYTHONPATH ${SCRATCH}/lib/python
+> setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${PYTHONPATH}
+> qsub -I -V -q interactive -l mppwidth=<W>
+> module load python
+> cd $PBS_O_WORKDIR/examples
+> module unload xt-shmem
+> setenv CRAY_ROOTFS DSL 
+> aprun -n <W> python Graph500.py -s<S> -n<N>
