@@ -615,6 +615,16 @@ class ParVec:
 		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) > 0
 		return ret
 
+	def argmax(self):
+		tmp = self._dpv.Reduce(pcb.max(), pcb.identity())
+		ret = int((self==tmp).findInds()[0])
+		return ret
+
+	def argmin(self):
+		tmp = self._dpv.Reduce(pcb.min(), pcb.identity())
+		ret = int((self==tmp).findInds()[0])
+		return ret
+
 	@staticmethod
 	def broadcast(sz,val):
 		ret = ParVec(-1)

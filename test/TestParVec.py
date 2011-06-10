@@ -732,6 +732,72 @@ class GeneralPurposeTests(ParVecTests):
         for ind in range(expLen):
 	    self.assertEqual(expV[ind], actualV[ind])
 
+    def test_argmax_simple(self):
+	sz = 11
+	vec = ParVec.range(sz)
+	res = vec.argmax()
+	self.assertEqual(sz-1, res)
+
+    def test_argmax_simple2(self):
+	sz = 11
+	vec = -ParVec.range(sz)
+	res = vec.argmax()
+	self.assertEqual(0, res)
+
+    def test_argmax_simple3(self):
+	sz = 11
+	vec = -(ParVec.range(-(sz/2), sz/2).abs()) + 10
+	res = vec.argmax()
+	self.assertEqual(5, res)
+
+    def test_argmax_fixed(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -2.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 7.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.argmax()
+	self.assertEqual(6, res)
+
+    def test_argmin_simple(self):
+	sz = 11
+	vec = ParVec.range(sz)
+	res = vec.argmin()
+	self.assertEqual(0, res)
+
+    def test_argmin_simple2(self):
+	sz = 11
+	vec = -ParVec.range(sz)
+	res = vec.argmin()
+	self.assertEqual(sz-1, res)
+
+    def test_argmin_simple3(self):
+	sz = 11
+	vec = -(ParVec.range(-(sz/2), sz/2).abs()) + 10
+	res = vec.argmin()
+	self.assertEqual(0, res)
+
+    def test_argmin_fixed(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -7.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 7.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.argmin()
+	self.assertEqual(2, res)
+
 def runTests(verbosity = 1):
     testSuite = suite()
     unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
