@@ -1,28 +1,94 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.1 -------------------------------------------------*/
-/* date: 12/25/2010 --------------------------------------------*/
+/* version 1.2 -------------------------------------------------*/
+/* date: 10/06/2011 --------------------------------------------*/
 /* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
 /****************************************************************/
+/*
+Copyright (c) 2011, Aydin Buluc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
 {	
 	int nprocs = comm.Get_size();
+	int myrank = comm.Get_rank();
 	int nsize = nprocs / 2;	// new size
 	if(nprocs < 1000)
 	{
-		long * dist_in = new long[nprocs];
-		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
-		vpsort::parallel_sort (array, array+length,  dist_in, comm);
-		delete [] dist_in;
+		bool excluded =  false;
+		if(dist[myrank] == 0)	excluded = true;
+
+		int nreals = 0; 
+		for(int i=0; i< nprocs; ++i)	
+			if(dist[i] != 0) ++nreals;
+
+		if(nreals == nprocs)	// general case
+		{
+			long * dist_in = new long[nprocs];
+                	for(int i=0; i< nprocs; ++i)    dist_in[i] = (long) dist[i];
+                	vpsort::parallel_sort (array, array+length,  dist_in, comm);
+                	delete [] dist_in;
+		}
+		else
+		{
+			long * dist_in = new long[nreals];
+			int * dist_out = new int[nprocs-nreals];	// ranks to exclude
+			int indin = 0;
+			int indout = 0;
+			for(int i=0; i< nprocs; ++i)	
+			{
+				if(dist[i] == 0)
+					dist_out[indout++] = i;
+				else
+					dist_in[indin++] = (long) dist[i];	
+			}
+		
+			#ifdef DEBUG	
+			ostringstream outs;
+			outs << "To exclude indices: ";
+			copy(dist_out, dist_out+indout, ostream_iterator<int>(outs, " ")); outs << endl;
+			SpParHelper::Print(outs.str());
+			#endif
+			MPI::Group sort_group = comm.Get_group();
+			MPI::Group real_group = sort_group.Excl(indout, dist_out);
+			sort_group.Free();
+
+			// The Create() function should be executed by all processes in comm, 
+			// even if they do not belong to the new group (in that case MPI_COMM_NULL is returned as real_comm?)
+			MPI::Intracomm real_comm = comm.Create(real_group);
+			if(!excluded)
+			{
+				vpsort::parallel_sort (array, array+length,  dist_in, real_comm);
+				real_comm.Free();
+			}
+			real_group.Free();
+			delete [] dist_in;
+			delete [] dist_out;
+		}
 	}
 	else
 	{
 		IT gl_median = accumulate(dist, dist+nsize, static_cast<IT>(0));	// global rank of the first element of the median processor
 		sort(array, array+length);	// re-sort because we might have swapped data in previous iterations
-
-		int myrank = comm.Get_rank();
 		int color = (myrank < nsize)? 0: 1;
 		
 		pair<KEY,VAL> * low = array;

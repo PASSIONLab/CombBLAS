@@ -1,3 +1,31 @@
+/****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.2 -------------------------------------------------*/
+/* date: 10/06/2011 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/****************************************************************/
+/*
+Copyright (c) 2011, Aydin Buluc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #include "FullyDistVec.h"
 #include "FullyDistSpVec.h"
 #include "Operations.h"
@@ -642,8 +670,6 @@ void FullyDistVec<IT,NT>::RandPerm()
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	//IT lengthuntil = accumulate(dist, dist+rank, 0);
-	accumulate(dist, dist+rank, 0);
 
   	MTRand M;	// generate random numbers with Mersenne Twister
 	for(int i=0; i<size; ++i)
@@ -653,7 +679,12 @@ void FullyDistVec<IT,NT>::RandPerm()
 	}
 
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
+
+	ostringstream outs;
+	outs << "Before sorting " << accumulate(dist, dist+nprocs, 0) << " entries" << endl; 
+	SpParHelper::Print(outs.str());
 	SpParHelper::MemoryEfficientPSort(vecpair, size, dist, World);
+	SpParHelper::Print("After sort\n");
 
 	vector< NT > nnum(size);
 	for(int i=0; i<size; ++i)
