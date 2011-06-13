@@ -700,7 +700,10 @@ template <class IT, class NT>
 void FullyDistVec<IT,NT>::iota(IT globalsize, NT first)
 {
 	glen = globalsize;
+	SpParHelper::Print("Before MyLocLength\n");
 	IT length = MyLocLength();	// only needs glen to determine length
+	SpParHelper::Print("After MyLocLength\n");
+	
 	arr.resize(length);
 	SpHelper::iota(arr.begin(), arr.end(), LengthUntil() + first);	// global across processors
 }
