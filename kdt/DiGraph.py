@@ -1379,17 +1379,22 @@ class DiGraph(gr.Graph):
 		
 		nBatches = int(math.ceil(float(nVertToCalc) / float(batchSize)))
 		nPossBatches = int(math.ceil(float(N) / float(batchSize)))
+		
+		# sources for the batches
+		# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
+		randVerts = ParVec.range(Anv)
+		randVerts.randPerm()
+		
 		if (batchSize >= nVertToCalc):
 			startVs = [0]
 			endVs = [nVertToCalc]
 			numVs = [nVertToCalc]
-		elif sample == 1.0:
+		else: #elif sample == 1.0:
 			startVs = range(0,nVertToCalc,batchSize)
 			endVs = range(batchSize, nVertToCalc, batchSize)
-			if nVertToCalc % batchSize != 0:
-				endVs.append(nVertToCalc)
+			endVs.append(nVertToCalc)
 			numVs = [y-x for [x,y] in zip(startVs,endVs)]
-		else:
+		if False: #else:
 			if BCdebug>1 and master():
 				print "densevec iota(0, %d) (i think in that order)"%nPossBatches
 			perm = ParVec.range(nPossBatches)
@@ -1420,12 +1425,17 @@ class DiGraph(gr.Graph):
 
 		if BCdebug>0 and master():
 			print "batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches)
+		if BCdebug>1 and master():
+			print "summary of batches:"
+			print "startVs:",startVs
+			print "  numVs:", numVs
 		for [startV, numV] in zip(startVs, numVs):
 			startV = int(startV); numV = int(numV)
 			if BCdebug>0 and master():
 				print "startV=%d, numV=%d" % (startV, numV)
 			bfs = []		
-			batch = ParVec.range(startV, startV+numV)
+			batchRange = ParVec.range(startV, startV+numV)
+			batch = randVerts[batchRange]
 			curSize = len(batch)
 			#next:  nsp is really a SpParMat
 			nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N)

@@ -77,7 +77,7 @@ if source == Source.TORUS:
 	if kdt.master():
 		print "Graph has",nverts,"vertices."
 	#G1.toBool()
-if source == Source.G500:
+elif source == Source.G500:
 	if kdt.master():
 		print "Generating a Graph500 graph with 2^%d vertices..."%(scale)
 
