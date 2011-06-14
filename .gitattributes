@@ -1111,6 +1111,7 @@ examples/BetwCent.py -text
 examples/GaBP_A100.py -text
 examples/Graph500.py -text
 examples/Graph500_HyGraph.py -text
+examples/ModelProblemGen.py -text
 examples/ToyWorkflow.py -text
 examples/mcl.py -text
 examples/mcldraw.py -text
