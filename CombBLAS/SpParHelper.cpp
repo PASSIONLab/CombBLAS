@@ -27,7 +27,7 @@ THE SOFTWARE.
 */
 
 template<typename KEY, typename VAL, typename IT>
-void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm)
+void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI::Intracomm & comm)
 {	
 	int nprocs = comm.Get_size();
 	int myrank = comm.Get_rank();
@@ -68,12 +68,14 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 			copy(dist_out, dist_out+indout, ostream_iterator<int>(outs, " ")); outs << endl;
 			SpParHelper::Print(outs.str());
 			#endif
+			// MPI::Group MPI::Comm::Get_group() const;
 			MPI::Group sort_group = comm.Get_group();
 			MPI::Group real_group = sort_group.Excl(indout, dist_out);
 			sort_group.Free();
 
 			// The Create() function should be executed by all processes in comm, 
 			// even if they do not belong to the new group (in that case MPI_COMM_NULL is returned as real_comm?)
+			// MPI::Intracomm MPI::Intracomm::Create(const MPI::Group& group) const;
 			MPI::Intracomm real_comm = comm.Create(real_group);
 			if(!excluded)
 			{
@@ -99,13 +101,14 @@ void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * di
 		if(color == 1)	dist = dist + nsize;	// adjust for the second half of processors
 
 		// recursive call; two implicit 'spawn's where half of the processors execute different paramaters
+		// MPI::Intracomm MPI::Intracomm::Split(int color, int key) const;
 		MPI::Intracomm halfcomm = comm.Split(color, myrank);	// split into two communicators
 		MemoryEfficientPSort(array, length, dist, halfcomm);
 	}
 }
 
 template<typename KEY, typename VAL, typename IT>
-void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm)
+void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, const MPI::Intracomm & comm)
 {
 //	comm.Barrier();
 //	double t1=MPI::Wtime();
@@ -224,7 +227,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 }
 
 template<typename KEY, typename VAL, typename IT>
-void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm)
+void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, const MPI::Intracomm & comm)
 {
 //	comm.Barrier();
 //	double t1=MPI::Wtime();

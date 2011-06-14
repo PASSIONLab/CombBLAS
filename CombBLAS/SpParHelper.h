@@ -24,10 +24,10 @@ class SpParHelper
 {
 public:
 	template<typename KEY, typename VAL, typename IT>
-	static void GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, MPI::Intracomm & comm);
+	static void GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL> * & upp, pair<KEY,VAL> * array, IT length, const MPI::Intracomm & comm);
 
 	template<typename KEY, typename VAL, typename IT>
-	static void BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, MPI::Intracomm & comm);
+	static void BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT length, int nfirsthalf, int color, const MPI::Intracomm & comm);
 
 	// Necessary because psort creates three 2D vectors of size p-by-p
 	// One of those vector with 8 byte data uses 8*(4096)^2 = 128 MB space 
@@ -37,7 +37,7 @@ public:
 	//	384 MB with 4K processors
 	// 	1.5 GB with 8K processors
 	template<typename KEY, typename VAL, typename IT>
-	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & comm);
+	static void MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI::Intracomm & comm);
 	
 	template<typename KEY, typename VAL, typename IT>
 	static void DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI::Intracomm & World);

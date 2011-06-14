@@ -1117,6 +1117,7 @@ examples/mcl.py -text
 examples/mcldraw.py -text
 examples/note_for_kdt_developers.txt -text
 examples/stats.py -text
+/hopper.sh -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
