@@ -746,6 +746,7 @@ class ParVec:
 
 	@staticmethod
 	def range(arg1, *args):
+		#print "range with arg1 %d" % arg1
 		if len(args) == 0:
 			start = 0
 			stop = arg1
@@ -757,6 +758,7 @@ class ParVec:
 		if start > stop:
 			raise ValueError, "start > stop"
 		ret = ParVec(-1)
+		#print "iota with start %d, stop %d" % (start, stop)
 		ret._dpv = pcb.pyDenseParVec.range(stop-start,start)
 		return ret
 
