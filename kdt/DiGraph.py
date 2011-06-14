@@ -1383,7 +1383,10 @@ class DiGraph(gr.Graph):
 		# sources for the batches
 		# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
 		randVerts = ParVec.range(Anv)
-		randVerts.randPerm()
+		
+		if master():
+			print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
+		#randVerts.randPerm()
 		
 		if (batchSize >= nVertToCalc):
 			startVs = [0]
