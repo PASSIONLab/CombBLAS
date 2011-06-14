@@ -1,4 +1,5 @@
 from kdt import *
+import kdt.pyCombBLAS as pcb
 
 def getModelProbem(k):
 	"""
@@ -20,14 +21,7 @@ def getModelProbem(k):
 	A += DiGraph(ParVec.range(k, k2), ParVec.range(k2-k), ParVec(k2-k, -1), k2)
 	
 	# create the right-hand side
-	b = ParVec(k2, 0)
-	
-	def rhsMake(vals):
-		# vals[0]: index
-		# vals[1]: b[index]
-		if vals[0] < k:
-			vals[1] = 1
-	
-	pyCombBLAS.EWise(rhsMake, [pyCombBLAS.EWise_Index(), b])
+	b = ParVec.range(k2)
+	b._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.less(), k), pcb.set(1.0), pcb.set(0.0)))
 	
 	return A, b
