@@ -1106,9 +1106,6 @@ Matlab/stuff/parallelRmatScript.m -text
 Matlab/stuff/rstats.m -text
 Matlab/utils/rmat.m -text
 Matlab/utils/testmat.m -text
-Python/serialSciPy/DiGraph.py -text
-Python/serialSciPy/Graph.py -text
-Python/serialSciPy/Graph500.py -text
 /README.txt -text
 examples/BetwCent.py -text
 examples/GaBP_A100.py -text
