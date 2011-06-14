@@ -2,8 +2,6 @@
 CombBLAS/ReleaseTests/.dep.inc
 CombBLAS/graph500-1.2/generator/libgraph_generator_seq.a
 CombBLAS/makefile
-Python/distribCombBLAS/*.pyc
-Python/distribCombBLAS/.KDT_log
 examples/.KDT_log
 examples/Graph500.pyc
 kdt/*.pyc
