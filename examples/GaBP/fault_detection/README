@@ -1,0 +1,51 @@
+% Code written by Harel Avissar and Danny Bickson
+% Bound code written by Dror Baron 
+% Suplamentary material for the paper: 
+% Fault identification via non-parametric belief propagation.
+% By D. Bickson, D. Baron, A. Ihler, H. Avissar, D. Dolev
+% http://arxiv.org/abs/0908.2005
+% In IEEE Tran on Signal Processing
+% Code available from http://www.cs.cmu.edu/~bickson/gabp/
+
+Files in this directory:
+
+main files:
+***********
+Generate_SuccRate.m - generates figure 2,3,4,5
+Generate_2D.m - generates figure 6
+Generate_NBPvsIP.m - generates internal iteration comparison
+Generate_Dongning_b.m - computes NBP to the info theoretic bound (figure 7)
+
+other files:
+*************
+L.m - computes the likelikhood
+NBP.m - modified version for Non-Parametric BP which stored intermediate values
+
+
+MMSE and BER information theoretic bound computation
+*******************************************************
+Is found inside the directoy MMSE_BER_computation/
+See MMSE_BER_computation/readme.txt file for detailed explanations
+
+External files:
+*******************
+CoSaMP.m - 2/4/2008, by Volkan Cevher. volkan@rice.edu.
+
+GPSR_BB.m - Copyright (2007): Mario Figueiredo, Robert Nowak, Stephen Wright
+Available from: www.lx.it.pt/~mtf/GPSR
+
+hard_IO_Mterm.m
+% Copyright (c) 2007 Thomas Blumensath, The University of Edinburgh
+% Email: thomas.blumensath@ed.ac.uk
+
+cgsolve.m - Written by: Justin Romberg, Caltech % Email: jrom@acm.caltech.edu
+
+armap_gabp.m - wrapper for running NBP in the fault det settings.
+Round_and_Local.m - local optimization procedure
+Originally written by A. Zymnis, stanford. 
+
+Instructions
+************
+You may want to install CVX to run SDP (semidefinite programming) solution: http://cvxr.com/cvx/
+You may want to install Talya Meltzer BP package for comparing to discrete BP: http://www.cs.huji.ac.il/~talyam/inference.html
+You may want to install libDai for comparing to factor grpah BP: http://people.kyb.tuebingen.mpg.de/jorism/libDAI/
