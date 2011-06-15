@@ -1058,6 +1058,7 @@ CombBLAS/mfiles/compress.pl -text
 CombBLAS/mfiles/genRMatBetw.m -text
 CombBLAS/mfiles/genfringe.m -text
 CombBLAS/mfiles/genrestrict.m -text
+CombBLAS/mfiles/graph_preprocessor.cpp -text
 CombBLAS/mfiles/readtriples.m -text
 CombBLAS/mfiles/readvector.m -text
 CombBLAS/mfiles/rmatdenseness.m -text
