@@ -1,0 +1,55 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^18 vertices...
+graph_generation:               0.003371 s
+Generated renamed edge lists
+Generation took 0.0636971 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 8192-by-8192
+Duplicates removed (or summed): 387750 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00243878 seconds
+Converted to Boolean and removed 250 loops
+As a whole: 262144 rows and 262144 columns and 3806304 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 173969 entries
+After sort
+As a whole: 262144 rows and 262144 columns and 3806304 nonzeros
+Dropped isolated vertices from input
+As a whole: 173969 rows and 173969 columns and 3806304 nonzeros
+Symmetricized
+As a whole: 173969 rows and 173969 columns and 7612608 nonzeros
+Graph has 173969 vertices.
+in _approxBC, A.nvert=173969, nproc=1024
+NOTE! SKIPPING RANDPERM()! starting vertices will be sequential.
+batchSz=768, nBatches=4, nPossBatches=227
+startV=0, numV=768
+startV=768, numV=768
+startV=1536, numV=768
+startV=2304, numV=306
+bc[0] = 0.000000, min=0.000000, max=0.134124, mean=0.000012, std=0.000409
+   used 2610 starting vertices
+   took 187.799 seconds
+   TEPS = 105,799,044 (assumes the graph was connected)
+[NID 01782] 2011-06-14 16:22:47 Apid 2475488: initiated application termination
+Application 2475488 resources: utime ~9362s, stime ~230s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024_bc
+ +          Job Id: 489847.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 16:08:22 2011
+ +      Start Time: Tue Jun 14 16:14:03 2011
+ + Completion Time: Tue 14 Jun 2011 04:22:48 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid05416
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:28039:nid04755,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5264kb,vmem=36476kb,walltime=00:08:45
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script1024_bc
+ + --------------------------------------------------------------------------
+

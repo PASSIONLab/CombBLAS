@@ -1,0 +1,53 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.338048 s
+Generated renamed edge lists
+Generation took 0.338225 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 65536-by-65536
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.010252 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+After sort
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=4
+NOTE! SKIPPING RANDPERM()! starting vertices will be sequential.
+batchSz=768, nBatches=2, nPossBatches=118
+startV=0, numV=768
+startV=768, numV=586
+bc[0] = 0.000000, min=0.000000, max=0.160495, mean=0.000023, std=0.000660
+   used 1354 starting vertices
+   took 1088.087 seconds
+   TEPS = 4,641,780 (assumes the graph was connected)
+[NID 01794] 2011-06-14 18:28:29 Apid 2476488: initiated application termination
+Application 2476488 resources: utime ~1021s, stime ~70s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4_bc
+ +          Job Id: 489966.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 17:08:58 2011
+ +      Start Time: Tue Jun 14 18:10:10 2011
+ + Completion Time: Tue 14 Jun 2011 06:28:30 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid05431
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:16919:hopper01,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5268kb,vmem=36248kb,walltime=00:18:19
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script4_bc
+ + --------------------------------------------------------------------------
+

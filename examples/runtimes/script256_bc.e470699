@@ -1,0 +1,58 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.005747 s
+Generated renamed edge lists
+Generation took 0.00663495 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 8192-by-8192
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00232482 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=256
+=>> PBS: job killed: walltime 1826 exceeded limit 1800
+Terminated
+aprun: Apid 2416959: Caught signal Terminated, sending to application
+_pmii_daemon(SIGCHLD): [NID 00452] [c2-1c1s2n0] [Thu Jun  9 14:04:19 2011] PE 48 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01125] [c4-1c1s2n3] [Thu Jun  9 14:04:19 2011] PE 191 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00412] [c2-1c1s1n2] [Thu Jun  9 14:04:19 2011] PE 240 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01082] [c4-1c1s2n0] [Thu Jun  9 14:04:19 2011] PE 96 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00455] [c2-1c1s3n1] [Thu Jun  9 14:04:19 2011] PE 47 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00411] [c2-1c1s2n3] [Thu Jun  9 14:04:19 2011] PE 216 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00454] [c2-1c1s3n0] [Thu Jun  9 14:04:19 2011] PE 23 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00453] [c2-1c1s2n1] [Thu Jun  9 14:04:19 2011] PE 72 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01124] [c4-1c1s2n2] [Thu Jun  9 14:04:19 2011] PE 149 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00410] [c2-1c1s2n2] [Thu Jun  9 14:04:19 2011] PE 198 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01083] [c4-1c1s2n1] [Thu Jun  9 14:04:19 2011] PE 129 exit signal Terminated
+aprun: Apid 2416959: Caught signal Terminated, sending to application
+Application 2416959 exit codes: 143
+Application 2416959 resources: utime ~19584s, stime ~107s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_bc
+ +          Job Id: 470699.sdb
+ +          System: hopper
+ +     Queued Time: Thu Jun  9 12:56:03 2011
+ +      Start Time: Thu Jun  9 13:33:53 2011
+ + Completion Time: Thu 09 Jun 2011 02:04:20 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid03841
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:14412:hopper08,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5564kb,vmem=36660kb,walltime=00:30:26
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script256_bc
+ + --------------------------------------------------------------------------
+
