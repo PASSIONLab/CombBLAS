@@ -32,6 +32,7 @@ else:
 	A = kdt.DiGraph.load('thermal2/thermal2.mtx');
 	b = kdt.ParVec.load('thermal2/thermal2_b.mtx');
 
+nvert = A.nvert()
 
 def gabp(A, b, maxround, epsilon):
 	copy_time=0
@@ -54,6 +55,7 @@ def gabp(A, b, maxround, epsilon):
 	stencil=A.copy()
 	stencil.ones()
 	stencil.removeSelfLoops()
+	#stencil.reverseEdges()
 	#print stencil
 	
 	#create an m*m identity matrix
@@ -71,20 +73,23 @@ def gabp(A, b, maxround, epsilon):
 	r=1
 	t2 = time.time()
 	init_time = t2-t1
+	rel_norm = 40000
 	while r<=maxround:
 		if kdt.master():
-			print "starting GBP round %d" % r       
+			print "starting GBP round %d, relnorm=%f"%(r, rel_norm)
 		preRes = ha
 	
 		t3 = time.time()
+		# COPY
 		Mhtemp = stencil.copy()
 		MJtemp = stencil.copy()
 	
 		t4 = time.time()
 		copy_time += (t4-t3)
 	
-		Mhtemp.scale(h)	# default direction: dir=kdt.DiGraph.Out, which scales rows
-		MJtemp.scale(J)
+		# SCALE
+		Mhtemp.scale(h, dir=kdt.DiGraph.Out)	# default direction: dir=kdt.DiGraph.Out, which scales rows
+		MJtemp.scale(J, dir=kdt.DiGraph.Out)
 #		print MJtemp.toParVec()
 		
 		t5 = time.time()
@@ -93,16 +98,19 @@ def gabp(A, b, maxround, epsilon):
 #		if kdt.master():
 #			print "scale time: %f" % (t5-t4)
 
+		# TRANSPOSE
 		Mh.reverseEdges()
 		MJ.reverseEdges()
 		t6 = time.time()
 		t_time += t6-t5
 		
+		# ADD
 		h_m = Mhtemp + -Mh
 		J_m = MJtemp + -MJ
 		t7 = time.time()
 		add_time += t7-t6
 		
+		# MUL/DIVIDE
 		val = -A / J_m
 		Mh = val * h_m
 		MJ = val * A
@@ -110,6 +118,7 @@ def gabp(A, b, maxround, epsilon):
 		t8 = time.time()
 		mul_divide_time += t8-t7
 		
+		# SUM
 		Mh.removeSelfLoops()
 		MJ.removeSelfLoops()
 		h = b + Mh.sum(kdt.DiGraph.In)
@@ -121,11 +130,13 @@ def gabp(A, b, maxround, epsilon):
 		Ja = 1.0/J
 		ha=h*Ja
 
-		ha_norm = ha.norm(1)
+		ha_norm = ha.norm(2)
 		if (ha_norm == 0.0):
 			rel_norm = 0
 		else:
-			rel_norm = (ha-preRes).norm(1)/ha_norm
+			rel_norm = (ha-preRes).norm(2)/ha_norm
+			
+		#rel_norm = (ha-preRes).norm(2) #Adam
 		
 		t10 = time.time()
 		cmp_time += t10-t9
@@ -135,7 +146,7 @@ def gabp(A, b, maxround, epsilon):
 		if r > 2 and rel_norm<epsilon:
 			y = kdt.SpParVec(m)
 			y._spv=A._spm.SpMV_PlusTimes(ha.toSpParVec()._spv)
-			real_norm = (y-b).toParVec().norm(1)
+			real_norm = (y-b).toParVec().norm(2)
 			if kdt.master():
 				after = time.time()
 				print "GBP Converged after %d rounds, reached rel_norm %f real_norm %f"% (r,rel_norm,real_norm)
@@ -157,12 +168,18 @@ def gabp(A, b, maxround, epsilon):
 	if conv==False:
 		y = kdt.SpParVec(m)
 		y._spv=A._spm.SpMV_PlusTimes(ha.toSpParVec()._spv)
-		real_norm = (y-b).toParVec().norm(1)
+		real_norm = (y-b).toParVec().norm(2)
 		if kdt.master():
 			print "GBP did not converge in %d rounds, reached rel_norm %f real_norm %f"%(r-1,rel_norm,real_norm)
 			print "run time %fs"%(after-t1)
 	#print ha
 	#print Ja
+	
+	if False:
+		if kdt.master():
+			print "writing resulting vector x to x.mtx"
+		X = kdt.DiGraph(kdt.ParVec.range(nvert), kdt.ParVec.ones(nvert)-1, ha, nvert)
+		X.save("x.mtx")
 	return
 
-gabp(A,b,10000,1e-6)
+gabp(A,b,10000,1e-5)

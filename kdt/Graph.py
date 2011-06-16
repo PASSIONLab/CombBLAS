@@ -713,17 +713,21 @@ class ParVec:
 		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		return int(ret)
 
-	def norm(self,ord=None):
+	def norm(self,ord):
 		"""
 		calculates the norm of a ParVec instance.  The supported norms
 		include:
 		- 1:  defined as max(sum(abs(x)))
 		"""
-		if ord==1:
+		if ord <= 0:
+			raise ValueError, 'Norm must be positive'
+		elif ord==1:
 			ret = self._dpv.Reduce(pcb.plus(),pcb.abs())
 			return ret
 		else:
-			raise ValueError, 'Unknown order for norm'
+			ret = self._dpv.Reduce(pcb.plus(),pcb.compose1(pcb.bind2nd(pcb.pow(), ord), pcb.abs()))
+			ret = pow(ret, 1.0/ord)
+			return ret
 
 	@staticmethod
 	def ones(sz):
