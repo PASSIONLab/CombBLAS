@@ -1,5 +1,5 @@
 import os
-import pwd
+import getpass
 import email
 import smtplib
 import socket
@@ -89,15 +89,23 @@ class feedback:
 			if resp == 'Send' or resp == 'send':
 				#print "Emailing the file."
 				msg = email.message_from_file(open(feedback._kdt_EmailFname));
-				pwdEntry = pwd.getpwuid(os.getuid());
-				userAddress = '%s@%s' % (pwdEntry[0], socket.gethostname());
-				userFullName = pwdEntry[4];
-				msg['Subject'] = 'KDT feedback from %s' % userFullName;
+				userAddress = '%s@%s' % (getpass.getuser(), socket.gethostname());
+				if os.name is 'posix':
+					import pwd
+					pwdEntry = pwd.getpwuid(os.getuid());
+					userFullName = pwdEntry[4];
+					Subject = 'KDT feedback from %s' % pwdEntry[4]
+				else:
+					Subject = 'KDT feedback from %s' % userAddress
+				msg['Subject'] = Subject
 				msg['From'] = userAddress;
 				msg['To'] = addr;
-				s = smtplib.SMTP('localhost');
-				s.sendmail(userAddress, [addr], msg.as_string());
-				s.quit();
+				try:
+					s = smtplib.SMTP('localhost');
+					s.sendmail(userAddress, [addr], msg.as_string());
+					s.quit();
+				except:
+					print "Failed to connect via localhost. Please manually email file %s to %s" % (feedback._kdt_EmailFname, addr)
 			else:
 				print "Canceling the send."
 	
