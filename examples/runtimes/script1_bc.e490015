@@ -1,0 +1,52 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               1.364811 s
+Generated renamed edge lists
+Generation took 1.36524 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 131072-by-131072
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.0215108 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+After sort
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=1
+NOTE! SKIPPING RANDPERM()! starting vertices will be sequential.
+batchSz=768, nBatches=2, nPossBatches=118
+startV=0, numV=768
+startV=768, numV=586
+bc[0] = 0.000000, min=0.000000, max=0.144678, mean=0.000023, std=0.000617
+   used 1354 starting vertices
+   took 4369.056 seconds
+   TEPS = 1,156,007 (assumes the graph was connected)
+Application 2476150 resources: utime ~4200s, stime ~175s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1_bc
+ +          Job Id: 490015.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 17:34:37 2011
+ +      Start Time: Tue Jun 14 17:35:15 2011
+ + Completion Time: Tue 14 Jun 2011 06:48:14 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid05620
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:27809:hopper01,walltime=01:30:00
+ +  Used Resources: cput=00:00:00,mem=5272kb,vmem=36376kb,walltime=01:12:59
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script1_bc
+ + --------------------------------------------------------------------------
+

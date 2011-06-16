@@ -1,0 +1,55 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.034350 s
+Generated renamed edge lists
+Generation took 0.035028 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 21845-by-21845
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.002985 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+After sort
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=36
+NOTE! SKIPPING RANDPERM()! starting vertices will be sequential.
+batchSz=768, nBatches=4, nPossBatches=118
+startV=0, numV=768
+startV=768, numV=768
+startV=1536, numV=768
+startV=2304, numV=403
+bc[0] = 0.000000, min=0.000000, max=0.144684, mean=0.000023, std=0.000619
+   used 2707 starting vertices
+   took 238.825 seconds
+   TEPS = 42,280,362 (assumes the graph was connected)
+[NID 01115] 2011-06-14 20:09:37 Apid 2477504: initiated application termination
+Application 2477504 resources: utime ~481s, stime ~16s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script36_bc
+ +          Job Id: 490360.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 19:55:49 2011
+ +      Start Time: Tue Jun 14 20:05:14 2011
+ + Completion Time: Tue 14 Jun 2011 08:09:38 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid05417
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:26723:hopper01,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5276kb,vmem=36304kb,walltime=00:04:24
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script36_bc
+ + --------------------------------------------------------------------------
+

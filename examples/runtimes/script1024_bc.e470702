@@ -1,0 +1,90 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.001993 s
+Generated renamed edge lists
+Generation took 0.276891 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 4096-by-4096
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.002213 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=1024
+=>> PBS: job killed: walltime 1834 exceeded limit 1800
+aprun: Apid 2417569: Caught signal Terminated, sending to application
+Terminated
+_pmii_daemon(SIGCHLD): [NID 01904] [c8-1c2s7n2] [Thu Jun  9 15:08:36 2011] PE 600 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01235] [c6-1c2s6n1] [Thu Jun  9 15:08:36 2011] PE 480 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00466] [c2-1c2s6n0] [Thu Jun  9 15:08:36 2011] PE 72 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01842] [c8-1c1s6n0] [Thu Jun  9 15:08:36 2011] PE 936 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01068] [c4-1c2s6n0] [Thu Jun  9 15:08:36 2011] PE 312 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00398] [c2-1c2s7n2] [Thu Jun  9 15:08:36 2011] PE 168 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01839] [c8-1c2s7n1] [Thu Jun  9 15:08:36 2011] PE 768 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00395] [c2-1c2s5n3] [Thu Jun  9 15:08:36 2011] PE 5 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01906] [c8-1c2s6n2] [Thu Jun  9 15:08:36 2011] PE 648 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01836] [c8-1c2s6n0] [Thu Jun  9 15:08:36 2011] PE 699 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01837] [c8-1c2s6n1] [Thu Jun  9 15:08:36 2011] PE 742 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01905] [c8-1c2s7n3] [Thu Jun  9 15:08:36 2011] PE 634 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00465] [c2-1c2s7n1] [Thu Jun  9 15:08:36 2011] PE 144 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00399] [c2-1c2s7n3] [Thu Jun  9 15:08:36 2011] PE 192 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01164] [c6-1c2s6n2] [Thu Jun  9 15:08:36 2011] PE 408 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01234] [c6-1c2s6n0] [Thu Jun  9 15:08:36 2011] PE 456 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01228] [c6-1c1s6n0] [Thu Jun  9 15:08:36 2011] PE 984 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01843] [c8-1c1s6n1] [Thu Jun  9 15:08:36 2011] PE 960 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01166] [c6-1c2s7n2] [Thu Jun  9 15:08:36 2011] PE 552 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01165] [c6-1c2s6n3] [Thu Jun  9 15:08:36 2011] PE 432 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01136] [c4-1c2s7n2] [Thu Jun  9 15:08:36 2011] PE 216 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00396] [c2-1c2s6n2] [Thu Jun  9 15:08:36 2011] PE 24 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01233] [c6-1c2s7n1] [Thu Jun  9 15:08:36 2011] PE 547 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01139] [c4-1c2s6n3] [Thu Jun  9 15:08:36 2011] PE 384 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00464] [c2-1c2s7n0] [Thu Jun  9 15:08:36 2011] PE 120 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01069] [c4-1c2s6n1] [Thu Jun  9 15:08:36 2011] PE 350 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00467] [c2-1c2s6n1] [Thu Jun  9 15:08:36 2011] PE 103 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 00397] [c2-1c2s6n3] [Thu Jun  9 15:08:36 2011] PE 58 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01838] [c8-1c2s7n0] [Thu Jun  9 15:08:36 2011] PE 757 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01902] [c8-1c1s7n2] [Thu Jun  9 15:08:36 2011] PE 840 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01841] [c8-1c1s7n1] [Thu Jun  9 15:08:36 2011] PE 816 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01903] [c8-1c1s7n3] [Thu Jun  9 15:08:36 2011] PE 879 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01840] [c8-1c1s7n0] [Thu Jun  9 15:08:36 2011] PE 807 exit signal Terminated
+aprun: Apid 2417569: Caught signal Terminated, sending to application
+_pmii_daemon(SIGCHLD): [NID 01229] [c6-1c1s6n1] [Thu Jun  9 15:08:36 2011] PE 1019 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01071] [c4-1c2s7n1] [Thu Jun  9 15:08:36 2011] PE 290 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01167] [c6-1c2s7n3] [Thu Jun  9 15:08:36 2011] PE 582 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01901] [c8-1c1s6n3] [Thu Jun  9 15:08:36 2011] PE 913 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01138] [c4-1c2s6n2] [Thu Jun  9 15:08:36 2011] PE 360 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01070] [c4-1c2s7n0] [Thu Jun  9 15:08:36 2011] PE 271 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01232] [c6-1c2s7n0] [Thu Jun  9 15:08:36 2011] PE 511 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01900] [c8-1c1s6n2] [Thu Jun  9 15:08:36 2011] PE 888 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01137] [c4-1c2s7n3] [Thu Jun  9 15:08:36 2011] PE 240 exit signal Terminated
+_pmii_daemon(SIGCHLD): [NID 01907] [c8-1c2s6n3] [Thu Jun  9 15:08:36 2011] PE 672 exit signal Terminated
+Application 2417569 exit codes: 143
+Application 2417569 resources: utime ~67053s, stime ~228s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024_bc
+ +          Job Id: 470702.sdb
+ +          System: hopper
+ +     Queued Time: Thu Jun  9 12:56:10 2011
+ +      Start Time: Thu Jun  9 14:38:01 2011
+ + Completion Time: Thu 09 Jun 2011 03:08:37 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid04945
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:14623:hopper08,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5336kb,vmem=36588kb,walltime=00:30:34
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script1024_bc
+ + --------------------------------------------------------------------------
+

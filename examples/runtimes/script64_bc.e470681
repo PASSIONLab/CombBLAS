@@ -1,0 +1,52 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.020775 s
+Generated renamed edge lists
+Generation took 0.021616 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 16384-by-16384
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00235391 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=64
+batchSz=768, nBatches=4, nPossBatches=118
+startV=61440, numV=768
+startV=64512, numV=768
+startV=72960, numV=768
+startV=52224, numV=768
+bc[0] = 0.000001, min=0.000001, max=0.153174, mean=0.000024, std=0.000639
+   used 3072 starting vertices
+   took 170.248 seconds
+   TEPS = 67,308,463 (assumes the graph was connected)
+[NID 00538] 2011-06-09 12:59:55 Apid 2416282: initiated application termination
+Application 2416282 resources: utime ~501s, stime ~20s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script64_bc
+ +          Job Id: 470681.sdb
+ +          System: hopper
+ +     Queued Time: Thu Jun  9 12:55:56 2011
+ +      Start Time: Thu Jun  9 12:56:41 2011
+ + Completion Time: Thu 09 Jun 2011 12:59:57 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid04754
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:14023:hopper08,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5240kb,vmem=36588kb,walltime=00:03:13
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script64_bc
+ + --------------------------------------------------------------------------
+

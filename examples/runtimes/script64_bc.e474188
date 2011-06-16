@@ -1,0 +1,121 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.021292 s
+Generated renamed edge lists
+Generation took 0.0216348 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 16384-by-16384
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00251889 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+After sort
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Dropped isolated vertices from input
+As a whole: 90208 rows and 90208 columns and 1865089 nonzeros
+Symmetricized
+As a whole: 90208 rows and 90208 columns and 3730178 nonzeros
+Graph has 90208 vertices.
+in _approxBC, A.nvert=90208, nproc=64
+Apply(set(1))
+spm.getnrow and col()
+densevec(90208, 0)
+getnrow()
+densevec iota(0, 118) (i think in that order)
+densevec randperm()
+Before sorting 118 entries
+After sort
+densevec iota(0, 118) (i think in that order)
+densevec(4, 0)
+densevec(4, 0)
+dense vec SubsRef, GetElement and SetElement
+dense vec GetElement and SetElement
+dense vec SubsRef, GetElement and SetElement
+dense vec GetElement and SetElement
+dense vec SubsRef, GetElement and SetElement
+dense vec GetElement and SetElement
+dense vec SubsRef, GetElement and SetElement
+dense vec GetElement and SetElement
+batchSz=768, nBatches=4, nPossBatches=118
+startV=8448, numV=768
+    2.592514 seconds
+BC: in while: depth=2, nsp.nedge()=9462439, tmp.nedge()=9462439, fringe.nedge()=9430447
+    7.766581 seconds
+BC: in while: depth=3, nsp.nedge()=57734786, tmp.nedge()=57734786, fringe.nedge()=48557260
+    6.330511 seconds
+BC: in while: depth=4, nsp.nedge()=51431115, tmp.nedge()=51431115, fringe.nedge()=10990227
+    0.619528 seconds
+BC: in while: depth=5, nsp.nedge()=8788780, tmp.nedge()=8788780, fringe.nedge()=239525
+    0.201839 seconds
+BC: in while: depth=6, nsp.nedge()=225769, tmp.nedge()=225769, fringe.nedge()=7304
+    0.138820 seconds
+BC: in while: depth=7, nsp.nedge()=6970, tmp.nedge()=6970, fringe.nedge()=20
+    0.116418 seconds
+startV=74496, numV=768
+    0.267990 seconds
+BC: in while: depth=2, nsp.nedge()=9250599, tmp.nedge()=9250599, fringe.nedge()=9222879
+    4.585910 seconds
+BC: in while: depth=3, nsp.nedge()=58154803, tmp.nedge()=58154803, fringe.nedge()=49159813
+    4.669186 seconds
+BC: in while: depth=4, nsp.nedge()=51538528, tmp.nedge()=51538528, fringe.nedge()=10694511
+    0.520973 seconds
+BC: in while: depth=5, nsp.nedge()=8496689, tmp.nedge()=8496689, fringe.nedge()=151139
+    0.146946 seconds
+BC: in while: depth=6, nsp.nedge()=148697, tmp.nedge()=148697, fringe.nedge()=677
+    0.134760 seconds
+startV=57600, numV=768
+    0.297063 seconds
+BC: in while: depth=2, nsp.nedge()=9224732, tmp.nedge()=9224732, fringe.nedge()=9193042
+    4.515768 seconds
+BC: in while: depth=3, nsp.nedge()=57298822, tmp.nedge()=57298822, fringe.nedge()=48345650
+    4.672412 seconds
+BC: in while: depth=4, nsp.nedge()=51594993, tmp.nedge()=51594993, fringe.nedge()=11407469
+    0.557616 seconds
+BC: in while: depth=5, nsp.nedge()=9091980, tmp.nedge()=9091980, fringe.nedge()=187984
+    0.147848 seconds
+BC: in while: depth=6, nsp.nedge()=185871, tmp.nedge()=185871, fringe.nedge()=783
+    0.137417 seconds
+startV=26880, numV=768
+    0.274073 seconds
+BC: in while: depth=2, nsp.nedge()=8424544, tmp.nedge()=8424544, fringe.nedge()=8401865
+    4.640393 seconds
+BC: in while: depth=3, nsp.nedge()=57070964, tmp.nedge()=57070964, fringe.nedge()=48866405
+    4.897441 seconds
+BC: in while: depth=4, nsp.nedge()=52576315, tmp.nedge()=52576315, fringe.nedge()=11720925
+    0.667569 seconds
+BC: in while: depth=5, nsp.nedge()=9367245, tmp.nedge()=9367245, fringe.nedge()=243766
+    0.157313 seconds
+BC: in while: depth=6, nsp.nedge()=220924, tmp.nedge()=220924, fringe.nedge()=1265
+    0.139875 seconds
+BC: in while: depth=7, nsp.nedge()=1259, tmp.nedge()=1259, fringe.nedge()=2
+    0.100689 seconds
+bc[0] = 0.000001, min=0.000001, max=0.152987, mean=0.000024, std=0.000638
+   used 3072 starting vertices
+   took 167.986 seconds
+   TEPS = 68,214,764 (assumes the graph was connected)
+[NID 01141] 2011-06-10 14:30:56 Apid 2436056: initiated application termination
+Application 2436056 resources: utime ~507s, stime ~38s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script64_bc
+ +          Job Id: 474188.sdb
+ +          System: hopper
+ +     Queued Time: Fri Jun 10 14:26:43 2011
+ +      Start Time: Fri Jun 10 14:27:19 2011
+ + Completion Time: Fri 10 Jun 2011 02:30:56 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid04944
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:5258:hopper07,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5300kb,vmem=36256kb,walltime=00:03:37
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script64_bc
+ + --------------------------------------------------------------------------
+

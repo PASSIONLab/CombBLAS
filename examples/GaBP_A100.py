@@ -88,8 +88,8 @@ def gabp(A, b, maxround, epsilon):
 		copy_time += (t4-t3)
 	
 		# SCALE
-		Mhtemp.scale(h, dir=kdt.DiGraph.Out)	# default direction: dir=kdt.DiGraph.Out, which scales rows
-		MJtemp.scale(J, dir=kdt.DiGraph.Out)
+		Mhtemp.scale(h)	# default direction: dir=kdt.DiGraph.Out, which scales rows
+		MJtemp.scale(J)
 #		print MJtemp.toParVec()
 		
 		t5 = time.time()
@@ -182,4 +182,4 @@ def gabp(A, b, maxround, epsilon):
 		X.save("x.mtx")
 	return
 
-gabp(A,b,10000,1e-5)
+gabp(A,b,10000,1e-3)

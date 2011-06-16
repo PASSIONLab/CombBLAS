@@ -1,0 +1,40 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.003285 s
+Generated renamed edge lists
+Generation took 0.00429416 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 5698-by-5698
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00203705 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+_pmii_daemon(SIGCHLD): [NID 01859] [c8-1c0s1n1] [Tue Jun 14 17:27:22 2011] PE 528 exit signal Segmentation fault
+[NID 01859] 2011-06-14 17:27:22 Apid 2476031: initiated application termination
+Application 2476031 exit codes: 139
+Application 2476031 exit signals: Killed
+Application 2476031 resources: utime ~57s, stime ~45s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script529_bc
+ +          Job Id: 489913.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 16:38:49 2011
+ +      Start Time: Tue Jun 14 17:25:11 2011
+ + Completion Time: Tue 14 Jun 2011 05:27:23 PM PDT
+ +            User: abuluc
+ +        MOM Host: nid05620
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:32700:hopper01,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5304kb,vmem=36392kb,walltime=00:02:12
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script529_bc
+ + --------------------------------------------------------------------------
+

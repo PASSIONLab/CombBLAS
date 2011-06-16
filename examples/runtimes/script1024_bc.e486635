@@ -1,0 +1,61 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Generating a Graph500 graph with 2^17 vertices...
+graph_generation:               0.002112 s
+Generated renamed edge lists
+Generation took 0.0641069 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 4096-by-4096
+Duplicates removed (or summed): 231876 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.00246119 seconds
+Converted to Boolean and removed 187 loops
+As a whole: 131072 rows and 131072 columns and 1865089 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+Before sorting 90208 entries
+_pmii_daemon(SIGCHLD): [NID 00537] [c2-3c2s3n1] [Tue Jun 14 00:57:19 2011] PE 696 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01285] [c6-3c2s2n3] [Tue Jun 14 00:57:19 2011] PE 984 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01017] [c4-3c2s3n3] [Tue Jun 14 00:57:19 2011] PE 792 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00516] [c2-3c2s2n2] [Tue Jun 14 00:57:19 2011] PE 598 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00538] [c2-3c2s2n0] [Tue Jun 14 00:57:19 2011] PE 636 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01284] [c6-3c2s2n2] [Tue Jun 14 00:57:19 2011] PE 978 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00536] [c2-3c2s3n0] [Tue Jun 14 00:57:19 2011] PE 687 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00518] [c2-3c2s3n2] [Tue Jun 14 00:57:19 2011] PE 736 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00539] [c2-3c2s2n1] [Tue Jun 14 00:57:19 2011] PE 649 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01306] [c6-3c2s2n0] [Tue Jun 14 00:57:19 2011] PE 1008 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00998] [c4-3c2s3n0] [Tue Jun 14 00:57:19 2011] PE 838 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00999] [c4-3c2s3n1] [Tue Jun 14 00:57:19 2011] PE 862 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00519] [c2-3c2s3n3] [Tue Jun 14 00:57:19 2011] PE 744 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00996] [c4-3c2s2n0] [Tue Jun 14 00:57:19 2011] PE 884 exit signal Segmentation fault
+[NID 00519] 2011-06-14 00:57:19 Apid 2468411: initiated application termination
+_pmii_daemon(SIGCHLD): [NID 01016] [c4-3c2s3n2] [Tue Jun 14 00:57:19 2011] PE 768 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00997] [c4-3c2s2n1] [Tue Jun 14 00:57:19 2011] PE 890 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00517] [c2-3c2s2n3] [Tue Jun 14 00:57:19 2011] PE 606 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01018] [c4-3c2s2n2] [Tue Jun 14 00:57:19 2011] PE 913 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00514] [c2-3c2s1n2] [Tue Jun 14 00:57:19 2011] PE 549 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01019] [c4-3c2s2n3] [Tue Jun 14 00:57:19 2011] PE 959 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 01021] [c4-3c2s1n3] [Tue Jun 14 00:57:19 2011] PE 522 exit signal Segmentation fault
+_pmii_daemon(SIGCHLD): [NID 00515] [c2-3c2s1n3] [Tue Jun 14 00:57:19 2011] PE 565 exit signal Segmentation fault
+Application 2468411 exit codes: 139
+Application 2468411 exit signals: Killed
+Application 2468411 resources: utime ~404s, stime ~108s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024_bc
+ +          Job Id: 486635.sdb
+ +          System: hopper
+ +     Queued Time: Tue Jun 14 00:49:55 2011
+ +      Start Time: Tue Jun 14 00:52:52 2011
+ + Completion Time: Tue 14 Jun 2011 12:57:20 AM PDT
+ +            User: abuluc
+ +        MOM Host: nid04132
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:2175:hopper06,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5348kb,vmem=36400kb,walltime=00:04:28
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/examples
+ +     Submit Args: script1024_bc
+ + --------------------------------------------------------------------------
+
