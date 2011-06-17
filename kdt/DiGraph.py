@@ -363,6 +363,11 @@ class DiGraph(gr.Graph):
 			return ParVec.toParVec(ret), ParVec.toParVec(perm)
 		else:
 			return ParVec.toParVec(ret)
+	
+	@staticmethod
+	def convMaskToIndices(mask):
+		verts = mask._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), 1))
+		return ParVec.toParVec(verts)
 
 	def copy(self):
 		"""
@@ -809,7 +814,7 @@ class DiGraph(gr.Graph):
 	#	self._spm.Apply(pcb.set(value))
 	#	return
 
-	def subgraph(self, ndx1, ndx2=None):
+	def subgraph(self, ndx1=None, ndx2=None, mask=None):
 		"""
 		creates a new DiGraph instance consisting of only designated vertices 
 		of the input graph and their indicent edges.
@@ -823,6 +828,9 @@ class DiGraph(gr.Graph):
 			    scalar or a ParVec of consecutive vertex numbers to
 			    be included in the subgraph along with any edges ending
 			    at these vertices.
+			mask:  a length nverts ParVec with True elements for vertices
+			    that should be kept and False elements for vertices to
+			    be discarded.
 			 
 		Output Argument:
 			ret:  a DiGraph instance composed of the selected vertices
@@ -830,6 +838,15 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  DiGraph.__getitem__
 		"""
+		if ndx1 is None and mask is None:
+			raise KeyError, 'Either indices or a mask must be provided'
+		
+		if ndx1 is None:
+			# convert mask to indices
+			verts = mask._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), 1))
+			ndx1 = ParVec.toParVec(verts)
+			ndx2 = None
+		
 		if ndx2 is None:
 			ndx2 = ndx1
 		ret = self[ndx1, ndx2]
@@ -1539,8 +1556,10 @@ class DiGraph(gr.Graph):
 		n = G.nvert()
 		
 		if not sym:
-			G._T()
-
+			temp = self.copy()
+			temp._T()
+			G += temp
+			
 		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
 		G._spm.Apply(pcb.set(1))
 		
@@ -1564,7 +1583,7 @@ class DiGraph(gr.Graph):
 		
 		return ParVec.toParVec(frontier.dense())
 	
-	def findLargestComponent(self, sym=False):
+	def __findLargestComponent(self, sym=False): # deprecated
 		"""
 		Returns a subgraph that consists of the largest component of self. 
 		Components are found on an undirected version of self.
