@@ -56,17 +56,23 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 	return DG
 
 
-	
+# load
 bigG = kdt.DiGraph.load(inmatrixfile)
-bigG._spm.Apply(kdt.pyCombBLAS.set(1))
+bigG.ones()
 
 print "drawing the original graph:"
 OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=directed)
 
 print "Finding the largest component:"
-comp = bigG.findLargestComponent()
-G = bigG.subgraph(comp)
-OrigVertLocSource = draw(G, outfile.replace(".", "-2-largestcomp."), OrigVertLocSource, copyFromIndexLookup=comp, directed=directed)
+comp = bigG.connComp(sym=False)
+giantComp = comp.hist().argmax()
+G = bigG.subgraph(mask=(comp==giantComp))
+
+# Get the indices of the vertices by getting the indicies of the nonzeros in the mask.
+# These indices are used to make sure the vertices in the subgraph appear at the same x,y positions
+# as they did in the original plot.
+compInds = kdt.DiGraph.convMaskToIndices(comp==giantComp)
+OrigVertLocSource = draw(G, outfile.replace(".", "-2-largestcomp."), OrigVertLocSource, copyFromIndexLookup=compInds, directed=directed)
 
 print "Clustering:"
 clus, markovG = G.cluster('Markov', addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
