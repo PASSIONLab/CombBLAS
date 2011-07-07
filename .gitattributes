@@ -1289,4 +1289,3 @@ test/TestSpParVec.py -text
 test/note_for_kdt_developers.txt -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
-/v0.1_checklist -text

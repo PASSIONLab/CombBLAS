@@ -98,7 +98,46 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
-    def test_subtract_constant(self):
+    def test_radd_constant(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        vec = self.initializeParVec(sz, i)
+        vec2 = 3.07 + vec
+        expI = [4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 
+		4.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 
+		3.07, 3.07, 3.07, 3.07, 3.07, 3.07]
+	self.assertEqual(sz, len(vec2))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_iadd_constant(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        vec = self.initializeParVec(sz, i)
+        vec += 3.07
+        expI = [4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 4.07, 3.07, 
+		4.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 3.07, 
+		3.07, 3.07, 3.07, 3.07, 3.07, 3.07]
+	self.assertEqual(sz, len(vec))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec[ind])
+
+    def test_iadd_vector(self):
+	sz = 25
+        i1 = [0, 2, 4, 6, 8, 10]
+        v1 = [0, 4, 16, 36, 64, 100]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0, 3, 6, 9, 12, 15, 18]
+        v2 = [1, 27, 216, 729, 1728, 3375, 5832]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec1 += vec2
+        expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
+		0, 0, 5832, 0, 0, 0, 0, 0, 0,]
+	self.assertEqual(sz, len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec1[ind])
+
+    def test_sub_constant(self):
 	sz = 25
         i = [0, 2, 4, 6, 8, 10]
         vec = self.initializeParVec(sz, i)
@@ -110,7 +149,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec2[ind])
 
-    def test_subtract_vector(self):
+    def test_sub_vector(self):
 	sz = 25
         i1 = [0, 2, 4, 6, 8, 10]
         v1 = [0, 4, 16, 36, 64, 100]
@@ -125,6 +164,33 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
+    def test_isub_constant(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        vec = self.initializeParVec(sz, i)
+        vec -= 3.07
+        expI = [-2.07, -3.07, -2.07, -3.07, -2.07, -3.07, -2.07, -3.07, -2.07,
+		-3.07, -2.07, -3.07, -3.07, -3.07, -3.07, -3.07, -3.07, -3.07,
+		-3.07, -3.07, -3.07, -3.07, -3.07, -3.07, -3.07, -3.07]
+	self.assertEqual(sz, len(vec))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec[ind])
+
+    def test_isub_vector(self):
+	sz = 25
+        i1 = [0, 2, 4, 6, 8, 10]
+        v1 = [0, 4, 16, 36, 64, 100]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0, 3, 6, 9, 12, 15, 18]
+        v2 = [1, 27, 216, 729, 1728, 3375, 5832]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec1 -= vec2
+        expI = [-1, 0, 4, -27, 16, 0, -180, 0, 64, -729, 100, 0, -1728, 0, 0,
+		-3375, 0, 0, -5832, 0, 0, 0, 0, 0, 0,]
+	self.assertEqual(sz, len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec1[ind])
+
     def test_negate(self):
 	sz = 25
         i1 = [0, 2, 4, 6, 8, 10]
@@ -137,7 +203,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
-    def test_multiply_constant(self):
+    def test_mul_constant(self):
 	sz = 25
         i = [0, 2, 4, 6, 8, 10]
         vec = self.initializeParVec(sz, i)
@@ -149,7 +215,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec2[ind])
 
-    def test_multiply_vector(self):
+    def test_mul_vector(self):
 	sz = 25
         i1 = [0, 2, 4, 6, 8, 10, 12]
         v1 = [1, 4, 16, 36, 64, 100, 144]
@@ -164,7 +230,46 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
-    def test_divide_constant(self):
+    def test_rmul_constant(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        vec = self.initializeParVec(sz, i)
+        vec2 = 3.07 * vec
+        expI = [3.07, 0, 3.07, 0, 3.07, 0, 3.07, 0, 3.07, 0, 
+		3.07, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+		0, 0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec2))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_imul_constant(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        v = [0, 2, 4, 6, 8, 10]
+        vec = self.initializeParVec(sz, i, v)
+        vec *= 3
+        expI = [0, 0, 6, 0, 12, 0, 18, 0, 24, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec[ind])
+
+    def test_imul_vector(self):
+	sz = 25
+        i1 = [0, 2, 4, 6, 8, 10]
+        v1 = [0, 4, 16, 36, 64, 100]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0,    2,       4,      6,      8,   10]
+        v2 = [1, 1./4., 1./16., 1./36., 1./64., 0.01]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec1 *= vec2
+        expI = [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec1))
+        for ind in range(sz):
+	    self.assertAlmostEqual(expI[ind], vec1[ind])
+
+    def test_div_constant(self):
 	sz = 25
         i = [0, 2, 4, 6, 8, 10, 12]
         v1 = [1, 4, 16, 36, 64, 100, 144]
@@ -177,7 +282,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec2[ind])
 
-    def test_divide_vector(self):
+    def test_div_vector(self):
 	sz = 25
         i1 = [0, 2, 4, 6, 8, 10, 12]
         v1 = [1, 4, 16, 36, 64, 100, 144]
@@ -194,7 +299,18 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertAlmostEqual(expI[ind], vec3[ind])
 
-    def test_modulus_constant(self):
+    def test_rdiv_constant(self):
+	sz = 7
+        i = [0,  1,  2,  3,  4,   5,   6]
+        v1 = [1, 4, 16, 36, 64, 100, 144]
+        vec = self.initializeParVec(sz, i, v1)
+        vec2 = 2 / vec
+        expI = [2, 0.5, 0.125, (2.0/36.0), (2.0/64.0), 0.02, (2.0/144.0)]
+	self.assertEqual(sz, len(vec2))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec2[ind])
+
+    def test_mod_constant(self):
 	sz = 25
         i =  [0,   2,  4,  6,     8,  10,  12]
         v1 = [1, 4.1, 16, 36, -64.3, 100, 144]
@@ -207,7 +323,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertAlmostEqual(expI[ind], vec2[ind])
 
-    def test_modulus_vector(self):
+    def test_mod_vector(self):
 	sz = 25
         i1 = [   0,  2,  4,  6,  8,     10,  12]
         v1 = [1.04, -4, 16,-36, 64, -100.1, 144]
@@ -382,6 +498,17 @@ class BuiltInTests(ParVecTests):
         for ind in range(ndxLen):
 	    self.assertEqual(expI[ind], vec1[ind])
 
+    def test_eq_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	eq4 = vec1 == scalar
+        expV = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(eq4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], eq4[ind])
+
     def test_eq_vector(self):
 	sz = 18
         vec1 = ParVec.range(sz)
@@ -393,6 +520,17 @@ class BuiltInTests(ParVecTests):
 	self.assertEqual(len(eq4), len(vec2))
         for ind in range(sz):
 	    self.assertEqual(expV[ind], eq4[ind])
+
+    def test_ne_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	ne4 = vec1 != scalar
+        expV = [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(ne4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], ne4[ind])
 
     def test_ne_vector(self):
 	sz = 18
@@ -406,6 +544,17 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expV[ind], ne4[ind])
 
+    def test_ge_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	ge4 = vec1 >= scalar
+        expV = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(ge4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], ge4[ind])
+
     def test_ge_vector(self):
 	sz = 18
         vec1 = ParVec.range(sz)
@@ -417,6 +566,17 @@ class BuiltInTests(ParVecTests):
 	self.assertEqual(len(ge4), len(vec2))
         for ind in range(sz):
 	    self.assertEqual(expV[ind], ge4[ind])
+
+    def test_gt_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	gt4 = vec1 > scalar
+        expV = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(gt4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], gt4[ind])
 
     def test_gt_vector(self):
 	sz = 18
@@ -430,6 +590,17 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expV[ind], gt4[ind])
 
+    def test_le_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	le4 = vec1 <= scalar
+        expV = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(le4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], le4[ind])
+
     def test_le_vector(self):
 	sz = 18
         vec1 = ParVec.range(sz)
@@ -441,6 +612,17 @@ class BuiltInTests(ParVecTests):
 	self.assertEqual(len(le4), len(vec2))
         for ind in range(sz):
 	    self.assertEqual(expV[ind], le4[ind])
+
+    def test_lt_scalar(self):
+	sz = 18
+        vec1 = ParVec.range(sz)
+        scalar = 4
+	lt4 = vec1 < scalar
+        expV = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	self.assertEqual(sz, len(vec1))
+	self.assertEqual(len(lt4), len(vec1))
+        for ind in range(sz):
+	    self.assertEqual(expV[ind], lt4[ind])
 
     def test_lt_vector(self):
 	sz = 18
@@ -454,7 +636,29 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expV[ind], lt4[ind])
 
-    def test_and_vector(self):
+    def test_bitwise_not_vector(self):
+	sz = 18
+        i1 = [0, 2, 4, 6, 8, 10, 12, 14]
+        v1 = [1, 1, 1, 1, 1,  1,  1,  1]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        vec3 = ~vec1
+        expI = [-2,-1,-2,-1,-2,-1,-2,-1,-2,-1,-2,-1,-2,-1,-2,-1,-1,-1]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
+    def test_logical_not_vector(self):
+	sz = 18
+        i1 = [0, 2, 4, 6, 8, 10, 12, 14]
+        v1 = [1, 1, 1, 1, 1,  1,  1,  1]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        vec3 = vec1.logical_not()
+        expI = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
+    def test_bitwise_and_vector(self):
 	sz = 18
         i1 = [0, 2, 4, 6, 8, 10, 12, 14]
         v1 = [1, 1, 1, 1, 1,  1,  1,  1]
@@ -468,7 +672,7 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
-    def test_or_vector(self):
+    def test_bitwise_or_vector(self):
 	sz = 18
         i1 = [0, 2, 4, 6, 8, 10, 12, 14]
         v1 = [1, 1, 1, 1, 1,  1,  1,  1]
@@ -482,8 +686,44 @@ class BuiltInTests(ParVecTests):
         for ind in range(sz):
 	    self.assertEqual(expI[ind], vec3[ind])
 
+    def test_bitwise_xor_vector(self):
+	sz = 18
+        i1 = [0, 2, 4, 6, 8, 10, 12, 14]
+        v1 = [1, 1, 1, 1, 1,  1,  1,  1]
+        vec1 = self.initializeParVec(sz, i1, v1)
+        i2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        v2 = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0,  0,  1,  0,  0,  1,  0,  0,  1]
+        vec2 = self.initializeParVec(sz, i2, v2)
+        vec3 = vec1 ^ vec2
+        expI = [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1]
+	self.assertEqual(sz, len(vec3))
+        for ind in range(sz):
+	    self.assertEqual(expI[ind], vec3[ind])
+
 
 class GeneralPurposeTests(ParVecTests):
+    def test_abs(self):
+	sz = 11
+	vec = ParVec(sz)
+	vec[0] = 0.01
+	vec[1] = 0.99999
+	vec[2] = 3
+	vec[3] = -0.01
+	vec[4] = -0.99999
+	vec[5] = 9.01
+	vec[6] = 9.99999
+	vec[7] = -9.01
+	vec[8] = -9.99999
+	vec[9] = 6.23e23
+	vec[10] = -6.23e23
+	vec2 = vec.abs()
+	self.assertEqual(sz, len(vec))
+	self.assertEqual(sz, len(vec2))
+        expI = [0.01, 0.99999, 3, 0.01, 0.99999, 9.01, 9.99999, 9.01, 9.99999,
+		6.23e23, 6.23e23]
+        for ind in range(sz):
+	    self.assertAlmostEqual(expI[ind], vec2[ind])
+
     def test_all_all_true(self):
 	sz = 10
 	vec = ParVec.ones(sz)
