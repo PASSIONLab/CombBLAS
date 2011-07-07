@@ -21,6 +21,15 @@ class DiGraphTests(unittest.TestCase):
 
         return DiGraph(iInd, jInd, vInd, nvert)
 
+    def initializeIJGraph(self, nvert, scale=1000):
+	"""
+	Initialize a graph of size nvert*nvert with values equal to i*scale+j
+	"""
+	i = ParVec.range(nvert*nvert) % nvert
+	j = (ParVec.range(nvert*nvert) / nvert).floor()
+	v = i*scale + j
+	return DiGraph(i, j, v, nvert)
+
 class PageRankTests(DiGraphTests):
     def test_connected(self):
         G = DiGraph.fullyConnected(10)
@@ -761,8 +770,31 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertEqual(expV[ind], actualV[ind])
         
-    def test_multiply_simple(self):
-	# ensure that DiGraph addition creates the number, source/
+    def test_neg_simple(self):
+	# ensure that DiGraph negation creates the number, source/
+        # destination, and value pairs expected when all edges are 
+        # in both DiGraphs.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, -1, 21, -31, 12, -32, 13, -23, 43, -14, 34, -15, 16, 
+		-1.6e+10, 17, -87, 18, -68, 78]
+	expV   = [-10, 1, -21, 31, -12, 32, -13, 23, -43, 14, -34, 15, -16, 
+		1.6e+10, -17, 87, -18, 68, -78]
+	G1 = self.initializeGraph(nvert, nedge, origI, origJ, origV1)
+        G3 = -G1
+	[actualI, actualJ, actualV] = G3.toParVec()
+        self.assertEqual(len(origI), len(actualI))
+        self.assertEqual(len(origJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(origI[ind], actualI[ind])
+		self.assertEqual(origJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+    def test_mul_simple(self):
+	# ensure that DiGraph multiplication creates the number, source/
         # destination, and value pairs expected when all edges are 
         # in both DiGraphs.
 	nvert = 9
@@ -787,8 +819,8 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(origJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
         
-    def test_multiply_intersection(self):
-	# ensure that DiGraph addition creates the number, source/
+    def test_mul_intersection(self):
+	# ensure that DiGraph multiplication creates the number, source/
         # destination, and value pairs expected when some edges are not
         # in both DiGraphs.
 	nvert1 = 9
@@ -807,6 +839,39 @@ class BuiltInMethodTests(DiGraphTests):
 	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
         G3 = G1*G2
 	[actualI, actualJ, actualV] = G3.toParVec()
+	expNvert = 9
+	expNedge = 6
+        expI = [4, 5, 3, 3, 8, 0]
+        expJ = [1, 2, 3, 4, 6, 8]
+	expV = [1681, 2704, 1089, 1156, 59.29, 64]
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertAlmostEqual(expV[ind], actualV[ind])
+
+    def test_imul_intersection(self):
+	# ensure that DiGraph multiplication creates the number, source/
+        # destination, and value pairs expected when some edges are not
+        # in both DiGraphs.
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [1, 0, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 16, 7.7,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+	nvert2 = 9
+	nedge2 = 19
+	origI2 = [7, 3, 4, 8, 5, 7, 3, 5, 6, 3, 7, 7, 2, 8, 2, 7, 0, 2, 5]
+	origJ2 = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV2 = [70, 31, 41, 81, 52, 72, 33, 53, 63, 34, 74, 75, 26, 7.7,
+		27, 77, 8, 28, 58]
+	G2 = self.initializeGraph(nvert2, nedge2, origI2, origJ2, origV2)
+        G1 *= G2
+	[actualI, actualJ, actualV] = G1.toParVec()
 	expNvert = 9
 	expNedge = 6
         expI = [4, 5, 3, 3, 8, 0]
@@ -885,7 +950,7 @@ class GeneralPurposeTests(DiGraphTests):
 	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
 		17, 87, 8, 68, 78]
 	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
-	vec1 = SpParVec(nvert1)
+	vec1 = ParVec.zeros(nvert1)
 	# vec[0] null, scaling a null column in G1
 	vec1[1] = 1
 	vec1[2] = 2
@@ -899,8 +964,8 @@ class GeneralPurposeTests(DiGraphTests):
 	[actualI, actualJ, actualV] = G1.toParVec()
 	expI = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
 	expJ = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	expV = [10, 1, 164, 61, 12, 260, 13, 46, 99, 14, 102, 15, 1.6, 68.8,
-		17, 696, 8, 68, 546]
+	expV = [0, 1, 164, 0, 12, 260, 13, 46, 99, 14, 102, 15, 1.6, 68.8,
+		17, 696, 0, 0, 546]
         self.assertEqual(len(expI), len(actualI))
         self.assertEqual(len(expJ), len(actualJ))
         self.assertEqual(len(expV), len(actualV))
@@ -917,7 +982,7 @@ class GeneralPurposeTests(DiGraphTests):
 	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
 		17, 87, 8, 68, 78]
 	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
-	vec1 = SpParVec(nvert1)
+	vec1 = ParVec(nvert1)
 	# vec[0] null, scaling a null column in G1
 	vec1[1] = 1
 	vec1[2] = 2
@@ -931,7 +996,7 @@ class GeneralPurposeTests(DiGraphTests):
 	[actualI, actualJ, actualV] = G1.toParVec()
 	expI = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
 	expJ = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	expV = [10, 1, 41, 61, 24, 104, 39, 69, 99, 56, 136, 75, 1.6, 8.6,
+	expV = [10, 1, 41, 61, 24, 104, 39, 69, 99, 56, 136, 75, 0, 0,
 		119, 609, 64, 544, 624]
         self.assertEqual(len(expI), len(actualI))
         self.assertEqual(len(expJ), len(actualJ))
@@ -1027,6 +1092,23 @@ class ContractTests(DiGraphTests):
 		self.assertEqual(j3[ind], expectedJ[ind])
 #		self.assertEqual(v3[ind], expectedV[ind])
 
+class ApplyReduceTests(DiGraphTests):
+    def test_apply(self):
+	def ge0lt5(x):
+		return x>=0 and x<5
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	parents = G.bfsTree(1, filter=(ge0lt5, None))
+	for ind in range(nvert):
+		self.assertEqual(parents[ind], parentsExpected[ind])
+
 class EdgeStatTests(DiGraphTests):
     def test_nedge_simple(self):
 	nvert1 = 5
@@ -1092,6 +1174,40 @@ class EdgeStatTests(DiGraphTests):
 	for ind in range(len(expectedNv)):
 		self.assertEqual(nv[ind], expectedNv[ind])
 
+class SemanticGraphTests(DiGraphTests):
+    def test_semG_vfilter_bfsTree(self):
+	def ge0lt5(x):
+		return x>=0 and x<5
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
+        
+        G = self.initializeGraph(nvert, nedge, i, j)
+	parents = G.bfsTree(1, filter=(ge0lt5, None))
+	for ind in range(nvert):
+		self.assertEqual(parents[ind], parentsExpected[ind])
+
+    def test_semG_efilter_bfsTree(self):
+	def ge0lt5000(x):
+		return x%1000>=0 and x%1000<5 and int(x/1000)>=0 and int(x/1000)<5
+        nvert = 8
+        nedge = 13
+        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+	v = i[:]		# easy way to get same-size vector
+        for ind in range(nedge):
+		v[ind] = i[ind]*1000 + j[ind]
+        G = self.initializeGraph(nvert, nedge, i, j, v)
+	parents = G.bfsTree(1, filter=(None, ge0lt5000))
+	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
+	for ind in range(nvert):
+		self.assertEqual(parents[ind], parentsExpected[ind])
+
+
 def runTests(verbosity = 1):
     testSuite = suite()
     unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
@@ -1113,7 +1229,9 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
     return suite
 
 if __name__ == '__main__':

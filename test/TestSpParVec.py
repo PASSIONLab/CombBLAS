@@ -895,7 +895,7 @@ class ApplyReduceTests(SpParVecTests):
         i = [0, 2, 4, 6, 8, 10]
         v = [0, 4, 8,12,16, 20]
         vec = self.initializeSpParVec(sz, i, v)
-        vec.apply(ge0lt5)
+        vec._apply(ge0lt5)
         vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	self.assertEqual(sz, len(vec))
         for ind in range(sz):
@@ -906,7 +906,7 @@ class ApplyReduceTests(SpParVecTests):
         i = [0, 2,  4,   6, 8, 10]
         v = [0, -4, 8, -12,16, 20]
         vec = self.initializeSpParVec(sz, i, v)
-        vec.apply(pcb.abs())
+        vec._apply(pcb.abs())
         vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	self.assertEqual(sz, len(vec))
         for ind in range(sz):
@@ -926,7 +926,7 @@ class ApplyReduceTests(SpParVecTests):
         i = [0, 2, 4, 6, 8, 10]
         v = [0, 4, 8,12,16, 20]
         vec = self.initializeSpParVec(sz, i, v)
-        red = vec.reduce()
+        red = vec._reduce()
         redExpected = 60
 	self.assertEqual(redExpected, red)
 
@@ -935,7 +935,7 @@ class ApplyReduceTests(SpParVecTests):
         i = [0, 2, 4, 6, 8, 10]
         v = [0, 4, 8,12,16, 20]
         vec = self.initializeSpParVec(sz, i, v)
-        red = vec.reduce(SpParVec.op_max)
+        red = vec._reduce(SpParVec.op_max)
         redExpected = 20
 	self.assertEqual(redExpected, red)
 

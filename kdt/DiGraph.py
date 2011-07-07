@@ -104,7 +104,7 @@ class DiGraph(gr.Graph):
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
-			ret._spm.Apply(pcb.bind2nd(pcb.divides(),other))
+			ret._apply(pcb.bind2nd(pcb.divides(),other))
 		elif self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
@@ -191,7 +191,7 @@ class DiGraph(gr.Graph):
 
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
-			self._spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
+			self._apply(pcb.bind2nd(pcb.multiplies(),other))
 		elif isinstance(other,DiGraph):
 			self._spm = pcb.EWiseApply(self._spm,other._spm, pcb.multiplies())
 		else:
@@ -207,7 +207,7 @@ class DiGraph(gr.Graph):
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
-			ret._spm.Apply(pcb.bind2nd(pcb.multiplies(),other))
+			ret._apply(pcb.bind2nd(pcb.multiplies(),other))
 		elif self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
@@ -219,7 +219,7 @@ class DiGraph(gr.Graph):
 
 	def __neg__(self):
 		ret = self.copy()
-		ret._spm.Apply(pcb.negate())
+		ret._apply(pcb.negate())
 		return ret
 
 	#ToDo:  put in method to modify _REPR_MAX
@@ -811,8 +811,7 @@ class DiGraph(gr.Graph):
 
 	#	SEE ALSO:  ones
 	#	"""
-	#	self._spm.Apply(pcb.set(value))
-	#	return
+	#	self._spm.Apply(pcb.set(value)) #	return
 
 	def subgraph(self, ndx1=None, ndx2=None, mask=None):
 		"""
@@ -1561,7 +1560,7 @@ class DiGraph(gr.Graph):
 			G += temp
 			
 		G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
-		G._spm.Apply(pcb.set(1))
+		G._apply(pcb.set(1))
 		
 		# Future: use a dense accumulator and a sparse frontier to take advantage
 		# of vertices that are found in the correct component and will not be
@@ -1666,13 +1665,13 @@ class DiGraph(gr.Graph):
 				AA = A.copy()
 			for i in range(1, expansion):
 				if retNEdges:
-					AA._spm.Apply(pcb.set(1))
+					AA._apply(pcb.set(1))
 					AA = AA._SpGEMM(AA)
 					nedges += AA.sum(DiGraph.In)._dpv.Reduce(pcb.plus())
 				A = A._SpGEMM(A)
 		
 			#Inflation - Hadamard power - greater inflation parameter -> more granular results
-			A._spm.Apply(pcb.bind2nd(pcb.pow(), inflation))
+			A._apply(pcb.bind2nd(pcb.pow(), inflation))
 			
 			#Re-normalize
 			sums = A.sum(DiGraph.In)
