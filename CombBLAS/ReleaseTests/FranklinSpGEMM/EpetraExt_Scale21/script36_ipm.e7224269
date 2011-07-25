@@ -1,0 +1,128 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+A has 16334935 nonzeros
+B has 16335787 nonzeros
+C has 123910172 nonzeros
+EpetraExt multiplications finished
+4.679280 seconds elapsed per iteration
+C has 123910172 nonzeros
+##IPMv0.983####################################################################
+# 
+# command : ./epetra_mult /scratch/scratchdirs/abuluc/SCALE21-RMAT/input1_0 /scratch/scratchdirs/abuluc/SCALE21-RMAT/input2_0  (completed)
+# host    : nid03241/x86_64_Linux          mpi_tasks : 36 on 9 nodes
+# start   : 06/26/11/19:58:36              wallclock : 146.846448 sec
+# stop    : 06/26/11/20:01:03              %comm     : 30.24 
+# gbytes  : 2.34495e+01 total              gflop/sec : 2.09722e-02 total
+#
+##############################################################################
+# region  : *       [ntasks] =     36
+#
+#                           [total]         <avg>           min           max 
+# entries                         36             1             1             1
+# wallclock                  5286.41       146.845       146.843       146.846
+# user                       5095.41       141.539       140.481       146.221
+# system                     111.715       3.10319       1.41209       4.06425
+# mpi                        1598.61       44.4058       8.93626       50.7787
+# %comm                                    30.2396       6.08546       34.5795
+# gflop/sec                0.0209722    0.00058256   0.000571524   0.000593744
+# gbytes                     23.4495      0.651374      0.645134       0.65641
+#
+# PAPI_TOT_INS           1.31559e+13   3.65442e+11   3.60041e+11   3.84827e+11
+# PAPI_FP_OPS            3.07969e+09   8.55469e+07   8.39263e+07   8.71892e+07
+# PAPI_L1_DCA            5.47426e+12   1.52063e+11   1.49742e+11    1.6038e+11
+# PAPI_L1_DCM            3.72136e+10   1.03371e+09   7.15637e+08   1.17634e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Scatter                1451.18            72         90.78        27.45
+# MPI_Allreduce              78.8067         10368          4.93         1.49
+# MPI_Rsend                  50.2445         90720          3.14         0.95
+# MPI_Reduce_scatter         8.10056          3096          0.51         0.15
+# MPI_Barrier                3.64512          9252          0.23         0.07
+# MPI_Recv                    2.5342        122220          0.16         0.05
+# MPI_Waitall                1.73575          2592          0.11         0.03
+# MPI_Irecv                  1.33914         90720          0.08         0.03
+# MPI_Send                  0.913619        122220          0.06         0.02
+# MPI_Allgather            0.0953529           972          0.01         0.00
+# MPI_Scan                0.00863848            72          0.00         0.00
+# MPI_Comm_rank           0.00480635          7056          0.00         0.00
+# MPI_Comm_size           0.00100433          4464          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =     36
+#
+#                           [total]         <avg>           min           max 
+# entries                        108             3             3             3
+# wallclock                  3601.66       100.046       100.046       100.047
+# user                       3415.55       94.8764       93.8339       99.5182
+# system                     107.939        2.9983       1.33608       3.96025
+# mpi                        1510.15       41.9485       6.26391       47.8959
+# %comm                                    41.9289         6.261       47.8737
+# gflop/sec               0.00405845   0.000112735   0.000110591   0.000114806
+#
+# PAPI_TOT_INS           1.15144e+13   3.19845e+11   3.15357e+11   3.38534e+11
+# PAPI_FP_OPS            4.06035e+08   1.12787e+07   1.10643e+07   1.14859e+07
+# PAPI_L1_DCA            4.75906e+12   1.32196e+11   1.30296e+11   1.39809e+11
+# PAPI_L1_DCM            2.05445e+10   5.70681e+08   2.55953e+08   7.08429e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Scatter                1451.18            72         96.10        40.29
+# MPI_Allreduce              44.6681          2448          2.96         1.24
+# MPI_Rsend                  6.23784         15120          0.41         0.17
+# MPI_Reduce_scatter         5.01124           576          0.33         0.14
+# MPI_Barrier                1.52506          1656          0.10         0.04
+# MPI_Irecv                 0.811563         15120          0.05         0.02
+# MPI_Recv                  0.295849         21420          0.02         0.01
+# MPI_Waitall               0.200962           432          0.01         0.01
+# MPI_Send                  0.178198         21420          0.01         0.00
+# MPI_Allgather            0.0260754           252          0.00         0.00
+# MPI_Scan                0.00863848            72          0.00         0.00
+# MPI_Comm_rank          0.000942768          1296          0.00         0.00
+# MPI_Comm_size          0.000213613           864          0.00         0.00
+##############################################################################
+# region  : MatMat       [ntasks] =     36
+#
+#                           [total]         <avg>           min           max 
+# entries                         36             1             1             1
+# wallclock                  1684.42       46.7894       46.7893       46.7897
+# user                       1679.86       46.6627       46.6109       46.7149
+# system                     3.77624      0.104896      0.056004       0.15201
+# mpi                        88.4647       2.45735       1.95263       3.17093
+# %comm                                    5.25192       4.17324       6.77703
+# gflop/sec                 0.057142    0.00158728    0.00155723    0.00161795
+#
+# PAPI_TOT_INS           1.64149e+12   4.55971e+10   4.39592e+10   4.77436e+10
+# PAPI_FP_OPS            2.67365e+09   7.42682e+07    7.2862e+07   7.57032e+07
+# PAPI_L1_DCA            7.15203e+11   1.98667e+10   1.91678e+10   2.07086e+10
+# PAPI_L1_DCM            1.66691e+10   4.63031e+08   4.54355e+08   4.72457e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Rsend                  44.0067         75600         49.74         2.61
+# MPI_Allreduce              34.1386          7920         38.59         2.03
+# MPI_Reduce_scatter         3.08932          2520          3.49         0.18
+# MPI_Recv                   2.23835        100800          2.53         0.13
+# MPI_Barrier                2.12006          7596          2.40         0.13
+# MPI_Waitall                1.53479          2160          1.73         0.09
+# MPI_Send                  0.735421        100800          0.83         0.04
+# MPI_Irecv                 0.527582         75600          0.60         0.03
+# MPI_Allgather            0.0692775           720          0.08         0.00
+# MPI_Comm_rank           0.00386358          5760          0.00         0.00
+# MPI_Comm_size          0.000790715          3600          0.00         0.00
+###############################################################################
+Application 11520823 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script36_ipm
+ +          Job Id: 7224269.nid00003
+ +          System: franklin
+ +     Queued Time: Sun Jun 26 18:00:34 2011
+ +      Start Time: Sun Jun 26 19:58:24 2011
+ + Completion Time: Sun Jun 26 20:00:55 2011
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:24236:nid00092,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5228kb,vmem=22344kb,walltime=00:02:31
+ +     Acct String: 0
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests/EpetraExt
+ +     Submit Args: script36_ipm
+ + --------------------------------------------------------------------------
+

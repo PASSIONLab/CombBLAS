@@ -1,0 +1,27 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+A has 16334935 nonzeros
+B has 16335787 nonzeros
+C has 123910172 nonzeros
+EpetraExt multiplications finished
+33.154378 seconds elapsed per iteration
+C has 123910172 nonzeros
+Application 11503965 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_ipm
+ +          Job Id: 7223004.nid00003
+ +          System: franklin
+ +     Queued Time: Fri Jun 24 17:31:27 2011
+ +      Start Time: Fri Jun 24 17:31:45 2011
+ + Completion Time: Fri Jun 24 17:40:59 2011
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:82244:nid00256,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5592kb,vmem=22728kb,walltime=00:09:14
+ +     Acct String: 0
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests/EpetraExt
+ +     Submit Args: script256_ipm
+ + --------------------------------------------------------------------------
+

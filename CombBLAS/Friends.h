@@ -244,11 +244,12 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 	{
 		if(A.getnsplit() > 0)
 		{
-			cout << "Call dcsc_gespmv_threaded instead" << endl;
+			SpParHelper::Print("Call dcsc_gespmv_threaded instead\n");
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+			SpParHelper::Print("Calling optimized SpMXSpV without the SPA\n");
+			SpMXSpV_Optimized<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }

@@ -1,0 +1,164 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Data read
+Warmed up for DoubleBuff
+Double buffered multiplications finished
+50.428871 seconds elapsed per iteration
+Warmed up for Synch
+Synchronous multiplications finished
+45.505767 seconds elapsed per iteration
+Warmed up for PassiveTarget
+Passive target multiplications finished
+50.788787 seconds elapsed per iteration
+##IPMv0.983####################################################################
+# 
+# command : ./MultTime /scratch/scratchdirs/abuluc/SCALE21-RMAT/input1_0 /scratch/scratchdirs/abuluc/SCALE21-RMAT/input2_0  (completed)
+# host    : nid08587/x86_64_Linux          mpi_tasks : 1 on 1 nodes
+# start   : 06/26/11/19:29:53              wallclock : 1693.941895 sec
+# stop    : 06/26/11/19:58:07              %comm     : 0.06 
+# gbytes  : 7.36001e+00 total              gflop/sec : 2.51905e-03 total
+#
+##############################################################################
+# region  : *       [ntasks] =      1
+#
+#                           [total]         <avg>           min           max 
+# entries                          1             1             1             1
+# wallclock                  1693.94       1693.94       1693.94       1693.94
+# user                       1473.34       1473.34       1473.34       1473.34
+# system                      220.29        220.29        220.29        220.29
+# mpi                       0.937245      0.937245      0.937245      0.937245
+# %comm                                  0.0553292     0.0553292     0.0553292
+# gflop/sec               0.00251905    0.00251905    0.00251905    0.00251905
+# gbytes                     7.36001       7.36001       7.36001       7.36001
+#
+# PAPI_TOT_INS           3.64759e+12   3.64759e+12   3.64759e+12   3.64759e+12
+# PAPI_FP_OPS            4.26713e+09   4.26713e+09   4.26713e+09   4.26713e+09
+# PAPI_L1_DCA            1.48963e+12   1.48963e+12   1.48963e+12   1.48963e+12
+# PAPI_L1_DCM            3.66304e+10   3.66304e+10   3.66304e+10   3.66304e+10
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Scatterv              0.934105          3000         99.67         0.06
+# MPI_Scatter             0.00252219          1004          0.27         0.00
+# MPI_Allreduce           0.00020413            66          0.02         0.00
+# MPI_Allgather          0.000158383           440          0.02         0.00
+# MPI_Bcast              0.000109852           268          0.01         0.00
+# MPI_Barrier            8.87814e-05            29          0.01         0.00
+# MPI_Comm_rank          5.38628e-05           217          0.01         0.00
+# MPI_Comm_size          2.48305e-06            37          0.00         0.00
+##############################################################################
+# region  : SpGEMM_PassiveTarget       [ntasks] =      1
+#
+#                           [total]         <avg>           min           max 
+# entries                          1             1             1             1
+# wallclock                  507.853       507.853       507.853       507.853
+# user                       438.199       438.199       438.199       438.199
+# system                     69.6884       69.6884       69.6884       69.6884
+# mpi                    8.50217e-05   8.50217e-05   8.50217e-05   8.50217e-05
+# %comm                                1.67414e-05   1.67414e-05   1.67414e-05
+# gflop/sec               0.00254613    0.00254613    0.00254613    0.00254613
+#
+# PAPI_TOT_INS           1.09769e+12   1.09769e+12   1.09769e+12   1.09769e+12
+# PAPI_FP_OPS            1.29306e+09   1.29306e+09   1.29306e+09   1.29306e+09
+# PAPI_L1_DCA            4.49519e+11   4.49519e+11   4.49519e+11   4.49519e+11
+# PAPI_L1_DCM            1.30564e+10   1.30564e+10   1.30564e+10   1.30564e+10
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allreduce          6.04543e-05            20         71.10         0.00
+# MPI_Allgather          1.74835e-05           160         20.56         0.00
+# MPI_Comm_rank          4.00687e-06            50          4.71         0.00
+# MPI_Barrier            2.39478e-06             1          2.82         0.00
+# MPI_Comm_size          6.82194e-07            10          0.80         0.00
+##############################################################################
+# region  : SpGEMM_DoubleBuff       [ntasks] =      1
+#
+#                           [total]         <avg>           min           max 
+# entries                          1             1             1             1
+# wallclock                  504.254       504.254       504.254       504.254
+# user                       435.047       435.047       435.047       435.047
+# system                     69.1403       69.1403       69.1403       69.1403
+# mpi                    0.000276437   0.000276437   0.000276437   0.000276437
+# %comm                                5.48209e-05   5.48209e-05   5.48209e-05
+# gflop/sec               0.00256431    0.00256431    0.00256431    0.00256431
+#
+# PAPI_TOT_INS           1.09644e+12   1.09644e+12   1.09644e+12   1.09644e+12
+# PAPI_FP_OPS            1.29306e+09   1.29306e+09   1.29306e+09   1.29306e+09
+# PAPI_L1_DCA            4.48289e+11   4.48289e+11   4.48289e+11   4.48289e+11
+# PAPI_L1_DCM            1.25174e+10   1.25174e+10   1.25174e+10   1.25174e+10
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allgather          8.47546e-05           160         30.66         0.00
+# MPI_Bcast              6.48903e-05           160         23.47         0.00
+# MPI_Allreduce          6.00783e-05            20         21.73         0.00
+# MPI_Barrier            3.50991e-05            11         12.70         0.00
+# MPI_Comm_rank          3.09846e-05            90         11.21         0.00
+# MPI_Comm_size          6.29574e-07            10          0.23         0.00
+##############################################################################
+# region  : SpGEMM_Synch       [ntasks] =      1
+#
+#                           [total]         <avg>           min           max 
+# entries                          1             1             1             1
+# wallclock                  455.026       455.026       455.026       455.026
+# user                       396.373       396.373       396.373       396.373
+# system                     58.6837       58.6837       58.6837       58.6837
+# mpi                    0.000176975   0.000176975   0.000176975   0.000176975
+# %comm                                3.88934e-05   3.88934e-05   3.88934e-05
+# gflop/sec               0.00284173    0.00284173    0.00284173    0.00284173
+#
+# PAPI_TOT_INS           8.68224e+11   8.68224e+11   8.68224e+11   8.68224e+11
+# PAPI_FP_OPS            1.29306e+09   1.29306e+09   1.29306e+09   1.29306e+09
+# PAPI_L1_DCA            3.39097e+11   3.39097e+11   3.39097e+11   3.39097e+11
+# PAPI_L1_DCM            7.58926e+09   7.58926e+09   7.58926e+09   7.58926e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Allreduce          6.12496e-05            20         34.61         0.00
+# MPI_Allgather          3.94178e-05            80         22.27         0.00
+# MPI_Barrier            3.54526e-05            11         20.03         0.00
+# MPI_Bcast              2.93334e-05            80         16.57         0.00
+# MPI_Comm_rank          1.08892e-05            50          6.15         0.00
+# MPI_Comm_size           6.3263e-07            10          0.36         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =      1
+#
+#                           [total]         <avg>           min           max 
+# entries                          5             5             5             5
+# wallclock                  226.692       226.692       226.692       226.692
+# user                       203.721       203.721       203.721       203.721
+# system                     22.7774       22.7774       22.7774       22.7774
+# mpi                       0.936706      0.936706      0.936706      0.936706
+# %comm                                   0.413207      0.413207      0.413207
+# gflop/sec                0.0017113     0.0017113     0.0017113     0.0017113
+#
+# PAPI_TOT_INS            5.8524e+11    5.8524e+11    5.8524e+11    5.8524e+11
+# PAPI_FP_OPS            3.87939e+08   3.87939e+08   3.87939e+08   3.87939e+08
+# PAPI_L1_DCA            2.52728e+11   2.52728e+11   2.52728e+11   2.52728e+11
+# PAPI_L1_DCM            3.46738e+09   3.46738e+09   3.46738e+09   3.46738e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Scatterv              0.934105          3000         99.72         0.41
+# MPI_Scatter             0.00252219          1004          0.27         0.00
+# MPI_Allreduce          2.23478e-05             6          0.00         0.00
+# MPI_Allgather          1.67268e-05            40          0.00         0.00
+# MPI_Barrier            1.58348e-05             6          0.00         0.00
+# MPI_Bcast              1.56279e-05            28          0.00         0.00
+# MPI_Comm_rank          7.98213e-06            27          0.00         0.00
+# MPI_Comm_size          5.38654e-07             7          0.00         0.00
+###############################################################################
+Application 11520667 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1_ipm
+ +          Job Id: 7224306.nid00003
+ +          System: franklin
+ +     Queued Time: Sun Jun 26 18:24:44 2011
+ +      Start Time: Sun Jun 26 19:29:45 2011
+ + Completion Time: Sun Jun 26 19:58:00 2011
+ +            User: abuluc
+ +        MOM Host: nid04099
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:26399:nid00092,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5184kb,vmem=22284kb,walltime=00:28:15
+ +     Acct String: 0
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script1_ipm
+ + --------------------------------------------------------------------------
+

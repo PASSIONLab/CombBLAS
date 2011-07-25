@@ -1,0 +1,24 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+[NID 08588] 2011-06-26 20:11:55 Apid 11520879: initiated application termination
+[NID 08588] 2011-06-26 20:12:02 Apid 11520879: OOM killer terminated this process.
+Application 11520879 exit signals: Killed
+Application 11520879 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4_ipm
+ +          Job Id: 7224273.nid00003
+ +          System: franklin
+ +     Queued Time: Sun Jun 26 18:01:41 2011
+ +      Start Time: Sun Jun 26 20:09:39 2011
+ + Completion Time: Sun Jun 26 20:11:56 2011
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:24264:nid00092,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5176kb,vmem=22292kb,walltime=00:02:17
+ +     Acct String: 137
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests/EpetraExt
+ +     Submit Args: script4_ipm
+ + --------------------------------------------------------------------------
+
