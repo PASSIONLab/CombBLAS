@@ -1,0 +1,30 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+A has 16334935 nonzeros
+B has 16335787 nonzeros
+C has 123910172 nonzeros
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+_pmii_daemon(SIGCHLD): [NID 08463] [c14-2c2s3n3] [Sun Jun 26 18:07:26 2011] PE 528 exit signal Aborted
+[NID 08463] 2011-06-26 18:07:21 Apid 11519930: initiated application termination
+Application 11519930 exit codes: 134
+Application 11519930 exit signals: Killed
+Application 11519930 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script529_ipm
+ +          Job Id: 7224268.nid00003
+ +          System: franklin
+ +     Queued Time: Sun Jun 26 18:00:28 2011
+ +      Start Time: Sun Jun 26 18:02:13 2011
+ + Completion Time: Sun Jun 26 18:07:22 2011
+ +            User: abuluc
+ +        MOM Host: nid00576
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:24229:nid00092,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=6128kb,vmem=23252kb,walltime=00:05:08
+ +     Acct String: 137
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests/EpetraExt
+ +     Submit Args: script529_ipm
+ + --------------------------------------------------------------------------
+

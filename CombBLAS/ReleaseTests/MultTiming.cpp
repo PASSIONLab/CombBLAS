@@ -55,59 +55,94 @@ int main(int argc, char* argv[])
 
 		ifstream inputA(Aname.c_str());
 		ifstream inputB(Bname.c_str());
-
 		MPI::COMM_WORLD.Barrier();
-	
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 
-		PSpMat<double>::MPI_DCCols A, B,C;	// construct objects
+		PSpMat<double>::MPI_DCCols A, B;	// construct objects
 		
 		A.ReadDistribute(inputA, 0);
 		B.ReadDistribute(inputB, 0);
-
 		SpParHelper::Print("Data read\n");
-		
-		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
-		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
-		SpParHelper::Print("Warmed up for Synch\n");
-		
+
+		// force the calling of C's destructor
+		{
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, B);
+			SpParHelper::Print("Warmed up for DoubleBuff\n");
+		}	
 		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(1,"SpGEMM_DoubleBuff");
 		double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
-	
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, B);
 		}
-		
 		MPI::COMM_WORLD.Barrier();
 		double t2 = MPI::Wtime(); 	
+		MPI_Pcontrol(-1,"SpGEMM_DoubleBuff");
+		if(myrank == 0)
+		{
+			cout<<"Double buffered multiplications finished"<<endl;	
+			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
+		}
 
+		// force the calling of C's destructor
+		{	
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+		}
+		SpParHelper::Print("Warmed up for Synch\n");
+		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(1,"SpGEMM_Synch");
+		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+		for(int i=0; i<ITERATIONS; i++)
+		{
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+		}
+		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(-1,"SpGEMM_Synch");
+		t2 = MPI::Wtime(); 	
 		if(myrank == 0)
 		{
 			cout<<"Synchronous multiplications finished"<<endl;	
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
 
-		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+		/*
+		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
+		SpParHelper::Print("Warmed up for ActiveTarget\n");
+		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(1,"SpGEMM_ActiveTarget");
+		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+		for(int i=0; i<ITERATIONS; i++)
+		{
+			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
+		}
+		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(-1,"SpGEMM_ActiveTarget");
+		t2 = MPI::Wtime(); 	
+		if(myrank == 0)
+		{
+			cout<<"Active target multiplications finished"<<endl;	
+			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
+		}		
+
 		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
 		SpParHelper::Print("Warmed up for PassiveTarget\n");
-
 		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(1,"SpGEMM_PassiveTarget");
 		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
-	
 		for(int i=0; i<ITERATIONS; i++)
 		{
 			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
 		}
-		
 		MPI::COMM_WORLD.Barrier();
+		MPI_Pcontrol(-1,"SpGEMM_PassiveTarget");
 		t2 = MPI::Wtime(); 	
-
 		if(myrank == 0)
 		{
 			cout<<"Passive target multiplications finished"<<endl;	
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
+		*/
 
 		inputA.clear();
 		inputA.close();
