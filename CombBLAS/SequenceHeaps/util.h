@@ -94,7 +94,9 @@ inline double limit(double x, double bound)
 
 /////////////////////// timing /////////////////////
 #include <time.h>
-#include <sys/time.h>
+
+// AL: sys/time.h does not exist on Windows, and this function is never used.
+/*#include <sys/time.h>
 
 inline double wallClockTime()
 { // struct timespec tp;
@@ -106,7 +108,7 @@ inline double wallClockTime()
 
   // clock_gettime(CLOCK_REALTIME, &tp);
   // return tp.tv_sec + tp.tv_nsec * 1e-9;
-}
+}*/
 
 // elapsed CPU time see also /usr/include/sys/time.h
 inline double cpuTime()
