@@ -13,11 +13,13 @@
 #include <cmath>
 #include <cassert>
 
-#ifdef NOTR1
+// TR1 imports are done in CombBLAS.h
+/*#ifdef NOTR1
 	#include <boost/tr1/tuple.hpp>
 #else
 	#include <tr1/tuple>
 #endif
+*/
 #include "SpMat.h"
 #include "SpDefs.h"
 #include "StackEntry.h"

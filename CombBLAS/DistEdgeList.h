@@ -35,6 +35,8 @@ THE SOFTWARE.
 #include <mpi.h>
 #include <vector>
 #include <iterator>
+// TR1 imports are done in CombBLAS.h
+/*
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/tuple.hpp>
@@ -42,6 +44,7 @@ THE SOFTWARE.
 	#include <tr1/memory>	// for shared_ptr
 	#include <tr1/tuple>
 #endif
+*/
 #include "SpMat.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"

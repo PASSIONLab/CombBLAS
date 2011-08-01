@@ -15,13 +15,14 @@
 #include <mpi.h>
 #include <vector>
 #include <iterator>
-#ifdef NOTR1
+// TR1 imports are done in CombBLAS.h
+/*#ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/tuple.hpp>
 #else
 	#include <tr1/memory>	// for shared_ptr
 	#include <tr1/tuple>
-#endif
+#endif*/
 
 #include "SpMat.h"
 #include "SpTuples.h"

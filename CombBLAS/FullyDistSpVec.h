@@ -32,13 +32,15 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 #include <utility>
-#ifdef NOTR1
+// TR1 imports are done in CombBLAS.h
+/*#ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/unordered_map.hpp>
 #else
 	#include <tr1/memory>
 	#include <tr1/unordered_map>
 #endif
+*/
 #include "CommGrid.h"
 #include "promote.h"
 #include "SpParMat.h"
