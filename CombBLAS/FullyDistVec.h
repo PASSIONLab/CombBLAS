@@ -34,11 +34,14 @@ THE SOFTWARE.
 #include <vector>
 #include <utility>
 #include <iterator>
+// TR1 imports are done in CombBLAS.h
+/*
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 #else
 	#include <tr1/memory>
 #endif
+*/
 #include "CommGrid.h"
 #include "FullyDist.h"
 #include "Exception.h"

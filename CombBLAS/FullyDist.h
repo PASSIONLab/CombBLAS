@@ -34,6 +34,7 @@ THE SOFTWARE.
 using namespace std;
 
 // ABAB: Future enable_if
+// AL: IF YOU ENABLE THIS, PUT THIS IN COMBBLAS.H WHERE TR1 IS PROPERLY HANDLED. This code breaks on C++11.
 // #ifdef NOTR1
 // 	#include <boost/utility/enable_if.hpp>
 // 	#include <boost/type_traits/is_integral.hpp>
