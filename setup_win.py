@@ -142,7 +142,7 @@ PCB+"pyObjDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pyS
         extra_compile_args = extra_compile_args,
         extra_link_args = extra_link_args,
         define_macros = macros,
-	include_dirs=["C:\Program Files\MPICH2\include",COMBBLAS+"win_include"],
+	include_dirs=["C:\Program Files\MPICH2\include",COMBBLAS+"msinttypes"],
 	library_dirs=["C:\Program Files\MPICH2\lib"],
 	libraries=["mpi","cxx"])
 	#define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs)
