@@ -1090,6 +1090,8 @@ CombBLAS/mfiles/readvector.m -text
 CombBLAS/mfiles/rmatdenseness.m -text
 CombBLAS/mfiles/writecolvector.m -text
 CombBLAS/mfiles/writematrix.m -text
+CombBLAS/msinttypes/inttypes.h -text
+CombBLAS/msinttypes/stdint.h -text
 CombBLAS/promote.h -text
 CombBLAS/psort-1.0/README -text
 CombBLAS/psort-1.0/doc/psort.pdf -text svneol=unset#unset
