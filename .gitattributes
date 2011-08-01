@@ -1307,6 +1307,7 @@ kdt/pyCombBLAS/pySpParVec.h -text
 kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
+/setup_win.py -text
 test/TestDiGraph.py -text
 test/TestHyGraph.py -text
 test/TestKDT.py -text
