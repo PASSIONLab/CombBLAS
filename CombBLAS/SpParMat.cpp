@@ -19,6 +19,7 @@ using namespace std;
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
 {
+	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	if(!input.is_open())
 	{
 		perror("Input file doesn't exist\n");
@@ -31,12 +32,14 @@ SpParMat< IT,NT,DER >::SpParMat (ifstream & input, MPI::Intracomm & world)
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (DER * myseq, MPI::Intracomm & world): spSeq(myseq)
 {
+	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	commGrid.reset(new CommGrid(world, 0, 0));
 }
 
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
+	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	commGrid.reset(new CommGrid(*grid)); 
 }	
 
@@ -47,6 +50,8 @@ SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat ()
 {
+	
+	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
 	spSeq = new DER();
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 }
@@ -1391,8 +1396,8 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 
 
 template <class IT, class NT, class DER>
-template <typename OT>
-void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<int32_t,OT> & optbuf)
+template <typename LIT, typename OT>
+void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 {
 	if(spSeq->getnsplit() > 0)
 	{
@@ -1599,20 +1604,21 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 	{
 		std::string s;
 		std::stringstream strm;
-		strm << 0 << " " << totalm << " " << totaln << " " << totnnz << endl;
+		strm << totalm << " " << totaln << " " << totnnz << endl;
 		s = strm.str();
-		out.open(filename.c_str(),std::ios_base::app);
+		out.open(filename.c_str(),ios_base::trunc);
 		flinelen = s.length();
 		out.write(s.c_str(), flinelen);
 		out.close();
 	}
-	int roffset;	// TODO set this !
-	struct mystruct
-	{
-		IT ind;
-		NT num;
-	};
-	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
+	int colrank = commGrid->GetRankInProcCol(); 
+	int colneighs = commGrid->GetGridRows();
+	IT * locnrows = new IT[colneighs];	// number of rows is calculated by a reduction among the processor column
+	locnrows[colrank] = (IT) getlocalrows();
+	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
+	IT roffset = accumulate(locnrows, locnrows+colrank, 0);
+	delete [] locnrows;	
+	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(pair<IT,NT>));
 	datatype.Commit();
 	int dsize = datatype.Get_size();
 
@@ -1622,7 +1628,7 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 		if(commGrid->GetRankInProcCol() == i)	// only the ith processor row
 		{ 
 			IT localrows = spSeq->getnrow();    // same along the processor row
-			vector< vector<mystruct> > csr(localrows);
+			vector< vector< pair<IT,NT> > > csr(localrows);
 			if(commGrid->GetRankInProcRow() == 0)	// get the head of processor row 
 			{
 				IT localcols = spSeq->getncol();    // might be different on the last processor on this processor row
@@ -1631,10 +1637,7 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 				{
 					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 					{
-						mystruct data;
-						data.ind = colit.colid();
-						data.num = nzit.value();
-						csr[nzit.rowid()].push_back(data);
+						csr[nzit.rowid()].push_back( make_pair(colit.colid(), nzit.value()) );
 					}
 				}
 			}
@@ -1647,14 +1650,11 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 				{
 					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 					{
-						mystruct data;
-						data.ind = colit.colid() + noffset;
-						data.num = nzit.value();
-						csr[nzit.rowid()].push_back(data);
+						csr[nzit.rowid()].push_back( make_pair(colit.colid() + noffset, nzit.value()) );
 					}
 				}
 			}
-			mystruct * ents;
+			pair<IT,NT> * ents;
 			int * gsizes, * dpls;
 			if(commGrid->GetRankInProcRow() == 0)	// only the head of processor row 
 			{
@@ -1665,25 +1665,24 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 			for(int j = 0; j < localrows; ++j)	
 			{
 				IT rowcnt;
-				sort(csr[i].begin(), csr[i].end());
-				int mysize = csr[i].size();
+				sort(csr[j].begin(), csr[j].end());
+				int mysize = csr[j].size();
 				(commGrid->GetRowWorld()).Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, 0);
 				if(commGrid->GetRankInProcRow() == 0)	
 				{
 					rowcnt = std::accumulate(gsizes, gsizes+proccols, static_cast<IT>(0));
 					std::partial_sum(gsizes, gsizes+proccols-1, dpls+1);
-					ents = new mystruct[rowcnt];	// nonzero entries in the j'th local row
+					ents = new pair<IT,NT>[rowcnt];	// nonzero entries in the j'th local row
 				}
 
 				// int MPI_Gatherv (void* sbuf, int scount, MPI_Datatype stype, 
 				// 		    void* rbuf, int *rcount, int* displs, MPI_Datatype rtype, int root, MPI_Comm comm)	
 				(commGrid->GetRowWorld()).Gatherv(SpHelper::p2a(csr[j]), mysize, datatype, ents, gsizes, dpls, datatype, 0);
-		
 				if(commGrid->GetRankInProcRow() == 0)	
 				{
 					for(int k=0; k< rowcnt; ++k)
 					{
-						out << j + roffset << "\t" << ents[k].ind <<"\t" << ents[k].num << endl;
+						out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t" << ents[k].second << endl;
 					}
 					delete [] ents;
 				}

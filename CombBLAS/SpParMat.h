@@ -113,8 +113,8 @@ public:
 
 	IT RemoveLoops();	// returns the number of loops removed
 	
-	template <typename OT>
-	void OptimizeForGraph500(OptBuf<int32_t,OT> & optbuf);
+	template <typename LIT, typename OT>
+	void OptimizeForGraph500(OptBuf<LIT,OT> & optbuf);
 
 	void ActivateThreading(int numsplits);
 	

@@ -1387,7 +1387,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		}
 		else
 		{
-			dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+			dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs, indexisvalue);
 		}
 		DeleteAll(indacc,numacc);
 	}

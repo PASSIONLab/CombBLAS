@@ -10,6 +10,12 @@
 #else
         #include <tr1/memory>
 #endif
+using namespace std;
+#ifdef TIMING
+double cblas_alltoalltime;
+double cblas_allgathertime;
+#endif
+
 #include "../SpParVec.h"
 #include "../SpTuples.h"
 #include "../SpDCCols.h"
@@ -19,9 +25,6 @@
 #include "../FullyDistVec.h"
 #include "../FullyDistSpVec.h"
 #include "../ParFriends.h"
-
-using namespace std;
-#define NOGEMM
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -33,7 +36,6 @@ public:
 	typedef SpDCCols < int64_t, NT > DCCols;
 	typedef SpParMat < int64_t, NT, DCCols > MPI_DCCols;
 };
-
 
 int main(int argc, char* argv[])
 {
@@ -108,6 +110,7 @@ int main(int argc, char* argv[])
 		if (CControl == C)
 		{
 			SpParHelper::Print("Synchronous Multiplication working correctly\n");	
+			// C.SaveGathered("CControl.txt");
 		}
 		else
 		{
@@ -124,7 +127,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in double buffered multiplication, go fix it!\n");	
 		}
 #endif
-		OptBuf<int64_t, int64_t> optbuf;
+		OptBuf<int32_t, int64_t> optbuf;
 		PSpMat<bool>::MPI_DCCols ABool(A);
 
 		spx.Apply(bind1st (multiplies<double>(), 100));
@@ -142,7 +145,7 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in graph500 optimizations, go fix it!\n");	
 		}
-		ABool.ActivateThreading(4);
+		ABool.ActivateThreading(6);
 		FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
 
 		if (spyint64 == spyint64_threaded)
