@@ -38,14 +38,11 @@ THE SOFTWARE.
 #include <fstream>
 #include <stdint.h>
 
-// TR1 imports are done in CombBLAS.h
-/*
 #ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 #else
 	#include <tr1/memory>
 #endif
-*/
 #include "MPIType.h"
 
 using namespace std;

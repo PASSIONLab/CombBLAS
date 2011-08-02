@@ -81,7 +81,7 @@ namespace vpsort {
 		   MPI_valueType, MPI_distanceType, comm);
     
     // Communicate to destination
-    progress (rank, 2, "alltoall");
+    progress (rank, 2, const_cast<char *>(string("alltoall").c_str()));
     _Distance n_loc = last - first;
     _ValueType *trans_data = new _ValueType[n_loc];
     _Distance boundaries[nproc+1];
@@ -99,7 +99,7 @@ namespace vpsort {
     MPI_Type_free (&MPI_distanceType);
 
     // Finish    
-    progress (rank, 4, "finish");
+    progress (rank, 4, const_cast<char *>(string("finish").c_str()));
 
     return;
   }

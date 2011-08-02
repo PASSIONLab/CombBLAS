@@ -93,7 +93,6 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 		// The disp displacement argument specifies the position 
 		// (absolute offset in bytes from the beginning of the file) 
 		MPI::Offset disp = lengthuntil * sizeof(uint32_t);
-		cout << "Displacement: " << disp << endl;
     		thefile.Set_view(disp, MPI::UNSIGNED, MPI::UNSIGNED, "native", MPI::INFO_NULL);
 		uint32_t * gen_edges = new uint32_t[prelens[rank]];
 	
@@ -218,7 +217,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			int root = commGrid->GetDiagOfProcCol();
 			if(v.diagonal)
 			{	
-				scaler = const_cast<NT*>(&v.arr[0]);	
+				scaler = const_cast<NT*>(SpHelper::p2a(v.arr));	
 			}
 			else
 			{	
@@ -242,7 +241,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			int root = commGrid->GetDiagOfProcRow();
 			if(v.diagonal)
 			{	
-				scaler = const_cast<NT*>(&v.arr[0]);	
+				scaler = const_cast<NT*>(SpHelper::p2a(v.arr));	
 			}
 			else
 			{	
@@ -291,7 +290,7 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _Bina
 			World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
 	
 			NT * trxnums = new NT[trxsize];
-			World.Sendrecv(const_cast<NT*>(&x.arr[0]), xsize, MPIType<NT>(), diagneigh, TRX, trxnums, trxsize, MPIType<NT>(), diagneigh, TRX);
+			World.Sendrecv(const_cast<NT*>(SpHelper::p2a(x.arr)), xsize, MPIType<NT>(), diagneigh, TRX, trxnums, trxsize, MPIType<NT>(), diagneigh, TRX);
 
 			int colneighs = ColWorld.Get_size();
 			int colrank = ColWorld.Get_rank();
@@ -329,7 +328,7 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _Bina
 			int accsize = std::accumulate(rowsize, rowsize+rowneighs, 0);
 			NT * scaler = new NT[accsize];
 
-			RowWorld.Allgatherv(const_cast<NT*>(&x.arr[0]), xsize, MPIType<NT>(), scaler, rowsize, dpls, MPIType<NT>());
+			RowWorld.Allgatherv(const_cast<NT*>(SpHelper::p2a(x.arr)), xsize, MPIType<NT>(), scaler, rowsize, dpls, MPIType<NT>());
 			DeleteAll(rowsize, dpls);
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
@@ -439,7 +438,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				if(colrank == i)
 				{
 					trarr.resize(loclens[i]);
-					recvbuf = &trarr[0];	
+					recvbuf = SpHelper::p2a(trarr);	
 				}
 				(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root  = i
 				delete [] sendbuf;
@@ -452,7 +451,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			(commGrid->GetWorld()).Sendrecv(&trlen, 1, MPIType<IT>(), diagneigh, TRNNZ, &reallen, 1, MPIType<IT>(), diagneigh, TRNNZ);
 	
 			rvec.arr.resize(reallen);
-			(commGrid->GetWorld()).Sendrecv(&trarr[0], trlen, MPIType<VT>(), diagneigh, TRX, &rvec.arr[0], reallen, MPIType<VT>(), diagneigh, TRX);
+			(commGrid->GetWorld()).Sendrecv(SpHelper::p2a(trarr), trlen, MPIType<VT>(), diagneigh, TRX, SpHelper::p2a(rvec.arr), reallen, MPIType<VT>(), diagneigh, TRX);
 			rvec.glen = getncol();	// ABAB: Put a sanity check here
 			break;
 
@@ -495,7 +494,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				if(rowrank == i)
 				{
 					rvec.arr.resize(loclens[i]);
-					recvbuf = &rvec.arr[0];	
+					recvbuf = SpHelper::p2a(rvec.arr);	
 				}
 				(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
 				delete [] sendbuf;
@@ -554,7 +553,7 @@ void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOper
 			if(rvec.diagonal)
 			{
 				rvec.arr.resize(getlocalcols());
-				recvbuf = &rvec.arr[0];	
+				recvbuf = SpHelper::p2a(rvec.arr);	
 			}
 			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, getlocalcols(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root);
 			delete [] sendbuf;
@@ -577,7 +576,7 @@ void SpParMat<IT,NT,DER>::Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOper
 			if(rvec.diagonal)
 			{
 				rvec.arr.resize(getlocalrows());
-				recvbuf = &(rvec.arr[0]);	
+				recvbuf = SpHelper::p2a(rvec.arr);	
 			}
 			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, getlocalrows(), MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), root);
 			delete [] sendbuf;
@@ -942,8 +941,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			if(i != diaginrow)	// destination is not me	
 			{
-				(commGrid->rowWorld).Send(&(rowdata_rowid[i][0]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->rowWorld).Send(&(rowdata_colid[i][0]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				(commGrid->rowWorld).Send(SpHelper::p2a(rowdata_rowid[i]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->rowWorld).Send(SpHelper::p2a(rowdata_colid[i]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
 			}
 		}
 
@@ -951,8 +950,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			if(i != diagincol)	// destination is not me	
 			{
-				(commGrid->colWorld).Send(&(coldata_rowid[i][0]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->colWorld).Send(&(coldata_colid[i][0]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				(commGrid->colWorld).Send(SpHelper::p2a(coldata_rowid[i]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
+				(commGrid->colWorld).Send(SpHelper::p2a(coldata_colid[i]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
 			}
 		}
 		DeleteAll(pcnts, qcnts);
@@ -1393,7 +1392,7 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 
 template <class IT, class NT, class DER>
 template <typename OT>
-void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<IT,OT> & optbuf)
+void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<int32_t,OT> & optbuf)
 {
 	if(spSeq->getnsplit() > 0)
 	{
@@ -1535,54 +1534,170 @@ void SpParMat<IT,NT,DER>::Transpose()
 	}
 	else
 	{
-		SpTuples<IT,NT> Atuples(*spSeq);
-		IT locnnz = Atuples.getnnz();
-		IT * rows = new IT[locnnz];
-		IT * cols = new IT[locnnz];
+		typedef typename DER::LocalIT LIT;
+		SpTuples<LIT,NT> Atuples(*spSeq);
+		LIT locnnz = Atuples.getnnz();
+		LIT * rows = new LIT[locnnz];
+		LIT * cols = new LIT[locnnz];
 		NT * vals = new NT[locnnz];
-		for(IT i=0; i < locnnz; ++i)
+		for(LIT i=0; i < locnnz; ++i)
 		{
 			rows[i] = Atuples.colindex(i);	// swap (i,j) here
 			cols[i] = Atuples.rowindex(i);
 			vals[i] = Atuples.numvalue(i);
 		}
-		IT locm = getlocalcols();
-		IT locn = getlocalrows();
+		LIT locm = getlocalcols();
+		LIT locn = getlocalrows();
 		delete spSeq;
 
-		IT remotem, remoten, remotennz;
+		LIT remotem, remoten, remotennz;
 		swap(locm,locn);
 		int diagneigh = commGrid->GetComplementRank();
 
-		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<IT>(), diagneigh, TRTAGNZ);
-		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<IT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<IT>(), diagneigh, TRTAGM);
-		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<IT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<IT>(), diagneigh, TRTAGN);
+		commGrid->GetWorld().Sendrecv(&locnnz, 1, MPIType<LIT>(), diagneigh, TRTAGNZ, &remotennz, 1, MPIType<LIT>(), diagneigh, TRTAGNZ);
+		commGrid->GetWorld().Sendrecv(&locn, 1, MPIType<LIT>(), diagneigh, TRTAGM, &remotem, 1, MPIType<LIT>(), diagneigh, TRTAGM);
+		commGrid->GetWorld().Sendrecv(&locm, 1, MPIType<LIT>(), diagneigh, TRTAGN, &remoten, 1, MPIType<LIT>(), diagneigh, TRTAGN);
 	
-		IT * rowsrecv = new IT[remotennz];
-		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<IT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGROWS);
+		LIT * rowsrecv = new LIT[remotennz];
+		commGrid->GetWorld().Sendrecv(rows, locnnz, MPIType<LIT>(), diagneigh, TRTAGROWS, rowsrecv, remotennz, MPIType<LIT>(), diagneigh, TRTAGROWS);
 		delete [] rows;
 
-		IT * colsrecv = new IT[remotennz];
-		commGrid->GetWorld().Sendrecv(cols, locnnz, MPIType<IT>(), diagneigh, TRTAGCOLS, colsrecv, remotennz, MPIType<IT>(), diagneigh, TRTAGCOLS);
+		LIT * colsrecv = new LIT[remotennz];
+		commGrid->GetWorld().Sendrecv(cols, locnnz, MPIType<LIT>(), diagneigh, TRTAGCOLS, colsrecv, remotennz, MPIType<LIT>(), diagneigh, TRTAGCOLS);
 		delete [] cols;
 
 		NT * valsrecv = new NT[remotennz];
 		commGrid->GetWorld().Sendrecv(vals, locnnz, MPIType<NT>(), diagneigh, TRTAGVALS, valsrecv, remotennz, MPIType<NT>(), diagneigh, TRTAGVALS);
 		delete [] vals;
 
-		tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[remotennz];
-		for(IT i=0; i< remotennz; ++i)
+		tuple<LIT,LIT,NT> * arrtuples = new tuple<LIT,LIT,NT>[remotennz];
+		for(LIT i=0; i< remotennz; ++i)
 		{
 			arrtuples[i] = make_tuple(rowsrecv[i], colsrecv[i], valsrecv[i]);
 		}	
 		DeleteAll(rowsrecv, colsrecv, valsrecv);
-		ColLexiCompare<IT,NT> collexicogcmp;
+		ColLexiCompare<LIT,NT> collexicogcmp;
 		sort(arrtuples , arrtuples+remotennz, collexicogcmp );	// sort w.r.t columns here
 
 		spSeq = new DER();
 		spSeq->Create( remotennz, remotem, remoten, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
 	}	
 }		
+
+
+template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
+{
+	int proccols = commGrid->GetGridCols();
+	int procrows = commGrid->GetGridRows();
+	IT totalm = getnrow();
+	IT totaln = getncol();
+	IT totnnz = getnnz();
+	int flinelen = 0;
+	ofstream out;
+	if(commGrid->GetRank() == 0)
+	{
+		std::string s;
+		std::stringstream strm;
+		strm << 0 << " " << totalm << " " << totaln << " " << totnnz << endl;
+		s = strm.str();
+		out.open(filename.c_str(),std::ios_base::app);
+		flinelen = s.length();
+		out.write(s.c_str(), flinelen);
+		out.close();
+	}
+	int roffset;	// TODO set this !
+	struct mystruct
+	{
+		IT ind;
+		NT num;
+	};
+	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
+	datatype.Commit();
+	int dsize = datatype.Get_size();
+
+	IT nzr = 0;	// nonempty row counts per processor row
+	for(int i = 0; i < procrows; i++)	// for all processor row (in order)
+	{
+		if(commGrid->GetRankInProcCol() == i)	// only the ith processor row
+		{ 
+			IT localrows = spSeq->getnrow();    // same along the processor row
+			vector< vector<mystruct> > csr(localrows);
+			if(commGrid->GetRankInProcRow() == 0)	// get the head of processor row 
+			{
+				IT localcols = spSeq->getncol();    // might be different on the last processor on this processor row
+				(commGrid->GetRowWorld()).Bcast(&localcols, 1, MPIType<IT>(), 0); 
+				for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over nonempty subcolumns
+				{
+					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+					{
+						mystruct data;
+						data.ind = colit.colid();
+						data.num = nzit.value();
+						csr[nzit.rowid()].push_back(data);
+					}
+				}
+			}
+			else	// get the rest of the processors
+			{
+				IT n_perproc;
+				(commGrid->GetRowWorld()).Bcast(&n_perproc, 1, MPIType<IT>(), 0); 
+				IT noffset = commGrid->GetRankInProcRow() * n_perproc; 
+				for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over nonempty subcolumns
+				{
+					for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
+					{
+						mystruct data;
+						data.ind = colit.colid() + noffset;
+						data.num = nzit.value();
+						csr[nzit.rowid()].push_back(data);
+					}
+				}
+			}
+			mystruct * ents;
+			int * gsizes, * dpls;
+			if(commGrid->GetRankInProcRow() == 0)	// only the head of processor row 
+			{
+				out.open(filename.c_str(),std::ios_base::app);
+				gsizes = new int[proccols];
+				dpls = new int[proccols]();	// displacements (zero initialized pid) 
+			}
+			for(int j = 0; j < localrows; ++j)	
+			{
+				IT rowcnt;
+				sort(csr[i].begin(), csr[i].end());
+				int mysize = csr[i].size();
+				(commGrid->GetRowWorld()).Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, 0);
+				if(commGrid->GetRankInProcRow() == 0)	
+				{
+					rowcnt = std::accumulate(gsizes, gsizes+proccols, static_cast<IT>(0));
+					std::partial_sum(gsizes, gsizes+proccols-1, dpls+1);
+					ents = new mystruct[rowcnt];	// nonzero entries in the j'th local row
+				}
+
+				// int MPI_Gatherv (void* sbuf, int scount, MPI_Datatype stype, 
+				// 		    void* rbuf, int *rcount, int* displs, MPI_Datatype rtype, int root, MPI_Comm comm)	
+				(commGrid->GetRowWorld()).Gatherv(SpHelper::p2a(csr[j]), mysize, datatype, ents, gsizes, dpls, datatype, 0);
+		
+				if(commGrid->GetRankInProcRow() == 0)	
+				{
+					for(int k=0; k< rowcnt; ++k)
+					{
+						out << j + roffset << "\t" << ents[k].ind <<"\t" << ents[k].num << endl;
+					}
+					delete [] ents;
+				}
+			}
+			if(commGrid->GetRankInProcRow() == 0)
+			{
+				DeleteAll(gsizes, dpls);
+				out.close();
+			}
+		} // end_if the ith processor row 
+		commGrid->GetWorld().Barrier();		// signal the end of ith processor row iteration (so that all processors block)
+	}
+}
+
 
 // Prints in the following format suitable for I/O with PaToH
 // 1st line: <index_base(0 or 1)> <|V|> <|N|> <pins>
@@ -2076,9 +2191,9 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			IT * tempcols = new IT[recvcount];
 			NT * tempvals = new NT[recvcount];
 
-			(commGrid->rowWorld).Scatterv(rows, rcurptrs, rdispls, MPIType<IT>(), &temprows[0], recvcount,  MPIType<IT>(), rankinrow); 
-			(commGrid->rowWorld).Scatterv(cols, rcurptrs, rdispls, MPIType<IT>(), &tempcols[0], recvcount,  MPIType<IT>(), rankinrow); 
-			(commGrid->rowWorld).Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), &tempvals[0], recvcount,  MPIType<NT>(), rankinrow);
+			(commGrid->rowWorld).Scatterv(rows, rcurptrs, rdispls, MPIType<IT>(), temprows, recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(cols, rcurptrs, rdispls, MPIType<IT>(), tempcols, recvcount,  MPIType<IT>(), rankinrow); 
+			(commGrid->rowWorld).Scatterv(vals, rcurptrs, rdispls, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), rankinrow);
 
 			// now push what is ours to tuples
 			IT moffset = commGrid->myprocrow * m_perproc; 
@@ -2166,9 +2281,9 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	partial_sum(sendcnt, sendcnt+nprocs-1, sdpls+1);
 	partial_sum(recvcnt, recvcnt+nprocs-1, rdpls+1);
 
-	commGrid->GetWorld().Alltoallv(rows, sendcnt, sdpls, MPIType<IT>(), &(nrows.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
-	commGrid->GetWorld().Alltoallv(cols, sendcnt, sdpls, MPIType<IT>(), &(ncols.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
-	commGrid->GetWorld().Alltoallv(vals, sendcnt, sdpls, MPIType<NT>(), &(nvals.arr[0]), recvcnt, rdpls, MPIType<NT>()); 
+	commGrid->GetWorld().Alltoallv(rows, sendcnt, sdpls, MPIType<IT>(), SpHelper::p2a(nrows.arr), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(cols, sendcnt, sdpls, MPIType<IT>(), SpHelper::p2a(ncols.arr), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(vals, sendcnt, sdpls, MPIType<NT>(), SpHelper::p2a(nvals.arr), recvcnt, rdpls, MPIType<NT>()); 
 	DeleteAll(sendcnt, recvcnt, sdpls, rdpls);
 	DeleteAll(prelens, rows, cols, vals);
 	distrows = nrows;
@@ -2240,8 +2355,8 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	partial_sum(sendcnt, sendcnt+nprocs-1, sdpls+1);
 	partial_sum(recvcnt, recvcnt+nprocs-1, rdpls+1);
 
-	commGrid->GetWorld().Alltoallv(rows, sendcnt, sdpls, MPIType<IT>(), &(nrows.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
-	commGrid->GetWorld().Alltoallv(cols, sendcnt, sdpls, MPIType<IT>(), &(ncols.arr[0]), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(rows, sendcnt, sdpls, MPIType<IT>(), SpHelper::p2a(nrows.arr), recvcnt, rdpls, MPIType<IT>()); 
+	commGrid->GetWorld().Alltoallv(cols, sendcnt, sdpls, MPIType<IT>(), SpHelper::p2a(ncols.arr), recvcnt, rdpls, MPIType<IT>()); 
 	DeleteAll(sendcnt, recvcnt, sdpls, rdpls);
 	DeleteAll(prelens, rows, cols, vals);
 	distrows = nrows;

@@ -92,7 +92,7 @@ void Symmetricize(PARMAT & A)
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
-	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
+	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
 	
@@ -109,16 +109,18 @@ int main(int argc, char* argv[])
 	{
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
+		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
 		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
 		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 		typedef SpParMat < int32_t, int32_t, SpDCCols<int32_t,int32_t> > PSpMat_Int32;
 
 		// Declare objects
 		PSpMat_Bool A;	
+		PSpMat_s32p64 Aeff;
 		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 		unsigned scale;
-		OptBuf<int64_t, int64_t> optbuf;
+		OptBuf<int32_t, int64_t> optbuf;	// let indices be 32-bits
 		bool scramble = false;
 
 		if(string(argv[1]) == string("Input")) // input option
@@ -345,8 +347,9 @@ int main(int argc, char* argv[])
 			A(nonisov, nonisov, true);	// in-place permute to save memory	
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
-
-			Symmetricize(A);	// A += A';
+		
+			Aeff = PSpMat_s32p64(A);
+			Symmetricize(Aeff);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 
 		#ifdef THREADED	
@@ -441,19 +444,7 @@ int main(int argc, char* argv[])
 					//fringe.PrintInfo("fringe before SpMV");
 					fringe = SpMV<SR>(A, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
-	
-					#ifdef TIMING
-					MPI::COMM_WORLD.Barrier();
-					double t_a1 = MPI_Wtime();
-					#endif
 					fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
-					#ifdef TIMING
-					MPI::COMM_WORLD.Barrier();
-					double t_a2 = MPI_Wtime();
-					ostringstream ewisemtime;
-					ewisemtime << "EWiseMult took " << t_a2-t_a1 << " seconds" << endl;
-					SpParHelper::Print(ewisemtime.str());
-					#endif
 					// fringe.PrintInfo("fringe after cleanup");
 					parents += fringe;
 					// parents.PrintInfo("Parents after addition");

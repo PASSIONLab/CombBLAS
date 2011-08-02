@@ -237,8 +237,8 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 
 //! SpMV with sparse vector
 template <typename SR, typename IU, typename NUM, typename NUV>
-void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
-		IU * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c)
+void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
+		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -248,7 +248,6 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 		}
 		else
 		{
-			SpParHelper::Print("Calling optimized SpMXSpV without the SPA\n");
 			SpMXSpV_Optimized<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
