@@ -31,8 +31,8 @@ void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * num
 };
 
 template <class SR, class IT, class NT1, class NT2>
-void SpMXSpV_Optimized(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
-		IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c)
+void SpMXSpV_Optimized(const Dcsc<IT,NT1> & Adcsc, IT mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
+		int32_t * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c)
 {
 	SpImpl<SR,IT,NT1,NT2>::SpMXSpV_Optimized(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
 };
@@ -55,8 +55,8 @@ struct SpImpl
 	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
 			IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
 
-	static void SpMXSpV_Optimized(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
-			IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV_Optimized(const Dcsc<IT,NT1> & Adcsc, IT mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
+			int32_t * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
 
 	static void SpMXSpV_ForThreading(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
 			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy, IT offset);
@@ -72,8 +72,8 @@ struct SpImpl<SR,IT,bool, NT>	// specialization
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
 			IT * indy, NT * numy, int * cnts, int * dspls, int p_c);
 
-	static void SpMXSpV_Optimized(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
-			IT * indy, NT * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV_Optimized(const Dcsc<IT,bool> & Adcsc, IT mA, const int32_t * indx, const NT * numx, int32_t veclen,  
+			int32_t * indy, NT * numy, int * cnts, int * dspls, int p_c);
 
 	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
 			vector<IT> & indy, vector<NT> & numy, IT offset);
@@ -190,17 +190,18 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, const IT
  * This version determines the receiving column neighbor and adjust the indices to the receiver's local index
  * It also by passes-SPA by relying on the fact that x (rhs vector) is sorted and values are indices
  * It they are not sorted, it'd still work but be non-deterministic
+ * Also allows the vector's indices to be different than matrix's (for transition only) \TODO: Disable
 **/
-template <typename SR, typename IT, typename NT>
-void SpImpl<SR,IT,bool,NT>::SpMXSpV_Optimized(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
-			IT * indy, NT * numy, int * cnts, int * dspls, int p_c)
+template <typename SR, typename IT, typename NT >
+void SpImpl<SR,IT,bool,NT>::SpMXSpV_Optimized(const Dcsc<IT,bool> & Adcsc, IT mA, const int32_t * indx, const NT * numx, int32_t veclen,  
+			int32_t * indy, NT * numy, int * cnts, int * dspls, int p_c)
 {   
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
-	vector< vector< pair<IT,NT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	vector< vector< pair<int32_t,NT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
 
-	IT perproc = mA / static_cast<IT>(p_c);	
-	IT k = 0; 	// index to indx vector
+	int32_t perproc = static_cast<int32_t>((mA / static_cast<IT>(p_c)));	
+	int32_t k = 0; 	// index to indx vector
 	IT i = 0; 	// index to columns of matrix
 	while(i< Adcsc.nzc && k < veclen)
 	{
@@ -210,10 +211,10 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV_Optimized(const Dcsc<IT,bool> & Adcsc, IT mA
 		{
 			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
-				IT rowid = Adcsc.ir[j];
+				int32_t rowid = (int32_t) Adcsc.ir[j];
 				if(!isthere[rowid])
 				{
-					IT owner = min(rowid / perproc, static_cast<IT>(p_c-1)); 			
+					int32_t owner = min(rowid / perproc, static_cast<int32_t>(p_c-1)); 			
 					nzinds_vals[owner].push_back( make_pair(rowid, numx[k]) );
 					isthere[rowid] = true;
 				}

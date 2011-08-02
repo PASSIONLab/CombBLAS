@@ -15,14 +15,14 @@
 #include <mpi.h>
 #include <vector>
 #include <iterator>
-// TR1 imports are done in CombBLAS.h
-/*#ifdef NOTR1
+// TR1 imports are done in CombBLAS.h (ABAB: Yes, but I can't compile)
+#ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/tuple.hpp>
 #else
 	#include <tr1/memory>	// for shared_ptr
 	#include <tr1/tuple>
-#endif*/
+#endif
 
 #include "SpMat.h"
 #include "SpTuples.h"
@@ -45,16 +45,12 @@ using namespace std::tr1;
 
 
 /**
-  * This class implements an asynchronous 2D algorithm, in the sense that there is no notion of stages.
-  * \n The process that completes its submatrix update, requests subsequent matrices from their owners w/out waiting to sychronize with other processors
-  * \n This partially remedies the severe load balancing problem in sparse matrices. 
-  * \n The class uses MPI-2 to achieve one-sided asynchronous communication
-  * \n The algorithm treats each submatrix as a single block
-  * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
-  * \todo At this point, each MPI call probably sends less than 2 billion elements, but what if
-  *	we need to send more with a single call? MPI routines expect an 32-bit int sendcount/recvcount.
-  *	solution #1: Replace all MPI_{foo} with MPI_{foo}L whenever MPI 2.3 becomes widely available
-  *	solution #2: Exchange data in a loop 
+  * Fundamental 2D distributed sparse matrix class
+  * The index type IT is encapsulated by the class in a way that it is only
+  * guarantee that the implementation will ensure the requested semantics. 
+  * For instance, if IT=int64 then the implementation can still use 32 bit 
+  * local indices but it should return correct 64-bit numbers in its functions. 
+  * In other words, DER can be SpDCCols<int32_t, double> while IT=int64_t
   */
 template <class IT, class NT, class DER>
 class SpParMat
@@ -118,7 +114,7 @@ public:
 	IT RemoveLoops();	// returns the number of loops removed
 	
 	template <typename OT>
-	void OptimizeForGraph500(OptBuf<IT,OT> & optbuf);
+	void OptimizeForGraph500(OptBuf<int32_t,OT> & optbuf);
 
 	void ActivateThreading(int numsplits);
 	
@@ -150,20 +146,20 @@ public:
 	SpParMat<IT,NT,DER> SubsRefCol (const vector<IT> & ci) const;				//!< Column indexing with special parallel semantics
 
 	//! General indexing with serial semantics
-
 	SpParMat<IT,NT,DER> operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace=false);
 	SpParMat<IT,NT,DER> operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const;
 
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
 	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false);
+	void SaveGathered(string filename) const;
 	ofstream& put(ofstream& outfile) const;
 	void PrintForPatoh(string filename) const;
 
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; } 	
-	IT getlocalrows() const { return spSeq->getnrow(); }
-	IT getlocalcols() const { return spSeq->getncol();} 
-	IT getlocalnnz() const { return spSeq->getnnz(); }
+	typename DER::LocalIT getlocalrows() const { return spSeq->getnrow(); }
+	typename DER::LocalIT getlocalcols() const { return spSeq->getncol();} 
+	typename DER::LocalIT getlocalnnz() const { return spSeq->getnnz(); }
 	DER & seq() { return (*spSeq); }
 
 	//! Friend declarations
@@ -209,7 +205,7 @@ public:
 	
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf);
 	
 	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend void ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op);

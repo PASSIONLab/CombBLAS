@@ -27,11 +27,10 @@ template <class NIT, class NNT>  struct
 create_trait< NEWSERIALMATRIX<int64_t, bool> , NIT, NNT >
 {
     typedef NEWSERIALMATRIX<NIT,NNT> T_inferred;
+    typedef SpTuples<NIT,NNT> TUP_inferred; // required for internals
 };
  
-
 For all three, you can use the existing traits as examples.
- 
 
 To Users:
 

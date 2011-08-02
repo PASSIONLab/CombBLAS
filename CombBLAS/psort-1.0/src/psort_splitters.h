@@ -115,36 +115,38 @@ namespace vpsort {
 #endif
 
 	//------- generate n_act guesses
-
 	// for the allgather, make a flat array of nproc chunks, each with n_act elts
-	vector<_ValueType> medians(nproc * n_act);
+	_ValueType * mymedians = new _ValueType[n_act];
+	_ValueType * medians = new _ValueType[nproc*n_act];
 	for (int k = 0; k < n_act; ++k) {
 	  _ValueType *ptr = d_ranges[k].first;
 	  _Distance index = subdist[k][rank] / 2;
-	  medians[rank * n_act + k] = ptr[index];
+	  mymedians[k] = ptr[index];
 	}
-
-	MPI_Allgather (&medians[rank*n_act], n_act, MPI_valueType,
-		       &medians[0], n_act, MPI_valueType, comm);
+	MPI_Allgather (mymedians, n_act, MPI_valueType, medians, n_act, MPI_valueType, comm);
+	delete [] mymedians;
 
 	// compute the weighted median of medians
 	vector<_ValueType> queries(n_act);
 
-	for (int k = 0; k < n_act; ++k) {
+	for (int k = 0; k < n_act; ++k) 
+	{
 	  _Distance ms_perm[n_real];
 	  for (int i = 0; i < n_real; ++i) ms_perm[i] = i * n_act + k;
 	  sort (ms_perm, ms_perm + n_real, 
-		PermCompare< _ValueType, _Compare> (&medians[0], comp));
+		PermCompare< _ValueType, _Compare> (medians, comp));
 
 	  _Distance mid = accumulate( subdist[k].begin(), 
 				      subdist[k].end(), 
 				      0) / 2;
 	  _Distance query_ind = -1;
-	  for (int i = 0; i < n_real; ++i) {
+	  for (int i = 0; i < n_real; ++i) 
+	  {
 	    if (subdist[k][ms_perm[i] / n_act] == 0) continue;
 
 	    mid -= subdist[k][ms_perm[i] / n_act];
-	    if (mid <= 0) {
+	    if (mid <= 0) 
+	    {
 	      query_ind = ms_perm[i];
 	      break;
 	    }
@@ -153,6 +155,7 @@ namespace vpsort {
 	  assert(query_ind >= 0);
 	  queries[k] = medians[query_ind];
 	}
+	delete [] medians;
 
 #ifdef PSORTDEBUG
 	MPI_Barrier (MPI_COMM_WORLD);

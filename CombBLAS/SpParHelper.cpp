@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::MemoryEfficientPSort(pair<KEY,VAL> * array, IT length, IT * dist, const MPI::Intracomm & comm)
 {	
@@ -141,7 +142,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 			totact += wmminput[i].second;	
 
 		// input to weighted median of medians is a set of (object, weight) pairs
-		// the algorithm computers the first set of elements (according to total 
+		// the algorithm computes the first set of elements (according to total 
 		// order of "object"s), whose sum is still less than or equal to 1/2
 		for(int i=0; i<nprocs; ++i)
 			wmminput[i].second /= totact ;	// normalize the weights

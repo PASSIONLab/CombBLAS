@@ -571,11 +571,16 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
 
-
 /**
- * Parallel A = B*C routine that uses one-sided MPI-2 features
- * Passive target syncronization via MPI_Win_Lock, MPI_Win_Unlock
- * No memory hog: splits the matrix into two along the column, prefetches the next half matrix while computing on the current one 
+  * Parallel A = B*C routine that uses one-sided MPI-2 features
+  * This function implements an asynchronous 2D algorithm, in the sense that there is no notion of stages.
+  * \n The process that completes its submatrix update, requests subsequent matrices from their owners w/out waiting to sychronize with other processors
+  * \n This partially remedies the severe load balancing problem in sparse matrices. 
+  * \n The class uses MPI-2 to achieve one-sided asynchronous communication
+  * \n The algorithm treats each submatrix as a single block
+  * \n Local data structure can be any SpMat that has a constructor with array sizes and getarrs() member 
+  * Passive target syncronization via MPI_Win_Lock, MPI_Win_Unlock
+  * No memory hog: splits the matrix into two along the column, prefetches the next half matrix while computing on the current one 
  **/  
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_PassiveTarget 
@@ -1078,11 +1083,11 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	{
 		IU size = x.arr.size();
 		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<NUV*>(&x.arr[0]), size, MPIType<NUV>(), diagincol); 
+		ColWorld.Bcast(const_cast<NUV*>(SpHelper::p2a(x.arr)), size, MPIType<NUV>(), diagincol); 
 
 		T_promote * localy = new T_promote[ysize];
 		fill_n(localy, ysize, id);		
-		dcsc_gespmv<SR>(*(A.spSeq), &x.arr[0], localy);	
+		dcsc_gespmv<SR>(*(A.spSeq), SpHelper::p2a(x.arr), localy);	
 
 		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root)
                 RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
@@ -1144,8 +1149,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	{
 		IU nnzx = x.getlocnnz();
 		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<IU*>(&x.ind[0]), nnzx, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(const_cast<NUV*>(&x.num[0]), nnzx, MPIType<NUV>(), diagincol); 
+		ColWorld.Bcast(const_cast<IU*>(SpHelper::p2a(x.ind)), nnzx, MPIType<IU>(), diagincol); 
+		ColWorld.Bcast(const_cast<NUV*>(SpHelper::p2a(x.num)), nnzx, MPIType<NUV>(), diagincol); 
 
 		// define a SPA-like data structure
 		T_promote * localy = new T_promote[ysize];
@@ -1156,7 +1161,7 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		// serial SpMV with sparse vector
 		vector< IU > indy;
 		vector< T_promote >  numy;
-		dcsc_gespmv<SR>(*(A.spSeq), &x.ind[0], &x.num[0], nnzx, indy, numy);	
+		dcsc_gespmv<SR>(*(A.spSeq), SpHelper::p2a(x.ind), SpHelper::p2a(x.num), nnzx, indy, numy);	
 
 		int proccols = x.commGrid->GetGridCols();
 		int * gsizes = new int[proccols];	// # of processor columns = number of processors in the RowWorld
@@ -1170,8 +1175,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		T_promote * numbuf = new T_promote[maxnnz];
 
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow);
-                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow);
+                RowWorld.Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow);
+                RowWorld.Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow);
 
 		for(int i=0; i< maxnnz; ++i)
 		{
@@ -1219,8 +1224,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		RowWorld.Gather(&mysize, 1, MPI::INT, NULL, 1, MPI::INT, diaginrow);
 
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-                RowWorld.Gatherv(&(indy[0]), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow);
-                RowWorld.Gatherv(&(numy[0]), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow);
+                RowWorld.Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow);
+                RowWorld.Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow);
 
 		delete [] xinds;
 		delete [] xnums;
@@ -1230,23 +1235,23 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 template <typename SR, typename IU, typename NUM, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf);
 
 template <typename SR, typename IU, typename NUM, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue)
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
-	OptBuf<IU, T_promote > optbuf = OptBuf<IU, T_promote >();
+	OptBuf<int32_t, T_promote > optbuf = OptBuf<int32_t, T_promote >();
 	return SpMV<SR>(A, x, indexisvalue, optbuf);
 }
 
 //! The last parameter is a hint to the function 
 //! If indexisvalues = true, then we do not need to transfer values for x
 //! This happens for BFS iterations with boolean matrices and integer rhs vectors
-template <typename SR, typename IU, typename NUM, typename UDER> 
+template <typename SR, typename IU, typename NUM, typename UDER>
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf)
+	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf)
 {
 	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
 
@@ -1281,15 +1286,26 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	
 	// ABAB: Important observation is that local indices (given by x.ind) is 32-bit addressible
 	// Copy them to 32 bit integers and transfer that to save 50% of off-node bandwidth
-	IU * trxinds = new IU[trxlocnz];
+	int32_t * trxinds = new int32_t[trxlocnz];
 	IU * trxnums;
-	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRI);
-	if(!indexisvalue)
+	try
 	{
-		trxnums = new IU[trxlocnz];
-		World.Sendrecv(const_cast<IU*>(&x.num[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+		int32_t * temp_xind = new int32_t[xlocnz];
+		for(int i=0; i< xlocnz; ++i)	temp_xind[i] = (int32_t) x.ind[i];
+		World.Sendrecv(temp_xind, xlocnz, MPIType<int32_t>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<int32_t>(), diagneigh, TRI);
+		delete [] temp_xind;
+		if(!indexisvalue)
+		{
+			trxnums = new IU[trxlocnz];
+			World.Sendrecv(const_cast<IU*>(SpHelper::p2a(x.num)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+		}
+		transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
 	}
-	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
+    	catch(MPI::Exception e)
+	{
+		cerr << "Exception during Sendrecv file" << endl;
+       		cerr << e.Get_error_string() << endl;
+	}
 
 	int colneighs = ColWorld.Get_size();
 	int colrank = ColWorld.Get_rank();
@@ -1299,7 +1315,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
 	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
-	IU * indacc = new IU[accnz];
+	int32_t * indacc = new int32_t[accnz];
 	IU * numacc = new IU[accnz];
 
 	// ABAB: Future issues here, colnz is of type int (MPI limitation)
@@ -1313,7 +1329,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	World.Barrier();
 	double t0=MPI::Wtime();
 	#endif
-	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
+	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<int32_t>(), indacc, colnz, dpls, MPIType<int32_t>());
 	#ifdef TIMING
 	World.Barrier();
 	double t1=MPI::Wtime();
@@ -1329,7 +1345,10 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 			lenuntilcol = lenuntil;
 		}
 		ColWorld.Bcast(&lenuntilcol, 1, MPIType<IU>(), 0);
-		transform(indacc, indacc+accnz, numacc, bind2nd(plus<IU>(), lenuntilcol));	// fill numerical values from indices
+		for(int i=0; i< accnz; ++i)	// fill numerical values from indices
+		{
+			numacc[i] = indacc[i] + lenuntilcol;
+		}
 	}
 	else
 	{
@@ -1342,7 +1361,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	int * sendcnt = new int[rowneighs]();	
 	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 
-	IU * sendindbuf;
+	int32_t * sendindbuf;	// TODO: Generalize this
 	T_promote * sendnumbuf;
 	int * sdispls;
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
@@ -1350,15 +1369,25 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		if(A.spSeq->getnsplit() > 0)
 		{
 			SpParHelper::Print("Preallocated buffers can not be used with multithreaded code yet\n");
+			IU * tmpindbuf;
+			IU * tmpindacc = new IU[accnz];
+			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
+
 			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);	
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), tmpindbuf, sendnumbuf, sdispls, rowneighs);	
+
+			delete [] tmpindacc;
+			sendindbuf = new int32_t[totalsent];
+			for(int i=0; i< totalsent; ++i)	sendindbuf[i] = tmpindbuf[i];
+			delete [] tmpindbuf;
+
 			for(int i=0; i<rowneighs-1; ++i)
 				sendcnt[i] = sdispls[i+1] + sdispls[i];	
 			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
 		}
 		else
 		{
-			dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+			dcsc_gespmv<SR> (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
 		}
 		DeleteAll(indacc,numacc);
 	}
@@ -1366,9 +1395,18 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	{
 		if(A.spSeq->getnsplit() > 0)
 		{
+			IU * tmpindbuf;
+			IU * tmpindacc = new IU[accnz];
+			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
+			delete [] indacc;
+
 			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), sendindbuf, sendnumbuf, sdispls, rowneighs);	
-			DeleteAll(indacc, numacc);
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), tmpindbuf, sendnumbuf, sdispls, rowneighs);	
+
+			delete [] tmpindacc;
+			sendindbuf = new int32_t[totalsent];
+			for(int i=0; i< totalsent; ++i)	sendindbuf[i] = tmpindbuf[i];
+			DeleteAll(tmpindbuf, numacc);
 			for(int i=0; i<rowneighs-1; ++i)
 				sendcnt[i] = sdispls[i+1] - sdispls[i];
 			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
@@ -1378,11 +1416,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 			// serial SpMV with sparse vector
 			vector< IU > indy;
 			vector< T_promote >  numy;
-			dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
-			DeleteAll(indacc, numacc);
+
+			IU * tmpindacc = new IU[accnz];
+			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
+			delete [] indacc;
+
+			dcsc_gespmv<SR>(*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+			DeleteAll(tmpindacc, numacc);
 
 			IU bufsize = indy.size();	// as compact as possible
-			sendindbuf = new IU[bufsize];	
+			sendindbuf = new int32_t[bufsize];	
 			sendnumbuf = new T_promote[bufsize];
 			IU perproc = A.getlocalrows() / static_cast<IU>(rowneighs);	
 
@@ -1392,7 +1435,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 				IU end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
 				while(k < bufsize && indy[k] < end_this) 
 				{
-					sendindbuf[k] = indy[k] - i*perproc;
+					sendindbuf[k] = static_cast<int32_t>(indy[k] - i*perproc);
 					sendnumbuf[k] = numy[k];
 					++sendcnt[i];
 					++k; 
@@ -1414,7 +1457,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
 	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
-	IU * recvindbuf = new IU[totrecv];
+	int32_t * recvindbuf = new int32_t[totrecv];
 	T_promote * recvnumbuf = new T_promote[totrecv];
 
 	#ifdef TIMING
@@ -1423,7 +1466,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	#endif
 	if(optbuf.totmax > 0 && A.spSeq->getnsplit() == 0)	// graph500 optimization enabled
 	{
-		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
 		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM
 		delete [] sendcnt;
 	}
@@ -1441,7 +1484,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		}
 		oput.close(); 
 */
-		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
+		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
 		DeleteAll(sendindbuf, sendnumbuf);
 		DeleteAll(sendcnt, sdispls);
@@ -1468,7 +1511,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	
 	for(int i=0; i< totrecv; ++i)
 	{
-		IU topush = recvindbuf[i];
+		int32_t topush = recvindbuf[i];
 		if(!isthere[topush])
 		{
 			localy[topush] = recvnumbuf[i];	// initial assignment
@@ -1494,10 +1537,10 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 
 #else
 	// Alternative 2: Heap-merge
-	IU hsize = 0;		
-	IU inf = numeric_limits<IU>::min();
-	IU sup = numeric_limits<IU>::max(); 
-        KNHeap< IU, IU > sHeap(sup, inf); 
+	int32_t hsize = 0;		
+	int32_t inf = numeric_limits<int32_t>::min();
+	int32_t sup = numeric_limits<int32_t>::max(); 
+        KNHeap< int32_t, int32_t > sHeap(sup, inf); 
 	int * processed = new int[rowneighs]();
 	for(int i=0; i<rowneighs; ++i)
 	{
@@ -1508,11 +1551,11 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 			++hsize;
 		}
 	}	
-	IU key, locv;
+	int32_t key, locv;
 	if(hsize > 0)
 	{
 		sHeap.deleteMin(&key, &locv);
-		y.ind.push_back(key);
+		y.ind.push_back( static_cast<IU>(key));
 		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
 		
 		if( (++(processed[locv])) < recvcnt[locv] )
@@ -1524,7 +1567,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	{
 		sHeap.deleteMin(&key, &locv);
 		IU deref = rdispls[locv] + processed[locv];
-		if(y.ind.back() == key)	// y.ind is surely not empty
+		if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
 		{
 			y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
 			// ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
@@ -1532,7 +1575,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 		} 
 		else
 		{
-			y.ind.push_back(key);
+			y.ind.push_back(static_cast<IU>(key));
 			y.num.push_back(recvnumbuf[deref]);
 		}
 
@@ -1580,7 +1623,7 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
 	
 	NUV * trxnums = new NUV[trxsize];
-	World.Sendrecv(const_cast<NUV*>(&x.arr[0]), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.arr)), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX);
 
 	int colneighs = ColWorld.Get_size();
 	int colrank = ColWorld.Get_rank();
@@ -1628,7 +1671,7 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 			endptr = y.RowLenUntil(i+1);
 		}
 		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root), recvbuf is irrelevant except root
-                RowWorld.Reduce(localy+begptr, &(y.arr[0]), endptr-begptr, MPIType<T_promote>(), SR::mpi_op(), i);
+                RowWorld.Reduce(localy+begptr, SpHelper::p2a(y.arr), endptr-begptr, MPIType<T_promote>(), SR::mpi_op(), i);
 	}
 	delete [] localy;
 	return y;
@@ -1671,8 +1714,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	
 	IU * trxinds = new IU[trxlocnz];
 	NUV * trxnums = new NUV[trxlocnz];
-	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
-	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<IU*>(SpHelper::p2a(x.ind)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
 	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
 
 	int colneighs = ColWorld.Get_size();
@@ -1815,8 +1858,8 @@ void ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV>
 	
 	IU * trxinds = new IU[trxlocnz];
 	NUV * trxnums = new NUV[trxlocnz];
-	World.Sendrecv(const_cast<IU*>(&x.ind[0]), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
-	World.Sendrecv(const_cast<NUV*>(&x.num[0]), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<IU*>(SpHelper::p2a(x.ind)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+	World.Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
 	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
 
 	int colneighs = ColWorld.Get_size();

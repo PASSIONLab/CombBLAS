@@ -1,13 +1,30 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 01/18/2009 ---------------------------------------------/
-/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-\****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.2 -------------------------------------------------*/
+/* date: 10/06/2011 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/****************************************************************/
+/*
+Copyright (c) 2011, Aydin Buluc
 
-/**
- * Functions that are used by multiple classes, but don't need the "this" pointer
- **/
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 #ifndef _SP_HELPER_H_
 #define _SP_HELPER_H_
@@ -29,6 +46,21 @@ class Dcsc;
 class SpHelper
 {
 public:
+	template <typename T>
+	static const T * p2a (const std::vector<T> & v)   // pointer to array
+	{
+    		if(v.empty()) return NULL;
+    		else return (&v[0]);
+	}
+
+	template <typename T>
+	static T * p2a (std::vector<T> & v)   // pointer to array
+	{
+    		if(v.empty()) return NULL;
+    		else return (&v[0]);
+	}
+
+
 	template<typename _ForwardIterator>
 	static bool is_sorted(_ForwardIterator __first, _ForwardIterator __last)
 	{

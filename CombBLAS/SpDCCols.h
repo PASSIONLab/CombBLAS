@@ -26,6 +26,9 @@ template <class IT, class NT>
 class SpDCCols: public SpMat<IT, NT, SpDCCols<IT, NT> >
 {
 public:
+	typedef IT LocalIT;
+	typedef NT LocalNT;
+
 	// Constructors :
 	SpDCCols ();
 	SpDCCols (IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool = NULL);
@@ -290,8 +293,8 @@ private:
 		vector<IU> & indy, vector<typename promote_trait<NUM,NUV>::T_promote>  & numy);
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
-	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
-		IU * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c);
+	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
+		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c);
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
@@ -460,7 +463,6 @@ template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,bool> >
 // in other words, we infer the templated SpDCCols<> type
 // This is not a type conversion from an existing object, 
 // but a type inference for the newly created object
-
 template <class SPMAT, class NIT, class NNT>
 struct create_trait
 {
@@ -503,6 +505,7 @@ template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, bool> , 
     {
         typedef SpDCCols<NIT,NNT> T_inferred;
     };
+
 
 #include "SpDCCols.cpp"
 #endif

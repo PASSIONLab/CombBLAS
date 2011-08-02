@@ -663,29 +663,19 @@ void FullyDistVec<IT,NT>::RandPerm()
 	MPI::Intracomm World = commGrid->GetWorld();
 	IT size = LocArrSize();
 	pair<double,IT> * vecpair = new pair<double,IT>[size];
-
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
-
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-
   	MTRand M;	// generate random numbers with Mersenne Twister
 	for(int i=0; i<size; ++i)
 	{
 		vecpair[i].first = M.rand();
 		vecpair[i].second = arr[i];	
 	}
-
 	// less< pair<T1,T2> > works correctly (sorts wrt first elements)	
-
-	ostringstream outs;
-	outs << "Before sorting " << accumulate(dist, dist+nprocs, 0) << " entries" << endl; 
-	SpParHelper::Print(outs.str());
 	SpParHelper::MemoryEfficientPSort(vecpair, size, dist, World);
-	SpParHelper::Print("After sort\n");
-
 	vector< NT > nnum(size);
 	for(int i=0; i<size; ++i)
 		nnum[i] = vecpair[i].second;
@@ -717,7 +707,6 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 
 	MPI::Intracomm World = commGrid->GetWorld();
 	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, ri.zero, ri.zero);	// length(Indexed) = length(ri)
-	//int rank = World.Get_rank();
 	int nprocs = World.Get_size();
 	vector< vector< IT > > data_req(nprocs);	
 	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	

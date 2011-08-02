@@ -32,15 +32,15 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 #include <utility>
-// TR1 imports are done in CombBLAS.h
-/*#ifdef NOTR1
+// TR1 imports are done in CombBLAS.h (ABAB: Yes but I can compile)
+#ifdef NOTR1
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/unordered_map.hpp>
 #else
 	#include <tr1/memory>
 	#include <tr1/unordered_map>
 #endif
-*/
+
 #include "CommGrid.h"
 #include "promote.h"
 #include "SpParMat.h"
@@ -206,7 +206,7 @@ private:
 
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<IU, typename promote_trait<NUM,IU>::T_promote > & optbuf);
+	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf);
 	
 	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend void
