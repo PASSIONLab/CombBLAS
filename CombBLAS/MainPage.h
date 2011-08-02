@@ -1,19 +1,19 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>
+* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>
 *
 * <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) </i>
 *
 *
 * @section intro Introduction
 * <b>Download</b> 
-* - The latest CMake'd tarball <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/combBLAS_beta_10_cmaked.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>)
+* - The latest CMake'd tarball (version 1.2, August 2011) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). The previous version (1.1, May 2011) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_11.tar.gz"> here </a> for backwards compatibility and benchmarking. 
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		-  <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata.tar.gz"> here</a>. Extract them inside the PSpGEMM-R1 directory with the command "tar -xzvf testdata.tar.gz"
+* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata.tar.gz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata.tar.gz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-neumann) 
 * 
@@ -21,12 +21,16 @@
 * C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
 * $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
+* CombBLAS works successfully with PGI, GNU and Intel compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
 * 
 * <b>Documentation</b>:
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
 * It contains efficient implementations of novel data structures/algorithms
 * as well as reimplementations of some previously known data structures/algorithms for convenience. More details can be found in the accompanying paper [1].
+*
+* The implementation supports both formatted and binary I/O. The latter is much faster but no human readable. Formatted I/O uses a tuples format very similar to the Matrix Market.
+* We encourage in-memory generators for faster benchmarking. A port to University of Florida Sparse Matrix Collection is under construction.
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
 * can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
@@ -51,7 +55,7 @@
 * - Reductions along row/column: SpParMat::Reduce()
 * - Sparse matrix-dense vector multiplication on a semiring, SpMV()
 * - Sparse matrix-sparse vector multiplication on a semiring, SpMV()
-* - Generalized matrix indexing: operator(const vector<IT> & ri, const vector<IT> & ci)
+* - Generalized matrix indexing: SpParMat::operator(const vector<IT> & ri, const vector<IT> & ci)
 * - Numeric type conversion through conversion operators
 * - Elementwise operations between sparse and dense matrices: SpParMat::EWiseScale() and operator+=()  
 * 
@@ -102,10 +106,10 @@
 *
 * <b> Citation: </b> Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 *
-* - [1] Aydin Buluc and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), to appear. <a href="http://www.cs.ucsb.edu/research/tech_reports/reports/2010-18.pdf"> Preprint </a>
+* - [1] Aydin Buluc and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), 2011. <a href="http://www.cs.ucsb.edu/research/tech_reports/reports/2010-18.pdf"> Preprint </a>, <a href="http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract">Link</a>
 * - [2] Aydin Buluc and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
 * - [3] Aydin Buluc and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
-* - [4] Aydin Buluc and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. Preprint available at ArXiv.org
+* - [4] Aydin Buluc and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. To appear, Supercomputing (SC'11). <a href="http://arxiv.org/abs/1104.4518">Extended preprint</a>
 * - [5] Aydin Buluc. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
 * 
 */

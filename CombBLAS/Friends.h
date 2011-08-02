@@ -235,10 +235,12 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 	}
 }
 
-//! SpMV with sparse vector
+/** SpMV with sparse vector
+  * @param[in] indexisvalue is only used for BFS-like computations, if true then we can call the optimized version that skips SPA
+  */
 template <typename SR, typename IU, typename NUM, typename NUV>
 void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
-		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c)
+		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c, bool indexisvalue)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -248,7 +250,10 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV *
 		}
 		else
 		{
-			SpMXSpV_Optimized<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+			if(indexisvalue)
+				SpMXSpV_Optimized<SR>(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+			else
+				SpMXSpV<SR>(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }

@@ -27,9 +27,10 @@
         #include <tr1/memory>
 #endif
 
-//#include "include/pat_api.h"
+#ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;
+#endif
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads(); 
 #else

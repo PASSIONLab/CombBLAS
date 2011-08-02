@@ -294,7 +294,7 @@ private:
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
-		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c);
+		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c, bool indexisvalue);
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
