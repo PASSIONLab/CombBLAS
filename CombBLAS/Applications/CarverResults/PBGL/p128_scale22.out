@@ -1,0 +1,320 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+INFO: Generating graph of 4194304 vertices.
+INFO: Graph Gen time: 80.16
+time: 2.40554
+resolution: 1e-06
+TEPS: 2.78976e+07
+time: 2.53981
+resolution: 1e-06
+TEPS: 2.64228e+07
+time: 0.13319
+resolution: 1e-06
+TEPS: 5.03858e+08
+time: 2.53745
+resolution: 1e-06
+TEPS: 2.64474e+07
+time: 0.16748
+resolution: 1e-06
+TEPS: 4.00698e+08
+time: 2.43141
+resolution: 1e-06
+TEPS: 2.76008e+07
+time: 2.77848
+resolution: 1e-06
+TEPS: 2.41531e+07
+time: 2.44294
+resolution: 1e-06
+TEPS: 2.74705e+07
+time: 2.4694
+resolution: 1e-06
+TEPS: 2.71762e+07
+time: 0.168231
+resolution: 1e-06
+TEPS: 3.98909e+08
+time: 2.47137
+resolution: 1e-06
+TEPS: 2.71545e+07
+time: 2.58879
+resolution: 1e-06
+TEPS: 2.59229e+07
+time: 2.63765
+resolution: 1e-06
+TEPS: 2.54427e+07
+time: 2.68173
+resolution: 1e-06
+TEPS: 2.50245e+07
+time: 0.17066
+resolution: 1e-06
+TEPS: 3.93231e+08
+time: 2.45064
+resolution: 1e-06
+TEPS: 2.73842e+07
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/625303.cvrsvc09-ib completed Wed Apr 13 19:13:31 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=16:ppn=8,nodes=16:ppn=8,walltime=02:00:00
+Job Resources used: cput=03:53:36,mem=234701688kb,vmem=249987900kb,walltime=00:01:57
+Nodes used: c1132-ib c1133-ib c1134-ib c1136-ib c1137-ib c1138-ib c1140-ib c1141-ib c1143-ib c1144-ib c1145-ib c1150-ib c1151-ib c1157-ib c1166-ib c1177-ib 
+
+Killing any leftover processes...
+
+Job completed.
