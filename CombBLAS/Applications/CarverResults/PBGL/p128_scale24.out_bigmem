@@ -1,0 +1,320 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+INFO: Generating graph of 16777216 vertices.
+INFO: Graph Gen time: 343.59
+time: 0.126094
+resolution: 1e-06
+TEPS: 2.12885e+09
+time: 0.130139
+resolution: 1e-06
+TEPS: 2.06268e+09
+time: 0.127549
+resolution: 1e-06
+TEPS: 2.10457e+09
+time: 0.127529
+resolution: 1e-06
+TEPS: 2.10489e+09
+time: 0.130446
+resolution: 1e-06
+TEPS: 2.05783e+09
+time: 6.26949
+resolution: 1e-06
+TEPS: 4.28162e+07
+time: 0.298681
+resolution: 1e-06
+TEPS: 8.98736e+08
+time: 0.119672
+resolution: 1e-06
+TEPS: 2.2431e+09
+time: 6.61361
+resolution: 1e-06
+TEPS: 4.05883e+07
+time: 6.9262
+resolution: 1e-06
+TEPS: 3.87565e+07
+time: 7.2752
+resolution: 1e-06
+TEPS: 3.68973e+07
+time: 7.32769
+resolution: 1e-06
+TEPS: 3.6633e+07
+time: 6.63516
+resolution: 1e-06
+TEPS: 4.04565e+07
+time: 0.311214
+resolution: 1e-06
+TEPS: 8.62543e+08
+time: 0.120986
+resolution: 1e-06
+TEPS: 2.21873e+09
+time: 0.122861
+resolution: 1e-06
+TEPS: 2.18487e+09
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job bfstest_24/1129918.cvrsvc09-ib completed Wed Aug  3 19:22:06 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=16:ppn=8:bigmem,nodes=16:ppn=8:bigmem,walltime=02:00:00
+Job Resources used: cput=13:42:57,mem=235652280kb,vmem=251870652kb,walltime=00:06:32
+Nodes used: c1122-ib c1123-ib c1124-ib c1125-ib c1128-ib c1136-ib c1139-ib c1155-ib c1157-ib c1158-ib c1162-ib c1163-ib c1165-ib c1177-ib c1178-ib c1179-ib 
+
+Killing any leftover processes...
+
+Job completed.

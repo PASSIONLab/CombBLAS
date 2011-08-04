@@ -1,0 +1,192 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+INFO: Generating graph of 16777216 vertices.
+INFO: Graph Gen time: 352.55
+time: 0.0611849
+resolution: 1e-06
+TEPS: 4.38728e+09
+time: 0.0496991
+resolution: 1e-06
+TEPS: 5.40122e+09
+time: 0.0497699
+resolution: 1e-06
+TEPS: 5.39353e+09
+time: 0.051518
+resolution: 1e-06
+TEPS: 5.21052e+09
+time: 0.0762291
+resolution: 1e-06
+TEPS: 3.52143e+09
+time: 8.79905
+resolution: 1e-06
+TEPS: 3.05073e+07
+time: 0.137193
+resolution: 1e-06
+TEPS: 1.95663e+09
+time: 0.050585
+resolution: 1e-06
+TEPS: 5.30662e+09
+time: 9.21825
+resolution: 1e-06
+TEPS: 2.912e+07
+time: 9.45185
+resolution: 1e-06
+TEPS: 2.84003e+07
+time: 8.84662
+resolution: 1e-06
+TEPS: 3.03433e+07
+time: 9.1929
+resolution: 1e-06
+TEPS: 2.92003e+07
+time: 9.37302
+resolution: 1e-06
+TEPS: 2.86392e+07
+time: 0.147355
+resolution: 1e-06
+TEPS: 1.82169e+09
+time: 0.050761
+resolution: 1e-06
+TEPS: 5.28822e+09
+time: 0.0495849
+resolution: 1e-06
+TEPS: 5.41366e+09
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+
+
+**** no errors detected
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+
+**** no errors detected
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+**** no errors detected
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job bfstest_24/1129917.cvrsvc09-ib completed Tue Aug  2 15:57:59 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=8:ppn=8:bigmem,nodes=8:ppn=8:bigmem,walltime=01:30:00
+Job Resources used: cput=07:17:05,mem=153474980kb,vmem=162724936kb,walltime=00:06:55
+Nodes used: c1115-ib c1121-ib c1128-ib c1136-ib c1139-ib c1141-ib c1144-ib c1148-ib 
+
+Killing any leftover processes...
+
+Job completed.
