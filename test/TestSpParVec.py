@@ -764,7 +764,7 @@ class GeneralPurposeTests(SpParVecTests):
 	sz = 10
 	vec = SpParVec(sz)
 	res = vec.sum()
-	self.assertEqual(0, res)
+	self.assertEqual(0.0, res)
 
     def test_sum_ones(self):
 	sz = 10
@@ -926,7 +926,7 @@ class ApplyReduceTests(SpParVecTests):
         i = [0, 2, 4, 6, 8, 10]
         v = [0, 4, 8,12,16, 20]
         vec = self.initializeSpParVec(sz, i, v)
-        red = vec._reduce()
+        red = vec._reduce(SpParVec.op_add)
         redExpected = 60
 	self.assertEqual(redExpected, red)
 
@@ -937,6 +937,15 @@ class ApplyReduceTests(SpParVecTests):
         vec = self.initializeSpParVec(sz, i, v)
         red = vec._reduce(SpParVec.op_max)
         redExpected = 20
+	self.assertEqual(redExpected, red)
+
+    def test_reduce_min(self):
+	sz = 25
+        i = [0, 2, 4, 6, 8, 10]
+        v = [2, 4, 8,12,16, 20]
+        vec = self.initializeSpParVec(sz, i, v)
+        red = vec._reduce(SpParVec.op_min)
+        redExpected = 2
 	self.assertEqual(redExpected, red)
 
 	

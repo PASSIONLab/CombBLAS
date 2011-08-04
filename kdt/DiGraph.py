@@ -6,9 +6,8 @@ from Graph import ParVec, SpParVec, master
 import time
 
 class DiGraph(gr.Graph):
-	InOut = 1
-	In = 2
-	Out = 3
+	In  = pcb.pySpParMat.Column()
+	Out = pcb.pySpParMat.Row()
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -93,7 +92,7 @@ class DiGraph(gr.Graph):
 		elif isinstance(other, DiGraph):
 			ret = self.copy()
 			ret._spm += other._spm
-			#ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.plus());  # only adds if both mats have nonnull elems!!
+			#ret._apply(pcb.plus(), other);  # only adds if both mats have nonnull elems!!
 		return ret
 
 	def __div__(self, other):
@@ -109,7 +108,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy()
-			ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.divides())
+			ret._apply(pcb.divides(), other)
 		else:
 			raise NotImplementedError
 		return ret
@@ -185,7 +184,7 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other, DiGraph):
-			#dead tmp = pcb.EWiseApply(self._spm, other._spm, pcb.plus())
+			#self._apply(pcb.plus(), other)
 			self._spm += other._spm
 		return self
 
@@ -193,7 +192,7 @@ class DiGraph(gr.Graph):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self._apply(pcb.bind2nd(pcb.multiplies(),other))
 		elif isinstance(other,DiGraph):
-			self._spm = pcb.EWiseApply(self._spm,other._spm, pcb.multiplies())
+			self._apply(pcb.multiplies(), other)
 		else:
 			raise NotImplementedError
 		return self
@@ -212,7 +211,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		elif isinstance(other,DiGraph):
 			ret = self.copy()
-			ret._spm = pcb.EWiseApply(self._spm,other._spm, pcb.multiplies())
+			ret._apply(pcb.multiplies(), other)
 		else:
 			raise NotImplementedError
 		return ret
@@ -238,6 +237,71 @@ class DiGraph(gr.Graph):
 			if len(i) < self._REPR_MAX:
 				print i,j,v
 		return ' '
+
+	#in-place, so no return value
+	def _apply(self, op, other=None, notB=False):
+		"""
+		applies the given operator to every edge in the DiGraph
+
+		Input Argument:
+			self:  a DiGraph instance, modified in place.
+			op:  a Python or pyCombBLAS function
+
+		Output Argument:  
+			None.
+
+		"""
+		if other is None:
+			if not isinstance(op, pcb.UnaryFunction):
+				self._spm.Apply(pcb.unary(op))
+			else:
+				self._spm.Apply(op)
+			return
+		else:
+			if not isinstance(op, pcb.BinaryFunction):
+				self._spm = pcb.EWiseApply(self._spm, other._spm, pcb.binary(op), notB)
+			else:
+				self._spm = pcb.EWiseApply(self._spm, other._spm, op, notB)
+			return
+
+	#FIX:  put in a common place
+	op_add = pcb.plus()
+	op_sub = pcb.minus()
+	op_mul = pcb.multiplies()
+	op_div = pcb.divides()
+	op_mod = pcb.modulus()
+	op_fmod = pcb.fmod()
+	op_pow = pcb.pow()
+	op_max  = pcb.max()
+	op_min = pcb.min()
+	op_bitAnd = pcb.bitwise_and()
+	op_bitOr = pcb.bitwise_or()
+	op_bitXor = pcb.bitwise_xor()
+	op_and = pcb.logical_and()
+	op_or = pcb.logical_or()
+	op_xor = pcb.logical_xor()
+	op_eq = pcb.equal_to()
+	op_ne = pcb.not_equal_to()
+	op_gt = pcb.greater()
+	op_lt = pcb.less()
+	op_ge = pcb.greater_equal()
+	op_le = pcb.less_equal()
+	def _reduce(self, dir, op, pred=pcb.identity()):
+		"""
+		ToDo:  write doc
+		"""
+		if dir != DiGraph.In and dir != DiGraph.Out:
+			raise KeyError, 'unknown direction'
+		if not isinstance(op, pcb.BinaryFunction):
+			realOp = pcb.binary(op)
+		else:
+			realOp = op
+		if not isinstance(pred, pcb.UnaryFunction):
+			realPred = pcb.unary(pred)
+		else:
+			realPred = pred
+		ret = ParVec.toParVec(self._spm.Reduce(dir, realOp, realPred))
+		return ret
 
 	def _SpGEMM(self, other):
 		"""
@@ -382,7 +446,7 @@ class DiGraph(gr.Graph):
 		ret = DiGraph()
 		ret._spm = self._spm.copy()
 		return ret
-		
+
 	def degree(self, dir=Out):
 		"""
 		calculates the degrees of the appropriate edges of each vertex of 
@@ -391,7 +455,7 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges to count, with choices being
-			    DiGraph.Out (default), DiGraph.In, or DiGraph.InOut.
+			    DiGraph.Out (default) or DiGraph.In.
 
 		Output Argument:
 			ret:  a ParVec instance with each element containing the
@@ -399,31 +463,11 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  sum 
 		"""
-		if self.nedge() == 0:
-			nv = self.nvert()
-			if type(nv) == tuple:
-				nv0 = nv[0]; nv1 = nv[1];
-			else:
-				nv0 = nv; nv1 = nv;
-			if dir == DiGraph.In or dir == DiGraph.InOut:
-				return ParVec.zeros(nv0)
-			elif dir == DiGraph.Out:
-				return ParVec.zeros(nv1)
-			else:
-				raise KeyError, 'Unknown edge-direction'
-		if dir == DiGraph.InOut:
-			#ToDo:  can't do InOut if nonsquare graph
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == DiGraph.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			return ParVec.toParVec(ret)
-		elif dir == DiGraph.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-			return ParVec.toParVec(ret)
-		else:
-			raise KeyError, 'Invalid edge direction'
+		if dir != DiGraph.In and dir != DiGraph.Out:
+			raise KeyError, 'Invalid edge-direction'
+		ret = self._reduce(dir, pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
+		return ret
+
 
 	# in-place, so no return value
 	def removeSelfLoops(self):
@@ -549,7 +593,7 @@ class DiGraph(gr.Graph):
 		ret._spm.load(fname)
 		return ret
 
-	def max(self, dir=InOut):
+	def max(self, dir=Out):
 		"""
 		finds the maximum weights of the appropriate edges of each vertex 
 		of the passed DiGraph instance.
@@ -557,8 +601,7 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges over which to find the maximum,
-			    with choices being DiGraph.InOut (default), DiGraph.In, or 
-			    DiGraph.Out.
+			    with choices being DiGraph.Out (default) or DiGraph.In.
 
 		Output Argument:
 			ret:  a ParVec instance with each element containing the
@@ -566,21 +609,12 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  degree, min 
 		"""
-		#ToDo:  is default to InOut best?
-		if dir == DiGraph.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
-			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == DiGraph.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.max())
-			return ParVec.toParVec(ret)
-		elif dir == DiGraph.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.max())
-			return ParVec.toParVec(ret)
-		else:
-			raise KeyError, 'Invalid edge direction'
+		if dir != DiGraph.In and dir != DiGraph.Out:
+			raise KeyError, 'Invalid edge-direction'
+		ret = self._reduce(dir, pcb.max())
+		return ret
 
-	def min(self, dir=InOut):
+	def min(self, dir=Out):
 		"""
 		finds the minimum weights of the appropriate edges of each vertex 
 		of the passed DiGraph instance.
@@ -588,8 +622,7 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges over which to find the minimum,
-			    with choices being DiGraph.Out (default), DiGraph.In, or 
-			    DiGraph.InOut.
+			    with choices being DiGraph.Out (default), DiGraph.In.
 
 		Output Argument:
 			ret:  a ParVec instance with each element containing the
@@ -597,17 +630,10 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  degree, max 
 		"""
-		#ToDo:  is default to InOut best?
-		if dir == DiGraph.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
-			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == DiGraph.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.min())
-			return ParVec.toParVec(ret)
-		elif dir == DiGraph.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.min())
-			return ParVec.toParVec(ret)
+		if dir != DiGraph.In and dir != DiGraph.Out:
+			raise KeyError, 'Invalid edge-direction'
+		ret = self._reduce(dir, pcb.min())
+		return ret
 
 	def mulNot(self, other):
 		"""
@@ -626,8 +652,8 @@ class DiGraph(gr.Graph):
 		if self.nvert() != other.nvert():
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
-			ret = DiGraph()
-			ret._spm = pcb.EWiseApply(self._spm, other._spm, pcb.multiplies(), True)
+			ret = self.copy()
+			ret._apply(pcb.multiplies(), other, True)
 		return ret
 
 	def nedge(self, vpart=None):
@@ -859,7 +885,7 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges to sum, with choices being
-			    DiGraph.Out (default), DiGraph.In, or DiGraph.InOut.
+			    DiGraph.Out (default) or DiGraph.In.
 
 		Output Argument:
 			ret:  a ParVec instance with each element containing the
@@ -867,18 +893,10 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  degree 
 		"""
-		if dir == DiGraph.InOut:
-			tmp1 = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
-			tmp2 = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
-			return ParVec.toParVec(tmp1+tmp2)
-		elif dir == DiGraph.In:
-			ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.identity())
-			return ParVec.toParVec(ret)
-		elif dir == DiGraph.Out:
-			ret = self._spm.Reduce(pcb.pySpParMat.Row(),pcb.plus(), pcb.identity())
-			return ParVec.toParVec(ret)
-		else:
-			raise KeyError, 'Invalid edge direction'
+		if dir != DiGraph.In and dir != DiGraph.Out:
+			raise KeyError, 'Invalid edge-direction'
+		ret = self._reduce(dir, pcb.plus())
+		return ret
 
 	_T = reverseEdges
 
@@ -1234,7 +1252,7 @@ class DiGraph(gr.Graph):
 		1/outdegree(v).
 		"""
 		degscale = self.degree(dir)
-		degscale._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
+		degscale._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
 		self.scale(degscale, dir)
 		
 	def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
@@ -1284,7 +1302,7 @@ class DiGraph(gr.Graph):
 		# connecting them to all other nodes.
 
 		sinkV = G.degree(DiGraph.In)
-		sinkV._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
+		sinkV._apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
 
 		# Normalize edge weights such that for each vertex,
 		# each outgoing edge weight is equal to 1/(number of
@@ -1644,7 +1662,7 @@ class DiGraph(gr.Graph):
 	
 		#Avoid divide-by-zero error
 		sums = A.sum(DiGraph.In)
-		sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
+		sums._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
 			pcb.set(1),
 			pcb.identity()))
 		
@@ -1675,7 +1693,7 @@ class DiGraph(gr.Graph):
 			
 			#Re-normalize
 			sums = A.sum(DiGraph.In)
-			sums._dpv.Apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
+			sums._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
 				pcb.set(1),
 				pcb.identity()))
 

@@ -54,7 +54,7 @@ class Graph:
 	# works in place, so no return value
 	def _apply(self, op):		
 		"""
-		applies the given operator to every function in the Graph
+		applies the given operator to every edge in the Graph
 
 		Input Argument:
 			self:  a Graph instance, modified in place.
@@ -69,6 +69,32 @@ class Graph:
 		else:
 			self._spm.Apply(op)
 		return
+
+	def _reduce(self, op, pred=pcb.identity()):		
+		"""
+		#FIX:  untested
+
+		applies the given reduction operator to every row or column in 
+		the Graph
+
+		Input Argument:
+			self:  a Graph instance, modified in place.
+			op:  a Python or pyCombBLAS function
+
+		Output Argument:  
+			None.
+
+		"""
+		if not isinstance(op, pcb.BinaryFunction):
+			realOp = pcb.binary(op)
+		else:
+			realOp = op
+		if not isinstance(pred, pcb.UnaryFunction):
+			realPred = pcb.unary(pred)
+		else:
+			realPred = pred
+		ret = self._spm.Reduce(pcb.pySpParMat.Column(), realOp, realPred)
+		return ret
 
 	def toParVec(self):	
 		ne = self.nedge()
@@ -85,8 +111,10 @@ class Graph:
 
 	def degree(self):
 		# ToDo:  double-check that Column is the right direction
-		ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus())
-                return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret))
+		#ret = self._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus())
+                #return ParVec.toParVec(pcb.pyDenseParVec.toPyDenseParVec(ret))
+		ret = self._reduce(pcb.plus())
+                return ParVec.toParVec(ret)
 
 	@staticmethod
 	def load(fname):
@@ -186,10 +214,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				ret._dpv.EWiseApply(other._dpv,pcb.plus())
-			else:
-				ret._dpv.EWiseApply(other._spv,pcb.plus())
+			ret._apply(pcb.plus(),other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -201,7 +226,7 @@ class ParVec:
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.logical_and())
+			ret._apply(pcb.logical_and(),other=other)
 		return ret
 
 	def __div__(self, other):
@@ -216,10 +241,7 @@ class ParVec:
 				raise IndexError, 'arguments must be of same length'
 			if (other==0).any():
 				raise ZeroDivisionError
-			if isinstance(other, ParVec):
-				ret._dpv.EWiseApply(other._dpv,pcb.divides())
-			else:
-				ret._dpv.EWiseApply(other._spv,pcb.divides())
+			ret._apply(pcb.divides(),other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -228,10 +250,10 @@ class ParVec:
 		ret = self.copy()
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret._apply(pcb.bind2nd(pcb.equal_to(), other))
-		else:	#elif isinstance(other,ParVec):
+		else:	
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.equal_to())
+			ret._apply(pcb.equal_to(),other=other)
 		return ret
 
 	def __getitem__(self, key):
@@ -319,7 +341,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.greater_equal())
+			ret._apply(pcb.greater_equal(), other=other)
 		return ret
 
 	def __gt__(self, other):
@@ -329,7 +351,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.greater())
+			ret._apply(pcb.greater(), other=other)
 		return ret
 
 	def __iadd__(self, other):
@@ -338,12 +360,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				self._dpv.EWiseApply(other._dpv,pcb.plus())
-				#self._dpv += other._dpv
-			else:
-				self._dpv.EWiseApply(other._spv,pcb.plus())
-				#self._dpv += other._spv
+			self._apply(pcb.plus(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
@@ -354,10 +371,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				self._dpv.EWiseApply(other._dpv,pcb.multiplies())
-			else:
-				self._dpv.EWiseApply(other._spv,pcb.multiplies())
+			self._apply(pcb.multiplies(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
@@ -375,10 +389,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				self._dpv.EWiseApply(other._dpv,pcb.minus())
-			else:
-				self._dpv.EWiseApply(other._spv,pcb.minus())
+			self._apply(pcb.minus(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return self
@@ -390,7 +401,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.less_equal())
+			ret._apply(pcb.less_equal(), other=other)
 		return ret
 
 	def __len__(self):
@@ -403,7 +414,7 @@ class ParVec:
 		else:	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.less())
+			ret._apply(pcb.less(), other=other)
 		return ret
 
 	def __mod__(self, other):
@@ -417,10 +428,7 @@ class ParVec:
 				raise IndexError, 'arguments must be of same length'
 			if (other==0).any():
 				raise ZeroDivisionError
-			if isinstance(other, ParVec):
-				ret._dpv.EWiseApply(other._dpv,pcb.modulus())
-			else:
-				ret._dpv.EWiseApply(other._spv,pcb.modulus())
+			ret._apply(pcb.modulus(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -432,10 +440,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				ret._dpv.EWiseApply(other._dpv,pcb.multiplies())
-			else:
-				ret._dpv.EWiseApply(other._spv,pcb.multiplies())
+			ret._apply(pcb.multiplies(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -447,7 +452,7 @@ class ParVec:
 		else:	
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.not_equal_to())
+			ret._apply(pcb.not_equal_to(), other=other)
 		return ret
 
 	def __neg__(self):
@@ -462,7 +467,7 @@ class ParVec:
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.logical_or())
+			ret._apply(pcb.logical_or(), other=other)
 		return ret
 
 	def __radd__(self, other):
@@ -478,7 +483,7 @@ class ParVec:
 			if (self == 0).any():
 				raise ZeroDivisionError
 			ret = ParVec.zeros(len(self)) + other
-			ret._dpv.EWiseApply(self._dpv, pcb.divides())
+			ret._apply(pcb.divides(), other=self)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -516,7 +521,7 @@ class ParVec:
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = ParVec.zeros(len(self)) + other
 			
-			ret._dpv.EWiseApply(self._dpv, pcb.minus())
+			ret._apply(pcb.minus(), other=self)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -599,10 +604,7 @@ class ParVec:
 		elif isinstance(other,ParVec) or isinstance(other, SpParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if isinstance(other, ParVec):
-				ret._dpv.EWiseApply(other._dpv,pcb.minus())
-			else:
-				ret._dpv.EWiseApply(other._spv,pcb.minus())
+			ret._apply(pcb.minus(), other=other)
 		else:
 			raise NotImplementedError, 'unimplemented type for 2nd operand'
 		return ret
@@ -614,25 +616,75 @@ class ParVec:
 		else: 	#elif isinstance(other,ParVec):
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			ret._dpv.EWiseApply(other._dpv,pcb.logical_xor())
+			ret._apply(pcb.logical_xor(), other=other)
 		return ret
 
 	#in-place, so no return value
-	def _apply(self, op):
+	def _apply(self, op, other=None):
 		"""
 		ToDo:  write doc
 		"""
-		if not isinstance(op, pcb.UnaryFunction):
-			self._dpv.Apply(pcb.unary(op))
+		if other is None:
+			if not isinstance(op, pcb.UnaryFunction):
+				self._dpv.Apply(pcb.unary(op))
+			else:
+				self._dpv.Apply(op)
+			return
 		else:
-			self._dpv.Apply(op)
-		return
+			if not isinstance(op, pcb.BinaryFunction):
+			    if isinstance(other, ParVec):
+				self._dpv.EWiseApply(other._dpv, pcb.binary(op))
+			    else:
+				self._dpv.EWiseApply(other._spv, pcb.binary(op))
+			else:
+			    if isinstance(other, ParVec):
+				self._dpv.EWiseApply(other._dpv, op)
+			    else:
+				self._dpv.EWiseApply(other._spv, op)
+			return
+
+	#FIX:  put in a common place
+	op_add = pcb.plus()
+	op_sub = pcb.minus()
+	op_mul = pcb.multiplies()
+	op_div = pcb.divides()
+	op_mod = pcb.modulus()
+	op_fmod = pcb.fmod()
+	op_pow = pcb.pow()
+	op_max  = pcb.max()
+	op_min = pcb.min()
+	op_bitAnd = pcb.bitwise_and()
+	op_bitOr = pcb.bitwise_or()
+	op_bitXor = pcb.bitwise_xor()
+	op_and = pcb.logical_and()
+	op_or = pcb.logical_or()
+	op_xor = pcb.logical_xor()
+	op_eq = pcb.equal_to()
+	op_ne = pcb.not_equal_to()
+	op_gt = pcb.greater()
+	op_lt = pcb.less()
+	op_ge = pcb.greater_equal()
+	op_le = pcb.less_equal()
+	def _reduce(self, op, pred=pcb.identity()):
+		"""
+		ToDo:  write doc
+		"""
+		if not isinstance(op, pcb.BinaryFunction):
+			realOp = pcb.binary(op)
+		else:
+			realOp = op
+		if not isinstance(pred, pcb.UnaryFunction):
+			realPred = pcb.unary(pred)
+		else:
+			realPred = pred
+		ret = self._dpv.Reduce(realOp, realPred)
+		return ret
 
 	def abs(self):
 		return abs(self)
 
 	def all(self):
-		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == len(self)
+		ret = self._reduce(ParVec.op_add, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == len(self)
 		return ret
 
 	def allCloseToInt(self):
@@ -643,16 +695,16 @@ class ParVec:
 		return ret
 
 	def any(self):
-		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) > 0
+		ret = self._reduce(ParVec.op_or, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) > 0
 		return ret
 
 	def argmax(self):
-		tmp = self._dpv.Reduce(pcb.max(), pcb.identity())
+		tmp = self._reduce(ParVec.op_max, pcb.identity())
 		ret = int((self==tmp).findInds()[0])
 		return ret
 
 	def argmin(self):
-		tmp = self._dpv.Reduce(pcb.min(), pcb.identity())
+		tmp = self._reduce(ParVec.op_min, pcb.identity())
 		ret = int((self==tmp).findInds()[0])
 		return ret
 
@@ -722,7 +774,7 @@ class ParVec:
 		return ret
 
 	def max(self):
-		ret = self._dpv.Reduce(pcb.max(), pcb.identity())
+		ret = self._reduce(ParVec.op_max, pcb.identity())
 		return ret
 
 	def mean(self):
@@ -733,30 +785,31 @@ class ParVec:
 		return self.sum() / len(self)
 
 	def min(self):
-		ret = self._dpv.Reduce(pcb.min(), pcb.identity())
+		ret = self._reduce(ParVec.op_min, pcb.identity())
 		return ret
 
-	def nn(self):
-		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(),0), pcb.set(1), pcb.set(0)))
-		return ret
+#	def nn(self):
+#		ret = self._reduce(ParVec.op_add, pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(),0), pcb.set(1), pcb.set(0)))
+#		return ret
 
 	def nnz(self):
-		ret = self._dpv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+		ret = self._reduce(ParVec.op_add, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		return int(ret)
 
 	def norm(self,ord):
 		"""
 		calculates the norm of a ParVec instance.  The supported norms
 		include:
-		- 1:  defined as max(sum(abs(x)))
+		- 1:  defined as sum(abs(x))
 		"""
+		#FIX:  looks like another norm(s) is implemented below???
 		if ord <= 0:
 			raise ValueError, 'Norm must be positive'
 		elif ord==1:
-			ret = self._dpv.Reduce(pcb.plus(),pcb.abs())
+			ret = self._reduce(pcb.plus(),pcb.abs())
 			return ret
 		else:
-			ret = self._dpv.Reduce(pcb.plus(),pcb.compose1(pcb.bind2nd(pcb.pow(), ord), pcb.abs()))
+			ret = self._reduce(pcb.plus(),pcb.compose1(pcb.bind2nd(pcb.pow(), ord), pcb.abs()))
 			ret = pow(ret, 1.0/ord)
 			return ret
 
@@ -865,7 +918,7 @@ class ParVec:
 		return ret 
 
 	def sum(self):
-		ret = self._dpv.Reduce(pcb.plus(), pcb.identity())
+		ret = self._reduce(ParVec.op_add, pcb.identity())
 		return ret
 
 	@staticmethod
@@ -1447,20 +1500,41 @@ class SpParVec:
 			self._spv.Apply(op)
 		return
 
-	op_plus = 1
-	op_max  = 2
-	def _reduce(self, op=op_plus):
+	op_add = pcb.plus()
+	op_sub = pcb.minus()
+	op_mul = pcb.multiplies()
+	op_div = pcb.divides()
+	op_mod = pcb.modulus()
+	op_fmod = pcb.fmod()
+	op_pow = pcb.pow()
+	op_max  = pcb.max()
+	op_min = pcb.min()
+	op_bitAnd = pcb.bitwise_and()
+	op_bitOr = pcb.bitwise_or()
+	op_bitXor = pcb.bitwise_xor()
+	op_and = pcb.logical_and()
+	op_or = pcb.logical_or()
+	op_xor = pcb.logical_xor()
+	op_eq = pcb.equal_to()
+	op_ne = pcb.not_equal_to()
+	op_gt = pcb.greater()
+	op_lt = pcb.less()
+	op_ge = pcb.greater_equal()
+	op_le = pcb.less_equal()
+	def _reduce(self, op, pred=pcb.identity()):
 		"""
 		ToDo:  write doc
 		"""
-		if op == SpParVec.op_plus:
-			realOp = pcb.plus()
-		elif op == SpParVec.op_max:
-			realOp = pcb.max()
+		#ToDo:  error-check on op?
+		if not isinstance(op, pcb.BinaryFunction):
+			realOp = pcb.binary(op)
 		else:
-			raise KeyError, 'invalid operation'
-		#filterPred = pcb.ifthenelse(pred, pcb.identity(), pcb.set(0))
-		ret = self._spv.Reduce(realOp)
+			realOp = op
+		if not isinstance(pred, pcb.UnaryFunction):
+			realPred = pcb.unary(pred)
+		else:
+			realPred = pred
+		ret = self._spv.Reduce(realOp, realPred)
 		return ret
 	
 
@@ -1469,7 +1543,7 @@ class SpParVec:
 		returns a Boolean True if all the nonnull elements of the
 		SpParVec instance are True (nonzero), and False otherwise.
 		"""
-		ret = self._spv.Reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
+		ret = self._reduce(SpParVec.op_and, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
 		return ret
 
 	def allCloseToInt(self):
@@ -1489,7 +1563,7 @@ class SpParVec:
 		returns a Boolean True if any of the nonnull elements of the
 		SpParVec instance are True (nonzero), and False otherwise.
 		"""
-		ret = self._spv.Reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
+		ret = self._reduce(SpParVec.op_or, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0))) == 1
 		return ret
 
 	def copy(self):
@@ -1506,7 +1580,7 @@ class SpParVec:
 		ToDo:  write doc
 		"""
 		#filterPred = pcb.ifthenelse(pred, pcb.identity(), pcb.set(0))
-		ret = self._spv.Reduce(pcb.plus(), pcb.set(1))
+		ret = self._reduce(SpParVec.op_add, pcb.set(1))
 		return ret
 	
 	#ToDo:  implement find/findInds when problem of any zero elements
@@ -1570,7 +1644,7 @@ class SpParVec:
 		returns the maximum value of the nonnull elements in the SpParVec 
 		instance.
 		"""
-		ret = self._spv.Reduce(pcb.max())
+		ret = self._reduce(SpParVec.op_max)
 		return ret
 
 	def min(self):
@@ -1578,7 +1652,7 @@ class SpParVec:
 		returns the minimum value of the nonnull elements in the SpParVec 
 		instance.
 		"""
-		ret = self._spv.Reduce(pcb.min())
+		ret = self._reduce(SpParVec.op_min)
 		return ret
 
 	def nn(self):
@@ -1603,9 +1677,10 @@ class SpParVec:
 
 		SEE ALSO:  nn, nnz
 		"""
-		#ret = self._spv.Reduce(pcb.plus(), pcb.set(1))
-		# FIX: get Reduce version working
-		ret = self._spv.getnee()
+		ret = self._reduce(SpParVec.op_add, pcb.set(1))
+		#FIX:  HACK
+		if isinstance(ret, float) and (ret != ret):   # if isnan(ret):
+			ret = 0
 		return ret
 
 	def nnz(self):
@@ -1618,7 +1693,7 @@ class SpParVec:
 
 		SEE ALSO:  nn, nnn
 		"""
-		ret = self._spv.Reduce(pcb.plus(), pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
+		ret = self._reduce(SpParVec.op_add, pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
 		return int(ret)
 
 	@staticmethod
@@ -1739,7 +1814,7 @@ class SpParVec:
 		if self.nnn() == 0:
 			ret = 0
 		else:
-			ret = self._spv.Reduce(pcb.plus())
+			ret = self._reduce(SpParVec.op_add)
 		return ret
 
 	#in-place, so no return value
