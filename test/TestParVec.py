@@ -776,6 +776,110 @@ class GeneralPurposeTests(ParVecTests):
 	res = vec.any()
 	self.assertEqual(False, res)
 
+    def test_max_simple(self):
+	sz = 11
+	vec = ParVec.range(sz)
+	res = vec.max()
+	self.assertEqual(sz-1, res)
+
+    def test_max_simple2(self):
+	sz = 11
+	vec = -ParVec.range(sz)
+	res = vec.max()
+	self.assertEqual(0, res)
+
+    def test_max_simple3(self):
+	sz = 11
+	vec = -(ParVec.range(-(sz/2), sz/2).abs()) + 10
+	res = vec.max()
+	self.assertEqual(10.0, res)
+
+    def test_max_fixed(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -2.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 7.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.max()
+	self.assertAlmostEqual(7.789, res)
+
+    def test_min_simple(self):
+	sz = 11
+	vec = ParVec.range(sz)
+	res = vec.min()
+	self.assertEqual(0, res)
+
+    def test_min_simple2(self):
+	sz = 11
+	vec = -ParVec.range(sz)
+	res = vec.min()
+	self.assertEqual(-(sz-1), res)
+
+    def test_min_simple3(self):
+	sz = 11
+	vec = -(ParVec.range(-(sz/2), sz/2).abs()) + 10
+	res = vec.min()
+	self.assertEqual(5.0, res)
+
+    def test_min_fixed(self):
+	sz = 9
+	vec = ParVec(sz)
+	vec[0] = -4.777
+	vec[1] = -3.222
+	vec[2] = -2.789
+	vec[3] = -0.999
+	vec[4] = 0
+	vec[5] = 0.999
+	vec[6] = 7.789
+	vec[7] = 3.222
+	vec[8] = 4.777
+	res = vec.min()
+	self.assertAlmostEqual(-4.777, res)
+
+    def test_nnz_all_true(self):
+	sz = 10
+	vec = ParVec.ones(sz)
+	res = vec.nnz()
+	self.assertEqual(sz, res)
+
+    def test_nnz_one_false(self):
+	sz = 10
+	vec = ParVec.ones(sz)
+	vec[4] = False
+	res = vec.nnz()
+	self.assertEqual(sz-1, res)
+
+    def test_nnz_one_true(self):
+	sz = 10
+	vec = ParVec.zeros(sz)
+	vec[4] = True
+	res = vec.nnz()
+	self.assertEqual(1, res)
+
+    def test_nnz_all_false(self):
+	sz = 10
+	vec = ParVec.zeros(sz)
+	res = vec.nnz()
+	self.assertEqual(0, res)
+
+    def test_norm1_simple(self):
+	sz = 10
+	vec = ParVec.range(-(sz/2),sz/2)
+	res = vec.norm(1)
+	self.assertEqual(25, res)
+
+    def test_norm2_simple(self):
+	sz = 10
+	vec = ParVec.range(-(sz/2),sz/2)
+	res = vec.norm(2)
+	self.assertAlmostEqual(9.219544457, res)
+
     def test_sum_zeros(self):
 	sz = 10
 	vec = ParVec(sz)

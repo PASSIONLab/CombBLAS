@@ -369,8 +369,8 @@ class LoadTests(DiGraphTests):
         self.assertEqual(G.nvert(), 52652)
 	self.assertEqual(G.nedge(), 178076)
 
-class MaxTests(DiGraphTests):
-    def test_max_out(self):
+class ReductionTests(DiGraphTests):
+    def test_max_out_in(self):
 	nvert = 9
 	nedge = 19
 	i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
@@ -391,8 +391,7 @@ class MaxTests(DiGraphTests):
 		self.assertEqual(outmax[ind], outmaxExpected[ind])
 		self.assertEqual(inmax[ind], inmaxExpected[ind])
 	
-class MinTests(DiGraphTests):
-    def test_min_out(self):
+    def test_min_out_in(self):
 	nvert = 9
 	nedge = 19
 	i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
@@ -412,6 +411,29 @@ class MinTests(DiGraphTests):
 	for ind in range(len(outmin)):
 		self.assertEqual(outmin[ind], outminExpected[ind])
 		self.assertEqual(inmin[ind], inminExpected[ind])
+	
+    def test_sum_out_in(self):
+	nvert = 9
+	nedge = 19
+	i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
+	j = [1, 0, 2, 1, 3, 1, 3, 2, 4, 3, 8, 6, 8, 7, 4, 5, 6, 7, 8]
+	v = [-01, -10, -12, -21, -13, -31, -23, -32, -34, -43, -68, -1.6e10, 
+		-78, -87, -14, -15, -16, -17, -18]
+        G = self.initializeGraph(nvert, nedge, i, j, v)
+	self.assertEqual(G.nvert(), nvert)
+	self.assertEqual(G.nedge(), nedge)
+	outsum = G.sum(dir=DiGraph.Out)
+	insum = G.sum(dir=DiGraph.In)
+	outsumExpected = [-1, -115, -44, -97, -43, 0, -68, -78, 
+		-1.6000000087e+10]
+	insumExpected = [-10, -53, -44, -79, -48, -15, -1.6000000016e+10, 
+		-104, -164]
+	self.assertEqual(len(outsum), len(outsumExpected))
+	self.assertEqual(len(insum), len(insumExpected))
+
+	for ind in range(len(outsum)):
+		self.assertEqual(outsum[ind], outsumExpected[ind])
+		self.assertEqual(insum[ind], insumExpected[ind])
 	
 class BuiltInMethodTests(DiGraphTests):
     def test_DiGraph_simple(self):
@@ -1006,6 +1028,34 @@ class GeneralPurposeTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
 
+    def test_degree_in(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+        deg = G1.degree(dir=DiGraph.In)
+	expDeg = [0, 4, 2, 3, 2, 1, 2, 2, 3]
+        self.assertEqual(len(expDeg), len(deg))
+        for ind in range(len(expDeg)):
+		self.assertEqual(expDeg[ind], deg[ind])
+
+    def test_degree_out(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+        deg = G1.degree(dir=DiGraph.Out)
+	expDeg = [2, 7, 1, 2, 1, 1, 2, 1, 2]
+        self.assertEqual(len(expDeg), len(deg))
+        for ind in range(len(expDeg)):
+		self.assertEqual(expDeg[ind], deg[ind])
+
 
         
 class LinearAlgebraTests(DiGraphTests):
@@ -1223,13 +1273,12 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MaxTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MinTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
-#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
+#   suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
 #    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
     return suite
