@@ -37,16 +37,10 @@ THE SOFTWARE.
 #include <string>
 #include <fstream>
 #include <stdint.h>
-
-#ifdef NOTR1
-	#include <boost/tr1/memory.hpp>
-#else
-	#include <tr1/memory>
-#endif
+// TR1 includes belong in CombBLAS.h
 #include "MPIType.h"
 
 using namespace std;
-using namespace std::tr1;
 
 class CommGrid
 {

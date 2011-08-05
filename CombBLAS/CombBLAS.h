@@ -9,6 +9,7 @@
 	#include <tr1/memory>
 	#include <tr1/unordered_map>
 	#include <tr1/tuple>
+	using namespace std::tr1;
 #else // C++11
 	#include <memory>
 	#include <unordered_map>

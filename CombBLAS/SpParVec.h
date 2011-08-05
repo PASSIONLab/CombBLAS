@@ -5,13 +5,7 @@
 #include <vector>
 #include <utility>
 
-// TR1 imports are done in CombBLAS.h
-/*#ifdef NOTR1
-	#include <boost/tr1/memory.hpp>
-#else
-	#include <tr1/memory>
-#endif
-*/
+// TR1 includes belong in CombBLAS.h
 
 #include "CommGrid.h"
 #include "promote.h"

@@ -34,11 +34,7 @@ THE SOFTWARE.
 #include <vector>
 #include <utility>
 #include <iterator>
-#ifdef NOTR1
-	#include <boost/tr1/memory.hpp>
-#else
-	#include <tr1/memory>
-#endif
+// TR1 includes belong in CombBLAS.h
 #include "CommGrid.h"
 #include "FullyDist.h"
 #include "Exception.h"

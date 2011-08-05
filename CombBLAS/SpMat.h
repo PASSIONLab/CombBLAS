@@ -12,14 +12,8 @@
 #include <vector>
 #include <utility>
 
-// TR1 imports are done in CombBLAS.h
-/*
-#ifdef NOTR1
-	#include <boost/tr1/tuple.hpp>
-#else
-	#include <tr1/tuple>
-#endif
-*/
+// TR1 includes belong in CombBLAS.h
+
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"
