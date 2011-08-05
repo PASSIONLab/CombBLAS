@@ -13,11 +13,7 @@
 #include <cmath>
 #include <cassert>
 
-#ifdef NOTR1
-	#include <boost/tr1/tuple.hpp>
-#else
-	#include <tr1/tuple>
-#endif
+// TR1 includes belong in CombBLAS.h
 #include "SpMat.h"
 #include "SpDefs.h"
 #include "StackEntry.h"

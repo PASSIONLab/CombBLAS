@@ -21,30 +21,25 @@
 #define __STDC_LIMIT_MACROS
 #endif
 #include <stdint.h>
-#ifdef NOTR1
-        #include <boost/tr1/memory.hpp>
-#else
-        #include <tr1/memory>
-#endif
 
-#ifdef TIMING
+//#ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;
-#endif
+//#endif
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads(); 
 #else
 int cblas_splits = 1;
 #endif
 
-
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../FullyDistVec.h"
-#include "../FullyDistSpVec.h"
-#include "../ParFriends.h"
-#include "../DistEdgeList.h"
+#include "../CombBLAS.h"
+//#include "../SpTuples.h"
+//#include "../SpDCCols.h"
+//#include "../SpParMat.h"
+//#include "../FullyDistVec.h"
+//#include "../FullyDistSpVec.h"
+//#include "../ParFriends.h"
+//#include "../DistEdgeList.h"
 
 #define ITERS 16
 #define EDGEFACTOR 16

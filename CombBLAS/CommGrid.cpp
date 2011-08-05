@@ -26,8 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "CommGrid.h"
-#include "SpDefs.h"
+//#include "CommGrid.h"
+//#include "SpDefs.h"
+#include "CombBLAS.h"
 
 CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)
 {
