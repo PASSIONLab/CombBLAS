@@ -5,6 +5,7 @@
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/unordered_map.hpp>
 	#include <boost/tr1/tuple.hpp>
+	using namespace std::tr1;
 #elif defined(COMBBLAS_TR1)
 	#include <tr1/memory>
 	#include <tr1/unordered_map>
