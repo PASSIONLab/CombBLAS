@@ -22,10 +22,8 @@
 #endif
 #include <stdint.h>
 
-//#ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;
-//#endif
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads(); 
 #else
@@ -33,13 +31,6 @@ int cblas_splits = 1;
 #endif
 
 #include "../CombBLAS.h"
-//#include "../SpTuples.h"
-//#include "../SpDCCols.h"
-//#include "../SpParMat.h"
-//#include "../FullyDistVec.h"
-//#include "../FullyDistSpVec.h"
-//#include "../ParFriends.h"
-//#include "../DistEdgeList.h"
 
 #define ITERS 16
 #define EDGEFACTOR 16
@@ -344,8 +335,9 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
 		
-			Aeff = PSpMat_s32p64(A);
-			Symmetricize(Aeff);	// A += A';
+			//Aeff = PSpMat_s32p64(A);	// TODO: Convert the rest to this
+			//Symmetricize(Aeff);	// A += A';
+			Symmetricize(A);
 			SpParHelper::Print("Symmetricized\n");	
 
 		#ifdef THREADED	
