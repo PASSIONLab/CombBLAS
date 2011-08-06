@@ -16,6 +16,13 @@
 	#include <unordered_map>
 	#include <tuple>
 #endif
+using namespace std;
+// for VC2008
+using namespace std::tr1;
+
+//#ifdef _MSC_VER
+//#pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
+//#endif
 
 #include "SpTuples.h"
 #include "SpDCCols.h"

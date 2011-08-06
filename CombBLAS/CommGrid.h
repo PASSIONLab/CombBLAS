@@ -41,6 +41,8 @@ THE SOFTWARE.
 #include "MPIType.h"
 
 using namespace std;
+class CommGrid;
+shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 
 class CommGrid
 {

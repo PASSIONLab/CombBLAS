@@ -86,10 +86,10 @@ public:
       		return true;
 	}
 	template<typename _ForwardIter, typename T>
-	static void iota(_ForwardIter __first, _ForwardIter __last, T __value)
+	static void iota(_ForwardIter __first, _ForwardIter __last, T __val)
 	{
 		while (__first != __last)
-	     		*__first++ = __value++;
+	     		*__first++ = __val++;
 	}
 	template<typename In, typename Out, typename UnPred>
 	static Out copyIf(In first, In last, Out result, UnPred pred) 
