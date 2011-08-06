@@ -108,6 +108,9 @@ CombBLAS/Applications/HopperResults/script529.24pernode_Dec23 -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Feb10 -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
+CombBLAS/Applications/Post_SC_optimization/script1225_hop_all.e687575 -text
+CombBLAS/Applications/Post_SC_optimization/script2500_hop_all.e689319 -text
+CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e689318 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_hybrid_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg64_hybrid_scale27 -text
