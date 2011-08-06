@@ -7,6 +7,11 @@
 
 using namespace std;
 
+#ifdef _MSC_VER
+#define isnan _isnan
+#pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
+#endif
+
 struct doubleint 
 {
 	double d;

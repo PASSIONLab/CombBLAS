@@ -35,11 +35,6 @@ THE SOFTWARE.
 #include <utility>
 #include <iterator>
 
-#ifdef NOTR1
-	#include <boost/tr1/memory.hpp>
-#else
-	#include <tr1/memory>
-#endif
 #include "CommGrid.h"
 
 using namespace std;

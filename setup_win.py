@@ -130,7 +130,11 @@ extra_compile_args.append('/Zi')   # debugging info
 extra_link_args.append('/debug')   # debugging info
 macros.insert(0, ('NDEBUG', '1'))  # prevents from being linked against python2x_d.lib
 
-
+compatibility_include_dirs = []
+compatibility_include_dirs.append(COMBBLAS+"ms_inttypes") # VS2008 does not include <inttypes.h>
+compatibility_include_dirs.append(COMBBLAS+"ms_sys")      # VS2008 does not include <sys/time.h>
+macros.append(('NODRAND48', '1'))                         # VS2008 does not include drand48(), which is used in psort
+macros.append(('NOMINMAX', '1'))                          # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
@@ -142,7 +146,7 @@ PCB+"pyObjDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pyS
         extra_compile_args = extra_compile_args,
         extra_link_args = extra_link_args,
         define_macros = macros,
-	include_dirs=["C:\Program Files\MPICH2\include",COMBBLAS+"msinttypes"],
+	include_dirs=["C:\Program Files\MPICH2\include"] + compatibility_include_dirs,
 	library_dirs=["C:\Program Files\MPICH2\lib"],
 	libraries=["mpi","cxx"])
 	#define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs)
