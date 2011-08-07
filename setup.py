@@ -7,6 +7,10 @@ from distutils.core import setup, Extension
 from distutils import sysconfig
 import sys
 
+COMBBLAS = "CombBLAS/"
+PCB = "kdt/pyCombBLAS/"
+GENERATOR = "CombBLAS/graph500-1.2/generator/"
+
 print "Remember to set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
 print "export CC=mpicxx"
 print "export CXX=mpicxx"
@@ -110,6 +114,8 @@ int main()
 
 # parse out additional include dirs from the command line
 include_dirs = []
+library_dirs = []
+libraries = []
 define_macros = [("MPICH_IGNORE_CXX_SEEK", None)]
 copy_args=sys.argv[1:]
 for a in copy_args:
@@ -162,9 +168,23 @@ if (not check_for_C99_CONSTANTS(include_dirs, define_macros)):
 	define_macros.append(("__STDC_CONSTANT_MACROS", None))
 	define_macros.append(("__STDC_LIMIT_MACROS", None))
 	
-COMBBLAS = "CombBLAS/"
-PCB = "kdt/pyCombBLAS/"
-GENERATOR = "CombBLAS/graph500-1.2/generator/"
+if (not check_for_header("inttypes.h", include_dirs, define_macros)):
+	include_dirs.append(COMBBLAS+"ms_inttypes") # VS2008 does not include <inttypes.h>
+if (not check_for_header("sys/time.h", include_dirs, define_macros)):
+	include_dirs.append(COMBBLAS+"ms_sys")      # VS2008 does not include <sys/time.h>, we include a blank one because other people's code includes it but none of the functions are used.
+
+define_macros.append(("NOMINMAX", None)) # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
+#define_macros.append(("_SCL_SECURE_NO_WARNINGS", None)) # disables odd but very verbose checks, maybe they're legit
+
+usingWinMPICH = False
+MPICHdir = "C:\Program Files\MPICH2"
+if (usingWinMPICH):
+	include_dirs.append(MPICHdir + "\include")
+	library_dirs.append(MPICHdir + "\lib")
+	libraries.append("mpi")
+	libraries.append("cxx")
+	macros.append(('inline', '__inline'))
+	# add debug compiler flags?
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
@@ -173,6 +193,8 @@ generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittab
 pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pyObjDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pySpParMatBool.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
 	include_dirs=include_dirs,
+	library_dirs=library_dirs,
+	libraries=libraries,
 	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
 
 setup(name='kdt',

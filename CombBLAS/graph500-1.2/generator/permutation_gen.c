@@ -157,6 +157,15 @@ void rand_sort_shared(mrg_state* st, int64_t n, int64_t* result /* Array of size
   int64_t hash_table_size = 2 * n + 128; /* Must be >n, preferably larger for performance */
   slot_data* ht = (slot_data*)xmalloc(hash_table_size * sizeof(slot_data));
   int64_t i;
+  int64_t index;
+  int64_t* bucket_counts;
+  int64_t* bucket_starts_in_result;
+  int64_t running_sum;
+  int64_t old_running_sum;
+  int64_t result_start_idx;
+  int64_t* temp;
+  int64_t bi;
+  mrg_state new_st;
 #ifdef __MTA__
 #pragma mta block schedule
 #endif
@@ -175,11 +184,11 @@ void rand_sort_shared(mrg_state* st, int64_t n, int64_t* result /* Array of size
   for (i = 0; i < n; ++i) {
     mrg_state new_st = *st;
     mrg_skip(&new_st, 1, i, 0);
-    int64_t index = (int64_t)random_up_to(&new_st, hash_table_size);
+    index = (int64_t)random_up_to(&new_st, hash_table_size);
     hashtable_insert(ht, hash_table_size, index, i, index);
   }
   /* Count elements with each key in order to sort them by key. */
-  int64_t* bucket_counts = (int64_t*)xcalloc(hash_table_size, sizeof(int64_t)); /* Uses zero-initialization */
+  bucket_counts = (int64_t*)xcalloc(hash_table_size, sizeof(int64_t)); /* Uses zero-initialization */
 #ifdef __MTA__
 #pragma mta assert parallel
 #pragma mta block schedule
@@ -192,14 +201,14 @@ void rand_sort_shared(mrg_state* st, int64_t n, int64_t* result /* Array of size
     bucket_counts[i] = hashtable_count_key(ht, hash_table_size, i, i);
   }
   /* bucket_counts replaced by its prefix sum (start of each bucket in output array) */
-  int64_t* bucket_starts_in_result = bucket_counts;
-  int64_t running_sum = 0;
+  bucket_starts_in_result = bucket_counts;
+  running_sum = 0;
 #ifdef __MTA__
 #pragma mta block schedule
 #endif
   /* FIXME: parallelize this on OpenMP */
   for (i = 0; i < hash_table_size; ++i) {
-    int64_t old_running_sum = running_sum;
+    old_running_sum = running_sum;
     running_sum += bucket_counts[i];
     bucket_counts[i] = old_running_sum;
   }
@@ -213,15 +222,15 @@ void rand_sort_shared(mrg_state* st, int64_t n, int64_t* result /* Array of size
 #pragma omp parallel for
 #endif
   for (i = 0; i < hash_table_size; ++i) {
-    int64_t result_start_idx = bucket_starts_in_result[i];
-    int64_t* temp = result + result_start_idx;
+    result_start_idx = bucket_starts_in_result[i];
+     temp = result + result_start_idx;
     /* Gather up all elements with same key. */
-    int64_t bi = (int64_t)hashtable_get_values(ht, hash_table_size, i, i, temp);
+    bi = (int64_t)hashtable_get_values(ht, hash_table_size, i, i, temp);
     if (bi > 1) {
       /* Selection sort them (for consistency in parallel implementations). */
       selection_sort(temp, bi);
       /* Randomly permute them. */
-      mrg_state new_st = *st;
+      new_st = *st;
       mrg_skip(&new_st, 1, i, 100);
       randomly_permute(temp, bi, &new_st);
     }

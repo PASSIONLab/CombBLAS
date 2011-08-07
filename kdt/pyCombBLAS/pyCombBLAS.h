@@ -28,6 +28,12 @@
 #include "../../CombBLAS/DistEdgeList.h"
 #include "../../CombBLAS/Operations.h"
 */
+
+#ifdef _MSC_VER
+#pragma warning(disable : 4244)
+#pragma warning(disable : 4800) // forcing to bool, performance warning.
+#endif
+
 #include <Python.h>
 #include "../../CombBLAS/CombBLAS.h"
 

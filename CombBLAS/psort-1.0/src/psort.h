@@ -55,7 +55,7 @@ namespace vpsort {
     MPI_Type_contiguous (sizeof(_Distance), MPI_CHAR, &MPI_distanceType);
     MPI_Type_commit (&MPI_distanceType);
     
-    _Distance dist[nproc];
+    _Distance *dist = new _Distance[nproc];
     for (int i=0; i<nproc; ++i) dist[i] = (_Distance) dist_in[i]; 
 
     // Sort the data locally 
@@ -84,7 +84,7 @@ namespace vpsort {
     progress (rank, 2, const_cast<char *>(string("alltoall").c_str()));
     _Distance n_loc = last - first;
     _ValueType *trans_data = new _ValueType[n_loc];
-    _Distance boundaries[nproc+1];
+    _Distance *boundaries = new _Distance[nproc+1];
     alltoall (right_ends, first, last,
 	      trans_data, boundaries, 
 	      MPI_valueType, MPI_distanceType, comm);
@@ -93,7 +93,8 @@ namespace vpsort {
     // progress (rank, 3, mymerge.description());
     mymerge.merge (trans_data, first, boundaries, nproc, comp);
 
-
+	delete [] boundaries;
+    delete [] dist;
     delete [] trans_data;
     MPI_Type_free (&MPI_valueType);
     MPI_Type_free (&MPI_distanceType);

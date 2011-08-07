@@ -56,7 +56,11 @@
 /* v3 = s1 b2 y + t1 a2 y + u1 s2 y + v1 w2 + w1 v2,                     */
 /* w3 = s1 c2 y + t1 b2 y + u1 a2 y + v1 s2 y + w1 w2                    */
 
+#ifdef _MSC_VER
+static void mrg_update_cache(mrg_transition_matrix* __restrict p) { /* Set a, b, c, and d */
+#else
 static void mrg_update_cache(mrg_transition_matrix* restrict p) { /* Set a, b, c, and d */
+#endif
   p->a = mod_add(mod_mul_x(p->s), p->t);
   p->b = mod_add(mod_mul_x(p->a), p->u);
   p->c = mod_add(mod_mul_x(p->b), p->v);
@@ -76,7 +80,11 @@ static void mrg_make_A(mrg_transition_matrix* result) { /* Initial RNG transitio
 }
 
 /* Multiply two transition matrices; result may alias either/both inputs. */
+#ifdef _MSC_VER
+static void mrg_multiply(const mrg_transition_matrix* __restrict m, const mrg_transition_matrix* __restrict n, mrg_transition_matrix* result) {
+#else
 static void mrg_multiply(const mrg_transition_matrix* restrict m, const mrg_transition_matrix* restrict n, mrg_transition_matrix* result) {
+#endif
   uint_least32_t rs = mod_mac(mod_mac(mod_mac(mod_mac(mod_mul(m->s, n->d), m->t, n->c), m->u, n->b), m->v, n->a), m->w, n->s);
   uint_least32_t rt = mod_mac(mod_mac(mod_mac(mod_mac(mod_mul_y(mod_mul(m->s, n->s)), m->t, n->w), m->u, n->v), m->v, n->u), m->w, n->t);
   uint_least32_t ru = mod_mac(mod_mac(mod_mac(mod_mul_y(mod_mac(mod_mul(m->s, n->a), m->t, n->s)), m->u, n->w), m->v, n->v), m->w, n->u);
@@ -91,7 +99,11 @@ static void mrg_multiply(const mrg_transition_matrix* restrict m, const mrg_tran
 }
 
 /* No aliasing allowed */
+#ifdef _MSC_VER
+static void mrg_power(const mrg_transition_matrix* __restrict m, unsigned int exponent, mrg_transition_matrix* __restrict result) {
+#else
 static void mrg_power(const mrg_transition_matrix* restrict m, unsigned int exponent, mrg_transition_matrix* restrict result) {
+#endif
   mrg_transition_matrix current_power_of_2 = *m;
   mrg_make_identity(result);
   while (exponent > 0) {
@@ -105,7 +117,11 @@ static void mrg_power(const mrg_transition_matrix* restrict m, unsigned int expo
 #ifdef __MTA__
 #pragma mta inline
 #endif
+#ifdef _MSC_VER
+static void mrg_apply_transition(const mrg_transition_matrix* __restrict mat, const mrg_state* __restrict st, mrg_state* r) {
+#else
 static void mrg_apply_transition(const mrg_transition_matrix* restrict mat, const mrg_state* restrict st, mrg_state* r) {
+#endif
 #ifdef __MTA__
   uint_fast64_t s = mat->s;
   uint_fast64_t t = mat->t;
@@ -278,8 +294,8 @@ double mrg_get_double_orig(mrg_state* state) {
 }
 
 void mrg_init(mrg_transition_matrix* tm, mrg_state* st) {
-  mrg_make_A(tm);
   uint_fast32_t seed[5] = {1, 1, 1, 1, 1};
+  mrg_make_A(tm);
   mrg_seed(st, seed);
 }
 

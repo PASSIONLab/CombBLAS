@@ -128,7 +128,7 @@ namespace vpsort {
       }
     
       _RandomAccessIter bufs[2] = { in, out };
-      _Distance locs[nproc];
+      _Distance *locs = new _Distance[nproc];
       for (int i = 0; i < nproc; ++i) {
 	locs[i] = 0;
       }
@@ -173,6 +173,7 @@ namespace vpsort {
 	// 11 => in-place
 	std::inplace_merge (out, out + disps[next], out + disps[nproc], comp);
       }
+	  delete [] locs;
     }
   };  
 

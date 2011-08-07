@@ -2,7 +2,7 @@
 #define _PAR_FRIENDS_H_
 
 #include "mpi.h"
-#include "sys/time.h"
+//#include "sys/time.h"
 #include <iostream>
 #include "SpParMat.h"	
 #include "SpParHelper.h"

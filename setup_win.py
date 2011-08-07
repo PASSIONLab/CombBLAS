@@ -132,9 +132,12 @@ macros.insert(0, ('NDEBUG', '1'))  # prevents from being linked against python2x
 
 compatibility_include_dirs = []
 compatibility_include_dirs.append(COMBBLAS+"ms_inttypes") # VS2008 does not include <inttypes.h>
-compatibility_include_dirs.append(COMBBLAS+"ms_sys")      # VS2008 does not include <sys/time.h>
+compatibility_include_dirs.append(COMBBLAS+"ms_sys")      # VS2008 does not include <sys/time.h>, we include a blank one because other people's code includes it but none of the functions are used.
 macros.append(('NODRAND48', '1'))                         # VS2008 does not include drand48(), which is used in psort
 macros.append(('NOMINMAX', '1'))                          # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
+macros.append(('_SCL_SECURE_NO_WARNINGS', '1'))           # disables odd but annoyingly verbose checks, maybe these are legit, don't know.
+macros.append(('inline', '__inline'))
+#macros.append(('restrict', '__restrict'))
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
