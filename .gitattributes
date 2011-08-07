@@ -1103,6 +1103,7 @@ CombBLAS/mfiles/writecolvector.m -text
 CombBLAS/mfiles/writematrix.m -text
 CombBLAS/ms_inttypes/inttypes.h -text
 CombBLAS/ms_inttypes/stdint.h -text
+CombBLAS/ms_sys/sys/mta_task.h -text
 CombBLAS/ms_sys/sys/time.h -text
 CombBLAS/promote.h -text
 CombBLAS/psort-1.0/README -text

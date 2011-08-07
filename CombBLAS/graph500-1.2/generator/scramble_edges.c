@@ -35,13 +35,15 @@
 void scramble_edges_shared(uint64_t userseed1, uint64_t userseed2, int64_t nedges, int64_t* result /* Input and output array of edges (size = 2 * nedges) */) {
   mrg_state st;
   uint_fast32_t seed[5];
+  int64_t* new_result;
+  int64_t i;
   int64_t* perm = (int64_t*)xmalloc(nedges * sizeof(int64_t));
   make_mrg_seed(userseed1, userseed2, seed);
   mrg_seed(&st, seed);
   mrg_skip(&st, 5, 0, 0); /* To make offset different from other PRNG uses */
   rand_sort_shared(&st, nedges, perm);
-  int64_t* new_result = (int64_t*)xmalloc(nedges * 2 * sizeof(int64_t));
-  int64_t i;
+  new_result = (int64_t*)xmalloc(nedges * 2 * sizeof(int64_t));
+  
 #ifdef __MTA__
 #pragma mta assert parallel
 #pragma mta block schedule

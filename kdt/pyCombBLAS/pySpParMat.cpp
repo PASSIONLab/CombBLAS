@@ -1,6 +1,3 @@
-//#include <mpi.h>
-#include <sys/time.h> 
-
 #include <iostream>
 #include "pySpParMat.h"
 

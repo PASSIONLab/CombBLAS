@@ -104,6 +104,7 @@ void make_one_edge(int64_t base_src, int64_t base_tgt, int64_t nverts, mrg_state
                    int64_t* result
 #endif
                    ) {
+    int is_self_loop_to_skip;
 #ifdef GRAPHGEN_MODIFY_PARAMS_AT_EACH_LEVEL
   generator_settings my_settings_data = s;
   const generator_settings* my_settings = &my_settings_data;
@@ -133,9 +134,9 @@ void make_one_edge(int64_t base_src, int64_t base_tgt, int64_t nverts, mrg_state
 #endif
   }
 #ifdef GRAPHGEN_KEEP_SELF_LOOPS
-  int is_self_loop_to_skip = 0;
+  is_self_loop_to_skip = 0;
 #else
-  int is_self_loop_to_skip = (base_src == base_tgt);
+  is_self_loop_to_skip = (base_src == base_tgt);
 #endif
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
   result->src = base_src;
@@ -156,20 +157,24 @@ static void generate_kronecker_internal(
   int64_t base_src,
   int64_t base_tgt) {
   mrg_state state = *orig_state;
+  int64_t my_first_edge;
+  int64_t my_last_edge;
+  int is_self_loop_to_skip;
+  int i;
   mrg_skip(&state, 0, (base_src + s->total_nverts) / nverts, (base_tgt + s->total_nverts) / nverts);
-  int64_t my_first_edge = s->my_first_edge;
-  int64_t my_last_edge = s->my_last_edge;
+  my_first_edge = s->my_first_edge;
+  my_last_edge = s->my_last_edge;
 #ifdef GRAPHGEN_UNDIRECTED
   assert (base_src <= base_tgt);
 #endif /* GRAPHGEN_UNDIRECTED */
   if (nverts == 1) {
     assert (num_edges != 0);
 #ifdef GRAPHGEN_KEEP_SELF_LOOPS
-    int is_self_loop_to_skip = 0;
+     is_self_loop_to_skip = 0;
 #else
-    int is_self_loop_to_skip = (base_src == base_tgt);
+    is_self_loop_to_skip = (base_src == base_tgt);
 #endif
-    int i;
+   
     for (i = 0; i < num_edges; ++i) {
       /* Write all edges, filling all slots except the first with edges marked
        * as removed duplicates; the complexity of the loop here is to deal with

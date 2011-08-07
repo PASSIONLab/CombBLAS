@@ -35,27 +35,39 @@
 #ifdef GRAPH_GENERATOR_SEQ
 void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, uint64_t userseed2, const double initiator[4], int64_t* nedges_ptr, int64_t** result_ptr) {
   int64_t N, M;
-
+/* Spread the two 64-bit numbers into five nonzero values in the correct
+   * range. */
+  uint_fast32_t seed[5];
+  #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
+  generated_edge* edges;
+#else
+  int64_t* edges;
+#endif
+  int64_t nedges;
+  int64_t* vertex_perm;
+  int64_t* result;
+  int64_t i;
+  mrg_state state;
+  int64_t v1;
+  int64_t v2;
   N = (int64_t)pow(GRAPHGEN_INITIATOR_SIZE, log_numverts);
   M = desired_nedges;
 
-  /* Spread the two 64-bit numbers into five nonzero values in the correct
-   * range. */
-  uint_fast32_t seed[5];
+  
   make_mrg_seed(userseed1, userseed2, seed);
 
-  int64_t nedges = compute_edge_array_size(0, 1, M);
+  nedges = compute_edge_array_size(0, 1, M);
   *nedges_ptr = nedges;
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
-  generated_edge* edges = (generated_edge*)xcalloc(nedges, sizeof(generated_edge)); /* multiplicity set to 0 for unused edges */
+  edges = (generated_edge*)xcalloc(nedges, sizeof(generated_edge)); /* multiplicity set to 0 for unused edges */
 #else
-  int64_t* edges = (int64_t*)xmalloc(2 * nedges * sizeof(int64_t));
+  edges = (int64_t*)xmalloc(2 * nedges * sizeof(int64_t));
 #endif
 
   generate_kronecker(0, 1, seed, log_numverts, M, initiator, edges);
 
-  int64_t* vertex_perm = (int64_t*)xmalloc(N * sizeof(int64_t));
-  int64_t* result;
+  vertex_perm = (int64_t*)xmalloc(N * sizeof(int64_t));
+  result;
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
   result = (int64_t*)xmalloc(2 * nedges * sizeof(int64_t));
 #else
@@ -63,17 +75,17 @@ void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, ui
 #endif
   *result_ptr = result;
 
-  mrg_state state;
+
   mrg_seed(&state, seed);
   rand_sort_shared(&state, N, vertex_perm);
-  int64_t i;
+ 
   /* Apply vertex permutation to graph, optionally copying into user's result
    * array. */
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
   for (i = 0; i < nedges; ++i) {
     if (edges[i].multiplicity != 0) {
-      int64_t v1 = vertex_perm[edges[i].src];
-      int64_t v2 = vertex_perm[edges[i].tgt];
+      v1 = vertex_perm[edges[i].src];
+      v2 = vertex_perm[edges[i].tgt];
       /* Sort these since otherwise the directions of the permuted edges would
        * give away the unscrambled vertex order. */
       result[i * 2] = (v1 < v2) ? v1 : v2;
@@ -86,8 +98,8 @@ void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, ui
 #else
   for (i = 0; i < 2 * nedges; i += 2) {
     if (edges[i] != (int64_t)(-1)) {
-      int64_t v1 = vertex_perm[edges[i]];
-      int64_t v2 = vertex_perm[edges[i + 1]];
+      v1 = vertex_perm[edges[i]];
+      v2 = vertex_perm[edges[i + 1]];
       /* Sort these since otherwise the directions of the permuted edges would
        * give away the unscrambled vertex order. */
       edges[i] = (v1 < v2) ? v1 : v2;
@@ -363,9 +375,10 @@ void make_random_numbers(
 ) {
   int64_t i;
   uint_fast32_t seed[5];
+  mrg_state st;
   make_mrg_seed(userseed1, userseed2, seed);
 
-  mrg_state st;
+
   mrg_seed(&st, seed);
 
   mrg_skip(&st, 2, 0, 2 * position); /* Each double takes two PRNG outputs */

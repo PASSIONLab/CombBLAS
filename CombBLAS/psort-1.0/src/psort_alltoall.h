@@ -49,7 +49,8 @@ namespace vpsort {
     int n_loc = static_cast<int> (n_loc_);
 
     // Calculate the counts for redistributing data 
-    int send_counts[nproc], send_disps[nproc];
+    int *send_counts = new int[nproc];
+	int *send_disps = new int[nproc];
     for (int i = 0; i < nproc; ++i) {
       _Distance scount = right_ends[i + 1][rank] - right_ends[i][rank];
       if (scount > INT_MAX) throw std::overflow_error(errMsg);
@@ -58,7 +59,8 @@ namespace vpsort {
     send_disps[0] = 0;
     partial_sum (send_counts, send_counts + nproc - 1, send_disps + 1);
     
-    int recv_counts[nproc], recv_disps[nproc];
+    int *recv_counts = new int[nproc];
+	int *recv_disps = new int[nproc];
     for (int i = 0; i < nproc; ++i) {
       _Distance rcount = right_ends[rank + 1][i] - right_ends[rank][i];
       if (rcount > INT_MAX) throw std::overflow_error(errMsg);
@@ -77,6 +79,11 @@ namespace vpsort {
     for (int i=0; i<nproc; ++i) boundaries[i] = (_Distance) recv_disps[i];
     boundaries[nproc] = (_Distance) n_loc;  // for the merging  
 
+	delete [] recv_counts;
+	delete [] recv_disps;
+ 
+	delete [] send_counts;
+	delete [] send_disps;
     return;
   }
 

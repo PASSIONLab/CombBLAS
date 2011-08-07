@@ -10,6 +10,7 @@ using namespace std;
 #ifdef _MSC_VER
 #define isnan _isnan
 #pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
+#pragma warning( disable : 4800 ) // 'double' : forcing value to bool 'true' or 'false' (performance warning)
 #endif
 
 struct doubleint 

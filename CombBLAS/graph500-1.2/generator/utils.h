@@ -41,7 +41,11 @@ static inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newva
 }
 #elif defined(GRAPH_GENERATOR_MPI) || defined(GRAPH_GENERATOR_SEQ)
 /* Sequential */
+#ifdef _MSC_VER
+static _inline int int64_t_cas(int64_t* p, int64_t oldval, int64_t newval){
+#else
 static inline int int64_t_cas(int64_t* p, int64_t oldval, int64_t newval) {
+#endif
   if (*p == oldval) {
     *p = newval;
     return 1;
@@ -50,12 +54,38 @@ static inline int int64_t_cas(int64_t* p, int64_t oldval, int64_t newval) {
   }
 }
 #elif defined(GRAPH_GENERATOR_OMP)
+#ifndef _MSC_VER
 /* GCC intrinsic */
 static inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newval) {
   return __sync_bool_compare_and_swap(p, oldval, newval);
 }
 #else
+static _inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newval) {
+  if (*p == oldval)
+    {
+        *p = newval;
+        return 1; 
+    } else
+    { 
+        return 0; 
+    } 
+}
+#endif
+#else
+#ifndef _MSC_VER
 #error "Need to define int64_t_cas() for your system"
+#else
+static _inline int int64_t_cas(volatile int64_t* p, int64_t oldval, int64_t newval) {
+  if (*p == oldval)
+    {
+        *p = newval;
+        return 1; 
+    } else
+    { 
+        return 0; 
+    } 
+}
+#endif
 #endif
 
 #ifdef __cplusplus
