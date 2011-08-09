@@ -10,12 +10,15 @@ import sys
 COMBBLAS = "CombBLAS/"
 PCB = "kdt/pyCombBLAS/"
 GENERATOR = "CombBLAS/graph500-1.2/generator/"
+debug = False
 
 print "Remember to set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
 print "export CC=mpicxx"
 print "export CXX=mpicxx"
 print ""
 
+############################################################################
+#### HELPER FUNCTIONS
 def see_if_compiles(program, include_dirs, define_macros):
 	""" Try to compile the passed in program and report if it compiles successfully or not. """
 	from distutils.ccompiler import new_compiler, CompileError
@@ -66,6 +69,9 @@ def check_for_header(header, include_dirs, define_macros):
 		sys.stdout.write("Not found\n");
 	return success
 
+############################################################################
+#### INDIVIDUAL TEST FUNCTIONS
+
 def check_for_MPI_IN_PLACE(include_dirs, define_macros):
 	""" Check for the existence of the MPI_IN_PLACE constant. """
 	
@@ -112,15 +118,64 @@ int main()
 		sys.stdout.write("Not found, will use __STDC_CONSTANT_MACROS and __STDC_LIMIT_MACROS\n");
 	return success
 
+
+def check_for_Windows(include_dirs, define_macros):
+	""" See if we are on Windows """
+	
+	program = """
+#include <windows.h>
+
+"""
+	sys.stdout.write("Checking for Windows... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("Yes\n");
+	else:
+		sys.stdout.write("No\n");
+	return success
+	
+def check_for_VS(include_dirs, define_macros):
+	""" See if we are compiling with Visual C++ """
+	
+	program = """
+static int foo = _MSC_VER;
+"""
+	sys.stdout.write("Checking for Visual C++... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("Yes\n");
+	else:
+		sys.stdout.write("No\n");
+	return success
+
+	
+############################################################################
+#### COMMAND LINE ARGS
+
 # parse out additional include dirs from the command line
 include_dirs = []
 library_dirs = []
 libraries = []
 define_macros = [("MPICH_IGNORE_CXX_SEEK", None)]
+extra_link_args = []
+extra_compile_args = []
+usingWinMPICH = False
+usingWindows = False
+MPICHdir = "C:\Program Files\MPICH2"
 copy_args=sys.argv[1:]
 for a in copy_args:
 	if a.startswith('-I'):
 		include_dirs.append(a[2:])
+		copy_args.remove(a)
+	if a.startswith('-MPICH'):
+		usingWinMPICH = True
+		usingWindows = True
+		if a.startswith('-MPICH='):
+			MPICHdir=a[7:]
+		print "Using Windows MPICH from '%s'. On other platforms simply use MPICH's mpicxx compiler instead of specifying the -MPICH switch."%(MPICHdir)
+		copy_args.remove(a)
+	if a.startswith('-debug'):
+		debug = True
 		copy_args.remove(a)
 	if a.startswith('-D'):
 		# macros can be a single value or a constant=value pair
@@ -129,6 +184,9 @@ for a in copy_args:
 			macro = (macro[0], None)
 		define_macros.append(macro)
 		copy_args.remove(a)
+
+############################################################################
+#### RUNNING TESTS
 
 # see if the compiler has TR1
 hasCpp0x = False
@@ -159,32 +217,47 @@ else:
 
 #if (not check_for_MPI_IN_PLACE(include_dirs, define_macros)):
 #	print "Please use a more recent MPI implementation."
-#	print "If you system has multiple MPI implementations you can set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
+#	print "If your system has multiple MPI implementations you can set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
 #	print "export CC=mpicxx"
 #	print "export CXX=mpicxx"
 #	sys.exit();
 
-if (not check_for_C99_CONSTANTS(include_dirs, define_macros)):
+if not check_for_C99_CONSTANTS(include_dirs, define_macros):
 	define_macros.append(("__STDC_CONSTANT_MACROS", None))
 	define_macros.append(("__STDC_LIMIT_MACROS", None))
+
+# Windows-specific things
+if check_for_Windows(include_dirs, define_macros):
+	usingWindows = True
+	define_macros.append(("NOMINMAX", None))               # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
+	if not usingWinMPICH:
+		usingWinMPICH = True
+		print "You are on Windows but have not specified MPICH with the -MPICH or the -MPICH=path switches. We only support KDT on Windows with MPICH, so we assume the default MPICH path of '%s'."%(MPICHdir)
+	# add debug compiler flags?
+	if debug:
+		extra_compile_args.append('/Od')   # no optimizations, override the default /Ox
+		extra_compile_args.append('/Zi')   # debugging info
+		extra_link_args.append('/debug')   # debugging info
 	
-if (not check_for_header("inttypes.h", include_dirs, define_macros)):
-	include_dirs.append(COMBBLAS+"ms_inttypes") # VS2008 does not include <inttypes.h>
-if (not check_for_header("sys/time.h", include_dirs, define_macros)):
-	include_dirs.append(COMBBLAS+"ms_sys")      # VS2008 does not include <sys/time.h>, we include a blank one because other people's code includes it but none of the functions are used.
+	if check_for_VS(include_dirs, define_macros):
+		define_macros.append(('inline', '__inline'))
+		define_macros.append(('_SCL_SECURE_NO_WARNINGS', '1'))    # disables odd but annoyingly verbose checks, maybe these are legit, don't know.
+# still need for ('restrict', '__restrict__') define_macro on non-Windows?
+		
+if not check_for_header("inttypes.h", include_dirs, define_macros):
+	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not include <inttypes.h>
+if not check_for_header("sys/time.h", include_dirs, define_macros):
+	include_dirs.append(COMBBLAS+"ms_sys")                 # VS2008 does not include <sys/time.h>, we include a blank one because other people's code includes it but none of the functions are used.
 
-define_macros.append(("NOMINMAX", None)) # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
-#define_macros.append(("_SCL_SECURE_NO_WARNINGS", None)) # disables odd but very verbose checks, maybe they're legit
-
-usingWinMPICH = False
-MPICHdir = "C:\Program Files\MPICH2"
-if (usingWinMPICH):
+if usingWinMPICH:
 	include_dirs.append(MPICHdir + "\include")
 	library_dirs.append(MPICHdir + "\lib")
 	libraries.append("mpi")
 	libraries.append("cxx")
-	macros.append(('inline', '__inline'))
-	# add debug compiler flags?
+
+
+############################################################################
+#### RUN DISTUTILS
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
@@ -195,7 +268,8 @@ pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	include_dirs=include_dirs,
 	library_dirs=library_dirs,
 	libraries=libraries,
-	define_macros=[('NDEBUG', '1'),('restrict', '__restrict__'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
+	extra_link_args = extra_link_args, extra_compile_args = extra_compile_args,
+	define_macros=[('NDEBUG', '1'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
 
 setup(name='kdt',
 	version='0.1',
