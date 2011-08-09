@@ -136,17 +136,17 @@ hasTR1 = False
 hasBoost = False
 headerDefs = []
 print "Checking for C++0x:"
-if check_for_header("memory", include_dirs, define_macros):
+if check_for_header("memory", include_dirs, define_macros) and check_for_header("unordered_map", include_dirs, define_macros):
 	hasCpp0x = True
 else:
 	print "No C++0x. Checking for TR1:"
-	if check_for_header("tr1/memory", include_dirs, define_macros):
+	if check_for_header("tr1/memory", include_dirs, define_macros) and check_for_header("tr1/unordered_map", include_dirs, define_macros):
 		hasTR1 = True
 		headerDefs = [('COMBBLAS_TR1', None)]
 	else:
 		# nope, see if boost is available
 		print "No TR1. Checking for Boost:"
-		if check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros):
+		if check_for_header("boost/tr1/memory.hpp", include_dirs, define_macros) and check_for_header("boost/tr1/unordered_map.hpp", include_dirs, define_macros):
 			hasBoost = True
 			headerDefs = [('COMBBLAS_BOOST', None)]
 		else:
