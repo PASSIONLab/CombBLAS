@@ -1,0 +1,321 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 26
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               2.918379 s
+Generated renamed edge lists
+Generation took 2.9201 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 4194304-by-4194304
+Duplicates removed (or summed): 21819497 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.97721 seconds
+Converted to Boolean and removed 1686 loops
+As a whole: 67108864 rows and 67108864 columns and 1051920641 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 67108864 rows and 67108864 columns and 1051920641 nonzeros
+Dropped isolated vertices from input
+As a whole: 32798950 rows and 32798950 columns and 1051920641 nonzeros
+Symmetricized
+As a whole: 32798950 rows and 32798950 columns and 2103841282 nonzeros
+31.8871 seconds elapsed for Kernel #1
+As a whole: 32798950 rows and 32798950 columns and 2103841282 nonzeros
+Load balance: 1.03766
+As a whole, Degrees array has length 32798950
+0.731313 0.332125 0.620586 0.586368 0.28396 0.495749 0.191865 0.357604 0.671726 0.331662 0.1047 0.622867 0.110068 0.718161 0.55788 0.280074 
+2.39863e+07 1.08934e+07 2.03546e+07 1.92323e+07 9.31357e+06 1.62601e+07 6.29296e+06 1.1729e+07 2.20319e+07 1.08782e+07 3.43404e+06 2.04294e+07 3.61012e+06 2.35549e+07 1.82979e+07 9.18614e+06 
+0th starting vertex was 23986303
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.13625 seconds
+MTEPS: 502.623
+Total communication (average so far): 0.28273
+1th starting vertex was 10893361
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.14547 seconds
+MTEPS: 500.464
+Total communication (average so far): 0.286545
+2th starting vertex was 20354585
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.15246 seconds
+MTEPS: 498.838
+Total communication (average so far): 0.285507
+3th starting vertex was 19232260
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.12928 seconds
+MTEPS: 504.27
+Total communication (average so far): 0.28541
+4th starting vertex was 9313574
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.13599 seconds
+MTEPS: 502.686
+Total communication (average so far): 0.288266
+5th starting vertex was 16260052
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.2365 seconds
+MTEPS: 480.094
+Total communication (average so far): 0.304125
+6th starting vertex was 6292956
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.16377 seconds
+MTEPS: 496.232
+Total communication (average so far): 0.307904
+7th starting vertex was 11729045
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.14389 seconds
+MTEPS: 500.833
+Total communication (average so far): 0.300603
+8th starting vertex was 22031916
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.18231 seconds
+MTEPS: 492.017
+Total communication (average so far): 0.301726
+9th starting vertex was 10878156
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.16369 seconds
+MTEPS: 496.251
+Total communication (average so far): 0.302976
+10th starting vertex was 3434042
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.11723 seconds
+MTEPS: 507.14
+Total communication (average so far): 0.299715
+11th starting vertex was 20429391
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.18071 seconds
+MTEPS: 492.377
+Total communication (average so far): 0.301245
+12th starting vertex was 3610119
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.10517 seconds
+MTEPS: 510.045
+Total communication (average so far): 0.298048
+13th starting vertex was 23554933
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.19938 seconds
+MTEPS: 488.197
+Total communication (average so far): 0.300949
+14th starting vertex was 18297878
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.08704 seconds
+MTEPS: 514.475
+Total communication (average so far): 0.296428
+15th starting vertex was 9186144
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 2.19488 seconds
+MTEPS: 489.198
+Total communication (average so far): 0.298766
+Finished
+Per iteration communication times: 
+AllGatherv: 0.115553
+AlltoAllv: 0.183213
+--------------------------
+Min nedges: 1.07373e+09
+First Quartile nedges: 1.07373e+09
+Median nedges: 1.07373e+09
+Third Quartile nedges: 1.07373e+09
+Max nedges: 1.07373e+09
+Mean nedges: 1.07373e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 2.08704 seconds
+First Quartile time: 2.13263 seconds
+Median time: 2.14897 seconds
+Third Quartile time: 2.18151 seconds
+Max time: 2.2365 seconds
+Mean time: 2.15463 seconds
+STDDEV time: 0.0381945 seconds
+--------------------------
+Min MTEPS: 480.094
+First Quartile MTEPS: 492.197
+Median MTEPS: 499.651
+Third Quartile MTEPS: 503.478
+Max MTEPS: 514.475
+Harmonic mean of MTEPS: 498.338
+Harmonic standard deviation of MTEPS: 8.83391
+Optimization buffers set
+0th starting vertex was 23986303
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.92673 seconds
+MTEPS: 1158.62
+Total communication (average so far): 0.245564
+1th starting vertex was 10893361
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.943953 seconds
+MTEPS: 1137.48
+Total communication (average so far): 0.254664
+2th starting vertex was 20354585
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.993901 seconds
+MTEPS: 1080.32
+Total communication (average so far): 0.278761
+3th starting vertex was 19232260
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.93669 seconds
+MTEPS: 1146.3
+Total communication (average so far): 0.270869
+4th starting vertex was 9313574
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.959213 seconds
+MTEPS: 1119.39
+Total communication (average so far): 0.272467
+5th starting vertex was 16260052
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.968608 seconds
+MTEPS: 1108.53
+Total communication (average so far): 0.278913
+6th starting vertex was 6292956
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.958424 seconds
+MTEPS: 1120.31
+Total communication (average so far): 0.279676
+7th starting vertex was 11729045
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 1.07742 seconds
+MTEPS: 996.58
+Total communication (average so far): 0.292253
+8th starting vertex was 22031916
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.928678 seconds
+MTEPS: 1156.19
+Total communication (average so far): 0.285649
+9th starting vertex was 10878156
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.916151 seconds
+MTEPS: 1172
+Total communication (average so far): 0.281645
+10th starting vertex was 3434042
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 1.11776 seconds
+MTEPS: 960.608
+Total communication (average so far): 0.274893
+11th starting vertex was 20429391
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.941191 seconds
+MTEPS: 1140.82
+Total communication (average so far): 0.27187
+12th starting vertex was 3610119
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.933614 seconds
+MTEPS: 1150.08
+Total communication (average so far): 0.271234
+13th starting vertex was 23554933
+Number iterations: 8
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 1.03601 seconds
+MTEPS: 1036.41
+Total communication (average so far): 0.27506
+14th starting vertex was 18297878
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.952915 seconds
+MTEPS: 1126.79
+Total communication (average so far): 0.273408
+15th starting vertex was 9186144
+Number iterations: 7
+Number of vertices found: 32777745
+Number of edges traversed: 1073731204
+BFS time: 0.978002 seconds
+MTEPS: 1097.88
+Total communication (average so far): 0.272714
+Finished
+Per iteration communication times: 
+AllGatherv: 0.104339
+AlltoAllv: 0.168375
+--------------------------
+Min nedges: 1.07373e+09
+First Quartile nedges: 1.07373e+09
+Median nedges: 1.07373e+09
+Third Quartile nedges: 1.07373e+09
+Max nedges: 1.07373e+09
+Mean nedges: 1.07373e+09
+STDDEV nedges: 0
+--------------------------
+Min time: 0.916151 seconds
+First Quartile time: 0.935152 seconds
+Median time: 0.95567 seconds
+Third Quartile time: 0.985951 seconds
+Max time: 1.11776 seconds
+Mean time: 0.973078 seconds
+STDDEV time: 0.0572584 seconds
+--------------------------
+Min MTEPS: 960.608
+First Quartile MTEPS: 1089.1
+Median MTEPS: 1123.55
+Third Quartile MTEPS: 1148.19
+Max MTEPS: 1172
+Harmonic mean of MTEPS: 1103.44
+Harmonic standard deviation of MTEPS: 64.929
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/1127356.cvrsvc09-ib completed Tue Aug  2 11:00:03 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=32:ppn=8,nodes=32:ppn=8,walltime=00:40:00
+Job Resources used: cput=05:57:52,mem=63893516kb,vmem=93540028kb,walltime=00:01:31
+Nodes used: c0311-ib c0312-ib c0313-ib c0319-ib c0326-ib c0327-ib c0329-ib c0332-ib c0333-ib c0334-ib c0336-ib c0449-ib c0454-ib c0457-ib c0458-ib c0459-ib c0460-ib c0461-ib c0753-ib c0754-ib c0770-ib c0774-ib c0775-ib c0819-ib c0820-ib c0821-ib c1167-ib c1168-ib c1169-ib c1170-ib c1173-ib c1174-ib 
+
+Killing any leftover processes...
+
+Job completed.
