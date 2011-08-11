@@ -1,0 +1,48 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+SCALE:                          26
+edgefactor:                     16
+NBFS:                           16
+graph_generation:               16.1922
+num_mpi_processes:              256
+construction_time:              15.9051
+min_time:                       4.29044
+firstquartile_time:             4.31833
+median_time:                    4.34952
+thirdquartile_time:             4.39755
+max_time:                       5.30505
+mean_time:                      4.41032
+stddev_time:                    0.242297
+min_nedge:                      0
+firstquartile_nedge:            2.327704332e-310
+median_nedge:                   1.3906711929e-309
+thirdquartile_nedge:            1.3906712129e-309
+max_nedge:                      1.5425253317e-279
+mean_nedge:                     9.6407833232e-281
+stddev_nedge:                   0
+min_TEPS:                       0
+firstquartile_TEPS:             0
+median_TEPS:                    0
+thirdquartile_TEPS:             0
+max_TEPS:                       3.50511e-280
+harmonic_mean_TEPS:             0
+harmonic_stddev_TEPS:           nan
+min_validate:                   2.3277e-310
+firstquartile_validate:         6.94217e-309
+median_validate:                1.79198e-308
+thirdquartile_validate:         2.91493e-308
+max_validate:                   3.89434e-308
+mean_validate:                  1.82459e-308
+stddev_validate:                0
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/1146122.cvrsvc09-ib completed Wed Aug 10 01:46:32 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=32:ppn=8,nodes=32:ppn=8,walltime=00:35:00
+Job Resources used: cput=07:12:35,mem=72592248kb,vmem=107408128kb,walltime=00:01:51
+Nodes used: c0311-ib c0322-ib c0840-ib c0841-ib c1143-ib c1144-ib c1145-ib c1146-ib c1147-ib c1148-ib c1149-ib c1151-ib c1152-ib c1153-ib c1154-ib c1155-ib c1158-ib c1159-ib c1160-ib c1161-ib c1162-ib c1163-ib c1167-ib c1172-ib c1173-ib c1174-ib c1175-ib c1176-ib c1177-ib c1178-ib c1179-ib c1180-ib 
+
+Killing any leftover processes...
+
+Job completed.

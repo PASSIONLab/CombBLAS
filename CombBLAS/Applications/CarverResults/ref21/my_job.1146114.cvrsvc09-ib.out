@@ -1,0 +1,48 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+SCALE:                          22
+edgefactor:                     16
+NBFS:                           16
+graph_generation:               13.7049
+num_mpi_processes:              256
+construction_time:              12.4342
+min_time:                       0.476383
+firstquartile_time:             0.489785
+median_time:                    0.498414
+thirdquartile_time:             0.519731
+max_time:                       4.45554
+mean_time:                      0.748815
+stddev_time:                    0.988587
+min_nedge:                      0
+firstquartile_nedge:            0
+median_nedge:                   5.4065196119e-315
+thirdquartile_nedge:            5.4535907084e-315
+max_nedge:                      2.3638247081e-310
+mean_nedge:                     2.9551211271e-311
+stddev_nedge:                   0
+min_TEPS:                       0
+firstquartile_TEPS:             0
+median_TEPS:                    0
+thirdquartile_TEPS:             0
+max_TEPS:                       0
+harmonic_mean_TEPS:             0
+harmonic_stddev_TEPS:           nan
+min_validate:                   0
+firstquartile_validate:         0
+median_validate:                0
+thirdquartile_validate:         0
+max_validate:                   2.36382e-310
+mean_validate:                  2.95478e-311
+stddev_validate:                0
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/1146114.cvrsvc09-ib completed Tue Aug  9 19:47:35 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=32:ppn=8,nodes=32:ppn=8,walltime=00:15:00
+Job Resources used: cput=02:37:11,mem=7300804kb,vmem=21999548kb,walltime=00:00:43
+Nodes used: c0301-ib c0302-ib c0303-ib c0304-ib c0307-ib c0309-ib c0310-ib c0328-ib c0334-ib c0341-ib c0345-ib c0346-ib c0367-ib c0368-ib c0369-ib c0371-ib c0401-ib c0413-ib c0426-ib c0431-ib c0435-ib c0436-ib c0437-ib c0440-ib c0446-ib c0452-ib c0460-ib c0461-ib c0462-ib c0463-ib c0464-ib c1140-ib 
+
+Killing any leftover processes...
+
+Job completed.

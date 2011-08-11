@@ -1,0 +1,34 @@
+graph_generation:               13.704918 s
+construction_time:              12.434203 s
+Running BFS 0
+Time for BFS 0 is 4.455542
+Running BFS 1
+Time for BFS 1 is 0.528052
+Running BFS 2
+Time for BFS 2 is 0.488729
+Running BFS 3
+Time for BFS 3 is 0.519178
+Running BFS 4
+Time for BFS 4 is 0.476383
+Running BFS 5
+Time for BFS 5 is 0.495874
+Running BFS 6
+Time for BFS 6 is 0.498074
+Running BFS 7
+Time for BFS 7 is 0.507328
+Running BFS 8
+Time for BFS 8 is 0.520283
+Running BFS 9
+Time for BFS 9 is 0.505943
+Running BFS 10
+Time for BFS 10 is 0.482814
+Running BFS 11
+Time for BFS 11 is 0.494646
+Running BFS 12
+Time for BFS 12 is 0.488812
+Running BFS 13
+Time for BFS 13 is 0.498753
+Running BFS 14
+Time for BFS 14 is 0.529871
+Running BFS 15
+Time for BFS 15 is 0.490757
