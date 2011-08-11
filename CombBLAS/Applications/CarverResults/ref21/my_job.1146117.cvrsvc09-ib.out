@@ -1,0 +1,48 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+SCALE:                          24
+edgefactor:                     16
+NBFS:                           16
+graph_generation:               13.6587
+num_mpi_processes:              128
+construction_time:              13.756
+min_time:                       1.97324
+firstquartile_time:             1.98239
+median_time:                    1.98924
+thirdquartile_time:             1.99341
+max_time:                       3.36188
+mean_time:                      2.07376
+stddev_time:                    0.343579
+min_nedge:                      0
+firstquartile_nedge:            2.3702095873e-310
+median_nedge:                   1.3906712024e-309
+thirdquartile_nedge:            1.3906712365e-309
+max_nedge:                      9.9241704977e-265
+mean_nedge:                     6.2026065611e-266
+stddev_nedge:                   0
+min_TEPS:                       0
+firstquartile_TEPS:             0
+median_TEPS:                    0
+thirdquartile_TEPS:             0
+max_TEPS:                       4.97405e-265
+harmonic_mean_TEPS:             0
+harmonic_stddev_TEPS:           nan
+min_validate:                   0
+firstquartile_validate:         0
+median_validate:                0
+thirdquartile_validate:         0
+max_validate:                   2.37021e-310
+mean_validate:                  2.96276e-311
+stddev_validate:                0
+
+----------------------------------------------------------------
+Jobs exit status code is 0
+Job my_job/1146117.cvrsvc09-ib completed Mon Aug  8 12:48:05 PDT 2011
+Submitted by abuluc/abuluc using m888
+Job Limits: neednodes=16:ppn=8,nodes=16:ppn=8,walltime=00:15:00
+Job Resources used: cput=02:08:21,mem=17637104kb,vmem=34207900kb,walltime=00:01:06
+Nodes used: c0428-ib c0430-ib c0776-ib c0779-ib c0780-ib c0801-ib c0803-ib c0804-ib c0805-ib c0814-ib c0817-ib c0824-ib c1125-ib c1135-ib c1136-ib c1139-ib 
+
+Killing any leftover processes...
+
+Job completed.
