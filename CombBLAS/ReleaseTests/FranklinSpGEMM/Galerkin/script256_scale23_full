@@ -1,0 +1,34 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Data read
+Warmed up for DoubleBuff (right evaluate)
+Double buffered multiplications (right evaluate) finished
+1.679281 seconds elapsed per iteration
+Warmed up for DoubleBuff (left evaluate)
+Double buffered multiplications (left evaluate) finished
+1.636624 seconds elapsed per iteration
+Warmed up for Synch (right evaluate)
+Synchronous multiplications (right evaluate) finished
+1.607573 seconds elapsed per iteration
+Warmed up for Synch (left evaluate)
+Synchronous multiplications (left evaluate) finished
+1.652895 seconds elapsed per iteration
+Application 12817530 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_galerkin
+ +          Job Id: 7242463.nid00003
+ +          System: franklin
+ +     Queued Time: Tue Jul 12 10:21:52 2011
+ +      Start Time: Tue Jul 12 10:50:05 2011
+ + Completion Time: Tue Jul 12 10:54:42 2011
+ +            User: abuluc
+ +        MOM Host: nid00339
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:6976:nid00235,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5736kb,vmem=22876kb,walltime=00:04:36
+ +     Acct String: 0
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script256_galerkin
+ + --------------------------------------------------------------------------
+
