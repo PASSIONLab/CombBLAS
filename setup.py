@@ -41,10 +41,16 @@ def see_if_compiles(program, include_dirs, define_macros):
 	
 	os.chdir(tmpdir)
 	
-	# Try to include the header
+	# Write the program
 	f = open('compiletest.cpp', 'w')
 	f.write(program)
 	f.close()
+
+	# redirect the error stream to keep ugly compiler error messages off the command line
+	devnull = open('errors.txt', 'w')
+	oldstderr = os.dup(sys.stderr.fileno())
+	os.dup2(devnull.fileno(), sys.stderr.fileno())
+	#
 	try:
 		c = new_compiler()
 		for macro in define_macros:
@@ -53,6 +59,9 @@ def see_if_compiles(program, include_dirs, define_macros):
 		success = True
 	except CompileError:
 		success = False
+	# undo the error stream redirect
+	os.dup2(oldstderr, sys.stderr.fileno())
+	devnull.close()
 	
 	os.chdir(old)
 	rmtree(tmpdir)
