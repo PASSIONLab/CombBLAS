@@ -432,7 +432,8 @@ int main(int argc, char* argv[])
 					//fringe.PrintInfo("fringe before SpMV");
 					fringe = SpMV<SR>(A, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
-					fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
+					 fringe = EWiseApply(fringe, parents, prunediscovered<int64_t, int64_t>(), (int64_t) -1);
+					// fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
 					// fringe.PrintInfo("fringe after cleanup");
 					parents += fringe;
 					// parents.PrintInfo("Parents after addition");
