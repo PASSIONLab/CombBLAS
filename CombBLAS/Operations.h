@@ -76,6 +76,22 @@ struct safemultinv : public std::unary_function<T, T>
   }
 };
 
+
+/**
+ * Binary function to prune the previously discovered vertices from the current frontier 
+ * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
+**/
+template<typename T1, typename T2>
+struct prunediscovered: public std::binary_function<T1, T2, typename promote_trait<T1,T2>::T_promote >
+{
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+  	const T_promote operator()(const T1 & x, const T2 & y) const
+	{
+		return ( y == -1 ) ? x: -1;
+	}
+};
+
+
 /**
  * binary_function<Arg1, Arg2, Result>
  * This is left untemplated because pow() only makes sense for 
@@ -99,7 +115,7 @@ template<typename T>
 struct maximum : public std::binary_function<T, T, T>
 {
   /** @returns the maximum of x and y. */
-  const T& operator()(const T& x, const T& y) const
+  const T operator()(const T& x, const T& y) const
   {
     return x < y? y : x;
   }
@@ -117,7 +133,7 @@ template<typename T>
 struct minimum : public std::binary_function<T, T, T>
 {
   /** @returns the minimum of x and y. */
-  const T& operator()(const T& x, const T& y) const
+  const T operator()(const T& x, const T& y) const
   {
     return x < y? x : y;
   }

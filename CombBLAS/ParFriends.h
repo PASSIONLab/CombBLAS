@@ -2073,6 +2073,67 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 }
 
 
+/**
+ * This is a glorified EWiseMult that takes a general filter in the form of binary_op()
+ * \attention {Since the signature is like EWiseApply(SparseVec V, DenseVec W,...) the binary function should be 
+ * written keeping in mind that the first operand (x) is from the sparse vector V, and the second operand (y) is from the dense vector W}
+ * @param[binary_op]  if ( y == -1 ) ? x: -1 
+ *      \n              then we get the 'exclude = false' effect of EWiseMult
+ * In this example, the function always returns -1 if x is -1 (regardless of the value of y), which makes sense because x is from the sparse vector "fringe". The four cases are: 
+ *	A) if fringe[i] is nonexistent and parents[i] == -1, then pro = _binary_op(-1,-1) is executed which will return -1 and it will NOT exist in product. Correct.
+ *	B) if fringe[i] is nonexistent and parents[i] == d for some d>=0, then pro = _binary_op(-1,d) returns -1 and will NOT exist in product. Correct.
+ *	C) if fringe[i] = k for some k>=0 and parents[i] == -1, then pro = _binary_op(k,-1) is executed and returns k. Correct.
+ *	D) if fringe[i] = k for some k>=0, and parents[i] == d for some d>=0, then pro = _binary_op(k,d) which returns -1 again. Correct.
+**/
+template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, typename promote_trait<NU1,NU2>::T_promote zero)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+  	if(*(V.commGrid) == *(W.commGrid))	
+   	{
+      		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
+      		Product.zero = zero;
+      		FullyDistVec< IU, NU1> DV (V);
+      		if(V.glen != W.glen)
+        	{
+          		cerr << "Vector dimensions don't match for EWiseApply\n";
+          		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+        	}
+      		else
+        	{
+          		Product.glen = V.glen;
+          		Product.zero = zero;
+          		IU size= W.LocArrSize();
+          		IU sp_iter = 0;
+          		for(IU i=0; i<size; ++i)
+            		{
+              			T_promote pro;
+              			if(V.ind[sp_iter] == i)
+                		{
+                 			pro = _binary_op(V.num[i], W.arr[i]);
+                  			sp_iter++;
+                		}
+              			else
+                		{
+                  			pro = _binary_op(zero, W.arr[i]);
+                		}
+              			if ( pro != zero) 	// keep only those
+                		{
+                  			Product.ind.push_back(i);
+                  			Product.num.push_back(pro);
+                		}
+            		}
+        	}
+      		return Product;
+    	}
+  	else
+    	{
+      		cout << "Grids are not comparable for EWiseApply" << endl; 
+      		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+      		return FullyDistSpVec< IU,T_promote>();
+    	}
+}
 
 #endif
 

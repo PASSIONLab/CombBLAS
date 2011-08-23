@@ -82,7 +82,8 @@ for r=1:maxround
     disp(['norm is ', num2str(  (norm(C(r,:) - C(r-1,:))/norm(C(r,:))))]);
     end
 
-    h(1:100)    
+    h(1:15) 
+    h(82605:82620)   
     if (r > 2 && ((norm(C(r,:) - C(r-1,:))/norm(C(r,:))) < epsilon))
         disp(['Async GBP (MJ) Converged afbter ', num2str(r), ' rounds ']); 
         
