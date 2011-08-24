@@ -325,6 +325,34 @@ class DiGraph(gr.Graph):
 		ret._spm = self._spm.SpGEMM(other._spm)
 		return ret
 
+	# in-place, so no return value
+	def addVFilter(self, filter):
+		"""
+		adds a vertex filter to the DiGraph instance.  
+
+		A vertex filter is a Python function that is applied elementally
+		to each vertex in the DiGraph, with a Boolean True return value
+		causing the vertex to be considered and a False return value
+		causing it not to be considered.
+
+		Vertex filters are additive, in that each vertex must pass all
+		filters to be considered.  All vertex filters are executed before
+		a vertex is considered in a computation.
+#FIX:  how is an argument passed to the function?
+
+		Input Arguments:
+			self:  a DiGraph instance
+			filter:  a Python function
+
+		SEE ALSO:
+			delVFilter  
+		"""
+		if hasattr(self, '_vFilter'):
+			self._vFilter.append(filter)
+		else:
+			self._vFilter = [filter]
+		return
+		
 	def contract(self, groups=None, clusterParents=None):
 		"""
 		contracts all vertices that are like-numbered in the groups
@@ -433,7 +461,7 @@ class DiGraph(gr.Graph):
 		verts = mask._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), 1))
 		return ParVec.toParVec(verts)
 
-	def copy(self):
+	def copy(self, copyFilter=False, doFilter=False):
 		"""
 		creates a deep copy of a DiGraph instance.
 
@@ -444,7 +472,18 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
 		ret = DiGraph()
-		ret._spm = self._spm.copy()
+		if not doFilter:
+			ret._spm = self._spm.copy()
+			if copyFilter:
+				ret._vFilter = self._vFilter
+		else:
+			#ToDo: handle rectangular
+			mask = ParVec.ones(self.nvert())
+			for fn in self._vFilter:
+				tmp = self.vType.copy()
+				tmp._apply(fn)
+				mask = mask & tmp
+			ret._spm = self.subgraph(mask=mask)._spm
 		return ret
 
 	def degree(self, dir=Out):
@@ -468,6 +507,28 @@ class DiGraph(gr.Graph):
 		ret = self._reduce(dir, pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
 		return ret
 
+	# in-place, so no return value
+	def delVFilter(self, filter=None):
+		"""
+		deletes a vertex filter from the DiGraph instance.  
+
+		Input Arguments:
+			self:  a DiGraph instance
+			filter:  a Python function, which can be either a function
+			    previously added to this DiGraph instance by a call to
+			    addVFilter or None, which signals the deletion of all
+			    vertex filters.
+
+		SEE ALSO:
+			addVFilter  
+		"""
+		if not hasattr(self, '_vFilter'):
+			raise KeyError, "no vertex filters previously created"
+		if filter is None:
+			del self._vFilter	# remove all filters
+		else:
+			self._vFilter.remove(filter)
+		return
 
 	# in-place, so no return value
 	def removeSelfLoops(self):
@@ -817,7 +878,7 @@ class DiGraph(gr.Graph):
 			self._spm.DimWiseApply(pcb.pySpParMat.Column(), other._dpv, pcb.multiplies())
 		elif dir == DiGraph.Out:
 			if selfnv1 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(scale)'
+				raise IndexError, 'graph.nvert()[0] != len(scale)'
 			self._spm.DimWiseApply(pcb.pySpParMat.Row(), other._dpv, pcb.multiplies())
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -1016,19 +1077,18 @@ class DiGraph(gr.Graph):
 		"""
 		if not sym:
 			self._T()
-		parents = pcb.pyDenseParVec(self.nvert(), -1)
-		fringe = pcb.pySpParVec(self.nvert())
+		parents = ParVec(self.nvert(), -1)
+		fringe = SpParVec(self.nvert())
 		parents[root] = root
 		fringe[root] = root
-		while fringe.getnee() > 0:
-			fringe.setNumToInd()
-			self._spm.SpMV_SelMax_inplace(fringe)
-			pcb.EWiseMult_inplacefirst(fringe, parents, True, -1)
-			parents[fringe] = 0
-			parents += fringe
+		while fringe.nnn() > 0:
+			fringe.spRange()
+			self._spm.SpMV_SelMax_inplace(fringe._spv)
+			pcb.EWiseMult_inplacefirst(fringe._spv, parents._dpv, True, -1)
+			parents[fringe] = fringe
 		if not sym:
 			self._T()
-		return ParVec.toParVec(parents)
+		return parents
 	
 	
 		# returns tuples with elements
@@ -1385,6 +1445,7 @@ class DiGraph(gr.Graph):
 
 		if BCdebug>1 and master():
 			print "Apply(set(1))"
+		#FIX:  should not overwrite input
 		self.ones()
 		#Aint = self.ones()	# not needed;  Gs only int for now
 		if BCdebug>1 and master():
@@ -1584,8 +1645,8 @@ class DiGraph(gr.Graph):
 		# of vertices that are found in the correct component and will not be
 		# reshuffled.
 		#component = ParVec.range(G.nvert())
-		#frontier = component.toSpParVec()._spv
-		frontier = SpParVec.range(n)._spv
+		#frontier = component.toSpParVec()
+		frontier = SpParVec.range(n)
 		
 		def iterop(vals):
 			vals[1] = int(vals[0] != vals[1])
@@ -1593,12 +1654,12 @@ class DiGraph(gr.Graph):
 		delta = 1
 		while delta > 0:
 			last_frontier = frontier
-			frontier = G._spm.SpMV(frontier, pcb.SecondMaxSemiring())
+			frontier = SpParVec.toSpParVec(G._spm.SpMV(frontier._spv, pcb.SecondMaxSemiring()))
 
-			pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier), last_frontier])
-			delta = last_frontier.Reduce(pcb.plus())
+			pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier._spv), last_frontier._spv])
+			delta = last_frontier._reduce(pcb.plus())
 		
-		return ParVec.toParVec(frontier.dense())
+		return frontier.toParVec()
 	
 	def __findLargestComponent(self, sym=False): # deprecated
 		"""

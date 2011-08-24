@@ -798,16 +798,12 @@ class ParVec:
 
 	def norm(self,ord):
 		"""
-		calculates the norm of a ParVec instance.  The supported norms
-		include:
-		- 1:  defined as sum(abs(x))
+		calculates the norm of a ParVec instance, where the order of the		norm is used as follows:
+			pow((sum(abs(x)**order)),1/order)
+		The order must be a scalar greater than zero.
 		"""
-		#FIX:  looks like another norm(s) is implemented below???
 		if ord <= 0:
 			raise ValueError, 'Norm must be positive'
-		elif ord==1:
-			ret = self._reduce(pcb.plus(),pcb.abs())
-			return ret
 		else:
 			ret = self._reduce(pcb.plus(),pcb.compose1(pcb.bind2nd(pcb.pow(), ord), pcb.abs()))
 			ret = pow(ret, 1.0/ord)
@@ -1873,10 +1869,10 @@ def version():
 	"""
 	Return KDT version number, as a string.
 	"""
-	return "0.1.0"
+	return "0.2.x"
 
 def revision():
 	"""
 	Return KDT revision number, as a string.
 	"""
-	return "r657"
+	return "r7xx"
