@@ -1,0 +1,41 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+As a whole: 4194304 rows and 4194304 columns and 32816598 nonzeros
+Permutation Generated
+As a whole: 4194304 rows and 4194304 columns and 32816598 nonzeros
+Running on 64 cores
+Old balance: 1.02933
+New balance: 1.03182
+Indexing Iterations finished
+1.911643 seconds elapsed per iteration
+As a whole: 419430 rows and 419430 columns and 335544 nonzeros
+As a whole: 419429 rows and 419429 columns and 332036 nonzeros
+As a whole: 419429 rows and 419429 columns and 333056 nonzeros
+As a whole: 419429 rows and 419429 columns and 326833 nonzeros
+As a whole: 419430 rows and 419430 columns and 318521 nonzeros
+As a whole: 419429 rows and 419429 columns and 330708 nonzeros
+As a whole: 419429 rows and 419429 columns and 334520 nonzeros
+As a whole: 419429 rows and 419429 columns and 334223 nonzeros
+As a whole: 419429 rows and 419429 columns and 333762 nonzeros
+As a whole: 419430 rows and 419430 columns and 320202 nonzeros
+Indexing Iterations finished
+8.436820 seconds elapsed per iteration
+Application 4427236 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script64
+ +          Job Id: 6793946.nid00003
+ +          System: franklin
+ +     Queued Time: Sat Oct 30 15:31:50 2010
+ +      Start Time: Sat Oct 30 15:32:18 2010
+ + Completion Time: Sat Oct 30 15:34:50 2010
+ +            User: abuluc
+ +        MOM Host: nid00339
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:20023:nid00163,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=5204kb,vmem=22268kb,walltime=00:02:32
+ +     Acct String: m650
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script64
+ + --------------------------------------------------------------------------
+
