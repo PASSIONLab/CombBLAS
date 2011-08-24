@@ -1,4 +1,7 @@
 import unittest
+#import sys
+#print sys.prefix
+#print sys.path
 from kdt import *
 from kdt import pyCombBLAS as pcb
 
@@ -1224,38 +1227,169 @@ class EdgeStatTests(DiGraphTests):
 	for ind in range(len(expectedNv)):
 		self.assertEqual(nv[ind], expectedNv[ind])
 
-class SemanticGraphTests(DiGraphTests):
-    def test_semG_vfilter_bfsTree(self):
-	def ge0lt5(x):
-		return x>=0 and x<5
+class ConnCompTests(DiGraphTests):
+    def test_connComp(self):
         nvert = 8
         nedge = 13
-        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
-        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
         self.assertEqual(len(i), nedge)
         self.assertEqual(len(j), nedge)
-	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
-        
         G = self.initializeGraph(nvert, nedge, i, j)
-	parents = G.bfsTree(1, filter=(ge0lt5, None))
-	for ind in range(nvert):
-		self.assertEqual(parents[ind], parentsExpected[ind])
 
-    def test_semG_efilter_bfsTree(self):
-	def ge0lt5000(x):
-		return x%1000>=0 and x%1000<5 and int(x/1000)>=0 and int(x/1000)<5
+	res = G.connComp()
+
+	resExpected = [0, 7, 7, 7, 7, 7, 7, 7]
+	self.assertEqual(G.nvert(), len(res))
+	for ind in range(nvert):
+		self.assertEqual(resExpected[ind], res[ind])
+
+class SemanticGraphTests(DiGraphTests):
+    def test_addVFilter_copy(self):
+	def ge0lt4(x):
+		return x>=0 and x<4
         nvert = 8
         nedge = 13
-        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
-        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
-	v = i[:]		# easy way to get same-size vector
-        for ind in range(nedge):
-		v[ind] = i[ind]*1000 + j[ind]
-        G = self.initializeGraph(nvert, nedge, i, j, v)
-	parents = G.bfsTree(1, filter=(None, ge0lt5000))
-	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	G.addVFilter(ge0lt4)
+
+	G2 = G.copy(copyFilter=True)
+	[actualI, actualJ, ign] = G2.toParVec()
+	#print actualI, actualJ
+	iExpected = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+	jExpected = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	self.assertEqual(nvert, G2.nvert())
+	self.assertEqual(G.nedge(), G2.nedge())
+	self.assertEqual(G.nedge(), len(actualI))
+	self.assertEqual(True, hasattr(G2,'_vFilter'))
 	for ind in range(nvert):
-		self.assertEqual(parents[ind], parentsExpected[ind])
+		self.assertEqual(iExpected[ind], i[ind])
+		self.assertEqual(jExpected[ind], j[ind])
+
+    def test_addVFilter_copy_1filter(self):
+	def eq1or2(x):
+		return x==1 or x==2
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	G.addVFilter(eq1or2)
+	G.vType = (ParVec.range(nvert) % 3) + 1
+
+	G2 = G.copy(copyFilter=True, doFilter=True)
+	[actualI, actualJ, ign] = G2.toParVec()
+	iExpected = [3, 3, 4, 5, 1, 5, 2, 3]
+	jExpected = [1, 2, 2, 2, 3, 3, 4, 5]
+	self.assertEqual(6, G2.nvert())
+	self.assertEqual(8, G2.nedge())
+	self.assertEqual(G2.nedge(), len(actualI))
+	for ind in range(len(iExpected)):
+		self.assertEqual(iExpected[ind], actualI[ind])
+		self.assertEqual(jExpected[ind], actualJ[ind])
+
+    def test_addVFilter_copy_2filter(self):
+	def eq1or2(x):
+		return x==1 or x==2
+	def gt1(x):
+		return x>1
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	G.addVFilter(eq1or2)
+	G.addVFilter(gt1)
+	G.vType = (ParVec.range(nvert) % 3) + 1
+
+	G2 = G.copy(copyFilter=True, doFilter=True)
+	[actualI, actualJ, ign] = G2.toParVec()
+	iExpected = [1, 0, 2, 1]
+	jExpected = [0, 1, 1, 2]
+	self.assertEqual(3, G2.nvert())
+	self.assertEqual(4, G2.nedge())
+	self.assertEqual(G2.nedge(), len(actualI))
+	for ind in range(len(iExpected)):
+		self.assertEqual(iExpected[ind], actualI[ind])
+		self.assertEqual(jExpected[ind], actualJ[ind])
+
+    def test_addVFilter_delVFilter(self):
+	def eq1or2(x):
+		return x==1 or x==2
+	def gt1(x):
+		return x>1
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	G.addVFilter(eq1or2)
+	G.addVFilter(gt1)
+	G.delVFilter(eq1or2)
+	self.assertEqual(1, len(G._vFilter))
+	G.delVFilter(gt1)
+	self.assertEqual(0, len(G._vFilter))
+
+    def test_addVFilter_delVFilter_all(self):
+	def eq1or2(x):
+		return x==1 or x==2
+	def gt1(x):
+		return x>1
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	G.addVFilter(eq1or2)
+	G.addVFilter(gt1)
+	G.delVFilter()
+	self.assertEqual(False, hasattr(G,'_vFilter'))
+
+    def test_delVFilter_negative(self):
+	def eq1or2(x):
+		return x==1 or x==2
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j)
+
+	self.assertRaises(KeyError, DiGraph.delVFilter, G, eq1or2)
+
+#    def test_semG_efilter_bfsTree(self):
+#	def ge0lt5000(x):
+#		return x%1000>=0 and x%1000<5 and int(x/1000)>=0 and int(x/1000)<5
+#        nvert = 8
+#        nedge = 13
+#        i = [1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 7, 7, 7]
+#        j = [2, 4, 5, 7, 6, 1, 3, 7, 6, 3, 3, 4, 5]
+#	v = i[:]		# easy way to get same-size vector
+#        for ind in range(nedge):
+#		v[ind] = i[ind]*1000 + j[ind]
+#        G = self.initializeGraph(nvert, nedge, i, j, v)
+#	parents = G.bfsTree(1, filter=(None, ge0lt5000))
+#	parentsExpected = [-1, 1, 1, 4, 1, -1, -1, -1]
+#	for ind in range(nvert):
+#		self.assertEqual(parents[ind], parentsExpected[ind])
 
 
 def runTests(verbosity = 1):
@@ -1280,7 +1414,8 @@ def suite():
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
 #   suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
-#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConnCompTests))
     return suite
 
 if __name__ == '__main__':
