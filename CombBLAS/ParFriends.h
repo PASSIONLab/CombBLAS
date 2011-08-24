@@ -2105,13 +2105,14 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply
           		Product.glen = V.glen;
           		Product.zero = zero;
           		IU size= W.LocArrSize();
+			IU spsize = V.getlocnnz();
           		IU sp_iter = 0;
-          		for(IU i=0; i<size; ++i)
+          		for(IU i=0; i<size && sp_iter < spsize; ++i)
             		{
               			T_promote pro;
               			if(V.ind[sp_iter] == i)
                 		{
-                 			pro = _binary_op(V.num[i], W.arr[i]);
+                 			pro = _binary_op(V.num[sp_iter], W.arr[i]);
                   			sp_iter++;
                 		}
               			else

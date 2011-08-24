@@ -85,7 +85,7 @@ template<typename T1, typename T2>
 struct prunediscovered: public std::binary_function<T1, T2, typename promote_trait<T1,T2>::T_promote >
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
-  	const T_promote operator()(const T1 & x, const T2 & y) const
+  	T_promote operator()(T1 x, const T2 & y) const
 	{
 		return ( y == -1 ) ? x: -1;
 	}
