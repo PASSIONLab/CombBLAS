@@ -1,0 +1,29 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+As a whole: 2097152 rows and 2097152 columns and 16334935 nonzeros
+Permutation Generated
+As a whole: 2097152 rows and 2097152 columns and 16334935 nonzeros
+Running on 16 cores
+Old balance: 1.04214
+New balance: 1.01603
+Indexing Iterations finished
+2.543871 seconds elapsed per iteration
+Application 4424291 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script16
+ +          Job Id: 6792887.nid00003
+ +          System: franklin
+ +     Queued Time: Fri Oct 29 19:21:41 2010
+ +      Start Time: Fri Oct 29 19:22:12 2010
+ + Completion Time: Fri Oct 29 19:22:59 2010
+ +            User: abuluc
+ +        MOM Host: nid00259
+ +           Queue: reg_short
+ +  Req. Resources: other=QSUBPID:86425:nid00007,walltime=00:40:00
+ +  Used Resources: cput=00:00:00,mem=5104kb,vmem=22228kb,walltime=00:00:47
+ +     Acct String: m650
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script16
+ + --------------------------------------------------------------------------
+
