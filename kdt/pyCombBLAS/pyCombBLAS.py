@@ -192,6 +192,39 @@ pySpParVec_zeros = _pyCombBLAS.pySpParVec_zeros
 pySpParVec_range = _pyCombBLAS.pySpParVec_range
 
 EWiseMult_inplacefirst = _pyCombBLAS.EWiseMult_inplacefirst
+class pySpParVecObj(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, pySpParVecObj, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, pySpParVecObj, name)
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_pySpParVecObj(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def getnee(*args): return _pyCombBLAS.pySpParVecObj_getnee(*args)
+    def __len__(*args): return _pyCombBLAS.pySpParVecObj___len__(*args)
+    def len(*args): return _pyCombBLAS.pySpParVecObj_len(*args)
+    def copy(*args): return _pyCombBLAS.pySpParVecObj_copy(*args)
+    def any(*args): return _pyCombBLAS.pySpParVecObj_any(*args)
+    def all(*args): return _pyCombBLAS.pySpParVecObj_all(*args)
+    def intersectSize(*args): return _pyCombBLAS.pySpParVecObj_intersectSize(*args)
+    def printall(*args): return _pyCombBLAS.pySpParVecObj_printall(*args)
+    def load(*args): return _pyCombBLAS.pySpParVecObj_load(*args)
+    def Count(*args): return _pyCombBLAS.pySpParVecObj_Count(*args)
+    def Apply(*args): return _pyCombBLAS.pySpParVecObj_Apply(*args)
+    def Sort(*args): return _pyCombBLAS.pySpParVecObj_Sort(*args)
+    def setNumToInd(*args): return _pyCombBLAS.pySpParVecObj_setNumToInd(*args)
+    def abs(*args): return _pyCombBLAS.pySpParVecObj_abs(*args)
+    def __delitem__(*args): return _pyCombBLAS.pySpParVecObj___delitem__(*args)
+    def __getitem__(*args): return _pyCombBLAS.pySpParVecObj___getitem__(*args)
+    def __setitem__(*args): return _pyCombBLAS.pySpParVecObj___setitem__(*args)
+    def __repr__(*args): return _pyCombBLAS.pySpParVecObj___repr__(*args)
+    __swig_destroy__ = _pyCombBLAS.delete_pySpParVecObj
+    __del__ = lambda self : None;
+pySpParVecObj_swigregister = _pyCombBLAS.pySpParVecObj_swigregister
+pySpParVecObj_swigregister(pySpParVecObj)
+EWiseMult = _pyCombBLAS.EWiseMult
+
 class pyDenseParVec(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, pyDenseParVec, name, value)
@@ -242,7 +275,6 @@ class pyDenseParVec(_object):
     __del__ = lambda self : None;
 pyDenseParVec_swigregister = _pyCombBLAS.pyDenseParVec_swigregister
 pyDenseParVec_swigregister(pyDenseParVec)
-EWiseMult = _pyCombBLAS.EWiseMult
 pyDenseParVec_range = _pyCombBLAS.pyDenseParVec_range
 
 class pyObjDenseParVec(_object):
@@ -376,6 +408,68 @@ Semiring_swigregister(Semiring)
 
 TimesPlusSemiring = _pyCombBLAS.TimesPlusSemiring
 SecondMaxSemiring = _pyCombBLAS.SecondMaxSemiring
+class EDGETYPE(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, EDGETYPE, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, EDGETYPE, name)
+    __repr__ = _swig_repr
+    __swig_setmethods__["i"] = _pyCombBLAS.EDGETYPE_i_set
+    __swig_getmethods__["i"] = _pyCombBLAS.EDGETYPE_i_get
+    if _newclass:i = _swig_property(_pyCombBLAS.EDGETYPE_i_get, _pyCombBLAS.EDGETYPE_i_set)
+    __swig_setmethods__["weight"] = _pyCombBLAS.EDGETYPE_weight_set
+    __swig_getmethods__["weight"] = _pyCombBLAS.EDGETYPE_weight_get
+    if _newclass:weight = _swig_property(_pyCombBLAS.EDGETYPE_weight_get, _pyCombBLAS.EDGETYPE_weight_set)
+    __swig_setmethods__["type"] = _pyCombBLAS.EDGETYPE_type_set
+    __swig_getmethods__["type"] = _pyCombBLAS.EDGETYPE_type_get
+    if _newclass:type = _swig_property(_pyCombBLAS.EDGETYPE_type_get, _pyCombBLAS.EDGETYPE_type_set)
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_EDGETYPE(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_EDGETYPE
+    __del__ = lambda self : None;
+EDGETYPE_swigregister = _pyCombBLAS.EDGETYPE_swigregister
+EDGETYPE_swigregister(EDGETYPE)
+
+class VERTEXTYPE(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, VERTEXTYPE, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, VERTEXTYPE, name)
+    __swig_setmethods__["i"] = _pyCombBLAS.VERTEXTYPE_i_set
+    __swig_getmethods__["i"] = _pyCombBLAS.VERTEXTYPE_i_get
+    if _newclass:i = _swig_property(_pyCombBLAS.VERTEXTYPE_i_get, _pyCombBLAS.VERTEXTYPE_i_set)
+    __swig_setmethods__["weight"] = _pyCombBLAS.VERTEXTYPE_weight_set
+    __swig_getmethods__["weight"] = _pyCombBLAS.VERTEXTYPE_weight_get
+    if _newclass:weight = _swig_property(_pyCombBLAS.VERTEXTYPE_weight_get, _pyCombBLAS.VERTEXTYPE_weight_set)
+    __swig_setmethods__["type"] = _pyCombBLAS.VERTEXTYPE_type_set
+    __swig_getmethods__["type"] = _pyCombBLAS.VERTEXTYPE_type_get
+    if _newclass:type = _swig_property(_pyCombBLAS.VERTEXTYPE_type_get, _pyCombBLAS.VERTEXTYPE_type_set)
+    def __repr__(*args): return _pyCombBLAS.VERTEXTYPE___repr__(*args)
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_VERTEXTYPE(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_VERTEXTYPE
+    __del__ = lambda self : None;
+VERTEXTYPE_swigregister = _pyCombBLAS.VERTEXTYPE_swigregister
+VERTEXTYPE_swigregister(VERTEXTYPE)
+
+class UnaryFunctionObj(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryFunctionObj, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, UnaryFunctionObj, name)
+    def __init__(self): raise AttributeError, "No constructor defined"
+    __repr__ = _swig_repr
+    __swig_destroy__ = _pyCombBLAS.delete_UnaryFunctionObj
+    __del__ = lambda self : None;
+    def __call__(*args): return _pyCombBLAS.UnaryFunctionObj___call__(*args)
+UnaryFunctionObj_swigregister = _pyCombBLAS.UnaryFunctionObj_swigregister
+UnaryFunctionObj_swigregister(UnaryFunctionObj)
+
+unaryObj = _pyCombBLAS.unaryObj
 finalize = _pyCombBLAS.finalize
 root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs

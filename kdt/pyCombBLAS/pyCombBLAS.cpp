@@ -1,3 +1,4 @@
+#define PYCOMBBLAS_CPP
 #include "pyCombBLAS.h"
 
 void testFunc(double (*f)(double))
@@ -280,6 +281,7 @@ void init_pyCombBLAS_MPI()
 		//cout << "calling MPI::Init" << endl;
 		MPI::Init();
 		
+		// create doubleint MPI_Datatype
 		MPI::Datatype type[1] = {MPI::DOUBLE};
 		int blocklen[1] = {1};
 		MPI::Aint disp[1];
@@ -289,6 +291,10 @@ void init_pyCombBLAS_MPI()
 	
 		doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
 		doubleint_MPI_datatype.Commit();
+		
+		// create VERTEXTYPE and EDGETYPE MPI_Datatypes
+		create_EDGE_and_VERTEX_MPI_Datatypes();
+		
 		has_MPI_Init_been_called = true;
 	}
 }
