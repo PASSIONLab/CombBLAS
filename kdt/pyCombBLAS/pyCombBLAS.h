@@ -39,6 +39,7 @@
 
 namespace op{
 class UnaryFunction;
+class UnaryFunctionObj;
 class ObjUnaryFunction;
 class BinaryFunction;
 class Semiring;
@@ -52,10 +53,13 @@ class pySpParVec;
 class pyDenseParVec;
 class pyObjDenseParVec;
 
+#include "obj.h"
 #include "pyOperations.h"
+#include "pyOperationsObj.h"
 #include "pySpParMat.h"
 #include "pySpParMatBool.h"
 #include "pySpParVec.h"
+#include "pySpParVecObj.h"
 #include "pyDenseParVec.h"
 #include "pyObjDenseParVec.h"
 
