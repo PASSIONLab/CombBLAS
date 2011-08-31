@@ -24,8 +24,8 @@ init_pyCombBLAS_MPI();
    (eg. SWIG_ConvertPtr). The SWIG docs don't mention how these types are to be obtained,
    so I copy them over from the _wrap.cpp file here.
 */
-SWIG_EdgeTypeInfo = SWIGTYPE_p_EDGETYPE;
-SWIG_VertexTypeInfo = SWIGTYPE_p_VERTEXTYPE;
+SWIG_Obj1Info = SWIGTYPE_p_Obj1;
+SWIG_Obj2Info = SWIGTYPE_p_Obj2;
 %}
 
 // It is possible to have the generated python code also include some custom code.
@@ -277,9 +277,9 @@ void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude,
 
 
 
-class pySpParVecObj {
+class pySpParVecObj1 {
 public:
-	pySpParVecObj(int64_t length);
+	pySpParVecObj1(int64_t length);
 	
 	//pyDenseParVec dense() const;
 
@@ -289,22 +289,22 @@ public:
 	int64_t __len__() const;
 	int64_t len() const;
 
-	//pySpParVecObj operator+(const pySpParVecObj& other);
-	//pySpParVecObj operator-(const pySpParVecObj& other);
-	//pySpParVecObj operator+(const pyDenseParVec& other);
-	//pySpParVecObj operator-(const pyDenseParVec& other);
+	//pySpParVecObj1 operator+(const pySpParVecObj1& other);
+	//pySpParVecObj1 operator-(const pySpParVecObj1& other);
+	//pySpParVecObj1 operator+(const pyDenseParVec& other);
+	//pySpParVecObj1 operator-(const pyDenseParVec& other);
 
-	//pySpParVecObj& operator+=(const pySpParVecObj& other);
-	//pySpParVecObj& operator-=(const pySpParVecObj& other);
-	//pySpParVecObj& operator+=(const pyDenseParVec& other);
-	//pySpParVecObj& operator-=(const pyDenseParVec& other);
-	pySpParVecObj copy();
+	//pySpParVecObj1& operator+=(const pySpParVecObj1& other);
+	//pySpParVecObj1& operator-=(const pySpParVecObj1& other);
+	//pySpParVecObj1& operator+=(const pyDenseParVec& other);
+	//pySpParVecObj1& operator-=(const pyDenseParVec& other);
+	pySpParVecObj1 copy();
 
 public:	
 	bool any() const; // any nonzeros
 	bool all() const; // all nonzeros
 	
-	int64_t intersectSize(const pySpParVecObj& other);
+	int64_t intersectSize(const pySpParVecObj1& other);
 	
 	void printall();
 	
@@ -313,40 +313,40 @@ public:
 
 public:
 	// The functions commented out here presently do not exist in CombBLAS
-	int64_t Count(op::UnaryFunctionObj* op);
-	//pySpParVecObj Find(op::UnaryFunctionObj* op);
+	int64_t Count(op::UnaryPredicateObj* op);
+	//pySpParVecObj1 Find(op::UnaryFunctionObj* op);
 	//pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunctionObj* op);
-	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj& mask);
+	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj1& mask);
 
 	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
-	//VERTEXTYPE Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
+	//Obj1 Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
 	
-	pySpParVecObj Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	//pySpParVecObj1 Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
 public:
-	//static pySpParVecObj zeros(int64_t howmany);
-	//static pySpParVecObj range(int64_t howmany, int64_t start);
+	//static pySpParVecObj1 zeros(int64_t howmany);
+	//static pySpParVecObj1 range(int64_t howmany, int64_t start);
 	
 public:
 	// Functions from PyCombBLAS
-	pySpParVecObj abs();
+	pySpParVecObj1 abs();
 	//void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
-	VERTEXTYPE __getitem__(int64_t key);
-	//VERTEXTYPE __getitem__(VERTEXTYPE  key);
+	Obj1 __getitem__(int64_t key);
+	//Obj1 __getitem__(Obj1  key);
 	//pyDenseParVec __getitem__(const pyDenseParVec& key);
 	
-	void __setitem__(int64_t key, const VERTEXTYPE *value);
-	//void __setitem__(VERTEXTYPE  key, VERTEXTYPE value);
+	void __setitem__(int64_t key, const Obj1 *value);
+	//void __setitem__(Obj1  key, Obj1 value);
 	//void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
 	//void __setitem__(const pyDenseParVec& key, int64_t value);
-	void __setitem__(const char* key, const VERTEXTYPE *value);	
+	void __setitem__(const char* key, const Obj1 *value);	
 	
 	char* __repr__();
 
@@ -359,8 +359,95 @@ public:
 //          (i.e., not equal to the sparse vector's identity value)  '
 
 
-//pySpParVecObj EWiseMult(const pySpParVecObj& a, const pyDenseParVec& b, bool exclude, VERTEXTYPE zero);
-//void EWiseMult_inplacefirst(pySpParVecObj& a, const pyDenseParVec& b, bool exclude, VERTEXTYPE zero);
+//pySpParVecObj1 EWiseMult(const pySpParVecObj1& a, const pyDenseParVec& b, bool exclude, Obj1 zero);
+//void EWiseMult_inplacefirst(pySpParVecObj1& a, const pyDenseParVec& b, bool exclude, Obj1 zero);
+
+
+
+class pySpParVecObj2 {
+public:
+	pySpParVecObj2(int64_t length);
+	
+	//pyDenseParVec dense() const;
+
+public:
+	int64_t getnee() const;
+	//int64_t getnnz() const;
+	int64_t __len__() const;
+	int64_t len() const;
+
+	//pySpParVecObj2 operator+(const pySpParVecObj2& other);
+	//pySpParVecObj2 operator-(const pySpParVecObj2& other);
+	//pySpParVecObj2 operator+(const pyDenseParVec& other);
+	//pySpParVecObj2 operator-(const pyDenseParVec& other);
+
+	//pySpParVecObj2& operator+=(const pySpParVecObj2& other);
+	//pySpParVecObj2& operator-=(const pySpParVecObj2& other);
+	//pySpParVecObj2& operator+=(const pyDenseParVec& other);
+	//pySpParVecObj2& operator-=(const pyDenseParVec& other);
+	pySpParVecObj2 copy();
+
+public:	
+	bool any() const; // any nonzeros
+	bool all() const; // all nonzeros
+	
+	int64_t intersectSize(const pySpParVecObj2& other);
+	
+	void printall();
+	
+public:	
+	void load(const char* filename);
+
+public:
+	// The functions commented out here presently do not exist in CombBLAS
+	int64_t Count(op::UnaryPredicateObj* op);
+	//pySpParVecObj2 Find(op::UnaryFunctionObj* op);
+	//pyDenseParVec FindInds(op::UnaryFunctionObj* op);
+	void Apply(op::UnaryFunctionObj* op);
+	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj2& mask);
+
+	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
+	
+	//Obj2 Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
+	
+	//pySpParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+	
+	void setNumToInd();
+
+public:
+	//static pySpParVecObj2 zeros(int64_t howmany);
+	//static pySpParVecObj2 range(int64_t howmany, int64_t start);
+	
+public:
+	// Functions from PyCombBLAS
+	pySpParVecObj2 abs();
+	//void __delitem__(const pyDenseParVec& key);
+	void __delitem__(int64_t key);
+	
+	Obj2 __getitem__(int64_t key);
+	//Obj2 __getitem__(Obj2  key);
+	//pyDenseParVec __getitem__(const pyDenseParVec& key);
+	
+	void __setitem__(int64_t key, const Obj2 *value);
+	//void __setitem__(Obj2  key, Obj2 value);
+	//void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
+	//void __setitem__(const pyDenseParVec& key, int64_t value);
+	void __setitem__(const char* key, const Obj2 *value);	
+	
+	char* __repr__();
+
+};
+
+//      EWiseMult has 2 flavors:
+//      - if Exclude is false, will do element-wise multiplication
+//      - if Exclude is true, will remove from the result vector all elements
+//          whose corresponding element of the second vector is "nonzero"
+//          (i.e., not equal to the sparse vector's identity value)  '
+
+
+//pySpParVecObj2 EWiseMult(const pySpParVecObj2& a, const pyDenseParVec& b, bool exclude, Obj2 zero);
+//void EWiseMult_inplacefirst(pySpParVecObj2& a, const pyDenseParVec& b, bool exclude, Obj2 zero);
 
 
 
@@ -660,62 +747,79 @@ Semiring SecondMaxSemiring();
 
 
 
-class EDGETYPE {
+class Obj1 {
 public:
-	int64_t i; // reseserved for internal use
-public:
-	double weight;
-	int type;
-	
-};
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+///// USER CHANGEABLE CODE BEGIN
 
-class VERTEXTYPE {
-public:
-	int64_t i; // reserved for internal use
-public:
 	double weight;
 	int type;
 
-	char *__repr__() {
+	char *__repr__() const {
 		static char temp[256];
 		sprintf(temp,"[ %lf, %d ]", weight,type);
 		return &temp[0];
 	}
 
+	Obj1(): weight(1), type(0) {}
+
+///// USER CHANGEABLE CODE END
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+};
+
+
+class Obj2 {
+public:
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+///// USER CHANGEABLE CODE BEGIN
+
+	double weight;
+	int type;
+
+	char *__repr__() const {
+		static char temp[256];
+		sprintf(temp,"[ %lf, %d ]", weight,type);
+		return &temp[0];
+	}
+	
+	Obj2(): weight(1), type(0) {}
+
+///// USER CHANGEABLE CODE END
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
 };
 
 namespace op {
 
-class UnaryFunctionObj {
+class UnaryPredicateObj {
+	bool operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
+	bool operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
 
 	protected:
-	UnaryFunctionObj() { // should never be called
-		printf("UnaryFunctionObj!!!\n");
-		callback = NULL; edgeArgList = NULL; vertexArgList = NULL;
-		tempEdgePy = NULL; tempVertexPy = NULL; tempEdge = NULL; tempVertex = NULL;
+	UnaryPredicateObj() { // should never be called
+		printf("UnaryPredicateObj()!!!\n");
+		callback = NULL;
 	}
-	public:
-	~UnaryFunctionObj();
-	
-	EDGETYPE operator()(const EDGETYPE& x) const;
-	VERTEXTYPE operator()(const VERTEXTYPE& x) const;
 };
-/*
-%pythoncode %{
-def set_transform(im,x):
-   a = new_mat44()
-   for i in range(4):
-       for j in range(4):
-           mat44_set(a,i,j,x[i][j])
-   _example.set_transform(im,a)
-   free_mat44(a)
-%}*/
 
-//UnaryFunctionObj set(EDGETYPE val);
-//UnaryFunctionObj set(VERTEXTYPE val);
-//UnaryFunctionObj identityObj();
+class UnaryFunctionObj {
+	Obj2 operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
+	Obj1 operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	
+	protected:
+	UnaryFunctionObj() { // should never be called
+		printf("UnaryFunctionObj()!!!\n");
+		callback = NULL;
+	}
+};
 
 UnaryFunctionObj unaryObj(PyObject *pyfunc);
+UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
 #if 0
 class BinaryFunctionE {
@@ -727,7 +831,7 @@ class BinaryFunctionE {
 	bool commutable;
 	bool associative;
 	
-	EDGETYPE operator()(const EDGETYPE& x, const EDGETYPE& y) const
+	Obj2 operator()(const Obj2& x, const Obj2& y) const
 	{
 		return (*op)(x, y);
 	}
@@ -742,7 +846,7 @@ class BinaryFunctionV {
 	bool commutable;
 	bool associative;
 	
-	VERTEXTYPE operator()(const VERTEXTYPE& x, const VERTEXTYPE& y) const
+	Obj1 operator()(const Obj1& x, const Obj1& y) const
 	{
 		return (*op)(x, y);
 	}

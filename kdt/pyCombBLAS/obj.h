@@ -1,44 +1,70 @@
 #ifndef PCB_OBJ_H
 #define PCB_OBJ_H
 
+#include <iostream>
 
 /* Note to users:
  It's ok to change the members of these two structures.
 */
 //INTERFACE_INCLUDE_BEGIN
-class EDGETYPE {
+class Obj1 {
 public:
-	int64_t i; // reseserved for internal use
-public:
-	double weight;
-	int type;
-	
-//INTERFACE_INCLUDE_END
-	operator int64_t() const { return i; }
-	EDGETYPE(int64_t val): i(val) {}
-	EDGETYPE(): i(-1) {}
-//INTERFACE_INCLUDE_BEGIN
-};
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+///// USER CHANGEABLE CODE BEGIN
 
-class VERTEXTYPE {
-public:
-	int64_t i; // reserved for internal use
-public:
 	double weight;
 	int type;
 
-	char *__repr__() {
+	char *__repr__() const {
 		static char temp[256];
 		sprintf(temp,"[ %lf, %d ]", weight,type);
 		return &temp[0];
 	}
 
+	Obj1(): weight(1), type(0) {}
+
+///// USER CHANGEABLE CODE END
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
 //INTERFACE_INCLUDE_END
-	operator int64_t() const { return i; }
-	VERTEXTYPE(int64_t val): i(val) {}
-	VERTEXTYPE(): i(-1) {}
+	Obj1(int64_t val) {}
+
+	bool operator==(const Obj1& other)
+	{
+		return this == &other;
+	}
 	
-	bool operator==(const VERTEXTYPE& other)
+//INTERFACE_INCLUDE_BEGIN
+};
+
+
+class Obj2 {
+public:
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+///// USER CHANGEABLE CODE BEGIN
+
+	double weight;
+	int type;
+
+	char *__repr__() const {
+		static char temp[256];
+		sprintf(temp,"[ %lf, %d ]", weight,type);
+		return &temp[0];
+	}
+	
+	Obj2(): weight(1), type(0) {}
+
+///// USER CHANGEABLE CODE END
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+//INTERFACE_INCLUDE_END
+	Obj2(int64_t val) {}
+
+	bool operator==(const Obj2& other)
 	{
 		return this == &other;
 	}
@@ -46,47 +72,86 @@ public:
 };
 //INTERFACE_INCLUDE_END
 
+template <typename c, typename t>
+inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const Obj1& rhs) { return lhs << rhs.__repr__(); }
+
+template <typename c, typename t>
+inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const Obj2& rhs) { return lhs << rhs.__repr__(); }
+
+//template <typename c, typename t>
+//inline std::basic_istream<c,t>& operator>>(std::basic_istream<c,t>& lhs, const doubleint& rhs) { return lhs >> rhs.d; }
+
+
+#ifndef NO_SWIGPYRUN
+#define SWIGTYPE_p_Obj1 SWIG_Obj1Info
+#define SWIGTYPE_p_Obj2 SWIG_Obj2Info
+#endif
+
+
 // From CombBLAS/promote.h:
-DECLARE_PROMOTE(EDGETYPE, EDGETYPE, EDGETYPE)
-DECLARE_PROMOTE(VERTEXTYPE, VERTEXTYPE, VERTEXTYPE)
+DECLARE_PROMOTE(Obj2, Obj2, Obj2)
+DECLARE_PROMOTE(Obj1, Obj1, Obj1)
 
 // From CombBLAS/MPIType.h
 #ifndef PYCOMBBLAS_CPP
+/////////////////////////////////////////////////////////////
+// Forward declarations
+/////////////////////////////////////////////////////////////
+
+// SWIG datatypes, needed so the swig wrapper routines can be used outside of pyCombBLAS_wrap.cpp
+extern "C" {
+extern swig_type_info *SWIG_Obj1Info;
+extern swig_type_info *SWIG_Obj2Info;
+}
+
+
 // forward declarations
-extern MPI::Datatype EDGETYPE_MPI_datatype;
-extern MPI::Datatype VERTEXTYPE_MPI_datatype;
+extern MPI::Datatype Obj1_MPI_datatype;
+extern MPI::Datatype Obj2_MPI_datatype;
 
 //extern "C" {
 void create_EDGE_and_VERTEX_MPI_Datatypes();
 //}
 
-template<> MPI::Datatype MPIType< EDGETYPE >( void );
-template<> MPI::Datatype MPIType< VERTEXTYPE >( void );
+template<> MPI::Datatype MPIType< Obj1 >( void );
+template<> MPI::Datatype MPIType< Obj2 >( void );
 
-#else
+#else 
+/////////////////////////////////////////////////////////////
+// Definitions for the above forward declarations
+/////////////////////////////////////////////////////////////
+
+// The code that assigns these is at top of the SWIG interface, i.e. pyCombBLAS.i.templ, in the init section.
+extern "C" {
+swig_type_info *SWIG_Obj1Info = NULL;
+swig_type_info *SWIG_Obj2Info = NULL;
+}
+
+
 // definitions
-MPI::Datatype EDGETYPE_MPI_datatype;
-MPI::Datatype VERTEXTYPE_MPI_datatype;
+MPI::Datatype Obj1_MPI_datatype;
+MPI::Datatype Obj2_MPI_datatype;
 
 // called from init_pyCombBLAS_MPI() in pyCombBLAS.cpp
 //extern "C" {
 void create_EDGE_and_VERTEX_MPI_Datatypes()
 {
-	EDGETYPE_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(EDGETYPE));
-	EDGETYPE_MPI_datatype.Commit();
+	Obj1_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(Obj1));
+	Obj1_MPI_datatype.Commit();
 
-	VERTEXTYPE_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(VERTEXTYPE));
-	VERTEXTYPE_MPI_datatype.Commit();
+	Obj2_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(Obj2));
+	Obj2_MPI_datatype.Commit();
 }
 //}
 
-template<> MPI::Datatype MPIType< EDGETYPE >( void )
+template<> MPI::Datatype MPIType< Obj1 >( void )
 {
-	return EDGETYPE_MPI_datatype;
+	return Obj1_MPI_datatype;
 }
-template<> MPI::Datatype MPIType< VERTEXTYPE >( void )
+
+template<> MPI::Datatype MPIType< Obj2 >( void )
 {
-	return VERTEXTYPE_MPI_datatype;
+	return Obj2_MPI_datatype;
 }
 
 #endif

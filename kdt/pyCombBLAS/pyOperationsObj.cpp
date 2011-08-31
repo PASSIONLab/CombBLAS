@@ -4,104 +4,22 @@
 #include <cstdlib>
 #include <Python.h>
 
-extern "C" {
-swig_type_info *SWIG_VertexTypeInfo = NULL;
-swig_type_info *SWIG_EdgeTypeInfo = NULL;
-}
-
 namespace op{
 
 /**************************\
 | UNARY OPERATIONS
 \**************************/
-UnaryFunctionObj::UnaryFunctionObj(PyObject *pyfunc)
-	: callback(pyfunc)
-{
-	printf("UnaryFunctionObj(pyfunc)\n");
-	Py_INCREF(callback);
-
-	tempEdge = new EDGETYPE();
-	tempVertex = new VERTEXTYPE();
-	
-	tempEdgePy = SWIG_NewPointerObj(tempEdge, SWIGTYPE_p_EDGETYPE, 0);
-	tempVertexPy = SWIG_NewPointerObj(tempVertex, SWIGTYPE_p_VERTEXTYPE, 0);
-	
-	Py_INCREF(tempEdgePy);
-	Py_INCREF(tempVertexPy);
-
-	// create the arg lists
-	edgeArgList = Py_BuildValue("(O)", tempEdgePy);
-	vertexArgList = Py_BuildValue("(O)", tempVertexPy);
-}
-
-UnaryFunctionObj::~UnaryFunctionObj()
-{
-	Py_XDECREF(edgeArgList);
-	Py_XDECREF(vertexArgList);
-
-	Py_XDECREF(tempEdgePy);
-	Py_XDECREF(tempVertexPy);
-	
-	/*
-	if (tempEdge != NULL)
-		delete tempEdge;
-	if (tempVertex != NULL)
-		delete tempVertex;
-	*/
-	
-	Py_XDECREF(callback);
-}
-
-EDGETYPE UnaryFunctionObj::operator()(const EDGETYPE& x) const
-{
-	PyObject *resultPy;
-	EDGETYPE *pret;	
-
-	*tempEdge = x;
-	resultPy = PyEval_CallObject(callback,edgeArgList);  
-
-	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, SWIGTYPE_p_EDGETYPE,  0  | 0)) && pret != NULL) {
-		EDGETYPE ret = EDGETYPE(*pret);
-		Py_XDECREF(resultPy);
-		return ret;
-	} else
-	{
-		Py_XDECREF(resultPy);
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return EDGETYPE();
-	}
-}
-
-VERTEXTYPE UnaryFunctionObj::operator()(const VERTEXTYPE& x) const
-{
-	PyObject *resultPy;
-	VERTEXTYPE *pret;	
-
-	*tempVertex = x;
-	// AL: yes I know this next line should do nothing, but without it you get a segfault.
-	// I'm unclear about the last parameter to SWIG_NewPointerObj, something that's not explained
-	// anywhere that I can find.
-	PyObject *tempSwigObj = SWIG_NewPointerObj(tempVertex, SWIGTYPE_p_VERTEXTYPE, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempVertexPy);
-	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
-
-	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, SWIGTYPE_p_VERTEXTYPE,  0  | 0)) && pret != NULL) {
-		VERTEXTYPE ret = VERTEXTYPE(*pret);
-		Py_XDECREF(resultPy);
-		return ret;
-	} else
-	{
-		Py_XDECREF(resultPy);
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return VERTEXTYPE();
-	}
-}
 
 
 UnaryFunctionObj unaryObj(PyObject *pyfunc)
 {
 	return UnaryFunctionObj(pyfunc);
+}
+
+
+UnaryPredicateObj unaryObjPred(PyObject *pyfunc)
+{
+	return UnaryPredicateObj(pyfunc);
 }
 
 
@@ -119,14 +37,14 @@ struct set_s: public ConcreteUnaryFunction<T>
 	T value;
 };
 
-UnaryFunction set(EDGETYPE* val)
+UnaryFunction set(Obj2* val)
 {
-	return UnaryFunction(new set_s<EDGETYPE>(EDGETYPE(*val)));
+	return UnaryFunction(new set_s<Obj2>(Obj2(*val)));
 }
 
-UnaryFunction set(VERTEXTYPE* val)
+UnaryFunction set(Obj1* val)
 {
-	return UnaryFunction(new set_s<VERTEXTYPE>(VERTEXTYPE(*val)));
+	return UnaryFunction(new set_s<Obj1>(Obj1(*val)));
 }
 #endif
 
