@@ -6,102 +6,124 @@
 #include <iostream>
 #include <math.h>
 
-#ifndef NO_SWIGPYRUN
-#include "swigpyrun.h"
-#endif
-
-extern "C" {
-extern swig_type_info *SWIG_VertexTypeInfo;
-extern swig_type_info *SWIG_EdgeTypeInfo;
-}
-
-#ifndef NO_SWIGPYRUN
-#define SWIGTYPE_p_VERTEXTYPE SWIG_VertexTypeInfo
-#define SWIGTYPE_p_EDGETYPE SWIG_EdgeTypeInfo
-#endif
-
-namespace op {
-
-// Reusing the one from pyOperations.h
-/*
-template <typename T>
-struct ConcreteUnaryFunction : public std::unary_function<T, T>
-{
-	virtual T operator()(const T& x) const = 0;
-	
-	virtual ~ConcreteUnaryFunction() {}
-};
-
-template <typename T>
-struct ConcreteBinaryFunction : public std::binary_function<T, T, T>
-{
-	virtual T operator()(const T& x, const T& y) const = 0;
-
-	virtual ~ConcreteBinaryFunction() {}
-};
-
-template <class T1, class T2>
-struct SemiringTemplArg;
-*/
-
-
-}
-
 //INTERFACE_INCLUDE_BEGIN
 namespace op {
+
+class UnaryPredicateObj {
+//INTERFACE_INCLUDE_END
+	public:
+	PyObject *callback;
+	UnaryPredicateObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+
+	public:
+	~UnaryPredicateObj() { Py_XDECREF(callback); }
+
+	template <class T>
+	bool call(const T& x, swig_type_info *typeinfo) const;
+	
+//INTERFACE_INCLUDE_BEGIN
+	bool operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
+	bool operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+
+	protected:
+	UnaryPredicateObj() { // should never be called
+		printf("UnaryPredicateObj()!!!\n");
+		callback = NULL;
+	}
+};
 
 class UnaryFunctionObj {
 //INTERFACE_INCLUDE_END
 	public:
-	//ConcreteUnaryFunction<EDGETYPE>* op;
-	//UnaryFunctionObj(ConcreteUnaryFunction<EDGETYPE>* opin): op(opin) {  }
-	
 	PyObject *callback;
-	PyObject *edgeArgList, *vertexArgList;
-	PyObject *tempEdgePy, *tempVertexPy;
-	EDGETYPE *tempEdge;
-	VERTEXTYPE *tempVertex;
-	UnaryFunctionObj(PyObject *pyfunc);
+	UnaryFunctionObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+
+	public:
+	~UnaryFunctionObj() { Py_XDECREF(callback); }
+	
+	template <class T>
+	T call(const T& x, swig_type_info *typeinfo) const;
 
 //INTERFACE_INCLUDE_BEGIN
-
+	Obj2 operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
+	Obj1 operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	
 	protected:
 	UnaryFunctionObj() { // should never be called
-		printf("UnaryFunctionObj!!!\n");
-		callback = NULL; edgeArgList = NULL; vertexArgList = NULL;
-		tempEdgePy = NULL; tempVertexPy = NULL; tempEdge = NULL; tempVertex = NULL;
+		printf("UnaryFunctionObj()!!!\n");
+		callback = NULL;
 	}
-	public:
-	~UnaryFunctionObj();
-	
-	EDGETYPE operator()(const EDGETYPE& x) const;
-	VERTEXTYPE operator()(const VERTEXTYPE& x) const;
 };
-/*
-%pythoncode %{
-def set_transform(im,x):
-   a = new_mat44()
-   for i in range(4):
-       for j in range(4):
-           mat44_set(a,i,j,x[i][j])
-   _example.set_transform(im,a)
-   free_mat44(a)
-%}*/
+//INTERFACE_INCLUDE_END
 
-//UnaryFunctionObj set(EDGETYPE val);
-//UnaryFunctionObj set(VERTEXTYPE val);
-//UnaryFunctionObj identityObj();
+template <class T>
+T UnaryFunctionObj::call(const T& x, swig_type_info *typeinfo) const
+{
+	PyObject *resultPy;
+	T *pret;	
+
+	T tempObj = x;
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, typeinfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, typeinfo,  0  | 0)) && pret != NULL) {
+		T ret = T(*pret);
+		Py_XDECREF(tempSwigObj);
+		Py_XDECREF(vertexArgList);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		Py_XDECREF(tempSwigObj);
+		Py_XDECREF(vertexArgList);
+		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		return T();
+	}
+}
+
+// This function is identical to UnaryFunctionObj::call() except that it returns a boolean instead
+// of an object. Please keep the actual calling method the same if you make any changes.
+template <class T>
+bool UnaryPredicateObj::call(const T& x, swig_type_info *typeinfo) const
+{
+	PyObject *resultPy;
+	T *pret;	
+
+	T tempObj = x;
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, typeinfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(tempSwigObj);
+		Py_XDECREF(vertexArgList);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		Py_XDECREF(tempSwigObj);
+		Py_XDECREF(vertexArgList);
+		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		return false;
+	}
+}
+//INTERFACE_INCLUDE_BEGIN
 
 UnaryFunctionObj unaryObj(PyObject *pyfunc);
+UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
 #if 0
 //INTERFACE_INCLUDE_BEGIN
 class BinaryFunctionE {
 //INTERFACE_INCLUDE_END
 	public:
-	ConcreteBinaryFunction<EDGETYPE>* op;
+	ConcreteBinaryFunction<Obj2>* op;
 	
-	BinaryFunctionE(ConcreteBinaryFunction<EDGETYPE>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
+	BinaryFunctionE(ConcreteBinaryFunction<Obj2>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
 
 	// for creating an MPI_Op that can be used with MPI Reduce
 	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
@@ -120,7 +142,7 @@ class BinaryFunctionE {
 	bool commutable;
 	bool associative;
 	
-	EDGETYPE operator()(const EDGETYPE& x, const EDGETYPE& y) const
+	Obj2 operator()(const Obj2& x, const Obj2& y) const
 	{
 		return (*op)(x, y);
 	}
@@ -129,9 +151,9 @@ class BinaryFunctionE {
 class BinaryFunctionV {
 //INTERFACE_INCLUDE_END
 	public:
-	ConcreteBinaryFunction<VERTEXTYPE>* op;
+	ConcreteBinaryFunction<Obj1>* op;
 	
-	BinaryFunctionV(ConcreteBinaryFunction<VERTEXTYPE>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
+	BinaryFunctionV(ConcreteBinaryFunction<Obj1>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
 
 	// for creating an MPI_Op that can be used with MPI Reduce
 	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
@@ -150,7 +172,7 @@ class BinaryFunctionV {
 	bool commutable;
 	bool associative;
 	
-	VERTEXTYPE operator()(const VERTEXTYPE& x, const VERTEXTYPE& y) const
+	Obj1 operator()(const Obj1& x, const Obj1& y) const
 	{
 		return (*op)(x, y);
 	}
@@ -253,8 +275,8 @@ Semiring SecondMaxSemiring();
 // That should be safe enough, because this is only called from inside CombBLAS reduce operations,
 // which only get called between getMPIOp() and releaseMPIOp().
 #if 0
-template<> struct MPIOp< op::BinaryFunctionE, EDGETYPE > {  static MPI_Op op() { return op::BinaryFunctionE::staticMPIop; } };
-template<> struct MPIOp< op::BinaryFunctionV, VERTEXTYPE > {  static MPI_Op op() { return op::BinaryFunctionV::staticMPIop; } };
+template<> struct MPIOp< op::BinaryFunctionE, Obj2 > {  static MPI_Op op() { return op::BinaryFunctionE::staticMPIop; } };
+template<> struct MPIOp< op::BinaryFunctionV, Obj1 > {  static MPI_Op op() { return op::BinaryFunctionV::staticMPIop; } };
 #endif
 
 #endif

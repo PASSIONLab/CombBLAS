@@ -24,8 +24,8 @@ init_pyCombBLAS_MPI();
    (eg. SWIG_ConvertPtr). The SWIG docs don't mention how these types are to be obtained,
    so I copy them over from the _wrap.cpp file here.
 */
-SWIG_EdgeTypeInfo = SWIGTYPE_p_EDGETYPE;
-SWIG_VertexTypeInfo = SWIGTYPE_p_VERTEXTYPE;
+SWIG_Obj1Info = SWIGTYPE_p_Obj1;
+SWIG_Obj2Info = SWIGTYPE_p_Obj2;
 %}
 
 // It is possible to have the generated python code also include some custom code.
@@ -76,7 +76,9 @@ INCLUDE "pySpParMatBool.h"
 
 INCLUDE "pySpParVec.h"
 
-INCLUDE "pySpParVecObj.h"
+INCLUDE "pySpParVecObj1.h"
+
+INCLUDE "pySpParVecObj2.h"
 
 INCLUDE "pyDenseParVec.h"
 

@@ -40,16 +40,23 @@
 namespace op{
 class UnaryFunction;
 class UnaryFunctionObj;
+class UnaryPredicateObj;
 class ObjUnaryFunction;
 class BinaryFunction;
 class Semiring;
 }
+
+#ifndef NO_SWIGPYRUN
+#include "swigpyrun.h"
+#endif
 
 #include "doubleint.h"
 
 class pySpParMat;
 class pySpParMatBool;
 class pySpParVec;
+class pySpParVecObj1;
+class pySpParVecObj2;
 class pyDenseParVec;
 class pyObjDenseParVec;
 
@@ -59,7 +66,8 @@ class pyObjDenseParVec;
 #include "pySpParMat.h"
 #include "pySpParMatBool.h"
 #include "pySpParVec.h"
-#include "pySpParVecObj.h"
+#include "pySpParVecObj1.h"
+#include "pySpParVecObj2.h"
 #include "pyDenseParVec.h"
 #include "pyObjDenseParVec.h"
 

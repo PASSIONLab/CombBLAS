@@ -1413,8 +1413,10 @@ kdt/pyCombBLAS/pySpParMatBool.cpp -text
 kdt/pyCombBLAS/pySpParMatBool.h -text
 kdt/pyCombBLAS/pySpParVec.cpp -text
 kdt/pyCombBLAS/pySpParVec.h -text
-kdt/pyCombBLAS/pySpParVecObj.cpp -text
-kdt/pyCombBLAS/pySpParVecObj.h -text
+kdt/pyCombBLAS/pySpParVecObj1.cpp -text
+kdt/pyCombBLAS/pySpParVecObj1.h -text
+kdt/pyCombBLAS/pySpParVecObj2.cpp -text
+kdt/pyCombBLAS/pySpParVecObj2.h -text
 kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
