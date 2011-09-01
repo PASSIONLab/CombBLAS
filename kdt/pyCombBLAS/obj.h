@@ -173,3 +173,4 @@ template<> MPI::Datatype MPIType< Obj2 >( void )
 
 
 #endif
+
