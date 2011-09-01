@@ -22,7 +22,11 @@ public:
 		return &temp[0];
 	}
 
-	Obj1(): weight(1), type(0) {}
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj1(): weight(0), type(0) {}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
@@ -35,6 +39,8 @@ public:
 	{
 		return this == &other;
 	}
+	
+	static swig_type_info*& SwigTypeInfo;
 	
 //INTERFACE_INCLUDE_BEGIN
 };
@@ -55,7 +61,11 @@ public:
 		return &temp[0];
 	}
 	
-	Obj2(): weight(1), type(0) {}
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj2(): weight(0), type(0) {}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
@@ -68,6 +78,9 @@ public:
 	{
 		return this == &other;
 	}
+	
+	static swig_type_info*& SwigTypeInfo;
+
 //INTERFACE_INCLUDE_BEGIN
 };
 //INTERFACE_INCLUDE_END
@@ -104,8 +117,6 @@ extern swig_type_info *SWIG_Obj1Info;
 extern swig_type_info *SWIG_Obj2Info;
 }
 
-
-// forward declarations
 extern MPI::Datatype Obj1_MPI_datatype;
 extern MPI::Datatype Obj2_MPI_datatype;
 
@@ -126,6 +137,8 @@ extern "C" {
 swig_type_info *SWIG_Obj1Info = NULL;
 swig_type_info *SWIG_Obj2Info = NULL;
 }
+swig_type_info*& Obj1::SwigTypeInfo = SWIG_Obj1Info;
+swig_type_info*& Obj2::SwigTypeInfo = SWIG_Obj2Info;
 
 
 // definitions

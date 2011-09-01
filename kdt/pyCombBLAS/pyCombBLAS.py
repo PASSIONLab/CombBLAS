@@ -243,23 +243,23 @@ class pySpParVecObj1(_object):
         this = _pyCombBLAS.new_pySpParVecObj1(*args)
         try: self.this.append(this)
         except: self.this = this
-    def getnee(self): return _pyCombBLAS.pySpParVecObj1_getnee(self)
-    def __len__(self): return _pyCombBLAS.pySpParVecObj1___len__(self)
-    def len(self): return _pyCombBLAS.pySpParVecObj1_len(self)
-    def copy(self): return _pyCombBLAS.pySpParVecObj1_copy(self)
-    def any(self): return _pyCombBLAS.pySpParVecObj1_any(self)
-    def all(self): return _pyCombBLAS.pySpParVecObj1_all(self)
-    def intersectSize(self, *args): return _pyCombBLAS.pySpParVecObj1_intersectSize(self, *args)
-    def printall(self): return _pyCombBLAS.pySpParVecObj1_printall(self)
-    def load(self, *args): return _pyCombBLAS.pySpParVecObj1_load(self, *args)
-    def Count(self, *args): return _pyCombBLAS.pySpParVecObj1_Count(self, *args)
-    def Apply(self, *args): return _pyCombBLAS.pySpParVecObj1_Apply(self, *args)
-    def setNumToInd(self): return _pyCombBLAS.pySpParVecObj1_setNumToInd(self)
-    def abs(self): return _pyCombBLAS.pySpParVecObj1_abs(self)
-    def __delitem__(self, *args): return _pyCombBLAS.pySpParVecObj1___delitem__(self, *args)
-    def __getitem__(self, *args): return _pyCombBLAS.pySpParVecObj1___getitem__(self, *args)
-    def __setitem__(self, *args): return _pyCombBLAS.pySpParVecObj1___setitem__(self, *args)
-    def __repr__(self): return _pyCombBLAS.pySpParVecObj1___repr__(self)
+    def getnee(*args): return _pyCombBLAS.pySpParVecObj1_getnee(*args)
+    def __len__(*args): return _pyCombBLAS.pySpParVecObj1___len__(*args)
+    def len(*args): return _pyCombBLAS.pySpParVecObj1_len(*args)
+    def copy(*args): return _pyCombBLAS.pySpParVecObj1_copy(*args)
+    def any(*args): return _pyCombBLAS.pySpParVecObj1_any(*args)
+    def all(*args): return _pyCombBLAS.pySpParVecObj1_all(*args)
+    def intersectSize(*args): return _pyCombBLAS.pySpParVecObj1_intersectSize(*args)
+    def printall(*args): return _pyCombBLAS.pySpParVecObj1_printall(*args)
+    def load(*args): return _pyCombBLAS.pySpParVecObj1_load(*args)
+    def Count(*args): return _pyCombBLAS.pySpParVecObj1_Count(*args)
+    def Apply(*args): return _pyCombBLAS.pySpParVecObj1_Apply(*args)
+    def Reduce(*args): return _pyCombBLAS.pySpParVecObj1_Reduce(*args)
+    def setNumToInd(*args): return _pyCombBLAS.pySpParVecObj1_setNumToInd(*args)
+    def __delitem__(*args): return _pyCombBLAS.pySpParVecObj1___delitem__(*args)
+    def __getitem__(*args): return _pyCombBLAS.pySpParVecObj1___getitem__(*args)
+    def __setitem__(*args): return _pyCombBLAS.pySpParVecObj1___setitem__(*args)
+    def __repr__(*args): return _pyCombBLAS.pySpParVecObj1___repr__(*args)
     __swig_destroy__ = _pyCombBLAS.delete_pySpParVecObj1
     __del__ = lambda self : None;
 pySpParVecObj1_swigregister = _pyCombBLAS.pySpParVecObj1_swigregister
@@ -278,23 +278,23 @@ class pySpParVecObj2(_object):
         this = _pyCombBLAS.new_pySpParVecObj2(*args)
         try: self.this.append(this)
         except: self.this = this
-    def getnee(self): return _pyCombBLAS.pySpParVecObj2_getnee(self)
-    def __len__(self): return _pyCombBLAS.pySpParVecObj2___len__(self)
-    def len(self): return _pyCombBLAS.pySpParVecObj2_len(self)
-    def copy(self): return _pyCombBLAS.pySpParVecObj2_copy(self)
-    def any(self): return _pyCombBLAS.pySpParVecObj2_any(self)
-    def all(self): return _pyCombBLAS.pySpParVecObj2_all(self)
-    def intersectSize(self, *args): return _pyCombBLAS.pySpParVecObj2_intersectSize(self, *args)
-    def printall(self): return _pyCombBLAS.pySpParVecObj2_printall(self)
-    def load(self, *args): return _pyCombBLAS.pySpParVecObj2_load(self, *args)
-    def Count(self, *args): return _pyCombBLAS.pySpParVecObj2_Count(self, *args)
-    def Apply(self, *args): return _pyCombBLAS.pySpParVecObj2_Apply(self, *args)
-    def setNumToInd(self): return _pyCombBLAS.pySpParVecObj2_setNumToInd(self)
-    def abs(self): return _pyCombBLAS.pySpParVecObj2_abs(self)
-    def __delitem__(self, *args): return _pyCombBLAS.pySpParVecObj2___delitem__(self, *args)
-    def __getitem__(self, *args): return _pyCombBLAS.pySpParVecObj2___getitem__(self, *args)
-    def __setitem__(self, *args): return _pyCombBLAS.pySpParVecObj2___setitem__(self, *args)
-    def __repr__(self): return _pyCombBLAS.pySpParVecObj2___repr__(self)
+    def getnee(*args): return _pyCombBLAS.pySpParVecObj2_getnee(*args)
+    def __len__(*args): return _pyCombBLAS.pySpParVecObj2___len__(*args)
+    def len(*args): return _pyCombBLAS.pySpParVecObj2_len(*args)
+    def copy(*args): return _pyCombBLAS.pySpParVecObj2_copy(*args)
+    def any(*args): return _pyCombBLAS.pySpParVecObj2_any(*args)
+    def all(*args): return _pyCombBLAS.pySpParVecObj2_all(*args)
+    def intersectSize(*args): return _pyCombBLAS.pySpParVecObj2_intersectSize(*args)
+    def printall(*args): return _pyCombBLAS.pySpParVecObj2_printall(*args)
+    def load(*args): return _pyCombBLAS.pySpParVecObj2_load(*args)
+    def Count(*args): return _pyCombBLAS.pySpParVecObj2_Count(*args)
+    def Apply(*args): return _pyCombBLAS.pySpParVecObj2_Apply(*args)
+    def Reduce(*args): return _pyCombBLAS.pySpParVecObj2_Reduce(*args)
+    def setNumToInd(*args): return _pyCombBLAS.pySpParVecObj2_setNumToInd(*args)
+    def __delitem__(*args): return _pyCombBLAS.pySpParVecObj2___delitem__(*args)
+    def __getitem__(*args): return _pyCombBLAS.pySpParVecObj2___getitem__(*args)
+    def __setitem__(*args): return _pyCombBLAS.pySpParVecObj2___setitem__(*args)
+    def __repr__(*args): return _pyCombBLAS.pySpParVecObj2___repr__(*args)
     __swig_destroy__ = _pyCombBLAS.delete_pySpParVecObj2
     __del__ = lambda self : None;
 pySpParVecObj2_swigregister = _pyCombBLAS.pySpParVecObj2_swigregister
@@ -355,29 +355,6 @@ def pyDenseParVec_range(*args):
   return _pyCombBLAS.pyDenseParVec_range(*args)
 pyDenseParVec_range = _pyCombBLAS.pyDenseParVec_range
 
-class pyObjDenseParVec(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, pyObjDenseParVec, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, pyObjDenseParVec, name)
-    __repr__ = _swig_repr
-    def __init__(self, *args): 
-        this = _pyCombBLAS.new_pyObjDenseParVec(*args)
-        try: self.this.append(this)
-        except: self.this = this
-    def len(self): return _pyCombBLAS.pyObjDenseParVec_len(self)
-    def __len__(self): return _pyCombBLAS.pyObjDenseParVec___len__(self)
-    def copy(self): return _pyCombBLAS.pyObjDenseParVec_copy(self)
-    def printall(self): return _pyCombBLAS.pyObjDenseParVec_printall(self)
-    def getnee(self): return _pyCombBLAS.pyObjDenseParVec_getnee(self)
-    def Apply(self, *args): return _pyCombBLAS.pyObjDenseParVec_Apply(self, *args)
-    def __getitem__(self, *args): return _pyCombBLAS.pyObjDenseParVec___getitem__(self, *args)
-    def __setitem__(self, *args): return _pyCombBLAS.pyObjDenseParVec___setitem__(self, *args)
-    __swig_destroy__ = _pyCombBLAS.delete_pyObjDenseParVec
-    __del__ = lambda self : None;
-pyObjDenseParVec_swigregister = _pyCombBLAS.pyObjDenseParVec_swigregister
-pyObjDenseParVec_swigregister(pyObjDenseParVec)
-
 class UnaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryFunction, name, value)
@@ -431,26 +408,6 @@ ifthenelse = _pyCombBLAS.ifthenelse
 def unary(*args):
   return _pyCombBLAS.unary(*args)
 unary = _pyCombBLAS.unary
-class ObjUnaryFunction(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, ObjUnaryFunction, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, ObjUnaryFunction, name)
-    __repr__ = _swig_repr
-    def __init__(self, *args): 
-        this = _pyCombBLAS.new_ObjUnaryFunction(*args)
-        try: self.this.append(this)
-        except: self.this = this
-    __swig_destroy__ = _pyCombBLAS.delete_ObjUnaryFunction
-    __del__ = lambda self : None;
-    def __call__(self, *args): return _pyCombBLAS.ObjUnaryFunction___call__(self, *args)
-ObjUnaryFunction_swigregister = _pyCombBLAS.ObjUnaryFunction_swigregister
-ObjUnaryFunction_swigregister(ObjUnaryFunction)
-
-
-def obj_unary(*args):
-  return _pyCombBLAS.obj_unary(*args)
-obj_unary = _pyCombBLAS.obj_unary
 class BinaryFunction(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunction, name, value)
@@ -683,9 +640,25 @@ unaryObj = _pyCombBLAS.unaryObj
 def unaryObjPred(*args):
   return _pyCombBLAS.unaryObjPred(*args)
 unaryObjPred = _pyCombBLAS.unaryObjPred
+class BinaryFunctionObj(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryFunctionObj, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, BinaryFunctionObj, name)
+    def __init__(self): raise AttributeError, "No constructor defined"
+    __repr__ = _swig_repr
+    __swig_destroy__ = _pyCombBLAS.delete_BinaryFunctionObj
+    __del__ = lambda self : None;
+    __swig_setmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_set
+    __swig_getmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_get
+    if _newclass:commutable = _swig_property(_pyCombBLAS.BinaryFunctionObj_commutable_get, _pyCombBLAS.BinaryFunctionObj_commutable_set)
+    __swig_setmethods__["associative"] = _pyCombBLAS.BinaryFunctionObj_associative_set
+    __swig_getmethods__["associative"] = _pyCombBLAS.BinaryFunctionObj_associative_get
+    if _newclass:associative = _swig_property(_pyCombBLAS.BinaryFunctionObj_associative_get, _pyCombBLAS.BinaryFunctionObj_associative_set)
+    def __call__(*args): return _pyCombBLAS.BinaryFunctionObj___call__(*args)
+BinaryFunctionObj_swigregister = _pyCombBLAS.BinaryFunctionObj_swigregister
+BinaryFunctionObj_swigregister(BinaryFunctionObj)
 
-def finalize():
-  return _pyCombBLAS.finalize()
 finalize = _pyCombBLAS.finalize
 
 def root():
@@ -713,6 +686,7 @@ class EWiseArg(_object):
     __del__ = lambda self : None;
 EWiseArg_swigregister = _pyCombBLAS.EWiseArg_swigregister
 EWiseArg_swigregister(EWiseArg)
+binaryObj = _pyCombBLAS.binaryObj
 
 
 def EWise_Index():

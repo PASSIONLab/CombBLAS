@@ -41,8 +41,8 @@ namespace op{
 class UnaryFunction;
 class UnaryFunctionObj;
 class UnaryPredicateObj;
-class ObjUnaryFunction;
 class BinaryFunction;
+class BinaryFunctionObj;
 class Semiring;
 }
 
@@ -69,7 +69,7 @@ class pyObjDenseParVec;
 #include "pySpParVecObj1.h"
 #include "pySpParVecObj2.h"
 #include "pyDenseParVec.h"
-#include "pyObjDenseParVec.h"
+//#include "pyDenseParVecObj.h"
 
 extern "C" {
 void init_pyCombBLAS_MPI();

@@ -69,7 +69,7 @@ public:
 
 	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
-	//Obj2 Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
 	//pySpParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -81,8 +81,6 @@ public:
 	//static pySpParVecObj2 range(int64_t howmany, int64_t start);
 	
 public:
-	// Functions from PyCombBLAS
-	pySpParVecObj2 abs();
 	//void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
