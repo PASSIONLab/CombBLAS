@@ -10660,7 +10660,6 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj1_Reduce__SWIG_0(PyObject *SWIGUNUSEDPAR
   pySpParVecObj1 *arg1 = (pySpParVecObj1 *) 0 ;
   op::BinaryFunctionObj *arg2 = (op::BinaryFunctionObj *) 0 ;
   op::UnaryFunctionObj *arg3 = (op::UnaryFunctionObj *) 0 ;
-  Obj1 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -10670,6 +10669,7 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj1_Reduce__SWIG_0(PyObject *SWIGUNUSEDPAR
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  Obj1 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParVecObj1_Reduce",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj1, 0 |  0 );
@@ -10709,13 +10709,13 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj1_Reduce__SWIG_1(PyObject *SWIGUNUSEDPAR
   PyObject *resultobj = 0;
   pySpParVecObj1 *arg1 = (pySpParVecObj1 *) 0 ;
   op::BinaryFunctionObj *arg2 = (op::BinaryFunctionObj *) 0 ;
-  Obj1 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  Obj1 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVecObj1_Reduce",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj1, 0 |  0 );
@@ -10752,7 +10752,7 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj1_Reduce(PyObject *self, PyObject *args)
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
+  argc = (int)PyObject_Length(args);
   for (ii = 0; (ii < argc) && (ii < 3); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
@@ -10791,7 +10791,10 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj1_Reduce(PyObject *self, PyObject *args)
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParVecObj1_Reduce'.\n  Possible C/C++ prototypes are:\n    Reduce(op::BinaryFunctionObj *,op::UnaryFunctionObj *)\n    Reduce(op::BinaryFunctionObj *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'pySpParVecObj1_Reduce'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Reduce(pySpParVecObj1 *,op::BinaryFunctionObj *,op::UnaryFunctionObj *)\n"
+    "    Reduce(pySpParVecObj1 *,op::BinaryFunctionObj *)\n");
   return NULL;
 }
 
@@ -11565,7 +11568,6 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj2_Reduce__SWIG_0(PyObject *SWIGUNUSEDPAR
   pySpParVecObj2 *arg1 = (pySpParVecObj2 *) 0 ;
   op::BinaryFunctionObj *arg2 = (op::BinaryFunctionObj *) 0 ;
   op::UnaryFunctionObj *arg3 = (op::UnaryFunctionObj *) 0 ;
-  Obj2 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -11575,6 +11577,7 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj2_Reduce__SWIG_0(PyObject *SWIGUNUSEDPAR
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  Obj2 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParVecObj2_Reduce",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj2, 0 |  0 );
@@ -11614,13 +11617,13 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj2_Reduce__SWIG_1(PyObject *SWIGUNUSEDPAR
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = (pySpParVecObj2 *) 0 ;
   op::BinaryFunctionObj *arg2 = (op::BinaryFunctionObj *) 0 ;
-  Obj2 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  Obj2 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:pySpParVecObj2_Reduce",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj2, 0 |  0 );
@@ -11657,7 +11660,7 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj2_Reduce(PyObject *self, PyObject *args)
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
+  argc = (int)PyObject_Length(args);
   for (ii = 0; (ii < argc) && (ii < 3); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
@@ -11696,7 +11699,10 @@ SWIGINTERN PyObject *_wrap_pySpParVecObj2_Reduce(PyObject *self, PyObject *args)
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParVecObj2_Reduce'.\n  Possible C/C++ prototypes are:\n    Reduce(op::BinaryFunctionObj *,op::UnaryFunctionObj *)\n    Reduce(op::BinaryFunctionObj *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'pySpParVecObj2_Reduce'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    Reduce(pySpParVecObj2 *,op::BinaryFunctionObj *,op::UnaryFunctionObj *)\n"
+    "    Reduce(pySpParVecObj2 *,op::BinaryFunctionObj *)\n");
   return NULL;
 }
 
@@ -17639,7 +17645,6 @@ SWIGINTERN PyObject *_wrap_delete_BinaryFunctionObj(PyObject *SWIGUNUSEDPARM(sel
   {
     try {
       delete arg1;
-      
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -17678,7 +17683,6 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj_commutable_set(PyObject *SWIGUNUSED
   } 
   arg2 = static_cast< bool >(val2);
   if (arg1) (arg1)->commutable = arg2;
-  
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -17689,10 +17693,10 @@ fail:
 SWIGINTERN PyObject *_wrap_BinaryFunctionObj_commutable_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
-  bool result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
+  bool result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:BinaryFunctionObj_commutable_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
@@ -17731,7 +17735,6 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj_associative_set(PyObject *SWIGUNUSE
   } 
   arg2 = static_cast< bool >(val2);
   if (arg1) (arg1)->associative = arg2;
-  
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -17742,10 +17745,10 @@ fail:
 SWIGINTERN PyObject *_wrap_BinaryFunctionObj_associative_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
-  bool result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
+  bool result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:BinaryFunctionObj_associative_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
@@ -17766,7 +17769,6 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call____SWIG_0(PyObject *SWIGUNUS
   op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
   Obj1 *arg2 = 0 ;
   Obj1 *arg3 = 0 ;
-  Obj1 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -17776,6 +17778,7 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call____SWIG_0(PyObject *SWIGUNUS
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  Obj1 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryFunctionObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
@@ -17822,7 +17825,6 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call____SWIG_1(PyObject *SWIGUNUS
   op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
   Obj2 *arg2 = 0 ;
   Obj2 *arg3 = 0 ;
-  Obj2 result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -17832,6 +17834,7 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call____SWIG_1(PyObject *SWIGUNUS
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  Obj2 result;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryFunctionObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
@@ -17879,7 +17882,7 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call__(PyObject *self, PyObject *
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
+  argc = (int)PyObject_Length(args);
   for (ii = 0; (ii < argc) && (ii < 3); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
@@ -17919,14 +17922,17 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj___call__(PyObject *self, PyObject *
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'BinaryFunctionObj___call__'.\n  Possible C/C++ prototypes are:\n    operator ()(Obj1 const &,Obj1 const &)\n    operator ()(Obj2 const &,Obj2 const &)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'BinaryFunctionObj___call__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    operator ()(op::BinaryFunctionObj const *,Obj1 const &,Obj1 const &)\n"
+    "    operator ()(op::BinaryFunctionObj const *,Obj2 const &,Obj2 const &)\n");
   return NULL;
 }
 
 
 SWIGINTERN PyObject *BinaryFunctionObj_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
-  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
   SWIG_TypeNewClientData(SWIGTYPE_p_op__BinaryFunctionObj, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
@@ -17935,11 +17941,11 @@ SWIGINTERN PyObject *_wrap_binaryObj__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyO
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
   bool arg2 ;
-  SwigValueWrapper<op::BinaryFunctionObj > result;
   bool val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  SwigValueWrapper< op::BinaryFunctionObj > result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:binaryObj",&obj0,&obj1)) SWIG_fail;
   arg1 = obj0;
@@ -17969,8 +17975,8 @@ fail:
 SWIGINTERN PyObject *_wrap_binaryObj__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
-  SwigValueWrapper<op::BinaryFunctionObj > result;
   PyObject * obj0 = 0 ;
+  SwigValueWrapper< op::BinaryFunctionObj > result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:binaryObj",&obj0)) SWIG_fail;
   arg1 = obj0;
@@ -17998,7 +18004,7 @@ SWIGINTERN PyObject *_wrap_binaryObj(PyObject *self, PyObject *args) {
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
+  argc = (int)PyObject_Length(args);
   for (ii = 0; (ii < argc) && (ii < 2); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
@@ -18024,7 +18030,10 @@ SWIGINTERN PyObject *_wrap_binaryObj(PyObject *self, PyObject *args) {
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'binaryObj'.\n  Possible C/C++ prototypes are:\n    op::binaryObj(PyObject *,bool)\n    op::binaryObj(PyObject *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'binaryObj'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    op::binaryObj(PyObject *,bool)\n"
+    "    op::binaryObj(PyObject *)\n");
   return NULL;
 }
 
