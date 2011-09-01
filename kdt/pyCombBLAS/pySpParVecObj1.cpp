@@ -193,22 +193,22 @@ pyDenseParVec pySpParVecObj1::SubsRef(const pyDenseParVec& ri)
 	return pyDenseParVec(v(ri.v));
 }*/
 
-/*
-Obj1 pySpParVecObj1::Reduce(op::BinaryFunction* bf, op::UnaryFunctionObj* uf)
+
+Obj1 pySpParVecObj1::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
 {
 	if (!bf->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
 
-	doubleint ret;
+	Obj1 ret;
 	
 	bf->getMPIOp();
 	if (uf == NULL)
-		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
+		ret = v.Reduce(*bf, Obj1(), ::identity<Obj1>());
 	else
-		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+		ret = v.Reduce(*bf, Obj1(), *uf);
 	bf->releaseMPIOp();
 	return ret;
-}*/
+}
 
 /*
 pySpParVecObj1 pySpParVecObj1::Sort()
@@ -241,14 +241,6 @@ pyDenseParVec pySpParVecObj1::TopK(int64_t k)
 void pySpParVecObj1::setNumToInd()
 {
 	v.setNumToInd();
-}
-
-pySpParVecObj1 pySpParVecObj1::abs()
-{
-	pySpParVecObj1 ret = copy();
-	//ret.Apply(&op::abs());
-	cout << "abs unsupported" << endl;
-	return ret;
 }
 
 /*

@@ -321,7 +321,7 @@ public:
 
 	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
-	//Obj1 Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
+	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
 	//pySpParVecObj1 Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -333,8 +333,6 @@ public:
 	//static pySpParVecObj1 range(int64_t howmany, int64_t start);
 	
 public:
-	// Functions from PyCombBLAS
-	pySpParVecObj1 abs();
 	//void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
@@ -408,7 +406,7 @@ public:
 
 	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
-	//Obj2 Reduce(op::BinaryFunction* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
 	//pySpParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -420,8 +418,6 @@ public:
 	//static pySpParVecObj2 range(int64_t howmany, int64_t start);
 	
 public:
-	// Functions from PyCombBLAS
-	pySpParVecObj2 abs();
 	//void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	
@@ -537,93 +533,7 @@ public:
 	void __setitem__(const pySpParVec& key, double value);
 };
 
-class pyObjDenseParVec {
-public:
-	pyObjDenseParVec(int64_t size, PyObject* init);
-	pyObjDenseParVec(int64_t size, PyObject* init, PyObject* zero);
-	
-	//pySpParVec sparse() const;
-	//pySpParVec sparse(PyObject* zero) const;
-	
-public:
-	int64_t len() const;
-	int64_t __len__() const;
-	/*
-	void add(const pyObjDenseParVec& other);
-	void add(const pySpParVec& other);
-	pyObjDenseParVec& operator+=(const pyObjDenseParVec & rhs);
-	pyObjDenseParVec& operator-=(const pyObjDenseParVec & rhs);
-	pyObjDenseParVec& operator+=(const pySpParVec & rhs);
-	pyObjDenseParVec& operator-=(const pySpParVec & rhs);
-	pyObjDenseParVec& operator*=(const pyObjDenseParVec& rhs);
-	pyObjDenseParVec& operator*=(const pySpParVec& rhs);
-	
-	pyObjDenseParVec operator+(const pyObjDenseParVec & rhs);
-	pyObjDenseParVec operator-(const pyObjDenseParVec & rhs);
-	pyObjDenseParVec operator+(const pySpParVec & rhs);
-	pyObjDenseParVec operator-(const pySpParVec & rhs);
-	pyObjDenseParVec operator*(const pyObjDenseParVec& rhs);
-	pyObjDenseParVec operator*(const pySpParVec& rhs);
-	
-	pyObjDenseParVec operator==(const pyObjDenseParVec& other);
-	pyObjDenseParVec operator!=(const pyObjDenseParVec& other);
-	*/
-	pyObjDenseParVec copy();
-	
-	//pyObjDenseParVec SubsRef(const pyObjDenseParVec& ri);
 
-	//void RandPerm(); // Randomly permutes the vector
-	//pyObjDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyObjDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
-
-	void printall();
-	
-public:
-	
-	int64_t getnee() const;
-	//int64_t getnnz() const;
-	//int64_t getnz() const;
-	//bool any() const;
-	
-public:	
-	//void load(const char* filename);
-	
-public:
-	//int64_t Count(op::UnaryFunction* op);
-	//double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
-	//pySpParVec Find(op::UnaryFunction* op);
-	//pySpParVec __getitem__(op::UnaryFunction* op);
-	//pyDenseParVec FindInds(op::UnaryFunction* op);
-	void Apply(op::ObjUnaryFunction* op);
-	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
-	//void EWiseApply(const pyObjDenseParVec& other, op::BinaryFunction *f);
-	//void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, PyObject* nullValue = 0);
-
-public:
-	//static pyObjDenseParVec range(int64_t howmany, int64_t start);
-	
-public:
-	// Functions from PyCombBLAS
-	/*
-	pyObjDenseParVec abs();
-	
-	pyObjDenseParVec& operator+=(double value);
-	pyObjDenseParVec operator+(double value);
-	pyObjDenseParVec& operator-=(double value);
-	pyObjDenseParVec operator-(double value);
-	
-	pyObjDenseParVec __and__(const pyObjDenseParVec& other);
-	*/
-	
-	PyObject* __getitem__(int64_t key);
-	PyObject* __getitem__(double  key);
-	//pyObjDenseParVec __getitem__(const pyObjDenseParVec& key);
-
-	void __setitem__(int64_t key, PyObject* value);
-	void __setitem__(double  key, PyObject* value);
-	//void __setitem__(const pySpParVec& key, const pySpParVec& value);
-	//void __setitem__(const pySpParVec& key, double value);
-};
 
 namespace op {
 
@@ -651,22 +561,6 @@ UnaryFunction totality();
 UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, UnaryFunction& runFalse);
 
 UnaryFunction unary(PyObject *pyfunc);
-
-
-class ObjUnaryFunction {
-
-	protected:
-	ObjUnaryFunction(): pyfunc(NULL), arglist(NULL) {}
-	public:
-	
-	ObjUnaryFunction(PyObject *pyfunc_in);
-	
-	~ObjUnaryFunction();
-	
-	PyObject* operator()(PyObject* x);
-};
-
-ObjUnaryFunction obj_unary(PyObject *pyfunc);
 
 class BinaryFunction {
 	protected:
@@ -762,7 +656,11 @@ public:
 		return &temp[0];
 	}
 
-	Obj1(): weight(1), type(0) {}
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj1(): weight(0), type(0) {}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
@@ -786,7 +684,11 @@ public:
 		return &temp[0];
 	}
 	
-	Obj2(): weight(1), type(0) {}
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj2(): weight(0), type(0) {}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
@@ -797,66 +699,55 @@ public:
 namespace op {
 
 class UnaryPredicateObj {
-	bool operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
-	bool operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	bool operator()(const Obj2& x) const { return call(x); }
+	bool operator()(const Obj1& x) const { return call(x); }
 
 	protected:
 	UnaryPredicateObj() { // should never be called
 		printf("UnaryPredicateObj()!!!\n");
 		callback = NULL;
 	}
+
+	public:
+	~UnaryPredicateObj() { Py_XDECREF(callback); }
 };
 
 class UnaryFunctionObj {
-	Obj2 operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
-	Obj1 operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	Obj2 operator()(const Obj2& x) const { return call(x); }
+	Obj1 operator()(const Obj1& x) const { return call(x); }
 	
 	protected:
 	UnaryFunctionObj() { // should never be called
 		printf("UnaryFunctionObj()!!!\n");
 		callback = NULL;
 	}
+
+	public:
+	~UnaryFunctionObj() { Py_XDECREF(callback); }
 };
+
 
 UnaryFunctionObj unaryObj(PyObject *pyfunc);
 UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
-#if 0
-class BinaryFunctionE {
+class BinaryFunctionObj {
 	protected:
-	BinaryFunctionE(): op(NULL), commutable(false), associative(false) {}
+	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
 	public:
-	~BinaryFunctionE() { /*delete op; op = NULL;*/ }
+	~BinaryFunctionObj() { Py_XDECREF(callback); }
 	
 	bool commutable;
 	bool associative;
 	
-	Obj2 operator()(const Obj2& x, const Obj2& y) const
-	{
-		return (*op)(x, y);
-	}
-
-};
-class BinaryFunctionV {
-	protected:
-	BinaryFunctionV(): op(NULL), commutable(false), associative(false) {}
-	public:
-	~BinaryFunctionV() { /*delete op; op = NULL;*/ }
-	
-	bool commutable;
-	bool associative;
-	
-	Obj1 operator()(const Obj1& x, const Obj1& y) const
-	{
-		return (*op)(x, y);
-	}
+	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
 
 };
 
-BinaryFunction binaryE(PyObject *pyfunc);
-BinaryFunction binaryV(PyObject *pyfunc);
+BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 
-#endif
+
+
 /*
 class Semiring {
 	protected:

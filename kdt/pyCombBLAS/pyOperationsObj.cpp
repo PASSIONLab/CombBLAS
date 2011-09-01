@@ -50,95 +50,42 @@ UnaryFunction set(Obj1* val)
 
 
 
-/////////////////////////////////////////////////////
-
-
-#if 0
-
 /**************************\
 | BINARY OPERATIONS
 \**************************/
 
-#define DECL_BINARY_STRUCT(name, operation) 							\
-	template<typename T>												\
-	struct name : public ConcreteBinaryFunction<T>						\
-	{																	\
-		T operator()(const T& x, const T& y) const						\
-		{																\
-			return operation;											\
-		}																\
-	};
-	
-#define DECL_BINARY_FUNC(structname, name, as, com, operation)			\
-	DECL_BINARY_STRUCT(structname, operation)							\
-	BinaryFunction name()												\
-	{																	\
-		return BinaryFunction(new structname<doubleint>(), as, com);	\
-	}																
 
-
-//// Custom Python callback
-template<typename T>
-struct binary_s: public ConcreteBinaryFunction<T>
-{
-	PyObject *pyfunc;
-
-	binary_s(PyObject *pyfunc_in): pyfunc(pyfunc_in)
-	{
-		Py_INCREF(pyfunc);
-	}
-	
-	~binary_s()
-	{
-		Py_DECREF(pyfunc);
-	}
-	
-	T operator()(const T& x, const T& y) const
-	{
-		PyObject *arglist;
-		PyObject *result;
-		double dres = 0;
-		
-		arglist = Py_BuildValue("(d d)", static_cast<double>(x), static_cast<double>(y));    // Build argument list
-		result = PyEval_CallObject(pyfunc,arglist);     // Call Python
-		Py_DECREF(arglist);                             // Trash arglist
-		if (result) {                                   // If no errors, return double
-			dres = PyFloat_AsDouble(result);
-		}
-		Py_XDECREF(result);
-		return T(dres);
-	} 
-};
-
-BinaryFunction binary(PyObject *pyfunc)
+BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm)
 {
 	// assumed to be associative but not commutative
-	return BinaryFunction(new binary_s<doubleint>(pyfunc), true, false);
+	return BinaryFunctionObj(pyfunc, true, comm);
 }
 
 /**************************\
 | METHODS
 \**************************/
-BinaryFunction* BinaryFunction::currentlyApplied = NULL;
-MPI_Op BinaryFunction::staticMPIop;
+BinaryFunctionObj* BinaryFunctionObj::currentlyApplied = NULL;
+MPI_Op BinaryFunctionObj::staticMPIop;
 	
-void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
-	doubleint* in = (doubleint*)invec;
-	doubleint* inout = (doubleint*)inoutvec;
-	
-	for (int i = 0; i < *len; i++)
+	if (*datatype == MPIType< Obj1 >())
+		applyWorker(static_cast<Obj1*>(invec), static_cast<Obj1*>(inoutvec), len);
+	else if (*datatype == MPIType< Obj2 >())
+		applyWorker(static_cast<Obj2*>(invec), static_cast<Obj2*>(inoutvec), len);
+	else
 	{
-		inout[i] = (*currentlyApplied)(in[i], inout[i]);
+		cout << "There is an internal error in applying a BinaryFunctionObj: Unknown datatype." << endl;
+		std::exit(1);
 	}
 }
 
-MPI_Op* BinaryFunction::getMPIOp()
+MPI_Op* BinaryFunctionObj::getMPIOp()
 {
 	//cout << "setting mpi op" << endl;
 	if (currentlyApplied != NULL)
 	{
-		cout << "There is an internal error in creating a MPI version of a BinaryFunction: Conflict between two BFs." << endl;
+		cout << "There is an internal error in creating an MPI version of a BinaryFunctionObj: Conflict between two BFOs." << endl;
 		std::exit(1);
 	}
 	else if (currentlyApplied == this)
@@ -147,18 +94,17 @@ MPI_Op* BinaryFunction::getMPIOp()
 	}
 
 	currentlyApplied = this;
-	MPI_Op_create(BinaryFunction::apply, commutable, &staticMPIop);
+	MPI_Op_create(BinaryFunctionObj::apply, commutable, &staticMPIop);
 	return &staticMPIop;
 }
 
-void BinaryFunction::releaseMPIOp()
+void BinaryFunctionObj::releaseMPIOp()
 {
 	//cout << "free mpi op" << endl;
 
 	if (currentlyApplied == this)
 		currentlyApplied = NULL;
 }
-#endif
 
 /**************************\
 | SEMIRING

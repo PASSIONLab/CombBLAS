@@ -65,31 +65,6 @@ UnaryFunction ifthenelse(UnaryFunction& predicate, UnaryFunction& runTrue, Unary
 UnaryFunction unary(PyObject *pyfunc);
 
 //INTERFACE_INCLUDE_END
-//////////////////////////////////////////////////////////////////////////////
-//INTERFACE_INCLUDE_BEGIN
-
-class ObjUnaryFunction {
-//INTERFACE_INCLUDE_END
-	public:
-	PyObject *pyfunc;
-	PyObject *arglist;
-
-//INTERFACE_INCLUDE_BEGIN
-
-	protected:
-	ObjUnaryFunction(): pyfunc(NULL), arglist(NULL) {}
-	public:
-	
-	ObjUnaryFunction(PyObject *pyfunc_in);
-	
-	~ObjUnaryFunction();
-	
-	PyObject* operator()(PyObject* x);
-};
-
-ObjUnaryFunction obj_unary(PyObject *pyfunc);
-
-//INTERFACE_INCLUDE_END
 
 ///////////////////////////////////////////////////////////////////////////////
 

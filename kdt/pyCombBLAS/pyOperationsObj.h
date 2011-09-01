@@ -15,21 +15,21 @@ class UnaryPredicateObj {
 	PyObject *callback;
 	UnaryPredicateObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
-	public:
-	~UnaryPredicateObj() { Py_XDECREF(callback); }
-
 	template <class T>
-	bool call(const T& x, swig_type_info *typeinfo) const;
+	bool call(const T& x) const;
 	
 //INTERFACE_INCLUDE_BEGIN
-	bool operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
-	bool operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	bool operator()(const Obj2& x) const { return call(x); }
+	bool operator()(const Obj1& x) const { return call(x); }
 
 	protected:
 	UnaryPredicateObj() { // should never be called
 		printf("UnaryPredicateObj()!!!\n");
 		callback = NULL;
 	}
+
+	public:
+	~UnaryPredicateObj() { Py_XDECREF(callback); }
 };
 
 class UnaryFunctionObj {
@@ -38,37 +38,37 @@ class UnaryFunctionObj {
 	PyObject *callback;
 	UnaryFunctionObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
-	public:
-	~UnaryFunctionObj() { Py_XDECREF(callback); }
-	
 	template <class T>
-	T call(const T& x, swig_type_info *typeinfo) const;
+	T call(const T& x) const;
 
 //INTERFACE_INCLUDE_BEGIN
-	Obj2 operator()(const Obj2& x) const { return call(x, SWIGTYPE_p_Obj2); }
-	Obj1 operator()(const Obj1& x) const { return call(x, SWIGTYPE_p_Obj1); }
+	Obj2 operator()(const Obj2& x) const { return call(x); }
+	Obj1 operator()(const Obj1& x) const { return call(x); }
 	
 	protected:
 	UnaryFunctionObj() { // should never be called
 		printf("UnaryFunctionObj()!!!\n");
 		callback = NULL;
 	}
-};
-//INTERFACE_INCLUDE_END
 
+	public:
+	~UnaryFunctionObj() { Py_XDECREF(callback); }
+};
+
+//INTERFACE_INCLUDE_END
 template <class T>
-T UnaryFunctionObj::call(const T& x, swig_type_info *typeinfo) const
+T UnaryFunctionObj::call(const T& x) const
 {
 	PyObject *resultPy;
 	T *pret;	
 
 	T tempObj = x;
-	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, typeinfo, 0);
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
 	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
 	
 	resultPy = PyEval_CallObject(callback,vertexArgList);  
 
-	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, typeinfo,  0  | 0)) && pret != NULL) {
+	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, T::SwigTypeInfo,  0  | 0)) && pret != NULL) {
 		T ret = T(*pret);
 		Py_XDECREF(tempSwigObj);
 		Py_XDECREF(vertexArgList);
@@ -86,13 +86,13 @@ T UnaryFunctionObj::call(const T& x, swig_type_info *typeinfo) const
 // This function is identical to UnaryFunctionObj::call() except that it returns a boolean instead
 // of an object. Please keep the actual calling method the same if you make any changes.
 template <class T>
-bool UnaryPredicateObj::call(const T& x, swig_type_info *typeinfo) const
+bool UnaryPredicateObj::call(const T& x) const
 {
 	PyObject *resultPy;
 	T *pret;	
 
 	T tempObj = x;
-	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, typeinfo, 0);
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
 	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
 	
 	resultPy = PyEval_CallObject(callback,vertexArgList);  
@@ -116,73 +116,88 @@ bool UnaryPredicateObj::call(const T& x, swig_type_info *typeinfo) const
 UnaryFunctionObj unaryObj(PyObject *pyfunc);
 UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
-#if 0
 //INTERFACE_INCLUDE_BEGIN
-class BinaryFunctionE {
+class BinaryFunctionObj {
 //INTERFACE_INCLUDE_END
 	public:
-	ConcreteBinaryFunction<Obj2>* op;
-	
-	BinaryFunctionE(ConcreteBinaryFunction<Obj2>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
+	PyObject *callback;
+
+	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): callback(pyfunc), commutable(com), associative(as) { Py_INCREF(callback); }
 
 	// for creating an MPI_Op that can be used with MPI Reduce
 	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
-	static BinaryFunctionE* currentlyApplied;
+	template <class T1, class T2>
+	static void applyWorker(T1 * in, T2 * inout, int * len);
+
+	static BinaryFunctionObj* currentlyApplied;
 	static MPI_Op staticMPIop;
 	
 	MPI_Op* getMPIOp();
 	void releaseMPIOp();
+
+	template <class RET, class T1, class T2>
+	RET call(const T1& x, const T2& y) const;
 	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	BinaryFunctionE(): op(NULL), commutable(false), associative(false) {}
+	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
 	public:
-	~BinaryFunctionE() { /*delete op; op = NULL;*/ }
+	~BinaryFunctionObj() { Py_XDECREF(callback); }
 	
 	bool commutable;
 	bool associative;
 	
-	Obj2 operator()(const Obj2& x, const Obj2& y) const
-	{
-		return (*op)(x, y);
-	}
+	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
 
 };
-class BinaryFunctionV {
+
+BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
+
 //INTERFACE_INCLUDE_END
-	public:
-	ConcreteBinaryFunction<Obj1>* op;
-	
-	BinaryFunctionV(ConcreteBinaryFunction<Obj1>* opin, bool as, bool com): op(opin), commutable(com), associative(as) {  }
+template <class RET, class T1, class T2>
+RET BinaryFunctionObj::call(const T1& x, const T2& y) const
+{
+	PyObject *resultPy;
+	RET *pret;	
 
-	// for creating an MPI_Op that can be used with MPI Reduce
-	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
-	static BinaryFunctionV* currentlyApplied;
-	static MPI_Op staticMPIop;
+	T1 tempObj1 = x;
+	T2 tempObj2 = y;
+	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
+	PyObject *tempSwigObj2 = SWIG_NewPointerObj(&tempObj2, T2::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O O)", tempSwigObj1, tempSwigObj2);
 	
-	MPI_Op* getMPIOp();
-	void releaseMPIOp();
-	
-//INTERFACE_INCLUDE_BEGIN
-	protected:
-	BinaryFunctionV(): op(NULL), commutable(false), associative(false) {}
-	public:
-	~BinaryFunctionV() { /*delete op; op = NULL;*/ }
-	
-	bool commutable;
-	bool associative;
-	
-	Obj1 operator()(const Obj1& x, const Obj1& y) const
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, RET::SwigTypeInfo,  0  | 0)) && pret != NULL) {
+		RET ret = RET(*pret);
+		Py_XDECREF(tempSwigObj1);
+		Py_XDECREF(tempSwigObj2);
+		Py_XDECREF(vertexArgList);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
 	{
-		return (*op)(x, y);
+		Py_XDECREF(tempSwigObj1);
+		Py_XDECREF(tempSwigObj2);
+		Py_XDECREF(vertexArgList);
+		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		return RET();
 	}
+}
 
-};
+template <class T1, class T2>
+void BinaryFunctionObj::applyWorker(T1 * in, T2 * inout, int * len)
+{
+	for (int i = 0; i < *len; i++)
+	{
+		inout[i] = (*currentlyApplied)(in[i], inout[i]);
+	}
+}
 
-BinaryFunction binaryE(PyObject *pyfunc);
-BinaryFunction binaryV(PyObject *pyfunc);
+//INTERFACE_INCLUDE_BEGIN
 
-#endif
+
 /*
 class Semiring {
 //INTERFACE_INCLUDE_END
@@ -274,9 +289,6 @@ Semiring SecondMaxSemiring();
 // This call is only safe when between BinaryFunction.getMPIOp() and releaseMPIOp() calls.
 // That should be safe enough, because this is only called from inside CombBLAS reduce operations,
 // which only get called between getMPIOp() and releaseMPIOp().
-#if 0
-template<> struct MPIOp< op::BinaryFunctionE, Obj2 > {  static MPI_Op op() { return op::BinaryFunctionE::staticMPIop; } };
-template<> struct MPIOp< op::BinaryFunctionV, Obj1 > {  static MPI_Op op() { return op::BinaryFunctionV::staticMPIop; } };
-#endif
+template<typename T> struct MPIOp< op::BinaryFunctionObj, T > {  static MPI_Op op() { return op::BinaryFunctionObj::staticMPIop; } };
 
 #endif
