@@ -54,22 +54,35 @@ class Semiring;
 
 class pySpParMat;
 class pySpParMatBool;
+class pySpParMatObj1;
+class pySpParMatObj2;
 class pySpParVec;
 class pySpParVecObj1;
 class pySpParVecObj2;
 class pyDenseParVec;
-class pyObjDenseParVec;
+class pyDenseParVecObj1;
+class pyDenseParVecObj2;
+
+template <typename RET, typename T1=RET, typename T2=RET>
+class use2nd
+{
+public:
+	const RET& operator()(const T1& a, const T2& b) const { return b; }
+};
 
 #include "obj.h"
 #include "pyOperations.h"
 #include "pyOperationsObj.h"
 #include "pySpParMat.h"
 #include "pySpParMatBool.h"
+#include "pySpParMatObj1.h"
+#include "pySpParMatObj2.h"
 #include "pySpParVec.h"
 #include "pySpParVecObj1.h"
 #include "pySpParVecObj2.h"
 #include "pyDenseParVec.h"
-//#include "pyDenseParVecObj.h"
+#include "pyDenseParVecObj1.h"
+#include "pyDenseParVecObj2.h"
 
 extern "C" {
 void init_pyCombBLAS_MPI();

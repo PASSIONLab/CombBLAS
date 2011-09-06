@@ -1413,6 +1413,10 @@ kdt/pyCombBLAS/pySpParMat.cpp -text
 kdt/pyCombBLAS/pySpParMat.h -text
 kdt/pyCombBLAS/pySpParMatBool.cpp -text
 kdt/pyCombBLAS/pySpParMatBool.h -text
+kdt/pyCombBLAS/pySpParMatObj1.cpp -text
+kdt/pyCombBLAS/pySpParMatObj1.h -text
+kdt/pyCombBLAS/pySpParMatObj2.cpp -text
+kdt/pyCombBLAS/pySpParMatObj2.h -text
 kdt/pyCombBLAS/pySpParVec.cpp -text
 kdt/pyCombBLAS/pySpParVec.h -text
 kdt/pyCombBLAS/pySpParVecObj1.cpp -text

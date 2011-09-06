@@ -21,6 +21,19 @@ public:
 		sprintf(temp,"[ %lf, %d ]", weight,type);
 		return &temp[0];
 	}
+	
+	bool __eq__(const Obj1& other) const {
+		return weight == other.weight && type == other.type;
+	}
+
+	bool __neq__(const Obj1& other) const {
+		return !(__eq__(other));
+	}
+
+	// For sorting
+	bool __lt__(const Obj1& other) const {
+		return weight < other.weight;
+	}
 
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
@@ -34,10 +47,19 @@ public:
 
 //INTERFACE_INCLUDE_END
 	Obj1(int64_t val) {}
+	//Obj1(bool val) {}
 
-	bool operator==(const Obj1& other)
-	{
-		return this == &other;
+	bool operator==(const Obj1& other) const {
+		return __eq__(other);
+	}
+
+	bool operator!=(const Obj1& other) const {
+		return __neq__(other);
+	}
+
+	// For sorting
+	bool operator<(const Obj1& other) const {
+		return __lt__(other);
 	}
 	
 	static swig_type_info*& SwigTypeInfo;
@@ -61,6 +83,19 @@ public:
 		return &temp[0];
 	}
 	
+	bool __eq__(const Obj2& other) const {
+		return weight == other.weight && type == other.type;
+	}
+
+	bool __neq__(const Obj2& other) const {
+		return !(operator==(other));
+	}
+
+	// For sorting
+	bool __lt__(const Obj2& other) const {
+		return weight < other.weight;
+	}
+
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
@@ -74,11 +109,19 @@ public:
 //INTERFACE_INCLUDE_END
 	Obj2(int64_t val) {}
 
-	bool operator==(const Obj2& other)
-	{
-		return this == &other;
+	bool operator==(const Obj2& other) const {
+		return __eq__(other);
 	}
-	
+
+	bool operator!=(const Obj2& other) const {
+		return __neq__(other);
+	}
+
+	// For sorting
+	bool operator<(const Obj2& other) const {
+		return __lt__(other);
+	}
+
 	static swig_type_info*& SwigTypeInfo;
 
 //INTERFACE_INCLUDE_BEGIN
@@ -102,8 +145,11 @@ inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const O
 
 
 // From CombBLAS/promote.h:
-DECLARE_PROMOTE(Obj2, Obj2, Obj2)
 DECLARE_PROMOTE(Obj1, Obj1, Obj1)
+DECLARE_PROMOTE(Obj2, Obj2, Obj2)
+
+DECLARE_PROMOTE(bool, Obj1, Obj1)
+DECLARE_PROMOTE(Obj1, bool, Obj1)
 
 // From CombBLAS/MPIType.h
 #ifndef PYCOMBBLAS_CPP

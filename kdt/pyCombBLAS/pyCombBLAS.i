@@ -190,6 +190,136 @@ pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, boo
 pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 
+class pySpParMatObj1 {
+public:
+	pySpParMatObj1();
+	pySpParMatObj1(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVecObj1* vals);
+
+public:
+	//int64_t getnnz();
+	int64_t getnee();
+	int64_t getnrow();
+	int64_t getncol();
+	
+public:	
+	void load(const char* filename);
+	void save(const char* filename);
+	
+	//double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);
+	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
+	
+public:
+	pySpParMatObj1 copy();
+	//pySpParMatObj1& operator+=(const pySpParMatObj1& other);
+	pySpParMatObj1& assign(const pySpParMatObj1& other);
+	//pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::Semiring* sring = NULL);
+	//pySpParMatObj1 operator*(pySpParMatObj1& other);
+#define NOPARMATSUBSREF
+	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatObj1 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	
+	int64_t removeSelfLoops();
+	
+	void Apply(op::UnaryFunctionObj* f);
+	void ColWiseApply(const pySpParVecObj1& values, op::BinaryFunctionObj* f);
+	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
+	void Prune(op::UnaryPredicateObj* pred);
+	int64_t Count(op::UnaryPredicateObj* pred);
+	
+	// Be wary of identity value with min()/max()!!!!!!!
+	pyDenseParVecObj1 Reduce(int dim, op::BinaryFunctionObj* f, Obj1 identity = Obj1());
+	pyDenseParVecObj1 Reduce(int dim, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
+	
+	void Transpose();
+	//void EWiseMult(pySpParMatObj1* rhs, bool exclude);
+
+	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj1* outvals) const;
+public:
+/*
+	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
+	pySpParVec SpMV_SelMax(const pySpParVec& x);
+	void SpMV_SelMax_inplace(pySpParVec& x);
+
+	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+*/
+
+public:
+	static int Column() { return ::Column; }
+	static int Row() { return ::Row; }
+};
+
+//pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
+
+
+class pySpParMatObj2 {
+public:
+	pySpParMatObj2();
+	pySpParMatObj2(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVecObj2* vals);
+
+public:
+	//int64_t getnnz();
+	int64_t getnee();
+	int64_t getnrow();
+	int64_t getncol();
+	
+public:	
+	void load(const char* filename);
+	void save(const char* filename);
+	
+	//double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);
+	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
+	
+public:
+	pySpParMatObj2 copy();
+	//pySpParMatObj2& operator+=(const pySpParMatObj2& other);
+	pySpParMatObj2& assign(const pySpParMatObj2& other);
+	//pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::Semiring* sring = NULL);
+	//pySpParMatObj2 operator*(pySpParMatObj2& other);
+#define NOPARMATSUBSREF
+	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatObj2 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	
+	int64_t removeSelfLoops();
+	
+	void Apply(op::UnaryFunctionObj* f);
+	void ColWiseApply(const pySpParVecObj2& values, op::BinaryFunctionObj* f);
+	void DimWiseApply(int dim, const pyDenseParVecObj2& values, op::BinaryFunctionObj* f);
+	void Prune(op::UnaryPredicateObj* pred);
+	int64_t Count(op::UnaryPredicateObj* pred);
+	
+	// Be wary of identity value with min()/max()!!!!!!!
+	pyDenseParVecObj2 Reduce(int dim, op::BinaryFunctionObj* f, Obj2 identity = Obj2());
+	pyDenseParVecObj2 Reduce(int dim, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());
+	
+	void Transpose();
+	//void EWiseMult(pySpParMatObj2* rhs, bool exclude);
+
+	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj2* outvals) const;
+public:
+/*
+	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
+	pySpParVec SpMV_SelMax(const pySpParVec& x);
+	void SpMV_SelMax_inplace(pySpParVec& x);
+
+	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+*/
+
+public:
+	static int Column() { return ::Column; }
+	static int Row() { return ::Row; }
+};
+
+//pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
+
+
 class pySpParVec {
 public:
 	pySpParVec(int64_t length);
@@ -281,7 +411,7 @@ class pySpParVecObj1 {
 public:
 	pySpParVecObj1(int64_t length);
 	
-	//pyDenseParVec dense() const;
+	pyDenseParVecObj1 dense() const;
 
 public:
 	int64_t getnee() const;
@@ -319,12 +449,12 @@ public:
 	void Apply(op::UnaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj1& mask);
 
-	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
 	
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
-	//pySpParVecObj1 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
@@ -337,21 +467,23 @@ public:
 	void __delitem__(int64_t key);
 	
 	Obj1 __getitem__(int64_t key);
-	//Obj1 __getitem__(Obj1  key);
-	//pyDenseParVec __getitem__(const pyDenseParVec& key);
+	Obj1 __getitem__(double key);
+	pyDenseParVecObj1 __getitem__(const pyDenseParVec& key);
 	
 	void __setitem__(int64_t key, const Obj1 *value);
-	//void __setitem__(Obj1  key, Obj1 value);
-	//void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
+	void __setitem__(double key, const Obj1 *value);
+	//void __setitem__(const pyDenseParVec& key, const pyDenseParVecObj1& value);
 	//void __setitem__(const pyDenseParVec& key, int64_t value);
 	void __setitem__(const char* key, const Obj1 *value);	
 	
 	char* __repr__();
 	
 	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:
@@ -369,7 +501,7 @@ class pySpParVecObj2 {
 public:
 	pySpParVecObj2(int64_t length);
 	
-	//pyDenseParVec dense() const;
+	pyDenseParVecObj2 dense() const;
 
 public:
 	int64_t getnee() const;
@@ -407,12 +539,12 @@ public:
 	void Apply(op::UnaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj2& mask);
 
-	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 	
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
-	//pySpParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
@@ -425,21 +557,23 @@ public:
 	void __delitem__(int64_t key);
 	
 	Obj2 __getitem__(int64_t key);
-	//Obj2 __getitem__(Obj2  key);
-	//pyDenseParVec __getitem__(const pyDenseParVec& key);
+	Obj2 __getitem__(double key);
+	pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
 	
 	void __setitem__(int64_t key, const Obj2 *value);
-	//void __setitem__(Obj2  key, Obj2 value);
-	//void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
+	void __setitem__(double key, const Obj2 *value);
+	//void __setitem__(const pyDenseParVec& key, const pyDenseParVecObj2& value);
 	//void __setitem__(const pyDenseParVec& key, int64_t value);
 	void __setitem__(const char* key, const Obj2 *value);	
 	
 	char* __repr__();
 	
 	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:
@@ -539,13 +673,12 @@ public:
 	void __setitem__(const pySpParVec& key, double value);
 };
 
-/*
+
 class pyDenseParVecObj1 {
 public:
-	pyDenseParVecObj1(int64_t size, double init);
-	pyDenseParVecObj1(int64_t size, double init, double zero);
+	pyDenseParVecObj1(int64_t size, Obj1 init);
 	
-	pySpParVecObj1 sparse() const;
+	pySpParVecObj1 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj1 sparse(double zero) const;
 	
 public:
@@ -557,11 +690,11 @@ public:
 
 	pyDenseParVecObj1 copy();
 	
-	//pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
 
 	void RandPerm(); // Randomly permutes the vector
-	//pyDenseParVecObj1 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
+	pyDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
 
 	void printall();
 	
@@ -577,14 +710,16 @@ public:
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
-	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj1 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj1 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVecObj1 FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
@@ -592,22 +727,23 @@ public:
 public:
 	// Functions from PyCombBLAS
 	
-	double __getitem__(int64_t key);
-	//pyDenseParVecObj1 __getitem__(const pyDenseParVec& key);
+	Obj1 __getitem__(int64_t key);
+	pyDenseParVecObj1 __getitem__(const pyDenseParVec& key);
 
-	void __setitem__(int64_t key, double value);
-	//void __setitem__(const pySpParVec& key, const pySpParVec& value);
-	//void __setitem__(const pySpParVec& key, double value);
+	void __setitem__(int64_t key, Obj1 * value);
+	//void __setitem__(const pySpParVec& key, const pySpParVecObj1& value);
+	void __setitem__(const pySpParVec& key, Obj1 * value);
+	
+	char* __repr__();
 };
-*/
 
-/*
+
+
 class pyDenseParVecObj2 {
 public:
-	pyDenseParVecObj2(int64_t size, double init);
-	pyDenseParVecObj2(int64_t size, double init, double zero);
+	pyDenseParVecObj2(int64_t size, Obj2 init);
 	
-	pySpParVecObj2 sparse() const;
+	pySpParVecObj2 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj2 sparse(double zero) const;
 	
 public:
@@ -619,11 +755,11 @@ public:
 
 	pyDenseParVecObj2 copy();
 	
-	//pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 
 	void RandPerm(); // Randomly permutes the vector
-	//pyDenseParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
+	pyDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
 
 	void printall();
 	
@@ -639,14 +775,16 @@ public:
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
-	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVecObj2 FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);
@@ -654,14 +792,16 @@ public:
 public:
 	// Functions from PyCombBLAS
 	
-	double __getitem__(int64_t key);
-	//pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
+	Obj2 __getitem__(int64_t key);
+	pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
 
-	void __setitem__(int64_t key, double value);
-	//void __setitem__(const pySpParVec& key, const pySpParVec& value);
-	//void __setitem__(const pySpParVec& key, double value);
+	void __setitem__(int64_t key, Obj2 * value);
+	//void __setitem__(const pySpParVec& key, const pySpParVecObj2& value);
+	void __setitem__(const pySpParVec& key, Obj2 * value);
+	
+	char* __repr__();
 };
-*/
+
 
 namespace op {
 
@@ -783,6 +923,19 @@ public:
 		sprintf(temp,"[ %lf, %d ]", weight,type);
 		return &temp[0];
 	}
+	
+	bool __eq__(const Obj1& other) const {
+		return weight == other.weight && type == other.type;
+	}
+
+	bool __neq__(const Obj1& other) const {
+		return !(__eq__(other));
+	}
+
+	// For sorting
+	bool __lt__(const Obj1& other) const {
+		return weight < other.weight;
+	}
 
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
@@ -812,6 +965,19 @@ public:
 		return &temp[0];
 	}
 	
+	bool __eq__(const Obj2& other) const {
+		return weight == other.weight && type == other.type;
+	}
+
+	bool __neq__(const Obj2& other) const {
+		return !(operator==(other));
+	}
+
+	// For sorting
+	bool __lt__(const Obj2& other) const {
+		return weight < other.weight;
+	}
+
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
@@ -869,6 +1035,8 @@ class BinaryFunctionObj {
 	
 	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
 
 };
 
