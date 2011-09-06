@@ -120,13 +120,13 @@ public:
 		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
 	}	
 
-	template <typename _UnaryOperation>
-	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,NT>& mask);
+	template <typename _UnaryOperation, typename IRRELEVANT_NT>
+	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT>& mask);
 
-	template <typename _BinaryOperation>
-	void EWiseApply(const FullyDistVec<IT,NT> & other, _BinaryOperation __binary_op);
-	template <typename _BinaryOperation>
-	void EWiseApply(const FullyDistSpVec<IT,NT> & other, _BinaryOperation __binary_op, bool applyNulls, NT nullValue);
+	template <typename _BinaryOperation, class NT2>
+	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op);
+	template <typename _BinaryOperation, class NT2>
+	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, bool applyNulls, NT2 nullValue);
 	
 	void PrintToFile(string prefix)
 	{

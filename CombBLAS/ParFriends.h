@@ -2136,11 +2136,11 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply
     	}
 }
 
-template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply 
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+FullyDistSpVec<IU,RET> EWiseApply 
 	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, bool allowVNulls, bool allowWNulls)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+	typedef RET T_promote; // typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
 	{
 		FullyDistSpVec< IU, T_promote> Product(V.commGrid);

@@ -528,8 +528,8 @@ void FullyDistVec<IT,NT>::DebugPrint()
 }
 
 template <class IT, class NT>
-template <typename _UnaryOperation>
-void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,NT> & mask)
+template <typename _UnaryOperation, typename IRRELEVANT_NT>
+void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT> & mask)
 {
 	typename vector< IT >::const_iterator miter = mask.ind.begin();
 	while (miter < mask.ind.end())
@@ -540,8 +540,8 @@ void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec
 }	
 
 template <class IT, class NT>
-template <typename _BinaryOperation>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT> & other, _BinaryOperation __binary_op)
+template <typename _BinaryOperation, class NT2>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -553,7 +553,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT> & other, _BinaryO
 		else
 		{
 			typename vector< NT >::iterator thisIter = arr.begin();
-			typename vector< NT >::const_iterator otherIter = other.arr.begin();
+			typename vector< NT2 >::const_iterator otherIter = other.arr.begin();
 			while (thisIter < arr.end())
 			{
 				*thisIter = __binary_op(*thisIter, *otherIter);
@@ -570,8 +570,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT> & other, _BinaryO
 }	
 
 template <class IT, class NT>
-template <typename _BinaryOperation>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _BinaryOperation __binary_op, bool applyNulls, NT nullValue)
+template <typename _BinaryOperation, class NT2>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, bool applyNulls, NT2 nullValue)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -583,7 +583,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT> & other, _Binar
 		else
 		{
 			typename vector< IT >::const_iterator otherInd = other.ind.begin();
-			typename vector< NT >::const_iterator otherNum = other.num.begin();
+			typename vector< NT2 >::const_iterator otherNum = other.num.begin();
 			
 			if (applyNulls) // scan the entire dense vector and apply sparse elements as they appear
 			{
@@ -624,7 +624,7 @@ template <class IT, class NT>
 FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	FullyDistVec<IT,IT> temp(commGrid,zero);
+	FullyDistVec<IT,IT> temp(commGrid,IT());
 	IT nnz = LocArrSize(); 
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
 	int nprocs = World.Get_size();
@@ -662,7 +662,7 @@ void FullyDistVec<IT,NT>::RandPerm()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
 	IT size = LocArrSize();
-	pair<double,IT> * vecpair = new pair<double,IT>[size];
+	pair<double,NT> * vecpair = new pair<double,NT>[size];
 	int nprocs = World.Get_size();
 	int rank = World.Get_rank();
 	IT * dist = new IT[nprocs];
@@ -736,7 +736,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,zero);
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,0);
 	IT * recvbuf = new IT[totrecv];
 
 	for(int i=0; i<nprocs; ++i)
