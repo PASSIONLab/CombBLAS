@@ -15,7 +15,7 @@ LINKFLAGS = #-undefined dynamic_lookup
 
 all: pyCombBLAS.py
 
-pyCombBLAS.i: pyCombBLAS.i.templ pyDenseParVecObj1.h pyDenseParVecObj2.h pyDenseParVec.h pySpParVec.h pySpParVecObj1.h pySpParVecObj2.h pySpParMat.h pySpParMatBool.h obj.h pyOperationsObj.h pyOperations.h pyCombBLAS.h
+pyCombBLAS.i: pyCombBLAS.i.templ pyCombBLAS.h
 	python makei.py pyCombBLAS.i.templ pyCombBLAS.i
 
 pyCombBLAS_wrap.cpp: pyCombBLAS.i
@@ -24,17 +24,24 @@ pyCombBLAS_wrap.cpp: pyCombBLAS.i
 
 swigpyrun.h: pyCombBLAS_wrap.cpp
 
-pyCombBLAS.h: obj.h swigpyrun.h
+pyCombBLAS.h: obj.h swigpyrun.h pyDenseParVecObj1.h pyDenseParVecObj2.h pyDenseParVec.h pySpParVec.h pySpParVecObj1.h pySpParVecObj2.h pySpParMat.h pySpParMatObj1.h pySpParMatObj2.h pySpParMatBool.h obj.h pyOperationsObj.h pyOperations.h
 
 %Obj2.h: %Obj1.h
 	cp $< $@
+	sed -i 's/Obj2/Obj2BACK/g' $@
 	sed -i 's/Obj1/Obj2/g' $@
+	sed -i 's/Obj2BACK/Obj1/g' $@
 
 %Obj2.cpp: %Obj1.cpp
 	cp $< $@
+	sed -i 's/Obj2/Obj2BACK/g' $@
 	sed -i 's/Obj1/Obj2/g' $@
+	sed -i 's/Obj2BACK/Obj1/g' $@
 
-pyCombBLAS_wrap.o: pyCombBLAS_wrap.cpp
+# This is to keep Make from deleting the *Obj2.* files because it thinks they're intermediaries. 
+.SECONDARY: pySpParVecObj2.h pySpParVecObj2.cpp pyDenseParVecObj2.h pyDenseParVecObj2.cpp pySpParMatObj2.h pySpParMatObj2.cpp
+
+pyCombBLAS_wrap.o: pyCombBLAS_wrap.cpp pyCombBLAS.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c $< -o $@
 
 %.o : %.cpp %.h pyCombBLAS.h
@@ -59,8 +66,8 @@ libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
-_pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyOperations.h pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LINKFLAGS)
+_pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParMatObj1.o pySpParMatObj2.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyOperations.h pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParMatObj1.o pySpParMatObj2.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 	cp -f _pyCombBLAS.so ..
 	cp -f pyCombBLAS.py ..
 
