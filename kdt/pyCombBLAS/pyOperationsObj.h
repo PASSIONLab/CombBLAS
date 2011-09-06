@@ -149,6 +149,8 @@ class BinaryFunctionObj {
 	
 	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
 
 };
 

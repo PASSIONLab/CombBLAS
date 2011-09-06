@@ -19,17 +19,16 @@ pySpParVecObj1::pySpParVecObj1(VectType other): v(other)
 {
 }
 
-/*
-pyDenseParVec pySpParVecObj1::dense() const
+pyDenseParVecObj1 pySpParVecObj1::dense() const
 {
-	pyDenseParVec ret(v.TotalLength(), 0, v.GetZero());
-	ret.v += v;
+	pyDenseParVecObj1 ret(v.TotalLength(), Obj1());
+	ret.v.EWiseApply(v, use2nd<Obj1>(), false, Obj1());
 	return ret;
-}*/
+}
 
 int64_t pySpParVecObj1::getnee() const
 {
-	return v.TotalLength();
+	return v.getnnz();
 }
 
 /*int64_t pySpParVecObj1::getnnz() const
@@ -46,70 +45,6 @@ int64_t pySpParVecObj1::len() const
 {
 	return v.TotalLength();
 }
-
-/*
-pySpParVecObj1 pySpParVecObj1::operator+(const pySpParVecObj1& other)
-{
-	pySpParVecObj1 ret = copy();
-	ret.operator+=(other);
-	return ret;
-}
-
-pySpParVecObj1 pySpParVecObj1::operator-(const pySpParVecObj1& other)
-{
-	pySpParVecObj1 ret = copy();
-	ret.operator-=(other);
-	return ret;
-}*/
-
-/*
-pySpParVecObj1 pySpParVecObj1::operator+(const pyDenseParVec& other)
-{
-	pySpParVecObj1 ret = copy();
-	ret.operator+=(other);
-	return ret;
-}
-
-pySpParVecObj1 pySpParVecObj1::operator-(const pyDenseParVec& other)
-{
-	pySpParVecObj1 ret = copy();
-	ret.operator-=(other);
-	return ret;
-}*/
-
-/*
-pySpParVecObj1& pySpParVecObj1::operator+=(const pySpParVecObj1& other)
-{
-	v.operator+=(other.v);
-
-	return *this;
-}
-
-pySpParVecObj1& pySpParVecObj1::operator-=(const pySpParVecObj1& other)
-{
-	v -= other.v;
-	return *this;
-}*/
-
-/*
-pySpParVecObj1& pySpParVecObj1::operator+=(const pyDenseParVec& other)
-{
-	pyDenseParVec tmpd = dense();
-	tmpd.v += other.v;
-	pySpParVecObj1 tmps = tmpd.sparse();
-	this->v.stealFrom(tmps.v);
-	return *this;
-}
-
-pySpParVecObj1& pySpParVecObj1::operator-=(const pyDenseParVec& other)
-{
-	pyDenseParVec tmpd = dense();
-	tmpd.v -= other.v;
-	pySpParVecObj1 tmps = tmpd.sparse();
-	this->v.stealFrom(tmps.v);
-
-	return *this;
-}*/
 
 pySpParVecObj1 pySpParVecObj1::copy()
 {
@@ -187,11 +122,10 @@ pySpParVecObj1 pySpParVecObj1::SubsRef(const pySpParVecObj1& ri)
 	return pySpParVecObj1(v(ri.v));
 }*/
 
-/*
-pyDenseParVec pySpParVecObj1::SubsRef(const pyDenseParVec& ri)
+pyDenseParVecObj1 pySpParVecObj1::SubsRef(const pyDenseParVec& ri)
 {
-	return pyDenseParVec(v(ri.v));
-}*/
+	return pyDenseParVecObj1(v(ri.v));
+}
 
 
 Obj1 pySpParVecObj1::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
@@ -210,33 +144,41 @@ Obj1 pySpParVecObj1::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
 	return ret;
 }
 
-/*
-pySpParVecObj1 pySpParVecObj1::Sort()
+pySpParVec pySpParVecObj1::Sort()
 {
-	pySpParVecObj1 ret(0);
+	pySpParVec ret(0);
 	ret.v = v.sort();
 	return ret; // Sort is in-place. The return value is the permutation used.
-}*/
+}
 
-/*
-pyDenseParVec pySpParVecObj1::TopK(int64_t k)
+pyDenseParVecObj1 pySpParVecObj1::TopK(int64_t k)
 {
-	// FullyDistVec::FullyDistVec(IT glen, NT initval, NT id) 
-	FullyDistVec<INDEXTYPE,INDEXTYPE> sel(k, 0, 0);
+	//// FullyDistVec::FullyDistVec(IT glen, NT initval, NT id) 
+	//FullyDistVec<INDEXTYPE,INDEXTYPE> sel(k, 0, 0);
 	
-	//void FullyDistVec::iota(IT globalsize, NT first)
-	sel.iota(k, v.TotalLength() - k);
+	////void FullyDistVec::iota(IT globalsize, NT first)
+	//sel.iota(k, v.TotalLength() - k);
 	
 	FullyDistSpVec<INDEXTYPE,Obj1> sorted(v);
 	FullyDistSpVec<INDEXTYPE,INDEXTYPE> perm = sorted.sort();
+
+	FullyDistVec<INDEXTYPE,INDEXTYPE> sel(k, 0, 0);
+	sel.iota(k, perm.getnnz() - k);
 	
 	// FullyDistVec FullyDistSpVec::operator(FullyDistVec & v)
 	FullyDistVec<INDEXTYPE,INDEXTYPE> topkind = perm(sel);
+	cout << "perm: " << endl;
+	perm.DebugPrint();
+	cout << "sel: " << endl;
+	sel.DebugPrint();
+	cout << "topkind: " << endl;
+	topkind.DebugPrint();
+	
 	FullyDistVec<INDEXTYPE,Obj1> topkele = v(topkind);
 	//return make_pair(topkind, topkele);
 
-	return pyDenseParVec(topkele);
-}*/
+	return pyDenseParVecObj1(topkele);
+}
 
 void pySpParVecObj1::setNumToInd()
 {
@@ -268,35 +210,34 @@ Obj1 pySpParVecObj1::__getitem__(int64_t key)
 	return val;
 }
 
-/*Obj1 pySpParVecObj1::__getitem__(double key)
+Obj1 pySpParVecObj1::__getitem__(double key)
 {
 	return __getitem__(static_cast<int64_t>(key));
-}*/
+}
 
 /*
-pySpParVecObj1 pySpParVecObj1::__getitem__(const pySpParVecObj1& key)
+pySpParVecObj1 pySpParVecObj1::__getitem__(const pySpParVec& key)
 {
 	return SubsRef(key);
 }*/
 
-/*
-pyDenseParVec pySpParVecObj1::__getitem__(const pyDenseParVec& key)
+pyDenseParVecObj1 pySpParVecObj1::__getitem__(const pyDenseParVec& key)
 {
 	return SubsRef(key);
-}*/
+}
 
 void pySpParVecObj1::__setitem__(int64_t key, const Obj1* value)
 {
 	v.SetElement(key, *value);
 }
 
-/*void pySpParVecObj1::__setitem__(double  key, double value)
+void pySpParVecObj1::__setitem__(double  key, const Obj1* value)
 {
 	__setitem__(static_cast<int64_t>(key), value);
-}*/
+}
 
 /*
-void pySpParVecObj1::__setitem__(const pyDenseParVec& key, const pyDenseParVec& value)
+void pySpParVecObj1::__setitem__(const pyDenseParVec& key, const pyDenseParVecObj1& value)
 {
 	if (__len__() != key.__len__())
 	{
@@ -321,21 +262,28 @@ void pySpParVecObj1::__setitem__(const char* key, const Obj1* value)
 
 char* pySpParVecObj1::__repr__()
 {
+	static char empty[] = {'\0'};
 	printall();
-	return " ";
+	return empty;
 }
 
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
 {
-	return pySpParVecObj1(EWiseApply(a.v, b.v, *op, allowANulls, allowBNulls));
+	return pySpParVecObj1(EWiseApply<Obj1>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVecObj1(EWiseApply<Obj1>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
 
 /*
 pySpParVecObj1 pySpParVecObj1::zeros(int64_t howmany)
 {
 	return pySpParVecObj1(howmany);
-}
+}*/
 
+/*
 pySpParVecObj1 pySpParVecObj1::range(int64_t howmany, int64_t start)
 {
 	pySpParVecObj1 ret(howmany);

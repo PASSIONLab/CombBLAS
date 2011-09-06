@@ -15,7 +15,8 @@ protected:
 
 	//friend class pySpParMat;
 	//friend class pySpParMatBool;
-	//friend class pyDenseParVec;
+	friend class pyDenseParVecObj2;
+	friend class pyDenseParVecObj1;
 	
 	friend pySpParVecObj2 EWiseMult(const pySpParVecObj2& a, const pySpParVecObj2& b, bool exclude);
 	//friend pySpParVecObj2 EWiseMult(const pySpParVecObj2& a, const pyDenseParVec& b, bool exclude, Obj2 zero);
@@ -29,7 +30,7 @@ protected:
 public:
 	pySpParVecObj2(int64_t length);
 	
-	//pyDenseParVec dense() const;
+	pyDenseParVecObj2 dense() const;
 
 public:
 	int64_t getnee() const;
@@ -67,12 +68,12 @@ public:
 	void Apply(op::UnaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj2& mask);
 
-	//pyDenseParVec SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 	
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
-	//pySpParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
+	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
 	void setNumToInd();
 
@@ -85,21 +86,23 @@ public:
 	void __delitem__(int64_t key);
 	
 	Obj2 __getitem__(int64_t key);
-	//Obj2 __getitem__(Obj2  key);
-	//pyDenseParVec __getitem__(const pyDenseParVec& key);
+	Obj2 __getitem__(double key);
+	pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
 	
 	void __setitem__(int64_t key, const Obj2 *value);
-	//void __setitem__(Obj2  key, Obj2 value);
-	//void __setitem__(const pyDenseParVec& key, const pyDenseParVec& value);
+	void __setitem__(double key, const Obj2 *value);
+	//void __setitem__(const pyDenseParVec& key, const pyDenseParVecObj2& value);
 	//void __setitem__(const pyDenseParVec& key, int64_t value);
 	void __setitem__(const char* key, const Obj2 *value);	
 	
 	char* __repr__();
 	
 	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:

@@ -4,11 +4,11 @@
 #include "pyCombBLAS.h"
 
 //INTERFACE_INCLUDE_BEGIN
-/*
+
 class pyDenseParVecObj2 {
 //INTERFACE_INCLUDE_END
 	typedef int64_t INDEXTYPE;
-	typedef FullyDistVec<INDEXTYPE, doubleint> VectType;
+	typedef FullyDistVec<INDEXTYPE, Obj2> VectType;
 	
 	public:
 	VectType v;
@@ -16,6 +16,7 @@ class pyDenseParVecObj2 {
 protected:
 	
 	friend class pySpParVecObj2;
+	friend class pySpParVecObj1;
 	friend class pySpParMat;
 	friend class pySpParMatBool;
 
@@ -24,10 +25,9 @@ protected:
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
 public:
-	pyDenseParVecObj2(int64_t size, double init);
-	pyDenseParVecObj2(int64_t size, double init, double zero);
+	pyDenseParVecObj2(int64_t size, Obj2 init);
 	
-	pySpParVecObj2 sparse() const;
+	pySpParVecObj2 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj2 sparse(double zero) const;
 	
 public:
@@ -39,11 +39,11 @@ public:
 
 	pyDenseParVecObj2 copy();
 	
-	//pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
+	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 
 	void RandPerm(); // Randomly permutes the vector
-	//pyDenseParVecObj2 Sort(); // Does an in-place sort and returns the permutation used in the sort.
-	//pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
+	pyDenseParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
+	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
 
 	void printall();
 	
@@ -59,14 +59,16 @@ public:
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
-	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVecObj2 FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);
@@ -74,14 +76,16 @@ public:
 public:
 	// Functions from PyCombBLAS
 	
-	double __getitem__(int64_t key);
-	//pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
+	Obj2 __getitem__(int64_t key);
+	pyDenseParVecObj2 __getitem__(const pyDenseParVec& key);
 
-	void __setitem__(int64_t key, double value);
-	//void __setitem__(const pySpParVec& key, const pySpParVec& value);
-	//void __setitem__(const pySpParVec& key, double value);
+	void __setitem__(int64_t key, Obj2 * value);
+	//void __setitem__(const pySpParVec& key, const pySpParVecObj2& value);
+	void __setitem__(const pySpParVec& key, Obj2 * value);
+	
+	char* __repr__();
 };
-*/
+
 //INTERFACE_INCLUDE_END
 
 #endif

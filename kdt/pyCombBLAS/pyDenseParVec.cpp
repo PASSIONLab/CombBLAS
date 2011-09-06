@@ -90,7 +90,7 @@ pyDenseParVec& pyDenseParVec::operator*=(const pyDenseParVec & rhs)
 
 pyDenseParVec& pyDenseParVec::operator*=(const pySpParVec & rhs)
 {
-	v.EWiseApply(rhs.v, multiplies<doubleint>(), true, 0);
+	v.EWiseApply(rhs.v, multiplies<doubleint>(), true, doubleint(0.0));
 	return *this;
 }
 
@@ -224,7 +224,7 @@ void pyDenseParVec::EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f
 
 void pyDenseParVec::EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls, double nullValue)
 {
-	v.EWiseApply(other.v, *f, doNulls, nullValue);
+	v.EWiseApply(other.v, *f, doNulls, doubleint(nullValue));
 }
 	
 pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
