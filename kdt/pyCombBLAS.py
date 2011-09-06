@@ -187,7 +187,6 @@ class pySpParVec(_object):
     __del__ = lambda self : None;
 pySpParVec_swigregister = _pyCombBLAS.pySpParVec_swigregister
 pySpParVec_swigregister(pySpParVec)
-EWiseApply = _pyCombBLAS.EWiseApply
 pySpParVec_zeros = _pyCombBLAS.pySpParVec_zeros
 pySpParVec_range = _pyCombBLAS.pySpParVec_range
 
@@ -305,6 +304,7 @@ class pyDenseParVec(_object):
     __del__ = lambda self : None;
 pyDenseParVec_swigregister = _pyCombBLAS.pyDenseParVec_swigregister
 pyDenseParVec_swigregister(pyDenseParVec)
+EWiseApply = _pyCombBLAS.EWiseApply
 pyDenseParVec_range = _pyCombBLAS.pyDenseParVec_range
 
 class UnaryFunction(_object):

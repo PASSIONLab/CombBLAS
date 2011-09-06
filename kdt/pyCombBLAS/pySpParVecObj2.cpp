@@ -325,6 +325,11 @@ char* pySpParVecObj2::__repr__()
 	return " ";
 }
 
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVecObj2(EWiseApply(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
 /*
 pySpParVecObj2 pySpParVecObj2::zeros(int64_t howmany)
 {

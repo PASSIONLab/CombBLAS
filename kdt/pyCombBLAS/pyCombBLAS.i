@@ -347,15 +347,18 @@ public:
 	void __setitem__(const char* key, const Obj1 *value);	
 	
 	char* __repr__();
-
+	
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
+
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = false);
+
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
 //      - if Exclude is true, will remove from the result vector all elements
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
-
 
 //pySpParVecObj1 EWiseMult(const pySpParVecObj1& a, const pyDenseParVec& b, bool exclude, Obj1 zero);
 //void EWiseMult_inplacefirst(pySpParVecObj1& a, const pyDenseParVec& b, bool exclude, Obj1 zero);
@@ -432,15 +435,18 @@ public:
 	void __setitem__(const char* key, const Obj2 *value);	
 	
 	char* __repr__();
-
+	
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
+
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = false);
+
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
 //      - if Exclude is true, will remove from the result vector all elements
 //          whose corresponding element of the second vector is "nonzero"
 //          (i.e., not equal to the sparse vector's identity value)  '
-
 
 //pySpParVecObj2 EWiseMult(const pySpParVecObj2& a, const pyDenseParVec& b, bool exclude, Obj2 zero);
 //void EWiseMult_inplacefirst(pySpParVecObj2& a, const pyDenseParVec& b, bool exclude, Obj2 zero);
