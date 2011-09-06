@@ -2136,5 +2136,82 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply
     	}
 }
 
+template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, bool allowVNulls, bool allowWNulls)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+	if(*(V.commGrid) == *(W.commGrid))	
+	{
+		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
+		Product.zero = T_promote();
+		if(V.glen != W.glen)
+		{
+			cerr << "Vector dimensions don't match for EWiseApply\n";
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		else
+		{
+			Product.glen = V.glen;
+			
+			typename vector< IU  >::const_iterator indV = V.ind.begin();
+			typename vector< NU1 >::const_iterator numV = V.num.begin();
+			typename vector< IU  >::const_iterator indW = W.ind.begin();
+			typename vector< NU2 >::const_iterator numW = W.num.begin();
+			
+			while (indV < V.ind.end() && indW < W.ind.end())
+			{
+				if (*indV == *indW)
+				{
+					// overlap
+					Product.ind.push_back(*indV);
+					Product.num.push_back(_binary_op(*numV, *numW));
+					indV++; numV++;
+					indW++; numW++;
+				}
+				else if (*indV < *indW)
+				{
+					// V has value but W does not
+					if (allowWNulls)
+					{
+						Product.ind.push_back(*indV);
+						Product.num.push_back(_binary_op(*numV, NU2()));
+					}
+					indV++; numV++;
+				}
+				else //(*indV > *indW)
+				{
+					// W has value but V does not
+					if (allowVNulls)
+					{
+						Product.ind.push_back(*indW);
+						Product.num.push_back(_binary_op(NU1(), *numW));
+					}
+					indW++; numW++;
+				}
+			}
+			// clean up
+			while (allowWNulls && indV < V.ind.end())
+			{
+				Product.ind.push_back(*indV);
+				Product.num.push_back(_binary_op(*numV, NU2()));
+				indV++; numV++;
+			}
+			while (allowVNulls && indW < W.ind.end())
+			{
+				Product.ind.push_back(*indW);
+				Product.num.push_back(_binary_op(NU1(), *numW));
+				indW++; numW++;
+			}
+		}
+		return Product;
+	}
+	else
+	{
+		cout << "Grids are not comparable for EWiseApply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return FullyDistSpVec< IU,T_promote>();
+	}
+}
 #endif
 
