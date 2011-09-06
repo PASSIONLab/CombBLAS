@@ -333,7 +333,6 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	delete [] vecpair;
 	delete [] dist;
 
-	temp.NOT_FOUND = NOT_FOUND;
 	temp.glen = glen;
 	temp.ind = nind;
 	temp.num = nnum;
