@@ -29,7 +29,7 @@ class UnaryPredicateObj {
 	}
 
 	public:
-	~UnaryPredicateObj() { Py_XDECREF(callback); }
+	~UnaryPredicateObj() { /*Py_XDECREF(callback);*/ }
 };
 
 class UnaryFunctionObj {
@@ -52,7 +52,7 @@ class UnaryFunctionObj {
 	}
 
 	public:
-	~UnaryFunctionObj() { Py_XDECREF(callback); }
+	~UnaryFunctionObj() { /*Py_XDECREF(callback);*/ }
 };
 
 //INTERFACE_INCLUDE_END
@@ -142,7 +142,7 @@ class BinaryFunctionObj {
 	protected:
 	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
 	public:
-	~BinaryFunctionObj() { Py_XDECREF(callback); }
+	~BinaryFunctionObj() { /*Py_XDECREF(callback);*/ }
 	
 	bool commutable;
 	bool associative;
@@ -171,18 +171,16 @@ RET BinaryFunctionObj::call(const T1& x, const T2& y) const
 	
 	resultPy = PyEval_CallObject(callback,vertexArgList);  
 
+	Py_XDECREF(tempSwigObj1);
+	Py_XDECREF(tempSwigObj2);
+	Py_XDECREF(vertexArgList);
 	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, RET::SwigTypeInfo,  0  | 0)) && pret != NULL) {
 		RET ret = RET(*pret);
-		Py_XDECREF(tempSwigObj1);
-		Py_XDECREF(tempSwigObj2);
-		Py_XDECREF(vertexArgList);
 		Py_XDECREF(resultPy);
 		return ret;
 	} else
 	{
-		Py_XDECREF(tempSwigObj1);
-		Py_XDECREF(tempSwigObj2);
-		Py_XDECREF(vertexArgList);
+		Py_XDECREF(resultPy);
 		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
 		return RET();
 	}
