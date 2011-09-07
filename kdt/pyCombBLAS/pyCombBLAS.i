@@ -1003,7 +1003,7 @@ class UnaryPredicateObj {
 	}
 
 	public:
-	~UnaryPredicateObj() { Py_XDECREF(callback); }
+	~UnaryPredicateObj() { /*Py_XDECREF(callback);*/ }
 };
 
 class UnaryFunctionObj {
@@ -1017,7 +1017,7 @@ class UnaryFunctionObj {
 	}
 
 	public:
-	~UnaryFunctionObj() { Py_XDECREF(callback); }
+	~UnaryFunctionObj() { /*Py_XDECREF(callback);*/ }
 };
 
 
@@ -1028,7 +1028,7 @@ class BinaryFunctionObj {
 	protected:
 	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
 	public:
-	~BinaryFunctionObj() { Py_XDECREF(callback); }
+	~BinaryFunctionObj() { /*Py_XDECREF(callback);*/ }
 	
 	bool commutable;
 	bool associative;
