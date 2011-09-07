@@ -15,7 +15,7 @@ LINKFLAGS = #-undefined dynamic_lookup
 
 all: pyCombBLAS.py
 
-pyCombBLAS.i: pyCombBLAS.i.templ pyCombBLAS.h
+pyCombBLAS.i: pyCombBLAS.i.templ pyCombBLAS.h pyDenseParVecObj1.h pyDenseParVecObj2.h pyDenseParVec.h pySpParVec.h pySpParVecObj1.h pySpParVecObj2.h pySpParMat.h pySpParMatObj1.h pySpParMatObj2.h pySpParMatBool.h obj.h pyOperationsObj.h pyOperations.h
 	python makei.py pyCombBLAS.i.templ pyCombBLAS.i
 
 pyCombBLAS_wrap.cpp: pyCombBLAS.i
