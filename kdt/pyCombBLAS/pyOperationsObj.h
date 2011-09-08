@@ -181,7 +181,7 @@ RET BinaryFunctionObj::call(const T1& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		cerr << "BinaryFunctionObj::operator() FAILED!" << endl;
 		return RET();
 	}
 }
