@@ -542,6 +542,15 @@ CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269002.err -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269002.out -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.err -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.out -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script121_ipm.e7324513 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script135_ipm.e7324514 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script150_ipm.e7324515 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script16_ipm.e7326054 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script1_ipm.e7324516 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script36_ipm.e7324510 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script4_ipm.e7326053 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script64_ipm.e7324511 -text
+CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script9_ipm.e7326034 -text
 CombBLAS/ReleaseTests/SpRef_Franklin/script1024_scale21_perm -text
 CombBLAS/ReleaseTests/SpRef_Franklin/script1024_scale22_perm+subgraph -text
 CombBLAS/ReleaseTests/SpRef_Franklin/script16_scale21_perm -text
