@@ -28,11 +28,6 @@ SWIG_Obj1Info = SWIGTYPE_p_Obj1;
 SWIG_Obj2Info = SWIGTYPE_p_Obj2;
 %}
 
-// It is possible to have the generated python code also include some custom code.
-// This may be a good place to add an atexit() to call mpi finalize.
-%pragma(python) code="import atexit"
-%pragma(python) code="atexit.register(DiGraph.finalize())"
-
 
 // Language independent exception handler
 %include exception.i    
@@ -1193,4 +1188,12 @@ EWiseArg EWise_OnlyNZ(pyDenseParVec* v); // shouldn't be used, but here for comp
 void EWise(PyObject *pyewisefunc, int argc, EWiseArgDescriptor* argv, PyObject *argList);
 void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v);
 
+
+// It is possible to have the generated python code also include some custom code.
+// This may be a good place to add an atexit() to call MPI finalize.
+// The problem is that MPI objects still likely exist at this point unless the user explicitly deleted them, which leads to ugly error messages.
+%pythoncode %{
+#import atexit
+#atexit.register(finalize)
+%}
 
