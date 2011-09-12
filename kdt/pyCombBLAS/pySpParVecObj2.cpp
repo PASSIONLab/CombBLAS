@@ -201,10 +201,9 @@ Obj2 pySpParVecObj2::__getitem__(int64_t key)
 {
 	Obj2 val = v[key];
 	
-	if (val == v.NOT_FOUND)
+	if (!v.WasFound())
 	{
 		//cout << "Element " << key << " not found." << endl;
-		return v.GetZero();
 	}
 	
 	return val;
@@ -273,6 +272,11 @@ pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::
 }
 
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVecObj2(EWiseApply<Obj2>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
 {
 	return pySpParVecObj2(EWiseApply<Obj2>(a.v, b.v, *op, allowANulls, allowBNulls));
 }

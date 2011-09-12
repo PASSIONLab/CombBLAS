@@ -15,7 +15,9 @@ protected:
 public:
 	typedef int64_t INDEXTYPE;
 	typedef SpDCCols<INDEXTYPE,doubleint> DCColsType;
+	typedef SpDCCols<INDEXTYPE,double> DCColsTypeDouble;
 	typedef SpParMat < INDEXTYPE, doubleint, DCColsType > PSpMat_DoubleInt;
+	typedef SpParMat < INDEXTYPE, double, DCColsType > PSpMat_Double;
 	typedef PSpMat_DoubleInt MatType;
 	
 public:
@@ -87,6 +89,10 @@ public:
 
 pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
 
 //INTERFACE_INCLUDE_END
 

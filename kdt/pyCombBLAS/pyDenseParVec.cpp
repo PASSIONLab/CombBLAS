@@ -226,6 +226,36 @@ void pyDenseParVec::EWiseApply(const pySpParVec& other, op::BinaryFunction *f, b
 {
 	v.EWiseApply(other.v, *f, doNulls, doubleint(nullValue));
 }
+
+void pyDenseParVec::EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls, Obj1 nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, nullValue);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls, Obj2 nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, nullValue);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls, double nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, doubleint(nullValue));
+}
 	
 pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {

@@ -275,10 +275,9 @@ double pySpParVec::__getitem__(int64_t key)
 {
 	doubleint val = v[key];
 	
-	if (val == v.NOT_FOUND)
+	if (!v.WasFound())
 	{
 		//cout << "Element " << key << " not found." << endl;
-		return v.GetZero();
 	}
 	
 	return val;
@@ -348,6 +347,29 @@ char* pySpParVec::__repr__()
 	return " ";
 }
 
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
+	return pySpParVec(dval);
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
+	return pySpParVec(dval);
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
+{
+	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
+	return pySpParVec(dval);
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls, bool allowBNulls)
+{
+	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
+	return pySpParVec(dval);
+}
 
 pySpParVec pySpParVec::zeros(int64_t howmany)
 {

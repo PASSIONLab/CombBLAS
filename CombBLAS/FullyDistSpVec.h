@@ -95,7 +95,6 @@ public:
 		CVT.ind = vector<IT>(ind.begin(), ind.end());
 		CVT.num = vector<NNT>(num.begin(), num.end());
 		CVT.glen = glen;
-		CVT.NOT_FOUND = NOT_FOUND;
 		return CVT;
 	}
 
@@ -111,7 +110,8 @@ public:
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//!< SpRef (expects ri to be 0-based)
 	void SetElement (IT indx, NT numx);	// element-wise assignment
 	void DelElement (IT indx); // element-wise deletion
-	NT operator[](IT indx) const;
+	NT operator[](IT indx);
+	bool WasFound() const { return wasFound; }
 
 	NT GetZero() const			{ return zero; }
 	void SetZero(const NT& z)	{ zero = z; }
@@ -159,6 +159,18 @@ public:
 	}
 
 	template <typename _BinaryOperation>
+	void ApplyInd(_BinaryOperation __binary_op)
+	{
+		IT offset = LengthUntil();
+		IT spsize = ind.size();
+		#ifdef _OPENMP
+		#pragma omp parallel for
+		#endif
+		for(IT i=0; i < spsize; ++i)
+			num[i] = __binary_op(num[i], ind[i] + offset);
+	}
+
+	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 	
 	template <typename _BinaryOperation, typename _UnaryOperation>
@@ -166,7 +178,6 @@ public:
 
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
-	NT NOT_FOUND; 
 
 protected:
 	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
@@ -176,6 +187,7 @@ private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
 	NT zero;
+	bool wasFound; // true if the last GetElement operation returned an actual value.
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;

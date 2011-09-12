@@ -341,7 +341,7 @@ void pySpParMatBool::ColWiseApply(const pySpParVec& x, op::BinaryFunction* f)
 
 pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
 {
-	return pySpParMatBool( EWiseApply(A.A, B.A, *bf, notB, bool(defaultBValue)) );
+	return pySpParMatBool( EWiseApply<bool, pySpParMatBool::DCColsType>(A.A, B.A, *bf, notB, bool(defaultBValue)) );
 }
 
 void pySpParMatBool::Prune(op::UnaryFunction* op)

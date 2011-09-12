@@ -670,6 +670,9 @@ binaryObj = _pyCombBLAS.binaryObj
 EWise_Index = _pyCombBLAS.EWise_Index
 EWise = _pyCombBLAS.EWise
 Graph500VectorOps = _pyCombBLAS.Graph500VectorOps
+#import atexit
+#atexit.register(finalize)
+
 
 EWise_OnlyNZ = _pyCombBLAS.EWise_OnlyNZ
 

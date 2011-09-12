@@ -34,22 +34,22 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), NOT_FOUND(numeric_limits<NT>::min()), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), zero(0)
 { }
 
 
@@ -62,7 +62,6 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< 
 		ind = rhs.ind;
 		num = rhs.num;
 		zero = rhs.zero;
-		NOT_FOUND = rhs.NOT_FOUND;
 	}
 	return *this;
 }
@@ -77,7 +76,6 @@ template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
-	NOT_FOUND = numeric_limits<NT>::min();
 	zero = rhs.zero;
 
 	IT vecsize = rhs.LocArrSize();
@@ -98,29 +96,33 @@ void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	ind.swap(victim.ind);
 	num.swap(victim.num);
-	NOT_FOUND = victim.NOT_FOUND;
 	zero = victim.zero;
 }
 
 template <class IT, class NT>
-NT FullyDistSpVec<IT,NT>::operator[](IT indx) const
+NT FullyDistSpVec<IT,NT>::operator[](IT indx)
 {
 	NT val;
 	IT locind;
 	int owner = Owner(indx, locind);
+	int found = 0;
 	if(commGrid->GetRank() == owner)
 	{
 		typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locind);	// ind is a sorted vector
 		if(it != ind.end() && locind == (*it))	// found
 		{
 			val = num[it-ind.begin()];
+			found = 1;
 		}
 		else
 		{
-			val = NOT_FOUND;	// return NULL
+			val = NT();	// return NULL
+			found = 0;
 		}
 	}
-	(commGrid->GetWorld()).Bcast(&val, 1, MPIType<NT>(), owner);			
+	(commGrid->GetWorld()).Bcast(&found, 1, MPIType<int>(), owner);
+	(commGrid->GetWorld()).Bcast(&val, 1, MPIType<NT>(), owner);
+	wasFound = found;
 	return val;
 }
 

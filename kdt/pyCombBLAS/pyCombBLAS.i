@@ -126,6 +126,10 @@ public:
 pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
+
 
 class pySpParMatBool {
 public:
@@ -248,6 +252,8 @@ public:
 
 //pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
 
 
 class pySpParMatObj2 {
@@ -313,6 +319,8 @@ public:
 
 //pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
 
 
 class pySpParVec {
@@ -388,7 +396,17 @@ public:
 	
 	char* __repr__();
 
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls, bool allowBNulls);
 };
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls = true, bool allowBNulls = true);
+
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -475,10 +493,12 @@ public:
 	
 	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:
@@ -565,10 +585,12 @@ public:
 	
 	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:
@@ -644,6 +666,13 @@ public:
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
 	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
 
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
+
 public:
 	static pyDenseParVec range(int64_t howmany, int64_t start);
 	
@@ -713,8 +742,10 @@ public:
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f);
 	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
 
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
@@ -778,8 +809,10 @@ public:
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f);
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
 
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);
@@ -1033,6 +1066,12 @@ class BinaryFunctionObj {
 	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
 
+	Obj1 operator()(const Obj1& x, const double& y) const { return callOD<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const double& y) const { return callOD<Obj2>(x, y); }
+	double operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
+	double operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+
+	double operator()(const double& x, const double& y) const { return callDD(x, y); }
 };
 
 BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
@@ -1040,7 +1079,7 @@ BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 
 
 /*
-class Semiring {
+class SemiringObj {
 	protected:
 	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
 	public:
