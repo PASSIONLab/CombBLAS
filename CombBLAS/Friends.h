@@ -655,10 +655,10 @@ Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1
 	return temp;
 }	
 
-template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+template <typename N_promote, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+Dcsc<IU, N_promote> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	//typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
 	IU estnzc, estnz;
 	if(notB)
 	{	
@@ -801,22 +801,22 @@ SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseMult (const SpDCC
 }
 
 
-template<typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-SpDCCols<IU, typename promote_trait<NU1,NU2>::T_promote > EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+template<typename N_promote, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+SpDCCols<IU, N_promote> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote; 
+	//typedef typename promote_trait<NU1,NU2>::T_promote N_promote; 
 	assert(A.m == B.m);
 	assert(A.n == B.n);
 
 	Dcsc<IU, N_promote> * tdcsc = NULL;
 	if(A.nnz > 0 && B.nnz > 0)
 	{ 
-		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), B.dcsc, __binary_op, notB, defaultBVal));
+		tdcsc = new Dcsc<IU, N_promote>(EWiseApply<N_promote>(*(A.dcsc), B.dcsc, __binary_op, notB, defaultBVal));
 		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else if (A.nnz > 0 && notB) // && B.nnz == 0
 	{
-		tdcsc = new Dcsc<IU, N_promote>(EWiseApply(*(A.dcsc), (const Dcsc<IU,NU2>*)NULL, __binary_op, notB, defaultBVal));
+		tdcsc = new Dcsc<IU, N_promote>(EWiseApply<N_promote>(*(A.dcsc), (const Dcsc<IU,NU2>*)NULL, __binary_op, notB, defaultBVal));
 		return 	SpDCCols<IU, N_promote> (A.m , A.n, tdcsc);
 	}
 	else

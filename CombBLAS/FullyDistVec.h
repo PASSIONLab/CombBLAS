@@ -118,7 +118,18 @@ public:
 	void Apply(_UnaryOperation __unary_op)
 	{	
 		transform(arr.begin(), arr.end(), arr.begin(), __unary_op);
-	}	
+	}
+	
+	template <typename _BinaryOperation>
+	void ApplyInd(_BinaryOperation __binary_op)
+	{
+		IT offset = LengthUntil();
+		#ifdef _OPENMP
+		#pragma omp parallel for
+		#endif
+		for(IT i=0; i < arr.size(); ++i)
+			arr[i] = __binary_op(arr[i], i + offset);
+	}
 
 	template <typename _UnaryOperation, typename IRRELEVANT_NT>
 	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT>& mask);

@@ -362,7 +362,17 @@ pySpParMatObj1 EWiseMult(const pySpParMatObj1& A1, const pySpParMatObj1& A2, boo
 
 pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB, Obj1 defaultBValue)
 {
-	return pySpParMatObj1(EWiseApply(A.A, B.A, *bf, notB, defaultBValue));
+	return pySpParMatObj1(EWiseApply<Obj1, pySpParMatObj1::DCColsType>(A.A, B.A, *bf, notB, defaultBValue));
+}
+
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB, Obj2 defaultBValue)
+{
+	return pySpParMatObj1(EWiseApply<Obj1, pySpParMatObj1::DCColsType>(A.A, B.A, *bf, notB, defaultBValue));
+}
+
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB, double defaultBValue)
+{
+	return pySpParMatObj1(EWiseApply<Obj1, pySpParMatObj1::DCColsType>(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
 }
 
 void pySpParMatObj1::Prune(op::UnaryPredicateObj* pred)

@@ -148,6 +148,9 @@ inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const O
 DECLARE_PROMOTE(Obj1, Obj1, Obj1)
 DECLARE_PROMOTE(Obj2, Obj2, Obj2)
 
+DECLARE_PROMOTE(Obj1, Obj2, Obj1)
+DECLARE_PROMOTE(Obj2, Obj1, Obj2)
+
 DECLARE_PROMOTE(bool, Obj1, Obj1)
 DECLARE_PROMOTE(Obj1, bool, Obj1)
 

@@ -354,7 +354,25 @@ pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude)
 
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
 {
-	return pySpParMat(EWiseApply(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
+	return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
+}
+
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB, Obj1 defaultBValue)
+{
+	pySpParMat::MatType ret = EWiseApply<double, pySpParMat::DCColsTypeDouble>(A.A, B.A, *bf, notB, defaultBValue);
+	return pySpParMat(ret);
+}
+
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB, Obj2 defaultBValue)
+{
+	pySpParMat::MatType ret = EWiseApply<double, pySpParMat::DCColsTypeDouble>(A.A, B.A, *bf, notB, defaultBValue);
+	return pySpParMat(ret);
+}
+
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB, double defaultBValue)
+{
+	pySpParMat::MatType ret = EWiseApply<double, pySpParMat::DCColsTypeDouble>(A.A, B.A, *bf, notB, doubleint(defaultBValue));
+	return pySpParMat(ret);
 }
 
 void pySpParMat::Prune(op::UnaryFunction* op)
