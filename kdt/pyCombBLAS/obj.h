@@ -26,7 +26,7 @@ public:
 		return weight == other.weight && type == other.type;
 	}
 
-	bool __neq__(const Obj1& other) const {
+	bool __ne__(const Obj1& other) const {
 		return !(__eq__(other));
 	}
 
@@ -54,7 +54,7 @@ public:
 	}
 
 	bool operator!=(const Obj1& other) const {
-		return __neq__(other);
+		return __ne__(other);
 	}
 
 	// For sorting
@@ -87,7 +87,7 @@ public:
 		return weight == other.weight && type == other.type;
 	}
 
-	bool __neq__(const Obj2& other) const {
+	bool __ne__(const Obj2& other) const {
 		return !(operator==(other));
 	}
 
@@ -114,7 +114,7 @@ public:
 	}
 
 	bool operator!=(const Obj2& other) const {
-		return __neq__(other);
+		return __ne__(other);
 	}
 
 	// For sorting
@@ -148,8 +148,8 @@ inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const O
 DECLARE_PROMOTE(Obj1, Obj1, Obj1)
 DECLARE_PROMOTE(Obj2, Obj2, Obj2)
 
-DECLARE_PROMOTE(Obj1, Obj2, Obj1)
-DECLARE_PROMOTE(Obj2, Obj1, Obj2)
+DECLARE_PROMOTE(Obj1, Obj2, Obj2) // for semirings
+DECLARE_PROMOTE(Obj2, Obj1, Obj1) // for semirings
 
 DECLARE_PROMOTE(bool, Obj1, Obj1)
 DECLARE_PROMOTE(Obj1, bool, Obj1)

@@ -349,27 +349,40 @@ char* pySpParVec::__repr__()
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
 {
-	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
-	return pySpParVec(dval);
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
 {
-	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
-	return pySpParVec(dval);
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls)
 {
-	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
-	return pySpParVec(dval);
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls, bool allowBNulls)
 {
-	pySpParVec::VectType dval = EWiseApply<double>(a.v, b.v, *op, allowANulls, allowBNulls);
-	return pySpParVec(dval);
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+
 
 pySpParVec pySpParVec::zeros(int64_t howmany)
 {

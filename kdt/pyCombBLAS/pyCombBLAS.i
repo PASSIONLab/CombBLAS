@@ -211,7 +211,9 @@ public:
 	pySpParMatObj1 copy();
 	//pySpParMatObj1& operator+=(const pySpParMatObj1& other);
 	pySpParMatObj1& assign(const pySpParMatObj1& other);
-	//pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::Semiring* sring = NULL);
+	pySpParMat     SpGEMM(pySpParMat&     other, op::SemiringObj* sring);
+	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
+	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
 	//pySpParMatObj1 operator*(pySpParMatObj1& other);
 #define NOPARMATSUBSREF
 	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -238,12 +240,15 @@ public:
 	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
 	pySpParVec SpMV_SelMax(const pySpParVec& x);
 	void SpMV_SelMax_inplace(pySpParVec& x);
-
-	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
-	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 */
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
+	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
+	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
+	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
 public:
 	static int Column() { return ::Column; }
@@ -278,7 +283,9 @@ public:
 	pySpParMatObj2 copy();
 	//pySpParMatObj2& operator+=(const pySpParMatObj2& other);
 	pySpParMatObj2& assign(const pySpParMatObj2& other);
-	//pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::Semiring* sring = NULL);
+	pySpParMat     SpGEMM(pySpParMat&     other, op::SemiringObj* sring);
+	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
+	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
 	//pySpParMatObj2 operator*(pySpParMatObj2& other);
 #define NOPARMATSUBSREF
 	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -305,12 +312,15 @@ public:
 	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
 	pySpParVec SpMV_SelMax(const pySpParVec& x);
 	void SpMV_SelMax_inplace(pySpParVec& x);
-
-	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
-	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 */
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
+	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
+	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
 public:
 	static int Column() { return ::Column; }
@@ -400,6 +410,19 @@ public:
 	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls, bool allowBNulls);
+
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+
+	// Obj predicates:	
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
 };
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
@@ -407,6 +430,9 @@ pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFu
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls = true, bool allowBNulls = true);
 
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -500,6 +526,10 @@ pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -592,6 +622,10 @@ pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -673,6 +707,13 @@ public:
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
 
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, bool doNulls = false, double nullValue = 0);
+
 public:
 	static pyDenseParVec range(int64_t howmany, int64_t start);
 	
@@ -746,7 +787,6 @@ public:
 	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
-
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
 	
@@ -813,7 +853,6 @@ public:
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
-
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);
 	
@@ -956,7 +995,7 @@ public:
 		return weight == other.weight && type == other.type;
 	}
 
-	bool __neq__(const Obj1& other) const {
+	bool __ne__(const Obj1& other) const {
 		return !(__eq__(other));
 	}
 
@@ -997,7 +1036,7 @@ public:
 		return weight == other.weight && type == other.type;
 	}
 
-	bool __neq__(const Obj2& other) const {
+	bool __ne__(const Obj2& other) const {
 		return !(operator==(other));
 	}
 
@@ -1074,32 +1113,54 @@ class BinaryFunctionObj {
 	double operator()(const double& x, const double& y) const { return callDD(x, y); }
 };
 
+class BinaryPredicateObj {
+	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+
+	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
+	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+
+	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+
+	protected:
+	BinaryPredicateObj() { // should never be called
+		printf("BinaryPredicateObj()!!!\n");
+		callback = NULL;
+	}
+
+	public:
+	~BinaryPredicateObj() { /*Py_XDECREF(callback);*/ }
+};
+
 BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
+BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
 
 
-
-/*
 class SemiringObj {
 	protected:
-	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {}
 	public:
-	Semiring(PyObject *add, PyObject *multiply);
-	~Semiring();
+	SemiringObj(PyObject *add, PyObject *multiply);
+	~SemiringObj();
 	
 	MPI_Op mpi_op()
 	{
 		return *(binfunc_add->getMPIOp());
 	}
 	
-	doubleint add(const doubleint & arg1, const doubleint & arg2);	
-	doubleint multiply(const doubleint & arg1, const doubleint & arg2);
-	void axpy(doubleint a, const doubleint & x, doubleint & y);
+	//doubleint add(const doubleint & arg1, const doubleint & arg2);	
+	//doubleint multiply(const doubleint & arg1, const doubleint & arg2);
+	//void axpy(doubleint a, const doubleint & x, doubleint & y);
 
 };
-Semiring TimesPlusSemiring();
-//Semiring MinPlusSemiring();
-Semiring SecondMaxSemiring();
-*/
+//SemiringObj TimesPlusSemiringObj();
+//SemiringObj MinPlusSemiringObj();
+//SemiringObj SecondMaxSemiringObj();
+//SemiringObj SecondSecondSemiringObj();
 } // namespace op
 
 
@@ -1236,3 +1297,13 @@ void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v);
 #atexit.register(finalize)
 %}
 
+%pythoncode %{
+try:
+	import ObjMethods
+
+	ObjMethods.defUserCallbacks((Obj1,Obj2))
+except ImportError:
+	print "Failed to import ObjMethods!"
+	print "----------------------------"
+	print ""
+%}

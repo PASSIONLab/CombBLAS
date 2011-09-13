@@ -101,3 +101,13 @@ INCLUDE "pyCombBLAS.h"
 #atexit.register(finalize)
 %}
 
+%pythoncode %{
+try:
+	import ObjMethods
+
+	ObjMethods.defUserCallbacks((Obj1,Obj2))
+except ImportError:
+	print "Failed to import ObjMethods!"
+	print "----------------------------"
+	print ""
+%}
