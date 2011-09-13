@@ -49,7 +49,9 @@ public:
 	pySpParMatObj1 copy();
 	//pySpParMatObj1& operator+=(const pySpParMatObj1& other);
 	pySpParMatObj1& assign(const pySpParMatObj1& other);
-	//pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::Semiring* sring = NULL);
+	pySpParMat     SpGEMM(pySpParMat&     other, op::SemiringObj* sring);
+	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
+	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
 	//pySpParMatObj1 operator*(pySpParMatObj1& other);
 #define NOPARMATSUBSREF
 	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -76,12 +78,15 @@ public:
 	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
 	pySpParVec SpMV_SelMax(const pySpParVec& x);
 	void SpMV_SelMax_inplace(pySpParVec& x);
-
-	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
-	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 */
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
+	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
+	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
+	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
+//	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
 public:
 	static int Column() { return ::Column; }
@@ -110,6 +115,15 @@ struct promote_trait  { };
 DECLARE_PROMOTE(pySpParMatObj1::MatType, pySpParMatObj1::MatType, pySpParMatObj1::MatType)
 DECLARE_PROMOTE(pySpParMatObj1::DCColsType, pySpParMatObj1::DCColsType, pySpParMatObj1::DCColsType)
 
+template <> struct promote_trait< SpDCCols<int64_t,Obj1> , SpDCCols<int64_t,Obj2> >
+    {                                           
+        typedef SpDCCols<int64_t,Obj2> T_promote;
+    };
+template <> struct promote_trait< SpDCCols<int64_t,Obj1> , SpDCCols<int64_t,doubleint> >
+    {                                           
+        typedef SpDCCols<int64_t,doubleint> T_promote;
+    };
+///////
 template <> struct promote_trait< SpDCCols<int64_t,Obj1> , SpDCCols<int64_t,bool> >       
     {                                           
         typedef SpDCCols<int64_t,Obj1> T_promote;                    

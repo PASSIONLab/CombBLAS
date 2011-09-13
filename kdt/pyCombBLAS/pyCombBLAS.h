@@ -43,7 +43,9 @@ class UnaryFunctionObj;
 class UnaryPredicateObj;
 class BinaryFunction;
 class BinaryFunctionObj;
+class BinaryPredicateObj;
 class Semiring;
+class SemiringObj;
 }
 
 #ifndef NO_SWIGPYRUN

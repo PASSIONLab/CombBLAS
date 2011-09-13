@@ -304,21 +304,36 @@ pySpParMatObj1 pySpParMatObj1::operator*(pySpParMatObj1& other)
 {
 	return SpGEMM(other);
 }
+*/
+pySpParMat pySpParMatObj1::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
+{/*
+	sring->enableSemiring();
+	pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg>(A, other.A) );
+	sring->disableSemiring();
+	return ret;*/
+	cout << "Mixed-type SpGEMM not supported yet!";
+	return pySpParMat();
+}
 
-pySpParMatObj1 pySpParMatObj1::SpGEMM(pySpParMatObj1& other, op::Semiring* sring)
+pySpParMatObj1 pySpParMatObj1::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
 {
-	if (sring == NULL)
-	{
-		return pySpParMatObj1( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringTemplArg<doubleint, doubleint > >(A, other.A) );
-		sring->disableSemiring();
-		return ret;
-	}
-}*/
+	sring->enableSemiring();
+	pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj1, Obj1> >(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatObj2 pySpParMatObj1::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
+{
+	/*
+	sring->enableSemiring();
+	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg>(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+	*/
+	cout << "Mixed-type SpGEMM not supported yet!";
+	return pySpParMatObj2();
+}
 
 pySpParMatObj1 pySpParMatObj1::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
@@ -433,6 +448,109 @@ void pySpParMatObj1::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	outcols->v = icols;
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
+
+pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring)
+{
+	//if (sring == NULL)
+	{
+		cout << "Mixed type SpMV not supported yet." << endl;
+		//cout << "You must supply a semiring for SpMV!" << endl;
+		return pySpParVec(getnrow());
+	}
+	/*//
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParVecObj1( ::SpMV< SelectMaxSRing>(A, x.v) );
+	}*/
+	/*
+	else
+	{
+		sring->enableSemiring();
+		pySpParVec ret( ::SpMV< op::SemiringObjTemplArg>(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}*/
+}
+
+pySpParVecObj1 pySpParMatObj1::SpMV(const pySpParVecObj1& x, op::SemiringObj* sring)
+{
+	if (sring == NULL)
+	{
+		cout << "You must supply a semiring for SpMV!" << endl;
+		return pySpParVecObj1(getnrow());
+	}
+	/*
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParVecObj1( ::SpMV< SelectMaxSRing>(A, x.v) );
+	}*/
+	else
+	{
+		sring->enableSemiring();
+		pySpParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1> >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
+}
+
+pySpParVecObj2 pySpParMatObj1::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring)
+{
+	//if (sring == NULL)
+	{
+		cout << "Mixed type SpMV not supported yet." << endl;
+		//cout << "You must supply a semiring for SpMV!" << endl;
+		return pySpParVecObj2(getnrow());
+	}
+	/*//
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParVecObj1( ::SpMV< SelectMaxSRing>(A, x.v) );
+	}*/
+	/*
+	else
+	{
+		sring->enableSemiring();
+		pySpParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj2> >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}*/
+}
+
+pyDenseParVec     pySpParMatObj1::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring)
+{
+	cout << "Mixed type SpMV not supported yet." << endl;
+	//cout << "You must supply a semiring for SpMV!" << endl;
+	return pyDenseParVec(getnrow(), 0, 0);
+}
+
+pyDenseParVecObj1 pySpParMatObj1::SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring)
+{
+	if (sring == NULL)
+	{
+		cout << "You must supply a semiring for SpMV!" << endl;
+		return pyDenseParVecObj1(getnrow(), Obj1());
+	}
+	/*
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParVecObj1( ::SpMV< SelectMaxSRing>(A, x.v) );
+	}*/
+	else
+	{
+		sring->enableSemiring();
+		pyDenseParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1> >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
+}
+
+pyDenseParVecObj2 pySpParMatObj1::SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring)
+{
+	cout << "Mixed type SpMV not supported yet." << endl;
+	//cout << "You must supply a semiring for SpMV!" << endl;
+	return pyDenseParVecObj2(getnrow(), Obj2());
+}
+
 
 /*
 pySpParVec pySpParMatObj1::SpMV_PlusTimes(const pySpParVec& x)

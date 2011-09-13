@@ -87,7 +87,6 @@ template <class T>
 bool UnaryPredicateObj::call(const T& x) const
 {
 	PyObject *resultPy;
-	T *pret;	
 
 	T tempObj = x;
 	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
@@ -162,8 +161,6 @@ class BinaryFunctionObj {
 
 	double operator()(const double& x, const double& y) const { return callDD(x, y); }
 };
-
-BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 
 //INTERFACE_INCLUDE_END
 template <typename RET, typename T1, typename T2>
@@ -276,12 +273,151 @@ void BinaryFunctionObj::applyWorker(T1 * in, T2 * inout, int * len)
 }
 
 //INTERFACE_INCLUDE_BEGIN
+class BinaryPredicateObj {
+//INTERFACE_INCLUDE_END
+	public:
+	PyObject *callback;
+	BinaryPredicateObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+
+	template <class T1, class T2>
+	bool call(const T1& x, const T2& y) const;
+
+	template <class T1>
+	bool callOD(const T1& x, const double& y) const;
+	template <class T2>
+	bool callDO(const double& x, const T2& y) const;
+
+	inline bool callDD(const double& x, const double& y) const;
+	
+//INTERFACE_INCLUDE_BEGIN
+	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+
+	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
+	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+
+	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+
+	protected:
+	BinaryPredicateObj() { // should never be called
+		printf("BinaryPredicateObj()!!!\n");
+		callback = NULL;
+	}
+
+	public:
+	~BinaryPredicateObj() { /*Py_XDECREF(callback);*/ }
+};
+
+//INTERFACE_INCLUDE_END
+template <class T1, class T2>
+bool BinaryPredicateObj::call(const T1& x, const T2& y) const
+{
+	PyObject *resultPy;
+
+	T1 tempObj1 = x;
+	T2 tempObj2 = y;
+	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
+	PyObject *tempSwigObj2 = SWIG_NewPointerObj(&tempObj2, T2::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O, O)", tempSwigObj1, tempSwigObj2);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj1);
+	Py_XDECREF(tempSwigObj2);
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		return false;
+	}
+}
+
+template <class T1>
+bool BinaryPredicateObj::callOD(const T1& x, const double& y) const
+{
+	PyObject *resultPy;
+
+	T1 tempObj1 = x;
+	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O, d)", tempSwigObj1, y);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj1);
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		return false;
+	}
+}
+
+template <class T2>
+bool BinaryPredicateObj::callDO(const double& x, const T2& y) const
+{
+	PyObject *resultPy;
+
+	T2 tempObj2 = y;
+	PyObject *tempSwigObj2 = SWIG_NewPointerObj(&tempObj2, T2::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(d, O)", x, tempSwigObj2);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj2);
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		return false;
+	}
+}
+
+bool BinaryPredicateObj::callDD(const double& x, const double& y) const
+{
+	PyObject *resultPy;
+
+	PyObject *vertexArgList = Py_BuildValue("(d, d)", x, y);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		return false;
+	}
+}
+
+//INTERFACE_INCLUDE_BEGIN
+BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
+BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
 
 
-/*
 class SemiringObj {
 //INTERFACE_INCLUDE_END
 	public:
+	static SemiringObj *currentlyApplied;
+
 	// CUSTOM is a semiring with Python-defined methods
 	// The others are pre-implemented in C++ for speed.
 	typedef enum {CUSTOM, NONE, TIMESPLUS, PLUSMIN, SECONDMAX} SRingType;
@@ -289,10 +425,13 @@ class SemiringObj {
 	protected:
 	SRingType type;
 	
-	PyObject *pyfunc_add;
-	PyObject *pyfunc_multiply;
+	//PyObject *pyfunc_add;
+	//PyObject *pyfunc_multiply;
 	
-	BinaryFunction *binfunc_add;
+	BinaryFunctionObj *binfunc_add;
+	BinaryFunctionObj *binfunc_mul;
+	template <class T1, class T2>
+	friend struct SemiringObjTemplArg;
 	
 	public:
 	// CombBLAS' template mechanism means that we can have only one C++ semiring.
@@ -301,7 +440,7 @@ class SemiringObj {
 	void disableSemiring();
 	
 	public:
-	Semiring(SRingType t): type(t), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {
+	SemiringObj(SRingType t): type(t)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {
 		//if (t == CUSTOM)
 			// scream bloody murder
 	}
@@ -310,19 +449,19 @@ class SemiringObj {
 	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {}
 	public:
-	Semiring(PyObject *add, PyObject *multiply);
-	~Semiring();
+	SemiringObj(PyObject *add, PyObject *multiply);
+	~SemiringObj();
 	
 	MPI_Op mpi_op()
 	{
 		return *(binfunc_add->getMPIOp());
 	}
 	
-	doubleint add(const doubleint & arg1, const doubleint & arg2);	
-	doubleint multiply(const doubleint & arg1, const doubleint & arg2);
-	void axpy(doubleint a, const doubleint & x, doubleint & y);
+	//doubleint add(const doubleint & arg1, const doubleint & arg2);	
+	//doubleint multiply(const doubleint & arg1, const doubleint & arg2);
+	//void axpy(doubleint a, const doubleint & x, doubleint & y);
 
 };
 //INTERFACE_INCLUDE_END
@@ -330,37 +469,39 @@ class SemiringObj {
 template <class T1, class T2>
 struct SemiringObjTemplArg
 {
-	static SemiringObj *currentlyApplied;
-	
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	//#define T_promote typename promote_trait<T1,T2>::T_promote
+	
 	static T_promote id() { return T_promote();}
+
 	static MPI_Op mpi_op()
 	{
-		return currentlyApplied->mpi_op();
+		return SemiringObj::currentlyApplied->mpi_op();
 	}
 	
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
-		return currentlyApplied->add(arg1, arg2);
+		return (*(SemiringObj::currentlyApplied->binfunc_add))(arg1, arg2);
 	}
 	
 	static T_promote multiply(const T1 & arg1, const T2 & arg2)
 	{
-		return currentlyApplied->multiply(arg1, arg2);
+		return (*(SemiringObj::currentlyApplied->binfunc_mul))(arg1, arg2);
 	}
 	
 	static void axpy(T1 a, const T2 & x, T_promote & y)
 	{
-		currentlyApplied->axpy(a, x, y);
+		//currentlyApplied->axpy(a, x, y);
+		//y = add(y, multiply(a, x));
+		y = (*(SemiringObj::currentlyApplied->binfunc_add))(y, (*(SemiringObj::currentlyApplied->binfunc_mul))(a, x));
 	}
 };
 
 //INTERFACE_INCLUDE_BEGIN
 //SemiringObj TimesPlusSemiringObj();
 //SemiringObj MinPlusSemiringObj();
-SemiringObj SecondMaxSemiringObj();
-SemiringObj SecondMaxSemiringObj();
-*/
+//SemiringObj SecondMaxSemiringObj();
+//SemiringObj SecondSecondSemiringObj();
 } // namespace op
 
 

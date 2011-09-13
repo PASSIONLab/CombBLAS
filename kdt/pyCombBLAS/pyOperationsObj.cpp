@@ -61,6 +61,12 @@ BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm)
 	return BinaryFunctionObj(pyfunc, true, comm);
 }
 
+BinaryPredicateObj binaryObjPred(PyObject *pyfunc)
+{
+	// assumed to be associative but not commutative
+	return BinaryPredicateObj(pyfunc);
+}
+
 /**************************\
 | METHODS
 \**************************/
@@ -109,41 +115,48 @@ void BinaryFunctionObj::releaseMPIOp()
 /**************************\
 | SEMIRING
 \**************************/
-/*
-template <>
-Semiring* SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
 
-Semiring::Semiring(PyObject *add, PyObject *multiply)
-	: type(CUSTOM), pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+//template <>
+SemiringObj* SemiringObj::currentlyApplied = NULL;
+
+SemiringObj::SemiringObj(PyObject *add, PyObject *multiply)
+	: type(CUSTOM)//, pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
 {
-	Py_INCREF(pyfunc_add);
-	Py_INCREF(pyfunc_multiply);
+	//Py_INCREF(pyfunc_add);
+	//Py_INCREF(pyfunc_multiply);
+	
+	binfunc_add = new BinaryFunctionObj(add, true, true);
+	binfunc_mul = new BinaryFunctionObj(multiply, true, true);
 }
-Semiring::~Semiring()
+SemiringObj::~SemiringObj()
 {
-	Py_XDECREF(pyfunc_add);
-	Py_XDECREF(pyfunc_multiply);
-	assert((SemiringTemplArg<doubleint, doubleint>::currentlyApplied != this));
+	//Py_XDECREF(pyfunc_add);
+	//Py_XDECREF(pyfunc_multiply);
+	if (binfunc_add != NULL)
+		delete binfunc_add;
+	if (binfunc_mul != NULL)
+		delete binfunc_mul;
+	assert(currentlyApplied != this);
 }
 
-void Semiring::enableSemiring()
+void SemiringObj::enableSemiring()
 {
-	if (SemiringTemplArg<doubleint, doubleint>::currentlyApplied != NULL)
+	if (currentlyApplied != NULL)
 	{
-		cout << "There is an internal error in selecting a Semiring: Conflict between two Semirings." << endl;
+		cout << "There is an internal error in selecting a SemiringObj: Conflict between two Semirings." << endl;
 		std::exit(1);
 	}
-	SemiringTemplArg<doubleint, doubleint>::currentlyApplied = this;
+	currentlyApplied = this;
 	binfunc_add->getMPIOp();
 }
 
-void Semiring::disableSemiring()
+void SemiringObj::disableSemiring()
 {
 	binfunc_add->releaseMPIOp();
-	SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
+	currentlyApplied = NULL;
 }
-
-doubleint Semiring::add(const doubleint & arg1, const doubleint & arg2)
+/*
+doubleint SemiringObj::add(const doubleint & arg1, const doubleint & arg2)
 {
 	PyObject *arglist;
 	PyObject *result;
@@ -159,7 +172,7 @@ doubleint Semiring::add(const doubleint & arg1, const doubleint & arg2)
 	return doubleint(dres);
 }
 
-doubleint Semiring::multiply(const doubleint & arg1, const doubleint & arg2)
+doubleint SemiringObj::multiply(const doubleint & arg1, const doubleint & arg2)
 {
 	PyObject *arglist;
 	PyObject *result;
@@ -175,24 +188,24 @@ doubleint Semiring::multiply(const doubleint & arg1, const doubleint & arg2)
 	return doubleint(dres);
 }
 
-void Semiring::axpy(doubleint a, const doubleint & x, doubleint & y)
+void SemiringObj::axpy(doubleint a, const doubleint & x, doubleint & y)
 {
 	y = add(y, multiply(a, x));
 }
 
-Semiring TimesPlusSemiring()
+SemiringObj TimesPlusSemiringObj()
 {
-	return Semiring(Semiring::TIMESPLUS);
+	return SemiringObj(SemiringObj::TIMESPLUS);
 }
 
-Semiring MinPlusSemiring()
+SemiringObj MinPlusSemiringObj()
 {
-	return Semiring(Semiring::PLUSMIN);
+	return SemiringObj(SemiringObj::PLUSMIN);
 }
 
-Semiring SecondMaxSemiring()
+SemiringObj SecondMaxSemiringObj()
 {
-	return Semiring(Semiring::SECONDMAX);
+	return SemiringObj(SemiringObj::SECONDMAX);
 }
 */
 } // namespace op

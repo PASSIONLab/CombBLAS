@@ -18,6 +18,8 @@ protected:
 	friend class pySpParVecObj2;
 	friend class pySpParVecObj1;
 	friend class pySpParMat;
+	friend class pySpParMatObj2;
+	friend class pySpParMatObj1;
 	friend class pySpParMatBool;
 
 	pyDenseParVecObj2();
@@ -71,7 +73,6 @@ public:
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
 	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
-
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);
 	

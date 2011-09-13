@@ -160,6 +160,7 @@ class pySpParMatObj1(_object):
     def save(*args): return _pyCombBLAS.pySpParMatObj1_save(*args)
     def copy(*args): return _pyCombBLAS.pySpParMatObj1_copy(*args)
     def assign(*args): return _pyCombBLAS.pySpParMatObj1_assign(*args)
+    def SpGEMM(*args): return _pyCombBLAS.pySpParMatObj1_SpGEMM(*args)
     def SubsRef(*args): return _pyCombBLAS.pySpParMatObj1_SubsRef(*args)
     def __getitem__(*args): return _pyCombBLAS.pySpParMatObj1___getitem__(*args)
     def removeSelfLoops(*args): return _pyCombBLAS.pySpParMatObj1_removeSelfLoops(*args)
@@ -171,6 +172,7 @@ class pySpParMatObj1(_object):
     def Reduce(*args): return _pyCombBLAS.pySpParMatObj1_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj1_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj1_Find(*args)
+    def SpMV(*args): return _pyCombBLAS.pySpParMatObj1_SpMV(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj1_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj1_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatObj1_Row
@@ -199,6 +201,7 @@ class pySpParMatObj2(_object):
     def save(*args): return _pyCombBLAS.pySpParMatObj2_save(*args)
     def copy(*args): return _pyCombBLAS.pySpParMatObj2_copy(*args)
     def assign(*args): return _pyCombBLAS.pySpParMatObj2_assign(*args)
+    def SpGEMM(*args): return _pyCombBLAS.pySpParMatObj2_SpGEMM(*args)
     def SubsRef(*args): return _pyCombBLAS.pySpParMatObj2_SubsRef(*args)
     def __getitem__(*args): return _pyCombBLAS.pySpParMatObj2___getitem__(*args)
     def removeSelfLoops(*args): return _pyCombBLAS.pySpParMatObj2_removeSelfLoops(*args)
@@ -210,6 +213,7 @@ class pySpParMatObj2(_object):
     def Reduce(*args): return _pyCombBLAS.pySpParMatObj2_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj2_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj2_Find(*args)
+    def SpMV(*args): return _pyCombBLAS.pySpParMatObj2_SpMV(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj2_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj2_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatObj2_Row
@@ -567,7 +571,7 @@ class Obj1(_object):
     if _newclass:type = _swig_property(_pyCombBLAS.Obj1_type_get, _pyCombBLAS.Obj1_type_set)
     def __repr__(*args): return _pyCombBLAS.Obj1___repr__(*args)
     def __eq__(*args): return _pyCombBLAS.Obj1___eq__(*args)
-    def __neq__(*args): return _pyCombBLAS.Obj1___neq__(*args)
+    def __ne__(*args): return _pyCombBLAS.Obj1___ne__(*args)
     def __lt__(*args): return _pyCombBLAS.Obj1___lt__(*args)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj1(*args)
@@ -591,7 +595,7 @@ class Obj2(_object):
     if _newclass:type = _swig_property(_pyCombBLAS.Obj2_type_get, _pyCombBLAS.Obj2_type_set)
     def __repr__(*args): return _pyCombBLAS.Obj2___repr__(*args)
     def __eq__(*args): return _pyCombBLAS.Obj2___eq__(*args)
-    def __neq__(*args): return _pyCombBLAS.Obj2___neq__(*args)
+    def __ne__(*args): return _pyCombBLAS.Obj2___ne__(*args)
     def __lt__(*args): return _pyCombBLAS.Obj2___lt__(*args)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj2(*args)
@@ -647,6 +651,36 @@ class BinaryFunctionObj(_object):
 BinaryFunctionObj_swigregister = _pyCombBLAS.BinaryFunctionObj_swigregister
 BinaryFunctionObj_swigregister(BinaryFunctionObj)
 
+class BinaryPredicateObj(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryPredicateObj, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, BinaryPredicateObj, name)
+    def __init__(self): raise AttributeError, "No constructor defined"
+    __repr__ = _swig_repr
+    __swig_destroy__ = _pyCombBLAS.delete_BinaryPredicateObj
+    __del__ = lambda self : None;
+BinaryPredicateObj_swigregister = _pyCombBLAS.BinaryPredicateObj_swigregister
+BinaryPredicateObj_swigregister(BinaryPredicateObj)
+
+binaryObjPred = _pyCombBLAS.binaryObjPred
+class SemiringObj(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, SemiringObj, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, SemiringObj, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_SemiringObj(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_SemiringObj
+    __del__ = lambda self : None;
+    def mpi_op(*args): return _pyCombBLAS.SemiringObj_mpi_op(*args)
+SemiringObj_swigregister = _pyCombBLAS.SemiringObj_swigregister
+SemiringObj_swigregister(SemiringObj)
+binaryObj = _pyCombBLAS.binaryObj
+
 finalize = _pyCombBLAS.finalize
 root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs
@@ -665,13 +699,21 @@ class EWiseArg(_object):
     __del__ = lambda self : None;
 EWiseArg_swigregister = _pyCombBLAS.EWiseArg_swigregister
 EWiseArg_swigregister(EWiseArg)
-binaryObj = _pyCombBLAS.binaryObj
 
 EWise_Index = _pyCombBLAS.EWise_Index
 EWise = _pyCombBLAS.EWise
 Graph500VectorOps = _pyCombBLAS.Graph500VectorOps
 #import atexit
 #atexit.register(finalize)
+
+try:
+	import ObjMethods
+
+	ObjMethods.defUserCallbacks((Obj1,Obj2))
+except ImportError:
+	print "Failed to import ObjMethods!"
+	print "----------------------------"
+	print ""
 
 
 EWise_OnlyNZ = _pyCombBLAS.EWise_OnlyNZ

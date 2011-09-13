@@ -256,7 +256,40 @@ void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryFunctionOb
 {
 	v.EWiseApply(other.v, *f, doNulls, doubleint(nullValue));
 }
-	
+
+// predicates:
+void pyDenseParVec::EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f)
+{
+	v.EWiseApply(other.v, *f);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, bool doNulls, Obj1 nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, nullValue);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, bool doNulls, Obj2 nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, nullValue);
+}
+
+void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, bool doNulls, double nullValue)
+{
+	v.EWiseApply(other.v, *f, doNulls, doubleint(nullValue));
+}
+
+
+
 pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {
 	FullyDistVec<INDEXTYPE, INDEXTYPE> indexv = ri.v;

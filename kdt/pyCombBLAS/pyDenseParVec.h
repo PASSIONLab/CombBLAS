@@ -92,6 +92,13 @@ public:
 	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
 	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
 
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, bool doNulls = false, double nullValue = 0);
+
 public:
 	static pyDenseParVec range(int64_t howmany, int64_t start);
 	

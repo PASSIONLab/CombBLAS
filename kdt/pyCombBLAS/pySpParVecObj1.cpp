@@ -281,6 +281,21 @@ pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::
 	return pySpParVecObj1(EWiseApply<Obj1>(a.v, b.v, *op, allowANulls, allowBNulls));
 }
 
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls)
+{
+	return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, allowANulls, allowBNulls));
+}
+
 /*
 pySpParVecObj1 pySpParVecObj1::zeros(int64_t howmany)
 {

@@ -13,8 +13,10 @@ public:
 	
 protected:
 
-	//friend class pySpParMat;
-	//friend class pySpParMatBool;
+	friend class pySpParMat;
+	friend class pySpParMatObj2;
+	friend class pySpParMatObj1;
+	friend class pySpParMatBool;
 	friend class pyDenseParVecObj2;
 	friend class pyDenseParVecObj1;
 	
@@ -105,6 +107,10 @@ public:
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
+
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
 
 
 //      EWiseMult has 2 flavors:
