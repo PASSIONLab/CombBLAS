@@ -1098,6 +1098,7 @@ CombBLAS/bc-runtimes/SCALE24/484cores_b256.out -text
 CombBLAS/bc-runtimes/SCALE24/529cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE24/576cores_b512.out -text
 CombBLAS/bc-runtimes/SCALE24/625cores_b512.out -text
+CombBLAS/betatests/2d.cpp -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/graph500-1.2/COPYING -text
