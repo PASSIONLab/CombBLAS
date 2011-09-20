@@ -14,10 +14,11 @@ bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
 	return !(iss >> f >> t).fail();
 }
 
-void DoAG(MPI_Comm & World, int N, int rank)
+void DoAG(MPI_Comm & World, int N)
 {
-	int size;
+	int size, rank;
 	MPI_Comm_size(World, &size); 
+	MPI_Comm_rank(World, &rank);
 
 	int * recvcnt = new int[size];
 	N = N + rank;	// add some noise
@@ -54,7 +55,7 @@ void DoAG(MPI_Comm & World, int N, int rank)
 
 	if(rank == 0)
         {
-		cout << "*** Subsequent 10 runs with the same data ***" << 
+		cout << "*** Subsequent 10 runs with the same data ***" << endl;
                 cout << "Time (average): " << (t2-t1)/10 << " seconds" << endl;
                 cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(t2-t1) << " bytes/sec" << endl;
         }
@@ -66,10 +67,11 @@ void DoAG(MPI_Comm & World, int N, int rank)
 }
 
 
-void DoA2A(MPI_Comm & World, int N, int rank)
+void DoA2A(MPI_Comm & World, int N)
 {
-	int size;
+	int size, rank;
 	MPI_Comm_size(World, &size); 
+	MPI_Comm_rank(World, &rank);
 
 	int * sendcnt = new int[size];
 	int * recvcnt = new int[size];
@@ -120,7 +122,7 @@ void DoA2A(MPI_Comm & World, int N, int rank)
 
 	if(rank == 0)
         {
-		cout << "*** Subsequent 10 runs with the same data ***" << 
+		cout << "*** Subsequent 10 runs with the same data ***" << endl;
                 cout << "Time (average): " << (t2-t1)/10 << " seconds" << endl;
                 cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(t2-t1) << " bytes/sec" << endl;
         }
@@ -159,8 +161,8 @@ int main(int argc, char* argv[])
 	int myprocrow = rank / grrows;
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &squarecolcomm );
-	DoA2A(squarerowcomm, SIZE, rank);
-	DoAG(squarecolcomm, SIZE, rank);
+	DoA2A(squarerowcomm, SIZE);
+	DoAG(squarecolcomm, SIZE);
 		
 	// Now do tall grid
 	grcols = grcols * 2;
