@@ -106,13 +106,24 @@ void DoA2A(MPI_Comm & World, int N)
 	double t1 = MPI_Wtime();
 	MPI_Alltoallv(data, sendcnt, sdispls, MPI_DOUBLE, recvbuf, recvcnt, rdispls, MPI_DOUBLE, World);
 	double t2 = MPI_Wtime();
+
+	double time = t2-t1;
+	double maxtime;
+	double avetime;
+	int grank;
+	MPI_Comm_size( MPI_COMM_WORLD, &nprocs); 
+	MPI_Comm_rank( MPI_COMM_WORLD, &grank);
+	MPI_Reduce( &time, &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+	MPI_Reduce( &time, &avetime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	avetime = avetime / static_cast<double>(nprocs);
 	
-	if(rank == 0)
+	if(grank == 0)
 	{
 		cout << "Alltoallv grid size: " << size << endl;
 		cout << "Total data received: " << totrecv << " doubles" << endl;
-		cout << "Time: " << t2-t1 << " seconds" << endl;
-		cout << "Bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(t2-t1) << " bytes/sec" << endl;
+		cout << "Average time: " << avetime << " seconds" << endl;
+		cout << "Max time: " << maxtime << " seconds" << endl;
+		cout << "Average bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(avetime) << " bytes/sec" << endl;
 	}
 
 	t1 = MPI_Wtime();
@@ -120,11 +131,18 @@ void DoA2A(MPI_Comm & World, int N)
         	MPI_Alltoallv(data, sendcnt, sdispls, MPI_DOUBLE, recvbuf, recvcnt, rdispls, MPI_DOUBLE, World);
         t2 = MPI_Wtime();
 
-	if(rank == 0)
+	time = t2-t1;
+
+	MPI_Reduce( &time, &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+	MPI_Reduce( &time, &avetime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+	avetime = avetime / static_cast<double>(nprocs);
+
+	if(grank == 0)
         {
 		cout << "*** Subsequent 10 runs with the same data ***" << endl;
-                cout << "Time (average): " << (t2-t1)/10 << " seconds" << endl;
-                cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(t2-t1) << " bytes/sec" << endl;
+                cout << "Average time: " << avetime/10 << " seconds" << endl;
+		cout << "Max time: " << maxtime/10 << " seconds" << endl;
+                cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(avetime) << " bytes/sec" << endl;
         }
 
 	delete [] sendcnt;
@@ -151,7 +169,7 @@ int main(int argc, char* argv[])
 	int rank, nprocs;
 	MPI_Init( 0, 0 );
 	MPI_Comm_size( MPI_COMM_WORLD, &nprocs); 
-    	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+    	MPI_Comm_rank( MPI_COMM_WORLD, &rank);
 	
 	// First do square grid
 	int grcols = (int)std::sqrt((float)nprocs);
