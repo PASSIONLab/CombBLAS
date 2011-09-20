@@ -2,9 +2,68 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 #include "mpi.h"
 
 using namespace std;
+
+template <class T>
+bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
+{
+	istringstream iss(s);
+	return !(iss >> f >> t).fail();
+}
+
+void DoAG(MPI_Comm & World, int N, int rank)
+{
+	int size;
+	MPI_Comm_size(World, &size); 
+
+	int * recvcnt = new int[size];
+	N = N + rank;	// add some noise
+	recvcnt[rank] = N;
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+	int * dpls = new int[size]();
+	partial_sum(recvcnt, recvcnt+size-1, dpls+1); 
+	int totrecv = accumulate(recvcnt, recvcnt+size, 0);
+	double * recvbuf = new double[totrecv];
+
+	double * data = new double[N];
+	for (int i = 0; i< N; ++i)
+	{
+		data[i] = (double) i;
+	}
+	random_shuffle(data, data + N);
+	
+	double t1 = MPI_Wtime();
+	MPI_Allgatherv(data, N, MPI_DOUBLE, recvbuf, recvcnt, dpls, MPI_DOUBLE, World);
+	double t2 = MPI_Wtime();
+
+	if(rank == 0)
+	{
+		cout << "AllGatherV Grid size: " << size << endl;
+		cout << "Total data received (per proc): " << totrecv << " doubles" << endl;
+		cout << "Time: " << t2-t1 << " seconds" << endl;
+		cout << "Bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(t2-t1) << " bytes/sec" << endl;
+	}
+
+	t1 = MPI_Wtime();
+	for(int i=0; i< 10; ++i)
+		MPI_Allgatherv(data, N, MPI_DOUBLE, recvbuf, recvcnt, dpls, MPI_DOUBLE, World);
+	t2 = MPI_Wtime();
+
+	if(rank == 0)
+        {
+		cout << "*** Subsequent 10 runs with the same data ***" << 
+                cout << "Time (average): " << (t2-t1)/10 << " seconds" << endl;
+                cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(t2-t1) << " bytes/sec" << endl;
+        }
+
+	delete [] recvcnt;
+	delete [] data;
+	delete [] recvbuf;
+	delete [] dpls;
+}
 
 
 void DoA2A(MPI_Comm & World, int N, int rank)
@@ -46,14 +105,26 @@ void DoA2A(MPI_Comm & World, int N, int rank)
 	MPI_Alltoallv(data, sendcnt, sdispls, MPI_DOUBLE, recvbuf, recvcnt, rdispls, MPI_DOUBLE, World);
 	double t2 = MPI_Wtime();
 	
-
 	if(rank == 0)
 	{
-		cout << "Grid size: " << size << endl;
+		cout << "Alltoallv grid size: " << size << endl;
 		cout << "Total data received: " << totrecv << " doubles" << endl;
 		cout << "Time: " << t2-t1 << " seconds" << endl;
 		cout << "Bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(t2-t1) << " bytes/sec" << endl;
 	}
+
+	t1 = MPI_Wtime();
+	for(int i=0; i< 10; ++i)
+        	MPI_Alltoallv(data, sendcnt, sdispls, MPI_DOUBLE, recvbuf, recvcnt, rdispls, MPI_DOUBLE, World);
+        t2 = MPI_Wtime();
+
+	if(rank == 0)
+        {
+		cout << "*** Subsequent 10 runs with the same data ***" << 
+                cout << "Time (average): " << (t2-t1)/10 << " seconds" << endl;
+                cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(t2-t1) << " bytes/sec" << endl;
+        }
+
 	delete [] sendcnt;
 	delete [] recvcnt;
 	delete [] data;
@@ -62,9 +133,16 @@ void DoA2A(MPI_Comm & World, int N, int rank)
 	delete [] rdispls;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-	int SIZE = 1000000;	// data size: one million
+	if(argc < 2)
+	{
+		cout << "Please specify the data size in millions (example: 4 means four millions doubles)";
+		return 0;
+	}
+	int SIZE;
+	from_string(SIZE,string(argv[1]),std::dec);
+	SIZE *= 1000000;
 	MPI_Comm squarerowcomm, squarecolcomm;
 	MPI_Comm tallrowcomm, tallcolcomm;
 	MPI_Comm widerowcomm, widecolcomm;
@@ -82,12 +160,11 @@ int main()
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &squarecolcomm );
 	DoA2A(squarerowcomm, SIZE, rank);
+	DoAG(squarecolcomm, SIZE, rank);
 		
-	
 	// Now do tall grid
 	grcols = grcols * 2;
 	grrows = grrows / 2; 
-	
 	
 	return 0;
 }
