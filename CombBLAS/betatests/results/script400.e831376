@@ -1,0 +1,95 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Alltoallv grid size: 20
+Total data received: 16000000 doubles
+Average time: 0.548313 seconds
+Max time: 0.74338 seconds
+Average bandwidth: 2.33443e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.49436 seconds
+Max time: 0.680801 seconds
+Bandwidth (average): 2.5892e+08 bytes/sec
+Allgatherv grid size: 20
+Total data received (per proc): 10000190 doubles
+Average time: 0.59161 seconds
+Max time: 0.640087 seconds
+Average bandwidth: 1.35227e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.54612 seconds
+Max time: 0.560544 seconds
+Bandwidth (average): 1.46491e+08 bytes/sec
+### TALL GRID ###
+Alltoallv grid size: 10
+Total data received: 16000000 doubles
+Average time: 0.399814 seconds
+Max time: 0.47171 seconds
+Average bandwidth: 3.20149e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.370113 seconds
+Max time: 0.406627 seconds
+Bandwidth (average): 3.45841e+08 bytes/sec
+Allgatherv grid size: 40
+Total data received (per proc): 20000780 doubles
+Average time: 0.923355 seconds
+Max time: 1.01944 seconds
+Average bandwidth: 1.73288e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.880151 seconds
+Max time: 0.893428 seconds
+Bandwidth (average): 1.81794e+08 bytes/sec
+### WIDE GRID ###
+Alltoallv grid size: 40
+Total data received: 16000000 doubles
+Average time: 0.795729 seconds
+Max time: 0.983169 seconds
+Average bandwidth: 1.60859e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.733193 seconds
+Max time: 0.868357 seconds
+Bandwidth (average): 1.74579e+08 bytes/sec
+Allgatherv grid size: 10
+Total data received (per proc): 5000045 doubles
+Average time: 0.334024 seconds
+Max time: 0.380659 seconds
+Average bandwidth: 1.19753e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.336817 seconds
+Max time: 0.348774 seconds
+Bandwidth (average): 1.1876e+08 bytes/sec
+##IPM2v0.xx########################################################
+#
+# command   : ./a.out 500               
+# start     : Tue Sep 20 16:54:46 2011   host      : nid06022        
+# stop      : Tue Sep 20 16:55:37 2011   wallclock : 51.18
+# mpi_tasks : 400 on 17 nodes            %comm     : 82.62
+# mem [GB]  : 132.50                     gflop/sec : 0.00
+#
+#           :       [total]        <avg>          min          max
+# wallclock :      20460.36        51.15        51.08        51.18 
+# MPI       :      16904.98        42.26        41.47        42.84 
+# %wall     :
+#   MPI     :                      82.62        81.03        83.74 
+# #calls    :
+#   MPI     :         52000          130          130          130
+# mem [GB]  :        132.50         0.33         0.28         0.35 
+#
+###################################################################
+Application 3637605 resources: utime ~19915s, stime ~892s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script400
+ +          Job Id: 831376.sdb
+ +          System: hopper
+ +     Queued Time: Tue Sep 20 16:54:05 2011
+ +      Start Time: Tue Sep 20 16:55:06 2011
+ + Completion Time: Tue Sep 20 16:56:03 2011
+ +            User: abuluc
+ +        MOM Host: nid03935
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:29330:hopper09,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5304kb,vmem=36608kb,walltime=00:00:57
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/betatests
+ +     Submit Args: script400
+ + --------------------------------------------------------------------------
+
