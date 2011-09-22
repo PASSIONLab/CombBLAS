@@ -59,6 +59,7 @@ void DoAG(MPI_Comm & World, int N)
 		cout << "Average bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(avetime) << " bytes/sec" << endl;
 	}
 
+	MPI_Barrier(MPI_COMM_WORLD);
 	t1 = MPI_Wtime();
 	for(int i=0; i< 10; ++i)
 		MPI_Allgatherv(data, N, MPI_DOUBLE, recvbuf, recvcnt, dpls, MPI_DOUBLE, World);
@@ -174,12 +175,12 @@ int main(int argc, char* argv[])
 {
 	if(argc < 2)
 	{
-		cout << "Please specify the data size in millions (example: 4 means four millions doubles)";
+		cout << "Please specify the number of vertices (data size) in thousands";
 		return 0;
 	}
-	int SIZE;
-	from_string(SIZE,string(argv[1]),std::dec);
-	SIZE *= 1000000;
+	int n;
+	from_string(n,string(argv[1]),std::dec);
+	n *= 1000;
 	MPI_Comm squarerowcomm, squarecolcomm;
 	MPI_Comm tallrowcomm, tallcolcomm;
 	MPI_Comm widerowcomm, widecolcomm;
@@ -193,15 +194,38 @@ int main(int argc, char* argv[])
 	int grrows = grcols;
 	
     	int myproccol = rank % grcols;
-	int myprocrow = rank / grrows;
-    	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );
+	int myprocrow = rank / grcols;
+    	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );  // processes with the same color are in the same new communicator 
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &squarecolcomm );
-	DoA2A(squarerowcomm, SIZE);
-	DoAG(squarecolcomm, SIZE);
+	DoA2A(squarerowcomm, 32*n);
+	DoAG(squarecolcomm, n);
 		
+
+	if(rank == 0)
+		cout << "### TALL GRID ###" << endl;
 	// Now do tall grid
-	grcols = grcols * 2;
-	grrows = grrows / 2; 
+	int tallgrcols = grcols / 2;
+	int tallgrrows = grrows * 2; 
+    	myproccol = rank % tallgrcols;
+	myprocrow = rank / tallgrcols;
+    	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &tallrowcomm );
+    	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &tallcolcomm );
+	DoA2A(tallrowcomm, 32*n);
+	DoAG(tallcolcomm, n);
+
+	if(rank == 0)
+		cout << "### WIDE GRID ###" << endl;
+	// Now do wide grid
+	int widegrcols = grcols * 2;
+	int widegrrows = grrows / 2; 
+    	myproccol = rank % widegrcols;
+	myprocrow = rank / widegrcols;
+    	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &widerowcomm );
+    	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &widecolcomm );
+	DoA2A(widerowcomm, 32*n);
+	DoAG(widecolcomm, n);
+
+	MPI_Finalize( );
 	
 	return 0;
 }
