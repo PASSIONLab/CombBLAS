@@ -43,19 +43,40 @@ int64_t pySpParMatObj1::getncol()
 {
 	return A.getncol();
 }
-	
+
+class Obj1ReadSaveHandler
+{
+public:
+	Obj1 getNoNum(pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col) { return Obj1(); }
+
+	template <typename c, typename t>
+	Obj1 read(std::basic_istream<c,t>& is, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
+	{
+		Obj1 ret;
+		ret.loadCpp(is, row, col);
+		return ret;
+	}
+
+	template <typename c, typename t>
+	void save(std::basic_ostream<c,t>& os, const Obj1& v, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
+	{
+		v.saveCpp(os);
+	}
+};
+
 void pySpParMatObj1::load(const char* filename)
 {
 	ifstream input(filename);
-	A.ReadDistribute(input, 0);
+	A.ReadDistribute(input, 0, false, Obj1ReadSaveHandler());
 	input.close();
 }
 
 void pySpParMatObj1::save(const char* filename)
 {
-	ofstream output(filename);
-	A.put(output);
-	output.close();
+	//ofstream output(filename);
+	//A.put(output);
+	A.SaveGathered(filename, Obj1ReadSaveHandler());
+	//output.close();
 }
 
 #if 0

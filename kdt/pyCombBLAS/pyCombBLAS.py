@@ -566,17 +566,20 @@ class Obj1(_object):
     __swig_setmethods__["weight"] = _pyCombBLAS.Obj1_weight_set
     __swig_getmethods__["weight"] = _pyCombBLAS.Obj1_weight_get
     if _newclass:weight = _swig_property(_pyCombBLAS.Obj1_weight_get, _pyCombBLAS.Obj1_weight_set)
-    __swig_setmethods__["type"] = _pyCombBLAS.Obj1_type_set
-    __swig_getmethods__["type"] = _pyCombBLAS.Obj1_type_get
-    if _newclass:type = _swig_property(_pyCombBLAS.Obj1_type_get, _pyCombBLAS.Obj1_type_set)
-    def __repr__(*args): return _pyCombBLAS.Obj1___repr__(*args)
-    def __eq__(*args): return _pyCombBLAS.Obj1___eq__(*args)
-    def __ne__(*args): return _pyCombBLAS.Obj1___ne__(*args)
-    def __lt__(*args): return _pyCombBLAS.Obj1___lt__(*args)
+    __swig_setmethods__["category"] = _pyCombBLAS.Obj1_category_set
+    __swig_getmethods__["category"] = _pyCombBLAS.Obj1_category_get
+    if _newclass:category = _swig_property(_pyCombBLAS.Obj1_category_get, _pyCombBLAS.Obj1_category_set)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj1(*args)
         try: self.this.append(this)
         except: self.this = this
+    def __repr__(*args): return _pyCombBLAS.Obj1___repr__(*args)
+    def __eq__(*args): return _pyCombBLAS.Obj1___eq__(*args)
+    def __ne__(*args): return _pyCombBLAS.Obj1___ne__(*args)
+    def __lt__(*args): return _pyCombBLAS.Obj1___lt__(*args)
+    __swig_setmethods__["hasPassedFilter"] = _pyCombBLAS.Obj1_hasPassedFilter_set
+    __swig_getmethods__["hasPassedFilter"] = _pyCombBLAS.Obj1_hasPassedFilter_get
+    if _newclass:hasPassedFilter = _swig_property(_pyCombBLAS.Obj1_hasPassedFilter_get, _pyCombBLAS.Obj1_hasPassedFilter_set)
     __swig_destroy__ = _pyCombBLAS.delete_Obj1
     __del__ = lambda self : None;
 Obj1_swigregister = _pyCombBLAS.Obj1_swigregister
@@ -590,17 +593,20 @@ class Obj2(_object):
     __swig_setmethods__["weight"] = _pyCombBLAS.Obj2_weight_set
     __swig_getmethods__["weight"] = _pyCombBLAS.Obj2_weight_get
     if _newclass:weight = _swig_property(_pyCombBLAS.Obj2_weight_get, _pyCombBLAS.Obj2_weight_set)
-    __swig_setmethods__["type"] = _pyCombBLAS.Obj2_type_set
-    __swig_getmethods__["type"] = _pyCombBLAS.Obj2_type_get
-    if _newclass:type = _swig_property(_pyCombBLAS.Obj2_type_get, _pyCombBLAS.Obj2_type_set)
-    def __repr__(*args): return _pyCombBLAS.Obj2___repr__(*args)
-    def __eq__(*args): return _pyCombBLAS.Obj2___eq__(*args)
-    def __ne__(*args): return _pyCombBLAS.Obj2___ne__(*args)
-    def __lt__(*args): return _pyCombBLAS.Obj2___lt__(*args)
+    __swig_setmethods__["category"] = _pyCombBLAS.Obj2_category_set
+    __swig_getmethods__["category"] = _pyCombBLAS.Obj2_category_get
+    if _newclass:category = _swig_property(_pyCombBLAS.Obj2_category_get, _pyCombBLAS.Obj2_category_set)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj2(*args)
         try: self.this.append(this)
         except: self.this = this
+    def __repr__(*args): return _pyCombBLAS.Obj2___repr__(*args)
+    def __eq__(*args): return _pyCombBLAS.Obj2___eq__(*args)
+    def __ne__(*args): return _pyCombBLAS.Obj2___ne__(*args)
+    def __lt__(*args): return _pyCombBLAS.Obj2___lt__(*args)
+    __swig_setmethods__["hasPassedFilter"] = _pyCombBLAS.Obj2_hasPassedFilter_set
+    __swig_getmethods__["hasPassedFilter"] = _pyCombBLAS.Obj2_hasPassedFilter_get
+    if _newclass:hasPassedFilter = _swig_property(_pyCombBLAS.Obj2_hasPassedFilter_get, _pyCombBLAS.Obj2_hasPassedFilter_set)
     __swig_destroy__ = _pyCombBLAS.delete_Obj2
     __del__ = lambda self : None;
 Obj2_swigregister = _pyCombBLAS.Obj2_swigregister
