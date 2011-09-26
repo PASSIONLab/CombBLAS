@@ -144,8 +144,35 @@ public:
 
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
-	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false);
-	void SaveGathered(string filename) const;
+	//template <typename II, typename TT>
+	class ScalarReadSaveHandler
+	{
+	public:
+		NT getNoNum(IT row, IT col) { return static_cast<NT>(1); }
+
+		template <typename c, typename t>
+		NT read(std::basic_istream<c,t>& is, IT row, IT col)
+		{
+			NT v;
+			is >> v;
+			return v;
+		}
+	
+		template <typename c, typename t>
+		void save(std::basic_ostream<c,t>& os, const NT& v, IT row, IT col)
+		{
+			os << v;
+		}
+	};
+	
+	template <class HANDLER>
+	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler);
+	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false) { return ReadDistribute(infile, master, nonum, ScalarReadSaveHandler()); }
+
+	template <class HANDLER>
+	void SaveGathered(string filename, HANDLER handler) const;
+	void SaveGathered(string filename) const { SaveGathered(filename, ScalarReadSaveHandler()); }
+	
 	ofstream& put(ofstream& outfile) const;
 	void PrintForPatoh(string filename) const;
 

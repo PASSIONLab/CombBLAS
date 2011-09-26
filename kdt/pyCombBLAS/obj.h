@@ -14,16 +14,22 @@ public:
 ///// USER CHANGEABLE CODE BEGIN
 
 	double weight;
-	int type;
+	int category;
+
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj1(): weight(0), category(0) {}
 
 	char *__repr__() const {
 		static char temp[256];
-		sprintf(temp,"[ %lf, %d ]", weight,type);
+		sprintf(temp,"[ %lf, %d ]", weight,category);
 		return &temp[0];
 	}
 	
 	bool __eq__(const Obj1& other) const {
-		return weight == other.weight && type == other.type;
+		return weight == other.weight && category == other.category;
 	}
 
 	bool __ne__(const Obj1& other) const {
@@ -35,19 +41,32 @@ public:
 		return weight < other.weight;
 	}
 
-	// Note: It's important that this default constructor creates a "zero" element. Some operations
-	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
-	// "zero" rule is not followed then you may get different results on different numbers of
-	// processors.
-	Obj1(): weight(0), type(0) {}
+//INTERFACE_INCLUDE_END
+	// The functions below are NOT accessible from Python.
+
+	// This function is used to load this object from a file.
+	// 'is' is a regular C++ input stream (like cin), and row and column specify
+	// the 0-based row and column of this object in the input file.
+	template <typename c, typename t>
+	void loadCpp(std::basic_istream<c,t>& is, int64_t row, int64_t column)
+	{
+		is >> weight;
+		category = 0;
+	}
+
+	// This function is used to save this object to a file.
+	template <typename c, typename t>
+	void saveCpp(std::basic_ostream<c,t>& os) const
+	{
+		os << weight;
+	}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 
-//INTERFACE_INCLUDE_END
+	// Todo: Remove this constructor as soon as possible
 	Obj1(int64_t val) {}
-	//Obj1(bool val) {}
 
 	bool operator==(const Obj1& other) const {
 		return __eq__(other);
@@ -65,6 +84,8 @@ public:
 	static swig_type_info*& SwigTypeInfo;
 	
 //INTERFACE_INCLUDE_BEGIN
+	// for filtering matrices.
+	bool hasPassedFilter;
 };
 
 
@@ -75,16 +96,22 @@ public:
 ///// USER CHANGEABLE CODE BEGIN
 
 	double weight;
-	int type;
+	int category;
+
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj2(): weight(0), category(0) {}
 
 	char *__repr__() const {
 		static char temp[256];
-		sprintf(temp,"[ %lf, %d ]", weight,type);
+		sprintf(temp,"[ %lf, %d ]", weight,category);
 		return &temp[0];
 	}
 	
 	bool __eq__(const Obj2& other) const {
-		return weight == other.weight && type == other.type;
+		return weight == other.weight && category == other.category;
 	}
 
 	bool __ne__(const Obj2& other) const {
@@ -96,17 +123,31 @@ public:
 		return weight < other.weight;
 	}
 
-	// Note: It's important that this default constructor creates a "zero" element. Some operations
-	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
-	// "zero" rule is not followed then you may get different results on different numbers of
-	// processors.
-	Obj2(): weight(0), type(0) {}
+//INTERFACE_INCLUDE_END
+	// The functions below are NOT accessible from Python.
+
+	// This function is used to load this object from a file.
+	// 'is' is a regular C++ input stream (like cin), and row and column specify
+	// the 0-based row and column of this object in the input file.
+	template <typename c, typename t>
+	void loadCpp(std::basic_istream<c,t>& is, int64_t row, int64_t column)
+	{
+		is >> weight;
+		category = 0;
+	}
+
+	// This function is used to save this object to a file.
+	template <typename c, typename t>
+	void saveCpp(std::basic_ostream<c,t>& os) const
+	{
+		os << weight;
+	}
 
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 
-//INTERFACE_INCLUDE_END
+	// Todo: Remove this constructor as soon as possible
 	Obj2(int64_t val) {}
 
 	bool operator==(const Obj2& other) const {
@@ -125,6 +166,8 @@ public:
 	static swig_type_info*& SwigTypeInfo;
 
 //INTERFACE_INCLUDE_BEGIN
+	// for filtering matrices.
+	bool hasPassedFilter;
 };
 //INTERFACE_INCLUDE_END
 

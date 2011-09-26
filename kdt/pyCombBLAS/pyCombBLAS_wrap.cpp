@@ -35555,7 +35555,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj1_type_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj1_category_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj1 *arg1 = (Obj1 *) 0 ;
   int arg2 ;
@@ -35566,18 +35566,18 @@ SWIGINTERN PyObject *_wrap_Obj1_type_set(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Obj1_type_set",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj1_category_set",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_type_set" "', argument " "1"" of type '" "Obj1 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_category_set" "', argument " "1"" of type '" "Obj1 *""'"); 
   }
   arg1 = reinterpret_cast< Obj1 * >(argp1);
   ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj1_type_set" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj1_category_set" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
-  if (arg1) (arg1)->type = arg2;
+  if (arg1) (arg1)->category = arg2;
   
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -35586,7 +35586,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj1_type_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj1_category_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj1 *arg1 = (Obj1 *) 0 ;
   int result;
@@ -35594,14 +35594,37 @@ SWIGINTERN PyObject *_wrap_Obj1_type_get(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_type_get",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_category_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_type_get" "', argument " "1"" of type '" "Obj1 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_category_get" "', argument " "1"" of type '" "Obj1 *""'"); 
   }
   arg1 = reinterpret_cast< Obj1 * >(argp1);
-  result = (int) ((arg1)->type);
+  result = (int) ((arg1)->category);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Obj1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_Obj1")) SWIG_fail;
+  {
+    try {
+      result = (Obj1 *)new Obj1();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Obj1, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -35772,23 +35795,53 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Obj1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj1_hasPassedFilter_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  Obj1 *result = 0 ;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)":new_Obj1")) SWIG_fail;
-  {
-    try {
-      result = (Obj1 *)new Obj1();
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj1_hasPassedFilter_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_hasPassedFilter_set" "', argument " "1"" of type '" "Obj1 *""'"); 
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Obj1, SWIG_POINTER_NEW |  0 );
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj1_hasPassedFilter_set" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  if (arg1) (arg1)->hasPassedFilter = arg2;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj1_hasPassedFilter_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  bool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_hasPassedFilter_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_hasPassedFilter_get" "', argument " "1"" of type '" "Obj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  result = (bool) ((arg1)->hasPassedFilter);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
   return NULL;
@@ -35887,7 +35940,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj2_type_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_category_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
   int arg2 ;
@@ -35898,18 +35951,18 @@ SWIGINTERN PyObject *_wrap_Obj2_type_set(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_type_set",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_category_set",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_type_set" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_category_set" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
   ecode2 = SWIG_AsVal_int(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_type_set" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_category_set" "', argument " "2"" of type '" "int""'");
   } 
   arg2 = static_cast< int >(val2);
-  if (arg1) (arg1)->type = arg2;
+  if (arg1) (arg1)->category = arg2;
   
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -35918,7 +35971,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj2_type_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_category_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
   int result;
@@ -35926,14 +35979,37 @@ SWIGINTERN PyObject *_wrap_Obj2_type_get(PyObject *SWIGUNUSEDPARM(self), PyObjec
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_type_get",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_category_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_type_get" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_category_get" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
-  result = (int) ((arg1)->type);
+  result = (int) ((arg1)->category);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Obj2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj2 *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_Obj2")) SWIG_fail;
+  {
+    try {
+      result = (Obj2 *)new Obj2();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Obj2, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -36104,23 +36180,53 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Obj2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_hasPassedFilter_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  Obj2 *result = 0 ;
+  Obj2 *arg1 = (Obj2 *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)":new_Obj2")) SWIG_fail;
-  {
-    try {
-      result = (Obj2 *)new Obj2();
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_hasPassedFilter_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_hasPassedFilter_set" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_Obj2, SWIG_POINTER_NEW |  0 );
+  arg1 = reinterpret_cast< Obj2 * >(argp1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_hasPassedFilter_set" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  if (arg1) (arg1)->hasPassedFilter = arg2;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj2_hasPassedFilter_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj2 *arg1 = (Obj2 *) 0 ;
+  bool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_hasPassedFilter_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_hasPassedFilter_get" "', argument " "1"" of type '" "Obj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj2 * >(argp1);
+  result = (bool) ((arg1)->hasPassedFilter);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
   return NULL;
@@ -38183,24 +38289,28 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SecondMaxSemiring", _wrap_SecondMaxSemiring, METH_VARARGS, NULL},
 	 { (char *)"Obj1_weight_set", _wrap_Obj1_weight_set, METH_VARARGS, NULL},
 	 { (char *)"Obj1_weight_get", _wrap_Obj1_weight_get, METH_VARARGS, NULL},
-	 { (char *)"Obj1_type_set", _wrap_Obj1_type_set, METH_VARARGS, NULL},
-	 { (char *)"Obj1_type_get", _wrap_Obj1_type_get, METH_VARARGS, NULL},
+	 { (char *)"Obj1_category_set", _wrap_Obj1_category_set, METH_VARARGS, NULL},
+	 { (char *)"Obj1_category_get", _wrap_Obj1_category_get, METH_VARARGS, NULL},
+	 { (char *)"new_Obj1", _wrap_new_Obj1, METH_VARARGS, NULL},
 	 { (char *)"Obj1___repr__", _wrap_Obj1___repr__, METH_VARARGS, NULL},
 	 { (char *)"Obj1___eq__", _wrap_Obj1___eq__, METH_VARARGS, NULL},
 	 { (char *)"Obj1___ne__", _wrap_Obj1___ne__, METH_VARARGS, NULL},
 	 { (char *)"Obj1___lt__", _wrap_Obj1___lt__, METH_VARARGS, NULL},
-	 { (char *)"new_Obj1", _wrap_new_Obj1, METH_VARARGS, NULL},
+	 { (char *)"Obj1_hasPassedFilter_set", _wrap_Obj1_hasPassedFilter_set, METH_VARARGS, NULL},
+	 { (char *)"Obj1_hasPassedFilter_get", _wrap_Obj1_hasPassedFilter_get, METH_VARARGS, NULL},
 	 { (char *)"delete_Obj1", _wrap_delete_Obj1, METH_VARARGS, NULL},
 	 { (char *)"Obj1_swigregister", Obj1_swigregister, METH_VARARGS, NULL},
 	 { (char *)"Obj2_weight_set", _wrap_Obj2_weight_set, METH_VARARGS, NULL},
 	 { (char *)"Obj2_weight_get", _wrap_Obj2_weight_get, METH_VARARGS, NULL},
-	 { (char *)"Obj2_type_set", _wrap_Obj2_type_set, METH_VARARGS, NULL},
-	 { (char *)"Obj2_type_get", _wrap_Obj2_type_get, METH_VARARGS, NULL},
+	 { (char *)"Obj2_category_set", _wrap_Obj2_category_set, METH_VARARGS, NULL},
+	 { (char *)"Obj2_category_get", _wrap_Obj2_category_get, METH_VARARGS, NULL},
+	 { (char *)"new_Obj2", _wrap_new_Obj2, METH_VARARGS, NULL},
 	 { (char *)"Obj2___repr__", _wrap_Obj2___repr__, METH_VARARGS, NULL},
 	 { (char *)"Obj2___eq__", _wrap_Obj2___eq__, METH_VARARGS, NULL},
 	 { (char *)"Obj2___ne__", _wrap_Obj2___ne__, METH_VARARGS, NULL},
 	 { (char *)"Obj2___lt__", _wrap_Obj2___lt__, METH_VARARGS, NULL},
-	 { (char *)"new_Obj2", _wrap_new_Obj2, METH_VARARGS, NULL},
+	 { (char *)"Obj2_hasPassedFilter_set", _wrap_Obj2_hasPassedFilter_set, METH_VARARGS, NULL},
+	 { (char *)"Obj2_hasPassedFilter_get", _wrap_Obj2_hasPassedFilter_get, METH_VARARGS, NULL},
 	 { (char *)"delete_Obj2", _wrap_delete_Obj2, METH_VARARGS, NULL},
 	 { (char *)"Obj2_swigregister", Obj2_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_UnaryPredicateObj", _wrap_delete_UnaryPredicateObj, METH_VARARGS, NULL},

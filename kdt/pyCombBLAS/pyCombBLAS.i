@@ -983,16 +983,22 @@ public:
 ///// USER CHANGEABLE CODE BEGIN
 
 	double weight;
-	int type;
+	int category;
+
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj1(): weight(0), category(0) {}
 
 	char *__repr__() const {
 		static char temp[256];
-		sprintf(temp,"[ %lf, %d ]", weight,type);
+		sprintf(temp,"[ %lf, %d ]", weight,category);
 		return &temp[0];
 	}
 	
 	bool __eq__(const Obj1& other) const {
-		return weight == other.weight && type == other.type;
+		return weight == other.weight && category == other.category;
 	}
 
 	bool __ne__(const Obj1& other) const {
@@ -1004,16 +1010,8 @@ public:
 		return weight < other.weight;
 	}
 
-	// Note: It's important that this default constructor creates a "zero" element. Some operations
-	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
-	// "zero" rule is not followed then you may get different results on different numbers of
-	// processors.
-	Obj1(): weight(0), type(0) {}
-
-///// USER CHANGEABLE CODE END
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-
+	// for filtering matrices.
+	bool hasPassedFilter;
 };
 
 
@@ -1024,16 +1022,22 @@ public:
 ///// USER CHANGEABLE CODE BEGIN
 
 	double weight;
-	int type;
+	int category;
+
+	// Note: It's important that this default constructor creates a "zero" element. Some operations
+	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
+	// "zero" rule is not followed then you may get different results on different numbers of
+	// processors.
+	Obj2(): weight(0), category(0) {}
 
 	char *__repr__() const {
 		static char temp[256];
-		sprintf(temp,"[ %lf, %d ]", weight,type);
+		sprintf(temp,"[ %lf, %d ]", weight,category);
 		return &temp[0];
 	}
 	
 	bool __eq__(const Obj2& other) const {
-		return weight == other.weight && type == other.type;
+		return weight == other.weight && category == other.category;
 	}
 
 	bool __ne__(const Obj2& other) const {
@@ -1045,16 +1049,8 @@ public:
 		return weight < other.weight;
 	}
 
-	// Note: It's important that this default constructor creates a "zero" element. Some operations
-	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
-	// "zero" rule is not followed then you may get different results on different numbers of
-	// processors.
-	Obj2(): weight(0), type(0) {}
-
-///// USER CHANGEABLE CODE END
-////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-
+	// for filtering matrices.
+	bool hasPassedFilter;
 };
 
 namespace op {

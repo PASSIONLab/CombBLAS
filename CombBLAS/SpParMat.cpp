@@ -1591,7 +1591,8 @@ void SpParMat<IT,NT,DER>::Transpose()
 
 
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
+template <class HANDLER>
+void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
 {
 	int proccols = commGrid->GetGridCols();
 	int procrows = commGrid->GetGridRows();
@@ -1682,7 +1683,10 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename) const
 				{
 					for(int k=0; k< rowcnt; ++k)
 					{
-						out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t" << ents[k].second << endl;
+						//out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t" << ents[k].second << endl;
+						out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t";
+						handler.save(out, ents[k].second, j + roffset, ents[k].first);
+						out << endl;
 					}
 					delete [] ents;
 				}
@@ -1881,7 +1885,8 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! May perform better when the data is already reverse column-sorted (i.e. in decreasing order)
 //! if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 template <class IT, class NT, class DER>
-ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum)
+template <class HANDLER>
+ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler)
 {
 	IT total_m, total_n, total_nnz;
 	IT m_perproc = 0, n_perproc = 0;
@@ -1953,27 +1958,18 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
 
 			IT temprow, tempcol;
-			NT tempval;
-			double loadval;
+			//NT tempval;
+			//double loadval;
 			IT cnz = 0;
 			char line[1024];
+			bool nonumline = nonum;
 			while ( (!infile.eof()) && cnz < total_nnz)
-			{
-				/*
-				infile >> temprow >> tempcol;
-				if(nonum)
-					tempval = static_cast<NT>(1);
-				else
-				{
-					//infile >> tempval;
-					infile >> loadval;
-					tempval = static_cast<NT>(loadval);
-				}*/
-				
+			{				
 				// read one line at a time so that missing numerical values can be detected
 				infile.getline(line, 1024);
 				stringstream linestream(line);
 				linestream >> temprow >> tempcol;
+				/*
 				if(nonum)
 					tempval = static_cast<NT>(1);
 				else
@@ -1989,6 +1985,12 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 						linestream >> loadval;
 						tempval = static_cast<NT>(loadval);
 					}
+				}*/
+				if (!nonumline)
+				{
+					// see if this line has a value
+					linestream >> skipws;
+					nonumline = linestream.eof();
 				}
 
 				--temprow;	// file is 1-based where C-arrays are 0-based
@@ -1997,7 +1999,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 				int colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
 				rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
 				cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
-				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempval;
+				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = nonumline ? handler.getNoNum(temprow, tempcol) : handler.read(linestream, temprow, tempcol); //tempval;
 				++ (ccurptrs[colrec]);				
 
 				if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !

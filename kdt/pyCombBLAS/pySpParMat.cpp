@@ -47,15 +47,16 @@ int64_t pySpParMat::getncol()
 void pySpParMat::load(const char* filename)
 {
 	ifstream input(filename);
-	A.ReadDistribute(input, 0);
+	A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler());
 	input.close();
 }
 
 void pySpParMat::save(const char* filename)
 {
-	ofstream output(filename);
-	A.put(output);
-	output.close();
+	//ofstream output(filename);
+	//A.put(output);
+	//output.close();
+	A.SaveGathered(filename);
 }
 
 // Copied directly from Aydin's C++ Graph500 code
