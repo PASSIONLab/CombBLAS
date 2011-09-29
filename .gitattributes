@@ -1398,6 +1398,7 @@ kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
 kdt/ObjMethods.py -text
+kdt/SpVec.py -text
 kdt/SpVecObj.py -text
 kdt/UFget.py -text
 kdt/__init__.py -text
@@ -1450,6 +1451,7 @@ test/TestHyGraph.py -text
 test/TestKDT.py -text
 test/TestParVec.py -text
 test/TestSpParVec.py -text
+test/TestSpVec.py -text
 test/TestSpVecObj.py -text
 test/note_for_kdt_developers.txt -text
 test/testfiles/small_hyGraph.mtx -text
