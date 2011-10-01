@@ -370,14 +370,18 @@ public:
 public:
 	// The functions commented out here presently do not exist in CombBLAS
 	int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunctionObj* op);
 	//pySpParVec Find(op::UnaryFunction* op);
 	//pyDenseParVec FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
+	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 
 	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -499,6 +503,7 @@ public:
 	//pySpParVecObj1 Find(op::UnaryFunctionObj* op);
 	//pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj1& mask);
 
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
@@ -508,7 +513,6 @@ public:
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
-	void setNumToInd();
 
 public:
 	//static pySpParVecObj1 zeros(int64_t howmany);
@@ -592,6 +596,7 @@ public:
 	//pySpParVecObj2 Find(op::UnaryFunctionObj* op);
 	//pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj2& mask);
 
 	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
@@ -601,7 +606,6 @@ public:
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
-	void setNumToInd();
 
 public:
 	//static pySpParVecObj2 zeros(int64_t howmany);
@@ -698,12 +702,19 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunctionObj* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVec Find(op::UnaryFunction* op);
+	pySpParVec Find(op::UnaryFunctionObj* op);
 	pySpParVec __getitem__(op::UnaryFunction* op);
 	pyDenseParVec FindInds(op::UnaryFunction* op);
+	pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunction* op);
+	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
+	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
+
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
 	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
 
@@ -785,7 +796,7 @@ public:
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj1 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj1 __getitem__(op::UnaryPredicateObj* op);
-	pyDenseParVecObj1 FindInds(op::UnaryPredicateObj* op);
+	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
@@ -851,7 +862,7 @@ public:
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
-	pyDenseParVecObj2 FindInds(op::UnaryPredicateObj* op);
+	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
@@ -1065,6 +1076,7 @@ namespace op {
 class UnaryPredicateObj {
 	bool operator()(const Obj2& x) const { return call(x); }
 	bool operator()(const Obj1& x) const { return call(x); }
+	bool operator()(const double& x) const { return callD(x); }
 
 	protected:
 	UnaryPredicateObj() { // should never be called
@@ -1079,6 +1091,7 @@ class UnaryPredicateObj {
 class UnaryFunctionObj {
 	Obj2 operator()(const Obj2& x) const { return call(x); }
 	Obj1 operator()(const Obj1& x) const { return call(x); }
+	double operator()(const double& x) const { return callD(x); }
 	
 	protected:
 	UnaryFunctionObj() { // should never be called

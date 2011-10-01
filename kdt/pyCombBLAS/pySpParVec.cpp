@@ -150,6 +150,11 @@ int64_t pySpParVec::Count(op::UnaryFunction* op)
 	return v.Count(*op);
 }
 
+int64_t pySpParVec::Count(op::UnaryFunctionObj* op)
+{
+	return v.Count(*op);
+}
+
 /*
 pySpParVec pySpParVec::Find(op::UnaryFunction* op)
 {
@@ -168,6 +173,15 @@ pyDenseParVec pySpParVec::FindInds(op::UnaryFunction* op)
 void pySpParVec::Apply(op::UnaryFunction* op)
 {
 	v.Apply(*op);
+}
+void pySpParVec::Apply(op::UnaryFunctionObj* op)
+{
+	v.Apply(*op);
+}
+
+void pySpParVec::ApplyInd(op::BinaryFunctionObj* op)
+{
+	v.ApplyInd(*op);
 }
 /*
 void pySpParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
@@ -204,6 +218,21 @@ double pySpParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	return ret;
 }
 
+double pySpParVec::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
+{
+	if (!bf->associative && root())
+		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
+
+	doubleint ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
+	else
+		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+	bf->releaseMPIOp();
+	return ret;
+}
 
 pySpParVec pySpParVec::Sort()
 {

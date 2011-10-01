@@ -33,10 +33,30 @@ int64_t pyDenseParVecObj2::__len__() const
 	return v.TotalLength();
 }
 	
+class Obj2ReadSaveHandler
+{
+public:
+	Obj2 getNoNum(pySpParVecObj2::INDEXTYPE row, pySpParVecObj2::INDEXTYPE col) { return Obj2(); }
+
+	template <typename c, typename t>
+	Obj2 read(std::basic_istream<c,t>& is, pySpParVecObj2::INDEXTYPE index)
+	{
+		Obj2 ret;
+		ret.loadCpp(is, index, 0);
+		return ret;
+	}
+
+	template <typename c, typename t>
+	void save(std::basic_ostream<c,t>& os, const Obj2& v, pySpParVecObj2::INDEXTYPE index)
+	{
+		v.saveCpp(os);
+	}
+};
+
 void pyDenseParVecObj2::load(const char* filename)
 {
 	ifstream input(filename);
-	v.ReadDistribute(input, 0);
+	v.ReadDistribute(input, 0, Obj2ReadSaveHandler());
 	input.close();
 }
 
@@ -96,9 +116,9 @@ pySpParVecObj2 pyDenseParVecObj2::__getitem__(op::UnaryPredicateObj* op)
 	return Find(op);
 }
 
-pyDenseParVecObj2 pyDenseParVecObj2::FindInds(op::UnaryPredicateObj* op)
+pyDenseParVec pyDenseParVecObj2::FindInds(op::UnaryPredicateObj* op)
 {
-	pyDenseParVecObj2 ret;
+	pyDenseParVec ret(0, 0);
 	
 	FullyDistVec<INDEXTYPE, INDEXTYPE> fi_ret = v.FindInds(*op);
 	ret.v = fi_ret;

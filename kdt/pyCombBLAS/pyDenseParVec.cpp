@@ -175,7 +175,28 @@ int64_t pyDenseParVec::Count(op::UnaryFunction* op)
 	return v.Count(*op);
 }
 
+int64_t pyDenseParVec::Count(op::UnaryFunctionObj* op)
+{
+	return v.Count(*op);
+}
+
 double pyDenseParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
+{
+	if (!bf->associative && root())
+		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
+
+	doubleint ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
+	else
+		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+	bf->releaseMPIOp();
+	return ret;
+}
+
+double pyDenseParVec::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
 {
 	if (!bf->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
@@ -195,6 +216,12 @@ pySpParVec pyDenseParVec::Find(op::UnaryFunction* op)
 {
 	return pySpParVec(v.Find(*op));
 }
+
+pySpParVec pyDenseParVec::Find(op::UnaryFunctionObj* op)
+{
+	return pySpParVec(v.Find(*op));
+}
+
 pySpParVec pyDenseParVec::__getitem__(op::UnaryFunction* op)
 {
 	return Find(op);
@@ -209,12 +236,31 @@ pyDenseParVec pyDenseParVec::FindInds(op::UnaryFunction* op)
 	return ret;
 }
 
+pyDenseParVec pyDenseParVec::FindInds(op::UnaryFunctionObj* op)
+{
+	pyDenseParVec ret;
+	
+	FullyDistVec<INDEXTYPE, INDEXTYPE> fi_ret = v.FindInds(*op);
+	ret.v = fi_ret;
+	return ret;
+}
+
 void pyDenseParVec::Apply(op::UnaryFunction* op)
 {
 	v.Apply(*op);
 }
 
+void pyDenseParVec::Apply(op::UnaryFunctionObj* op)
+{
+	v.Apply(*op);
+}
+
 void pyDenseParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
+{
+	v.Apply(*op, mask.v);
+}
+
+void pyDenseParVec::ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask)
 {
 	v.Apply(*op, mask.v);
 }

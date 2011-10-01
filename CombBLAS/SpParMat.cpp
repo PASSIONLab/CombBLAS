@@ -1950,8 +1950,6 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
 
 			IT temprow, tempcol;
-			//NT tempval;
-			//double loadval;
 			IT cnz = 0;
 			char line[1024];
 			bool nonumline = nonum;
@@ -1961,23 +1959,6 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 				infile.getline(line, 1024);
 				stringstream linestream(line);
 				linestream >> temprow >> tempcol;
-				/*
-				if(nonum)
-					tempval = static_cast<NT>(1);
-				else
-				{
-					linestream >> skipws;
-					if (linestream.eof())
-					{
-						// there isn't a value
-						tempval = static_cast<NT>(1);
-					}
-					else
-					{
-						linestream >> loadval;
-						tempval = static_cast<NT>(loadval);
-					}
-				}*/
 				if (!nonumline)
 				{
 					// see if this line has a value
@@ -2223,7 +2204,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	
 	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0); 
 	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0); 
-	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, 0); 
+	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, NT()); 
 	
 	IT prelen = Atuples.getnnz();
 	//IT postlen = nrows.MyLocLength();

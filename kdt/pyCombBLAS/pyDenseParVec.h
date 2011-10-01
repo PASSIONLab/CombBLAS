@@ -76,12 +76,19 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunctionObj* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVec Find(op::UnaryFunction* op);
+	pySpParVec Find(op::UnaryFunctionObj* op);
 	pySpParVec __getitem__(op::UnaryFunction* op);
 	pyDenseParVec FindInds(op::UnaryFunction* op);
+	pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunction* op);
+	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
+	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
+
 	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
 	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
 

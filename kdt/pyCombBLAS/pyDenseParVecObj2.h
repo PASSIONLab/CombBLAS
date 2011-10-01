@@ -64,7 +64,7 @@ public:
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
-	pyDenseParVecObj2 FindInds(op::UnaryPredicateObj* op);
+	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);

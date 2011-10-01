@@ -385,10 +385,11 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 }
 
 template <class IT, class NT>
-ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
+template <class HANDLER>
+ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HANDLER handler)
 {
 	FullyDistSpVec<IT,NT> tmpSpVec(commGrid);
-	tmpSpVec.ReadDistribute(infile, master);
+	tmpSpVec.ReadDistribute(infile, master, handler);
 
 	*this = tmpSpVec;
 	return infile;
@@ -434,7 +435,7 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 		if(rank == 0)
 			cout << "FullyDistVec::GetElement can't be called on an empty vector." << endl;
 
-		return numeric_limits<NT>::min();
+		return NT();
 	}
 	IT locind;
 	int owner = Owner(indx, locind);
@@ -443,13 +444,13 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 		if (locind > (LocArrSize() -1))
 		{
 			cout << "FullyDistVec::GetElement local index > size" << endl;
-			ret = numeric_limits<NT>::min();
+			ret = NT();
 
 		}
 		else if (locind < 0)
 		{
 			cout << "FullyDistVec::GetElement local index < 0" << endl;
-			ret = numeric_limits<NT>::min();
+			ret = NT();
 		}
 		else
 		{

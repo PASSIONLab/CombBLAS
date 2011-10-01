@@ -144,7 +144,6 @@ public:
 
 	bool operator== (const SpParMat<IT,NT,DER> & rhs) const;
 
-	//template <typename II, typename TT>
 	class ScalarReadSaveHandler
 	{
 	public:

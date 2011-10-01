@@ -68,7 +68,30 @@ public:
 	template <class ITRHS, class NTRHS>
 	FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs ); // type converter constructor
 
-	ifstream& ReadDistribute (ifstream& infile, int master);
+	class ScalarReadSaveHandler
+	{
+	public:
+		NT getNoNum(IT index) { return static_cast<NT>(1); }
+
+		template <typename c, typename t>
+		NT read(std::basic_istream<c,t>& is, IT index)
+		{
+			NT v;
+			is >> v;
+			return v;
+		}
+	
+		template <typename c, typename t>
+		void save(std::basic_ostream<c,t>& os, const NT& v, IT index)
+		{
+			os << v;
+		}
+	};
+	
+	template <class HANDLER>
+	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
+	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }	
+
 	template <class ITRHS, class NTRHS>
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator

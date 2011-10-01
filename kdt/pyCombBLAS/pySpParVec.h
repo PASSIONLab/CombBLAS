@@ -62,14 +62,18 @@ public:
 public:
 	// The functions commented out here presently do not exist in CombBLAS
 	int64_t Count(op::UnaryFunction* op);
+	int64_t Count(op::UnaryFunctionObj* op);
 	//pySpParVec Find(op::UnaryFunction* op);
 	//pyDenseParVec FindInds(op::UnaryFunction* op);
 	void Apply(op::UnaryFunction* op);
+	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 
 	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
