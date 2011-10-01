@@ -1653,7 +1653,7 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	DeleteAll(numacc,colsize, dpls);
 
 	// FullyDistVec<IT,NT>(shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
-	FullyDistVec<IU, T_promote> y ( x.commGrid, A.getnrow(), id, id);
+	FullyDistVec<IU, T_promote> y ( x.commGrid, A.getnrow(), id);
 	IU yintlen = y.MyRowLength();
 	
 	int rowneighs = RowWorld.Get_size();
@@ -2085,66 +2085,81 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
  *	C) if fringe[i] = k for some k>=0 and parents[i] == -1, then pro = _binary_op(k,-1) is executed and returns k. Correct.
  *	D) if fringe[i] = k for some k>=0, and parents[i] == d for some d>=0, then pro = _binary_op(k,d) which returns -1 again. Correct.
 **/
-template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, typename promote_trait<NU1,NU2>::T_promote zero)
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+FullyDistSpVec<IU,RET> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
-  	if(*(V.commGrid) == *(W.commGrid))	
-   	{
-      		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
-      		Product.zero = zero;
-      		FullyDistVec< IU, NU1> DV (V);
-      		if(V.glen != W.glen)
-        	{
-          		cerr << "Vector dimensions don't match for EWiseApply\n";
-          		MPI::COMM_WORLD.Abort(DIMMISMATCH);
-        	}
-      		else
-        	{
-          		Product.glen = V.glen;
-          		Product.zero = zero;
-          		IU size= W.LocArrSize();
+	typedef RET T_promote; //typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
+	if(*(V.commGrid) == *(W.commGrid))	
+	{
+		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
+		FullyDistVec< IU, NU1> DV (V);
+		if(V.glen != W.glen)
+		{
+			cerr << "Vector dimensions don't match for EWiseApply\n";
+			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		}
+		else
+		{
+			Product.glen = V.glen;
+			IU size= W.LocArrSize();
 			IU spsize = V.getlocnnz();
-          		IU sp_iter = 0;
-          		for(IU i=0; i<size && sp_iter < spsize; ++i)
-            		{
-              			T_promote pro;
-              			if(V.ind[sp_iter] == i)
-                		{
-                 			pro = _binary_op(V.num[sp_iter], W.arr[i]);
-                  			sp_iter++;
-                		}
-              			else
-                		{
-                  			pro = _binary_op(zero, W.arr[i]);
-                		}
-              			if ( pro != zero) 	// keep only those
-                		{
-                  			Product.ind.push_back(i);
-                  			Product.num.push_back(pro);
-                		}
-            		}
-        	}
-      		return Product;
-    	}
-  	else
-    	{
-      		cout << "Grids are not comparable for EWiseApply" << endl; 
-      		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
-      		return FullyDistSpVec< IU,T_promote>();
-    	}
+			IU sp_iter = 0;
+			if (allowVNulls)
+			{
+				// iterate over the dense vector
+				for(IU i=0; i<size && sp_iter < spsize; ++i)
+				{
+					if(V.ind[sp_iter] == i)
+					{
+						if (_doOp(V.num[sp_iter], W.arr[i]))
+						{
+							Product.ind.push_back(i);
+							Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[i]));
+						}
+						sp_iter++;
+					}
+					else
+					{
+						if (_doOp(Vzero, W.arr[i]))
+						{
+							Product.ind.push_back(i);
+							Product.num.push_back(_binary_op(Vzero, W.arr[i]));
+						}
+					}
+				}
+			}
+			else
+			{
+				// iterate over the sparse vector
+				for(sp_iter = 0; sp_iter < spsize; ++sp_iter)
+				{
+					if (_doOp(V.num[sp_iter], W.arr[V.ind[sp_iter]]))
+					{
+						Product.ind.push_back(V.ind[sp_iter]);
+						Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[V.ind[sp_iter]]));
+					}
+				}
+			}
+		}
+		return Product;
+	}
+	else
+	{
+		cout << "Grids are not comparable for EWiseApply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return FullyDistSpVec< IU,T_promote>();
+	}
 }
 
-template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, bool allowVNulls, bool allowWNulls)
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero)
 {
 	typedef RET T_promote; // typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
 	{
 		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
-		Product.zero = T_promote();
 		if(V.glen != W.glen)
 		{
 			cerr << "Vector dimensions don't match for EWiseApply\n";
@@ -2164,8 +2179,11 @@ FullyDistSpVec<IU,RET> EWiseApply
 				if (*indV == *indW)
 				{
 					// overlap
-					Product.ind.push_back(*indV);
-					Product.num.push_back(_binary_op(*numV, *numW));
+					if (_doOp(*numV, *numW))
+					{
+						Product.ind.push_back(*indV);
+						Product.num.push_back(_binary_op(*numV, *numW));
+					}
 					indV++; numV++;
 					indW++; numW++;
 				}
@@ -2174,8 +2192,11 @@ FullyDistSpVec<IU,RET> EWiseApply
 					// V has value but W does not
 					if (allowWNulls)
 					{
-						Product.ind.push_back(*indV);
-						Product.num.push_back(_binary_op(*numV, NU2()));
+						if (_doOp(*numV, Wzero))
+						{
+							Product.ind.push_back(*indV);
+							Product.num.push_back(_binary_op(*numV, Wzero));
+						}
 					}
 					indV++; numV++;
 				}
@@ -2184,8 +2205,11 @@ FullyDistSpVec<IU,RET> EWiseApply
 					// W has value but V does not
 					if (allowVNulls)
 					{
-						Product.ind.push_back(*indW);
-						Product.num.push_back(_binary_op(NU1(), *numW));
+						if (_doOp(Vzero, *numW))
+						{
+							Product.ind.push_back(*indW);
+							Product.num.push_back(_binary_op(Vzero, *numW));
+						}
 					}
 					indW++; numW++;
 				}
@@ -2193,14 +2217,20 @@ FullyDistSpVec<IU,RET> EWiseApply
 			// clean up
 			while (allowWNulls && indV < V.ind.end())
 			{
-				Product.ind.push_back(*indV);
-				Product.num.push_back(_binary_op(*numV, NU2()));
+				if (_doOp(*numV, Wzero))
+				{
+					Product.ind.push_back(*indV);
+					Product.num.push_back(_binary_op(*numV, Wzero));
+				}
 				indV++; numV++;
 			}
 			while (allowVNulls && indW < W.ind.end())
 			{
-				Product.ind.push_back(*indW);
-				Product.num.push_back(_binary_op(NU1(), *numW));
+				if (_doOp(Vzero, *numW))
+				{
+					Product.ind.push_back(*indW);
+					Product.num.push_back(_binary_op(Vzero, *numW));
+				}
 				indW++; numW++;
 			}
 		}

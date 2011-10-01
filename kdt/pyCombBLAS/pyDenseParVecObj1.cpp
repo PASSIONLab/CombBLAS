@@ -11,7 +11,7 @@ pyDenseParVecObj1::pyDenseParVecObj1(VectType other): v(other)
 {
 }
 
-pyDenseParVecObj1::pyDenseParVecObj1(int64_t size, Obj1 id): v(size, id, Obj1())
+pyDenseParVecObj1::pyDenseParVecObj1(int64_t size, Obj1 id): v(size, id)
 {
 }
 

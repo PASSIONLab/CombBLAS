@@ -343,6 +343,7 @@ class pySpParVecObj2(_object):
     __del__ = lambda self : None;
 pySpParVecObj2_swigregister = _pyCombBLAS.pySpParVecObj2_swigregister
 pySpParVecObj2_swigregister(pySpParVecObj2)
+EWiseApply = _pyCombBLAS.EWiseApply
 
 class pyDenseParVec(_object):
     __swig_setmethods__ = {}
@@ -394,7 +395,6 @@ class pyDenseParVec(_object):
     __del__ = lambda self : None;
 pyDenseParVec_swigregister = _pyCombBLAS.pyDenseParVec_swigregister
 pyDenseParVec_swigregister(pyDenseParVec)
-EWiseApply = _pyCombBLAS.EWiseApply
 pyDenseParVec_range = _pyCombBLAS.pyDenseParVec_range
 
 class pyDenseParVecObj1(_object):

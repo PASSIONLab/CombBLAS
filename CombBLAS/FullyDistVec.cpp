@@ -32,30 +32,25 @@ THE SOFTWARE.
 
 template <class IT, class NT>
 FullyDistVec<IT, NT>::FullyDistVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>()
 { 
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (NT id)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(id)
-{ }
-
-template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval, NT id)
-:FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec (IT globallen, NT initval)
+:FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen)
 {
 	arr.resize(MyLocLength(), initval);
 }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, NT id)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid)
 { }
 
 template <class IT, class NT>
-FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), zero(id)
+FullyDistVec<IT, NT>::FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen)
 {
 	arr.resize(MyLocLength(), initval);
 }
@@ -69,9 +64,9 @@ FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conver
 template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen)), zero(static_cast<NT>(rhs.zero))
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen))
 {
-	arr.resize(static_cast<IT>(rhs.arr.size()), zero);
+	arr.resize(static_cast<IT>(rhs.arr.size()), NT());
 	
 	for(IT i=0; (unsigned)i < arr.size(); ++i)
 	{
@@ -124,9 +119,8 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRH
 		//FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
 		glen = static_cast<IT>(rhs.glen);
 		commGrid.reset(new CommGrid(*rhs.commGrid));
-		zero = static_cast<NT>(rhs.zero);
 		
-		arr.resize(rhs.arr.size(), zero);
+		arr.resize(rhs.arr.size(), NT());
 		for(IT i=0; (unsigned)i < arr.size(); ++i)
 		{
 			arr[i] = static_cast<NT>(rhs.arr[static_cast<ITRHS>(i)]);
@@ -142,7 +136,6 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< IT,N
 	{
 		FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		arr = rhs.arr;
-		zero = rhs.zero;
 	}
 	return *this;
 }	
@@ -151,9 +144,8 @@ template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)		// FullyDistSpVec->FullyDistVec conversion operator
 {
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
-	zero = rhs.zero;	// inherit zero from rhs
 	arr.resize(rhs.MyLocLength());
-	std::fill(arr.begin(), arr.end(), zero);	
+	std::fill(arr.begin(), arr.end(), NT());	
 
 	IT spvecsize = rhs.getlocnnz();
 	for(IT i=0; i< spvecsize; ++i)
@@ -175,10 +167,9 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 	}
 	else
 	{
-		zero = rhs.zero;
 		glen = rhs.getTotalLength();
 		arr.resize(MyLocLength());	// once glen is set, MyLocLength() works
-		fill(arr.begin(), arr.end(), zero);	
+		fill(arr.begin(), arr.end(), NT());	
 
 		int * sendcnts = NULL;
 		int * dpls = NULL;
@@ -208,7 +199,6 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::stealFrom(FullyDistVec<IT,NT> & vi
 {
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	arr.swap(victim.arr);
-	zero = victim.zero;
 	return *this;
 }
 
@@ -221,7 +211,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< I
 	#endif
 	for(IT i=0; i< spvecsize; ++i)
 	{
-		if(arr[rhs.ind[i]] == zero) // not set before
+		if(arr[rhs.ind[i]] == NT()) // not set before
 			arr[rhs.ind[i]] = rhs.num[i];
 		else
 			arr[rhs.ind[i]] += rhs.num[i];
@@ -249,15 +239,7 @@ template <class IT, class NT>
 template <typename _BinaryOperation>	
 void FullyDistVec<IT,NT>::EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op)
 {
-	if(zero == rhs.zero)
-	{
-		transform ( arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), __binary_op );
-	}
-	else
-	{
-		cout << "FullyDistVec objects have different identity (zero) elements..." << endl;
-		cout << "Operation didn't happen !" << endl;
-	}
+	transform ( arr.begin(), arr.end(), rhs.arr.begin(), arr.begin(), __binary_op );
 };
 
 
@@ -324,7 +306,7 @@ template <class IT, class NT>
 template <typename _Predicate>
 FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 {
-	FullyDistVec<IT,IT> found(commGrid, (IT) 0);
+	FullyDistVec<IT,IT> found(commGrid);
 	MPI::Intracomm World = commGrid->GetWorld();
 	int nprocs = commGrid->GetSize();
 	int rank = commGrid->GetRank();
@@ -624,7 +606,7 @@ template <class IT, class NT>
 FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-	FullyDistVec<IT,IT> temp(commGrid,IT());
+	FullyDistVec<IT,IT> temp(commGrid);
 	IT nnz = LocArrSize(); 
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
 	int nprocs = World.Get_size();
@@ -706,7 +688,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	}
 
 	MPI::Intracomm World = commGrid->GetWorld();
-	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, ri.zero, ri.zero);	// length(Indexed) = length(ri)
+	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, NT());	// length(Indexed) = length(ri)
 	int nprocs = World.Get_size();
 	vector< vector< IT > > data_req(nprocs);	
 	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
