@@ -60,10 +60,9 @@ class FullyDistVec: public FullyDist<IT,NT, typename disable_if< is_boolean<NT>:
 {
 public:
 	FullyDistVec ( );
-	FullyDistVec ( NT id) ;
-	FullyDistVec ( IT globallen, NT initval, NT id); 
-	FullyDistVec ( shared_ptr<CommGrid> grid, NT id);
-	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
+	FullyDistVec ( IT globallen, NT initval); 
+	FullyDistVec ( shared_ptr<CommGrid> grid);
+	FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 	FullyDistVec ( const FullyDistSpVec<IT, NT> & rhs ); // Sparse -> Dense conversion constructor
 
 	template <class ITRHS, class NTRHS>
@@ -92,8 +91,6 @@ public:
 	{
 		return GetElement(indx);
 	}
-	NT GetZero() const			{ return zero; }
-	void SetZero(const NT& z)	{ zero = z; }
 	
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
@@ -163,7 +160,6 @@ public:
 
 private:
 	vector< NT > arr;
-	NT zero;	//!< the element for non-existings scalars (0.0 for a vector on Reals, +infinity for a vector on the tropical semiring) 
 
 	template <typename _BinaryOperation>	
 	void EWise(const FullyDistVec<IT,NT> & rhs,  _BinaryOperation __binary_op);

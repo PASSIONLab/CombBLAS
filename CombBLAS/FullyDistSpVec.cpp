@@ -34,22 +34,22 @@ using namespace std;
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT, NT>::FullyDistSpVec ( shared_ptr<CommGrid> grid, IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(grid,globallen)
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec ()
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>()
 { };
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
-: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen), zero(0)
+: FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>(globallen)
 { }
 
 
@@ -61,7 +61,6 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< 
 		FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		ind = rhs.ind;
 		num = rhs.num;
-		zero = rhs.zero;
 	}
 	return *this;
 }
@@ -76,12 +75,11 @@ template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
-	zero = rhs.zero;
 
 	IT vecsize = rhs.LocArrSize();
 	for(IT i=0; i< vecsize; ++i)
 	{
-		if(rhs.arr[i] != rhs.zero)
+		//if(rhs.arr[i] != rhs.zero)
 		{
 			ind.push_back(i);
 			num.push_back(rhs.arr[i]);
@@ -96,7 +94,6 @@ void FullyDistSpVec<IT,NT>::stealFrom(FullyDistSpVec<IT,NT> & victim)
 	FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::operator= (victim);	// to update glen and commGrid
 	ind.swap(victim.ind);
 	num.swap(victim.num);
-	zero = victim.zero;
 }
 
 template <class IT, class NT>
@@ -186,7 +183,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 {
 	MPI::Intracomm World = commGrid->GetWorld();
 	// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
-	FullyDistVec<IT,NT> Indexed(ri.commGrid, ri.glen, zero, zero);
+	FullyDistVec<IT,NT> Indexed(ri.commGrid, ri.glen, NT());
 	int nprocs = World.Get_size();
         unordered_map<IT, IT> revr_map;       // inverted index that maps indices of *this to indices of output
 	vector< vector<IT> > data_req(nprocs);
@@ -445,7 +442,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 		while( j < rsize) 	// *this was depleted first
 		{
 			nind.push_back( rhs.ind[j] );
-			nnum.push_back( zero - (rhs.num[j++]) );
+			nnum.push_back( NT() - (rhs.num[j++]) );
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);

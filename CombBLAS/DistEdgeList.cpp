@@ -328,7 +328,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 	MPI::Intracomm World = DEL.commGrid->GetWorld(); 
 
 	// create permutation
-	FullyDistVec<IU, IU> globalPerm(DEL.commGrid, -1);
+	FullyDistVec<IU, IU> globalPerm(DEL.commGrid);
 	globalPerm.iota(DEL.getGlobalV(), 0);
 	globalPerm.RandPerm();	// now, randperm can return a 0-based permutation
 	IU locrows = globalPerm.MyLocLength(); 

@@ -162,8 +162,8 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	SpParHelper::Print(loopinfo.str());
 	A.PrintInfo();
 	
-	FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
-	FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+	FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+	FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 	A.Reduce(*ColSums, ::Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 	A.Reduce(*RowSums, ::Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 	SpParHelper::Print("Reductions done\n");
@@ -407,7 +407,7 @@ void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	outrows->v = irows;
 	outcols->v = icols;
 	
-	FullyDistVec<int64_t, doubleint> ones(irows.TotalLength(), 1, 0);
+	FullyDistVec<int64_t, doubleint> ones(irows.TotalLength(), 1);
 	outvals->v = ones;
 	/*
 	cout << "Find::vals:  ";

@@ -391,14 +391,6 @@ template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector	
 void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
 {
-	if(rvec.zero != id)
-	{
-		ostringstream outs;
-		outs << "SpParMat::Reduce(): Return vector's zero is different than set id"  << endl;
-		outs << "Setting rvec.zero to id (" << id << ") instead" << endl;
-		SpParHelper::Print(outs.str());
-		rvec.zero = id;
-	}
 	if(*rvec.commGrid != *commGrid)
 	{
 		SpParHelper::Print("Grids are not comparable, SpParMat::Reduce() fails !"); 
@@ -2229,9 +2221,9 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	IT globallen = getnnz();
 	SpTuples<IT,NT> Atuples(*spSeq);
 	
-	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0, distrows.zero); 
-	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0, distcols.zero); 
-	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, 0, distvals.zero); 
+	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0); 
+	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0); 
+	FullyDistVec<IT,NT> nvals ( distvals.commGrid, globallen, 0); 
 	
 	IT prelen = Atuples.getnnz();
 	//IT postlen = nrows.MyLocLength();
@@ -2305,8 +2297,8 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	IT globallen = getnnz();
 	SpTuples<IT,NT> Atuples(*spSeq);
 	
-	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0, distrows.zero); 
-	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0, distcols.zero); 
+	FullyDistVec<IT,IT> nrows ( distrows.commGrid, globallen, 0); 
+	FullyDistVec<IT,IT> ncols ( distcols.commGrid, globallen, 0); 
 	
 	IT prelen = Atuples.getnnz();
 	//IT postlen = nrows.MyLocLength();

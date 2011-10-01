@@ -15357,228 +15357,6 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_33(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  bool arg5 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  bool val5 ;
-  int ecode5 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  ecode5 = SWIG_AsVal_bool(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
-  } 
-  arg5 = static_cast< bool >(val5);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_34(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  bool arg5 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  bool val5 ;
-  int ecode5 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  ecode5 = SWIG_AsVal_bool(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
-  } 
-  arg5 = static_cast< bool >(val5);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_35(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  bool arg5 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  bool val5 ;
-  int ecode5 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  ecode5 = SWIG_AsVal_bool(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
-  } 
-  arg5 = static_cast< bool >(val5);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_36(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
   bool arg4 ;
@@ -15650,13 +15428,16 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_37(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_34(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
   pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  Obj1 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15664,17 +15445,345 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_37(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_35(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  Obj2 arg8 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_36(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  double arg8 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_37(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  Obj1 arg8 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -15696,19 +15805,42 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_37(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -15729,8 +15861,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_38(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVec *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  Obj2 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15738,17 +15873,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_38(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -15770,19 +15914,42 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_38(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -15803,8 +15970,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_39(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVec *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  double arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15812,17 +15982,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_39(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -15844,19 +16023,34 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_39(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -15877,8 +16071,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_40(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVecObj1 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  Obj1 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15886,17 +16083,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_40(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
@@ -15918,19 +16124,50 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_40(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -15951,8 +16188,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_41(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  Obj2 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -15960,17 +16200,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_41(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
@@ -15992,19 +16241,50 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_41(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16025,8 +16305,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_42(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  double arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16034,17 +16317,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_42(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
@@ -16066,19 +16358,42 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_42(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
   {
     try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16099,8 +16414,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_43(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVecObj1 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  Obj1 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16108,17 +16426,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_43(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
@@ -16140,19 +16467,50 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_43(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16173,8 +16531,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_44(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  Obj2 arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16182,17 +16543,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_44(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
@@ -16214,19 +16584,50 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_44(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
   {
     try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16247,8 +16648,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_45(PyObject *SWIGUNUSEDPARM(self), P
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  double arg8 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16256,17 +16660,26 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_45(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
@@ -16288,19 +16701,42 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_45(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
   arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
   {
     try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16358,8 +16794,8 @@ SWIGINTERN PyObject *pySpParVec_swigregister(PyObject *SWIGUNUSEDPARM(self), PyO
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_46(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
   bool arg4 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
@@ -16384,19 +16820,19 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_46(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
   }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
   ecode4 = SWIG_AsVal_bool(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
@@ -16404,7 +16840,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_46(PyObject *SWIGUNUSEDPARM(self), P
   arg4 = static_cast< bool >(val4);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16423,8 +16859,8 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_47(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16445,22 +16881,22 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_47(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
   }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16479,9 +16915,12 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_48(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16489,14 +16928,23 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_48(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -16505,27 +16953,42 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_48(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
   res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
-  arg4 = static_cast< bool >(val4);
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16544,7 +17007,229 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_49(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_50(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_51(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_52(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
@@ -16558,6 +17243,78 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_49(PyObject *SWIGUNUSEDPARM(self), P
   PyObject * obj2 = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_53(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -16579,251 +17336,29 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_49(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
   }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_50(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_51(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_52(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
   } 
-  arg4 = static_cast< bool >(val4);
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_53(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVec *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16842,9 +17377,11 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_54(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16852,14 +17389,20 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_54(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -16868,27 +17411,37 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_54(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
   } 
-  arg4 = static_cast< bool >(val4);
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16907,8 +17460,10 @@ fail:
 SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_55(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16916,11 +17471,17 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_55(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
@@ -16929,22 +17490,32 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_55(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
   }
   arg1 = reinterpret_cast< pySpParVec * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
   {
     try {
-      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16964,8 +17535,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_56(PyObject *SWIGUNUSEDPARM(self), P
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -16973,8 +17544,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_56(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -16997,16 +17568,16 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_56(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
   }
   arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   {
     try {
       result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
@@ -17029,6 +17600,1116 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_57(PyObject *SWIGUNUSEDPARM(self), P
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_58(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_59(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_60(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_61(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_62(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_63(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_64(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_65(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_66(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_67(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_68(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_69(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_70(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_71(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_72(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
@@ -17081,12 +18762,15 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_58(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_73(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  double arg7 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -17094,8 +18778,254 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_58(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "EWiseApply" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_74(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_75(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVec const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVec * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_76(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVec *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -17123,11 +19053,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_58(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   {
     try {
       result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
@@ -17146,7 +19076,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_59(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_77(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVec *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
@@ -17187,6 +19117,2274 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_59(PyObject *SWIGUNUSEDPARM(self), P
   {
     try {
       result = EWiseApply((pySpParVec const &)*arg1,(pySpParVec const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_78(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_79(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_80(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_81(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_82(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_83(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_84(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_85(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_86(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_87(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_88(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_89(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_90(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_91(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_92(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_93(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_94(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_95(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_96(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_97(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_98(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_99(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_100(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_101(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_102(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_103(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_104(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_105(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_106(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_107(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVec > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -18635,12 +22833,312 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_60(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_108(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVecObj1 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  Obj1 arg8 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_109(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_110(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_111(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj1 > result;
   void *argp1 = 0 ;
@@ -18649,8 +23147,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_60(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -18681,11 +23179,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_60(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -18709,12 +23207,433 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_61(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_112(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_113(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_114(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  Obj2 arg8 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_115(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_116(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_117(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj1 > result;
   void *argp1 = 0 ;
@@ -18723,8 +23642,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_61(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -18755,11 +23674,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_61(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -18783,12 +23702,425 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_62(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_118(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_119(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_120(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj1 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  double arg8 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_121(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj1 arg7 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_122(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_123(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj1 > result;
   void *argp1 = 0 ;
@@ -18797,8 +24129,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_62(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -18829,11 +24161,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_62(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -18842,6 +24174,127 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_62(PyObject *SWIGUNUSEDPARM(self), P
   {
     try {
       result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_124(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_125(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj1 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj1 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -18895,732 +24348,6 @@ SWIGINTERN PyObject *pySpParVecObj1_swigregister(PyObject *SWIGUNUSEDPARM(self),
   SWIG_TypeNewClientData(SWIGTYPE_p_pySpParVecObj1, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_63(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_64(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_65(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_66(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_67(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_68(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVecObj1 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj1(static_cast< const pySpParVecObj1& >(result))), SWIGTYPE_p_pySpParVecObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_69(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_70(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_71(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_72(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_73(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_74(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj1 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj1 const &)*arg1,(pySpParVec const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
 
 SWIGINTERN PyObject *_wrap_new_pySpParVecObj2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
@@ -20849,12 +25576,312 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_75(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_126(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVecObj2 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  Obj2 arg8 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_127(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_128(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_129(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj2 > result;
   void *argp1 = 0 ;
@@ -20863,8 +25890,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_75(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -20895,11 +25922,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_75(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -20923,12 +25950,433 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_76(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_130(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_131(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj2 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_132(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVecObj1 *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  Obj1 arg8 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  void *argp8 ;
+  int res8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    res8 = SWIG_ConvertPtr(obj7, &argp8, SWIGTYPE_p_Obj1,  0  | 0);
+    if (!SWIG_IsOK(res8)) {
+      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'"); 
+    }  
+    if (!argp8) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "8"" of type '" "Obj1""'");
+    } else {
+      Obj1 * temp = reinterpret_cast< Obj1 * >(argp8);
+      arg8 = *temp;
+      if (SWIG_IsNewObj(res8)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_133(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_134(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_135(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj2 > result;
   void *argp1 = 0 ;
@@ -20937,8 +26385,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_76(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -20969,11 +26417,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_76(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -20997,12 +26445,425 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_77(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_136(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_137(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVecObj1 *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_138(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  double arg8 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "EWiseApply" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_139(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  Obj2 arg7 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  void *argp7 ;
+  int res7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    res7 = SWIG_ConvertPtr(obj6, &argp7, SWIGTYPE_p_Obj2,  0  | 0);
+    if (!SWIG_IsOK(res7)) {
+      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'"); 
+    }  
+    if (!argp7) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "7"" of type '" "Obj2""'");
+    } else {
+      Obj2 * temp = reinterpret_cast< Obj2 * >(argp7);
+      arg7 = *temp;
+      if (SWIG_IsNewObj(res7)) delete temp;
+    }
+  }
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_140(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
+  bool arg5 ;
+  bool arg6 ;
+  SwigValueWrapper<pySpParVecObj2 > result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  bool val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_bool(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "EWiseApply" "', argument " "6"" of type '" "bool""'");
+  } 
+  arg6 = static_cast< bool >(val6);
+  {
+    try {
+      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_141(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = 0 ;
+  pySpParVec *arg2 = 0 ;
+  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   bool arg5 ;
   SwigValueWrapper<pySpParVecObj2 > result;
   void *argp1 = 0 ;
@@ -21011,8 +26872,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_77(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
@@ -21043,11 +26904,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_77(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   ecode5 = SWIG_AsVal_bool(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "EWiseApply" "', argument " "5"" of type '" "bool""'");
@@ -21071,293 +26932,12 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_delete_pySpParVecObj2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = (pySpParVecObj2 *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_pySpParVecObj2",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_DISOWN |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_pySpParVecObj2" "', argument " "1"" of type '" "pySpParVecObj2 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  {
-    try {
-      delete arg1;
-      
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *pySpParVecObj2_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *obj;
-  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_pySpParVecObj2, SWIG_NewClientData(obj));
-  return SWIG_Py_Void();
-}
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_78(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVecObj2 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_79(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVecObj2 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_80(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVecObj2 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_81(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  SwigValueWrapper<pySpParVecObj2 > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_82(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_142(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
   op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  bool arg4 ;
+  op::BinaryPredicateObj *arg4 = (op::BinaryPredicateObj *) 0 ;
   SwigValueWrapper<pySpParVecObj2 > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -21365,8 +26945,8 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_82(PyObject *SWIGUNUSEDPARM(self), P
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
@@ -21394,11 +26974,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_82(PyObject *SWIGUNUSEDPARM(self), P
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
   }
   arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "EWiseApply" "', argument " "4"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryPredicateObj * >(argp4);
   {
     try {
       result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
@@ -21417,7 +26997,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_83(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_143(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParVecObj2 *arg1 = 0 ;
   pySpParVec *arg2 = 0 ;
@@ -21467,369 +27047,6 @@ SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_83(PyObject *SWIGUNUSEDPARM(self), P
     }
   }
   resultobj = SWIG_NewPointerObj((new pySpParVecObj2(static_cast< const pySpParVecObj2& >(result))), SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_84(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_85(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj2 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_86(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_87(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVecObj1 const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_88(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  bool arg4 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  bool val4 ;
-  int ecode4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:EWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  ecode4 = SWIG_AsVal_bool(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "EWiseApply" "', argument " "4"" of type '" "bool""'");
-  } 
-  arg4 = static_cast< bool >(val4);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3,arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_EWiseApply__SWIG_89(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParVecObj2 *arg1 = 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryPredicateObj *arg3 = (op::BinaryPredicateObj *) 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:EWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp1) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "1"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "EWiseApply" "', argument " "3"" of type '" "op::BinaryPredicateObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryPredicateObj * >(argp3);
-  {
-    try {
-      result = EWiseApply((pySpParVecObj2 const &)*arg1,(pySpParVec const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -21838,12 +27055,12 @@ fail:
 
 SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[6];
+  PyObject *argv[9];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 5); ii++) {
+  for (ii = 0; (ii < argc) && (ii < 8); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 3) {
@@ -22038,11 +27255,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
           return _wrap_EWiseApply__SWIG_47(self, args);
@@ -22055,65 +27272,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_49(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_51(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_53(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_EWiseApply__SWIG_55(self, args);
+          return _wrap_EWiseApply__SWIG_52(self, args);
         }
       }
     }
@@ -22127,7 +27293,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
           return _wrap_EWiseApply__SWIG_57(self, args);
@@ -22144,68 +27310,17 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_59(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_EWiseApply__SWIG_64(self, args);
+          return _wrap_EWiseApply__SWIG_62(self, args);
         }
       }
     }
   }
   if (argc == 3) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_66(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_68(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
@@ -22215,14 +27330,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_EWiseApply__SWIG_70(self, args);
+          return _wrap_EWiseApply__SWIG_67(self, args);
         }
       }
     }
   }
   if (argc == 3) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
@@ -22239,95 +27354,44 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 3) {
     int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_77(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_EWiseApply__SWIG_74(self, args);
+          return _wrap_EWiseApply__SWIG_82(self, args);
         }
       }
     }
   }
   if (argc == 3) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_79(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_81(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_83(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_EWiseApply__SWIG_85(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
@@ -22341,6 +27405,57 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 3) {
     int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_92(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_97(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_102(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
@@ -22351,7 +27466,109 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_EWiseApply__SWIG_89(self, args);
+          return _wrap_EWiseApply__SWIG_107(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_113(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_119(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_125(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_131(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_137(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_EWiseApply__SWIG_143(self, args);
         }
       }
     }
@@ -22368,12 +27585,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_54(self, args);
+            return _wrap_EWiseApply__SWIG_66(self, args);
           }
         }
       }
@@ -22414,12 +27630,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_56(self, args);
+            return _wrap_EWiseApply__SWIG_71(self, args);
           }
         }
       }
@@ -22460,12 +27675,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_58(self, args);
+            return _wrap_EWiseApply__SWIG_76(self, args);
           }
         }
       }
@@ -22503,15 +27717,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_63(self, args);
+            return _wrap_EWiseApply__SWIG_81(self, args);
           }
         }
       }
@@ -22549,15 +27762,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_65(self, args);
+            return _wrap_EWiseApply__SWIG_86(self, args);
           }
         }
       }
@@ -22595,15 +27807,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_67(self, args);
+            return _wrap_EWiseApply__SWIG_91(self, args);
           }
         }
       }
@@ -22634,7 +27845,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 4) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
@@ -22644,12 +27855,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_69(self, args);
+            return _wrap_EWiseApply__SWIG_96(self, args);
           }
         }
       }
@@ -22680,7 +27890,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 4) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
@@ -22690,12 +27900,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_71(self, args);
+            return _wrap_EWiseApply__SWIG_101(self, args);
           }
         }
       }
@@ -22706,11 +27915,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
           {
@@ -22726,7 +27935,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 4) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
@@ -22736,12 +27945,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_73(self, args);
+            return _wrap_EWiseApply__SWIG_106(self, args);
           }
         }
       }
@@ -22772,22 +27980,21 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 4) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_78(self, args);
+            return _wrap_EWiseApply__SWIG_112(self, args);
           }
         }
       }
@@ -22798,29 +28005,6 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            return _wrap_EWiseApply__SWIG_48(self, args);
-          }
-        }
-      }
-    }
-  }
-  if (argc == 4) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
@@ -22828,12 +28012,33 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_80(self, args);
+            return _wrap_EWiseApply__SWIG_51(self, args);
+          }
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            return _wrap_EWiseApply__SWIG_118(self, args);
           }
         }
       }
@@ -22864,7 +28069,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 4) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
@@ -22874,12 +28079,11 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_82(self, args);
+            return _wrap_EWiseApply__SWIG_124(self, args);
           }
         }
       }
@@ -22890,19 +28094,18 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_50(self, args);
+            return _wrap_EWiseApply__SWIG_56(self, args);
           }
         }
       }
@@ -22917,15 +28120,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_84(self, args);
+            return _wrap_EWiseApply__SWIG_130(self, args);
           }
         }
       }
@@ -22963,15 +28165,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_86(self, args);
+            return _wrap_EWiseApply__SWIG_136(self, args);
           }
         }
       }
@@ -22986,15 +28187,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_52(self, args);
+            return _wrap_EWiseApply__SWIG_61(self, args);
           }
         }
       }
@@ -23009,15 +28209,14 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
-            return _wrap_EWiseApply__SWIG_88(self, args);
+            return _wrap_EWiseApply__SWIG_142(self, args);
           }
         }
       }
@@ -23051,7 +28250,287 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_90(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_0(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj1, 0);
+            _v = SWIG_CheckState(res);
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_27(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
       int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_95(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_60(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj2, 0);
+            _v = SWIG_CheckState(res);
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_18(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_100(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatBool, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_12(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_65(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_105(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
@@ -23064,11 +28543,123 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
           }
           if (_v) {
             {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_30(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj1, 0);
+            _v = SWIG_CheckState(res);
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_3(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_60(self, args);
+              return _wrap_EWiseApply__SWIG_111(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_70(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_bool(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_double(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_21(self, args);
             }
           }
         }
@@ -23087,46 +28678,16 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_61(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_62(self, args);
+              return _wrap_EWiseApply__SWIG_117(self, args);
             }
           }
         }
@@ -23155,65 +28716,7 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_36(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_37(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_38(self, args);
+              return _wrap_EWiseApply__SWIG_33(self, args);
             }
           }
         }
@@ -23232,75 +28735,16 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_39(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_40(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_41(self, args);
+              return _wrap_EWiseApply__SWIG_75(self, args);
             }
           }
         }
@@ -23316,107 +28760,19 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_42(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_43(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_44(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_45(self, args);
+              return _wrap_EWiseApply__SWIG_123(self, args);
             }
           }
         }
@@ -23491,17 +28847,72 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_75(self, args);
+              return _wrap_EWiseApply__SWIG_129(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_80(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_50(self, args);
             }
           }
         }
@@ -23520,46 +28931,16 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_76(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            {
-              int res = SWIG_AsVal_bool(argv[4], NULL);
-              _v = SWIG_CheckState(res);
-            }
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_77(self, args);
+              return _wrap_EWiseApply__SWIG_135(self, args);
             }
           }
         }
@@ -23595,6 +28976,62 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 5) {
     int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_85(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_EWiseApply__SWIG_141(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
@@ -23622,202 +29059,135 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   if (argc == 5) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
-              int res = SWIG_AsVal_double(argv[4], NULL);
+              int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_0(self, args);
+              return _wrap_EWiseApply__SWIG_55(self, args);
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj1, 0);
-            _v = SWIG_CheckState(res);
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_27(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj2, 0);
-            _v = SWIG_CheckState(res);
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_18(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatBool, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatBool, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
-              int res = SWIG_AsVal_double(argv[4], NULL);
+              int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_12(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_99(self, args);
+              }
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
-              int res = SWIG_AsVal_double(argv[4], NULL);
+              int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_30(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_69(self, args);
+              }
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
-          if (_v) {
-            int res = SWIG_ConvertPtr(argv[4], 0, SWIGTYPE_p_Obj1, 0);
-            _v = SWIG_CheckState(res);
-            if (_v) {
-              return _wrap_EWiseApply__SWIG_3(self, args);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParMat, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
-              int res = SWIG_AsVal_double(argv[4], NULL);
+              int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_21(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_122(self, args);
+              }
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
     int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
@@ -23826,27 +29196,168 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
       _v = SWIG_CheckState(res);
       if (_v) {
         void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_33(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_64(self, args);
+              }
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_89(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_104(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_128(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_79(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
     int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
@@ -23858,24 +29369,301 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_34(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_54(self, args);
+              }
             }
           }
         }
       }
     }
   }
-  if (argc == 5) {
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_49(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_134(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_110(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_94(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_74(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_140(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_84(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_116(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
     int _v;
     int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
     _v = SWIG_CheckState(res);
@@ -23887,17 +29675,1498 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_bool(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
               _v = SWIG_CheckState(res);
             }
             if (_v) {
-              return _wrap_EWiseApply__SWIG_35(self, args);
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_EWiseApply__SWIG_59(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_93(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_58(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_48(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_127(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_109(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_78(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_63(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_98(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_133(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_88(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_115(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_73(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_68(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_139(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_53(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_103(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_121(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  return _wrap_EWiseApply__SWIG_83(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_126(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_38(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_39(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_40(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_114(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_41(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_132(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_42(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_43(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_44(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_45(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_120(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj2, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_138(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_34(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj2, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_35(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                int res = SWIG_ConvertPtr(argv[6], 0, SWIGTYPE_p_Obj1, 0);
+                _v = SWIG_CheckState(res);
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_108(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_36(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParVec, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVecObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_bool(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  int res = SWIG_ConvertPtr(argv[7], 0, SWIGTYPE_p_Obj1, 0);
+                  _v = SWIG_CheckState(res);
+                  if (_v) {
+                    return _wrap_EWiseApply__SWIG_37(self, args);
+                  }
+                }
+              }
             }
           }
         }
@@ -23906,10 +31175,49 @@ SWIGINTERN PyObject *_wrap_EWiseApply(PyObject *self, PyObject *args) {
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'EWiseApply'.\n  Possible C/C++ prototypes are:\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *,bool,double)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *,bool,double)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'EWiseApply'.\n  Possible C/C++ prototypes are:\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *,bool,double)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunction *)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMat const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *,bool,double)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParMatBool const &,pySpParMatBool const &,op::BinaryFunction *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj1 const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool,Obj2)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool,Obj1)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMatObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *,bool,double)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *,bool)\n    EWiseApply(pySpParMatObj2 const &,pySpParMat const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double,Obj1)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double,Obj2)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double,double)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double,Obj1)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double,Obj2)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double,double)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1,Obj2)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1,double)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2,Obj1)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2,double)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunction *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,double)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVec const &,pySpParVec const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1,Obj2)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1,double)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj1)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj1 const &,pySpParVec const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj2 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2,Obj1)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVecObj1 const &,op::BinaryFunctionObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2,double)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool,Obj2)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *,bool)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *,op::BinaryPredicateObj *)\n    EWiseApply(pySpParVecObj2 const &,pySpParVec const &,op::BinaryFunctionObj *)\n");
   return NULL;
 }
 
+
+SWIGINTERN PyObject *_wrap_delete_pySpParVecObj2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParVecObj2 *arg1 = (pySpParVecObj2 *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_pySpParVecObj2",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParVecObj2, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_pySpParVecObj2" "', argument " "1"" of type '" "pySpParVecObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParVecObj2 * >(argp1);
+  {
+    try {
+      delete arg1;
+      
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *pySpParVecObj2_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_pySpParVecObj2, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
 
 SWIGINTERN PyObject *_wrap_new_pyDenseParVec__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
@@ -38141,9 +45449,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParVecObj2___getitem__", _wrap_pySpParVecObj2___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParVecObj2___setitem__", _wrap_pySpParVecObj2___setitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParVecObj2___repr__", _wrap_pySpParVecObj2___repr__, METH_VARARGS, NULL},
+	 { (char *)"EWiseApply", _wrap_EWiseApply, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParVecObj2", _wrap_delete_pySpParVecObj2, METH_VARARGS, NULL},
 	 { (char *)"pySpParVecObj2_swigregister", pySpParVecObj2_swigregister, METH_VARARGS, NULL},
-	 { (char *)"EWiseApply", _wrap_EWiseApply, METH_VARARGS, NULL},
 	 { (char *)"new_pyDenseParVec", _wrap_new_pyDenseParVec, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_sparse", _wrap_pyDenseParVec_sparse, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_len", _wrap_pyDenseParVec_len, METH_VARARGS, NULL},

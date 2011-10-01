@@ -113,9 +113,6 @@ public:
 	NT operator[](IT indx);
 	bool WasFound() const { return wasFound; }
 
-	NT GetZero() const			{ return zero; }
-	void SetZero(const NT& z)	{ zero = z; }
-
 	// sort the vector itself
 	// return the permutation vector (0-based)
 	FullyDistSpVec<IT, IT> sort();	
@@ -186,7 +183,6 @@ protected:
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	NT zero;
 	bool wasFound; // true if the last GetElement operation returned an actual value.
 
 	template <class IU, class NU>
@@ -221,13 +217,13 @@ private:
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
 	EWiseMult (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero);
 
-	template <typename IU, typename NU1, typename NU2, typename _BinaryOperation>
-	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
-	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, typename promote_trait<NU1,NU2>::T_promote zero);
+	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+	friend FullyDistSpVec<IU,RET> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero);
 
-	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation>
+	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 	friend FullyDistSpVec<IU,RET>
-	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, bool allowVNulls, bool allowWNulls);
+	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero);
 
 	template <typename IU>
 	friend void RandPerm(FullyDistSpVec<IU,IU> & V); 	// called on an existing object, randomly permutes it

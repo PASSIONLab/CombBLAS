@@ -406,33 +406,46 @@ public:
 	
 	char* __repr__();
 
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
 	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls, bool allowBNulls);
 
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+
+
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 BNull);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 BNull);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull);
+
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 BNull);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 BNull);
+	friend pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull);
 
 	// Obj predicates:	
-	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj1 BNull);
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj2 BNull);
+	friend pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, double BNull);
 
-	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj1 BNull);
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj2 BNull);
+	friend pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, double BNull);
 };
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls = true, bool allowBNulls = true);
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj1 BNull = Obj1());
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj2 BNull = Obj2());
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, double BNull = 0);
+
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj1 BNull = Obj1());
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj2 BNull = Obj2());
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, double BNull = 0);
+
+// Obj predicates:	
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj1 BNull = Obj1());
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj2 BNull = Obj2());
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), double BNull = 0);
+
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj1 BNull = Obj1());
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj2 BNull = Obj2());
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), double BNull = 0);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -517,19 +530,16 @@ public:
 	
 	char* __repr__();
 	
-	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj1 BNull = Obj1());
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj2 BNull = Obj2());
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), double BNull = 0);
+
+/*
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj1 ANull = Obj1());
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj1 ANull = Obj1());
+	friend pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj1 ANull = Obj1());
+*/
 };
-
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -613,19 +623,16 @@ public:
 	
 	char* __repr__();
 	
-	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
-	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls, bool allowBNulls);
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj2 BNull = Obj2());
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj1 BNull = Obj1());
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), double BNull = 0);
+
+/*
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj2 ANull = Obj2());
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj2 ANull = Obj2());
+	friend pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, Obj2 ANull = Obj2());
+*/
 };
-
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, bool allowANulls = true, bool allowBNulls = true);
-
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, bool allowANulls = true, bool allowBNulls = true);
-
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication

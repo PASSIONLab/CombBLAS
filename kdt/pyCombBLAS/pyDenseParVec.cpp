@@ -11,11 +11,11 @@ pyDenseParVec::pyDenseParVec(VectType other): v(other)
 {
 }
 
-pyDenseParVec::pyDenseParVec(int64_t size, double id): v(size, id, 0)
+pyDenseParVec::pyDenseParVec(int64_t size, double id): v(size, id)
 {
 }
 
-pyDenseParVec::pyDenseParVec(int64_t size, double init, double zero): v(size, init, zero)
+pyDenseParVec::pyDenseParVec(int64_t size, double init, double zero): v(size, init)
 {
 }
 
@@ -147,7 +147,8 @@ pyDenseParVec pyDenseParVec::operator==(const pyDenseParVec & rhs)
 {
 	//return v.operator==(rhs.v);
 	pyDenseParVec ret = copy();
-	ret.EWiseApply(rhs, &op::equal_to());
+	op::BinaryFunction eq = op::equal_to();
+	ret.EWiseApply(rhs, &eq);
 	return ret;
 }
 
@@ -155,7 +156,8 @@ pyDenseParVec pyDenseParVec::operator!=(const pyDenseParVec & rhs)
 {
 	//return !(v.operator==(rhs.v));
 	pyDenseParVec ret = copy();
-	ret.EWiseApply(rhs, &op::not_equal_to());
+	op::BinaryFunction ne = op::not_equal_to();
+	ret.EWiseApply(rhs, &ne);
 	return ret;
 }
 
