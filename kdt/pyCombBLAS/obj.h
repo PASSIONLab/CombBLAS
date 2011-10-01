@@ -65,9 +65,6 @@ public:
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 
-	// Todo: Remove this constructor as soon as possible
-	Obj1(int64_t val) {}
-
 	bool operator==(const Obj1& other) const {
 		return __eq__(other);
 	}
@@ -146,9 +143,6 @@ public:
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
-
-	// Todo: Remove this constructor as soon as possible
-	Obj2(int64_t val) {}
 
 	bool operator==(const Obj2& other) const {
 		return __eq__(other);

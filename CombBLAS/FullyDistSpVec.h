@@ -87,7 +87,30 @@ public:
 	FullyDistSpVec<IT,NT> &  operator=(const FullyDistVec< IT,NT > & rhs);	// convert from dense
 	FullyDistSpVec<IT,NT> & operator+=(const FullyDistSpVec<IT,NT> & rhs);
 	FullyDistSpVec<IT,NT> & operator-=(const FullyDistSpVec<IT,NT> & rhs);
-	ifstream& ReadDistribute (ifstream& infile, int master);	
+
+	class ScalarReadSaveHandler
+	{
+	public:
+		NT getNoNum(IT index) { return static_cast<NT>(1); }
+
+		template <typename c, typename t>
+		NT read(std::basic_istream<c,t>& is, IT index)
+		{
+			NT v;
+			is >> v;
+			return v;
+		}
+	
+		template <typename c, typename t>
+		void save(std::basic_ostream<c,t>& os, const NT& v, IT index)
+		{
+			os << v;
+		}
+	};
+	
+	template <class HANDLER>
+	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
+	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }	
 
 	template <typename NNT> operator FullyDistSpVec< IT,NNT > () const	//!< Type conversion operator
 	{

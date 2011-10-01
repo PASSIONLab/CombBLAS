@@ -457,7 +457,8 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 
 //! Called on an existing object
 template <class IT, class NT>
-ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
+template <class HANDLER>
+ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HANDLER handler)
 {
 	IT total_nnz;
 	MPI::Intracomm World = commGrid->GetWorld();
@@ -487,20 +488,15 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			World.Bcast(&glen, 1, MPIType<IT>(), master);			
 	
 			IT tempind;
-			NT tempval;
-			double loadval;
 			IT cnz = 0;
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
 				infile >> tempind;
-				//infile >> tempval;
-				infile >> loadval;
-				tempval = static_cast<NT>(loadval);
 				tempind--;
 				IT locind;
 				int rec = Owner(tempind, locind);	// recipient (owner) processor
 				inds[ rec * buffperneigh + curptrs[rec] ] = locind;
-				vals[ rec * buffperneigh + curptrs[rec] ] = tempval;
+				vals[ rec * buffperneigh + curptrs[rec] ] = handler.read(infile, tempind);
 				++ (curptrs[rec]);				
 
 				if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !

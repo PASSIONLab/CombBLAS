@@ -68,6 +68,7 @@ public:
 	//pySpParVecObj1 Find(op::UnaryFunctionObj* op);
 	//pyDenseParVec FindInds(op::UnaryFunctionObj* op);
 	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	//void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj1& mask);
 
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
@@ -77,7 +78,6 @@ public:
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
 	
-	void setNumToInd();
 
 public:
 	//static pySpParVecObj1 zeros(int64_t howmany);

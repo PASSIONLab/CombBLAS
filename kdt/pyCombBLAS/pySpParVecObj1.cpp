@@ -69,11 +69,30 @@ int64_t pySpParVecObj1::intersectSize(const pySpParVecObj1& other)
 	return 0;
 }
 
-	
+class Obj1ReadSaveHandler
+{
+public:
+	Obj1 getNoNum(pySpParVecObj1::INDEXTYPE row, pySpParVecObj1::INDEXTYPE col) { return Obj1(); }
+
+	template <typename c, typename t>
+	Obj1 read(std::basic_istream<c,t>& is, pySpParVecObj1::INDEXTYPE index)
+	{
+		Obj1 ret;
+		ret.loadCpp(is, index, 0);
+		return ret;
+	}
+
+	template <typename c, typename t>
+	void save(std::basic_ostream<c,t>& os, const Obj1& v, pySpParVecObj1::INDEXTYPE index)
+	{
+		v.saveCpp(os);
+	}
+};
+
 void pySpParVecObj1::load(const char* filename)
 {
 	ifstream input(filename);
-	v.ReadDistribute(input, 0);
+	v.ReadDistribute(input, 0, Obj1ReadSaveHandler());
 	input.close();
 }
 
@@ -109,6 +128,12 @@ void pySpParVecObj1::Apply(op::UnaryFunctionObj* op)
 {
 	v.Apply(*op);
 }
+
+void pySpParVecObj1::ApplyInd(op::BinaryFunctionObj* op)
+{
+	v.ApplyInd(*op);
+}
+
 /*
 void pySpParVecObj1::ApplyMasked(op::UnaryFunctionObj* op, const pySpParVecObj1& mask)
 {
@@ -178,11 +203,6 @@ pyDenseParVecObj1 pySpParVecObj1::TopK(int64_t k)
 	//return make_pair(topkind, topkele);
 
 	return pyDenseParVecObj1(topkele);
-}
-
-void pySpParVecObj1::setNumToInd()
-{
-	v.setNumToInd();
 }
 
 /*

@@ -17,10 +17,13 @@ class UnaryPredicateObj {
 
 	template <class T>
 	bool call(const T& x) const;
+
+	bool callD(const double& x) const;
 	
 //INTERFACE_INCLUDE_BEGIN
 	bool operator()(const Obj2& x) const { return call(x); }
 	bool operator()(const Obj1& x) const { return call(x); }
+	bool operator()(const double& x) const { return callD(x); }
 
 	protected:
 	UnaryPredicateObj() { // should never be called
@@ -41,9 +44,12 @@ class UnaryFunctionObj {
 	template <class T>
 	T call(const T& x) const;
 
+	double callD(const double& x) const;
+
 //INTERFACE_INCLUDE_BEGIN
 	Obj2 operator()(const Obj2& x) const { return call(x); }
 	Obj1 operator()(const Obj1& x) const { return call(x); }
+	double operator()(const double& x) const { return callD(x); }
 	
 	protected:
 	UnaryFunctionObj() { // should never be called
@@ -81,6 +87,23 @@ T UnaryFunctionObj::call(const T& x) const
 	}
 }
 
+inline double UnaryFunctionObj::callD(const double& x) const
+{
+	PyObject *vertexArgList = Py_BuildValue("(d)", x);
+	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		double dres = PyFloat_AsDouble(resultPy);
+		Py_XDECREF(resultPy);
+		return dres;
+	} else
+	{
+		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		return 0;
+	}
+}
+
 // This function is identical to UnaryFunctionObj::call() except that it returns a boolean instead
 // of an object. Please keep the actual calling method the same if you make any changes.
 template <class T>
@@ -106,6 +129,24 @@ bool UnaryPredicateObj::call(const T& x) const
 		return false;
 	}
 }
+
+inline bool UnaryPredicateObj::callD(const double& x) const
+{
+	PyObject *vertexArgList = Py_BuildValue("(d)", x);
+	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
+		return 0;
+	}
+}
+
 //INTERFACE_INCLUDE_BEGIN
 
 UnaryFunctionObj unaryObj(PyObject *pyfunc);
