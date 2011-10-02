@@ -125,7 +125,7 @@ template <typename c, typename t>
 inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const doubleint& rhs) { return lhs << (rhs.d); }
 
 template <typename c, typename t>
-inline std::basic_istream<c,t>& operator>>(std::basic_istream<c,t>& lhs, const doubleint& rhs) { return lhs >> rhs.d; }
+inline std::basic_istream<c,t>& operator>>(std::basic_istream<c,t>& lhs, doubleint& rhs) { double d; lhs >> d; rhs.d = d; return lhs; }
 
 
 
