@@ -80,7 +80,7 @@ public:
 	void load(const char* filename);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:

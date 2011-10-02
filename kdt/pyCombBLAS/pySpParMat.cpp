@@ -70,7 +70,7 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR)
+double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, double a, double b, double c, double d)
 {
 	typedef SpParMat < int64_t, doubleint, SpDCCols<int64_t,doubleint> > PSpMat_DoubleInt;
 
@@ -89,14 +89,15 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 
 
 	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
+	//double initiator[4] = {.57, .19, .19, .05};
+	double initiator[4] = {a, b, c, d};
 	
 	double t01 = MPI_Wtime();
 	double t02;
 	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-	if(!scramble)
+	if(!scramble || !delIsolated)
 	{
-		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR);
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false);
 		SpParHelper::Print("Generated edge lists\n");
 		t02 = MPI_Wtime();
 		ostringstream tinfo;
@@ -157,15 +158,18 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	SpParHelper::Print("Intersection of colsums and rowsums found\n");
 	delete RowSums;
 	
-	nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
-	delete ColSums;
-	
-	SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
-	nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-	A.PrintInfo();
-	A(nonisov, nonisov, true);	// in-place permute to save memory	
-	SpParHelper::Print("Dropped isolated vertices from input\n");	
-	A.PrintInfo();
+	if (delIsolated)
+	{
+		nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+		delete ColSums;
+		
+		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+		A.PrintInfo();
+		A(nonisov, nonisov, true);	// in-place permute to save memory	
+		SpParHelper::Print("Dropped isolated vertices from input\n");	
+		A.PrintInfo();
+	}
 	
 	Symmetricize(A);	// A += A';
 	SpParHelper::Print("Symmetricized\n");	
