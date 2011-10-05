@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 			delete G;
 
 			Symmetricize(A);	// A += A';
-			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	// plus<int64_t> matches the type of the output vector
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
@@ -162,8 +162,8 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(loopinfo.str());
 			A.PrintInfo();
 
-			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
-			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
@@ -315,8 +315,8 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(loopinfo.str());
 			A.PrintInfo();
 
-			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
-			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid(), 0);
+			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			SpParHelper::Print("Reductions done\n");
@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
 		degrees = degrees(nonisov);	// fix the degrees array too
 		degrees.PrintInfo("Degrees array");
 		// degrees.DebugPrint();
-		FullyDistVec<int64_t, int64_t> Cands(ITERS, 0, 0);
+		FullyDistVec<int64_t, int64_t> Cands(ITERS);
 		double nver = (double) degrees.TotalLength();
 
 		MTRand M;	// generate random numbers with Mersenne Twister
@@ -415,8 +415,8 @@ int main(int argc, char* argv[])
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 			for(int i=0; i<ITERS; ++i)
 			{
-				// FullyDistVec (shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
-				FullyDistVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getncol(), (int64_t) -1, (int64_t) -1);	// identity is -1
+				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
+				FullyDistVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getncol(), (int64_t) -1);	// identity is -1
 
 				// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 				FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getncol());	// numerical values are stored 0-based

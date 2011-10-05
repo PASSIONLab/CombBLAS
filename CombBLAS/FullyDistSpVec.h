@@ -32,8 +32,6 @@ THE SOFTWARE.
 #include <iostream>
 #include <vector>
 #include <utility>
-// TR1 includes belong in CombBLAS.h
-
 #include "CommGrid.h"
 #include "promote.h"
 #include "SpParMat.h"
@@ -197,7 +195,7 @@ public:
 	NT Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op);
 
 	void DebugPrint();
-	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 
 protected:
 	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
@@ -231,18 +229,14 @@ private:
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf);
-	
-	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV, typename UDER> 
-	friend void
-	ColWiseApply (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x, _BinaryOperation __binary_op);
 
 	template <typename IU, typename NU1, typename NU2>
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
 	EWiseMult (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , bool exclude, NU2 zero);
 
 	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-	friend FullyDistSpVec<IU,RET> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero);
+	friend FullyDistSpVec<IU,RET> 
+	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero);
 
 	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 	friend FullyDistSpVec<IU,RET>
@@ -253,6 +247,9 @@ private:
 	
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
+	
+	template<typename IU>
+	friend void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,IU> & x, IU & trxlocnz, IU & lenuntil, int32_t * & trxinds, IU * & trxnums, bool indexisvalue);
 };
 
 #include "FullyDistSpVec.cpp"

@@ -288,6 +288,7 @@ CombBLAS/MemoryPool.h -text
 CombBLAS/Operations.h -text
 CombBLAS/OptBuf.h -text
 CombBLAS/ParFriends.h -text
+CombBLAS/ParFriendsExt.h -text
 CombBLAS/README -text
 CombBLAS/RefGen21.h -text
 CombBLAS/ReleaseTests/CMakeLists.txt -text
@@ -678,7 +679,9 @@ CombBLAS/SpDCCols.cpp -text
 CombBLAS/SpDCCols.h -text
 CombBLAS/SpDefs.h -text
 CombBLAS/SpHelper.h -text
+CombBLAS/SpImpl.cpp -text
 CombBLAS/SpImpl.h -text
+CombBLAS/SpImplNoSR.h -text
 CombBLAS/SpMat.cpp -text
 CombBLAS/SpMat.h -text
 CombBLAS/SpParHelper.cpp -text
