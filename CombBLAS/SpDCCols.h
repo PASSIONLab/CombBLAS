@@ -299,9 +299,6 @@ private:
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
 		IU * & sendindbuf, typename promote_trait<NUM,NUV>::T_promote * & sendnumbuf, int * & sdispls, int p_c);
-		
-	template <typename _BinaryOperation, typename IU, typename NUM, typename NUV>
-	friend void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, _BinaryOperation __binary_op);
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)

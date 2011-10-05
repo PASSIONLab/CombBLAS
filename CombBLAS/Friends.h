@@ -36,6 +36,7 @@ THE SOFTWARE.
 #include "Isect.h"
 #include "Deleter.h"
 #include "SpImpl.h"
+#include "SpImplNoSR.h"
 #include "SpParHelper.h"
 #include "Compare.h"
 using namespace std;
@@ -52,23 +53,6 @@ class Dcsc;
 /****************************************************************************/
 /**************************** FRIEND FUNCTIONS ******************************/
 /****************************************************************************/
-template <typename _BinaryOperation, typename IU, typename NU, typename RHS>
-void dcsc_colwise_apply (const SpDCCols<IU, NU> & A, const RHS * x, _BinaryOperation __binary_op)
-{
-	if(A.nnz > 0)
-	{	
-		for(IU j =0; j<A.dcsc->nzc; ++j)	// for all nonzero columns
-		{
-			IU colid = A.dcsc->jc[j];
-			for(IU i = A.dcsc->cp[j]; i< A.dcsc->cp[j+1]; ++i)
-			{
-				//IU rowid = A.dcsc->ir[i];
-				//SR::axpy(A.dcsc->numx[i], x[colid], y[rowid]);
-				A.dcsc->numx[i] = __binary_op(A.dcsc->numx[i], x[colid]);
-			}
-		}
-	}
-}
 
 //! SpMV with dense vector
 template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
@@ -87,7 +71,6 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 		}
 	}
 }
-
 
 //! Multithreaded SpMV with sparse vector
 //! the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
@@ -251,23 +234,13 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV *
 		else
 		{
 			if(indexisvalue)
-				SpMXSpV_Optimized<SR>(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+				SpMXSpV(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 			else
 				SpMXSpV<SR>(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }
 
-
-//! ColWiseApply with sparse vector
-template <typename _BinaryOperation, typename IU, typename NUM, typename NUV>
-void dcsc_colwise_apply (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, _BinaryOperation __binary_op)
-{
-	if(A.getnnz() > 0 && nnzx > 0)
-	{
-		SpColWiseApply(*(A.dcsc), A.getnrow(), A.getncol(), indx, numx, nnzx, __binary_op);
-	}
-}
 
 template<typename IU>
 void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
