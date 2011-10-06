@@ -83,6 +83,9 @@ public:
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
 	bool hasPassedFilter;
+
+	// for copying just a nonzero structure
+	operator bool() const { return true; }
 };
 
 
@@ -162,6 +165,9 @@ public:
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
 	bool hasPassedFilter;
+	
+	// for copying just a nonzero structure
+	operator bool() const { return true; }
 };
 //INTERFACE_INCLUDE_END
 

@@ -3006,6 +3006,76 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = 0 ;
+  pySpParMat *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_pySpParMat",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParMatObj1,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMatObj1 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMatObj1 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  {
+    try {
+      result = (pySpParMat *)new pySpParMat((pySpParMatObj1 const &)*arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = 0 ;
+  pySpParMat *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_pySpParMat",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParMatObj2,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMatObj2 const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMatObj2 const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  {
+    try {
+      result = (pySpParMat *)new pySpParMat((pySpParMatObj2 const &)*arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[6];
@@ -3018,6 +3088,22 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   if (argc == 0) {
     return _wrap_new_pySpParMat__SWIG_0(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_pySpParMat__SWIG_2(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_pySpParMat__SWIG_3(self, args);
+    }
   }
   if (argc == 5) {
     int _v;
@@ -3052,7 +3138,7 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_pySpParMat'.\n  Possible C/C++ prototypes are:\n    pySpParMat()\n    pySpParMat(int64_t,int64_t,pyDenseParVec *,pyDenseParVec *,pyDenseParVec *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_pySpParMat'.\n  Possible C/C++ prototypes are:\n    pySpParMat()\n    pySpParMat(int64_t,int64_t,pyDenseParVec *,pyDenseParVec *,pyDenseParVec *)\n    pySpParMat(pySpParMatObj1 const &)\n    pySpParMat(pySpParMatObj2 const &)\n");
   return NULL;
 }
 
@@ -4635,58 +4721,6 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Apply(PyObject *SWIGUNUSEDPARM(self), PyOb
   {
     try {
       (arg1)->Apply(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_ColWiseApply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_ColWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_ColWiseApply" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_ColWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_ColWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_ColWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
-  {
-    try {
-      (arg1)->ColWiseApply((pySpParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -7699,58 +7733,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_ColWiseApply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  op::BinaryFunction *arg3 = (op::BinaryFunction *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_ColWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_ColWiseApply" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_ColWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_ColWiseApply" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunction, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_ColWiseApply" "', argument " "3"" of type '" "op::BinaryFunction *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunction * >(argp3);
-  {
-    try {
-      (arg1)->ColWiseApply((pySpParVec const &)*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_pySpParMatBool_Prune(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
@@ -9548,58 +9530,6 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj1_Apply(PyObject *SWIGUNUSEDPARM(self), 
   {
     try {
       (arg1)->Apply(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_ColWiseApply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  pySpParVecObj1 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_ColWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_ColWiseApply" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj1,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_ColWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_ColWiseApply" "', argument " "2"" of type '" "pySpParVecObj1 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_ColWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      (arg1)->ColWiseApply((pySpParVecObj1 const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -12147,58 +12077,6 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_Apply(PyObject *SWIGUNUSEDPARM(self), 
   {
     try {
       (arg1)->Apply(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_ColWiseApply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  pySpParVecObj2 *arg2 = 0 ;
-  op::BinaryFunctionObj *arg3 = (op::BinaryFunctionObj *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_ColWiseApply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_ColWiseApply" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVecObj2,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_ColWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_ColWiseApply" "', argument " "2"" of type '" "pySpParVecObj2 const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVecObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_ColWiseApply" "', argument " "3"" of type '" "op::BinaryFunctionObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::BinaryFunctionObj * >(argp3);
-  {
-    try {
-      (arg1)->ColWiseApply((pySpParVecObj2 const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -46848,7 +46726,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat___getitem__", _wrap_pySpParMat___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_removeSelfLoops", _wrap_pySpParMat_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_ColWiseApply", _wrap_pySpParMat_ColWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_DimWiseApply", _wrap_pySpParMat_DimWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Count", _wrap_pySpParMat_Count, METH_VARARGS, NULL},
@@ -46881,7 +46758,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool___getitem__", _wrap_pySpParMatBool___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_removeSelfLoops", _wrap_pySpParMatBool_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Apply", _wrap_pySpParMatBool_Apply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_ColWiseApply", _wrap_pySpParMatBool_ColWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Prune", _wrap_pySpParMatBool_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Count", _wrap_pySpParMatBool_Count, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Reduce", _wrap_pySpParMatBool_Reduce, METH_VARARGS, NULL},
@@ -46907,7 +46783,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj1___getitem__", _wrap_pySpParMatObj1___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_removeSelfLoops", _wrap_pySpParMatObj1_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Apply", _wrap_pySpParMatObj1_Apply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj1_ColWiseApply", _wrap_pySpParMatObj1_ColWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_DimWiseApply", _wrap_pySpParMatObj1_DimWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Prune", _wrap_pySpParMatObj1_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Count", _wrap_pySpParMatObj1_Count, METH_VARARGS, NULL},
@@ -46932,7 +46807,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj2___getitem__", _wrap_pySpParMatObj2___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_removeSelfLoops", _wrap_pySpParMatObj2_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Apply", _wrap_pySpParMatObj2_Apply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj2_ColWiseApply", _wrap_pySpParMatObj2_ColWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_DimWiseApply", _wrap_pySpParMatObj2_DimWiseApply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Prune", _wrap_pySpParMatObj2_Prune, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Count", _wrap_pySpParMatObj2_Count, METH_VARARGS, NULL},

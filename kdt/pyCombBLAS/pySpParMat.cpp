@@ -13,6 +13,14 @@ pySpParMat::pySpParMat(MatType other): A(other)
 {
 }
 
+pySpParMat::pySpParMat(const pySpParMatObj1& other): A(other.A)
+{
+}
+
+pySpParMat::pySpParMat(const pySpParMatObj2& other): A(other.A)
+{
+}
+
 pySpParMat::pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals)
 {
 	FullyDistVec<INDEXTYPE, INDEXTYPE> irow = rows->v;
@@ -340,11 +348,6 @@ int64_t pySpParMat::removeSelfLoops()
 void pySpParMat::Apply(op::UnaryFunction* op)
 {
 	A.Apply(*op);
-}
-
-void pySpParMat::ColWiseApply(const pySpParVec& values, op::BinaryFunction* f)
-{
-	::ColWiseApply(A, values.v, *f);
 }
 
 void pySpParMat::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f)

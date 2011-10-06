@@ -59,7 +59,7 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
-	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
+
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
