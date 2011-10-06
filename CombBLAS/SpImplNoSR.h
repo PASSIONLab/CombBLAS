@@ -59,7 +59,6 @@ struct SpImplNoSR<IT,bool, NT>	// specialization
 };
 
 
-
 /**
  * @param[in,out]   indy,numy,cnts 	{preallocated arrays to be filled}
  * @param[in] 		dspls	{displacements to preallocated indy,numy buffers}

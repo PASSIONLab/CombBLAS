@@ -542,13 +542,13 @@ void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, in
 /**
   * This is essentially a SpMV for BFS because it lacks the semiring.
   * It naturally justs selects columns of A (adjacencies of frontier) and 
-  * merges with the minimum entry succeeding. 
- ** TODO: Refactor LocalSpMV !
-template <typename IU, typename NUM, typename UDER>
+  * merges with the minimum entry succeeding. SpParMat has to be boolean
+  *
+template <typename IU, typename UDER>
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf)
+	(const SpParMat<IU,bool,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<bool,IU>::T_promote > & optbuf)
 {
-	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
+	typedef typename promote_trait<bool,IU>::T_promote T_promote;
 	CheckSpMVCompliance(A,x);
 
 	MPI::Intracomm World = x.commGrid->GetWorld();
@@ -600,6 +600,36 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	T_promote * sendnumbuf;
 	int * sdispls;
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+	
+	/* Skeleton:
+	if(optbuf.totmax > 0)	// graph500 optimization enabled
+	{ 
+		if(A.spSeq->getnsplit() > 0) // multithreading enabled
+		{
+			if(indexisvalue)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+	}
+	else
+	{
+		if(A.spSeq->getnsplit() > 0) // multithreading enabled
+		{
+			if(indexisvalue)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+	}*/
 	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];

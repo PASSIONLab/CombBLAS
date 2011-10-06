@@ -223,6 +223,11 @@ public:
 	
 	template <typename SR>
 	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
+	
+	Dcsc<IT, NT> * GetDCSC(int i)	// only for split (multithreaded) matrices
+	{
+		return dcscarr[i];
+	}
 
 private:
 	int splits;	// ABAB: Future multithreaded extension

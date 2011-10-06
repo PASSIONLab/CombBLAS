@@ -50,9 +50,10 @@ class SpDCCols;
 template <class IU, class NU>	
 class Dcsc;
 
-/****************************************************************************/
-/**************************** FRIEND FUNCTIONS ******************************/
-/****************************************************************************/
+/*************************************************************************************************/
+/**************************** SHARED ADDRESS SPACE FRIEND FUNCTIONS ******************************/
+/****************************** MULTITHREADED LOGIC ALSO GOES HERE *******************************/
+/*************************************************************************************************/
 
 //! SpMV with dense vector
 template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
@@ -72,9 +73,10 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 	}
 }
 
-//! Multithreaded SpMV with sparse vector
-//! the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
-//! TODO {Make another layer for this multithreaded assembly?}
+/** 
+  * Multithreaded SpMV with sparse vector
+  * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
+  */
 template <typename SR, typename IU, typename NUM, typename NUV>
 int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
 		IU * & sendindbuf, typename promote_trait<NUM,NUV>::T_promote * & sendnumbuf, int * & sdispls, int p_c)
@@ -83,8 +85,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 	// Two splits might create output to the same recipient (needs to be merged)
 	// However, each split's output is distinct (no duplicate elimination is needed after merge) 
 
-	sdispls = new int[p_c];	// initialize to zero (as all indy might be empty)
-	fill_n(sdispls, p_c, 0);
+	sdispls = new int[p_c]();	// initialize to zero (as all indy might be empty)
 	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -199,6 +200,159 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 		return 0;
 	}
 }
+
+template <typename SR, typename IU, typename NUM, typename NUV, typename T_promote>
+void ComputeLoop(const SpDCCols<IU, NUM> & A, int splits, const IU * indx, const NUV * numx, IU nnzx, vector< vector<IU> > & indy, vector< vector<T_promote> > & numy)
+{
+	IU perpiece = A.getnrow() / splits;
+
+	// Parallelize with OpenMP
+	#ifdef _OPENMP
+	#pragma omp parallel for // num_threads(6)
+	#endif
+	for(int i=0; i<splits; ++i)
+	{
+		if(i != splits-1)
+			SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+		else
+			SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), A.getnrow() - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+	}
+
+}
+
+
+/** 
+ * Multithreaded SpMV with sparse vector and preset buffers
+ * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
+ *
+template <typename SR, typename IU, typename NUM, typename NUV>
+int dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
+						 int32_t * sendindbuf, typename promote_trait<NUM,NUV>::T_promote * sendnumbuf, int * cnts, int * sdispls, int p_c)
+{
+	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
+	if(A.getnnz() > 0 && nnzx > 0)
+	{
+		int splits = A.getnsplit();
+		if(splits > 0)
+		{
+			vector< vector<IU> > indy(splits);
+			vector< vector<T_promote> > numy(splits);
+			ComputeLoop(A, splits, indx, * numx, nnzx, indy, numy);
+			vector<int> accum(splits+1, 0);
+			for(int i=0; i<splits; ++i)
+				accum[i+1] = accum[i] + indy[i].size();
+			
+			IU perproc = A.getnrow() / static_cast<IU>(p_c);	
+			IU last_rec = static_cast<IU>(p_c-1);
+			
+			// keep recipients of last entries in each split (-1 for an empty split)
+			// so that we can delete indy[] and numy[] contents as soon as they are processed		
+			vector<IU> end_recs(splits);
+			for(int i=0; i<splits; ++i)
+			{
+				if(indy[i].empty())
+					end_recs[i] = -1;
+				else
+					end_recs[i] = min(indy[i].back() / perproc, last_rec);
+			}
+			
+			int ** loc_rec_cnts = new int *[splits];	
+			#ifdef _OPENMP	
+			#pragma omp parallel for // num_threads(6)
+			#endif	
+			for(int i=0; i<splits; ++i)
+			{
+				loc_rec_cnts[i]  = new int[p_c](); // thread-local recipient data
+				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
+				{
+					IU cur_rec = min( indy[i].front() / perproc, last_rec);
+					IU lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
+					for(typename vector<IT>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
+					{
+						if((*it) < lastdata)
+						{
+							++loc_rec_cnts[i][cur_rec];
+						}
+						else
+						{
+							cur_rec = min( (*it) / perproc, last_rec);
+							lastdata = (cur_rec+1) * perproc;
+							++loc_rec_cnts[i][cur_rec];
+						}
+					}
+				}
+			}
+			vector<int> glo_rec_cnts(p_c, 0);
+			for(int i=0; i< splits; ++i)	// O(#threads)
+			{
+				for(int j=0; j<	p_c; ++j)			// O(#p_c)
+					glo_rec_cnts[j] += loc_rec_cnts[i][j];
+				delete [] loc_rec_cnts[i]
+			}
+			delete [] loc_rec_cnts;
+			
+					
+				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
+				{
+					// FACT: Data is sorted, so if the recipient of begin is the same as the owner of end, 
+					// then the whole data is sent to the same processor
+					IU beg_rec = min( indy[i].front() / perproc, last_rec); 
+					IU alreadysent = 0;
+					for(int before = i-1; before >= 0; before--)
+					{
+						 alreadysent += loc_rec_cnts[before][beg_rec];
+					}
+						
+					if(beg_rec == end_recs[i])	// fast case
+					{
+						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<IU>(), perproc*beg_rec));
+						copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
+						copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
+					}
+					else	// slow case
+					{
+						// FACT: No matter how many splits or threads, there will be only one "recipient head"
+						// Therefore there are no race conditions for marking send displacements (sdispls)
+						int end = indy[i].size();
+						for(int cur=0; cur< end; ++cur)	
+						{
+							IU cur_rec = min( indy[i][cur] / perproc, last_rec); 			
+							while(beg_rec != cur_rec)	
+							{
+								sdispls[++beg_rec] = accum[i] + cur;	// first entry to be set is sdispls[beg_rec+1]
+							}
+							sendindbuf[ accum[i] + cur ] = indy[i][cur] - perproc*beg_rec;	// convert to receiver's local index
+							sendnumbuf[ accum[i] + cur ] = numy[i][cur];
+						}
+					}
+					vector<IU>().swap(indy[i]);
+					vector<T_promote>().swap(numy[i]);
+					bool lastnonzero = true;	// am I the last nonzero split?
+					for(int k=i+1; k < splits; ++k)
+					{
+						if(end_recs[k] != -1)
+							lastnonzero = false;
+					} 
+					if(lastnonzero)
+						fill(sdispls+end_recs[i]+1, sdispls+p_c, accum[i+1]);
+				}	// end_if(!indy[i].empty)
+			}	// end parallel for	
+			return accum[splits];
+		}
+		else
+		{
+			cout << "Something is wrong, splits should be nonzero for multithreaded execution" << endl;
+			return 0;
+		}
+	}
+	else
+	{
+		sendindbuf = NULL;
+		sendnumbuf = NULL;
+		return 0;
+	}
+}
+*/
 
 //! SpMV with sparse vector
 template <typename SR, typename IU, typename NUM, typename NUV>
