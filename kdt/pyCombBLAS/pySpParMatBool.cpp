@@ -333,11 +333,6 @@ void pySpParMatBool::Apply(op::UnaryFunction* op)
 }
 
 
-void pySpParMatBool::ColWiseApply(const pySpParVec& x, op::BinaryFunction* f)
-{
-	::ColWiseApply(A, x.v, *f);
-}
-
 
 pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
 {

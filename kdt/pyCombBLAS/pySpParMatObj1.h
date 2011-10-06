@@ -60,7 +60,6 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunctionObj* f);
-	void ColWiseApply(const pySpParVecObj1& values, op::BinaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryPredicateObj* pred);
 	int64_t Count(op::UnaryPredicateObj* pred);

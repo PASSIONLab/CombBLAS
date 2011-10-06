@@ -70,6 +70,9 @@ public:
 	pySpParMat();
 	pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
 
+	pySpParMat(const pySpParMatObj1& copyStructureFrom);
+	pySpParMat(const pySpParMatObj2& copyStructureFrom);
+	
 public:
 	int64_t getnnz();
 	int64_t getnee();
@@ -95,7 +98,6 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
-	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
@@ -163,7 +165,7 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
-	void ColWiseApply(const pySpParVec& values, op::BinaryFunction* f);
+
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
@@ -222,7 +224,6 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunctionObj* f);
-	void ColWiseApply(const pySpParVecObj1& values, op::BinaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryPredicateObj* pred);
 	int64_t Count(op::UnaryPredicateObj* pred);
@@ -294,7 +295,6 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunctionObj* f);
-	void ColWiseApply(const pySpParVecObj2& values, op::BinaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj2& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryPredicateObj* pred);
 	int64_t Count(op::UnaryPredicateObj* pred);
@@ -1030,6 +1030,9 @@ public:
 
 	// for filtering matrices.
 	bool hasPassedFilter;
+
+	// for copying just a nonzero structure
+	operator bool() const { return true; }
 };
 
 
@@ -1069,6 +1072,9 @@ public:
 
 	// for filtering matrices.
 	bool hasPassedFilter;
+	
+	// for copying just a nonzero structure
+	operator bool() const { return true; }
 };
 
 namespace op {

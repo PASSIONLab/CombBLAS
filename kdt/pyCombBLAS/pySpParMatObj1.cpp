@@ -381,11 +381,6 @@ void pySpParMatObj1::Apply(op::UnaryFunctionObj* op)
 	A.Apply(*op);
 }
 
-void pySpParMatObj1::ColWiseApply(const pySpParVecObj1& values, op::BinaryFunctionObj* f)
-{
-	::ColWiseApply(A, values.v, *f);
-}
-
 void pySpParMatObj1::DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f)
 {
 	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
