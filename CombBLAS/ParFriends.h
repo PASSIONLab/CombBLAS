@@ -18,8 +18,8 @@ class SpParMat;
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
 
-template <typename MATRIX>
-bool CheckSpGEMMCompliance(const MATRIX & A, const MATRIX & B)
+template <typename MATRIXA, typename MATRIXB>
+bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 {
 	if(A.getncol() != B.getnrow())
 	{

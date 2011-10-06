@@ -171,6 +171,7 @@ public:
 	void PrintInfo(string vectorname) const;
 	void DebugPrint();
 	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
