@@ -476,7 +476,7 @@ pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 	/*//
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pySpParVecObj2( ::SpMV< SelectMaxSRing>(A, x.v) );
+		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
 	}*/
 	/*
 	else
@@ -498,7 +498,7 @@ pySpParVecObj2 pySpParMatObj2::SpMV(const pySpParVecObj2& x, op::SemiringObj* sr
 	/*
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pySpParVecObj2( ::SpMV< SelectMaxSRing>(A, x.v) );
+		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
 	}*/
 	else
 	{
@@ -520,7 +520,7 @@ pySpParVecObj1 pySpParMatObj2::SpMV(const pySpParVecObj1& x, op::SemiringObj* sr
 	/*//
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pySpParVecObj2( ::SpMV< SelectMaxSRing>(A, x.v) );
+		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
 	}*/
 	/*
 	else
@@ -549,7 +549,7 @@ pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringO
 	/*
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pySpParVecObj2( ::SpMV< SelectMaxSRing>(A, x.v) );
+		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
 	}*/
 	else
 	{
@@ -576,12 +576,12 @@ pySpParVec pySpParMatObj2::SpMV_PlusTimes(const pySpParVec& x)
 
 pySpParVec pySpParMatObj2::SpMV_SelMax(const pySpParVec& x)
 {
-	return pySpParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+	return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
 }
 
 void pySpParMatObj2::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	x.v = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
+	x.v = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
 }
 
 pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::Semiring* sring)
@@ -596,7 +596,7 @@ pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::Semiring* sring)
 	}
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pySpParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+		return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
 	}
 	else
 	{
@@ -619,7 +619,7 @@ pyDenseParVec pySpParMatObj2::SpMV(const pyDenseParVec& x, op::Semiring* sring)
 	}
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		return pyDenseParVec( ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v) );
+		return pyDenseParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
 	}
 	else
 	{
@@ -642,7 +642,7 @@ void pySpParMatObj2::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 	}
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		x = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
+		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
 	}
 	else
 	{
@@ -664,7 +664,7 @@ void pySpParMatObj2::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
 	}
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
-		x = ::SpMV< SelectMaxSRing<doubleint, doubleint > >(A, x.v);
+		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
 	}
 	else
 	{
