@@ -460,22 +460,8 @@ void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, in
 	{ 
 		if(A.spSeq->getnsplit() > 0)
 		{
-			SpParHelper::Print("Preallocated buffers can not be used with multithreaded code yet\n");
-			IU * tmpindbuf;
-			IU * tmpindacc = new IU[accnz];
-			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
-			
-			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), tmpindbuf, sendnumbuf, sdispls, rowneighs);	
-			
-			delete [] tmpindacc;
-			sendindbuf = new int32_t[totalsent];
-			for(int i=0; i< totalsent; ++i)	sendindbuf[i] = tmpindbuf[i];
-			delete [] tmpindbuf;
-			
-			for(int i=0; i<rowneighs-1; ++i)
-				sendcnt[i] = sdispls[i+1] + sdispls[i];	
-			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
+			// optbuf.{inds/nums/dspls} and sendcnt are all pre-allocated and only filled by dcsc_gespmv_threaded
+			dcsc_gespmv_threaded_setbuffers<SR> (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);	
 		}
 		else
 		{

@@ -224,7 +224,7 @@ public:
 	template <typename SR>
 	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 	
-	Dcsc<IT, NT> * GetDCSC(int i)	// only for split (multithreaded) matrices
+	Dcsc<IT, NT> * GetDCSC(int i) const 	// only for split (multithreaded) matrices
 	{
 		return dcscarr[i];
 	}
@@ -291,7 +291,7 @@ private:
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
-        friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
+	friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
 
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 	//!< SpMV with sparse vector
@@ -304,6 +304,10 @@ private:
 	template <typename SR, typename IU, typename NUM, typename NUV>	
 	friend int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
 		IU * & sendindbuf, typename promote_trait<NUM,NUV>::T_promote * & sendnumbuf, int * & sdispls, int p_c);
+	
+	template <typename SR, typename IU, typename NUM, typename NUV>
+	friend void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
+		int32_t * sendindbuf, typename promote_trait<NUM,NUV>::T_promote * sendnumbuf, int * cnts, int * sdispls, int p_c);
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
