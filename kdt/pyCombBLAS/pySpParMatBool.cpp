@@ -421,11 +421,11 @@ pySpParVec pySpParMatBool::SpMV_PlusTimes(const pySpParVec& x)
 
 pySpParVec pySpParMatBool::SpMV_SelMax(const pySpParVec& x)
 {
-	return pySpParVec( SpMV< SelectMaxSRing<bool, doubleint > >(A, x.v) );
+	return pySpParVec( SpMV< Select2ndSRing<bool, doubleint > >(A, x.v) );
 }
 
 void pySpParMatBool::SpMV_SelMax_inplace(pySpParVec& x)
 {
-	x.v = SpMV< SelectMaxSRing<bool, doubleint> >(A, x.v);
+	x.v = SpMV< Select2ndSRing<bool, doubleint> >(A, x.v);
 }
 
