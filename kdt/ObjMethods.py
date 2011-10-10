@@ -1,4 +1,8 @@
-#import pyCombBLAS as pcb
+import pyCombBLAS as pcb
+
+#FIX:  add some doc here
+#NOTE:  ObjX fields do not have all the standard operators (e.g., +=) defined
+#	on them, and will give obscure errors if you use them
 
 def defUserCallbacks(objList):
 	def __abs__(self):
@@ -168,8 +172,8 @@ def defUserCallbacks(objList):
 	def __setitem__(self, key, value):
 		if key is 'weight':
 			self.weight = value
-		elif key is 'type':
-			self.type = value
+		elif key is 'category':
+			self.category = value
 		else:
 			raise KeyError
 		return self
@@ -194,6 +198,11 @@ def defUserCallbacks(objList):
 	for obj in objList:
 		obj.__xor__ = __xor__
 	
+	def _true_(self, other):
+		return True
+	for obj in objList:
+		obj._true_ = _true_
+	
 	def all(self, other):
 		#print "self=", self, "other=", other
 		self.weight = (self.weight!=0) & (other.weight!=0)
@@ -208,6 +217,86 @@ def defUserCallbacks(objList):
 	for obj in objList:
 		obj.any = any
 	
+	def coerce(self, other, typeFirst):
+		# creates a copy of one arg of the type of the other arg;
+		# typeFirst flag, if True, says the type should be from the
+		# first arg and the value from the second arg
+		if typeFirst:
+			if isinstance(self, (float, int, long)):
+				if isinstance(other, (float, int, long)):
+					self = other
+				elif isinstance(other, pcb.Obj1):
+					self = other.weight
+				elif isinstance(other, pcb.Obj2):
+					self = other.weight
+				else:
+					raise NotImplementedError
+			elif isinstance(self, pcb.Obj1):
+				if isinstance(other, (float, int, long)):
+					self.weight = other
+				elif isinstance(other, pcb.Obj1):
+					self.weight = other.weight
+				elif isinstance(other, pcb.Obj2):
+					self.weight = other.weight
+				else:
+					raise NotImplementedError
+			elif isinstance(self, pcb.Obj2):
+				if isinstance(other, (float, int, long)):
+					self.weight = other
+				elif isinstance(other, pcb.Obj1):
+					self.weight = other.weight
+				elif isinstance(other, pcb.Obj2):
+					self.weight = other.weight
+				else:
+					raise NotImplementedError
+			else:
+				raise NotImplementedError
+			return self	
+		else:
+			if isinstance(self, (float, int, long)):
+				if isinstance(other, (float, int, long)):
+					other = self
+				elif isinstance(other, pcb.Obj1):
+					other.weight = self
+				elif isinstance(other, pcb.Obj2):
+					other.weight = self
+				else:
+					raise NotImplementedError
+			elif isinstance(self, pcb.Obj1):
+				if isinstance(other, (float, int, long)):
+					other = self.weight
+				elif isinstance(other, pcb.Obj1):
+					other.weight = self.weight
+				elif isinstance(other, pcb.Obj2):
+					other.weight = self.weight
+				else:
+					raise NotImplementedError
+			elif isinstance(self, pcb.Obj2):
+				if isinstance(other, (float, int, long)):
+					other = self.weight
+				elif isinstance(other, pcb.Obj1):
+					other.weight = self.weight
+				elif isinstance(other, pcb.Obj2):
+					other.weight = self.weight
+				else:
+					raise NotImplementedError
+			else:
+				raise NotImplementedError
+			return other	
+	for obj in objList:
+		obj.coerce = coerce
+
+	def count(x, y):
+		# used by DiGraph.nedge, DiGraph.degree, Vec.nnn
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			x += 1
+		elif y.weight != 0 or y.category != 0:
+			x.weight = x.weight + 1
+		return x
+	for obj in objList:
+		obj.count = count
+
 	def objLogicalAnd(self, other):
 		if isinstance(other, (float, int, long)):
 			self.weight = bool(self.weight) and bool(other)
@@ -236,13 +325,19 @@ def defUserCallbacks(objList):
 		obj.logicalXor = objLogicalXor
 	
 	def objMax(self, other):
-		self.weight = max(self.weight, other.weight)
+		if isinstance(other, (float, int, long)):
+			self.weight = max(self.weight, other)
+		else:
+			self.weight = max(self.weight, other.weight)
 		return self
 	for obj in objList:
 		obj.max = objMax
 	
 	def objMin(self, other):
-		self.weight = min(self.weight, other.weight)
+		if isinstance(other, (float, int, long)):
+			self.weight = min(self.weight, other)
+		else:
+			self.weight = min(self.weight, other.weight)
 		return self
 	for obj in objList:
 		obj.min = objMin
@@ -256,6 +351,16 @@ def defUserCallbacks(objList):
 	for obj in objList:
 		obj.ones = ones
 	
+	def prune(self):
+		if isinstance(self, (pcb.Obj1)):
+			return self.weight==0 and self.category==0
+		elif isinstance(self, (pcb.Obj2)):
+			return self.weight==0 and self.category==0
+		else:
+			raise NotImplementedError
+	for obj in objList:
+		obj.prune = prune
+
 	def spOnes(self):
 		if isinstance(self, (float, int, long)):
 			self = 1
@@ -265,6 +370,150 @@ def defUserCallbacks(objList):
 	for obj in objList:
 		obj.spOnes = spOnes
 	
+	def spRange(self, other):
+	# only called when self is an Obj
+		self.weight = other
+		return self
+	for obj in objList:
+		obj.spRange = spRange
+
+#----------------- methods for Semiring use-------------------
+	def _SR_mul_(self, other):
+		if isinstance(self, (float, int, long)):
+			if isinstance(other, (float, int, long)):
+				self *= other
+			elif isinstance(other, pcb.Obj1):
+				self *= other.weight
+			elif isinstance(other, pcb.Obj2):
+				self *= other.weight
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj1):
+			if isinstance(other, (float, int, long)):
+				self.weight *= other
+			elif isinstance(other, pcb.Obj1):
+				self.weight *= other.weight
+			elif isinstance(other, pcb.Obj2):
+				self.weight *= other.weight
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj2):
+			if isinstance(other, (float, int, long)):
+				self.weight *= other
+			elif isinstance(other, pcb.Obj1):
+				self.weight *= other.weight
+			elif isinstance(other, pcb.Obj2):
+				self.weight *= other.weight
+			else:
+				raise NotImplementedError
+		else:
+			raise NotImplementedError
+		return self	
+	for obj in objList:
+		obj._SR_mul_ = _SR_mul_
+
+	def _SR_second_(self, other):
+		if isinstance(self, (float, int, long)):
+			if isinstance(other, (float, int, long)):
+				self = other
+			elif isinstance(other, pcb.Obj1):
+				self = other.weight
+			elif isinstance(other, pcb.Obj2):
+				self = other.weight
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj1):
+			if isinstance(other, (float, int, long)):
+				self.weight = other
+			elif isinstance(other, pcb.Obj1):
+				self.weight = other.weight
+			elif isinstance(other, pcb.Obj2):
+				self.weight = other.weight
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj2):
+			if isinstance(other, (float, int, long)):
+				self.weight = other
+			elif isinstance(other, pcb.Obj1):
+				self.weight = other.weight
+			elif isinstance(other, pcb.Obj2):
+				self.weight = other.weight
+			else:
+				raise NotImplementedError
+		else:
+			raise NotImplementedError
+		return self	
+	for obj in objList:
+		obj._SR_second_ = _SR_second_
+
+	def _SR_max_(self, other):
+		if isinstance(self, (float, int, long)):
+			if isinstance(other, (float, int, long)):
+				self = max(self, other)
+			elif isinstance(other, pcb.Obj1):
+				self = max(self, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self = max(self, other.weight)
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj1):
+			if isinstance(other, (float, int, long)):
+				self.weight = max(self.weight, other)
+			elif isinstance(other, pcb.Obj1):
+				self.weight = max(self.weight, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self.weight = max(self.weight, other.weight)
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj2):
+			if isinstance(other, (float, int, long)):
+				self.weight = max(self.weight, other)
+			elif isinstance(other, pcb.Obj1):
+				self.weight = max(self.weight, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self.weight = max(self.weight, other.weight)
+			else:
+				raise NotImplementedError
+		else:
+			raise NotImplementedError
+		return self	
+	for obj in objList:
+		obj._SR_max_ = _SR_max_
+
+	def _SR_min_(self, other):
+		if isinstance(self, (float, int, long)):
+			if isinstance(other, (float, int, long)):
+				self = min(self, other)
+			elif isinstance(other, pcb.Obj1):
+				self = min(self, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self = min(self, other.weight)
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj1):
+			if isinstance(other, (float, int, long)):
+				self.weight = min(self.weight, other)
+			elif isinstance(other, pcb.Obj1):
+				self.weight = min(self.weight, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self.weight = min(self.weight, other.weight)
+			else:
+				raise NotImplementedError
+		elif isinstance(self, pcb.Obj2):
+			if isinstance(other, (float, int, long)):
+				self.weight = min(self.weight, other)
+			elif isinstance(other, pcb.Obj1):
+				self.weight = min(self.weight, other.weight)
+			elif isinstance(other, pcb.Obj2):
+				self.weight = min(self.weight, other.weight)
+			else:
+				raise NotImplementedError
+		else:
+			raise NotImplementedError
+		return self	
+	for obj in objList:
+		obj._SR_min_ = _SR_min_
+
 	
 #
 #	Methods below here are used by KDT unittests
