@@ -3,26 +3,35 @@ import unittest
 #print sys.prefix
 #print sys.path
 from kdt import *
-from kdt import pyCombBLAS as pcb
+import kdt.pyCombBLAS as pcb
 
 class DiGraphTests(unittest.TestCase):
-    def initializeGraph(self, nvert, nedge, i, j, v=1):
+    def initializeGraph(self, nvert, nedge, i, j, v=1, element=0):
         """
+	ToDo:  update doc for element case with v a tuple
+
         Initialize a graph with edge weights equal to one or the input value.
         """
-        iInd = ParVec(nedge)
-        jInd = ParVec(nedge)
-	if type(v) == int or type(v) == float:
-            vInd = ParVec(nedge, v)
+        iInd = self.initializeVec(nedge, range(len(i)), i)
+        jInd = self.initializeVec(nedge, range(len(j)), j)
+	if isinstance(v, (float, int, long)):
+		lenV = len(i)
+	elif isinstance(element, (float, int, long)):
+		lenV = len(v)
 	else:
-	    vInd = ParVec(nedge)
-        for ind in range(nedge):
-            iInd[ind] = i[ind]
-            jInd[ind] = j[ind]
-	    if type(v) != int and type(v) != float:
-		vInd[ind] = v[ind]
+		lenV = len(v[0])
+	vInd = self.initializeVec(nedge, range(lenV), v, element=element)
+#	if type(v) == int or type(v) == float:
+#            vInd = ParVec(nedge, v)
+#	else:
+#	    vInd = ParVec(nedge)
+#        for ind in range(nedge):
+#            iInd[ind] = i[ind]
+#            jInd[ind] = j[ind]
+#	    if type(v) != int and type(v) != float:
+#		vInd[ind] = v[ind]
 
-        return DiGraph(iInd, jInd, vInd, nvert)
+        return DiGraph(iInd, jInd, vInd, nvert, element=element)
 
     def initializeIJGraph(self, nvert, scale=1000):
 	"""
@@ -32,6 +41,36 @@ class DiGraphTests(unittest.TestCase):
 	j = (ParVec.range(nvert*nvert) / nvert).floor()
 	v = i*scale + j
 	return DiGraph(i, j, v, nvert)
+
+    def initializeVec(self, length, i, v=1, element=0, sparse=False):
+        """
+        Initialize a Vec instance with values equal to one or the input value.
+        """
+        ret = Vec(length, 0, element, sparse)
+        for ind in range(len(i)):
+	    if isinstance(element, (float, int, long)):
+    	        if type(v) != int and type(v) != float:
+    	            val = v[ind]
+                else:
+                    val = v
+	    elif isinstance(element, Obj1):
+    	        val = pcb.Obj1()
+    	        if type(v) == tuple:
+    	            val.weight = v[0][ind]
+    	            val.category   = v[1][ind]
+                else:
+                    val.weight = v
+                    val.category   = v
+	    elif isinstance(element, Obj2):
+    	        val = pcb.Obj2()
+    	        if type(v) == tuple:
+    	            val.weight = v[0][ind]
+    	            val.category   = v[1][ind]
+                else:
+                    val.weight = v
+                    val.category   = v
+    	    ret[i[ind]] = val
+        return ret
 
 class PageRankTests(DiGraphTests):
     def test_connected(self):
@@ -276,6 +315,113 @@ class BFSTreeTests(DiGraphTests):
 	for ind in range(nvert):
 		self.assertEqual(parents[ind], parentsExpected[ind])
 
+    def test_bfsTree_Obj1_unfiltered(self):
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	c = [2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1()
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	parentsExpected = [-1, 1, 1, 4, 1, 2, 5, 4]
+	parents = G.bfsTree(1)
+	for ind in range(nvert):
+		self.assertEqual(parentsExpected[ind], parents[ind])
+
+    def test_bfsTree_Obj1_valuesNeOne_unfiltered(self):
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	w = [1, 1, 1, 3, 5, 7, 9, 3, 5, 7, 9, 1, 1]
+	c = [2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1()
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	parentsExpected = [-1, 1, 1, 4, 1, 2, 5, 4]
+	parents = G.bfsTree(1)
+	for ind in range(nvert):
+		self.assertEqual(parentsExpected[ind], parents[ind])
+
+    def test_bfsTree_dint_unfiltered(self):
+        nvert = 18
+        nedge = 30
+        i = [1, 1, 1, 2, 2, 2,  2,  3, 4, 4,  4,  5,  5, 6,  6,  6,  6,  7,  7,  7,  8,  8,  8,  9,  9, 11, 12, 13, 15, 17]
+        j = [2, 3, 4, 5, 6, 8, 11,  6, 7, 9, 17, 10, 11, 7, 10, 11, 12,  1, 12, 13, 13, 14, 15, 15, 16, 10, 13, 14, 16,  8]
+        w = [1, 1, 1, 1, 1, 1,  1,  1, 1, 1,  1,  1,  1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+	element = 0 
+        G = self.initializeGraph(nvert, nedge, i, j, w, element=element)
+	parentsExpected = [-1, 1, 1, 1, 1, 2, 3, 4, 2, 4, 11, 2, 7, 8, 8, 9, 9, 4]
+	parents = G.bfsTree(1)
+	for ind in range(nvert):
+		self.assertEqual(parentsExpected[ind], parents[ind])
+
+    def test_bfsTree_dint_unfiltered_valuesNotOne(self):
+        nvert = 18
+        nedge = 30
+        i = [1, 1, 1, 2, 2, 2,  2,  3, 4, 4,  4,  5,  5, 6,  6,  6,  6,  7,  7,  7,  8,  8,  8,  9,  9, 11, 12, 13, 15, 17]
+        j = [2, 3, 4, 5, 6, 8, 11,  6, 7, 9, 17, 10, 11, 7, 10, 11, 12,  1, 12, 13, 13, 14, 15, 15, 16, 10, 13, 14, 16,  8]
+        w = [1, 1, 1, 1, 1, 2,  3,  4, 5,  6, 7,  8,  9, 9,  8,  7,  6,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+	element = 0 
+        G = self.initializeGraph(nvert, nedge, i, j, w, element=element)
+	parentsExpected = [-1, 1, 1, 1, 1, 2, 3, 4, 2, 4, 11, 2, 7, 8, 8, 9, 9, 4]
+	parents = G.bfsTree(1)
+        self.assertEqual(nvert, len(parents))
+	for ind in range(nvert):
+		self.assertEqual(parentsExpected[ind], parents[ind])
+
+    def test_bfsTree_Obj1_filtered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def category_eq_2(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==2
+		else:
+			raise NotImplementedError
+        nvert = 18
+        nedge = 30
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	G.addEFilter(category_eq_1)
+	parentsCat1 = G.bfsTree(1)
+	G.delEFilter(category_eq_1)
+	expParentsCat1 = [-1,1, 1,-1, 1, 2, 2,-1, 2, 4, 5, 6,-1,-1,-1, 8, 9,-1]
+        self.assertEqual(len(expParentsCat1), nvert)
+	for ind in range(nvert):
+		self.assertEqual(expParentsCat1[ind], parentsCat1[ind])
+	G.addEFilter(category_eq_2)
+	parentsCat2 = G.bfsTree(1)
+	G.delEFilter(category_eq_2)
+	expParentsCat2 = [-1,1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+        self.assertEqual(len(expParentsCat2), nvert)
+	for ind in range(nvert):
+		self.assertEqual(expParentsCat2[ind], parentsCat2[ind])
+
 class IsBFSTreeTests(DiGraphTests):
     def test_isBfsTree(self):
         nvert = 8
@@ -449,7 +595,7 @@ class BuiltInMethodTests(DiGraphTests):
 	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
 		17, 87, 18, 68, 78]
 	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
-	[actualI, actualJ, actualV] = G.toParVec()
+	[actualI, actualJ, actualV] = G.toVec()
         self.assertEqual(len(origI), len(actualI))
         self.assertEqual(len(origJ), len(actualJ))
         self.assertEqual(len(origV), len(actualV))
@@ -458,6 +604,59 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(origJ[ind], actualJ[ind])
 		self.assertEqual(origV[ind], actualV[ind])
         
+    def test_DiGraph_Obj1(self):
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	w = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+	c = [2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1()
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	actI, actJ, actV = G.toVec()
+        expI = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        expJ = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	expW = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+	expC = [2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5]
+	self.assertEqual(nvert, G.nvert())
+	self.assertEqual(nedge, G.nedge())
+	self.assertEqual(G.nedge(), len(actI))
+	for ind in range(len(expI)):
+		self.assertEqual(expI[ind], actI[ind])
+		self.assertEqual(expJ[ind], actJ[ind])
+		self.assertEqual(expW[ind], actV[ind].weight)
+		self.assertEqual(expC[ind], actV[ind].category)
+
+    def test_DiGraph_duplicates(self):
+	# ensure that a DiGraph constructor creates the number, source/
+        # destination, and value pairs expected when 3 input edges have
+        # the same source and destination.
+	nvert = 9
+	nedge = 19
+	origI = [1, 0, 2, 3, 1, 3, 3, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	expI = [1, 0, 2, 3, 1, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
+	expJ = [0, 1, 1, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	expV = [10, 1, 21, 31, 12, 32, 79, 14, 34, 15, 16, 1.6e+10,
+		17, 87, 18, 68, 78]
+	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
+	[actualI, actualJ, actualV] = G.toVec()
+        self.assertEqual(nedge-2, G.nedge())
+        self.assertEqual(len(expI), len(actualI))
+        self.assertEqual(len(expJ), len(actualJ))
+        self.assertEqual(len(expV), len(actualV))
+        for ind in range(len(origI)):
+		self.assertEqual(expI[ind], actualI[ind])
+		self.assertEqual(expJ[ind], actualJ[ind])
+		self.assertEqual(expV[ind], actualV[ind])
+        
+class BuiltInMethodTests_disabled(DiGraphTests):
     def test_indexing_simple_scalar_scalar(self):
 	# ensure that a simple DiGraph constructor creates the number, source/
         # destination, and value pairs expected.
@@ -708,30 +907,6 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertEqual(expV[ind], actualV[ind])
         
-    def test_DiGraph_duplicates(self):
-	# ensure that a DiGraph constructor creates the number, source/
-        # destination, and value pairs expected when 3 input edges have
-        # the same source and destination.
-	nvert = 9
-	nedge = 19
-	origI = [1, 0, 2, 3, 1, 3, 3, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
-	origJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	origV = [10, 1, 21, 31, 12, 32, 13, 23, 43, 14, 34, 15, 16, 1.6e+10,
-		17, 87, 18, 68, 78]
-	expI = [1, 0, 2, 3, 1, 3, 3, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
-	expJ = [0, 1, 1, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	expV = [10, 1, 21, 31, 12, 32, 79, 14, 34, 15, 16, 1.6e+10,
-		17, 87, 18, 68, 78]
-	G = self.initializeGraph(nvert, nedge, origI, origJ, origV)
-	[actualI, actualJ, actualV] = G.toParVec()
-        self.assertEqual(len(expI), len(actualI))
-        self.assertEqual(len(expJ), len(actualJ))
-        self.assertEqual(len(expV), len(actualV))
-        for ind in range(len(origI)):
-		self.assertEqual(expI[ind], actualI[ind])
-		self.assertEqual(expJ[ind], actualJ[ind])
-		self.assertEqual(expV[ind], actualV[ind])
-        
     def test_add_simple(self):
 	# ensure that DiGraph addition creates the number, source/
         # destination, and value pairs expected when all edges are 
@@ -797,8 +972,7 @@ class BuiltInMethodTests(DiGraphTests):
         
     def test_neg_simple(self):
 	# ensure that DiGraph negation creates the number, source/
-        # destination, and value pairs expected when all edges are 
-        # in both DiGraphs.
+        # destination, and value pairs expected
 	nvert = 9
 	nedge = 19
 	origI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 1, 3, 1, 1, 8, 1, 8, 1, 6, 7]
@@ -938,6 +1112,110 @@ class BuiltInMethodTests(DiGraphTests):
 		self.assertAlmostEqual(expV[ind], actualV[ind])
         
 class GeneralPurposeTests(DiGraphTests):
+    def test_set_1(self):
+        nvert = 18
+        nedge = 30
+        i = [1, 1, 1, 2, 2, 2,  2,  3, 4, 4,  4,  5,  5, 6,  6,  6,  6,  7,  7,  7,  8,  8,  8,  9,  9, 11, 12, 13, 15, 17]
+        j = [2, 3, 4, 5, 6, 8, 11,  6, 7, 9, 17, 10, 11, 7, 10, 11, 12,  1, 12, 13, 13, 14, 15, 15, 16, 10, 13, 14, 16,  8]
+        w = [1, 2, 3, 4, 5, 6,  7,  8, 9, 10, 11, 1,  1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+	element = 0 
+        G = self.initializeGraph(nvert, nedge, i, j, w, element=element)
+	parentsExpected = [-1, 1, 1, 1, 1, 2, 3, 4, 2, 4, 11, 2, 7, 8, 8, 9, 9, 4]
+	G.set(1)
+	[actI, actJ, actW] = G.toVec()
+	for ind in range(nvert):
+		self.assertEqual(1, actW[ind])
+
+    def test_degree_dint_In(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+        deg = G1.degree(dir=DiGraph.In)
+	expDeg = [0, 4, 2, 3, 2, 1, 2, 2, 3]
+        self.assertEqual(len(expDeg), len(deg))
+        for ind in range(len(expDeg)):
+		self.assertEqual(expDeg[ind], deg[ind])
+
+    def test_degree_dint_Out(self):
+	nvert1 = 9
+	nedge1 = 19
+	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
+	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
+	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
+		17, 87, 8, 68, 78]
+	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
+        deg = G1.degree(dir=DiGraph.Out)
+	expDeg = [2, 7, 1, 2, 1, 1, 2, 1, 2]
+        self.assertEqual(len(expDeg), len(deg))
+        for ind in range(len(expDeg)):
+		self.assertEqual(expDeg[ind], deg[ind])
+
+    def test_degree_Out_Obj1_unfiltered(self):
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	deg = G.degree(DiGraph.Out)
+	expDeg = [ 0, 3, 4, 1, 3, 2, 5, 3, 3, 2, 0, 1, 1, 1, 0, 1, 0, 1]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind])
+
+    def test_degree_Out_In_Obj1_filtered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def category_eq_2(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==2
+		else:
+			raise NotImplementedError
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	G.addEFilter(category_eq_1)
+	degCat1 = G.degree(DiGraph.Out)
+	G.delEFilter(category_eq_1)
+	expDegCat1 = [ 0, 2, 3, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1]
+        self.assertEqual(len(degCat1), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDegCat1[ind], degCat1[ind])
+	G.addEFilter(category_eq_2)
+	degCat2 = G.degree(DiGraph.Out)
+	G.delEFilter(category_eq_2)
+	expDegCat2 = [ 0, 0, 1, 0, 1, 1, 2, 0, 3, 1, 2, 2, 1, 1, 1, 1, 1, 0]
+        self.assertEqual(len(degCat2), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDegCat2[ind], degCat2[ind])
+
+	pass
+
+class GeneralPurposeTests_disabled(DiGraphTests):
     def test_multNot(self):
 	nvert1 = 9
 	nedge1 = 19
@@ -967,7 +1245,7 @@ class GeneralPurposeTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
 
-    def test_scale_out(self):
+    def test_scale_Out(self):
 	nvert1 = 9
 	nedge1 = 19
 	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
@@ -999,7 +1277,7 @@ class GeneralPurposeTests(DiGraphTests):
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
 
-    def test_scale_in(self):
+    def test_scale_In(self):
 	nvert1 = 9
 	nedge1 = 19
 	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
@@ -1030,34 +1308,6 @@ class GeneralPurposeTests(DiGraphTests):
 		self.assertEqual(expI[ind], actualI[ind])
 		self.assertEqual(expJ[ind], actualJ[ind])
 		self.assertAlmostEqual(expV[ind], actualV[ind])
-
-    def test_degree_in(self):
-	nvert1 = 9
-	nedge1 = 19
-	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
-	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
-		17, 87, 8, 68, 78]
-	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
-        deg = G1.degree(dir=DiGraph.In)
-	expDeg = [0, 4, 2, 3, 2, 1, 2, 2, 3]
-        self.assertEqual(len(expDeg), len(deg))
-        for ind in range(len(expDeg)):
-		self.assertEqual(expDeg[ind], deg[ind])
-
-    def test_degree_out(self):
-	nvert1 = 9
-	nedge1 = 19
-	origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
-	origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-	origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
-		17, 87, 8, 68, 78]
-	G1 = self.initializeGraph(nvert1, nedge1, origI1, origJ1, origV1)
-        deg = G1.degree(dir=DiGraph.Out)
-	expDeg = [2, 7, 1, 2, 1, 1, 2, 1, 2]
-        self.assertEqual(len(expDeg), len(deg))
-        for ind in range(len(expDeg)):
-		self.assertEqual(expDeg[ind], deg[ind])
 
 
         
@@ -1114,6 +1364,33 @@ class LinearAlgebraTests(DiGraphTests):
 		self.assertEqual(i2[ind], expectedI[ind])
 		self.assertEqual(j2[ind], expectedJ[ind])
 		self.assertAlmostEqual(v2[ind], expectedV[ind], places=3)
+
+    def test_SpMV_Obj1_Obj1_createdSR_unfiltered(self):
+        nvert = 8
+        nedge = 13
+        i = [4, 1, 4, 6, 7, 1, 7, 2, 7, 3, 5, 2, 4]
+        j = [1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+	w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	c = [2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1()
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+        #G = self.initializeGraph(nvert, nedge, i, j, w)
+	G._T()
+
+	vecI = [2, 4]
+	vecW = [2, 4]
+	vec = self.initializeVec(nvert, vecI, (vecW, vecW), element, sparse=True)
+	mulFn = lambda x,y: x._SR_second_(y)
+	addFn = lambda x,y: x._SR_min_(y)
+	semiR = pcb.SemiringObj(addFn, mulFn)
+	newVec = G._SpMV(vec, semiRing=semiR)
+	newVecExpected = [0, 4, 0, 4, 0, 2, 0, 2]
+	for ind in range(nvert):
+		self.assertEqual(newVecExpected[ind], newVec[ind].weight)
 
 class ContractTests(DiGraphTests):
     def test_contract_simple(self):
@@ -1245,6 +1522,77 @@ class ConnCompTests(DiGraphTests):
 		self.assertEqual(resExpected[ind], res[ind])
 
 class SemanticGraphTests(DiGraphTests):
+    def test_Obj1_copy_filtered_pruned(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+
+        nvert = 18
+        nedge = 30
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	G.addEFilter(category_eq_1)
+	G2 = G.copy()	# G2 should only contain elements that pass the filter
+	expI = [ 1, 1, 2, 2, 3, 2,17, 4, 5,11, 5, 6, 7,12,13, 8, 9]
+	expJ = [ 2, 4, 5, 6, 6, 8, 8, 9,10,10,11,11,12,13,14,15,16]
+	expW = 1
+        self.assertEqual(len(i), nedge)
+	(actI, actJ, actObj) = G2.toVec()
+	nRemEdge = 17 
+        self.assertEqual(nRemEdge, len(expI))
+        self.assertEqual(nRemEdge, len(actI))
+	for ind in range(G2.nedge()):
+		self.assertEqual(expI[ind], actI[ind])
+		self.assertEqual(expJ[ind], actJ[ind])
+		self.assertEqual(expW     , actObj[ind].weight)
+
+    def test_Obj1_copyElementArg(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+
+        nvert = 18
+        nedge = 30
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	#G.addEFilter(category_eq_1)
+	G2 = G.copy(element=0)
+	#expI = [ 1, 1, 2, 2, 3, 2,17, 4, 5,11, 5, 6, 7,12,13, 8, 9]
+	#expJ = [ 2, 4, 5, 6, 6, 8, 8, 9,10,10,11,11,12,13,14,15,16]
+	#expW = 1
+	expI = i
+	expJ = j
+	expW = w
+        self.assertEqual(len(i), nedge)
+	(actI, actJ, actW) = G2.toVec()
+        self.assertEqual(nedge, len(expI))
+        self.assertEqual(nedge, len(actI))
+	for ind in range(G2.nedge()):
+		self.assertEqual(expI[ind], actI[ind])
+		self.assertEqual(expJ[ind], actJ[ind])
+		self.assertEqual(expW[ind], actW[ind])
+
+class SemanticGraphTests_disabled(DiGraphTests):
     def test_addVFilter_copy(self):
 	def ge0lt4(x):
 		return x>=0 and x<4
@@ -1391,6 +1739,114 @@ class SemanticGraphTests(DiGraphTests):
 #	for ind in range(nvert):
 #		self.assertEqual(parents[ind], parentsExpected[ind])
 
+class InternalMethodTests(DiGraphTests):
+    def test__reduce_row_Obj1_unfiltered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def calcDegree(x, y):
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			x += 1
+		elif y.weight != 0 or y.category != 0:
+			x.weight = x.weight + 1
+		return x
+
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	#G.addEFilter(category_eq_1)
+	f1 = lambda x, y: x.__iadd__(y)
+	f2 = lambda x: x.spOnes()
+	#sumVec = G._reduce(DiGraph.Out, element.__iadd__, element.spOnes)
+	deg = G._reduce(DiGraph.Out, pcb.binaryObj(calcDegree))
+	expDeg = [ 0, 3, 4, 1, 3, 2, 5, 3, 3, 2, 0, 1, 1, 1, 0, 1, 0, 1]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind].weight)
+
+    def test__reduce_row_dint_unfiltered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def calcDegree(x, y):
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			x += 1
+		elif y.weight != 0 or y.category != 0:
+			x.weight = x.weight + 1
+		return x
+
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        G = self.initializeGraph(nvert, nedge, i, j, w, element=0)
+	deg = G._reduce(DiGraph.Out, pcb.binary(calcDegree))
+	expDeg = [ 0, 3, 4, 1, 3, 2, 5, 3, 3, 2, 0, 1, 1, 1, 0, 1, 0, 1]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind])
+
+    def test__reduce_col_Obj1_unfiltered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def calcDegree(x, y):
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			x += 1
+		elif y.weight != 0 or y.category != 0:
+			x.weight = x.weight + 1
+		return x
+
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	#G.addEFilter(category_eq_1)
+	f1 = lambda x, y: x.__iadd__(y)
+	f2 = lambda x: x.spOnes()
+	#sumVec = G._reduce(DiGraph.Out, element.__iadd__, element.spOnes)
+	deg = G._reduce(DiGraph.In, pcb.binaryObj(calcDegree))
+	expDeg = [ 0, 1, 1, 1, 1, 1, 2, 2, 3, 1, 3, 3, 2, 3, 2, 2, 2, 1]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind].weight)
+
+
+class xxxTests(DiGraphTests):
+	pass
+
+class yyyTests(DiGraphTests):
+	pass
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -1398,24 +1854,27 @@ def runTests(verbosity = 1):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PageRankTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NormalizeEdgeWeightsTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(DegreeTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CentralityTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PageRankTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NormalizeEdgeWeightsTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(DegreeTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CentralityTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BFSTreeTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
-#   suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
+##   suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConnCompTests))
+#    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConnCompTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(InternalMethodTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(yyyTests))
     return suite
 
 if __name__ == '__main__':

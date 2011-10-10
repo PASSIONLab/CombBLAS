@@ -1449,11 +1449,12 @@ kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
-test/TestHyGraph.py -text
 test/TestKDT.py -text
-test/TestParVec.py -text
-test/TestSpParVec.py -text
 test/TestSpVec.py -text
+test/TestVec.py -text
 test/note_for_kdt_developers.txt -text
+test/oldTestHyGraph.py -text
+test/oldTestParVec.py -text
+test/oldTestSpParVec.py -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
