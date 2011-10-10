@@ -1,9 +1,15 @@
 import math
 #import numpy as np # Adam: TRY TO AVOID THIS IF AT ALL POSSIBLE.
 #from Graph import SpParVec 
-import pyCombBLAS as pcb
+import kdt.pyCombBLAS as pcb
 import feedback
 import UFget as uf
+
+
+#	naming convention:
+#	names that start with a single underscore and have no final underscore
+#		are functions
+#	names that start and end with a single underscore are fields
 
 class info:
 	@staticmethod
@@ -36,74 +42,66 @@ class info:
 	def minInt():
 		return -(2**62)
 
-class SpVec:
+class Vec(object):
 	#Note:  all comparison ops (__ne__, __gt__, etc.) only compare against
 	#   the non-null elements
 
-	def __init__(self, length=0, element=0):
-		#self._identity = element
-		#HACK setting of null values should be done more generally
-		if isinstance(element, (float, int, long)):
-			self._elementIsAnObject = False
-			#HACK
-			self._identity = 0
-		else:
-			self._elementIsAnObject = True
-			#HACK
-			self._identity = element
-			self._identity.weight = 0
-			self._identity.category = 0
-		if length > 0:
-			if isinstance(element, (float, int, long)):
-				self._v = pcb.pySpParVec(length)
-			elif isinstance(element, pcb.Obj1):
-				self._v = pcb.pySpParVecObj1(length)
-			elif isinstance(element, pcb.Obj2):
-				self._v = pcb.pySpParVecObj2(length)
-			else:
-				raise TypeError
+#	def __init__(self, length=0, element=0, sparse=False):
+#		if not sparse:
+#			self = DeVec(length, element)
+#		else:
+#			self = SpVec(length, element)
+
+#		#self._identity_ = element
+#		#HACK setting of null values should be done more generally
+#		if isinstance(element, (float, int, long)):
+#			#HACK
+#			self._identity_ = 0
+#		else:
+#			#HACK
+#			self._identity_ = element
+#			self._identity_.weight = 0
+#			self._identity_.category = 0
+#		if length > 0:
+#			if isinstance(element, (float, int, long)):
+#				self._v_ = pcb.pySpParVec(length)
+#			elif isinstance(element, pcb.Obj1):
+#				self._v_ = pcb.pySpParVecObj1(length)
+#			elif isinstance(element, pcb.Obj2):
+#				self._v_ = pcb.pySpParVecObj2(length)
+#			else:
+#				raise TypeError
+
+	def __new__(cls, length=None, init=None, element=None, sparse=None):
+		if sparse is None or not sparse:
+			self = object.__new__(DeVec,  length, init, element)
+		else: 
+			self = object.__new__(SpVec,  length, element)
+
+		return self
+
 
 	@staticmethod
-	def _isObj(self):
-		try:
-			ret = hasattr(self,'_elementIsAnObject') and self._elementIsAnObject
-		except AttributeError:
-			ret = False
-		return ret
+	def isObj(self):
+		return not isinstance(self._identity_, (float, int, long))
+		#FIX:  delete following
+#		try:
+#			ret = hasattr(self,'_elementIsObject') and self._elementIsObject
+#		except AttributeError:
+#			ret = False
+#		return ret
 
 	@staticmethod
 	def _hasFilter(self):
 		try:
-			ret = hasattr(self,'_vFilter') and len(self._vFilter)>0
+			ret = hasattr(self,'_vFilter_') and len(self._vFilter_)>0
 		except AttributeError:
 			ret = False
 		return ret
 
-#	@staticmethod
-#	def _buildSuperLambda(fnList):
-#		"""
-#		builds one lambda function that calls all the functions in the
-#		passed function list, creating a logical And from all the 
-#		results.  The return value from _buildSuperLambda is intended
-#		to be used as a vertex filter.
-#		"""
-#		#importPrefix = "x."
-#		#superFnStr = "lambda x:"
-#		#for i in range(len(fnList)-1):
-#		#	superFnStr += "bool(%s%s()) and " % (importPrefix, fnList[i].func_name)
-#		#superFnStr += "bool(%s%s())" % (importPrefix, fnList[len(fnList)-1].func_name)
-#		superFnStr = """
-#def fn(x):
-#	for i in range(len(fnList)):
-#		if not fnList[i](x):
-#			return x
-#	return func(x)
-#"""
-#		return superFnStr
-
 	def __abs__(self):
 		ret = self.copy()
-		if not SpVec._isObj(self):
+		if not Vec.isObj(self):
 			f = pcb.abs()
 			noWrap = True
 		else:
@@ -120,7 +118,7 @@ class SpVec:
 		ToDo:  elucidate combinations, overloading, etc.
 		"""
 		# if no filters for self and other and self has doubleint elements
-		if not SpVec._hasFilter(self) and not SpVec._hasFilter(other) and isinstance(self._identity, (float, int, long)) and isinstance(other._identity, (float, int, long)):
+		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and isinstance(other._identity_, (float, int, long)):
 			ret = self.copy()
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
@@ -129,13 +127,13 @@ class SpVec:
 			else:	# other is doubleint (Sp)Vec
 				if len(self) != len(other):
 					raise IndexError, 'arguments must be of same length'
-				ret._v = self._v + other._v
+				ret._v_ = self._v_ + other._v_
 		else:
 			if not isinstance(other, (float, int, long)) and len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(SpVec, float, int, long)):
+			if not isinstance(other,(Vec, float, int, long)):
 				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if SpVec._isObj(self):
+			if Vec.isObj(self):
 		 		func = lambda x, y: x.__iadd__(y)
 			else:
 		 		func = lambda x, y: y.__radd__(x)
@@ -155,7 +153,7 @@ class SpVec:
 #		func = lambda x, other: x.__and__(other)
 #		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
 #		return ret
-		if not SpVec._hasFilter(self) and not SpVec._hasFilter(other) and isinstance(self._identity, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity, (float, int, long))):
+		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
 			ret = self.copy()
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
@@ -168,9 +166,9 @@ class SpVec:
 		else:
 			if not isinstance(other, (float, int, long)) and len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(SpVec, float, int, long)):
+			if not isinstance(other,(Vec, float, int, long)):
 				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if SpVec._isObj(self):
+			if Vec.isObj(self):
 		 		func = lambda x, y: x.__iand__(y)
 			else:
 		 		func = lambda x, y: y.__rand__(x)
@@ -259,7 +257,7 @@ class SpVec:
 		if isinstance(key, (int, long, float)):
 			if key < 0 or key > len(self)-1:
 				raise IndexError
-			ret = self._v[key]
+			ret = self._v_[key]
 		elif isinstance(key,ParVec):
 			if key.isBool():
 				raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
@@ -381,7 +379,7 @@ class SpVec:
 		returns the length (the maximum number of potential nonnull elements
 		that could exist) of a SpVecObj instance.
 		"""
-		return len(self._v)
+		return len(self._v_)
 
 	def __le__(self, other):
 		"""
@@ -490,6 +488,7 @@ class SpVec:
 		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
 
+
 	def __ne__(self, other):
 		"""
 		calculates the Boolean not-equal relationship of the first argument with the second argument 
@@ -553,7 +552,10 @@ class SpVec:
 
 		SEE ALSO:  printAll
 		"""
-		self._v.printall()
+		if hasattr(self,'_v_'):
+			self._v_.printall()
+		else:
+			print "Vec with no _v_"
 		return ' '
 		#TODO:  limit amount of printout?
 		nPrinted = 0
@@ -562,7 +564,7 @@ class SpVec:
 			#HACK check for nonnull
 			#ToDo: return string instead of printing here
 			print "__repr__ loop,", self[i]
-			if self[i].weight > info.eps or self[i].type!=0:
+			if self[i].weight > info.eps or self[i].category!=0:
 				print self[i]
 				nPrinted += 1
 			i += 1
@@ -571,77 +573,77 @@ class SpVec:
 		return ' '
 
 
-	def __setitem__(self, key, value):
-		"""
-		performs assignment of an SpParVec instance on the left-hand side of
-		an equation.  The following forms are supported.
-	spparvec[integer scalar] = scalar
-	spparvec[Boolean parvec] = scalar
-	spparvec[Boolean parvec] = parvec
-	spparvec[non-Boolean spparvec] = scalar
-	spparvec[non-Boolean spparvec] = spparvec
-
-		For the first form, the element of the SpParVec instance indicated 
-		by the index to the is set to the scalar value.
-
-		For the second form, the elements of the SpParVec instance
-		corresponding to the True elements of the index ParVec instance
-		are set to the scalar value.
-
-		For the third form, the elements of the SpParVec instance 
-		corresponding to the True elements of the index ParVec instance
-		are set to the corresponding element of the value ParVec instance.
-
-		For the fourth form, the elements of the SpParVec instance
-		corresponding to the nonnull elements of the index SpParVec
-		instance are set to the scalar value.
-
-		For the fifth form, the elements of the SpParVec instance 
-		corresponding to the nonnull elements of the index SpParVec
-		instance are set to the corresponding value of the value
-		SpParVec instance.  Note that the base, key, and value SpParVec
-		instances must all be of the same length, though the base may
-		have a different number of nonzeros from the key and value. 
-		"""
-		if isinstance(key, (float, int, long)):
-			if key > len(self)-1:
-				raise IndexError
-			self._v[key] = value
-		elif isinstance(key,ParVec):
-			if not key.isBool():
-				raise KeyError, 'only Boolean ParVec indexing of SpParVecs supported'
-			if isinstance(value,ParVec):
-				pass
-			elif type(value) == float or type(value) == long or type(value) == int:
-				value = ParVec(len(key),value)
-			else:
-				raise KeyError, 'Unknown value type'
-			if len(self._spv) != len(key._dpv) or len(self._spv) != len(value._dpv):
-				raise IndexError, 'Key and Value must be same length as SpParVec'
-			self._spv[key._dpv] = value._dpv
-		elif isinstance(key,SpParVec):
-			if key.isBool():
-				raise KeyError, 'Boolean SpParVec indexing of SpParVecs not supported'
-			if isinstance(value,ParVec):
-				pass
-			elif isinstance(value,SpParVec):
-				value = value.toParVec()
-			elif type(value) == float or type(value) == long or type(value) == int:
-				tmp = value
-				value = key.copy()
-				value.set(tmp)
-				value = value.toParVec()
-			else:
-				raise KeyError, 'Unknown value type'
-			key = key.toParVec()
-			if len(self._spv) != len(key._dpv) or len(self._spv) != len(value._dpv):
-				raise IndexError, 'Key and Value must be same length as SpParVec'
-			self._spv[key._dpv] = value._dpv
-		elif type(key) == str and key == 'nonnull':
-			self._apply(pcb.set(value), noWrap=True)
-		else:
-			raise KeyError, 'Unknown key type'
-		return
+#	def __setitem__(self, key, value):
+#		"""
+#		performs assignment of an SpParVec instance on the left-hand side of
+#		an equation.  The following forms are supported.
+#	spparvec[integer scalar] = scalar
+#	spparvec[Boolean parvec] = scalar
+#	spparvec[Boolean parvec] = parvec
+#	spparvec[non-Boolean spparvec] = scalar
+#	spparvec[non-Boolean spparvec] = spparvec
+#
+#		For the first form, the element of the SpParVec instance indicated 
+#		by the index to the is set to the scalar value.
+#
+#		For the second form, the elements of the SpParVec instance
+#		corresponding to the True elements of the index ParVec instance
+#		are set to the scalar value.
+#
+#		For the third form, the elements of the SpParVec instance 
+#		corresponding to the True elements of the index ParVec instance
+#		are set to the corresponding element of the value ParVec instance.
+#
+#		For the fourth form, the elements of the SpParVec instance
+#		corresponding to the nonnull elements of the index SpParVec
+#		instance are set to the scalar value.
+#
+#		For the fifth form, the elements of the SpParVec instance 
+#		corresponding to the nonnull elements of the index SpParVec
+#		instance are set to the corresponding value of the value
+#		SpParVec instance.  Note that the base, key, and value SpParVec
+#		instances must all be of the same length, though the base may
+#		have a different number of nonzeros from the key and value. 
+#		"""
+#		if isinstance(key, (float, int, long)):
+#			if key > len(self)-1:
+#				raise IndexError
+#			self._v_[key] = value
+#		elif isinstance(key,Vec):
+#			if not key.isBool():
+#				raise KeyError, 'only Boolean ParVec indexing of SpParVecs supported'
+#			if isinstance(value,Vec):
+#				pass
+#			elif type(value) == float or type(value) == long or type(value) == int:
+#				value = Vec(len(key),value)
+#			else:
+#				raise KeyError, 'Unknown value type'
+#			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+#				raise IndexError, 'Key and Value must be same length as SpParVec'
+#			self._v_[key._v_] = value._v_
+#		elif isinstance(key,SpVec):
+#			if key.isBool():
+#				raise KeyError, 'Boolean SpVec indexing of SpParVecs not supported'
+#			if isinstance(value,Vec):
+#				pass
+#			elif isinstance(value,SpVec):
+#				value = value.toDeVec()
+#			elif type(value) == float or type(value) == long or type(value) == int:
+#				tmp = value
+#				value = key.copy()
+#				value.set(tmp)
+#				value = value.toDeVec()
+#			else:
+#				raise KeyError, 'Unknown value type'
+#			key = key.toDeVec()
+#			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+#				raise IndexError, 'Key and Value must be same length as SpVec'
+#			self._v_[key._v_] = value._v_
+#		elif type(key) == str and key == 'nonnull':
+#			self._apply(pcb.set(value), noWrap=True)
+#		else:
+#			raise KeyError, 'Unknown key type'
+#		return
 		
 
 	def __sub__(self, other):
@@ -685,67 +687,128 @@ class SpVec:
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
 		"""
 		
-		if hasattr(self, '_vFilter') and len(self._vFilter) > 0:
+		if hasattr(self, '_vFilter_') and len(self._vFilter_) > 0:
 			class tmpU:
-				_vFilter = self._vFilter
+				_vFilter_ = self._vFilter_
 				@staticmethod
 				def fn(x):
-					for i in range(len(tmpU._vFilter)):
-						if not tmpU._vFilter[i](x):
+					for i in range(len(tmpU._vFilter_)):
+						if not tmpU._vFilter_[i](x):
 							return x
 					return op(x)
 			tmpInstance = tmpU()
-			self._v.Apply(pcb.unaryObj(tmpInstance.fn))
+			self._v_.Apply(pcb.unaryObj(tmpInstance.fn))
 		else:
 			if noWrap:
-				self._v.Apply(op)
+				self._v_.Apply(op)
 			else:
-				self._v.Apply(pcb.unaryObj(op))
+				self._v_.Apply(pcb.unaryObj(op))
 		return
 
-	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
-		"""
-		ToDo:  write doc
-		"""
-		if hasattr(self, '_vFilter') or hasattr(other, '_vFilter'):
-			class tmpB:
-				if hasattr(self,'_vFilter') and len(self._vFilter) > 0:
-					selfVFLen = len(self._vFilter)
-					vFilter1 = self._vFilter
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_vFilter') and len(other._vFilter) > 0:
-					otherVFLen = len(other._vFilter)
-					vFilter2 = other._vFilter
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
-		if noWrap:
-			if isinstance(other, (float, int, long)):
-				v = pcb.EWiseApply(self._v, other   , superOp, allowANulls, allowBNulls)
-			else:
-				v = pcb.EWiseApply(self._v, other._v, superOp, allowANulls, allowBNulls)
-		else:
-			if isinstance(other, (float, int, long)):
-				v = pcb.EWiseApply(self._v, other   , pcb.binaryObj(superOp), allowANulls, allowBNulls)
-			else:
-				v = pcb.EWiseApply(self._v, other._v, pcb.binaryObj(superOp), allowANulls, allowBNulls)
-		ret = SpVec(element=v[0])
-		ret._v = v
-		return ret
+#	# in-place, so no return value
+#	def _applyInd(self, op, noWrap=False):
+#		"""
+#		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
+#		"""
+#		
+#		if hasattr(self, '_vFilter_') and len(self._vFilter_) > 0:
+#			class tmpU:
+#				_vFilter_ = self._vFilter_
+#				@staticmethod
+#				def fn(x):
+#					for i in range(len(tmpU._vFilter_)):
+#						if not tmpU._vFilter_[i](x):
+#							return x
+#					return op(x)
+#			tmpInstance = tmpU()
+#			self._v_.ApplyInd(pcb.unaryObj(tmpInstance.fn))
+#		else:
+#			if noWrap:
+#				self._v_.Apply(op)
+#			else:
+#				self._v_.Apply(pcb.unaryObj(op))
+#		return
+#		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+#			class tmpB:
+#				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+#					selfVFLen = len(self._vFilter_)
+#					vFilter1 = self._vFilter_
+#				else:
+#					selfVFLen = 0
+#				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+#					otherVFLen = len(other._vFilter_)
+#					vFilter2 = other._vFilter_
+#				else:
+#					otherVFLen = 0
+#				@staticmethod
+#				def fn(x, y):
+#					for i in range(tmpB.selfVFLen):
+#						if not tmpB.vFilter1[i](x):
+#							x = type(self._identity_)()
+#							break
+#					for i in range(tmpB.otherVFLen):
+#						if not tmpB.vFilter2[i](y):
+#							y = type(other._identity_)()
+#							break
+#					return op(x, y)
+#			superOp = tmpB().fn
+#		else:
+#			superOp = op
+#		if noWrap:
+#			if isinstance(other, (float, int, long)):
+#				self._v_.ApplyInd(self._v_, other   , superOp, allowANulls, allowBNulls)
+#			else:
+#				self._v_.ApplyInd(self._v_, other._v_, superOp, allowANulls, allowBNulls)
+#		else:
+#			if isinstance(other, (float, int, long)):
+#				self._v_.ApplyInd(self._v_, other   , pcb.binaryObj(superOp), allowANulls, allowBNulls)
+#			else:
+#				self._v_.ApplyInd(self._v_, other._v_, pcb.binaryObj(superOp), allowANulls, allowBNulls)
+#		ret = Vec._toVec(self,self._v_)
+#		return ret
+#
+#	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+#		"""
+#		ToDo:  write doc
+#		"""
+#		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+#			class tmpB:
+#				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+#					selfVFLen = len(self._vFilter_)
+#					vFilter1 = self._vFilter_
+#				else:
+#					selfVFLen = 0
+#				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+#					otherVFLen = len(other._vFilter_)
+#					vFilter2 = other._vFilter_
+#				else:
+#					otherVFLen = 0
+#				@staticmethod
+#				def fn(x, y):
+#					for i in range(tmpB.selfVFLen):
+#						if not tmpB.vFilter1[i](x):
+#							x = type(self._identity_)()
+#							break
+#					for i in range(tmpB.otherVFLen):
+#						if not tmpB.vFilter2[i](y):
+#							y = type(other._identity_)()
+#							break
+#					return op(x, y)
+#			superOp = tmpB().fn
+#		else:
+#			superOp = op
+#		if noWrap:
+#			if isinstance(other, (float, int, long)):
+#				v = pcb.EWiseApply(self._v_, other   , superOp, allowANulls, allowBNulls)
+#			else:
+#				v = pcb.EWiseApply(self._v_, other._v_, superOp, allowANulls, allowBNulls)
+#		else:
+#			if isinstance(other, (float, int, long)):
+#				v = pcb.EWiseApply(self._v_, other   , pcb.binaryObj(superOp), allowANulls, allowBNulls)
+#			else:
+#				v = pcb.EWiseApply(self._v_, other._v_, pcb.binaryObj(superOp), allowANulls, allowBNulls)
+#		ret = Vec._toVec(self,v)
+#		return ret
 
 	# as of 2011sep27, probably don't need this function
 	def _eWisePredApply(self, other, op, allowANulls, allowBNulls):
@@ -754,37 +817,16 @@ class SpVec:
 		"""
 		#filterPred = pcb.ifthenelse(pred, pcb.identity(), pcb.set(0))
 		#if not isinstance(op, pcb.UnaryFunctionObj):
-		#	self._v.Apply(pcb.unaryObj(op))
+		#	self._v_.Apply(pcb.unaryObj(op))
 		#else:
 		#if isinstance(op, pcb.BinaryFunctionObj):
 			#ret = SpVecObj()
-			#ret._v = pcb.EWiseApply(self._v, other._v, op, allowANulls, allowBNulls)
+			#ret._v_ = pcb.EWiseApply(self._v_, other._v_, op, allowANulls, allowBNulls)
 		#elif isinstance(op, pcb.BinaryPredicateObj):
-		ret = SpVec(0)
-		ret._v = pcb.EWiseApply(self._v, other._v, op, allowANulls, allowBNulls)
+		v = pcb.EWiseApply(self._v_, other._v_, op, allowANulls, allowBNulls)
+		ret = self._toVec(v)
 		return ret
 
-#	op_add = pcb.plus()
-#	op_sub = pcb.minus()
-#	op_mul = pcb.multiplies()
-#	op_div = pcb.divides()
-#	op_mod = pcb.modulus()
-#	op_fmod = pcb.fmod()
-#	op_pow = pcb.pow()
-#	op_max  = pcb.max()
-#	op_min = pcb.min()
-#	op_bitAnd = pcb.bitwise_and()
-#	op_bitOr = pcb.bitwise_or()
-#	op_bitXor = pcb.bitwise_xor()
-#	op_and = pcb.logical_and()
-#	op_or = pcb.logical_or()
-#	op_xor = pcb.logical_xor()
-#	op_eq = pcb.equal_to()
-#	op_ne = pcb.not_equal_to()
-#	op_gt = pcb.greater()
-#	op_lt = pcb.less()
-#	op_ge = pcb.greater_equal()
-#	op_le = pcb.less_equal()
 	def _reduce(self, op, pred=None):
 		"""
 		ToDo:  write doc
@@ -795,29 +837,36 @@ class SpVec:
 #		else:
 #			realOp = op
 		if not pred is None:
-			if SpVec._isObj(self):
-				realPred = pcb.unaryObj(pred)
+			if Vec.isObj(self):
+				#realPred = pcb.unaryObj(pred)
+				realPred = pred
 			else:
 				realPred = pred
-			ret = self._v.Reduce(op, realPred)
+			ret = self._v_.Reduce(op, realPred)
 		else:
-			ret = self._v.Reduce(op)
+			ret = self._v_.Reduce(op)
 		return ret
 
 	# in-place, so no return value
 	def _setIdentity(self, val):
 		if isinstance(val, (float, int, long)):
-			self._identity = 0
+			self._identity_ = 0
 		elif isinstance(val, pcb.Obj1):
-			self._identity = pcb.Obj1()
-			self._identity.weight = 0
-			self._identity.category = 0
+			self._identity_ = pcb.Obj1()
+			self._identity_.weight = 0
+			self._identity_.category = 0
 		elif isinstance(val, pcb.Obj2):
-			self._identity = pcb.Obj2()
-			self._identity.weight = 0
-			self._identity.category = 0
+			self._identity_ = pcb.Obj2()
+			self._identity_.weight = 0
+			self._identity_.category = 0
 		return
 	
+	@staticmethod
+	def _toVec(kdtVec, pcbVec):
+		ret = kdtVec._newLike(0, pcbVec[0])
+		ret._v_ = pcbVec
+		return ret
+
 	# in-place, so no return value
 	def addVFilter(self, filter):
 		"""
@@ -839,28 +888,31 @@ class SpVec:
 		SEE ALSO:
 			delVFilter  
 		"""
-		if not SpVec._isObj(self):
+		if not Vec.isObj(self):
 			raise NotImplementedError, 'No filter support on doubleint SpVec instances'
-		if hasattr(self, '_vFilter'):
-			self._vFilter.append(filter)
+		if hasattr(self, '_vFilter_'):
+			self._vFilter_.append(filter)
 		else:
-			self._vFilter = [filter]
+			self._vFilter_ = [filter]
 		return
 		
 
 	def all(self):
 		"""
 		returns a Boolean True if all the nonnull elements of the
-		SpVecObj instance are True (nonzero), and False otherwise.
+		Vec instance are True (nonzero), and False otherwise.
 		"""
 		tmp = self.copy()
-		identity = pcb.Obj1()
-		identity.weight = tmp[0].weight
-		identity.type = 99
-		tmp[0] = identity
-		func = lambda x, other: x.all(other)
-		ret = tmp._reduce(pcb.binaryObj(func)).weight > 0
-		return ret
+		if isinstance(self._identity_, (float, int, long)):
+			return self._v_.all()
+		else:
+			identity = pcb.Obj1()
+			identity.weight = tmp[0].weight	#FIX: "=  bool(...)"?
+			identity.category = 99
+			tmp[0] = identity
+			func = lambda x, other: x.all(other)
+			ret = tmp._reduce(pcb.binaryObj(func)).weight > 0
+			return ret
 
 	def allCloseToInt(self):
 		"""
@@ -883,28 +935,43 @@ class SpVec:
 		ret = self._reduce(pcb.binaryObj(func)).weight > 0
 		return ret
 
-	def copy(self):
+	def copy(self, element=None):
 		"""
 		creates a deep copy of the input argument.
+		FIX:  doc 'element' arg that converts element of result
+		ToDo:  add a doFilter=True arg at some point?
 		"""
-		ret = SpVec()
-		ret._v = self._v.copy()
-		ret._setIdentity(self._identity)
-		ret._elementIsAnObject = self._elementIsAnObject
+		ret = Vec(element=self._identity_, sparse=self._isSparse_)
+		ret._v_ = self._v_.copy()
+		ret._isSparse_ = self._isSparse_
 		# filter the new vector; note generic issue of distinguishing
 		#   zero from null
-		if hasattr(self,'_vFilter'):
+		if hasattr(self,'_vFilter_'):
 			class tmpU:
-				_vFilter = self._vFilter
+				_vFilter_ = self._vFilter_
 				@staticmethod
 				def fn(x):
-					for i in range(len(tmpU._vFilter)):
-						if not tmpU._vFilter[i](x):
-							return type(self._identity)()
+					for i in range(len(tmpU._vFilter_)):
+						if not tmpU._vFilter_[i](x):
+							return type(self._identity_)()
 					return x
 			tmpInstance = tmpU()
-			ret._v.Apply(pcb.unaryObj(tmpInstance.fn))
+			ret._v_.Apply(pcb.unaryObj(tmpInstance.fn))
+			pass
+		if element is not None and type(self._identity_) is not type(element):
+			tmp = Vec(len(self), element=element, sparse=self.isSparse())
+			def func(x, y): 
+				#ToDo:  assumes that at least x or y is an ObjX
+				if isinstance(x,(float,int,long)):
+					ret = y.coerce(x, False)
+				else:
+					ret = x.coerce(y, True)
+				return ret
+			tmp2 = tmp._eWiseApply(ret, func, True, True)
+			ret = tmp2
 		return ret
+
+	@staticmethod
 
 	# in-place, so no return value
 	def delVFilter(self, filter=None):
@@ -921,14 +988,14 @@ class SpVec:
 		SEE ALSO:
 			addVFilter  
 		"""
-		if not hasattr(self, '_vFilter'):
+		if not hasattr(self, '_vFilter_'):
 			raise KeyError, "no vertex filters previously created"
 		if filter is None:
-			del self._vFilter	# remove all filters
+			del self._vFilter_	# remove all filters
 		else:
-			self._vFilter.remove(filter)
-			if len(self._vFilter) == 0:
-				del self._vFilter
+			self._vFilter_.remove(filter)
+			if len(self._vFilter_) == 0:
+				del self._vFilter_
 		return
 
 	#ToDo:  implement find/findInds when problem of any zero elements
@@ -987,14 +1054,17 @@ class SpVec:
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
-#SPR  Don't know how to do this yet
+	def isSparse(self):
+		return self._isSparse_
+
+#SPR  Don't know how to do this yet; needs element argument
 	@staticmethod
 	def load(fname):
                 file = open(fname, 'r')
                 file.close()
 
 		ret = SpVecObj(1)
-		ret._v.load(fname)
+		ret._v_.load(fname)
 		return ret
 
 	def logicalAnd(self, other):
@@ -1006,11 +1076,10 @@ class SpVec:
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
+		ret = self.copy()	#FIX: spurious? given 2L later?
 		func = lambda x, other: x.logicalAnd(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
-	logical_and = logicalAnd	# for NumPy compatibility
 
 	def logicalOr(self, other):
 		"""
@@ -1021,11 +1090,10 @@ class SpVec:
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
+		ret = self.copy() #FIX:  spurious? given 2L later?
 		func = lambda x, other: x.logicalOr(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
-	logical_or = logicalOr 		# for NumPy compatibility
 
 	def logicalXor(self, other):
 		"""
@@ -1036,11 +1104,10 @@ class SpVec:
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
+		ret = self.copy()	#FIX: spurious? given 2L later?
 		func = lambda x, other: x.logicalXor(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
-	logical_xor = logicalXor	# for NumPy compatibility
 
 	def max(self):
 		"""
@@ -1090,24 +1157,24 @@ class SpVec:
 			if isinstance(x, (float, int, long)):
 				x = x + 1
 			else:
-				if y.weight != 0 or y.type != 0:
+				if y.weight != 0 or y.category != 0:
 					x.weight = x.weight + 1
 			return x
-		tmp = self.copy()
-		if isinstance(self._identity,(float, int, long)):
+		tmp = self.copy()	#FIX: spurious? 
+		if isinstance(self._identity_,(float, int, long)):
 			identity = 0
 			ret = int(tmp._reduce(pcb.plus(), pred=pcb.set(1)))
-		elif isinstance(self._identity,(pcb.Obj1)):
-			identity = type(self._identity)()
+		elif isinstance(self._identity_,(pcb.Obj1)):
+			identity = type(self._identity_)()
 			#HACK: referred to above
-			if self[0].weight or self[0].type:
+			if self[0].weight or self[0].category:
 				identity.weight = 1
 			tmp[0] = identity
 			ret = int(tmp._reduce(pcb.binaryObj(f)).weight)
-		elif isinstance(self._identity,pcb.Obj2):
-			identity = type(self._identity)()
+		elif isinstance(self._identity_,pcb.Obj2):
+			identity = type(self._identity_)()
 			#HACK: referred to above
-			if self[0].weight or self[0].type:
+			if self[0].weight or self[0].category:
 				identity.weight = 1
 			tmp[0] = identity
 			ret = int(tmp._reduce(pcb.binaryObj(f)).weight)
@@ -1126,24 +1193,24 @@ class SpVec:
 		ret = self._reduce(SpParVec.op_add, pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
 		return int(ret)
 
-	#FIX:  delete, since unused
-	@staticmethod
-	def ones(sz, element=0):
-		"""
-		creates a SpParVec instance of the specified size whose elements
-		are all nonnull with the value 1.
-		"""
-		ret = SpVec.range(sz, element=element)
-		#HACK:  scalar set loop for now; needs something better
-		#Obj1 = pcb.Obj1()
-		#Obj1.weight = 1
-		#for i in range(sz):
-		#	ret[i] = Obj1
-		if not SpVec._isObj(ret):
-			ret._apply(pcb.set(1), noWrap=True)
-		else:
-			ret._apply(lambda x: x.spOnes())
-		return ret
+#	#FIX:  delete, since unused
+#	@staticmethod
+#	def ones(sz, element=0):
+#		"""
+#		creates a SpVec instance of the specified size whose elements
+#		are all nonnull with the value 1.
+#		"""
+#		ret = Vec(sz)._rangeLike(sz, element=element)
+#		#HACK:  scalar set loop for now; needs something better
+#		#Obj1 = pcb.Obj1()
+#		#Obj1.weight = 1
+#		#for i in range(sz):
+#		#	ret[i] = Obj1
+#		if not Vec.isObj(ret):
+#			ret._apply(pcb.set(1), noWrap=True)
+#		else:
+#			ret._apply(lambda x: x.spOnes())
+#		return ret
 
 	def printAll(self):
 		"""
@@ -1152,41 +1219,22 @@ class SpVec:
 
 		SEE ALSO:  print, __repr__
 		"""
-		self._v.printall()
+		self._v_.printall()
 		return ' '
 
-	@staticmethod
-	def range(arg1, stop=None, element=0):
-		"""
-		FIX:  update doc
-		creates a SpParVec instance with consecutive integer values.
-
-	range(stop)
-	range(start, stop)
-		The first form creates a SpParVec instance of length stop whose
-		values are all nonnull, starting at 0 and stopping at stop-1.
-		The second form creates a SpParVec instance of length stop-start
-		whose values are all nonnull, starting at start and stopping at
-		stop-1.
-		"""
-		if stop == None:
-			start = 0
-			stop = arg1
-		else:
-			start = arg1
-		if start > stop:
-			raise ValueError, "start > stop"
-		ret = SpVec(stop-start, element=element)
-		#HACK:  serial set is not practical for large sizes
-		if isinstance(element, (float, int, long)):
-			ret._v = pcb.pySpParVec.range(stop-start,start)
-		else:
-			Obj1 = pcb.Obj1()
-			for i in range(stop-start):
-				Obj1.weight = start + i
-				ret[i] = Obj1
-		return ret
 	
+#	@staticmethod
+#	def range(*args, sparse=False, **kwargs):
+#		"""
+#		FIX:  not working yet
+#		FIX:  add doc
+#		"""
+#		raise NotImplementedError
+#		if not sparse:
+#			return DeVec.range(*args, **kwargs)
+#		else:
+#			return SpVec.range(*args, **kwargs)
+
 	#in-place, so no return value
 	def set(self, value):
 		"""
@@ -1211,7 +1259,7 @@ class SpVec:
 		Output Argument:
 			None
 		"""
-		self._v.Sort()
+		self._v_.Sort()
 		return
 
 	def sorted(self):
@@ -1234,7 +1282,7 @@ class SpVec:
 		"""
 		ret1 = self.copy();
 		ret2 = SpParVec(-1)
-		ret2._spv = ret1._v.Sort()
+		ret2._spv = ret1._v_.Sort()
 		return (ret1, ret2)
 
 	#in-place, so no return value
@@ -1242,20 +1290,11 @@ class SpVec:
 		"""
 		sets every non-null value in the SpParVec instance to 1, in-place.
 		"""
-		if not SpVec._isObj(self):
+		if not Vec.isObj(self):
 			self._apply(pcb.set(1), noWrap=True)
 		else:
 			self._apply(lambda x: x.spOnes())
 		return
-
-	#in-place, so no return value
-	def spRange(self):
-		"""
-		sets every non-null value in the SpParVec instance to its position
-		(offset) in the vector, in-place.
-		"""
-		raise NotImplementedError
-		self._v.setNumToInd()
 
 	def sum(self):
 		"""
@@ -1295,21 +1334,21 @@ class SpVec:
 		"""
 		raise NotImplementedError
 		ret = Vec(0)
-		ret._v = self._v.TopK(k)
+		ret._v_ = self._v_.TopK(k)
 		return ret
 
-	def toParVec(self):	
+	def toDeVec(self):	
 		"""
 		converts a SpParVec instance into a ParVec instance of the same
 		length with the non-null elements of the SpParVec instance placed 
 		in their corresonding positions in the ParVec instance.
 		"""
-		ret = ParVec(-1)
-		ret._dpv = self._spv.dense()
+		ret = Vec()
+		ret._v_ = self._v_.dense()
 		return ret
 
 	@staticmethod
-	def toSpParVec(SPV):
+	def toSpVec(SPV):
 		#if not isinstance(SPV, pcb.pySpParVec):
 		if SPV.__class__.__name__ != 'pySpParVec':
 			raise TypeError, 'Only accepts pySpParVec instances'
@@ -1317,21 +1356,451 @@ class SpVec:
 		ret._spv = SPV
 		return ret
 	
-def master():
-	"""
-	Return Boolean value denoting whether calling process is the 
-	master process or a slave process in a parallel program.
-	"""
-	return pcb.root()
+class DeVec(Vec):
+	def __init__(self, length=0, init=0, element=0, sparse=False):
+		#HACK setting of null values should be done more generally
+		self._isSparse_ = False
+		if isinstance(element, (float, int, long)):
+			#self._elementIsObject = False
+			#HACK
+			self._identity_ = 0
+		else:
+			#self._elementIsObject = True
+			#HACK
+			self._identity_ = element
+			self._identity_.weight = 0
+			self._identity_.category = 0
+		if length is not None:
+			if isinstance(element, (float, int, long)):
+				self._v_ = pcb.pyDenseParVec(length, init)
+			elif isinstance(element, pcb.Obj1):
+				self._v_ = pcb.pyDenseParVecObj1(length, self._identity_)
+			elif isinstance(element, pcb.Obj2):
+				self._v_ = pcb.pyDenseParVecObj2(length, self._identity_)
+			else:
+				raise TypeError
 
-def version():
-	"""
-	Return KDT version number, as a string.
-	"""
-	return "0.2.x"
+	def __setitem__(self, key, value):
+		"""
+		performs assignment of an SpParVec instance on the left-hand side of
+		an equation.  The following forms are supported.
+	spparvec[integer scalar] = scalar
+	spparvec[Boolean parvec] = scalar
+	spparvec[Boolean parvec] = parvec
+	spparvec[non-Boolean spparvec] = scalar
+	spparvec[non-Boolean spparvec] = spparvec
 
-def revision():
-	"""
-	Return KDT revision number, as a string.
-	"""
-	return "r7xx"
+		For the first form, the element of the SpParVec instance indicated 
+		by the index to the is set to the scalar value.
+
+		For the second form, the elements of the SpParVec instance
+		corresponding to the True elements of the index ParVec instance
+		are set to the scalar value.
+
+		For the third form, the elements of the SpParVec instance 
+		corresponding to the True elements of the index ParVec instance
+		are set to the corresponding element of the value ParVec instance.
+
+		For the fourth form, the elements of the SpParVec instance
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the scalar value.
+
+		For the fifth form, the elements of the SpParVec instance 
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the corresponding value of the value
+		SpParVec instance.  Note that the base, key, and value SpParVec
+		instances must all be of the same length, though the base may
+		have a different number of nonzeros from the key and value. 
+		"""
+		if isinstance(key, (float, int, long)):
+			if key > len(self)-1:
+				raise IndexError
+			self._v_[key] = value
+		elif isinstance(key,DeVec):
+			if not key.isBool():
+				raise KeyError, 'only Boolean ParVec indexing of SpParVecs supported'
+			if isinstance(value,Vec):
+				pass
+			elif type(value) == float or type(value) == long or type(value) == int:
+				value = Vec(len(key),value)
+			else:
+				raise KeyError, 'Unknown value type'
+			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+				raise IndexError, 'Key and Value must be same length as SpParVec'
+			self._v_[key._v_] = value._v_
+		elif isinstance(key,SpVec):
+			#FIX:  get isBool() working
+			#if key.isBool():
+			#	raise KeyError, 'Boolean SpVec indexing of SpParVecs not supported'
+			if isinstance(value,Vec):
+				pass
+			elif isinstance(value,SpVec):
+				value = value.toDeVec()
+			elif type(value) == float or type(value) == long or type(value) == int:
+				tmp = value
+				value = key.copy()
+				value.set(tmp)
+				value = value.toDeVec()
+			else:
+				raise KeyError, 'Unknown value type'
+			#key = key.toDeVec()
+			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+				raise IndexError, 'Key and Value must be same length as SpVec'
+			self._v_[key._v_] = value._v_
+		elif type(key) == str and key == 'nonnull':
+			self._apply(pcb.set(value), noWrap=True)
+		else:
+			raise KeyError, 'Unknown key type'
+		return
+
+	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+		"""
+		ToDo:  write doc
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+#		if noWrap:
+#			if isinstance(other, (float, int, long)):
+#				self._v_.EWiseApply(other   , superOp)
+#			else:
+#				self._v_.EWiseApply(other._v_, superOp)
+#		else:
+#			if isinstance(other, (float, int, long)):
+#				self._v_.EWiseApply(other   , pcb.binaryObj(superOp), pcb.binaryObj(lambda x,y: x._true_(y)), allowANulls, allowBNulls)
+#			else:
+#				self._v_.EWiseApply(other._v_, pcb.binaryObj(superOp), pcb.binaryObj(lambda x,y: x._true_(y)))
+#		ret = Vec._toVec(self,self._v_)
+		if noWrap:
+			if isinstance(other, (float, int, long)):
+				self._v_.EWiseApply(other   , superOp)
+			else:
+				self._v_.EWiseApply(other._v_, superOp)
+		else:
+			if isinstance(other, (float, int, long)):
+				self._v_.EWiseApply(other   , pcb.binaryObj(superOp))
+			else:
+				self._v_.EWiseApply(other._v_, pcb.binaryObj(superOp))
+		ret = Vec._toVec(self,self._v_)
+		return ret
+
+	def _newLike(self, length, element):
+		ret = DeVec(length,0,element,False)
+		return ret
+
+	def _rangeLike(self, length=0, element=None):
+		ret = DeVec.range(length,element=element)
+		return ret
+
+	@staticmethod
+	def ones(sz, element=0):
+		"""
+		creates a SpVec instance of the specified size whose elements
+		are all nonnull with the value 1.
+		"""
+		ret = DeVec(sz)._rangeLike(sz, element=element)
+		#HACK:  scalar set loop for now; needs something better
+		#Obj1 = pcb.Obj1()
+		#Obj1.weight = 1
+		#for i in range(sz):
+		#	ret[i] = Obj1
+		if not Vec.isObj(ret):
+			ret._apply(pcb.set(1), noWrap=True)
+		else:
+			ret._apply(lambda x: x.spOnes())
+		return ret
+
+	@staticmethod
+	def range(arg1, stop=None, element=0):
+		"""
+		FIX:  update doc
+		creates a SpParVec instance with consecutive integer values.
+
+	range(stop)
+	range(start, stop)
+		The first form creates a SpParVec instance of length stop whose
+		values are all nonnull, starting at 0 and stopping at stop-1.
+		The second form creates a SpParVec instance of length stop-start
+		whose values are all nonnull, starting at start and stopping at
+		stop-1.
+		"""
+		if stop is None:
+			start = 0
+			stop = arg1
+		else:
+			start = arg1
+		if start > stop:
+			raise ValueError, "start > stop"
+		ret = Vec(stop-start, element=element)
+		#HACK:  serial set is not practical for large sizes
+		if isinstance(element, (float, int, long)):
+			ret._v_ = pcb.pyDenseParVec.range(stop-start,start)
+		else:
+			Obj1 = pcb.Obj1()
+			for i in range(stop-start):
+				Obj1.weight = start + i
+				ret[i] = Obj1
+		return ret
+	
+class SpVec(Vec):
+	def __init__(self, length=0, ignoreInit=None, element=0, sparse=True):
+		#NOTE:  ignoreInit kept to same #args as DeVec.__init__
+		#self._identity_ = element
+		#HACK setting of null values should be done more generally
+		self._isSparse_ = True
+		if isinstance(element, (float, int, long)):
+			#self._elementIsObject = False
+			#HACK
+			self._identity_ = 0
+		else:
+			#self._elementIsObject = True
+			#HACK
+			self._identity_ = element
+			self._identity_.weight = 0
+			self._identity_.category = 0
+		if length is not None:
+			if isinstance(element, (float, int, long)):
+				self._v_ = pcb.pySpParVec(length)
+			elif isinstance(element, pcb.Obj1):
+				self._v_ = pcb.pySpParVecObj1(length)
+			elif isinstance(element, pcb.Obj2):
+				self._v_ = pcb.pySpParVecObj2(length)
+			else:
+				raise TypeError
+		return
+
+	def __setitem__(self, key, value):
+		"""
+		performs assignment of an SpParVec instance on the left-hand side of
+		an equation.  The following forms are supported.
+	spparvec[integer scalar] = scalar
+	spparvec[Boolean parvec] = scalar
+	spparvec[Boolean parvec] = parvec
+	spparvec[non-Boolean spparvec] = scalar
+	spparvec[non-Boolean spparvec] = spparvec
+
+		For the first form, the element of the SpParVec instance indicated 
+		by the index to the is set to the scalar value.
+
+		For the second form, the elements of the SpParVec instance
+		corresponding to the True elements of the index ParVec instance
+		are set to the scalar value.
+
+		For the third form, the elements of the SpParVec instance 
+		corresponding to the True elements of the index ParVec instance
+		are set to the corresponding element of the value ParVec instance.
+
+		For the fourth form, the elements of the SpParVec instance
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the scalar value.
+
+		For the fifth form, the elements of the SpParVec instance 
+		corresponding to the nonnull elements of the index SpParVec
+		instance are set to the corresponding value of the value
+		SpParVec instance.  Note that the base, key, and value SpParVec
+		instances must all be of the same length, though the base may
+		have a different number of nonzeros from the key and value. 
+		"""
+		if isinstance(key, (float, int, long)):
+			if key > len(self)-1:
+				raise IndexError
+			self._v_[key] = value
+		elif isinstance(key,Vec):
+			if not key.isBool():
+				raise KeyError, 'only Boolean ParVec indexing of SpParVecs supported'
+			if isinstance(value,Vec):
+				pass
+			elif type(value) == float or type(value) == long or type(value) == int:
+				value = Vec(len(key),value)
+			else:
+				raise KeyError, 'Unknown value type'
+			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+				raise IndexError, 'Key and Value must be same length as SpParVec'
+			self._v_[key._v_] = value._v_
+		elif isinstance(key,SpVec):
+			if key.isBool():
+				raise KeyError, 'Boolean SpVec indexing of SpParVecs not supported'
+			if isinstance(value,Vec):
+				pass
+			elif isinstance(value,SpVec):
+				value = value.toDeVec()
+			elif type(value) == float or type(value) == long or type(value) == int:
+				tmp = value
+				value = key.copy()
+				value.set(tmp)
+				value = value.toDeVec()
+			else:
+				raise KeyError, 'Unknown value type'
+			key = key.toDeVec()
+			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+				raise IndexError, 'Key and Value must be same length as SpVec'
+			self._v_[key._v_] = value._v_
+		elif type(key) == str and key == 'nonnull':
+			self._apply(pcb.set(value), noWrap=True)
+		else:
+			raise KeyError, 'Unknown key type'
+		return
+	# in-place, so no return value
+	def _applyInd(self, op, noWrap=False):
+		"""
+		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
+		"""
+		
+		if hasattr(self, '_vFilter_') and len(self._vFilter_) > 0:
+			class tmpB:
+				selfVFLen = len(self._vFilter_)
+				vFilter1 = self._vFilter_
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							return x
+							#break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+		if noWrap:
+			self._v_.ApplyInd(superOp)
+		else:
+			self._v_.ApplyInd(pcb.binaryObj(superOp))
+		#NEEDED?  ret = Vec._toVec(self,self._v_)
+		return
+
+	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+		"""
+		ToDo:  write doc
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+		if noWrap:
+			if isinstance(other, (float, int, long)):
+				v = pcb.EWiseApply(self._v_, other   , superOp, allowANulls, allowBNulls)
+			else:
+				v = pcb.EWiseApply(self._v_, other._v_, superOp, allowANulls, allowBNulls)
+		else:
+			if isinstance(other, (float, int, long)):
+				v = pcb.EWiseApply(self._v_, other   , pcb.binaryObj(superOp), None, allowANulls, allowBNulls)
+			else:
+				v = pcb.EWiseApply(self._v_, other._v_, pcb.binaryObj(superOp), None, allowANulls, allowBNulls)
+		ret = Vec._toVec(self,v)
+		return ret
+
+	def _newLike(self, length=0, element=None):
+		ret = SpVec(length, None, element, True)
+		return ret
+
+	def _rangeLike(self, length=0, element=None):
+		ret = SpVec.range(length,element=element)
+		return ret
+
+	@staticmethod
+	def ones(sz, element=0):
+		"""
+		creates a SpVec instance of the specified size whose elements
+		are all nonnull with the value 1.
+		"""
+		ret = Vec(sz, sparse=True)._rangeLike(sz, element=element)
+		#HACK:  scalar set loop for now; needs something better
+		#Obj1 = pcb.Obj1()
+		#Obj1.weight = 1
+		#for i in range(sz):
+		#	ret[i] = Obj1
+		if not Vec.isObj(ret):
+			ret._apply(pcb.set(1), noWrap=True)
+		else:
+			ret._apply(lambda x: x.spOnes())
+		return ret
+
+	@staticmethod
+	def range(arg1, stop=None, element=0):
+		"""
+		FIX:  update doc
+		creates a SpParVec instance with consecutive integer values.
+
+	range(stop)
+	range(start, stop)
+		The first form creates a SpParVec instance of length stop whose
+		values are all nonnull, starting at 0 and stopping at stop-1.
+		The second form creates a SpParVec instance of length stop-start
+		whose values are all nonnull, starting at start and stopping at
+		stop-1.
+		"""
+		if stop == None:
+			start = 0
+			stop = arg1
+		else:
+			start = arg1
+		if start > stop:
+			raise ValueError, "start > stop"
+		ret = Vec(stop-start, element=element, sparse=True)
+		#HACK:  serial set is not practical for large sizes
+		if isinstance(element, (float, int, long)):
+			ret._v_ = pcb.pySpParVec.range(stop-start,start)
+		else:
+			Obj1 = pcb.Obj1()
+			for i in range(stop-start):
+				Obj1.weight = start + i
+				ret[i] = Obj1
+		return ret
+	
+	#in-place, so no return value
+	def spRange(self):
+		"""
+		sets every non-null value in the SpParVec instance to its position
+		(offset) in the vector, in-place.
+		"""
+		if isinstance(self._identity_, (float, int, long)):
+			self._v_.setNumToInd()
+		else:
+			func = lambda x,y: x.spRange(y)
+			self._applyInd(func)
+		return

@@ -1397,12 +1397,11 @@ examples/runtimes/script9_bc.e490347 -text
 examples/runtimes/script9_bc.e490700 -text
 examples/stats.py -text
 /hopper.sh -text
-kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
 kdt/ObjMethods.py -text
-kdt/SpVec.py -text
 kdt/UFget.py -text
+kdt/Vec.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text
 kdt/multiproccheck.py -text
