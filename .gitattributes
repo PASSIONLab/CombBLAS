@@ -1456,6 +1456,9 @@ test/TestKDT.py -text
 test/TestSpVec.py -text
 test/TestVec.py -text
 test/note_for_kdt_developers.txt -text
+test/old/oldTestHyGraph.py -text
+test/old/oldTestParVec.py -text
+test/old/oldTestSpParVec.py -text
 test/oldTestHyGraph.py -text
 test/oldTestParVec.py -text
 test/oldTestSpParVec.py -text
