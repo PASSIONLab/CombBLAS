@@ -1459,8 +1459,5 @@ test/note_for_kdt_developers.txt -text
 test/old/oldTestHyGraph.py -text
 test/old/oldTestParVec.py -text
 test/old/oldTestSpParVec.py -text
-test/oldTestHyGraph.py -text
-test/oldTestParVec.py -text
-test/oldTestSpParVec.py -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
