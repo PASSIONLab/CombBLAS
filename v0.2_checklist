@@ -1,0 +1,16 @@
+
+- Features
+  - semantic graphs
+  ? Matrix class
+
+- Testing
+  - ensure tests exist to cover all main methods
+  - fix test failures
+
+- Documentation
+  - update for semantic graphs
+  - add MCL, etc. fns
+  - add *Vec.load()/save()
+
+- Package / install
+  - make sure Examples get installed

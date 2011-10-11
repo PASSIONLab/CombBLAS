@@ -118,7 +118,7 @@ class Vec(object):
 		ToDo:  elucidate combinations, overloading, etc.
 		"""
 		# if no filters for self and other and self has doubleint elements
-		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and isinstance(other._identity_, (float, int, long)):
+		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
 			ret = self.copy()
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
@@ -334,16 +334,26 @@ class Vec(object):
 		result SpParVec instance, with a nonnull element where either of
 		the two input vectors was nonnull.
 		"""
-		if isinstance(other, (float, int, long)):
-			func = lambda x: x.__iadd__(other)
-			self._apply(func)
+		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
+			#ret = self.copy()
+			# if other is scalar
+			if isinstance(other, (float, int, long)):
+				func = pcb.bind2nd(pcb.plus(),other)
+				self._apply(func, noWrap=True)
+			else:	# other is doubleint (Sp)Vec
+				if len(self) != len(other):
+					raise IndexError, 'arguments must be of same length'
+				self._v_ += other._v_
 		else:
-			if len(self) != len(other):
+			if not isinstance(other, (float, int, long)) and len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj += VecObj yet'
-		 	func = lambda x, other: x.__iadd__(other)
-		 	self = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
+			if not isinstance(other,(Vec, float, int, long)):
+				raise NotImplementedError, 'no SpVecObj+VecObj yet'
+			if Vec.isObj(self):
+		 		func = lambda x, y: x.__iadd__(y)
+			else:
+		 		func = lambda x, y: y.__radd__(x)
+		 	self = self._eWiseApply(other, func, True,True)		
 		return self
 		
 	def __invert__(self):
@@ -351,7 +361,10 @@ class Vec(object):
 		negates each nonnull element of the passed SpParVec instance.
 		"""
 		ret = self.copy()
-		func = lambda x: x.__invert__()
+		if isinstance(self._identity_, (float, int, long)):
+			func = lambda x: int(x).__invert__()
+		else:
+			func = lambda x: x.__invert__()
 		ret._apply(func)
 		return ret
 
@@ -521,7 +534,7 @@ class Vec(object):
 
 	def __neg__(self):
 		"""
-		negates each nonnull element of the passed SpParVec instance.
+		negates each nonnull element of the passed SpVec instance.
 		"""
 		ret = self.copy()
 		func = lambda x: x.__neg__()
@@ -653,17 +666,26 @@ class Vec(object):
 		instance), with a nonnull element where the input SpParVec argument(s)
 		are nonnull.
 		"""
-		if isinstance(other, (float, int, long)):
+		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
 			ret = self.copy()
-			func = lambda x: x.__sub__(other)
-			ret._apply(func)
+			# if other is scalar
+			if isinstance(other, (float, int, long)):
+				func = pcb.bind2nd(pcb.minus(),other)
+				ret._apply(func, noWrap=True)
+			else:	# other is doubleint (Sp)Vec
+				if len(self) != len(other):
+					raise IndexError, 'arguments must be of same length'
+				ret._v_ = self._v_ - other._v_
 		else:
-			if len(self) != len(other):
+			if not isinstance(other, (float, int, long)) and len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj-VecObj yet'
-		 	func = lambda x, other: x.__sub__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
+			if not isinstance(other,(Vec, float, int, long)):
+				raise NotImplementedError, 'no SpVecObj+VecObj yet'
+			if Vec.isObj(self):
+		 		func = lambda x, y: x.__isub__(y)
+			else:
+		 		func = lambda x, y: y.__rsub__(x)
+		 	ret = self._eWiseApply(other, func, True,True)		
 		return ret
 
 	def __xor__(self, other):
@@ -685,6 +707,7 @@ class Vec(object):
 	def _apply(self, op, noWrap=False):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
+		FIX:  doesn't look like this supports noWrap with filters
 		"""
 		
 		if hasattr(self, '_vFilter_') and len(self._vFilter_) > 0:
@@ -830,6 +853,7 @@ class Vec(object):
 	def _reduce(self, op, pred=None):
 		"""
 		ToDo:  write doc
+			return is a scalar
 		"""
 		#ToDo:  error-check on op?
 #		if not isinstance(op, pcb.BinaryFunction):
@@ -902,9 +926,10 @@ class Vec(object):
 		returns a Boolean True if all the nonnull elements of the
 		Vec instance are True (nonzero), and False otherwise.
 		"""
-		tmp = self.copy()
+		tmp = self.copy()	# only because have to set tmp[0]
+					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self._v_.all()
+			return self._reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight	#FIX: "=  bool(...)"?
@@ -929,11 +954,20 @@ class Vec(object):
 	def any(self):
 		"""
 		returns a Boolean True if any of the nonnull elements of the
-		SpVecObj instance is True (nonzero), and False otherwise.
+		SpVec instance is True (nonzero), and False otherwise.
 		"""
-		func = lambda x, other: x.any(other)
-		ret = self._reduce(pcb.binaryObj(func)).weight > 0
-		return ret
+		tmp = self.copy()	# only because have to set tmp[0]
+					# because of element0 snafu
+		if isinstance(self._identity_, (float, int, long)):
+			return self._reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+		else:
+			identity = pcb.Obj1()
+			identity.weight = tmp[0].weight	#FIX: "=  bool(...)"?
+			identity.category = 99
+			tmp[0] = identity
+			func = lambda x, other: x.any(other)
+			ret = tmp._reduce(pcb.binaryObj(func)).weight > 0
+			return ret
 
 	def copy(self, element=None):
 		"""
@@ -1114,8 +1148,18 @@ class Vec(object):
 		returns the maximum value of the nonnull elements in the SpParVec 
 		instance.
 		"""
-		func = lambda x, other: x.max(other)
-		ret = self._reduce(pcb.binaryObj(func))
+		if self.nnn() == 0:
+			if isinstance(self._identity_, (float, int, long)):
+				ret = 0
+			elif isinstance(self._identity_, pcb.Obj1):
+				ret = pcb.Obj1()
+				ret.weight = 0; ret.category = 0
+		else:
+			if isinstance(self._identity_, (float, int, long)):
+				ret = self._reduce(pcb.max())
+			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
+				func = lambda x, other: x.max(other)
+				ret = self._reduce(pcb.binaryObj(func))
 		return ret
 
 	def min(self):
@@ -1123,8 +1167,18 @@ class Vec(object):
 		returns the minimum value of the nonnull elements in the SpParVec 
 		instance.
 		"""
-		func = lambda x, other: x.min(other)
-		ret = self._reduce(pcb.binaryObj(func))
+		if self.nnn() == 0:
+			if isinstance(self._identity_, (float, int, long)):
+				ret = 0
+			elif isinstance(self._identity_, pcb.Obj1):
+				ret = pcb.Obj1()
+				ret.weight = 0; ret.category = 0
+		else:
+			if isinstance(self._identity_, (float, int, long)):
+				ret = self._reduce(pcb.min())
+			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
+				func = lambda x, other: x.min(other)
+				ret = self._reduce(pcb.binaryObj(func))
 		return ret
 
 	def nn(self):
@@ -1281,8 +1335,8 @@ class Vec(object):
 		See Also:  sort
 		"""
 		ret1 = self.copy();
-		ret2 = SpParVec(-1)
-		ret2._spv = ret1._v_.Sort()
+		tmp = ret1._v_.Sort()
+		ret2 = Vec._toVec(ret1, tmp)
 		return (ret1, ret2)
 
 	#in-place, so no return value
@@ -1298,13 +1352,20 @@ class Vec(object):
 
 	def sum(self):
 		"""
-		returns the sum of all the non-null values in the SpParVec instance.
+		returns the sum of all the non-null values in the SpVec instance.
 		"""
 		if self.nnn() == 0:
-			ret = 0
+			if isinstance(self._identity_, (float, int, long)):
+				ret = 0
+			elif isinstance(self._identity_, pcb.Obj1):
+				ret = pcb.Obj1()
+				ret.weight = 0; ret.category = 0
 		else:
-		 	func = lambda x, other: x.__iadd__(other)
-			ret = self._reduce(pcb.binaryObj(func))
+			if isinstance(self._identity_, (float, int, long)):
+				ret = self._reduce(pcb.plus())
+			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
+		 		func = lambda x, other: x.__iadd__(other)
+				ret = self._reduce(pcb.binaryObj(func))
 		return ret
 
 	#in-place, so no return value
@@ -1332,9 +1393,11 @@ class Vec(object):
 			ret:  a ParVec instance of length k containing the k largest
 			    values from the input vector, in ascending order.
 		"""
-		raise NotImplementedError
-		ret = Vec(0)
-		ret._v_ = self._v_.TopK(k)
+		if isinstance(self._identity_, (float, int, long)):
+			ret = Vec(0)
+			ret._v_ = self._v_.TopK(k)
+		else:
+			raise NotImplementedError
 		return ret
 
 	def toDeVec(self):	
