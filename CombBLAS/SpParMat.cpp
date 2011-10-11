@@ -62,6 +62,13 @@ SpParMat< IT,NT,DER >::~SpParMat ()
 	if(spSeq != NULL) delete spSeq;
 }
 
+template <class IT, class NT, class DER>
+void SpParMat< IT,NT,DER >::FreeMemory ()
+{
+	if(spSeq != NULL) delete spSeq;
+	spSeq = NULL;
+}
+
 
 template <class IT, class NT, class DER>
 void SpParMat< IT,NT,DER >::Dump(string filename) const
@@ -177,7 +184,7 @@ float SpParMat< IT,NT,DER >::LoadImbalance() const
 {
 	IT totnnz = getnnz();	// collective call
 	IT maxnnz = 0;    
-	IT localnnz = spSeq->getnnz();
+	IT localnnz = (IT) spSeq->getnnz();
 	(commGrid->GetWorld()).Allreduce( &localnnz, &maxnnz, 1, MPIType<IT>(), MPI::MAX);
 	if(totnnz == 0) return 1;
  	return static_cast<float>(((commGrid->GetWorld()).Get_size() * maxnnz)) / static_cast<float>(totnnz);  
@@ -1399,19 +1406,19 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 
 	// Set up communication buffers, one for all
 	IT mA = spSeq->getnrow();
-	IT p_c = commGrid->GetGridCols();
+	typename DER::LocalIT p_c = commGrid->GetGridCols();
 	vector<bool> isthere(mA, false); // perhaps the only appropriate use of this crippled data structure
-	IT perproc = mA / p_c;
+	typename DER::LocalIT perproc = mA / p_c; // perproc columns would fit DER::LocalIT
 	vector<int> maxlens(p_c,0);	// maximum data size to be sent to any neighbor along the processor row
 
 	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 	{
 		for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 		{
-			IT rowid = nzit.rowid();
+			typename DER::LocalIT rowid = nzit.rowid();
 			if(!isthere[rowid])
 			{
-				IT owner = min(nzit.rowid() / perproc, p_c-1); 			
+				typename DER::LocalIT owner = min(nzit.rowid() / perproc, p_c-1); 			
 				maxlens[owner]++;
 				isthere[rowid] = true;
 			}

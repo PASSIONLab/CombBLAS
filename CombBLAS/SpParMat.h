@@ -89,6 +89,7 @@ public:
 
 	float LoadImbalance() const;
 	void Transpose();
+	void FreeMemory();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
 	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
@@ -245,8 +246,8 @@ public:
 	friend SpParMat<IU,RETT,RETDER>
 	EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal);
 	
-	template<typename SR, typename T_promote, typename IU, typename MATRIX>
-	friend void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue);
+	template<typename SR, typename T_promote, typename IU, typename NUM, typename UDER>
+	friend void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue);
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;

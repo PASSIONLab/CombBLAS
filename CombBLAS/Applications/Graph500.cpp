@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}		
 	{
-		typedef SelectMaxSRing<bool, int64_t> SR;	
+		typedef SelectMaxSRing<bool, int32_t> SR;	
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
 		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
@@ -335,18 +335,19 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
 		
-			//Aeff = PSpMat_s32p64(A);	// TODO: Convert the rest to this
-			//Symmetricize(Aeff);	// A += A';
-			Symmetricize(A);
+			Aeff = PSpMat_s32p64(A);	// Convert to 32-bit local integers
+			A.FreeMemory();
+			Symmetricize(Aeff);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 
+	                Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		#ifdef THREADED	
 			ostringstream tinfo;
 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
 			SpParHelper::Print(tinfo.str());
-			A.ActivateThreading(cblas_splits);	
+			Aeff.ActivateThreading(cblas_splits);	
 		#endif
-			A.PrintInfo();
+			Aeff.PrintInfo();
 			
 			MPI::COMM_WORLD.Barrier();
 			double t2=MPI_Wtime();
@@ -355,8 +356,8 @@ int main(int argc, char* argv[])
 			k1timeinfo << (t2-t1) - (redtf-redts) << " seconds elapsed for Kernel #1" << endl;
 			SpParHelper::Print(k1timeinfo.str());
 		}
-		A.PrintInfo();
-		float balance = A.LoadImbalance();
+		Aeff.PrintInfo();
+		float balance = Aeff.LoadImbalance();
 		ostringstream outs;
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
@@ -395,31 +396,21 @@ int main(int argc, char* argv[])
 			Cands.SetElement(i,loccandints[i]);
 		}
 
-		#ifdef THREADED
 		#define MAXTRIALS 1
-		#else
-		#define MAXTRIALS 2
-		#endif		
 		for(int trials =0; trials < MAXTRIALS; trials++)	// try different algorithms for BFS
 		{
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
-			if(trials == 1)		// second run for multithreaded turned off
-			{
-	                       	A.OptimizeForGraph500(optbuf);	
-				MPI_Pcontrol(1,"BFS_SPA_Buf");
-			}
-			else
-				MPI_Pcontrol(1,"BFS");
+			MPI_Pcontrol(1,"BFS");
 
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 			for(int i=0; i<ITERS; ++i)
 			{
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
-				FullyDistVec<int64_t, int64_t> parents ( A.getcommgrid(), A.getncol(), (int64_t) -1);	// identity is -1
+				FullyDistVec<int64_t, int64_t> parents ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);	// identity is -1
 
 				// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
-				FullyDistSpVec<int64_t, int64_t> fringe(A.getcommgrid(), A.getncol());	// numerical values are stored 0-based
+				FullyDistSpVec<int64_t, int64_t> fringe(Aeff.getcommgrid(), Aeff.getncol());	// numerical values are stored 0-based
 
 				MPI::COMM_WORLD.Barrier();
 				double t1 = MPI_Wtime();
@@ -430,7 +421,7 @@ int main(int argc, char* argv[])
 				{
 					fringe.setNumToInd();
 					//fringe.PrintInfo("fringe before SpMV");
-					fringe = SpMV<SR>(A, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
+					fringe = SpMV<SR>(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
 					
 					// ABAB: Below is the generalized EWiseApply way, semantically identical to EWiseMult (tested)
@@ -466,10 +457,7 @@ int main(int argc, char* argv[])
 			}
 			SpParHelper::Print("Finished\n");
 			ostringstream os;
-			if(trials == 1)
-				MPI_Pcontrol(-1,"BFS_SPA_Buf");
-			else
-				MPI_Pcontrol(-1,"BFS");
+			MPI_Pcontrol(-1,"BFS");
 			
 
 			os << "Per iteration communication times: " << endl;
