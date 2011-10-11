@@ -470,41 +470,53 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			loclens[rowrank] = rvec.MyLocLength();
 			commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
 			partial_sum(loclens, loclens+rowneighs, lensums+1);
+			rvec.arr.resize(loclens[rowrank]);
 
-			vector<typename DER::SpColIter::NzIter> nziters;	// keep track of nonzero iterators within columns
-			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	
+			// keeping track of all nonzero iterators withing column at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
+			// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
+			#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
+			typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
+			while(begfinger != spSeq->endcol())
 			{
-				nziters.push_back(spSeq->begnz(colit));
-			}
-
-			for(int i=0; i< rowneighs; ++i)		// step by step to save memory
-			{
-				VT * sendbuf = new VT[loclens[i]];
-				fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
+				vector<typename DER::SpColIter::NzIter> nziters;
+				typename DER::SpColIter curfinger = begfinger; 
+				for(; curfinger != spSeq->endcol() && nziters.size() < MAXCOLUMNBATCH ; ++curfinger)	
+				{
+					nziters.push_back(spSeq->begnz(curfinger));
+				}
+				for(int i=0; i< rowneighs; ++i)		// step by step to save memory
+				{
+					VT * sendbuf = new VT[loclens[i]];
+					fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
 		
-				typename DER::SpColIter colit = spSeq->begcol();		
-				IT colcnt = 0;	// column counter
-				for(; colit != spSeq->endcol(); ++colit, ++colcnt)	// iterate over all columns
-				{
-					typename DER::SpColIter::NzIter nzit = nziters[colcnt];
-					for(; nzit != spSeq->endnz(colit) && nzit.rowid() < lensums[i+1]; ++nzit)	// a portion of nonzeros in this column
+					typename DER::SpColIter colit = begfinger;		
+					IT colcnt = 0;	// "processed column" counter
+					for(; colit != curfinger; ++colit, ++colcnt)	// iterate over this batch of columns until curfinger
 					{
-						sendbuf[nzit.rowid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()-lensums[i]]);
+						typename DER::SpColIter::NzIter nzit = nziters[colcnt];
+						for(; nzit != spSeq->endnz(colit) && nzit.rowid() < lensums[i+1]; ++nzit)	// a portion of nonzeros in this column
+						{
+							sendbuf[nzit.rowid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()-lensums[i]]);
+						}
+						nziters[colcnt] = nzit;	// set the new finger
 					}
-					nziters[colcnt] = nzit;	// set the new finger
-				}
+					begfinger = curfinger;	// set the next begfilter
 
-				VT * recvbuf = NULL;
-				if(rowrank == i)
-				{
-					rvec.arr.resize(loclens[i]);
-					recvbuf = SpHelper::p2a(rvec.arr);	
+					VT * recvbuf = NULL;
+					if(rowrank == i)
+					{
+						for(int j=0; j< loclens[i]; ++j)
+						{
+							sendbuf[j] = __binary_op(rvec.arr[j], sendbuf[j]);	// rvec.arr will be overriden with MPI_Reduce, save its contents
+						}
+						recvbuf = SpHelper::p2a(rvec.arr);	
+					}
+					(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
+					delete [] sendbuf;
 				}
-				(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
-				delete [] sendbuf;
+				DeleteAll(loclens, lensums);	
+				break;
 			}
-			DeleteAll(loclens, lensums);	
-			break;
 		}
 		default:
 		{

@@ -24,6 +24,9 @@ using namespace std::tr1;
 //#pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
 //#endif
 
+extern double cblas_alltoalltime;
+extern double cblas_allgathertime;
+
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "SpParMat.h"

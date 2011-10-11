@@ -421,12 +421,12 @@ void AllGatherVector(MPI::Intracomm & ColWorld, IU trxlocnz, IU lenuntil, int32_
 	// 2^35 / 180 ~ 2^29 / 3 which is not an issue !
 	
 #ifdef TIMING
-	World.Barrier();
+	MPI::COMM_WORLD.Barrier();
 	double t0=MPI::Wtime();
 #endif
 	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<int32_t>(), indacc, colnz, dpls, MPIType<int32_t>());
 #ifdef TIMING
-	World.Barrier();
+	MPI::COMM_WORLD.Barrier();
 	double t1=MPI::Wtime();
 	cblas_allgathertime += (t1-t0);
 #endif
