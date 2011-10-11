@@ -218,4 +218,54 @@ void SpImpl<SR,IT,bool,NT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT
 }
 
 
+template <typename SR, typename IT, typename NT>
+void SpImpl<SR,IT,bool,NT>::SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const NT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<NT> & numy, int32_t offset)
+{   
+	NT * localy = new NT[mA];
+	bool * isthere = new bool[mA];
+	fill(isthere, isthere+mA, false);
+	vector<int32_t> nzinds;	// nonzero indices		
+
+	// The following piece of code is not general, but it's more memory efficient than FillColInds
+	int32_t k = 0; 	// index to indx vector
+	IT i = 0; 	// index to columns of matrix
+	while(i< Adcsc.nzc && k < veclen)
+	{
+		if(Adcsc.jc[i] < indx[k]) ++i;
+		else if(indx[k] < Adcsc.jc[i]) ++k;
+		else
+		{
+			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
+			{
+				int32_t rowid = (int32_t) Adcsc.ir[j];
+				if(!isthere[rowid])
+				{
+					localy[rowid] = numx[k];	// initial assignment
+					nzinds.push_back(rowid);
+					isthere[rowid] = true;
+				}
+				else
+				{
+					localy[rowid] = SR::add(localy[rowid], numx[k]);
+				}	
+			}
+			++i;
+			++k;
+		}
+	}
+
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	indy.resize(nnzy);
+	numy.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
+		numy[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+	delete [] isthere;
+}
+
 

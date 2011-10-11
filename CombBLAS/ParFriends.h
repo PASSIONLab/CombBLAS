@@ -453,8 +453,8 @@ void AllGatherVector(MPI::Intracomm & ColWorld, IU trxlocnz, IU lenuntil, int32_
 /**
   * Step 3 of the sparse SpMV algorithm, with the semiring 
  **/
-template<typename SR, typename T_promote, typename IU, typename MATRIX>
-void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
+template<typename SR, typename T_promote, typename IU, typename NUM, typename UDER>
+void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
 {	
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -473,18 +473,10 @@ void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, in
 	{
 		if(A.spSeq->getnsplit() > 0)
 		{
-			IU * tmpindbuf;
-			IU * tmpindacc = new IU[accnz];
-			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
-			delete [] indacc;
-			
 			// sendindbuf/sendnumbuf/sdispls are all allocated and filled by dcsc_gespmv_threaded
-			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), tmpindbuf, sendnumbuf, sdispls, rowneighs);	
+			int totalsent = dcsc_gespmv_threaded<SR> (*(A.spSeq), indacc, numacc, accnz, sendindbuf, sendnumbuf, sdispls, rowneighs);	
 			
-			delete [] tmpindacc;
-			sendindbuf = new int32_t[totalsent];
-			for(int i=0; i< totalsent; ++i)	sendindbuf[i] = tmpindbuf[i];
-			DeleteAll(tmpindbuf, numacc);
+			DeleteAll(indacc, numacc);
 			for(int i=0; i<rowneighs-1; ++i)
 				sendcnt[i] = sdispls[i+1] - sdispls[i];
 			sendcnt[rowneighs-1] = totalsent - sdispls[rowneighs-1];
@@ -492,28 +484,24 @@ void LocalSpMV(MATRIX A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, in
 		else
 		{
 			// serial SpMV with sparse vector
-			vector< IU > indy;
+			vector< int32_t > indy;
 			vector< T_promote >  numy;
 			
-			IU * tmpindacc = new IU[accnz];
-			for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
-			delete [] indacc;
+			dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
+			DeleteAll(indacc, numacc);
 			
-			dcsc_gespmv<SR>(*(A.spSeq), tmpindacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
-			DeleteAll(tmpindacc, numacc);
-			
-			IU bufsize = indy.size();	// as compact as possible
+			int32_t bufsize = indy.size();	// as compact as possible
 			sendindbuf = new int32_t[bufsize];	
 			sendnumbuf = new T_promote[bufsize];
-			IU perproc = A.getlocalrows() / static_cast<IU>(rowneighs);	
+			int32_t perproc = A.getlocalrows() / rowneighs;	
 			
 			int k = 0;	// index to buffer
 			for(int i=0; i<rowneighs; ++i)		
 			{
-				IU end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
+				int32_t end_this = (i==rowneighs-1) ? A.getlocalrows(): (i+1)*perproc;
 				while(k < bufsize && indy[k] < end_this) 
 				{
-					sendindbuf[k] = static_cast<int32_t>(indy[k] - i*perproc);
+					sendindbuf[k] = indy[k] - i*perproc;
 					sendnumbuf[k] = numy[k];
 					++sendcnt[i];
 					++k; 
@@ -635,7 +623,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	World.Barrier();
 	double t2=MPI::Wtime();
 	#endif
-	if(optbuf.totmax > 0 && A.spSeq->getnsplit() == 0)	// graph500 optimization enabled
+	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
 		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
 		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM

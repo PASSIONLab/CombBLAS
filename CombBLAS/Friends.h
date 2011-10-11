@@ -227,11 +227,10 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 			#endif
 			for(int i=0; i<splits; ++i)
 			{
-				Dcsc<int32_t, NUM> Adcsc32bit(*(A.GetDCSC(i)));
 				if(i != splits-1)
-					SpMXSpV_ForThreading<SR>(Adcsc32bit, perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreading<SR>(Adcsc32bit, nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 			
 			int32_t perproc = nlocrows / p_c;	
@@ -280,11 +279,9 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 					// FACT: Data is sorted, so if the recipient of begin is the same as the owner of end, 
 					// then the whole data is sent to the same processor
 					int32_t beg_rec = min( indy[i].front() / perproc, last_rec); 
-					int32_t alreadysent = 0;
+					int32_t alreadysent = 0;	// already sent per recipient 
 					for(int before = i-1; before >= 0; before--)
-					{
 						 alreadysent += loc_rec_cnts[before][beg_rec];
-					}
 						
 					if(beg_rec == end_recs[i])	// fast case
 					{
@@ -294,7 +291,7 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 					}
 					else	// slow case
 					{
-						int32_t cur_rec = min( indy[i].front() / perproc, last_rec);
+						int32_t cur_rec = beg_rec;
 						int32_t lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
 						for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 						{
@@ -302,6 +299,10 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 							{
 								cur_rec = min( (*it) / perproc, last_rec);
 								lastdata = (cur_rec+1) * perproc;
+
+								// if this split switches to a new recipient after sending some data
+								// then it's sure that no data has been sent to that recipient yet
+						 		alreadysent = 0;
 							}
 							sendindbuf[ dspls[cur_rec] + alreadysent ] = (*it) - perproc*cur_rec;	// convert to receiver's local index
 							sendnumbuf[ dspls[cur_rec] + (alreadysent++) ] = *(numy[i].begin() + (it-indy[i].begin()));
