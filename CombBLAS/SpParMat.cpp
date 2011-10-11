@@ -474,7 +474,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 
 			// keeping track of all nonzero iterators withing column at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
 			// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
-			#define MAXCOLUMNBATCH (5 * 1024) // * 1024) 
+			#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
 			typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
 			while(begfinger != spSeq->endcol())
 			{
