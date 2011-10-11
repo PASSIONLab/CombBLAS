@@ -1461,3 +1461,4 @@ test/old/oldTestParVec.py -text
 test/old/oldTestSpParVec.py -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
+/v0.2_checklist -text

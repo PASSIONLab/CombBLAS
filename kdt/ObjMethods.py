@@ -85,7 +85,7 @@ def defUserCallbacks(objList):
 		if isinstance(other, (float, int, long)):
 			self.weight -= other
 		else:
-			self.weight -= other.weight
+			self.weight = self.weight - other.weight
 		return self
 	for obj in objList:
 		obj.__isub__ = __isub__
@@ -169,6 +169,15 @@ def defUserCallbacks(objList):
 	for obj in objList:
 		obj.__rand__ = __rand__
 	
+	def __rsub__(self, other):
+		if isinstance(other, (float, int, long)):
+			other -= self.weight
+		else:
+			other.weight = other.weight - self.weight
+		return other
+	for obj in objList:
+		obj.__rsub__ = __rsub__
+	
 	def __setitem__(self, key, value):
 		if key is 'weight':
 			self.weight = value
@@ -184,7 +193,7 @@ def defUserCallbacks(objList):
 		if isinstance(other, (float, int, long)):
 			self.weight -= other
 		else:
-			self.weight -= other.weight
+			self.weight = self.weight - other.weight
 		return self
 	for obj in objList:
 		obj.__sub__ = __sub__
@@ -289,11 +298,12 @@ def defUserCallbacks(objList):
 	def count(x, y):
 		# used by DiGraph.nedge, DiGraph.degree, Vec.nnn
 		# by definition, x and y are of same type
+		# x is the addend;  y is the running sum
 		if isinstance(x, (float, int, long)):
-			x += 1
-		elif y.weight != 0 or y.category != 0:
-			x.weight = x.weight + 1
-		return x
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
 	for obj in objList:
 		obj.count = count
 

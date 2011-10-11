@@ -1175,7 +1175,7 @@ class GeneralPurposeTests(DiGraphTests):
 	for ind in range(G.nvert()):
 		self.assertEqual(expDeg[ind], deg[ind])
 
-    def test_degree_Out_In_Obj1_filtered(self):
+    def test_degree_Out_Obj1_filteredTwoWays(self):
 	def category_eq_1(x):
 		if isinstance(x, (Obj1, Obj2)):
 			return x.category==1
@@ -1199,21 +1199,31 @@ class GeneralPurposeTests(DiGraphTests):
 	element = Obj1() 
         G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
 	G.addEFilter(category_eq_1)
-	degCat1 = G.degree(DiGraph.Out)
+	degOutCat1 = G.degree(DiGraph.Out)
+	degInCat1 = G.degree(DiGraph.In)
+	#self.assertRaises(NotImplementedError, DiGraph.degree, G, DiGraph.Out) 
+	#self.assertRaises(NotImplementedError, DiGraph.degree, G, DiGraph.In) 
+	#return
 	G.delEFilter(category_eq_1)
-	expDegCat1 = [ 0, 2, 3, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1]
-        self.assertEqual(len(degCat1), nvert)
+	expInDegCat1 = [ 0, 0, 1, 0, 1, 1, 2, 0, 3, 1, 2, 2, 1, 1, 1, 1, 1, 0]
+	expOutDegCat1 = [ 0, 2, 3, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1]
+        self.assertEqual(len(degInCat1), nvert)
+        self.assertEqual(len(degOutCat1), nvert)
 	for ind in range(G.nvert()):
-		self.assertEqual(expDegCat1[ind], degCat1[ind])
+		self.assertEqual(expOutDegCat1[ind], degOutCat1[ind])
+		self.assertEqual(expInDegCat1[ind], degInCat1[ind])
 	G.addEFilter(category_eq_2)
-	degCat2 = G.degree(DiGraph.Out)
+	degOutCat2 = G.degree(DiGraph.Out)
+	degInCat2 = G.degree(DiGraph.In)
 	G.delEFilter(category_eq_2)
-	expDegCat2 = [ 0, 0, 1, 0, 1, 1, 2, 0, 3, 1, 2, 2, 1, 1, 1, 1, 1, 0]
-        self.assertEqual(len(degCat2), nvert)
+	expInDegCat2 = [ 0, 1, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 1, 2, 1, 1, 1, 1]
+	expOutDegCat2 = [ 0, 1, 1, 0, 2, 0, 3, 2, 2, 1, 0, 0, 0, 0, 0, 1, 0, 0]
+        self.assertEqual(len(degInCat2), nvert)
+        self.assertEqual(len(degOutCat2), nvert)
 	for ind in range(G.nvert()):
-		self.assertEqual(expDegCat2[ind], degCat2[ind])
+		self.assertEqual(expOutDegCat2[ind], degOutCat2[ind])
+		self.assertEqual(expInDegCat2[ind], degInCat2[ind])
 
-	pass
 
 class GeneralPurposeTests_disabled(DiGraphTests):
     def test_multNot(self):
@@ -1749,10 +1759,10 @@ class InternalMethodTests(DiGraphTests):
 	def calcDegree(x, y):
 		# by definition, x and y are of same type
 		if isinstance(x, (float, int, long)):
-			x += 1
-		elif y.weight != 0 or y.category != 0:
-			x.weight = x.weight + 1
-		return x
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
 
         nvert = 18
         nedge = 31
@@ -1785,10 +1795,10 @@ class InternalMethodTests(DiGraphTests):
 	def calcDegree(x, y):
 		# by definition, x and y are of same type
 		if isinstance(x, (float, int, long)):
-			x += 1
-		elif y.weight != 0 or y.category != 0:
-			x.weight = x.weight + 1
-		return x
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
 
         nvert = 18
         nedge = 31
@@ -1814,10 +1824,10 @@ class InternalMethodTests(DiGraphTests):
 	def calcDegree(x, y):
 		# by definition, x and y are of same type
 		if isinstance(x, (float, int, long)):
-			x += 1
-		elif y.weight != 0 or y.category != 0:
-			x.weight = x.weight + 1
-		return x
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
 
         nvert = 18
         nedge = 31
@@ -1841,9 +1851,68 @@ class InternalMethodTests(DiGraphTests):
 	for ind in range(G.nvert()):
 		self.assertEqual(expDeg[ind], deg[ind].weight)
 
+    def test__reduce_col_Obj1_filtered(self):
+	def category_eq_1(x):
+		if isinstance(x, (Obj1, Obj2)):
+			return x.category==1
+		else:
+			raise NotImplementedError
+	def calcDegree(x, y):
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
+
+        nvert = 18
+        nedge = 31
+        i = [7, 1, 1, 1, 2, 2, 3, 4, 6, 2, 6,17, 4, 5, 6,11, 2, 5, 6, 6, 7, 7, 8,12, 8,13, 8, 9, 9,15, 4]
+        j = [1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8, 9,10,10,10,11,11,11,12,12,13,13,13,14,14,15,15,16,16,17]
+        w = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        c = [2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        self.assertEqual(len(w), nedge)
+        self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	G.addEFilter(category_eq_1)
+	#sumVec = G._reduce(DiGraph.Out, element.__iadd__, element.spOnes)
+	deg = G._reduce(DiGraph.In, pcb.binaryObj(calcDegree))
+	expDeg = [ 0, 0, 1, 0, 1, 1, 2, 0, 3, 1, 2, 2, 1, 1, 1, 1, 1, 0]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind].weight)
+
 
 class xxxTests(DiGraphTests):
-	pass
+    def test__reduce_col_Obj1_singleCol_unfiltered(self):
+	def calcDegree(x, y):
+		# by definition, x and y are of same type
+		if isinstance(x, (float, int, long)):
+			y += 1
+		elif x.weight != 0 or x.category != 0:
+			y.weight = y.weight + 1
+		return y
+
+        nvert = 18
+        nedge = 5
+        i = [1, 2, 3, 4, 5]
+        j = [1, 1, 1, 1, 1]
+        w = [100, 200, 300, 400, 500]
+        c = [2, 1, 2, 1, 1]
+        self.assertEqual(len(i), nedge)
+        self.assertEqual(len(j), nedge)
+        #self.assertEqual(len(w), nedge)
+        #self.assertEqual(len(c), nedge)
+	element = Obj1() 
+        G = self.initializeGraph(nvert, nedge, i, j, (w, c), element=element)
+	deg = G._reduce(DiGraph.In, pcb.binaryObj(calcDegree))
+	expDeg = [ 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.assertEqual(len(deg), nvert)
+	for ind in range(G.nvert()):
+		self.assertEqual(expDeg[ind], deg[ind].weight)
 
 class yyyTests(DiGraphTests):
 	pass
