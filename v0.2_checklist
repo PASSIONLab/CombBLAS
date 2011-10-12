@@ -30,6 +30,7 @@ Tasks to complete before KDT v0.2 release:
 
 
 -------------- Highly desirable ----------
+- implement Matrix class
 - raise error if operations are called with a semantic graph that
     don't support semantic graphs; ditto for vectors with filters
 - raise error if operations are called that don't yet support Obj-based
@@ -39,3 +40,17 @@ Tasks to complete before KDT v0.2 release:
   - update/change all v0.1/0.1W comment to v0.2
 
 -------------- Nice to have --------------
+- is current DiGraph convention that rows are out-edges the best?
+- semantic graphs
+  - ability to use other names for Obj* fields
+- implement tests for 
+  - Markov clustering
+  - connComp
+  - mixed Vec/SpVec ops
+- use Prune more thoroughly to address nonnull/nonzero ambiguity
+- Vec[bool] doesn't work properly on either LHS or RHS
+- implement/test matrix[matrix] indexing
+- implement isBorder() fn that detects that a vertex has a neighbor in 
+    another cluster
+- implement fn to find paths between a set of Vs
+- get regression tests running multi-node
