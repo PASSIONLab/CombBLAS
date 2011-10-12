@@ -1,16 +1,41 @@
+Tasks to complete before KDT v0.2 release:
 
-- Features
-  - semantic graphs
-  ? Matrix class
+-------------- Mandatory -----------------
+- semantic graphs
+  - DiGraph.load(element=Obj)
+  - implement vertex filter -> edge filter (as proposed by Adam)
+    - have bfsTree/degree/etc. recognize DiGraph.vAttr as a Vec(Obj) of
+      vertex attributes
+  - clean up function names in ObjMethods.py and make mapping to 
+	KDT operations clear
+  - Vec.save()
+  - DiGraph.neighbors [needed by Bing Social guys]
+- fix
+  - Vec.topK
+- implement or wall off not-implemented pieces of
+  - DiGraph.isBfsTree
+  - Vec.find
+  - {Vec,DiGraph}.__{get,set}item__ and subgraph()
+  - Vec.floor, ceil, round
+  - DiGraph.__{add,sub,mul,div,...}__
+  - DiGraph.scale
+- update User Guide
+  - add element= option to copy(), etc
+  - add contract, cluster, etc. from Adam/Drew's work
+  - "ParVec"/"SpParVec" -> "Vec"/"SpVec"
+  - document no HyGraph support for semantic graphs
+  - update Errara
+- installation
+  - install examples/ directory
 
-- Testing
-  - ensure tests exist to cover all main methods
-  - fix test failures
 
-- Documentation
-  - update for semantic graphs
-  - add MCL, etc. fns
-  - add *Vec.load()/save()
+-------------- Highly desirable ----------
+- raise error if operations are called with a semantic graph that
+    don't support semantic graphs; ditto for vectors with filters
+- raise error if operations are called that don't yet support Obj-based
+    DiGraphs or Vec instances
+- confirm that DiGraph.sum/max/min work with filters active
+- update User Guide
+  - update/change all v0.1/0.1W comment to v0.2
 
-- Package / install
-  - make sure Examples get installed
+-------------- Nice to have --------------
