@@ -84,7 +84,7 @@ class DistEdgeList
 public:	
 	// Constructors
 	DistEdgeList ();
-	DistEdgeList (char * filename, IT globaln, IT globalm);	// read from binary in parallel
+	DistEdgeList (const char * filename, IT globaln, IT globalm);	// read from binary in parallel
 	~DistEdgeList ();
 
 	void Dump64bit(string filename);
