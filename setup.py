@@ -268,12 +268,15 @@ if usingWinMPICH:
 ############################################################################
 #### RUN DISTUTILS
 
+## NOTE TO SELF: MAKE THIS A PROPER CHECK!:
+define_macros.append(('restrict', '__restrict__'))
+
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]
 
 #pyCombBLAS extension which wraps the templated C++ Combinatorial BLAS library. 
 pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
-	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pyObjDenseParVec.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParMat.cpp", PCB+"pySpParMatBool.cpp", PCB+"pyOperations.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
+	[PCB+"pyCombBLAS.cpp", PCB+"pyCombBLAS_wrap.cpp", PCB+"pyDenseParVec.cpp", PCB+"pyDenseParVecObj1.cpp", PCB+"pyDenseParVecObj2.cpp", PCB+"pySpParVec.cpp", PCB+"pySpParVecObj1.cpp", PCB+"pySpParVecObj2.cpp", PCB+"pySpParMat.cpp", PCB+"pySpParMatObj1.cpp", PCB+"pySpParMatObj2.cpp", PCB+"pySpParMatBool.cpp", PCB+"pyOperations.cpp", PCB+"pyOperationsObj.cpp", COMBBLAS+"CommGrid.cpp", COMBBLAS+"MPIType.cpp", COMBBLAS+"MemoryPool.cpp"] + generator_files,
 	include_dirs=include_dirs,
 	library_dirs=library_dirs,
 	libraries=libraries,
@@ -287,7 +290,7 @@ setup(name='kdt',
 	url='http://kdt.sourceforge.net',
 #	packages=['kdt', 'kdt'],
 	ext_modules=[pyCombBLAS_ext],
-	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.feedback', 'kdt.UFget'],
+	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.feedback', 'kdt.UFget', 'kdt.SpVec', 'kdt.ObjMethods'],
 	script_args=copy_args
 	)
 	
