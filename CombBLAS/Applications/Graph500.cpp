@@ -97,9 +97,8 @@ int main(int argc, char* argv[])
 		typedef SelectMaxSRing<bool, int32_t> SR;	
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
-		typedef SpParMat < int64_t, int, SpDCCols<int64_t,int> > PSpMat_Int;
+		typedef SpParMat < int64_t, int, SpDCCols<int32_t,int> > PSpMat_s32p64_Int;	// similarly mixed, but holds integers as upposed to booleans
 		typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
-		typedef SpParMat < int32_t, int32_t, SpDCCols<int32_t,int32_t> > PSpMat_Int32;
 
 		// Declare objects
 		PSpMat_Bool A;	
@@ -293,7 +292,7 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
-			PSpMat_Int32 * G = new PSpMat_Int32(*DEL, false); 
+			PSpMat_s32p64_Int * G = new PSpMat_s32p64_Int(*DEL, false); 
 			delete DEL;	// free memory before symmetricizing
 			SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 
