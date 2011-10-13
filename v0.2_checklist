@@ -25,6 +25,7 @@ Tasks to complete before KDT v0.2 release:
   - "ParVec"/"SpParVec" -> "Vec"/"SpVec"
   - document no HyGraph support for semantic graphs
   - update Errara
+  - add link to SDM paper as UCSB tech report
 - installation
   - install examples/ directory
 
