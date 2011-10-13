@@ -290,7 +290,7 @@ setup(name='kdt',
 	url='http://kdt.sourceforge.net',
 #	packages=['kdt', 'kdt'],
 	ext_modules=[pyCombBLAS_ext],
-	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.feedback', 'kdt.UFget', 'kdt.SpVec', 'kdt.Vec', 'kdt.ObjMethods'],
+	py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.feedback', 'kdt.UFget', 'kdt.Vec', 'kdt.ObjMethods'],
 	script_args=copy_args
 	)
 	

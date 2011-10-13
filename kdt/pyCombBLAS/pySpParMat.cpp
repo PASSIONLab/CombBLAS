@@ -54,9 +54,35 @@ int64_t pySpParMat::getncol()
 	
 void pySpParMat::load(const char* filename)
 {
-	ifstream input(filename);
-	A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler());
-	input.close();
+	string fn(filename);
+	int dot = fn.find_last_of('.');
+	if (dot != string::npos && fn.substr(dot) == ".bin")
+	{	
+		// .bin file
+		int mdot = fn.find_last_of('.', dot-1);
+		int ndot = fn.find_last_of('.', mdot-1);
+		
+		string mstr = fn.substr(mdot+1, dot);
+		string nstr = fn.substr(ndot+1, mdot);
+		uint64_t m = atoll(mstr.c_str());
+		uint64_t n = atoll(nstr.c_str());
+
+        SpParHelper::Print("Detected binary input. Assuming filename format like: xxxxx.NUMVERTS.NUMEDGES.bin\n");
+		ostringstream outs;
+		outs << "Reading " << fn << " with " << n << " vertices and " << m << " edges" << endl;// << "nstr: " << nstr << " mstr: " << mstr << endl;
+		SpParHelper::Print(outs.str());
+		DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>(fn.c_str(), n, m);
+		
+		// conversion from distributed edge list, keeps self-loops, sums duplicates
+		A = PSpMat_DoubleInt(*DEL, false);
+	}
+	else
+	{
+		// matrix market file
+		ifstream input(filename);
+		A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler());
+		input.close();
+	}
 }
 
 void pySpParMat::save(const char* filename)

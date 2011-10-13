@@ -1397,6 +1397,7 @@ examples/runtimes/script9_bc.e490347 -text
 examples/runtimes/script9_bc.e490700 -text
 examples/stats.py -text
 /hopper.sh -text
+kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
 kdt/ObjMethods.py -text
@@ -1405,7 +1406,6 @@ kdt/Vec.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text
 kdt/multiproccheck.py -text
-kdt/old/DiGraph.py -text
 kdt/old/Graph.py -text
 kdt/old/HyGraph.py -text
 kdt/old/__init__.py -text

@@ -51,7 +51,7 @@ DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0), globalV(
 }
 
 template <typename IT>
-DistEdgeList<IT>::DistEdgeList(char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL), globalV(globaln)
+DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL), globalV(globaln)
 {
 	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
 
