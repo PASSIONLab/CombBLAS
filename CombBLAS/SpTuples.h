@@ -31,6 +31,8 @@ class Dcsc;
 
 /**
  * Triplets are represented using the boost::tuple class of the Boost library
+ * Number of entries are 64-bit addressible, but each entry is only <class IT> addressible
+ * Therefore, size is int64_t but nrows/ncols (representing range of first two entries in tuple) is of type IT 
  * \remarks Indices start from 0 in this class
  * \remarks Sorted with respect to columns (Column-sorted triples)
  */
@@ -39,10 +41,10 @@ class SpTuples: public SpMat<IT, NT, SpTuples<IT,NT> >
 {
 public:
 	// Constructors 
-	SpTuples (IT size, IT nRow, IT nCol);
-	SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
-	SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
-	SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
+	SpTuples (int64_t size, IT nRow, IT nCol);
+	SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+	SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops = true);	// Graph500 contructor
+	SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack);		
 	SpTuples (const SpTuples<IT,NT> & rhs);	 	// Actual Copy constructor
 	SpTuples (const SpDCCols<IT,NT> & rhs); 	// Copy constructor for conversion from SpDCCols
 	~SpTuples();
@@ -134,7 +136,7 @@ public:
 	bool isZero() const { return (nnz == 0); }	
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
-	IT getnnz() const { return nnz; }
+	int64_t getnnz() const { return nnz; }
 
 	void PrintInfo();
 
@@ -149,7 +151,7 @@ private:
 
 	IT m;
 	IT n;
-	IT nnz;	
+	int64_t nnz;	
 
 	SpTuples (){};		// Default constructor does nothing, hide it
 	

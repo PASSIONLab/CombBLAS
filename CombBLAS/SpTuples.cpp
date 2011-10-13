@@ -11,7 +11,7 @@
 
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
+SpTuples<IT,NT>::SpTuples(int64_t size, IT nRow, IT nCol)
 :m(nRow), n(nCol), nnz(size)
 {
 	if(nnz > 0)
@@ -25,7 +25,7 @@ SpTuples<IT,NT>::SpTuples(IT size, IT nRow, IT nCol)
 }
 
 template <class IT,class NT>
-SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples)
 :tuples(mytuples), m(nRow), n(nCol), nnz(size)
 {
 	SortColBased();
@@ -39,13 +39,13 @@ SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytupl
   * NT='countable' (such as short,int): duplicated as summed to keep count 	 
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops):m(nRow), n(nCol)
+SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool removeloops):m(nRow), n(nCol)
 {
 	if(maxnnz > 0)
 	{
 		tuples  = new tuple<IT, IT, NT>[maxnnz];
 	}
-	for(IT i=0; i<maxnnz; ++i)
+	for(int64_t i=0; i<maxnnz; ++i)
 	{
 		rowindex(i) = edges[2*i+0];
 		colindex(i) = edges[2*i+1];
@@ -56,12 +56,12 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool
 	nnz = maxnnz;	// for now (to sort)
 	SortColBased();
 
-	IT cnz = 0;
-	IT dup = 0;  IT self = 0;
+	int64_t cnz = 0;
+	int64_t dup = 0;  int64_t self = 0;
 	nnz = 0; 
 	while(cnz < maxnnz)
 	{
-		IT j=cnz+1;
+		int64_t j=cnz+1;
 		while(j < maxnnz && rowindex(cnz) == rowindex(j) && colindex(cnz) == colindex(j)) 
 		{
 			numvalue(cnz) +=  numvalue(j);	
@@ -78,16 +78,16 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool
 		cnz = j;
 	}
 
-	IT totdup = 0; IT totself = 0; 
-	MPI::COMM_WORLD.Allreduce( &dup, &totdup, 1, MPIType<IT>(), MPI::SUM);
-	MPI::COMM_WORLD.Allreduce( &self, &totself, 1, MPIType<IT>(), MPI::SUM);
+	int64_t totdup = 0; int64_t totself = 0; 
+	MPI::COMM_WORLD.Allreduce( &dup, &totdup, 1, MPIType<int64_t>(), MPI::SUM);
+	MPI::COMM_WORLD.Allreduce( &self, &totself, 1, MPIType<int64_t>(), MPI::SUM);
 	ostringstream os;
 	os << "Duplicates removed (or summed): " << totdup << " and self-loops removed: " <<  totself << endl;  
 	SpParHelper::Print(os.str());
 
 	tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz];
-	IT j = 0;
-	for(IT i=0; i<maxnnz; ++i)
+	int64_t j = 0;
+	for(int64_t i=0; i<maxnnz; ++i)
 	{
 		if(numvalue(i) != 0)
 		{
@@ -106,14 +106,14 @@ SpTuples<IT,NT>::SpTuples (IT maxnnz, IT nRow, IT nCol, vector<IT> & edges, bool
   * \remark Since input is column sorted, the tuples are automatically generated in that way too
  **/  
 template <class IT, class NT>
-SpTuples<IT,NT>::SpTuples (IT size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
+SpTuples<IT,NT>::SpTuples (int64_t size, IT nRow, IT nCol, StackEntry<NT, pair<IT,IT> > * & multstack)
 :m(nRow), n(nCol), nnz(size)
 {
 	if(nnz > 0)
 	{
 		tuples  = new tuple<IT, IT, NT>[nnz];
 	}
-	for(IT i=0; i<nnz; ++i)
+	for(int64_t i=0; i<nnz; ++i)
 	{
 		colindex(i) = multstack[i].key.first;
 		rowindex(i) = multstack[i].key.second;
