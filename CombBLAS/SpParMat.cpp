@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <algorithm>
+#include <stdexcept>
 using namespace std;
 
 /**
@@ -412,16 +413,16 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			int colneighs = commGrid->GetGridRows();	// including oneself
         		int colrank = commGrid->GetRankInProcCol();
 
-			IT * loclens = new IT[colneighs];
-			IT * lensums = new IT[colneighs+1]();	// begin/end points of local lengths
+			GIT * loclens = new GIT[colneighs];
+			GIT * lensums = new GIT[colneighs+1]();	// begin/end points of local lengths
 
-        		IT n_perproc = n_thiscol / colneighs;    // length on a typical processor
+        		GIT n_perproc = n_thiscol / colneighs;    // length on a typical processor
         		if(colrank == colneighs-1)
                 		loclens[colrank] = n_thiscol - (n_perproc*colrank);
         		else
                 		loclens[colrank] = n_perproc;
 
-			commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
+			commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
 			partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits
 
 			vector<VT> trarr;
@@ -449,8 +450,8 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			}
 			DeleteAll(loclens, lensums);
 
-			IT reallen;	// Now we have to transpose the vector
-			IT trlen = trarr.size();
+			GIT reallen;	// Now we have to transpose the vector
+			GIT trlen = trarr.size();
 			int diagneigh = commGrid->GetComplementRank();
 			(commGrid->GetWorld()).Sendrecv(&trlen, 1, MPIType<IT>(), diagneigh, TRNNZ, &reallen, 1, MPIType<IT>(), diagneigh, TRNNZ);
 	
@@ -465,57 +466,70 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			rvec.glen = getnrow();
 			int rowneighs = commGrid->GetGridCols();
 			int rowrank = commGrid->GetRankInProcRow();
-			IT * loclens = new IT[rowneighs];
-			IT * lensums = new IT[rowneighs+1]();	// begin/end points of local lengths
+			GIT * loclens = new GIT[rowneighs];
+			GIT * lensums = new GIT[rowneighs+1]();	// begin/end points of local lengths
 			loclens[rowrank] = rvec.MyLocLength();
-			commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), loclens, 1, MPIType<IT>());
+			commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
 			partial_sum(loclens, loclens+rowneighs, lensums+1);
-			rvec.arr.resize(loclens[rowrank], id);
-
-			// keeping track of all nonzero iterators withing column at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
-			// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
-			#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
-			typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
-			while(begfinger != spSeq->endcol())
+			try
 			{
-				vector<typename DER::SpColIter::NzIter> nziters;
-				typename DER::SpColIter curfinger = begfinger; 
-				for(; curfinger != spSeq->endcol() && nziters.size() < MAXCOLUMNBATCH ; ++curfinger)	
-				{
-					nziters.push_back(spSeq->begnz(curfinger));
-				}
-				for(int i=0; i< rowneighs; ++i)		// step by step to save memory
-				{
-					VT * sendbuf = new VT[loclens[i]];
-					fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
-		
-					typename DER::SpColIter colit = begfinger;		
-					IT colcnt = 0;	// "processed column" counter
-					for(; colit != curfinger; ++colit, ++colcnt)	// iterate over this batch of columns until curfinger
-					{
-						typename DER::SpColIter::NzIter nzit = nziters[colcnt];
-						for(; nzit != spSeq->endnz(colit) && nzit.rowid() < lensums[i+1]; ++nzit)	// a portion of nonzeros in this column
-						{
-							sendbuf[nzit.rowid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()-lensums[i]]);
-						}
-						nziters[colcnt] = nzit;	// set the new finger
-					}
+				//ofstream oput;
+				//commGrid->OpenDebugFile("Vec", oput);
+				//oput << "Maximum size: " << rvec.arr.max_size() << endl;
+				//oput << "Resizing to : " << loclens[rowrank] << endl;
+				//oput.close();
 
-					VT * recvbuf = NULL;
-					if(rowrank == i)
+				rvec.arr.resize(loclens[rowrank], id);
+
+				// keeping track of all nonzero iterators withing column at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
+				// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
+				#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
+				typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
+				while(begfinger != spSeq->endcol())
+				{
+					vector<typename DER::SpColIter::NzIter> nziters;
+					typename DER::SpColIter curfinger = begfinger; 
+					for(; curfinger != spSeq->endcol() && nziters.size() < MAXCOLUMNBATCH ; ++curfinger)	
 					{
-						for(int j=0; j< loclens[i]; ++j)
-						{
-							sendbuf[j] = __binary_op(rvec.arr[j], sendbuf[j]);	// rvec.arr will be overriden with MPI_Reduce, save its contents
-						}
-						recvbuf = SpHelper::p2a(rvec.arr);	
+						nziters.push_back(spSeq->begnz(curfinger));
 					}
-					(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
-					delete [] sendbuf;
+					for(int i=0; i< rowneighs; ++i)		// step by step to save memory
+					{
+						VT * sendbuf = new VT[loclens[i]];
+						fill(sendbuf, sendbuf+loclens[i], id);	// fill with identity
+		
+						typename DER::SpColIter colit = begfinger;		
+						IT colcnt = 0;	// "processed column" counter
+						for(; colit != curfinger; ++colit, ++colcnt)	// iterate over this batch of columns until curfinger
+						{
+							typename DER::SpColIter::NzIter nzit = nziters[colcnt];
+							for(; nzit != spSeq->endnz(colit) && nzit.rowid() < lensums[i+1]; ++nzit)	// a portion of nonzeros in this column
+							{
+								sendbuf[nzit.rowid()-lensums[i]] = __binary_op(static_cast<VT>(__unary_op(nzit.value())), sendbuf[nzit.rowid()-lensums[i]]);
+							}
+							nziters[colcnt] = nzit;	// set the new finger
+						}
+
+						VT * recvbuf = NULL;
+						if(rowrank == i)
+						{
+							for(int j=0; j< loclens[i]; ++j)
+							{
+								sendbuf[j] = __binary_op(rvec.arr[j], sendbuf[j]);	// rvec.arr will be overriden with MPI_Reduce, save its contents
+							}
+							recvbuf = SpHelper::p2a(rvec.arr);	
+						}
+						(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i);	// root = i
+						delete [] sendbuf;
+					}
+					begfinger = curfinger;	// set the next begfilter
 				}
-				begfinger = curfinger;	// set the next begfilter
+				DeleteAll(loclens, lensums);	
 			}
-			DeleteAll(loclens, lensums);	
+			catch (length_error& le) 
+			{
+	 			 cerr << "Length error: " << le.what() << endl;
+  			}
 			break;
 		}
 		default:
@@ -1273,16 +1287,17 @@ template <class DELIT>
 SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloops)
 {
 	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
-	//int rank = commGrid->GetRank();
+	typedef typename DER::LocalIT LIT;
+
 	int nprocs = commGrid->GetSize();
 	int r = commGrid->GetGridRows();
 	int s = commGrid->GetGridCols();
-	vector< vector<IT> > data(nprocs);
+	vector< vector<LIT> > data(nprocs);	// enties are pre-converted to local indices before getting pushed into "data"
 
-	IT m_perproc = DEL.getGlobalV() / r;
-	IT n_perproc = DEL.getGlobalV() / s;
+	LIT m_perproc = DEL.getGlobalV() / r;
+	LIT n_perproc = DEL.getGlobalV() / s;
 
-	if(sizeof(IT) < sizeof(DELIT))
+	if(sizeof(LIT) < sizeof(DELIT))
 	{
 		ostringstream outs;
 		outs << "Warning: Using smaller indices for the matrix than DistEdgeList\n";
@@ -1291,16 +1306,16 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 	}	
 	
 	// to lower memory consumption, form sparse matrix in stages
-	IT stages = MEM_EFFICIENT_STAGES;	
+	LIT stages = MEM_EFFICIENT_STAGES;	
 	
-	// even if local indices (IT) are 32-bits, we should work with 64-bits for global info
+	// even if local indices (LIT) are 32-bits, we should work with 64-bits for global info
 	int64_t perstage = DEL.nedges / stages;
-	IT totrecv = 0;
-	vector<IT> alledges;
+	LIT totrecv = 0;
+	vector<LIT> alledges;
 
 	int maxr = r-1;
 	int maxs = s-1;	
-	for(IT s=0; s< stages; ++s)
+	for(LIT s=0; s< stages; ++s)
 	{
 		int64_t n_befor = s*perstage;
 		int64_t n_after= ((s==(stages-1))? DEL.nedges : ((s+1)*perstage));
@@ -1310,7 +1325,7 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 
 		if(DEL.pedges)	
 		{
-			for (IT i = n_befor; i < n_after; i++)
+			for (int64_t i = n_befor; i < n_after; i++)
 			{
 				int64_t fr = get_v0_from_edge(&(DEL.pedges[i]));
 				int64_t to = get_v1_from_edge(&(DEL.pedges[i]));
@@ -1320,29 +1335,33 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 					int rowowner = min(static_cast<int>(fr / m_perproc), maxr);
 					int colowner = min(static_cast<int>(to / n_perproc), maxs); 
 					int owner = commGrid->GetRank(rowowner, colowner);
-					data[owner].push_back(fr - (rowowner * m_perproc));	// row_id
-					data[owner].push_back(to - (colowner * n_perproc));	// col_id
+					LIT rowid = fr - (rowowner * m_perproc);	
+					LIT colid = to - (colowner * n_perproc);
+					data[owner].push_back(rowid);	// row_id
+					data[owner].push_back(colid);	// col_id
 					++realedges;
 				}
 			}
 		}
 		else
 		{
-			for (IT i = n_befor; i < n_after; i++)
+			for (int64_t i = n_befor; i < n_after; i++)
 			{
 				if(DEL.edges[2*i+0] >= 0 && DEL.edges[2*i+1] >= 0)	// otherwise skip
 				{
 					int rowowner = min(static_cast<int>(DEL.edges[2*i+0] / m_perproc), maxr);
 					int colowner = min(static_cast<int>(DEL.edges[2*i+1] / n_perproc), maxs); 
 					int owner = commGrid->GetRank(rowowner, colowner);
-					data[owner].push_back(DEL.edges[2*i+0]- (rowowner * m_perproc));	// row_id
-					data[owner].push_back(DEL.edges[2*i+1]- (colowner * n_perproc));	// col_id
+					LIT rowid = DEL.edges[2*i+0]- (rowowner * m_perproc);
+					LIT colid = DEL.edges[2*i+1]- (colowner * n_perproc);
+					data[owner].push_back(rowid);	
+					data[owner].push_back(colid);
 					++realedges;
 				}
 			}
 		}
 
-  		IT * sendbuf = new IT[2*realedges];
+  		LIT * sendbuf = new LIT[2*realedges];
 		int * sendcnt = new int[nprocs];
 		int * sdispls = new int[nprocs];
 		for(int i=0; i<nprocs; ++i)
@@ -1364,13 +1383,15 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 		
 		// clear memory
 		for(int i=0; i<nprocs; ++i)
-			vector<IT>().swap(data[i]);
+			vector<LIT>().swap(data[i]);
 
+		// ABAB: Total number of edges received might not be LIT-addressible
+		// However, each edge_id is LIT-addressible
 		IT thisrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));	// thisrecv = 2*locedges
-		IT * recvbuf = new IT[thisrecv];
+		LIT * recvbuf = new LIT[thisrecv];
 		totrecv += thisrecv;
 			
-		commGrid->GetWorld().Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>()); 
+		commGrid->GetWorld().Alltoallv(sendbuf, sendcnt, sdispls, MPIType<LIT>(), recvbuf, recvcnt, rdispls, MPIType<LIT>()); 
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls,sendbuf);
 		copy (recvbuf,recvbuf+thisrecv,back_inserter(alledges));	// copy to all edges
 		delete [] recvbuf;
@@ -1378,13 +1399,13 @@ SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloo
 
 	int myprocrow = commGrid->GetRankInProcCol();
 	int myproccol = commGrid->GetRankInProcRow();
-	IT locrows, loccols; 
+	LIT locrows, loccols; 
 	if(myprocrow != r-1)	locrows = m_perproc;
 	else 	locrows = DEL.getGlobalV() - myprocrow * m_perproc;
 	if(myproccol != s-1)	loccols = n_perproc;
 	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
-  	SpTuples<IT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
+  	SpTuples<LIT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
