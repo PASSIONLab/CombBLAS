@@ -357,16 +357,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
  * @param[in,out]   trxlocnz, lenuntil,trxinds,trxnums  { set or allocated }
  * @param[in] 	indexisvalue	
  **/
-template<typename IU>
-void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,IU> & x, IU & trxlocnz, IU & lenuntil, int32_t * & trxinds, IU * & trxnums, bool indexisvalue)
+template<typename IU, typename NV>
+void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue)
 {
-	IU xlocnz = x.getlocnnz();
-	IU roffst = x.RowLenUntil();
+	int32_t xlocnz = (int32_t) x.getlocnnz();	
+	int32_t roffst = (int32_t) x.RowLenUntil();	// since trxinds is int32_t
+	int32_t roffset;
 	IU luntil = x.LengthUntil();
-	IU roffset;
 	int diagneigh = x.commGrid->GetComplementRank();
-	World.Sendrecv(&xlocnz, 1, MPIType<IU>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<IU>(), diagneigh, TRNNZ);
-	World.Sendrecv(&roffst, 1, MPIType<IU>(), diagneigh, TROST, &roffset, 1, MPIType<IU>(), diagneigh, TROST);
+	World.Sendrecv(&roffst, 1, MPIType<int32_t>(), diagneigh, TROST, &roffset, 1, MPIType<int32_t>(), diagneigh, TROST);
+	World.Sendrecv(&xlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ);
 	World.Sendrecv(&luntil, 1, MPIType<IU>(), diagneigh, TRLUT, &lenuntil, 1, MPIType<IU>(), diagneigh, TRLUT);
 	
 	// ABAB: Important observation is that local indices (given by x.ind) is 32-bit addressible
@@ -380,10 +380,10 @@ void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,IU> & x, IU
 		delete [] temp_xind;
 		if(!indexisvalue)
 		{
-			trxnums = new IU[trxlocnz];
-			World.Sendrecv(const_cast<IU*>(SpHelper::p2a(x.num)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<IU>(), diagneigh, TRX);
+			trxnums = new NV[trxlocnz];
+			World.Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX);
 		}
-		transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
+		transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
 	}
 	catch(MPI::Exception e)
 	{
@@ -399,19 +399,20 @@ void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,IU> & x, IU
  * @param[in,out]	accnz { set }
  * @param[in] 		trxlocnz, lenuntil, indexisvalue
  **/
-template<typename IU>
-void AllGatherVector(MPI::Intracomm & ColWorld, IU trxlocnz, IU lenuntil, int32_t * & trxinds, IU * & trxnums, int32_t * & indacc, IU * & numacc, int & accnz, bool indexisvalue)
+template<typename IU, typename NV>
+void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32_t * & trxinds, NV * & trxnums, 
+					 int32_t * & indacc, NV * & numacc, int & accnz, bool indexisvalue)
 {
 	int colneighs = ColWorld.Get_size();
 	int colrank = ColWorld.Get_rank();
 	int * colnz = new int[colneighs];
-	colnz[colrank] = static_cast<int>(trxlocnz);
+	colnz[colrank] = trxlocnz;
 	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
 	accnz = std::accumulate(colnz, colnz+colneighs, 0);
 	indacc = new int32_t[accnz];
-	numacc = new IU[accnz];
+	numacc = new NV[accnz];
 	
 	// ABAB: Future issues here, colnz is of type int (MPI limitation)
 	// What if the aggregate vector size along the processor row/column is not 32-bit addressible?
@@ -444,7 +445,7 @@ void AllGatherVector(MPI::Intracomm & ColWorld, IU trxlocnz, IU lenuntil, int32_
 	}
 	else
 	{
-		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<IU>(), numacc, colnz, dpls, MPIType<IU>());
+		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<NV>(), numacc, colnz, dpls, MPIType<NV>());
 		delete [] trxnums;
 	}	
 	DeleteAll(colnz,dpls);
@@ -452,9 +453,12 @@ void AllGatherVector(MPI::Intracomm & ColWorld, IU trxlocnz, IU lenuntil, int32_
 
 /**
   * Step 3 of the sparse SpMV algorithm, with the semiring 
+  * @param[in,out] indacc, numacc {index and values of the input vector, deleted upon exit}
+  * @param[in,out] sendindbuf, sendnumbuf {index and values of the output vector, created}
  **/
-template<typename SR, typename T_promote, typename IU, typename NUM, typename UDER>
-void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
+template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, IVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
+			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
 {	
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -485,14 +489,14 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T
 		{
 			// serial SpMV with sparse vector
 			vector< int32_t > indy;
-			vector< T_promote >  numy;
+			vector< OVT >  numy;
 			
 			dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, accnz, indy, numy);	// actual multiplication
 			DeleteAll(indacc, numacc);
 			
 			int32_t bufsize = indy.size();	// as compact as possible
 			sendindbuf = new int32_t[bufsize];	
-			sendnumbuf = new T_promote[bufsize];
+			sendnumbuf = new OVT[bufsize];
 			int32_t perproc = A.getlocalrows() / rowneighs;	
 			
 			int k = 0;	// index to buffer
@@ -512,6 +516,101 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T
 		}
 	}
 }
+
+template <typename SR, typename IU, typename OVT>
+void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs)
+{
+		
+#ifndef HEAPMERGE
+	// Alternative 1: SPA-like data structure
+	DeleteAll(recvcnt, rdispls);
+	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
+	OVT * localy = new OVT[ysize];
+	bool * isthere = new bool[ysize];
+	vector<IU> nzinds;	// nonzero indices		
+	fill_n(isthere, ysize, false);
+	
+	for(int i=0; i< totrecv; ++i)
+	{
+		int32_t topush = recvindbuf[i];
+		if(!isthere[topush])
+		{
+			localy[topush] = recvnumbuf[i];	// initial assignment
+			nzinds.push_back(topush);
+			isthere[topush] = true;
+		} 
+		else
+		{
+			localy[topush] = SR::add(localy[topush], recvnumbuf[i]);	
+		}
+	}
+	DeleteAll(isthere, recvindbuf, recvnumbuf);
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	y.ind.resize(nnzy);
+	y.num.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		y.ind[i] = nzinds[i];
+		y.num[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+	
+#else
+	// Alternative 2: Heap-merge
+	int32_t hsize = 0;		
+	int32_t inf = numeric_limits<int32_t>::min();
+	int32_t sup = numeric_limits<int32_t>::max(); 
+	KNHeap< int32_t, int32_t > sHeap(sup, inf); 
+	int * processed = new int[rowneighs]();
+	for(int i=0; i<rowneighs; ++i)
+	{
+		if(recvcnt[i] > 0)
+		{
+			// key, proc_id
+			sHeap.insert(recvindbuf[rdispls[i]], i);
+			++hsize;
+		}
+	}	
+	int32_t key, locv;
+	if(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		y.ind.push_back( static_cast<IU>(key));
+		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
+		
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+			else
+				--hsize;
+	}
+	while(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		IU deref = rdispls[locv] + processed[locv];
+		if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
+		{
+			y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
+			// ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
+			// We can just skip this addition operator (if it's a max/min select)
+		} 
+		else
+		{
+			y.ind.push_back(static_cast<IU>(key));
+			y.num.push_back(recvnumbuf[deref]);
+		}
+		
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+			else
+				--hsize;
+	}
+	DeleteAll(recvcnt, rdispls,processed);
+	DeleteAll(recvindbuf, recvnumbuf);
+#endif	
+
+}
+
 
 /**
   * This is essentially a SpMV for BFS because it lacks the semiring.
@@ -546,69 +645,69 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 }
  **/
 
-//! The last parameter is a hint to the function 
-//! If indexisvalues = true, then we do not need to transfer values for x
-//! This happens for BFS iterations with boolean matrices and integer rhs vectors
-template <typename SR, typename IU, typename NUM, typename UDER>
-FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf)
+/** This version is the most flexible sparse matrix X sparse vector
+  * It accepts different types for the matrix (NUM), the input vector (IVT) and the output vector (OVT)
+  * without relying on automatic type promotion
+  */
+template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, 
+			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf)
 {
-	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
 	CheckSpMVCompliance(A,x);
-
+	
 	MPI::Intracomm World = x.commGrid->GetWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
-
+	
 	int accnz;
-	IU trxlocnz, lenuntil;
+	int32_t trxlocnz;
+	IU lenuntil;
 	int32_t *trxinds, *indacc;
-	IU *trxnums, *numacc;
+	IVT *trxnums, *numacc;
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);
 	
-	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	int rowneighs = RowWorld.Get_size();
 	int * sendcnt = new int[rowneighs]();	
 	int32_t * sendindbuf;	
-	T_promote * sendnumbuf;
+	OVT * sendnumbuf;
 	int * sdispls;
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
 	
 	/* Skeleton:
-	if(optbuf.totmax > 0)	// graph500 optimization enabled
-	{ 
-		if(A.spSeq->getnsplit() > 0) // multithreading enabled
-		{
-			if(indexisvalue)
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
-	}
-	else
-	{
-		if(A.spSeq->getnsplit() > 0) // multithreading enabled
-		{
-			if(indexisvalue)
-			{
-				
-			}
-			else
-			{
-				
-			}
-		}
-	}*/
+	 if(optbuf.totmax > 0)	// graph500 optimization enabled
+	 { 
+	 if(A.spSeq->getnsplit() > 0) // multithreading enabled
+	 {
+	 if(indexisvalue)
+	 {
+	 
+	 }
+	 else
+	 {
+	 
+	 }
+	 }
+	 }
+	 else
+	 {
+	 if(A.spSeq->getnsplit() > 0) // multithreading enabled
+	 {
+	 if(indexisvalue)
+	 {
+	 
+	 }
+	 else
+	 {
+	 
+	 }
+	 }
+	 }*/
 	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
 	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
-
+	
 	// receive displacements are exact whereas send displacements have slack
 	rdispls[0] = 0;
 	for(int i=0; i<rowneighs-1; ++i)
@@ -617,136 +716,61 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	}
 	int totrecv = accumulate(recvcnt,recvcnt+rowneighs,0);	
 	int32_t * recvindbuf = new int32_t[totrecv];
-	T_promote * recvnumbuf = new T_promote[totrecv];
-
-	#ifdef TIMING
+	OVT * recvnumbuf = new OVT[totrecv];
+	
+#ifdef TIMING
 	World.Barrier();
 	double t2=MPI::Wtime();
-	#endif
+#endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
 		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
-		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  // T_promote=NUM
+		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
 		delete [] sendcnt;
 	}
 	else
 	{
-/*		ofstream oput;
-		x.commGrid->OpenDebugFile("Send", oput);
-		oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-		oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
-		for(int i=0; i< rowneighs; ++i)
-		{
-			oput << "To neighbor: " << i << endl; 
-			copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
-			copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
-		}
-		oput.close(); 
-*/
+		/*		ofstream oput;
+		 x.commGrid->OpenDebugFile("Send", oput);
+		 oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+		 oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+		 for(int i=0; i< rowneighs; ++i)
+		 {
+		 oput << "To neighbor: " << i << endl; 
+		 copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
+		 copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
+		 }
+		 oput.close(); 
+		 */
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
-		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
+		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
 		DeleteAll(sendindbuf, sendnumbuf);
 		DeleteAll(sendcnt, sdispls);
 	}
-	#ifdef TIMING
+#ifdef TIMING
 	World.Barrier();
 	double t3=MPI::Wtime();
 	cblas_alltoalltime += (t3-t2);
-	#endif
-
-//	ofstream output;
-//	A.commGrid->OpenDebugFile("Recv", output);
-//	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
-//	output.close();
-
-#ifndef HEAPMERGE
-	// Alternative 1: SPA-like data structure
-	DeleteAll(recvcnt, rdispls);
-	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
-	T_promote * localy = new T_promote[ysize];
-	bool * isthere = new bool[ysize];
-	vector<IU> nzinds;	// nonzero indices		
-	fill_n(isthere, ysize, false);
-	
-	for(int i=0; i< totrecv; ++i)
-	{
-		int32_t topush = recvindbuf[i];
-		if(!isthere[topush])
-		{
-			localy[topush] = recvnumbuf[i];	// initial assignment
-			nzinds.push_back(topush);
-			isthere[topush] = true;
-		} 
-		else
-		{
-			localy[topush] = SR::add(localy[topush], recvnumbuf[i]);	
-		}
-	}
-	DeleteAll(isthere, recvindbuf, recvnumbuf);
-	sort(nzinds.begin(), nzinds.end());
-	int nnzy = nzinds.size();
-	y.ind.resize(nnzy);
-	y.num.resize(nnzy);
-	for(int i=0; i< nnzy; ++i)
-	{
-		y.ind[i] = nzinds[i];
-		y.num[i] = localy[nzinds[i]]; 	
-	}
-	delete [] localy;
-
-#else
-	// Alternative 2: Heap-merge
-	int32_t hsize = 0;		
-	int32_t inf = numeric_limits<int32_t>::min();
-	int32_t sup = numeric_limits<int32_t>::max(); 
-        KNHeap< int32_t, int32_t > sHeap(sup, inf); 
-	int * processed = new int[rowneighs]();
-	for(int i=0; i<rowneighs; ++i)
-	{
-		if(recvcnt[i] > 0)
-		{
-			// key, proc_id
-			sHeap.insert(recvindbuf[rdispls[i]], i);
-			++hsize;
-		}
-	}	
-	int32_t key, locv;
-	if(hsize > 0)
-	{
-		sHeap.deleteMin(&key, &locv);
-		y.ind.push_back( static_cast<IU>(key));
-		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
-		
-		if( (++(processed[locv])) < recvcnt[locv] )
-			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-		else
-			--hsize;
-	}
-	while(hsize > 0)
-	{
-		sHeap.deleteMin(&key, &locv);
-		IU deref = rdispls[locv] + processed[locv];
-		if(y.ind.back() == static_cast<IU>(key))	// y.ind is surely not empty
-		{
-			y.num.back() = SR::add(y.num.back(), recvnumbuf[deref]);
-			// ABAB: Benchmark actually allows us to be non-deterministic in terms of parent selection
-			// We can just skip this addition operator (if it's a max/min select)
-		} 
-		else
-		{
-			y.ind.push_back(static_cast<IU>(key));
-			y.num.push_back(recvnumbuf[deref]);
-		}
-
-		if( (++(processed[locv])) < recvcnt[locv] )
-			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-		else
-			--hsize;
-	}
-	DeleteAll(recvcnt, rdispls,processed);
-	DeleteAll(recvindbuf, recvnumbuf);
 #endif
+	
+	//	ofstream output;
+	//	A.commGrid->OpenDebugFile("Recv", output);
+	//	copy(recvindbuf, recvindbuf+totrecv, ostream_iterator<IU>(output," ")); output << endl;
+	//	output.close();
+	
+	MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+}
 
+//! The last parameter is a hint to the function 
+//! If indexisvalues = true, then we do not need to transfer values for x
+//! This happens for BFS iterations with boolean matrices and integer rhs vectors
+template <typename SR, typename IU, typename NUM, typename UDER>
+FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
+(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf)
+{		
+	typedef typename promote_trait<NUM,IU>::T_promote T_promote;
+	FullyDistSpVec<IU, T_promote> y ( x.getcommgrid(), A.getnrow());	// identity doesn't matter for sparse vectors
+	SpMV<SR>(A, x, y, indexisvalue, optbuf);
 	return y;
 }
 

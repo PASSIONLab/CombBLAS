@@ -234,9 +234,8 @@ public:
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
 	
-	template <typename SR, typename IU, typename NUM, typename UDER> 
-	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf);
+	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
 
 	template <typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
@@ -245,9 +244,10 @@ public:
 	template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation> 
 	friend SpParMat<IU,RETT,RETDER>
 	EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal);
-	
-	template<typename SR, typename T_promote, typename IU, typename NUM, typename UDER>
-	friend void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, T_promote > & optbuf, int32_t * & indacc, IU * & numacc, int32_t * & sendindbuf, T_promote * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue);
+
+	template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+	friend void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, IVT > & optbuf, int32_t * & indacc, IVT * & numacc,
+                           int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue);
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
