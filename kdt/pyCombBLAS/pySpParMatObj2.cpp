@@ -465,9 +465,12 @@ void pySpParMatObj2::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
+#define MIXEDOK 0
+
 pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 {
 	//if (sring == NULL)
+#if MIXEDOK == 0
 	{
 		cout << "Mixed type SpMV not supported yet." << endl;
 		//cout << "You must supply a semiring for SpMV!" << endl;
@@ -477,15 +480,16 @@ pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 	else if (sring->getType() == op::Semiring::SECONDMAX)
 	{
 		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
-	}*/
-	/*
-	else
+	}
+	else*/
+#else
 	{
 		sring->enableSemiring();
 		pySpParVec ret( ::SpMV< op::SemiringObjTemplArg>(A, x.v) );
 		sring->disableSemiring();
 		return ret;
-	}*/
+	}
+#endif
 }
 
 pySpParVecObj2 pySpParMatObj2::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring)
