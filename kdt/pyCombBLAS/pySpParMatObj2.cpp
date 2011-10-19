@@ -485,7 +485,9 @@ pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 #else
 	{
 		sring->enableSemiring();
-		pySpParVec ret( ::SpMV< op::SemiringObjTemplArg>(A, x.v) );
+		pySpParVec ret(0);
+		OptBuf<int32_t, doubleint > optbuf = OptBuf<int32_t, doubleint >();
+		::SpMV< op::SemiringObjTemplArg>(A, x.v, ret.v, false, optbuf);
 		sring->disableSemiring();
 		return ret;
 	}
