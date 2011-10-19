@@ -453,11 +453,12 @@ void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32
 
 /**
   * Step 3 of the sparse SpMV algorithm, with the semiring 
+  * @param[in,out] optbuf {scratch space for all-to-all (fold) communication}
   * @param[in,out] indacc, numacc {index and values of the input vector, deleted upon exit}
   * @param[in,out] sendindbuf, sendnumbuf {index and values of the output vector, created}
  **/
 template<typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
-void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, IVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
+void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, OVT > & optbuf, int32_t * & indacc, IVT * & numacc, 
 			   int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
 {	
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
@@ -766,13 +767,14 @@ template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, ty
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue)
 {
 	OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >(); 
-	SpMV<SR>(A, x, indexisvalue, optbuf);
+	SpMV<SR>(A, x, y, indexisvalue, optbuf);
 }
 
 
-//! The last parameter is a hint to the function 
-//! If indexisvalues = true, then we do not need to transfer values for x
-//! This happens for BFS iterations with boolean matrices and integer rhs vectors
+/**
+ * Automatic type promotion is ONLY done here, all the callee functions (in Friends.h and below) are initialized with the promoted type 
+ * If indexisvalues = true, then we do not need to transfer values for x (happens for BFS iterations with boolean matrices and integer rhs vectors)
+ **/
 template <typename SR, typename IU, typename NUM, typename UDER>
 FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
 (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<NUM,IU>::T_promote > & optbuf)

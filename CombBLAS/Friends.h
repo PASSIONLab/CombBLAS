@@ -77,24 +77,24 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
   * Multithreaded SpMV with sparse vector
   * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
   */
-template <typename SR, typename IU, typename NUM, typename NUV>
-int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
-		IU * & sendindbuf, typename promote_trait<NUM,NUV>::T_promote * & sendnumbuf, int * & sdispls, int p_c)
+template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
+int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+		int32_t * & sendindbuf, OVT * & sendnumbuf, int * & sdispls, int p_c)
 {
 	// FACTS: Split boundaries (for multithreaded execution) are independent of recipient boundaries
 	// Two splits might create output to the same recipient (needs to be merged)
 	// However, each split's output is distinct (no duplicate elimination is needed after merge) 
 
 	sdispls = new int[p_c]();	// initialize to zero (as all indy might be empty)
-	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
 		int splits = A.getnsplit();
 		if(splits > 0)
 		{
-			IU perpiece = A.getnrow() / splits;
-			vector< vector<IU> > indy(splits);
-			vector< vector<T_promote> > numy(splits);
+			int32_t nlocrows = static_cast<int32_t>(A.getnrow());
+			int32_t perpiece = nlocrows / splits;
+			vector< vector< int32_t > > indy(splits);
+			vector< vector< OVT > > numy(splits);
 
 			// Parallelize with OpenMP
 			#ifdef _OPENMP
@@ -103,23 +103,23 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreading<SR>(*(A.dcscarr[i]), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreading<SR>(*(A.dcscarr[i]), A.getnrow() - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 
 			vector<int> accum(splits+1, 0);
 			for(int i=0; i<splits; ++i)
 				accum[i+1] = accum[i] + indy[i].size();
 
-			sendindbuf = new IU[accum[splits]];
-			sendnumbuf = new T_promote[accum[splits]];
-			IU perproc = A.getnrow() / static_cast<IU>(p_c);	
-			IU last_rec = static_cast<IU>(p_c-1);
+			sendindbuf = new int32_t[accum[splits]];
+			sendnumbuf = new OVT[accum[splits]];
+			int32_t perproc = nlocrows / p_c;	
+			int32_t last_rec = p_c-1;
 			
 			// keep recipients of last entries in each split (-1 for an empty split)
 			// so that we can delete indy[] and numy[] contents as soon as they are processed		
-			vector<IU> end_recs(splits);
+			vector<int32_t> end_recs(splits);
 			for(int i=0; i<splits; ++i)
 			{
 				if(indy[i].empty())
@@ -136,7 +136,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 				{
 					// FACT: Data is sorted, so if the recipient of begin is the same as the owner of end, 
 					// then the whole data is sent to the same processor
-					IU beg_rec = min( indy[i].front() / perproc, last_rec); 			
+					int32_t beg_rec = min( indy[i].front() / perproc, last_rec); 			
 
 					// We have to test the previous "split", to see if we are marking a "recipient head" 
 					// set displacement markers for the completed (previous) buffers only
@@ -153,7 +153,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 					// else set sdispls[0] to zero (already done)
 					if(beg_rec == end_recs[i])	// fast case
 					{
-						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<IU>(), perproc*beg_rec));
+						transform(indy[i].begin(), indy[i].end(), indy[i].begin(), bind2nd(minus<int32_t>(), perproc*beg_rec));
 						copy(indy[i].begin(), indy[i].end(), sendindbuf+accum[i]);
 						copy(numy[i].begin(), numy[i].end(), sendnumbuf+accum[i]);
 					}
@@ -164,7 +164,7 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 						int end = indy[i].size();
 						for(int cur=0; cur< end; ++cur)	
 						{
-							IU cur_rec = min( indy[i][cur] / perproc, last_rec); 			
+							int32_t cur_rec = min( indy[i][cur] / perproc, last_rec); 			
 							while(beg_rec != cur_rec)	
 							{
 								sdispls[++beg_rec] = accum[i] + cur;	// first entry to be set is sdispls[beg_rec+1]
@@ -173,8 +173,8 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 							sendnumbuf[ accum[i] + cur ] = numy[i][cur];
 						}
 					}
-					vector<IU>().swap(indy[i]);
-					vector<T_promote>().swap(numy[i]);
+					vector<int32_t>().swap(indy[i]);
+					vector<OVT>().swap(numy[i]);
 					bool lastnonzero = true;	// am I the last nonzero split?
 					for(int k=i+1; k < splits; ++k)
 					{
@@ -206,19 +206,20 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const IU * indx, const NU
 /** 
  * Multithreaded SpMV with sparse vector and preset buffers
  * the assembly of outgoing buffers sendindbuf/sendnumbuf are done here
+ * IVT: input vector numerical type
+ * OVT: output vector numerical type
  */
-template <typename SR, typename IU, typename NUM, typename NUV>
-void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
-				 int32_t * sendindbuf, typename promote_trait<NUM,NUV>::T_promote * sendnumbuf, int * cnts, int * dspls, int p_c)
+template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
+void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+				 int32_t * sendindbuf, OVT * sendnumbuf, int * cnts, int * dspls, int p_c)
 {
-	typedef typename promote_trait<NUM, NUV>::T_promote T_promote;
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
 		int splits = A.getnsplit();
 		if(splits > 0)
 		{
 			vector< vector<int32_t> > indy(splits);
-			vector< vector<T_promote> > numy(splits);
+			vector< vector< OVT > > numy(splits);
 			int32_t nlocrows = static_cast<int32_t>(A.getnrow());
 			int32_t perpiece = nlocrows / splits;
 			
@@ -327,9 +328,9 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 }
 
 //! SpMV with sparse vector
-template <typename SR, typename IU, typename NUM, typename NUV>
-void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx, IU nnzx, 
-		vector<IU> & indy, vector<typename promote_trait<NUM,NUV>::T_promote>  & numy)
+template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
+void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+		vector<int32_t> & indy, vector<OVT>  & numy)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -347,9 +348,9 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const IU * indx, const NUV * numx
 /** SpMV with sparse vector
   * @param[in] indexisvalue is only used for BFS-like computations, if true then we can call the optimized version that skips SPA
   */
-template <typename SR, typename IU, typename NUM, typename NUV>
-void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const NUV * numx, int32_t nnzx, 
-		int32_t * indy, typename promote_trait<NUM,NUV>::T_promote * numy, int * cnts, int * dspls, int p_c, bool indexisvalue)
+template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
+void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
+		int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c, bool indexisvalue)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{

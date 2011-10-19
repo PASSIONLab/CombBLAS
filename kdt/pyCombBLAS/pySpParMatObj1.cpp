@@ -467,7 +467,7 @@ void pySpParMatObj1::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 
 #define MIXEDOK 0
 
-pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring)
+pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring) const
 {
 	//if (sring == NULL)
 #if MIXEDOK == 0
@@ -486,8 +486,7 @@ pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 	{
 		sring->enableSemiring();
 		pySpParVec ret(0);
-		OptBuf<int32_t, doubleint > optbuf = OptBuf<int32_t, doubleint >();
-		::SpMV< op::SemiringObjTemplArg>(A, x.v, ret.v, false, optbuf);
+		::SpMV< op::SemiringObjTemplArg>(A, x.v, ret.v, false );
 		sring->disableSemiring();
 		return ret;
 	}
