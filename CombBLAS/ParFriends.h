@@ -761,6 +761,15 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
 }
 
+
+template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue)
+{
+	OptBuf< int32_t, OVT > optbuf = OptBuf< int32_t,OVT >(); 
+	SpMV<SR>(A, x, indexisvalue, optbuf);
+}
+
+
 //! The last parameter is a hint to the function 
 //! If indexisvalues = true, then we do not need to transfer values for x
 //! This happens for BFS iterations with boolean matrices and integer rhs vectors

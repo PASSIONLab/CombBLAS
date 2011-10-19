@@ -75,6 +75,8 @@ for r=1:maxround
      h=h.*J;
     
      C(r,:)=h;
+     h(1:100)    
+
     
      %diffMj = MJ - old_MJ;
     %if (max(abs(diffMj)) < max_diff)
