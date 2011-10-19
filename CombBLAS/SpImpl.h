@@ -31,71 +31,70 @@
 
 #include <iostream>
 #include <vector>
-#include "promote.h"
 using namespace std;
 
 template <class IT, class NT>
 class Dcsc;
 
-template <class SR, class IT, class NT1, class NT2>
+template <class SR, class IT, class NUM, class IVT, class OVT>
 struct SpImpl;
 
-template <class SR, class IT, class NT1, class NT2>
-void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
-			 vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy)
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
+			 vector<IT> & indy, vector< OVT > & numy)
 {
-	SpImpl<SR,IT,NT1,NT2>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy);	// don't touch this
+	SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy);	// don't touch this
 };
 
-template <class SR, class IT, class NT1, class NT2>
-void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, int32_t mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
-			 int32_t * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c)
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			 int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
 {
-	SpImpl<SR,IT,NT1,NT2>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
-};
-
-
-template <class SR, class IT, class NT1, class NT2>
-void SpMXSpV_ForThreading(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
-		vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy, IT offset)
-{
-	SpImpl<SR,IT,NT1,NT2>::SpMXSpV_ForThreading(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
-};
-
-template <class SR, class IT, class NT1, class NT2>
-void SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,NT1> & Adcsc, int32_t mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
-		vector<int32_t> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy, int32_t offset)
-{
-	SpImpl<SR,IT,NT1,NT2>::SpMXSpV_ForThreadingNoMatch(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
+	SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
 };
 
 
-template <class SR, class IT, class NT1, class NT2>
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
+		vector<IT> & indy, vector< OVT > & numy, IT offset)
+{
+	SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreading(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
+};
+
+template <class SR, class IT, class NUM, class IVT, class OVT>
+void SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+		vector<int32_t> & indy, vector< OVT > & numy, int32_t offset)
+{
+	SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV_ForThreadingNoMatch(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
+};
+
+
+template <class SR, class IT, class NUM, class IVT, class OVT>
 struct SpImpl
 {
-	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, IT mA, const IT * indx, const NT2 * numx, IT veclen,  
-			vector<IT> & indy, vector< typename promote_trait<NT1,NT2>::T_promote > & numy);	// specialize this
+	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
+			vector<IT> & indy, vector< OVT > & numy);	// specialize this
 
-	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, int32_t mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
-			IT * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			IT * indy, OVT * numy, int * cnts, int * dspls, int p_c);
 };
 
 
 
-template <class SR, class IT, class NT>
-struct SpImpl<SR,IT,bool, NT>	// specialization
+template <class SR, class IT, class IVT, class OVT>
+struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
 {
-	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  
-			vector<IT> & indy, vector< NT > & numy);	
+	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
+			vector<IT> & indy, vector< OVT > & numy);	
 
-	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const NT * numx, int32_t veclen,  
-			int32_t * indy, NT * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
 
-	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const NT * numx, IT veclen,  	// version where Dcsc and vector types match
-			vector<IT> & indy, vector<NT> & numy, IT offset);
+	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  	// version where Dcsc and vector types match
+			vector<IT> & indy, vector<OVT> & numy, IT offset);
 
-	static void SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const NT * numx, int32_t veclen,  // version for which they don't have to match
-			vector<int32_t> & indy, vector<NT> & numy, int32_t offset);
+	static void SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  // version for which they don't have to match
+			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset);
 };
 
 #include "SpImpl.cpp"

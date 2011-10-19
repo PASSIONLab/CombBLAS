@@ -339,7 +339,7 @@ int main(int argc, char* argv[])
 			Symmetricize(Aeff);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 
-	                Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
+	                //Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		#ifdef THREADED	
 			ostringstream tinfo;
 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
@@ -420,6 +420,7 @@ int main(int argc, char* argv[])
 				{
 					fringe.setNumToInd();
 					//fringe.PrintInfo("fringe before SpMV");
+
 					fringe = SpMV<SR>(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
 					

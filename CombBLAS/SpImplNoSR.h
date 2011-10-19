@@ -32,30 +32,30 @@
 template <class IT, class NT>
 class Dcsc;
 
-template <class IT, class NT1, class NT2>
+template <class IT, class NUM, class IVT, class OVT>
 struct SpImplNoSR;
 
 //! Version without the Semiring (for BFS)
-template <class IT, class NT1, class NT2>
-void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, int32_t mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
-			 int32_t * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c)
+template <class IT, class NUM, class IVT, class OVT>
+void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			 int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
 {
-	SpImplNoSR<IT,NT1,NT2>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
+	SpImplNoSR<IT,NUM,IVT,OVT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
 };
 
 
-template <class IT, class NT1, class NT2>
+template <class IT, class NUM, class IVT, class OVT>
 struct SpImplNoSR
 {
-	static void SpMXSpV(const Dcsc<IT,NT1> & Adcsc, int32_t mA, const int32_t * indx, const NT2 * numx, int32_t veclen,  
-						int32_t * indy, typename promote_trait<NT1,NT2>::T_promote * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
 };
 
-template <class IT, class NT>
-struct SpImplNoSR<IT,bool, NT>	// specialization
+template <class IT, class IVT, class OVT>
+struct SpImplNoSR<IT,bool, IVT,OVT>	// specialization
 {
-	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const NT * numx, int32_t veclen,  
-						int32_t * indy, NT * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
 };
 
 
@@ -66,15 +66,15 @@ struct SpImplNoSR<IT,bool, NT>	// specialization
  * It also by passes-SPA by relying on the fact that x (rhs vector) is sorted and values are indices
  * (If they are not sorted, it'd still work but be non-deterministic)
  * Hence, Semiring operations are not needed (no add or multiply)
- * Also allows the vector's indices to be different than matrix's (for transition only) \TODO: Disable
+ * Also allows the vector's indices to be different than matrix's (for transition only) \TODO: Disable?
  **/
-template <typename IT, typename NT>
-void SpImplNoSR<IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const NT * numx, int32_t veclen,  
-										   int32_t * indy, NT * numy, int * cnts, int * dspls, int p_c)
+template <typename IT, typename IVT, typename OVT>
+void SpImplNoSR<IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+										   int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
 {   
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
-	vector< vector< pair<int32_t,NT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	vector< vector< pair<int32_t,IVT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
 	
 	int32_t perproc = mA / p_c;	
 	int32_t k = 0; 	// index to indx vector
@@ -108,8 +108,8 @@ void SpImplNoSR<IT,bool,NT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, co
 		int32_t offset = perproc * p;
 		for(int i=0; i< cnts[p]; ++i)
 		{
-			indy[dspls[p]+i] = nzinds_vals[p][i].first - offset;	// conver to local offset
-			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	
+			indy[dspls[p]+i] = nzinds_vals[p][i].first - offset;	// convert to local offset
+			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	// implicit type conversion happens here (if needed: IVT -> OVT)
 		}
 	}
 	delete [] isthere;
