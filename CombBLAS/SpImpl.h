@@ -76,7 +76,16 @@ struct SpImpl
 			vector<IT> & indy, vector< OVT > & numy);	// specialize this
 
 	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-			IT * indy, OVT * numy, int * cnts, int * dspls, int p_c);
+			IT * indy, OVT * numy, int * cnts, int * dspls, int p_c)
+	{
+		cout << "Optbuf enabled version is not yet supported with general (non-boolean) matrices" << endl;
+	};
+
+	static void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset)
+	{
+		cout << "Threaded version is not yet supported with general (non-boolean) matrices" << endl;
+	};
 };
 
 
@@ -90,10 +99,8 @@ struct SpImpl<SR,IT,bool, IVT, OVT>	// specialization
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
 
-	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  	// version where Dcsc and vector types match
-			vector<IT> & indy, vector<OVT> & numy, IT offset);
-
-	static void SpMXSpV_ForThreadingNoMatch(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  // version for which they don't have to match
+	//! Dcsc and vector index types do not need to match
+	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector<OVT> & numy, int32_t offset);
 };
 
