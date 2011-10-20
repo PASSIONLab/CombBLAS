@@ -9184,12 +9184,12 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj1_getnrow(PyObject *SWIGUNUSEDPARM(self)
   if (!PyArg_ParseTuple(args,(char *)"O:pySpParMatObj1_getnrow",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_getnrow" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_getnrow" "', argument " "1"" of type '" "pySpParMatObj1 const *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
   {
     try {
-      result = (arg1)->getnrow();
+      result = ((pySpParMatObj1 const *)arg1)->getnrow();
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -9216,12 +9216,12 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj1_getncol(PyObject *SWIGUNUSEDPARM(self)
   if (!PyArg_ParseTuple(args,(char *)"O:pySpParMatObj1_getncol",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_getncol" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_getncol" "', argument " "1"" of type '" "pySpParMatObj1 const *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
   {
     try {
-      result = (arg1)->getncol();
+      result = ((pySpParMatObj1 const *)arg1)->getncol();
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -11746,12 +11746,12 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_getnrow(PyObject *SWIGUNUSEDPARM(self)
   if (!PyArg_ParseTuple(args,(char *)"O:pySpParMatObj2_getnrow",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_getnrow" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_getnrow" "', argument " "1"" of type '" "pySpParMatObj2 const *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
   {
     try {
-      result = (arg1)->getnrow();
+      result = ((pySpParMatObj2 const *)arg1)->getnrow();
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -11778,12 +11778,12 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_getncol(PyObject *SWIGUNUSEDPARM(self)
   if (!PyArg_ParseTuple(args,(char *)"O:pySpParMatObj2_getncol",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_getncol" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_getncol" "', argument " "1"" of type '" "pySpParMatObj2 const *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
   {
     try {
-      result = (arg1)->getncol();
+      result = ((pySpParMatObj2 const *)arg1)->getncol();
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);

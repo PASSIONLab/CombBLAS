@@ -199,8 +199,8 @@ public:
 public:
 	//int64_t getnnz();
 	int64_t getnee();
-	int64_t getnrow();
-	int64_t getncol();
+	int64_t getnrow() const;
+	int64_t getncol() const;
 	
 public:	
 	void load(const char* filename);
@@ -270,8 +270,8 @@ public:
 public:
 	//int64_t getnnz();
 	int64_t getnee();
-	int64_t getnrow();
-	int64_t getncol();
+	int64_t getnrow() const;
+	int64_t getncol() const;
 	
 public:	
 	void load(const char* filename);
