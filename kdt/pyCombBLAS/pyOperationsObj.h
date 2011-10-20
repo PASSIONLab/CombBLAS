@@ -471,7 +471,7 @@ class SemiringObj {
 	
 	BinaryFunctionObj *binfunc_add;
 	BinaryFunctionObj *binfunc_mul;
-	template <class T1, class T2>
+	template <class T1, class T2, class OUT>
 	friend struct SemiringObjTemplArg;
 	
 	public:
@@ -507,30 +507,27 @@ class SemiringObj {
 };
 //INTERFACE_INCLUDE_END
 
-template <class T1, class T2>
+template <class T1, class T2, class OUT>
 struct SemiringObjTemplArg
 {
-	typedef typename promote_trait<T1,T2>::T_promote T_promote;
-	//#define T_promote typename promote_trait<T1,T2>::T_promote
-	
-	static T_promote id() { return T_promote();}
+	static OUT id() { return OUT();}
 
 	static MPI_Op mpi_op()
 	{
 		return SemiringObj::currentlyApplied->mpi_op();
 	}
 	
-	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
 		return (*(SemiringObj::currentlyApplied->binfunc_add))(arg1, arg2);
 	}
 	
-	static T_promote multiply(const T1 & arg1, const T2 & arg2)
+	static OUT multiply(const T1 & arg1, const T2 & arg2)
 	{
 		return (*(SemiringObj::currentlyApplied->binfunc_mul))(arg1, arg2);
 	}
 	
-	static void axpy(T1 a, const T2 & x, T_promote & y)
+	static void axpy(T1 a, const T2 & x, OUT & y)
 	{
 		//currentlyApplied->axpy(a, x, y);
 		//y = add(y, multiply(a, x));

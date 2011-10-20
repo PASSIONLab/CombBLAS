@@ -339,7 +339,7 @@ pySpParMat pySpParMatObj1::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 pySpParMatObj1 pySpParMatObj1::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
-	pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj1, Obj1> >(A, other.A) );
+	pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj1, Obj1, Obj1> >(A, other.A) );
 	sring->disableSemiring();
 	return ret;
 }
@@ -467,7 +467,7 @@ void pySpParMatObj1::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 
 #define MIXEDOK 1
 
-pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring) const
+pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 {
 	//if (sring == NULL)
 #if MIXEDOK == 0
@@ -486,7 +486,8 @@ pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring) con
 	{
 		sring->enableSemiring();
 		pySpParVec ret(0);
-		::SpMV< op::SemiringObjTemplArg>(A, x.v, ret.v, false );
+		::SpMV< op::SemiringObjTemplArg<Obj1, doubleint, doubleint> >(A, x.v, ret.v, false );
+		//::SpMV< Select2ndSRing<doubleint, doubleint >(A, x.v, ret.v, false );
 		sring->disableSemiring();
 		return ret;
 	}
@@ -508,7 +509,7 @@ pySpParVecObj1 pySpParMatObj1::SpMV(const pySpParVecObj1& x, op::SemiringObj* sr
 	else
 	{
 		sring->enableSemiring();
-		pySpParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1> >(A, x.v) );
+		pySpParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1, Obj1> >(A, x.v) );
 		sring->disableSemiring();
 		return ret;
 	}
@@ -559,7 +560,7 @@ pyDenseParVecObj1 pySpParMatObj1::SpMV(const pyDenseParVecObj1& x, op::SemiringO
 	else
 	{
 		sring->enableSemiring();
-		pyDenseParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1> >(A, x.v) );
+		pyDenseParVecObj1 ret( ::SpMV< op::SemiringObjTemplArg<Obj1, Obj1, Obj1> >(A, x.v) );
 		sring->disableSemiring();
 		return ret;
 	}

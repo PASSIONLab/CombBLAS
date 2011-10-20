@@ -78,7 +78,7 @@ public:
 	pySpParVec SpMV_SelMax(const pySpParVec& x);
 	void SpMV_SelMax_inplace(pySpParVec& x);
 */
-	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring) const;
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
 	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
 	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
 	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
