@@ -34,12 +34,12 @@ int64_t pySpParMatObj1::getnnz()
 	return Count(&ne0);
 }*/
 
-int64_t pySpParMatObj1::getnrow()
+int64_t pySpParMatObj1::getnrow() const
 {
 	return A.getnrow();
 }
 
-int64_t pySpParMatObj1::getncol()
+int64_t pySpParMatObj1::getncol() const
 {
 	return A.getncol();
 }
@@ -465,7 +465,7 @@ void pySpParMatObj1::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-#define MIXEDOK 0
+#define MIXEDOK 1
 
 pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring) const
 {

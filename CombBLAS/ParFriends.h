@@ -451,6 +451,8 @@ void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32
 	DeleteAll(colnz,dpls);
 }	
 
+
+
 /**
   * Step 3 of the sparse SpMV algorithm, with the semiring 
   * @param[in,out] optbuf {scratch space for all-to-all (fold) communication}

@@ -224,6 +224,11 @@ public:
 	template <typename SR>
 	int PlusEq_AnXBn(const SpDCCols<IT,NT> & A, const SpDCCols<IT,NT> & B);
 	
+	Dcsc<IT, NT> * GetDCSC() const 	// only for single threaded matrices
+	{
+		return dcsc;
+	}
+
 	Dcsc<IT, NT> * GetDCSC(int i) const 	// only for split (multithreaded) matrices
 	{
 		return dcscarr[i];
@@ -292,14 +297,6 @@ private:
 
 	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>
 	friend void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y);
-
-	template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>	
-	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 	//!< SpMV with sparse vector
-		vector<int32_t> & indy, vector<OVT>  & numy);
-
-	template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>	
-	friend void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
-		int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c, bool indexisvalue);
 
 	template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>	
 	friend int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 

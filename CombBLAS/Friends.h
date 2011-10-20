@@ -103,9 +103,9 @@ int dcsc_gespmv_threaded (const SpDCCols<IU, NUM> & A, const int32_t * indx, con
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 
 			vector<int> accum(splits+1, 0);
@@ -229,9 +229,9 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 			for(int i=0; i<splits; ++i)
 			{
 				if(i != splits-1)
-					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), perpiece, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 				else
-					SpMXSpV_ForThreadingNoMatch<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
+					SpMXSpV_ForThreading<SR>(*(A.GetDCSC(i)), nlocrows - perpiece*i, indx, numx, nnzx, indy[i], numy[i], i*perpiece);
 			}
 			
 			int32_t perproc = nlocrows / p_c;	
@@ -328,9 +328,10 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 }
 
 //! SpMV with sparse vector
-template <typename SR, typename IU, typename NUM, typename IVT, typename OVT>
-void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT * numx, int32_t nnzx, 
-		vector<int32_t> & indy, vector<OVT>  & numy)
+//! MIND: Matrix index type
+//! VIND: Vector index type (optimized: int32_t, general: int64_t)
+template <typename SR, typename MIND, typename VIND, typename NUM, typename IVT, typename OVT>
+void dcsc_gespmv (const SpDCCols<MIND, NUM> & A, const VIND * indx, const IVT * numx, VIND nnzx, vector<VIND> & indy, vector<OVT>  & numy)
 {
 	if(A.getnnz() > 0 && nnzx > 0)
 	{
@@ -340,7 +341,7 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT *
 		}
 		else
 		{
-			SpMXSpV<SR>(*(A.dcsc), A.getnrow(), indx, numx, nnzx, indy, numy);
+			SpMXSpV<SR>(*(A.GetDCSC()), A.getnrow(), indx, numx, nnzx, indy, numy);
 		}
 	}
 }
@@ -361,9 +362,9 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT *
 		else
 		{
 			if(indexisvalue)
-				SpMXSpV(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+				SpMXSpV(*(A.GetDCSC()), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 			else
-				SpMXSpV<SR>(*(A.dcsc), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
+				SpMXSpV<SR>(*(A.GetDCSC()), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
 		}
 	}
 }
