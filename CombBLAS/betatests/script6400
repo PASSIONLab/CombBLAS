@@ -1,0 +1,11 @@
+#PBS -S /usr/bin/tcsh 
+#PBS -q debug
+#PBS -l mppwidth=6400
+#PBS -l walltime=00:30:00
+#PBS -j eo
+#PBS -V
+
+setenv IPM_LOGDIR "."
+setenv IPM_LOG "full"
+cd $PBS_O_WORKDIR
+aprun -n 6400 ./a.out 250

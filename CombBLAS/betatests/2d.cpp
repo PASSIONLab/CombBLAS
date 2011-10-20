@@ -198,6 +198,8 @@ int main(int argc, char* argv[])
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );  // processes with the same color are in the same new communicator 
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &squarecolcomm );
 	DoA2A(squarerowcomm, 32*n);
+	DoA2A(squarecolcomm, 32*n);
+	DoAG(squarerowcomm, n);
 	DoAG(squarecolcomm, n);
 		
 
@@ -211,6 +213,8 @@ int main(int argc, char* argv[])
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &tallrowcomm );
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &tallcolcomm );
 	DoA2A(tallrowcomm, 32*n);
+	DoA2A(tallcolcomm, 32*n);
+	DoAG(tallrowcomm, n);
 	DoAG(tallcolcomm, n);
 
 	if(rank == 0)
@@ -223,6 +227,8 @@ int main(int argc, char* argv[])
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &widerowcomm );
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &widecolcomm );
 	DoA2A(widerowcomm, 32*n);
+	DoA2A(widecolcomm, 32*n);
+	DoAG(widerowcomm, n);
 	DoAG(widecolcomm, n);
 
 	MPI_Finalize( );
