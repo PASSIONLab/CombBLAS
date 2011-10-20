@@ -568,7 +568,7 @@ class Vec(object):
 		if hasattr(self,'_v_'):
 			self._v_.printall()
 		else:
-			print "Vec with no _v_"
+			return "Vec with no _v_"
 		return ' '
 		#TODO:  limit amount of printout?
 		nPrinted = 0
@@ -704,7 +704,7 @@ class Vec(object):
 
 
 	# in-place, so no return value
-	def _apply(self, op, noWrap=False):
+	def apply(self, op, noWrap=False):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
 		FIX:  doesn't look like this supports noWrap with filters
@@ -850,7 +850,7 @@ class Vec(object):
 		ret = self._toVec(v)
 		return ret
 
-	def _reduce(self, op, pred=None):
+	def reduce(self, op, pred=None):
 		"""
 		ToDo:  write doc
 			return is a scalar
@@ -926,13 +926,15 @@ class Vec(object):
 		returns a Boolean True if all the nonnull elements of the
 		Vec instance are True (nonzero), and False otherwise.
 		"""
-		tmp = self.copy()	# only because have to set tmp[0]
+		tmp = self.copy()
+	# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
 			return self._reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
-			identity.weight = tmp[0].weight	#FIX: "=  bool(...)"?
+			identity.weight = tmp[0].weight
+	#FIX: "=  bool(...)"?
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.all(other)
@@ -956,13 +958,15 @@ class Vec(object):
 		returns a Boolean True if any of the nonnull elements of the
 		SpVec instance is True (nonzero), and False otherwise.
 		"""
-		tmp = self.copy()	# only because have to set tmp[0]
+		tmp = self.copy()
+	# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
 			return self._reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
-			identity.weight = tmp[0].weight	#FIX: "=  bool(...)"?
+			identity.weight = tmp[0].weight
+	#FIX: "=  bool(...)"?
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.any(other)
@@ -1110,7 +1114,8 @@ class Vec(object):
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()	#FIX: spurious? given 2L later?
+		ret = self.copy()
+	#FIX: spurious? given 2L later?
 		func = lambda x, other: x.logicalAnd(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
@@ -1124,7 +1129,8 @@ class Vec(object):
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy() #FIX:  spurious? given 2L later?
+		ret = self.copy()
+ #FIX:  spurious? given 2L later?
 		func = lambda x, other: x.logicalOr(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
@@ -1138,7 +1144,8 @@ class Vec(object):
 		"""
 		if len(self) != len(other):
 			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()	#FIX: spurious? given 2L later?
+		ret = self.copy()
+	#FIX: spurious? given 2L later?
 		func = lambda x, other: x.logicalXor(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
@@ -1214,7 +1221,8 @@ class Vec(object):
 				if y.weight != 0 or y.category != 0:
 					x.weight = x.weight + 1
 			return x
-		tmp = self.copy()	#FIX: spurious? 
+		tmp = self.copy()
+	#FIX: spurious? 
 		if isinstance(self._identity_,(float, int, long)):
 			identity = 0
 			ret = int(tmp._reduce(pcb.plus(), pred=pcb.set(1)))
