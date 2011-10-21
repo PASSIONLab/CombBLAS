@@ -1296,6 +1296,13 @@ class Vec(object):
 #			return DeVec.range(*args, **kwargs)
 #		else:
 #			return SpVec.range(*args, **kwargs)
+	@staticmethod
+	def range(arg1, stop=None, element=0, sparse=False):
+		if sparse:
+			return SpVec.range(arg1, stop=stop, element=element)
+		else:
+			return DeVec.range(arg1, stop=stop, element=element)
+
 
 	#in-place, so no return value
 	def set(self, value):
@@ -1735,7 +1742,7 @@ class SpVec(Vec):
 			raise KeyError, 'Unknown key type'
 		return
 	# in-place, so no return value
-	def _applyInd(self, op, noWrap=False):
+	def applyInd(self, op, noWrap=False):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
 		"""
@@ -1762,7 +1769,7 @@ class SpVec(Vec):
 		#NEEDED?  ret = Vec._toVec(self,self._v_)
 		return
 
-	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
 		"""
 		ToDo:  write doc
 		"""

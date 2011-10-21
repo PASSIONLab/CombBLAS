@@ -115,6 +115,13 @@ class Mat:
 		else:
 			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
 
+	def getnrow(self):
+		return self._m_.getnrow()
+		
+	def getncol(self):
+		return self._m_.getncol()
+
+
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	def __add__(self, other):
@@ -125,11 +132,11 @@ class Mat:
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
-		if self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
+		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other, Mat):
 			ret = self.copy()
-			ret._spm += other._spm
+			ret._m_ += other._spm
 			#ret._apply(pcb.plus(), other);  # only adds if both mats have nonnull elems!!
 		return ret
 
@@ -143,12 +150,12 @@ class Mat:
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
-			ret._apply(pcb.bind2nd(pcb.divides(),other))
-		elif self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
+			ret.apply(pcb.bind2nd(pcb.divides(),other))
+		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
 			ret = self.copy()
-			ret._apply(pcb.divides(), other)
+			ret.apply(pcb.divides(), other)
 		else:
 			raise NotImplementedError
 		return ret
@@ -225,20 +232,22 @@ class Mat:
 	def __iadd__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
-		if self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
+		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other, Mat):
 			#self._apply(pcb.plus(), other)
-			self._spm += other._spm
+			self._m_ += other._spm
 		return self
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
-			self._apply(pcb.bind2nd(pcb.multiplies(),other))
+			self.apply(pcb.bind2nd(pcb.multiplies(),other))
+		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
-			self._apply(pcb.multiplies(), other)
+			self.apply(pcb.multiplies(), other)
 		else:
 			raise NotImplementedError
 		return self
@@ -254,8 +263,8 @@ class Mat:
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.apply(pcb.bind2nd(pcb.multiplies(),other))
-		elif self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
+		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
 			ret = self.copy()
 			ret.apply(pcb.multiplies(), other)
@@ -303,13 +312,13 @@ class Mat:
 		"""
 		if other is None:
 			if not isinstance(op, pcb.UnaryFunction):
-				self._m_.Apply(pcb.unary(op))
+				self._m_.Apply(pcb.unaryObj(op))
 			else:
 				self._m_.Apply(op)
 			return
 		else:
 			if not isinstance(op, pcb.BinaryFunction):
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, pcb.binary(op), notB)
+				self._m_ = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(op), notB)
 			else:
 				self._m_ = pcb.EWiseApply(self._m_, other._m_, op, notB)
 			return
@@ -440,6 +449,7 @@ class Mat:
 		ret = Vec._toVec(Vec(element=self._identity_),tmp)
 		return ret
 
+	# NEEDED: tests
 	# possibly in-place;  if so, no return value
 	def SpMV(self, other, semiRing=None, noWrap=False, inPlace=False):
 		"""
@@ -499,7 +509,7 @@ class Mat:
 		if selfnv2 != othernv1:
 			raise ValueError, '#in-vertices of first graph not equal to #out-vertices of the second graph '
 		ret = Mat()
-		ret._spm = self._spm.SpGEMM(other._spm)
+		ret._m_ = self._m_.SpGEMM(other._m_)
 		return ret
 	spGEMM = SpGEMM
 

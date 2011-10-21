@@ -76,7 +76,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def _apply(self, op, other=None, notB=False):
+	def apply(self, op, other=None, notB=False):
 		"""
 		applies the given operator to every edge in the DiGraph
 
@@ -104,7 +104,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
 		"""
 		ToDo:  write doc
 		"""
