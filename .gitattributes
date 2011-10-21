@@ -1109,9 +1109,11 @@ CombBLAS/betatests/2d.cpp -text
 CombBLAS/betatests/results/script100.e831300 -text
 CombBLAS/betatests/results/script1600.e831539 -text
 CombBLAS/betatests/results/script25600.e832750 -text
+CombBLAS/betatests/results/script38400_onepersocket.e921994 -text
 CombBLAS/betatests/results/script400.e831376 -text
 CombBLAS/betatests/results/script400.e831513 -text
 CombBLAS/betatests/results/script6400.e831690 -text
+CombBLAS/betatests/results/script9600_onepersocket.e920059 -text
 CombBLAS/betatests/script100 -text
 CombBLAS/betatests/script100.e831549 -text
 CombBLAS/betatests/script102400 -text
