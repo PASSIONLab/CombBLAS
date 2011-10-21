@@ -222,6 +222,7 @@ class DiGraph(gr.Graph):
 		return
 		
 	# NEEDED: update to new fields
+	# NEEDED: update to transposed edge matrix
 	# NEEDED: tests
 	def contract(self, groups=None, clusterParents=None):
 		"""
@@ -274,7 +275,7 @@ class DiGraph(gr.Graph):
 		res = tmpMat._SpGEMM(lrhMat)
 		return res;
 	
-	# NEEDED: update to new fields
+	# NEEDED: update to transposed edge matrix
 	# NEEDED: tests
 	@staticmethod
 	def convClusterParentToGroup(clusterParents, retInvPerm = False):
@@ -300,33 +301,33 @@ class DiGraph(gr.Graph):
 		n = len(clusterParents)
 		
 		# Count the number of elements in each parent's component to identify the parents
-		countM = DiGraph(clusterParents, ParVec.range(n), ParVec.ones(n), n)
-		counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
+		countM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
+		counts = countM.reduce(Mat.Row(), pcb.plus())
 		del countM
 		
 		# sort to put them all at the front
 		sorted = counts.copy()
-		sorted.Apply(pcb.negate())
-		perm = sorted.Sort()
-		sorted.Apply(pcb.negate())
+		sorted.apply(pcb.negate())
+		perm = sorted.sort()
+		sorted.apply(pcb.negate())
 		
 		# find inverse of sort permutation so that [1,2,3,4...] can be put back into the
 		# original parent locations
-		invM = DiGraph(ParVec.toParVec(perm), ParVec.range(n), ParVec.ones(n), n)
-		invPerm = invM._spm.SpMV(SpParVec.range(n)._spv, pcb.TimesPlusSemiring()).dense()
+		invM = DiGraph(perm, Vec.range(n), Vec.ones(n), n)
+		invPerm = invM.SpMV(Vec.range(n), pcb.TimesPlusSemiring())
 		del invM
 		
 		# Find group number for each parent vertex
 		groupNum = invPerm
 		
 		# Broadcast group number to all vertices in cluster
-		broadcastM = DiGraph(ParVec.range(n), clusterParents, ParVec.ones(n), n)
-		ret = broadcastM._spm.SpMV(groupNum.sparse(), pcb.TimesPlusSemiring()).dense()
+		broadcastM = DiGraph(Vec.range(n), clusterParents, Vec.ones(n), n)
+		ret = broadcastM.SpMV(groupNum, pcb.TimesPlusSemiring())
 		
 		if retInvPerm:
-			return ParVec.toParVec(ret), ParVec.toParVec(perm)
+			return ret, perm #ParVec.toParVec(ret), ParVec.toParVec(perm)
 		else:
-			return ParVec.toParVec(ret)
+			return ret #ParVec.toParVec(ret)
 	
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -453,7 +454,7 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self._spm.removeSelfLoops()
+			self._m_.removeSelfLoops()
 		return
 
 	# NEEDED: update to new fields
@@ -472,7 +473,6 @@ class DiGraph(gr.Graph):
 			self += DiGraph.eye(self.nvert(), selfLoopAttr=selfLoopAttr)
 		return
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod
 	def fullyConnected(n,m=None):
@@ -493,9 +493,9 @@ class DiGraph(gr.Graph):
 		"""
 		if m is None:
 			m = n
-		i = (ParVec.range(n*m) % n).floor()
-		j = (ParVec.range(n*m) / n).floor()
-		v = ParVec.ones(n*m)
+		i = (Vec.range(n*m) % n).floor()
+		j = (Vec.range(n*m) / n).floor()
+		v = Vec.ones(n*m)
 		ret = DiGraph(i,j,v,n,m)
 		return ret
 	
@@ -516,7 +516,7 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to itself. 
 		"""
-		return DiGraph(ParVec.range(n),ParVec.range(n),ParVec(n, selfLoopAttr),n,n)
+		return DiGraph(Vec.range(n),Vec.range(n),Vec(n, selfLoopAttr),n,n)
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -652,7 +652,7 @@ class DiGraph(gr.Graph):
 			raise IndexError, 'Graphs must have equal numbers of vertices'
 		else:
 			ret = self.copy()
-			ret._apply(pcb.multiplies(), other, True)
+			ret.apply(pcb.multiplies(), other, True)
 		return ret
 
 	# NEEDED: update to new fields
@@ -774,45 +774,6 @@ class DiGraph(gr.Graph):
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	#in-place, so no return value
-	def scale(self, other, dir=Out):
-		"""
-		multiplies the weights of the appropriate edges of each vertex of
-		the passed DiGraph instance in-place by a vertex-specific scale 
-		factor.
-
-		Input Arguments:
-			self:  a DiGraph instance, modified in-place
-			other: a ParVec whose elements are used
-			dir:  a direction of edges to scale, with choices being
-			    DiGraph.Out (default) or DiGraph.In.
-
-		Output Argument:
-			None.
-
-		SEE ALSO:  * (DiGraph.__mul__), mulNot
-		"""
-		if not isinstance(other,gr.ParVec):
-			raise KeyError, 'Invalid type for scale vector'
-		selfnv = self.nvert()
-		if type(selfnv) == tuple:
-			[selfnv1, selfnv2] = selfnv
-		else:
-			selfnv1 = selfnv; selfnv2 = selfnv
-		if dir == DiGraph.In:
-			if selfnv2 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(scale)'
-			self._spm.DimWiseApply(pcb.pySpParMat.Column(), other._dpv, pcb.multiplies())
-		elif dir == DiGraph.Out:
-			if selfnv1 != len(other):
-				raise IndexError, 'graph.nvert()[0] != len(scale)'
-			self._spm.DimWiseApply(pcb.pySpParMat.Row(), other._dpv, pcb.multiplies())
-		else:
-			raise KeyError, 'Invalid edge direction'
-		return
-
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	#in-place, so no return value
 	def set(self, value):
 		"""
 		sets every edge in the graph to the given value.
@@ -894,7 +855,7 @@ class DiGraph(gr.Graph):
 		"""
 		if dir != DiGraph.In and dir != DiGraph.Out:
 			raise KeyError, 'Invalid edge-direction'
-		ret = self._reduce(dir, pcb.plus())
+		ret = self.reduce(dir, pcb.plus())
 		return ret
 
 	# ADAM: removed on purpose to point out places that need to be updated with reversed edges.
@@ -985,6 +946,7 @@ class DiGraph(gr.Graph):
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv)
 
+	# NEEDED: update to transposed edge matrix
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod

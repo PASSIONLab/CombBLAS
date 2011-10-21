@@ -13,6 +13,9 @@ import kdt.pyCombBLAS as pcb
 #	each vertex in the tree; unreached vertices have parent == -1.
 #	sym arg denotes whether graph is symmetric; if not, need to transpose
 #
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def bfsTree(self, root, sym=False):
 	"""
 	calculates a breadth-first search tree from the edges in the
@@ -76,6 +79,9 @@ DiGraph.bfsTree = bfsTree
 	# returns tuples with elements
 	# 0:  True/False of whether it is a BFS tree or not
 	# 1:  levels of each vertex in the tree (root is 0, -1 if not reached)
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def isBfsTree(self, root, parents, sym=False):
 	"""
 	validates that a breadth-first search tree in the style created
@@ -197,6 +203,9 @@ def isBfsTree(self, root, parents, sym=False):
 DiGraph.isBfsTree = isBfsTree
 
 # returns a Boolean vector of which vertices are neighbors
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def neighbors(self, source, nhop=1, sym=False):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
@@ -242,6 +251,9 @@ DiGraph.neighbors = neighbors
 #   - source:  a vector of the source vertex for each new vertex
 #   - dest:  a Boolean vector of the new vertices
 #ToDo:  nhop argument?
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def pathsHop(self, source, sym=False):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
@@ -289,6 +301,8 @@ def pathsHop(self, source, sym=False):
 	return ret
 DiGraph.pathsHop = pathsHop
 
+# NEEDED: update to new fields
+# NEEDED: tests
 def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	"""
 	Normalize the outward edge weights of each vertex such
@@ -300,6 +314,9 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	self.scale(degscale, dir)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	"""
 	Compute the PageRank of vertices in the graph.
@@ -376,6 +393,9 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	return v1
 DiGraph.pageRank = pageRank
 	
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def centrality(self, alg, **kwargs):
 	"""
 	calculates the centrality of each vertex in the DiGraph instance,
@@ -396,7 +416,7 @@ def centrality(self, alg, **kwargs):
 	vertices in the DiGraph, with each element of the ParVec containing
 	the centrality value of the vertex.
 	"""
-	# TODO: make this look up the function named 'centrality_($arg)' 
+	# TODO: make this look up the function named '_centrality_($arg)' 
 	# instead of hard coding the name in.
 	if alg=='exactBC':
 		#cent = DiGraph._centrality_approxBC(self, sample=1.0, **kwargs)
@@ -413,6 +433,9 @@ def centrality(self, alg, **kwargs):
 	return cent
 DiGraph.centrality = centrality
 
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0, batchSize=-1, retNVerts=False):
 	"""
 	calculates the approximate or exact (with sample=1.0) betweenness
@@ -591,9 +614,15 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 DiGraph._centrality_approxBC = _centrality_approxBC
 
 def _centrality_exactBC(self, **kwargs):
-	return DiGraph.centrality_approxBC(self, sample=1.0, **kwargs)
+	"""
+	Computes exact betweenness centrality. This is an alias for
+	approxBC(sample=1.0).
+	"""
+	return DiGraph._centrality_approxBC(self, sample=1.0, **kwargs)
 DiGraph._centrality_exactBC = _centrality_exactBC
 
+# NEEDED: update to new fields
+# NEEDED: tests
 def cluster(self, alg, **kwargs):
 #		ToDo:  Normalize option?
 	"""
@@ -601,7 +630,7 @@ def cluster(self, alg, **kwargs):
 		
 	"""
 	if alg=='Markov' or alg=='markov':
-		G = DiGraph._markov(self, **kwargs)
+		G = DiGraph._cluster_markov(self, **kwargs)
 		clus = G.connComp()
 		return clus, G
 
@@ -614,6 +643,9 @@ def cluster(self, alg, **kwargs):
 	return clus
 DiGraph.cluster = cluster
 
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def connComp(self, sym=False):
 	"""
 	Finds the connected components of the graph by BFS.
@@ -655,6 +687,7 @@ def connComp(self, sym=False):
 	return frontier.toParVec()
 DiGraph.connComp = connComp
 
+#@deprecated
 def __findLargestComponent(self, sym=False): # deprecated
 	"""
 	Returns a subgraph that consists of the largest component of self. 
@@ -689,6 +722,9 @@ def __findLargestComponent(self, sym=False): # deprecated
 	
 	return verts
 
+# NEEDED: update to transposed edge matrix
+# NEEDED: update to new fields
+# NEEDED: tests
 def _cluster_markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
 	"""
 	Performs Markov Clustering (MCL) on self and returns a graph representing the clusters.
