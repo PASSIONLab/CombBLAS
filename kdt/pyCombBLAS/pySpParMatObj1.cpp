@@ -465,7 +465,7 @@ void pySpParMatObj1::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-#define MIXEDOK 1
+#define MIXEDOK 0
 
 pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 {
