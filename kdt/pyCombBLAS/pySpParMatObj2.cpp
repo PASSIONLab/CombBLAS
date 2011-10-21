@@ -34,12 +34,12 @@ int64_t pySpParMatObj2::getnnz()
 	return Count(&ne0);
 }*/
 
-int64_t pySpParMatObj2::getnrow()
+int64_t pySpParMatObj2::getnrow() const
 {
 	return A.getnrow();
 }
 
-int64_t pySpParMatObj2::getncol()
+int64_t pySpParMatObj2::getncol() const
 {
 	return A.getncol();
 }
@@ -339,7 +339,7 @@ pySpParMat pySpParMatObj2::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 pySpParMatObj2 pySpParMatObj2::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
-	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj2, Obj2> >(A, other.A) );
+	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, other.A) );
 	sring->disableSemiring();
 	return ret;
 }
@@ -486,8 +486,8 @@ pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 	{
 		sring->enableSemiring();
 		pySpParVec ret(0);
-		OptBuf<int32_t, doubleint > optbuf = OptBuf<int32_t, doubleint >();
-		::SpMV< op::SemiringObjTemplArg>(A, x.v, ret.v, false, optbuf);
+		::SpMV< op::SemiringObjTemplArg<Obj2, doubleint, doubleint> >(A, x.v, ret.v, false );
+		//::SpMV< Select2ndSRing<doubleint, doubleint >(A, x.v, ret.v, false );
 		sring->disableSemiring();
 		return ret;
 	}
@@ -509,7 +509,7 @@ pySpParVecObj2 pySpParMatObj2::SpMV(const pySpParVecObj2& x, op::SemiringObj* sr
 	else
 	{
 		sring->enableSemiring();
-		pySpParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2> >(A, x.v) );
+		pySpParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, x.v) );
 		sring->disableSemiring();
 		return ret;
 	}
@@ -560,7 +560,7 @@ pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringO
 	else
 	{
 		sring->enableSemiring();
-		pyDenseParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2> >(A, x.v) );
+		pyDenseParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, x.v) );
 		sring->disableSemiring();
 		return ret;
 	}
