@@ -366,6 +366,47 @@ class Mat:
 				m = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(superOp))
 		ret = self._toMat(m)
 		return ret
+		
+	# NEEDED: update to new fields
+	# NEEDED: tests
+	#in-place, so no return value
+	def scale(self, other, dir=Column):
+		"""
+		multiplies the weights of the appropriate edges of each vertex of
+		the passed DiGraph instance in-place by a vertex-specific scale 
+		factor.
+
+		Input Arguments:
+			self:  a DiGraph instance, modified in-place
+			other: a Vec whose elements are used
+			dir:  a direction of edges to scale, with choices being
+			    Mat.Column (default) or Mat.Row.
+
+		Output Argument:
+			None.
+
+		SEE ALSO:  * (DiGraph.__mul__), mulNot
+		"""
+		if not isinstance(other,gr.ParVec):
+			raise KeyError, 'Invalid type for scale vector'
+		selfnv = self.nvert()
+		if type(selfnv) == tuple:
+			[selfnv1, selfnv2] = selfnv
+		else:
+			selfnv1 = selfnv; selfnv2 = selfnv
+
+		if dir == Mat.Column:
+			if selfnv2 != len(other):
+				raise IndexError, 'graph.nvert()[1] != len(scale)'
+		elif dir == DiGraph.Out:
+			if selfnv1 != len(other):
+				raise IndexError, 'graph.nvert()[0] != len(scale)'
+		else:
+			raise KeyError, 'Invalid edge direction'
+
+		self._m_.DimWiseApply(dir, other._dpv, pcb.multiplies())
+		return
+
 
 	@staticmethod
 	def _hasFilter(self):
