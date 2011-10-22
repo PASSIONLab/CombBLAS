@@ -86,7 +86,7 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR)
+double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, double a, double b, double c, double d)
 {
 	// Copied directly from Aydin's C++ Graph500 code
 	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
@@ -103,12 +103,13 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 
 
 	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
+	//double initiator[4] = {.57, .19, .19, .05};
+	double initiator[4] = {a, b, c, d};
 	
 	double t01 = MPI_Wtime();
 	double t02;
 	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-	if(!scramble)
+	if(!scramble || !delIsolated)
 	{
 		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR);
 		SpParHelper::Print("Generated edge lists\n");
@@ -171,15 +172,18 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	SpParHelper::Print("Intersection of colsums and rowsums found\n");
 	delete RowSums;
 	
-	nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+	if (delIsolated)
+	{
+		nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+		
+		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+		A.PrintInfo();
+		A(nonisov, nonisov, true);	// in-place permute to save memory	
+		SpParHelper::Print("Dropped isolated vertices from input\n");	
+		A.PrintInfo();
+	}
 	delete ColSums;
-	
-	SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
-	nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-	A.PrintInfo();
-	A(nonisov, nonisov, true);	// in-place permute to save memory	
-	SpParHelper::Print("Dropped isolated vertices from input\n");	
-	A.PrintInfo();
 	
 	Symmetricize(A);	// A += A';
 	SpParHelper::Print("Symmetricized\n");	
@@ -202,89 +206,9 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 		pyDegrees->v = degrees;
 	}
 	return (t2-t1) - (redtf-redts);
-
-/*
-	double k1time = 0;
-
-	int nprocs = MPI::COMM_WORLD.Get_size();
-
-
-	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
-	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
-
-	DistEdgeList<int64_t> DEL;
-	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-	PermEdges<int64_t>(DEL);
-	RenameVertices<int64_t>(DEL);
-
-	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
-	double t1 = MPI_Wtime();
-
-	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
-	MatType AT = A;
-	AT.Transpose();
-	A += AT;
-	
-	MPI::COMM_WORLD.Barrier();
-	double t2=MPI_Wtime();
-	
-	// END OF COPY
-	
-	k1time = t2-t1;
-	return k1time;
-*/
 }
 
-/*
-double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
-{
-	double k1time = 0;
-	FullyDistVec<INDEXTYPE, doubleint> degrees;
 
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	//int rank = MPI::COMM_WORLD.Get_rank();
-
-
-	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
-	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
-
-	DistEdgeList<int64_t> DEL;
-	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-	PermEdges<int64_t>(DEL);
-	RenameVertices<int64_t>(DEL);
-
-	PSpMat_DoubleInt * G = new PSpMat_DoubleInt(DEL, false);	 // conversion from distributed edge list, keep self-loops
-	
-	op::BinaryFunction* p = op::plus();
-	p->getMPIOp();
-	degrees = G->Reduce(::Column, *p, doubleint(0)); 
-	p->releaseMPIOp();
-	delete p;
-	
-	delete G;
-
-	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
-	double t1 = MPI_Wtime();
-
-	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
-	MatType AT = A;
-	AT.Transpose();
-	A += AT;
-	
-	MPI::COMM_WORLD.Barrier();
-	double t2=MPI_Wtime();
-	
-	// END OF COPY
-	
-	k1time = t2-t1;
-	pyDegrees.v.stealFrom(degrees);
-	return k1time;
-}
-*/
 pySpParMatBool pySpParMatBool::copy()
 {
 	return pySpParMatBool(*this);
@@ -414,18 +338,92 @@ void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-pySpParVec pySpParMatBool::SpMV_PlusTimes(const pySpParVec& x)
+pySpParVec pySpParMatBool::SpMV(const pySpParVec& x, op::Semiring* sring)
 {
-	return pySpParVec( SpMV< PlusTimesSRing<bool, doubleint > >(A, x.v) );
+	if (sring == NULL)
+	{
+		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else
+	{
+		sring->enableSemiring();
+		pySpParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
 }
 
-pySpParVec pySpParMatBool::SpMV_SelMax(const pySpParVec& x)
+pyDenseParVec pySpParMatBool::SpMV(const pyDenseParVec& x, op::Semiring* sring)
 {
-	return pySpParVec( SpMV< Select2ndSRing<bool, doubleint > >(A, x.v) );
+	if (sring == NULL)
+	{
+		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pyDenseParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
+	}
+	else
+	{
+		sring->enableSemiring();
+		pyDenseParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
+		sring->disableSemiring();
+		return ret;
+	}
 }
 
-void pySpParMatBool::SpMV_SelMax_inplace(pySpParVec& x)
+void pySpParMatBool::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
 {
-	x.v = SpMV< Select2ndSRing<bool, doubleint> >(A, x.v);
+	if (sring == NULL)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else
+	{
+		sring->enableSemiring();
+		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
+		sring->disableSemiring();
+	}
 }
 
+void pySpParMatBool::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
+	}
+	else
+	{
+		sring->enableSemiring();
+		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
+		sring->disableSemiring();
+	}
+}

@@ -75,9 +75,6 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
-	pySpParVec SpMV_SelMax(const pySpParVec& x);
-	void SpMV_SelMax_inplace(pySpParVec& x);
 
 	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
 	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);

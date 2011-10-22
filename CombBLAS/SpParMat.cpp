@@ -1918,7 +1918,7 @@ void SpParMat< IT,NT,DER >::PrintForPatoh(string filename) const
 //! if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 template <class IT, class NT, class DER>
 template <class HANDLER>
-ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler)
+ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose)
 {
 	IT total_m, total_n, total_nnz;
 	IT m_perproc = 0, n_perproc = 0;
@@ -1990,6 +1990,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
 
 			IT temprow, tempcol;
+			IT ntrow, ntcol; // not transposed row and column index
 			IT cnz = 0;
 			char line[1024];
 			bool nonumline = nonum;
@@ -2008,11 +2009,19 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 
 				--temprow;	// file is 1-based where C-arrays are 0-based
 				--tempcol;
+				ntrow = temprow;
+				ntcol = tempcol;
+				if (transpose)
+				{
+					IT swap = temprow;
+					temprow = tempcol;
+					tempcol = swap;
+				}
 
 				int colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
 				rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
 				cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
-				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = nonumline ? handler.getNoNum(temprow, tempcol) : handler.read(linestream, temprow, tempcol); //tempval;
+				vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = nonumline ? handler.getNoNum(ntrow, ntcol) : handler.read(linestream, ntrow, ntcol); //tempval;
 				++ (ccurptrs[colrec]);				
 
 				if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !

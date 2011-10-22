@@ -1,4 +1,7 @@
 # package marker
+
+from Util import *
+
 from DiGraph import DiGraph
 from HyGraph import HyGraph
 from Graph import master, version, revision, ParVec, SpParVec
@@ -11,5 +14,6 @@ import kdt.pyCombBLAS as pcb
 Obj1 = pcb.Obj1
 Obj2 = pcb.Obj2
 import kdt.ObjMethods
+from Util import *
 
 import Algorithms

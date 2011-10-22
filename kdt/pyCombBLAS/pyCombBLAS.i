@@ -111,9 +111,6 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
-	pySpParVec SpMV_SelMax(const pySpParVec& x);
-	void SpMV_SelMax_inplace(pySpParVec& x);
 
 	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
 	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
@@ -150,7 +147,7 @@ public:
 	void load(const char* filename);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
@@ -178,9 +175,11 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV_PlusTimes(const pySpParVec& v);
-	pySpParVec SpMV_SelMax(const pySpParVec& v);
-	void SpMV_SelMax_inplace(pySpParVec& v);
+	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+
 	
 public:
 	static int Column() { return ::Column; }

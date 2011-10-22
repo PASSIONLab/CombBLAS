@@ -9,9 +9,11 @@ import time
 
 class DiGraph(gr.Graph):
 
-	# NEEDED: Reverse these so we don't have to do a transpose all the time
-	In  = Mat.Column
-	Out = Mat.Row
+	# NOTE: these have been transposed.
+	# Traversing a matrix row will give the vertex's incomming edges.
+	# Traversing a matrix column will give the vertex's outgoing edges.
+	In  = Mat.Row
+	Out = Mat.Column
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -53,8 +55,8 @@ class DiGraph(gr.Graph):
 		SEE ALSO:  toParVec
 	def __init__(self, sourceV=None, destV=None, valueV=None, nv=None, element=0):
 		"""
-		if matrix is not None:
-			self.e = matrix
+		if edges is not None:
+			self.e = edges
 		else:
 			self.e = Mat(sourceV=sourceV, destV=destV, valueV=valueV, nv=nv, element=element)
 		
@@ -69,7 +71,7 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: tests
 	def __repr__(self):
-		return e.__repr__()
+		return self.e.__repr__()
 	
 
 	#in-place, so no return value
@@ -90,15 +92,15 @@ class DiGraph(gr.Graph):
 		"""
 		if other is None:
 			if not isinstance(op, pcb.UnaryFunction):
-				self._m_.Apply(pcb.unary(op))
+				self.e.Apply(pcb.unary(op))
 			else:
-				self._m_.Apply(op)
+				self.e.Apply(op)
 			return
 		else:
 			if not isinstance(op, pcb.BinaryFunction):
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, pcb.binary(op), notB)
+				self.e = pcb.EWiseApply(self.e, other.e, pcb.binary(op), notB)
 			else:
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, op, notB)
+				self.e = pcb.EWiseApply(self.e, other.e, op, notB)
 			return
 
 	# NEEDED: modify to make sense in graph context, not just matrix context
@@ -136,14 +138,14 @@ class DiGraph(gr.Graph):
 			superOp = op
 		if noWrap:
 			if isinstance(other, (float, int, long)):
-				m = pcb.EWiseApply(self._m_, other   ,  superOp)
+				m = pcb.EWiseApply(self.e, other   ,  superOp)
 			else:
-				m = pcb.EWiseApply(self._m_, other._m_, superOp)
+				m = pcb.EWiseApply(self.e, other.e, superOp)
 		else:
 			if isinstance(other, (float, int, long)):
-				m = pcb.EWiseApply(self._m_, other   ,  pcb.binaryObj(superOp))
+				m = pcb.EWiseApply(self.e, other   ,  pcb.binaryObj(superOp))
 			else:
-				m = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(superOp))
+				m = pcb.EWiseApply(self.e, other.e, pcb.binaryObj(superOp))
 		ret = self._toDiGraph(m)
 		return ret
 
@@ -157,39 +159,18 @@ class DiGraph(gr.Graph):
 			ret = False
 		return ret
 
-	@staticmethod
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	def isObj(self):
-		return not isinstance(self._identity_, (float, int, long, bool))
+		return isinstance(self.e, (pcb.pySpParMatObj1, pcb.pySpParMatObj2))
 		#try:
 		#	ret = hasattr(self,'_elementIsObject') and self._elementIsObject
 		#except AttributeError:
 		#	ret = False
 		#return ret
-
-	#FIX:  put in a common place
-	op_add = pcb.plus()
-	op_sub = pcb.minus()
-	op_mul = pcb.multiplies()
-	op_div = pcb.divides()
-	op_mod = pcb.modulus()
-	op_fmod = pcb.fmod()
-	op_pow = pcb.pow()
-	op_max  = pcb.max()
-	op_min = pcb.min()
-	op_bitAnd = pcb.bitwise_and()
-	op_bitOr = pcb.bitwise_or()
-	op_bitXor = pcb.bitwise_xor()
-	op_and = pcb.logical_and()
-	op_or = pcb.logical_or()
-	op_xor = pcb.logical_xor()
-	op_eq = pcb.equal_to()
-	op_ne = pcb.not_equal_to()
-	op_gt = pcb.greater()
-	op_lt = pcb.less()
-	op_ge = pcb.greater_equal()
-	op_le = pcb.less_equal()
+	
+	def isBool(self):
+		return isinstance(self._identity_, bool)
 
 	# in-place, so no return value
 	# NEEDED: update to new fields
@@ -349,7 +330,7 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
 		ret = DiGraph(element=self._identity_)
-		ret._m_ = self._m_.copy()
+		ret.e = self.e.copy()
 		if hasattr(self,'_eFilter_'):
 			if type(self.nvert()) is tuple:
 				raise NotImplementedError, 'only square DiGraphs for now'
@@ -362,8 +343,8 @@ class DiGraph(gr.Graph):
 							return type(self._identity_)()
 					return x
 			tmpInstance = tmpU()
-			ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
-			ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
+			ret.e.Apply(pcb.unaryObj(tmpInstance.fn))
+			ret.e.Prune(pcb.unaryObjPred(lambda x: x.prune()))
 		if element is not None and type(self._identity_) is not type(element):
 			if not isinstance(element, (float, int, long)):
 				# because EWiseApply(pySpParMat,pySpParMatObj)
@@ -376,8 +357,8 @@ class DiGraph(gr.Graph):
 			tmp = DiGraph(None,None,None,self.nvert(),element=element)
 			# FIX: remove following 2 lines when EWiseApply works 
 			#   as noted above 
-			tmpMat = pcb.pySpParMat(self._m_)
-			tmp._m_ = tmpMat
+			tmpMat = pcb.pySpParMat(self.e)
+			tmp.e = tmpMat
 			def func(x, y): 
 				#ToDo:  assumes that at least x or y is an ObjX
 				if isinstance(x,(float,int,long)):
@@ -454,7 +435,7 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self._m_.removeSelfLoops()
+			self.e.removeSelfLoops()
 		return
 
 	# NEEDED: update to new fields
@@ -520,29 +501,48 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def genGraph500Edges(self, scale):
+	@staticmethod
+	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False):
+	#def genGraph500Edges(self, scale):
 		"""
-		creates edges in a DiGraph instance that meet the Graph500 
+		creates edges in a DiGraph instance that meets the Graph500 
 		specification.  The graph is symmetric. (See www.graph500.org 
 		for details.)
 
 		Input Arguments:
-			self:  a DiGraph instance, usually with no edges
 			scale:  an integer scalar representing the logarithm base
 			    2 of the number of vertices in the resulting DiGraph.
+			edgeFactor: an integer specifying the average degree.
+			    Graph500 value: 16
+			initiator: an array of 4 floating point numbers that must
+			    sum to 1. Specifies the probabilities of hitting each
+			    quadrant of the Kroenecker product. More lopsided values
+			    result in fewer vertices having more edges.
+			    Graph500 value: [a,b,c,d] = [.57, .19, .19, .05]
+			delIsolated: whether or not to remove isolated vertices.
+			retKernel1Time: whether or not to also return the Graph500
+			    Kernel 1 (graph construction time).
 			    
 		Output Argument:
+			
 			ret:  a double-precision floating-point scalar denoting
-			    the amount of time to converted the created edges into
+			    the amount of time to taken to convert the created edges into
 			    the DiGraph instance.  This equals the value of Kernel 1
-			    of the Graph500 benchmark. Timing the entire genGraph500Edges
+			    of the Graph500 benchmark. Timing the entire generateRMAT
 			    call would also time the edge generation, which is not part
 			    of Kernel 1.
 			    Degrees of all vertices.
 		"""
-		degrees = pcb.pyDenseParVec(1, 1)
-		elapsedTime = self._spm.GenGraph500Edges(scale, degrees)
-	 	return (elapsedTime, ParVec.toParVec(degrees))
+		edges, degrees, k1time = Mat.generateRMAT(scale, edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated)
+		
+		ret = DiGraph()
+		ret.e = edges
+		ret.v = degrees
+				
+		if retKernel1Time:
+			return (ret, k1time)
+		else:
+			return ret
 
 	# NEEDED: tests
 	@staticmethod
@@ -680,7 +680,7 @@ class DiGraph(gr.Graph):
 		"""
 		nv = self.nvert()
 		if vpart is None:
-			return self._m_.getnee()
+			return self.e.getnee()
 		else:
 			if self.nvert() != len(vpart):
 				raise KeyError,'vpart must be same length as number of vertices in DiGraph instance'
@@ -691,7 +691,7 @@ class DiGraph(gr.Graph):
 			else:
 				return Vec.zeros(retLen)
 		if retLen == 1:
-			ret = self._m_.getnee()
+			ret = self.e.getnee()
 		else:
 			selfcopy = self.copy()
 			selfcopy.set(1)
@@ -731,8 +731,8 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  nedge, degree
 		"""
-		nrow = self._m_.getnrow()
-		ncol = self._m_.getncol()
+		nrow = self.e.getnrow()
+		ncol = self.e.getncol()
 		if nrow!=ncol:
 			return (nrow, ncol)
 		if vpart is None:
@@ -876,43 +876,20 @@ class DiGraph(gr.Graph):
 		Output Argument:
 			None.
 		"""
-		if hasattr(self,'_m_'):
-			ret = DiGraph(nv=self.nvert(),element=False)
-			tmpM = self._m_ 	# shallow copy
-			if self.isObj(self):
-				tmpM = pcb.pySpParMat(tmpM)
-			tmpM = pcb.pySpParMatBool(tmpM)
-			ret._m_ = tmpM
-			return ret
-		else:
-			raise TypeError, 'DiGraph has no contents'
+		self.e.toBool()
+		self._identity_ = True
 
-	# NEEDED: Use better name. DiGraphs can have ObjX fields as well.
-	# NEEDED: update to new fields
 	# NEEDED: tests
-	def _toDiGraph(self, pcbMat=0):
+	# old name: def _toDiGraph(self, pcbMat=0):
+	def _toScalar(self):
 		"""
 		converts a DiGraph whose element is an ObjX to an element
 		of a 64-bit container.  Currently not customizable with how
-		the conversion is done; the value of the weight is used.
+		the conversion is done; value of 1 is used.
 		"""
-		#ToDo:  currently assumes but does not check that the
-		#   output element-type is float/int/long
 
-		#if not isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
-		#	raise NotImplementedError, 'source must be Obj'
-		#if not isinstance(pcbMat[0,0], (float, int, long)):
-		#	raise NotImplementedError, 'result must be 64-bit element'
-		if hasattr(self,'_m_'):
-			ret = DiGraph(nv=self.nvert(),element=0)
-			tmpM = pcbMat 	# shallow copy
-			if self.isObj(self):
-				pcbMat = pcb.pySpParMat(pcbMat)
-			ret._m_ = pcbMat
-			ret._identity_ = 0
-			return ret
-		else:
-			raise TypeError, 'DiGraph has no contents'
+		self.e.toScalar()
+		self._identity_ = 0
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -938,7 +915,7 @@ class DiGraph(gr.Graph):
 			reti = Vec(ne)
 			retj = Vec(ne)
 			retv = Vec(ne, element=self._identity_)
-			self._m_.Find(reti._v_, retj._v_, retv._v_)
+			self.e.Find(reti._v_, retj._v_, retv._v_)
 		else:
 			reti = Vec(0)
 			retj = Vec(0)

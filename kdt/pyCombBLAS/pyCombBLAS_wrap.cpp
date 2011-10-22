@@ -5322,137 +5322,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_SpMV_PlusTimes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_SpMV_PlusTimes",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpMV_PlusTimes" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpMV_PlusTimes" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpMV_PlusTimes" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  {
-    try {
-      result = (arg1)->SpMV_PlusTimes((pySpParVec const &)*arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_SpMV_SelMax(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  SwigValueWrapper<pySpParVec > result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_SpMV_SelMax",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpMV_SelMax" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpMV_SelMax" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpMV_SelMax" "', argument " "2"" of type '" "pySpParVec const &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  {
-    try {
-      result = (arg1)->SpMV_SelMax((pySpParVec const &)*arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_SpMV_SelMax_inplace(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_SpMV_SelMax_inplace",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpMV_SelMax_inplace" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpMV_SelMax_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpMV_SelMax_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
-  {
-    try {
-      (arg1)->SpMV_SelMax_inplace(*arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_pySpParMat_SpMV__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -7113,6 +6982,436 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_0(PyObject *SWI
   int arg2 ;
   pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
   int arg4 ;
+  bool arg5 ;
+  double arg6 ;
+  double arg7 ;
+  double arg8 ;
+  double arg9 ;
+  double result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
+  double val9 ;
+  int ecode9 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  PyObject * obj8 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOOO:pySpParMatBool_GenGraph500Edges",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7,&obj8)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_double(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "6"" of type '" "double""'");
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
+  ecode9 = SWIG_AsVal_double(obj8, &val9);
+  if (!SWIG_IsOK(ecode9)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "9"" of type '" "double""'");
+  } 
+  arg9 = static_cast< double >(val9);
+  {
+    try {
+      result = (double)(arg1)->GenGraph500Edges(arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
+  int arg4 ;
+  bool arg5 ;
+  double arg6 ;
+  double arg7 ;
+  double arg8 ;
+  double result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  double val8 ;
+  int ecode8 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  PyObject * obj7 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOOO:pySpParMatBool_GenGraph500Edges",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6,&obj7)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_double(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "6"" of type '" "double""'");
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  ecode8 = SWIG_AsVal_double(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "8"" of type '" "double""'");
+  } 
+  arg8 = static_cast< double >(val8);
+  {
+    try {
+      result = (double)(arg1)->GenGraph500Edges(arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
+  int arg4 ;
+  bool arg5 ;
+  double arg6 ;
+  double arg7 ;
+  double result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  double val7 ;
+  int ecode7 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOOO:pySpParMatBool_GenGraph500Edges",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_double(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "6"" of type '" "double""'");
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_double(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "7"" of type '" "double""'");
+  } 
+  arg7 = static_cast< double >(val7);
+  {
+    try {
+      result = (double)(arg1)->GenGraph500Edges(arg2,arg3,arg4,arg5,arg6,arg7);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
+  int arg4 ;
+  bool arg5 ;
+  double arg6 ;
+  double result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOOO:pySpParMatBool_GenGraph500Edges",&obj0,&obj1,&obj2,&obj3,&obj4,&obj5)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  ecode6 = SWIG_AsVal_double(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "6"" of type '" "double""'");
+  } 
+  arg6 = static_cast< double >(val6);
+  {
+    try {
+      result = (double)(arg1)->GenGraph500Edges(arg2,arg3,arg4,arg5,arg6);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
+  int arg4 ;
+  bool arg5 ;
+  double result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  bool val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:pySpParMatBool_GenGraph500Edges",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "3"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_bool(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pySpParMatBool_GenGraph500Edges" "', argument " "5"" of type '" "bool""'");
+  } 
+  arg5 = static_cast< bool >(val5);
+  {
+    try {
+      result = (double)(arg1)->GenGraph500Edges(arg2,arg3,arg4,arg5);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_5(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = (pyDenseParVec *) 0 ;
+  int arg4 ;
   double result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -7166,7 +7465,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_6(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   int arg2 ;
@@ -7216,7 +7515,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges__SWIG_7(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   int arg2 ;
@@ -7259,12 +7558,12 @@ fail:
 
 SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[5];
+  PyObject *argv[10];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 4); ii++) {
+  for (ii = 0; (ii < argc) && (ii < 9); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 2) {
@@ -7278,7 +7577,7 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges(PyObject *self, PyObj
         _v = SWIG_CheckState(res);
       }
       if (_v) {
-        return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_2(self, args);
+        return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_7(self, args);
       }
     }
   }
@@ -7297,7 +7596,7 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges(PyObject *self, PyObj
         int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_1(self, args);
+          return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_6(self, args);
         }
       }
     }
@@ -7322,7 +7621,227 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges(PyObject *self, PyObj
             _v = SWIG_CheckState(res);
           }
           if (_v) {
-            return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_0(self, args);
+            return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_5(self, args);
+          }
+        }
+      }
+    }
+  }
+  if (argc == 5) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_int(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_4(self, args);
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 6) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_int(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_double(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_3(self, args);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 7) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_int(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_double(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_2(self, args);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 8) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_int(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_double(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_1(self, args);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (argc == 9) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          {
+            int res = SWIG_AsVal_int(argv[3], NULL);
+            _v = SWIG_CheckState(res);
+          }
+          if (_v) {
+            {
+              int res = SWIG_AsVal_bool(argv[4], NULL);
+              _v = SWIG_CheckState(res);
+            }
+            if (_v) {
+              {
+                int res = SWIG_AsVal_double(argv[5], NULL);
+                _v = SWIG_CheckState(res);
+              }
+              if (_v) {
+                {
+                  int res = SWIG_AsVal_double(argv[6], NULL);
+                  _v = SWIG_CheckState(res);
+                }
+                if (_v) {
+                  {
+                    int res = SWIG_AsVal_double(argv[7], NULL);
+                    _v = SWIG_CheckState(res);
+                  }
+                  if (_v) {
+                    {
+                      int res = SWIG_AsVal_double(argv[8], NULL);
+                      _v = SWIG_CheckState(res);
+                    }
+                    if (_v) {
+                      return _wrap_pySpParMatBool_GenGraph500Edges__SWIG_0(self, args);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -7330,7 +7849,7 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_GenGraph500Edges(PyObject *self, PyObj
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_GenGraph500Edges'.\n  Possible C/C++ prototypes are:\n    GenGraph500Edges(int,pyDenseParVec *,int)\n    GenGraph500Edges(int,pyDenseParVec *)\n    GenGraph500Edges(int)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_GenGraph500Edges'.\n  Possible C/C++ prototypes are:\n    GenGraph500Edges(int,pyDenseParVec *,int,bool,double,double,double,double)\n    GenGraph500Edges(int,pyDenseParVec *,int,bool,double,double,double)\n    GenGraph500Edges(int,pyDenseParVec *,int,bool,double,double)\n    GenGraph500Edges(int,pyDenseParVec *,int,bool,double)\n    GenGraph500Edges(int,pyDenseParVec *,int,bool)\n    GenGraph500Edges(int,pyDenseParVec *,int)\n    GenGraph500Edges(int,pyDenseParVec *)\n    GenGraph500Edges(int)\n");
   return NULL;
 }
 
@@ -8258,35 +8777,44 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_PlusTimes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   pySpParVec *arg2 = 0 ;
+  op::Semiring *arg3 = (op::Semiring *) 0 ;
   SwigValueWrapper<pySpParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_SpMV_PlusTimes",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpMV",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV_PlusTimes" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV_PlusTimes" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV_PlusTimes" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV" "', argument " "2"" of type '" "pySpParVec const &""'"); 
   }
   arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpMV" "', argument " "3"" of type '" "op::Semiring *""'"); 
+  }
+  arg3 = reinterpret_cast< op::Semiring * >(argp3);
   {
     try {
-      result = (arg1)->SpMV_PlusTimes((pySpParVec const &)*arg2);
+      result = (arg1)->SpMV((pySpParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -8302,35 +8830,44 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_SelMax(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  pySpParVec *arg2 = 0 ;
-  SwigValueWrapper<pySpParVec > result;
+  pyDenseParVec *arg2 = 0 ;
+  op::Semiring *arg3 = (op::Semiring *) 0 ;
+  SwigValueWrapper<pyDenseParVec > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_SpMV_SelMax",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpMV",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV_SelMax" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0  | 0);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0  | 0);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV_SelMax" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV_SelMax" "', argument " "2"" of type '" "pySpParVec const &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV" "', argument " "2"" of type '" "pyDenseParVec const &""'"); 
   }
-  arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpMV" "', argument " "3"" of type '" "op::Semiring *""'"); 
+  }
+  arg3 = reinterpret_cast< op::Semiring * >(argp3);
   {
     try {
-      result = (arg1)->SpMV_SelMax((pySpParVec const &)*arg2);
+      result = (arg1)->SpMV((pyDenseParVec const &)*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -8339,41 +8876,103 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_SelMax(PyObject *SWIGUNUSEDPARM(s
       SWIG_exception(SWIG_RuntimeError,"Unknown exception");
     }
   }
-  resultobj = SWIG_NewPointerObj((new pySpParVec(static_cast< const pySpParVec& >(result))), SWIGTYPE_p_pySpParVec, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((new pyDenseParVec(static_cast< const pyDenseParVec& >(result))), SWIGTYPE_p_pyDenseParVec, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_SelMax_inplace(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__Semiring, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpMV__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_pyDenseParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__Semiring, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpMV__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_SpMV'.\n  Possible C/C++ prototypes are:\n    SpMV(pySpParVec const &,op::Semiring *)\n    SpMV(pyDenseParVec const &,op::Semiring *)\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_inplace__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   pySpParVec *arg2 = 0 ;
+  op::Semiring *arg3 = (op::Semiring *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_SpMV_SelMax_inplace",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpMV_inplace",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV_SelMax_inplace" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParVec,  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV_SelMax_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
   }
   if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV_SelMax_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "2"" of type '" "pySpParVec &""'"); 
   }
   arg2 = reinterpret_cast< pySpParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "3"" of type '" "op::Semiring *""'"); 
+  }
+  arg3 = reinterpret_cast< op::Semiring * >(argp3);
   {
     try {
-      (arg1)->SpMV_SelMax_inplace(*arg2);
+      (arg1)->SpMV_inplace(*arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -8385,6 +8984,113 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_SelMax_inplace(PyObject *SWIGUNUS
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_inplace__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pyDenseParVec *arg2 = 0 ;
+  op::Semiring *arg3 = (op::Semiring *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpMV_inplace",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pyDenseParVec,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "2"" of type '" "pyDenseParVec &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "2"" of type '" "pyDenseParVec &""'"); 
+  }
+  arg2 = reinterpret_cast< pyDenseParVec * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpMV_inplace" "', argument " "3"" of type '" "op::Semiring *""'"); 
+  }
+  arg3 = reinterpret_cast< op::Semiring * >(argp3);
+  {
+    try {
+      (arg1)->SpMV_inplace(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpMV_inplace(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__Semiring, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpMV_inplace__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pyDenseParVec, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__Semiring, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpMV_inplace__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_SpMV_inplace'.\n  Possible C/C++ prototypes are:\n    SpMV_inplace(pySpParVec &,op::Semiring *)\n    SpMV_inplace(pyDenseParVec &,op::Semiring *)\n");
   return NULL;
 }
 
@@ -46732,9 +47438,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_Reduce", _wrap_pySpParMat_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Transpose", _wrap_pySpParMat_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Find", _wrap_pySpParMat_Find, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_SpMV_PlusTimes", _wrap_pySpParMat_SpMV_PlusTimes, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_SpMV_SelMax", _wrap_pySpParMat_SpMV_SelMax, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_SpMV_SelMax_inplace", _wrap_pySpParMat_SpMV_SelMax_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV", _wrap_pySpParMat_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV_inplace", _wrap_pySpParMat_SpMV_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Column", _wrap_pySpParMat_Column, METH_VARARGS, NULL},
@@ -46763,9 +47466,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_Reduce", _wrap_pySpParMatBool_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Transpose", _wrap_pySpParMatBool_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Find", _wrap_pySpParMatBool_Find, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_SpMV_PlusTimes", _wrap_pySpParMatBool_SpMV_PlusTimes, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_SpMV_SelMax", _wrap_pySpParMatBool_SpMV_SelMax, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_SpMV_SelMax_inplace", _wrap_pySpParMatBool_SpMV_SelMax_inplace, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_SpMV", _wrap_pySpParMatBool_SpMV, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_SpMV_inplace", _wrap_pySpParMatBool_SpMV_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Column", _wrap_pySpParMatBool_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Row", _wrap_pySpParMatBool_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatBool", _wrap_delete_pySpParMatBool, METH_VARARGS, NULL},

@@ -177,7 +177,7 @@ public:
 	};
 	
 	template <class HANDLER>
-	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler);
+	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose = false);
 	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false) { return ReadDistribute(infile, master, nonum, ScalarReadSaveHandler()); }
 
 	template <class HANDLER>

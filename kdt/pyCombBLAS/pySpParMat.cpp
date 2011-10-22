@@ -195,7 +195,6 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	if (delIsolated)
 	{
 		nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
-		delete ColSums;
 		
 		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
@@ -204,6 +203,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 		SpParHelper::Print("Dropped isolated vertices from input\n");	
 		A.PrintInfo();
 	}
+	delete ColSums;
 	
 	Symmetricize(A);	// A += A';
 	SpParHelper::Print("Symmetricized\n");	
@@ -226,99 +226,8 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 		pyDegrees->v = degrees;
 	}
 	return (t2-t1) - (redtf-redts);
-
-/*
-	double k1time = 0;
-
-	int nprocs = MPI::COMM_WORLD.Get_size();
-
-
-	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
-	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
-
-	DistEdgeList<int64_t> *DEL = new DistEdgeList<int64_t>();
-	DEL->GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-	PermEdges(*DEL);
-	RenameVertices(*DEL);
-
-	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
-	double t1 = MPI_Wtime();
-
-	// conversion from distributed edge list, keeps self-loops, sums duplicates
-	A = MatType(*DEL, false);
-	delete DEL; // free the distributed edge list before making another copy through the matrix transpose
-	
-
-	//int rank;
-	//MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-	MatType *AT = new MatType(A);
-	//cout << rank << ": A: nnz=" << G->getnnz() << ", local nnz=" << G->seq().getnnz() << endl;
-	//cout << rank << ": AT: nnz=" << AT->getnnz() << ", local nnz=" << AT->seq().getnnz() << endl;
-	AT->Transpose();
-	A += *AT;
-	delete AT;
-	
-	MPI::COMM_WORLD.Barrier();
-	double t2=MPI_Wtime();
-	
-	// END OF COPY
-	
-	k1time = t2-t1;
-	return k1time;
-*/
 }
 
-/*
-double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
-{
-	double k1time = 0;
-	FullyDistVec<INDEXTYPE, doubleint> degrees;
-
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	//int rank = MPI::COMM_WORLD.Get_rank();
-
-
-	// COPIED FROM AYDIN'S C++ GRAPH500 CODE ------------
-	// this is an undirected graph, so A*x does indeed BFS
-	double initiator[4] = {.57, .19, .19, .05};
-
-	DistEdgeList<int64_t> DEL;
-	DEL.GenGraph500Data(initiator, scale, 16 * ((int64_t) std::pow(2.0, (double) scale)) / nprocs );
-	PermEdges<int64_t>(DEL);
-	RenameVertices<int64_t>(DEL);
-
-	PSpMat_DoubleInt * G = new PSpMat_DoubleInt(DEL, false);	 // conversion from distributed edge list, keep self-loops
-	
-	op::BinaryFunction* p = op::plus();
-	p->getMPIOp();
-	degrees = G->Reduce(::Column, *p, doubleint(0)); 
-	p->releaseMPIOp();
-	delete p;
-	
-	delete G;
-
-	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
-	double t1 = MPI_Wtime();
-
-	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
-	MatType AT = A;
-	AT.Transpose();
-	A += AT;
-	
-	MPI::COMM_WORLD.Barrier();
-	double t2=MPI_Wtime();
-	
-	// END OF COPY
-	
-	k1time = t2-t1;
-	pyDegrees.v.stealFrom(degrees);
-	return k1time;
-}
-*/
 pySpParMat pySpParMat::copy()
 {
 	return pySpParMat(*this);
@@ -464,21 +373,6 @@ void pySpParMat::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDensePar
 	outrows->v = irows;
 	outcols->v = icols;
 	//A.Find(outrows->v, outcols->v, outvals->v);
-}
-
-pySpParVec pySpParMat::SpMV_PlusTimes(const pySpParVec& x)
-{
-	return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-}
-
-pySpParVec pySpParMat::SpMV_SelMax(const pySpParVec& x)
-{
-	return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
-}
-
-void pySpParMat::SpMV_SelMax_inplace(pySpParVec& x)
-{
-	x.v = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
 }
 
 pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::Semiring* sring)
