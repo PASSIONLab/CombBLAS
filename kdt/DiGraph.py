@@ -440,6 +440,7 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
+	# NEEDED: fix doc
 	def addSelfLoops(self, selfLoopAttr=1):
 		"""
 		removes all edges whose source and destination are the same

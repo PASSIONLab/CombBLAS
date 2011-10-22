@@ -145,8 +145,7 @@ class Mat:
 	def toScalar(self):
 		"""
 		converts the Mat instance in-place such that each element only has
-		a Boolean (True) value, thereby consuming less space and making
-		some operations faster.
+		a scalar (64-bit) value.
 
 		Input Argument:
 			self:  a Mat instance that is overwritten by the method
@@ -637,6 +636,7 @@ class Mat:
 			self._eFilter_ = [filter]
 		return
 		
+	# NEEDED: support for filters
 	@staticmethod
 	def load(fname):
 		"""
@@ -667,6 +667,7 @@ class Mat:
 		ret._m_.load(fname)
 		return ret
 
+	# NEEDED:  support for filters
 	def save(self, fname):
 		"""
 		saves the contents of the passed DiGraph instance to a file named

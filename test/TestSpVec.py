@@ -2478,7 +2478,7 @@ class FilterTests(SpVecTests):
         c1 = [2, 2, 7, 7, 3,  3]
 	element1 = Obj1()
         vec1 = self.initializeSpVec(sz, i1, (w1,c1), element=element1)
-        vec1._applyInd(set_ind_indpInd)
+        vec1.applyInd(set_ind_indpInd)
         expW = [0, 0, 2.02, 0, 4.04, 0, 6.06, 0, 8.08, 0, 10.10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         expC = [0, 0, 2, 0, 4, 0, 6, 0, 8, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	self.assertEqual(sz, len(vec1))
@@ -2502,7 +2502,7 @@ class FilterTests(SpVecTests):
 	element1 = Obj1()
         vec1 = self.initializeSpVec(sz, i1, (w1,c1), element=element1)
 	vec1.addVFilter(element1.ge0lt5)
-        vec1._applyInd(set_ind_indpInd)
+        vec1.applyInd(set_ind_indpInd)
         expW = [0, 0, 2.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         expC = [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	self.assertEqual(sz, len(vec1))
