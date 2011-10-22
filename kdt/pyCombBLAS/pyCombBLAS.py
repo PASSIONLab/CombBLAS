@@ -80,9 +80,6 @@ class pySpParMat(_object):
     def Reduce(*args): return _pyCombBLAS.pySpParMat_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMat_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMat_Find(*args)
-    def SpMV_PlusTimes(*args): return _pyCombBLAS.pySpParMat_SpMV_PlusTimes(*args)
-    def SpMV_SelMax(*args): return _pyCombBLAS.pySpParMat_SpMV_SelMax(*args)
-    def SpMV_SelMax_inplace(*args): return _pyCombBLAS.pySpParMat_SpMV_SelMax_inplace(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMat_SpMV(*args)
     def SpMV_inplace(*args): return _pyCombBLAS.pySpParMat_SpMV_inplace(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
@@ -127,9 +124,8 @@ class pySpParMatBool(_object):
     def Reduce(*args): return _pyCombBLAS.pySpParMatBool_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMatBool_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatBool_Find(*args)
-    def SpMV_PlusTimes(*args): return _pyCombBLAS.pySpParMatBool_SpMV_PlusTimes(*args)
-    def SpMV_SelMax(*args): return _pyCombBLAS.pySpParMatBool_SpMV_SelMax(*args)
-    def SpMV_SelMax_inplace(*args): return _pyCombBLAS.pySpParMatBool_SpMV_SelMax_inplace(*args)
+    def SpMV(*args): return _pyCombBLAS.pySpParMatBool_SpMV(*args)
+    def SpMV_inplace(*args): return _pyCombBLAS.pySpParMatBool_SpMV_inplace(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatBool_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatBool_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatBool_Row

@@ -1,4 +1,7 @@
 from DiGraph import DiGraph
+from Vec import Vec, SpVec, DeVec
+
+from Util import *
 
 #TODO this import should not be necessary
 import kdt.pyCombBLAS as pcb
@@ -13,10 +16,9 @@ import kdt.pyCombBLAS as pcb
 #	each vertex in the tree; unreached vertices have parent == -1.
 #	sym arg denotes whether graph is symmetric; if not, need to transpose
 #
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
+# NEEDED: update to new EWiseApply
 # NEEDED: tests
-def bfsTree(self, root, sym=False):
+def bfsTree(self, root):
 	"""
 	calculates a breadth-first search tree from the edges in the
 	passed DiGraph, starting from the root vertex.  "Breadth-first"
@@ -42,25 +44,20 @@ def bfsTree(self, root, sym=False):
 	SEE ALSO: isBfsTree 
 	"""
 	#ToDo:  doesn't handle filters on a doubleint DiGraph
-	if not self.isObj(self) and self._hasFilter(self):
+	if not self.isObj() and self._hasFilter(self):
 		raise NotImplementedError, 'DiGraph(element=default) with filters not supported'
-	if self.isObj(self):
+	if self.isObj():
 		#tmpG = self.copy()._toDiGraph()
-		tmpG = self.copy(element=0)
-		if not sym:
-			tmpG._T()
-	elif not sym:
-		self._T()
-		tmpG = self	# shallow copy
-	else:	
-		tmpG = self	# shallow copy
+		matrix = self.copy(element=0).e
+	else:
+		matrix = self.e
 
-	if not tmpG.isObj(tmpG):
-		sR = pcb.SecondMaxSemiring()
+	if not matrix.isObj():
+		sR = sr_select2nd
 	else:
 		mulFn = lambda x,y: x._SR_second_(y)
 		addFn = lambda x,y: x._SR_max_(y)
-		sR = pcb.SemiringObj(addFn, mulFn)
+		sR = sr(addFn, mulFn)
 
 	parents = Vec(self.nvert(), -1)
 	fringe = Vec(self.nvert(), sparse=True)
@@ -68,11 +65,9 @@ def bfsTree(self, root, sym=False):
 	fringe[root] = root
 	while fringe.nnn() > 0:
 		fringe.spRange()
-		tmpG._SpMV(fringe, semiRing=sR, noWrap=True, inPlace=True)
+		matrix.SpMV(fringe, semiring=sR, inPlace=True)
 		pcb.EWiseMult_inplacefirst(fringe._v_, parents._v_, True, -1)
 		parents[fringe] = fringe
-	if not sym and not self.isObj(self):
-		self._T()
 	return parents
 DiGraph.bfsTree = bfsTree
 

@@ -114,12 +114,80 @@ class Mat:
 			self._spm = pcb.pySpParMat(nv1,nv2,i._dpv,j._dpv,v._dpv)
 		else:
 			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
+	
+	@staticmethod
+	def _toMat(pcbMat):
+		ret = Mat()
+		ret._m_ = pcbMat
+		return ret
+	
+	def toBool(self):
+		"""
+		converts the Mat instance in-place such that each element only has
+		a Boolean (True) value, thereby consuming less space and making
+		some operations faster.
+
+		Input Argument:
+			self:  a Mat instance that is overwritten by the method
+
+		Output Argument:
+			None.
+		"""
+		if self.isBool():
+			return
+		
+		if self.isObj():
+			self.toScalar()
+		
+		tmpM = pcb.pySpParMatBool(self._m_)
+		self._m_ = tmpM
+
+	def toScalar(self):
+		"""
+		converts the Mat instance in-place such that each element only has
+		a Boolean (True) value, thereby consuming less space and making
+		some operations faster.
+
+		Input Argument:
+			self:  a Mat instance that is overwritten by the method
+
+		Output Argument:
+			None.
+		"""
+		if self.isBool():
+			raise NotImplementedError, "Don't know how to convert boolean matrix to scalar matrix"
+		
+		if self.isObj():
+			tmpM = pcb.pySpParMat(self._m_)
+			self._m_ = tmpM
 
 	def getnrow(self):
 		return self._m_.getnrow()
 		
 	def getncol(self):
 		return self._m_.getncol()
+	
+	def getnee(self):
+		return self._m_.getnee()
+	
+	@staticmethod
+	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, boolean=True):
+		"""
+		generates a Kroenecker product matrix using the Graph500 RMAT graph generator.
+		
+		Output Argument:
+			ret: a tuple: Mat, Vec, time.
+				Mat is the matrix itself,
+				Vec is a vector containing the degrees of each vertex in the original graph
+				time is the time for the Graph500 Kernel 1.
+		"""
+		degrees = Vec(1)
+		if boolean:
+			matrix = pcb.pySpParMatBool()
+		else:
+			matrix = pcb.pySpParMat()
+		kernel1Time = matrix.GenGraph500Edges(scale, degrees._v_, scale, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
+		return Mat._toMat(matrix), degrees, kernel1Time
 
 
 	# NEEDED: update to new fields
@@ -282,14 +350,14 @@ class Mat:
 	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 100
 	def __repr__(self):
-		if self.nvert() == 0:
-			return 'Null Mat object'
-		if self.nvert()==1:
-			[i, j, v] = self.toVec()
-			if len(v) > 0:
-				return "%d %f" % (v[0], v[0])
-			else:
-				return "%d %f" % (0, 0.0)
+		if self.getnee() == 0:
+			return 'Empty Mat object'
+		#if self.getnee() == 1:
+		#	[i, j, v] = self.toVec()
+		#	if len(v) > 0:
+		#		return "%d %f" % (v[0], v[0])
+		#	else:
+		#		return "%d %f" % (0, 0.0)
 		else:
 			[i, j, v] = self.toVec()
 			if len(i) < self._REPR_MAX:
@@ -408,7 +476,6 @@ class Mat:
 		return
 
 
-	@staticmethod
 	def _hasFilter(self):
 		try:
 			ret = (hasattr(self,'_eFilter_') and len(self._eFilter_)>0) # ToDo: or (hasattr(self,'vAttrib') and self.vAttrib._hasFilter(self.vAttrib)) 
@@ -416,7 +483,6 @@ class Mat:
 			ret = False
 		return ret
 
-	@staticmethod
 	def isObj(self):
 		return not isinstance(self._identity_, (float, int, long, bool))
 		#try:
@@ -425,28 +491,8 @@ class Mat:
 		#	ret = False
 		#return ret
 
-	#FIX:  put in a common place
-	op_add = pcb.plus()
-	op_sub = pcb.minus()
-	op_mul = pcb.multiplies()
-	op_div = pcb.divides()
-	op_mod = pcb.modulus()
-	op_fmod = pcb.fmod()
-	op_pow = pcb.pow()
-	op_max  = pcb.max()
-	op_min = pcb.min()
-	op_bitAnd = pcb.bitwise_and()
-	op_bitOr = pcb.bitwise_or()
-	op_bitXor = pcb.bitwise_xor()
-	op_and = pcb.logical_and()
-	op_or = pcb.logical_or()
-	op_xor = pcb.logical_xor()
-	op_eq = pcb.equal_to()
-	op_ne = pcb.not_equal_to()
-	op_gt = pcb.greater()
-	op_lt = pcb.less()
-	op_ge = pcb.greater_equal()
-	op_le = pcb.less_equal()
+	def isBool(self):
+		return isinstance(self._identity_, (bool))
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -492,11 +538,20 @@ class Mat:
 
 	# NEEDED: tests
 	# possibly in-place;  if so, no return value
-	def SpMV(self, other, semiRing=None, noWrap=False, inPlace=False):
+	def SpMV(self, other, semiring, inPlace=False):
 		"""
 		FIX:  add doc
 		inPlace -> no return value
 		"""
+		if inPlace:
+			self._m_.SpMV_inplace(other._v_, semiring)
+			return other
+		else:
+			return Vec._toVec(self._m_.SpMV(other._v_, semiring))
+		
+		# Adam:
+		# Why is the rest so complicated?
+		
 		#FIX:  is noWrap arg needed?
 		#ToDo:  is code for if/else cases actually different?
 		if isinstance(self._identity_, (float, int, long, bool)) and isinstance(other._identity_, (float, int, long)):
@@ -504,10 +559,10 @@ class Mat:
 				#HACK OF HACKS!
 				self._m_.SpMV_SelMax_inplace(other._v_)
 				return
-			if semiRing is None:
+			if semiring is None:
 				tSR = pcb.TimesPlusSemiring()
 			else:  
-				tSR = semiRing
+				tSR = semiring
 			if not inPlace:
 				ret = Vec()
 				ret._v_ = self._m_.SpMV(other._v_, tSR)
@@ -516,10 +571,10 @@ class Mat:
 				self._m_.SpMV_inplace(other._v_, tSR)
 				return
 		else:
-			if semiRing is None:
+			if semiring is None:
 				tSR = pcb.TimesPlusSemiring()
 			else:
-				tSR = semiRing
+				tSR = semiring
 			if not inPlace:
 				ret = Vec()
 				ret._v_ = self._m_.SpMV(other._v_, tSR)

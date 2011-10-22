@@ -1,46 +1,17 @@
 import math
-#import numpy as np # Adam: TRY TO AVOID THIS IF AT ALL POSSIBLE.
-#from Graph import SpParVec 
 import kdt.pyCombBLAS as pcb
 import feedback
 import UFget as uf
-
+from Util import *
+from Util import _op_make_unary
+from Util import _op_make_unary_pred
+from Util import _op_make_binary
+from Util import _op_make_binary_pred
 
 #	naming convention:
 #	names that start with a single underscore and have no final underscore
 #		are functions
 #	names that start and end with a single underscore are fields
-
-class info:
-	@staticmethod
-	def eps():
-		"""
-		Return IEEE floating point machine epsilon.
-		The problem with this operation is that Python only provides a portable way to get this
-		value in v2.6 and NumPy isn't always available. This function attempts to use whatever
-		knows this value or returns a reasonable default otherwise.
-		"""
-		# try Python v2.6+ float_info
-		try:
-			from sys import float_info as fi
-			return fi.epsilon
-		except ImportError:
-			pass
-			
-		# try Numpy
-		try:
-			import numpy as np
-			return float(np.finfo(np.float).eps)
-		except ImportError:
-			pass
-		except AttributeError:
-			pass
-			
-		# return a reasonable value
-		return 2.220446049250313e-16;
-
-	def minInt():
-		return -(2**62)
 
 class Vec(object):
 	#Note:  all comparison ops (__ne__, __gt__, etc.) only compare against
@@ -91,7 +62,6 @@ class Vec(object):
 #			ret = False
 #		return ret
 
-	@staticmethod
 	def _hasFilter(self):
 		try:
 			ret = hasattr(self,'_vFilter_') and len(self._vFilter_)>0
@@ -257,15 +227,17 @@ class Vec(object):
 		if isinstance(key, (int, long, float)):
 			if key < 0 or key > len(self)-1:
 				raise IndexError
-			ret = self._v_[key]
-		elif isinstance(key,ParVec):
-			if key.isBool():
-				raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
-			ret = ParVec(-1)
-			ret._dpv = self._spv[key._dpv]
+			return self._v_[key]
 		else:
-			raise KeyError, 'SpParVec indexing only by ParVec or integer scalar'
-		return ret
+			return Vec._toVec(self._v_[key._v_])
+		#elif isinstance(key,ParVec):
+		#	if key.isBool():
+		#		raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
+		#	ret = ParVec(-1)
+		#	ret._dpv = self._spv[key._dpv]
+		#else:
+		#	raise KeyError, 'SpParVec indexing only by ParVec or integer scalar'
+		#return ret
 
 	def __ge__(self, other):
 		"""
@@ -318,14 +290,14 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__gt__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
 			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__ge__(other)
-			ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
+				raise NotImplementedError, 'no SpVecObj > VecObj yet'
+		 	func = lambda x, other: x.__gt__(other)
+			ret = self.eWiseApply(other, pcb.binaryObj(func), True,True)
 		return ret
 
 	def __iadd__(self, other):
@@ -704,7 +676,7 @@ class Vec(object):
 
 
 	# in-place, so no return value
-	def apply(self, op, noWrap=False):
+	def apply(self, op):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
 		FIX:  doesn't look like this supports noWrap with filters
@@ -722,10 +694,11 @@ class Vec(object):
 			tmpInstance = tmpU()
 			self._v_.Apply(pcb.unaryObj(tmpInstance.fn))
 		else:
-			if noWrap:
-				self._v_.Apply(op)
-			else:
-				self._v_.Apply(pcb.unaryObj(op))
+			#if noWrap:
+			#	self._v_.Apply(op)
+			#else:
+			#	self._v_.Apply(pcb.unaryObj(op))
+			self._v_.Apply(_op_make_unary(op))
 		return
 
 #	# in-place, so no return value
@@ -855,20 +828,7 @@ class Vec(object):
 		ToDo:  write doc
 			return is a scalar
 		"""
-		#ToDo:  error-check on op?
-#		if not isinstance(op, pcb.BinaryFunction):
-#			realOp = pcb.binary(op)
-#		else:
-#			realOp = op
-		if not pred is None:
-			if Vec.isObj(self):
-				#realPred = pcb.unaryObj(pred)
-				realPred = pred
-			else:
-				realPred = pred
-			ret = self._v_.Reduce(op, realPred)
-		else:
-			ret = self._v_.Reduce(op)
+		ret = self._v_.Reduce(op, _op_make_binary_pred(pred))
 		return ret
 
 	# in-place, so no return value
@@ -886,10 +846,40 @@ class Vec(object):
 		return
 	
 	@staticmethod
-	def _toVec(kdtVec, pcbVec):
-		ret = kdtVec._newLike(0, pcbVec[0])
-		ret._v_ = pcbVec
-		return ret
+	def _getExampleElement(pcbVec):
+		if isinstance(pcbVec, (pcb.pyDenseParVec, pcb.pySpParVec)):
+			return 0.0
+		if isinstance(pcbVec, (pcb.pyDenseParVecObj1, pcb.pySpParVecObj1)):
+			return pcb.Obj1()
+		if isinstance(pcbVec, (pcb.pyDenseParVecObj2, pcb.pySpParVecObj2)):
+			return pcb.Obj2()
+		raise NotImplementedError, 'Unknown vector type!'
+	
+	@staticmethod
+	def _isPCBVecSparse(pcbVec):
+		if isinstance(pcbVec, (pcb.pyDenseParVec, pcb.pyDenseParVecObj1, pcb.pyDenseParVecObj2)):
+			return False
+		if isinstance(pcbVec, (pcb.pySpParVec, pcb.pySpParVecObj1, pcb.pySpParVecObj2)):
+			return True
+		raise NotImplementedError, 'Unknown vector type!'
+	
+	@staticmethod
+	def _toVec(kdtVec, pcbVec = None):
+		if pcbVec is None:
+			pcbVec = kdtVec
+			
+			if Vec._isPCBVecSparse(pcbVec):
+				ret = SpVec(0, Vec._getExampleElement(pcbVec))
+				ret._v_ = pcbVec
+				return ret
+			else:
+				ret = DeVec(0, Vec._getExampleElement(pcbVec))
+				ret._v_ = pcbVec
+				return ret
+		else:
+			ret = kdtVec._newLike(0, Vec._getExampleElement(pcbVec))
+			ret._v_ = pcbVec
+			return ret
 
 	# in-place, so no return value
 	def addVFilter(self, filter):
@@ -919,7 +909,7 @@ class Vec(object):
 		else:
 			self._vFilter_ = [filter]
 		return
-		
+	
 
 	def all(self):
 		"""
@@ -1009,8 +999,6 @@ class Vec(object):
 			ret = tmp2
 		return ret
 
-	@staticmethod
-
 	# in-place, so no return value
 	def delVFilter(self, filter=None):
 		"""
@@ -1039,7 +1027,7 @@ class Vec(object):
 	#ToDo:  implement find/findInds when problem of any zero elements
 	#         in the sparse vector getting stripped out is solved
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
-	def find(self):
+	def find(self, pred=None):
 		"""
 		returns the elements of a Boolean SpParVec instance that are both
 		nonnull and nonzero.
@@ -1052,15 +1040,20 @@ class Vec(object):
 
 		SEE ALSO:  findInds
 		"""
-		if not self.isBool():
-			raise NotImplementedError, 'only implemented for Boolean vectors'
-		ret = SpParVec(-1)
-		ret._spv = self._spv.dense().Find(pcb.bind2nd(pcb.not_equal_to(),0.0))
-		return ret
+
+		# provide a default predicate		
+		if pred is None:
+			if Vec.isObj(self):
+				pred = lambda x: True
+			else:
+				pred = op_bind2nd(op_ne, 0.0)
+			
+		ret = self._v_.Find(_op_make_unary_pred(pred))
+		return Vec._toVec(ret)
 
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
-	def findInds(self):
+	def findInds(self, pred=None):
 		"""
 		returns the indices of the elements of a Boolean SpParVec instance
 		that are both nonnull and nonzero.
@@ -1074,11 +1067,15 @@ class Vec(object):
 
 		SEE ALSO:  find
 		"""
-		if not self.isBool():
-			raise NotImplementedError, 'only implemented for Boolean vectors'
-		ret = ParVec(-1)
-		ret._dpv = self._spv.dense().FindInds(pcb.bind2nd(pcb.not_equal_to(),0.0))
-		return ret
+		# provide a default predicate		
+		if pred is None:
+			if Vec.isObj(self):
+				pred = lambda x: True
+			else:
+				pred = op_bind2nd(op_ne, 0.0)
+			
+		ret = self._v_.FindInds(_op_make_unary_pred(pred))
+		return Vec._toVec(ret)
 
 
 	def isBool(self):
@@ -1191,14 +1188,16 @@ class Vec(object):
 	def nn(self):
 		"""
 		returns the number of nulls (non-existent entries) in the 
-		SpParVec instance.
+		SpVec instance.
 
-		Note:  for x a SpParVec instance, x.nnn()+x.nn() always equals 
+		Note:  for x a SpVec instance, x.nnn()+x.nn() always equals 
 		len(x).
 
 		SEE ALSO:  nnn, nnz
 		"""
-		return len(self) - self._spv.getnnz()
+		if self.isDense():
+			return 0
+		return len(self) - self.nnn()
 
 	def nnn(self):
 		"""
@@ -1210,6 +1209,17 @@ class Vec(object):
 
 		SEE ALSO:  nn, nnz
 		"""
+		if self.isDense():
+			return len(self)
+		
+		if not self._hasFilter():
+			return self._v_.getnee()
+			
+		# Adam:
+		# implement the rest with a single reduce that uses a double
+		# as its return value. (That Reduce flavor needs to be added to pcb)
+		# This entire function then becomes a one-line call.
+
 		#HACK:  some better way to set initial value of redxn?
 		# z = tmp.findInds()
 		# if len(z) > 0:
@@ -1435,6 +1445,12 @@ class Vec(object):
 		return ret
 	
 class DeVec(Vec):
+	def isSparse(self):
+		return False
+	
+	def isDense(self):
+		return True
+
 	def __init__(self, length=0, init=0, element=0, sparse=False):
 		#HACK setting of null values should be done more generally
 		self._isSparse_ = False
@@ -1531,7 +1547,7 @@ class DeVec(Vec):
 			raise KeyError, 'Unknown key type'
 		return
 
-	def _eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -1584,6 +1600,9 @@ class DeVec(Vec):
 				self._v_.EWiseApply(other._v_, pcb.binaryObj(superOp))
 		ret = Vec._toVec(self,self._v_)
 		return ret
+	
+	def randPerm(self):
+		self._v_.RandPerm()
 
 	def _newLike(self, length, element):
 		ret = DeVec(length,0,element,False)
@@ -1644,6 +1663,12 @@ class DeVec(Vec):
 		return ret
 	
 class SpVec(Vec):
+	def isSparse(self):
+		return True
+	
+	def isDense(self):
+		return False
+	
 	def __init__(self, length=0, ignoreInit=None, element=0, sparse=True):
 		#NOTE:  ignoreInit kept to same #args as DeVec.__init__
 		#self._identity_ = element
@@ -1769,7 +1794,7 @@ class SpVec(Vec):
 		#NEEDED?  ret = Vec._toVec(self,self._v_)
 		return
 
-	def eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
 		"""
 		ToDo:  write doc
 		"""
