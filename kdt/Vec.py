@@ -55,13 +55,8 @@ class Vec(object):
 	@staticmethod
 	def isObj(self):
 		return not isinstance(self._identity_, (float, int, long))
-		#FIX:  delete following
-#		try:
-#			ret = hasattr(self,'_elementIsObject') and self._elementIsObject
-#		except AttributeError:
-#			ret = False
-#		return ret
 
+	@staticmethod
 	def _hasFilter(self):
 		try:
 			ret = hasattr(self,'_vFilter_') and len(self._vFilter_)>0
@@ -73,11 +68,9 @@ class Vec(object):
 		ret = self.copy()
 		if not Vec.isObj(self):
 			f = pcb.abs()
-			noWrap = True
 		else:
 			f = lambda x: x.__abs__()
-			noWrap = False
-		ret._apply(f, noWrap=noWrap)
+		ret.apply(f)
 		return ret
 
 	def __add__(self, other):
@@ -93,7 +86,7 @@ class Vec(object):
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
 				func = pcb.bind2nd(pcb.plus(),other)
-				ret._apply(func, noWrap=True)
+				ret.apply(func)
 			else:	# other is doubleint (Sp)Vec
 				if len(self) != len(other):
 					raise IndexError, 'arguments must be of same length'
@@ -128,7 +121,7 @@ class Vec(object):
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
 				func = pcb.bind2nd(pcb.bitwise_and(),other)
-				ret._apply(func, noWrap=True)
+				ret.apply(func)
 			else:	# other is doubleint (Sp)Vec
 				if len(self) != len(other):
 					raise IndexError, 'arguments must be of same length'
@@ -168,7 +161,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__div__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -198,7 +191,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__eqPy__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -260,7 +253,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__ge__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -311,7 +304,7 @@ class Vec(object):
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
 				func = pcb.bind2nd(pcb.plus(),other)
-				self._apply(func, noWrap=True)
+				self.apply(func)
 			else:	# other is doubleint (Sp)Vec
 				if len(self) != len(other):
 					raise IndexError, 'arguments must be of same length'
@@ -337,7 +330,7 @@ class Vec(object):
 			func = lambda x: int(x).__invert__()
 		else:
 			func = lambda x: x.__invert__()
-		ret._apply(func)
+		ret.apply(func)
 		return ret
 
 	def __isub__(self, other):
@@ -349,7 +342,7 @@ class Vec(object):
 		"""
 		if isinstance(other, (float, int, long)):
 			func = lambda x: x.__isub__(other)
-			self._apply(func)
+			self.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -386,7 +379,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__le__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -420,7 +413,7 @@ class Vec(object):
 			#HACK:  note __ltPy__ called in 2 spots here, to avoid
 			#	conflict with built-in C++ fn in __lt__
 			func = lambda x: x.__ltPy__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -443,7 +436,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__mod__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -463,7 +456,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__mul__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -494,7 +487,7 @@ class Vec(object):
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__nePy__(other)
-			ret._apply(func)
+			ret.apply(func)
 		else:
 			if len(self) != len(other):
 				raise IndexError, 'arguments must be of same length'
@@ -510,7 +503,7 @@ class Vec(object):
 		"""
 		ret = self.copy()
 		func = lambda x: x.__neg__()
-		ret._apply(func)
+		ret.apply(func)
 		return ret
 
 
@@ -625,7 +618,7 @@ class Vec(object):
 #				raise IndexError, 'Key and Value must be same length as SpVec'
 #			self._v_[key._v_] = value._v_
 #		elif type(key) == str and key == 'nonnull':
-#			self._apply(pcb.set(value), noWrap=True)
+#			self.apply(pcb.set(value), noWrap=True)
 #		else:
 #			raise KeyError, 'Unknown key type'
 #		return
@@ -643,7 +636,7 @@ class Vec(object):
 			# if other is scalar
 			if isinstance(other, (float, int, long)):
 				func = pcb.bind2nd(pcb.minus(),other)
-				ret._apply(func, noWrap=True)
+				ret.apply(func)
 			else:	# other is doubleint (Sp)Vec
 				if len(self) != len(other):
 					raise IndexError, 'arguments must be of same length'
@@ -920,7 +913,7 @@ class Vec(object):
 	# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self._reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			return self.reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
@@ -928,7 +921,7 @@ class Vec(object):
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.all(other)
-			ret = tmp._reduce(pcb.binaryObj(func)).weight > 0
+			ret = tmp.reduce(pcb.binaryObj(func)).weight > 0
 			return ret
 
 	def allCloseToInt(self):
@@ -952,7 +945,7 @@ class Vec(object):
 	# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self._reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			return self.reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
@@ -960,7 +953,7 @@ class Vec(object):
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.any(other)
-			ret = tmp._reduce(pcb.binaryObj(func)).weight > 0
+			ret = tmp.reduce(func).weight > 0
 			return ret
 
 	def copy(self, element=None):
@@ -1160,10 +1153,10 @@ class Vec(object):
 				ret.weight = 0; ret.category = 0
 		else:
 			if isinstance(self._identity_, (float, int, long)):
-				ret = self._reduce(pcb.max())
+				ret = self.reduce(pcb.max())
 			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
 				func = lambda x, other: x.max(other)
-				ret = self._reduce(pcb.binaryObj(func))
+				ret = self.reduce(pcb.binaryObj(func))
 		return ret
 
 	def min(self):
@@ -1179,10 +1172,10 @@ class Vec(object):
 				ret.weight = 0; ret.category = 0
 		else:
 			if isinstance(self._identity_, (float, int, long)):
-				ret = self._reduce(pcb.min())
+				ret = self.reduce(pcb.min())
 			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
 				func = lambda x, other: x.min(other)
-				ret = self._reduce(pcb.binaryObj(func))
+				ret = self.reduce(pcb.binaryObj(func))
 		return ret
 
 	def nn(self):
@@ -1212,7 +1205,7 @@ class Vec(object):
 		if self.isDense():
 			return len(self)
 		
-		if not self._hasFilter():
+		if not self._hasFilter(self):
 			return self._v_.getnee()
 			
 		# Adam:
@@ -1235,21 +1228,21 @@ class Vec(object):
 	#FIX: spurious? 
 		if isinstance(self._identity_,(float, int, long)):
 			identity = 0
-			ret = int(tmp._reduce(pcb.plus(), pred=pcb.set(1)))
+			ret = int(tmp.reduce(pcb.plus(), pred=pcb.set(1)))
 		elif isinstance(self._identity_,(pcb.Obj1)):
 			identity = type(self._identity_)()
 			#HACK: referred to above
 			if self[0].weight or self[0].category:
 				identity.weight = 1
 			tmp[0] = identity
-			ret = int(tmp._reduce(pcb.binaryObj(f)).weight)
+			ret = int(tmp.reduce(pcb.binaryObj(f)).weight)
 		elif isinstance(self._identity_,pcb.Obj2):
 			identity = type(self._identity_)()
 			#HACK: referred to above
 			if self[0].weight or self[0].category:
 				identity.weight = 1
 			tmp[0] = identity
-			ret = int(tmp._reduce(pcb.binaryObj(f)).weight)
+			ret = int(tmp.reduce(pcb.binaryObj(f)).weight)
 		return ret
 
 	def nnz(self):
@@ -1262,7 +1255,7 @@ class Vec(object):
 
 		SEE ALSO:  nn, nnn
 		"""
-		ret = self._reduce(SpParVec.op_add, pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
+		ret = self.reduce(SpParVec.op_add, pcb.ifthenelse(pcb.bind2nd.not_equal_to(),0), pcb.set(1), pcb.set(0))
 		return int(ret)
 
 #	#FIX:  delete, since unused
@@ -1279,9 +1272,9 @@ class Vec(object):
 #		#for i in range(sz):
 #		#	ret[i] = Obj1
 #		if not Vec.isObj(ret):
-#			ret._apply(pcb.set(1), noWrap=True)
+#			ret.apply(pcb.set(1), noWrap=True)
 #		else:
-#			ret._apply(lambda x: x.spOnes())
+#			ret.apply(lambda x: x.spOnes())
 #		return ret
 
 	def printAll(self):
@@ -1323,7 +1316,7 @@ class Vec(object):
 		def f(x):
 			x.weight = value
 			return x
-		self._apply(f)
+		self.apply(f)
 		return
 
 	# in-place, so no return value
@@ -1370,9 +1363,9 @@ class Vec(object):
 		sets every non-null value in the SpParVec instance to 1, in-place.
 		"""
 		if not Vec.isObj(self):
-			self._apply(pcb.set(1), noWrap=True)
+			self.apply(pcb.set(1))
 		else:
-			self._apply(lambda x: x.spOnes())
+			self.apply(lambda x: x.spOnes())
 		return
 
 	def sum(self):
@@ -1387,10 +1380,10 @@ class Vec(object):
 				ret.weight = 0; ret.category = 0
 		else:
 			if isinstance(self._identity_, (float, int, long)):
-				ret = self._reduce(pcb.plus())
+				ret = self.reduce(pcb.plus())
 			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
 		 		func = lambda x, other: x.__iadd__(other)
-				ret = self._reduce(pcb.binaryObj(func))
+				ret = self.reduce(pcb.binaryObj(func))
 		return ret
 
 	#in-place, so no return value
@@ -1403,7 +1396,7 @@ class Vec(object):
 		def f(x):
 			x.weight = bool(x.weight)
 			return x
-		self._apply(f)
+		self.apply(f)
 		return
 
 	def topK(self, k):
@@ -1542,11 +1535,13 @@ class DeVec(Vec):
 				raise IndexError, 'Key and Value must be same length as SpVec'
 			self._v_[key._v_] = value._v_
 		elif type(key) == str and key == 'nonnull':
-			self._apply(pcb.set(value), noWrap=True)
+			self.apply(pcb.set(value))
 		else:
 			raise KeyError, 'Unknown key type'
 		return
 
+	# NOTE: this function is DeVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
 		"""
 		ToDo:  write doc
@@ -1625,9 +1620,9 @@ class DeVec(Vec):
 		#for i in range(sz):
 		#	ret[i] = Obj1
 		if not Vec.isObj(ret):
-			ret._apply(pcb.set(1), noWrap=True)
+			ret.apply(pcb.set(1))
 		else:
-			ret._apply(lambda x: x.spOnes())
+			ret.apply(lambda x: x.spOnes())
 		return ret
 
 	@staticmethod
@@ -1762,7 +1757,7 @@ class SpVec(Vec):
 				raise IndexError, 'Key and Value must be same length as SpVec'
 			self._v_[key._v_] = value._v_
 		elif type(key) == str and key == 'nonnull':
-			self._apply(pcb.set(value), noWrap=True)
+			self.apply(pcb.set(value))
 		else:
 			raise KeyError, 'Unknown key type'
 		return
@@ -1794,6 +1789,8 @@ class SpVec(Vec):
 		#NEEDED?  ret = Vec._toVec(self,self._v_)
 		return
 
+	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
 		"""
 		ToDo:  write doc
@@ -1858,9 +1855,9 @@ class SpVec(Vec):
 		#for i in range(sz):
 		#	ret[i] = Obj1
 		if not Vec.isObj(ret):
-			ret._apply(pcb.set(1), noWrap=True)
+			ret.apply(pcb.set(1))
 		else:
-			ret._apply(lambda x: x.spOnes())
+			ret.apply(lambda x: x.spOnes())
 		return ret
 
 	@staticmethod
@@ -1905,5 +1902,5 @@ class SpVec(Vec):
 			self._v_.setNumToInd()
 		else:
 			func = lambda x,y: x.spRange(y)
-			self._applyInd(func)
+			self.applyInd(func)
 		return
