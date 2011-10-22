@@ -1426,6 +1426,7 @@ kdt/HyGraph.py -text
 kdt/Mat.py -text
 kdt/ObjMethods.py -text
 kdt/UFget.py -text
+kdt/Util.py -text
 kdt/Vec.py -text
 kdt/__init__.py -text
 kdt/feedback.py -text
