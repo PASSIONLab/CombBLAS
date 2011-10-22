@@ -143,6 +143,7 @@ void DoA2A(MPI_Comm & World, int N)
 		cout << "Average time: " << avetime << " seconds" << endl;
 		cout << "Max time: " << maxtime << " seconds" << endl;
 		cout << "Average bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(avetime) << " bytes/sec" << endl;
+		cout << "Minimum bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(maxtime) << " bytes/sec" << endl;
 	}
 
 	t1 = MPI_Wtime();
@@ -161,6 +162,7 @@ void DoA2A(MPI_Comm & World, int N)
                 cout << "Average time: " << avetime/10 << " seconds" << endl;
 		cout << "Max time: " << maxtime/10 << " seconds" << endl;
                 cout << "Bandwidth (average): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(avetime) << " bytes/sec" << endl;
+                cout << "Bandwidth (minimum): " << (static_cast<double>(totrecv)*sizeof(double)*10.0)/(maxtime) << " bytes/sec" << endl;
         }
 
 	delete [] sendcnt;
@@ -197,9 +199,13 @@ int main(int argc, char* argv[])
 	int myprocrow = rank / grcols;
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &squarerowcomm );  // processes with the same color are in the same new communicator 
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &squarecolcomm );
+	if(rank == 0) cout << "*** Processor row ***" << endl;
 	DoA2A(squarerowcomm, 32*n);
+	if(rank == 0) cout << "*** Processor column ***" << endl;
 	DoA2A(squarecolcomm, 32*n);
+	if(rank == 0) cout << "*** Processor row ***" << endl;
 	DoAG(squarerowcomm, n);
+	if(rank == 0) cout << "*** Processor column ***" << endl;
 	DoAG(squarecolcomm, n);
 		
 
