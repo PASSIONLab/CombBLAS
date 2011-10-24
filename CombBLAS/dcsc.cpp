@@ -864,9 +864,14 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 }
 
 
-// nind, =length(colsums), gives number of columns of A that contributes to C(:,i)
+/**
+ * param[in] nind { length(colsums), gives number of columns of A that contributes to C(:,i) }
+ * Vector type VT is allowed to be different than matrix type (IT)
+ * However, VT should be up-castable to IT (example: VT=int32_t, IT=int64_t)
+ **/
 template<class IT, class NT>
-void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
+template<class VT>	
+void Dcsc<IT,NT>::FillColInds(const VT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const
 {
 	if ( aux == NULL || (nzc / nind) < THRESHOLD)   	// use scanning indexing
 	{
@@ -881,7 +886,7 @@ void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> >
 		}
 		for(IT i=0; i < nind; ++i)
 		{
-			range2[i] = make_pair(colnums[i], 0);	// second is dummy as all the intersecting elements are copied from the first range
+			range2[i] = make_pair(static_cast<IT>(colnums[i]), 0);	// second is dummy as all the intersecting elements are copied from the first range
 		}
 
 		pair<IT,IT> * itr = set_intersection(range1, range1 + nzc, range2, range2+nind, isect, SpHelper::first_compare<IT> );
@@ -893,7 +898,7 @@ void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> >
 		for(IT j=0, i =0; j< nind; ++j)
 		{
 			// the elements represented by jc[isect[i]] are a subset of the elements represented by colnums[j]
-			if( i == kisect || isect[i].first != colnums[j])
+			if( i == kisect || isect[i].first != static_cast<IT>(colnums[j]))
 			{
 				// not found, signal by setting first = second
 				colinds[j].first = 0;
@@ -913,7 +918,7 @@ void Dcsc<IT,NT>::FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> >
 		bool found;
 		for(IT j =0; j< nind; ++j)
 		{
-			IT pos = AuxIndex(colnums[j], found, aux, csize);
+			IT pos = AuxIndex(static_cast<IT>(colnums[j]), found, aux, csize);
 			if(found)
 			{
 				colinds[j].first = cp[pos];

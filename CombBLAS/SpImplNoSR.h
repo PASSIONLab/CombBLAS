@@ -48,7 +48,10 @@ template <class IT, class NUM, class IVT, class OVT>
 struct SpImplNoSR
 {
 	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
+						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
+	{
+		cout << "SpMXSpV (without a semiring) is only reserved for boolean matrices" << endl;
+	}
 };
 
 template <class IT, class IVT, class OVT>

@@ -905,12 +905,16 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	DeleteAll(trxinds, trxnums);
 
 	// serial SpMV with sparse vector
-	vector< IU > indy;
+	vector< int32_t > indy;
 	vector< T_promote >  numy;
+	
+        int32_t * tmpindacc = new int32_t[accnz];
+        for(int i=0; i< accnz; ++i) tmpindacc[i] = indacc[i];
+	delete [] indacc;
 
-	dcsc_gespmv<SR>(*(A.spSeq), indacc, numacc, static_cast<IU>(accnz), indy, numy);	// actual multiplication
+	dcsc_gespmv<SR>(*(A.spSeq), tmpindacc, numacc, accnz, indy, numy);	// actual multiplication
 
-	DeleteAll(indacc, numacc);
+	DeleteAll(tmpindacc, numacc);
 	DeleteAll(colnz, dpls);
 
 	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
@@ -919,11 +923,11 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	int rowneighs = RowWorld.Get_size();
 	vector< vector<IU> > sendind(rowneighs);
 	vector< vector<T_promote> > sendnum(rowneighs);
-	typename vector<IU>::size_type outnz = indy.size();
+	typename vector<int32_t>::size_type outnz = indy.size();
 	for(typename vector<IU>::size_type i=0; i< outnz; ++i)
 	{
 		IU locind;
-		int rown = y.OwnerWithinRow(yintlen, indy[i], locind);
+		int rown = y.OwnerWithinRow(yintlen, static_cast<IU>(indy[i]), locind);
 		sendind[rown].push_back(locind);
 		sendnum[rown].push_back(numy[i]);
 	}

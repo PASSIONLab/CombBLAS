@@ -84,7 +84,9 @@ public:
 
 	IT ConstructAux(IT ndim, IT * & aux) const;
 	void Resize(IT nzcnew, IT nznew);
-	void FillColInds(const IT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
+
+	template<class VT>	
+	void FillColInds(const VT * colnums, IT nind, vector< pair<IT,IT> > & colinds, IT * aux, IT csize) const;
 
 	Dcsc<IT,NT> & AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
 
