@@ -491,6 +491,10 @@ VEC pySpParMatObj1::SpMV_worker(const VEC& x, op::SemiringObj* sring)
 #endif
 }
 
+pySpParVec     pySpParMatObj1::SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
+pySpParVecObj1 pySpParMatObj1::SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
+pySpParVecObj2 pySpParMatObj1::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
+
 
 pyDenseParVec     pySpParMatObj1::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring)
 {
