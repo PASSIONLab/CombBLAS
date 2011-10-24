@@ -28,24 +28,26 @@
 
 #include "SpImpl.h"
 
-//! base template version [full use of the semiring add() and multiply()]
-//! indx vector practically keeps column numbers requested from A
+/**
+ * Base template version [full use of the semiring add() and multiply()]
+ * @param[in] indx { vector that practically keeps column numbers requested from A }
+ **/
 template <class SR, class IT, class NUM, class IVT, class OVT>
-void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
-			vector<IT> & indy, vector< OVT > & numy)
+void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector< OVT > & numy)
 {
-	HeapEntry<IT, IVT> * wset = new HeapEntry<IT, IVT>[veclen]; 
+	HeapEntry<IT, NUM> * wset = new HeapEntry<IT, NUM>[veclen]; 
 
 	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
-	vector< pair<IT,IT> > colinds(veclen);		
-	Adcsc.FillColInds(indx, veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
-	IT hsize = 0;		
+	vector< pair<IT,IT> > colinds( (IT) veclen);		
+	Adcsc.FillColInds(indx, (IT) veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
+	int32_t hsize = 0;		
 	for(IT j =0; j< veclen; ++j)		// create the initial heap 
 	{
 		if(colinds[j].first != colinds[j].second)	// current != end
 		{
 			// HeapEntry(key, run, num)
-			wset[hsize++] = HeapEntry< IT,IVT > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
+			wset[hsize++] = HeapEntry< IT,NUM > ( Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
 		} 
 	}	
 	make_heap(wset, wset+hsize);
@@ -61,7 +63,7 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, IT mA, const
 		}
 		else
 		{
-			indy.push_back(wset[hsize-1].key);
+			indy.push_back( (int32_t) wset[hsize-1].key);
 			numy.push_back(mrhs);	
 		}
 		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
@@ -86,8 +88,8 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, IT mA, const
   * Because here we don't use a dense accumulation vector but a heap. It will probably be slower though. 
 **/
 template <class SR, class IT, class IVT, class OVT>
-void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, const IT * indx, const IVT * numx, IT veclen,  
-			vector<IT> & indy, vector<OVT> & numy)
+void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<OVT> & numy)
 {   
 	IT inf = numeric_limits<IT>::min();
 	IT sup = numeric_limits<IT>::max(); 
@@ -115,8 +117,8 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, con
 	if(sHeap.getSize() > 0)
 	{
 		sHeap.deleteMin(&row, &num);
-		indy.push_back(row);
-		numy.push_back(num);
+		indy.push_back( (int32_t) row);
+		numy.push_back( num );
 	}
 	while(sHeap.getSize() > 0)
 	{
@@ -127,7 +129,7 @@ void SpImpl<SR,IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, IT mA, con
 		}
 		else
 		{
-			indy.push_back(row);
+			indy.push_back( (int32_t) row);
 			numy.push_back(num);
 		}
 	}		
