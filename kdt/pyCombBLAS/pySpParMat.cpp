@@ -55,7 +55,7 @@ int64_t pySpParMat::getncol()
 void pySpParMat::load(const char* filename)
 {
 	string fn(filename);
-	int dot = fn.find_last_of('.');
+	unsigned int dot = fn.find_last_of('.');
 	if (dot != string::npos && fn.substr(dot) == ".bin")
 	{	
 		// .bin file
@@ -80,16 +80,14 @@ void pySpParMat::load(const char* filename)
 	{
 		// matrix market file
 		ifstream input(filename);
-		A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler());
+		A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler(), true);
 		input.close();
 	}
 }
 
 void pySpParMat::save(const char* filename)
 {
-	//ofstream output(filename);
-	//A.put(output);
-	//output.close();
+	cout << "Warning: output is transposed!" << endl;
 	A.SaveGathered(filename);
 }
 

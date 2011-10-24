@@ -235,7 +235,6 @@ public:
 	}
 
 private:
-	int splits;	// ABAB: Future multithreaded extension
 	void CopyDcsc(Dcsc<IT,NT> * source);
 	SpDCCols<IT,NT> ColIndex(const vector<IT> & ci) const;	//!< col indexing without multiplication	
 
@@ -260,6 +259,8 @@ private:
 	
 	//! store a pointer to the memory pool, to transfer it to other matrices returned by functions like Transpose
 	MemoryPool * localpool;
+
+	int splits;	// ABAB: Future multithreaded extension
 
 	template <class IU, class NU>
 	friend class SpDCCols;		// Let other template instantiations (of the same class) access private members

@@ -65,7 +65,7 @@ SpDCCols<IT,NT>::~SpDCCols()
 // Derived's copy constructor can safely call Base's default constructor as base has no data members 
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
-: splits(rhs.splits), m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool), splits(rhs.splits)
 {
 	CopyDcsc(rhs.dcsc);
 }
