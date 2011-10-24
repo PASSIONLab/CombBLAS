@@ -14,8 +14,9 @@ protected:
 
 public:
 	typedef int64_t INDEXTYPE;
-	typedef SpDCCols<INDEXTYPE,Obj2> DCColsType;
-	typedef SpParMat < INDEXTYPE, Obj2, DCColsType > PSpMat_Obj2;
+	typedef Obj2 NUMTYPE;
+	typedef SpDCCols<INDEXTYPE,NUMTYPE> DCColsType;
+	typedef SpParMat < INDEXTYPE, NUMTYPE, DCColsType > PSpMat_Obj2;
 	typedef PSpMat_Obj2 MatType;
 	
 public:
@@ -73,14 +74,14 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj2* outvals) const;
 public:
-/*
-	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
-	pySpParVec SpMV_SelMax(const pySpParVec& x);
-	void SpMV_SelMax_inplace(pySpParVec& x);
-*/
-	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
-	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
-	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+//INTERFACE_INCLUDE_END
+	template <class VECTYPE, class VEC>
+	VEC SpMV_worker(const VEC& x, op::SemiringObj* sring);
+//INTERFACE_INCLUDE_BEGIN
+
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
 	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
 	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
 	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);

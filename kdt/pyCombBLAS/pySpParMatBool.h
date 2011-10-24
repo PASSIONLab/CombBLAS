@@ -14,8 +14,9 @@ protected:
 
 public:
 	typedef int64_t INDEXTYPE;
-	typedef SpDCCols<INDEXTYPE,bool> DCColsType;
-	typedef SpParMat < INDEXTYPE, bool, DCColsType > PSpMat_DoubleInt;
+	typedef bool NUMTYPE;
+	typedef SpDCCols<INDEXTYPE,NUMTYPE> DCColsType;
+	typedef SpParMat < INDEXTYPE, NUMTYPE, DCColsType > PSpMat_DoubleInt;
 	typedef PSpMat_DoubleInt MatType;
 	
 public:

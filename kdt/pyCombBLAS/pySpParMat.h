@@ -14,9 +14,10 @@ protected:
 
 public:
 	typedef int64_t INDEXTYPE;
-	typedef SpDCCols<INDEXTYPE,doubleint> DCColsType;
+	typedef doubleint NUMTYPE;
+	typedef SpDCCols<INDEXTYPE,NUMTYPE> DCColsType;
 	typedef SpDCCols<INDEXTYPE,double> DCColsTypeDouble;
-	typedef SpParMat < INDEXTYPE, doubleint, DCColsType > PSpMat_DoubleInt;
+	typedef SpParMat < INDEXTYPE, NUMTYPE, DCColsType > PSpMat_DoubleInt;
 	typedef SpParMat < INDEXTYPE, double, DCColsType > PSpMat_Double;
 	typedef PSpMat_DoubleInt MatType;
 	
