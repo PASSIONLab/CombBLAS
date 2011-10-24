@@ -67,16 +67,14 @@ public:
 void pySpParMatObj2::load(const char* filename)
 {
 	ifstream input(filename);
-	A.ReadDistribute(input, 0, false, Obj2ReadSaveHandler());
+	A.ReadDistribute(input, 0, false, Obj2ReadSaveHandler(), true);
 	input.close();
 }
 
 void pySpParMatObj2::save(const char* filename)
 {
-	//ofstream output(filename);
-	//A.put(output);
+	cout << "Warning! output is transposed" << endl;
 	A.SaveGathered(filename, Obj2ReadSaveHandler());
-	//output.close();
 }
 
 #if 0
@@ -465,7 +463,7 @@ void pySpParMatObj2::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-#define MIXEDOK 0
+#define MIXEDOK 1
 
 pySpParVec pySpParMatObj2::SpMV(const pySpParVec& x, op::SemiringObj* sring)
 {

@@ -236,14 +236,10 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj1* outvals) const;
 public:
-/*
-	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
-	pySpParVec SpMV_SelMax(const pySpParVec& x);
-	void SpMV_SelMax_inplace(pySpParVec& x);
-*/
-	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
-	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
-	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
+
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
 	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
 	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
 	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
@@ -307,14 +303,10 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj2* outvals) const;
 public:
-/*
-	pySpParVec SpMV_PlusTimes(const pySpParVec& x);
-	pySpParVec SpMV_SelMax(const pySpParVec& x);
-	void SpMV_SelMax_inplace(pySpParVec& x);
-*/
-	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
-	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
-	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
 	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
 	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
 	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
@@ -1126,12 +1118,28 @@ class BinaryFunctionObj {
 	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
 
-	Obj1 operator()(const Obj1& x, const double& y) const { return callOD<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const double& y) const { return callOD<Obj2>(x, y); }
-	double operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
-	double operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+	Obj1 operator()(const Obj1& x, const double& y) const { return callOD_retO<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const double& y) const { return callOD_retO<Obj2>(x, y); }
+	double operator()(const double& x, const Obj1& y) const { return callDO_retD(x, y); }
+	double operator()(const double& x, const Obj2& y) const { return callDO_retD(x, y); }
 
 	double operator()(const double& x, const double& y) const { return callDD(x, y); }
+
+
+	// These are used by the semiring ops. They do the same thing as the operator() above,
+	// but their return type matches the 2nd argument instead of the 1st.
+	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
+	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
+	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return call<Obj1>(x, y); }
+	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return call<Obj2>(x, y); }
+
+	double rettype2nd_call(const Obj1& x, const double& y) const { return callOD_retD(x, y); }
+	double rettype2nd_call(const Obj2& x, const double& y) const { return callOD_retD(x, y); }
+	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return callDO_retO<Obj1>(x, y); }
+	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return callDO_retO<Obj2>(x, y); }
+
+	double rettype2nd_call(const double& x, const double& y) const { return callDD(x, y); }
+
 };
 
 class BinaryPredicateObj {

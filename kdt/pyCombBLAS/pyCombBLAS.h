@@ -1,34 +1,6 @@
 #ifndef PYCOMBBLAS_H
 #define PYCOMBBLAS_H
 
-//#include "../../CombBLAS/SpParVec.h"
-//#include "../../CombBLAS/SpTuples.h"
-//#include "../../CombBLAS/SpDCCols.h"
-//#include "../../CombBLAS/SpParMat.h"
-//#include "../../CombBLAS/SpParVec.h"
-//#include "../../CombBLAS/DenseParMat.h"
-//#include "../../CombBLAS/DenseParVec.h"
-//#include "../../CombBLAS/ParFriends.h"
-//#include "../../CombBLAS/Semirings.h"
-
-
-/*
-#ifdef NOTR1
-        #include <boost/tr1/memory.hpp>
-#else
-        #include <tr1/memory>
-#endif
-#include "../../CombBLAS/SpTuples.h"
-#include "../../CombBLAS/SpDCCols.h"
-#include "../../CombBLAS/SpParMat.h"
-#include "../../CombBLAS/FullyDistVec.h"
-#include "../../CombBLAS/FullyDistSpVec.h"
-#include "../../CombBLAS/VecIterator.h"
-#include "../../CombBLAS/ParFriends.h"
-#include "../../CombBLAS/DistEdgeList.h"
-#include "../../CombBLAS/Operations.h"
-*/
-
 #ifdef _MSC_VER
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4800) // forcing to bool, performance warning.
@@ -75,16 +47,16 @@ public:
 #include "obj.h"
 #include "pyOperations.h"
 #include "pyOperationsObj.h"
-#include "pySpParMat.h"
-#include "pySpParMatBool.h"
-#include "pySpParMatObj1.h"
-#include "pySpParMatObj2.h"
 #include "pySpParVec.h"
 #include "pySpParVecObj1.h"
 #include "pySpParVecObj2.h"
 #include "pyDenseParVec.h"
 #include "pyDenseParVecObj1.h"
 #include "pyDenseParVecObj2.h"
+#include "pySpParMat.h"
+#include "pySpParMatBool.h"
+#include "pySpParMatObj1.h"
+#include "pySpParMatObj2.h"
 
 extern "C" {
 void init_pyCombBLAS_MPI();

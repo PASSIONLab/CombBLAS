@@ -18,24 +18,24 @@ struct inf_plus{
   }
 };
 
-template <class T1, class T2>
+template <class T1, class T2, class OUT>
 struct Select2ndSRing
 {
-	typedef typename promote_trait<T1,T2>::T_promote T_promote;
-	static T_promote id() { return -1;}
+	static OUT id() { return OUT(); }
 	static MPI_Op mpi_op() { return MPI_MAX; };
-	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
-		return std::max(arg1, arg2);
+		return arg2;
 	}
-	static T_promote multiply(const T1 & arg1, const T2 & arg2)
+	static OUT multiply(const T1 & arg1, const T2 & arg2)
 	{
 		// fragile since it wouldn't work with y <- x*A
-		return static_cast<T_promote>(arg2);
+		return static_cast<OUT>(arg2);
 	}
-	static void axpy(T1 a, const T2 & x, T_promote & y)
+	static void axpy(T1 a, const T2 & x, OUT & y)
 	{
-		y = std::max(y, static_cast<T_promote>(a*x));
+		//y = add(y, multiply(a, x));
+		y = multiply(a, x);
 	}
 };
 
