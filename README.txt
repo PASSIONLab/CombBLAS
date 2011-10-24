@@ -31,7 +31,7 @@ That includes the MPI library in the case of KDT. If your MPI was not
 compiled with -fPIC then the link step will fail. If this happens, contact your
 system administrator.
 
-Choosing a compiler
+Choosing a Compiler
 -------------------
 
 KDT consists of pure Python classes and a C++ extension. This C++ extension,
@@ -47,32 +47,27 @@ Note that your system may give you a choice between GNU and Portland Group
 must use the same one that your Python was compiled with. Note that mpicxx is
 often just wrapper around GNU or PGI compilers.
 
-System Libraries
-----------------
+Problems with System Libraries
+------------------------------
 
-If you chose to use a non-default MPI compiler then be aware that the runtime
-may link to the default MPI libraries anyway. This is probably not what you
+If you chose to use a non-default MPI compiler but still use the default mpirun,
+then you will still use the default MPI libraries. This is probably not what you
 want. The result may be something like this:
 
 ImportError: ./kdt/_pyCombBLAS.so: undefined symbol: _ZN3MPI3Win4FreeEv
 
-The solution is to set your LD_LIBRARY environment variable such that the MPI
+The solution is to fully specify the path to mpirun. If that still does not
+solve the issue, set your LD_LIBRARY environment variable such that the MPI
 library you compiled with appears before the incorrect defaults.
 
+Problems with OpenMPI
+---------------------
 
-Building without Distutils
---------------------------
+Some versions of OpenMPI do not properly link to themselves. This can manifest
+in undefined symbol errors when the kdt module is loaded.
 
-If the setup.py script fails for you, you can build the C++ extension
-manually. The kdt/pyCombBLAS directory contains a Makefile (named
-Makefile-dist, rename as necessary) which you can tune
-for your system. The important things to change are:
-COMPILER - compiler to use.
-INCADD - include your Python build directory as well as your Boost
-installation if you need it.
-OPT - any flags you wish to change.
+The solution is to manually add the OpenMPI lib path to the library path before
+running your Python script:
+export LD_LIBRARY_PATH=/opt/openmpi/gnu/mx/lib:$LD_LIBRARY_PATH
 
-Once pyCombBLAS is built, you may manually install the kdt/ directory in your
-systemwide Python site-packages directory, or simply set your PYTHONPATH environment
-variable to point to the parent directory of kdt/ (i.e. the base of the
-distribution).
+Substitute the appropriate path for your system.

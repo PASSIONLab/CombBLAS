@@ -12,11 +12,6 @@ PCB = "kdt/pyCombBLAS/"
 GENERATOR = "CombBLAS/graph500-1.2/generator/"
 debug = False
 
-print "Remember to set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
-print "export CC=mpicxx"
-print "export CXX=mpicxx"
-print ""
-
 ############################################################################
 #### HELPER FUNCTIONS
 def see_if_compiles(program, include_dirs, define_macros):
@@ -81,13 +76,51 @@ def check_for_header(header, include_dirs, define_macros):
 ############################################################################
 #### INDIVIDUAL TEST FUNCTIONS
 
+def check_for_MPI(include_dirs, define_macros):
+	""" See if an MPI compiler was provided. """
+	
+	program = """
+#include <mpi.h>
+
+int main(int argc, char** argv) {
+	MPI_Init(&argc, &argv);
+	return 0;
+}
+"""
+	sys.stdout.write("Checking for MPI... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("No\n");
+	return success
+
+def check_for_MPI_CPP(include_dirs, define_macros):
+	""" See if MPI C++ bindings are provided. """
+	
+	program = """
+#include <mpi.h>
+
+int main(int argc, char** argv) {
+	MPI::Init(argc, argv);
+	return 0;
+}
+"""
+	sys.stdout.write("Checking for MPI C++ bindings... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("No\n");
+	return success
+
 def check_for_MPI_IN_PLACE(include_dirs, define_macros):
 	""" Check for the existence of the MPI_IN_PLACE constant. """
 	
 	program = """
 #include <mpi.h>
 
-int main(int argc, const char** argv) {
+int main(int argc, char** argv) {
 	void* buf = NULL;
 	MPI_Allreduce(MPI_IN_PLACE, buf, 10, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 	return 0;
@@ -125,6 +158,23 @@ int main()
 		sys.stdout.write("OK\n");
 	else:
 		sys.stdout.write("Not found, will use __STDC_CONSTANT_MACROS and __STDC_LIMIT_MACROS\n");
+	return success
+
+def check_for_restrict(include_dirs, define_macros):
+	""" See if the restrict keyword works. """
+	
+	program = """
+void func(int* restrict x)
+{
+	*x = 0;
+}
+"""
+	sys.stdout.write("Checking for restrict keyword... ")
+	success = see_if_compiles(program, include_dirs, define_macros)
+	if (success):
+		sys.stdout.write("OK\n");
+	else:
+		sys.stdout.write("No, will use __restrict__\n");
 	return success
 
 
@@ -197,16 +247,34 @@ for a in copy_args:
 ############################################################################
 #### RUNNING TESTS
 
+if not check_for_MPI(include_dirs, define_macros):
+	print "ERROR: MPI not found. KDT requires an MPI compiler to be used."
+	print "On Linux/Unix/MacOSX:"
+	print "Set your preferred MPI C++ compiler in the CC and CXX environment variables. For example, in Bash:"
+	print "export CC=mpicxx"
+	print "export CXX=mpicxx"
+	print "(specify both CC and CXX. Distutils uses CC for compilation and CXX for linking. Both need to be specified)"
+	print "Remember that you must use an MPI compiler based on the same compiler used to compile Python. On most systems that is GCC (ICC should also work)."
+	print ""
+	print "On Windows:"
+	print "Make sure you have a compatible MPI library installed and its include path is specified. You can append an include path with the -IC:\\path\\to\\mpi\\include switch to setup.py."
+	sys.exit()
+
+if not check_for_MPI_CPP(include_dirs, define_macros):
+	print "ERROR: MPI C++ bindings not found. Please use an MPI which supplies C++ bindings."
+	print "On Windows, Microsoft MPI does not provide C++ bindings, use MPICH."
+	sys.exit()
+
 # see if the compiler has TR1
 hasCpp0x = False
 hasTR1 = False
 hasBoost = False
 headerDefs = []
-print "Checking for C++0x:"
+print "Checking for C++11:"
 if check_for_header("memory", include_dirs, define_macros) and check_for_header("unordered_map", include_dirs, define_macros):
 	hasCpp0x = True
 else:
-	print "No C++0x. Checking for TR1:"
+	print "No C++11. Checking for TR1:"
 	if check_for_header("tr1/memory", include_dirs, define_macros) and check_for_header("tr1/unordered_map", include_dirs, define_macros):
 		hasTR1 = True
 		headerDefs = [('COMBBLAS_TR1', None)]
@@ -218,7 +286,8 @@ else:
 			headerDefs = [('COMBBLAS_BOOST', None)]
 		else:
 			# nope, then sorry
-			print "KDT uses features from C++0x (TR1). These are available from some compilers or through the Boost C++ library (www.boost.org)."
+			print "KDT uses features from C++11 (TR1). These are available from some compilers or through the Boost C++ library (www.boost.org)."
+			print "Your compiler does not have support for C++11 nor does it include TR1."
 			print "Please make sure Boost is in your system include path or append the include path with the -I switch."
 			print "For example, if you have Boost installed in /home/username/include/boost:"
 			print "$ python setup.py build -I/home/username/include"
@@ -234,6 +303,9 @@ else:
 if not check_for_C99_CONSTANTS(include_dirs, define_macros):
 	define_macros.append(("__STDC_CONSTANT_MACROS", None))
 	define_macros.append(("__STDC_LIMIT_MACROS", None))
+
+if not check_for_restrict(include_dirs, define_macros):
+	define_macros.append(('restrict', '__restrict__'))
 
 # Windows-specific things
 if check_for_Windows(include_dirs, define_macros):
@@ -254,9 +326,9 @@ if check_for_Windows(include_dirs, define_macros):
 # still need for ('restrict', '__restrict__') define_macro on non-Windows?
 		
 if not check_for_header("inttypes.h", include_dirs, define_macros):
-	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not include <inttypes.h>
+	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not ship with <inttypes.h>
 if not check_for_header("sys/time.h", include_dirs, define_macros):
-	include_dirs.append(COMBBLAS+"ms_sys")                 # VS2008 does not include <sys/time.h>, we include a blank one because other people's code includes it but none of the functions are used.
+	include_dirs.append(COMBBLAS+"ms_sys")                 # VS2008 does not ship with <sys/time.h>, we provide a blank one because other people's code includes it but none of the functions are used.
 
 if usingWinMPICH:
 	include_dirs.append(MPICHdir + "\include")
@@ -267,9 +339,6 @@ if usingWinMPICH:
 
 ############################################################################
 #### RUN DISTUTILS
-
-## NOTE TO SELF: MAKE THIS A PROPER CHECK!:
-define_macros.append(('restrict', '__restrict__'))
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]

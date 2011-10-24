@@ -718,7 +718,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 
 	// Step 1: Create P
 	IT locvec = ri.arr.size();	// nnz in local vector
-	for(typename vector<IT>::size_type i=0; i< locvec; ++i)
+	for(typename vector<IT>::size_type i=0; i< (unsigned)locvec; ++i)
 	{
 		// numerical values (permutation indices) are 0-based
 		// recipient alone progessor row
@@ -816,7 +816,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	// Step 2: Create Q  (use the same row-wise communication and transpose at the end)
 	// This temporary to-be-transposed Q is size(ci) x n 
 	locvec = ci.arr.size();	// nnz in local vector (reset variable)
-	for(typename vector<IT>::size_type i=0; i< locvec; ++i)
+	for(typename vector<IT>::size_type i=0; i< (unsigned)locvec; ++i)
 	{
 		// numerical values (permutation indices) are 0-based
 		IT rowrec = (n_perproccol!=0) ? std::min(ci.arr[i] / n_perproccol, rowneighs-1) : (rowneighs-1);	
@@ -1653,9 +1653,9 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
 	delete [] locnrows;	
 	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(pair<IT,NT>));
 	datatype.Commit();
-	int dsize = datatype.Get_size();
+	//Adam: gives unused variable warning: int dsize = datatype.Get_size();
 
-	IT nzr = 0;	// nonempty row counts per processor row
+	//Adam: gives unused variable warning: IT nzr = 0;	// nonempty row counts per processor row
 	for(int i = 0; i < procrows; i++)	// for all processor row (in order)
 	{
 		if(commGrid->GetRankInProcCol() == i)	// only the ith processor row
@@ -1687,8 +1687,8 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
 					}
 				}
 			}
-			pair<IT,NT> * ents;
-			int * gsizes, * dpls;
+			pair<IT,NT> * ents = NULL;
+			int * gsizes = NULL, * dpls = NULL;
 			if(commGrid->GetRankInProcRow() == 0)	// only the head of processor row 
 			{
 				out.open(filename.c_str(),std::ios_base::app);
@@ -1697,7 +1697,7 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
 			}
 			for(int j = 0; j < localrows; ++j)	
 			{
-				IT rowcnt;
+				IT rowcnt = 0;
 				sort(csr[j].begin(), csr[j].end());
 				int mysize = csr[j].size();
 				(commGrid->GetRowWorld()).Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, 0);

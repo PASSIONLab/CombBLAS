@@ -64,15 +64,14 @@ int64_t pySpParMatBool::getncol()
 void pySpParMatBool::load(const char* filename)
 {
 	ifstream input(filename);
-	A.ReadDistribute(input, 0);
+	A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler(), true);
 	input.close();
 }
 
 void pySpParMatBool::save(const char* filename)
 {
-	ofstream output(filename);
-	A.put(output);
-	output.close();
+	cout << "Warning: output is transposed!" << endl;
+	A.SaveGathered(filename);
 }
 
 // Copied directly from Aydin's C++ Graph500 code
