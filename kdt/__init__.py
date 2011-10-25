@@ -5,7 +5,8 @@ from Util import *
 from DiGraph import DiGraph
 from HyGraph import HyGraph
 from Graph import master, version, revision, ParVec, SpParVec
-from Vec import Vec, DeVec, SpVec, info
+from Vec import Vec, DeVec, SpVec
+from Mat import Mat
 #from SpVec import SpVec, info
 #from DeVec import DeVec
 from feedback import sendFeedback
@@ -17,3 +18,9 @@ import kdt.ObjMethods
 from Util import *
 
 import Algorithms
+
+# The imports below are temporary. When their code is finalized
+# they'll get merged into Algorithms.py and Mat.py
+import MCL
+import SpectralClustering
+import eig

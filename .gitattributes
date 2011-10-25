@@ -1427,12 +1427,15 @@ kdt/Algorithms.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
+kdt/MCL.py -text
 kdt/Mat.py -text
 kdt/ObjMethods.py -text
+kdt/SpectralClustering.py -text
 kdt/UFget.py -text
 kdt/Util.py -text
 kdt/Vec.py -text
 kdt/__init__.py -text
+kdt/eig.py -text
 kdt/feedback.py -text
 kdt/multiproccheck.py -text
 kdt/old/DiGraph.py -text
