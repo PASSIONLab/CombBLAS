@@ -1,0 +1,249 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+*** Processor row ***
+Alltoallv grid size: 6
+Total data received: 16000000 doubles
+Average time: 0.219411 seconds
+Max time: 0.254242 seconds
+Average bandwidth: 5.83379e+08 bytes/sec
+Minimum bandwidth: 5.03457e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.167403 seconds
+Max time: 0.223195 seconds
+Average bandwidth: 7.64623e+08 bytes/sec
+Minimum bandwidth: 5.7349e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.151356 seconds
+Max time: 0.183964 seconds
+Bandwidth (average): 8.4569e+08 bytes/sec
+Bandwidth (minimum): 6.95787e+08 bytes/sec
+*** Processor column ***
+Alltoallv grid size: 7
+Total data received: 16000000 doubles
+Average time: 0.301263 seconds
+Max time: 0.428931 seconds
+Average bandwidth: 4.24878e+08 bytes/sec
+Minimum bandwidth: 2.98416e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.320708 seconds
+Max time: 0.432115 seconds
+Average bandwidth: 3.99116e+08 bytes/sec
+Minimum bandwidth: 2.96218e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.348623 seconds
+Max time: 0.380469 seconds
+Bandwidth (average): 3.67159e+08 bytes/sec
+Bandwidth (minimum): 3.36427e+08 bytes/sec
+*** Processor row ***
+Allgatherv grid size: 6
+Total data received (per proc): 3000015 doubles
+Average time: 0.0929755 seconds
+Max time: 0.110653 seconds
+Average bandwidth: 2.58134e+08 bytes/sec
+Minimum bandwidth: 2.16895e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 3000015 doubles
+Average time: 0.0248823 seconds
+Max time: 0.0318248 seconds
+Average bandwidth: 9.64545e+08 bytes/sec
+Minimum bandwidth: 7.54132e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0252113 seconds
+Max time: 0.0315897 seconds
+Bandwidth (average): 9.51959e+08 bytes/sec
+Bandwidth (minimum): 7.59745e+08 bytes/sec
+*** Processor column ***
+Allgatherv grid size: 7
+Total data received (per proc): 3500021 doubles
+Average time: 0.0806915 seconds
+Max time: 0.110549 seconds
+Average bandwidth: 3.47003e+08 bytes/sec
+Minimum bandwidth: 2.53283e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 3500021 doubles
+Average time: 0.0642893 seconds
+Max time: 0.0818961 seconds
+Average bandwidth: 4.35534e+08 bytes/sec
+Minimum bandwidth: 3.41899e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0583526 seconds
+Max time: 0.07345 seconds
+Bandwidth (average): 4.79844e+08 bytes/sec
+Bandwidth (minimum): 3.81214e+08 bytes/sec
+### TALL GRID ###
+Alltoallv grid size: 3
+Total data received: 16000000 doubles
+Average time: 0.198705 seconds
+Max time: 0.262205 seconds
+Average bandwidth: 6.44172e+08 bytes/sec
+Minimum bandwidth: 4.88167e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.136194 seconds
+Max time: 0.191888 seconds
+Average bandwidth: 9.39835e+08 bytes/sec
+Minimum bandwidth: 6.67056e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.127771 seconds
+Max time: 0.168695 seconds
+Bandwidth (average): 1.00179e+09 bytes/sec
+Bandwidth (minimum): 7.58767e+08 bytes/sec
+Alltoallv grid size: 14
+Total data received: 16000000 doubles
+Average time: 0.29553 seconds
+Max time: 0.328597 seconds
+Average bandwidth: 4.3312e+08 bytes/sec
+Minimum bandwidth: 3.89535e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.404043 seconds
+Max time: 0.535334 seconds
+Average bandwidth: 3.16798e+08 bytes/sec
+Minimum bandwidth: 2.39103e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.378086 seconds
+Max time: 0.3869 seconds
+Bandwidth (average): 3.38548e+08 bytes/sec
+Bandwidth (minimum): 3.30834e+08 bytes/sec
+Allgatherv grid size: 3
+Total data received (per proc): 1500003 doubles
+Average time: 0.0418921 seconds
+Max time: 0.078764 seconds
+Average bandwidth: 2.86451e+08 bytes/sec
+Minimum bandwidth: 1.52354e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 1500003 doubles
+Average time: 0.0111122 seconds
+Max time: 0.0134749 seconds
+Average bandwidth: 1.0799e+09 bytes/sec
+Minimum bandwidth: 8.90544e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0109345 seconds
+Max time: 0.0131353 seconds
+Bandwidth (average): 1.09745e+09 bytes/sec
+Bandwidth (minimum): 9.1357e+08 bytes/sec
+Allgatherv grid size: 14
+Total data received (per proc): 7000091 doubles
+Average time: 0.138791 seconds
+Max time: 0.170193 seconds
+Average bandwidth: 4.0349e+08 bytes/sec
+Minimum bandwidth: 3.29043e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 7000091 doubles
+Average time: 0.0869783 seconds
+Max time: 0.10343 seconds
+Average bandwidth: 6.43847e+08 bytes/sec
+Minimum bandwidth: 5.41437e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0990682 seconds
+Max time: 0.109417 seconds
+Bandwidth (average): 5.65274e+08 bytes/sec
+Bandwidth (minimum): 5.1181e+08 bytes/sec
+### WIDE GRID ###
+Alltoallv grid size: 12
+Total data received: 16000000 doubles
+Average time: 0.221143 seconds
+Max time: 0.259099 seconds
+Average bandwidth: 5.78811e+08 bytes/sec
+Minimum bandwidth: 4.9402e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.174989 seconds
+Max time: 0.20668 seconds
+Average bandwidth: 7.31477e+08 bytes/sec
+Minimum bandwidth: 6.19315e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.181204 seconds
+Max time: 0.211951 seconds
+Bandwidth (average): 7.06387e+08 bytes/sec
+Bandwidth (minimum): 6.03913e+08 bytes/sec
+Alltoallv grid size: 4
+Total data received: 16000000 doubles
+Average time: 0.29832 seconds
+Max time: 0.490105 seconds
+Average bandwidth: 4.2907e+08 bytes/sec
+Minimum bandwidth: 2.61169e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 16000000 doubles
+Average time: 0.333769 seconds
+Max time: 0.45512 seconds
+Average bandwidth: 3.83498e+08 bytes/sec
+Minimum bandwidth: 2.81244e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.336138 seconds
+Max time: 0.383726 seconds
+Bandwidth (average): 3.80796e+08 bytes/sec
+Bandwidth (minimum): 3.33571e+08 bytes/sec
+Allgatherv grid size: 12
+Total data received (per proc): 6000066 doubles
+Average time: 0.128175 seconds
+Max time: 0.153425 seconds
+Average bandwidth: 3.74493e+08 bytes/sec
+Minimum bandwidth: 3.1286e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 6000066 doubles
+Average time: 0.0511821 seconds
+Max time: 0.060487 seconds
+Average bandwidth: 9.37837e+08 bytes/sec
+Minimum bandwidth: 7.93567e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0530764 seconds
+Max time: 0.0602693 seconds
+Bandwidth (average): 9.04366e+08 bytes/sec
+Bandwidth (minimum): 7.96434e+08 bytes/sec
+Allgatherv grid size: 4
+Total data received (per proc): 2000006 doubles
+Average time: 0.0381115 seconds
+Max time: 0.0572228 seconds
+Average bandwidth: 4.19822e+08 bytes/sec
+Minimum bandwidth: 2.79609e+08 bytes/sec
+*** Runs in sequence (decoupling contention among subcommunicators) ***
+Total data received (per proc): 2000006 doubles
+Average time: 0.0403486 seconds
+Max time: 0.046397 seconds
+Average bandwidth: 3.96545e+08 bytes/sec
+Minimum bandwidth: 3.44851e+08 bytes/sec
+*** Subsequent 10 runs with the same data ***
+Average time: 0.0369093 seconds
+Max time: 0.0474312 seconds
+Bandwidth (average): 4.33497e+08 bytes/sec
+Bandwidth (minimum): 3.37332e+08 bytes/sec
+##IPM2v0.xx########################################################
+#
+# command   : ./a.out 500               
+# start     : Sun Oct 23 16:31:09 2011   host      : nid03387        
+# stop      : Sun Oct 23 16:31:49 2011   wallclock : 40.55
+# mpi_tasks : 40 on 10 nodes             %comm     : 62.96
+# mem [GB]  : 11.30                      gflop/sec : 0.00
+#
+#           :       [total]        <avg>          min          max
+# wallclock :       1621.77        40.54        40.54        40.55 
+# MPI       :       1021.00        25.53        24.27        26.25 
+# %wall     :
+#   MPI     :                      62.96        59.86        64.74 
+# #calls    :
+#   MPI     :         12640          316          316          316
+# mem [GB]  :         11.30         0.28         0.27         0.29 
+#
+###################################################################
+Application 4161324 resources: utime ~1640s, stime ~40s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script2400_onepersocket
+ +          Job Id: 927571.sdb
+ +          System: hopper
+ +     Queued Time: Sun Oct 23 16:30:51 2011
+ +      Start Time: Sun Oct 23 16:31:29 2011
+ + Completion Time: Sun Oct 23 16:32:15 2011
+ +            User: abuluc
+ +        MOM Host: nid04945
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:9168:hopper10,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5112kb,vmem=36596kb,walltime=00:00:46
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/betatests
+ +     Submit Args: script2400_onepersocket
+ + --------------------------------------------------------------------------
+
