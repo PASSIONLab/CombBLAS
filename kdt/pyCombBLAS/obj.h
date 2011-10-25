@@ -65,6 +65,14 @@ public:
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 
+	Obj1& operator=(const Obj1& other) {
+		if (this == &other)
+			return;
+			
+		memcpy(this, &other, sizeof(Obj1));
+		return *this;
+	}
+
 	bool operator==(const Obj1& other) const {
 		return __eq__(other);
 	}
@@ -146,6 +154,13 @@ public:
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
+	Obj2& operator=(const Obj2& other) {
+		if (this == &other)
+			return;
+			
+		memcpy(this, &other, sizeof(Obj2));
+		return *this;
+	}
 
 	bool operator==(const Obj2& other) const {
 		return __eq__(other);
