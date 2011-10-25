@@ -22,5 +22,5 @@ import Algorithms
 # The imports below are temporary. When their code is finalized
 # they'll get merged into Algorithms.py and Mat.py
 import MCL
-import SpectralClustering
 import eig
+import SpectralClustering
