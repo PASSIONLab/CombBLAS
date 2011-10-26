@@ -215,6 +215,10 @@ private:
 	friend FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> 
 	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, typename promote_trait<NU1,NU2>::T_promote zero);
 
+	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+	friend FullyDistSpVec<IU,RET> 
+	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero);
+
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
 };

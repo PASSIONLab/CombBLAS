@@ -382,6 +382,75 @@ bool retTrue(const T1& x, const T2& y)
 	return true;
 }
 
+/* Compiler doesn't see this for some reason that I can't figure out.
+template <class ATYPE, class BTYPE, class VECA, class VECB>
+VECA EWiseApply_worker(const VECA& a, const VECB& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, VECA& ANull)
+{
+	if (doOp != NULL)
+		return VECA(EWiseApply<ATYPE>(a.v, b.v, *op, *doOp,                 allowANulls, ANull));
+	else
+		return VECA(EWiseApply<ATYPE>(a.v, b.v, *op, retTrue<ATYPE, BTYPE>, allowANulls, ANull));
+}*/
+
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, doubleint>, allowANulls, doubleint(ANull)));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, Obj1>, allowANulls, doubleint(ANull)));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, Obj2>, allowANulls, doubleint(ANull)));
+}
+/////
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, doubleint>, allowANulls, doubleint(ANull)));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, Obj1>, allowANulls, doubleint(ANull)));
+}
+
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull)
+{
+	if (doOp != NULL)
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, *doOp, allowANulls, doubleint(ANull)));
+	else
+		return pySpParVec(EWiseApply<doubleint>(a.v, b.v, *op, retTrue<doubleint, Obj2>, allowANulls, doubleint(ANull)));
+}
+
+
+/* Compiler doesn't see this for some reason that I can't figure out.
+template <class ATYPE, class BTYPE, class VECA, class VECB>
+VECA EWiseApply_sp_sp_worker(const VECA& a, const VECB& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, VECA& ANull, VECB& BNull)
+{
+	if (doOp != NULL)
+		return VECA(EWiseApply<ATYPE, pySpParVec::INDEXTYPE, ATYPE, BTYPE>(a.v, b.v, *op, *doOp,                 allowANulls, allowBNulls, ANull, BNull));
+	else
+		return VECA(EWiseApply<ATYPE, pySpParVec::INDEXTYPE, ATYPE, BTYPE>(a.v, b.v, *op, retTrue<ATYPE, BTYPE>, allowANulls, allowBNulls, ANull, BNull));
+}*/
+
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 BNull)
 {
 	if (doOp != NULL)
