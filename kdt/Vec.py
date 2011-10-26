@@ -50,11 +50,102 @@ class Vec(object):
 			self = object.__new__(SpVec,  length, element)
 
 		return self
-
+	
+	def _stealFrom(self, other):
+		self._v_ = other._v_
+		self._identity_ = other._identity_
 
 	@staticmethod
 	def isObj(self):
 		return not isinstance(self._identity_, (float, int, long))
+	
+	def __len__(self):
+		"""
+		returns the length (the maximum number of potential nonnull elements
+		that could exist) of a Vec instance.
+		"""
+		return len(self._v_)
+
+	def __delitem__(self, key):
+		if isinstance(other, (float, int, long)):
+			del self._spv[key]
+		else:
+			del self._spv[key._dpv];	
+		return
+
+	def __getitem__(self, key):
+		"""
+		performs indexing of a SpParVec instance on the right-hand side
+		of an equation.  The following forms are supported:
+	scalar = spparvec[integer scalar]
+	spparvec = spparvec[non-boolean parvec]
+
+		The first form takes as the index an integer scalar and returns
+		the corresponding element of the SpParVec instance.  This form is
+		for convenience and is not highly performing.
+
+		The second form takes as the index a non-Boolean SpParVec instance
+		and returns an SpParVec instance of the same length with the 
+		elements of the result corresponding to the nonnull values of the
+		index set to the values of the base SpParVec instance. 
+		"""
+		if isinstance(key, (int, long, float)):
+			if key < 0 or key > len(self)-1:
+				raise IndexError
+			return self._v_[key]
+		else:
+			return Vec._toVec(self._v_[key._v_])
+		#elif isinstance(key,ParVec):
+		#	if key.isBool():
+		#		raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
+		#	ret = ParVec(-1)
+		#	ret._dpv = self._spv[key._dpv]
+		#else:
+		#	raise KeyError, 'SpParVec indexing only by ParVec or integer scalar'
+		#return ret
+
+
+	def isSparse():
+		"""
+		returns true if this Vec represents a sparse vector, false otherwise.
+		"""
+		return isinstance(self._v_, (pcb.pySpParVec, pcb.pySpParVecObj1, pcb.pySpParVecObj2))
+	
+	def isDense():
+		"""
+		returns true if this Vec represents a dense vector, false otherwise.
+		"""
+		return not isSparse()
+	
+	_REPR_MAX = 30;
+	_REPR_WARN = 0
+	def __repr__(self):
+		"""
+		prints the first N elements of the SpParVec instance, where N
+		is roughly equal to the value of self._REPR_MAX.
+
+		SEE ALSO:  printAll
+		"""
+		if hasattr(self,'_v_'):
+			self._v_.printall()
+		else:
+			return "Vec with no _v_"
+		return ' '
+		#TODO:  limit amount of printout?
+		nPrinted = 0
+		i = 0
+		while i < len(self) and nPrinted < self._REPR_MAX:
+			#HACK check for nonnull
+			#ToDo: return string instead of printing here
+			print "__repr__ loop,", self[i]
+			if self[i].weight > info.eps or self[i].category!=0:
+				print self[i]
+				nPrinted += 1
+			i += 1
+		if i < len(self)-1 and master():
+			print "Limiting print-out to first %d elements" % self._REPR_MAX
+		return ' '
+
 
 	@staticmethod
 	def _hasFilter(self):
@@ -63,6 +154,203 @@ class Vec(object):
 		except AttributeError:
 			ret = False
 		return ret
+	
+	
+################################
+#### EWiseApply
+################################
+
+	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
+	def _sparse_sparse_eWiseApply(self, other, op, allowANulls, allowBNulls, ANull, BNull):
+		"""
+		ToDo:  write doc
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+
+		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), None, allowANulls, allowBNulls, ANull, BNull)
+		ret = Vec._toVec(v)
+		return ret
+
+	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
+	def _sparse_dense_eWiseApply(self, other, op, allowANulls, ANull):
+		"""
+		ToDo:  write doc
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+
+		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), None, allowANulls, ANull)
+		ret = Vec._toVec(v)
+		return ret
+
+	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
+	def _dense_sparse_eWiseApply_inPlace(self, other, op, allowBNulls, BNull):
+		"""
+		ToDo:  write doc
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+
+		self._v_.EWiseApply(other._v_, _op_make_binary(superOp), allowBNulls, BNull)
+	
+	# NOTE: this function is DeVec-specific because pyCombBLAS calling
+	#  sequences are different for EWiseApply on sparse/dense vectors
+	def _dense_dense_eWiseApply_inPlace(self, other, op):
+		"""
+		ToDo:  write doc
+		in-place operation
+		"""
+		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+			class tmpB:
+				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
+					selfVFLen = len(self._vFilter_)
+					vFilter1 = self._vFilter_
+				else:
+					selfVFLen = 0
+				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
+					otherVFLen = len(other._vFilter_)
+					vFilter2 = other._vFilter_
+				else:
+					otherVFLen = 0
+				@staticmethod
+				def fn(x, y):
+					for i in range(tmpB.selfVFLen):
+						if not tmpB.vFilter1[i](x):
+							x = type(self._identity_)()
+							break
+					for i in range(tmpB.otherVFLen):
+						if not tmpB.vFilter2[i](y):
+							y = type(other._identity_)()
+							break
+					return op(x, y)
+			superOp = tmpB().fn
+		else:
+			superOp = op
+
+		self._v_.EWiseApply(other._v_, _op_make_binary(superOp))
+	
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, inPlace=False):
+		"""
+		Performs an element-wise operation between the two vectors.
+		if inPlace is true the result is stored in self.
+		if inPlace is false, the result is returned in a new vector.
+		"""
+		if not isinstance(other, Vec):
+			raise KeyError, "'other' must be a vector."
+		
+		if len(self) != len(other):
+			raise IndexError, 'vectors must be of the same length.'
+		
+		# there are 4 possible permutations of dense and sparse vectors,
+		# and each one can be either inplace or not.
+		if self.isSparse():
+			if other.isSparse():
+				if inPlace:
+					ret = self._sparse_sparse_eWiseApply(other, op, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+					self._stealFrom(ret)
+				else:
+					return self._sparse_sparse_eWiseApply(other, op, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+			else: # sparse, dense
+				if inPlace:
+					ret = self._sparse_dense_eWiseApply(other, op, allowANulls=allowANulls, ANull=self._identity_)
+					self._stealFrom(ret)
+				else:
+					return self._sparse_dense_eWiseApply(other, op, allowANulls=allowANulls, ANull=self._identity_)
+		else: # dense
+			if other.isSparse():
+				if inPlace:
+					self._dense_sparse_eWiseApply_inPlace(other, op, allowBNulls=allowBNulls, BNull=other._identity_)
+				else:
+					ret = self.copy()
+					ret._dense_sparse_eWiseApply_inPlace(other, op, allowBNulls=allowBNulls, BNull=other._identity_)
+					return ret
+			else: # dense, dense
+				if inPlace:
+					self._dense_dense_eWiseApply_inPlace(other, op)
+				else:
+					ret = self.copy()
+					ret._dense_dense_eWiseApply_inPlace(other, op)
+					return ret
+
+#################################################
+##  Operators
+#################################################
 
 	def __abs__(self):
 		ret = self.copy()
@@ -138,14 +426,6 @@ class Vec(object):
 		 	ret = self._eWiseApply(other, func, True,True)		
 		return ret
 
-
-	def __delitem__(self, key):
-		if isinstance(other, (float, int, long)):
-			del self._spv[key]
-		else:
-			del self._spv[key._dpv];	
-		return
-
 	def __div__(self, other):
 		"""
 		divides each element of the first argument (a SpParVec instance),
@@ -200,37 +480,6 @@ class Vec(object):
 		 	func = lambda x, other: x.__eqPy__(other)
 		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
-
-	def __getitem__(self, key):
-		"""
-		performs indexing of a SpParVec instance on the right-hand side
-		of an equation.  The following forms are supported:
-	scalar = spparvec[integer scalar]
-	spparvec = spparvec[non-boolean parvec]
-
-		The first form takes as the index an integer scalar and returns
-		the corresponding element of the SpParVec instance.  This form is
-		for convenience and is not highly performing.
-
-		The second form takes as the index a non-Boolean SpParVec instance
-		and returns an SpParVec instance of the same length with the 
-		elements of the result corresponding to the nonnull values of the
-		index set to the values of the base SpParVec instance. 
-		"""
-		if isinstance(key, (int, long, float)):
-			if key < 0 or key > len(self)-1:
-				raise IndexError
-			return self._v_[key]
-		else:
-			return Vec._toVec(self._v_[key._v_])
-		#elif isinstance(key,ParVec):
-		#	if key.isBool():
-		#		raise KeyError, "Boolean indexing on right-hand side for SpParVec not supported"
-		#	ret = ParVec(-1)
-		#	ret._dpv = self._spv[key._dpv]
-		#else:
-		#	raise KeyError, 'SpParVec indexing only by ParVec or integer scalar'
-		#return ret
 
 	def __ge__(self, other):
 		"""
@@ -352,13 +601,6 @@ class Vec(object):
 		 	self = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return self
 		
-	def __len__(self):
-		"""
-		returns the length (the maximum number of potential nonnull elements
-		that could exist) of a SpVecObj instance.
-		"""
-		return len(self._v_)
-
 	def __le__(self, other):
 		"""
 		calculates the Boolean less-than-or-equal relationship of the first argument with the second argument 
@@ -520,35 +762,6 @@ class Vec(object):
 		func = lambda x, other: x.__or__(other)
 		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
 		return ret
-
-	_REPR_MAX = 30;
-	_REPR_WARN = 0
-	def __repr__(self):
-		"""
-		prints the first N elements of the SpParVec instance, where N
-		is roughly equal to the value of self._REPR_MAX.
-
-		SEE ALSO:  printAll
-		"""
-		if hasattr(self,'_v_'):
-			self._v_.printall()
-		else:
-			return "Vec with no _v_"
-		return ' '
-		#TODO:  limit amount of printout?
-		nPrinted = 0
-		i = 0
-		while i < len(self) and nPrinted < self._REPR_MAX:
-			#HACK check for nonnull
-			#ToDo: return string instead of printing here
-			print "__repr__ loop,", self[i]
-			if self[i].weight > info.eps or self[i].category!=0:
-				print self[i]
-				nPrinted += 1
-			i += 1
-		if i < len(self)-1 and master():
-			print "Limiting print-out to first %d elements" % self._REPR_MAX
-		return ' '
 
 
 #	def __setitem__(self, key, value):
@@ -1082,8 +1295,6 @@ class Vec(object):
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
-	def isSparse(self):
-		return self._isSparse_
 
 #SPR  Don't know how to do this yet; needs element argument
 	@staticmethod
@@ -1539,65 +1750,16 @@ class DeVec(Vec):
 		else:
 			raise KeyError, 'Unknown key type'
 		return
-
-	# NOTE: this function is DeVec-specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
-		"""
-		ToDo:  write doc
-		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
-			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
-#		if noWrap:
-#			if isinstance(other, (float, int, long)):
-#				self._v_.EWiseApply(other   , superOp)
-#			else:
-#				self._v_.EWiseApply(other._v_, superOp)
-#		else:
-#			if isinstance(other, (float, int, long)):
-#				self._v_.EWiseApply(other   , pcb.binaryObj(superOp), pcb.binaryObj(lambda x,y: x._true_(y)), allowANulls, allowBNulls)
-#			else:
-#				self._v_.EWiseApply(other._v_, pcb.binaryObj(superOp), pcb.binaryObj(lambda x,y: x._true_(y)))
-#		ret = Vec._toVec(self,self._v_)
-		if noWrap:
-			if isinstance(other, (float, int, long)):
-				self._v_.EWiseApply(other   , superOp)
-			else:
-				self._v_.EWiseApply(other._v_, superOp)
-		else:
-			if isinstance(other, (float, int, long)):
-				self._v_.EWiseApply(other   , pcb.binaryObj(superOp))
-			else:
-				self._v_.EWiseApply(other._v_, pcb.binaryObj(superOp))
-		ret = Vec._toVec(self,self._v_)
-		return ret
 	
 	def randPerm(self):
-		self._v_.RandPerm()
+		"""
+		randomly permutes all elements of the vector. Currently only
+		supports dense vectors.
+		"""
+		if self.isDense():
+			self._v_.RandPerm()
+		else:
+			raise NotImplementedError, "Sparse vectors do not support RandPerm."
 
 	def _newLike(self, length, element):
 		ret = DeVec(length,0,element,False)
@@ -1788,52 +1950,7 @@ class SpVec(Vec):
 			self._v_.ApplyInd(pcb.binaryObj(superOp))
 		#NEEDED?  ret = Vec._toVec(self,self._v_)
 		return
-
-	# NOTE: this function is SpVec-specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, noWrap=False):
-		"""
-		ToDo:  write doc
-		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
-			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
-		if noWrap:
-			if isinstance(other, (float, int, long)):
-				v = pcb.EWiseApply(self._v_, other   , superOp, allowANulls, allowBNulls)
-			else:
-				v = pcb.EWiseApply(self._v_, other._v_, superOp, allowANulls, allowBNulls)
-		else:
-			if isinstance(other, (float, int, long)):
-				v = pcb.EWiseApply(self._v_, other   , pcb.binaryObj(superOp), None, allowANulls, allowBNulls)
-			else:
-				v = pcb.EWiseApply(self._v_, other._v_, pcb.binaryObj(superOp), None, allowANulls, allowBNulls)
-		ret = Vec._toVec(self,v)
-		return ret
-
+	
 	def _newLike(self, length=0, element=None):
 		ret = SpVec(length, None, element, True)
 		return ret
