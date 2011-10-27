@@ -14,7 +14,7 @@ debug = False
 
 ############################################################################
 #### HELPER FUNCTIONS
-def see_if_compiles(program, include_dirs, define_macros):
+def see_if_compiles(program, include_dirs, define_macros, hideErrors=True):
 	""" Try to compile the passed in program and report if it compiles successfully or not. """
 	from distutils.ccompiler import new_compiler, CompileError
 	from shutil import rmtree
@@ -42,10 +42,11 @@ def see_if_compiles(program, include_dirs, define_macros):
 	f.close()
 
 	# redirect the error stream to keep ugly compiler error messages off the command line
-	devnull = open('errors.txt', 'w')
-	oldstderr = os.dup(sys.stderr.fileno())
-	os.dup2(devnull.fileno(), sys.stderr.fileno())
-	#
+	if hideErrors:
+		devnull = open('errors.txt', 'w')
+		oldstderr = os.dup(sys.stderr.fileno())
+		os.dup2(devnull.fileno(), sys.stderr.fileno())
+
 	try:
 		c = new_compiler()
 		for macro in define_macros:
@@ -54,9 +55,11 @@ def see_if_compiles(program, include_dirs, define_macros):
 		success = True
 	except CompileError:
 		success = False
+		
 	# undo the error stream redirect
-	os.dup2(oldstderr, sys.stderr.fileno())
-	devnull.close()
+	if hideErrors:
+		os.dup2(oldstderr, sys.stderr.fileno())
+		devnull.close()
 	
 	os.chdir(old)
 	rmtree(tmpdir)
@@ -88,7 +91,8 @@ int main(int argc, char** argv) {
 }
 """
 	sys.stdout.write("Checking for MPI... ")
-	success = see_if_compiles(program, include_dirs, define_macros)
+	sys.stdout.flush()
+	success = see_if_compiles(program, include_dirs, define_macros, hideErrors=True)
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
@@ -258,9 +262,9 @@ if not check_for_MPI(include_dirs, define_macros):
 	print ""
 	print "On Windows:"
 	print "Make sure you have a compatible MPI library installed and its include path is specified. You can append an include path with the -IC:\\path\\to\\mpi\\include switch to setup.py."
-	sys.exit()
+	#sys.exit()
 
-if not check_for_MPI_CPP(include_dirs, define_macros):
+if False and not check_for_MPI_CPP(include_dirs, define_macros):
 	print "ERROR: MPI C++ bindings not found. Please use an MPI which supplies C++ bindings."
 	print "On Windows, Microsoft MPI does not provide C++ bindings, use MPICH."
 	sys.exit()
