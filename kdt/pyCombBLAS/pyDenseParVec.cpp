@@ -402,7 +402,8 @@ void pyDenseParVec::printall()
 pyDenseParVec pyDenseParVec::abs()
 {
 	pyDenseParVec ret = copy();
-	ret.Apply(&op::abs());
+	op::UnaryFunction abs = op::abs();
+	ret.Apply(&abs);
 	return ret;
 }
 
@@ -435,7 +436,8 @@ pyDenseParVec pyDenseParVec::operator-(double value)
 pyDenseParVec pyDenseParVec::__and__(const pyDenseParVec& other)
 {
 	pyDenseParVec ret = copy();
-	ret.EWiseApply(other, &op::logical_and());
+	op::BinaryFunction la = op::logical_and();
+	ret.EWiseApply(other, &la);
 	return ret;
 }
 

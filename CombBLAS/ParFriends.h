@@ -837,10 +837,10 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 	// FullyDistVec<IT,NT>(shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
 	FullyDistVec<IU, T_promote> y ( x.commGrid, A.getnrow(), id);
-	IU yintlen = y.MyRowLength();
+	//AL: compiler warns this is unused: IU yintlen = y.MyRowLength();
 	
 	int rowneighs = RowWorld.Get_size();
-	int rowrank = RowWorld.Get_rank();
+	//AL: compiler warns this is unused: int rowrank = RowWorld.Get_rank();
 	IU begptr, endptr;
 	for(int i=0; i< rowneighs; ++i)
 	{

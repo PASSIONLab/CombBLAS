@@ -286,7 +286,8 @@ void pySpParVec::setNumToInd()
 pySpParVec pySpParVec::abs()
 {
 	pySpParVec ret = copy();
-	ret.Apply(&op::abs());
+	op::UnaryFunction abs = op::abs();
+	ret.Apply(&abs);
 	return ret;
 }
 
