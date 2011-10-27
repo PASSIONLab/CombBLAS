@@ -61,27 +61,27 @@ def bfsTree(self, root, useOldFunc=True):
 		sR = sr(addFn, mulFn)
 
 	parents = Vec(self.nvert(), -1, sparse=False)
-	fringe = Vec(self.nvert(), sparse=True)
+	frontier = Vec(self.nvert(), sparse=True)
 	parents[root] = root
-	fringe[root] = root
-	while fringe.nnn() > 0:
-		fringe.spRange()
-		matrix.SpMV(fringe, semiring=sR, inPlace=True)
+	frontier[root] = root
+	while frontier.nnn() > 0:
+		frontier.spRange()
+		matrix.SpMV(frontier, semiring=sR, inPlace=True)
 		
 		if useOldFunc:
 			# this method uses an old CombBLAS routine.
 			# it will be deprecated when acceptable performance from SEJITS is attained.
-			pcb.EWiseMult_inplacefirst(fringe._v_, parents._v_, True, -1)
-			parents[fringe] = fringe
+			pcb.EWiseMult_inplacefirst(frontier._v_, parents._v_, True, -1)
+			parents[frontier] = frontier
 		else:
 			# this is the preferred method. It is a bit slower than the above due to unoptimized
 			# Python callbacks in this version of KDT, but future SEJITS integration should remove
 			# that penalty and the above method will be deprecated.
 			
-			# remove already discovered vertices from fringe.
-			fringe.eWiseApply(parents, op=(lambda f,p: f), doOp=(lambda f,p: p == -1), inPlace=True)
+			# remove already discovered vertices from the frontier.
+			frontier.eWiseApply(parents, op=(lambda f,p: f), doOp=(lambda f,p: p == -1), inPlace=True)
 			# update the parents
-			parents[fringe] = fringe
+			parents[frontier] = frontier
 
 	return parents
 DiGraph.bfsTree = bfsTree
@@ -651,6 +651,7 @@ def connComp(self):
 			denotes a cluster root for that vertex.
 	"""
 	
+	# TODO: use a boolean matrix
 	# we want a symmetric matrix with self loops
 	n = self.nvert()
 	G = self.e.copy(element=1.0)
@@ -658,22 +659,25 @@ def connComp(self):
 	G += Mat.eye(n, 1.0)
 	G.apply(op_set(1))
 	
-	# Future: use a dense accumulator and a sparse frontier to take advantage
-	# of vertices that are found in the correct component and will not be
-	# reshuffled.
-	#component = ParVec.range(G.nvert())
-	#frontier = component.toSpParVec()
-	frontier = Vec.range(n, sparse=False)
+	# the semiring we want to use
+	mulFn = lambda x,y: y           # use the value from the vector
+	addFn = lambda x,y: max(x, y)   # out of all incomming edges, use the max
+	selectMax = sr(addFn, mulFn)
+
+	roots = Vec.range(n, sparse=False)
+	frontier = roots.sparse()
 	
-	delta = 1
-	while delta > 0:
-		last_frontier = frontier
-		frontier = G.SpMV(frontier, sr=sr_select2nd)
+	while frontier.nnn() > 0:
+		frontier = G.SpMV(frontier, sr=selectMax)
 		
-		deltaV = frontier.eWiseApply(last_frontier, op=(lambda f, l: int(f != l)), inPlace=False)
-		delta = deltaV.reduce(op_add)
+		# prune the frontier of vertices that have not changed
+		frontier.eWiseApply(roots, op=(lambda f,r: f), doOp=(lambda f,r: f != r), inPlace=True)
+		
+		# update the roots
+		roots[frontier] = frontier
+
+	return roots
 	
-	return frontier.dense()
 DiGraph.connComp = connComp
 
 # markov clustering temporarily moved to MCL.py
