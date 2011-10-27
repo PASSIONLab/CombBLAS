@@ -46,6 +46,7 @@ def sr(addFn, mulFn):
 
 # built-in semirings
 sr_select2nd = pcb.SecondMaxSemiring()
+sr_plustimes = pcb.TimesPlusSemiring()
 		
 # built-in operations that only work on floating point scalars
 op_add = pcb.plus()

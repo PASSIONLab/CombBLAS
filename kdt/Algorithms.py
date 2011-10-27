@@ -213,10 +213,8 @@ def isBfsTree(self, root, parents, sym=False):
 DiGraph.isBfsTree = isBfsTree
 
 # returns a Boolean vector of which vertices are neighbors
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
 # NEEDED: tests
-def neighbors(self, source, nhop=1, sym=False):
+def neighbors(self, source, nhop=1):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
 	the vertices that are neighbors of the starting vertices (i.e.,
@@ -224,7 +222,7 @@ def neighbors(self, source, nhop=1, sym=False):
 
 	Input Arguments:
 		self:  a DiGraph instance
-		source:  a Boolean ParVec with True (1) in the positions
+		source:  a Boolean Vec with True (1) in the positions
 			of the starting vertices.  
 		nhop:  a scalar integer denoting the number of hops to 
 			use in the calculation. The default is 1.
@@ -244,17 +242,16 @@ def neighbors(self, source, nhop=1, sym=False):
 
 	SEE ALSO:  pathsHop
 	"""
-	if not sym:
-		self._T()
-	dest = ParVec(self.nvert(),0)
-	fringe = SpParVec(self.nvert())
+
+	dest = Vec(self.nvert(), element=0.0, sparse=False)
+	fringe = SpParVec(self.nvert(), sparse=True)
 	fringe[source] = 1
 	for i in range(nhop):
-		self._spm.SpMV_SelMax_inplace(fringe._spv)
-		dest[fringe.toParVec()] = 1
-	if not sym:
-		self._T()
+		self.e.SpMV(fringe, sr=sr_select2nd, inPlace=True)
+		dest[fringe] = 1
+
 	return dest
+
 DiGraph.neighbors = neighbors
 
 # returns:
@@ -274,44 +271,30 @@ def pathsHop(self, source, sym=False):
 
 	Input Arguments:
 		self:  a DiGraph instance
-		source:  a Boolean ParVec with True (1) in the positions
+		source:  a Boolean Vec with True (1) in the positions
 			of the starting vertices.  
-		sym:  a scalar Boolean denoting whether the DiGraph is 
-			symmetric (i.e., each edge from vertex i to vertex j
-			has a companion edge from j to i).  If the DiGraph 
-			is symmetric, the operation is faster.  The default 
-			is False.
 
 	Output Arguments:
-		ret:  a ParVec of length equal to the number of vertices
-			in the DiGraph.  The value of each element of the ParVec 
+		ret:  a dense Vec of length equal to the number of vertices
+			in the DiGraph.  The value of each element of the Vec 
 			with a value other than -1 denotes the starting vertex
 			whose path extended to the corresponding vertex.  In
 			the case of multiple paths potentially extending to
-			a single vertex, the highest-numbered starting vertex
-			is chosen as the source. 
+			a single vertex, the chosen source is arbitrary. 
 
 	SEE ALSO:  neighbors
 	"""
-	if not sym:
-		self._T()
-	#HACK:  SelMax is actually doing a Multiply instead of a Select,
-	#    so it doesn't work "properly" on a general DiGraph, whose
-	#    values can't be counted on to be 1.  So, make a copy of
-	#    the DiGraph and set all the values to 1 as a work-around. 
-	self2 = self.copy()
-	self2.ones()
-	ret = ParVec(self2.nvert(),-1)
+
+	ret = Vec(self2.nvert(), element=-1, sparse=False)
 	fringe = source.find()
 	fringe.spRange()
-	self2._spm.SpMV_SelMax_inplace(fringe._spv)
+	self.e.SpMV(fringe, sr=sr_select2nd, inPlace=True)
+
 	ret[fringe] = fringe
-	if not sym:
-		self._T()
+
 	return ret
 DiGraph.pathsHop = pathsHop
 
-# NEEDED: update to new fields
 # NEEDED: tests
 def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	"""
@@ -319,12 +302,15 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	that for Vertex v, each outward edge weight is
 	1/outdegree(v).
 	"""
+	if self.isObj():
+		raise NotImplementedError, "Cannot normalize object weights yet."
+
 	degscale = self.degree(dir)
-	degscale._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
-	self.scale(degscale, dir)
+	degscale.apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
+	self.scale(degscale, dir, op_mul)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 
-# NEEDED: update to transposed edge matrix
+# NEEDED: make sure normalization is done correctly
 # NEEDED: update to new fields
 # NEEDED: tests
 def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
@@ -363,8 +349,8 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	"""
 
 	# We don't want to modify the user's graph.
-	G = self.copy()
-	G._T()
+	G = self.copy(element=1.0)
+
 	nvert = G.nvert()
 
 	# Remove self loops.
@@ -374,32 +360,32 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	# connecting them to all other nodes.
 
 	sinkV = G.degree(DiGraph.In)
-	sinkV._apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
+	sinkV.apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
 
 	# Normalize edge weights such that for each vertex,
 	# each outgoing edge weight is equal to 1/(number of
 	# outgoing edges).
+	print "DEBUG: make sure PageRank normalization is done in the correct direction"
 	G.normalizeEdgeWeights(DiGraph.In)
 
 	# PageRank loop.
 	delta = 1
-	dv1 = ParVec(nvert, 1./nvert)
-	v1 = dv1.toSpParVec()
-	prevV = SpParVec(nvert)
-	onesVec = SpParVec.ones(nvert)
+	dv1 = Vec(nvert, 1./nvert, sparse=False)
+	v1 = dv1.sparse()
+	prevV = Vec(nvert, sparse=True)
+	onesVec = Vec.ones(nvert, sparse=True)
 	dampingVec = onesVec * ((1 - dampingFactor)/nvert)
 	while delta > epsilon:
 		prevV = v1.copy()
-		v2 = G._spm.SpMV_PlusTimes(v1._spv)
+		v2 = G.e.SpMV(v1, sr=sr_plustimes)
 
 		# Compute the inner product of sinkV and v1.
-		sinkContrib = sinkV.copy()
-		sinkContrib._dpv.EWiseApply(v1._spv, pcb.multiplies())
-		sinkContrib = sinkContrib._dpv.Reduce(pcb.plus())
+		sinkContribV = sinkV.EWiseApply(v1, op_mul, inPlace=False)
+		sinkContrib = sinkContribV.reduce(op_add)
 		
-		v1._spv = v2 + (onesVec*sinkContrib)._spv
+		v1 = v2 + (onesVec*sinkContrib)
 		v1 = v1*dampingFactor + dampingVec
-		delta = (v1 - prevV)._spv.Reduce(pcb.plus(), pcb.abs())
+		delta = (v1 - prevV).reduce(op_add, op_abs)
 	return v1
 DiGraph.pageRank = pageRank
 	
@@ -631,13 +617,15 @@ def _centrality_exactBC(self, **kwargs):
 	return DiGraph._centrality_approxBC(self, sample=1.0, **kwargs)
 DiGraph._centrality_exactBC = _centrality_exactBC
 
-# NEEDED: update to new fields
 # NEEDED: tests
 def cluster(self, alg, **kwargs):
 #		ToDo:  Normalize option?
 	"""
-	Deferred implementation for KDT v0.1
-		
+	cluster a DiGraph using algorithm `alg`.
+	Output Arguments:
+		ret: a dense Vec of length equal to the number of vertices
+			in the DiGraph. The value of each element of the Vec 
+			denotes a cluster root for that vertex.
 	"""
 	if alg=='Markov' or alg=='markov':
 		G = DiGraph._cluster_markov(self, **kwargs)
@@ -653,48 +641,39 @@ def cluster(self, alg, **kwargs):
 	return clus
 DiGraph.cluster = cluster
 
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
 # NEEDED: tests
-def connComp(self, sym=False):
+def connComp(self):
 	"""
 	Finds the connected components of the graph by BFS.
 	Output Arguments:
-		ret:  a ParVec of length equal to the number of vertices
-			in the DiGraph.  The value of each element of the ParVec 
+		ret:  a dense Vec of length equal to the number of vertices
+			in the DiGraph.  The value of each element of the Vec 
 			denotes a cluster root for that vertex.
 	"""
 	
-	G = self.copy()
-	n = G.nvert()
-	
-	if not sym:
-		temp = self.copy()
-		temp._T()
-		G += temp
-		
-	G += DiGraph(ParVec.range(n), ParVec.range(n), ParVec.ones(n), n)
-	G._apply(pcb.set(1))
+	# we want a symmetric matrix with self loops
+	n = self.nvert()
+	G = self.e.copy(element=1.0)
+	G += G.copy().transpose()
+	G += Mat.eye(n, 1.0)
+	G.apply(op_set(1))
 	
 	# Future: use a dense accumulator and a sparse frontier to take advantage
 	# of vertices that are found in the correct component and will not be
 	# reshuffled.
 	#component = ParVec.range(G.nvert())
 	#frontier = component.toSpParVec()
-	frontier = SpParVec.range(n)
-	
-	def iterop(vals):
-		vals[1] = int(vals[0] != vals[1])
+	frontier = Vec.range(n, sparse=False)
 	
 	delta = 1
 	while delta > 0:
 		last_frontier = frontier
-		frontier = SpParVec.toSpParVec(G._spm.SpMV(frontier._spv, pcb.SecondMaxSemiring()))
-
-		pcb.EWise(iterop, [pcb.EWise_OnlyNZ(frontier._spv), last_frontier._spv])
-		delta = last_frontier._reduce(pcb.plus())
+		frontier = G.SpMV(frontier, sr=sr_select2nd)
+		
+		deltaV = frontier.eWiseApply(last_frontier, op=(lambda f, l: int(f != l)), inPlace=False)
+		delta = deltaV.reduce(op_add)
 	
-	return frontier.toParVec()
+	return frontier.dense()
 DiGraph.connComp = connComp
 
 # markov clustering temporarily moved to MCL.py

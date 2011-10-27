@@ -149,7 +149,6 @@ class Vec(object):
 	def apply(self, op):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
-		FIX:  doesn't look like this supports noWrap with filters
 		"""
 		
 		if self._hasFilter():
@@ -379,7 +378,7 @@ class Vec(object):
 		return ret
 
 	# NEEDED: add filters
-	def reduce(self, op, pred=None):
+	def reduce(self, op, uniOp=None):
 		"""
 		ToDo:  write doc
 			return is a scalar
@@ -387,7 +386,7 @@ class Vec(object):
 		if self._hasFilter():
 			raise NotImplementedError, "this operation does not implement filters yet."
 
-		ret = self._v_.Reduce(op, _op_make_binary_pred(pred))
+		ret = self._v_.Reduce(op, _op_make_unary(uniOp))
 		return ret
 
 	_REPR_MAX = 30;
