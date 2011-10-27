@@ -1,5 +1,6 @@
 from DiGraph import DiGraph
-from Vec import Vec, SpVec, DeVec
+from Vec import Vec
+from Mat import Mat
 
 from Util import *
 
@@ -59,7 +60,7 @@ def bfsTree(self, root):
 		addFn = lambda x,y: x._SR_max_(y)
 		sR = sr(addFn, mulFn)
 
-	parents = Vec(self.nvert(), -1)
+	parents = Vec(self.nvert(), -1, sparse=False)
 	fringe = Vec(self.nvert(), sparse=True)
 	parents[root] = root
 	fringe[root] = root
