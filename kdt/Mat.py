@@ -1,6 +1,8 @@
 import math
 from Graph import master
 from Vec import Vec
+from Util import *
+
 import kdt.pyCombBLAS as pcb
 
 import time
@@ -118,7 +120,7 @@ class Mat:
 		ret._identity_ = Mat._getExampleElement(pcbMat)
 		return ret
 	
-	def toBool(self):
+	def toBool(self, inPlace=True):
 		"""
 		converts the Mat instance in-place such that each element only has
 		a Boolean (True) value, thereby consuming less space and making
@@ -133,13 +135,21 @@ class Mat:
 		if self.isBool():
 			return
 		
+		M = self
+		# do Obj matrices by going through a scalar matrix.
+		# temporary solution because this is inefficient.
 		if self.isObj():
-			self.toScalar()
+			M = self.toScalar(inPlace=False)
 		
-		tmpM = pcb.pySpParMatBool(self._m_)
-		self._m_ = tmpM
+		tmpM = pcb.pySpParMatBool(M._m_)
+		
+		if inPlace:
+			self._m_ = tmpM
+			self._identity_ = Mat._getExampleElement(self._m_)
+		else:
+			return Mat._toMat(tmpM)
 
-	def toScalar(self):
+	def toScalar(self, inPlace=True):
 		"""
 		converts the Mat instance in-place such that each element only has
 		a scalar (64-bit) value.
@@ -154,8 +164,14 @@ class Mat:
 			raise NotImplementedError, "Don't know how to convert boolean matrix to scalar matrix"
 		
 		if self.isObj():
-			tmpM = pcb.pySpParMat(self._m_)
-			self._m_ = tmpM
+			if inPlace:
+				self._m_ = pcb.pySpParMat(self._m_)
+				self._identity_ = Mat._getExampleElement(self._m_)
+			else:
+				return Mat._toMat(pcb.pySpParMat(self._m_))
+		else:
+			if not inPlace:
+				return self.copy()
 
 	def getnrow(self):
 		return self._m_.getnrow()
@@ -164,6 +180,12 @@ class Mat:
 		return self._m_.getncol()
 	
 	def getnee(self):
+		"""
+		returns the number of existing elements in this matrix.
+		"""
+		if self._hasFilter():
+			raise NotImplementedError, "this operation does not support filters yet."
+			
 		return self._m_.getnee()
 	
 	@staticmethod
@@ -185,6 +207,21 @@ class Mat:
 		kernel1Time = matrix.GenGraph500Edges(scale, degrees._v_, scale, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
 		return Mat._toMat(matrix), degrees, kernel1Time
 
+	@staticmethod
+	def eye(n, element=1.0):
+		"""
+		creates an identity matrix. The resulting matrix is n-by-n
+		with `element` on the main diagonal.
+		In other words, ret[i,i] = element for 0 < i < n.
+
+		Input Arguments:
+			n:  an integer scalar denoting the dimensions of the matrix
+			element: the value to put on the main diagonal elements.
+
+		Output Argument:
+			ret:  an identity matrix. 
+		"""
+		return Mat(Vec.range(n),Vec.range(n),Vec(n, element),n)
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -374,6 +411,9 @@ class Mat:
 			None.
 
 		"""
+		if self._hasFilter():
+			raise NotImplementedError, "this operation does not support filters yet."
+
 		if other is None:
 			if not isinstance(op, pcb.UnaryFunction):
 				self._m_.Apply(pcb.unaryObj(op))
@@ -388,11 +428,17 @@ class Mat:
 			return
 
 	# NEEDED: tests
-	def eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def eWiseApply(self, other, op, allowANulls, allowBNulls, inPlace=False):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_eFilter_') or hasattr(other, '_eFilter_'):
+		
+		if not isinstance(other, Mat):
+			raise NotImplementedError, "eWiseApply with scalars not implemented yet"
+			# use apply()
+			return
+		
+		if self._hasFilter() or other._hasFilter():
 			class tmpB:
 				if hasattr(self,'_eFilter_') and len(self._eFilter_) > 0:
 					selfEFLen = len(self._eFilter_)
@@ -418,23 +464,18 @@ class Mat:
 			superOp = tmpB().fn
 		else:
 			superOp = op
-		if noWrap:
-			if isinstance(other, (float, int, long)):
-				m = pcb.EWiseApply(self._m_, other   ,  superOp)
-			else:
-				m = pcb.EWiseApply(self._m_, other._m_, superOp)
+
+		if inPlace:
+			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
 		else:
-			if isinstance(other, (float, int, long)):
-				m = pcb.EWiseApply(self._m_, other   ,  pcb.binaryObj(superOp))
-			else:
-				m = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(superOp))
-		ret = self._toMat(m)
-		return ret
+			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
+			ret = self._toMat(m)
+			return ret
 		
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	#in-place, so no return value
-	def scale(self, other, dir=Column):
+	def scale(self, other, op=op_mul, dir=Column):
 		"""
 		multiplies the weights of the appropriate edges of each vertex of
 		the passed DiGraph instance in-place by a vertex-specific scale 
@@ -451,7 +492,7 @@ class Mat:
 
 		SEE ALSO:  * (DiGraph.__mul__), mulNot
 		"""
-		if not isinstance(other,gr.ParVec):
+		if not isinstance(other, Vec):
 			raise KeyError, 'Invalid type for scale vector'
 		selfnv = self.nvert()
 		if type(selfnv) == tuple:
@@ -461,16 +502,23 @@ class Mat:
 
 		if dir == Mat.Column:
 			if selfnv2 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(scale)'
+				raise IndexError, 'graph.nvert()[1] != len(vec)'
 		elif dir == DiGraph.Out:
 			if selfnv1 != len(other):
-				raise IndexError, 'graph.nvert()[0] != len(scale)'
+				raise IndexError, 'graph.nvert()[0] != len(vec)'
 		else:
 			raise KeyError, 'Invalid edge direction'
 
-		self._m_.DimWiseApply(dir, other._dpv, pcb.multiplies())
+		self._m_.DimWiseApply(dir, other.dense()._v_, _op_make_binary(op))
 		return
 
+	# TODO: make a _keep() which reverses the predicate
+	def _prune(self, pred):
+		"""
+		returns a new matrix that only contains the elements e for which
+		pred(e) == false.
+		"""
+		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred)))
 
 	def _hasFilter(self):
 		try:
@@ -492,7 +540,7 @@ class Mat:
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def reduce(self, dir, op, pred=None, noWrap=False):
+	def reduce(self, dir, op, pred=None):
 		"""
 		ToDo:  write doc
 		NOTE:  need to doc clearly that the 2nd arg to the reduction
@@ -525,11 +573,12 @@ class Mat:
 					realPred = pcb.binaryObj(pred)
 			else:
 				realPred = pred
-		if pred is None:
-			tmp = self._m_.Reduce(dir, superOp)
 		else:
-			tmp = self._m_.Reduce(dir, superOp, realPred)
-		ret = Vec._toVec(Vec(element=self._identity_),tmp)
+			realPred = None
+
+		tmp = self._m_.Reduce(dir, superOp, realPred)
+			
+		ret = Vec._toVec(tmp)
 		return ret
 
 	# NEEDED: tests
@@ -539,6 +588,16 @@ class Mat:
 		FIX:  add doc
 		inPlace -> no return value
 		"""
+		# check input
+		if not isinstance(other, Vec):
+			raise KeyError, "SpMV needs a Vec"
+		if len(other) != self.getncol():
+			raise KeyError, "Dimension mismatch in SpMV. The number of elements of the vector must equal the number of columns of the matrix."
+		
+		if self._hasFilter() or other._hasFilter():
+			raise NotImplementedError, "this operation does not support filters yet"
+
+		# the operation itself
 		if inPlace:
 			self._m_.SpMV_inplace(other._v_, semiring)
 			return other
@@ -548,7 +607,6 @@ class Mat:
 		# Adam:
 		# Why is the rest so complicated?
 		
-		#FIX:  is noWrap arg needed?
 		#ToDo:  is code for if/else cases actually different?
 		if isinstance(self._identity_, (float, int, long, bool)) and isinstance(other._identity_, (float, int, long)):
 			if isinstance(self._identity_, bool):
@@ -604,7 +662,13 @@ class Mat:
 		ret._m_ = self._m_.SpGEMM(other._m_)
 		return ret
 	spGEMM = SpGEMM
-
+	
+	def transpose(self):
+		"""
+		performs an in-place transpose of this Mat instance
+		"""
+		self._m_.Transpose()
+	
 	# in-place, so no return value
 	def addEFilter(self, filter):
 		"""
@@ -635,7 +699,7 @@ class Mat:
 		
 	# NEEDED: support for filters
 	@staticmethod
-	def load(fname):
+	def load(fname, element=0.0):
 		"""
 		loads the contents of the file named fname (in the Coordinate Format 
 		of the Matrix Market Exchange Format) into a Mat instance.
@@ -654,13 +718,13 @@ class Mat:
 		SEE ALSO:  save, UFget
 		"""
 		# Verify file exists.
+		# TODO: make pcb load throw an error if the file cannot be opened.
 		file = open(fname, 'r')
 		file.close()
 		
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
-		ret = Mat()
-		ret._m_ = pcb.pySpParMat()
+		ret = Mat(element=element)
 		ret._m_.load(fname)
 		return ret
 

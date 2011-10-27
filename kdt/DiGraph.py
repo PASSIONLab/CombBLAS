@@ -366,8 +366,8 @@ class DiGraph(gr.Graph):
 				else:
 					ret = x.coerce(y, True)
 				return ret
-			tmp2 = tmp._eWiseApply(ret, func, True, True)
-			ret = tmp2
+			tmp2 = tmp.eWiseApply(ret, func, True, True)
+			ret.e = tmp2
 		return ret
 
 	# NEEDED: update to new fields
@@ -498,8 +498,8 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to itself. 
 		"""
-		return DiGraph(Vec.range(n),Vec.range(n),Vec(n, selfLoopAttr),n,n)
-
+		return DiGraph(edges=Mat.eye(n, element=selfLoopAttr))
+		
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod
@@ -770,7 +770,7 @@ class DiGraph(gr.Graph):
 		Input Argument:
 			self:  a DiGraph instance, modified in-place.
 		"""
-		self.e.Transpose()
+		self.e.transpose()
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
