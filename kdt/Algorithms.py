@@ -19,7 +19,7 @@ import kdt.pyCombBLAS as pcb
 #
 # NEEDED: update to new EWiseApply
 # NEEDED: tests
-def bfsTree(self, root):
+def bfsTree(self, root, useOldFunc=True):
 	"""
 	calculates a breadth-first search tree from the edges in the
 	passed DiGraph, starting from the root vertex.  "Breadth-first"
@@ -67,8 +67,22 @@ def bfsTree(self, root):
 	while fringe.nnn() > 0:
 		fringe.spRange()
 		matrix.SpMV(fringe, semiring=sR, inPlace=True)
-		pcb.EWiseMult_inplacefirst(fringe._v_, parents._v_, True, -1)
-		parents[fringe] = fringe
+		
+		if useOldFunc:
+			# this method uses an old CombBLAS routine.
+			# it will be deprecated when acceptable performance from SEJITS is attained.
+			pcb.EWiseMult_inplacefirst(fringe._v_, parents._v_, True, -1)
+			parents[fringe] = fringe
+		else:
+			# this is the preferred method. It is a bit slower than the above due to unoptimized
+			# Python callbacks in this version of KDT, but future SEJITS integration should remove
+			# that penalty and the above method will be deprecated.
+			
+			# remove already discovered vertices from fringe.
+			fringe.eWiseApply(parents, op=(lambda f,p: f), doOp=(lambda f,p: p == -1), inPlace=True)
+			# update the parents
+			parents[fringe] = fringe
+
 	return parents
 DiGraph.bfsTree = bfsTree
 
@@ -682,40 +696,5 @@ def connComp(self, sym=False):
 	
 	return frontier.toParVec()
 DiGraph.connComp = connComp
-
-#@deprecated
-def __findLargestComponent(self, sym=False): # deprecated
-	"""
-	Returns a subgraph that consists of the largest component of self. 
-	Components are found on an undirected version of self.
-	Output Arguments:
-		ret:  a DiGraph consisting of the largest connected component
-			in this graph.
-	"""
-	
-	if sym:
-		G = self
-	else:
-		G = self.copy()
-		G._T()
-		G += self
-	components = G.connComp(sym=True)
-	n = self.nvert()
-	
-	# Find the largest component
-	
-	# Count the number of elements in each component
-	countM = DiGraph(components, ParVec.range(n), ParVec.ones(n), n)
-	counts = countM._spm.Reduce(pcb.pySpParMat.Row(), pcb.plus())
-	
-	# Find the element with the largest count
-	maxCount = counts.Reduce(pcb.max())
-	maxV = counts.FindInds(pcb.bind2nd(pcb.equal_to(), maxCount))[0]
-	
-	# Create a list of vertices in this component
-	verts = components._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), maxV))
-	verts = ParVec.toParVec(verts)
-	
-	return verts
 
 # markov clustering temporarily moved to MCL.py

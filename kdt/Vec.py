@@ -71,7 +71,8 @@ class Vec(object):
 		ret._v_ = pcbVec
 		ret._identity_ = Vec._getExampleElement(pcbVec)
 		return ret
-		
+
+	# NEEDED: filer and type change needs to be updated		
 	def copy(self, element=None):
 		"""
 		creates a deep copy of the input argument.
@@ -579,7 +580,7 @@ class Vec(object):
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_sparse_eWiseApply(self, other, op, allowANulls, allowBNulls, ANull, BNull):
+	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull):
 		"""
 		ToDo:  write doc
 		"""
@@ -610,13 +611,13 @@ class Vec(object):
 		else:
 			superOp = op
 
-		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), None, allowANulls, allowBNulls, ANull, BNull)
+		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
 		ret = Vec._toVec(v)
 		return ret
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_dense_eWiseApply(self, other, op, allowANulls, ANull):
+	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull):
 		"""
 		ToDo:  write doc
 		"""
@@ -647,13 +648,13 @@ class Vec(object):
 		else:
 			superOp = op
 
-		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), None, allowANulls, ANull)
+		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, ANull)
 		ret = Vec._toVec(v)
 		return ret
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_sparse_eWiseApply_inPlace(self, other, op, allowBNulls, BNull):
+	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull):
 		"""
 		ToDo:  write doc
 		"""
@@ -684,11 +685,14 @@ class Vec(object):
 		else:
 			superOp = op
 
+		if doOp is not None:
+			raise NotImplementedError,"dense/sparse case does not support doOp yet"
+			
 		self._v_.EWiseApply(other._v_, _op_make_binary(superOp), allowBNulls, BNull)
 	
 	# NOTE: this function is DeVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_dense_eWiseApply_inPlace(self, other, op):
+	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp):
 		"""
 		ToDo:  write doc
 		in-place operation
@@ -720,20 +724,32 @@ class Vec(object):
 		else:
 			superOp = op
 
+		if doOp is not None:
+			raise NotImplementedError,"dense/dense case does not support doOp yet"
+			
 		self._v_.EWiseApply(other._v_, _op_make_binary(superOp))
 	
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, inPlace=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False):
 		"""
 		Performs an element-wise operation between the two vectors.
 		if inPlace is true the result is stored in self.
 		if inPlace is false, the result is returned in a new vector.
+		
+		doOp is a predicate that determines whether or not a op is performed on each pair of values.
+		i.e.:
+			if doOp(self[i], other[i])
+				op(self[i], other[i])
 		"""
+		
 		# elementwise operation with a regular object
 		if not isinstance(other, Vec):
 			if allowANulls:
 				raise NotImplementedError, "eWiseApply with a scalar requires allowANulls=True for now."
+			
+			if doOp is not None:
+				# note: can be implemented using a filter, i.e. predicate=doOp
+				raise NotImplementedError, "eWiseApply with a scalar does not handle doOp for now."
 
-			# TODO: test
 			if inPlace:
 				ret = self
 			else:
@@ -751,30 +767,30 @@ class Vec(object):
 		if self.isSparse():
 			if other.isSparse():
 				if inPlace:
-					ret = self._sparse_sparse_eWiseApply(other, op, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_sparse_eWiseApply(other, op, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
 			else: # sparse, dense
 				if inPlace:
-					ret = self._sparse_dense_eWiseApply(other, op, allowANulls=allowANulls, ANull=self._identity_)
+					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_dense_eWiseApply(other, op, allowANulls=allowANulls, ANull=self._identity_)
+					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_)
 		else: # dense
 			if other.isSparse():
 				if inPlace:
-					self._dense_sparse_eWiseApply_inPlace(other, op, allowBNulls=allowBNulls, BNull=other._identity_)
+					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_)
 				else:
 					ret = self.copy()
-					ret._dense_sparse_eWiseApply_inPlace(other, op, allowBNulls=allowBNulls, BNull=other._identity_)
+					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_)
 					return ret
 			else: # dense, dense
 				if inPlace:
-					self._dense_dense_eWiseApply_inPlace(other, op)
+					self._dense_dense_eWiseApply_inPlace(other, op, doOp)
 				else:
 					ret = self.copy()
-					ret._dense_dense_eWiseApply_inPlace(other, op)
+					ret._dense_dense_eWiseApply_inPlace(other, op, doOp)
 					return ret
 
 #################################################
