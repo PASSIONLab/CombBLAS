@@ -5,7 +5,7 @@ from Util import *
 from DiGraph import DiGraph
 from HyGraph import HyGraph
 from Graph import master, version, revision, ParVec, SpParVec
-from Vec import Vec, DeVec, SpVec
+from Vec import Vec
 from Mat import Mat
 #from SpVec import SpVec, info
 #from DeVec import DeVec

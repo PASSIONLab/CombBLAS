@@ -1,7 +1,7 @@
 import math
 import Graph as gr
 from Graph import master
-from Vec import Vec, DeVec, SpVec
+from Vec import Vec
 from Mat import Mat
 import kdt.pyCombBLAS as pcb
 

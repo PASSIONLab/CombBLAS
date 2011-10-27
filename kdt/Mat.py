@@ -1,6 +1,6 @@
 import math
 from Graph import master
-from Vec import Vec, DeVec, SpVec
+from Vec import Vec
 import kdt.pyCombBLAS as pcb
 
 import time
@@ -72,7 +72,7 @@ class Mat:
 				else:
 					self._m_ = pcb.pySpParMatObj2(nv,nv,nullVec,nullVec, nullVec)
 			self._identity_ = element
-		elif sourceV is not None and destV is not None:
+		elif sourceV is not None and destV is not None and nv is not None:
 			i = sourceV
 			j = destV
 			v = valueV
@@ -88,37 +88,34 @@ class Mat:
 #			if j.max() > nv-1:
 #				raise KeyError, 'at least one second index greater than #vertices'
 			if isinstance(element, (float, int, long)):
-				self._identity_ = 0
 				self._m_ = pcb.pySpParMat(nv,nv,i._v_,j._v_,v._v_)
+			elif isinstance(element, bool):
+				self._m_ = pcb.pySpParMatBool(nv,nv,i._v_,j._v_,v._v_)
 			elif isinstance(element, pcb.Obj1):
-				self._identity_ = element
-				self._identity_.weight = 0
-				self._identity_.category = 0
 				self._m_ = pcb.pySpParMatObj1(nv,nv,i._v_,j._v_,v._v_)
 			elif isinstance(element, pcb.Obj2):
-				self._identity_ = element
-				self._identity_.weight = 0
-				self._identity_.category = 0
 				self._m_ = pcb.pySpParMatObj2(nv,nv,i._v_,j._v_,v._v_)
-		elif len(args) == 5:
-			raise NotImplementedError
-			[i,j,v,nv1,nv2] = args
-			if len(i) != len(j):
-				raise KeyError, 'source and destination vectors must be same length'
-			if type(v) == int or type(v) == long or type(v) == float:
-				v = ParVec.broadcast(len(i),v)
-			if i.max() > nv1-1:
-				raise KeyError, 'at least one first index greater than #vertices'
-			if j.max() > nv2-1:
-				raise KeyError, 'at least one second index greater than #vertices'
-			self._spm = pcb.pySpParMat(nv1,nv2,i._dpv,j._dpv,v._dpv)
+			self._identity_ = Mat._getExampleElement(self._m_)
 		else:
-			raise NotImplementedError, "only 1, 4, and 5 argument cases supported"
+			raise ValueError, "Incomplete arguments to Mat()"
 	
+	@staticmethod
+	def _getExampleElement(pcbMat):
+		if isinstance(pcbMat, pcb.pySpParMat):
+			return 0.0
+		if isinstance(pcbMat, pcb.pySpParMatBool):
+			return True
+		if isinstance(pcbMat, pcb.pySpParMatObj1):
+			return pcb.Obj1()
+		if isinstance(pcbMat, pcb.pySpParMatObj2):
+			return pcb.Obj2()
+		raise NotImplementedError, 'Unknown vector type!'
+
 	@staticmethod
 	def _toMat(pcbMat):
 		ret = Mat()
 		ret._m_ = pcbMat
+		ret._identity_ = Mat._getExampleElement(pcbMat)
 		return ret
 	
 	def toBool(self):
@@ -180,7 +177,7 @@ class Mat:
 				Vec is a vector containing the degrees of each vertex in the original graph
 				time is the time for the Graph500 Kernel 1.
 		"""
-		degrees = Vec(1)
+		degrees = Vec(0, element=1.0, sparse=False)
 		if boolean:
 			matrix = pcb.pySpParMatBool()
 		else:
