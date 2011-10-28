@@ -1,0 +1,4 @@
+./compute_distance --input testdata/data.txt --output testdata/distances.txt
+./distance_to_similarity  --input testdata/distances.txt --output testdata/similarity.txt
+./evd --eigenvalue 5 --eigenspace 10 --input testdata/similarity.txt --eigenvalues_output testdata/evals.txt --eigenvectors_output testdata/evecs.txt
+
