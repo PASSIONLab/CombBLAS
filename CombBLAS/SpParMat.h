@@ -181,8 +181,8 @@ public:
 	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false) { return ReadDistribute(infile, master, nonum, ScalarReadSaveHandler()); }
 
 	template <class HANDLER>
-	void SaveGathered(string filename, HANDLER handler) const;
-	void SaveGathered(string filename) const { SaveGathered(filename, ScalarReadSaveHandler()); }
+	void SaveGathered(string filename, HANDLER handler, bool transpose = false) const;
+	void SaveGathered(string filename) const { SaveGathered(filename, ScalarReadSaveHandler(), false); }
 	
 	ofstream& put(ofstream& outfile) const;
 	void PrintForPatoh(string filename) const;

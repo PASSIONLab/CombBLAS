@@ -73,8 +73,7 @@ void pySpParMatObj2::load(const char* filename)
 
 void pySpParMatObj2::save(const char* filename)
 {
-	cout << "Warning! output is transposed" << endl;
-	A.SaveGathered(filename, Obj2ReadSaveHandler());
+	A.SaveGathered(filename, Obj2ReadSaveHandler(), true);
 }
 
 #if 0

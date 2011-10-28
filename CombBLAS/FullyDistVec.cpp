@@ -396,6 +396,14 @@ ifstream& FullyDistVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HAN
 }
 
 template <class IT, class NT>
+template <class HANDLER>
+void FullyDistVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits)
+{
+	FullyDistSpVec<IT,NT> tmpSpVec = *this;
+	tmpSpVec.SaveGathered(outfile, master, handler, printProcSplits);
+}
+
+template <class IT, class NT>
 void FullyDistVec<IT,NT>::SetElement (IT indx, NT numx)
 {
 	int rank = commGrid->GetRank();
@@ -523,8 +531,8 @@ void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec
 }	
 
 template <class IT, class NT>
-template <typename _BinaryOperation, class NT2>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op)
+template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -539,7 +547,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 			typename vector< NT2 >::const_iterator otherIter = other.arr.begin();
 			while (thisIter < arr.end())
 			{
-				*thisIter = __binary_op(*thisIter, *otherIter);
+				if (_do_op(*thisIter, *otherIter))
+					*thisIter = __binary_op(*thisIter, *otherIter);
 				thisIter++;
 				otherIter++;
 			}
@@ -553,8 +562,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 }	
 
 template <class IT, class NT>
-template <typename _BinaryOperation, class NT2>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, bool applyNulls, NT2 nullValue)
+template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -574,11 +583,13 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 				{
 					if (i < *otherInd)
 					{
-						arr[i] = __binary_op(arr[i], nullValue);
+						if (_do_op(arr[i], nullValue))
+							arr[i] = __binary_op(arr[i], nullValue);
 					}
 					else
 					{
-						arr[i] = __binary_op(arr[i], *otherNum);
+						if (_do_op(arr[i], *otherNum))
+							arr[i] = __binary_op(arr[i], *otherNum);
 						otherInd++;
 						otherNum++;
 					}
@@ -588,7 +599,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			{
 				while (otherInd < other.ind.end())
 				{
-					arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum);
+					if (_do_op(arr[*otherInd], *otherNum))
+						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum);
 					otherInd++;
 					otherNum++;
 				}

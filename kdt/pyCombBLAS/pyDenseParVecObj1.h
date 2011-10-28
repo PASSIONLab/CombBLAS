@@ -67,12 +67,21 @@ public:
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+
+	/* NEEDS to return new pyDenseParVec
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	*/
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
 	

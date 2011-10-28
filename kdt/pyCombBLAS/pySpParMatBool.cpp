@@ -70,8 +70,7 @@ void pySpParMatBool::load(const char* filename)
 
 void pySpParMatBool::save(const char* filename)
 {
-	cout << "Warning: output is transposed!" << endl;
-	A.SaveGathered(filename);
+	A.SaveGathered(filename, MatType::ScalarReadSaveHandler(), true);
 }
 
 // Copied directly from Aydin's C++ Graph500 code

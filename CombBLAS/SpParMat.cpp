@@ -1624,7 +1624,7 @@ void SpParMat<IT,NT,DER>::Transpose()
 
 template <class IT, class NT, class DER>
 template <class HANDLER>
-void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
+void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool transpose) const
 {
 	int proccols = commGrid->GetGridCols();
 	int procrows = commGrid->GetGridRows();
@@ -1716,7 +1716,12 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler) const
 					for(int k=0; k< rowcnt; ++k)
 					{
 						//out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t" << ents[k].second << endl;
-						out << j + roffset + 1 << "\t" << ents[k].first + 1 <<"\t";
+						if (!transpose)
+							// regular
+							out << j + roffset + 1 << "\t" << ents[k].first + 1 << "\t";
+						else
+							// transpose row/column
+							out << ents[k].first + 1 << "\t" << j + roffset + 1 << "\t";
 						handler.save(out, ents[k].second, j + roffset, ents[k].first);
 						out << endl;
 					}

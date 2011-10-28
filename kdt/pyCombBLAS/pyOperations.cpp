@@ -227,6 +227,12 @@ BinaryFunction binary(PyObject *pyfunc)
 	return BinaryFunction(new binary_s<doubleint>(pyfunc), true, false);
 }
 
+BinaryFunction* binaryPtr(PyObject *pyfunc)
+{
+	// assumed to be associative but not commutative
+	return new BinaryFunction(new binary_s<doubleint>(pyfunc), true, false);
+}
+
 /**************************\
 | GLUE OPERATIONS
 \**************************/
@@ -406,7 +412,7 @@ template <>
 Semiring* SemiringTemplArg<doubleint, doubleint>::currentlyApplied = NULL;
 
 Semiring::Semiring(PyObject *add, PyObject *multiply)
-	: type(CUSTOM), pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+	: type(CUSTOM), pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(binaryPtr(add))
 {
 	Py_INCREF(pyfunc_add);
 	Py_INCREF(pyfunc_multiply);
@@ -415,6 +421,8 @@ Semiring::~Semiring()
 {
 	Py_XDECREF(pyfunc_add);
 	Py_XDECREF(pyfunc_multiply);
+	//if (binfunc_add != NULL)
+	//	delete binfunc_add;
 	assert((SemiringTemplArg<doubleint, doubleint>::currentlyApplied != this));
 }
 

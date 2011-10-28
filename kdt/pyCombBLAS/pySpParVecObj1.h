@@ -62,6 +62,7 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
 
 public:
 	// The functions commented out here presently do not exist in CombBLAS

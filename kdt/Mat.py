@@ -83,12 +83,24 @@ class Mat:
 			if len(i) != len(j):
 				raise KeyError, 'source and destination vectors must be same length'
 			if type(v) == int or type(v) == long or type(v) == float:
-				raise NotImplementedError
-				v = ParVec.broadcast(len(i),v)
+				v = Vec(len(i), v)
 #			if i.max() > nv-1:
 #				raise KeyError, 'at least one first index greater than #vertices'
 #			if j.max() > nv-1:
 #				raise KeyError, 'at least one second index greater than #vertices'
+			
+			if i.isObj() or j.isObj():
+				raise ValueError, "sourceV and destV cannot be objects!"
+			if i.isSparse() or j.isSparse():
+				raise ValueError, "sourceV and destV cannot be sparse!"
+			
+			if isinstance(v, Vec):
+				element = v._identity_
+				if v.isSparse():
+					raise ValueError, "valueV cannot be sparse!"
+			else:
+				element = v
+			
 			if isinstance(element, (float, int, long)):
 				self._m_ = pcb.pySpParMat(nv,nv,i._v_,j._v_,v._v_)
 			elif isinstance(element, bool):

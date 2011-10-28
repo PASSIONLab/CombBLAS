@@ -80,12 +80,18 @@ public:
 	
 	static swig_type_info*& SwigTypeInfo;
 	
-//INTERFACE_INCLUDE_BEGIN
-	// for filtering matrices.
-	bool hasPassedFilter;
+	/*
+	Obj1& operator=(const Obj1& other) {
+		if (this != &other)
+			memcpy(this, &other, sizeof(Obj1));
+	}*/
 
 	// for copying just a nonzero structure
 	operator bool() const { return true; }
+
+//INTERFACE_INCLUDE_BEGIN
+	// for filtering matrices.
+	bool hasPassedFilter;
 };
 
 
@@ -161,13 +167,19 @@ public:
 	}
 
 	static swig_type_info*& SwigTypeInfo;
+	
+	/*
+	Obj2& operator=(const Obj2& other) {
+		if (this != &other)
+			memcpy(this, &other, sizeof(Obj2));
+	}*/
+
+	// for copying just a nonzero structure
+	operator bool() const { return true; }
 
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
-	bool hasPassedFilter;
-	
-	// for copying just a nonzero structure
-	operator bool() const { return true; }
+	bool hasPassedFilter;	
 };
 //INTERFACE_INCLUDE_END
 

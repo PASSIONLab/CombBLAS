@@ -108,7 +108,12 @@ public:
 	
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
-	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }	
+	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
+	
+	template <class HANDLER>
+	void SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
+	void SaveGathered(ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler()); }
+
 
 	template <typename NNT> operator FullyDistSpVec< IT,NNT > () const	//!< Type conversion operator
 	{

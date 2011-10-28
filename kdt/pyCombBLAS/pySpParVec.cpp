@@ -137,6 +137,13 @@ void pySpParVec::load(const char* filename)
 	input.close();
 }
 
+void pySpParVec::save(const char* filename)
+{
+	ofstream output(filename);
+	v.SaveGathered(output, 0);
+	output.close();
+}
+
 void pySpParVec::printall()
 {
 	v.DebugPrint();
@@ -373,8 +380,9 @@ void pySpParVec::__setitem__(const char* key, double value)
 
 char* pySpParVec::__repr__()
 {
+	static char empty[] = {'\0'};
 	printall();
-	return " ";
+	return empty;
 }
 
 template <typename T1, typename T2>
