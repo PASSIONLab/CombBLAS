@@ -573,6 +573,84 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 }
 
 template <class IT, class NT>
+template <class HANDLER>
+void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits)
+{
+	// This is based on DebugPrint. Make it not use temporary files and send data directly!
+	MPI::Intracomm World = commGrid->GetWorld();
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+
+	IT * dist = new IT[nprocs];
+	dist[rank] = getlocnnz();
+	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	IT sizeuntil = accumulate(dist, dist+rank, 0);
+
+	IT totalLength = TotalLength();
+	IT totalNNZ = getnnz();
+
+	struct mystruct
+	{
+		IT ind;
+		NT num;
+	};
+	mystruct data;
+
+	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
+	datatype.Commit();
+	int dsize = datatype.Get_size();
+
+	// The disp displacement argument specifies the position 
+	// (absolute offset in bytes from the beginning of the file) 
+    	thefile.Set_view(static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI::INFO_NULL);
+
+	int count = ind.size();
+	mystruct * packed = new mystruct[count];
+	for(int i=0; i<count; ++i)
+	{
+		packed[i].ind = ind[i];
+		packed[i].num = num[i];
+	}
+	thefile.Write(packed, count, datatype);
+	thefile.Close();
+	delete [] packed;
+	
+	// Now let processor-0 read the file and print
+	if(rank == 0)
+	{
+		FILE * f = fopen("temp_fullydistspvec", "r");
+                if(!f)
+                { 
+                        cerr << "Problem reading binary input file\n";
+                        return;
+                }
+		IT maxd = *max_element(dist, dist+nprocs);
+		mystruct * data = new mystruct[maxd];
+		
+		outfile << totalLength << "\t" << totalNNZ;
+		for(int i=0; i<nprocs; ++i)
+		{
+			// read n_per_proc integers and print them
+			fread(data, dsize, dist[i],f);	
+
+			if (printProcSplits)
+				outfile << "Elements stored on proc " << i << ":" << endl;
+
+			for (int j = 0; j < dist[i]; j++)
+			{
+				outfile << data[j].ind << "\t";
+				handler.save(outfile, data[j].num, data[j].ind);
+				outfile << endl;
+			}
+		}
+		delete [] data;
+		delete [] dist;
+	}
+}
+
+
+template <class IT, class NT>
 template <typename _Predicate>
 IT FullyDistSpVec<IT,NT>::Count(_Predicate pred) const
 {

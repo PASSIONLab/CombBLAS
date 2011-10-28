@@ -504,7 +504,6 @@ class DiGraph(gr.Graph):
 	# NEEDED: tests
 	@staticmethod
 	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False):
-	#def genGraph500Edges(self, scale):
 		"""
 		creates edges in a DiGraph instance that meets the Graph500 
 		specification.  The graph is symmetric. (See www.graph500.org 
@@ -534,7 +533,13 @@ class DiGraph(gr.Graph):
 			    of Kernel 1.
 			    Degrees of all vertices.
 		"""
-		edges, degrees, k1time = Mat.generateRMAT(scale, edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated)
+		if isinstance(scale, DiGraph):
+			raise KeyError, "generateRMAT is a static method! call it like this: kdt.DiGraph.generateRMAT(10)"
+			
+		if not isinstance(scale, (int, float, long)):
+			raise KeyError, "scale must be an integer!"
+			
+		edges, degrees, k1time = Mat.generateRMAT(int(scale), edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated)
 		
 		ret = DiGraph()
 		ret.e = edges

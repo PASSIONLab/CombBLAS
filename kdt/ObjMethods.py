@@ -20,6 +20,8 @@ def defUserCallbacks(objList):
 		return self
 	for obj in objList:
 		obj.__iadd__ = __iadd__
+	for obj in objList:
+		obj.__add__ = __iadd__
 	
 	def __iand__(self, other):
 		if isinstance(other, (float, int, long)):
@@ -29,6 +31,8 @@ def defUserCallbacks(objList):
 		return self
 	for obj in objList:
 		obj.__iand__ = __iand__
+	for obj in objList:
+		obj.__and__ = __iand__
 	
 	def __div__(self, other):
 		if isinstance(other, (float, int, long)):
@@ -379,6 +383,15 @@ def defUserCallbacks(objList):
 		return self
 	for obj in objList:
 		obj.spOnes = spOnes
+
+	def spZeros(self):
+		if isinstance(self, (float, int, long)):
+			self = 0
+		else:
+			self.weight = 0
+		return self
+	for obj in objList:
+		obj.spZeros = spZeros
 	
 	def spRange(self, other):
 	# only called when self is an Obj

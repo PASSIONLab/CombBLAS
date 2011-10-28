@@ -126,6 +126,7 @@ BinaryFunction greater_equal();
 BinaryFunction less_equal();
 
 BinaryFunction binary(PyObject *pyfunc);
+BinaryFunction* binaryPtr(PyObject *pyfunc);
 
 // Glue functions
 

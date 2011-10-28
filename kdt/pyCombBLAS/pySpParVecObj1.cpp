@@ -96,6 +96,13 @@ void pySpParVecObj1::load(const char* filename)
 	input.close();
 }
 
+void pySpParVecObj1::save(const char* filename)
+{
+	ofstream output(filename);
+	v.SaveGathered(output, 0, Obj1ReadSaveHandler());
+	output.close();
+}
+
 void pySpParVecObj1::printall()
 {
 	v.DebugPrint();

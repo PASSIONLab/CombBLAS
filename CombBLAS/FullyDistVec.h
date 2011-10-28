@@ -90,7 +90,11 @@ public:
 	
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
-	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }	
+	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
+	
+	template <class HANDLER>
+	void SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
+	void SaveGathered(ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler(), false); }
 
 	template <class ITRHS, class NTRHS>
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
@@ -154,10 +158,30 @@ public:
 	template <typename _UnaryOperation, typename IRRELEVANT_NT>
 	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT>& mask);
 
+	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op);
+	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue);
+
+	template <typename T1, typename T2>
+	class retTrue {
+		public:
+		bool operator()(const T1& x, const T2& y)
+		{
+			return true;
+		}
+	};
+
 	template <typename _BinaryOperation, class NT2>
-	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op);
+	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op)
+	{
+		this->EWiseApply(other, __binary_op, retTrue<NT, NT2>());
+	}
 	template <typename _BinaryOperation, class NT2>
-	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, bool applyNulls, NT2 nullValue);
+	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, bool applyNulls, NT2 nullValue)
+	{
+		this->EWiseApply(other, __binary_op, retTrue<NT, NT2>(), applyNulls, nullValue);
+	}
 	
 	void PrintToFile(string prefix)
 	{

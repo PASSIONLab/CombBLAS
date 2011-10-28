@@ -41,7 +41,7 @@ class Vec(object):
 				self._v_ = pcb.pyDenseParVecObj2(length, element)
 			self._identity_ = pcb.Obj2
 		else:
-			raise TypeError
+			raise TypeError, "don't know type %s"%(type(element))
 	
 	def _stealFrom(self, other):
 		self._v_ = other._v_
@@ -79,8 +79,10 @@ class Vec(object):
 		FIX:  doc 'element' arg that converts element of result
 		ToDo:  add a doFilter=True arg at some point?
 		"""
-		ret = Vec(element=self._identity_, sparse=self.isSparse())
+		ret = Vec() #Vec(element=self._identity_, sparse=self.isSparse())
 		ret._v_ = self._v_.copy()
+		ret._identity_ = self._identity_
+		
 		# filter the new vector; note generic issue of distinguishing
 		#   zero from null
 		if self._hasFilter():
@@ -104,7 +106,7 @@ class Vec(object):
 				else:
 					ret = x.coerce(y, True)
 				return ret
-			tmp2 = tmp._eWiseApply(ret, func, True, True)
+			tmp2 = tmp.eWiseApply(ret, func, True, True)
 			ret = tmp2
 		return ret	
 	
@@ -116,6 +118,12 @@ class Vec(object):
 		ret = Vec(0, element=element, sparse=sparse)
 		ret._v_.load(fname)
 		return ret
+	
+	def save(self, fname):
+		"""
+		saves this vector to a file.
+		"""
+		self._v_.save(fname)
 
 	def dense(self):	
 		"""
@@ -124,7 +132,7 @@ class Vec(object):
 		in their corresonding positions in the dense instance.
 		If the Vec instance is already dense, self is returned.
 		"""
-		if isDense():
+		if self.isDense():
 			return self
 		else:
 			return Vec._toVec(self._v_.dense())
@@ -136,7 +144,7 @@ class Vec(object):
 		contains all the elements but are stored in a sparse structure.
 		If the Vec instance is already sparse, self is returned.
 		"""
-		if isSparse():
+		if self.isSparse():
 			return self
 		else:
 			return Vec._toVec(self._v_.sparse())
@@ -308,7 +316,7 @@ class Vec(object):
 		are all nonnull with the value 1.
 		"""
 		if sparse:
-			return ones(sz, element=element, sparse=False).sparse()
+			return Vec.ones(sz, element=element, sparse=False).sparse()
 		
 		if isinstance(element, (float, int, long)):
 			element = 1.0
@@ -316,6 +324,28 @@ class Vec(object):
 			element = pcb.Obj1().spOnes()
 		elif isinstance(element, pcb.Obj2):
 			element = pcb.Obj2().spOnes()
+		else:
+			raise TypeError
+		
+		ret = Vec(sz, element, sparse=False)
+		return ret
+	
+	@staticmethod
+	def zeros(sz, element=0.0, sparse=False):
+		"""
+		creates a Vec instance of the specified size whose elements
+		are all nonnull with the value 0.
+		"""
+		
+		if sparse:
+			return Vec.zeros(sz, element=element, sparse=False).sparse()
+		
+		if isinstance(element, (float, int, long)):
+			element = 0.0
+		elif isinstance(element, pcb.Obj1):
+			element = pcb.Obj1().spZeros()
+		elif isinstance(element, pcb.Obj2):
+			element = pcb.Obj2().spZeros()
 		else:
 			raise TypeError
 		
@@ -579,7 +609,7 @@ class Vec(object):
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull):
+	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -610,13 +640,18 @@ class Vec(object):
 		else:
 			superOp = op
 
-		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+		if predicate:
+			superOp = _op_make_binary_pred(superOp)
+		else:
+			superOp = _op_make_binary(superOp)
+		
+		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
 		ret = Vec._toVec(v)
 		return ret
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull):
+	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -647,13 +682,18 @@ class Vec(object):
 		else:
 			superOp = op
 
-		v = pcb.EWiseApply(self._v_, other._v_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, ANull)
+		if predicate:
+			superOp = _op_make_binary_pred(superOp)
+		else:
+			superOp = _op_make_binary(superOp)
+
+		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, ANull)
 		ret = Vec._toVec(v)
 		return ret
 
 	# NOTE: this function is SpVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull):
+	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -683,15 +723,16 @@ class Vec(object):
 			superOp = tmpB().fn
 		else:
 			superOp = op
-
-		if doOp is not None:
-			raise NotImplementedError,"dense/sparse case does not support doOp yet"
 			
-		self._v_.EWiseApply(other._v_, _op_make_binary(superOp), allowBNulls, BNull)
+		if predicate:
+			superOp = _op_make_binary_pred(superOp)
+		else:
+			superOp = _op_make_binary(superOp)
+		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp), allowBNulls, BNull)
 	
 	# NOTE: this function is DeVec-specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp):
+	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate=False):
 		"""
 		ToDo:  write doc
 		in-place operation
@@ -723,12 +764,13 @@ class Vec(object):
 		else:
 			superOp = op
 
-		if doOp is not None:
-			raise NotImplementedError,"dense/dense case does not support doOp yet"
-			
-		self._v_.EWiseApply(other._v_, _op_make_binary(superOp))
+		if predicate:
+			superOp = _op_make_binary_pred(superOp)
+		else:
+			superOp = _op_make_binary(superOp)
+		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False):
 		"""
 		Performs an element-wise operation between the two vectors.
 		if inPlace is true the result is stored in self.
@@ -766,30 +808,30 @@ class Vec(object):
 		if self.isSparse():
 			if other.isSparse():
 				if inPlace:
-					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_)
+					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate)
 			else: # sparse, dense
 				if inPlace:
-					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_)
+					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_)
+					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate)
 		else: # dense
 			if other.isSparse():
 				if inPlace:
-					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_)
+					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate)
 				else:
 					ret = self.copy()
-					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_)
+					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate)
 					return ret
 			else: # dense, dense
 				if inPlace:
-					self._dense_dense_eWiseApply_inPlace(other, op, doOp)
+					self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate)
 				else:
 					ret = self.copy()
-					ret._dense_dense_eWiseApply_inPlace(other, op, doOp)
+					ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate)
 					return ret
 
 #################################################
@@ -809,81 +851,43 @@ class Vec(object):
 		ret.apply(f)
 		return ret
 	
-	def _ewise_bin_op_worker(self, other, func):
+	def _ewise_bin_op_worker(self, other, func, intOnly=False, predicate=False):
+		funcUse = func
+		if intOnly:
+			# if other is a floating point, make it an int
+			if isinstance(other, (float, int, long)):
+				other = int(other)
+			
+			# if self is a float vector, add conversions to int. Object vectors are assumed to handle
+			# conversion themselves.
+			if not self.isObj():
+				if isinstance(other, Vec) and not other.isObj():
+					funcUse = lambda x, y: func(int(x), int(y))
+				else:
+					funcUse = lambda x, y: func(int(x), y)
+
 		if not isinstance(other, Vec):
 			# if other is a scalar, then only apply it to the nonnull elements of self.
-			return self.eWiseApply(other, func, allowANulls=False, allowBNulls=False, inPlace=False)
+			return self.eWiseApply(other, funcUse, allowANulls=False, allowBNulls=False, inPlace=False, predicate=predicate)
 		else:
-			return self.eWiseApply(other, func, allowANulls=True, allowBNulls=False, inPlace=False)
+			return self.eWiseApply(other, funcUse, allowANulls=True, allowBNulls=False, inPlace=False, predicate=predicate)
 	
-	# NEEDED: update to eWiseApply
-	# NEEDED: update docstring
 	def __add__(self, other):
 		"""
-		adds the corresponding elements of two SpVec instances into the
-		result SpVec instance, with a nonnull element where either of
+		adds the corresponding elements of two Vec instances into the
+		result Vec instance, with a nonnull element where either of
 		the two input vectors was nonnull.
 		ToDo:  elucidate combinations, overloading, etc.
 		"""
-		# if no filters for self and other and self has doubleint elements
-		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
-			ret = self.copy()
-			# if other is scalar
-			if isinstance(other, (float, int, long)):
-				func = pcb.bind2nd(pcb.plus(),other)
-				ret.apply(func)
-			else:	# other is doubleint (Sp)Vec
-				if len(self) != len(other):
-					raise IndexError, 'arguments must be of same length'
-				ret._v_ = self._v_ + other._v_
-		else:
-			if not isinstance(other, (float, int, long)) and len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(Vec, float, int, long)):
-				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if Vec.isObj(self):
-		 		func = lambda x, y: x.__iadd__(y)
-			else:
-		 		func = lambda x, y: y.__radd__(x)
-		 	ret = self._eWiseApply(other, func, True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
 
-	# NEEDED: update to eWiseApply
-	# NEEDED: update docstring
+
 	def __and__(self, other):
 		"""
-		performs a logical And between the corresponding elements of two
-		SpParVec instances into the result SpParVec instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where both of the input vectors are True.
+		performs a bitwise And between the corresponding elements of two
+		Vec instances into the result Vec instance.
 		"""
-#		if len(self) != len(other):
-#			raise IndexError, 'arguments must be of same length'
-#		ret = self.copy()
-#		func = lambda x, other: x.__and__(other)
-#		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
-#		return ret
-		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
-			ret = self.copy()
-			# if other is scalar
-			if isinstance(other, (float, int, long)):
-				func = pcb.bind2nd(pcb.bitwise_and(),other)
-				ret.apply(func)
-			else:	# other is doubleint (Sp)Vec
-				if len(self) != len(other):
-					raise IndexError, 'arguments must be of same length'
-				ret = self._eWiseApply(other, pcb.bitwise_and(), True, True, noWrap=True)
-		else:
-			if not isinstance(other, (float, int, long)) and len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(Vec, float, int, long)):
-				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if Vec.isObj(self):
-		 		func = lambda x, y: x.__iand__(y)
-			else:
-		 		func = lambda x, y: y.__rand__(x)
-		 	ret = self._eWiseApply(other, func, True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x & other), intOnly=True)
 
 	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
@@ -899,6 +903,8 @@ class Vec(object):
 
 		Note:  For v0.1, the second argument may only be a scalar.
 		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x / other))
+
 		if isinstance(other, (float, int, long)):
 			ret = self.copy()
 			func = lambda x: x.__div__(other)
@@ -913,7 +919,6 @@ class Vec(object):
 		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
 		return ret
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __eq__(self, other):
 		"""
@@ -931,20 +936,8 @@ class Vec(object):
 		of the input arguments are nonnull, with the value being True (1.0)
 		only where the corresponding elements are both nonnull and equal.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__eqPy__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__eqPy__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x == other), predicate=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __ge__(self, other):
 		"""
@@ -964,20 +957,8 @@ class Vec(object):
 		only where the corresponding elements are both nonnull and the
 		first argument is greater than or equal to the second.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__ge__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__ge__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x >= other), predicate=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __gt__(self, other):
 		"""
@@ -996,22 +977,8 @@ class Vec(object):
 		only where the corresponding elements are both nonnull and the
 		first argument is greater than the second.
 		"""
-		return self._ewise_bin_op_worker(other, (lambda x, other: x.__gt__(other)))
-		
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__gt__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj > VecObj yet'
-		 	func = lambda x, other: x.__gt__(other)
-			ret = self.eWiseApply(other, pcb.binaryObj(func), True,True)
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x > other), predicate=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __iadd__(self, other):
 		"""
@@ -1019,33 +986,11 @@ class Vec(object):
 		result SpParVec instance, with a nonnull element where either of
 		the two input vectors was nonnull.
 		"""
-		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
-			#ret = self.copy()
-			# if other is scalar
-			if isinstance(other, (float, int, long)):
-				func = pcb.bind2nd(pcb.plus(),other)
-				self.apply(func)
-			else:	# other is doubleint (Sp)Vec
-				if len(self) != len(other):
-					raise IndexError, 'arguments must be of same length'
-				self._v_ += other._v_
-		else:
-			if not isinstance(other, (float, int, long)) and len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(Vec, float, int, long)):
-				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if Vec.isObj(self):
-		 		func = lambda x, y: x.__iadd__(y)
-			else:
-		 		func = lambda x, y: y.__radd__(x)
-		 	self = self._eWiseApply(other, func, True,True)		
-		return self
+		return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
 		
-	# NEEDED: why int().__invert__()? float elements will be incorrect
-	# NEEDED: update docstring
 	def __invert__(self):
 		"""
-		negates each nonnull element of the passed SpParVec instance.
+		bitwise inverts each nonnull element of the Vec instance.
 		"""
 		ret = self.copy()
 		if isinstance(self._identity_, (float, int, long)):
@@ -1055,7 +1000,6 @@ class Vec(object):
 		ret.apply(func)
 		return ret
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __isub__(self, other):
 		"""
@@ -1064,19 +1008,8 @@ class Vec(object):
 		instance), with a nonnull element where either of the two input 
 		arguments was nonnull.
 		"""
-		if isinstance(other, (float, int, long)):
-			func = lambda x: x.__isub__(other)
-			self.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj += VecObj yet'
-		 	func = lambda x, other: x.__isub__(other)
-		 	self = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return self
+		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
 		
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __le__(self, other):
 		"""
@@ -1095,22 +1028,8 @@ class Vec(object):
 		only where the corresponding elements are both nonnull and the
 		first argument is less than or equal to the second.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__le__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__le__(other)
-			#ToDo:  should __le__ return a SpVec instead of a SpVecObj?
-		 	#ret = self._eWisePredApply(other, pcb.binaryObjPred(func), True,True)		
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x <= other), predicate=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __lt__(self, other):
 		"""
@@ -1129,48 +1048,17 @@ class Vec(object):
 		only where the corresponding elements are both nonnull and the
 		first argument is less than the second.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			#HACK:  note __ltPy__ called in 2 spots here, to avoid
-			#	conflict with built-in C++ fn in __lt__
-			func = lambda x: x.__ltPy__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__ltPy__(other)
-			#ToDo:  should __lt__ return a SpVec instead of a SpVecObj?
-		 	#ret = self._eWisePredApply(other, pcb.binaryObjPred(func), True,True)		
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x < other), predicate=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __mod__(self, other):
 		"""
 		calculates the modulus of each element of the first argument by the
 		second argument (a scalar or a SpParVec instance), with a nonnull
 		element where the input SpParVec argument(s) were nonnull.
-
-		Note:  for v0.1, only a scalar divisor is supported.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__mod__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj%VecObj yet'
-			raise NotImplementedError, 'no SpVecObj%SpVecObj yet'
-		 	func = lambda x, other: x.__mod__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x % other))
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __mul__(self, other):
 		"""
@@ -1178,21 +1066,9 @@ class Vec(object):
 		(a scalar or a SpParVec instance), with a nonnull element where 
 		the input SpParVec argument(s) were nonnull.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__mul__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj*VecObj yet'
-		 	func = lambda x, other: x.__mul__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x * other))
 
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __ne__(self, other):
 		"""
@@ -1211,25 +1087,14 @@ class Vec(object):
 		only where the corresponding elements are both nonnull and the
 		first argument is not equal to the second.
 		"""
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__nePy__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj >= VecObj yet'
-		 	func = lambda x, other: x.__nePy__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x != other), predicate=True)
 
 	def __neg__(self):
 		"""
 		negates each nonnull element of the passed Vec instance.
 		"""
 		ret = self.copy()
-		func = lambda x: x.__neg__()
+		func = lambda x: -x
 		ret.apply(func)
 		return ret
 
@@ -1259,27 +1124,7 @@ class Vec(object):
 		instance), with a nonnull element where the input SpParVec argument(s)
 		are nonnull.
 		"""
-		if not Vec._hasFilter(self) and not Vec._hasFilter(other) and isinstance(self._identity_, (float, int, long)) and (isinstance(other, (float, int, long)) or isinstance(other._identity_, (float, int, long))):
-			ret = self.copy()
-			# if other is scalar
-			if isinstance(other, (float, int, long)):
-				func = pcb.bind2nd(pcb.minus(),other)
-				ret.apply(func)
-			else:	# other is doubleint (Sp)Vec
-				if len(self) != len(other):
-					raise IndexError, 'arguments must be of same length'
-				ret._v_ = self._v_ - other._v_
-		else:
-			if not isinstance(other, (float, int, long)) and len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,(Vec, float, int, long)):
-				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			if Vec.isObj(self):
-		 		func = lambda x, y: x.__isub__(y)
-			else:
-		 		func = lambda x, y: y.__rsub__(x)
-		 	ret = self._eWiseApply(other, func, True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
 
 	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
@@ -1304,14 +1149,14 @@ class Vec(object):
 		Vec instance are True (nonzero), and False otherwise.
 		"""
 		tmp = self.copy()
-	# only because have to set tmp[0]
+		# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
 			return self.reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
-	#FIX: "=  bool(...)"?
+			#FIX: "=  bool(...)"?
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.all(other)
@@ -1333,17 +1178,17 @@ class Vec(object):
 	def any(self):
 		"""
 		returns a Boolean True if any of the nonnull elements of the
-		SpVec instance is True (nonzero), and False otherwise.
+		Vec instance is True (nonzero), and False otherwise.
 		"""
 		tmp = self.copy()
-	# only because have to set tmp[0]
+		# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
 			return self.reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
-	#FIX: "=  bool(...)"?
+			#FIX: "=  bool(...)"?
 			identity.category = 99
 			tmp[0] = identity
 			func = lambda x, other: x.any(other)
@@ -1420,12 +1265,12 @@ class Vec(object):
 		if self.nnn() == 0:
 			return None
 		else:
-			if isinstance(self._identity_, (float, int, long)):
+			if not self.isObj():
 				ret = self.reduce(op_max)
-			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
+			else:
 				func = lambda x, other: x.max(other)
 				ret = self.reduce(pcb.binaryObj(func))
-		return ret
+			return ret
 
 	def min(self):
 		"""
@@ -1435,12 +1280,12 @@ class Vec(object):
 		if self.nnn() == 0:
 			return None
 		else:
-			if isinstance(self._identity_, (float, int, long)):
+			if not self.isObj():
 				ret = self.reduce(op_min)
-			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
+			else:
 				func = lambda x, other: x.min(other)
 				ret = self.reduce(pcb.binaryObj(func))
-		return ret
+			return ret
 
 	def nn(self):
 		"""

@@ -56,7 +56,7 @@ void pySpParMat::load(const char* filename)
 {
 	string fn(filename);
 	unsigned int dot = fn.find_last_of('.');
-	if (dot != string::npos && fn.substr(dot) == ".bin")
+	if (strlen(filename) > 4 && strcmp(filename+(strlen(filename)-4), ".bin") == 0)
 	{	
 		// .bin file
 		int mdot = fn.find_last_of('.', dot-1);
@@ -87,8 +87,7 @@ void pySpParMat::load(const char* filename)
 
 void pySpParMat::save(const char* filename)
 {
-	cout << "Warning: output is transposed!" << endl;
-	A.SaveGathered(filename);
+	A.SaveGathered(filename, MatType::ScalarReadSaveHandler(), true);
 }
 
 // Copied directly from Aydin's C++ Graph500 code
