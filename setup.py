@@ -251,6 +251,35 @@ for a in copy_args:
 ############################################################################
 #### RUNNING TESTS
 
+# Windows-specific things
+if check_for_Windows(include_dirs, define_macros):
+	usingWindows = True
+	define_macros.append(("NOMINMAX", None))               # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
+	if not usingWinMPICH:
+		usingWinMPICH = True
+		print "You are on Windows but have not specified MPICH with the -MPICH or the -MPICH=path switches. We only support KDT on Windows with MPICH, so we assume the default MPICH path of '%s'."%(MPICHdir)
+	# add debug compiler flags?
+	if debug:
+		extra_compile_args.append('/Od')   # no optimizations, override the default /Ox
+		extra_compile_args.append('/Zi')   # debugging info
+		extra_link_args.append('/debug')   # debugging info
+	
+	if check_for_VS(include_dirs, define_macros):
+		define_macros.append(('inline', '__inline'))
+		define_macros.append(('_SCL_SECURE_NO_WARNINGS', '1'))    # disables odd but annoyingly verbose checks, maybe these are legit, don't know.
+# still need for ('restrict', '__restrict__') define_macro on non-Windows?
+		
+if not check_for_header("inttypes.h", include_dirs, define_macros):
+	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not ship with <inttypes.h>
+if not check_for_header("sys/time.h", include_dirs, define_macros):
+	include_dirs.append(COMBBLAS+"ms_sys")                 # VS2008 does not ship with <sys/time.h>, we provide a blank one because other people's code includes it but none of the functions are used.
+
+if usingWinMPICH:
+	include_dirs.append(MPICHdir + "\include")
+	library_dirs.append(MPICHdir + "\lib")
+	libraries.append("mpi")
+	libraries.append("cxx")
+
 if not check_for_MPI(include_dirs, define_macros):
 	print "ERROR: MPI not found. KDT requires an MPI compiler to be used."
 	print "On Linux/Unix/MacOSX:"
@@ -308,38 +337,8 @@ if not check_for_C99_CONSTANTS(include_dirs, define_macros):
 	define_macros.append(("__STDC_CONSTANT_MACROS", None))
 	define_macros.append(("__STDC_LIMIT_MACROS", None))
 
-if not check_for_restrict(include_dirs, define_macros):
-	define_macros.append(('restrict', '__restrict__'))
-
-# Windows-specific things
-if check_for_Windows(include_dirs, define_macros):
-	usingWindows = True
-	define_macros.append(("NOMINMAX", None))               # Windows defines min and max as macros, which wreaks havoc with functions named min and max, regardless of namespace
-	if not usingWinMPICH:
-		usingWinMPICH = True
-		print "You are on Windows but have not specified MPICH with the -MPICH or the -MPICH=path switches. We only support KDT on Windows with MPICH, so we assume the default MPICH path of '%s'."%(MPICHdir)
-	# add debug compiler flags?
-	if debug:
-		extra_compile_args.append('/Od')   # no optimizations, override the default /Ox
-		extra_compile_args.append('/Zi')   # debugging info
-		extra_link_args.append('/debug')   # debugging info
-	
-	if check_for_VS(include_dirs, define_macros):
-		define_macros.append(('inline', '__inline'))
-		define_macros.append(('_SCL_SECURE_NO_WARNINGS', '1'))    # disables odd but annoyingly verbose checks, maybe these are legit, don't know.
-# still need for ('restrict', '__restrict__') define_macro on non-Windows?
-		
-if not check_for_header("inttypes.h", include_dirs, define_macros):
-	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not ship with <inttypes.h>
-if not check_for_header("sys/time.h", include_dirs, define_macros):
-	include_dirs.append(COMBBLAS+"ms_sys")                 # VS2008 does not ship with <sys/time.h>, we provide a blank one because other people's code includes it but none of the functions are used.
-
-if usingWinMPICH:
-	include_dirs.append(MPICHdir + "\include")
-	library_dirs.append(MPICHdir + "\lib")
-	libraries.append("mpi")
-	libraries.append("cxx")
-
+if not usingWindows and not check_for_restrict(include_dirs, define_macros):
+	define_macros.append(('CHANGE_RESTRICT', '__restrict__'))
 
 ############################################################################
 #### RUN DISTUTILS
