@@ -628,7 +628,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		IT maxd = *max_element(dist, dist+nprocs);
 		mystruct * data = new mystruct[maxd];
 		
-		outfile << totalLength << "\t" << totalNNZ;
+		outfile << totalLength << "\t" << totalNNZ << endl;
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
@@ -639,7 +639,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 
 			for (int j = 0; j < dist[i]; j++)
 			{
-				outfile << data[j].ind << "\t";
+				outfile << data[j].ind+1 << "\t";
 				handler.save(outfile, data[j].num, data[j].ind);
 				outfile << endl;
 			}

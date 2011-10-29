@@ -26714,6 +26714,49 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pyDenseParVec_save(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVec_save",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVec, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVec_save" "', argument " "1"" of type '" "pyDenseParVec *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVec * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyDenseParVec_save" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  {
+    try {
+      (arg1)->save((char const *)arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pyDenseParVec_Count__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pyDenseParVec *arg1 = (pyDenseParVec *) 0 ;
@@ -30739,6 +30782,49 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pyDenseParVecObj1_save(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVecObj1 *arg1 = (pyDenseParVecObj1 *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVecObj1_save",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVecObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVecObj1_save" "', argument " "1"" of type '" "pyDenseParVecObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVecObj1 * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyDenseParVecObj1_save" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  {
+    try {
+      (arg1)->save((char const *)arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pyDenseParVecObj1_Count(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pyDenseParVecObj1 *arg1 = (pyDenseParVecObj1 *) 0 ;
@@ -32529,6 +32615,49 @@ SWIGINTERN PyObject *_wrap_pyDenseParVecObj2_load(PyObject *SWIGUNUSEDPARM(self)
   {
     try {
       (arg1)->load((char const *)arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyDenseParVecObj2_save(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pyDenseParVecObj2 *arg1 = (pyDenseParVecObj2 *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pyDenseParVecObj2_save",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pyDenseParVecObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyDenseParVecObj2_save" "', argument " "1"" of type '" "pyDenseParVecObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pyDenseParVecObj2 * >(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyDenseParVecObj2_save" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  {
+    try {
+      (arg1)->save((char const *)arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -38902,6 +39031,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVec_getnz", _wrap_pyDenseParVec_getnz, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_any", _wrap_pyDenseParVec_any, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_load", _wrap_pyDenseParVec_load, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVec_save", _wrap_pyDenseParVec_save, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_Count", _wrap_pyDenseParVec_Count, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_Reduce", _wrap_pyDenseParVec_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVec_Find", _wrap_pyDenseParVec_Find, METH_VARARGS, NULL},
@@ -38932,6 +39062,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVecObj1_printall", _wrap_pyDenseParVecObj1_printall, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj1_getnee", _wrap_pyDenseParVecObj1_getnee, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj1_load", _wrap_pyDenseParVecObj1_load, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVecObj1_save", _wrap_pyDenseParVecObj1_save, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj1_Count", _wrap_pyDenseParVecObj1_Count, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj1_Reduce", _wrap_pyDenseParVecObj1_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj1_Find", _wrap_pyDenseParVecObj1_Find, METH_VARARGS, NULL},
@@ -38956,6 +39087,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pyDenseParVecObj2_printall", _wrap_pyDenseParVecObj2_printall, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj2_getnee", _wrap_pyDenseParVecObj2_getnee, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj2_load", _wrap_pyDenseParVecObj2_load, METH_VARARGS, NULL},
+	 { (char *)"pyDenseParVecObj2_save", _wrap_pyDenseParVecObj2_save, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj2_Count", _wrap_pyDenseParVecObj2_Count, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj2_Reduce", _wrap_pyDenseParVecObj2_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pyDenseParVecObj2_Find", _wrap_pyDenseParVecObj2_Find, METH_VARARGS, NULL},

@@ -2523,7 +2523,7 @@ def suite():
 #	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
 #	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
-	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
+#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
 	return suite
 
 if __name__ == '__main__':

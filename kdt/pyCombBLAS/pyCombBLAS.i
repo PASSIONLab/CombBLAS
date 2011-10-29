@@ -118,6 +118,13 @@ public:
 	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+
+	/* CombBLAS support for these is still not there.
+	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
+	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
+	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);
+	pySpParMatObj2 SpGEMM(pySpParMatObj2 &other, op::SemiringObj* sring);
+	*/
 	
 public:
 	static int Column() { return ::Column; }
@@ -693,6 +700,7 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
@@ -784,6 +792,7 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
@@ -859,6 +868,7 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);

@@ -33,7 +33,7 @@ int64_t pyDenseParVecObj1::__len__() const
 	return v.TotalLength();
 }
 	
-class Obj1ReadSaveHandler
+class Obj1ReadSaveHandlerD
 {
 public:
 	Obj1 getNoNum(pySpParVecObj1::INDEXTYPE row, pySpParVecObj1::INDEXTYPE col) { return Obj1(); }
@@ -56,8 +56,15 @@ public:
 void pyDenseParVecObj1::load(const char* filename)
 {
 	ifstream input(filename);
-	v.ReadDistribute(input, 0, Obj1ReadSaveHandler());
+	v.ReadDistribute(input, 0, Obj1ReadSaveHandlerD());
 	input.close();
+}
+
+void pyDenseParVecObj1::save(const char* filename)
+{
+	ofstream output(filename);
+	v.SaveGathered(output, 0, Obj1ReadSaveHandlerD());
+	output.close();
 }
 
 /*

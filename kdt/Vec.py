@@ -440,7 +440,7 @@ class Vec(object):
 		if pred is None:
 			pred = lambda x: bool(x)
 		
-		return self.reduce(op_add, uniOp=pred, init=0.0)
+		return self.reduce((lambda x,y: x+y), uniOp=pred, init=0.0)
 
 	_REPR_MAX = 30;
 	_REPR_WARN = 0
@@ -1270,7 +1270,7 @@ class Vec(object):
 		if not self.isObj():
 			if initInf is None:
 				initInf = 9999999
-			ret = self.reduce(op_min, init=initInf)
+			ret = self.reduce((lambda x,y: min(x, y)), init=initInf)
 		else:
 			if initInf is None:
 				raise KeyError,"please provide an initInf argument which specifies a largest possible value, like 'infinity'."

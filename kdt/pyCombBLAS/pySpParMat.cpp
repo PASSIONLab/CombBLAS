@@ -475,3 +475,37 @@ void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
 		sring->disableSemiring();
 	}
 }
+
+#if 0
+pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatBool pySpParMat::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pySpParMatBool ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, bool, bool> >(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatObj1 pySpParMat::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, Obj1, Obj1> >(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatObj2 pySpParMat::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, Obj2, Obj2> >(A, other.A) );
+	sring->disableSemiring();
+	return ret;
+}
+#endif
