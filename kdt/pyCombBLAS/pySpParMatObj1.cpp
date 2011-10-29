@@ -418,29 +418,23 @@ int64_t pySpParMatObj1::Count(op::UnaryPredicateObj* pred)
 	return colcounts.Reduce(::plus<int64_t>(), 0L);
 }
 
-pyDenseParVecObj1 pySpParMatObj1::Reduce(int dim, op::BinaryFunctionObj* f, Obj1 identity)
+void pySpParMatObj1::Reduce(int dim, pyDenseParVecObj1 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity)
 {
-	return Reduce(dim, f, NULL, identity);
-}
-
-pyDenseParVecObj1 pySpParMatObj1::Reduce(int dim, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity)
-{
-	int64_t len = 1;
-	if (dim == ::Row)
-		len = getnrow();
-	else
-		len = getncol();
-		
-	pyDenseParVecObj1 ret(len, identity);
-
 	bf->getMPIOp();
 	if (uf == NULL)
 		A.Reduce(ret.v, (Dim)dim, *bf, identity);
 	else
 		A.Reduce(ret.v, (Dim)dim, *bf, identity, *uf);
 	bf->releaseMPIOp();
-	
-	return ret;
+}
+void pySpParMatObj1::Reduce(int dim, pyDenseParVec     ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity)
+{
+	bf->getMPIOp();
+	if (uf == NULL)
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity));
+	else
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity), *uf);
+	bf->releaseMPIOp();
 }
 
 void pySpParMatObj1::Transpose()

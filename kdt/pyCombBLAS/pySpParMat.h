@@ -35,6 +35,7 @@ public:
 	pySpParMat();
 	pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
 
+	pySpParMat(const pySpParMatBool& copyStructureFrom);
 	pySpParMat(const pySpParMatObj1& copyStructureFrom);
 	pySpParMat(const pySpParMatObj2& copyStructureFrom);
 	
@@ -70,7 +71,8 @@ public:
 	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
-	
+	void Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);
 

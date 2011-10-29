@@ -307,7 +307,7 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 
 	degscale = self.degree(dir)
 	degscale.apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
-	self.scale(degscale, dir, op_mul)
+	self.e.scale(degscale, op=op_mul, dir=dir)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 
 # NEEDED: make sure normalization is done correctly
