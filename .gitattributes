@@ -1129,6 +1129,7 @@ CombBLAS/betatests/script25600 -text
 CombBLAS/betatests/script25600.e832752 -text
 CombBLAS/betatests/script25600.e832754 -text
 CombBLAS/betatests/script25600.e832757 -text
+CombBLAS/betatests/script38400_onepersocket.e933122 -text
 CombBLAS/betatests/script400 -text
 CombBLAS/betatests/script400.e831301 -text
 CombBLAS/betatests/script6400 -text
