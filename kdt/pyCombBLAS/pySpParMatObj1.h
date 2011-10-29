@@ -66,8 +66,8 @@ public:
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	void Reduce(int dim, pyDenseParVec     ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
-	void Reduce(int dim, pyDenseParVecObj1 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
+	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+	void Reduce(int dim, pyDenseParVecObj1 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
 	//void Reduce(int dim, pyDenseParVecObj2 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());
 	
 	void Transpose();

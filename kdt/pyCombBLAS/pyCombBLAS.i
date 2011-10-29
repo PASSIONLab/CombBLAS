@@ -106,7 +106,7 @@ public:
 	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
-	void Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+	void Reduce(int dim, pyDenseParVec* ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
 
 	void Transpose();
 	//void EWiseMult(pySpParMat* rhs, bool exclude);
@@ -174,7 +174,7 @@ public:
 	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
-	void Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+	void Reduce(int dim, pyDenseParVec* ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
 
 	void Transpose();
 	//void EWiseMult(pySpParMatBool rhs, bool exclude);
@@ -234,8 +234,8 @@ public:
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	void Reduce(int dim, pyDenseParVec     ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
-	void Reduce(int dim, pyDenseParVecObj1 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
+	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+	void Reduce(int dim, pyDenseParVecObj1 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
 	//void Reduce(int dim, pyDenseParVecObj2 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());
 	
 	void Transpose();
@@ -302,8 +302,8 @@ public:
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
-	void Reduce(int dim, pyDenseParVec     ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
-	void Reduce(int dim, pyDenseParVecObj2 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());
+	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+	void Reduce(int dim, pyDenseParVecObj2 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());
 	//void Reduce(int dim, pyDenseParVecObj1 ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj1 identity = Obj1());
 	
 	void Transpose();

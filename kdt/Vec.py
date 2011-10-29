@@ -6,6 +6,7 @@ from Util import *
 from Util import _op_make_unary
 from Util import _op_make_unary_pred
 from Util import _op_make_binary
+from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
 
 #	naming convention:
@@ -643,9 +644,11 @@ class Vec(object):
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
-			superOp = _op_make_binary(superOp)
+			superOp = _op_make_binaryObj(superOp)
 		
+		#print "calling EWise with: ",type(self._v_), type(other._v_), type(superOp), type(_op_make_binary_pred(doOp)), type(allowANulls), type(allowBNulls), ANull, BNull
 		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+		#print "success!"
 		ret = Vec._toVec(v)
 		return ret
 
@@ -685,7 +688,7 @@ class Vec(object):
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
-			superOp = _op_make_binary(superOp)
+			superOp = _op_make_binaryObj(superOp)
 
 		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, ANull)
 		ret = Vec._toVec(v)
@@ -727,7 +730,8 @@ class Vec(object):
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
-			superOp = _op_make_binary(superOp)
+			superOp = _op_make_binaryObj(superOp)
+			
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp), allowBNulls, BNull)
 	
 	# NOTE: this function is DeVec-specific because pyCombBLAS calling
@@ -767,7 +771,7 @@ class Vec(object):
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
-			superOp = _op_make_binary(superOp)
+			superOp = _op_make_binaryObj(superOp)
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False):

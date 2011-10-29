@@ -366,7 +366,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	# each outgoing edge weight is equal to 1/(number of
 	# outgoing edges).
 	print "DEBUG: make sure PageRank normalization is done in the correct direction"
-	G.normalizeEdgeWeights(DiGraph.In)
+	G.normalizeEdgeWeights(DiGraph.Out)
 
 	# PageRank loop.
 	delta = 1
@@ -377,10 +377,10 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	dampingVec = onesVec * ((1 - dampingFactor)/nvert)
 	while delta > epsilon:
 		prevV = v1.copy()
-		v2 = G.e.SpMV(v1, sr=sr_plustimes)
+		v2 = G.e.SpMV(v1, semiring=sr_plustimes)
 
 		# Compute the inner product of sinkV and v1.
-		sinkContribV = sinkV.EWiseApply(v1, op_mul, inPlace=False)
+		sinkContribV = sinkV.eWiseApply(v1, op_mul, inPlace=False)
 		sinkContrib = sinkContribV.reduce(op_add)
 		
 		v1 = v2 + (onesVec*sinkContrib)

@@ -5,6 +5,7 @@ from Util import *
 from Util import _op_make_unary
 from Util import _op_make_unary_pred
 from Util import _op_make_binary
+from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
 
 import kdt.pyCombBLAS as pcb
@@ -197,6 +198,38 @@ class Mat:
 				raise NotImplementedError, 'can only convert to long for now'
 				
 		return ret
+
+	# NEEDED: tests
+	def toVec(self):
+		"""
+		decomposes a DiGraph instance to 3 ParVec instances, with each
+		element of the first ParVec denoting the source vertex of an edge,
+		the corresponding element of the second ParVec denoting the 
+		destination vertex of the edge, and the corresponding element of
+		the third ParVec denoting the value or weight of the edge.
+
+		Input Argument:
+			self:  a DiGraph instance
+
+		Output Argument:
+			ret:  a 3-element tuple with ParVec instances denoting the
+			    source vertex, destination vertex, and weight, respectively.
+
+		SEE ALSO:  DiGraph 
+		"""
+		ne = self.getnnn()
+		if ne != 0:
+			reti = Vec(ne, element=0, sparse=False)
+			retj = Vec(ne, element=0, sparse=False)
+			retv = Vec(ne, element=self._identity_, sparse=False)
+			self._m_.Find(reti._v_, retj._v_, retv._v_)
+		else:
+			reti = Vec(0)
+			retj = Vec(0)
+			retv = Vec(0)
+		#ToDo:  return nvert() of original graph, too
+		return (reti, retj, retv)
+
 	
 	def toBool(self, inPlace=True):
 		"""
@@ -243,7 +276,7 @@ class Mat:
 	def getncol(self):
 		return self._m_.getncol()
 	
-	def getnee(self):
+	def getnnn(self):
 		"""
 		returns the number of existing elements in this matrix.
 		"""
@@ -459,9 +492,9 @@ class Mat:
 	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 100
 	def __repr__(self):
-		if self.getnee() == 0:
+		if self.getnnn() == 0:
 			return 'Empty Mat object'
-		#if self.getnee() == 1:
+		#if self.getnnn() == 1:
 		#	[i, j, v] = self.toVec()
 		#	if len(v) > 0:
 		#		return "%d %f" % (v[0], v[0])
@@ -470,7 +503,7 @@ class Mat:
 		else:
 			[i, j, v] = self.toVec()
 			if len(i) < self._REPR_MAX:
-				return "" + i + j + v
+				return "" + str(i) + str(j) + str(v)
 		return ' '
 
 	# NEEDED: tests
