@@ -196,6 +196,15 @@ def _op_make_binary(op):
 		return op
 	return pcb.binaryObj(op)
 
+def _op_make_binaryObj(op):
+	if op is None:
+		return None
+	if isinstance(op, (pcb.BinaryFunctionObj)):
+		return op
+	if isinstance(op, (pcb.BinaryFunction)):
+		return pcb.binaryObj(_op_builtin_pyfunc(op))
+	return pcb.binaryObj(op)
+
 def _op_make_unary_pred(op):
 	if op is None:
 		return None

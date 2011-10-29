@@ -357,13 +357,13 @@ pyDenseParVec pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunct
 	return ret;
 }
 
-void pySpParMat::Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity)
+void pySpParMat::Reduce(int dim, pyDenseParVec* ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity)
 {
 	bf->getMPIOp();
 	if (uf == NULL)
-		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity));
+		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity));
 	else
-		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity), *uf);
+		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity), *uf);
 	bf->releaseMPIOp();
 }
 

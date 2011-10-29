@@ -682,7 +682,7 @@ class DiGraph(gr.Graph):
 		"""
 		nv = self.nvert()
 		if vpart is None:
-			return self.e.getnee()
+			return self.e.getnnn()
 		else:
 			if self.nvert() != len(vpart):
 				raise KeyError,'vpart must be same length as number of vertices in DiGraph instance'
@@ -693,7 +693,7 @@ class DiGraph(gr.Graph):
 			else:
 				return Vec.zeros(retLen)
 		if retLen == 1:
-			ret = self.e.getnee()
+			ret = self.e.getnnn()
 		else:
 			selfcopy = self.copy()
 			selfcopy.set(1)
@@ -891,39 +891,6 @@ class DiGraph(gr.Graph):
 		"""
 
 		self.e.toScalar()
-		self._identity_ = 0
-
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def toVec(self):
-		"""
-		decomposes a DiGraph instance to 3 ParVec instances, with each
-		element of the first ParVec denoting the source vertex of an edge,
-		the corresponding element of the second ParVec denoting the 
-		destination vertex of the edge, and the corresponding element of
-		the third ParVec denoting the value or weight of the edge.
-
-		Input Argument:
-			self:  a DiGraph instance
-
-		Output Argument:
-			ret:  a 3-element tuple with ParVec instances denoting the
-			    source vertex, destination vertex, and weight, respectively.
-
-		SEE ALSO:  DiGraph 
-		"""
-		ne = self.nedge()
-		if ne != 0:
-			reti = Vec(ne)
-			retj = Vec(ne)
-			retv = Vec(ne, element=self._identity_)
-			self.e.Find(reti._v_, retj._v_, retv._v_)
-		else:
-			reti = Vec(0)
-			retj = Vec(0)
-			retv = Vec(0)
-		#ToDo:  return nvert() of original graph, too
-		return (reti, retj, retv)
 
 	# NEEDED: update to transposed edge matrix
 	# NEEDED: update to new fields

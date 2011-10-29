@@ -1,8 +1,8 @@
 import unittest
 import TestDiGraph
-import TestHyGraph
-import TestParVec
-import TestSpParVec
+#import TestHyGraph
+import TestVec
+import TestSpVec
 
 def runTests(verbosity = 1):
     testSuite = suite()
@@ -11,9 +11,9 @@ def runTests(verbosity = 1):
 def suite():
     suite = unittest.TestSuite()
     suite.addTests(TestDiGraph.suite())
-    suite.addTests(TestHyGraph.suite())
-    suite.addTests(TestParVec.suite())
-    suite.addTests(TestSpParVec.suite())
+#    suite.addTests(TestHyGraph.suite())
+    suite.addTests(TestVec.suite())
+    suite.addTests(TestSpVec.suite())
     return suite
 
 if __name__ == '__main__':
