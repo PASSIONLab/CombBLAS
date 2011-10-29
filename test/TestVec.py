@@ -416,7 +416,47 @@ class xxxTests(VecTests):
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertAlmostEqual(expW[ind],res[ind].weight)
+	
+	def test_load_save(self):
+		from shutil import rmtree
+		sz = 25
+		i = [0, 2, 4, 6, 8, 10]
+		v = [0, 4, 8,12,16, 20]
+		vec = self.initializeVec(sz, i, v)
+		vec.save("tempsave.vec")
+		loaded = Vec.load("tempsave.vec", element=0.0)
+		#rmtree("tempsave.vec")
+		#ind= [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4]
+		exp = [0, 0, 4, 0, 8, 0,12, 0,16, 0,20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.assertEqual(sz, len(loaded))
+		for ind in range(sz):
+			self.assertAlmostEqual(exp[ind],loaded[ind])
 
+	def test_load_save_Obj1(self):
+		from shutil import rmtree
+		sz = 25
+		i =      [0, 2, 4,  6,  8,  10]
+		weight = [0,-4,16,-36,-64, 100]
+		category = [2, -2, 2, 5, -5, 5]
+		element = Obj1()
+		vec = self.initializeVec(sz, i, (weight, category), element=element)
+		vec.save("tempsave.vec")
+		loaded = Vec.load("tempsave.vec", element=Obj1())
+		#rmtree("tempsave.vec")
+		expW = [0, 0,-4, 0,16, 0,-36, 0,-64, 0,100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.assertEqual(sz, len(loaded))
+		for ind in range(sz):
+			self.assertAlmostEqual(expW[ind],loaded[ind].weight)
+	
+	def test_randperm_sort(self):
+		sz = 25
+		vec = Vec.range(sz, sparse=False)
+		permed = vec.copy()
+		permed.randPerm()
+		sorted = permed.copy()
+		sorted.sort()
+		for ind in range(sz):
+			self.assertAlmostEqual(vec[ind],sorted[ind])
 
 class BuiltInTests(VecTests):
 	def test_len_simple(self):
@@ -1836,7 +1876,7 @@ class ApplyReduceTests(VecTests):
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
 		ct = vec.count()
-		ctExpected = 6
+		ctExpected = 5
 		self.assertEqual(ctExpected, ct)
 
 	def test_reduce_default_op(self):

@@ -58,6 +58,7 @@ public:
 	
 public:	
 	void load(const char* filename);
+	void save(const char* filename);
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);

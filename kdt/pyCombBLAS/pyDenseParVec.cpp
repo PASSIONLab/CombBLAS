@@ -47,6 +47,12 @@ void pyDenseParVec::load(const char* filename)
 	input.close();
 }
 
+void pyDenseParVec::save(const char* filename)
+{
+	ofstream output(filename);
+	v.SaveGathered(output, 0);
+	output.close();
+}
 
 void pyDenseParVec::add(const pyDenseParVec& other) {
 	v.operator+=(other.v);
