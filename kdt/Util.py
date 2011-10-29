@@ -133,28 +133,23 @@ def _op_builtin_pyfunc(op):
 		raise NotImplementedError, 'fmod Python expression not implemented' 
 		#return lambda x, y: (x % y)
 	if op == op_pow:
-		raise NotImplementedError, 'pow Python expression not implemented' 
-		#return lambda x, y: (x y)
+		return lambda x, y: (x**y)
 	if op == op_max:
 		return lambda x, y: max(x, y)
 	if op == op_min:
 		return lambda x, y: min(x, y)
 	if op == op_bitAnd:
-		raise NotImplementedError, 'bitwise AND Python expression not implemented' 
-		#return lambda x, y: (x y)
+		return lambda x, y: (x & y)
 	if op == op_bitOr:
-		raise NotImplementedError, 'bitwise OR Python expression not implemented' 
-		#return lambda x, y: (x y)
+		return lambda x, y: (x | y)
 	if op == op_bitXor:
-		raise NotImplementedError, 'bitwise XOR Python expression not implemented' 
-		#return lambda x, y: (x y)
+		return lambda x, y: (x ^ y)
 	if op == op_and:
 		return lambda x, y: (x and y)
 	if op == op_or:
 		return lambda x, y: (x or y)
 	if op == op_xor:
-		raise NotImplementedError, 'logical XOR Python expression not implemented' 
-		#return lambda x, y: (x xor y)
+		return lambda x, y: (bool(x) != bool(y))
 	if op == op_eq:
 		return lambda x, y: (x == y)
 	if op == op_ne:

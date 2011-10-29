@@ -427,7 +427,10 @@ class Vec(object):
 			if not isinstance(init, (float, int, long)):
 				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
 		
-		ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
+		if isinstance(op, pcb.BinaryFunction) or isinstance(uniOp, pcb.UnaryFunction):
+			ret = self._v_.Reduce(_op_make_binary(op), _op_make_unary(uniOp))
+		else:
+			ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
 		return ret
 	
 	def count(self, pred=None):
@@ -1120,7 +1123,6 @@ class Vec(object):
 		return ret
 
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __or__(self, other):
 		"""
@@ -1129,14 +1131,8 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where at least one of the input vectors is True.
 		"""
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
-		func = lambda x, other: x.__or__(other)
-		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x | other))
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __sub__(self, other):
 		"""
@@ -1147,7 +1143,6 @@ class Vec(object):
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __xor__(self, other):
 		"""
@@ -1156,12 +1151,7 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where exactly one of the input vectors is True.
 		"""
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
-		func = lambda x, other: x.__xor__(other)
-		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x ^ other))
 	
 
 	def all(self):
@@ -1173,7 +1163,7 @@ class Vec(object):
 		# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self.reduce(pcb.logical_and(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			return self.reduce(op_and, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
@@ -1205,7 +1195,7 @@ class Vec(object):
 		# only because have to set tmp[0]
 					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self.reduce(pcb.logical_or(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			return self.reduce(op_or, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
 		else:
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
@@ -1227,7 +1217,6 @@ class Vec(object):
 		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
 		return ret
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def logicalAnd(self, other):
 		"""
@@ -1236,15 +1225,8 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where both of the input vectors are True.
 		"""
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
-	#FIX: spurious? given 2L later?
-		func = lambda x, other: x.logicalAnd(other)
-		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) and bool(other)))
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def logicalOr(self, other):
 		"""
@@ -1253,15 +1235,8 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where either of the input vectors is True.
 		"""
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
- #FIX:  spurious? given 2L later?
-		func = lambda x, other: x.logicalOr(other)
-		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) or bool(other)))
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def logicalXor(self, other):
 		"""
@@ -1270,13 +1245,7 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where either of the input vectors is True.
 		"""
-		if len(self) != len(other):
-			raise IndexError, 'arguments must be of same length'
-		ret = self.copy()
-	#FIX: spurious? given 2L later?
-		func = lambda x, other: x.logicalXor(other)
-		ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) != bool(other)))
 
 	def max(self):
 		"""
@@ -1361,7 +1330,7 @@ class Vec(object):
 	#FIX: spurious? 
 		if isinstance(self._identity_,(float, int, long)):
 			identity = 0
-			ret = int(tmp.reduce(pcb.plus(), pred=pcb.set(1)))
+			ret = int(tmp.reduce(op_add, pred=pcb.set(1)))
 		elif isinstance(self._identity_,(pcb.Obj1)):
 			identity = type(self._identity_)()
 			#HACK: referred to above
@@ -1451,10 +1420,9 @@ class Vec(object):
 				ret = 0
 			elif isinstance(self._identity_, pcb.Obj1):
 				ret = pcb.Obj1()
-				ret.weight = 0; ret.category = 0
 		else:
 			if isinstance(self._identity_, (float, int, long)):
-				ret = self.reduce(pcb.plus())
+				ret = self.reduce(op_add)
 			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
 		 		func = lambda x, other: x.__iadd__(other)
 				ret = self.reduce(pcb.binaryObj(func))
