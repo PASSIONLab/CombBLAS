@@ -11,7 +11,16 @@ pySpParMatBool::pySpParMatBool()
 {
 }
 
-pySpParMatBool::pySpParMatBool(const pySpParMatBool& copyFrom): A(copyFrom.A)
+pySpParMatBool::pySpParMatBool(const pySpParMatBool& copyStructureFrom): A(copyStructureFrom.A)
+{
+}
+pySpParMatBool::pySpParMatBool(const pySpParMat    & copyStructureFrom): A(copyStructureFrom.A)
+{
+}
+pySpParMatBool::pySpParMatBool(const pySpParMatObj1& copyStructureFrom): A(copyStructureFrom.A)
+{
+}
+pySpParMatBool::pySpParMatBool(const pySpParMatObj2& copyStructureFrom): A(copyStructureFrom.A)
 {
 }
 
@@ -30,12 +39,6 @@ pySpParMatBool::pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDens
 	pySpParMat B(m, n, rows, cols, vals);
 	A = B.A;
 }
-
-pySpParMatBool::pySpParMatBool(const pySpParMat& copyFrom): A()
-{
-	A = copyFrom.A;
-}
-
 
 int64_t pySpParMatBool::getnee()
 {
@@ -305,6 +308,15 @@ pyDenseParVec pySpParMatBool::Reduce(int dim, op::BinaryFunction* bf, op::UnaryF
 	ret.v = tmp;
 	
 	return ret;
+}
+void pySpParMatBool::Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity)
+{
+	bf->getMPIOp();
+	if (uf == NULL)
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity));
+	else
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity), *uf);
+	bf->releaseMPIOp();
 }
 
 void pySpParMatBool::Transpose()

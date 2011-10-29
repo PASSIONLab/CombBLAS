@@ -3,6 +3,8 @@ import Graph as gr
 from Graph import master
 from Vec import Vec
 from Mat import Mat
+from Util import *
+
 import kdt.pyCombBLAS as pcb
 
 import time
@@ -283,7 +285,7 @@ class DiGraph(gr.Graph):
 		
 		# Count the number of elements in each parent's component to identify the parents
 		countM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
-		counts = countM.reduce(Mat.Row(), pcb.plus())
+		counts = countM.reduce(Mat.Row(), op_add)
 		del countM
 		
 		# sort to put them all at the front
@@ -329,7 +331,7 @@ class DiGraph(gr.Graph):
 		Output Argument:
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
-		ret = DiGraph(element=self._identity_)
+		ret = DiGraph()
 		ret.e = self.e.copy()
 		if hasattr(self,'_eFilter_'):
 			if type(self.nvert()) is tuple:
@@ -345,7 +347,7 @@ class DiGraph(gr.Graph):
 			tmpInstance = tmpU()
 			ret.e.Apply(pcb.unaryObj(tmpInstance.fn))
 			ret.e.Prune(pcb.unaryObjPred(lambda x: x.prune()))
-		if element is not None and type(self._identity_) is not type(element):
+		if element is not None and type(self.e._identity_) is not type(element):
 			if not isinstance(element, (float, int, long)):
 				# because EWiseApply(pySpParMat,pySpParMatObj)
 				#   applies only where the first argument has
@@ -370,7 +372,6 @@ class DiGraph(gr.Graph):
 			ret.e = tmp2
 		return ret
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	def degree(self, dir=Out):
 		"""
@@ -390,13 +391,9 @@ class DiGraph(gr.Graph):
 		"""
 		if dir != DiGraph.In and dir != DiGraph.Out:
 			raise KeyError, 'Invalid edge-direction'
-		if isinstance(self._identity_, (float, int, long)):
-			ret = self._reduce(dir, pcb.plus(), pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(1), pcb.set(0)))
-		else:
-			tmp = self._reduce(dir, pcb.binaryObj(lambda x,y: x.count(y)))
-			ret = tmp.copy(element=0)
-		return ret
-
+		
+		return self.e.reduce(dir, (lambda x,y: x+y), init=0.0)
+		
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	# in-place, so no return value
@@ -422,7 +419,6 @@ class DiGraph(gr.Graph):
 			self._eFilter_.remove(filter)
 		return
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	# in-place, so no return value
 	def removeSelfLoops(self):
@@ -435,7 +431,7 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self.e.removeSelfLoops()
+			self.e.removeMainDiagonal()
 		return
 
 	# NEEDED: update to new fields

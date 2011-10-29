@@ -13,6 +13,10 @@ pySpParMat::pySpParMat(MatType other): A(other)
 {
 }
 
+pySpParMat::pySpParMat(const pySpParMatBool& other): A(other.A)
+{
+}
+
 pySpParMat::pySpParMat(const pySpParMatObj1& other): A(other.A)
 {
 }
@@ -351,6 +355,16 @@ pyDenseParVec pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunct
 	bf->releaseMPIOp();
 	
 	return ret;
+}
+
+void pySpParMat::Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity)
+{
+	bf->getMPIOp();
+	if (uf == NULL)
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity));
+	else
+		A.Reduce(ret.v, (Dim)dim, *bf, doubleint(identity), *uf);
+	bf->releaseMPIOp();
 }
 
 void pySpParMat::Transpose()

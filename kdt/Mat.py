@@ -2,6 +2,10 @@ import math
 from Graph import master
 from Vec import Vec
 from Util import *
+from Util import _op_make_unary
+from Util import _op_make_unary_pred
+from Util import _op_make_binary
+from Util import _op_make_binary_pred
 
 import kdt.pyCombBLAS as pcb
 
@@ -131,6 +135,68 @@ class Mat:
 		ret._m_ = pcbMat
 		ret._identity_ = Mat._getExampleElement(pcbMat)
 		return ret
+
+	def copy(self, element=None):
+		"""
+		creates a deep copy of a DiGraph instance.
+
+		Input Argument:
+			self:  a DiGraph instance.
+
+		Output Argument:
+			ret:  a DiGraph instance containing a copy of the input.
+		"""
+
+		if hasattr(self,'_eFilter_'):
+			if type(self.nvert()) is tuple:
+				raise NotImplementedError, 'only square DiGraphs for now'
+			class tmpU:
+				_eFilter_ = self._eFilter_
+				@staticmethod
+				def fn(x):
+					for i in range(len(tmpU._eFilter_)):
+						if not tmpU._eFilter_[i](x):
+							return type(self._identity_)()
+					return x
+			tmpInstance = tmpU()
+			ret = Mat()
+			ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
+			ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
+		else:
+			ret = Mat._toMat(self._m_.copy())
+		
+		# TODO: integrate filter/copy and element conversion
+		# so they are not a separate steps that make two copies of the matrix.
+		if element is not None and type(self._identity_) is not type(element):
+			#if not isinstance(element, (bool, float, int, long)):
+				# because EWiseApply(pySpParMat,pySpParMatObj)
+				#   applies only where the first argument has
+				#   non-nulls;  the only way I know to avoid
+				#   is to use the result of 
+				#   pySpParMat(pySpParMatObj), which
+				#   only works for converting to doubleints
+			#	raise NotImplementedError, 'can only convert to long for now'
+			
+			if isinstance(element, bool):
+				ret = Mat._toMat(pcb.pySpParMatBool(ret._m_))
+			elif isinstance(element, (float, int, long)):		
+				# FIX: remove following 2 lines when EWiseApply works 
+				#   as noted above 
+				ret = Mat._toMat(pcb.pySpParMat(ret._m_))
+				
+				if self.isObj():
+					def func(x, y): 
+						#ToDo:  assumes that at least x or y is an ObjX
+						if isinstance(x,(float,int,long)):
+							ret = y.coerce(x, False)
+						else:
+							ret = x.coerce(y, True)
+						return ret
+					ret = ret.eWiseApply(ret, func, True, True)
+			else: # object matrix
+				raise NotImplementedError, 'can only convert to long for now'
+				
+		return ret
 	
 	def toBool(self, inPlace=True):
 		"""
@@ -144,22 +210,13 @@ class Mat:
 		Output Argument:
 			None.
 		"""
-		if self.isBool():
-			return
-		
-		M = self
-		# do Obj matrices by going through a scalar matrix.
-		# temporary solution because this is inefficient.
-		if self.isObj():
-			M = self.toScalar(inPlace=False)
-		
-		tmpM = pcb.pySpParMatBool(M._m_)
 		
 		if inPlace:
-			self._m_ = tmpM
-			self._identity_ = Mat._getExampleElement(self._m_)
+			if not self.isBool():
+				self._m_ = pcb.pySpParMatBool(self._m_)
+				self._identity_ = Mat._getExampleElement(self._m_)
 		else:
-			return Mat._toMat(tmpM)
+			return Mat._toMat(pcb.pySpParMatBool(self._m_))
 
 	def toScalar(self, inPlace=True):
 		"""
@@ -172,18 +229,13 @@ class Mat:
 		Output Argument:
 			None.
 		"""
-		if self.isBool():
-			raise NotImplementedError, "Don't know how to convert boolean matrix to scalar matrix"
 		
-		if self.isObj():
-			if inPlace:
+		if inPlace:
+			if not self.isScalar():
 				self._m_ = pcb.pySpParMat(self._m_)
 				self._identity_ = Mat._getExampleElement(self._m_)
-			else:
-				return Mat._toMat(pcb.pySpParMat(self._m_))
 		else:
-			if not inPlace:
-				return self.copy()
+			return Mat._toMat(pcb.pySpParMat(self._m_))
 
 	def getnrow(self):
 		return self._m_.getnrow()
@@ -234,6 +286,18 @@ class Mat:
 			ret:  an identity matrix. 
 		"""
 		return Mat(Vec.range(n),Vec.range(n),Vec(n, element),n)
+	
+	def removeMainDiagonal(self):
+		"""
+		removes all elements whose row and column index are equal.
+		Operation is in-place.
+
+		Input Argument:
+			self:  a Mat instance, modified in-place.
+
+		"""
+		self._m_.removeSelfLoops()
+
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -506,18 +570,13 @@ class Mat:
 		"""
 		if not isinstance(other, Vec):
 			raise KeyError, 'Invalid type for scale vector'
-		selfnv = self.nvert()
-		if type(selfnv) == tuple:
-			[selfnv1, selfnv2] = selfnv
-		else:
-			selfnv1 = selfnv; selfnv2 = selfnv
 
 		if dir == Mat.Column:
-			if selfnv2 != len(other):
-				raise IndexError, 'graph.nvert()[1] != len(vec)'
-		elif dir == DiGraph.Out:
-			if selfnv1 != len(other):
-				raise IndexError, 'graph.nvert()[0] != len(vec)'
+			if self.getncol() != len(other):
+				raise IndexError, 'ncol != len(vec)'
+		elif dir == Mat.Row:
+			if self.getnrow() != len(other):
+				raise IndexError, 'nrow != len(vec)'
 		else:
 			raise KeyError, 'Invalid edge direction'
 
@@ -548,11 +607,13 @@ class Mat:
 		#return ret
 
 	def isBool(self):
-		return isinstance(self._identity_, (bool))
+		return isinstance(self._m_, (pcb.pySpParMatBool))
 
-	# NEEDED: update to new fields
+	def isScalar(self):
+		return isinstance(self._m_, (pcb.pySpParMat))
+
 	# NEEDED: tests
-	def reduce(self, dir, op, pred=None):
+	def reduce(self, dir, op, unOp=None, init=None):
 		"""
 		ToDo:  write doc
 		NOTE:  need to doc clearly that the 2nd arg to the reduction
@@ -561,7 +622,14 @@ class Mat:
 		"""
 		if dir != Mat.Row and dir != Mat.Column:
 			raise KeyError, 'unknown direction'
-		if hasattr(self, '_eFilter_') and len(self._eFilter_) > 0:
+		
+		if init is None:
+			init = self._identity_
+		
+		if type(init) is not type(self._identity_) and not isinstance(init, (float, int, long)):
+			raise NotImplementedError, "Reduce output type must either match the matrix type or be float."
+		
+		if self._hasFilter():
 			class tmpB:
 				_eFilter_ = self._eFilter_
 				@staticmethod
@@ -576,21 +644,10 @@ class Mat:
 			superOp = pcb.binaryObj(tmpInstance.fn)
 			#self._v_.Apply(pcb.unaryObj(tmpInstance.fn))
 		else:
-			superOp = op
-		if pred is not None:
-			if not isinstance(pred, pcb.UnaryFunction):
-				if isinstance(self._identity_, (float, int, long)):
-					realPred = pcb.binary(pred)
-				else:
-					realPred = pcb.binaryObj(pred)
-			else:
-				realPred = pred
-		else:
-			realPred = None
+			superOp = _op_make_binary(op)
 
-		tmp = self._m_.Reduce(dir, superOp, realPred)
-			
-		ret = Vec._toVec(tmp)
+		ret = Vec(element=init, sparse=False)
+		self._m_.Reduce(dir, ret._v_, superOp, _op_make_unary(unOp), init)
 		return ret
 
 	# NEEDED: tests

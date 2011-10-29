@@ -22,7 +22,6 @@ public:
 public:
 	
 	pySpParMatBool(MatType other);
-	pySpParMatBool(const pySpParMatBool& copyFrom);
 
 public:
 	MatType A;
@@ -33,7 +32,10 @@ public:
 	pySpParMatBool();
 	pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
 	
-	pySpParMatBool(const pySpParMat& copyFrom);
+	pySpParMatBool(const pySpParMat    & copyStructureFrom);
+	pySpParMatBool(const pySpParMatBool& copyStructureFrom);
+	pySpParMatBool(const pySpParMatObj1& copyStructureFrom);
+	pySpParMatBool(const pySpParMatObj2& copyStructureFrom);
 
 public:
 	int64_t getnnz();
@@ -67,7 +69,8 @@ public:
 	// Be wary of identity value with min()/max()!!!!!!!
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* f, double identity = 0);
 	pyDenseParVec Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunction* uf, double identity = 0);
-	
+	void Reduce(int dim, pyDenseParVec ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
+
 	void Transpose();
 	//void EWiseMult(pySpParMatBool rhs, bool exclude);
 
