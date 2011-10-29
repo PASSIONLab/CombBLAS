@@ -259,9 +259,9 @@ public:
 };
 
 //pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
-pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
-pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
-pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB, Obj1 defaultBValue);
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB, Obj2 defaultBValue);
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB, double defaultBValue);
 
 
 class pySpParMatObj2 {
@@ -327,9 +327,9 @@ public:
 };
 
 //pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB, Obj2 defaultBValue);
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB, Obj1 defaultBValue);
+pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB, double defaultBValue);
 
 
 class pySpParVec {
@@ -381,7 +381,7 @@ public:
 	pyDenseParVec SubsRef(const pyDenseParVec& ri);
 	
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
-	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -413,22 +413,13 @@ public:
 
 pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls = true, bool allowBNulls = true);
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj1 BNull = Obj1());
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj2 BNull = Obj2());
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, double BNull = 0);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 *BNull);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 *BNull);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull);
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj1 BNull = Obj1());
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, Obj2 BNull = Obj2());
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, double ANull = 0, double BNull = 0);
-
-// Obj predicates:	
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj1 BNull = Obj1());
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), Obj2 BNull = Obj2());
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj1 ANull = Obj1(), double BNull = 0);
-
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj1 BNull = Obj1());
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), Obj2 BNull = Obj2());
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp = NULL, bool allowANulls = true, bool allowBNulls = true, Obj2 ANull = Obj2(), double BNull = 0);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 *BNull);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 *BNull);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull);
 
 // With dense:
 
@@ -498,7 +489,7 @@ public:
 
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
 	
-	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -525,21 +516,21 @@ public:
 	char* __repr__();
 };
 
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj1 BNull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj2 BNull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, double BNull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj1 BNull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj2 BNull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, double BNull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj1 *BNull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj2 *BNull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, double BNull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj1 *BNull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj2 *BNull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, double BNull);
 
 /////////// with Dense
 
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -598,7 +589,7 @@ public:
 
 	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 	
-	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj2 *init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -625,21 +616,21 @@ public:
 	char* __repr__();
 };
 
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj2 BNull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj1 BNull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, double BNull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj2 BNull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj1 BNull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, double BNull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj2 *BNull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj1 *BNull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, double BNull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj2 *BNull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj1 *BNull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, double BNull);
 
 /////////// with Dense
 
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -707,7 +698,7 @@ public:
 	int64_t Count(op::UnaryFunction* op);
 	int64_t Count(op::UnaryFunctionObj* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
-	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVec Find(op::UnaryFunction* op);
 	pySpParVec Find(op::UnaryFunctionObj* op);
 	pySpParVec __getitem__(op::UnaryFunction* op);
@@ -724,16 +715,16 @@ public:
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 
 public:
 	static pyDenseParVec range(int64_t howmany, int64_t start);
@@ -796,7 +787,7 @@ public:
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
-	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
 	pySpParVecObj1 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj1 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
@@ -805,17 +796,17 @@ public:
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 
 	/* NEEDS to return new pyDenseParVec
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 	*/
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
@@ -871,7 +862,7 @@ public:
 	
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
-	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf = NULL);
+	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj2 *init);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
@@ -880,17 +871,17 @@ public:
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 
 	/* NEEDS to return new pyDenseParVec
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj2 nullValue = Obj2());
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, Obj1 nullValue = Obj1());
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
 	*/
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);

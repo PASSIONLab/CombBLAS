@@ -34,13 +34,13 @@ class Vec(object):
 				self._v_ = pcb.pySpParVecObj1(length)
 			else:
 				self._v_ = pcb.pyDenseParVecObj1(length, element)
-			self._identity_ = pcb.Obj1
+			self._identity_ = pcb.Obj1()
 		elif isinstance(element, pcb.Obj2):
 			if sparse:
 				self._v_ = pcb.pySpParVecObj2(length)
 			else:
 				self._v_ = pcb.pyDenseParVecObj2(length, element)
-			self._identity_ = pcb.Obj2
+			self._identity_ = pcb.Obj2()
 		else:
 			raise TypeError, "don't know type %s"%(type(element))
 	
@@ -409,16 +409,35 @@ class Vec(object):
 		return ret
 
 	# NEEDED: add filters
-	def reduce(self, op, uniOp=None):
+	def reduce(self, op, uniOp=None, init=None):
 		"""
 		ToDo:  write doc
 			return is a scalar
 		"""
 		if self._hasFilter():
 			raise NotImplementedError, "this operation does not implement filters yet."
-
-		ret = self._v_.Reduce(op, _op_make_unary(uniOp))
+		
+		if init is None:
+			init = self._identity_
+		
+		if self.isObj():
+			if type(init) is not type(self._identity_):
+				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
+		else:
+			if not isinstance(init, (float, int, long)):
+				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
+		
+		ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
 		return ret
+	
+	def count(self, pred=None):
+		"""
+		returns the number of elements for which `pred` is true.
+		"""
+		if pred is None:
+			pred = lambda x: bool(x)
+		
+		return self.reduce(op_add, uniOp=pred, init=0.0)
 
 	_REPR_MAX = 30;
 	_REPR_WARN = 0
@@ -646,9 +665,7 @@ class Vec(object):
 		else:
 			superOp = _op_make_binaryObj(superOp)
 		
-		#print "calling EWise with: ",type(self._v_), type(other._v_), type(superOp), type(_op_make_binary_pred(doOp)), type(allowANulls), type(allowBNulls), ANull, BNull
 		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
-		#print "success!"
 		ret = Vec._toVec(v)
 		return ret
 
@@ -1263,7 +1280,7 @@ class Vec(object):
 
 	def max(self):
 		"""
-		returns the maximum value of the nonnull elements in the SpParVec 
+		returns the maximum value of the nonnull elements in the Vec 
 		instance.
 		"""
 		if self.nnn() == 0:
@@ -1276,20 +1293,21 @@ class Vec(object):
 				ret = self.reduce(pcb.binaryObj(func))
 			return ret
 
-	def min(self):
+	def min(self, initInf=None):
 		"""
-		returns the minimum value of the nonnull elements in the SpParVec 
+		returns the minimum value of the nonnull elements in the Vec 
 		instance.
 		"""
-		if self.nnn() == 0:
-			return None
+		if not self.isObj():
+			if initInf is None:
+				initInf = 9999999
+			ret = self.reduce(op_min, init=initInf)
 		else:
-			if not self.isObj():
-				ret = self.reduce(op_min)
-			else:
-				func = lambda x, other: x.min(other)
-				ret = self.reduce(pcb.binaryObj(func))
-			return ret
+			if initInf is None:
+				raise KeyError,"please provide an initInf argument which specifies a largest possible value, like 'infinity'."
+			func = lambda x, other: x.min(other)
+			ret = self.reduce(pcb.binaryObj(func), init=initInf)
+		return ret
 
 	def nn(self):
 		"""

@@ -1805,13 +1805,15 @@ class MixedDenseSparseVecTests_disabled(VecTests):
 
 class ApplyReduceTests(VecTests):
 	def test_apply(self):
+		# AL: i moved the lower bound from 0 to 1 because the default value of 0 meant that the
+		# predicate returns True for the unspecified elements, not False like vecExpected expects.
 		def ge0lt5(x):
-				return x>=0 and x<5
+				return x>=1 and x<5
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
-		v = [0, 4, 8,12,16, 20]
+		v = [1, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		vec._apply(ge0lt5)
+		vec.apply(ge0lt5)
 		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -1822,7 +1824,7 @@ class ApplyReduceTests(VecTests):
 		i = [0, 2,  4,   6, 8, 10]
 		v = [0, -4, 8, -12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		vec._apply(pcb.abs())
+		vec.apply(pcb.abs())
 		vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -1842,7 +1844,7 @@ class ApplyReduceTests(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_add)
+		red = vec.reduce(kdt.op_add)
 		redExpected = 60
 		self.assertEqual(redExpected, red)
 
@@ -1851,7 +1853,7 @@ class ApplyReduceTests(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_max)
+		red = vec.reduce(kdt.op_max)
 		redExpected = 20
 		self.assertEqual(redExpected, red)
 
@@ -1860,7 +1862,7 @@ class ApplyReduceTests(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [2, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_min)
+		red = vec.reduce(kdt.op_min, init=20)
 		redExpected = 2
 		self.assertEqual(redExpected, red)
 
@@ -1872,7 +1874,7 @@ class ApplyReduceTests_disabled(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		vec._apply(ge0lt5)
+		vec.apply(ge0lt5)
 		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -1883,7 +1885,7 @@ class ApplyReduceTests_disabled(VecTests):
 		i = [0, 2,  4,   6, 8, 10]
 		v = [0, -4, 8, -12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		vec._apply(pcb.abs())
+		vec.apply(op_abs)
 		vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -1903,7 +1905,7 @@ class ApplyReduceTests_disabled(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_add)
+		red = vec.reduce(Vec.op_add)
 		redExpected = 60
 		self.assertEqual(redExpected, red)
 
@@ -1912,7 +1914,7 @@ class ApplyReduceTests_disabled(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_max)
+		red = vec.reduce(Vec.op_max)
 		redExpected = 20
 		self.assertEqual(redExpected, red)
 
@@ -1921,7 +1923,7 @@ class ApplyReduceTests_disabled(VecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [2, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
-		red = vec._reduce(Vec.op_min)
+		red = vec.reduce(Vec.op_min)
 		redExpected = 2
 		self.assertEqual(redExpected, red)
 
@@ -2004,7 +2006,7 @@ class FilterTests(VecTests):
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
 		vec.addVFilter(element.ge0lt5)
-		vec._apply(add5)
+		vec.apply(add5)
 		vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2026,14 +2028,14 @@ class FilterTests(VecTests):
 		vec = self.initializeVec(sz, i, (v,v), element=element)
 		vec.addVFilter(element.ge0lt5)
 		vec.addVFilter(element.geM2lt4)
-		vec._apply(add3p14)
+		vec.apply(add3p14)
 		vecExpected = [-3, 3.14159, 5.14159, 3.14159, 6.14159, 3.14159, 4, 3.14159, 5, 3.14159, 6, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertEqual(vecExpected[ind], vec[ind].weight)
 
 	def test_delete_all_filters(self):
-		# add filters, then delete before _apply
+		# add filters, then delete before apply
 		def add3p14(x):
 				if isinstance(x, (int, long, float)):
 						return x+3.14159
@@ -2050,7 +2052,7 @@ class FilterTests(VecTests):
 		vec.addVFilter(element.ge0lt5)
 		vec.addVFilter(element.geM2lt4)
 		vec.delVFilter()
-		vec._apply(add3p14)
+		vec.apply(add3p14)
 		vecExpected = [0.14159, 3.14159, 5.14159, 3.14159, 6.14159, 3.14159, 7.14159, 3.14159, 8.14159, 3.14159, 9.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2073,7 +2075,7 @@ class FilterTests(VecTests):
 		vec.addVFilter(element.ge0lt5)
 		vec.addVFilter(element.geM2lt4)
 		vec.delVFilter(element.geM2lt4)
-		vec._apply(add5)
+		vec.apply(add5)
 		vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2096,7 +2098,7 @@ class FilterTests(VecTests):
 		vec.addVFilter(element.ge0lt5)
 		vec.addVFilter(element.geM2lt4)
 		vec.delVFilter(element.ge0lt5)
-		vec._apply(add5)
+		vec.apply(add5)
 		vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2171,10 +2173,10 @@ def suite():
 	suite = unittest.TestSuite()
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConstructorTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
 #	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
 	return suite
 
