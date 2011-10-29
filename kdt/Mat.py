@@ -502,8 +502,11 @@ class Mat:
 		#		return "%d %f" % (0, 0.0)
 		else:
 			[i, j, v] = self.toVec()
+			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " Mat with " + str(self.getnnn()) + " elements.\n"
 			if len(i) < self._REPR_MAX:
-				return "" + str(i) + str(j) + str(v)
+				return ret + repr(i) + repr(j) + repr(v)
+			else:
+				return ret + "Too many elements to print."
 		return ' '
 
 	# NEEDED: tests

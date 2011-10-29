@@ -198,7 +198,7 @@ double pyDenseParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	return ret;
 }
 
-double pyDenseParVec::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf)
+double pyDenseParVec::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double init)
 {
 	if (!bf->associative && root())
 		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
@@ -207,9 +207,9 @@ double pyDenseParVec::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf
 	
 	bf->getMPIOp();
 	if (uf == NULL)
-		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
+		ret = v.Reduce(*bf, doubleint(init), ::identity<doubleint>());
 	else
-		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+		ret = v.Reduce(*bf, doubleint(init), *uf);
 	bf->releaseMPIOp();
 	return ret;
 }
@@ -307,20 +307,20 @@ void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryFunctio
 		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>);
 }
 
-void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue)
+void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
 {
 	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
 	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, *nullValue);
 }
 
-void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue)
+void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
 {
 	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
 	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, *nullValue);
 }
 
 void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
@@ -356,20 +356,20 @@ void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryPredica
 		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>);
 }
 
-void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue)
+void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
 {
 	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
 	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, *nullValue);
 }
 
-void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue)
+void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
 {
 	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
 	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, nullValue);
+		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, *nullValue);
 }
 
 void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
