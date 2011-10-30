@@ -87,11 +87,11 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 }
 
 template <class IT, class NT>
-template <typename _BinaryOperation, typename _UnaryOperation>
-NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op)
+template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
+OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op)
 {
 	// std::accumulate returns identity for empty sequences
-	NT localsum = default_val; 
+	OUT localsum = default_val; 
 	
 	if (arr.size() > 0)
 	{
@@ -105,8 +105,8 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT default_val, _Un
 		}
 	}
 
-	NT totalsum = default_val;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	OUT totalsum = default_val;
+	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<OUT>(), MPIOp<_BinaryOperation, OUT>::op());
 	return totalsum;
 }
 
