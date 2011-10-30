@@ -602,8 +602,6 @@ class BuiltInTests(SpVecTests):
 				 0, 0, 0, 0, 0, 0]
 		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertRaises(NotImplementedError,Vec.__add__, vec, 3.07)
-		return
 		res = vec + 3.07
 		self.assertEqual(sz, len(res))
 		for ind in range(sz):
@@ -856,8 +854,6 @@ class BuiltInTests(SpVecTests):
 				 0, 0, 0, 0, 0, 0]
 		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertRaises(NotImplementedError, Vec.__iadd__, vec, 3.07)
-		return
 		vec += 3.07
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -945,8 +941,6 @@ class BuiltInTests(SpVecTests):
 		expW = [-3.07, 0, -7.07, 0, 12.93, 0, -39.07, 0, -67.07, 0, 96.93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertRaises(NotImplementedError, Vec.__sub__, vec, 3.07) 
-		return
 		vec2 = vec - 3.07
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
