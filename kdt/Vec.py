@@ -427,7 +427,12 @@ class Vec(object):
 			if not isinstance(init, (float, int, long)):
 				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
 		
+		# cannot mix and match new and old reduce versions, so until we can totally get rid of
+		# non-object BinaryFunction and UnaryFunction we have to support both.
+		# In the future only the else clause of this if will be kept.
 		if isinstance(op, pcb.BinaryFunction) or isinstance(uniOp, pcb.UnaryFunction):
+			if init is not None and init is not self._identity_:
+				raise ValueError, "you called the old reduce by using a built-in function, but this old version does not support the init attribute. Use a Python function instead of a builtin."
 			ret = self._v_.Reduce(_op_make_binary(op), _op_make_unary(uniOp))
 		else:
 			ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)

@@ -196,8 +196,8 @@ public:
 	template <typename _BinaryOperation>
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 	
-	template <typename _BinaryOperation, typename _UnaryOperation>
-	NT Reduce(_BinaryOperation __binary_op, NT default_val, _UnaryOperation __unary_op);
+	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
+	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
 
 	void DebugPrint();
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }

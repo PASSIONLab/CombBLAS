@@ -1901,8 +1901,8 @@ class ApplyReduceTests(VecTests):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		v = [2, 4, 8,12,16, 20]
-		vec = self.initializeVec(sz, i, v)
-		red = vec.reduce(kdt.op_min, init=20)
+		vec = self.initializeVec(sz, i, v, element=100) # the element is required because otherwise all the unspecified elements will become 0, which is smaller than 2.
+		red = vec.reduce((lambda x,y: min(x,y)), init=20)
 		redExpected = 2
 		self.assertEqual(redExpected, red)
 
