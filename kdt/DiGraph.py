@@ -1,13 +1,12 @@
 import math
+import time
 import Graph as gr
-from Graph import master
 from Vec import Vec
 from Mat import Mat
 from Util import *
+from Util import master
 
 import kdt.pyCombBLAS as pcb
-
-import time
 
 class DiGraph(gr.Graph):
 
@@ -80,7 +79,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def apply(self, op, other=None, notB=False):
+	def ___apply(self, op, other=None, notB=False):
 		"""
 		applies the given operator to every edge in the DiGraph
 
@@ -108,7 +107,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
+	def ___eWiseApply(self, other, op, allowANulls, allowBNulls, noWrap=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -250,13 +249,13 @@ class DiGraph(gr.Graph):
 			groups = DiGraph.convClusterParentToGroup(clusterParents)
 		
 		nvRes = int(groups.max()+1)
-		origVtx = ParVec.range(n)
+		origVtx = Vec.range(n)
 		# lhrMat == left-/right-hand-side matrix
-		lrhMat = DiGraph(groups, origVtx, ParVec.ones(n), nvRes, n)
-		tmpMat = lrhMat._SpGEMM(self)
-		lrhMat._T()
-		res = tmpMat._SpGEMM(lrhMat)
-		return res;
+		lrhMat = Mat(groups, origVtx, Vec.ones(n), nvRes, n)
+		tmpMat = lrhMat.SpGEMM(self)
+		lrhMat.transpose()
+		res = tmpMat.SpGEMM(lrhMat)
+		return DiGraph(edges=res);
 	
 	# NEEDED: update to transposed edge matrix
 	# NEEDED: tests
@@ -275,10 +274,10 @@ class DiGraph(gr.Graph):
 			    number to original parent vertex.
 
 		Output Argument:
-			ret:  a vertex of the same length as clusterParents where the elements
+			ret:  a vector of the same length as clusterParents where the elements
 			    are in the range [0,k) and correspond to cluster group numbers.
 			    If retInvPerm is True, the return is a tuple which also contains
-			    a permutation going from group number to original parent vertex.
+			    a permutation from group number to original parent vertex.
 		"""
 		
 		n = len(clusterParents)
@@ -296,16 +295,16 @@ class DiGraph(gr.Graph):
 		
 		# find inverse of sort permutation so that [1,2,3,4...] can be put back into the
 		# original parent locations
-		invM = DiGraph(perm, Vec.range(n), Vec.ones(n), n)
-		invPerm = invM.SpMV(Vec.range(n), pcb.TimesPlusSemiring())
+		invM = Mat(perm, Vec.range(n), Vec.ones(n), n)
+		invPerm = invM.SpMV(Vec.range(n), sr_plustimes)
 		del invM
 		
 		# Find group number for each parent vertex
 		groupNum = invPerm
 		
 		# Broadcast group number to all vertices in cluster
-		broadcastM = DiGraph(Vec.range(n), clusterParents, Vec.ones(n), n)
-		ret = broadcastM.SpMV(groupNum, pcb.TimesPlusSemiring())
+		broadcastM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)
+		ret = broadcastM.SpMV(groupNum, sr_plustimes)
 		
 		if retInvPerm:
 			return ret, perm #ParVec.toParVec(ret), ParVec.toParVec(perm)
@@ -392,7 +391,7 @@ class DiGraph(gr.Graph):
 		if dir != DiGraph.In and dir != DiGraph.Out:
 			raise KeyError, 'Invalid edge-direction'
 		
-		return self.e.reduce(dir, (lambda x,y: x+y), init=0.0)
+		return self.e.reduce(dir, (lambda x,y: x+y), unOp=(lambda x: 1), init=0)
 		
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -434,7 +433,6 @@ class DiGraph(gr.Graph):
 			self.e.removeMainDiagonal()
 		return
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	# NEEDED: fix doc
 	def addSelfLoops(self, selfLoopAttr=1):
@@ -448,7 +446,7 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self += DiGraph.eye(self.nvert(), selfLoopAttr=selfLoopAttr)
+			self.e += Mat.eye(self.nvert(), selfLoopAttr=selfLoopAttr)
 		return
 
 	# NEEDED: tests
@@ -469,6 +467,7 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to every other vertex. 
 		"""
+		
 		if m is None:
 			m = n
 		i = (Vec.range(n*m) % n).floor()
@@ -587,75 +586,6 @@ class DiGraph(gr.Graph):
 		"""
 		self.e.save(fname)
 		return
-
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def max(self, dir=Out):
-		"""
-		finds the maximum weights of the appropriate edges of each vertex 
-		of the passed DiGraph instance.
-
-		Input Arguments:
-			self:  a DiGraph instance
-			dir:  a direction of edges over which to find the maximum,
-			    with choices being DiGraph.Out (default) or DiGraph.In.
-
-		Output Argument:
-			ret:  a ParVec instance with each element containing the
-			    maximum of the weights of the corresponding vertex.
-
-		SEE ALSO:  degree, min 
-		"""
-		if dir != DiGraph.In and dir != DiGraph.Out:
-			raise KeyError, 'Invalid edge-direction'
-		ret = self._reduce(dir, pcb.max())
-		return ret
-
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def min(self, dir=Out):
-		"""
-		finds the minimum weights of the appropriate edges of each vertex 
-		of the passed DiGraph instance.
-
-		Input Arguments:
-			self:  a DiGraph instance
-			dir:  a direction of edges over which to find the minimum,
-			    with choices being DiGraph.Out (default), DiGraph.In.
-
-		Output Argument:
-			ret:  a ParVec instance with each element containing the
-			    minimum of the weights of the corresponding vertex.
-
-		SEE ALSO:  degree, max 
-		"""
-		if dir != DiGraph.In and dir != DiGraph.Out:
-			raise KeyError, 'Invalid edge-direction'
-		ret = self._reduce(dir, pcb.min())
-		return ret
-
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def mulNot(self, other):
-		"""
-		multiplies corresponding edge weights of two DiGraph instances,
-		taking the logical not of the second argument before doing the 
-		multiplication.  In effect, each nonzero edge of the second
-		argument deletes its corresponding edge of the first argument.
-
-		Input Arguments:
-			self:  a DiGraph instance
-			other:  another DiGraph instance
-
-		Output arguments:
-			ret:  a DiGraph instance 
-		"""
-		if self.nvert() != other.nvert():
-			raise IndexError, 'Graphs must have equal numbers of vertices'
-		else:
-			ret = self.copy()
-			ret.apply(pcb.multiplies(), other, True)
-		return ret
 
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -839,7 +769,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
 	# NEEDED: tests
-	def sum(self, dir=Out):
+	def _sum(self, dir=Out):
 		"""
 		adds the weights of the appropriate edges of each vertex of the
 		passed DiGraph instance.
@@ -913,23 +843,23 @@ class DiGraph(gr.Graph):
 			    in the pattern of a 2D torus. 
 		"""
 		N = n*n
-		nvec =   ((ParVec.range(N*4)%N) / n).floor()	 # [0,0,0,...., n-1,n-1,n-1]
-		nvecil = ((ParVec.range(N*4)%N) % n).floor()	 # [0,1,...,n-1,0,1,...,n-2,n-1]
+		nvec =   ((Vec.range(N*4)%N) / n).floor()	 # [0,0,0,...., n-1,n-1,n-1]
+		nvecil = ((Vec.range(N*4)%N) % n).floor()	 # [0,1,...,n-1,0,1,...,n-2,n-1]
 		north = gr.Graph._sub2ind((n,n),(nvecil-1) % n,nvec)	
 		south = gr.Graph._sub2ind((n,n),(nvecil+1) % n,nvec)
 		west = gr.Graph._sub2ind((n,n),nvecil, (nvec-1) % n)
 		east = gr.Graph._sub2ind((n,n),nvecil, (nvec+1) % n)
-		Ndx = ParVec.range(N*4)
+		Ndx = Vec.range(N*4)
 		northNdx = Ndx < N
 		southNdx = (Ndx >= N) & (Ndx < 2*N)
 		westNdx = (Ndx >= 2*N) & (Ndx < 3*N)
 		eastNdx = Ndx >= 3*N
-		col = ParVec.zeros(N*4)
+		col = Vec.zeros(N*4)
 		col[northNdx] = north
 		col[southNdx] = south
 		col[westNdx] = west
 		col[eastNdx] = east
-		row = ParVec.range(N*4) % N
+		row = Vec.range(N*4) % N
 		ret = DiGraph(row, col, 1, N)
 		return ret
 

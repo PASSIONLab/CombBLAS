@@ -31,6 +31,26 @@ class info:
 	def minInt():
 		return -(2**62)
 
+
+def master():
+	"""
+	Return Boolean value denoting whether calling process is the 
+	master process or a slave process in a parallel program.
+	"""
+	return pcb.root()
+
+def version():
+	"""
+	Return KDT version number, as a string.
+	"""
+	return "0.2.x"
+
+def revision():
+	"""
+	Return KDT revision number, as a string.
+	"""
+	return "r7xx"
+
 def sr(addFn, mulFn):
 	return pcb.SemiringObj(addFn, mulFn)
 

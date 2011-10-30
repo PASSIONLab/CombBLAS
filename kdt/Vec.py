@@ -514,7 +514,7 @@ class Vec(object):
 			self._v_[key] = value
 		elif isinstance(key,Vec) and key.isDense():
 			if not key.isBool():
-				raise KeyError, 'only Boolean ParVec indexing of Vecs supported'
+				raise KeyError, 'only Boolean Vec indexing of Vecs supported'
 			if isinstance(value,Vec):
 				pass
 			elif type(value) == float or type(value) == long or type(value) == int:
@@ -522,8 +522,8 @@ class Vec(object):
 			else:
 				raise KeyError, 'Unknown value type'
 			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
-				raise IndexError, 'Key and Value must be same length as SpParVec'
-			self._v_[key._v_] = value._v_
+				raise IndexError, 'Key and Value must be same length as Vec'
+			self._v_[key.sparse()._v_] = value.sparse()._v_
 		elif isinstance(key,Vec) and key.isSparse():
 			#FIX:  get isBool() working
 			#if key.isBool():
@@ -1210,17 +1210,27 @@ class Vec(object):
 			func = lambda x, other: x.any(other)
 			ret = tmp.reduce(func).weight > 0
 			return ret
+	
+	def floor(self):
+		from math import floor
+		ret = self.copy()
+		ret.apply(lambda x: floor(x))
+		return ret
 
 	def isBool(self):
 		"""
 		returns a Boolean scalar denoting whether all elements of the input 
-		SpParVec instance are equal to either True (1) or False (0).
+		Vec instance are equal to either True (1) or False (0).
 		"""
 		if self.nnn() == 0:
 			return True
 		eps = info.eps()
-		ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
-		return ret
+		
+		c = self.count(lambda x: (abs(x) < eps) or (abs(x-1.0) < eps) )
+		return c == self.nnn()
+		
+		#ret = ((abs(self) < eps) | (abs(self-1.0) < eps)).all()
+		#return ret
 
 	# NEEDED: update docstring
 	def logicalAnd(self, other):
@@ -1252,20 +1262,21 @@ class Vec(object):
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) != bool(other)))
 
-	def max(self):
+	def max(self, initNegInf=None):
 		"""
 		returns the maximum value of the nonnull elements in the Vec 
 		instance.
 		"""
-		if self.nnn() == 0:
-			return None
+		if not self.isObj():
+			if initNegInf is None:
+				initNegInf = -1.8e308
+			ret = self.reduce((lambda x,y: max(x, y)), init=initNegInf)
 		else:
-			if not self.isObj():
-				ret = self.reduce(op_max)
-			else:
-				func = lambda x, other: x.max(other)
-				ret = self.reduce(pcb.binaryObj(func))
-			return ret
+			if initNegInf is None:
+				raise KeyError,"please provide an initNegInf argument which specifies a smallest possible value, i.e. something that acts like negative infinity."
+			func = lambda x, other: x.max(other)
+			ret = self.reduce(pcb.binaryObj(func), init=initNegInf)
+		return ret
 
 	def min(self, initInf=None):
 		"""
@@ -1274,11 +1285,11 @@ class Vec(object):
 		"""
 		if not self.isObj():
 			if initInf is None:
-				initInf = 9999999
+				initInf = 1.8e308
 			ret = self.reduce((lambda x,y: min(x, y)), init=initInf)
 		else:
 			if initInf is None:
-				raise KeyError,"please provide an initInf argument which specifies a largest possible value, like 'infinity'."
+				raise KeyError,"please provide an initInf argument which specifies a largest possible value, i.e. something that acts like infinity."
 			func = lambda x, other: x.min(other)
 			ret = self.reduce(pcb.binaryObj(func), init=initInf)
 		return ret

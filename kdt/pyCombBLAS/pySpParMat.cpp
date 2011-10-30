@@ -257,6 +257,14 @@ pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
 	{
 		return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
 	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		return pySpParMat( Mult_AnXBn_Synch<Select2ndSRing<doubleint, doubleint, doubleint > >(A, other.A) );
+	}
 	else
 	{
 		sring->enableSemiring();
@@ -286,7 +294,17 @@ void pySpParMat::Apply(op::UnaryFunction* op)
 	A.Apply(*op);
 }
 
+void pySpParMat::Apply(op::UnaryFunctionObj* op)
+{
+	A.Apply(*op);
+}
+
 void pySpParMat::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f)
+{
+	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
+}
+
+void pySpParMat::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f)
 {
 	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
 }
@@ -320,6 +338,11 @@ pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFu
 }
 
 void pySpParMat::Prune(op::UnaryFunction* op)
+{
+	A.Prune(*op);
+}
+
+void pySpParMat::Prune(op::UnaryFunctionObj* op)
 {
 	A.Prune(*op);
 }

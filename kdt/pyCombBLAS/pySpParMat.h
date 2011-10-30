@@ -64,8 +64,11 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
+	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
+	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryFunction* f);
+	void Prune(op::UnaryFunctionObj* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
