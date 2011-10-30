@@ -1,3 +1,5 @@
+import math
+import time
 from DiGraph import DiGraph
 from Vec import Vec
 from Mat import Mat
@@ -36,7 +38,7 @@ def bfsTree(self, root, useOldFunc=True):
 			False.
 
 	Input Arguments:
-		parents:  a ParVec instance of length equal to the number
+		parents:  a Vec instance of length equal to the number
 			of vertices in the DiGraph, with each element denoting 
 			the vertex number of that vertex's parent in the tree.
 			The root is its own parent.  Unreachable vertices
@@ -350,7 +352,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 
 	# We don't want to modify the user's graph.
 	G = self.copy(element=1.0)
-
+	
 	nvert = G.nvert()
 
 	# Remove self loops.
@@ -358,15 +360,15 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 
 	# Handle sink nodes (nodes with no outgoing edges) by
 	# connecting them to all other nodes.
-
-	sinkV = G.degree(DiGraph.In)
+	sinkV = G.degree(DiGraph.Out)
 	sinkV.apply(pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(), 0), pcb.set(0), pcb.set(1./nvert)))
-
+	
 	# Normalize edge weights such that for each vertex,
 	# each outgoing edge weight is equal to 1/(number of
 	# outgoing edges).
-	print "DEBUG: make sure PageRank normalization is done in the correct direction"
+	## this should be left in!
 	G.normalizeEdgeWeights(DiGraph.Out)
+	##print G
 
 	# PageRank loop.
 	delta = 1
@@ -432,7 +434,7 @@ DiGraph.centrality = centrality
 # NEEDED: update to transposed edge matrix
 # NEEDED: update to new fields
 # NEEDED: tests
-def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0, batchSize=-1, retNVerts=False):
+def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=3, batchSize=-1, retNVerts=False):
 	"""
 	calculates the approximate or exact (with sample=1.0) betweenness
 	centrality of the input DiGraph instance.  _approxBC is an internal
@@ -444,22 +446,22 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		algorithm.  Fractions that lead to paging will likely
 		deliver atrocious performance.  The default is 0.1.  
 	"""
-	A = self.copy()
-	Anv = A.nvert()
+	A = self.e.copy()
+	Anv = self.nvert()
 	if BCdebug>0 and master():
 		print "in _approxBC, A.nvert=%d, nproc=%d" % (Anv, nProcs)
 
 	if BCdebug>1 and master():
 		print "Apply(set(1))"
 	#FIX:  should not overwrite input
-	self.ones()
+	#self.ones()
 	#Aint = self.ones()	# not needed;  Gs only int for now
 	if BCdebug>1 and master():
 		print "spm.getnrow and col()"
-	N = A.nvert()
+	N = Anv
 	if BCdebug>1 and master():
 		print "densevec(%d, 0)"%N
-	bc = ParVec(N)
+	bc = Vec(N)
 	if BCdebug>1 and master():
 		print "getnrow()"
 	nVertToCalc = int(math.ceil(self.nvert() * sample))
@@ -483,7 +485,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	
 	# sources for the batches
 	# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
-	randVerts = ParVec.range(Anv)
+	randVerts = Vec.range(Anv)
 	
 	if master():
 		print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
@@ -501,24 +503,24 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	if False: #else:
 		if BCdebug>1 and master():
 			print "densevec iota(0, %d) (i think in that order)"%nPossBatches
-		perm = ParVec.range(nPossBatches)
+		perm = Vec.range(nPossBatches)
 		if BCdebug>1 and master():
 			print "densevec randperm()"
 		perm.randPerm()
 		#   ideally, could use following 2 lines, but may have
 		#   only 1-2 batches, which makes index vector look
 		#   like a Boolean, which doesn't work right
-		#startVs = ParVec.range(nBatches)[perm[ParVec.range(nBatches]]
+		#startVs = Vec.range(nBatches)[perm[Vec.range(nBatches]]
 		#numVs = [min(x+batchSize,N)-x for x in startVs]
 		if BCdebug>1 and master():
 			print "densevec iota(0, %d) (i think in that order)"%nPossBatches
-		tmpRange = ParVec.range(nPossBatches)
+		tmpRange = Vec.range(nPossBatches)
 		if BCdebug>1 and master():
 			print "densevec(%d, 0)"%nBatches
-		startVs = ParVec.zeros(nBatches)
+		startVs = Vec.zeros(nBatches)
 		if BCdebug>1 and master():
 			print "densevec(%d, 0)"%nBatches
-		numVs = ParVec.zeros(nBatches)
+		numVs = Vec.zeros(nBatches)
 		for i in range(nBatches):
 			if BCdebug>1 and master():
 				print "dense vec SubsRef, GetElement and SetElement"
@@ -538,27 +540,27 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		if BCdebug>0 and master():
 			print "startV=%d, numV=%d" % (startV, numV)
 		bfs = []		
-		batchRange = ParVec.range(startV, startV+numV)
+		batchRange = Vec.range(startV, startV+numV)
 		batch = randVerts[batchRange]
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
-		nsp = DiGraph(ParVec.range(curSize), batch, 1, curSize, N)
+		nsp = Mat(batch, Vec.range(curSize), 1, curSize)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[batch,ParVec.range(N)]
+		fringe = A[batch,Vec.range(N)]
 		depth = 0
-		while fringe.nedge() > 0:
+		while fringe.getnnn() > 0:
 			before = time.time()
 			depth = depth+1
 			if BCdebug>1 and depth>1:
-				nspne = tmp.nedge(); tmpne = tmp.nedge(); fringene = fringe.nedge()
+				nspne = tmp.getnnn(); tmpne = tmp.getnnn(); fringene = fringe.getnnn()
 				if master():
-					print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
+					print "BC: in while: depth=%d, nsp.getnnn()=%d, tmp.getnnn()=%d, fringe.getnnn()=%d" % (depth, nspne, tmpne, fringene)
 			nsp += fringe
 			tmp = fringe.copy()
 			tmp.ones()
 			bfs.append(tmp)
 			#next:  changes how???
-			tmp = fringe._SpGEMM(A)
+			tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
 			if BCdebug>1:
 				#nspsum = nsp.sum(DiGraph.Out).sum() 
 				#fringesum = fringe.sum(DiGraph.Out).sum()
@@ -567,11 +569,11 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					#print depth, nspsum, fringesum, tmpsum
 					pass
 			# prune new-fringe to new verts
-			fringe = tmp.mulNot(nsp)
+			fringe = tmp._mulNot(nsp)
 			if BCdebug>1 and master():
 				print "    %f seconds" % (time.time()-before)
 
-		bcu = DiGraph.fullyConnected(curSize,N)
+		bcu = DiGraph.fullyConnected(curSize,N).e
 		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):
 			# compute the weights to be applied based on the child values
@@ -583,9 +585,9 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					print tmptmp
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			w._T()
-			w = A._SpGEMM(w)
-			w._T()
+			w.transpose()
+			w = A.SpGEMM(w, sr_plustimes)
+			w.transpose()
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w

@@ -4739,7 +4739,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_Apply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_Apply__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   op::UnaryFunction *arg2 = (op::UnaryFunction *) 0 ;
@@ -4779,7 +4779,92 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_DimWiseApply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_Apply__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  op::UnaryFunctionObj *arg2 = (op::UnaryFunctionObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_Apply",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Apply" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Apply" "', argument " "2"" of type '" "op::UnaryFunctionObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::UnaryFunctionObj * >(argp2);
+  {
+    try {
+      (arg1)->Apply(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Apply(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryFunction, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Apply__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryFunctionObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Apply__SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMat_Apply'.\n  Possible C/C++ prototypes are:\n    Apply(op::UnaryFunction *)\n    Apply(op::UnaryFunctionObj *)\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_DimWiseApply__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   int arg2 ;
@@ -4840,7 +4925,133 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_Prune(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_DimWiseApply__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  int arg2 ;
+  pyDenseParVec *arg3 = 0 ;
+  op::BinaryFunctionObj *arg4 = (op::BinaryFunctionObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:pySpParMat_DimWiseApply",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_DimWiseApply" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_DimWiseApply" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_pyDenseParVec,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_DimWiseApply" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_DimWiseApply" "', argument " "3"" of type '" "pyDenseParVec const &""'"); 
+  }
+  arg3 = reinterpret_cast< pyDenseParVec * >(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "pySpParMat_DimWiseApply" "', argument " "4"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg4 = reinterpret_cast< op::BinaryFunctionObj * >(argp4);
+  {
+    try {
+      (arg1)->DimWiseApply(arg2,(pyDenseParVec const &)*arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_DimWiseApply(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[5];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 4); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 4) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryFunction, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            return _wrap_pySpParMat_DimWiseApply__SWIG_0(self, args);
+          }
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_pyDenseParVec, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+          _v = SWIG_CheckState(res);
+          if (_v) {
+            return _wrap_pySpParMat_DimWiseApply__SWIG_1(self, args);
+          }
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMat_DimWiseApply'.\n  Possible C/C++ prototypes are:\n    DimWiseApply(int,pyDenseParVec const &,op::BinaryFunction *)\n    DimWiseApply(int,pyDenseParVec const &,op::BinaryFunctionObj *)\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   op::UnaryFunction *arg2 = (op::UnaryFunction *) 0 ;
@@ -4876,6 +5087,91 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Prune(PyObject *SWIGUNUSEDPARM(self), PyOb
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  op::UnaryFunctionObj *arg2 = (op::UnaryFunctionObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_Prune",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Prune" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Prune" "', argument " "2"" of type '" "op::UnaryFunctionObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::UnaryFunctionObj * >(argp2);
+  {
+    try {
+      (arg1)->Prune(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Prune(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryFunction, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Prune__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryFunctionObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Prune__SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMat_Prune'.\n  Possible C/C++ prototypes are:\n    Prune(op::UnaryFunction *)\n    Prune(op::UnaryFunctionObj *)\n");
   return NULL;
 }
 

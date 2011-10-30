@@ -1,8 +1,9 @@
 import math
 import pyCombBLAS as pcb
 import Graph as gr
-from Graph import ParVec, SpParVec, master
+from Graph import ParVec, SpParVec
 from DiGraph import DiGraph
+from Util import master
 
 import time
 
@@ -54,6 +55,8 @@ class HyGraph(gr.Graph):
 
 		SEE ALSO:  toParVec
 		"""
+		raise NotImplementedError,"HyGraph are so out of date that they are not useful at the moment."
+		
 		if len(args) == 0:
 			self._spm = pcb.pySpParMat()
 			self._spmT = pcb.pySpParMat()

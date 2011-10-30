@@ -4,33 +4,7 @@ import pyCombBLAS as pcb
 import feedback
 import UFget as uf
 
-class info:
-	@staticmethod
-	def eps():
-		"""
-		Return IEEE floating point machine epsilon.
-		The problem with this operation is that Python only provides a portable way to get this
-		value in v2.6 and NumPy isn't always available. This function attempts to use whatever
-		knows this value or returns a reasonable default otherwise.
-		"""
-		# try Python v2.6+ float_info
-		try:
-			from sys import float_info as fi
-			return fi.epsilon
-		except ImportError:
-			pass
-			
-		# try Numpy
-		try:
-			import numpy as np
-			return float(np.finfo(np.float).eps)
-		except ImportError:
-			pass
-		except AttributeError:
-			pass
-			
-		# return a reasonable value
-		return 2.220446049250313e-16;
+from Util import info, master, version, revision
 
 class Graph:
 	#ToDo: privatize ._spm name (to .__spmat)
@@ -1858,21 +1832,3 @@ class SpParVec:
 		ret._spv = SPV
 		return ret
 	
-def master():
-	"""
-	Return Boolean value denoting whether calling process is the 
-	master process or a slave process in a parallel program.
-	"""
-	return pcb.root()
-
-def version():
-	"""
-	Return KDT version number, as a string.
-	"""
-	return "0.2.x"
-
-def revision():
-	"""
-	Return KDT revision number, as a string.
-	"""
-	return "r7xx"

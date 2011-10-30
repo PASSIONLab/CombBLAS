@@ -13,6 +13,7 @@ import tarfile
 import os
 import pickle
 import DiGraph as dg
+from Mat import Mat
 
 #The folder you want to download files into
 UFfolder = 'UFget/'
@@ -59,6 +60,5 @@ def UFget(filename):
 
 	Original Python version written by Kevin Oelze, July 2008
     """
-    G = dg.DiGraph()
-    G._spm.load(UFdownload(filename))
+    G = dg.DiGraph(edges=Mat.load(UFdownload(filename)))
     return G
