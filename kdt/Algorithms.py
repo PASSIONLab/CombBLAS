@@ -544,7 +544,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		batch = randVerts[batchRange]
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
-		nsp = Mat(batch, Vec.range(curSize), 1, curSize)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
+		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
 		fringe = A[batch,Vec.range(N)]
 		depth = 0

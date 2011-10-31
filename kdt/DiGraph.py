@@ -59,7 +59,7 @@ class DiGraph(gr.Graph):
 		if edges is not None:
 			self.e = edges
 		else:
-			self.e = Mat(sourceV=sourceV, destV=destV, valueV=valueV, nv=nv, element=element)
+			self.e = Mat(sourceV=sourceV, destV=destV, valueV=valueV, n=nv, element=element)
 		
 		if vertices is not None:
 			self.v = vertices
