@@ -65,13 +65,14 @@ void DoAG(MPI_Comm & World, int N, MPI_Comm & OtherDimension)
 		cout << "Minimum bandwidth: " << (static_cast<double>(totrecv)*sizeof(double))/(maxtime) << " bytes/sec" << endl;
 	}
 
-	MPI_Barrier(MPI_COMM_WORLD);
 	// Test the case without contention
 	for(int i=0; i< complementsize; ++i)
 	{
+		MPI_Barrier(MPI_COMM_WORLD);	// in case Wtime is not syncronizing
 		t1 = MPI_Wtime();	// globally synchronizing if MPI_WTIME_IS_GLOBAL is true
 		if(i == complementrank)		MPI_Allgatherv(data, N, MPI_DOUBLE, recvbuf, recvcnt, dpls, MPI_DOUBLE, World);
 		t2 = MPI_Wtime();
+		MPI_Barrier(MPI_COMM_WORLD);
 		if(i == complementrank)  	time = t2-t1;
 	}
 	// By now, every processor has overridden "time" exactly once
@@ -184,9 +185,11 @@ void DoA2A(MPI_Comm & World, int N, MPI_Comm & OtherDimension)
 	// Test the case without contention
 	for(int i=0; i< complementsize; ++i)
 	{
+		MPI_Barrier(MPI_COMM_WORLD);	// in case Wtime is not syncronizing
 		t1 = MPI_Wtime();	// globally synchronizing if MPI_WTIME_IS_GLOBAL is true
 		if(i == complementrank)		MPI_Alltoallv(data, sendcnt, sdispls, MPI_DOUBLE, recvbuf, recvcnt, rdispls, MPI_DOUBLE, World);
 		t2 = MPI_Wtime();
+		MPI_Barrier(MPI_COMM_WORLD);	
 		if(i == complementrank)  	time = t2-t1;
 	}
 	// By now, every processor has overridden "time" exactly once
