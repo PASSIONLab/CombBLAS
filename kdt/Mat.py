@@ -18,7 +18,7 @@ class Mat:
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
-	def __init__(self, sourceV=None, destV=None, valueV=None, nv=None, element=0):
+	def __init__(self, sourceV=None, destV=None, valueV=None, n=None, m=None, element=0):
 		"""
 		FIX:  doc
 		creates a new Mat instance.  Can be called in one of the 
@@ -52,34 +52,35 @@ class Mat:
 		Note:  If two or more edges have the same source and destination
 		vertices, their weights are summed in the output Mat instance.
 
-		SEE ALSO:  toParVec
-	def __init__(self, sourceV=None, destV=None, valueV=None, nv=None, element=0):
+		SEE ALSO:  toVec
 		"""
+		if m is None and n is not None:
+			m = n
 		if sourceV is None:
-			if nv is not None: #create a Mat with an underlying pySpParMat* of the right size with no nonnulls
+			if n is not None: #create a Mat with an underlying pySpParMat* of the right size with no nonnulls
 				nullVec = pcb.pyDenseParVec(0,0)
 			if isinstance(element, (float, int, long)):
-				if nv is None:
+				if n is None:
 					self._m_ = pcb.pySpParMat()
 				else:
-					self._m_ = pcb.pySpParMat(nv,nv,nullVec,nullVec, nullVec)
+					self._m_ = pcb.pySpParMat(m,n,nullVec,nullVec, nullVec)
 			elif isinstance(element, bool):
-				if nv is None:
+				if n is None:
 					self._m_ = pcb.pySpParMatBool()
 				else:
-					self._m_ = pcb.pySpParMatBool(nv,nv,nullVec,nullVec, nullVec)
+					self._m_ = pcb.pySpParMatBool(m,n,nullVec,nullVec, nullVec)
 			elif isinstance(element, pcb.Obj1):
-				if nv is None:
+				if n is None:
 					self._m_ = pcb.pySpParMatObj1()
 				else:
-					self._m_ = pcb.pySpParMatObj1(nv,nv,nullVec,nullVec, nullVec)
+					self._m_ = pcb.pySpParMatObj1(m,n,nullVec,nullVec, nullVec)
 			elif isinstance(element, pcb.Obj2):
-				if nv is None:
+				if n is None:
 					self._m_ = pcb.pySpParMatObj2()
 				else:
-					self._m_ = pcb.pySpParMatObj2(nv,nv,nullVec,nullVec, nullVec)
+					self._m_ = pcb.pySpParMatObj2(m,n,nullVec,nullVec, nullVec)
 			self._identity_ = element
-		elif sourceV is not None and destV is not None and nv is not None:
+		elif sourceV is not None and destV is not None and n is not None:
 			j = sourceV
 			i = destV
 			v = valueV
@@ -89,9 +90,9 @@ class Mat:
 				raise KeyError, 'source and destination vectors must be same length'
 			if type(v) == int or type(v) == long or type(v) == float:
 				v = Vec(len(i), v, sparse=False)
-#			if i.max() > nv-1:
+#			if i.max() > n-1:
 #				raise KeyError, 'at least one first index greater than #vertices'
-#			if j.max() > nv-1:
+#			if j.max() > n-1:
 #				raise KeyError, 'at least one second index greater than #vertices'
 			
 			if i.isObj() or j.isObj():
@@ -107,13 +108,13 @@ class Mat:
 				element = v
 			
 			if isinstance(element, (float, int, long)):
-				self._m_ = pcb.pySpParMat(nv,nv,i._v_,j._v_,v._v_)
+				self._m_ = pcb.pySpParMat(m,n,i._v_,j._v_,v._v_)
 			elif isinstance(element, bool):
-				self._m_ = pcb.pySpParMatBool(nv,nv,i._v_,j._v_,v._v_)
+				self._m_ = pcb.pySpParMatBool(m,n,i._v_,j._v_,v._v_)
 			elif isinstance(element, pcb.Obj1):
-				self._m_ = pcb.pySpParMatObj1(nv,nv,i._v_,j._v_,v._v_)
+				self._m_ = pcb.pySpParMatObj1(m,n,i._v_,j._v_,v._v_)
 			elif isinstance(element, pcb.Obj2):
-				self._m_ = pcb.pySpParMatObj2(nv,nv,i._v_,j._v_,v._v_)
+				self._m_ = pcb.pySpParMatObj2(m,n,i._v_,j._v_,v._v_)
 			self._identity_ = Mat._getExampleElement(self._m_)
 		else:
 			raise ValueError, "Incomplete arguments to Mat()"

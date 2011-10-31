@@ -178,7 +178,7 @@ void func(int* restrict x)
 	if (success):
 		sys.stdout.write("OK\n");
 	else:
-		sys.stdout.write("No, will use __restrict__\n");
+		sys.stdout.write("No\n");
 	return success
 
 
@@ -267,7 +267,6 @@ if check_for_Windows(include_dirs, define_macros):
 	if check_for_VS(include_dirs, define_macros):
 		define_macros.append(('inline', '__inline'))
 		define_macros.append(('_SCL_SECURE_NO_WARNINGS', '1'))    # disables odd but annoyingly verbose checks, maybe these are legit, don't know.
-# still need for ('restrict', '__restrict__') define_macro on non-Windows?
 		
 if not check_for_header("inttypes.h", include_dirs, define_macros):
 	include_dirs.append(COMBBLAS+"ms_inttypes")            # VS2008 does not ship with <inttypes.h>
@@ -338,7 +337,7 @@ if not check_for_C99_CONSTANTS(include_dirs, define_macros):
 	define_macros.append(("__STDC_LIMIT_MACROS", None))
 
 if not usingWindows and not check_for_restrict(include_dirs, define_macros):
-	define_macros.append(('CHANGE_RESTRICT', '__restrict__'))
+	define_macros.append(('restrict', ''))
 
 ############################################################################
 #### RUN DISTUTILS
@@ -356,7 +355,7 @@ pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	define_macros=[('NDEBUG', '1'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
 
 setup(name='kdt',
-	version='0.1',
+	version='0.2',
 	description='Knowledge Discovery Toolbox',
 	author='Aydin Buluc, John Gilbert, Adam Lugowski, Steve Reinhardt',
 	url='http://kdt.sourceforge.net',
