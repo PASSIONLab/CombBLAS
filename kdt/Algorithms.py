@@ -547,14 +547,19 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
 		fringe = A[batch,Vec.range(N)]
+		if BCdebug>1:
+			fringer = fringe.getnrow(); fringec = fringe.getncol(); fringene = fringe.getnnn()
+			if master():
+				print "BC: 1st iter: fringe_rows=%d, fringe_cols=%d, fringe.getnnn()=%d" % (fringer, fringec, fringene)
 		depth = 0
 		while fringe.getnnn() > 0:
 			before = time.time()
 			depth = depth+1
 			if BCdebug>1 and depth>1:
-				nspne = tmp.getnnn(); tmpne = tmp.getnnn(); fringene = fringe.getnnn()
+				nspne = tmp.getnnn(); tmpne = tmp.getnnn();
+				fringer = fringe.getnrow(); fringec = fringe.getncol(); fringene = fringe.getnnn()
 				if master():
-					print "BC: in while: depth=%d, nsp.getnnn()=%d, tmp.getnnn()=%d, fringe.getnnn()=%d" % (depth, nspne, tmpne, fringene)
+					print "BC: in while: depth=%d, nsp.getnnn()=%d, tmp.getnnn()=%d, fringe_rows=%d, fringe_cols=%d, fringe.getnnn()=%d" % (depth, nspne, tmpne, fringer, fringec, fringene)
 			nsp += fringe
 			tmp = fringe.copy()
 			tmp.ones()
