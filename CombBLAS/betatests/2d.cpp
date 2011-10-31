@@ -213,6 +213,7 @@ void DoA2A(MPI_Comm & World, int N, MPI_Comm & OtherDimension)
         t2 = MPI_Wtime();
 
 	time = t2-t1;
+	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Reduce( &time, &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 	MPI_Reduce( &time, &avetime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 	avetime = avetime / static_cast<double>(nprocs);

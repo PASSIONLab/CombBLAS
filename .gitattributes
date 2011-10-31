@@ -1114,6 +1114,7 @@ CombBLAS/betatests/results/script400.e831376 -text
 CombBLAS/betatests/results/script400.e831513 -text
 CombBLAS/betatests/results/script6400.e831690 -text
 CombBLAS/betatests/results/script9600_onepersocket.e920059 -text
+CombBLAS/betatests/results/script9600_onepersocket.staggered -text
 CombBLAS/betatests/script100 -text
 CombBLAS/betatests/script100.e831549 -text
 CombBLAS/betatests/script102400 -text
@@ -1137,7 +1138,6 @@ CombBLAS/betatests/script6400.e831691 -text
 CombBLAS/betatests/script6400.e831693 -text
 CombBLAS/betatests/script9600_onepersocket.e927576 -text
 CombBLAS/betatests/script9600_onepersocket.e933046 -text
-CombBLAS/betatests/script9600_onepersocket.e949849 -text
 CombBLAS/dcsc.cpp -text
 CombBLAS/dcsc.h -text
 CombBLAS/graph500-1.2/COPYING -text
