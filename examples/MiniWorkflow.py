@@ -61,7 +61,7 @@ bigG = kdt.DiGraph.load(inmatrixfile)
 bigG.ones()
 
 # The picture in the SDM paper actually used a transposed matrix:
-#bigG.e.transpose()
+bigG.e.transpose()
 
 print "drawing the original graph:"
 OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=directed)
@@ -70,6 +70,7 @@ print "Finding the largest component:"
 # find connected components
 # comp[i] specifies vertex i's component ID (the ID is the index of a vertex in that component)
 comp = bigG.connComp()
+
 # hist() computes the histogram of comp, i.e. returns how many vertices each component has
 hist = comp.hist()
 # we only want the largest

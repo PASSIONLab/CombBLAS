@@ -18,17 +18,19 @@ class Mat:
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
-	def __init__(self, sourceV=None, destV=None, valueV=None, n=None, m=None, element=0):
+	def __init__(self, i=None, j=None, v=None, n=None, m=None, element=0):
 		"""
 		FIX:  doc
 		creates a new Mat instance.  Can be called in one of the 
 		following forms:
 
-	Mat():  creates an empty Mat instance with elements.  Useful as input for genGraph500Edges.
+	Mat():  creates an empty Mat instance with no elements.
 
-	Mat(sourceV, destV, weightV, n)
-	Mat(sourceV, destV, weightV, n, m)
-		create a Mat Instance with edges with source represented by 
+	Mat(i, j, v, n)
+	Mat(i, j, v, n, m)
+		create a Mat instance with n columns, m rows, and initialized
+		by the tuples i,j,v. 
+		edges with source represented by 
 		each element of sourceV and destination represented by each 
 		element of destV with weight represented by each element of 
 		weightV.  In the 4-argument form, the resulting Mat will 
@@ -36,12 +38,11 @@ class Mat:
 		resulting Mat will have n out-vertices and m in-vertices.
 
 		Input Arguments:
-			sourceV:  a ParVec containing integers denoting the 
-			    source vertex of each edge.
-			destV:  a ParVec containing integers denoting the 
-			    destination vertex of each edge.
-			weightV:  a ParVec containing double-precision floating-
-			    point numbers denoting the weight of each edge.
+			i:  a Vec containing integers denoting the 
+			    (0-based) row of each element.
+			i:  a Vec containing integers denoting the 
+			    (0-based) column of each element.
+			v:  a Vec containing the value of each element.
 			n:  an integer scalar denoting the number of columns
 			    (out-vertices for an adjacency matrix) 
 			    (and also rows in the 4-argument case).
@@ -51,14 +52,14 @@ class Mat:
 		Output Argument:  
 			ret:  a Mat instance
 
-		Note:  If two or more edges have the same source and destination
-		vertices, their weights are summed in the output Mat instance.
+		Note:  If two or more elements (tuples) have the same i and j
+		values then their values are summed.
 
 		SEE ALSO:  toVec
 		"""
 		if m is None and n is not None:
 			m = n
-		if sourceV is None:
+		if i is None:
 			if n is not None: #create a Mat with an underlying pySpParMat* of the right size with no nonnulls
 				nullVec = pcb.pyDenseParVec(0,0)
 			if isinstance(element, (float, int, long)):
@@ -82,10 +83,10 @@ class Mat:
 				else:
 					self._m_ = pcb.pySpParMatObj2(m,n,nullVec,nullVec, nullVec)
 			self._identity_ = element
-		elif sourceV is not None and destV is not None and n is not None:
-			j = sourceV
-			i = destV
-			v = valueV
+		elif i is not None and j is not None and n is not None:
+			#j = sourceV
+			#i = destV
+			#v = valueV
 			if type(v) == tuple and isinstance(element,(float,int,long)):
 				raise NotImplementedError, 'tuple valueV only valid for Obj element'
 			if len(i) != len(j):
@@ -257,7 +258,7 @@ class Mat:
 
 	def toVec(self):
 		"""
-		decomposes a DiGraph instance to 3 ParVec instances, with each
+		decomposes a DiGraph instance to 3 Vec instances, with each
 		element of the first ParVec denoting the source vertex of an edge,
 		the corresponding element of the second ParVec denoting the 
 		destination vertex of the edge, and the corresponding element of
@@ -314,7 +315,7 @@ class Mat:
 		#		return "%d %f" % (0, 0.0)
 		else:
 			[i, j, v] = self.toVec()
-			ret = "" + str(self.getncol()) + "-by-" + str(self.getnrow()) + " Mat with " + str(self.getnnn()) + " elements.\n"
+			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
 			if len(i) < self._REPR_MAX:
 				return ret + repr(i) + repr(j) + repr(v)
 			else:

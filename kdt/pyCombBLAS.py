@@ -68,7 +68,6 @@ class pySpParMat(_object):
     def copy(*args): return _pyCombBLAS.pySpParMat_copy(*args)
     def __iadd__(*args): return _pyCombBLAS.pySpParMat___iadd__(*args)
     def assign(*args): return _pyCombBLAS.pySpParMat_assign(*args)
-    def SpGEMM(*args): return _pyCombBLAS.pySpParMat_SpGEMM(*args)
     def __mul__(*args): return _pyCombBLAS.pySpParMat___mul__(*args)
     def SubsRef(*args): return _pyCombBLAS.pySpParMat_SubsRef(*args)
     def __getitem__(*args): return _pyCombBLAS.pySpParMat___getitem__(*args)
@@ -82,6 +81,7 @@ class pySpParMat(_object):
     def Find(*args): return _pyCombBLAS.pySpParMat_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMat_SpMV(*args)
     def SpMV_inplace(*args): return _pyCombBLAS.pySpParMat_SpMV_inplace(*args)
+    def SpGEMM(*args): return _pyCombBLAS.pySpParMat_SpGEMM(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMat_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMat_Row
