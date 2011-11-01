@@ -92,6 +92,7 @@ public:
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
 	pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
+	//pySpParMat SpGEMM(pySpParMat& other, op::SemiringObj* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
@@ -127,9 +128,9 @@ public:
 	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
-	/* CombBLAS support for these is still not there.
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
-	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
+	//pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
+	/* CombBLAS support for these is still not there.
 	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);
 	pySpParMatObj2 SpGEMM(pySpParMatObj2 &other, op::SemiringObj* sring);
 	*/
