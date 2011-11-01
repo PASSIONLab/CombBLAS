@@ -18,6 +18,7 @@
 #include "common.h"
 #include "evd.h"
 #include "f2c/f2c.h"
+#include "mpidt.h"
 
 struct a {
   long int mpi_bottom__, mpi_integer__, mpi_real__, mpi_double_precision__,
@@ -32,17 +33,17 @@ struct a {
            mpi_op_null__, mpi_tag_ub__, mpi_host__, mpi_io__,
            mpi_errors_are_fatal__, mpi_errors_return__, mpi_packed__;
 } mpipriv_ = {
-  0, MPI_INT, MPI_FLOAT, MPI_DOUBLE,
-  0, 0, 0,
-  MPI_BYTE, MPI_BYTE, 0, 0,
-  0, 0, 0,
-  0, 0, 0, 0,
-  0, 0, 0, 0, 0,
-  0, 0, MPI_SUM, MPI_MAX,
-  MPI_MIN, 0, 0, 0, 0,
-  0, 0, 0, 0, 0,
-  0, 0, 0, 0,
-  0, 0, 0
+  1, 2, 3, 4,
+  5, 6, 7,
+  8, 9, 10, 11,
+  12, 13, 14,
+  15, 16, 17, 18,
+  19, 20, 21, 22, 23,
+  24, 25, 26, 27,
+  28, 29, 30, 31, 32,
+  33, 34, 35, 36, 37,
+  38, 39, 40, 41,
+  42, 43, 44
 };
 
 extern "C" {
@@ -68,7 +69,7 @@ extern "C" {
 }
 extern "C" int mpi_allreduce__(doublereal* s, doublereal* r,
 integer* c, integer* type, integer* op, integer* comm, integer* err) {
-  return MPI_Allreduce(s, r, *c, MPI_Type_f2c(*type), MPI_Op_f2c(*op), MPI_COMM_WORLD);
+  return MPI_Allreduce(s, r, *c, gettype(*type), getop(*op), MPI_COMM_WORLD);
 }
 
 extern "C" int mpi_comm_rank__(integer* comm, integer* myid,
