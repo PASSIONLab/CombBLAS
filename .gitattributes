@@ -1463,6 +1463,7 @@ CombBLAS/pspectralclustering/f2c/z_sin.c -text
 CombBLAS/pspectralclustering/f2c/z_sqrt.c -text
 CombBLAS/pspectralclustering/kmeans.cc -text
 CombBLAS/pspectralclustering/kmeans.h -text
+CombBLAS/pspectralclustering/mpidt.h -text
 CombBLAS/pspectralclustering/parpack/LICENSE -text
 CombBLAS/pspectralclustering/parpack/Makefile -text
 CombBLAS/pspectralclustering/parpack/caxpy.c -text
