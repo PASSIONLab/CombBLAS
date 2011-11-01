@@ -19,6 +19,31 @@
 #include "evd.h"
 #include "f2c/f2c.h"
 
+struct a {
+  long int mpi_bottom__, mpi_integer__, mpi_real__, mpi_double_precision__,
+           mpi_complex__, mpi_double_complex__, mpi_logical__,
+           mpi_character__, mpi_byte__, mpi_2integer__, mpi_2real__,
+           mpi_2double_precision__, mpi_2complex__, mpi_2double_complex__,
+           mpi_integer1__, mpi_integer2__, mpi_integer4__, mpi_real2__,
+           mpi_real4__, mpi_real8__, mpi_ub__, mpi_lb__, mpi_comm_world__,
+           mpi_comm_self__, mpi_group_empty__, mpi_sum__, mpi_max__,
+           mpi_min__, mpi_prod__, mpi_land__, mpi_band__, mpi_lor__,
+           mpi_bor__, mpi_lxor__, mpi_bxor__, mpi_minloc__, mpi_maxloc__,
+           mpi_op_null__, mpi_tag_ub__, mpi_host__, mpi_io__,
+           mpi_errors_are_fatal__, mpi_errors_return__, mpi_packed__;
+} mpipriv_ = {
+  0, MPI_INT, MPI_FLOAT, MPI_DOUBLE,
+  0, 0, 0,
+  MPI_BYTE, MPI_BYTE, 0, 0,
+  0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0, 0,
+  0, 0, MPI_SUM, MPI_MAX,
+  MPI_MIN, 0, 0, 0, 0,
+  0, 0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0
+};
 
 extern "C" {
   extern int pdsaupd_(integer *comm, integer *ido, char *bmat,
