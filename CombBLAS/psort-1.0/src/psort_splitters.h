@@ -82,7 +82,10 @@ namespace vpsort {
       copy (dist, dist + nproc, right_ends[nproc].begin());
 
       // union of [0, right_end[i+1]) on each processor produces dist[i] total values
-      _Distance targets[nproc-1];
+	  // AL: conversion to remove dependence on C99 feature.
+	  // original: _Distance targets[nproc-1];
+	  vector<_Distance> targets_v(nproc-1);
+      _Distance *targets = &targets_v.front();
       partial_sum (dist, dist + (nproc - 1), targets);
 
       // keep a list of ranges, trying to "activate" them at each branch
@@ -131,7 +134,10 @@ namespace vpsort {
 
 	for (int k = 0; k < n_act; ++k) 
 	{
-	  _Distance ms_perm[n_real];
+	  // AL: conversion to remove dependence on C99 feature.
+	  // original: _Distance ms_perm[n_real];
+	  vector<_Distance> ms_perm_v(n_real);
+	  _Distance *ms_perm = &ms_perm_v.front();
 	  for (int i = 0; i < n_real; ++i) ms_perm[i] = i * n_act + k;
 	  sort (ms_perm, ms_perm + n_real, 
 		PermCompare< _ValueType, _Compare> (medians, comp));
@@ -163,7 +169,10 @@ namespace vpsort {
 #endif
 
 	//------- find min and max ranks of the guesses
-	_Distance ind_local[2 * n_act];
+	// AL: conversion to remove dependence on C99 feature.
+	// original: _Distance ind_local[2 * n_act];
+	vector<_Distance> ind_local_v(2 * n_act);
+	_Distance *ind_local = &ind_local_v.front();
 	for (int k = 0; k < n_act; ++k) {
 	  pair<_RandomAccessIter, _RandomAccessIter> 
 	    ind_local_p = equal_range (d_ranges[k].first, 
@@ -179,7 +188,10 @@ namespace vpsort {
 	t_bsearch = MPI_Wtime() - t_begin - t_query;
 #endif
 
-	_Distance ind_all[2 * n_act * nproc];
+	// AL: conversion to remove dependence on C99 feature.
+	// original: _Distance ind_all[2 * n_act * nproc];
+	vector<_Distance> ind_all_v(2 * n_act * nproc);
+	_Distance *ind_all = &ind_all_v.front();
 	MPI_Allgather (ind_local, 2 * n_act, MPI_distanceType,
 		       ind_all, 2 * n_act, MPI_distanceType, comm);
 	// sum to get the global range of indices
