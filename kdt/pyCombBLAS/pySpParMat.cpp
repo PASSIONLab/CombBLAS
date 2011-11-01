@@ -342,7 +342,7 @@ void pySpParMat::Prune(op::UnaryFunction* op)
 	A.Prune(*op);
 }
 
-void pySpParMat::Prune(op::UnaryFunctionObj* op)
+void pySpParMat::Prune(op::UnaryPredicateObj* op)
 {
 	A.Prune(*op);
 }
@@ -498,6 +498,38 @@ void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
 		sring->disableSemiring();
 	}
 }
+
+
+pySpParVec pySpParMat::SpMV(const pySpParVec& x, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pySpParVec ret( ::SpMV< op::SemiringObjTemplArg<doubleint, doubleint, doubleint > >(A, x.v) );
+	sring->disableSemiring();
+	return ret;
+}
+
+pyDenseParVec pySpParMat::SpMV(const pyDenseParVec& x, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	pyDenseParVec ret( ::SpMV< op::SemiringObjTemplArg<doubleint, doubleint, doubleint > >(A, x.v) );
+	sring->disableSemiring();
+	return ret;
+}
+
+void pySpParMat::SpMV_inplace(pySpParVec& x, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	x = ::SpMV< op::SemiringObjTemplArg<doubleint, doubleint, doubleint > >(A, x.v);
+	sring->disableSemiring();
+}
+
+void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	x = ::SpMV< op::SemiringObjTemplArg<doubleint, doubleint, doubleint > >(A, x.v);
+	sring->disableSemiring();
+}
+
 
 #if 0
 pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)

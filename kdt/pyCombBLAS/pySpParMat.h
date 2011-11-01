@@ -68,7 +68,7 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryFunction* f);
-	void Prune(op::UnaryFunctionObj* f);
+	void Prune(op::UnaryPredicateObj* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -86,6 +86,11 @@ public:
 	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+
+	pySpParVec SpMV(const pySpParVec& x, op::SemiringObj* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
 	/* CombBLAS support for these is still not there.
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);

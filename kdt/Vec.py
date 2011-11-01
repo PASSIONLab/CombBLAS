@@ -2,6 +2,7 @@ import math
 import kdt.pyCombBLAS as pcb
 import feedback
 import UFget as uf
+import Mat as Mat
 from Util import *
 from Util import _op_make_unary
 from Util import _op_make_unary_pred
@@ -1379,17 +1380,17 @@ class Vec(object):
 	# NEEDED: update docstring
 	def sort(self):
 		"""
-		sorts the non-null values in the passed SpParVec instance in-place
-		in ascending order.
+		sorts the non-null values in the passed Vec instance in-place
+		in ascending order and return the permutation used.
 
 		Input Arguments:
-			self:  a SpParVec instance.
+			self:  a Vec instance.
 
 		Output Argument:
-			None
+			ret: the permutation used to perform the sort. self is also
+			     sorted.
 		"""
-		self._v_.Sort()
-		return
+		return Vec._toVec(self._v_.Sort())
 
 	# NEEDED: update docstring
 	def sorted(self):
@@ -1479,4 +1480,21 @@ class Vec(object):
 		else:
 			raise NotImplementedError
 		return ret
-	
+		
+	def hist(self):
+		"""
+		finds a histogram
+		ToDo:  write docstring
+		"""
+		if self.isObj():
+			raise NotImplementedError, "histogram not yet supported on objects"
+		#if not self.allCloseToInt():
+		#	raise KeyError, 'input values must be all integer'
+		selfInt = self.copy()
+		selfInt.apply(lambda x: round(x)) #self.round()
+		rngV = Vec.range(len(self))
+		oneV = Vec.ones(len(self))
+		selfMax = int(self.max())
+		tmpMat = Mat.Mat(rngV, selfInt, oneV, selfMax+1, len(self));
+		ret = tmpMat.reduce(Mat.Mat.Row, op_add)
+		return ret	
