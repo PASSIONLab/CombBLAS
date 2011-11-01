@@ -531,7 +531,6 @@ void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring)
 }
 
 
-#if 0
 pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
@@ -540,6 +539,7 @@ pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 	return ret;
 }
 
+#if 0
 pySpParMatBool pySpParMat::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
