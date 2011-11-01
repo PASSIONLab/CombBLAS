@@ -2023,7 +2023,6 @@ kdt/Algorithms.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
 kdt/HyGraph.py -text
-kdt/MCL.py -text
 kdt/Mat.py -text
 kdt/ObjMethods.py -text
 kdt/SpectralClustering.py -text

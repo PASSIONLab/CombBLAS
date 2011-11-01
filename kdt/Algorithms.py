@@ -449,6 +449,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		deliver atrocious performance.  The default is 0.1.  
 	"""
 	A = self.e.copy()
+	A.transpose()
 	N = self.nvert()
 	if BCdebug>0 and master():
 		print "in _approxBC, A.nvert=%d, nproc=%d" % (N, nProcs)
@@ -548,7 +549,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		#next:  nsp is really a SpParMat
 		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[batch,Vec.range(N)]
+		fringe = A[Vec.range(N), batch] # AL: swapped
 		depth = 0
 		while fringe.getnnn() > 0:
 			before = time.time()
@@ -563,7 +564,8 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			bfs.append(tmp)
 			#next:  changes how???
 			#AL: should this be: 			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
-			tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
+			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
+			#orig: tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
 			if BCdebug>1:
 				#nspsum = nsp.sum(Mat.Row).sum() 
 				#fringesum = fringe.sum(Mat.Row).sum()
@@ -588,9 +590,9 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					print tmptmp
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			w.transpose()
+			#w.transpose() # AL: removed
 			w = A.SpGEMM(w, semiring=sr_plustimes)
-			w.transpose()
+			#w.transpose() # AL: removed
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w
@@ -600,7 +602,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			tmptmp = bcu.sum(Mat.Row).sum()
 			if master():
 				print tmptmp
-		bc = bc + bcu.sum(Mat.Column)	# column sums
+		bc = bc + bcu.sum(Mat.Row)	# column sums # AL: swapped to Row
 
 	# subtract off the additional values added in by precomputation
 	bc = bc - nVertToCalc
