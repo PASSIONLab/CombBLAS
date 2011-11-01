@@ -68,6 +68,10 @@ void pySpParMat::load(const char* filename)
 		
 		string mstr = fn.substr(mdot+1, dot);
 		string nstr = fn.substr(ndot+1, mdot);
+
+#ifdef _MSC_VER
+#define atoll _atoi64
+#endif
 		uint64_t m = atoll(mstr.c_str());
 		uint64_t n = atoll(nstr.c_str());
 
