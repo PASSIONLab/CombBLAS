@@ -1495,6 +1495,6 @@ class Vec(object):
 		rngV = Vec.range(len(self))
 		oneV = Vec.ones(len(self))
 		selfMax = int(self.max())
-		tmpMat = Mat.Mat(rngV, selfInt, oneV, selfMax+1, len(self));
+		tmpMat = Mat.Mat(selfInt, rngV, oneV, selfMax+1, len(self)) # AL: swapped
 		ret = tmpMat.reduce(Mat.Mat.Row, op_add)
 		return ret	

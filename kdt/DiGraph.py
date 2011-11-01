@@ -59,7 +59,7 @@ class DiGraph(gr.Graph):
 		if edges is not None:
 			self.e = edges
 		else:
-			self.e = Mat(sourceV=sourceV, destV=destV, valueV=valueV, n=nv, element=element)
+			self.e = Mat(i=destV, j=sourceV, v=valueV, n=nv, element=element)  # AL: swapped
 		
 		if vertices is not None:
 			self.v = vertices
@@ -248,7 +248,7 @@ class DiGraph(gr.Graph):
 		nvRes = int(groups.max()+1)
 		origVtx = Vec.range(n)
 		# lhrMat == left-/right-hand-side matrix
-		lrhMat = Mat(origVtx, groups, Vec.ones(n), n, nvRes)
+		lrhMat = Mat(groups, origVtx, Vec.ones(n), n, nvRes) # AL:  swapped
 		tmpMat = lrhMat.SpGEMM(self.e, semiring=sr_plustimes)
 		lrhMat.transpose()
 		res = tmpMat.SpGEMM(lrhMat, semiring=sr_plustimes)
@@ -276,9 +276,11 @@ class DiGraph(gr.Graph):
 		"""
 		
 		n = len(clusterParents)
+
+		print "clusterParents: ", clusterParents
 		
 		# Count the number of elements in each parent's component to identify the parents
-		countM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
+		countM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)  # AL: swapped
 		counts = countM.reduce(Mat.Column, op_add)
 		del countM
 		
@@ -289,7 +291,7 @@ class DiGraph(gr.Graph):
 
 		# find inverse of sort permutation so that [1,2,3,4...] can be put back into the
 		# original parent locations
-		invM = Mat(Vec.range(n), perm, Vec.ones(n), n)
+		invM = Mat(perm, Vec.range(n), Vec.ones(n), n)  # AL: swapped
 		invPerm = invM.SpMV(Vec.range(n, sparse=True), semiring=sr_plustimes).dense() # SpMV with dense vector is broken at the moment
 		del invM
 		
@@ -297,8 +299,10 @@ class DiGraph(gr.Graph):
 		groupNum = invPerm
 		
 		# Broadcast group number to all vertices in cluster
-		broadcastM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
+		broadcastM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)  # AL: swapped
 		ret = broadcastM.SpMV(groupNum.sparse(), sr_plustimes).dense() # SpMV with dense vector is broken at the moment
+		
+		print "ret: ", ret
 		
 		if retInvPerm:
 			return ret, perm 
@@ -455,11 +459,8 @@ class DiGraph(gr.Graph):
 			    vertex to every other vertex. 
 		"""
 		
-		i = (Vec.range(n*n) % n).floor()
-		j = (Vec.range(n*n) / n).floor()
-		v = Vec(n*n, element=element, sparse=False)
-		ret = DiGraph(i,j,v,n,n)
-		return ret
+		edges = Mat.full(n=n, element=element)
+		return DiGraph(edges=edges)
 	
 	@staticmethod
 	def eye(n, selfLoopAttr=1):

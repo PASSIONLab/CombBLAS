@@ -138,6 +138,8 @@ def isBfsTree(self, root, parents, sym=False):
 
 	SEE ALSO: bfsTree 
 	"""
+	raise NotImplementedError,"isBfsTree not updated to working on transposed matrices yet."
+	
 	ret = 1		# assume valid
 	nvertG = self.nvert()
 
@@ -447,25 +449,25 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		deliver atrocious performance.  The default is 0.1.  
 	"""
 	A = self.e.copy()
-	Anv = self.nvert()
+	N = self.nvert()
 	if BCdebug>0 and master():
-		print "in _approxBC, A.nvert=%d, nproc=%d" % (Anv, nProcs)
+		print "in _approxBC, A.nvert=%d, nproc=%d" % (N, nProcs)
 
 	if BCdebug>1 and master():
 		print "Apply(set(1))"
 	#FIX:  should not overwrite input
-	#self.ones()
+	self.ones()
 	#Aint = self.ones()	# not needed;  Gs only int for now
 	if BCdebug>1 and master():
 		print "spm.getnrow and col()"
-	N = Anv
+
 	if BCdebug>1 and master():
 		print "densevec(%d, 0)"%N
 	bc = Vec(N, sparse=False)
 	if BCdebug>1 and master():
 		print "getnrow()"
-	nVertToCalc = int(math.ceil(self.nvert() * sample))
-	nVertToCalc = min(nVertToCalc, self.nvert())
+	nVertToCalc = int(math.ceil(N * sample))
+	nVertToCalc = min(nVertToCalc, N)
 	
 	# batchSize = #rows/cols that will fit in memory simultaneously.
 	# bcu has a value in every element, even though it's literally
@@ -474,7 +476,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	#   memory size (in edges)
 	#        = 2GB * 0.1 (other vars) / 18 (bytes/edge) * nProcs
 	#   memory/row (in edges)
-	#        = self.nvert()
+	#        = N
 	physMemPCore = 2e9; bytesPEdge = 18
 	if (batchSize < 0):
 		batchSize = int(2e9 * memFract / bytesPEdge * nProcs / N)
@@ -485,7 +487,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	
 	# sources for the batches
 	# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
-	randVerts = Vec.range(Anv)
+	randVerts = Vec.range(N)
 	
 	if master():
 		print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
@@ -544,32 +546,28 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		batch = randVerts[batchRange]
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
-		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
+		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[Vec.range(N),batch] # AL: swapped
-		if BCdebug>1:
-			fringer = fringe.getnrow(); fringec = fringe.getncol(); fringene = fringe.getnnn()
-			if master():
-				print "BC: 1st iter: fringe_rows=%d, fringe_cols=%d, fringe.getnnn()=%d" % (fringer, fringec, fringene)
+		fringe = A[batch,Vec.range(N)]
 		depth = 0
 		while fringe.getnnn() > 0:
 			before = time.time()
 			depth = depth+1
 			if BCdebug>1 and depth>1:
-				nspne = tmp.getnnn(); tmpne = tmp.getnnn();
-				fringer = fringe.getnrow(); fringec = fringe.getncol(); fringene = fringe.getnnn()
+				nspne = tmp.getnnn(); tmpne = tmp.getnnn(); fringene = fringe.getnnn()
 				if master():
-					print "BC: in while: depth=%d, nsp.getnnn()=%d, tmp.getnnn()=%d, fringe_rows=%d, fringe_cols=%d, fringe.getnnn()=%d" % (depth, nspne, tmpne, fringer, fringec, fringene)
+					print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
 			nsp += fringe
 			tmp = fringe.copy()
 			tmp.ones()
 			bfs.append(tmp)
 			#next:  changes how???
-			tmp = A.SpGEMM(fringe, semiring=sr_plustimes) # AL: swapped A and fringe, used to be fringe.SpGEMM(A)
+			#AL: should this be: 			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
+			tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
 			if BCdebug>1:
-				#nspsum = nsp.sum(DiGraph.Out).sum() 
-				#fringesum = fringe.sum(DiGraph.Out).sum()
-				#tmpsum = tmp.sum(DiGraph.Out).sum()
+				#nspsum = nsp.sum(Mat.Row).sum() 
+				#fringesum = fringe.sum(Mat.Row).sum()
+				#tmpsum = tmp.sum(Mat.Row).sum()
 				if master():
 					#print depth, nspsum, fringesum, tmpsum
 					pass
@@ -578,50 +576,37 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			if BCdebug>1 and master():
 				print "    %f seconds" % (time.time()-before)
 
-		bcu = Mat.full(curSize,N, element=1.0)
+		bcu = Mat.full(curSize,N)
 		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):
-			print "\n\n\ncomputing updates, depth=",depth
 			# compute the weights to be applied based on the child values
 			w = bfs[depth] / nsp 
-			#print "bfs[depth]:",bfs[depth]
-			#print "nsp:",nsp
-			#print "w:",w
-			#print "bcu:",bcu
 			w *= bcu
 			if BCdebug>2:
-				tmptmp = w.sum(DiGraph.Out).sum()
+				tmptmp = w.sum(Mat.Row).sum()
 				if master():
 					print tmptmp
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			#w.transpose() # AL: removed
-			w = A.SpGEMM(w, sr_plustimes)
-			#w.transpose() # AL: removed
+			w.transpose()
+			w = A.SpGEMM(w, semiring=sr_plustimes)
+			w.transpose()
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w
-			print "bcu:",bcu
 
-		print "FINAL bcu:",bcu
-		print "bcu sum:",bcu.sum(Mat.Row)
-		print "bc before sum:",bc
 		# update the bc with the bc update
 		if BCdebug>2:
 			tmptmp = bcu.sum(Mat.Row).sum()
 			if master():
 				print tmptmp
-		bc = bc + bcu.sum(Mat.Row)	# column sums
-		print "bc after sum:",bc
+		bc = bc + bcu.sum(Mat.Column)	# column sums
 
-	# subtract off the additional values added in by precomputation (because was bcu is initialized to 1)
-	print "BC: asdfasf ",bc
+	# subtract off the additional values added in by precomputation
 	bc = bc - nVertToCalc
-	print "BC pre normalization: ",bc
 	if normalize:
 		nVertSampled = sum(numVs)
 		bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
-	print "BC: ",bc
 	
 	if retNVerts:
 		return bc,nVertSampled
