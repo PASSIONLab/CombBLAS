@@ -103,7 +103,7 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	void Prune(op::UnaryFunction* f);
-	void Prune(op::UnaryFunctionObj* f);
+	void Prune(op::UnaryPredicateObj* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -121,6 +121,11 @@ public:
 	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+
+	pySpParVec SpMV(const pySpParVec& x, op::SemiringObj* sring);
+	pyDenseParVec SpMV(const pyDenseParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
 	/* CombBLAS support for these is still not there.
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
@@ -177,7 +182,7 @@ public:
 	int64_t removeSelfLoops();
 	
 	void Apply(op::UnaryFunction* f);
-
+	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
 	void Prune(op::UnaryFunction* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
@@ -707,14 +712,14 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
-	int64_t Count(op::UnaryFunctionObj* op);
+	int64_t Count(op::UnaryPredicateObj* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVec Find(op::UnaryFunction* op);
-	pySpParVec Find(op::UnaryFunctionObj* op);
+	pySpParVec Find(op::UnaryPredicateObj* op);
 	pySpParVec __getitem__(op::UnaryFunction* op);
 	pyDenseParVec FindInds(op::UnaryFunction* op);
-	pyDenseParVec FindInds(op::UnaryFunctionObj* op);
+	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunction* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);

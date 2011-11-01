@@ -77,14 +77,14 @@ public:
 	
 public:
 	int64_t Count(op::UnaryFunction* op);
-	int64_t Count(op::UnaryFunctionObj* op);
+	int64_t Count(op::UnaryPredicateObj* op);
 	double Reduce(op::BinaryFunction* f, op::UnaryFunction* uf = NULL);
 	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVec Find(op::UnaryFunction* op);
-	pySpParVec Find(op::UnaryFunctionObj* op);
+	pySpParVec Find(op::UnaryPredicateObj* op);
 	pySpParVec __getitem__(op::UnaryFunction* op);
 	pyDenseParVec FindInds(op::UnaryFunction* op);
-	pyDenseParVec FindInds(op::UnaryFunctionObj* op);
+	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunction* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);

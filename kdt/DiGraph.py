@@ -203,9 +203,6 @@ class DiGraph(gr.Graph):
 			self._eFilter_ = [filter]
 		return
 		
-	# NEEDED: update to new fields
-	# NEEDED: update to transposed edge matrix
-	# NEEDED: tests
 	def contract(self, groups=None, clusterParents=None):
 		"""
 		contracts all vertices that are like-numbered in the groups
@@ -251,14 +248,12 @@ class DiGraph(gr.Graph):
 		nvRes = int(groups.max()+1)
 		origVtx = Vec.range(n)
 		# lhrMat == left-/right-hand-side matrix
-		lrhMat = Mat(groups, origVtx, Vec.ones(n), nvRes, n)
-		tmpMat = lrhMat.SpGEMM(self)
+		lrhMat = Mat(origVtx, groups, Vec.ones(n), n, nvRes)
+		tmpMat = lrhMat.SpGEMM(self.e, semiring=sr_plustimes)
 		lrhMat.transpose()
-		res = tmpMat.SpGEMM(lrhMat)
+		res = tmpMat.SpGEMM(lrhMat, semiring=sr_plustimes)
 		return DiGraph(edges=res);
 	
-	# NEEDED: update to transposed edge matrix
-	# NEEDED: tests
 	@staticmethod
 	def convClusterParentToGroup(clusterParents, retInvPerm = False):
 		"""
@@ -284,41 +279,38 @@ class DiGraph(gr.Graph):
 		
 		# Count the number of elements in each parent's component to identify the parents
 		countM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
-		counts = countM.reduce(Mat.Row(), op_add)
+		counts = countM.reduce(Mat.Column, op_add)
 		del countM
 		
 		# sort to put them all at the front
 		sorted = counts.copy()
-		sorted.apply(pcb.negate())
+		sorted.apply(op_negate)
 		perm = sorted.sort()
-		sorted.apply(pcb.negate())
-		
+
 		# find inverse of sort permutation so that [1,2,3,4...] can be put back into the
 		# original parent locations
-		invM = Mat(perm, Vec.range(n), Vec.ones(n), n)
-		invPerm = invM.SpMV(Vec.range(n), sr_plustimes)
+		invM = Mat(Vec.range(n), perm, Vec.ones(n), n)
+		invPerm = invM.SpMV(Vec.range(n, sparse=True), semiring=sr_plustimes).dense() # SpMV with dense vector is broken at the moment
 		del invM
 		
 		# Find group number for each parent vertex
 		groupNum = invPerm
 		
 		# Broadcast group number to all vertices in cluster
-		broadcastM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)
-		ret = broadcastM.SpMV(groupNum, sr_plustimes)
+		broadcastM = Mat(clusterParents, Vec.range(n), Vec.ones(n), n)
+		ret = broadcastM.SpMV(groupNum.sparse(), sr_plustimes).dense() # SpMV with dense vector is broken at the moment
 		
 		if retInvPerm:
-			return ret, perm #ParVec.toParVec(ret), ParVec.toParVec(perm)
+			return ret, perm 
 		else:
-			return ret #ParVec.toParVec(ret)
+			return ret 
 	
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod
 	def convMaskToIndices(mask):
-		verts = mask._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), 1))
-		return ParVec.toParVec(verts)
+		verts = mask.findInds(lambda x: x == 1)
+		return verts
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	def copy(self, element=None):
 		"""
@@ -371,7 +363,6 @@ class DiGraph(gr.Graph):
 			ret.e = tmp2
 		return ret
 
-	# NEEDED: tests
 	def degree(self, dir=Out):
 		"""
 		calculates the degrees of the appropriate edges of each vertex of 
@@ -433,7 +424,6 @@ class DiGraph(gr.Graph):
 			self.e.removeMainDiagonal()
 		return
 
-	# NEEDED: tests
 	# NEEDED: fix doc
 	def addSelfLoops(self, selfLoopAttr=1):
 		"""
@@ -446,38 +436,31 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self.e += Mat.eye(self.nvert(), selfLoopAttr=selfLoopAttr)
+			self.e += Mat.eye(self.nvert(), element=selfLoopAttr)
 		return
 
-	# NEEDED: tests
 	@staticmethod
-	def fullyConnected(n,m=None):
+	def fullyConnected(n, element=1.0):
 		"""
 		creates edges in a DiGraph instance that connects each vertex
 		directly to every other vertex.
 
 		Input Arguments:
 			n:  an integer scalar denoting the number of vertices in
-			    the graph that may potentially have out-edges.
-			m:  an optional argument, which if specified is an integer
-			    scalar denoting the number of vertices in the graph
-			    that may potentially have in-edges.
+			    the graph.
+			element: the edge attribute.
 
 		Output Argument:
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to every other vertex. 
 		"""
 		
-		if m is None:
-			m = n
-		i = (Vec.range(n*m) % n).floor()
-		j = (Vec.range(n*m) / n).floor()
-		v = Vec.ones(n*m)
-		ret = DiGraph(i,j,v,n,m)
+		i = (Vec.range(n*n) % n).floor()
+		j = (Vec.range(n*n) / n).floor()
+		v = Vec(n*n, element=element, sparse=False)
+		ret = DiGraph(i,j,v,n,n)
 		return ret
 	
-	# NEEDED: update to new fields
-	# NEEDED: tests
 	@staticmethod
 	def eye(n, selfLoopAttr=1):
 		"""
@@ -495,10 +478,8 @@ class DiGraph(gr.Graph):
 		"""
 		return DiGraph(edges=Mat.eye(n, element=selfLoopAttr))
 		
-	# NEEDED: update to new fields
-	# NEEDED: tests
 	@staticmethod
-	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False):
+	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False, element=True):
 		"""
 		creates edges in a DiGraph instance that meets the Graph500 
 		specification.  The graph is symmetric. (See www.graph500.org 
@@ -534,7 +515,7 @@ class DiGraph(gr.Graph):
 		if not isinstance(scale, (int, float, long)):
 			raise KeyError, "scale must be an integer!"
 			
-		edges, degrees, k1time = Mat.generateRMAT(int(scale), edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated)
+		edges, degrees, k1time = Mat.generateRMAT(int(scale), edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, element=element)
 		
 		ret = DiGraph()
 		ret.e = edges
@@ -587,8 +568,6 @@ class DiGraph(gr.Graph):
 		self.e.save(fname)
 		return
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
 	def nedge(self, vpart=None):
 		"""
 		returns the number of edges in (each partition of the vertices
@@ -639,7 +618,6 @@ class DiGraph(gr.Graph):
 		return ret
 			
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	#FIX:  good idea to have this return an int or a tuple?
 	def nvert(self, vpart=None):
@@ -675,21 +653,20 @@ class DiGraph(gr.Graph):
 		return ret
 
 
-	##in-place, so no return value
-	#def ones(self):
-	#	"""
-	#	sets every edge in the graph to the value 1.
+	#in-place, so no return value
+	def ones(self):
+		"""
+		sets every edge in the graph to the value 1.
 
-	#	Input Argument:
-	#		self:  a DiGraph instance, modified in place.
+		Input Argument:
+			self:  a DiGraph instance, modified in place.
 
-	#	Output Argument:
-	#		None.
+		Output Argument:
+			None.
 
-	#	SEE ALSO:  set
-	#	"""
-	#	self._spm.Apply(pcb.set(1))
-	#	return
+		SEE ALSO:  set
+		"""
+		self.e.ones()
 
 	# NEEDED: tests
 	#in-place, so no return value
@@ -726,8 +703,6 @@ class DiGraph(gr.Graph):
 			raise NotImplementedError, 'not for Obj DiGraphs yet' 
 		return
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
 	def subgraph(self, ndx1=None, ndx2=None, mask=None):
 		"""
 		creates a new DiGraph instance consisting of only designated vertices 
@@ -735,14 +710,13 @@ class DiGraph(gr.Graph):
 
 		Input Arguments:
 			self:  a DiGraph instance
-			ndx1:  an integer scalar or a ParVec of consecutive vertex
+			ndx1:  a Vec of consecutive vertex
 			    numbers to be included in the subgraph along with edges
 			    starting from these vertices.
-			ndx2:  an optional argument; if specified, is an integer
-			    scalar or a ParVec of consecutive vertex numbers to
-			    be included in the subgraph along with any edges ending
-			    at these vertices.
-			mask:  a length nverts ParVec with True elements for vertices
+			ndx2:  an optional argument; if specified, a Vec of consecutive
+			    vertex numbers to be included in the subgraph along with
+			    any edges ending at these vertices.
+			mask:  a length nverts Vec with True elements for vertices
 			    that should be kept and False elements for vertices to
 			    be discarded.
 			 
@@ -757,14 +731,13 @@ class DiGraph(gr.Graph):
 		
 		if ndx1 is None:
 			# convert mask to indices
-			verts = mask._dpv.FindInds(pcb.bind2nd(pcb.equal_to(), 1))
-			ndx1 = ParVec.toParVec(verts)
+			ndx1 = mask.findInds(lambda x: x == 1)
 			ndx2 = None
 		
 		if ndx2 is None:
 			ndx2 = ndx1
-		ret = self[ndx1, ndx2]
-		return ret
+		retE = self.e[ndx1, ndx2]
+		return DiGraph(edges=retE, vertices=self.v.copy())
 
 	# NEEDED: modify to make sense in graph context, not just matrix context
 	# NEEDED: update to new fields
@@ -790,11 +763,6 @@ class DiGraph(gr.Graph):
 		ret = self.reduce(dir, pcb.plus())
 		return ret
 
-	# ADAM: removed on purpose to point out places that need to be updated with reversed edges.
-	# NEEDED: delete entirely
-	#_T = reverseEdges
-
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	def toBool(self):
 		"""
@@ -822,8 +790,6 @@ class DiGraph(gr.Graph):
 
 		self.e.toScalar()
 
-	# NEEDED: update to transposed edge matrix
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod
 	def twoDTorus(n):

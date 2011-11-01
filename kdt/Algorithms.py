@@ -461,7 +461,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	N = Anv
 	if BCdebug>1 and master():
 		print "densevec(%d, 0)"%N
-	bc = Vec(N)
+	bc = Vec(N, sparse=False)
 	if BCdebug>1 and master():
 		print "getnrow()"
 	nVertToCalc = int(math.ceil(self.nvert() * sample))
@@ -546,7 +546,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		#next:  nsp is really a SpParMat
 		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)  # AL note: I transposed the first two arguments to reflect our new definition of rows/columns as in/out. Original: DiGraph(Vec.range(curSize), batch, 1, curSize, N)
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[batch,Vec.range(N)]
+		fringe = A[Vec.range(N),batch] # AL: swapped
 		if BCdebug>1:
 			fringer = fringe.getnrow(); fringec = fringe.getncol(); fringene = fringe.getnnn()
 			if master():
@@ -565,7 +565,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			tmp.ones()
 			bfs.append(tmp)
 			#next:  changes how???
-			tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
+			tmp = A.SpGEMM(fringe, semiring=sr_plustimes) # AL: swapped A and fringe, used to be fringe.SpGEMM(A)
 			if BCdebug>1:
 				#nspsum = nsp.sum(DiGraph.Out).sum() 
 				#fringesum = fringe.sum(DiGraph.Out).sum()
@@ -578,11 +578,16 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			if BCdebug>1 and master():
 				print "    %f seconds" % (time.time()-before)
 
-		bcu = DiGraph.fullyConnected(curSize,N).e
+		bcu = Mat.full(curSize,N, element=1.0)
 		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):
+			print "\n\n\ncomputing updates, depth=",depth
 			# compute the weights to be applied based on the child values
 			w = bfs[depth] / nsp 
+			#print "bfs[depth]:",bfs[depth]
+			#print "nsp:",nsp
+			#print "w:",w
+			#print "bcu:",bcu
 			w *= bcu
 			if BCdebug>2:
 				tmptmp = w.sum(DiGraph.Out).sum()
@@ -590,25 +595,33 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					print tmptmp
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			w.transpose()
+			#w.transpose() # AL: removed
 			w = A.SpGEMM(w, sr_plustimes)
-			w.transpose()
+			#w.transpose() # AL: removed
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w
+			print "bcu:",bcu
 
+		print "FINAL bcu:",bcu
+		print "bcu sum:",bcu.sum(Mat.Row)
+		print "bc before sum:",bc
 		# update the bc with the bc update
 		if BCdebug>2:
-			tmptmp = bcu.sum(DiGraph.Out).sum()
+			tmptmp = bcu.sum(Mat.Row).sum()
 			if master():
 				print tmptmp
-		bc = bc + bcu.sum(DiGraph.In)	# column sums
+		bc = bc + bcu.sum(Mat.Row)	# column sums
+		print "bc after sum:",bc
 
-	# subtract off the additional values added in by precomputation
+	# subtract off the additional values added in by precomputation (because was bcu is initialized to 1)
+	print "BC: asdfasf ",bc
 	bc = bc - nVertToCalc
+	print "BC pre normalization: ",bc
 	if normalize:
 		nVertSampled = sum(numVs)
 		bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
+	print "BC: ",bc
 	
 	if retNVerts:
 		return bc,nVertSampled
@@ -635,7 +648,8 @@ def cluster(self, alg, **kwargs):
 			denotes a cluster root for that vertex.
 	"""
 	if alg=='Markov' or alg=='markov':
-		G = DiGraph._cluster_markov(self, **kwargs)
+		A = DiGraph._MCL(self, **kwargs)
+		G = DiGraph(edges=A)
 		clus = G.connComp()
 		return clus, G
 
@@ -648,7 +662,6 @@ def cluster(self, alg, **kwargs):
 	return clus
 DiGraph.cluster = cluster
 
-# NEEDED: tests
 def connComp(self):
 	"""
 	Finds the connected components of the graph by BFS.
@@ -662,7 +675,9 @@ def connComp(self):
 	# we want a symmetric matrix with self loops
 	n = self.nvert()
 	G = self.e.copy(element=1.0)
-	G += G.copy().transpose()
+	G_T = G.copy()
+	G_T.transpose()
+	G += G_T
 	G += Mat.eye(n, 1.0)
 	G.apply(op_set(1))
 	
@@ -675,7 +690,7 @@ def connComp(self):
 	frontier = roots.sparse()
 	
 	while frontier.nnn() > 0:
-		frontier = G.SpMV(frontier, sr=selectMax)
+		frontier = G.SpMV(frontier, semiring=selectMax)
 		
 		# prune the frontier of vertices that have not changed
 		frontier.eWiseApply(roots, op=(lambda f,r: f), doOp=(lambda f,r: f != r), inPlace=True)
@@ -687,4 +702,86 @@ def connComp(self):
 	
 DiGraph.connComp = connComp
 
-# markov clustering temporarily moved to MCL.py
+def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
+	"""
+	Performs Markov Clustering (MCL) on self and returns a graph representing the clusters.
+	"""
+	
+	#self is a DiGraph
+	
+	EPS = 0.001
+	#EPS = 10**(-100)
+	chaos = 1000
+	
+	#Check parameters
+	if expansion <= 1:
+		raise KeyError, 'expansion parameter must be greater than 1'
+	if inflation <= 1:
+		raise KeyError, 'inflation parameter must be greater than 1'
+	
+	A = self.e.copy()
+	#if not sym:
+		#A = A + A.Transpose() at the points where A is 0 or null
+	
+	#Add self loops
+	N = self.nvert()
+	if addSelfLoops:
+		A += Mat.eye(N, element=selfLoopWeight)
+	
+	#Create stochastic matrix
+
+	# get inverted sums, but avoid divide by 0
+	invSums = A.sum(Mat.Column)
+	def inv(x):
+		if x == 0:
+			return 1
+		else:
+			return 1/x
+	invSums.apply(inv)
+	A.scale( invSums , dir=Mat.Column)
+	
+	if retNEdges:
+		nedges = 0
+	
+	#Iterations tally
+	iterNum = 0
+	
+	#MCL Loop
+	while chaos > EPS and iterNum < 300:
+		iterNum += 1;
+	
+		#Expansion - A^(expansion)
+		if retNEdges:
+			AA = A.copy()
+		for i in range(1, expansion):
+			if retNEdges:
+				AA.apply(pcb.set(1))
+				AA = AA.SpGEMM(AA, semiring=sr_plustimes)
+				nedges += AA.sum(Mat.Column).reduce(op_add)
+			A = A.SpGEMM(A, semiring=sr_plustimes)
+	
+		#Inflation - Hadamard power - greater inflation parameter -> more granular results
+		A.apply((lambda x: x**inflation))
+		
+		#Re-normalize
+		invSums = A.sum(Mat.Column)
+		invSums.apply(inv)
+		A.scale( invSums , dir=Mat.Column)
+	
+		#Looping Condition:
+		colssqs = A.reduce(Mat.Column, op_add, (lambda x: x*x))
+		colmaxs = A.reduce(Mat.Column, op_max, init=0.0)
+		chaos = (colmaxs - colssqs).max()
+		#print "chaos=",chaos
+
+		# Pruning implementation - switch out with TopK / give option
+		A._prune((lambda x: x < prunelimit))
+		#print "number of edges remaining =", A._spm.getnee()
+	
+	#print "Iterations = %d" % iterNum
+	
+	if retNEdges:
+		return A,nedges
+
+	return A
+DiGraph._MCL = _MCL

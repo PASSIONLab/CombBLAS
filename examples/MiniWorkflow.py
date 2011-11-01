@@ -21,7 +21,7 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 	on multiple graphs (vertecies line up). Directed specifies if the graph is 
 	directed (show arrows and self loops) or not.
 	"""
-	[iv, jv, vv] = G.toParVec()
+	[iv, jv, vv] = G.e.toVec()
 	n = G.nvert()
 	m = len(iv)
 	
@@ -60,18 +60,28 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 bigG = kdt.DiGraph.load(inmatrixfile)
 bigG.ones()
 
+# The picture in the SDM paper actually used a transposed matrix:
+#bigG.e.transpose()
+
 print "drawing the original graph:"
 OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=directed)
 
 print "Finding the largest component:"
-comp = bigG.connComp(sym=False)
-giantComp = comp.hist().argmax()
-G = bigG.subgraph(mask=(comp==giantComp))
+# find connected components
+# comp[i] specifies vertex i's component ID (the ID is the index of a vertex in that component)
+comp = bigG.connComp()
+# hist() computes the histogram of comp, i.e. returns how many vertices each component has
+hist = comp.hist()
+# we only want the largest
+giantCompSize = hist.max()
+# find the ID of the largest component. The ID is the index of the component's root vertex
+giantCompRoot = hist.findInds(lambda x: x == giantCompSize)[0]
+G = bigG.subgraph(mask=(comp==giantCompRoot))
 
 # Get the indices of the vertices by getting the indicies of the nonzeros in the mask.
 # These indices are used to make sure the vertices in the subgraph appear at the same x,y positions
 # as they did in the original plot.
-compInds = kdt.DiGraph.convMaskToIndices(comp==giantComp)
+compInds = kdt.DiGraph.convMaskToIndices(comp==giantCompRoot)
 OrigVertLocSource = draw(G, outfile.replace(".", "-2-largestcomp."), OrigVertLocSource, copyFromIndexLookup=compInds, directed=directed)
 
 print "Clustering:"

@@ -183,7 +183,7 @@ int64_t pyDenseParVec::Count(op::UnaryFunction* op)
 	return v.Count(*op);
 }
 
-int64_t pyDenseParVec::Count(op::UnaryFunctionObj* op)
+int64_t pyDenseParVec::Count(op::UnaryPredicateObj* op)
 {
 	return v.Count(*op);
 }
@@ -225,7 +225,7 @@ pySpParVec pyDenseParVec::Find(op::UnaryFunction* op)
 	return pySpParVec(v.Find(*op));
 }
 
-pySpParVec pyDenseParVec::Find(op::UnaryFunctionObj* op)
+pySpParVec pyDenseParVec::Find(op::UnaryPredicateObj* op)
 {
 	return pySpParVec(v.Find(*op));
 }
@@ -244,7 +244,7 @@ pyDenseParVec pyDenseParVec::FindInds(op::UnaryFunction* op)
 	return ret;
 }
 
-pyDenseParVec pyDenseParVec::FindInds(op::UnaryFunctionObj* op)
+pyDenseParVec pyDenseParVec::FindInds(op::UnaryPredicateObj* op)
 {
 	pyDenseParVec ret;
 	

@@ -26,24 +26,26 @@ def _cluster_markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoop
 	if inflation <= 1:
 		raise KeyError, 'inflation parameter must be greater than 1'
 	
-	A = self.copy()
+	A = self.e.copy()
 	#if not sym:
 		#A = A + A.Transpose() at the points where A is 0 or null
 	
 	#Add self loops
-	N = A.nvert()
+	N = self.nvert()
 	if addSelfLoops:
-		A.addSelfLoops(selfLoopWeight)
+		A += Mat.eye(N, element=selfLoopWeight)
 	
 	#Create stochastic matrix
 
-	#Avoid divide-by-zero error
-	sums = A.sum(DiGraph.In)
-	sums._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
-		pcb.set(1),
-		pcb.identity()))
-	
-	A.scale( ParVec.ones(A.nvert()) / sums , dir=DiGraph.In )
+	# get inverted sums, but avoid divide by 0
+	invSums = A.sum(Mat.Column)
+	def inv(x):
+		if x == 0:
+			return 1
+		else:
+			return 1/x
+	invSums.apply(inv)
+	A.scale( invSums , dir=Mat.Column)
 	
 	if retNEdges:
 		nedges = 0
@@ -60,30 +62,27 @@ def _cluster_markov(self, expansion=2, inflation=2, addSelfLoops=False, selfLoop
 			AA = A.copy()
 		for i in range(1, expansion):
 			if retNEdges:
-				AA._apply(pcb.set(1))
-				AA = AA._SpGEMM(AA)
-				nedges += AA.sum(DiGraph.In)._dpv.Reduce(pcb.plus())
-			A = A._SpGEMM(A)
+				AA.apply(pcb.set(1))
+				AA = AA.SpGEMM(AA, semiring=sr_plustimes)
+				nedges += AA.sum(Mat.Column).reduce(op_add)
+			A = A.SpGEMM(A, semiring=sr_plustimes)
 	
 		#Inflation - Hadamard power - greater inflation parameter -> more granular results
-		A._apply(pcb.bind2nd(pcb.pow(), inflation))
+		A.apply((lambda x: x**inflation))
 		
 		#Re-normalize
-		sums = A.sum(DiGraph.In)
-		sums._apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0),
-			pcb.set(1),
-			pcb.identity()))
-
-		A.scale( ParVec.ones(A.nvert()) / sums, dir=DiGraph.In)
+		invSums = A.sum(Mat.Column)
+		invSums.apply(inv)
+		A.scale( invSums , dir=Mat.Column)
 	
 		#Looping Condition:
-		colssqs = A._spm.Reduce(pcb.pySpParMat.Column(),pcb.plus(), pcb.bind2nd(pcb.pow(), 2))
-		colmaxs = A._spm.Reduce(pcb.pySpParMat.Column(), pcb.max(), 0.0)
-		chaos = ParVec.toParVec(colmaxs - colssqs).max()
+		colssqs = A.reduce(Mat.Column, op_add, (lambda x: x*x))
+		colmaxs = A.reduce(Mat.Column, op_max, init=0.0)
+		chaos = (colmaxs - colssqs).max()
 		#print "chaos=",chaos
 
 		# Pruning implementation - switch out with TopK / give option
-		A._spm.Prune(pcb.bind2nd(pcb.less(), prunelimit))
+		A._prune((lambda x: x < prunelimit))
 		#print "number of edges remaining =", A._spm.getnee()
 	
 	#print "Iterations = %d" % iterNum

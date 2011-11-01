@@ -42,9 +42,11 @@ class Mat:
 			    destination vertex of each edge.
 			weightV:  a ParVec containing double-precision floating-
 			    point numbers denoting the weight of each edge.
-			n:  an integer scalar denoting the number of out-vertices 
-			    (and also in-vertices in the 4-argument case).
-			m:  an integer scalar denoting the number of in-vertices.
+			n:  an integer scalar denoting the number of columns
+			    (out-vertices for an adjacency matrix) 
+			    (and also rows in the 4-argument case).
+			m:  an integer scalar denoting the number of rows
+			    (in-vertices for an adjacency matrix)
 
 		Output Argument:  
 			ret:  a Mat instance
@@ -312,7 +314,7 @@ class Mat:
 		#		return "%d %f" % (0, 0.0)
 		else:
 			[i, j, v] = self.toVec()
-			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " Mat with " + str(self.getnnn()) + " elements.\n"
+			ret = "" + str(self.getncol()) + "-by-" + str(self.getnrow()) + " Mat with " + str(self.getnnn()) + " elements.\n"
 			if len(i) < self._REPR_MAX:
 				return ret + repr(i) + repr(j) + repr(v)
 			else:
@@ -374,7 +376,7 @@ class Mat:
 ###########################
 
 	@staticmethod
-	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, boolean=True):
+	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, element=True):
 		"""
 		generates a Kroenecker product matrix using the Graph500 RMAT graph generator.
 		
@@ -385,12 +387,11 @@ class Mat:
 				time is the time for the Graph500 Kernel 1.
 		"""
 		degrees = Vec(0, element=1.0, sparse=False)
-		if boolean:
-			matrix = pcb.pySpParMatBool()
-		else:
-			matrix = pcb.pySpParMat()
-		kernel1Time = matrix.GenGraph500Edges(scale, degrees._v_, scale, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
-		return Mat._toMat(matrix), degrees, kernel1Time
+		matrix = Mat(element=element)
+		if matrix.isObj():
+			raise NotImplementedError,"RMAT generation to supported on object matrices yet."
+		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, scale, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
+		return matrix, degrees, kernel1Time
 
 	@staticmethod
 	def eye(n, element=1.0):
@@ -407,6 +408,28 @@ class Mat:
 			ret:  an identity matrix. 
 		"""
 		return Mat(Vec.range(n),Vec.range(n),Vec(n, element, sparse=False),n)
+
+	@staticmethod
+	def full(n,m=None, element=1.0):
+		"""
+		creates an `m`-by-`n` matrix with all elements set to `element`.
+
+		Input Arguments:
+			n:  an integer specifying the number of rows in the matrix.
+			m:  an integer specifying the number of columns in the matrix.
+			    If omitted, it defaults to the same value as `n`.
+
+		Output Argument:
+			ret:  an m-by-n full Mat instance. 
+		"""
+		
+		if m is None:
+			m = n
+		i = (Vec.range(n*m) % n).floor()
+		j = (Vec.range(n*m) / n).floor()
+		v = Vec.ones(n*m)
+		ret = Mat(i,j,v,n,m)
+		return ret
 
 ##########################
 ### Filtering Methods
@@ -594,10 +617,9 @@ class Mat:
 	# TODO: make a _keep() which reverses the predicate
 	def _prune(self, pred):
 		"""
-		returns a new matrix that only contains the elements e for which
-		pred(e) == false.
+		only keep elements for which pred(e) == false.
 		"""
-		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred)))
+		self._m_.Prune(_op_make_unary_pred(pred))
 
 	def reduce(self, dir, op, unOp=None, init=None):
 		"""
@@ -654,6 +676,9 @@ class Mat:
 
 		SEE ALSO:  * (DiGraph.__mul__), mulNot
 		"""
+		if self.isBool():
+			raise NotImplementedError, 'scale not implemented on boolean matrices do to C++ template irregularities.'
+		
 		if not isinstance(other, Vec):
 			raise KeyError, 'Invalid type for scale vector'
 
@@ -680,8 +705,8 @@ class Mat:
 		# check input
 		if not isinstance(other, Mat):
 			raise ValueError, "SpGEMM needs a Mat"
-		if other.getncol() != self.getnrow():
-			raise ValueError, "Dimension mismatch in SpGEMM."
+		if self.getncol() != other.getnrow():
+			raise ValueError, "Dimension mismatch in SpGEMM: %d != %d"%(self.getncol(),other.getnrow())
 		
 		ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
 		return ret

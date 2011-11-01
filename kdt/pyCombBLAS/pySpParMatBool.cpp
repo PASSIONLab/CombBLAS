@@ -257,7 +257,12 @@ void pySpParMatBool::Apply(op::UnaryFunction* op)
 	A.Apply(*op);
 }
 
-
+/*
+void pySpParMatBool::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f)
+{
+	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
+}
+*/
 
 pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
 {
