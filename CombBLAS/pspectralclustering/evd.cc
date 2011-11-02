@@ -85,7 +85,7 @@ EigenSolverSymmetric::EigenSolverSymmetric(int num_local_row, string eigen_type,
     : num_local_row_(num_local_row),
       eigen_space_(eigen_space),
       eigen_desire_(eigen_desire),
-      max_iterations_(300),
+      max_iterations_(3000),
       tolerance_(0),
       eigen_type_(eigen_type) {
   // alocate space
@@ -352,7 +352,7 @@ void Evd::Compute(int num_eigen, int eigen_space,
   CHECK_GE(num_total_rows_, eigen_space);
   solver_ =
       new EigenSolverSymmetric(num_local_rows_,
-                               "LA",
+                               "LM",
                                num_eigen,
                                eigen_space);
 
@@ -372,9 +372,25 @@ void Evd::operator()(double *x, double *y) const {
   memset(buff, 0, sizeof(buff[0]) * row_count_max_);
   double* buff2 = new double[pnum_ * row_count_max_];
   double* completex = new double[num_total_rows_];
+
+#ifdef AYDINDEBUG
+  std::ofstream first_x("first_x.txt");
+  std::ofstream first_y("first_y.txt");
+  std::ofstream lapout("lapout.txt");
+#endif
+ 
   for (int i = 0; i < num_local_rows_; ++i) {
     buff[i] = x[i];
+
+#ifdef AYDINDEBUG
+    first_x << x[i] << std::endl;
+#endif
   }
+
+#ifdef AYDINDEBUG
+  first_x.close();
+#endif
+
   MPI_Allgather(buff, row_count_max_, MPI_DOUBLE,
                 buff2, row_count_max_, MPI_DOUBLE, MPI_COMM_WORLD);
   int index = 0;
@@ -389,12 +405,29 @@ void Evd::operator()(double *x, double *y) const {
                        column_index_.size(): row_start_index_[i+1]);
     for (int j = row_start_index_[i]; j < upper_bound; ++j) {
       sum += value_[j] * completex[column_index_[j]];
+#ifdef AYDINDEBUG
+      lapout << i << "\t" << column_index_[j] << "\t" << value_[j] << std::endl;
+#endif
     }
     y[i] = sum;
+
+#ifdef AYDINDEBUG
+    first_y << y[i] << std::endl;
+#endif
   }
+
+#ifdef AYDINDEBUG
+  first_y.close();
+  lapout.close();
+#endif
+
   delete[] buff;
   delete[] buff2;
   delete[] completex;
+
+#ifdef AYDINDEBUG
+  exit(-1);
+#endif
   return;
 }
 
@@ -451,7 +484,7 @@ int main(int argc, char** argv) {
   MPI_Init(&argc, &argv);
   int FLAGS_eigenvalue = 0;
   int FLAGS_eigenspace = 0;
-  int FLAGS_arpack_iterations = 300;
+  int FLAGS_arpack_iterations = 3000;
   double FLAGS_arpack_tolerance = 0.0;
   string FLAGS_input = "";
   string FLAGS_eigenvalues_output = "";
