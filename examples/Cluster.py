@@ -93,6 +93,21 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 		print "Writing to %s..."%(outfile)
 		DG.draw(outfile)
 	return DG
+	
+def getDIMACSVertexWeights(G):
+	# weight of a vertex is the sum of all incoming edge weights. Self loops count double.
+
+	n = G.nvert()
+	selfLoops = kdt.Mat.eye(n, element=0.0)
+	selfLoops.eWiseApply(G.e, op=(lambda s,g: g), inPlace=True)
+	
+	# add together all incoming edges (including one count of the self loops)
+	v = G.e.reduce(kdt.DiGraph.In, kdt.op_add)
+
+	# add the self loops again
+	v += selfLoops.reduce(kdt.DiGraph.In, kdt.op_add)
+	
+	return v
 
 def calcModularity(G, group):
 	# using modularity definition from page 4 of dimacs10-rules.pdf
@@ -130,7 +145,7 @@ def getNumClusters(group):
 
 # load
 G = kdt.DiGraph.load(inmatrixfile)
-G.v = kdt.Vec.ones(G.nvert())
+G.v = getDIMACSVertexWeights(G)
 #print "loaded:",G
 
 # time the clustering
