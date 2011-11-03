@@ -385,12 +385,6 @@ char* pySpParVec::__repr__()
 	return empty;
 }
 
-template <typename T1, typename T2>
-bool retTrue(const T1& x, const T2& y)
-{
-	return true;
-}
-
 /* Compiler doesn't see this for some reason that I can't figure out.
 template <class ATYPE, class BTYPE, class VECA, class VECB>
 VECA EWiseApply_worker(const VECA& a, const VECB& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, VECA& ANull)

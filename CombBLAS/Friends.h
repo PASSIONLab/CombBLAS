@@ -926,5 +926,86 @@ SpDCCols<IU, N_promote> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<I
 	}
 }
 
+template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+{
+	IU estnzc, estnz;
+
+	estnzc = std::min(A.nzc, B->nzc);
+	estnz  = std::min(A.nz, B->nz);
+	
+	if (allowANulls || allowBNulls)
+	{
+		cout << "CombBLAS EWiseApply(Mat, Mat) does not yet support allowANulls/allowBNulls. Pretending they are false.." << endl;
+	}
+
+	Dcsc<IU,RETT> temp(estnz, estnzc);
+
+	IU curnzc = 0;
+	IU curnz = 0;
+	IU i = 0;
+	IU j = 0;
+	temp.cp[0] = 0;
+	
+	while(i< A.nzc && B != NULL && j<B->nzc)
+	{
+		if(A.jc[i] > B->jc[j]) 		++j;
+		else if(A.jc[i] < B->jc[j]) 	++i;
+		else
+		{
+			IU ii = A.cp[i];
+			IU jj = B->cp[j];
+			IU prevnz = curnz;		
+			while (ii < A.cp[i+1] && jj < B->cp[j+1])
+			{
+				if (A.ir[ii] < B->ir[jj])	++ii;
+				else if (A.ir[ii] > B->ir[jj])	++jj;
+				else
+				{
+					if (do_op(A.numx[ii], B->numx[jj]))
+					{
+						temp.ir[curnz] = A.ir[ii];
+						temp.numx[curnz++] = __binary_op(A.numx[ii], B->numx[jj]);
+					}
+					ii++;
+					jj++;
+				}
+			}
+			if(prevnz < curnz)	// at least one nonzero exists in this column
+			{
+				temp.jc[curnzc++] = A.jc[i];	
+				temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
+			}
+			++i;
+			++j;
+		}
+	}
+	/*
+	// change estnz above to account for extra possible values
+	while(i< A.nzc)
+	{
+		temp.jc[curnzc++] = A.jc[i++];
+		for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
+		{
+			temp.ir[curnz] 	= A.ir[k];
+			temp.numx[curnz++] = __binary_op(A.numx[k], defaultBVal);
+		}
+		temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+	}*/
+
+	temp.Resize(curnzc, curnz);
+	return temp;
+}
+
+template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate> 
+SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+{
+	assert(A.m == B.m);
+	assert(A.n == B.n);
+
+	Dcsc<IU, RETT> * tdcsc = new Dcsc<IU, RETT>(EWiseApply<RETT>(*(A.dcsc), B.dcsc, __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal));
+	return 	SpDCCols<IU, RETT> (A.m , A.n, tdcsc);
+}
+
 
 #endif

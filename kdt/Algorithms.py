@@ -368,9 +368,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	# Normalize edge weights such that for each vertex,
 	# each outgoing edge weight is equal to 1/(number of
 	# outgoing edges).
-	## this should be left in!
 	G.normalizeEdgeWeights(DiGraph.Out)
-	##print G
 
 	# PageRank loop.
 	delta = 1
@@ -390,7 +388,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 		v1 = v2 + (onesVec*sinkContrib)
 		v1 = v1*dampingFactor + dampingVec
 		delta = (v1 - prevV).reduce(op_add, op_abs)
-	return v1
+	return v1.dense()
 DiGraph.pageRank = pageRank
 	
 # NEEDED: update to transposed edge matrix
@@ -640,6 +638,9 @@ def cluster(self, alg, **kwargs):
 		clus = G.connComp()
 		return clus, G
 
+	elif alg=='agglomerative':
+		return _cluster_agglomerative(self, **kwargs)
+
 	elif alg=='kNN' or alg=='knn':
 		raise NotImplementedError, "k-nearest neighbors clustering not implemented"
 
@@ -665,7 +666,7 @@ def connComp(self):
 	G_T = G.copy()
 	G_T.transpose()
 	G += G_T
-	G += Mat.eye(n, 1.0)
+	G += Mat.eye(n, n, element=1.0)
 	G.apply(op_set(1))
 	
 	# the semiring we want to use
@@ -772,3 +773,84 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 
 	return A
 DiGraph._MCL = _MCL
+
+def _cluster_agglomerative(self, roots):
+	"""
+	build len(roots) clusters. Each vertex in the graph is added
+	to the cluster closest to it. "closest" means shortest path.
+	"""
+	A = self.e.copy()
+	
+	# we need 0-weight self loops
+	A.removeMainDiagonal()
+	A += Mat.eye(self.nvert(), element=0.0)
+	
+	k = len(roots)
+	n = self.nvert()
+
+	#print "G:",A
+	
+	expandAdd = lambda x,y: min(x,y)
+	expandMul = lambda x,y: x+y
+	expandSR = sr(expandAdd, expandMul)
+	
+	# clusters start with just the roots
+	nullRoots = Mat(roots, Vec.range(k), A._identity_, k, self.nvert())
+	frontier = nullRoots
+	clusters = Vec.range(self.nvert())
+	#print "initial frontier:",frontier
+	
+	# expand each cluster using BFS. A discovered vertex v is part of
+	# a root r's cluster if the length of a path from r to v is less than
+	# a path from any other root to v.
+	delta = 1
+	itercount = 0
+	while delta > 0: #and itercount < 30:
+		# save the current frontier for comparison
+		lastFrontier = frontier
+		
+		# expand out from the current clusters
+		frontier = A.SpGEMM(frontier, semiring=expandSR)
+		#print "new frontier:",frontier
+		
+		# if a vertex was discovered from two different clusters,
+		# keep only the one with the shorter path
+		mins = frontier.reduce(Mat.Row, (lambda x,y: min(x,y)), init=1000000)
+		#print "mins:",mins
+		boolFrontier = frontier.copy()
+		boolFrontier.scale(mins, op=(lambda x,y: x == y), dir=Mat.Row)
+		#print "bool frontier:",boolFrontier
+		boolFrontier._prune(lambda x: round(x) != 1)
+		#print "pruned bool frontier:",boolFrontier
+		frontier = frontier.eWiseApply(boolFrontier, (lambda f,bf: f))
+		#print "pruned frontier:",frontier
+		
+		# prune the frontier of vertices that have not changed
+		# required EWise allowANulls not implemented in CombBLAS yet.
+		#print "last frontier:",lastFrontier
+		#frontier = lastFrontier.eWiseApply(frontier, (lambda l,f: f), doOp=(lambda l,f: l != f), allowANulls=True)
+		#print "newly discovered frontier:",frontier
+		
+		# update the clusters
+		# collapse the cluster mat into a vector
+		updateFrontier = frontier.copy()
+		updateFrontier.scale(roots, op=(lambda f,r: r), dir=Mat.Column)
+		#print "updateFrontier:",updateFrontier
+		update = updateFrontier.reduce(Mat.Row, (lambda v,s: min(v,s)), init=1.8e302)
+		#print "update:  ",update
+		delta = clusters.eWiseApply(update, (lambda c,u: int(c) != int(u) and u != 1.8e302), inPlace=False).reduce(op_add)
+		clusters.eWiseApply(update, (lambda c,u: u), doOp=(lambda c,u: int(c) != int(u) and u != 1.8e302), inPlace=True)
+		
+		#delta = frontier.getnnn()
+		#print "delta=",delta
+		#print "clusters:",clusters
+		itercount += 1
+		#print "finished iteration",itercount,"-----------------------------------------------------------------"
+		#return clusters
+		
+	return clusters
+DiGraph._cluster_agglomerative = _cluster_agglomerative
+
+def _findClusterModularity(self, C):
+	return 3
+DiGraph._findClusterModularity = _findClusterModularity

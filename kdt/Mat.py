@@ -303,7 +303,7 @@ class Mat:
 		
 	# NEEDED: tests
 	#ToDo:  put in method to modify _REPR_MAX
-	_REPR_MAX = 100
+	_REPR_MAX = 200
 	def __repr__(self):
 		if self.getnnn() == 0:
 			return 'Empty Mat object'
@@ -316,8 +316,35 @@ class Mat:
 		else:
 			[i, j, v] = self.toVec()
 			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
-			if len(i) < self._REPR_MAX:
-				return ret + repr(i) + repr(j) + repr(v)
+			if self.getncol() < 20:
+				# pretty print a nice matrix
+				
+				# make empty 2D array, I'm sure there's a more proper way to initialize it
+				mat = []
+				for rowc in range(self.getnrow()):
+					r = []
+					for colc in range(self.getncol()):
+						r.append(" - ")
+					mat.append(r)
+				
+				# manually fill the array with matrix values
+				for count in range(len(i)):
+					mat[int(i[count])][int(j[count])] = str(v[count])
+				
+				# print row by row
+				for rowc in range(self.getnrow()):
+					for colc in range(self.getncol()):
+						ret += mat[rowc][colc] + " "
+					ret += "\n"
+				
+				return ret
+			elif len(i) < self._REPR_MAX:
+				print ret
+				print "i (row index): ", repr(i)
+				print "j (col index): ", repr(j)
+				print "v (value)    : ", repr(v)
+				#return ret + repr(i) + repr(j) + repr(v)
+				return ""
 			else:
 				return ret + "Too many elements to print."
 		return ' '
@@ -395,20 +422,24 @@ class Mat:
 		return matrix, degrees, kernel1Time
 
 	@staticmethod
-	def eye(n, element=1.0):
+	def eye(n, m=None, element=1.0):
 		"""
 		creates an identity matrix. The resulting matrix is n-by-n
 		with `element` on the main diagonal.
 		In other words, ret[i,i] = element for 0 < i < n.
 
 		Input Arguments:
-			n:  an integer scalar denoting the dimensions of the matrix
+			n:  number of columns of the matrix
+			m:  number of rows of the matrix
 			element: the value to put on the main diagonal elements.
 
 		Output Argument:
 			ret:  an identity matrix. 
 		"""
-		return Mat(Vec.range(n),Vec.range(n),Vec(n, element, sparse=False),n)
+		if m is None:
+			m = n
+		nnz = min(n, m)
+		return Mat(Vec.range(nnz),Vec.range(nnz),Vec(nnz, element, sparse=False),n, m)
 
 	@staticmethod
 	def full(n,m=None, element=1.0):
@@ -506,7 +537,7 @@ class Mat:
 			return
 
 	# NEEDED: tests
-	def eWiseApply(self, other, op, allowANulls, allowBNulls, inPlace=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False):
 		"""
 		ToDo:  write doc
 		"""
@@ -542,7 +573,17 @@ class Mat:
 			superOp = tmpB().fn
 		else:
 			superOp = op
+		
+		if doOp is not None:
+			# new version
+			if inPlace:
+				self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
+			else:
+				m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
+				ret = Mat._toMat(m)
+				return ret
 
+		# old version, will be removed
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
 		else:

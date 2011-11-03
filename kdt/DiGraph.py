@@ -64,7 +64,7 @@ class DiGraph(gr.Graph):
 		if vertices is not None:
 			self.v = vertices
 		else:
-			self.v = Vec(length=self.nvert(), element=0.0)
+			self.v = Vec(length=self.nvert(), element=0.0, sparse=False)
 
 #	# This has to add both edges and vectors
 #	def __add__(self, other):
@@ -72,7 +72,9 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: tests
 	def __repr__(self):
-		return self.e.__repr__()
+		ret = "edge Mat: " + self.e.__repr__() + "\nvertex Vec: " #+ self.v.__repr__()
+		print ret, self.v.__repr__()
+		return ""
 	
 
 	#in-place, so no return value
@@ -277,8 +279,6 @@ class DiGraph(gr.Graph):
 		
 		n = len(clusterParents)
 
-		print "clusterParents: ", clusterParents
-		
 		# Count the number of elements in each parent's component to identify the parents
 		countM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)  # AL: swapped
 		counts = countM.reduce(Mat.Column, op_add)
@@ -301,8 +301,6 @@ class DiGraph(gr.Graph):
 		# Broadcast group number to all vertices in cluster
 		broadcastM = Mat(Vec.range(n), clusterParents, Vec.ones(n), n)  # AL: swapped
 		ret = broadcastM.SpMV(groupNum.sparse(), sr_plustimes).dense() # SpMV with dense vector is broken at the moment
-		
-		print "ret: ", ret
 		
 		if retInvPerm:
 			return ret, perm 
@@ -440,7 +438,7 @@ class DiGraph(gr.Graph):
 
 		"""
 		if self.nvert() > 0:
-			self.e += Mat.eye(self.nvert(), element=selfLoopAttr)
+			self.e += Mat.eye(self.nvert(), self.nvert(), element=selfLoopAttr)
 		return
 
 	@staticmethod
@@ -477,7 +475,7 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with directed edges from each
 			    vertex to itself. 
 		"""
-		return DiGraph(edges=Mat.eye(n, element=selfLoopAttr))
+		return DiGraph(edges=Mat.eye(n, n, element=selfLoopAttr))
 		
 	@staticmethod
 	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False, element=True):

@@ -293,11 +293,8 @@ char* pySpParVecObj1::__repr__()
 	return empty;
 }
 
-template <typename T1, typename T2>
-bool retTrue(const T1& x, const T2& y)
-{
-	return true;
-}
+
+////
 
 pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj1 *BNull)
 {
