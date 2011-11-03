@@ -75,7 +75,9 @@ MPI_Op BinaryFunctionObj::staticMPIop;
 	
 void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
-	if (*datatype == MPIType< Obj1 >())
+	if (*datatype == MPIType< doubleint >())
+		applyWorker(static_cast<doubleint*>(invec), static_cast<doubleint*>(inoutvec), len);
+	else if (*datatype == MPIType< Obj1 >())
 		applyWorker(static_cast<Obj1*>(invec), static_cast<Obj1*>(inoutvec), len);
 	else if (*datatype == MPIType< Obj2 >())
 		applyWorker(static_cast<Obj2*>(invec), static_cast<Obj2*>(inoutvec), len);
