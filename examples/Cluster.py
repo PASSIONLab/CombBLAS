@@ -150,24 +150,13 @@ elif algorithm == "agglomerative":
 	if kdt.master():
 		print "running PageRank..."
 	pg = G.pageRank()
-	if pg.count(lambda x: math.isnan(x)) > 0:
-		# pagerank didn't converge (BUG in PageRank!)
-		# select roots randomly
-		if kdt.master():
-			print "PageRank failed. selecting roots randomly..."
-		r = kdt.Vec.range(G.nvert())
-		r.randPerm()
-		roots = kdt.Vec(k, sparse=False)
-		for i in range(k):
-			roots[i] = r[i]
-	else:
-		if kdt.master():
-			print "picking",k,"with largest PageRank scores as roots..."
-		pg.apply(kdt.op_negate)
-		perm = pg.sort()
-		roots = kdt.Vec(k, sparse=False)
-		for i in range(k):
-			roots[i] = perm.findInds(lambda x: round(x) == i)[0]
+	if kdt.master():
+		print "picking",k,"vertices with largest PageRank scores as roots..."
+	pg.apply(kdt.op_negate)
+	perm = pg.sort()
+	roots = kdt.Vec(k, sparse=False)
+	for i in range(k):
+		roots[i] = perm.findInds(lambda x: round(x) == i)[0]
 
 	if kdt.master():
 		print "agglomerating..."
