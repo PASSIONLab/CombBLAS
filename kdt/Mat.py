@@ -321,20 +321,24 @@ class Mat:
 				
 				# make empty 2D array, I'm sure there's a more proper way to initialize it
 				mat = []
+				widths = []
 				for rowc in range(self.getnrow()):
 					r = []
 					for colc in range(self.getncol()):
-						r.append(" - ")
+						r.append("-")
+						if rowc == 0:
+							widths.append(1)
 					mat.append(r)
 				
 				# manually fill the array with matrix values
 				for count in range(len(i)):
 					mat[int(i[count])][int(j[count])] = str(v[count])
+					widths[int(j[count])] = max(widths[int(j[count])], len(mat[int(i[count])][int(j[count])]))
 				
 				# print row by row
 				for rowc in range(self.getnrow()):
 					for colc in range(self.getncol()):
-						ret += mat[rowc][colc] + " "
+						ret += (mat[rowc][colc]).center(widths[colc]) + "  "
 					ret += "\n"
 				
 				return ret
