@@ -582,6 +582,7 @@ class Mat:
 			# new version
 			if inPlace:
 				self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
+				return
 			else:
 				m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
 				ret = Mat._toMat(m)
