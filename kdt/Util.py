@@ -39,6 +39,12 @@ def master():
 	"""
 	return pcb.root()
 
+def _nproc():
+	"""
+	Return the number of processors available.
+	"""
+	return pcb._nprocs()
+
 def version():
 	"""
 	Return KDT version number, as a string.

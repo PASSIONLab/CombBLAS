@@ -253,6 +253,9 @@ class Vec(object):
 
 		SEE ALSO:  findInds
 		"""
+		if self.isSparse():
+			raise NotImplementedError, "find not implemented on sparse vectors yet."
+
 		if self._hasFilter():
 			raise NotImplementedError, "this operation does not implement filters yet."
 
@@ -282,6 +285,9 @@ class Vec(object):
 
 		SEE ALSO:  find
 		"""
+		if self.isSparse():
+			raise NotImplementedError, "findInds not implemented on sparse vectors yet."
+
 		if self._hasFilter():
 			raise NotImplementedError, "this operation does not implement filters yet."
 
@@ -831,7 +837,7 @@ class Vec(object):
 			return ret
 		
 		if len(self) != len(other):
-			raise IndexError, 'vectors must be of the same length.'
+			raise IndexError, "vectors must be of the same length. len(self)==%d != len(other)==%d"%(len(self), len(other))
 		
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
@@ -1010,13 +1016,13 @@ class Vec(object):
 		return self._ewise_bin_op_worker(other, (lambda x, other: x > other), predicate=True)
 
 	# NEEDED: update docstring
-	def __iadd__(self, other):
-		"""
-		adds the corresponding elements of two SpParVec instances into the
-		result SpParVec instance, with a nonnull element where either of
-		the two input vectors was nonnull.
-		"""
-		return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
+	#def __iadd__(self, other):
+	#	"""
+	#	adds the corresponding elements of two SpParVec instances into the
+	#	result SpParVec instance, with a nonnull element where either of
+	#	the two input vectors was nonnull.
+	#	"""
+	#	return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
 		
 	def __invert__(self):
 		"""
@@ -1031,14 +1037,14 @@ class Vec(object):
 		return ret
 
 	# NEEDED: update docstring
-	def __isub__(self, other):
-		"""
-		subtracts the corresponding elements of the second argument (a
-		scalar or a SpParVec instance) from the first argument (a SpParVec
-		instance), with a nonnull element where either of the two input 
-		arguments was nonnull.
-		"""
-		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
+	#def __isub__(self, other):
+	#	"""
+	#	subtracts the corresponding elements of the second argument (a
+	#	scalar or a SpParVec instance) from the first argument (a SpParVec
+	#	instance), with a nonnull element where either of the two input 
+	#	arguments was nonnull.
+	#	"""
+	#	return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
 		
 	# NEEDED: update docstring
 	def __le__(self, other):

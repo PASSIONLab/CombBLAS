@@ -147,6 +147,8 @@ pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj1& B, op::BinaryFu
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
 
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull);
+
 
 class pySpParMatBool {
 public:

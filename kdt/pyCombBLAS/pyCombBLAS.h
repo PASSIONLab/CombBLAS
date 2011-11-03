@@ -9,6 +9,12 @@
 #include <Python.h>
 #include "../../CombBLAS/CombBLAS.h"
 
+template <typename T1, typename T2>
+bool retTrue(const T1& x, const T2& y)
+{
+	return true;
+}
+
 namespace op{
 class UnaryFunction;
 class UnaryFunctionObj;

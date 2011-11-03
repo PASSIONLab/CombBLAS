@@ -1045,6 +1045,23 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 	}
 }
 
+template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate> 
+SpParMat<IU,RETT,RETDER> EWiseApply
+	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+{
+	if(*(A.commGrid) == *(B.commGrid))	
+	{
+		RETDER * result = new RETDER( EWiseApply<RETT>(*(A.spSeq),*(B.spSeq), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal) );
+		return SpParMat<IU, RETT, RETDER> (result, A.commGrid);
+	}
+	else
+	{
+		cout << "Grids are not comparable elementwise apply" << endl; 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		return SpParMat< IU,RETT,RETDER >();
+	}
+}
+
 
 /**
  * if exclude is true, then we prune all entries W[i] != zero from V 

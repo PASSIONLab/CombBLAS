@@ -341,6 +341,19 @@ pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFu
 	return pySpParMat(ret);
 }
 
+
+// New format:
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull)
+{
+	if (doOp != NULL)
+	{
+		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, *doOp, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull)));
+	}
+	else
+		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, retTrue<doubleint, doubleint>, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull)));
+}
+
+
 void pySpParMat::Prune(op::UnaryFunction* op)
 {
 	A.Prune(*op);

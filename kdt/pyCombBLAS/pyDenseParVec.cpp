@@ -273,11 +273,8 @@ void pyDenseParVec::ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask
 	v.Apply(*op, mask.v);
 }
 
-template <typename T1, typename T2>
-bool retTrue(const T1& x, const T2& y)
-{
-	return true;
-}
+
+//////
 
 void pyDenseParVec::EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f)
 {
