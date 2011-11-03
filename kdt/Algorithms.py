@@ -309,7 +309,7 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	if self.isObj():
 		raise NotImplementedError, "Cannot normalize object weights yet."
 
-	degscale = self.degree(dir)
+	degscale = self.e.reduce(dir, (lambda x,y: x+y), init=0)
 	degscale.apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))			
 	self.e.scale(degscale, op=op_mul, dir=dir)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
@@ -317,7 +317,7 @@ DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 # NEEDED: make sure normalization is done correctly
 # NEEDED: update to new fields
 # NEEDED: tests
-def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
+def pageRank(self, epsilon = 0.1, dampingFactor = 0.85, iterations=1000000):
 	"""
 	Compute the PageRank of vertices in the graph.
 
@@ -359,7 +359,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 
 	# Remove self loops.
 	G.removeSelfLoops()
-
+	
 	# Handle sink nodes (nodes with no outgoing edges) by
 	# connecting them to all other nodes.
 	sinkV = G.degree(DiGraph.Out)
@@ -377,7 +377,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 	prevV = Vec(nvert, sparse=True)
 	onesVec = Vec.ones(nvert, sparse=True)
 	dampingVec = onesVec * ((1 - dampingFactor)/nvert)
-	while delta > epsilon:
+	while delta > epsilon and iterations > 0:
 		prevV = v1.copy()
 		v2 = G.e.SpMV(v1, semiring=sr_plustimes)
 
@@ -388,6 +388,7 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85):
 		v1 = v2 + (onesVec*sinkContrib)
 		v1 = v1*dampingFactor + dampingVec
 		delta = (v1 - prevV).reduce(op_add, op_abs)
+		iterations -= 1
 	return v1.dense()
 DiGraph.pageRank = pageRank
 	
@@ -781,6 +782,10 @@ def _cluster_agglomerative(self, roots):
 	"""
 	A = self.e.copy()
 	
+	t = A.copy()
+	t.transpose()
+	A += t
+
 	# we need 0-weight self loops
 	A.removeMainDiagonal()
 	A += Mat.eye(self.nvert(), element=0.0)
