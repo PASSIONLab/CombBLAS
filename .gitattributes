@@ -252,6 +252,7 @@ CombBLAS/Applications/makefile-triton -text
 CombBLAS/Applications/matrixA.txt -text
 CombBLAS/Applications/matrixB.txt -text
 CombBLAS/Applications/prof_p25_64iters_scale21 -text
+CombBLAS/Applications/rmat4/input.txt -text
 CombBLAS/Applications/script1024 -text
 CombBLAS/Applications/script256 -text
 CombBLAS/Applications/script4096 -text
