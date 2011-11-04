@@ -3,14 +3,11 @@ from Vec import Vec
 from Mat import Mat
 from Util import *
 
-import scipy
+#import scipy
 import random
 import math
 from Mat import Mat
 from Vec import Vec
-
-#TODO this import should not be necessary
-import kdt.pyCombBLAS as pcb
 
 def add(x,y):
 	#print "Add",x,y
