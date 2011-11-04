@@ -7,10 +7,10 @@ INCADD = -I$(INCDIR)
 # -fno-rtti does not work with tr1:tuples
 
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type #-DDEBUG
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx
-FLAGS = $(OPT) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
+FLAGS = $(DEB) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
 COMBBLAS = ..
 
 
