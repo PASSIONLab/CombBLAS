@@ -25,29 +25,42 @@ def _kmeans(self):
 	# Start by creating an n*k eigen-vector matrix E.		
 	
 	# The dimension of the matrix = the number of vertices	
-	n = 21
+	n = 100
 	# The number of eigen vectors
-	k = 21
+	k = 10
 	# Total non-zero values
-	nvert = 60
-	src1 = Vec(nvert,sparse=False) 	
-	dest1 = Vec(nvert,sparse=False) 	
-	values1 = Vec(nvert,sparse=False) 	
+	nvert = n
 
-	src1.apply(lambda x: random.randint(0,4))
-	dest1.apply(lambda x: random.randint(0,4))
+	src1 = Vec.range(n)
+	dest1 = Vec.range(n)
+	values1 = Vec(nvert,sparse=False) 	
+	
+	src1.randPerm()
+	dest1.randPerm()
 	values1.apply(lambda x: random.randint(1,5))
+	
+	#print src1,dest1,values1
 		
-	E = Mat(dest1,src1,values1,k,n)
+	E = Mat(dest1,src1,values1,n)
+
+	for i in range(1,10):
+
+		src1.randPerm()
+		dest1.randPerm()
+		values1.apply(lambda x: random.randint(1,5))
+		
+		E1 = Mat(dest1,src1,values1,n)
+		E = E.__add__(E1)
+	
 	#E.transpose()
 	
 	# Obtain the C matrix as a submatrix of E. Transpose operation for making 
 	# distance calculation easier.
 	vec1 = Vec.range(0,k)
-	vec2 = Vec.range(0,k)
+	vec2 = Vec.range(0,n)
 	
 	C = E.copy()
-	#C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
+	C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
 	#print Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
 	C.transpose()
 	
@@ -55,16 +68,17 @@ def _kmeans(self):
 	# successive iterations.	
 	zeros = Vec.zeros(k)
 	Cold = Mat(vec1,vec1,zeros,k,k)	
-	
+	'''	
 	print "Destination vector:", dest1
 	print "Source vector:", src1
 	print "Value vector", values1
 	print "E:",E
 	print "C:",C	
 	
-	
+	print "Cold:",Cold
+	'''	
 	# Clustering algorithm begins here. i represent the number of iterations executed.
-	for i in range(1):
+	for i in range(10):
 		
 		
 		# Creating the semiring for matrix multiplication to calculate the distance.
@@ -74,36 +88,44 @@ def _kmeans(self):
 
 		# Obtain the distance matrix.	
 		D          = E.SpGEMM(C,semiring=sR)
-		#print "D",D
+		#print "D:",D
 		
 		# Obtain the minimum for every row.
-		minvec     = D.reduce(Mat.Column,lambda x,y: max(x,y))		
-		
+		minvec     = D.reduce(Mat.Row,min,init=1e308)		
+	
+		#print "minvec:", minvec
 		# Calculate a boolean matrix, where a(i,j) = 1 if the shortest centroid to ith
 		# row is the jth centroid.
 
 		B = D.copy()
-		B.scale(minvec,lambda x,y : int(x==y),dir = Mat.Column)		
+		B.scale(minvec,lambda x,y : int(x==y),dir = Mat.Row)		
+		
+		#print "B:",B
 		
 		# Total number of vectors in each cluster. This is useful for calculating the new
 		# centroid matrix.
 		total = B.reduce(Mat.Column,lambda x,y: x + y)
 		
+		#print "total:", total
 		# Do ET * B and scale it using the total array to get the new C.
 		E.transpose()
-		C = E.SpGEMM(B,semiring=sR)
+		C = E.SpGEMM(B,semiring=sr_plustimes)
+		#print "Cnew:", C
 		E.transpose()
 		#print 'C',C
-		C.scale(total,lambda x,y: y != 0 and x/y or 0,dir = Mat.Row)
+		C.scale(total,lambda x,y: y != 0 and x/y or 0,dir = Mat.Column)
+		#print "Cnew:", C
 		
-		Dist = Cold.SpGEMM(C,semiring=sR)
-		Cold = C.copy()
-		Cold.transpose()
+		#Dist = Cold.SpGEMM(C,semiring=sR)
+		#Cold = C.copy()
+		#Cold.transpose()
 		
 		#print 'Cold',Cold
 		#print 'B'
 		#print B
 		#print Dist
+		
+	print B
 
 	return None
 
