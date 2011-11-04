@@ -3,18 +3,129 @@ from Vec import Vec
 from Mat import Mat
 from Util import *
 
+import scipy
+import random
+import math
+from Mat import Mat
+from Vec import Vec
+
 #TODO this import should not be necessary
 import kdt.pyCombBLAS as pcb
 
-def _kmeans():
+def add(x,y):
+	#print "Add",x,y
+	return x+y
+
+def mul(x,y):
+	#print "Mul",x,y
+	return (x-y)*(x-y)
+
+def _kmeans(self):
+	
+	# Start by creating an n*k eigen-vector matrix E.		
+	
+	# The dimension of the matrix = the number of vertices	
+	n = 21
+	# The number of eigen vectors
+	k = 21
+	# Total non-zero values
+	nvert = 60
+	src1 = Vec(nvert,sparse=False) 	
+	dest1 = Vec(nvert,sparse=False) 	
+	values1 = Vec(nvert,sparse=False) 	
+
+	src1.apply(lambda x: random.randint(0,4))
+	dest1.apply(lambda x: random.randint(0,4))
+	values1.apply(lambda x: random.randint(1,5))
+		
+	E = Mat(dest1,src1,values1,k,n)
+	#E.transpose()
+	
+	# Obtain the C matrix as a submatrix of E. Transpose operation for making 
+	# distance calculation easier.
+	vec1 = Vec.range(0,k)
+	vec2 = Vec.range(0,k)
+	
+	C = E.copy()
+	#C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
+	#print Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
+	C.transpose()
+	
+	# This is the distance matrix to obtain the shift between centroids in two 
+	# successive iterations.	
+	zeros = Vec.zeros(k)
+	Cold = Mat(vec1,vec1,zeros,k,k)	
+	
+	print "Destination vector:", dest1
+	print "Source vector:", src1
+	print "Value vector", values1
+	print "E:",E
+	print "C:",C	
+	
+	
+	# Clustering algorithm begins here. i represent the number of iterations executed.
+	for i in range(1):
+		
+		
+		# Creating the semiring for matrix multiplication to calculate the distance.
+		addFn = lambda x,y: ((x)+(y))
+		mulFn = lambda x,y: (x-y)*(x-y)
+		sR    	   = sr(add,mul)			
+
+		# Obtain the distance matrix.	
+		D          = E.SpGEMM(C,semiring=sR)
+		#print "D",D
+		
+		# Obtain the minimum for every row.
+		minvec     = D.reduce(Mat.Column,lambda x,y: max(x,y))		
+		
+		# Calculate a boolean matrix, where a(i,j) = 1 if the shortest centroid to ith
+		# row is the jth centroid.
+
+		B = D.copy()
+		B.scale(minvec,lambda x,y : int(x==y),dir = Mat.Column)		
+		
+		# Total number of vectors in each cluster. This is useful for calculating the new
+		# centroid matrix.
+		total = B.reduce(Mat.Column,lambda x,y: x + y)
+		
+		# Do ET * B and scale it using the total array to get the new C.
+		E.transpose()
+		C = E.SpGEMM(B,semiring=sR)
+		E.transpose()
+		#print 'C',C
+		C.scale(total,lambda x,y: y != 0 and x/y or 0,dir = Mat.Row)
+		
+		Dist = Cold.SpGEMM(C,semiring=sR)
+		Cold = C.copy()
+		Cold.transpose()
+		
+		#print 'Cold',Cold
+		#print 'B'
+		#print B
+		#print Dist
+
 	return None
 
 def _cluster_spectral(self):
 	"""
 	Performs Spectral Clustering.
 	"""
+
 	# self is a DiGraph
+	#This code was directly copied from bfs -- Don't know what this exactly means.
+	
+	if not self.isObj() and self._hasFilter(self):
+		raise NotImplementedError, 'DiGraph(element=default) with filters not supported'
+	if self.isObj():
+		#tmpG = self.copy()._toDiGraph()
+		matrix = self.copy(element=0).e
+	else:
+		matrix = self.e
+
+	self._kmeans(matrix)
 	
 	return None
 
 DiGraph._cluster_spectral = _cluster_spectral
+DiGraph._kmeans = _kmeans
