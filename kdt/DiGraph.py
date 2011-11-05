@@ -152,7 +152,6 @@ class DiGraph(gr.Graph):
 		ret = self._toDiGraph(m)
 		return ret
 
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	@staticmethod
 	def _hasFilter(self):
@@ -162,15 +161,8 @@ class DiGraph(gr.Graph):
 			ret = False
 		return ret
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
 	def isObj(self):
 		return isinstance(self.e, (pcb.pySpParMatObj1, pcb.pySpParMatObj2))
-		#try:
-		#	ret = hasattr(self,'_elementIsObject') and self._elementIsObject
-		#except AttributeError:
-		#	ret = False
-		#return ret
 	
 	def isBool(self):
 		return isinstance(self._identity_, bool)
@@ -218,7 +210,7 @@ class DiGraph(gr.Graph):
 			self:  a DiGraph instance.
 			
 			Specify exactly one of the following:
-			groups:  a ParVec denoting into which group (result
+			groups:  a Vec denoting into which group (result
 				vertex) each input vertex should be placed
 			clusterParents: a ParVec denoting which vertex an input vertex
 			    should be collapsed into.
@@ -250,7 +242,7 @@ class DiGraph(gr.Graph):
 		nvRes = int(groups.max()+1)
 		origVtx = Vec.range(n)
 		# lhrMat == left-/right-hand-side matrix
-		lrhMat = Mat(groups, origVtx, Vec.ones(n), n, nvRes) # AL:  swapped
+		lrhMat = Mat(groups, origVtx, Vec.ones(n), n, nvRes)
 		tmpMat = lrhMat.SpGEMM(self.e, semiring=sr_plustimes)
 		lrhMat.transpose()
 		res = tmpMat.SpGEMM(lrhMat, semiring=sr_plustimes)
@@ -411,7 +403,6 @@ class DiGraph(gr.Graph):
 			self._eFilter_.remove(filter)
 		return
 
-	# NEEDED: tests
 	# in-place, so no return value
 	def removeSelfLoops(self):
 		"""
@@ -426,10 +417,9 @@ class DiGraph(gr.Graph):
 			self.e.removeMainDiagonal()
 		return
 
-	# NEEDED: fix doc
 	def addSelfLoops(self, selfLoopAttr=1):
 		"""
-		removes all edges whose source and destination are the same
+		adds edges whose source and destination are the same
 		vertex, in-place in a DiGraph instance.
 
 		Input Argument:
@@ -508,17 +498,12 @@ class DiGraph(gr.Graph):
 			    of Kernel 1.
 			    Degrees of all vertices.
 		"""
-		if isinstance(scale, DiGraph):
-			raise KeyError, "generateRMAT is a static method! call it like this: kdt.DiGraph.generateRMAT(10)"
-			
 		if not isinstance(scale, (int, float, long)):
 			raise KeyError, "scale must be an integer!"
 			
 		edges, degrees, k1time = Mat.generateRMAT(int(scale), edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, element=element)
 		
-		ret = DiGraph()
-		ret.e = edges
-		ret.v = degrees
+		ret = DiGraph(edges=edges, vertices=degrees)
 				
 		if retKernel1Time:
 			return (ret, k1time)
@@ -667,7 +652,6 @@ class DiGraph(gr.Graph):
 		"""
 		self.e.ones()
 
-	# NEEDED: tests
 	#in-place, so no return value
 	def reverseEdges(self):
 		"""
@@ -682,7 +666,7 @@ class DiGraph(gr.Graph):
 	# NEEDED: update to new fields
 	# NEEDED: tests
 	#in-place, so no return value
-	def set(self, value):
+	def _set(self, value):
 		"""
 		sets every edge in the graph to the given value.
 
@@ -739,7 +723,6 @@ class DiGraph(gr.Graph):
 		return DiGraph(edges=retE, vertices=self.v.copy())
 
 	# NEEDED: modify to make sense in graph context, not just matrix context
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	def _sum(self, dir=Out):
 		"""
@@ -759,7 +742,7 @@ class DiGraph(gr.Graph):
 		"""
 		if dir != DiGraph.In and dir != DiGraph.Out:
 			raise KeyError, 'Invalid edge-direction'
-		ret = self.reduce(dir, pcb.plus())
+		ret = self.e.reduce(dir, op_add)
 		return ret
 
 	# NEEDED: tests
@@ -789,9 +772,8 @@ class DiGraph(gr.Graph):
 
 		self.e.toScalar()
 
-	# NEEDED: tests
 	@staticmethod
-	def twoDTorus(n):
+	def twoDTorus(nnodes):
 		"""
 		constructs a DiGraph instance with the connectivity pattern of a 2D
 		torus;  i.e., each vertex has edges to its north, west, south, and
@@ -807,24 +789,23 @@ class DiGraph(gr.Graph):
 			ret:  a DiGraph instance with nnodes**2 vertices and edges
 			    in the pattern of a 2D torus. 
 		"""
+		n = nnodes
 		N = n*n
-		nvec =   ((Vec.range(N*4)%N) / n).floor()	 # [0,0,0,...., n-1,n-1,n-1]
-		nvecil = ((Vec.range(N*4)%N) % n).floor()	 # [0,1,...,n-1,0,1,...,n-2,n-1]
-		north = gr.Graph._sub2ind((n,n),(nvecil-1) % n,nvec)	
-		south = gr.Graph._sub2ind((n,n),(nvecil+1) % n,nvec)
-		west = gr.Graph._sub2ind((n,n),nvecil, (nvec-1) % n)
-		east = gr.Graph._sub2ind((n,n),nvecil, (nvec+1) % n)
-		Ndx = Vec.range(N*4)
-		northNdx = Ndx < N
-		southNdx = (Ndx >= N) & (Ndx < 2*N)
-		westNdx = (Ndx >= 2*N) & (Ndx < 3*N)
-		eastNdx = Ndx >= 3*N
-		col = Vec.zeros(N*4)
-		col[northNdx] = north
-		col[southNdx] = south
-		col[westNdx] = west
-		col[eastNdx] = east
-		row = Vec.range(N*4) % N
-		ret = DiGraph(row, col, 1, N)
-		return ret
-
+		rows = Vec.range(N)
+		main = rows.copy() # main diagonal, self loops
+		p1 = main.copy()
+		p1.apply(lambda x: (x+1)%N) # main diagonal moved right 1, connect to east neighbor
+		pn = main.copy()
+		pn.apply(lambda x: (x+(n-1))%N) # main diagonal moved right (n-1), connect to south neighbor
+		mn = main.copy()
+		mn.apply(lambda x: (x-(n-1))%N) # main diagonal moved left (n-1), connect to north neighbor
+		m1 = main.copy()
+		m1.apply(lambda x: (x-1)%N) # main diagonal moved left 1, connect to west neighbor
+		
+		ret = Mat(rows, p1, 1, N)
+		ret += Mat(rows, m1, 1, N)
+		ret += Mat(rows, pn, 1, N)
+		ret += Mat(rows, mn, 1, N)
+		#ret += Mat(rows, main, 1, N) # would include self loops
+		
+		return DiGraph(edges=ret)

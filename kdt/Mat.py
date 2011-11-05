@@ -303,55 +303,56 @@ class Mat:
 		
 	# NEEDED: tests
 	#ToDo:  put in method to modify _REPR_MAX
+	
+	def _reprTuples(self):
+		[i, j, v] = self.toVec()
+		ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
+		print ret
+		print "i (row index): ", repr(i)
+		print "j (col index): ", repr(j)
+		print "v (value)    : ", repr(v)
+		#return ret + repr(i) + repr(j) + repr(v)
+		return ""
+
+	def _reprGrid(self):
+		[i, j, v] = self.toVec()
+		ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
+
+		# make empty 2D array, I'm sure there's a more proper way to initialize it
+		mat = []
+		widths = []
+		for rowc in range(self.getnrow()):
+			r = []
+			for colc in range(self.getncol()):
+				r.append("-")
+				if rowc == 0:
+					widths.append(1)
+			mat.append(r)
+		
+		# manually fill the array with matrix values
+		for count in range(len(i)):
+			mat[int(i[count])][int(j[count])] = str(v[count])
+			widths[int(j[count])] = max(widths[int(j[count])], len(mat[int(i[count])][int(j[count])]))
+		
+		# print row by row
+		for rowc in range(self.getnrow()):
+			for colc in range(self.getncol()):
+				ret += (mat[rowc][colc]).center(widths[colc]) + "  "
+			ret += "\n"
+		
+		return ret
+				
 	_REPR_MAX = 200
 	def __repr__(self):
-		if self.getnnn() == 0:
-			return 'Empty Mat object'
-		#if self.getnnn() == 1:
-		#	[i, j, v] = self.toVec()
-		#	if len(v) > 0:
-		#		return "%d %f" % (v[0], v[0])
-		#	else:
-		#		return "%d %f" % (0, 0.0)
+
+		if self.getncol() < 20:
+			# pretty print a nice matrix
+			return self._reprGrid()
+		elif self.getnee() < self._REPR_MAX:
+			return self._reprTuples()
 		else:
-			[i, j, v] = self.toVec()
 			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
-			if self.getncol() < 20:
-				# pretty print a nice matrix
-				
-				# make empty 2D array, I'm sure there's a more proper way to initialize it
-				mat = []
-				widths = []
-				for rowc in range(self.getnrow()):
-					r = []
-					for colc in range(self.getncol()):
-						r.append("-")
-						if rowc == 0:
-							widths.append(1)
-					mat.append(r)
-				
-				# manually fill the array with matrix values
-				for count in range(len(i)):
-					mat[int(i[count])][int(j[count])] = str(v[count])
-					widths[int(j[count])] = max(widths[int(j[count])], len(mat[int(i[count])][int(j[count])]))
-				
-				# print row by row
-				for rowc in range(self.getnrow()):
-					for colc in range(self.getncol()):
-						ret += (mat[rowc][colc]).center(widths[colc]) + "  "
-					ret += "\n"
-				
-				return ret
-			elif len(i) < self._REPR_MAX:
-				print ret
-				print "i (row index): ", repr(i)
-				print "j (col index): ", repr(j)
-				print "v (value)    : ", repr(v)
-				#return ret + repr(i) + repr(j) + repr(v)
-				return ""
-			else:
-				return ret + "Too many elements to print."
-		return ' '
+			return ret + "Too many elements to print."
 
 	# NEEDED: support for filters
 	@staticmethod
@@ -461,8 +462,8 @@ class Mat:
 		
 		if m is None:
 			m = n
-		i = (Vec.range(n*m) % n).floor()
-		j = (Vec.range(n*m) / n).floor()
+		i = (Vec.range(n*m) / n).floor()
+		j = (Vec.range(n*m) % n).floor()
 		v = Vec.ones(n*m)
 		ret = Mat(i,j,v,n,m)
 		return ret
@@ -1006,6 +1007,7 @@ class Mat:
 	# NEEDED: tests
 	def _mulNot(self, other):
 		"""
+		!! THIS WILL BE ROLLED INTO THE MAIN eWiseApply
 		multiplies corresponding edge weights of two DiGraph instances,
 		taking the logical not of the second argument before doing the 
 		multiplication.  In effect, each nonzero edge of the second
@@ -1028,6 +1030,6 @@ class Mat:
 	# NEEDED: tests
 	def __neg__(self):
 		ret = self.copy()
-		ret.apply(pcb.negate())
+		ret.apply(op_negate)
 		return ret
 			
