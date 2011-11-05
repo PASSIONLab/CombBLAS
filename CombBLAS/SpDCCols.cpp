@@ -67,7 +67,15 @@ template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
 : m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool), splits(rhs.splits)
 {
-	CopyDcsc(rhs.dcsc);
+	if(splits > 0)
+	{
+		for(int i=0; i<splits; ++i)
+			CopyDcsc(rhs.dcscarr[i]);
+	}
+	else
+	{
+		CopyDcsc(rhs.dcsc);
+	}
 }
 
 /** 
@@ -257,7 +265,11 @@ void SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op)
 		dcsc->Prune (__unary_op);
 		nnz = dcsc->nz;
 
-		if(nnz == 0) delete dcsc;
+		if(nnz == 0) 
+		{	
+			delete dcsc;
+			dcsc = NULL;
+		}
 	}
 }
 
