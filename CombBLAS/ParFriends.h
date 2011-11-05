@@ -30,12 +30,21 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		return false;
 	}	
+	if(&A == &B)
+	{
+		ostringstream outs;
+		outs << "Can not multiply, inputs alias (make a temporary copy of one of them first)"<< endl;
+		SpParHelper::Print(outs.str());
+		MPI::COMM_WORLD.Abort(MATRIXALIAS);
+		return false;
+	}	
 	return true;
 }	
 
 
 /**
  * Parallel C = A*B routine that uses a double buffered broadcasting scheme 
+ * @pre { Input matrices, A and B, should not alias }
  * Most memory efficient version available. Total stages: 2*sqrt(p)
  * Memory requirement during first sqrt(p) stages: <= (3/2)*(nnz(A)+nnz(B))+(1/2)*nnz(C)
  * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
@@ -211,6 +220,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 /**
  * Parallel A = B*C routine that uses only MPI-1 features
  * Relies on simple blocking broadcast
+ * @pre { Input matrices, A and B, should not alias }
  **/  
 template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
 SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_Synch 

@@ -41,6 +41,7 @@
 #define DIMMISMATCH 3002
 #define NOTSQUARE 3003
 #define NOFILE 3004
+#define MATRIXALIAS 3005
 
 // MPI Message tags 
 // Prefixes denote functions
