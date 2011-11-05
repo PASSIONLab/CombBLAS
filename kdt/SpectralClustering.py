@@ -3,11 +3,14 @@ from Vec import Vec
 from Mat import Mat
 from Util import *
 
-#import scipy
+import scipy
 import random
 import math
 from Mat import Mat
 from Vec import Vec
+
+#TODO this import should not be necessary
+import kdt.pyCombBLAS as pcb
 
 def add(x,y):
 	#print "Add",x,y
@@ -25,7 +28,7 @@ def _kmeans(self):
 	# The dimension of the matrix = the number of vertices	
 	n = 1000
 	# The number of eigen vectors
-	k = 15
+	k = 10
 
 	src1 = Vec.range(n)
 	dest1 = Vec(n,sparse = False)
@@ -54,6 +57,7 @@ def _kmeans(self):
 	
 	# Obtain the C matrix as a submatrix of E. Transpose operation for making 
 	# distance calculation easier.
+
 	vec1 = Vec.range(0,k)
 	vec2 = Vec.range(0,k)
 	
@@ -64,17 +68,15 @@ def _kmeans(self):
 	
 	# This is the distance matrix to obtain the shift between centroids in two 
 	# successive iterations.	
+	vec2.randPerm()
 	zeros = Vec.zeros(k)
-	Cold = Mat(vec1,vec1,zeros,k,k)	
+	#Cold = Mat(vec1,vec2,zeros,k,k)	
+	Cold = C.copy()
 
-	#print "E:",E
-	#print "C:",C	
-	
-	#print "Cold:",Cold
+	print "E:",E
 
 	# Clustering algorithm begins here. i represent the number of iterations executed.
-	for i in range(100):
-		
+	while 1:	
 		
 		# Creating the semiring for matrix multiplication to calculate the distance.
 		addFn = lambda x,y: ((x)+(y))
@@ -110,12 +112,16 @@ def _kmeans(self):
 		#print 'C',C
 		C.scale(total,lambda x,y: y != 0 and x/y or 0,dir = Mat.Column)
 		#print "Cnew:", C
+	
+		S = C.eWiseApply(Cold, lambda x,y: (x-y)*(x-y))
+		S._prune(lambda x : x==0)
 		
+		if S.getnnn() == 0:
+			break
+
 		#Dist = Cold.SpGEMM(C,semiring=sR)
-		#Cold = C.copy()
-		#Cold.transpose()
+		Cold = C.copy()
 		
-		#print 'Cold',Cold
 		#print 'B'
 		#print B
 		#print Dist
