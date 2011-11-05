@@ -19,42 +19,43 @@ def mul(x,y):
 
 def _kmeans(self):
 	
+	#######################################################################	
 	# Start by creating an n*k eigen-vector matrix E.		
 	
 	# The dimension of the matrix = the number of vertices	
-	n = 100
+	n = 1000
 	# The number of eigen vectors
-	k = 10
-	# Total non-zero values
-	nvert = n
+	k = 15
 
 	src1 = Vec.range(n)
-	dest1 = Vec.range(n)
-	values1 = Vec(nvert,sparse=False) 	
+	dest1 = Vec(n,sparse = False)
+	values1 = Vec(n,sparse = False) 	
 	
 	src1.randPerm()
-	dest1.randPerm()
+	dest1.apply(lambda x: random.randint(0,k-1))
 	values1.apply(lambda x: random.randint(1,5))
 	
 	#print src1,dest1,values1
+	#print src1,dest1,values1
 		
-	E = Mat(dest1,src1,values1,n)
+	E = Mat(src1,dest1,values1,k,n)
+	#print E
 
 	for i in range(1,10):
 
 		src1.randPerm()
-		dest1.randPerm()
+		dest1.apply(lambda x: random.randint(0,k-1))
 		values1.apply(lambda x: random.randint(1,5))
 		
-		E1 = Mat(dest1,src1,values1,n)
+		E1 = Mat(src1,dest1,values1,k,n)
 		E = E.__add__(E1)
 	
-	#E.transpose()
+	#######################################################################	
 	
 	# Obtain the C matrix as a submatrix of E. Transpose operation for making 
 	# distance calculation easier.
 	vec1 = Vec.range(0,k)
-	vec2 = Vec.range(0,n)
+	vec2 = Vec.range(0,k)
 	
 	C = E.copy()
 	C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
@@ -65,17 +66,14 @@ def _kmeans(self):
 	# successive iterations.	
 	zeros = Vec.zeros(k)
 	Cold = Mat(vec1,vec1,zeros,k,k)	
-	'''	
-	print "Destination vector:", dest1
-	print "Source vector:", src1
-	print "Value vector", values1
-	print "E:",E
-	print "C:",C	
+
+	#print "E:",E
+	#print "C:",C	
 	
-	print "Cold:",Cold
-	'''	
+	#print "Cold:",Cold
+
 	# Clustering algorithm begins here. i represent the number of iterations executed.
-	for i in range(10):
+	for i in range(100):
 		
 		
 		# Creating the semiring for matrix multiplication to calculate the distance.
