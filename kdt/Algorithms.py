@@ -643,6 +643,7 @@ def cluster(self, alg, **kwargs):
 	if alg=='Markov' or alg=='markov':
 		A = DiGraph._MCL(self, **kwargs)
 		G = DiGraph(edges=A)
+		A.save("problemMat.mtx")
 		clus = G.connComp()
 		return clus, G
 
@@ -752,9 +753,10 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 		for i in range(1, expansion):
 			if retNEdges:
 				AA.apply(op_set(1))
-				AA = AA.SpGEMM(AA, semiring=sr_plustimes)
+				AA.SpGEMM(AA, semiring=sr_plustimes, inPlace=True)
 				nedges += AA.sum(Mat.Column).reduce(op_add)
-			A = A.SpGEMM(A, semiring=sr_plustimes)
+			#A = A.SpGEMM(A, semiring=sr_plustimes)
+			A.SpGEMM(A, semiring=sr_plustimes, inPlace=True)
 	
 		#Inflation - Hadamard power - greater inflation parameter -> more granular results
 		A.apply((lambda x: x**inflation))
@@ -773,7 +775,7 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 		# Pruning implementation - switch out with TopK / give option
 		A._prune((lambda x: x < prunelimit))
 		#print "number of edges remaining =", A._spm.getnee()
-	
+
 	#print "Iterations = %d" % iterNum
 	
 	if retNEdges:

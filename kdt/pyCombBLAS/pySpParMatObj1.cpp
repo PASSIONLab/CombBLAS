@@ -323,6 +323,14 @@ pySpParMatObj1 pySpParMatObj1::operator*(pySpParMatObj1& other)
 	return SpGEMM(other);
 }
 */
+
+void pySpParMatObj1::Square(op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
+	sring->disableSemiring();
+}
+
 pySpParMat pySpParMatObj1::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 {/*
 	sring->enableSemiring();

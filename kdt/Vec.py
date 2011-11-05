@@ -1249,6 +1249,11 @@ class Vec(object):
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) and bool(other)))
 
+	def logicalNot(self):
+		ret = self.copy()
+		ret.apply(op_not)
+		return ret
+		
 	# NEEDED: update docstring
 	def logicalOr(self, other):
 		"""
@@ -1284,6 +1289,13 @@ class Vec(object):
 			func = lambda x, other: x.max(other)
 			ret = self.reduce(pcb.binaryObj(func), init=initNegInf)
 		return ret
+
+	def mean(self):
+		"""
+		calculates the mean (average) of a Vec instance, returning
+		a scalar.
+		"""
+		return self.sum() / len(self)
 
 	def min(self, initInf=None):
 		"""
@@ -1369,6 +1381,21 @@ class Vec(object):
 			tmp[0] = identity
 			ret = int(tmp.reduce(pcb.binaryObj(f)).weight)
 		return ret
+	
+	def norm(self, order=2):
+		"""
+		calculates the norm of a Vec instance, where the order of the
+		norm is used as follows:
+			pow((sum(abs(x)**order)),1/order)
+		The order must be a scalar greater than zero.
+		"""
+		if order <= 0:
+			raise ValueError, 'Order must be positive'
+		else:
+			#ret = self._reduce(pcb.plus(),pcb.compose1(pcb.bind2nd(pcb.pow(), order), pcb.abs()))
+			ret = self.reduce(lambda x,y: x+y, uniOp=(lambda x: abs(x)**order))
+			ret = pow(ret, 1.0/order)
+			return ret
 
 	#in-place, so no return value
 	def set(self, value):
@@ -1432,6 +1459,16 @@ class Vec(object):
 		else:
 			self.apply(lambda x: x.spOnes())
 		return
+	
+	def std(self):
+		"""
+		calculates the standard deviation of a Vec instance, returning
+		a scalar.  Calculated as sqrt((self-self.mean()).sum)
+		"""
+		mean = self.mean();
+		diff = self - mean
+		ret = math.sqrt((diff*diff).sum()/len(self))
+		return ret 
 
 	# NEEDED: AL: shouldn't this just be a call to reduce?
 	def sum(self):

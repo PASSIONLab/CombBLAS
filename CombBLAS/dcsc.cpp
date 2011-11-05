@@ -56,6 +56,7 @@ template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol, MemoryPool * mpool): nz(nnz),nzc(nzcol), pool(mpool)
 {
 	assert (nz != 0);
+	assert (nzc != 0);
 	size_t sit = sizeof(IT);
 	
 	cp = (IT *) mallocarray ( (nzc+1)*sit); 
@@ -357,6 +358,8 @@ Dcsc<IT,NT>::operator Dcsc<NIT,NNT>() const
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.pool)
 {
+	assert (nz != 0);
+	assert (nzc != 0);
 	size_t sit = sizeof(IT);
 	if(nz > 0)
 	{

@@ -168,7 +168,10 @@ class Mat:
 			ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
 			ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
 		else:
+			p("HERE INSIDE COPY")
+			#p(self)
 			ret = Mat._toMat(self._m_.copy())
+			p("COPY SUCCEEDED")
 		
 		# TODO: integrate filter/copy and element conversion
 		# so they are not a separate steps that make two copies of the matrix.
@@ -743,7 +746,7 @@ class Mat:
 		return
 
 	# NEEDED: tests
-	def SpGEMM(self, other, semiring):
+	def SpGEMM(self, other, semiring, inPlace=False):
 		"""
 		"multiplies" two Mat instances together as though each was
 		represented by a sparse matrix, with rows representing in-edges
@@ -755,9 +758,26 @@ class Mat:
 			raise ValueError, "SpGEMM needs a Mat"
 		if self.getncol() != other.getnrow():
 			raise ValueError, "Dimension mismatch in SpGEMM: %d != %d"%(self.getncol(),other.getnrow())
+			
+		if self._m_ is other._m_:
+			# we're squaring the matrix
+			if inPlace:
+				#cp = self.copy()
+				#self._m_ = self._m_.SpGEMM(cp._m_, semiring)
+				self._m_.Square(semiring)
+				return self
+			else:
+				cp = self.copy()
+				#return Mat._toMat(self._m_.SpGEMM(cp._m_, semiring))
+				cp._m_.Square(semiring)
+				return cp
 		
-		ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
-		return ret
+		if inPlace:
+			other._m_ = self._m_.SpGEMM(other._m_, semiring)
+			return other
+		else:
+			ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
+			return ret
 	spGEMM = SpGEMM
 
 	# possibly in-place;  if so, no return value

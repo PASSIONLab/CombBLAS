@@ -38,6 +38,14 @@ def master():
 	master process or a slave process in a parallel program.
 	"""
 	return pcb.root()
+	
+def p(s):
+	"""
+	printer helper
+	"""
+	s = str(s)
+	if master():
+		print s
 
 def _nproc():
 	"""

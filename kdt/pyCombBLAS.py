@@ -81,6 +81,7 @@ class pySpParMat(_object):
     def Find(*args): return _pyCombBLAS.pySpParMat_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMat_SpMV(*args)
     def SpMV_inplace(*args): return _pyCombBLAS.pySpParMat_SpMV_inplace(*args)
+    def Square(*args): return _pyCombBLAS.pySpParMat_Square(*args)
     def SpGEMM(*args): return _pyCombBLAS.pySpParMat_SpGEMM(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMat_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMat_Column)
@@ -126,6 +127,7 @@ class pySpParMatBool(_object):
     def Find(*args): return _pyCombBLAS.pySpParMatBool_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMatBool_SpMV(*args)
     def SpMV_inplace(*args): return _pyCombBLAS.pySpParMatBool_SpMV_inplace(*args)
+    def Square(*args): return _pyCombBLAS.pySpParMatBool_Square(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatBool_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatBool_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatBool_Row
@@ -166,6 +168,7 @@ class pySpParMatObj1(_object):
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj1_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj1_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMatObj1_SpMV(*args)
+    def Square(*args): return _pyCombBLAS.pySpParMatObj1_Square(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj1_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj1_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatObj1_Row
@@ -206,6 +209,7 @@ class pySpParMatObj2(_object):
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj2_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj2_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMatObj2_SpMV(*args)
+    def Square(*args): return _pyCombBLAS.pySpParMatObj2_Square(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj2_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj2_Column)
     __swig_getmethods__["Row"] = lambda x: _pyCombBLAS.pySpParMatObj2_Row
