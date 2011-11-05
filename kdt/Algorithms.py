@@ -435,7 +435,7 @@ DiGraph.centrality = centrality
 # NEEDED: update to transposed edge matrix
 # NEEDED: update to new fields
 # NEEDED: tests
-def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=3, batchSize=-1, retNVerts=False):
+def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0, batchSize=-1, retNVerts=False):
 	"""
 	calculates the approximate or exact (with sample=1.0) betweenness
 	centrality of the input DiGraph instance.  _approxBC is an internal
@@ -449,14 +449,13 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	"""
 	A = self.e.copy()
 	A.transpose()
+	A.ones()
 	N = self.nvert()
 	if BCdebug>0 and master():
 		print "in _approxBC, A.nvert=%d, nproc=%d" % (N, nProcs)
 
 	if BCdebug>1 and master():
 		print "Apply(set(1))"
-	#FIX:  should not overwrite input
-	self.ones()
 	#Aint = self.ones()	# not needed;  Gs only int for now
 	if BCdebug>1 and master():
 		print "spm.getnrow and col()"
@@ -489,9 +488,10 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
 	randVerts = Vec.range(N)
 	
-	if master():
-		print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
-	#randVerts.randPerm()
+	#if master():
+	#	print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
+	randVerts.randPerm()
+	#randVerts.sort()
 	
 	if (batchSize >= nVertToCalc):
 		startVs = [0]
@@ -544,11 +544,16 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		bfs = []		
 		batchRange = Vec.range(startV, startV+numV)
 		batch = randVerts[batchRange]
+		if BCdebug>1 and master():
+			print "batch=",batch
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
-		nsp = Mat(Vec.range(curSize), batch, 1, curSize, N)
+		nsp = Mat(batch, Vec.range(curSize), 1, curSize, N) # original: Mat(Vec.range(curSize), batch, 1, curSize, N)
+		#print "nsp",nsp._reprTuples()
+		#print nsp
 		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[Vec.range(N), batch] # AL: swapped
+		fringe = A[Vec.range(N), batch] # AL: swapped ##
+		#print "fringe:",fringe
 		depth = 0
 		while fringe.getnnn() > 0:
 			before = time.time()
@@ -558,6 +563,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 				if master():
 					print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
 			nsp += fringe
+			#print "nsp:",nsp
 			tmp = fringe.copy()
 			tmp.ones()
 			bfs.append(tmp)
@@ -578,6 +584,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 				print "    %f seconds" % (time.time()-before)
 
 		bcu = Mat.full(curSize,N)
+		##print "bcu",bcu
 		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):
 			# compute the weights to be applied based on the child values
@@ -589,19 +596,19 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					print tmptmp
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			#w.transpose() # AL: removed
+			#w.transpose() # AL: removed ##
 			w = A.SpGEMM(w, semiring=sr_plustimes)
-			#w.transpose() # AL: removed
+			#w.transpose() # AL: removed ##
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w
-
+		##print "BCU:----------",bcu
 		# update the bc with the bc update
 		if BCdebug>2:
 			tmptmp = bcu.sum(Mat.Row).sum()
 			if master():
 				print tmptmp
-		bc = bc + bcu.sum(Mat.Row)	# column sums # AL: swapped to Row
+		bc = bc + bcu.sum(Mat.Row)	# column sums # AL: swapped to Row ##
 
 	# subtract off the additional values added in by precomputation
 	bc = bc - nVertToCalc
@@ -744,7 +751,7 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 			AA = A.copy()
 		for i in range(1, expansion):
 			if retNEdges:
-				AA.apply(pcb.set(1))
+				AA.apply(op_set(1))
 				AA = AA.SpGEMM(AA, semiring=sr_plustimes)
 				nedges += AA.sum(Mat.Column).reduce(op_add)
 			A = A.SpGEMM(A, semiring=sr_plustimes)
