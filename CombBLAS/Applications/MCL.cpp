@@ -145,7 +145,8 @@ int main(int argc, char* argv[])
 		while( chaos > EPS)
 		{
 			double t1 = MPI_Wtime();
-			A.Square<PTDOUBLEDOUBLE>() ;		// expand 
+			//A.Square<PTDOUBLEDOUBLE>() ;		// expand 
+			A = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, A);
 			
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
