@@ -93,6 +93,8 @@ public:
 	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
 
+	void Square(op::Semiring* sring);
+	void Square(op::SemiringObj* sring);
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
 	//pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
 	/* CombBLAS support for these is still not there.

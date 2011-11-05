@@ -547,6 +547,30 @@ void pySpParMat::SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring)
 	sring->disableSemiring();
 }
 
+void pySpParMat::Square(op::Semiring* sring)
+{
+	if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		A.Square< PlusTimesSRing<NUMTYPE, NUMTYPE > >();
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		A.Square< Select2ndSRing<NUMTYPE, NUMTYPE, NUMTYPE > >();
+	}
+	else
+	{
+		sring->enableSemiring();
+		A.Square<op::SemiringTemplArg<NUMTYPE, NUMTYPE> >();
+		sring->disableSemiring();
+	}
+}
+
+void pySpParMat::Square(op::SemiringObj* sring)
+{
+	sring->enableSemiring();
+	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
+	sring->disableSemiring();
+}
 
 pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 {

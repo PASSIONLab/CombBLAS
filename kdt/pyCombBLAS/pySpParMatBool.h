@@ -81,7 +81,9 @@ public:
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 
-	
+	void Square(op::Semiring* sring);
+	void Square(op::SemiringObj* sring);
+
 public:
 	static int Column() { return ::Column; }
 	static int Row() { return ::Row; }

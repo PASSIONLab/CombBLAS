@@ -6422,6 +6422,131 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMat_Square__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  op::Semiring *arg2 = (op::Semiring *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Square" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Square" "', argument " "2"" of type '" "op::Semiring *""'"); 
+  }
+  arg2 = reinterpret_cast< op::Semiring * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Square__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  op::SemiringObj *arg2 = (op::SemiringObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Square" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Square" "', argument " "2"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::SemiringObj * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_Square(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__Semiring, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Square__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMat_Square__SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMat_Square'.\n  Possible C/C++ prototypes are:\n    Square(op::Semiring *)\n    Square(op::SemiringObj *)\n");
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
@@ -10438,6 +10563,131 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMatBool_Square__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  op::Semiring *arg2 = (op::Semiring *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_Square" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_Square" "', argument " "2"" of type '" "op::Semiring *""'"); 
+  }
+  arg2 = reinterpret_cast< op::Semiring * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_Square__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  op::SemiringObj *arg2 = (op::SemiringObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_Square" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_Square" "', argument " "2"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::SemiringObj * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_Square(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__Semiring, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMatBool_Square__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_pySpParMatBool_Square__SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_Square'.\n  Possible C/C++ prototypes are:\n    Square(op::Semiring *)\n    Square(op::SemiringObj *)\n");
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMatBool_Column(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int result;
@@ -12709,6 +12959,46 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_Square(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
+  op::SemiringObj *arg2 = (op::SemiringObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj1_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_Square" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_Square" "', argument " "2"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::SemiringObj * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMatObj1_Column(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int result;
@@ -14963,6 +15253,46 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpMV(PyObject *self, PyObject *args) {
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatObj2_SpMV'.\n  Possible C/C++ prototypes are:\n    SpMV(pySpParVec const &,op::SemiringObj *)\n    SpMV(pySpParVecObj2 const &,op::SemiringObj *)\n    SpMV(pySpParVecObj1 const &,op::SemiringObj *)\n    SpMV(pyDenseParVec const &,op::SemiringObj *)\n    SpMV(pyDenseParVecObj2 const &,op::SemiringObj *)\n    SpMV(pyDenseParVecObj1 const &,op::SemiringObj *)\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_Square(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
+  op::SemiringObj *arg2 = (op::SemiringObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj2_Square",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_Square" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_Square" "', argument " "2"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::SemiringObj * >(argp2);
+  {
+    try {
+      (arg1)->Square(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -39642,6 +39972,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_Find", _wrap_pySpParMat_Find, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV", _wrap_pySpParMat_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpMV_inplace", _wrap_pySpParMat_SpMV_inplace, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_Square", _wrap_pySpParMat_Square, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_SpGEMM", _wrap_pySpParMat_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Column", _wrap_pySpParMat_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Row", _wrap_pySpParMat_Row, METH_VARARGS, NULL},
@@ -39671,6 +40002,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_Find", _wrap_pySpParMatBool_Find, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_SpMV", _wrap_pySpParMatBool_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_SpMV_inplace", _wrap_pySpParMatBool_SpMV_inplace, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_Square", _wrap_pySpParMatBool_Square, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Column", _wrap_pySpParMatBool_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Row", _wrap_pySpParMatBool_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatBool", _wrap_delete_pySpParMatBool, METH_VARARGS, NULL},
@@ -39695,6 +40027,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj1_Transpose", _wrap_pySpParMatObj1_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Find", _wrap_pySpParMatObj1_Find, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_SpMV", _wrap_pySpParMatObj1_SpMV, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj1_Square", _wrap_pySpParMatObj1_Square, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Column", _wrap_pySpParMatObj1_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Row", _wrap_pySpParMatObj1_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatObj1", _wrap_delete_pySpParMatObj1, METH_VARARGS, NULL},
@@ -39719,6 +40052,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj2_Transpose", _wrap_pySpParMatObj2_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Find", _wrap_pySpParMatObj2_Find, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_SpMV", _wrap_pySpParMatObj2_SpMV, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj2_Square", _wrap_pySpParMatObj2_Square, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Column", _wrap_pySpParMatObj2_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Row", _wrap_pySpParMatObj2_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatObj2", _wrap_delete_pySpParMatObj2, METH_VARARGS, NULL},
