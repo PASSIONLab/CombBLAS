@@ -168,10 +168,10 @@ class Mat:
 			ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
 			ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
 		else:
-			p("HERE INSIDE COPY")
+			#p("HERE INSIDE COPY")
 			#p(self)
 			ret = Mat._toMat(self._m_.copy())
-			p("COPY SUCCEEDED")
+			#p("COPY SUCCEEDED")
 		
 		# TODO: integrate filter/copy and element conversion
 		# so they are not a separate steps that make two copies of the matrix.
