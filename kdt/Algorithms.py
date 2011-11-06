@@ -642,8 +642,9 @@ def cluster(self, alg, **kwargs):
 	"""
 	if alg=='Markov' or alg=='markov':
 		A = DiGraph._MCL(self, **kwargs)
+		#A.save("problemMat.mtx")
+		#A = Mat.load("problemMat.mtx")
 		G = DiGraph(edges=A)
-		A.save("problemMat.mtx")
 		clus = G.connComp()
 		return clus, G
 
