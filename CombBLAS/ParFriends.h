@@ -30,7 +30,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		return false;
 	}	
-	if(&A == &B)
+	if((void*) &A == (void*) &B)
 	{
 		ostringstream outs;
 		outs << "Can not multiply, inputs alias (make a temporary copy of one of them first)"<< endl;
