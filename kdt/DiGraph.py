@@ -575,7 +575,7 @@ class DiGraph(gr.Graph):
 		"""
 		nv = self.nvert()
 		if vpart is None:
-			return self.e.getnnn()
+			return self.e.nnn()
 		else:
 			if self.nvert() != len(vpart):
 				raise KeyError,'vpart must be same length as number of vertices in DiGraph instance'
@@ -586,7 +586,7 @@ class DiGraph(gr.Graph):
 			else:
 				return Vec.zeros(retLen)
 		if retLen == 1:
-			ret = self.e.getnnn()
+			ret = self.e.nnn()
 		else:
 			selfcopy = self.copy()
 			selfcopy.set(1)
@@ -625,8 +625,8 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  nedge, degree
 		"""
-		nrow = self.e.getnrow()
-		ncol = self.e.getncol()
+		nrow = self.e.nrow()
+		ncol = self.e.ncol()
 		if nrow!=ncol:
 			return (nrow, ncol)
 		if vpart is None:
@@ -773,7 +773,7 @@ class DiGraph(gr.Graph):
 		self.e.toScalar()
 
 	@staticmethod
-	def twoDTorus(nnodes):
+	def generate2DTorus(nnodes):
 		"""
 		constructs a DiGraph instance with the connectivity pattern of a 2D
 		torus;  i.e., each vertex has edges to its north, west, south, and

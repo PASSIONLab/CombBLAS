@@ -72,7 +72,7 @@ if source == Source.TORUS:
 	if kdt.master():
 		print "Generating a Torus graph with %d^2 vertices..."%(scale)
 
-	G1 = kdt.DiGraph.twoDTorus(scale)
+	G1 = kdt.DiGraph.generate2DTorus(scale)
 	nverts = G1.nvert()
 	if kdt.master():
 		print "Graph has",nverts,"vertices."
@@ -81,8 +81,7 @@ elif source == Source.G500:
 	if kdt.master():
 		print "Generating a Graph500 graph with 2^%d vertices..."%(scale)
 
-	G1 = kdt.DiGraph()
-	G1.genGraph500Edges(scale)
+	G1 = kdt.DiGraph.generateRMAT(scale)
 	nverts = G1.nvert()
 	if kdt.master():
 		print "Graph has",nverts,"vertices."
@@ -109,7 +108,7 @@ if source == Source.TORUS and ((bc - bc[0]) > 1e-15).any():
 		print "not all vertices have same BC value"
 
 # Report
-nedges = G1._spm.getnee()*nStartVerts
+nedges = G1.nnn()*nStartVerts
 TEPS = float(nedges)/time
 min = bc.min()
 max = bc.max()

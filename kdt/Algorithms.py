@@ -458,13 +458,13 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		print "Apply(set(1))"
 	#Aint = self.ones()	# not needed;  Gs only int for now
 	if BCdebug>1 and master():
-		print "spm.getnrow and col()"
+		print "spm.nrow and col()"
 
 	if BCdebug>1 and master():
 		print "densevec(%d, 0)"%N
 	bc = Vec(N, sparse=False)
 	if BCdebug>1 and master():
-		print "getnrow()"
+		print "nrow()"
 	nVertToCalc = int(math.ceil(N * sample))
 	nVertToCalc = min(nVertToCalc, N)
 	
@@ -555,11 +555,11 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		fringe = A[Vec.range(N), batch] # AL: swapped ##
 		#print "fringe:",fringe
 		depth = 0
-		while fringe.getnnn() > 0:
+		while fringe.nnn() > 0:
 			before = time.time()
 			depth = depth+1
 			if BCdebug>1 and depth>1:
-				nspne = tmp.getnnn(); tmpne = tmp.getnnn(); fringene = fringe.getnnn()
+				nspne = tmp.nnn(); tmpne = tmp.nnn(); fringene = fringe.nnn()
 				if master():
 					print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
 			nsp += fringe
@@ -856,7 +856,7 @@ def _cluster_agglomerative(self, roots):
 		delta = clusters.eWiseApply(update, (lambda c,u: int(c) != int(u) and u != 1.8e302), inPlace=False).reduce(op_add)
 		clusters.eWiseApply(update, (lambda c,u: u), doOp=(lambda c,u: int(c) != int(u) and u != 1.8e302), inPlace=True)
 		
-		#delta = frontier.getnnn()
+		#delta = frontier.nnn()
 		#print "delta=",delta
 		#print "clusters:",clusters
 		itercount += 1
