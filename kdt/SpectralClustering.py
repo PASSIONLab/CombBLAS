@@ -112,7 +112,7 @@ def _kmeans(self):
 		S = C.eWiseApply(Cold, lambda x,y: (x-y)*(x-y))
 		S._prune(lambda x : x==0)
 		
-		if S.getnnn() == 0:
+		if S.nnn() == 0:
 			break
 
 		#Dist = Cold.SpGEMM(C,semiring=sR)

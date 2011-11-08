@@ -219,6 +219,21 @@ class Mat:
 
 	def isScalar(self):
 		return isinstance(self._m_, (pcb.pySpParMat))
+
+	def nrow(self):
+		return self._m_.getnrow()
+		
+	def ncol(self):
+		return self._m_.getncol()
+	
+	def nnn(self):
+		"""
+		returns the number of existing elements in this matrix.
+		"""
+		if self._hasFilter():
+			raise NotImplementedError, "this operation does not support filters yet."
+			
+		return self._m_.getnee()		
 	
 	def toBool(self, inPlace=True):
 		"""
@@ -276,7 +291,7 @@ class Mat:
 
 		SEE ALSO:  DiGraph 
 		"""
-		ne = self.getnnn()
+		ne = self.nnn()
 		if ne != 0:
 			reti = Vec(ne, element=0, sparse=False)
 			retj = Vec(ne, element=0, sparse=False)
@@ -289,27 +304,12 @@ class Mat:
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv)
 
-	def getnrow(self):
-		return self._m_.getnrow()
-		
-	def getncol(self):
-		return self._m_.getncol()
-	
-	def getnnn(self):
-		"""
-		returns the number of existing elements in this matrix.
-		"""
-		if self._hasFilter():
-			raise NotImplementedError, "this operation does not support filters yet."
-			
-		return self._m_.getnee()
-		
 	# NEEDED: tests
 	#ToDo:  put in method to modify _REPR_MAX
 	
 	def _reprTuples(self):
 		[i, j, v] = self.toVec()
-		ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
+		ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
 		print ret
 		print "i (row index): ", repr(i)
 		print "j (col index): ", repr(j)
@@ -319,14 +319,14 @@ class Mat:
 
 	def _reprGrid(self):
 		[i, j, v] = self.toVec()
-		ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
+		ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
 
 		# make empty 2D array, I'm sure there's a more proper way to initialize it
 		mat = []
 		widths = []
-		for rowc in range(self.getnrow()):
+		for rowc in range(self.nrow()):
 			r = []
-			for colc in range(self.getncol()):
+			for colc in range(self.ncol()):
 				r.append("-")
 				if rowc == 0:
 					widths.append(1)
@@ -338,8 +338,8 @@ class Mat:
 			widths[int(j[count])] = max(widths[int(j[count])], len(mat[int(i[count])][int(j[count])]))
 		
 		# print row by row
-		for rowc in range(self.getnrow()):
-			for colc in range(self.getncol()):
+		for rowc in range(self.nrow()):
+			for colc in range(self.ncol()):
 				ret += (mat[rowc][colc]).center(widths[colc]) + "  "
 			ret += "\n"
 		
@@ -348,13 +348,13 @@ class Mat:
 	_REPR_MAX = 200
 	def __repr__(self):
 
-		if self.getncol() < 20:
+		if self.ncol() < 20:
 			# pretty print a nice matrix
 			return self._reprGrid()
-		elif self.getnee() < self._REPR_MAX:
+		elif self.nee() < self._REPR_MAX:
 			return self._reprTuples()
 		else:
-			ret = "" + str(self.getnrow()) + "-by-" + str(self.getncol()) + " (row-by-col) Mat with " + str(self.getnnn()) + " elements.\n"
+			ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
 			return ret + "Too many elements to print."
 
 	# NEEDED: support for filters
@@ -734,10 +734,10 @@ class Mat:
 			raise KeyError, 'Invalid type for scale vector'
 
 		if dir == Mat.Column:
-			if self.getncol() != len(other):
+			if self.ncol() != len(other):
 				raise IndexError, 'ncol != len(vec)'
 		elif dir == Mat.Row:
-			if self.getnrow() != len(other):
+			if self.nrow() != len(other):
 				raise IndexError, 'nrow != len(vec)'
 		else:
 			raise KeyError, 'Invalid edge direction'
@@ -756,8 +756,8 @@ class Mat:
 		# check input
 		if not isinstance(other, Mat):
 			raise ValueError, "SpGEMM needs a Mat"
-		if self.getncol() != other.getnrow():
-			raise ValueError, "Dimension mismatch in SpGEMM: %d != %d"%(self.getncol(),other.getnrow())
+		if self.ncol() != other.nrow():
+			raise ValueError, "Dimension mismatch in SpGEMM: %d != %d"%(self.ncol(),other.nrow())
 			
 		if self._m_ is other._m_:
 			# we're squaring the matrix
@@ -789,7 +789,7 @@ class Mat:
 		# check input
 		if not isinstance(other, Vec):
 			raise ValueError, "SpMV needs a Vec"
-		if len(other) != self.getncol():
+		if len(other) != self.ncol():
 			raise ValueError, "Dimension mismatch in SpMV. The number of elements of the vector must equal the number of columns of the matrix."
 		
 		if self._hasFilter() or other._hasFilter():
@@ -949,7 +949,7 @@ class Mat:
 		"""
 		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
-		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other, Mat):
 			ret = self.copy()
@@ -968,7 +968,7 @@ class Mat:
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.apply(pcb.bind2nd(pcb.divides(),other))
-		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
 			ret = self.copy()
@@ -982,7 +982,7 @@ class Mat:
 	def __iadd__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			raise NotImplementedError
-		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other, Mat):
 			#self._apply(pcb.plus(), other)
@@ -994,7 +994,7 @@ class Mat:
 	def __imul__(self, other):
 		if type(other) == int or type(other) == long or type(other) == float:
 			self.apply(pcb.bind2nd(pcb.multiplies(),other))
-		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
 			self.apply(pcb.multiplies(), other)
@@ -1013,7 +1013,7 @@ class Mat:
 		if type(other) == int or type(other) == long or type(other) == float:
 			ret = self.copy()
 			ret.apply(pcb.bind2nd(pcb.multiplies(),other))
-		elif self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrices must have matching dimensions'
 		elif isinstance(other,Mat):
 			ret = self.copy()
@@ -1040,7 +1040,7 @@ class Mat:
 		Output arguments:
 			ret:  a DiGraph instance 
 		"""
-		if self.getnrow() != other.getnrow() or self.getncol() != other.getncol():
+		if self.nrow() != other.nrow() or self.ncol() != other.ncol():
 			raise IndexError, 'Matrix dimensions must match'
 		else:
 			ret = self.copy()
