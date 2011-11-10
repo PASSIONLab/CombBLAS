@@ -31,6 +31,55 @@ class info:
 	def minInt():
 		return -(2**62)
 
+class FilterHelper:
+	@staticmethod
+	def getFilteredUniOpOrSelf(filteredObject, op):
+		if filteredObject._hasFilter():
+			class tmpU:
+				filter = filteredObject._filter_
+				@staticmethod
+				def fn(x):
+					for i in range(len(tmpU.filter)):
+						if not tmpU.filter[i](x):
+							return x
+					return op(x)
+			tmpInstance = tmpU()
+			return tmpInstance.fn
+		else:
+			return op
+
+	@staticmethod
+	def getFilteredUniOpOrVal(filteredObject, op, defaultVal):
+		if filteredObject._hasFilter():
+			class tmpU:
+				filter = filteredObject._filter_
+				identity = defaultVal
+				@staticmethod
+				def fn(x):
+					for i in range(len(tmpU.filter)):
+						if not tmpU.filter[i](x):
+							return tmpU.identity
+					return op(x)
+			tmpInstance = tmpU()
+			return tmpInstance.fn
+		else:
+			return op
+
+	@staticmethod
+	def getFilterPred(filteredObject):
+		if filteredObject._hasFilter():
+			class tmpU:
+				filter = filteredObject._filter_
+				@staticmethod
+				def fn(x):
+					for i in range(len(tmpU.filter)):
+						if not tmpU.filter[i](x):
+							return False
+					return True
+			tmpInstance = tmpU()
+			return tmpInstance.fn
+		else:
+			return None
 
 def master():
 	"""
