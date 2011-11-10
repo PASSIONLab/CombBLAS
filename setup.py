@@ -79,6 +79,8 @@ def check_for_header(header, include_dirs, define_macros):
 ############################################################################
 #### INDIVIDUAL TEST FUNCTIONS
 
+# TODO: add check for mpi compiled with -fPIC (how?)
+
 def check_for_MPI(include_dirs, define_macros):
 	""" See if an MPI compiler was provided. """
 	
@@ -278,6 +280,11 @@ if usingWinMPICH:
 	library_dirs.append(MPICHdir + "\lib")
 	libraries.append("mpi")
 	libraries.append("cxx")
+
+if not check_for_header("Python.h", include_dirs, define_macros):
+	print "Please install the Python development libraries. They are required to compile any Python C++ module."
+	print "On most systems that just means installing the `python-dev` or `python-devel` package."
+	sys.exit()
 
 if not check_for_MPI(include_dirs, define_macros):
 	print "ERROR: MPI not found. KDT requires an MPI compiler to be used."

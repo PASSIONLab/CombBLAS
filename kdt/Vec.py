@@ -9,6 +9,7 @@ from Util import _op_make_unary_pred
 from Util import _op_make_binary
 from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
+from Util import _makePythonOp
 
 #	naming convention:
 #	names that start with a single underscore and have no final underscore
@@ -89,11 +90,11 @@ class Vec(object):
 		#   zero from null
 		if self._hasFilter():
 			class tmpU:
-				_vFilter_ = self._vFilter_
+				_filter_ = self._filter_
 				@staticmethod
 				def fn(x):
-					for i in range(len(tmpU._vFilter_)):
-						if not tmpU._vFilter_[i](x):
+					for i in range(len(tmpU._filter_)):
+						if not tmpU._filter_[i](x):
 							return type(self._identity_)()
 					return x
 			tmpInstance = tmpU()
@@ -121,12 +122,14 @@ class Vec(object):
 		ret._v_.load(fname)
 		return ret
 	
+	# NEEDED: filters
 	def save(self, fname):
 		"""
 		saves this vector to a file.
 		"""
 		self._v_.save(fname)
 
+	# NEEDED: filters
 	def dense(self):	
 		"""
 		converts a sparse Vec instance into a dense instance of the same
@@ -140,6 +143,7 @@ class Vec(object):
 			return Vec._toVec(self._v_.dense())
 
 	# TODO: have it accept a predicate that defines the sparsity. Use eWiseApply to implement.
+	# NEEDED: filters
 	def sparse(self):
 		"""
 		converts a dense Vec instance into a sparse instance which
@@ -160,23 +164,15 @@ class Vec(object):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
 		"""
-		
 		if self._hasFilter():
-			class tmpU:
-				_vFilter_ = self._vFilter_
-				@staticmethod
-				def fn(x):
-					for i in range(len(tmpU._vFilter_)):
-						if not tmpU._vFilter_[i](x):
-							return x
-					return op(x)
-			tmpInstance = tmpU()
-			self._v_.Apply(pcb.unaryObj(tmpInstance.fn))
-		else:
-			self._v_.Apply(_op_make_unary(op))
+			op = _makePythonOp(op)
+			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+		
+		self._v_.Apply(_op_make_unary(op))
 		return
-
+		
 	# in-place, so no return value
+	# NEEDED: filters
 	def applyInd(self, op):
 		"""
 		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
@@ -184,8 +180,8 @@ class Vec(object):
 		
 		if self._hasFilter():
 			class tmpB:
-				selfVFLen = len(self._vFilter_)
-				vFilter1 = self._vFilter_
+				selfVFLen = len(self._filter_)
+				vFilter1 = self._filter_
 				@staticmethod
 				def fn(x, y):
 					for i in range(tmpB.selfVFLen):
@@ -207,6 +203,7 @@ class Vec(object):
 		"""
 		return len(self._v_)
 
+	# NEEDED: filters
 	def __delitem__(self, key):
 		if isinstance(other, (float, int, long)):
 			del self._v_[key]
@@ -214,6 +211,7 @@ class Vec(object):
 			del self._v_[key._v_];	
 		return
 
+	# NEEDED: filters
 	def __getitem__(self, key):
 		"""
 		performs indexing of a SpParVec instance on the right-hand side
@@ -233,13 +231,21 @@ class Vec(object):
 		if isinstance(key, (int, long, float)):
 			if key < 0 or key > len(self)-1:
 				raise IndexError
-			return self._v_[key]
+			
+			ret = self._v_[key]
+			if self._hasFilter() and not FilterHelper.getFilterPred(self)(ret):
+				ret = self._identity_
+
+			return ret
 		else:
+			if self._hasFilter() or key._hasFilter():
+				raise NotImplementedError,"filtered __getitem__(Vec)"
 			return Vec._toVec(self._v_[key._v_])
 
 	#ToDo:  implement find/findInds when problem of any zero elements
 	#         in the sparse vector getting stripped out is solved
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
+	# NEEDED: filters
 	def find(self, pred=None):
 		"""
 		returns the elements of a Boolean SpParVec instance that are both
@@ -271,6 +277,7 @@ class Vec(object):
 
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
+	# NEEDED: filters
 	def findInds(self, pred=None):
 		"""
 		returns the indices of the elements of a Boolean SpParVec instance
@@ -360,6 +367,7 @@ class Vec(object):
 		ret = Vec(sz, element, sparse=False)
 		return ret
 
+	# NEEDED: filters
 	def printAll(self):
 		"""
 		prints all elements of a Vec instance (which may number millions
@@ -415,17 +423,21 @@ class Vec(object):
 				ret[i] = Obj1
 		return ret
 
-	# NEEDED: add filters
 	def reduce(self, op, uniOp=None, init=None):
 		"""
 		ToDo:  write doc
 			return is a scalar
 		"""
-		if self._hasFilter():
-			raise NotImplementedError, "this operation does not implement filters yet."
-		
 		if init is None:
 			init = self._identity_
+
+		if self._hasFilter():
+			if uniOp is None:
+				uniOp = (lambda x: x)
+			
+			uniOp = _makePythonOp(uniOp)
+			uniOp = FilterHelper.getFilteredUniOpOrVal(self, uniOp, init)
+			uniOp = pcb.unaryObj(uniOp)
 		
 		if self.isObj():
 			if type(init) is not type(self._identity_):
@@ -437,7 +449,7 @@ class Vec(object):
 		# cannot mix and match new and old reduce versions, so until we can totally get rid of
 		# non-object BinaryFunction and UnaryFunction we have to support both.
 		# In the future only the else clause of this if will be kept.
-		if isinstance(op, pcb.BinaryFunction) or isinstance(uniOp, pcb.UnaryFunction):
+		if (isinstance(op, pcb.BinaryFunction) or isinstance(uniOp, pcb.UnaryFunction)) and not (isinstance(op, pcb.BinaryFunctionObj) or isinstance(uniOp, pcb.UnaryFunctionObj)):
 			if init is not None and init is not self._identity_:
 				raise ValueError, "you called the old reduce by using a built-in function, but this old version does not support the init attribute. Use a Python function instead of a builtin."
 			ret = self._v_.Reduce(_op_make_binary(op), _op_make_unary(uniOp))
@@ -445,6 +457,7 @@ class Vec(object):
 			ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
 		return ret
 	
+	# NEEDED: filters
 	def count(self, pred=None):
 		"""
 		returns the number of elements for which `pred` is true.
@@ -456,6 +469,7 @@ class Vec(object):
 
 	_REPR_MAX = 30;
 	_REPR_WARN = 0
+	# NEEDED: filters
 	def __repr__(self):
 		"""
 		prints the first N elements of the SpParVec instance, where N
@@ -577,62 +591,57 @@ class Vec(object):
 ################################
 
 	# in-place, so no return value
-	def addVFilter(self, filter):
+	def addFilter(self, filter):
 		"""
-		adds a vertex filter to the SpVec instance.  
+		adds a filter to the Vec instance.  
 
-		A vertex filter is a Python function that is applied elementally
-		to each vertex in the SpVec, with a Boolean True return value
-		causing the vertex to be considered and a False return value
-		causing it not to be considered.
+		A filter is a Python predicate function that is applied elementally
+		to each element in the Vec whenever an operation is performed on the
+		Vec. If `filter(x)` returns a Boolean True then the element will be
+		considered, otherwise it will not be considered.
 
-		Vertex filters are additive, in that each vertex must pass all
-		filters to be considered.  All vertex filters are executed before
-		a vertex is considered in a computation.
+		Filters are additive, in that each element must pass all
+		filters added to the Vec to be considered. 
 
 		Input Arguments:
-			self:  a DiGraph instance
-			filter:  a Python function
+			filter:  a Python predicate function
 
 		SEE ALSO:
-			delVFilter  
+			delFilter  
 		"""
-		if not Vec.isObj(self):
-			raise NotImplementedError, 'No filter support on doubleint SpVec instances'
-		if hasattr(self, '_vFilter_'):
-			self._vFilter_.append(filter)
+		if hasattr(self, '_filter_'):
+			self._filter_.append(filter)
 		else:
-			self._vFilter_ = [filter]
+			self._filter_ = [filter]
 		return
 
 	# in-place, so no return value
-	def delVFilter(self, filter=None):
+	def delFilter(self, filter=None):
 		"""
-		deletes a vertex filter from the SpVec instance.  
+		deletes a filter from the Vec instance.  
 
 		Input Arguments:
-			self:  a SpVec instance
-			filter:  a Python function, which can be either a function
-			    previously added to this DiGraph instance by a call to
-			    addVFilter or None, which signals the deletion of all
-			    vertex filters.
+			filter:  either a Python predicate function which has
+			    been previoiusly added to this instance by a call to
+			    addFilter or None, which signals the deletion of all
+			    filters.
 
 		SEE ALSO:
-			addVFilter  
+			addFilter  
 		"""
-		if not hasattr(self, '_vFilter_'):
-			raise KeyError, "no vertex filters previously created"
+		if not hasattr(self, '_filter_'):
+			raise KeyError, "no filters previously created"
 		if filter is None:
-			del self._vFilter_	# remove all filters
+			del self._filter_	# remove all filters
 		else:
-			self._vFilter_.remove(filter)
-			if len(self._vFilter_) == 0:
-				del self._vFilter_
+			self._filter_.remove(filter)
+			if len(self._filter_) == 0:
+				del self._filter_
 		return
 
 	def _hasFilter(self):
 		try:
-			ret = hasattr(self,'_vFilter_') and len(self._vFilter_)>0
+			ret = hasattr(self,'_filter_') and len(self._filter_)>0
 		except AttributeError:
 			ret = False
 		return ret
@@ -648,16 +657,16 @@ class Vec(object):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
 			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
+				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+					selfVFLen = len(self._filter_)
+					vFilter1 = self._filter_
 				else:
 					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
+				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+					otherVFLen = len(other._filter_)
+					vFilter2 = other._filter_
 				else:
 					otherVFLen = 0
 				@staticmethod
@@ -690,16 +699,16 @@ class Vec(object):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
 			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
+				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+					selfVFLen = len(self._filter_)
+					vFilter1 = self._filter_
 				else:
 					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
+				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+					otherVFLen = len(other._filter_)
+					vFilter2 = other._filter_
 				else:
 					otherVFLen = 0
 				@staticmethod
@@ -732,16 +741,16 @@ class Vec(object):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
 			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
+				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+					selfVFLen = len(self._filter_)
+					vFilter1 = self._filter_
 				else:
 					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
+				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+					otherVFLen = len(other._filter_)
+					vFilter2 = other._filter_
 				else:
 					otherVFLen = 0
 				@staticmethod
@@ -773,16 +782,16 @@ class Vec(object):
 		ToDo:  write doc
 		in-place operation
 		"""
-		if hasattr(self, '_vFilter_') or hasattr(other, '_vFilter_'):
+		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
 			class tmpB:
-				if hasattr(self,'_vFilter_') and len(self._vFilter_) > 0:
-					selfVFLen = len(self._vFilter_)
-					vFilter1 = self._vFilter_
+				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+					selfVFLen = len(self._filter_)
+					vFilter1 = self._filter_
 				else:
 					selfVFLen = 0
-				if hasattr(other,'_vFilter_') and len(other._vFilter_) > 0:
-					otherVFLen = len(other._vFilter_)
-					vFilter2 = other._vFilter_
+				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+					otherVFLen = len(other._filter_)
+					vFilter2 = other._filter_
 				else:
 					otherVFLen = 0
 				@staticmethod
@@ -806,6 +815,7 @@ class Vec(object):
 			superOp = _op_make_binaryObj(superOp)
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
+	# NEEDED: filters
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False):
 		"""
 		Performs an element-wise operation between the two vectors.
@@ -888,6 +898,9 @@ class Vec(object):
 		return ret
 	
 	def _ewise_bin_op_worker(self, other, func, intOnly=False, predicate=False):
+		"""
+		is an internal function used to implement elementwise arithmetic operators.
+		"""
 		funcUse = func
 		if intOnly:
 			# if other is a floating point, make it an int
@@ -1327,7 +1340,6 @@ class Vec(object):
 			return 0
 		return len(self) - self.nnn()
 
-	# NEEDED: keep this name? not nee()?
 	# NEEDED: update to use a sensible reduce (when said reduce is implemented)
 	def nnn(self):
 		"""
@@ -1344,6 +1356,8 @@ class Vec(object):
 				return len(self)
 			else:
 				return self._v_.getnee()
+		
+		raise NotImplementedError, "todo filtered nnn"
 			
 		# Adam:
 		# implement the rest with a single reduce that uses a double
@@ -1411,6 +1425,7 @@ class Vec(object):
 
 	# in-place, so no return value
 	# NEEDED: update docstring
+	# NEEDED: filters
 	def sort(self):
 		"""
 		sorts the non-null values in the passed Vec instance in-place
@@ -1423,6 +1438,9 @@ class Vec(object):
 			ret: the permutation used to perform the sort. self is also
 			     sorted.
 		"""
+		if self._hasFilter():
+			raise NotImplementedError, "filtered sort"
+			
 		return Vec._toVec(self._v_.Sort())
 
 	# NEEDED: update docstring
@@ -1445,8 +1463,7 @@ class Vec(object):
 		See Also:  sort
 		"""
 		ret1 = self.copy();
-		tmp = ret1._v_.Sort()
-		ret2 = Vec._toVec(tmp)
+		ret2 = ret1.sort()
 		return (ret1, ret2)
 
 	#in-place, so no return value

@@ -152,15 +152,15 @@ class Mat:
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
 
-		if hasattr(self,'_eFilter_'):
+		if hasattr(self,'_filter_'):
 			if type(self.nvert()) is tuple:
 				raise NotImplementedError, 'only square DiGraphs for now'
 			class tmpU:
-				_eFilter_ = self._eFilter_
+				_filter_ = self._filter_
 				@staticmethod
 				def fn(x):
-					for i in range(len(tmpU._eFilter_)):
-						if not tmpU._eFilter_[i](x):
+					for i in range(len(tmpU._filter_)):
+						if not tmpU._filter_[i](x):
 							return type(self._identity_)()
 					return x
 			tmpInstance = tmpU()
@@ -298,9 +298,9 @@ class Mat:
 			retv = Vec(ne, element=self._identity_, sparse=False)
 			self._m_.Find(reti._v_, retj._v_, retv._v_)
 		else:
-			reti = Vec(0)
-			retj = Vec(0)
-			retv = Vec(0)
+			reti = Vec(0, sparse=False)
+			retj = Vec(0, sparse=False)
+			retv = Vec(0, element=self._identity_, sparse=False)
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv)
 
@@ -477,7 +477,7 @@ class Mat:
 
 	def _hasFilter(self):
 		try:
-			ret = (hasattr(self,'_eFilter_') and len(self._eFilter_)>0) # ToDo: or (hasattr(self,'vAttrib') and self.vAttrib._hasFilter(self.vAttrib)) 
+			ret = (hasattr(self,'_filter_') and len(self._filter_)>0) # ToDo: or (hasattr(self,'vAttrib') and self.vAttrib._hasFilter(self.vAttrib)) 
 		except AttributeError:
 			ret = False
 		return ret
@@ -504,10 +504,10 @@ class Mat:
 		SEE ALSO:
 			delEFilter  
 		"""
-		if hasattr(self, '_eFilter_'):
-			self._eFilter_.append(filter)
+		if hasattr(self, '_filter_'):
+			self._filter_.append(filter)
 		else:
-			self._eFilter_ = [filter]
+			self._filter_ = [filter]
 		return
 
 ##########################
@@ -557,14 +557,14 @@ class Mat:
 		
 		if self._hasFilter() or other._hasFilter():
 			class tmpB:
-				if hasattr(self,'_eFilter_') and len(self._eFilter_) > 0:
-					selfEFLen = len(self._eFilter_)
-					eFilter1 = self._eFilter_
+				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+					selfEFLen = len(self._filter_)
+					eFilter1 = self._filter_
 				else:
 					selfEFLen = 0
-				if hasattr(other,'_eFilter_') and len(other._eFilter_) > 0:
-					otherEFLen = len(other._eFilter_)
-					eFilter2 = other._eFilter_
+				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+					otherEFLen = len(other._filter_)
+					eFilter2 = other._filter_
 				else:
 					otherEFLen = 0
 				@staticmethod
@@ -690,11 +690,11 @@ class Mat:
 		
 		if self._hasFilter():
 			class tmpB:
-				_eFilter_ = self._eFilter_
+				_filter_ = self._filter_
 				@staticmethod
 				def fn(x, y):
-					for i in range(len(tmpB._eFilter_)):
-						if not tmpB._eFilter_[i](x):
+					for i in range(len(tmpB._filter_)):
+						if not tmpB._filter_[i](x):
 							#x = type(self._identity_)()
 							return y # no contribution; return existing 'sum'
 							#break
