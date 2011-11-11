@@ -711,12 +711,12 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		vec1.addVFilter(element.ge0lt5)
+		vec1.addFilter(element.ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		vec2.addVFilter(element.geM2lt4)
+		vec2.addFilter(element.geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -731,12 +731,12 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		vec1.addVFilter(element.ge0lt5)
+		vec1.addFilter(element.ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		# ---- commented----  vec2.addVFilter(element.geM2lt4)
+		# ---- commented----  vec2.addFilter(element.geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -751,12 +751,12 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		# ----- commented out--- vec1.addVFilter(element.ge0lt5)
+		# ----- commented out--- vec1.addFilter(element.ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		vec2.addVFilter(element.geM2lt4)
+		vec2.addFilter(element.geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -810,7 +810,7 @@ class BuiltInTests(SpVecTests):
 		expI = [0x1, 0, 0x2, 0, 0x4, 0, 0x8, 0, 0x10, 0, 0x20, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0,]
 		self.assertEqual(sz, len(vec3))
-		self.assertEqual(len(i1),vec3.nnn())
+		self.assertEqual(max(len(i1), len(i2)),vec3.nnn())
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind].weight)
 
@@ -1637,18 +1637,35 @@ class GeneralPurposeTests(SpVecTests):
 	def test_abs_vectorDint_filtered(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
-		weight = [0, -4, 16, -36, -64, 100]
+		weight = [4, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
-		element = Obj1()
-		self.assertRaises(NotImplementedError, vec.addVFilter, Obj1.ge0lt5)
-		#dead code
-		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+		filter = lambda x: abs(x) >= 0 and abs(x) < 5
+		vec.addFilter(filter)
+		expW = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		res = abs(vec)
+		vec.delFilter(filter)
 		self.assertEqual(type(vec[0]), type(res[0]))
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertAlmostEqual(expW[ind],res[ind])
+
+	def test_abs_vectorDint_filtered_inplace(self):
+		sz = 25
+		i = [0, 2, 4, 6, 8, 10]
+		weight = [0, -4, 16, -36, -64, 100]
+		vec = self.initializeSpVec(sz, i, weight)
+		filter = lambda x: abs(x) >= 0 and abs(x) < 5
+		vec.addFilter(filter)
+		expW = [0, 0, 4, 0, 16, 0, -36, 0, -64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0, 0, 0]
+		vec.apply(lambda x: abs(x))
+		vec.delFilter(filter)
+		self.assertEqual(type(vec[0]), type(vec[0]))
+		self.assertEqual(sz, len(vec))
+		for ind in range(sz):
+			self.assertAlmostEqual(expW[ind],vec[ind])
 
 	def test_abs_vectorObj1_filtered(self):
 		sz = 25
@@ -1657,7 +1674,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		vec.addVFilter(Obj1.geM2lt4)
+		vec.addFilter(Obj1.geM2lt4)
 		expW = [0, 0, 2, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		res = abs(vec)
@@ -1673,7 +1690,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		vec.addVFilter(Obj2.geM2lt4)
+		vec.addFilter(Obj2.geM2lt4)
 		expW = [0, 0, 0, 0, 1, 0, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		res = abs(vec)
@@ -1899,7 +1916,11 @@ class GeneralPurposeTests(SpVecTests):
 				 0, 0, 0, 0, 0, 0]
 		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		vec.set(k)
+		
+		def f(x):
+			x.weight=k
+			return x
+		vec.apply(f)
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertAlmostEqual(expW[ind],vec[ind].weight)
@@ -1941,7 +1962,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.max()
+		res = vec.max(Obj1.maxInit())
 		expRes = 123
 		self.assertEqual(expRes, res.weight)
 
@@ -1952,7 +1973,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.max()
+		res = vec.max(Obj1.maxInit())
 		expRes = 136
 		self.assertEqual(expRes, res.weight)
 
@@ -1963,7 +1984,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.max()
+		res = vec.max(Obj1.maxInit())
 		expRes = 136
 		self.assertEqual(expRes, res.weight)
 
@@ -1974,7 +1995,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.min()
+		res = vec.min(Obj1.minInit())
 		expRes = -123
 		self.assertEqual(expRes, res.weight)
 
@@ -1985,7 +2006,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.min()
+		res = vec.min(Obj1.minInit())
 		expRes = -64
 		self.assertEqual(expRes, res.weight)
 
@@ -1996,7 +2017,7 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		res = vec.min()
+		res = vec.min(Obj1.minInit())
 		expRes = -64
 		self.assertEqual(expRes, res.weight)
 
@@ -2037,7 +2058,7 @@ class GeneralPurposeTests(SpVecTests):
 			self.assertEqual(expT[ind], vec2[ind].category)
 			self.assertAlmostEqual(expNdx[ind],vec3[ind])
 
-	def test_topK_vectorDint(self):
+	def disabled_test_topK_vectorDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, -4, 16, -36, -64, 100]
@@ -2052,7 +2073,7 @@ class GeneralPurposeTests(SpVecTests):
 
 class GeneralPurposeTests_disabled(SpVecTests):
 	def test_load(self):
-		vec = SpVec.load('UFget/Pajek/CSphd/CSphd.mtx')
+		vec = Vec.load('UFget/Pajek/CSphd/CSphd.mtx')
 		return
 
 	def test_topK_vectorObj1(self):
@@ -2168,7 +2189,7 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		vec._apply(ge0lt5)
+		vec.apply(ge0lt5)
 		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2179,7 +2200,7 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2,  4,   6, 8, 10]
 		v = [0, -4, 8, -12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		vec._apply(pcb.abs())
+		vec.apply(op_abs)
 		vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2191,7 +2212,16 @@ class ApplyReduceTests(SpVecTests):
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		ct = vec.count()
-		ctExpected = 6
+		ctExpected = 5
+		self.assertEqual(ctExpected, ct)
+
+	def test_countvectorDintPred(self):
+		sz = 25
+		i = [0, 2, 4, 6, 8, 10]
+		v = [0, 4, 8,12,16, 20]
+		vec = self.initializeSpVec(sz, i, v)
+		ct = vec.count(lambda x: x > 0 and x < 10)
+		ctExpected = 2
 		self.assertEqual(ctExpected, ct)
 
 	def test_reduce_vectorDint_default_op(self):
@@ -2199,7 +2229,7 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		red = vec._reduce(SpVec.op_add)
+		red = vec.reduce(op_add)
 		redExpected = 60
 		self.assertEqual(redExpected, red)
 
@@ -2208,7 +2238,7 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		red = vec._reduce(SpVec.op_max)
+		red = vec.reduce(op_max)
 		redExpected = 20
 		self.assertEqual(redExpected, red)
 
@@ -2217,7 +2247,7 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [2, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		red = vec._reduce(SpVec.op_min)
+		red = vec.reduce(op_min)
 		redExpected = 2
 		self.assertEqual(redExpected, red)
 
@@ -2298,7 +2328,7 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addVFilter(element.ge0lt5)
+#		vec.addFilter(element.ge0lt5)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 9, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2319,8 +2349,8 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addVFilter(element.ge0lt5)
-#		vec.addVFilter(element.geM2lt4)
+#		vec.addFilter(element.ge0lt5)
+#		vec.addFilter(element.geM2lt4)
 #		vec._apply(add3p14)
 #		vecExpected = [-3, 0, 5.14159, 0, 6.14159, 0, 4, 0, 5, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2342,9 +2372,9 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addVFilter(element.ge0lt5)
-#		vec.addVFilter(element.geM2lt4)
-#		vec.delVFilter()
+#		vec.addFilter(element.ge0lt5)
+#		vec.addFilter(element.geM2lt4)
+#		vec.delFilter()
 #		vec._apply(add3p14)
 #		vecExpected = [0.14159, 0, 5.14159, 0, 6.14159, 0, 7.14159, 0, 8.14159, 0, 9.14159, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2365,9 +2395,9 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addVFilter(element.ge0lt5)
-#		vec.addVFilter(element.geM2lt4)
-#		vec.delVFilter(element.geM2lt4)
+#		vec.addFilter(element.ge0lt5)
+#		vec.addFilter(element.geM2lt4)
+#		vec.delFilter(element.geM2lt4)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 9, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2388,9 +2418,9 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addVFilter(element.ge0lt5)
-#		vec.addVFilter(element.geM2lt4)
-#		vec.delVFilter(element.ge0lt5)
+#		vec.addFilter(element.ge0lt5)
+#		vec.addFilter(element.geM2lt4)
+#		vec.delFilter(element.ge0lt5)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2404,12 +2434,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		vec1.addVFilter(element.ge0lt5)
+#		vec1.addFilter(element.ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		vec2.addVFilter(element.geM2lt4)
+#		vec2.addFilter(element.geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2424,12 +2454,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		vec1.addVFilter(element.ge0lt5)
+#		vec1.addFilter(element.ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		# ---- commented----  vec2.addVFilter(element.geM2lt4)
+#		# ---- commented----  vec2.addFilter(element.geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2444,12 +2474,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		# ----- commented out--- vec1.addVFilter(element.ge0lt5)
+#		# ----- commented out--- vec1.addFilter(element.ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		vec2.addVFilter(element.geM2lt4)
+#		vec2.addFilter(element.geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2495,7 +2525,7 @@ class FilterTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element1 = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (w1,c1), element=element1)
-		vec1.addVFilter(element1.ge0lt5)
+		vec1.addFilter(element1.ge0lt5)
 		vec1.applyInd(set_ind_indpInd)
 		expW = [0, 0, 2.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		expC = [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -2514,10 +2544,10 @@ def suite():
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConstructorTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
 	return suite
 
 if __name__ == '__main__':

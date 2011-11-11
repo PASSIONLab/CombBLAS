@@ -9,6 +9,7 @@ from Util import _op_make_unary_pred
 from Util import _op_make_binary
 from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
+from Util import _op_is_wrapped
 from Util import _makePythonOp
 
 #	naming convention:
@@ -75,16 +76,48 @@ class Vec(object):
 		ret._identity_ = Vec._getExampleElement(pcbVec)
 		return ret
 
-	# NEEDED: filer and type change needs to be updated		
-	def copy(self, element=None):
+	# NEEDED: type change needs to be updated		
+	def copy(self, element=None, hardFilter=True):
 		"""
 		creates a deep copy of the input argument.
 		FIX:  doc 'element' arg that converts element of result
 		ToDo:  add a doFilter=True arg at some point?
 		"""
 		ret = Vec() #Vec(element=self._identity_, sparse=self.isSparse())
-		ret._v_ = self._v_.copy()
 		ret._identity_ = self._identity_
+		if element is not None and type(self._identity_) is not type(element):
+			# changing elemental type. This will also implement a hard filter.
+			if not hardFilter:
+				raise KeyError, "cannot do a soft filter copy if changing type. Specify hardFilter=True"
+				
+			ret = Vec(len(self), element=element, sparse=self.isSparse())
+			def coercefunc(x, y): 
+				#ToDo:  assumes that at least x or y is an ObjX
+				if isinstance(x,(float,int,long)):
+					ret = y.coerce(x, False)
+				else:
+					ret = x.coerce(y, True)
+				return ret
+			#raise NotImplementedError, "add coerce call to copy()"
+			ret.eWiseApply(self, coercefunc, allowANulls=True, inPlace=True)
+			
+		elif self._hasFilter():
+			if hardFilter:
+				# materialize the filter
+				ret = Vec(len(self), element=self._identity_, sparse=self.isSparse())
+				# eWiseApply already has filtering implemented, so piggy-back on it
+				# inPlace ensures that eWiseApply doesn't try to make a copy, leading
+				# to an infinite loop
+				ret.eWiseApply(self, (lambda r, s: s), allowANulls=True, inPlace=True)
+			else:
+				# copy all the data as is and copy the filters
+				import copy
+				ret._v_ = self._v_.copy()
+				ret._filter_ = copy.copy(self._filter_)
+		else:
+			ret._v_ = self._v_.copy()
+		
+		return ret
 		
 		# filter the new vector; note generic issue of distinguishing
 		#   zero from null
@@ -122,12 +155,15 @@ class Vec(object):
 		ret._v_.load(fname)
 		return ret
 	
-	# NEEDED: filters
 	def save(self, fname):
 		"""
 		saves this vector to a file.
 		"""
-		self._v_.save(fname)
+		if self._hasFilter():
+			f = self.copy(hardFilter=True)
+			f._v_.save(fname)
+		else:
+			self._v_.save(fname)
 
 	# NEEDED: filters
 	def dense(self):	
@@ -245,7 +281,6 @@ class Vec(object):
 	#ToDo:  implement find/findInds when problem of any zero elements
 	#         in the sparse vector getting stripped out is solved
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
-	# NEEDED: filters
 	def find(self, pred=None):
 		"""
 		returns the elements of a Boolean SpParVec instance that are both
@@ -262,22 +297,21 @@ class Vec(object):
 		if self.isSparse():
 			raise NotImplementedError, "find not implemented on sparse vectors yet."
 
-		if self._hasFilter():
-			raise NotImplementedError, "this operation does not implement filters yet."
-
 		# provide a default predicate		
 		if pred is None:
 			if Vec.isObj(self):
 				pred = lambda x: True
 			else:
-				pred = op_bind2nd(op_ne, 0.0)
+				pred = lambda x: x != 0
 			
+		if self._hasFilter():
+			pred = FilterHelper.getFilteredUniOpOrVal(self, pred, False)
+
 		ret = self._v_.Find(_op_make_unary_pred(pred))
 		return Vec._toVec(ret)
 
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
-	# NEEDED: filters
 	def findInds(self, pred=None):
 		"""
 		returns the indices of the elements of a Boolean SpParVec instance
@@ -295,16 +329,16 @@ class Vec(object):
 		if self.isSparse():
 			raise NotImplementedError, "findInds not implemented on sparse vectors yet."
 
-		if self._hasFilter():
-			raise NotImplementedError, "this operation does not implement filters yet."
-
 		# provide a default predicate		
 		if pred is None:
 			if Vec.isObj(self):
 				pred = lambda x: True
 			else:
-				pred = op_bind2nd(op_ne, 0.0)
+				pred = lambda x: x != 0
 			
+		if self._hasFilter():
+			pred = FilterHelper.getFilteredUniOpOrVal(self, pred, False)
+
 		ret = self._v_.FindInds(_op_make_unary_pred(pred))
 		return Vec._toVec(ret)
 
@@ -457,7 +491,6 @@ class Vec(object):
 			ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
 		return ret
 	
-	# NEEDED: filters
 	def count(self, pred=None):
 		"""
 		returns the number of elements for which `pred` is true.
@@ -651,39 +684,44 @@ class Vec(object):
 #### EWiseApply
 ################################
 
-	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+
+# Old filtering code left here for reference:
+#
+#		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
+#			class tmpB:
+#				if hasattr(self,'_filter_') and len(self._filter_) > 0:
+#					selfVFLen = len(self._filter_)
+#					vFilter1 = self._filter_
+#				else:
+#					selfVFLen = 0
+#				if hasattr(other,'_filter_') and len(other._filter_) > 0:
+#					otherVFLen = len(other._filter_)
+#					vFilter2 = other._filter_
+#				else:
+#					otherVFLen = 0
+#				@staticmethod
+#				def fn(x, y):
+#					for i in range(tmpB.selfVFLen):
+#						if not tmpB.vFilter1[i](x):
+#							x = type(self._identity_)()
+#							break
+#					for i in range(tmpB.otherVFLen):
+#						if not tmpB.vFilter2[i](y):
+#							y = type(other._identity_)()
+#							break
+#					return op(x, y)
+#			superOp = tmpB().fn
+#		else:
+#			superOp = op
+
+	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
-			class tmpB:
-				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-					selfVFLen = len(self._filter_)
-					vFilter1 = self._filter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-					otherVFLen = len(other._filter_)
-					vFilter2 = other._filter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
-
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
+		
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
@@ -693,38 +731,13 @@ class Vec(object):
 		ret = Vec._toVec(v)
 		return ret
 
-	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
-			class tmpB:
-				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-					selfVFLen = len(self._filter_)
-					vFilter1 = self._filter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-					otherVFLen = len(other._filter_)
-					vFilter2 = other._filter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, True, ANull, other._identity_)
 
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -735,38 +748,13 @@ class Vec(object):
 		ret = Vec._toVec(v)
 		return ret
 
-	# NOTE: this function is SpVec-specific because pyCombBLAS calling
+	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate=False):
 		"""
 		ToDo:  write doc
 		"""
-		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
-			class tmpB:
-				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-					selfVFLen = len(self._filter_)
-					vFilter1 = self._filter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-					otherVFLen = len(other._filter_)
-					vFilter2 = other._filter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, allowBNulls, self._identity_, BNull)
 			
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -775,39 +763,14 @@ class Vec(object):
 			
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp), allowBNulls, BNull)
 	
-	# NOTE: this function is DeVec-specific because pyCombBLAS calling
+	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate=False):
 		"""
 		ToDo:  write doc
 		in-place operation
 		"""
-		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
-			class tmpB:
-				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-					selfVFLen = len(self._filter_)
-					vFilter1 = self._filter_
-				else:
-					selfVFLen = 0
-				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-					otherVFLen = len(other._filter_)
-					vFilter2 = other._filter_
-				else:
-					otherVFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfVFLen):
-						if not tmpB.vFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherVFLen):
-						if not tmpB.vFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, True, self._identity_, other._identity_)
 
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -891,7 +854,7 @@ class Vec(object):
 		
 		ret = self.copy()
 		if not Vec.isObj(self):
-			f = pcb.abs()
+			f = op_abs
 		else:
 			f = lambda x: x.__abs__()
 		ret.apply(f)
@@ -919,7 +882,7 @@ class Vec(object):
 			# if other is a scalar, then only apply it to the nonnull elements of self.
 			return self.eWiseApply(other, funcUse, allowANulls=False, allowBNulls=False, inPlace=False, predicate=predicate)
 		else:
-			return self.eWiseApply(other, funcUse, allowANulls=True, allowBNulls=False, inPlace=False, predicate=predicate)
+			return self.eWiseApply(other, funcUse, allowANulls=True, allowBNulls=True, inPlace=False, predicate=predicate)
 	
 	def __add__(self, other):
 		"""

@@ -80,7 +80,81 @@ class FilterHelper:
 			return tmpInstance.fn
 		else:
 			return None
+			
+	@staticmethod
+	def getEWiseFilteredOps(myself, other, op, doOp, allowANulls, allowBNulls, ANull, BNull):
+		myselfFilter = FilterHelper.getFilterPred(myself)
+		otherFilter = FilterHelper.getFilterPred(other)
+		if myselfFilter is None and otherFilter is None:
+			return (op, doOp) # no filters
+		
+		if doOp is None:
+			doOp = lambda x,y: True
+		
+		if _op_is_wrapped(op):
+			op = _makePythonOp(op)
+		if _op_is_wrapped(doOp):
+			doOp = _makePythonOp(doOp)
+			
+		if myselfFilter is None:
+			myselfFilter = lambda x: True
+		if otherFilter is None:
+			otherFilter = lambda x: True
+		
+		if not allowANulls:
+			ANull = None
+		if not allowBNulls:
+			BNull = None
+			
+		# a class that is used for both filtered op and filtered doOp
+		class tmpB:
+			def __init__(self, xFilter, yFilter, xDflt, yDflt, origOp, retDflt):
+				self.xFilter = xFilter
+				self.yFilter = yFilter
+				self.xDflt = xDflt
+				self.yDflt = yDflt
+				self.origOp = origOp
+				self.retDflt = retDflt
 
+			def __call__(self, x, y):
+			#	print "-----"
+			#	print "got:",x,y
+			#	print "taco0. defaults:",self.xDflt, self.yDflt
+				xPass = bool(self.xFilter(x))
+				yPass = bool(self.yFilter(y))
+				
+			#	print "taco1. ",xPass,yPass
+				if xPass and yPass:
+					return self.origOp(x, y)
+
+				if not xPass and not yPass:
+					return self.retDflt
+
+				if xPass and not yPass:
+					if self.yDflt is None:
+						return self.retDflt
+					else:
+						return self.origOp(x, self.yDflt)
+
+				if not xPass and yPass:
+					if self.xDflt is None:
+						return self.retDflt
+					else:
+			#			print "here"
+						return self.origOp(self.xDflt, y)
+						
+				print "you've reached unreachable code!"
+				return self.retDflt
+
+		# create a filtered version of the doOp predicate
+		filteredDoOp = tmpB(myselfFilter, otherFilter, ANull, BNull, doOp, False)
+
+		# create a filtered version of the op function
+		# default return value is None because the predicate should prevent that case
+		# from ever executing. If it does, there's a bug and we want to crash right away.
+		filteredOp = tmpB(myselfFilter, otherFilter, ANull, BNull, op, None)
+		
+		return (filteredOp, filteredDoOp)
 def master():
 	"""
 	Return Boolean value denoting whether calling process is the 
@@ -297,6 +371,8 @@ def _op_make_binary_pred(op):
 		return op
 	return pcb.binaryObjPred(op)
 
+def _op_is_wrapped(op):
+	return isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj, pcb.UnaryPredicateObj, pcb.BinaryFunction, pcb.BinaryFunctionObj, pcb.BinaryPredicateObj))
 
 def _makePythonOp(op):
 	if isinstance(op, (pcb.UnaryFunction, pcb.BinaryFunction)):
