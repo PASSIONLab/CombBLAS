@@ -4,11 +4,10 @@ from kdt import *
 import kdt.ObjMethods
 
 class VecTests(unittest.TestCase):
-	def initializeSpVec(self, length, i, v=1, element=0):
+	def fillVec(self, ret, i, v, element):
 		"""
 		Initialize a Vec instance with values equal to one or the input value.
 		"""
-		ret = Vec(length, element=element, sparse=True)
 		for ind in range(len(i)):
 			if isinstance(element, (float, int, long)):
 				if type(v) != int and type(v) != float:
@@ -31,16 +30,91 @@ class VecTests(unittest.TestCase):
 				else:
 					val.weight = v
 					val.category   = v
+			ret[i[ind]] = val
+	
+	def fillVecFilter(self, ret, i, v, element):
+		filteredValues = [-8000, 8000, 3, 2, 5, 4]
+		filteredInds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+		for ind in range(len(i)):
+			# make sure we don't override existing elements
+			try:
+				filteredInds.remove(i[ind])
+			except ValueError:
+				pass
+				
+			if isinstance(element, (float, int, long)):
+				if type(v) != int and type(v) != float:
+					val = v[ind]
+				else:
+					val = v
+				ret[i[ind]] = val
+				
+				# make sure we don't filter out actual values
+				if filteredValues.count(val) > 0:
+					filteredValues.remove(val)
+			elif isinstance(element, Obj1):
+				val = pcb.Obj1()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category = v[1][ind]
+				else:
+					val.weight = v
+					val.category = v
 				ret[i[ind]] = val
 
+				# make sure we don't filter out actual values
+				if filteredValues.count(val.weight) > 0:
+					filteredValues.remove(val.weight)
+			elif isinstance(element, Obj2):
+				val = pcb.Obj2()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category = v[1][ind]
+				else:
+					val.weight = v
+					val.category = v
+				ret[i[ind]] = val
+
+				# make sure we don't filter out actual values
+				if filteredValues.count(val.weight) > 0:
+					filteredValues.remove(val.weight)
+		# make sure we don't override existing elements
+		self.assertTrue(len(filteredInds) > 0)
+		# add extra elements
+		for ind in range(len(filteredInds)):
+			fv = filteredValues[ind % len(filteredValues) ]
+			if isinstance(element, Obj1):
+				val = pcb.Obj1()
+				val.weight = fv
+			elif isinstance(element, Obj2):
+				val = pcb.Obj2()
+				val.weight = fv
+			else:
+				val = fv
+			ret[filteredInds[ind]] = val
+		# add the filter to take out the extra elements we just added,
+		# so tests should pass as if we didn't do anything.
+		if ret.isObj():
+			ret.addFilter(lambda e: filteredValues.count(e.weight) == 0)
+		else:
+			ret.addFilter(lambda e: filteredValues.count(e) == 0)
+
+	def initializeSpVec(self, length, i, v=1, element=0):
+		ret = Vec(length, element=element, sparse=True)
+		self.fillVec(ret, i, v, element)
 		return ret
 
-	def initializeSpVecFilter(self, length, i, v=1, element=0):
-		self.assertTrue(False) # implement this!
-		raise NotImplementedError, "todo sparse"
-		return initializeSpVec(self, length, i, v, element)
+#	def initializeSpVecFilter(self, length, i, v=1, element=0):
+#		self.assertTrue(False) # implement this!
+#		raise NotImplementedError, "todo sparse"
+#		return self.initializeSpVec(self, length, i, v, element)
  
 	def initializeVec(self, length, i, v=1, element=0):
+		ret = Vec(length, element=element, sparse=False)
+		self.fillVec(ret, i, v, element)
+		return ret
+
+	def asdfasdf_initializeVec(self, length, i, v=1, element=0):
 		"""
 		Initialize a Vec instance with values equal to one or the input value.
 		"""
@@ -51,7 +125,6 @@ class VecTests(unittest.TestCase):
 					val = v[ind]
 				else:
 					val = v
-				ret[i[ind]] = val
 			elif isinstance(element, Obj1):
 				val = pcb.Obj1()
 				if type(v) == tuple:
@@ -60,7 +133,6 @@ class VecTests(unittest.TestCase):
 				else:
 					val.weight = v
 					val.category = v
-				ret[i[ind]] = val
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
 				if type(v) == tuple:
@@ -69,10 +141,10 @@ class VecTests(unittest.TestCase):
 				else:
 					val.weight = v
 					val.category = v
-				ret[i[ind]] = val
+			ret[i[ind]] = val
 		return ret
 
-	def initializeVecFilter(self, length, i, v=1, element=0):
+	def asfdasdf_initializeVecFilter(self, length, i, v=1, element=0):
 		"""
 		Initialize a Vec instance with values equal to one or the input value.
 		"""
@@ -1852,8 +1924,8 @@ class MixedDenseSparseVecTests(VecTests):
 
 	def test_add_dense_sparse(self):
 		sz = 25
-		i = [0, 2, 4, 6, 8, 10]
-		v = [0, 4, 8,12,16, 20]
+		i = [0,    2,   4,  6, 8, 10]
+		v = [0,    4,   8, 12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		i2 = [0, 1,   3,  5, 7]
 		v2 = [0,-2, 0.1,777, 0]
@@ -1889,11 +1961,11 @@ class MixedDenseSparseVecTests(VecTests):
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		i2 = [0, 1,   3,  5, 7]
-		v2 = [0,-2, 0.1,777, 0]
+		v2 = [0,-1, 0.1,777, 0]
 		vec2 = self.initializeVec(sz, i2, v2)
 		vec3 = vec.copy()
 		vec3 -= vec2
-		expI = [0, 2, 4, -0.1, 8, -777, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0,
+		expI = [0, 1, 4, -0.1, 8, -777, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec3))
 		# odd behavior here; element 0 in vec1 and element 7 in vec2 become
@@ -1916,6 +1988,29 @@ class MixedDenseSparseVecTests(VecTests):
 		#self.assertEqual(len(i)+len(i2)-1, vec3.nnn())
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind])
+
+class FindTests(VecTests):
+	def test_find(self):
+		sz = 25
+		i = [0, 2, 4, 6, 8, 10]
+		v = [0, 4, 8,12,16, 20]
+		vec = self.initializeVec(sz, i, v)
+		vec2 = vec.find(lambda x: x > 0 and x < 10)
+		vecExpected = [0, 0, 4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.assertEqual(sz, len(vec2))
+		for ind in range(sz):
+			self.assertEqual(vecExpected[ind], vec2[ind])
+	def test_findInds(self):
+		sz = 25
+		i = [0, 2, 4, 6, 8, 10]
+		v = [0, 4, 8,12,16, 20]
+		vec = self.initializeVec(sz, i, v)
+		vec2 = vec.findInds(lambda x: x > 0 and x < 10)
+		vecExpected = [2, 4]
+		self.assertEqual(len(vecExpected), len(vec2))
+		for ind in range(len(vecExpected)):
+			self.assertEqual(vecExpected[ind], vec2[ind])
+
 
 class ApplyReduceTests(VecTests):
 	def test_apply(self):
@@ -2146,6 +2241,7 @@ class FilterTests(VecTests):
 		vec = self.initializeVec(sz, i, (v,v), element=element)
 		vec.addFilter(element.ge0lt5)
 		vec.apply(add5)
+		vec.delFilter(element.ge0lt5)
 		vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2168,6 +2264,8 @@ class FilterTests(VecTests):
 		vec.addFilter(element.ge0lt5)
 		vec.addFilter(element.geM2lt4)
 		vec.apply(add3p14)
+		vec.delFilter(element.ge0lt5)
+		vec.delFilter(element.geM2lt4)
 		vecExpected = [-3, 3.14159, 5.14159, 3.14159, 6.14159, 3.14159, 4, 3.14159, 5, 3.14159, 6, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2215,6 +2313,7 @@ class FilterTests(VecTests):
 		vec.addFilter(element.geM2lt4)
 		vec.delFilter(element.geM2lt4)
 		vec.apply(add5)
+		vec.delFilter(element.ge0lt5) # must remove this filter or else the [] operation is still filtered
 		vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2238,6 +2337,7 @@ class FilterTests(VecTests):
 		vec.addFilter(element.geM2lt4)
 		vec.delFilter(element.ge0lt5)
 		vec.apply(add5)
+		vec.delFilter(element.geM2lt4) # must remove this filter or else the [] operation is still filtered
 		vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
@@ -2310,8 +2410,7 @@ def runTests(verbosity = 1):
 
 	print "running again using filtered data:"
 	
-	VecTests.initializeVec = VecTests.initializeVecFilter
-	VecTests.initializeSpVec = VecTests.initializeSpVecFilter
+	VecTests.fillVec = VecTests.fillVecFilter
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
@@ -2319,10 +2418,11 @@ def suite():
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConstructorTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(MixedDenseSparseVecTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FindTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(xxxTests))
-#	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FilterTests))
 
 	return suite
 

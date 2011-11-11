@@ -542,6 +542,39 @@ def defUserCallbacks(objList):
 #	Methods below here are used by KDT unittests
 #
 	@staticmethod
+	def maxInitObj1():
+		ret = pcb.Obj1()
+		ret.weight = -1.8e308
+		return ret
+	@staticmethod
+	def maxInitObj2():
+		ret = pcb.Obj2()
+		ret.weight = -1.8e308
+		return ret
+	for obj in objList:
+		if obj == pcb.Obj1:
+			obj.maxInit = maxInitObj1
+		elif obj == pcb.Obj2:
+			obj.maxInit = maxInitObj2
+
+	@staticmethod
+	def minInitObj1():
+		ret = pcb.Obj1()
+		ret.weight = 1.8e308
+		return ret
+	@staticmethod
+	def minInitObj2():
+		ret = pcb.Obj2()
+		ret.weight = 1.8e308
+		return ret
+	for obj in objList:
+		if obj == pcb.Obj1:
+			obj.minInit = minInitObj1
+		elif obj == pcb.Obj2:
+			obj.minInit = minInitObj2
+	
+		
+	@staticmethod
 	def ge0lt5(self):
 		if isinstance(self, (float, int, long)):
 			return self >= 0 and self < 5
