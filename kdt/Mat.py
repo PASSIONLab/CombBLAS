@@ -345,13 +345,13 @@ class Mat:
 		
 		return ret
 				
-	_REPR_MAX = 200
+	_REPR_MAX = 400
 	def __repr__(self):
 
 		if self.ncol() < 20:
 			# pretty print a nice matrix
 			return self._reprGrid()
-		elif self.nee() < self._REPR_MAX:
+		elif self.nnn() < self._REPR_MAX:
 			return self._reprTuples()
 		else:
 			ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
