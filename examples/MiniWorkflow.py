@@ -71,12 +71,14 @@ print "Finding the largest component:"
 # comp[i] specifies vertex i's component ID (the ID is the index of a vertex in that component)
 comp = bigG.connComp()
 
-# hist() computes the histogram of comp, i.e. returns how many vertices each component has
-hist = comp.hist()
-# we only want the largest
-giantCompSize = hist.max()
-# find the ID of the largest component. The ID is the index of the component's root vertex
-giantCompRoot = hist.findInds(lambda x: x == giantCompSize)[0]
+## hist() computes the histogram of comp, i.e. returns how many vertices each component has
+#hist = comp.hist()
+## we only want the largest
+#giantCompSize = hist.max()
+## find the ID of the largest component. The ID is the index of the component's root vertex
+#giantCompRoot = hist.findInds(lambda x: x == giantCompSize)[0]
+
+giantCompRoot = comp.hist().argmax()
 G = bigG.subgraph(mask=(comp==giantCompRoot))
 
 # Get the indices of the vertices by getting the indicies of the nonzeros in the mask.

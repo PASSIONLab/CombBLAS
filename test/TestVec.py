@@ -2297,12 +2297,12 @@ class FilterTests(VecTests):
 
 	def test_apply2_deleteLast_filter(self):
 		def add5(x):
-				if isinstance(x, (int, long, float)):
-						return x+5
-				else:
-						x.weight += 5
-						x.category *= 2
-						return x
+			if isinstance(x, (int, long, float)):
+				return x+5
+			else:
+				x.weight += 5
+				x.category *= 2
+				return x
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		v = [1, 4, 8,12,16, 20]
@@ -2321,23 +2321,26 @@ class FilterTests(VecTests):
 
 	def test_apply2_deleteFirst_filter(self):
 		def add5(x):
-				if isinstance(x, (int, long, float)):
-						return x+5
-				else:
-						x.weight += 5
-						x.category *= 2
-						return x
+			if isinstance(x, (int, long, float)):
+				return x+5
+			else:
+				x.weight += 5
+				x.category *= 2
+				return x
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		v = [1, 4, 8,12,16, 20]
 		c = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
+		print ""
+		print "vec:",vec
 		vec.addFilter(element.ge0lt5)
 		vec.addFilter(element.geM2lt4)
 		vec.delFilter(element.ge0lt5)
 		vec.apply(add5)
 		vec.delFilter(element.geM2lt4) # must remove this filter or else the [] operation is still filtered
+		print "vec:",vec
 		vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):

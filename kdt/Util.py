@@ -49,6 +49,23 @@ class FilterHelper:
 			return op
 
 	@staticmethod
+	def getFilteredUniOpOrOpVal(filteredObject, op, defaultVal):
+		if filteredObject._hasFilter():
+			class tmpU:
+				filter = filteredObject._filter_
+				identity = defaultVal
+				@staticmethod
+				def fn(x):
+					for i in range(len(tmpU.filter)):
+						if not tmpU.filter[i](x):
+							return op(tmpU.identity)
+					return op(x)
+			tmpInstance = tmpU()
+			return tmpInstance.fn
+		else:
+			return op
+
+	@staticmethod
 	def getFilteredUniOpOrVal(filteredObject, op, defaultVal):
 		if filteredObject._hasFilter():
 			class tmpU:

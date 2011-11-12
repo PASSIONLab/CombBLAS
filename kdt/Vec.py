@@ -202,7 +202,10 @@ class Vec(object):
 		"""
 		if self._hasFilter():
 			op = _makePythonOp(op)
+			#if self.isSparse():
 			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+			#else:
+			#	op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
 		
 		self._v_.Apply(_op_make_unary(op))
 		return
@@ -283,14 +286,14 @@ class Vec(object):
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
 	def find(self, pred=None):
 		"""
-		returns the elements of a Boolean SpParVec instance that are both
+		returns the elements of a Boolean Vec instance that are both
 		nonnull and nonzero.
 
 		Input Argument:
-			self:  a SpParVec instance
+			self:  a Vec instance
 
 		Output Argument:
-			ret:  a SpParVec instance
+			ret:  a Vec instance
 
 		SEE ALSO:  findInds
 		"""
@@ -314,14 +317,14 @@ class Vec(object):
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
 	def findInds(self, pred=None):
 		"""
-		returns the indices of the elements of a Boolean SpParVec instance
+		returns the indices of the elements of a Boolean Vec instance
 		that are both nonnull and nonzero.
 
 		Input Argument:
-			self:  a SpParVec instance
+			self:  a Vec instance
 
 		Output Argument:
-			ret:  a ParVec instance of length equal to the number of
+			ret:  a Vec instance of length equal to the number of
 			    nonnull and nonzero elements in self
 
 		SEE ALSO:  find
@@ -856,8 +859,18 @@ class Vec(object):
 		if not Vec.isObj(self):
 			f = op_abs
 		else:
-			f = lambda x: x.__abs__()
+			f = lambda x: abs(x)
 		ret.apply(f)
+		return ret
+
+	def argmax(self):
+		m = self.max()
+		ret = int(self.findInds(lambda x: x == m)[0])
+		return ret
+
+	def argmin(self):
+		m = self.min()
+		ret = int(self.findInds(lambda x: x == m)[0])
 		return ret
 	
 	def _ewise_bin_op_worker(self, other, func, intOnly=False, predicate=False):
