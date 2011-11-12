@@ -1986,6 +1986,7 @@ examples/GaBP/test_blockGBP2.m -text
 examples/GaBP_A100.py -text
 examples/Graph500.py -text
 examples/Graph500_HyGraph.py -text
+examples/Kmeans.py -text
 examples/MiniWorkflow.py -text
 examples/ModelProblemGen.py -text
 examples/mcl.py -text
