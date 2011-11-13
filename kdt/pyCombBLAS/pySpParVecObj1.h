@@ -76,6 +76,7 @@ public:
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
 	
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.

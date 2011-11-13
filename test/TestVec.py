@@ -103,117 +103,10 @@ class VecTests(unittest.TestCase):
 		ret = Vec(length, element=element, sparse=True)
 		self.fillVec(ret, i, v, element)
 		return ret
-
-#	def initializeSpVecFilter(self, length, i, v=1, element=0):
-#		self.assertTrue(False) # implement this!
-#		raise NotImplementedError, "todo sparse"
-#		return self.initializeSpVec(self, length, i, v, element)
  
 	def initializeVec(self, length, i, v=1, element=0):
 		ret = Vec(length, element=element, sparse=False)
 		self.fillVec(ret, i, v, element)
-		return ret
-
-	def asdfasdf_initializeVec(self, length, i, v=1, element=0):
-		"""
-		Initialize a Vec instance with values equal to one or the input value.
-		"""
-		ret = Vec(length, element=element, sparse=False)
-		for ind in range(len(i)):
-			if isinstance(element, (float, int, long)):
-				if type(v) != int and type(v) != float:
-					val = v[ind]
-				else:
-					val = v
-			elif isinstance(element, Obj1):
-				val = pcb.Obj1()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
-				else:
-					val.weight = v
-					val.category = v
-			elif isinstance(element, Obj2):
-				val = pcb.Obj2()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
-				else:
-					val.weight = v
-					val.category = v
-			ret[i[ind]] = val
-		return ret
-
-	def asfdasdf_initializeVecFilter(self, length, i, v=1, element=0):
-		"""
-		Initialize a Vec instance with values equal to one or the input value.
-		"""
-		ret = Vec(length, element=element, sparse=False)
-		filteredValues = [-8000, 8000, 3, 2, 5, 4]
-		filteredInds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-		for ind in range(len(i)):
-			# make sure we don't override existing elements
-			try:
-				filteredInds.remove(i[ind])
-			except ValueError:
-				pass
-				
-			if isinstance(element, (float, int, long)):
-				if type(v) != int and type(v) != float:
-					val = v[ind]
-				else:
-					val = v
-				ret[i[ind]] = val
-				
-				# make sure we don't filter out actual values
-				if filteredValues.count(val) > 0:
-					filteredValues.remove(val)
-			elif isinstance(element, Obj1):
-				val = pcb.Obj1()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
-				else:
-					val.weight = v
-					val.category = v
-				ret[i[ind]] = val
-
-				# make sure we don't filter out actual values
-				if filteredValues.count(val.weight) > 0:
-					filteredValues.remove(val.weight)
-			elif isinstance(element, Obj2):
-				val = pcb.Obj2()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
-				else:
-					val.weight = v
-					val.category = v
-				ret[i[ind]] = val
-
-				# make sure we don't filter out actual values
-				if filteredValues.count(val.weight) > 0:
-					filteredValues.remove(val.weight)
-		# make sure we don't override existing elements
-		self.assertTrue(len(filteredInds) > 0)
-		# add extra elements
-		for ind in range(len(filteredInds)):
-			fv = filteredValues[ind % len(filteredValues) ]
-			if isinstance(element, Obj1):
-				val = pcb.Obj1()
-				val.weight = fv
-			elif isinstance(element, Obj2):
-				val = pcb.Obj2()
-				val.weight = fv
-			else:
-				val = fv
-			ret[filteredInds[ind]] = val
-		# add the filter to take out the extra elements we just added,
-		# so tests should pass as if we didn't do anything.
-		if ret.isObj():
-			ret.addFilter(lambda e: filteredValues.count(e.weight) == 0)
-		else:
-			ret.addFilter(lambda e: filteredValues.count(e) == 0)
 		return ret
 
 class ConstructorTests(VecTests):
@@ -2341,7 +2234,9 @@ class FilterTests(VecTests):
 		vec.apply(add5)
 		vec.delFilter(element.geM2lt4) # must remove this filter or else the [] operation is still filtered
 		print "vec:",vec
-		vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+		#assuming filters make a dense vector act sparse:
+		#vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+		vecExpected = [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertEqual(vecExpected[ind], vec[ind].weight)

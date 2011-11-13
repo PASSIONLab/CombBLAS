@@ -176,6 +176,25 @@ Obj2 pySpParVecObj2::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf,
 	return ret;
 }
 
+double pySpParVecObj2::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double init)
+{
+	if (!bf->associative && root())
+		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
+
+	double ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+	{
+		ret = 0;
+		cout << "unary operation must be specified when changing types!" << endl;
+	}
+	else
+		ret = v.Reduce(*bf, doubleint(init), *uf);
+	bf->releaseMPIOp();
+	return ret;
+}
+
 pySpParVec pySpParVecObj2::Sort()
 {
 	pySpParVec ret(0);

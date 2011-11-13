@@ -63,6 +63,7 @@ public:
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVecObj1 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj1 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);

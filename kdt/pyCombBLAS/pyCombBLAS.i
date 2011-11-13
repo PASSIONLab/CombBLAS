@@ -516,6 +516,7 @@ public:
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
 	
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj1 TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -616,6 +617,7 @@ public:
 	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
 	
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj2 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	
 	pySpParVec Sort(); // Does an in-place sort and returns the permutation used in the sort.
 	pyDenseParVecObj2 TopK(int64_t k); // Returns a vector of the k largest elements.
@@ -816,6 +818,7 @@ public:
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
 	Obj1 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj1 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVecObj1 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj1 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
@@ -892,6 +895,7 @@ public:
 public:
 	int64_t Count(op::UnaryPredicateObj* op);
 	Obj2 Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, Obj2 *init);
+	double Reduce(op::BinaryFunctionObj* f, op::UnaryFunctionObj* uf, double init);
 	pySpParVecObj2 Find(op::UnaryPredicateObj* op);
 	pySpParVecObj2 __getitem__(op::UnaryPredicateObj* op);
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);

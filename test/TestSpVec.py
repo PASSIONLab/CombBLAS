@@ -3,7 +3,123 @@ import math
 from kdt import *
 
 class SpVecTests(unittest.TestCase):
+	def fillVec(self, ret, i, v, element):
+		"""
+		Initialize a Vec instance with values equal to one or the input value.
+		"""
+		for ind in range(len(i)):
+			if isinstance(element, (float, int, long)):
+				if type(v) != int and type(v) != float:
+					val = v[ind]
+				else:
+					val = v
+			elif isinstance(element, Obj1):
+				val = pcb.Obj1()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category   = v[1][ind]
+				else:
+					val.weight = v
+					val.category   = v
+			elif isinstance(element, Obj2):
+				val = pcb.Obj2()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category   = v[1][ind]
+				else:
+					val.weight = v
+					val.category   = v
+			ret[i[ind]] = val
+	
+	def fillVecFilter(self, ret, i, v, element):
+		filteredValues = [-8000, 8000, 3, 2, 5, 4]
+		filteredInds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+		tmp = filteredInds[:]
+		for ind in tmp:
+			if ind >= len(ret):
+				filteredInds.remove(ind)
+				
+		for ind in range(len(i)):
+			# make sure we don't override existing elements
+			try:
+				filteredInds.remove(i[ind])
+			except ValueError:
+				pass
+				
+			if isinstance(element, (float, int, long)):
+				if type(v) != int and type(v) != float:
+					val = v[ind]
+				else:
+					val = v
+				ret[i[ind]] = val
+				
+				# make sure we don't filter out actual values
+				if filteredValues.count(val) > 0:
+					filteredValues.remove(val)
+			elif isinstance(element, Obj1):
+				val = pcb.Obj1()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category = v[1][ind]
+				else:
+					val.weight = v
+					val.category = v
+				ret[i[ind]] = val
+
+				# make sure we don't filter out actual values
+				if filteredValues.count(val.weight) > 0:
+					filteredValues.remove(val.weight)
+			elif isinstance(element, Obj2):
+				val = pcb.Obj2()
+				if type(v) == tuple:
+					val.weight = v[0][ind]
+					val.category = v[1][ind]
+				else:
+					val.weight = v
+					val.category = v
+				ret[i[ind]] = val
+
+				# make sure we don't filter out actual values
+				if filteredValues.count(val.weight) > 0:
+					filteredValues.remove(val.weight)
+		# make sure we don't override existing elements
+		if len(filteredInds) == 0:
+			if ret.nnn() == len(ret):
+				# the test uses a completely full vector, so skip filtering
+				return
+			else:
+				# fix the test so at least one filtered value gets added
+				self.assertTrue(len(filteredInds) > 0)
+		# add extra elements
+		for ind in range(len(filteredInds)):
+			fv = filteredValues[ind % len(filteredValues) ]
+			if isinstance(element, Obj1):
+				val = pcb.Obj1()
+				val.weight = fv
+			elif isinstance(element, Obj2):
+				val = pcb.Obj2()
+				val.weight = fv
+			else:
+				val = fv
+			ret[filteredInds[ind]] = val
+		# add the filter to take out the extra elements we just added,
+		# so tests should pass as if we didn't do anything.
+		if ret.isObj():
+			ret.addFilter(lambda e: filteredValues.count(e.weight) == 0)
+		else:
+			ret.addFilter(lambda e: filteredValues.count(e) == 0)
+
 	def initializeSpVec(self, length, i, v=1, element=0):
+		ret = Vec(length, element=element, sparse=True)
+		self.fillVec(ret, i, v, element)
+		return ret
+ 
+	def initializeVec(self, length, i, v=1, element=0):
+		ret = Vec(length, element=element, sparse=False)
+		self.fillVec(ret, i, v, element)
+		return ret
+
+	def old_initializeSpVec(self, length, i, v=1, element=0):
 		"""
 		Initialize a Vec instance with values equal to one or the input value.
 		"""
@@ -34,7 +150,7 @@ class SpVecTests(unittest.TestCase):
 
 		return ret
  
-	def initializeVec(self, length, i, v=1):
+	def old_initializeVec(self, length, i, v=1):
 		"""
 		Initialize a Vec instance with values equal to one or the input value.
 		"""
@@ -2537,6 +2653,11 @@ class FilterTests(SpVecTests):
 
 def runTests(verbosity = 1):
 	testSuite = suite()
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+
+	print "running again using filtered data:"
+	
+	SpVecTests.fillVec = SpVecTests.fillVecFilter
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():

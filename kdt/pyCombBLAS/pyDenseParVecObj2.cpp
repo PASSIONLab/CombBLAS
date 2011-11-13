@@ -114,6 +114,25 @@ Obj2 pyDenseParVecObj2::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* 
 	return ret;
 }
 
+double pyDenseParVecObj2::Reduce(op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double init)
+{
+	if (!bf->associative && root())
+		cout << "Attempting to Reduce with a non-associative function! Results will be undefined" << endl;
+
+	double ret;
+	
+	bf->getMPIOp();
+	if (uf == NULL)
+	{
+		ret = 0;
+		cout << "unary operation must be specified when changing types!" << endl;
+	}
+	else
+		ret = v.Reduce(*bf, doubleint(init), *uf);
+	bf->releaseMPIOp();
+	return ret;
+}
+
 pySpParVecObj2 pyDenseParVecObj2::Find(op::UnaryPredicateObj* op)
 {
 	return pySpParVecObj2(v.Find(*op));
