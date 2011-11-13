@@ -477,8 +477,8 @@ class Vec(object):
 			uniOp = pcb.unaryObj(uniOp)
 		
 		if self.isObj():
-			if type(init) is not type(self._identity_):
-				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
+			if type(init) is not type(self._identity_):# and not isinstance(init, (float, int, long)):
+				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself or a scalar."
 		else:
 			if not isinstance(init, (float, int, long)):
 				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
@@ -567,7 +567,7 @@ class Vec(object):
 		"""
 		if isinstance(key, (float, int, long)):
 			if key > len(self)-1:
-				raise IndexError
+				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
 			self._v_[key] = value
 		elif isinstance(key,Vec) and key.isDense():
 			if not key.isBool():
@@ -612,13 +612,14 @@ class Vec(object):
 		sets every non-null value in the SpParVec instance to its position
 		(offset) in the vector, in-place.
 		"""
-		if self._hasFilter():
-			raise NotImplementedError, "this operation does not implement filters yet."
 
-		if not self.isObj() and self.isSparse():
+		if not self.isObj() and self.isSparse() and not self._hasFilter():
 			self._v_.setNumToInd()
 		else:
-			func = lambda x,y: x.spRange(y)
+			if self.isObj():
+				func = lambda x,y: x.spRange(y)
+			else:
+				func = lambda x,y: y
 			self.applyInd(func)
 		return
 
@@ -1316,62 +1317,31 @@ class Vec(object):
 			return 0
 		return len(self) - self.nnn()
 
-	# NEEDED: update to use a sensible reduce (when said reduce is implemented)
 	def nnn(self):
 		"""
 		returns the number of non-nulls (existent entries) in the
-		SpVec instance.
+		Vec instance.
 	
-		Note:  for x a SpVec instance, x.nnn()+x.nn() always equals 
+		Note:  for Vec instance x, x.nnn()+x.nn() always equals 
 		len(x).
 
 		SEE ALSO:  nn, nnz
 		"""
-		if not self._hasFilter():
-			if self.isDense():
-				return len(self)
-			else:
-				return self._v_.getnee()
-		
-		raise NotImplementedError, "todo filtered nnn"
-			
-		# Adam:
-		# implement the rest with a single reduce that uses a double
-		# as its return value. (That Reduce flavor needs to be added to pcb)
-		# This entire function then becomes a one-line call.
+		if self.isDense():
+			return len(self)
 
-		#HACK:  some better way to set initial value of redxn?
-		# z = tmp.findInds()
-		# if len(z) > 0:
-		#   tmp[z[0]] = identity
-		def f(x,y):
-			if isinstance(x, (float, int, long)):
-				x = x + 1
-			else:
-				if y.weight != 0 or y.category != 0:
-					x.weight = x.weight + 1
-			return x
-		tmp = self.copy()
-	#FIX: spurious? 
-		if isinstance(self._identity_,(float, int, long)):
-			identity = 0
-			ret = int(tmp.reduce(op_add, pred=pcb.set(1)))
-		elif isinstance(self._identity_,(pcb.Obj1)):
-			identity = type(self._identity_)()
-			#HACK: referred to above
-			if self[0].weight or self[0].category:
-				identity.weight = 1
-			tmp[0] = identity
-			ret = int(tmp.reduce(pcb.binaryObj(f)).weight)
-		elif isinstance(self._identity_,pcb.Obj2):
-			identity = type(self._identity_)()
-			#HACK: referred to above
-			if self[0].weight or self[0].category:
-				identity.weight = 1
-			tmp[0] = identity
-			ret = int(tmp.reduce(pcb.binaryObj(f)).weight)
+		if not self._hasFilter():
+			return self._v_.getnee()
+		
+		# temporary hack while reduce can't do type changing:
+		cp = self.copy(element=1.0)
+		ret = cp.reduce((lambda x,y: x+y), uniOp=(lambda x: 1), init=0.0)
 		return ret
-	
+		
+		# ideal code:
+		ret = self.reduce(op_add, uniOp=(lambda x: 1), init=0.0)
+		return ret
+
 	def norm(self, order=2):
 		"""
 		calculates the norm of a Vec instance, where the order of the
@@ -1448,7 +1418,7 @@ class Vec(object):
 		sets every non-null value in the Vec instance to 1, in-place.
 		"""
 		if not Vec.isObj(self):
-			self.apply(pcb.set(1))
+			self.apply(lambda x: 1)
 		else:
 			self.apply(lambda x: x.spOnes())
 		return
