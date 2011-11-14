@@ -33,7 +33,7 @@ class SpVecTests(unittest.TestCase):
 	
 	def fillVecFilter(self, ret, i, v, element):
 		filteredValues = [-8000, 8000, 3, 2, 5, 4]
-		filteredInds = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+		filteredInds = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 		tmp = filteredInds[:]
 		for ind in tmp:
 			if ind >= len(ret):
@@ -454,7 +454,7 @@ class ConstructorTests(SpVecTests):
 	def test_SpVecDint_spRange(self):
 		sz = 25
 		i = [0, 2, 4, 6, 9, 10]
-		weight = [1, 4, 8, 12, 18, 20]
+		weight = [1, 4, 8, 12, 8, 2]
 		vec = self.initializeSpVec(sz, i, weight)
 		vec.spRange()
 		expW = [0, 0, 2, 0, 4, 0, 6, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -468,7 +468,7 @@ class ConstructorTests(SpVecTests):
 	def test_SpVecObj1_spRange(self):
 		sz = 25
 		i = [0, 2, 4, 6, 9, 10]
-		weight = [1, 4, 8, 12, 18, 20]
+		weight = [1, 4, 8, 12, 8, 2]
 		category =   [2, 2, 2, 3, 5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
@@ -726,12 +726,12 @@ class BuiltInTests(SpVecTests):
 
 	def test_add_vectorObj1_vectorObj1(self):
 		sz = 25
-		i1 = [0, 2, 4, 6, 8, 10]
+		i1 = [0, 2,  4,  6,  8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
 		t1 = [1, 1,  1,  2,  2,   2]
 		element1 = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (w1, t1), element=element1)
-		i2 = [0, 3, 6, 9, 12, 15, 18]
+		i2 = [0,  3,   6,   9,   12,   15, 18]
 		w2 = [1, 27, 216, 729, 1728, 3375, 5832]
 		t2 = [1, 1,  1,  2,  2, 2, 2]
 		element1 = Obj1()
@@ -1769,12 +1769,12 @@ class GeneralPurposeTests(SpVecTests):
 
 	def test_abs_vectorDint_filtered_inplace(self):
 		sz = 25
-		i = [0, 2, 4, 6, 8, 10]
-		weight = [0, -4, 16, -36, -64, 100]
+		i = [0, 1, 2, 4, 6, 8, 10]
+		weight = [0, 4, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
 		filter = lambda x: abs(x) >= 0 and abs(x) < 5
 		vec.addFilter(filter)
-		expW = [0, 0, 4, 0, 16, 0, -36, 0, -64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		expW = [0, 4, 4, 0, 16, 0, -36, 0, -64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		vec.apply(lambda x: abs(x))
 		vec.delFilter(filter)
@@ -2313,11 +2313,11 @@ class ApplyReduceTests(SpVecTests):
 
 	def test_apply_vectorDint_pcbabs(self):
 		sz = 25
-		i = [0, 2,  4,   6, 8, 10]
-		v = [0, -4, 8, -12,16, 20]
+		i = [0, 1, 2,  4,   6, 8, 10]
+		v = [0, 4, -4, 8, -12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		vec.apply(op_abs)
-		vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		vecExpected = [0, 4, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
 		for ind in range(sz):
 			self.assertEqual(vecExpected[ind], vec[ind])
@@ -2363,7 +2363,9 @@ class ApplyReduceTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		v = [2, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
-		red = vec.reduce(op_min)
+		# disabled_test : used to use reduce directly, but without init attribute (somewhat incorrect)
+		#red = vec.reduce(op_min)
+		red = vec.min()
 		redExpected = 2
 		self.assertEqual(redExpected, red)
 
