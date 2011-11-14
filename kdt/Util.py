@@ -58,7 +58,7 @@ class FilterHelper:
 				def fn(x):
 					for i in range(len(tmpU.filter)):
 						if not tmpU.filter[i](x):
-							return op(tmpU.identity)
+							return op(type(tmpU.identity)())
 					return op(x)
 			tmpInstance = tmpU()
 			return tmpInstance.fn

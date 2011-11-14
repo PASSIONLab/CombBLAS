@@ -786,12 +786,12 @@ class BuiltInTests(SpVecTests):
 
 	def test_add_vectorObj1_vectorDint(self):
 		sz = 25
-		i1 = [0, 2, 4, 6, 8, 10]
+		i1 = [0, 2,  4,  6,  8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
 		t1 = [2, 2,  3,  3,  7,   7]
 		element1 = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (w1, t1), element=element1)
-		i2 = [0, 3, 6, 9, 12, 15, 18]
+		i2 = [0,  3,   6,   9,   12,   15, 18]
 		w2 = [1, 27, 216, 729, 1728, 3375, 5832]
 		vec2 = self.initializeSpVec(sz, i2, w2)
 		vec3 = vec1 + vec2
