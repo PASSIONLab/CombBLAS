@@ -1054,6 +1054,7 @@ public:
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
 	Obj1(): weight(0), category(0) {}
+	Obj1(const Obj1& other): weight(other.weight), category(other.category) {}
 
 	char *__repr__() const {
 		static char temp[256];
@@ -1093,6 +1094,7 @@ public:
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
 	Obj2(): weight(0), category(0) {}
+	Obj2(const Obj2& other): weight(other.weight), category(other.category) {}
 
 	char *__repr__() const {
 		static char temp[256];

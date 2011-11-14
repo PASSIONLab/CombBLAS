@@ -202,10 +202,10 @@ class Vec(object):
 		"""
 		if self._hasFilter():
 			op = _makePythonOp(op)
-			#if self.isSparse():
-			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
-			#else:
-			#	op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
+			if self.isSparse():
+				op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+			else:
+				op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
 		
 		self._v_.Apply(_op_make_unary(op))
 		return
@@ -373,9 +373,9 @@ class Vec(object):
 		if isinstance(element, (float, int, long)):
 			element = 1.0
 		elif isinstance(element, pcb.Obj1):
-			element = pcb.Obj1().spOnes()
+			element = pcb.Obj1().set(1)
 		elif isinstance(element, pcb.Obj2):
-			element = pcb.Obj2().spOnes()
+			element = pcb.Obj2().set(1)
 		else:
 			raise TypeError
 		
@@ -395,9 +395,9 @@ class Vec(object):
 		if isinstance(element, (float, int, long)):
 			element = 0.0
 		elif isinstance(element, pcb.Obj1):
-			element = pcb.Obj1().spZeros()
+			element = pcb.Obj1().set(0)
 		elif isinstance(element, pcb.Obj2):
-			element = pcb.Obj2().spZeros()
+			element = pcb.Obj2().set(0)
 		else:
 			raise TypeError
 		
@@ -781,11 +781,11 @@ class Vec(object):
 		# elementwise operation with a regular object
 		if not isinstance(other, Vec):
 			if allowANulls:
-				raise NotImplementedError, "eWiseApply with a scalar requires allowANulls=True for now."
+				raise NotImplementedError, "eWiseApply with a scalar requires allowANulls=False."
 			
 			if doOp is not None:
-				# note: can be implemented using a filter, i.e. predicate=doOp
-				raise NotImplementedError, "eWiseApply with a scalar does not handle doOp for now."
+				# note: maybe can be implemented using a filter, i.e. predicate=doOp
+				raise NotImplementedError, "eWiseApply with a scalar does not handle doOp yet."
 
 			if inPlace:
 				ret = self
@@ -898,7 +898,6 @@ class Vec(object):
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x & other), intOnly=True)
 
-	# NEEDED: update to eWiseApply
 	# NEEDED: update docstring
 	def __div__(self, other):
 		"""
@@ -913,20 +912,6 @@ class Vec(object):
 		Note:  For v0.1, the second argument may only be a scalar.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x / other))
-
-		if isinstance(other, (float, int, long)):
-			ret = self.copy()
-			func = lambda x: x.__div__(other)
-			ret.apply(func)
-		else:
-			if len(self) != len(other):
-				raise IndexError, 'arguments must be of same length'
-			if not isinstance(other,SpVecObj):
-				raise NotImplementedError, 'no SpVecObj+VecObj yet'
-			raise NotImplementedError, 'no SpVecObj/SpVecObj yet'
-		 	func = lambda x, other: x.__div__(other)
-		 	ret = self._eWiseApply(other, pcb.binaryObj(func), True,True)		
-		return ret
 
 	# NEEDED: update docstring
 	def __eq__(self, other):
@@ -1259,8 +1244,9 @@ class Vec(object):
 		else:
 			if initNegInf is None:
 				raise KeyError,"please provide an initNegInf argument which specifies a smallest possible value, i.e. something that acts like negative infinity."
-			func = lambda x, other: x.max(other)
-			ret = self.reduce(pcb.binaryObj(func), init=initNegInf)
+			#func = lambda x, other: x.max(other)
+			func = lambda x, other: max(x, other)
+			ret = self.reduce(func, init=initNegInf)
 		return ret
 
 	def mean(self):
@@ -1282,8 +1268,9 @@ class Vec(object):
 		else:
 			if initInf is None:
 				raise KeyError,"please provide an initInf argument which specifies a largest possible value, i.e. something that acts like infinity."
-			func = lambda x, other: x.min(other)
-			ret = self.reduce(pcb.binaryObj(func), init=initInf)
+			#func = lambda x, other: x.min(other)
+			func = lambda x, other: min(x, other)
+			ret = self.reduce(func, init=initInf)
 		return ret
 
 	def nn(self):
@@ -1403,7 +1390,7 @@ class Vec(object):
 		if not Vec.isObj(self):
 			self.apply(lambda x: 1)
 		else:
-			self.apply(lambda x: x.spOnes())
+			self.apply(lambda x: x.set(1))
 		return
 
 	#in-place, so no return value
@@ -1417,7 +1404,7 @@ class Vec(object):
 			self._v_.setNumToInd()
 		else:
 			if self.isObj():
-				func = lambda x,y: x.spRange(y)
+				func = lambda x,y: x.set(y)
 			else:
 				func = lambda x,y: y
 			self.applyInd(func)
