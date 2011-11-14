@@ -713,8 +713,8 @@ class Mat:
 	def scale(self, other, op=op_mul, dir=Column):
 		"""
 		multiplies the weights of the appropriate edges of each vertex of
-		the passed DiGraph instance in-place by a vertex-specific scale 
-		factor.
+		the passed DiGraph instance in-place by a column- 
+		or row-specific scale factor.
 
 		Input Arguments:
 			self:  a DiGraph instance, modified in-place
