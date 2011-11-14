@@ -606,23 +606,6 @@ class Vec(object):
 			raise KeyError, 'Unknown key type'
 		return
 
-	#in-place, so no return value
-	def spRange(self):
-		"""
-		sets every non-null value in the SpParVec instance to its position
-		(offset) in the vector, in-place.
-		"""
-
-		if not self.isObj() and self.isSparse() and not self._hasFilter():
-			self._v_.setNumToInd()
-		else:
-			if self.isObj():
-				func = lambda x,y: x.spRange(y)
-			else:
-				func = lambda x,y: y
-			self.applyInd(func)
-		return
-
 ################################
 #### Filter management
 ################################
@@ -1422,6 +1405,23 @@ class Vec(object):
 		else:
 			self.apply(lambda x: x.spOnes())
 		return
+
+	#in-place, so no return value
+	def spRange(self):
+		"""
+		sets every non-null value in the SpParVec instance to its position
+		(offset) in the vector, in-place.
+		"""
+
+		if not self.isObj() and self.isSparse() and not self._hasFilter():
+			self._v_.setNumToInd()
+		else:
+			if self.isObj():
+				func = lambda x,y: x.spRange(y)
+			else:
+				func = lambda x,y: y
+			self.applyInd(func)
+		return
 	
 	def std(self):
 		"""
@@ -1438,6 +1438,8 @@ class Vec(object):
 		"""
 		returns the sum of all the non-null values in the Vec instance.
 		"""
+		return self.reduce(lambda x,y: x+y)
+		
 		if self.nnn() == 0:
 			if isinstance(self._identity_, (float, int, long)):
 				ret = 0
@@ -1455,7 +1457,7 @@ class Vec(object):
 	# NEEDED: handle objects
 	def toBool(self):
 		"""
-		converts the input SpParVec instance, in-place, into Boolean
+		converts the Vec instance, in-place, into Boolean
 		values (1.0 for True, 0.0 for False) according to whether the
 		initial values are nonzero or zero, respectively.
 		"""
