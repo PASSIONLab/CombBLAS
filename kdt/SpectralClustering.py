@@ -6,18 +6,36 @@ from Util import *
 import random
 import math
 
-def kmeans(E,m,n,k):
+def kmeans(E,k):
 	
+	'''
+	kmeans(E,k) : Performs K-means clustering on data stored in matrix format.
+	The function takes on two arguments - E, the matrix representation of data to be
+	clustered and k, the number of clusters to be formed. The E matrix is an n*m matrix
+	with n rows representing n data points, and m columns being the m attributes of
+	each point.  
+	'''	
+
+	# Get the matrix dimensions
+	n = E.nrow()
+	m = E.ncol()
+
 	# Obtain the Centroid matrix (C) as a submatrix of E. Transpose operation for making 
 	# distance calculation easier.
 
-	vec1 = Vec.range(0,k)
+	vec1 = Vec.range(0,n)
+	vec1.randPerm()
+	vec1 = vec1[vec1.range(k)]
 	vec2 = Vec.range(0,m)
 	
-	C = E.copy()
-	C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
+	C = E[vec1,vec2]
+	#C = Mat._toMat(E._m_.SubsRef(vec1._v_,vec2._v_))
 	C.transpose()
 	
+	# Etrans is used later during the algorithm to find the sum of all data points in a centroid.
+	Etrans = E.copy()
+	Etrans.transpose()
+
 	# This is the distance matrix to obtain the shift between centroids in two 
 	# successive iterations.	
 	Cold = C.copy()
@@ -47,11 +65,9 @@ def kmeans(E,m,n,k):
 		total = B.reduce(Mat.Column,lambda x,y: x + y)
 		
 		# Do ET * B and scale it using the total array to get the new C.
-		E.transpose()
-		C = E.SpGEMM(B,semiring=sr_plustimes)
-		E.transpose()
+		C = Etrans.SpGEMM(B,semiring=sr_plustimes)
+
 		C.scale(total,lambda x,y: y != 0 and x/y or 0,dir = Mat.Column)
-		
 		# The shift matrix S calculates the distance between corresponding centroids
 		# of the current and previous iteration. If S = 0, terminate the algorithm.	
 
@@ -63,10 +79,8 @@ def kmeans(E,m,n,k):
 		
 		# Copy the current centroid into Cold for the next iteration.
 		Cold = C.copy()
-		
-	print B
 
-	return None
+	return B
 
 def _cluster_spectral(self):
 	"""
