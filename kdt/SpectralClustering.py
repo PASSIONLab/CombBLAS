@@ -13,7 +13,7 @@ def kmeans(E,k):
 	The function takes on two arguments - E, the matrix representation of data to be
 	clustered and k, the number of clusters to be formed. The E matrix is an n*m matrix
 	with n rows representing n data points, and m columns being the m attributes of
-	each point.  
+	each point. kmeans returns a vector b where, each vertex belongs to cluster b[i]
 	'''	
 
 	# Get the matrix dimensions
@@ -79,8 +79,22 @@ def kmeans(E,k):
 		
 		# Copy the current centroid into Cold for the next iteration.
 		Cold = C.copy()
+	
 
-	return B
+	# Convert the B matrix to a b vector. b[i] represents the cluster i belongs to.
+	# This is achieved by multiplying B with a vector [0,1,..,k-1]. The semiring 
+	# can be the scalar addition and multiplication, but it cannot handle the case
+	# when a data point may belong to more than 1 cluster.
+
+	rangevec = Vec.range(0,k,sparse=True)
+			
+	def addFn(x,y):
+		return  x == 0 and y or x
+	def mulFn(x,y):
+		return x*y
+	
+	b = B.SpMV(rangevec,semiring = sr(addFn,mulFn))
+	return b
 
 def _cluster_spectral(self):
 	"""
