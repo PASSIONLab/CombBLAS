@@ -451,6 +451,44 @@ class DiGraph(gr.Graph):
 		return DiGraph(edges=edges)
 	
 	@staticmethod
+	def generate2DTorus(nnodes):
+		"""
+		constructs a DiGraph instance with the connectivity pattern of a 2D
+		torus;  i.e., each vertex has edges to its north, west, south, and
+		east neighbors, where the neighbor may be wrapped around to the
+		other side of the torus.  
+
+		Input Parameter:
+			nnodes:  an integer scalar that denotes the number of nodes
+			    on each axis of the 2D torus.  The resulting DiGraph
+			    instance will have nnodes**2 vertices.
+
+		Output Parameter:
+			ret:  a DiGraph instance with nnodes**2 vertices and edges
+			    in the pattern of a 2D torus. 
+		"""
+		n = nnodes
+		N = n*n
+		rows = Vec.range(N)
+		main = rows.copy() # main diagonal, self loops
+		p1 = main.copy()
+		p1.apply(lambda x: (x+1)%N) # main diagonal moved right 1, connect to east neighbor
+		pn = main.copy()
+		pn.apply(lambda x: (x+(n-1))%N) # main diagonal moved right (n-1), connect to south neighbor
+		mn = main.copy()
+		mn.apply(lambda x: (x-(n-1))%N) # main diagonal moved left (n-1), connect to north neighbor
+		m1 = main.copy()
+		m1.apply(lambda x: (x-1)%N) # main diagonal moved left 1, connect to west neighbor
+		
+		ret = Mat(rows, p1, 1, N)
+		ret += Mat(rows, m1, 1, N)
+		ret += Mat(rows, pn, 1, N)
+		ret += Mat(rows, mn, 1, N)
+		#ret += Mat(rows, main, 1, N) # would include self loops
+		
+		return DiGraph(edges=ret)
+
+	@staticmethod
 	def generateSelfLoops(n, selfLoopAttr=1):
 		"""
 		creates edges in a DiGraph instance where each vertex
@@ -771,41 +809,3 @@ class DiGraph(gr.Graph):
 		"""
 
 		self.e.toScalar()
-
-	@staticmethod
-	def generate2DTorus(nnodes):
-		"""
-		constructs a DiGraph instance with the connectivity pattern of a 2D
-		torus;  i.e., each vertex has edges to its north, west, south, and
-		east neighbors, where the neighbor may be wrapped around to the
-		other side of the torus.  
-
-		Input Parameter:
-			nnodes:  an integer scalar that denotes the number of nodes
-			    on each axis of the 2D torus.  The resulting DiGraph
-			    instance will have nnodes**2 vertices.
-
-		Output Parameter:
-			ret:  a DiGraph instance with nnodes**2 vertices and edges
-			    in the pattern of a 2D torus. 
-		"""
-		n = nnodes
-		N = n*n
-		rows = Vec.range(N)
-		main = rows.copy() # main diagonal, self loops
-		p1 = main.copy()
-		p1.apply(lambda x: (x+1)%N) # main diagonal moved right 1, connect to east neighbor
-		pn = main.copy()
-		pn.apply(lambda x: (x+(n-1))%N) # main diagonal moved right (n-1), connect to south neighbor
-		mn = main.copy()
-		mn.apply(lambda x: (x-(n-1))%N) # main diagonal moved left (n-1), connect to north neighbor
-		m1 = main.copy()
-		m1.apply(lambda x: (x-1)%N) # main diagonal moved left 1, connect to west neighbor
-		
-		ret = Mat(rows, p1, 1, N)
-		ret += Mat(rows, m1, 1, N)
-		ret += Mat(rows, pn, 1, N)
-		ret += Mat(rows, mn, 1, N)
-		#ret += Mat(rows, main, 1, N) # would include self loops
-		
-		return DiGraph(edges=ret)
