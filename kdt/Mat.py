@@ -698,7 +698,7 @@ class Mat:
 			
 		self._m_.Prune(_op_make_unary_pred(pred))
 
-	def reduce(self, dir, op, unOp=None, init=None):
+	def reduce(self, dir, op, uniOp=None, init=None):
 		"""
 		ToDo:  write doc
 		NOTE:  need to doc clearly that the 2nd arg to the reduction
@@ -714,6 +714,7 @@ class Mat:
 		if type(init) is not type(self._identity_) and not isinstance(init, (float, int, long)):
 			raise NotImplementedError, "Reduce output type must either match the matrix type or be float."
 		
+		uniOpOrig = uniOp
 		if self._hasFilter():
 			if uniOp is None:
 				uniOp = (lambda x: x)
@@ -723,9 +724,9 @@ class Mat:
 			uniOp = pcb.unaryObj(uniOp)
 
 		ret = Vec(element=init, sparse=False)
-		self._m_.Reduce(dir, ret._v_, superOp, _op_make_unary(unOp), init)
+		self._m_.Reduce(dir, ret._v_, _op_make_binary(op), _op_make_unary(uniOp), init)
 		if dir == Mat.All:
-			ret = ret.reduce(superOp, _op_make_unary(unOp), init)
+			ret = ret.reduce(op, _op_make_unary(uniOpOrig), init)
 		return ret
 
 	#in-place, so no return value
