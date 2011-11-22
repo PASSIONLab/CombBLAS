@@ -284,7 +284,9 @@ if usingWinMPICH:
 if not check_for_header("Python.h", include_dirs, define_macros):
 	print "Please install the Python development libraries. They are required to compile any Python C++ module."
 	print "On most systems that just means installing the `python-dev` or `python-devel` package."
-	sys.exit()
+	print ""
+	print "attempting to continue anyway..."
+	#sys.exit()
 
 if not check_for_MPI(include_dirs, define_macros):
 	print "ERROR: MPI not found. KDT requires an MPI compiler to be used."
@@ -297,6 +299,8 @@ if not check_for_MPI(include_dirs, define_macros):
 	print ""
 	print "On Windows:"
 	print "Make sure you have a compatible MPI library installed and its include path is specified. You can append an include path with the -IC:\\path\\to\\mpi\\include switch to setup.py."
+	print ""
+	print "attempting to continue anyway..."
 	#sys.exit()
 
 if False and not check_for_MPI_CPP(include_dirs, define_macros):

@@ -1,5 +1,6 @@
 #define PYCOMBBLAS_CPP
 #include "pyCombBLAS.h"
+#include <stdlib.h>
 
 void testFunc(double (*f)(double))
 {
@@ -276,33 +277,35 @@ bool has_MPI_Init_been_called = false;
 
 void init_pyCombBLAS_MPI()
 {
-	if (!has_MPI_Init_been_called)
+	if (!has_MPI_Init_been_called && !MPI::Is_initialized())
 	{
 		//cout << "calling MPI::Init" << endl;
 		MPI::Init();
 		
-		// create doubleint MPI_Datatype
-		MPI::Datatype type[1] = {MPI::DOUBLE};
-		int blocklen[1] = {1};
-		MPI::Aint disp[1];
-		
-		doubleint data;
-		disp[0] = (MPI::Get_address(&data.d) - MPI::Get_address(&data));
-	
-		doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
-		doubleint_MPI_datatype.Commit();
-		
-		// create VERTEXTYPE and EDGETYPE MPI_Datatypes
-		create_EDGE_and_VERTEX_MPI_Datatypes();
-		
 		has_MPI_Init_been_called = true;
+		atexit(finalize);
 	}
+	// create doubleint MPI_Datatype
+	MPI::Datatype type[1] = {MPI::DOUBLE};
+	int blocklen[1] = {1};
+	MPI::Aint disp[1];
+	
+	doubleint data;
+	disp[0] = (MPI::Get_address(&data.d) - MPI::Get_address(&data));
+
+	doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
+	doubleint_MPI_datatype.Commit();
+	
+	// create VERTEXTYPE and EDGETYPE MPI_Datatypes
+	create_EDGE_and_VERTEX_MPI_Datatypes();
 }
 
 void finalize()
 {
-	//cout << "calling MPI::Finalize" << endl;
-	MPI::Finalize();
+	if (has_MPI_Init_been_called)
+	{
+		MPI::Finalize();
+	}
 }
 
 bool root()

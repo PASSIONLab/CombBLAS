@@ -447,11 +447,11 @@ class DiGraph(gr.Graph):
 			    vertex to every other vertex. 
 		"""
 		
-		edges = Mat.full(n=n, element=element)
+		edges = Mat.ones(n=n, element=element)
 		return DiGraph(edges=edges)
 	
 	@staticmethod
-	def eye(n, selfLoopAttr=1):
+	def generateSelfLoops(n, selfLoopAttr=1):
 		"""
 		creates edges in a DiGraph instance where each vertex
 		has exactly one edge connecting to itself.
@@ -501,7 +501,7 @@ class DiGraph(gr.Graph):
 		if not isinstance(scale, (int, float, long)):
 			raise KeyError, "scale must be an integer!"
 			
-		edges, degrees, k1time = Mat.generateRMAT(int(scale), edgeFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, element=element)
+		edges, degrees, k1time = Mat.generateRMAT(int(scale), fillFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, element=element)
 		
 		ret = DiGraph(edges=edges, vertices=degrees)
 				
@@ -588,12 +588,12 @@ class DiGraph(gr.Graph):
 		if retLen == 1:
 			ret = self.e.nnn()
 		else:
-			selfcopy = self.copy()
-			selfcopy.set(1)
-			C = DiGraph(vpart,Vec.range(nv), Vec.ones(nv), retLen, nv)
-			tmpMat = C._SpGEMM(selfcopy)
-			C._T()
-			tmpMat = tmpMat._SpGEMM(C)
+			selfcopy = self.e.copy()
+			selfcopy.spOnes(1)
+			C = Mat(vpart,Vec.range(nv), Vec.ones(nv), retLen, nv)
+			tmpMat = C.SpGEMM(selfcopy, sr_plustimes)
+			C.transpose()
+			tmpMat = tmpMat.SpGEMM(C, sr_plustimes)
 			#HACK!!
 			#ret = tmpMat[diag]
 			ret = Vec(retLen)
@@ -638,7 +638,7 @@ class DiGraph(gr.Graph):
 
 
 	#in-place, so no return value
-	def ones(self):
+	def spOnes(self):
 		"""
 		sets every edge in the graph to the value 1.
 
@@ -650,7 +650,7 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  set
 		"""
-		self.e.ones()
+		self.e.spOnes()
 
 	#in-place, so no return value
 	def reverseEdges(self):
@@ -678,7 +678,7 @@ class DiGraph(gr.Graph):
 		Output Argument:
 			None.
 
-		SEE ALSO:  ones
+		SEE ALSO:  spOnes
 		"""
 		if isinstance(self._identity_, (float, int, long)):
 			self._apply(pcb.set(value))

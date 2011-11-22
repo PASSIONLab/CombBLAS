@@ -58,7 +58,7 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 
 # load
 bigG = kdt.DiGraph.load(inmatrixfile)
-bigG.ones()
+bigG.spOnes()
 
 # The picture in the SDM paper actually used a transposed matrix:
 bigG.e.transpose()
