@@ -53,7 +53,7 @@ def gabp(A, b, maxround, epsilon):
 	conv = False
 	
 	stencil=A.copy()
-	stencil.ones()
+	stencil.spOnes()
 	stencil.removeSelfLoops()
 	#stencil.reverseEdges()
 	#print stencil

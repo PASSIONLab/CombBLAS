@@ -705,7 +705,7 @@ class Vec(object):
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate=False):
 		"""
-		ToDo:  write doc
+		internal function. use eWiseApply().
 		"""
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
 		
@@ -722,7 +722,7 @@ class Vec(object):
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate=False):
 		"""
-		ToDo:  write doc
+		internal function. use eWiseApply().
 		"""
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, True, ANull, other._identity_)
 
@@ -739,7 +739,7 @@ class Vec(object):
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate=False):
 		"""
-		ToDo:  write doc
+		internal function. use eWiseApply().
 		"""
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, allowBNulls, self._identity_, BNull)
 			
@@ -754,8 +754,7 @@ class Vec(object):
 	#  sequences are different for EWiseApply on sparse/dense vectors
 	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate=False):
 		"""
-		ToDo:  write doc
-		in-place operation
+		internal function. use eWiseApply().
 		"""
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, True, self._identity_, other._identity_)
 
@@ -765,7 +764,6 @@ class Vec(object):
 			superOp = _op_make_binaryObj(superOp)
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
-	# NEEDED: filters
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False):
 		"""
 		Performs an element-wise operation between the two vectors.

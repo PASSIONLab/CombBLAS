@@ -15,6 +15,7 @@ import time
 class Mat:
 	Column  = pcb.pySpParMat.Column()
 	Row = pcb.pySpParMat.Row()
+	All = Mat.Row + Mat.Column
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -412,7 +413,7 @@ class Mat:
 ###########################
 
 	@staticmethod
-	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, element=True):
+	def generateRMAT(scale, fillFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, element=True):
 		"""
 		generates a Kroenecker product matrix using the Graph500 RMAT graph generator.
 		
@@ -426,7 +427,7 @@ class Mat:
 		matrix = Mat(element=element)
 		if matrix.isObj():
 			raise NotImplementedError,"RMAT generation to supported on object matrices yet."
-		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, scale, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
+		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, fillFactor, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
 		return matrix, degrees, kernel1Time
 
 	@staticmethod
@@ -450,7 +451,7 @@ class Mat:
 		return Mat(Vec.range(nnz),Vec.range(nnz),Vec(nnz, element, sparse=False),n, m)
 
 	@staticmethod
-	def full(n,m=None, element=1.0):
+	def ones(n,m=None, element=1.0):
 		"""
 		creates an `m`-by-`n` matrix with all elements set to `element`.
 
@@ -458,6 +459,7 @@ class Mat:
 			n:  an integer specifying the number of rows in the matrix.
 			m:  an integer specifying the number of columns in the matrix.
 			    If omitted, it defaults to the same value as `n`.
+		element: the value to set every Mat element to. Default is 1.0.
 
 		Output Argument:
 			ret:  an m-by-n full Mat instance. 
@@ -467,20 +469,13 @@ class Mat:
 			m = n
 		i = (Vec.range(n*m) / n).floor()
 		j = (Vec.range(n*m) % n).floor()
-		v = Vec.ones(n*m)
+		v = Vec.ones(n*m, element=element)
 		ret = Mat(i,j,v,n,m)
 		return ret
 
 ##########################
 ### Filtering Methods
 ##########################
-
-	def _hasFilter(self):
-		try:
-			ret = (hasattr(self,'_filter_') and len(self._filter_)>0) # ToDo: or (hasattr(self,'vAttrib') and self.vAttrib._hasFilter(self.vAttrib)) 
-		except AttributeError:
-			ret = False
-		return ret
 
 	# in-place, so no return value
 	def addFilter(self, filter):
@@ -509,6 +504,46 @@ class Mat:
 		else:
 			self._filter_ = [filter]
 		return
+	
+	def _addSpMVFilteredVec(self, vec):
+		"""
+		Adds support for matching a vector's filtering during SpMV. I.e. so that if vec[i] is
+		filtered out then row and column i of `self` will also be filtered out. Necessary to
+		properly filter out graph vertices if this Mat represents an adjacency matrix.
+		"""
+		return
+		
+	# in-place, so no return value
+	def delFilter(self, filter=None):
+		"""
+		deletes a filter from the Mat instance.  
+
+		Input Arguments:
+			filter:  either a Python predicate function which has
+			    been previoiusly added to this instance by a call to
+			    addFilter or None, which signals the deletion of all
+			    filters.
+
+		SEE ALSO:
+			addFilter  
+		"""
+		if not hasattr(self, '_filter_'):
+			raise KeyError, "no filters previously created"
+		if filter is None:
+			del self._filter_	# remove all filters
+		else:
+			self._filter_.remove(filter)
+			if len(self._filter_) == 0:
+				del self._filter_
+		return
+
+
+	def _hasFilter(self):
+		try:
+			ret = (hasattr(self,'_filter_') and len(self._filter_)>0) # ToDo:  
+		except AttributeError:
+			ret = False
+		return ret
 
 ##########################
 ### Basic Methods
@@ -544,10 +579,21 @@ class Mat:
 				self._m_ = pcb.EWiseApply(self._m_, other._m_, op, notB)
 			return
 
+	def count(self, dir, pred=None):
+		"""
+		returns the number of elements for which `pred` is true.
+		"""
+		if pred is None:
+			pred = lambda x: bool(x)
+		
+		return self.reduce(dir, (lambda x,y: x+y), uniOp=pred, init=0.0)
+
 	# NEEDED: tests
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False):
 		"""
 		ToDo:  write doc
+		
+		See Also: Vec.eWiseApply
 		"""
 		
 		if not isinstance(other, Mat):
@@ -555,32 +601,9 @@ class Mat:
 			# use apply()
 			return
 		
-		if self._hasFilter() or other._hasFilter():
-			class tmpB:
-				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-					selfEFLen = len(self._filter_)
-					eFilter1 = self._filter_
-				else:
-					selfEFLen = 0
-				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-					otherEFLen = len(other._filter_)
-					eFilter2 = other._filter_
-				else:
-					otherEFLen = 0
-				@staticmethod
-				def fn(x, y):
-					for i in range(tmpB.selfEFLen):
-						if not tmpB.eFilter1[i](x):
-							x = type(self._identity_)()
-							break
-					for i in range(tmpB.otherEFLen):
-						if not tmpB.eFilter2[i](y):
-							y = type(other._identity_)()
-							break
-					return op(x, y)
-			superOp = tmpB().fn
-		else:
-			superOp = op
+		ANull = self._identity_
+		BNull = other._identity_
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
 		
 		if doOp is not None:
 			# new version
@@ -670,6 +693,9 @@ class Mat:
 		"""
 		only keep elements for which pred(e) == false.
 		"""
+		if self._hasFilter():
+			raise NotImplementedError,"_prune() doesn't do filters"
+			
 		self._m_.Prune(_op_make_unary_pred(pred))
 
 	def reduce(self, dir, op, unOp=None, init=None):
@@ -679,7 +705,7 @@ class Mat:
 		fn is the sum;  the first is the current addend and the second
 		is the running sum
 		"""
-		if dir != Mat.Row and dir != Mat.Column:
+		if dir != Mat.Row and dir != Mat.Column and dir != Mat.All:
 			raise KeyError, 'unknown direction'
 		
 		if init is None:
@@ -689,43 +715,33 @@ class Mat:
 			raise NotImplementedError, "Reduce output type must either match the matrix type or be float."
 		
 		if self._hasFilter():
-			class tmpB:
-				_filter_ = self._filter_
-				@staticmethod
-				def fn(x, y):
-					for i in range(len(tmpB._filter_)):
-						if not tmpB._filter_[i](x):
-							#x = type(self._identity_)()
-							return y # no contribution; return existing 'sum'
-							#break
-					return op(x, y)
-			tmpInstance = tmpB()
-			superOp = pcb.binaryObj(tmpInstance.fn)
-			#self._v_.Apply(pcb.unaryObj(tmpInstance.fn))
-		else:
-			superOp = _op_make_binaryObj(op)
+			if uniOp is None:
+				uniOp = (lambda x: x)
+			
+			uniOp = _makePythonOp(uniOp)
+			uniOp = FilterHelper.getFilteredUniOpOrVal(self, uniOp, init)
+			uniOp = pcb.unaryObj(uniOp)
 
 		ret = Vec(element=init, sparse=False)
 		self._m_.Reduce(dir, ret._v_, superOp, _op_make_unary(unOp), init)
+		if dir == Mat.All:
+			ret = ret.reduce(superOp, _op_make_unary(unOp), init)
 		return ret
 
 	#in-place, so no return value
 	def scale(self, other, op=op_mul, dir=Column):
 		"""
 		multiplies the weights of the appropriate edges of each vertex of
-		the passed DiGraph instance in-place by a column- 
-		or row-specific scale factor.
+		the passed Mat instance in-place by a vertex-specific scale 
+		factor.
 
 		Input Arguments:
-			self:  a DiGraph instance, modified in-place
 			other: a Vec whose elements are used
 			dir:  a direction of edges to scale, with choices being
 			    Mat.Column (default) or Mat.Row.
 
 		Output Argument:
 			None.
-
-		SEE ALSO:  * (DiGraph.__mul__), mulNot
 		"""
 		if self.isBool():
 			raise NotImplementedError, 'scale not implemented on boolean matrices do to C++ template irregularities.'
@@ -741,6 +757,21 @@ class Mat:
 				raise IndexError, 'nrow != len(vec)'
 		else:
 			raise KeyError, 'Invalid edge direction'
+
+		if self._hasFilter():
+			op = _makePythonOp(op)
+			
+			class tmpS:
+				def __init__(self, myop, pred):
+					self.pred = pred
+					self.myop = myop
+				def __call__(self, x, y):
+					if self.pred(x):
+						return myop(x, y)
+					else
+						return x
+			
+			op = tmpS(op, FilterHelper.getFilterPred(self))
 
 		self._m_.DimWiseApply(dir, other.dense()._v_, _op_make_binary(op))
 		return
@@ -892,14 +923,14 @@ class Mat:
 		ret = self.reduce(dir, op_min, init=self._identity_)
 		return ret
 
-	def ones(self):
+	def spOnes(self, element=1.0):
 		"""
-		makes every element to 1.
+		makes every element to `element`, default 1.0.
 		"""
 		if self.isObj():
 			raise NotImplementedError, "at the moment only float matrices are supported."
 		
-		self.apply(op_set(1))
+		self.apply(op_set(element))
 		
 	def removeMainDiagonal(self):
 		"""

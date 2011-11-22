@@ -449,14 +449,14 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	"""
 	A = self.e.copy()
 	A.transpose()
-	A.ones()
+	A.spOnes()
 	N = self.nvert()
 	if BCdebug>0 and master():
 		print "in _approxBC, A.nvert=%d, nproc=%d" % (N, nProcs)
 
 	if BCdebug>1 and master():
 		print "Apply(set(1))"
-	#Aint = self.ones()	# not needed;  Gs only int for now
+	#Aint = self.spOnes()	# not needed;  Gs only int for now
 	if BCdebug>1 and master():
 		print "spm.nrow and col()"
 
@@ -565,7 +565,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			nsp += fringe
 			#print "nsp:",nsp
 			tmp = fringe.copy()
-			tmp.ones()
+			tmp.spOnes()
 			bfs.append(tmp)
 			#next:  changes how???
 			#AL: should this be: 			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
@@ -583,7 +583,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			if BCdebug>1 and master():
 				print "    %f seconds" % (time.time()-before)
 
-		bcu = Mat.full(curSize,N)
+		bcu = Mat.ones(curSize,N)
 		##print "bcu",bcu
 		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):

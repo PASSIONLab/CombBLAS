@@ -5,7 +5,7 @@ from stats import splitthousands
 
 if (len(sys.argv) == 1):
 	B = kdt.DiGraph.generateRMAT(5)
-	B.e.ones()
+	B.e.spOnes()
 else:
 	inmatrixfile = sys.argv[1]
 	if (kdt.master()):
