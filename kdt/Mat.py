@@ -15,7 +15,7 @@ import time
 class Mat:
 	Column  = pcb.pySpParMat.Column()
 	Row = pcb.pySpParMat.Row()
-	All = Mat.Row + Mat.Column
+	All = Row + Column
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -768,7 +768,7 @@ class Mat:
 				def __call__(self, x, y):
 					if self.pred(x):
 						return myop(x, y)
-					else
+					else:
 						return x
 			
 			op = tmpS(op, FilterHelper.getFilterPred(self))
