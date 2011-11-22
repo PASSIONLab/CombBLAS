@@ -1,0 +1,3 @@
+#!/bin/bash
+export LD_PRELOAD=/usr/lib64/openmpi/lib/libmpi.so
+python $@
