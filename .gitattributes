@@ -2087,6 +2087,7 @@ kdt/pyCombBLAS/pySpParVecObj2.h -text
 kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
+/python-mpi -text
 /setup.py -text
 test/TestDiGraph.py -text
 test/TestKDT.py -text
