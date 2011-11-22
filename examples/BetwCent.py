@@ -108,7 +108,7 @@ if source == Source.TORUS and ((bc - bc[0]) > 1e-15).any():
 		print "not all vertices have same BC value"
 
 # Report
-nedges = G1.nnn()*nStartVerts
+nedges = G1.nedge()*nStartVerts
 TEPS = float(nedges)/time
 min = bc.min()
 max = bc.max()

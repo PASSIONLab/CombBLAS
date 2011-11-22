@@ -15,7 +15,7 @@ import time
 class Mat:
 	Column  = pcb.pySpParMat.Column()
 	Row = pcb.pySpParMat.Row()
-	All = Row + Column
+	All = Row + Column + 1
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -724,9 +724,9 @@ class Mat:
 			uniOp = pcb.unaryObj(uniOp)
 
 		ret = Vec(element=init, sparse=False)
-		self._m_.Reduce(dir, ret._v_, _op_make_binary(op), _op_make_unary(uniOp), init)
+		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op), _op_make_unary(uniOp), init)
 		if dir == Mat.All:
-			ret = ret.reduce(op, _op_make_unary(uniOpOrig), init)
+			ret = ret.reduce(_op_make_binaryObj(op), _op_make_unary(uniOpOrig), init)
 		return ret
 
 	#in-place, so no return value
