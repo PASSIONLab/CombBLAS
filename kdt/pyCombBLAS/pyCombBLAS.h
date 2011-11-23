@@ -87,6 +87,7 @@ class EWiseArgDescriptor
 void finalize();
 bool root();
 int _nprocs();
+void prnt(const char* str);
 
 void testFunc(double (*f)(double));
 

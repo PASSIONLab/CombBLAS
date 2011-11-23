@@ -40211,6 +40211,40 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_prnt(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:prnt",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "prnt" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  {
+    try {
+      prnt((char const *)arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_testFunc(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   double (*arg1)(double) = (double (*)(double)) 0 ;
@@ -40968,6 +41002,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
 	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},
+	 { (char *)"prnt", _wrap_prnt, METH_VARARGS, NULL},
 	 { (char *)"testFunc", _wrap_testFunc, METH_VARARGS, NULL},
 	 { (char *)"new_EWiseArg", _wrap_new_EWiseArg, METH_VARARGS, NULL},
 	 { (char *)"delete_EWiseArg", _wrap_delete_EWiseArg, METH_VARARGS, NULL},
