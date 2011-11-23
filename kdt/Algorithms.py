@@ -531,21 +531,21 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 				print "dense vec GetElement and SetElement"
 			numVs[i] = min(startVs[i]+batchSize,N)-startVs[i]
 
-	if BCdebug>0 and master():
-		print "batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches)
-	if BCdebug>1 and master():
-		print "summary of batches:"
-		print "startVs:",startVs
-		print "  numVs:", numVs
+	if BCdebug>0:
+		p("batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches))
+	if BCdebug>1:
+		p("summary of batches:")
+		p("startVs:",startVs)
+		p("  numVs:", numVs)
 	for [startV, numV] in zip(startVs, numVs):
 		startV = int(startV); numV = int(numV)
-		if BCdebug>0 and master():
-			print "startV=%d, numV=%d" % (startV, numV)
+		if BCdebug>0:
+			p("startV=%d, numV=%d" % (startV, numV))
 		bfs = []		
 		batchRange = Vec.range(startV, startV+numV)
 		batch = randVerts[batchRange]
-		if BCdebug>1 and master():
-			print "batch=",batch
+		if BCdebug>1:
+			p("batch=",batch)
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
 		nsp = Mat(batch, Vec.range(curSize), 1, curSize, N) # original: Mat(Vec.range(curSize), batch, 1, curSize, N)
@@ -560,8 +560,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			depth = depth+1
 			if BCdebug>1 and depth>1:
 				nspne = tmp.nnn(); tmpne = tmp.nnn(); fringene = fringe.nnn()
-				if master():
-					print "BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene)
+				p("BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene))
 			nsp += fringe
 			#print "nsp:",nsp
 			tmp = fringe.copy()
@@ -580,8 +579,8 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 					pass
 			# prune new-fringe to new verts
 			fringe = tmp._mulNot(nsp)
-			if BCdebug>1 and master():
-				print "    %f seconds" % (time.time()-before)
+			if BCdebug>1:
+				p("    %f seconds" % (time.time()-before))
 
 		bcu = Mat.ones(curSize,N)
 		##print "bcu",bcu
@@ -590,10 +589,11 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			# compute the weights to be applied based on the child values
 			w = bfs[depth] / nsp 
 			w *= bcu
-			if BCdebug>2:
-				tmptmp = w.sum(Mat.Row).sum()
-				if master():
-					print tmptmp
+			##if BCdebug>2:
+			##	tmptmp = w.sum(Mat.Row).sum()
+			##	if master():
+			##		print tmptmp
+			
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
 			#w.transpose() # AL: removed ##
@@ -604,10 +604,11 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			bcu += w
 		##print "BCU:----------",bcu
 		# update the bc with the bc update
-		if BCdebug>2:
-			tmptmp = bcu.sum(Mat.Row).sum()
-			if master():
-				print tmptmp
+		
+		##if BCdebug>2:
+		##	tmptmp = bcu.sum(Mat.Row).sum()
+		##	if master():
+		##		print tmptmp
 		bc = bc + bcu.sum(Mat.Row)	# column sums # AL: swapped to Row ##
 
 	# subtract off the additional values added in by precomputation

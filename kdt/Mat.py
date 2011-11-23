@@ -605,23 +605,23 @@ class Mat:
 		BNull = other._identity_
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
 		
-		if doOp is not None:
-			# new version
-			if inPlace:
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
-				return
-			else:
-				m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, self._identity_, other._identity_)
-				ret = Mat._toMat(m)
-				return ret
+		#if doOp is not None:
+		# new version
+		if inPlace:
+			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+			return
+		else:
+			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+			ret = Mat._toMat(m)
+			return ret
 
 		# old version, will be removed
-		if inPlace:
-			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
-		else:
-			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
-			ret = self._toMat(m)
-			return ret
+		#if inPlace:
+		#	self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
+		#else:
+		#	m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
+		#	ret = self._toMat(m)
+		#	return ret
 
 	# NEEDED: tests
 	def __getitem__(self, key):

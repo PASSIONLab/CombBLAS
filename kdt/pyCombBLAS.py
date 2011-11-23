@@ -695,6 +695,7 @@ binaryObj = _pyCombBLAS.binaryObj
 finalize = _pyCombBLAS.finalize
 root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs
+prnt = _pyCombBLAS.prnt
 testFunc = _pyCombBLAS.testFunc
 class EWiseArg(_object):
     __swig_setmethods__ = {}

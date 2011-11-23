@@ -184,8 +184,10 @@ def p(s):
 	printer helper
 	"""
 	s = str(s)
-	if master():
-		print s
+	#if master():
+	#	print s
+	pcb.prnt(s)
+	pcb.prnt("\n")
 
 def _nproc():
 	"""

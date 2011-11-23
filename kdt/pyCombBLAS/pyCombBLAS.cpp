@@ -318,6 +318,11 @@ int _nprocs()
 	return MPI::COMM_WORLD.Get_size();
 }
 
+void prnt(const char* str)
+{
+	SpParHelper::Print(str);
+}
+
 MPI::Datatype doubleint_MPI_datatype;
 
 template<> MPI::Datatype MPIType< doubleint >( void )
