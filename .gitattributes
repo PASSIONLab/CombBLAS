@@ -2091,12 +2091,14 @@ kdt/pyCombBLAS/testscript.py -text
 /setup.py -text
 test/TestDiGraph.py -text
 test/TestKDT.py -text
+test/TestMat.py -text
 test/TestSpVec.py -text
 test/TestVec.py -text
 test/note_for_kdt_developers.txt -text
 test/old/oldTestHyGraph.py -text
 test/old/oldTestParVec.py -text
 test/old/oldTestSpParVec.py -text
+test/testfiles/small.mtx -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
 /v0.2_checklist -text
