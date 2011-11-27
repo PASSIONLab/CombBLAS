@@ -543,6 +543,8 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			p("startV=%d, numV=%d" % (startV, numV))
 		bfs = []		
 		batchRange = Vec.range(startV, startV+numV)
+		if BCdebug>0 and master():
+			print "batchrange", batchRange
 		batch = randVerts[batchRange]
 		if BCdebug>1:
 			p("batch=",batch)
