@@ -449,9 +449,17 @@ class Vec(object):
 		ret = Vec(stop-start, element=element)
 		if not ret.isObj():
 			if sparse:
+				if master():
+					print "Calling sparse range"			
 				ret._v_ = pcb.pySpParVec.range(stop-start,start)
+				if master():
+					print "Called sparse range"			
 			else:
+				if master():
+					print "Calling dense range"			
 				ret._v_ = pcb.pyDenseParVec.range(stop-start,start)
+				if master():
+					print "Called dense range"			
 		else:
 			#HACK:  serial set is not practical for large sizes
 			Obj1 = pcb.Obj1()
