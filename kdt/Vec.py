@@ -1107,7 +1107,7 @@ class Vec(object):
 		null element where either of the two input vectors is nonnull,
 		and a True value where at least one of the input vectors is True.
 		"""
-		return self._ewise_bin_op_worker(other, (lambda x, other: x | other))
+		return self._ewise_bin_op_worker(other, (lambda x, other: x | other), intOnly=True)
 
 	# NEEDED: update docstring
 	def __sub__(self, other):
