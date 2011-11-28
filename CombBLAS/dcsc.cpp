@@ -358,8 +358,6 @@ Dcsc<IT,NT>::operator Dcsc<NIT,NNT>() const
 template <class IT, class NT>
 Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.pool)
 {
-	assert (nz != 0);
-	assert (nzc != 0);
 	size_t sit = sizeof(IT);
 	if(nz > 0)
 	{

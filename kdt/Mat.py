@@ -563,6 +563,17 @@ class Mat:
 			None.
 
 		"""
+		
+#		if self._hasFilter():
+#			op = _makePythonOp(op)
+#			if self.isSparse():
+#				op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+#			else:
+#				op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
+#		
+#		self._m_.Apply(_op_make_unary(op))
+#		return
+
 		if self._hasFilter():
 			raise NotImplementedError, "this operation does not support filters yet."
 
@@ -605,7 +616,7 @@ class Mat:
 		BNull = other._identity_
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
 		
-		#if doOp is not None:
+		##if doOp is not None:
 		# new version
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
@@ -1076,7 +1087,7 @@ class Mat:
 			raise IndexError, 'Matrix dimensions must match'
 		else:
 			ret = self.copy()
-			ret.apply(pcb.multiplies(), other, True)
+			ret.apply(op_mul, other, True)
 		return ret
 
 	# NEEDED: tests

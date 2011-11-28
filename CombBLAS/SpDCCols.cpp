@@ -91,6 +91,7 @@ template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool)
 : m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(mpool), splits(0)
 {	 
+	
 	if(nnz == 0)	// m by n matrix of complete zeros
 	{
 		if(transpose) swap(m,n);
@@ -288,6 +289,8 @@ void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 			{
 				dcsc->EWiseMult (*(rhs.dcsc), exclude);
 				nnz = dcsc->nz;
+				if(nnz == 0 )
+					dcsc = NULL;
 			}		
 		}
 		else

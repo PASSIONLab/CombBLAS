@@ -38380,6 +38380,38 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BinaryFunctionObj_getCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
+  PyObject *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BinaryFunctionObj_getCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryFunctionObj_getCallback" "', argument " "1"" of type '" "op::BinaryFunctionObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryFunctionObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::BinaryFunctionObj const *)arg1)->getCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_BinaryFunctionObj_commutable_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
@@ -40104,6 +40136,70 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SemiringObj_getAddCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
+  PyObject *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SemiringObj_getAddCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_getAddCallback" "', argument " "1"" of type '" "op::SemiringObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::SemiringObj const *)arg1)->getAddCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SemiringObj_getMulCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
+  PyObject *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SemiringObj_getMulCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_getMulCallback" "', argument " "1"" of type '" "op::SemiringObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::SemiringObj const *)arg1)->getMulCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SemiringObj_mpi_op(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
@@ -40984,6 +41080,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"unaryObj", _wrap_unaryObj, METH_VARARGS, NULL},
 	 { (char *)"unaryObjPred", _wrap_unaryObjPred, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryFunctionObj", _wrap_delete_BinaryFunctionObj, METH_VARARGS, NULL},
+	 { (char *)"BinaryFunctionObj_getCallback", _wrap_BinaryFunctionObj_getCallback, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_commutable_set", _wrap_BinaryFunctionObj_commutable_set, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_commutable_get", _wrap_BinaryFunctionObj_commutable_get, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_associative_set", _wrap_BinaryFunctionObj_associative_set, METH_VARARGS, NULL},
@@ -40997,6 +41094,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"binaryObjPred", _wrap_binaryObjPred, METH_VARARGS, NULL},
 	 { (char *)"new_SemiringObj", _wrap_new_SemiringObj, METH_VARARGS, NULL},
 	 { (char *)"delete_SemiringObj", _wrap_delete_SemiringObj, METH_VARARGS, NULL},
+	 { (char *)"SemiringObj_getAddCallback", _wrap_SemiringObj_getAddCallback, METH_VARARGS, NULL},
+	 { (char *)"SemiringObj_getMulCallback", _wrap_SemiringObj_getMulCallback, METH_VARARGS, NULL},
 	 { (char *)"SemiringObj_mpi_op", _wrap_SemiringObj_mpi_op, METH_VARARGS, NULL},
 	 { (char *)"SemiringObj_swigregister", SemiringObj_swigregister, METH_VARARGS, NULL},
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
