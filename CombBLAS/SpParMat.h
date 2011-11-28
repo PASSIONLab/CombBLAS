@@ -67,6 +67,11 @@ template <class IT, class NT, class DER>
 class SpParMat
 {
 public:	
+	typedef DER::LocalIT LocalIT;
+	typedef DER::LocalNT LocalNT;
+	typedef IT GlobalIT;
+	typedef NT GlobalNT;
+	
 	// Constructors
 	SpParMat ();
 	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
