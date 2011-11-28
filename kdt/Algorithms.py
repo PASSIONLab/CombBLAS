@@ -535,19 +535,19 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		p("batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches))
 	if BCdebug>1:
 		p("summary of batches:")
-		p("startVs:",startVs)
-		p("  numVs:", numVs)
+		p(("startVs:",startVs))
+		p(("  numVs:", numVs))
 	for [startV, numV] in zip(startVs, numVs):
 		startV = int(startV); numV = int(numV)
 		if BCdebug>0:
 			p("startV=%d, numV=%d" % (startV, numV))
 		bfs = []		
 		batchRange = Vec.range(startV, startV+numV)
-		if BCdebug>0 and master():
-			print "batchrange", batchRange
+		if BCdebug>0:
+			p(("batchrange",batchRange))
 		batch = randVerts[batchRange]
 		if BCdebug>1:
-			p("batch=",batch)
+			p(("batch=",batch))
 		curSize = len(batch)
 		#next:  nsp is really a SpParMat
 		nsp = Mat(batch, Vec.range(curSize), 1, curSize, N) # original: Mat(Vec.range(curSize), batch, 1, curSize, N)
