@@ -1,3 +1,4 @@
 #!/bin/bash
+export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/
 export LD_PRELOAD=/usr/lib64/openmpi/lib/libmpi.so
 python $@
