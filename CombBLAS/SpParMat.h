@@ -67,8 +67,8 @@ template <class IT, class NT, class DER>
 class SpParMat
 {
 public:	
-	typedef DER::LocalIT LocalIT;
-	typedef DER::LocalNT LocalNT;
+	typedef typename DER::LocalIT LocalIT;
+	typedef typename DER::LocalNT LocalNT;
 	typedef IT GlobalIT;
 	typedef NT GlobalNT;
 	
