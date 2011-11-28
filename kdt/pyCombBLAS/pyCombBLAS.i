@@ -1161,6 +1161,8 @@ class BinaryFunctionObj {
 	public:
 	~BinaryFunctionObj() { /*Py_XDECREF(callback);*/ }
 	
+	PyObject* getCallback() const { return callback; }
+	
 	bool commutable;
 	bool associative;
 	
@@ -1226,6 +1228,9 @@ class SemiringObj {
 	public:
 	SemiringObj(PyObject *add, PyObject *multiply);
 	~SemiringObj();
+	
+	PyObject* getAddCallback() const { return binfunc_add != NULL ? binfunc_add->getCallback() : NULL; }
+	PyObject* getMulCallback() const { return binfunc_mul != NULL ? binfunc_mul->getCallback() : NULL; }
 	
 	MPI_Op mpi_op()
 	{

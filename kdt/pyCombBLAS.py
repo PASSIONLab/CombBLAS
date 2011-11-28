@@ -651,6 +651,7 @@ class BinaryFunctionObj(_object):
     __repr__ = _swig_repr
     __swig_destroy__ = _pyCombBLAS.delete_BinaryFunctionObj
     __del__ = lambda self : None;
+    def getCallback(*args): return _pyCombBLAS.BinaryFunctionObj_getCallback(*args)
     __swig_setmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_set
     __swig_getmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_get
     if _newclass:commutable = _swig_property(_pyCombBLAS.BinaryFunctionObj_commutable_get, _pyCombBLAS.BinaryFunctionObj_commutable_set)
@@ -687,6 +688,8 @@ class SemiringObj(_object):
         except: self.this = this
     __swig_destroy__ = _pyCombBLAS.delete_SemiringObj
     __del__ = lambda self : None;
+    def getAddCallback(*args): return _pyCombBLAS.SemiringObj_getAddCallback(*args)
+    def getMulCallback(*args): return _pyCombBLAS.SemiringObj_getMulCallback(*args)
     def mpi_op(*args): return _pyCombBLAS.SemiringObj_mpi_op(*args)
 SemiringObj_swigregister = _pyCombBLAS.SemiringObj_swigregister
 SemiringObj_swigregister(SemiringObj)
