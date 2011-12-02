@@ -280,9 +280,13 @@ int main(int argc, char* argv[])
 	myprocrow = rank / tallgrcols;
     	MPI_Comm_split( MPI_COMM_WORLD, myprocrow, rank, &tallrowcomm );
     	MPI_Comm_split( MPI_COMM_WORLD, myproccol, rank, &tallcolcomm );
+	if(rank == 0) cout << "*** Processor row ***" << endl;
 	DoA2A(tallrowcomm, 32*n, tallcolcomm);
+	if(rank == 0) cout << "*** Processor column ***" << endl;
 	DoA2A(tallcolcomm, 32*n, tallrowcomm);
+	if(rank == 0) cout << "*** Processor row ***" << endl;
 	DoAG(tallrowcomm, n, tallcolcomm);
+	if(rank == 0) cout << "*** Processor column ***" << endl;
 	DoAG(tallcolcomm, n, tallrowcomm);
 
 	if(rank == 0)
