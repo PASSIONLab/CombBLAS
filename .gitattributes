@@ -140,12 +140,16 @@ CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/Post_SC_optimization/script10000_hop_all.e693793 -text
 CombBLAS/Applications/Post_SC_optimization/script10000_hop_all.e896607 -text
+CombBLAS/Applications/Post_SC_optimization/script1225_hop_all.e1028062 -text
 CombBLAS/Applications/Post_SC_optimization/script1225_hop_all.e687575 -text
+CombBLAS/Applications/Post_SC_optimization/script1225_transposed.e1032687 -text
 CombBLAS/Applications/Post_SC_optimization/script2500_hop_all.e689319 -text
+CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e1021878 -text
 CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e689318 -text
 CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e889526 -text
 CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e894353 -text
 CombBLAS/Applications/Post_SC_optimization/script5041_hop_all.e896217 -text
+CombBLAS/Applications/Post_SC_optimization/script5041_transposed.e1036025 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_hybrid_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg64_hybrid_scale27 -text
@@ -243,6 +247,7 @@ CombBLAS/Applications/compilertests/icc10.1-btwcent441 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
 CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
 CombBLAS/Applications/graph_p25_singleiter_scale21 -text
+CombBLAS/Applications/gridtransposer.py -text
 CombBLAS/Applications/makefile-carver -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
