@@ -7,6 +7,8 @@ from Util import _op_make_unary_pred
 from Util import _op_make_binary
 from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
+from Util import _sr_get_python_mul
+from Util import _sr_get_python_add
 
 import kdt.pyCombBLAS as pcb
 
@@ -800,7 +802,31 @@ class Mat:
 		if not isinstance(other, Mat):
 			raise ValueError, "SpGEMM needs a Mat"
 		if self.ncol() != other.nrow():
-			raise ValueError, "Dimension mismatch in SpGEMM: %d != %d"%(self.ncol(),other.nrow())
+			raise ValueError, "Dimension mismatch in SpGEMM: self.ncol() must equal other.nrow(), but %d != %d"%(self.ncol(),other.nrow())
+		
+		if self._hasFilter() or other._hasFilter():
+			selfPred = FilterHelper.getFilterPred(self)
+			if selfPred is None:
+				selfPred = lambda x: True
+
+			otherPred = FilterHelper.getFilterPred(other)
+			if otherPred is None:
+				otherPred = lambda x: True
+			
+			class tmpMul:
+				filterA = selfPred
+				filterB = otherPred
+				nullval = self._identity_
+				origMulFunc = _sr_get_python_mul(semiring)
+				@staticmethod
+				def fn(x, y):
+					if tmpMul.filterA(x) and tmpMul.filterB(y):
+						return tmpMul.origMulFunc(x, y)
+					else:
+						return tmpMul.nullval
+			tmpMulInstance = tmpMul()
+			semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
+
 			
 		if self._m_ is other._m_:
 			# we're squaring the matrix
@@ -837,6 +863,29 @@ class Mat:
 		
 		if self._hasFilter() or other._hasFilter():
 			raise NotImplementedError, "this operation does not support filters yet"
+
+		if self._hasFilter() or other._hasFilter():
+			selfPred = FilterHelper.getFilterPred(self)
+			if selfPred is None:
+				selfPred = lambda x: True
+
+			otherPred = FilterHelper.getFilterPred(other)
+			if otherPred is None:
+				otherPred = lambda x: True
+			
+			class tmpMul:
+				filterA = selfPred
+				filterB = otherPred
+				nullval = self._identity_
+				origMulFunc = _sr_get_python_mul(semiring)
+				@staticmethod
+				def fn(x, y):
+					if tmpMul.filterA(x) and tmpMul.filterB(y):
+						return tmpMul.origMulFunc(x, y)
+					else:
+						return tmpMul.nullval
+			tmpMulInstance = tmpMul()
+			semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
 
 		# the operation itself
 		if inPlace:
