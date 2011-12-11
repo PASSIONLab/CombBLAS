@@ -52,7 +52,8 @@ public:
 	void loadCpp(std::basic_istream<c,t>& is, int64_t row, int64_t column)
 	{
 		is >> weight;
-		category = 0;
+		is >> category;
+		//category = 0;
 	}
 
 	// This function is used to save this object to a file.
@@ -60,6 +61,7 @@ public:
 	void saveCpp(std::basic_ostream<c,t>& os) const
 	{
 		os << weight;
+		os << category;
 	}
 
 ///// USER CHANGEABLE CODE END
@@ -141,7 +143,8 @@ public:
 	void loadCpp(std::basic_istream<c,t>& is, int64_t row, int64_t column)
 	{
 		is >> weight;
-		category = 0;
+		is >> category;
+		//category = 0;
 	}
 
 	// This function is used to save this object to a file.
@@ -149,6 +152,7 @@ public:
 	void saveCpp(std::basic_ostream<c,t>& os) const
 	{
 		os << weight;
+		os << category;
 	}
 
 ///// USER CHANGEABLE CODE END

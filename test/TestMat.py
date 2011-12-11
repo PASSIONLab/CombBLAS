@@ -77,7 +77,7 @@ class MatTests(unittest.TestCase):
 			cols.apply(lambda x: (x+offset)%nc) # move elements right by `offset`, wrapping around if needed
 		
 			ret = Mat(rows, cols, v, M.ncol(), M.nrow())
-			F = Mat.eye(v)
+			F = Mat.eye(rows, element=v)
 			# prune out the intersection between F and M
 			F.eWiseApply(M, op=(lambda f, m: f), allowANulls=False, allowBNulls=False)
 			M += F
@@ -686,10 +686,10 @@ def runTests(verbosity = 1):
 	testSuite = suite()
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
-	#print "running again using filtered data:"
+	print "running again using filtered data:"
 	
-	#MatTests.fillMat = MatTests.fillMatFiltered
-	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	MatTests.fillMat = MatTests.fillMatFiltered
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
 	suite = unittest.TestSuite()

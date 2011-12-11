@@ -400,3 +400,21 @@ def _makePythonOp(op):
 		raise NotImplementedError, 'Unable to convert OBJ functor back to Python expression.'
 	else:
 		return op
+
+def _sr_get_python_add(SR):
+	if SR == sr_plustimes:
+		# use an actual function instead of a lambda to make SEJITS handle it easier
+		def plus(x, y):
+			return x+y
+		return plus
+	else:
+		return SR.getAddCallback()
+
+def _sr_get_python_mul(SR):
+	if SR == sr_plustimes:
+		# use an actual function instead of a lambda to make SEJITS handle it easier
+		def mul(x, y):
+			return x*y
+		return mul
+	else:
+		return SR.getMulCallback()
