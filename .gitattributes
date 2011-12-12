@@ -42,6 +42,7 @@ CombBLAS/Applications/CarverResults/scale26_p128_july11.run -text
 CombBLAS/Applications/CarverResults/scale26_p256_july11.run -text
 CombBLAS/Applications/CarverResults/scale26_p64_july11.run -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/FilteredBFS.cpp -text
 CombBLAS/Applications/FranklinResults/graph_p256_s26.e6886783 -text
 CombBLAS/Applications/FranklinResults/graph_p256_s27.e6886784 -text
 CombBLAS/Applications/FranklinResults/graph_p256_s28.e6886785 -text
@@ -710,6 +711,7 @@ CombBLAS/Test/output -text
 CombBLAS/Test/promote.h -text
 CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
+CombBLAS/TypedEdge.h -text
 CombBLAS/VecIterator.cpp -text
 CombBLAS/VecIterator.h -text
 CombBLAS/bc-runtimes/SCALE16/100cores_b256_tile4.out -text
