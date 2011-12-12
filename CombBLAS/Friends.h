@@ -1000,17 +1000,16 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _Binar
 }
 #endif
 
-#if 0
-/**
-  * \attention The memory pool of the lvalue is preserved
-  * If A += B where B uses pinnedPool and A uses NULL before the operation,
-  * then after the operation A still uses NULL memory (old school 'malloc')
-  */
-template <class IT, class NT>
-Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assign operator
-#endif
 
-// based on operator +=
+/** 
+ * Implementation based on operator +=
+ * Element wise apply with the following constraints
+ * The operation to be performed is __binary_op
+ * The operation `c = __binary_op(a, b)` is only performed if `do_op(a, b)` returns true
+ * If allowANulls is true, then if A is missing an element that B has, then ANullVal is used
+ * In that case the operation becomes c[i,j] = __binary_op(ANullVal, b[i,j])
+ * If both allowANulls and allowBNulls is false then the function degenerates into intersection
+ */
 template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
 {
