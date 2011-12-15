@@ -18,7 +18,7 @@ struct inf_plus{
   }
 };
 
-
+#if 0
 //! Filters officially don't exist in Combinatorial BLAS
 //! KDT generates them by embedding their filter stack and pushing those
 //! predicates to the SR::multiply() function, conceptually like 
@@ -49,6 +49,7 @@ struct FilteredBFSRing
 		y = multiply(a, x);
 	}
 };
+#endif
 
 template <class T1, class T2, class OUT>
 struct Select2ndSRing

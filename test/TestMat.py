@@ -77,7 +77,7 @@ class MatTests(unittest.TestCase):
 			cols.apply(lambda x: (x+offset)%nc) # move elements right by `offset`, wrapping around if needed
 		
 			ret = Mat(rows, cols, v, M.ncol(), M.nrow())
-			F = Mat.eye(rows, element=v)
+			F = Mat.eye(n, nc, element=v)
 			# prune out the intersection between F and M
 			F.eWiseApply(M, op=(lambda f, m: f), allowANulls=False, allowBNulls=False)
 			M += F
@@ -251,16 +251,24 @@ class ReductionTests(MatTests):
 	def test_sum_out_in(self):
 		nvert = 9
 		nedge = 19
+		print "taco0"
 		i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
 		j = [1, 0, 2, 1, 3, 1, 3, 2, 4, 3, 8, 6, 8, 7, 4, 5, 6, 7, 8]
 		v = [-01, -10, -12, -21, -13, -31, -23, -32, -34, -43, -68, -1.6e10, 
 				-78, -87, -14, -15, -16, -17, -18]
+		print "taco1"
 		G = self.initializeMat(nvert, nedge, i, j, v)
+		print G
+		print "taco2"
 		self.assertEqual(G.ncol(), nvert)
 		self.assertEqual(G.nrow(), nvert)
+		print "taco3"
 		self.assertEqual(G.nnn(), nedge)
+		print "taco4"
 		outsum = G.sum(dir=Mat.Row)
 		insum = G.sum(dir=Mat.Column)
+		print "rowsum:",outsum
+		print "colsum:",insum
 		outsumExpected = [-1, -115, -44, -97, -43, 0, -68, -78, 
 				-1.6000000087e+10]
 		insumExpected = [-10, -53, -44, -79, -48, -15, -1.6000000016e+10, 

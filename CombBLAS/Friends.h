@@ -1026,9 +1026,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _Binar
 	{
 		if(A.jc[i] > B.jc[j])
 		{
+			j++;
 			if (allowANulls)
 			{
-				temp.jc[curnzc++] = B.jc[j++];
+				temp.jc[curnzc++] = B.jc[j-1];
 				for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 				{
 					if (do_op(ANullVal, B.numx[k]))
@@ -1042,9 +1043,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _Binar
 		}
 		else if(A.jc[i] < B.jc[j])
 		{
+			i++;
 			if (allowBNulls)
 			{
-				temp.jc[curnzc++] = A.jc[i++];
+				temp.jc[curnzc++] = A.jc[i-1];
 				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
 				{
 					if (do_op(A.numx[k], BNullVal))
