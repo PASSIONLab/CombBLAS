@@ -9,6 +9,7 @@ from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
 from Util import _sr_get_python_mul
 from Util import _sr_get_python_add
+from Util import _makePythonOp
 
 import kdt.pyCombBLAS as pcb
 
@@ -156,25 +157,23 @@ class Mat:
 		"""
 
 		if hasattr(self,'_filter_'):
-			if type(self.nvert()) is tuple:
-				raise NotImplementedError, 'only square DiGraphs for now'
+#			if type(self.nvert()) is tuple:
+#				raise NotImplementedError, 'only square Mats for now'
 			class tmpU:
 				_filter_ = self._filter_
 				@staticmethod
 				def fn(x):
 					for i in range(len(tmpU._filter_)):
 						if not tmpU._filter_[i](x):
-							return type(self._identity_)()
-					return x
+							return True
+					return False
 			tmpInstance = tmpU()
-			ret = Mat()
-			ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
-			ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
-		else:
-			#p("HERE INSIDE COPY")
-			#p(self)
 			ret = Mat._toMat(self._m_.copy())
-			#p("COPY SUCCEEDED")
+			#ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
+			#ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
+			ret._m_.Prune(pcb.unaryObjPred(tmpInstance.fn))
+		else:
+			ret = Mat._toMat(self._m_.copy())
 		
 		# TODO: integrate filter/copy and element conversion
 		# so they are not a separate steps that make two copies of the matrix.
@@ -234,7 +233,7 @@ class Mat:
 		returns the number of existing elements in this matrix.
 		"""
 		if self._hasFilter():
-			raise NotImplementedError, "this operation does not support filters yet."
+			return int(self.reduce(Mat.All, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0))
 			
 		return self._m_.getnee()		
 	
@@ -294,12 +293,17 @@ class Mat:
 
 		SEE ALSO:  DiGraph 
 		"""
-		ne = self.nnn()
+		if self._hasFilter():
+			mat = self.copy()
+		else:
+			mat = self
+			
+		ne = mat.nnn()
 		if ne != 0:
 			reti = Vec(ne, element=0, sparse=False)
 			retj = Vec(ne, element=0, sparse=False)
 			retv = Vec(ne, element=self._identity_, sparse=False)
-			self._m_.Find(reti._v_, retj._v_, retv._v_)
+			mat._m_.Find(reti._v_, retj._v_, retv._v_)
 		else:
 			reti = Vec(0, sparse=False)
 			retj = Vec(0, sparse=False)
@@ -309,10 +313,18 @@ class Mat:
 
 	# NEEDED: tests
 	#ToDo:  put in method to modify _REPR_MAX
+
+	def _reprHeader(self):
+		nnn = self.nnn()
+		ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(nnn) + " elements.\n"
+		if self._hasFilter():
+			nee = self._m_.getnee()
+			ret += "%d filter(s) remove %d additional elements (%d total elements stored).\n"%(len(self._filter_), (nee-nnn), (nee))
+		return ret
 	
 	def _reprTuples(self):
 		[i, j, v] = self.toVec()
-		ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
+		ret = self._reprHeader()
 		print ret
 		print "i (row index): ", repr(i)
 		print "j (col index): ", repr(j)
@@ -322,7 +334,7 @@ class Mat:
 
 	def _reprGrid(self):
 		[i, j, v] = self.toVec()
-		ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
+		ret = self._reprHeader()
 
 		# make empty 2D array, I'm sure there's a more proper way to initialize it
 		mat = []
@@ -357,7 +369,7 @@ class Mat:
 		elif self.nnn() < self._REPR_MAX:
 			return self._reprTuples()
 		else:
-			ret = "" + str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col) Mat with " + str(self.nnn()) + " elements.\n"
+			ret = self._reprHeader()
 			return ret + "Too many elements to print."
 
 	# NEEDED: support for filters
@@ -450,6 +462,8 @@ class Mat:
 		if m is None:
 			m = n
 		nnz = min(n, m)
+		if nnz <= 0:
+			raise KeyError,"need n > 0 and m > 0"
 		return Mat(Vec.range(nnz),Vec.range(nnz),Vec(nnz, element, sparse=False),n, m)
 
 	@staticmethod
@@ -737,9 +751,15 @@ class Mat:
 			uniOp = pcb.unaryObj(uniOp)
 
 		ret = Vec(element=init, sparse=False)
-		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op), _op_make_unary(uniOp), init)
+		
+		doall = False
 		if dir == Mat.All:
-			ret = ret.reduce(_op_make_binaryObj(op), _op_make_unary(uniOpOrig), init)
+			dir = Mat.Column
+			doall = True
+
+		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op), _op_make_unary(uniOp), init)
+		if doall:
+			ret = ret.reduce(_op_make_binaryObj(op), None, init)
 		return ret
 
 	#in-place, so no return value
@@ -781,7 +801,7 @@ class Mat:
 					self.myop = myop
 				def __call__(self, x, y):
 					if self.pred(x):
-						return myop(x, y)
+						return self.myop(x, y)
 					else:
 						return x
 			
