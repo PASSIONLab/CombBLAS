@@ -55,6 +55,13 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
+struct ParentType
+{
+	ParentType():id(-1) { };
+	ParentType(int myid):id(myid) { };
+	int id;
+};
+
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);

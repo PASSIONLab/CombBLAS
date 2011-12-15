@@ -41,7 +41,7 @@ struct FilteredBFSRing
 		}
 		else
 		{
-			return OUT();	// null-type
+			return OUT();	// null-type parent id
 		}
 	}
 	static void axpy(T1 a, const T2 & x, OUT & y)
