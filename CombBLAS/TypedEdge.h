@@ -2,23 +2,30 @@
 #define _TYPED_EDGE_
 
 #include <iostream>
+#include <ctype>
 #include "CombBLAS.h"
 
 using namespace std;
+
 
 template <class T>
 class TypedEdge
 {
 public:
-	struct Weight<typename disable_if< is_boolean<T> > > {
-		T operator() {	return my_weight; }
-		T my_weight; 
+	struct Weight<typename enable_if< is_arithmetic< T > > > {	// only avaible if T is of type arithmetic (int, float, double, etc)
+		T operator() {	return weight; }
+		T weight; 
 	};
-	TypedEdge(int type):my_type(type) {};
-	TypedEdge():my_type(-1);	// defines a null-edge
+	struct Interval<typename enable_if< is_same< T, pair<time_t,time_t > > > > {	// only available if T is of type pair<time_t, time_t>
+		T operator() {	return make_pair(begin, end); }
+		time_t begin;
+		time_t end; 
+	};
+	TypedEdge(int mytype):type(mytype) {};
 	bool isCorrectType(int type) {	return (type == mytype); };
+	bool isWithinInterval(time_t begin, time_t end)	{	/* put stuff here */ };
 private:
-	int my_type;
+	int type;
 };
 
 #endif
