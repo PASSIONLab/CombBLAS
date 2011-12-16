@@ -18,38 +18,6 @@ struct inf_plus{
   }
 };
 
-#if 0
-//! Filters officially don't exist in Combinatorial BLAS
-//! KDT generates them by embedding their filter stack and pushing those
-//! predicates to the SR::multiply() function, conceptually like 
-//! if(predicate(maxrix_val)) { bin_op(xxx) }
-//! Here we emulate this filtered traversal approach.
-template <class T1, class T2, class OUT, int EDGETYPEID>
-struct FilteredBFSRing
-{
-	static OUT id() { return OUT(); }
-	static MPI_Op mpi_op() { return MPI_MAX; };
-	static OUT add(const OUT & arg1, const OUT & arg2)
-	{
-		return arg2;
-	}
-	static OUT multiply(const T1 & arg1, const T2 & arg2)
-	{
-		if(T1.isCorrectType(EDGETYPEID))	// T1 is of type edges for BFS
-		{
-			return static_cast<OUT>(arg2);
-		}
-		else
-		{
-			return OUT();	// null-type parent id
-		}
-	}
-	static void axpy(T1 a, const T2 & x, OUT & y)
-	{
-		y = multiply(a, x);
-	}
-};
-#endif
 
 template <class T1, class T2, class OUT>
 struct Select2ndSRing

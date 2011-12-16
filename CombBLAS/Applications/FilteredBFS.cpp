@@ -31,7 +31,7 @@ int cblas_splits = 1;
 #endif
 
 #include "../CombBLAS.h"
-#include "../TypedEdge.h"
+#include "../TwitterEdge.h"
 
 #define ITERS 16
 #define EDGEFACTOR 16
@@ -44,16 +44,6 @@ bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
         return !(iss >> f >> t).fail();
 }
 
-
-template <typename PARMAT>
-void Symmetricize(PARMAT & A)
-{
-	// boolean addition is practically a "logical or"
-	// therefore this doesn't destruct any links
-	PARMAT AT = A;
-	AT.Transpose();
-	A += AT;
-}
 
 struct ParentType
 {
@@ -80,10 +70,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}		
 	{
-		enum Twitter { Follow, Retweet };
-		typedef TypedEdge< pair<time_t, time_t>, int > TimeOccurance; 
-		typedef FilteredBFSRing < TypedEdge<bool>, ParentType, ParentType > BFSR_T1;		// BFS only on follower edges
-		typedef SpParMat < int64_t, TypedEdge<bool>, SpDCCols<int64_t, TypedEdge<bool> > > PSpMat_TypedBool;
+		typedef LatestRetwitterBFS < TwitterEdge<2>, ParentType, ParentType > TWRing;		// BFS only on retweets in last month
+		typedef SpParMat < int64_t, TwitterEdge<2>, SpDCCols<int64_t, TwitterEdge<2> > > PSpMat_Twitter;
 
 		// Declare objects
 		PSpMat_Bool A;	
