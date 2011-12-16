@@ -47,7 +47,6 @@ class Dcsc
 public:
 	Dcsc ();
 	Dcsc (IT nnz, IT nzcol);
-	Dcsc (IT nnz, IT nzcol, MemoryPool * pool);		//!< Placement constructor
 
 	Dcsc (IT nnz, const vector<IT> & indices, bool isRow); 	//!< Create a logical matrix from (row/column) indices vector
 	Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz);
@@ -103,12 +102,6 @@ public:
 
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);
-
-	//! Special memory management functions, both respect the memory pool
-	void * mallocarray (size_t size) const;
-	void deletearray(void * array, size_t size) const;
-
-	MemoryPool * pool;
 };
 
 #include "dcsc.cpp"	

@@ -74,13 +74,14 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 		{
 			cout << "Usage: ./FilteredBFS <Text, Binary, Gen> <Text Input Name | Binary Input Name | Scale Forced>" << endl;
-			cout << "Example: ./FilteredBFS Gen 30" << endl;
+			cout << "Example: ./FilteredBFS Text twitter_small.txt" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
 	}		
 	{
 		enum Twitter { Follow, Retweet };
+		typedef TypedEdge< pair<time_t, time_t>, int > TimeOccurance; 
 		typedef FilteredBFSRing < TypedEdge<bool>, ParentType, ParentType > BFSR_T1;		// BFS only on follower edges
 		typedef SpParMat < int64_t, TypedEdge<bool>, SpDCCols<int64_t, TypedEdge<bool> > > PSpMat_TypedBool;
 
