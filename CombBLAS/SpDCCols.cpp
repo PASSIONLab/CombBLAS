@@ -25,13 +25,13 @@ const IT SpDCCols<IT,NT>::esscount = static_cast<IT>(4);
 
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), localpool(NULL), splits(0){
+SpDCCols<IT,NT>::SpDCCols():dcsc(NULL), m(0), n(0), nnz(0), splits(0){
 }
 
 // Allocate all the space necessary
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc, MemoryPool * mpool)
-:m(nRow), n(nCol), nnz(size), localpool(mpool), splits(0)
+SpDCCols<IT,NT>::SpDCCols(IT size, IT nRow, IT nCol, IT nzc)
+:m(nRow), n(nCol), nnz(size), splits(0)
 {
 	if(nnz > 0)
 		dcsc = new Dcsc<IT,NT>(nnz, nzc);
@@ -60,12 +60,11 @@ SpDCCols<IT,NT>::~SpDCCols()
 	}
 }
 
-
 // Copy constructor (constructs a new object. i.e. this is NEVER called on an existing object)
 // Derived's copy constructor can safely call Base's default constructor as base has no data members 
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
-: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(rhs.localpool), splits(rhs.splits)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), splits(rhs.splits)
 {
 	if(splits > 0)
 	{
@@ -83,13 +82,10 @@ SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
  * @param[in] 	rhs if transpose=true, 
  *	\n		then rhs is assumed to be a row sorted SpTuples object 
  *	\n		else rhs is assumed to be a column sorted SpTuples object
- * @param[in, out] mpool default parameter value is a null pointer, which means no special memory pool is used
- *	\n	if the parameter is supplied, then memory for MAS, JC, IR, NUMX are served from the given memory pool
- *	\n	also modifies the memory pool so that the used portions are no longer listed as free
- */
+ **/
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPool * mpool)
-: m(rhs.m), n(rhs.n), nnz(rhs.nnz), localpool(mpool), splits(0)
+SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose)
+: m(rhs.m), n(rhs.n), nnz(rhs.nnz), splits(0)
 {	 
 	
 	if(nnz == 0)	// m by n matrix of complete zeros
@@ -110,16 +106,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 					++localnzc;
 	 			}
 	 		}
-
-			if(localpool == NULL)	// no special memory pool used
-			{
-				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
-			}
-			else
-			{
-				dcsc = new Dcsc<IT,NT>(rhs.nnz, localnzc, localpool);
-	 		}		
-
+			dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
 			dcsc->jc[0]  = rhs.rowindex(0); 
 			dcsc->cp[0] = 0;
 
@@ -150,15 +137,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose, MemoryPoo
 					++localnzc;
 				}
 			}
-			if(localpool == NULL)	// no special memory pool used
-			{
-				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
-			}
-			else
-			{
-				dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc, localpool);
-			}
-
+			dcsc = new Dcsc<IT,NT>(rhs.nnz,localnzc);	
 			dcsc->jc[0]  = rhs.colindex(0); 
 			dcsc->cp[0] = 0;
 
@@ -355,7 +334,7 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 
 	tuples.SortColBased();
         
-	SpDCCols<IT,NT> object(tuples, false, NULL);	
+	SpDCCols<IT,NT> object(tuples, false);	
 	*this = object;
 }
 
@@ -426,7 +405,6 @@ Arr<IT,NT> SpDCCols<IT,NT>::GetArrays() const
   * O(nnz log(nnz)) time Transpose function
   * \remarks Performs a lexicographical sort
   * \remarks Mutator function (replaces the calling object with its transpose)
-  * \remarks respects the memory pool
   */
 template <class IT, class NT>
 void SpDCCols<IT,NT>::Transpose()
@@ -437,11 +415,11 @@ void SpDCCols<IT,NT>::Transpose()
 		Atuples.SortRowBased();
 
 		// destruction of (*this) is handled by the assignment operator
-		*this = SpDCCols<IT,NT>(Atuples,true, localpool);
+		*this = SpDCCols<IT,NT>(Atuples,true);
 	}
 	else
 	{
-		*this = SpDCCols<IT,NT>(0, n, m, 0, localpool);
+		*this = SpDCCols<IT,NT>(0, n, m, 0);
 	}
 }
 
@@ -450,7 +428,6 @@ void SpDCCols<IT,NT>::Transpose()
   * O(nnz log(nnz)) time Transpose function
   * \remarks Performs a lexicographical sort
   * \remarks Const function (doesn't mutate the calling object)
-  * \remarks respects the memory pool
   */
 template <class IT, class NT>
 SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
@@ -458,7 +435,7 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
 	SpTuples<IT,NT> Atuples(*this);
 	Atuples.SortRowBased();
 
-	return SpDCCols<IT,NT>(Atuples,true, localpool);
+	return SpDCCols<IT,NT>(Atuples,true);
 }
 
 /** 
@@ -785,7 +762,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 //! Construct SpDCCols from Dcsc
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
-:dcsc(mydcsc), m(nRow), n(nCol), localpool(NULL), splits(0)
+:dcsc(mydcsc), m(nRow), n(nCol), splits(0)
 {
 	if (mydcsc == NULL) 
 		nnz = 0;
@@ -796,7 +773,7 @@ SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, Dcsc<IT,NT> * mydcsc)
 //! Create a logical matrix from (row/column) indices array, used for indexing only
 template <class IT, class NT>
 SpDCCols<IT,NT>::SpDCCols (IT size, IT nRow, IT nCol, const vector<IT> & indices, bool isRow)
-:m(nRow), n(nCol), nnz(size), localpool(NULL), splits(0)
+:m(nRow), n(nCol), nnz(size), splits(0)
 {
 	if(size > 0)
 		dcsc = new Dcsc<IT,NT>(size,indices,isRow);

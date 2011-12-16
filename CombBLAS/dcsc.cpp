@@ -35,34 +35,17 @@ THE SOFTWARE.
 using namespace std;
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0),pool(NULL){}
+Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0){}
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol),pool(NULL)
-{
-	assert (nz != 0);
-	size_t sit = sizeof(IT);
-	
-	cp = (IT *) mallocarray ( (nzc+1)*sit ); 
-	jc  = (IT *) mallocarray ( nzc*sit ); 	
-	ir  = (IT *) mallocarray ( nz*sit ); 
-	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-}
-
-/** 
- * Constructor that is used when the memory for arrays are already allocated by pinning
- */
-template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol, MemoryPool * mpool): nz(nnz),nzc(nzcol), pool(mpool)
+Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol)
 {
 	assert (nz != 0);
 	assert (nzc != 0);
-	size_t sit = sizeof(IT);
-	
-	cp = (IT *) mallocarray ( (nzc+1)*sit); 
-	jc  = (IT *) mallocarray ( nzc*sit); 	
-	ir  = (IT *) mallocarray ( nz*sit); 
-	numx= (NT *) mallocarray ( nz*sizeof(NT)); 
+	cp = new IT[nzc+1];
+	jc = new IT[nzc];
+	ir = new IT[nz];
+	numx = new NT[nz];
 }
 
 //! GetIndices helper function for StackEntry arrays
@@ -81,46 +64,6 @@ inline void Dcsc<IT,NT>::getindices (StackEntry<NT, pair<IT,IT> > * multstack, I
 	}
 	++j;
 }
-
-template <class IT, class NT>
-void * Dcsc<IT,NT>::mallocarray (size_t size) const
-{
-	void * addr;
-	if(pool == NULL)
-	{
-		addr = malloc( size + ALIGN );
-	}
-	else
-	{
-		addr = pool->alloc( size + ALIGN );		
-	}
-	if(addr == NULL)
-	{
-		cerr<< "Mallocarray() failed" << endl;
-		return NULL;
-	}
-
-	*((MemoryPool **) addr) = pool;			// Store the pointer to the memory pool (to be able to deallocate later)
-	return (void *) (((char *) addr) + ALIGN);	// The returned raw memory excludes the memory pool pointer
-}
-
-//! Frees the memory and assigns the pointer to NULL 
-template <class IT, class NT>
-void Dcsc<IT, NT>::deletearray(void * array, size_t size) const
-{
-	if(size != 0 && array != NULL)
-	{
-		array = (void *) ((char*)array - ALIGN);
-		MemoryPool * pool = * ((MemoryPool **) array);
-		if(pool == NULL)
-			free(array);
-		else
-			pool->dealloc(array, size + ALIGN);
-
-		array = NULL;
-	}
-}
-
 	
 template <class IT, class NT>
 Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz)
@@ -247,18 +190,16 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz), pool(NULL)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz)
 {
 	nzc = std::min(ndim, nnz);	// nzc can't exceed any of those
 
 	assert(nz != 0 );
-	size_t sit = sizeof(IT);
+	cp = new IT[nzc+1];	// to be shrinked
+	jc = new IT[nzc];	// to be shrinked
+	ir = new IT[nz];
+	numx = new NT[nz];
 	
-	cp = (IT *) mallocarray ( (nzc+1)*sit ); 	// to be shrinked
-	jc  = (IT *) mallocarray ( nzc*sit ); 		// to be shrinked
-	ir  = (IT *) mallocarray ( nz*sit ); 
-	numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-
 	IT curnzc = 0;				// number of nonzero columns constructed so far
 	IT cindex = multstack[0].key.first;
 	IT rindex = multstack[0].key.second;
@@ -283,7 +224,6 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
 		}
 	}
 	cp[curnzc] = nz;
-
 	Resize(curnzc, nz);	// only shrink cp & jc arrays
 }
 
@@ -293,15 +233,13 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
   * \remark For these temporary matrices nz = nzc (which are both equal to nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),pool(NULL)
+Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz)
 {
 	assert((nnz != 0) && (indices.size() == nnz));
-	size_t sit = sizeof(IT);
-	
-	cp = (IT *) mallocarray ( (nnz+1)*sit ); 	
-	jc  = (IT *) mallocarray ( nnz*sit ); 	
-	ir  = (IT *) mallocarray ( nnz*sit ); 
-	numx= (NT *) mallocarray ( nnz*sizeof(NT) ); 
+	cp = new IT[nnz+1];	
+	jc = new IT[nnz];
+	ir = new IT[nnz];
+	numx = new NT[nnz];
 
 	SpHelper::iota(cp, cp+nnz+1, 0);  // insert sequential values {0,1,2,..}
 	fill_n(numx, nnz, static_cast<NT>(1));
@@ -329,9 +267,9 @@ Dcsc<IT,NT>::operator Dcsc<IT,NNT>() const
 	{		
 		convert.numx[i] = static_cast<NNT>(numx[i]);		
 	}
-	memcpy(convert.ir, ir, nz * sizeof(IT));
-	memcpy(convert.jc, jc, nzc * sizeof(IT));
-	memcpy(convert.cp, cp, (nzc+1) * sizeof(IT));
+	std::copy(ir, ir+nz, convert.ir);	// copy(first, last, result)
+	std::copy(jc, jc+nzc, convert.jc);
+	std::copy(cp, cp+nzc+1, convert.cp);
 	return convert;
 }
 
@@ -352,19 +290,15 @@ Dcsc<IT,NT>::operator Dcsc<NIT,NNT>() const
 	return convert;
 }
 
-/**
-  * Copy constructor that respects the memory pool
-  */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.pool)
+Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc)
 {
-	size_t sit = sizeof(IT);
 	if(nz > 0)
 	{
-		numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-		ir  = (IT *) mallocarray ( nz*sit ); 
-		memcpy(numx, rhs.numx, nz*sizeof(NT));
-		memcpy(ir, rhs.ir, nz*sit);
+		numx = new NT[nz];
+		ir = new IT[nz];
+		std::copy(rhs.numx, rhs.numx + nz, numx);	// numx can be a non-POD type
+		std::copy(rhs.ir, rhs.ir + nz, ir);
 	}
 	else
 	{
@@ -373,10 +307,10 @@ Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.
 	}
 	if(nzc > 0)
 	{
-		jc  = (IT *) mallocarray ( nzc*sit ); 
-		cp = (IT *) mallocarray ( (nzc+1)*sit ); 		
-		memcpy(jc, rhs.jc, nzc*sit);
-		memcpy(cp, rhs.cp, (nzc+1)*sit);
+		jc = new IT[nzc];
+		cp = new IT[nzc+1];
+		std::copy(rhs.jc, rhs.jc + nzc, jc);
+		std::copy(rhs.cp, rhs.cp + nzc + 1, cp);
 	}
 	else
 	{
@@ -387,37 +321,31 @@ Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc), pool(rhs.
 
 /**
   * Assignment operator (called on an existing object)
-  * \attention The memory pool of the lvalue is replaced by the memory pool of rvalue
-  * If A = B where B uses pinnedPool and A uses NULL before the operation,
-  * then after the operation A now uses pinnedPool too
   */
 template <class IT, class NT>
 Dcsc<IT,NT> & Dcsc<IT,NT>::operator=(const Dcsc<IT,NT> & rhs)
 {
 	if(this != &rhs)		
 	{
-		size_t sit = sizeof(IT);
-
 		// make empty first !
 		if(nz > 0)
 		{
-			deletearray(numx, sizeof(NT) * nz);
-			deletearray(ir, sit * nz);
+			delete[] numx;
+			delete[] ir;	
 		}
 		if(nzc > 0)
 		{
-			deletearray(jc, sit * nzc);
-			deletearray(cp, sit * (nzc+1));
+			delete[] jc;
+			delete[] cp;
 		}
-		pool = rhs.pool;
 		nz = rhs.nz;
 		nzc = rhs.nzc;
 		if(nz > 0)
 		{
-			numx= (NT *) mallocarray ( nz*sizeof(NT) ); 
-			ir  = (IT *) mallocarray ( nz*sit ); 
-			memcpy(numx, rhs.numx, nz*sizeof(NT));
-			memcpy(ir, rhs.ir, nz*sit);	
+			numx = new NT[nz];
+			ir = new IT[nz];
+			std::copy(rhs.numx, rhs.numx + nz, numx);	// numx can be a non-POD type
+			std::copy(rhs.ir, rhs.ir + nz, ir);
 		}
 		else
 		{
@@ -426,10 +354,10 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::operator=(const Dcsc<IT,NT> & rhs)
 		}
 		if(nzc > 0)
 		{
-			jc  = (IT *) mallocarray ( nzc*sit ); 
-			cp = (IT *) mallocarray ( (nzc+1)*sit ); 		
-			memcpy(jc, rhs.jc, nzc*sit);
-			memcpy(cp, rhs.cp, (nzc+1)*sit);
+			jc = new IT[nzc];
+	                cp = new IT[nzc+1];
+        	        std::copy(rhs.jc, rhs.jc + nzc, jc);
+                	std::copy(rhs.cp, rhs.cp + nzc + 1, cp);
 		}
 		else
 		{
@@ -440,14 +368,6 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::operator=(const Dcsc<IT,NT> & rhs)
 	return *this;
 }
 
-
-
-
-/**
-  * \attention The memory pool of the lvalue is preserved
-  * If A += B where B uses pinnedPool and A uses NULL before the operation,
-  * then after the operation A still uses NULL memory (old school 'malloc')
-  */
 template <class IT, class NT>
 Dcsc<IT, NT> & Dcsc<IT,NT>::operator+=(const Dcsc<IT,NT> & rhs)	// add and assign operator
 {
@@ -563,9 +483,6 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
  * @param[in]   exclude if false,
  *      \n              then operation is A = A .* B
  *      \n              else operation is A = A .* not(B) 
- * \attention The memory pool of the lvalue is preserved:
- * 	\n	If A = A .* B where B uses pinnedPool and A uses NULL before the operation,
- * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
  **/
 template <class IT, class NT>
 void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)	
@@ -594,18 +511,15 @@ void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
 		}
 		if(colexists) 	++prunednzc;
 	}
-
-	size_t sit = sizeof(IT);
-	
 	IT * oldcp = cp; 
 	IT * oldjc = jc;
 	IT * oldir = ir;	
 	NT * oldnumx = numx;	
 
-	cp = (IT *) mallocarray ( (prunednzc+1)*sit ); 
-	jc = (IT *) mallocarray (  prunednzc * sit ); 
-	ir = (IT *) mallocarray ( prunednnz * sit );
-	numx = (NT *) mallocarray (prunednnz * sizeof(NT));
+	cp = new IT[prunednzc+1];
+	jc = new IT[prunednzc];
+	ir = new IT[prunednnz];
+	numx = new NT[prunednnz];
 
 	IT cnzc = 0;
 	IT cnnz = 0;
@@ -629,16 +543,11 @@ void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
 	}
 	assert(cnzc == prunednzc);
 	assert(cnnz == prunednnz);
-
-	deletearray(oldnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
-	deletearray(oldir, nz * sit);
-	deletearray(oldjc, nzc * sit);
-	deletearray(oldcp, (nzc+1)*sit);
-
+	// delete the memory pointed by previous pointers
+	DeleteAll(oldnumx, oldir, oldjc, oldcp);
 	nz = cnnz;
 	nzc = cnzc;
 }
-
 
 template <class IT, class NT>
 void Dcsc<IT,NT>::EWiseScale(NT ** scaler)	
@@ -672,7 +581,6 @@ void Dcsc<IT,NT>::UpdateDense(NT ** array, _BinaryOperation __binary_op) const
 		}
 	}
 }
-
 
 /** 
   * Construct an index array called aux
@@ -716,17 +624,16 @@ IT Dcsc<IT,NT>::ConstructAux(IT ndim, IT * & aux) const
 template <class IT, class NT>
 void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 {
-	size_t sit = sizeof(IT);
 	if(nzcnew == 0)
 	{
-		deletearray(jc, sit * nzc);
-		deletearray(cp, sit * (nzc+1));
+		delete[] jc;
+		delete[] cp;
 		nzc = 0;
 	}
 	if(nznew == 0)
 	{
-		deletearray(ir, sit * nz);
-		deletearray(numx, sizeof(NT) * nz);
+		delete[] ir;
+		delete[] numx;
 		nz = 0;
 	}
 	if ( nzcnew == 0 && nznew == 0)
@@ -737,44 +644,40 @@ void Dcsc<IT,NT>::Resize(IT nzcnew, IT nznew)
 	{
 		IT * tmpcp = cp; 
 		IT * tmpjc = jc;
-		
-		cp = (IT *) mallocarray ( (nzcnew+1)*sit ); 
-		jc = (IT *) mallocarray (  nzcnew * sit ); 	
-
+		cp = new IT[nzcnew+1];
+		jc = new IT[nzcnew];	
 		if(nzcnew > nzc)	// Grow it (copy all of the old elements)
 		{
-			memcpy(cp, tmpcp, (nzc+1)*sit);
-			memcpy(jc, tmpjc, nzc*sit);		
+			std::copy(tmpcp, tmpcp+nzc+1, cp);	// copy(first, end, result)
+			std::copy(tmpjc, tmpjc+nzc, jc);
 		}
 		else		// Shrink it (copy only a portion of the old elements)
 		{
-			memcpy(cp, tmpcp, (nzcnew+1)*sit);
-			memcpy(jc, tmpjc, nzcnew*sit);	
+			std::copy(tmpcp, tmpcp+nzcnew+1, cp);	
+			std::copy(tmpjc, tmpjc+nzcnew, jc);
 		}
-		deletearray(tmpcp, sit * (nzc+1));	// delete the memory pointed by previous pointers
-		deletearray(tmpjc, sit * nzc);
+		delete[] tmpcp;	// delete the memory pointed by previous pointers
+		delete[] tmpjc;
 		nzc = nzcnew;
 	}
 	if (nznew != nz)
 	{	
 		NT * tmpnumx = numx; 
 		IT * tmpir = ir;
-	
-		numx = (NT *) mallocarray ( nznew * sizeof(NT) ); 
-		ir = (IT *) mallocarray (  nznew * sit ); 
-
+		numx = new NT[nznew];	
+		ir = new IT[nznew];
 		if(nznew > nz)	// Grow it (copy all of the old elements)
 		{
-			memcpy(numx, tmpnumx, nz*sizeof(NT));
-			memcpy(ir, tmpir, nz*sit);	
+			std::copy(tmpnumx, tmpnumx+nz, numx);	// numx can be non-POD
+			std::copy(tmpir, tmpir+nz, ir);
 		}
 		else	// Shrink it (copy only a portion of the old elements)
 		{
-			memcpy(numx, tmpnumx, nznew*sizeof(NT));
-			memcpy(ir, tmpir, nznew*sit);	
+			std::copy(tmpnumx, tmpnumx+nznew, numx);	
+			std::copy(tmpir, tmpir+nznew, ir);
 		}
-		deletearray(tmpnumx, nz * sizeof(NT));	// delete the memory pointed by previous pointers
-		deletearray(tmpir, nz * sit);
+		delete[] tmpnumx;	// delete the memory pointed by previous pointers
+		delete[] tmpir;
 		nz = nznew;
 	}
 }
@@ -815,10 +718,10 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	else
 	{
 		A = new Dcsc<IT,NT>(cp[pos], pos);
-		memcpy(A->jc, jc, pos * sizeof(IT));
-		memcpy(A->cp, cp, (pos+1) * sizeof(IT));
-		memcpy(A->ir, ir, cp[pos] * sizeof(IT));
-		memcpy(A->numx, numx, cp[pos] * sizeof(NT));
+		std::copy(jc, jc+pos, A->jc);
+		std::copy(cp, cp+pos+1, A->cp);
+		std::copy(ir, ir+cp[pos], A->ir);
+		std::copy(numx, numx + cp[pos], A->numx);	// copy(first, last, result)
 	}	
 	if(nz-cp[pos] == 0)
 	{
@@ -827,12 +730,12 @@ void Dcsc<IT,NT>::Split(Dcsc<IT,NT> * & A, Dcsc<IT,NT> * & B, IT cut)
 	else
 	{
 		B = new Dcsc<IT,NT>(nz-cp[pos], nzc-pos);
-		memcpy(B->jc, jc+pos, (nzc-pos) * sizeof(IT));
+		std::copy(jc+pos, jc+ nzc, B->jc);
 		transform(B->jc, B->jc + (nzc-pos), B->jc, bind2nd(minus<IT>(), cut));
-		memcpy(B->cp, cp+pos, (nzc-pos+1) * sizeof(IT));
+		std::copy(cp+pos, cp+nzc+1, B->cp);
 		transform(B->cp, B->cp + (nzc-pos+1), B->cp, bind2nd(minus<IT>(), cp[pos]));
-		memcpy(B->ir, ir + cp[pos], (nz- cp[pos]) * sizeof(IT)); 
-		memcpy(B->numx, numx + cp[pos], (nz- cp[pos]) * sizeof(NT)); 
+		std::copy(ir+cp[pos], ir+nz, B->ir);
+		std::copy(numx+cp[pos], numx+nz, B->numx);	// copy(first, last, result)
 	}
 }
 
@@ -848,22 +751,22 @@ void Dcsc<IT,NT>::Merge(const Dcsc<IT,NT> * A, const Dcsc<IT,NT> * B, IT cut)
 	{
 		*this = Dcsc<IT,NT>(cnz, cnzc);		// safe, because "this" can not be NULL inside a member function
 
-		memcpy(jc, A->jc, A->nzc * sizeof(IT));
-		memcpy(jc + A->nzc, B->jc, B->nzc * sizeof(IT));
+		std::copy(A->jc, A->jc + A->nzc, jc);	// copy(first, last, result)
+		std::copy(B->jc, B->jc + B->nzc, jc + A->nzc);
 		transform(jc + A->nzc, jc + cnzc, jc + A->nzc, bind2nd(plus<IT>(), cut));
 
-		memcpy(cp, A->cp, A->nzc * sizeof(IT));
-		memcpy(cp + A->nzc, B->cp, (B->nzc+1) * sizeof(IT));
+		std::copy(A->cp, A->cp + A->nzc, cp);
+		std::copy(B->cp, B->cp + B->nzc +1, cp + A->nzc);
 		transform(cp + A->nzc, cp+cnzc+1, cp + A->nzc, bind2nd(plus<IT>(), A->cp[A->nzc]));
-		
-		memcpy(ir, A->ir, A->nz * sizeof(IT));
-		memcpy(ir + A->nz, B->ir, B->nz * sizeof(IT));
+	
+		std::copy(A->ir, A->ir + A->nz, ir);
+		std::copy(B->ir, B->ir + B->nz, ir + A->nz);
 
-		memcpy(numx, A->numx, A->nz * sizeof(NT));
-		memcpy(numx + A->nz, B->numx, B->nz * sizeof(NT));
+		// since numx is potentially non-POD, we use std::copy
+		std::copy(A->numx, A->numx + A->nz, numx);
+		std::copy(B->numx, B->numx + B->nz, numx + A->nz);
 	}
 }
-
 
 /**
  * param[in] nind { length(colsums), gives number of columns of A that contributes to C(:,i) }
@@ -938,16 +841,15 @@ void Dcsc<IT,NT>::FillColInds(const VT * colnums, IT nind, vector< pair<IT,IT> >
 template <class IT, class NT>
 Dcsc<IT,NT>::~Dcsc()
 {
-	size_t sit = sizeof(IT);
 	if(nz > 0)			// dcsc may be empty
 	{
-		deletearray(numx, nz * sizeof(NT));
-		deletearray(ir, nz * sit);
+		delete[] numx;
+		delete[] ir;
 	}
 	if(nzc > 0)
 	{
-		deletearray(jc, nzc * sit);
-		deletearray(cp, (nzc+1) * sit);
+		delete[] jc;
+		delete[] cp;
 	}
 }
 

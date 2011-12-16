@@ -211,7 +211,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
 			
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false, NULL);	
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
 	// First get the result in SpTuples, then convert to UDER
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
@@ -319,7 +319,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 		
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false, NULL);	
+	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
 

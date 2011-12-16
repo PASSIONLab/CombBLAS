@@ -1420,7 +1420,7 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 		SpTuples<IT,NT> tuples(*spSeq);
 		delete spSeq;
 		removed  = tuples.RemoveLoops();
-		spSeq = new DER(tuples, false, NULL);	// Convert to DER
+		spSeq = new DER(tuples, false);	// Convert to DER
 	}
 	commGrid->GetWorld().Allreduce( &removed, & totrem, 1, MPIType<IT>(), MPI::SUM); 
 	return totrem;
@@ -1554,7 +1554,7 @@ void SpParMat<IT,NT,DER>::Square ()
 	SpHelper::deallocate2D(TRecvSizes, DER::esscount);
 	
 	delete spSeq;		
-	spSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false, NULL);	// First get the result in SpTuples, then convert to UDER
+	spSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false);	// First get the result in SpTuples, then convert to UDER
 	for(int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
