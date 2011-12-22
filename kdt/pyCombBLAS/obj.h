@@ -60,8 +60,7 @@ public:
 	template <typename c, typename t>
 	void saveCpp(std::basic_ostream<c,t>& os) const
 	{
-		os << weight;
-		os << category;
+		os << weight << "\t" << category;
 	}
 
 ///// USER CHANGEABLE CODE END
@@ -151,8 +150,7 @@ public:
 	template <typename c, typename t>
 	void saveCpp(std::basic_ostream<c,t>& os) const
 	{
-		os << weight;
-		os << category;
+		os << weight << "\t" << category;
 	}
 
 ///// USER CHANGEABLE CODE END

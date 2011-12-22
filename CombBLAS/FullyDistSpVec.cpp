@@ -484,14 +484,33 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 		{
 			infile.clear();
 			infile.seekg(0);
-			infile >> glen >> total_nnz;
+			IT numrows, numcols;
+			bool indIsRow = true;
+			//infile >> glen >> total_nnz;
+			infile >> numrows >> numcols >> total_nnz;
+			if (numcols == 1)
+			{ // column vector, read vector indices from the row index
+				indIsRow = true;
+				glen = numrows;
+			}
+			else
+			{ // row vector, read vector indices from the column index
+				indIsRow = false;
+				glen = numcols;
+			}
 			World.Bcast(&glen, 1, MPIType<IT>(), master);			
 	
 			IT tempind;
+			IT temprow, tempcol;
 			IT cnz = 0;
 			while ( (!infile.eof()) && cnz < total_nnz)
 			{
-				infile >> tempind;
+				//infile >> tempind;
+				infile >> temprow >> tempcol;
+				if (indIsRow)
+					tempind = temprow;
+				else
+					tempind = tempcol;
 				tempind--;
 				IT locind;
 				int rec = Owner(tempind, locind);	// recipient (owner) processor
@@ -628,7 +647,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		IT maxd = *max_element(dist, dist+nprocs);
 		mystruct * data = new mystruct[maxd];
 		
-		outfile << totalLength << "\t" << totalNNZ << endl;
+		outfile << totalLength << "\t1\t" << totalNNZ << endl;
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
@@ -639,7 +658,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 
 			for (int j = 0; j < dist[i]; j++)
 			{
-				outfile << data[j].ind+1 << "\t";
+				outfile << data[j].ind+1 << "\t1\t";
 				handler.save(outfile, data[j].num, data[j].ind);
 				outfile << endl;
 			}
