@@ -2111,4 +2111,7 @@ test/old/oldTestSpParVec.py -text
 test/testfiles/small.mtx -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
+twitterparser/graphbuilder.py -text
+twitterparser/monthlyparser.cpp -text
+twitterparser/vertexmapper.py -text
 /v0.2_checklist -text
