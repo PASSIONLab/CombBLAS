@@ -56,7 +56,7 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 	{
 		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
 		IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
-		OVT mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);
+		OVT mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);	// TODO: Check against identity
 		if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
 		{
 			numy.back() = SR::add(numy.back(), mrhs);

@@ -1,9 +1,30 @@
 /****************************************************************/
-/* Sequential and Parallel Sparse Matrix Multiplication Library  /
-/  version 2.3 --------------------------------------------------/
-/  date: 01/18/2009 ---------------------------------------------/
-/  author: Aydin Buluc (aydin@cs.ucsb.edu) ----------------------/
-\****************************************************************/
+/* Parallel Combinatorial BLAS Library (for Graph Computations) */
+/* version 1.2 -------------------------------------------------*/
+/* date: 10/06/2011 --------------------------------------------*/
+/* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
+/****************************************************************/
+/*
+ Copyright (c) 2011, Aydin Buluc
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
  * Operations used in parallel reductions and scans
@@ -16,6 +37,7 @@
 #include <functional>
 #include <cmath>
 #include <mpi.h>
+#include "TwitterEdge.h"
 
 using namespace std;
 
@@ -81,16 +103,23 @@ struct safemultinv : public std::unary_function<T, T>
  * Binary function to prune the previously discovered vertices from the current frontier 
  * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
 **/
-template<typename T1, typename T2>
-struct prunediscovered: public std::binary_function<T1, T2, typename promote_trait<T1,T2>::T_promote >
+struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 {
-	typedef typename promote_trait<T1,T2>::T_promote T_promote;
-  	T_promote operator()(T1 x, const T2 & y) const
+  	int64_t operator()(int64_t x, const int64_t & y) const
 	{
 		return ( y == -1 ) ? x: -1;
 	}
 };
 
+
+struct prunediscovered_f: public std::binary_function<ParentType, ParentType, ParentType>
+{
+  	ParentType operator()(ParentType x, const ParentType & y) const
+	{
+		return ( y == ParentType() ) ? x: ParentType();
+	}
+	
+};
 
 /**
  * binary_function<Arg1, Arg2, Result>
