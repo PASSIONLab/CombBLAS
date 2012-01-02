@@ -2112,6 +2112,8 @@ test/testfiles/small.mtx -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
 twitterparser/graphbuilder.py -text
+twitterparser/makefile -text
 twitterparser/monthlyparser.cpp -text
+twitterparser/remapper.cpp -text
 twitterparser/vertexmapper.py -text
 /v0.2_checklist -text
