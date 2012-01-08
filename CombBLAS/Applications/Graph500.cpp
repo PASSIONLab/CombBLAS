@@ -76,6 +76,18 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
+/**
+ * Binary function to prune the previously discovered vertices from the current frontier 
+ * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
+**/
+struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
+{
+  	int64_t operator()(int64_t x, const int64_t & y) const
+	{
+		return ( y == -1 ) ? x: -1;
+	}
+};
+
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
