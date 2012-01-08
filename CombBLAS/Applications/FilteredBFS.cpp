@@ -31,7 +31,7 @@ int cblas_splits = 1;
 #endif
 
 #include "../CombBLAS.h"
-#include "../TwitterEdge.h"
+#include "TwitterEdge.h"
 
 #define ITERS 16
 #define EDGEFACTOR 16
@@ -166,10 +166,17 @@ int main(int argc, char* argv[])
 					fringe.ApplyInd(NumSetter);
 					//fringe.PrintInfo("fringe before SpMV");
 
-					fringe = SpMV<LatestRetwitterBFS>(A, fringe);	// SpMV with sparse vector, optimizations disabled for generality
+					// SpMV with sparse vector, optimizations disabled for generality
+					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
 					// fringe.PrintInfo("fringe after SpMV");
-					
-					fringe = EWiseApply(fringe, parents, prunediscovered_f());
+				
+					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
+					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
+					// ABAB: Parallelize EWiseApply?
+					// ABAB: allowVNulls currently true, until we embed its logic to SpMV	
+					// #define prunediscovered_f(x,y) return ( y == ParentType() ) ? x: ParentType()
+
+					fringe = EWiseApply<ParentType>(fringe, parents, prunediscovered_f(), bintotality<ParentType,ParentType>(), true, ParentType());
 					// fringe.PrintInfo("fringe after cleanup");
 					parents += fringe;
 					// parents.PrintInfo("Parents after addition");

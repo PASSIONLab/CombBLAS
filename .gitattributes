@@ -240,6 +240,7 @@ CombBLAS/Applications/TACC-SCRIPTS/mpi2script529 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script64 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script81 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script9 -text
+CombBLAS/Applications/TwitterEdge.h -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx13 -text
