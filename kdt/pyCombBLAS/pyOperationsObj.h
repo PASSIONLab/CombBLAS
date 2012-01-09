@@ -6,170 +6,82 @@
 #include <iostream>
 #include <math.h>
 
+#ifndef USESEJITS
+#define USESEJITS 1
+#endif
+
+#if USESEJITS
+// use SEJITS-backed workers
+#define UnaryPredicateObj_WorkerType UnaryPredicateObj_SEJITS
+#define UnaryFunctionObj_WorkerType UnaryFunctionObj_SEJITS
+#define BinaryPredicateObj_WorkerType BinaryPredicateObj_SEJITS
+#define BinaryFunctionObj_WorkerType BinaryFunctionObj_SEJITS
+#else
+// use plain-jane Python workers
+#define UnaryPredicateObj_WorkerType UnaryPredicateObj_Python
+#define UnaryFunctionObj_WorkerType UnaryFunctionObj_Python
+#define BinaryPredicateObj_WorkerType BinaryPredicateObj_Python
+#define BinaryFunctionObj_WorkerType BinaryFunctionObj_Python
+#endif
+
 //INTERFACE_INCLUDE_BEGIN
 namespace op {
 
-class UnaryPredicateObj {
+// WORKERS
+//////////////////////
+
 //INTERFACE_INCLUDE_END
+class UnaryPredicateObj_Python {
 	public:
 	PyObject *callback;
-	UnaryPredicateObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+	UnaryPredicateObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
 	template <class T>
 	bool call(const T& x) const;
 
 	bool callD(const double& x) const;
 	
-//INTERFACE_INCLUDE_BEGIN
 	bool operator()(const Obj2& x) const { return call(x); }
 	bool operator()(const Obj1& x) const { return call(x); }
 	bool operator()(const double& x) const { return callD(x); }
 
-	protected:
-	UnaryPredicateObj() { // should never be called
-		printf("UnaryPredicateObj()!!!\n");
+	UnaryPredicateObj_Python() { // should never be called
+		printf("UnaryPredicateObj_Python()!!!\n");
 		callback = NULL;
 	}
 
 	public:
-	~UnaryPredicateObj() { /*Py_XDECREF(callback);*/ }
+	~UnaryPredicateObj_Python() { /*Py_XDECREF(callback);*/ }
 };
 
-class UnaryFunctionObj {
-//INTERFACE_INCLUDE_END
+class UnaryFunctionObj_Python {
 	public:
 	PyObject *callback;
-	UnaryFunctionObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+	UnaryFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
 	template <class T>
 	T call(const T& x) const;
 
 	double callD(const double& x) const;
 
-//INTERFACE_INCLUDE_BEGIN
 	Obj2 operator()(const Obj2& x) const { return call(x); }
 	Obj1 operator()(const Obj1& x) const { return call(x); }
 	double operator()(const double& x) const { return callD(x); }
 	
-	protected:
-	UnaryFunctionObj() { // should never be called
-		printf("UnaryFunctionObj()!!!\n");
+	UnaryFunctionObj_Python() { // should never be called
+		printf("UnaryFunctionObj_Python()!!!\n");
 		callback = NULL;
 	}
 
 	public:
-	~UnaryFunctionObj() { /*Py_XDECREF(callback);*/ }
+	~UnaryFunctionObj_Python() { /*Py_XDECREF(callback);*/ }
 };
 
-//INTERFACE_INCLUDE_END
-template <class T>
-T UnaryFunctionObj::call(const T& x) const
-{
-	PyObject *resultPy;
-	T *pret;	
-
-	T tempObj = x;
-	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
-	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
-
-	Py_XDECREF(tempSwigObj);
-	Py_XDECREF(vertexArgList);
-	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, T::SwigTypeInfo,  0  | 0)) && pret != NULL) {
-		T ret = T(*pret);
-		Py_XDECREF(resultPy);
-		return ret;
-	} else
-	{
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return T();
-	}
-}
-
-inline double UnaryFunctionObj::callD(const double& x) const
-{
-	PyObject *vertexArgList = Py_BuildValue("(d)", x);
-	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
-
-	Py_XDECREF(vertexArgList);
-	if (resultPy) {
-		double dres = PyFloat_AsDouble(resultPy);
-		Py_XDECREF(resultPy);
-		return dres;
-	} else
-	{
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return 0;
-	}
-}
-
-// This function is identical to UnaryFunctionObj::call() except that it returns a boolean instead
-// of an object. Please keep the actual calling method the same if you make any changes.
-template <class T>
-bool UnaryPredicateObj::call(const T& x) const
-{
-	PyObject *resultPy;
-
-	T tempObj = x;
-	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
-	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
-
-	Py_XDECREF(tempSwigObj);
-	Py_XDECREF(vertexArgList);
-	if (resultPy) {
-		bool ret = PyObject_IsTrue(resultPy);
-		Py_XDECREF(resultPy);
-		return ret;
-	} else
-	{
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return false;
-	}
-}
-
-inline bool UnaryPredicateObj::callD(const double& x) const
-{
-	PyObject *vertexArgList = Py_BuildValue("(d)", x);
-	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
-
-	Py_XDECREF(vertexArgList);
-	if (resultPy) {
-		bool ret = PyObject_IsTrue(resultPy);
-		Py_XDECREF(resultPy);
-		return ret;
-	} else
-	{
-		cerr << "UnaryFunctionObj::operator() FAILED!" << endl;
-		return 0;
-	}
-}
-
-//INTERFACE_INCLUDE_BEGIN
-
-UnaryFunctionObj unaryObj(PyObject *pyfunc);
-UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
-
-//INTERFACE_INCLUDE_BEGIN
-class BinaryFunctionObj {
-//INTERFACE_INCLUDE_END
+class BinaryFunctionObj_Python {
 	public:
 	PyObject *callback;
 
-	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): callback(pyfunc), commutable(com), associative(as) { Py_INCREF(callback); }
-
-	// for creating an MPI_Op that can be used with MPI Reduce
-	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
-	template <class T1, class T2>
-	static void applyWorker(T1 * in, T2 * inout, int * len);
-
-	static BinaryFunctionObj* currentlyApplied;
-	static MPI_Op staticMPIop;
-	
-	MPI_Op* getMPIOp();
-	void releaseMPIOp();
+	BinaryFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
 	template <class RET, class T1, class T2>
 	RET call(const T1& x, const T2& y) const;
@@ -186,16 +98,11 @@ class BinaryFunctionObj {
 
 	inline double callDD(const double& x, const double& y) const;
 	
-//INTERFACE_INCLUDE_BEGIN
-	protected:
-	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
+	BinaryFunctionObj_Python(): callback(NULL) {}
 	public:
-	~BinaryFunctionObj() { /*Py_XDECREF(callback);*/ }
+	~BinaryFunctionObj_Python() { /*Py_XDECREF(callback);*/ }
 	
 	PyObject* getCallback() const { return callback; }
-	
-	bool commutable;
-	bool associative;
 	
 	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
@@ -226,9 +133,243 @@ class BinaryFunctionObj {
 
 };
 
+class BinaryPredicateObj_Python {
+	public:
+	PyObject *callback;
+	BinaryPredicateObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+
+	template <class T1, class T2>
+	bool call(const T1& x, const T2& y) const;
+
+	template <class T1>
+	bool callOD(const T1& x, const double& y) const;
+	template <class T2>
+	bool callDO(const double& x, const T2& y) const;
+
+	inline bool callDD(const double& x, const double& y) const;
+	
+	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+
+	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
+	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
+	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+
+	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+
+	BinaryPredicateObj_Python() { // should never be called
+		printf("BinaryPredicateObj_Python()!!!\n");
+		callback = NULL;
+	}
+
+	public:
+	~BinaryPredicateObj_Python() { /*Py_XDECREF(callback);*/ }
+};
+
+#include "pyOperationsSEJITS.h"
+
+/// DONE WITH WORKER DECLARATIONS
+///////////////////////////////////
+
+
+//INTERFACE_INCLUDE_BEGIN
+
+class UnaryPredicateObj {
+//INTERFACE_INCLUDE_END
+	public:
+	UnaryPredicateObj_WorkerType worker;
+	UnaryPredicateObj(PyObject *pyfunc): worker(pyfunc) { }
+
+//INTERFACE_INCLUDE_BEGIN
+	bool operator()(const Obj2& x) const { return worker(x); }
+	bool operator()(const Obj1& x) const { return worker(x); }
+	bool operator()(const double& x) const { return worker(x); }
+
+	protected:
+	UnaryPredicateObj() { // should never be called
+		printf("UnaryPredicateObj()!!!\n");
+	}
+
+	public:
+	~UnaryPredicateObj() { }
+};
+
+class UnaryFunctionObj {
+//INTERFACE_INCLUDE_END
+	public:
+	UnaryFunctionObj_WorkerType worker;
+	
+	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { }
+
+//INTERFACE_INCLUDE_BEGIN
+	Obj2 operator()(const Obj2& x) const { return worker(x); }
+	Obj1 operator()(const Obj1& x) const { return worker(x); }
+	double operator()(const double& x) const { return worker(x); }
+	
+	protected:
+	UnaryFunctionObj() { // should never be called
+		printf("UnaryFunctionObj()!!!\n");
+	}
+
+	public:
+	~UnaryFunctionObj() { }
+};
+
+//INTERFACE_INCLUDE_END
+template <class T>
+T UnaryFunctionObj_Python::call(const T& x) const
+{
+	PyObject *resultPy;
+	T *pret;	
+
+	T tempObj = x;
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj);
+	Py_XDECREF(vertexArgList);
+	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, T::SwigTypeInfo,  0  | 0)) && pret != NULL) {
+		T ret = T(*pret);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		return T();
+	}
+}
+
+inline double UnaryFunctionObj_Python::callD(const double& x) const
+{
+	PyObject *vertexArgList = Py_BuildValue("(d)", x);
+	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		double dres = PyFloat_AsDouble(resultPy);
+		Py_XDECREF(resultPy);
+		return dres;
+	} else
+	{
+		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		return 0;
+	}
+}
+
+// This function is identical to UnaryFunctionObj_Python::call() except that it returns a boolean instead
+// of an object. Please keep the actual calling method the same if you make any changes.
+template <class T>
+bool UnaryPredicateObj_Python::call(const T& x) const
+{
+	PyObject *resultPy;
+
+	T tempObj = x;
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj);
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		return false;
+	}
+}
+
+inline bool UnaryPredicateObj_Python::callD(const double& x) const
+{
+	PyObject *vertexArgList = Py_BuildValue("(d)", x);
+	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		bool ret = PyObject_IsTrue(resultPy);
+		Py_XDECREF(resultPy);
+		return ret;
+	} else
+	{
+		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		return 0;
+	}
+}
+
+//INTERFACE_INCLUDE_BEGIN
+
+UnaryFunctionObj unaryObj(PyObject *pyfunc);
+UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
+
+class BinaryFunctionObj {
+//INTERFACE_INCLUDE_END
+	public:
+	BinaryFunctionObj_WorkerType worker;
+
+	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): worker(pyfunc), commutable(com), associative(as) { }
+
+	// for creating an MPI_Op that can be used with MPI Reduce
+	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
+	template <class T1, class T2>
+	static void applyWorker(T1 * in, T2 * inout, int * len);
+
+	static BinaryFunctionObj* currentlyApplied;
+	static MPI_Op staticMPIop;
+	
+	MPI_Op* getMPIOp();
+	void releaseMPIOp();
+
+//INTERFACE_INCLUDE_BEGIN
+	protected:
+	BinaryFunctionObj(): commutable(false), associative(false) {}
+	public:
+	~BinaryFunctionObj() {  }
+	
+	PyObject* getCallback() const { return worker.getCallback(); }
+	
+	bool commutable;
+	bool associative;
+	
+	Obj1 operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj1& y) const { return worker(x, y); }
+
+	Obj1 operator()(const Obj1& x, const double& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const double& y) const { return worker(x, y); }
+	double operator()(const double& x, const Obj1& y) const { return worker(x, y); }
+	double operator()(const double& x, const Obj2& y) const { return worker(x, y); }
+
+	double operator()(const double& x, const double& y) const { return worker(x, y); }
+
+
+	// These are used by the semiring ops. They do the same thing as the operator() above,
+	// but their return type matches the 2nd argument instead of the 1st.
+	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
+	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
+
+	double rettype2nd_call(const Obj1& x, const double& y) const { return worker.rettype2nd_call(x, y); }
+	double rettype2nd_call(const Obj2& x, const double& y) const { return worker.rettype2nd_call(x, y); }
+	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
+
+	double rettype2nd_call(const double& x, const double& y) const { return worker.rettype2nd_call(x, y); }
+
+};
+
 //INTERFACE_INCLUDE_END
 template <typename RET, typename T1, typename T2>
-RET BinaryFunctionObj::call(const T1& x, const T2& y) const
+RET BinaryFunctionObj_Python::call(const T1& x, const T2& y) const
 {
 	PyObject *resultPy;
 	RET *pret;	
@@ -251,13 +392,13 @@ RET BinaryFunctionObj::call(const T1& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj::operator() FAILED (callOO)!" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOO)!" << endl;
 		return RET();
 	}
 }
 
 template <typename T1>
-double BinaryFunctionObj::callOD_retD(const T1& x, const double& y) const
+double BinaryFunctionObj_Python::callOD_retD(const T1& x, const double& y) const
 {
 	PyObject *resultPy;
 	double dres = 0;
@@ -277,13 +418,13 @@ double BinaryFunctionObj::callOD_retD(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj::operator() FAILED (callOD)!" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOD)!" << endl;
 		return 0;
 	}
 }
 
 template <typename RET, typename T1>
-RET BinaryFunctionObj::callOD_retO(const T1& x, const double& y) const
+RET BinaryFunctionObj_Python::callOD_retO(const T1& x, const double& y) const
 {
 	PyObject *resultPy;
 	RET *pret;	
@@ -303,13 +444,13 @@ RET BinaryFunctionObj::callOD_retO(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj::operator() FAILED (callOD)!" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOD)!" << endl;
 		return RET();
 	}
 }
 
 template <typename T2>
-double BinaryFunctionObj::callDO_retD(const double& x, const T2& y) const
+double BinaryFunctionObj_Python::callDO_retD(const double& x, const T2& y) const
 {
 	PyObject *resultPy;
 	double dres = 0;
@@ -329,13 +470,13 @@ double BinaryFunctionObj::callDO_retD(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj::operator() FAILED! (callDO)" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDO)" << endl;
 		return 0;
 	}
 }
 
 template <typename RET, typename T2>
-RET BinaryFunctionObj::callDO_retO(const double& x, const T2& y) const
+RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 {
 	PyObject *resultPy;
 	RET *pret;	
@@ -355,12 +496,12 @@ RET BinaryFunctionObj::callDO_retO(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj::operator() FAILED! (callDO)" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDO)" << endl;
 		return RET();
 	}
 }
 
-inline double BinaryFunctionObj::callDD(const double& x, const double& y) const
+inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y) const
 {
 	PyObject *arglist;
 	PyObject *resultPy;
@@ -375,7 +516,7 @@ inline double BinaryFunctionObj::callDD(const double& x, const double& y) const
 		return dres;
 	} else
 	{
-		cerr << "BinaryFunctionObj::operator() FAILED! (callDD)" << endl;
+		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDD)" << endl;
 		return 0;
 	}
 }
@@ -393,36 +534,25 @@ void BinaryFunctionObj::applyWorker(T1 * in, T2 * inout, int * len)
 class BinaryPredicateObj {
 //INTERFACE_INCLUDE_END
 	public:
-	PyObject *callback;
-	BinaryPredicateObj(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+	BinaryPredicateObj_WorkerType worker;
+	BinaryPredicateObj(PyObject *pyfunc): worker(pyfunc) { }
 
-	template <class T1, class T2>
-	bool call(const T1& x, const T2& y) const;
-
-	template <class T1>
-	bool callOD(const T1& x, const double& y) const;
-	template <class T2>
-	bool callDO(const double& x, const T2& y) const;
-
-	inline bool callDD(const double& x, const double& y) const;
-	
 //INTERFACE_INCLUDE_BEGIN
-	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
-	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
-	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
-	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
+	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const Obj1& y) const { return worker(x, y); }
 
-	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
-	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
-	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
-	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+	bool operator()(const Obj1& x, const double& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const double& y) const { return worker(x, y); }
+	bool operator()(const double& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const double& x, const Obj1& y) const { return worker(x, y); }
 
-	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
 	protected:
 	BinaryPredicateObj() { // should never be called
 		printf("BinaryPredicateObj()!!!\n");
-		callback = NULL;
 	}
 
 	public:
@@ -431,7 +561,7 @@ class BinaryPredicateObj {
 
 //INTERFACE_INCLUDE_END
 template <class T1, class T2>
-bool BinaryPredicateObj::call(const T1& x, const T2& y) const
+bool BinaryPredicateObj_Python::call(const T1& x, const T2& y) const
 {
 	PyObject *resultPy;
 
@@ -452,13 +582,13 @@ bool BinaryPredicateObj::call(const T1& x, const T2& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
 		return false;
 	}
 }
 
 template <class T1>
-bool BinaryPredicateObj::callOD(const T1& x, const double& y) const
+bool BinaryPredicateObj_Python::callOD(const T1& x, const double& y) const
 {
 	PyObject *resultPy;
 
@@ -476,13 +606,13 @@ bool BinaryPredicateObj::callOD(const T1& x, const double& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
 		return false;
 	}
 }
 
 template <class T2>
-bool BinaryPredicateObj::callDO(const double& x, const T2& y) const
+bool BinaryPredicateObj_Python::callDO(const double& x, const T2& y) const
 {
 	PyObject *resultPy;
 
@@ -500,12 +630,12 @@ bool BinaryPredicateObj::callDO(const double& x, const T2& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
 		return false;
 	}
 }
 
-bool BinaryPredicateObj::callDD(const double& x, const double& y) const
+bool BinaryPredicateObj_Python::callDD(const double& x, const double& y) const
 {
 	PyObject *resultPy;
 
@@ -520,7 +650,7 @@ bool BinaryPredicateObj::callDD(const double& x, const double& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj::operator() FAILED!" << endl;
+		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
 		return false;
 	}
 }
