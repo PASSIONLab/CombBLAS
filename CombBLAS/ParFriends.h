@@ -658,9 +658,11 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 }
  **/
 
-/** This version is the most flexible sparse matrix X sparse vector
+/** 
+  * This version is the most flexible sparse matrix X sparse vector
   * It accepts different types for the matrix (NUM), the input vector (IVT) and the output vector (OVT)
   * without relying on automatic type promotion
+  * Input (x) and output (y) vectors can be ALIASED because y is not written until the algorithm is done with x.
   */
 template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, 
@@ -797,7 +799,11 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 	return y;
 }
 
-
+/**
+ * Old version that is no longer considered optimal
+ * Kept for legacy purposes
+ * To be removed when other functionals are fully tested.
+ **/ 
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistVec<IU,NUV> & x )

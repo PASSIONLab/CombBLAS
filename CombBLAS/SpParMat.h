@@ -224,10 +224,6 @@ public:
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const DenseParVec<IU,NUV> & x );
 
 	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
-	friend SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote> 
-	SpMV (const SpParMat<IU,NUM,UDER> & A, const SpParVec<IU,NUV> & x );
-	
-	template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x );
 
@@ -238,6 +234,10 @@ public:
 	template <typename SR, typename IU, typename NUM, typename UDER> 
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
+
+	// output type is part of the signature
+	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
+	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y, bool indexisvalue);
 	
 	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
