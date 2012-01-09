@@ -37,7 +37,6 @@
 #include <functional>
 #include <cmath>
 #include <mpi.h>
-//#include "TwitterEdge.h"
 
 using namespace std;
 
@@ -99,32 +98,17 @@ struct safemultinv : public std::unary_function<T, T>
 };
 
 
-#if 0
-// Adam: This is application logic. It should be put in the application.
-
-/**
- * Binary function to prune the previously discovered vertices from the current frontier 
- * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
-**/
-struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
+template<typename T1, typename T2>
+struct bintotality : public std::binary_function<T1, T2, bool>
 {
-  	int64_t operator()(int64_t x, const int64_t & y) const
-	{
-		return ( y == -1 ) ? x: -1;
-	}
+  /** @returns true regardless */
+  bool operator()(const T1& x, const T2 & y) const
+  {
+        return true;
+  }
 };
 
 
-struct prunediscovered_f: public std::binary_function<ParentType, ParentType, ParentType>
-{
-  	ParentType operator()(ParentType x, const ParentType & y) const
-	{
-		return ( y == ParentType() ) ? x: ParentType();
-	}
-	
-};
-
-#endif
 
 /**
  * binary_function<Arg1, Arg2, Result>
