@@ -2081,6 +2081,7 @@ kdt/pyCombBLAS/pyOperations.cpp -text
 kdt/pyCombBLAS/pyOperations.h -text
 kdt/pyCombBLAS/pyOperationsObj.cpp -text
 kdt/pyCombBLAS/pyOperationsObj.h -text
+kdt/pyCombBLAS/pyOperationsSEJITS.h -text
 kdt/pyCombBLAS/pySpParMat.cpp -text
 kdt/pyCombBLAS/pySpParMat.h -text
 kdt/pyCombBLAS/pySpParMatBool.cpp -text

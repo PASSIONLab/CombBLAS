@@ -1121,34 +1121,36 @@ public:
 
 namespace op {
 
+// WORKERS
+//////////////////////
+
+
 class UnaryPredicateObj {
-	bool operator()(const Obj2& x) const { return call(x); }
-	bool operator()(const Obj1& x) const { return call(x); }
-	bool operator()(const double& x) const { return callD(x); }
+	bool operator()(const Obj2& x) const { return worker(x); }
+	bool operator()(const Obj1& x) const { return worker(x); }
+	bool operator()(const double& x) const { return worker(x); }
 
 	protected:
 	UnaryPredicateObj() { // should never be called
 		printf("UnaryPredicateObj()!!!\n");
-		callback = NULL;
 	}
 
 	public:
-	~UnaryPredicateObj() { /*Py_XDECREF(callback);*/ }
+	~UnaryPredicateObj() { }
 };
 
 class UnaryFunctionObj {
-	Obj2 operator()(const Obj2& x) const { return call(x); }
-	Obj1 operator()(const Obj1& x) const { return call(x); }
-	double operator()(const double& x) const { return callD(x); }
+	Obj2 operator()(const Obj2& x) const { return worker(x); }
+	Obj1 operator()(const Obj1& x) const { return worker(x); }
+	double operator()(const double& x) const { return worker(x); }
 	
 	protected:
 	UnaryFunctionObj() { // should never be called
 		printf("UnaryFunctionObj()!!!\n");
-		callback = NULL;
 	}
 
 	public:
-	~UnaryFunctionObj() { /*Py_XDECREF(callback);*/ }
+	~UnaryFunctionObj() { }
 };
 
 
@@ -1157,61 +1159,60 @@ UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
 class BinaryFunctionObj {
 	protected:
-	BinaryFunctionObj(): callback(NULL), commutable(false), associative(false) {}
+	BinaryFunctionObj(): commutable(false), associative(false) {}
 	public:
-	~BinaryFunctionObj() { /*Py_XDECREF(callback);*/ }
+	~BinaryFunctionObj() {  }
 	
-	PyObject* getCallback() const { return callback; }
+	PyObject* getCallback() const { return worker.getCallback(); }
 	
 	bool commutable;
 	bool associative;
 	
-	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
-	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj1& y) const { return worker(x, y); }
 
-	Obj1 operator()(const Obj1& x, const double& y) const { return callOD_retO<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const double& y) const { return callOD_retO<Obj2>(x, y); }
-	double operator()(const double& x, const Obj1& y) const { return callDO_retD(x, y); }
-	double operator()(const double& x, const Obj2& y) const { return callDO_retD(x, y); }
+	Obj1 operator()(const Obj1& x, const double& y) const { return worker(x, y); }
+	Obj2 operator()(const Obj2& x, const double& y) const { return worker(x, y); }
+	double operator()(const double& x, const Obj1& y) const { return worker(x, y); }
+	double operator()(const double& x, const Obj2& y) const { return worker(x, y); }
 
-	double operator()(const double& x, const double& y) const { return callDD(x, y); }
+	double operator()(const double& x, const double& y) const { return worker(x, y); }
 
 
 	// These are used by the semiring ops. They do the same thing as the operator() above,
 	// but their return type matches the 2nd argument instead of the 1st.
-	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
-	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return call<Obj2>(x, y); }
+	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
+	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
 
-	double rettype2nd_call(const Obj1& x, const double& y) const { return callOD_retD(x, y); }
-	double rettype2nd_call(const Obj2& x, const double& y) const { return callOD_retD(x, y); }
-	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return callDO_retO<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return callDO_retO<Obj2>(x, y); }
+	double rettype2nd_call(const Obj1& x, const double& y) const { return worker.rettype2nd_call(x, y); }
+	double rettype2nd_call(const Obj2& x, const double& y) const { return worker.rettype2nd_call(x, y); }
+	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return worker.rettype2nd_call(x, y); }
+	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return worker.rettype2nd_call(x, y); }
 
-	double rettype2nd_call(const double& x, const double& y) const { return callDD(x, y); }
+	double rettype2nd_call(const double& x, const double& y) const { return worker.rettype2nd_call(x, y); }
 
 };
 
 class BinaryPredicateObj {
-	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
-	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
-	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
-	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
+	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const Obj1& y) const { return worker(x, y); }
 
-	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
-	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
-	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
-	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
+	bool operator()(const Obj1& x, const double& y) const { return worker(x, y); }
+	bool operator()(const Obj2& x, const double& y) const { return worker(x, y); }
+	bool operator()(const double& x, const Obj2& y) const { return worker(x, y); }
+	bool operator()(const double& x, const Obj1& y) const { return worker(x, y); }
 
-	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
 	protected:
 	BinaryPredicateObj() { // should never be called
 		printf("BinaryPredicateObj()!!!\n");
-		callback = NULL;
 	}
 
 	public:
