@@ -1221,16 +1221,18 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 
 
 /**
- * This is a glorified EWiseMult that takes a general filter in the form of binary_op()
- * \attention {Since the signature is like EWiseApply(SparseVec V, DenseVec W,...) the binary function should be 
- * written keeping in mind that the first operand (x) is from the sparse vector V, and the second operand (y) is from the dense vector W}
- * @param[binary_op]  if ( y == -1 ) ? x: -1 
- *      \n              then we get the 'exclude = false' effect of EWiseMult
- * In this example, the function always returns -1 if x is -1 (regardless of the value of y), which makes sense because x is from the sparse vector "fringe". The four cases are: 
- *	A) if fringe[i] is nonexistent and parents[i] == -1, then pro = _binary_op(-1,-1) is executed which will return -1 and it will NOT exist in product. Correct.
- *	B) if fringe[i] is nonexistent and parents[i] == d for some d>=0, then pro = _binary_op(-1,d) returns -1 and will NOT exist in product. Correct.
- *	C) if fringe[i] = k for some k>=0 and parents[i] == -1, then pro = _binary_op(k,-1) is executed and returns k. Correct.
- *	D) if fringe[i] = k for some k>=0, and parents[i] == d for some d>=0, then pro = _binary_op(k,d) which returns -1 again. Correct.
+ * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not performed and ret does not contain an element at that position.
+ * More formally the operation is defined as:
+ * if (_doOp(V[i], W[i]))
+ *    ret[i] = _binary_op(V[i], W[i])
+ * else
+ *    // ret[i] is not set
+ * Hence _doOp can be used to implement a filter on either of the vectors.
+ *
+ * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
+ *
+ * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
+ * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0)
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
@@ -1299,6 +1301,24 @@ FullyDistSpVec<IU,RET> EWiseApply
 	}
 }
 
+/**
+ * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not performed and ret does not contain an element at that position.
+ * More formally the operation is defined as:
+ * if (_doOp(V[i], W[i]))
+ *    ret[i] = _binary_op(V[i], W[i])
+ * else
+ *    // ret[i] is not set
+ * Hence _doOp can be used to implement a filter on either of the vectors.
+ *
+ * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
+ * !allowVNulls && !allowWNulls => intersection
+ * !allowVNulls &&  allowWNulls => operate on all elements of V 
+ *  allowVNulls && !allowWNulls => operate on all elements of W
+ *  allowVNulls &&  allowWNulls => union
+ *
+ * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
+ * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0, false, 0)
+**/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
 	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero)
