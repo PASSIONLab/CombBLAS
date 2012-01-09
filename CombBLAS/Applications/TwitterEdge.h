@@ -91,6 +91,11 @@ struct ParentType
 	{
 		return (id == rhs.id);
 	}
+	ParentType & operator+=(const ParentType & rhs) 
+	{
+		cout << "Error: ParentType::operator+=() shouldn't be executed" << endl;
+		return *this;
+	}
 };
 
 ParentType NumSetter(ParentType & num, int64_t index) 
