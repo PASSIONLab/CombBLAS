@@ -21,7 +21,7 @@ import kdt.pyCombBLAS as pcb
 #
 # NEEDED: update to new EWiseApply
 # NEEDED: tests
-def bfsTree(self, root, useOldFunc=True):
+def bfsTree(self, root, useOldFunc=False):
 	"""
 	calculates a breadth-first search tree from the edges in the
 	passed DiGraph, starting from the root vertex.  "Breadth-first"
