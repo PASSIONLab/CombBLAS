@@ -674,6 +674,20 @@ class Vec(object):
 			ret = False
 		return ret
 	
+	def _hasMaterializedFilter(self):
+		try:
+			ret = hasattr(self,'_materialized')
+		except AttributeError:
+			ret = False
+		return ret
+	
+	def _updateMaterializedFilter(self):
+		self._materialized = self.copy()
+	
+	def _dirty(self):
+		if self._hasMaterializedFilter():
+			del self._materialized
+			self._updateMaterializedFilter()
 	
 ################################
 #### EWiseApply

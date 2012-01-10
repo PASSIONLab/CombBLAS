@@ -519,6 +519,8 @@ class Mat:
 			self._filter_.append(filter)
 		else:
 			self._filter_ = [filter]
+		
+		self._dirty()
 		return
 	
 	def _addSpMVFilteredVec(self, vec):
@@ -527,6 +529,8 @@ class Mat:
 		filtered out then row and column i of `self` will also be filtered out. Necessary to
 		properly filter out graph vertices if this Mat represents an adjacency matrix.
 		"""
+		
+		self._dirty()
 		return
 		
 	# in-place, so no return value
@@ -551,8 +555,15 @@ class Mat:
 			self._filter_.remove(filter)
 			if len(self._filter_) == 0:
 				del self._filter_
+		
+		self._dirty()
 		return
 
+	def materializeFilter(self):
+		# a materialized filter is being used if the self._materialized element exists.
+		self._materialized = 1
+		# do the materialization
+		self._dirty()
 
 	def _hasFilter(self):
 		try:
@@ -560,6 +571,21 @@ class Mat:
 		except AttributeError:
 			ret = False
 		return ret
+	
+	def _hasMaterializedFilter(self):
+		try:
+			ret = hasattr(self,'_materialized')
+		except AttributeError:
+			ret = False
+		return ret
+	
+	def _updateMaterializedFilter(self):
+		self._materialized = self.copy()
+	
+	def _dirty(self):
+		if self._hasMaterializedFilter():
+			del self._materialized
+			self._updateMaterializedFilter()
 
 ##########################
 ### Basic Methods
@@ -591,6 +617,8 @@ class Mat:
 #		return
 
 		if self._hasFilter():
+			if self._hasMaterializedFilter():
+				raise NotImplementedError, "this operation does not support materialized filters"
 			raise NotImplementedError, "this operation does not support filters yet."
 
 		if other is None:
@@ -598,13 +626,13 @@ class Mat:
 				self._m_.Apply(pcb.unaryObj(op))
 			else:
 				self._m_.Apply(op)
-			return
 		else:
 			if not isinstance(op, pcb.BinaryFunction):
 				self._m_ = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(op), notB)
 			else:
 				self._m_ = pcb.EWiseApply(self._m_, other._m_, op, notB)
-			return
+
+		self._dirty()
 
 	def count(self, dir, pred=None):
 		"""
@@ -628,6 +656,16 @@ class Mat:
 			# use apply()
 			return
 		
+		if self._hasMaterializedFilter() and not inPlace:
+			raise ValueError, "Materialized filters are read-only."
+
+		if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
+			return self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace)
+		if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+
 		ANull = self._identity_
 		BNull = other._identity_
 		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
@@ -636,6 +674,7 @@ class Mat:
 		# new version
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+			self._dirty()
 			return
 		else:
 			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
@@ -679,6 +718,10 @@ class Mat:
 
 		SEE ALSO:  subgraph
 		"""
+		
+		if self._hasMaterializedFilter():
+			return self._materialized.__getitem__(key)
+			
 		#ToDo:  accept slices for key0/key1 besides ParVecs
 		if type(key)==tuple:
 			if len(key)==1:
@@ -732,6 +775,9 @@ class Mat:
 		fn is the sum;  the first is the current addend and the second
 		is the running sum
 		"""
+		if self._hasMaterializedFilter():
+			return self._materialized.reduce(dir, op, uniOp, init)
+
 		if dir != Mat.Row and dir != Mat.Column and dir != Mat.All:
 			raise KeyError, 'unknown direction'
 		
@@ -777,6 +823,9 @@ class Mat:
 		Output Argument:
 			None.
 		"""
+		if self._hasMaterializedFilter():
+			raise ValueError, "materialized filters are read-only"
+
 		if self.isBool():
 			raise NotImplementedError, 'scale not implemented on boolean matrices do to C++ template irregularities.'
 		
@@ -824,6 +873,13 @@ class Mat:
 		if self.ncol() != other.nrow():
 			raise ValueError, "Dimension mismatch in SpGEMM: self.ncol() must equal other.nrow(), but %d != %d"%(self.ncol(),other.nrow())
 		
+		if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
+			return self._materialized.SpGEMM(other, semiring, inPlace)
+		if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self.SpGEMM(other._materialized, semiring, inPlace)
+		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self._materialized.SpGEMM(other._materialized, semiring, inPlace)
+		
 		if self._hasFilter() or other._hasFilter():
 			selfPred = FilterHelper.getFilterPred(self)
 			if selfPred is None:
@@ -863,6 +919,7 @@ class Mat:
 		
 		if inPlace:
 			other._m_ = self._m_.SpGEMM(other._m_, semiring)
+			other._dirty()
 			return other
 		else:
 			ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
@@ -881,6 +938,13 @@ class Mat:
 		if len(other) != self.ncol():
 			raise ValueError, "Dimension mismatch in SpMV. The number of elements of the vector must equal the number of columns of the matrix."
 		
+		if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
+			return self._materialized.SpMV(other, semiring, inPlace)
+		if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self.SpMV(other._materialized, semiring, inPlace)
+		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
+			return self._materialized.SpMV(other._materialized, semiring, inPlace)
+
 		if self._hasFilter() or other._hasFilter():
 			raise NotImplementedError, "this operation does not support filters yet"
 
@@ -953,6 +1017,7 @@ class Mat:
 		performs an in-place transpose of this Mat instance
 		"""
 		self._m_.Transpose()
+		self._dirty()
 	
 
 
@@ -1012,6 +1077,7 @@ class Mat:
 			raise NotImplementedError, "at the moment only float matrices are supported."
 		
 		self.apply(op_set(element))
+		self._dirty()
 		
 	def removeMainDiagonal(self):
 		"""
@@ -1023,6 +1089,7 @@ class Mat:
 
 		"""
 		self._m_.removeSelfLoops()
+		self._dirty()
 
 	
 	def sum(self, dir=Column):
@@ -1067,6 +1134,7 @@ class Mat:
 			ret = self.copy()
 			ret._m_ += other._m_
 			#ret._apply(pcb.plus(), other);  # only adds if both mats have nonnull elems!!
+			self._dirty()
 		return ret
 
 	# NEEDED: update to new fields
@@ -1099,6 +1167,7 @@ class Mat:
 		elif isinstance(other, Mat):
 			#self._apply(pcb.plus(), other)
 			self._m_ += other._m_
+			self._dirty()
 		return self
 
 	# NEEDED: update to new fields
