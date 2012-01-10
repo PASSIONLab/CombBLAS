@@ -100,35 +100,33 @@ if shouldDraw:
 print "Doing BFS on original"
 start = 0
 parents = G.bfsTree(start)
-parents.apply(lambda x: 1/(x+1))
 if shouldDraw:
+	parents.apply(lambda x: 1/(x+2))
 	draw(G, outfile.replace(".", "-2-origBC."), OrigVertLocSource, directed=False, sizes=parents)
 
 
 print "Doing BFS on edge type 1 and 3"
-G = kdt.DiGraph.load(inmatrixfile)
 def f1(x):
 	return (x != 2)
 G.e.addFilter(f1)
 G.e.materializeFilter()
 start = 0
 parents = G.bfsTree(start)
-parents.apply(lambda x: 1/(x+1))
 if shouldDraw:
+	parents.apply(lambda x: 1/(x+2))
 	draw(G, outfile.replace(".", "-3-sub1BC."), OrigVertLocSource, directed=False, sizes=parents)
 G.e.delFilter(f1)
 
 print "Doing BFS on edge type 2 and 3"
-G = kdt.DiGraph.load(inmatrixfile)
 def f2(x):
 	return (x != 1)
 G.e.addFilter(f2)
 G.e.materializeFilter()
 start = 0
 parents = G.bfsTree(start)
-parents.apply(lambda x: 1/(x+1))
 G.e.delFilter(f2)
 G.e.apply(lambda x: 2) # to make the draw function use the right color
 if shouldDraw:
+	parents.apply(lambda x: 1/(x+2))
 	draw(G, outfile.replace(".", "-4-sub2BC."), OrigVertLocSource, directed=False, sizes=parents)
 
