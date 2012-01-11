@@ -723,12 +723,12 @@ void SpDCCols<IT,NT>::PrintInfo() const
 		cout <<", nzc: "<< 0 << endl;
 	}
 
-	if(m < 8 && n < 8)	// small enough to print
+	if(m < 10 && n < 10)	// small enough to print
 	{
 		NT ** A = SpHelper::allocate2D<NT>(m,n);
 		for(IT i=0; i< m; ++i)
 			for(IT j=0; j<n; ++j)
-				A[i][j] = static_cast<NT>(0);
+				A[i][j] = NT();
 		if(dcsc != NULL)
 		{
 			for(IT i=0; i< dcsc->nzc; ++i)
@@ -745,7 +745,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 		{
                         for(IT j=0; j<n; ++j)
 			{
-                                cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
+				cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
 				cout << " ";
 			}
 			cout << endl;

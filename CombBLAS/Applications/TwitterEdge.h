@@ -15,10 +15,12 @@ using namespace std;
 class TwitterEdge
 {
 public:
-	TwitterEdge():count(0) {};
+	TwitterEdge():count(0), follower(0), latest(0) {};
 	bool isFollower() const {	return follower; };
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
+
+	friend std::ostream& operator<<( std::ostream& os, const TwitterEdge & twe);
 private:
 	bool follower;		// default constructor sets all to zero
 	time_t latest;		// not assigned if no retweets happened
@@ -26,6 +28,15 @@ private:
 	
 	template <typename IT>
 	friend class TwitterReadSaveHandler;
+};
+
+ostream& operator<<(ostream& os, const TwitterEdge & twe )    
+{      
+	if( twe.follower == 0 && twe.latest == 0 &&  twe.count == 0)
+		os << 0;
+	else
+		os << 1;
+	return os;    
 };
 
 
@@ -74,6 +85,7 @@ class TwitterReadSaveHandler
 			{
 				tw.latest = 0;	// initialized to dummy
 			}
+			cout << row << " follows " << col << "? : " << tw.follower << " and the retweet count is " << tw.count << endl;
 			return tw;
 		}
 		

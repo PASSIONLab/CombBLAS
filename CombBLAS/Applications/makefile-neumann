@@ -41,7 +41,7 @@ APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp $(LIBDIR)
 
-FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h ../TwitterEdge.h
+FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp $(LIBDIR)
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
