@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <typeinfo>
+#include <map>
 #include <mpi.h>
 #include <stdint.h>
 
