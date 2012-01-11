@@ -4,7 +4,7 @@
 
 using namespace std;
 
-
+MPIDataTypeCache mpidtc;	// global variable
 
 template<> MPI::Datatype MPIType< signed char >( void )
 {

@@ -70,18 +70,22 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 
-		if(string(argv[1]) == string("Input")) // input option
+		if(string(argv[1]) == string("Text")) // text input option
 		{
 			ifstream input(argv[2]);
 			// ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
-			SpParHelper::Print("Read input");
+			A.PrintInfo();
+			SpParHelper::Print("Read input\n");
+			return -1;
 /*
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ColSums->DebugPrint();
+			RowSums->DebugPrint();
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
 			delete RowSums;
 

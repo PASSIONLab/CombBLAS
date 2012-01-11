@@ -35,6 +35,13 @@ class TwitterReadSaveHandler
 	public:
 		TwitterEdge getNoNum(IT row, IT col) { return TwitterEdge(); }
 
+		MPI::Datatype getMPIType()
+		{
+			MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(TwitterEdge));
+        		datatype.Commit();
+			return datatype;
+		}
+
 		template <typename c, typename t>
 		TwitterEdge read(std::basic_istream<c,t>& is, IT row, IT col)
 		{

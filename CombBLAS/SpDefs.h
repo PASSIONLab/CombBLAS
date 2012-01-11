@@ -42,6 +42,7 @@
 #define NOTSQUARE 3003
 #define NOFILE 3004
 #define MATRIXALIAS 3005
+#define UNKNOWNMPITYPE 3006
 
 // MPI Message tags 
 // Prefixes denote functions
