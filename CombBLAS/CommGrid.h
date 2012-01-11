@@ -37,12 +37,13 @@ THE SOFTWARE.
 #include <string>
 #include <fstream>
 #include <stdint.h>
-// TR1 includes belong in CombBLAS.h
 #include "MPIType.h"
+#include "CombBLAS.h"
 
 using namespace std;
-class CommGrid;
-shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
+class CommGrid;	// forward declaration
+
+//shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 
 class CommGrid
 {

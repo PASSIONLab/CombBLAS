@@ -42,6 +42,6 @@ extern double cblas_allgathertime;
 #include "DistEdgeList.h"
 #include "Semirings.h"
 #include "Operations.h"
-
+#include "MPIType.h"
 
 #endif

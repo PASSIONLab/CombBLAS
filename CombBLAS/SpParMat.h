@@ -165,7 +165,7 @@ public:
 	{
 	public:
 		NT getNoNum(IT row, IT col) { return static_cast<NT>(1); }
-
+		
 		template <typename c, typename t>
 		NT read(std::basic_istream<c,t>& is, IT row, IT col)
 		{
