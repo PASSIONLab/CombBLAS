@@ -59,6 +59,12 @@ APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
+FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h
+	$(COMPILER) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp
+
+fbfs: MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o
+	$(COMPILER) $(FLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o
+
 driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
 	$(COMPILER) $(FLAGS) -o driver Driver.o MemoryPool.o CommGrid.o MPIType.o
 
