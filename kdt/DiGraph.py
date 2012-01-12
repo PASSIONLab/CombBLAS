@@ -550,7 +550,7 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: tests
 	@staticmethod
-	def load(fname):
+	def load(fname, eelement=0.0):
 		"""
 		loads the contents of the file named fname (in the Coordinate Format 
 		of the Matrix Market Exchange Format) into a DiGraph instance.
@@ -568,7 +568,7 @@ class DiGraph(gr.Graph):
 
 		SEE ALSO:  save, UFget
 		"""
-		mat = Mat.load(fname)
+		mat = Mat.load(fname, element=eelement)
 		return DiGraph(edges=mat, vertices=None)
 	
 	# NEEDED: tests

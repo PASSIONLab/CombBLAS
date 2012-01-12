@@ -594,12 +594,15 @@ class Obj2(_object):
     __setattr__ = lambda self, name, value: _swig_setattr(self, Obj2, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, Obj2, name)
-    __swig_setmethods__["weight"] = _pyCombBLAS.Obj2_weight_set
-    __swig_getmethods__["weight"] = _pyCombBLAS.Obj2_weight_get
-    if _newclass:weight = _swig_property(_pyCombBLAS.Obj2_weight_get, _pyCombBLAS.Obj2_weight_set)
-    __swig_setmethods__["category"] = _pyCombBLAS.Obj2_category_set
-    __swig_getmethods__["category"] = _pyCombBLAS.Obj2_category_get
-    if _newclass:category = _swig_property(_pyCombBLAS.Obj2_category_get, _pyCombBLAS.Obj2_category_set)
+    __swig_setmethods__["follower"] = _pyCombBLAS.Obj2_follower_set
+    __swig_getmethods__["follower"] = _pyCombBLAS.Obj2_follower_get
+    if _newclass:follower = _swig_property(_pyCombBLAS.Obj2_follower_get, _pyCombBLAS.Obj2_follower_set)
+    __swig_setmethods__["latest"] = _pyCombBLAS.Obj2_latest_set
+    __swig_getmethods__["latest"] = _pyCombBLAS.Obj2_latest_get
+    if _newclass:latest = _swig_property(_pyCombBLAS.Obj2_latest_get, _pyCombBLAS.Obj2_latest_set)
+    __swig_setmethods__["count"] = _pyCombBLAS.Obj2_count_set
+    __swig_getmethods__["count"] = _pyCombBLAS.Obj2_count_get
+    if _newclass:count = _swig_property(_pyCombBLAS.Obj2_count_get, _pyCombBLAS.Obj2_count_set)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj2(*args)
         try: self.this.append(this)
