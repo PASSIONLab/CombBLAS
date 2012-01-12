@@ -42,14 +42,9 @@ THE SOFTWARE.
 #include <sstream>  // Required for stringstreams
 #include <ctime>
 #include <cmath>
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-
-using namespace std;
+#include "../CombBLAS.h"
+#include "../SpParVec.h"	// ABAB: deprecated
+#include "../DenseParVec.h"	// ABAB: deprecated
 
 
 // Simple helper class for declarations: Just the numerical type is templated 

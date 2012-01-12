@@ -1,8 +1,21 @@
 #ifndef _PROMOTE_H_
 #define _PROMOTE_H_
 
-template <class T1, class T2>
+#include "myenableif.h"
+
+template <class T1, class T2, class Enable = void>
 struct promote_trait  { };
+
+// typename disable_if< is_boolean<NT>::value, NT >::type won't work, 
+// because then it will send Enable=NT which is different from the default template parameter
+template <class NT> struct promote_trait< NT , bool, typename disable_if< is_boolean<NT>::value >::type >      
+{                                           
+	typedef NT T_promote;                    
+};
+template <class NT> struct promote_trait< bool , NT, typename disable_if< is_boolean<NT>::value >::type >      
+{                                           
+	typedef NT T_promote;                    
+};
 
 #define DECLARE_PROMOTE(A,B,C)                  \
     template <> struct promote_trait<A,B>       \

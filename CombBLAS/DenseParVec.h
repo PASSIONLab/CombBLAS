@@ -34,11 +34,8 @@ THE SOFTWARE.
 #include <vector>
 #include <utility>
 #include <iterator>
-
+#include "CombBLAS.h"
 #include "CommGrid.h"
-
-using namespace std;
-using namespace std::tr1;
 
 template <class IT, class NT>
 class SpParVec;
