@@ -379,6 +379,7 @@ class pyDenseParVec(_object):
     def Find(*args): return _pyCombBLAS.pyDenseParVec_Find(*args)
     def FindInds(*args): return _pyCombBLAS.pyDenseParVec_FindInds(*args)
     def Apply(*args): return _pyCombBLAS.pyDenseParVec_Apply(*args)
+    def ApplyInd(*args): return _pyCombBLAS.pyDenseParVec_ApplyInd(*args)
     def ApplyMasked(*args): return _pyCombBLAS.pyDenseParVec_ApplyMasked(*args)
     def EWiseApply(*args): return _pyCombBLAS.pyDenseParVec_EWiseApply(*args)
     __swig_getmethods__["range"] = lambda x: _pyCombBLAS.pyDenseParVec_range
@@ -425,6 +426,7 @@ class pyDenseParVecObj1(_object):
     def FindInds(*args): return _pyCombBLAS.pyDenseParVecObj1_FindInds(*args)
     def Apply(*args): return _pyCombBLAS.pyDenseParVecObj1_Apply(*args)
     def ApplyMasked(*args): return _pyCombBLAS.pyDenseParVecObj1_ApplyMasked(*args)
+    def ApplyInd(*args): return _pyCombBLAS.pyDenseParVecObj1_ApplyInd(*args)
     def EWiseApply(*args): return _pyCombBLAS.pyDenseParVecObj1_EWiseApply(*args)
     def __getitem__(*args): return _pyCombBLAS.pyDenseParVecObj1___getitem__(*args)
     def __setitem__(*args): return _pyCombBLAS.pyDenseParVecObj1___setitem__(*args)
@@ -461,6 +463,7 @@ class pyDenseParVecObj2(_object):
     def FindInds(*args): return _pyCombBLAS.pyDenseParVecObj2_FindInds(*args)
     def Apply(*args): return _pyCombBLAS.pyDenseParVecObj2_Apply(*args)
     def ApplyMasked(*args): return _pyCombBLAS.pyDenseParVecObj2_ApplyMasked(*args)
+    def ApplyInd(*args): return _pyCombBLAS.pyDenseParVecObj2_ApplyInd(*args)
     def EWiseApply(*args): return _pyCombBLAS.pyDenseParVecObj2_EWiseApply(*args)
     def __getitem__(*args): return _pyCombBLAS.pyDenseParVecObj2___getitem__(*args)
     def __setitem__(*args): return _pyCombBLAS.pyDenseParVecObj2___setitem__(*args)

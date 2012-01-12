@@ -735,6 +735,7 @@ public:
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunction* op);
 	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 
@@ -824,6 +825,7 @@ public:
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
@@ -901,6 +903,7 @@ public:
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
 	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
