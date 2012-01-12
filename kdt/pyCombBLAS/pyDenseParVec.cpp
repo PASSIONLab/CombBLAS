@@ -263,6 +263,11 @@ void pyDenseParVec::Apply(op::UnaryFunctionObj* op)
 	v.Apply(*op);
 }
 
+void pyDenseParVec::ApplyInd(op::BinaryFunctionObj* op)
+{
+	v.ApplyInd(*op);
+}
+
 void pyDenseParVec::ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask)
 {
 	v.Apply(*op, mask.v);

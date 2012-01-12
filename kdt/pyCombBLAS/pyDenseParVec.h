@@ -87,6 +87,7 @@ public:
 	pyDenseParVec FindInds(op::UnaryPredicateObj* op);
 	void Apply(op::UnaryFunction* op);
 	void Apply(op::UnaryFunctionObj* op);
+	void ApplyInd(op::BinaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 
