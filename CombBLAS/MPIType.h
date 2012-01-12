@@ -26,7 +26,7 @@ struct type_info_compare
 class MPIDataTypeCache
 {
 private:
-  typedef std::map<std::type_info const*,MPI_Datatype,type_info_compare> stored_map_type;
+  typedef std::map<std::type_info const*,MPI::Datatype,type_info_compare> stored_map_type;
   stored_map_type map;
 
 public:
@@ -36,7 +36,7 @@ public:
 	{
       		// ignore errors in the destructor
       		for (stored_map_type::iterator it=map.begin(); it != map.end(); ++it)
-        		MPI_Type_free(&(it->second));
+        		(it->second).Free();
     	}
   }
   ~MPIDataTypeCache()
@@ -49,10 +49,10 @@ public:
       	if (pos != map.end())
           	return pos->second;
       	else
-        	return MPI_DATATYPE_NULL;
+        	return MPI::DATATYPE_NULL;
   }
 
-  void set(const std::type_info* t, MPI_Datatype datatype)
+  void set(const std::type_info* t, MPI::Datatype datatype)
   {
      	 map[t] = datatype;
   }
@@ -79,19 +79,15 @@ template <typename T>
 MPI::Datatype MPIType ( void )
 {
 	std::type_info const* t = &typeid(T);
-    	MPI_Datatype datatype = mpidtc.get(t);
+    	MPI::Datatype datatype = mpidtc.get(t);
 
-    	if (datatype == MPI_DATATYPE_NULL) 
+    	if (datatype == MPI::DATATYPE_NULL) 
 	{
-		MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(T));
+		datatype = MPI::CHAR.Create_contiguous(sizeof(T));
 	        datatype.Commit();
 		cout << "Creating a new MPI data type for " << t->name() << endl;
       		mpidtc.set(t, datatype);
     	}
-	else
-	{
-		cout << "Found again" << endl;
-	}
    	return datatype;
 };
 
