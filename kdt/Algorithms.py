@@ -58,8 +58,8 @@ def bfsTree(self, root, useOldFunc=False):
 	if not matrix.isObj():
 		sR = sr_select2nd
 	else:
-		mulFn = lambda x,y: x._SR_second_(y)
-		addFn = lambda x,y: x._SR_max_(y)
+		mulFn = lambda x,y: y
+		addFn = lambda x,y: y
 		sR = sr(addFn, mulFn)
 
 	parents = Vec(self.nvert(), -1, sparse=False)

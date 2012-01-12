@@ -2912,6 +2912,29 @@ SWIG_FromCharPtr(const char *cptr)
   return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
 }
 
+
+SWIGINTERN int
+SWIG_AsVal_short (PyObject * obj, short *val)
+{
+  long v;
+  int res = SWIG_AsVal_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < SHRT_MIN || v > SHRT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< short >(v);
+    }
+  }  
+  return res;
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_short  (short value)
+{    
+  return SWIG_From_long  (value);
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37770,29 +37793,29 @@ SWIGINTERN PyObject *Obj1_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject 
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_Obj2_weight_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_follower_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
-  double arg2 ;
+  bool arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  double val2 ;
+  bool val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_weight_set",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_follower_set",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_weight_set" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_follower_set" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
-  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_weight_set" "', argument " "2"" of type '" "double""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_follower_set" "', argument " "2"" of type '" "bool""'");
   } 
-  arg2 = static_cast< double >(val2);
-  if (arg1) (arg1)->weight = arg2;
+  arg2 = static_cast< bool >(val2);
+  if (arg1) (arg1)->follower = arg2;
   
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -37801,51 +37824,51 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj2_weight_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_follower_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
-  double result;
+  bool result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_weight_get",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_follower_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_weight_get" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_follower_get" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
-  result = (double) ((arg1)->weight);
-  resultobj = SWIG_From_double(static_cast< double >(result));
+  result = (bool) ((arg1)->follower);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj2_category_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_latest_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
-  int arg2 ;
+  long arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int val2 ;
+  long val2 ;
   int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_category_set",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_latest_set",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_category_set" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_latest_set" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  ecode2 = SWIG_AsVal_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_category_set" "', argument " "2"" of type '" "int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_latest_set" "', argument " "2"" of type '" "long""'");
   } 
-  arg2 = static_cast< int >(val2);
-  if (arg1) (arg1)->category = arg2;
+  arg2 = static_cast< long >(val2);
+  if (arg1) (arg1)->latest = arg2;
   
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -37854,22 +37877,75 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_Obj2_category_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_Obj2_latest_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj2 *arg1 = (Obj2 *) 0 ;
-  int result;
+  long result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_category_get",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_latest_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_category_get" "', argument " "1"" of type '" "Obj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_latest_get" "', argument " "1"" of type '" "Obj2 *""'"); 
   }
   arg1 = reinterpret_cast< Obj2 * >(argp1);
-  result = (int) ((arg1)->category);
-  resultobj = SWIG_From_int(static_cast< int >(result));
+  result = (long) ((arg1)->latest);
+  resultobj = SWIG_From_long(static_cast< long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj2_count_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj2 *arg1 = (Obj2 *) 0 ;
+  short arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  short val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj2_count_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_count_set" "', argument " "1"" of type '" "Obj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj2 * >(argp1);
+  ecode2 = SWIG_AsVal_short(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Obj2_count_set" "', argument " "2"" of type '" "short""'");
+  } 
+  arg2 = static_cast< short >(val2);
+  if (arg1) (arg1)->count = arg2;
+  
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj2_count_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj2 *arg1 = (Obj2 *) 0 ;
+  short result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj2_count_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj2_count_get" "', argument " "1"" of type '" "Obj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj2 * >(argp1);
+  result = (short) ((arg1)->count);
+  resultobj = SWIG_From_short(static_cast< short >(result));
   return resultobj;
 fail:
   return NULL;
@@ -41060,10 +41136,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Obj1_hasPassedFilter_get", _wrap_Obj1_hasPassedFilter_get, METH_VARARGS, NULL},
 	 { (char *)"delete_Obj1", _wrap_delete_Obj1, METH_VARARGS, NULL},
 	 { (char *)"Obj1_swigregister", Obj1_swigregister, METH_VARARGS, NULL},
-	 { (char *)"Obj2_weight_set", _wrap_Obj2_weight_set, METH_VARARGS, NULL},
-	 { (char *)"Obj2_weight_get", _wrap_Obj2_weight_get, METH_VARARGS, NULL},
-	 { (char *)"Obj2_category_set", _wrap_Obj2_category_set, METH_VARARGS, NULL},
-	 { (char *)"Obj2_category_get", _wrap_Obj2_category_get, METH_VARARGS, NULL},
+	 { (char *)"Obj2_follower_set", _wrap_Obj2_follower_set, METH_VARARGS, NULL},
+	 { (char *)"Obj2_follower_get", _wrap_Obj2_follower_get, METH_VARARGS, NULL},
+	 { (char *)"Obj2_latest_set", _wrap_Obj2_latest_set, METH_VARARGS, NULL},
+	 { (char *)"Obj2_latest_get", _wrap_Obj2_latest_get, METH_VARARGS, NULL},
+	 { (char *)"Obj2_count_set", _wrap_Obj2_count_set, METH_VARARGS, NULL},
+	 { (char *)"Obj2_count_get", _wrap_Obj2_count_get, METH_VARARGS, NULL},
 	 { (char *)"new_Obj2", _wrap_new_Obj2, METH_VARARGS, NULL},
 	 { (char *)"Obj2___repr__", _wrap_Obj2___repr__, METH_VARARGS, NULL},
 	 { (char *)"Obj2___eq__", _wrap_Obj2___eq__, METH_VARARGS, NULL},

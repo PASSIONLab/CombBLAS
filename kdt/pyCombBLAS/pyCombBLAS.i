@@ -1086,24 +1086,42 @@ public:
 ////////////////////////////////////////////////////
 ///// USER CHANGEABLE CODE BEGIN
 
-	double weight;
-	int category;
+	bool follower;		// default constructor sets all to zero
+	long latest;		// not assigned if no retweets happened
+	short count;		
 
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
-	Obj2(): weight(0), category(0) {}
-	Obj2(const Obj2& other): weight(other.weight), category(other.category) {}
+	Obj2(): follower(0), count(0), latest(0) {}
+	Obj2(const Obj2& other): follower(other.follower), count(other.count), latest(other.latest) {}
 
 	char *__repr__() const {
 		static char temp[256];
-		sprintf(temp,"[ %lf, %d ]", weight,category);
+		if (count == 0)
+		{
+			sprintf(temp,"[ %d, %d ]", follower, count);
+		}
+		else
+		{
+			struct tm timeinfo;
+			gmtime_r((time_t*)&latest, &timeinfo);
+			
+			char s[256];
+			sprintf(s, "%d-%d-%d %d:%d:%d", timeinfo.tm_year+1900,
+											timeinfo.tm_mon+1,
+											timeinfo.tm_mday,
+											timeinfo.tm_hour,
+											timeinfo.tm_min,
+											timeinfo.tm_sec);
+			sprintf(temp,"[ %d, %d, %s ]", follower, count, s);
+		}
 		return &temp[0];
 	}
 	
 	bool __eq__(const Obj2& other) const {
-		return weight == other.weight && category == other.category;
+		return follower == other.follower && count == other.count && latest == other.latest;
 	}
 
 	bool __ne__(const Obj2& other) const {
@@ -1112,7 +1130,7 @@ public:
 
 	// For sorting
 	bool __lt__(const Obj2& other) const {
-		return weight < other.weight;
+		return count < other.count;
 	}
 
 	// for filtering matrices.

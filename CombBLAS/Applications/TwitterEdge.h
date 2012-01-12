@@ -78,7 +78,7 @@ class TwitterReadSaveHandler
 				timeinfo.tm_hour = hour;        // range 0...23
 				timeinfo.tm_min = min;          // range 0...59
 				timeinfo.tm_sec = sec;          // range 0.
-				tw.latest = mktime(&timeinfo);
+				tw.latest = timegm(&timeinfo);
 				if(tw.latest == -1) { cout << "Can not parse time date" << endl; exit(-1);}
 			}
 			else
