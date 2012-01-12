@@ -1,9 +1,30 @@
 /****************************************************************/
 /* Parallel Combinatorial BLAS Library (for Graph Computations) */
-/* version 1.1 -------------------------------------------------*/
-/* date: 12/25/2010 --------------------------------------------*/
+/* version 1.2 -------------------------------------------------*/
+/* date: 10/06/2011 --------------------------------------------*/
 /* authors: Aydin Buluc (abuluc@lbl.gov), Adam Lugowski --------*/
 /****************************************************************/
+/*
+ Copyright (c) 2011, Aydin Buluc
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #ifndef _SP_DCCOLS_H
 #define _SP_DCCOLS_H
@@ -20,6 +41,8 @@
 #include "MemoryPool.h"
 #include "LocArr.h"
 #include "Friends.h"
+#include "CombBLAS.h"
+#include "FullyDist.h"
 
 
 template <class IT, class NT>
@@ -309,207 +332,60 @@ private:
 };
 
 // At this point, complete type of of SpDCCols is known, safe to declare these specialization (but macros won't work as they are preprocessed)
-
-// type promotion for IT=int64_t
-template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,int> >       
-    {                                           
-        typedef SpDCCols<int64_t,int> T_promote;                    
+// General case #1: When both NT is the same
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,NT> >          
+	{                                           
+        typedef SpDCCols<IT,NT> T_promote;                    
     };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,bool> >       
+// General case #2: First is boolean the second is anything except boolean (to prevent ambiguity) 
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,bool> , SpDCCols<IT,NT>, typename disable_if< is_boolean<NT>::value >::type >      
     {                                           
-        typedef SpDCCols<int64_t,bool> T_promote;                    
+        typedef SpDCCols<IT,NT> T_promote;                    
     };
-template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,float> >       
+// General case #3: Second is boolean the first is anything except boolean (to prevent ambiguity) 
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,bool>, typename disable_if< is_boolean<NT>::value >::type >      
+	{                                           
+		typedef SpDCCols<IT,NT> T_promote;                    
+	};
+template <class IT> struct promote_trait< SpDCCols<IT,int> , SpDCCols<IT,float> >       
     {                                           
-        typedef SpDCCols<int64_t,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,double> >       
-    {                                           
-        typedef SpDCCols<int64_t,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,int64_t> >       
-    {                                           
-        typedef SpDCCols<int64_t,int64_t> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,int64_t> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,int64_t> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,int> >       
-    {                                           
-        typedef SpDCCols<int64_t,int> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,int> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,float> >       
-    {                                           
-        typedef SpDCCols<int64_t,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,int> >       
-    {                                           
-        typedef SpDCCols<int64_t,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,int> , SpDCCols<int64_t,double> >       
-    {                                           
-        typedef SpDCCols<int64_t,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,int> >       
-    {                                           
-        typedef SpDCCols<int64_t,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,unsigned> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,unsigned> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,short> >       
-    {                                           
-        typedef SpDCCols<int64_t,short> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,short> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,short> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,unsigned> >       
-    {                                           
-        typedef SpDCCols<int64_t,unsigned> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,double> >       
-    {                                           
-        typedef SpDCCols<int64_t,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,bool> , SpDCCols<int64_t,float> >       
-    {                                           
-        typedef SpDCCols<int64_t,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,double> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int64_t,float> , SpDCCols<int64_t,bool> >       
-    {                                           
-        typedef SpDCCols<int64_t,float> T_promote;                    
+        typedef SpDCCols<IT,float> T_promote;                    
     };
 
-// type promotion for IT=int
-template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,int> >       
+template <class IT> struct promote_trait< SpDCCols<IT,float> , SpDCCols<IT,int> >       
     {                                           
-        typedef SpDCCols<int,int> T_promote;                    
+        typedef SpDCCols<IT,float> T_promote;                    
     };
-template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,float> >       
+template <class IT> struct promote_trait< SpDCCols<IT,int> , SpDCCols<IT,double> >       
     {                                           
-        typedef SpDCCols<int,float> T_promote;                    
+        typedef SpDCCols<IT,double> T_promote;                    
     };
-template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,double> >       
+template <class IT> struct promote_trait< SpDCCols<IT,double> , SpDCCols<IT,int> >       
     {                                           
-        typedef SpDCCols<int,double> T_promote;                    
+        typedef SpDCCols<IT,double> T_promote;                    
     };
-template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,int> >       
-    {                                           
-        typedef SpDCCols<int,int> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,bool> >       
-    {                                           
-        typedef SpDCCols<int,int> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,float> >       
-    {                                           
-        typedef SpDCCols<int,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,int> >       
-    {                                           
-        typedef SpDCCols<int,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,int> , SpDCCols<int,double> >       
-    {                                           
-        typedef SpDCCols<int,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,int> >       
-    {                                           
-        typedef SpDCCols<int,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,unsigned> , SpDCCols<int,bool> >       
-    {                                           
-        typedef SpDCCols<int,unsigned> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,short> >       
-    {                                           
-        typedef SpDCCols<int,short> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,short> , SpDCCols<int,bool> >       
-    {                                           
-        typedef SpDCCols<int,short> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,unsigned> >       
-    {                                           
-        typedef SpDCCols<int,unsigned> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,double> >       
-    {                                           
-        typedef SpDCCols<int,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,bool> , SpDCCols<int,float> >       
-    {                                           
-        typedef SpDCCols<int,float> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,double> , SpDCCols<int,bool> >       
-    {                                           
-        typedef SpDCCols<int,double> T_promote;                    
-    };
-template <> struct promote_trait< SpDCCols<int,float> , SpDCCols<int,bool> >       
-    {                                           
-        typedef SpDCCols<int,float> T_promote;                    
-    };
+
 
 // Below are necessary constructs to be able to define a SpMat<NT,IT> where
 // all we know is DER (say SpDCCols<int, double>) and NT,IT
 // in other words, we infer the templated SpDCCols<> type
 // This is not a type conversion from an existing object, 
 // but a type inference for the newly created object
-template <class SPMAT, class NIT, class NNT>
+// NIT: New IT, NNT: New NT
+template <class DER, class NIT, class NNT>
 struct create_trait
 {
 	// none
 };
 
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int, double> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int, int> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int, bool> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, double> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, int> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<unsigned, bool> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, double> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, int> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-template <class NIT, class NNT>  struct create_trait< SpDCCols<int64_t, bool> , NIT, NNT >
-    {
-        typedef SpDCCols<NIT,NNT> T_inferred;
-    };
-
+// Capture everything of the form SpDCCols<OIT, ONT>
+// it may come as a surprise that the partial specializations can 
+// involve more template parameters than the primary template
+template <class NIT, class NNT, class OIT, class ONT>
+struct create_trait< SpDCCols<OIT, ONT> , NIT, NNT >
+{
+     typedef SpDCCols<NIT,NNT> T_inferred;
+};
 
 #include "SpDCCols.cpp"
 #endif

@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
 			return -1;
-/*
+
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 			A.PrintInfo();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
-
+/*
 			Symmetricize(A);	// A += A';
 */
 		}
