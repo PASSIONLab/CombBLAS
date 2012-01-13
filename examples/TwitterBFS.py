@@ -20,7 +20,6 @@ def twitterMul(e, f):
 		return -1
 
 def twitterAdd(f1, f2):
-	print "in add. got",f1,", ",f2
 	if f2 == -1:
 		return f1
 	return f2
