@@ -324,7 +324,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 	{
 		IT prevcnz = cnz;
 		IT nnzcol = Bdcsc.cp[i+1] - Bdcsc.cp[i];
-		HeapEntry<IT, T_promote> * wset = new HeapEntry<IT, T_promote>[nnzcol]; 
+		HeapEntry<IT, NT1> * wset = new HeapEntry<IT, NT1>[nnzcol]; 
 		// heap keys are just row indices (IT) 
 		// heap values are <numvalue, runrank>  
 		// heap size is nnz(B(:,i)
@@ -345,7 +345,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		{
 			if(colinds[j].first != colinds[j].second)	// current != end
 			{
-				wset[hsize++] = HeapEntry< IT,T_promote > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
+				wset[hsize++] = HeapEntry< IT,NT1 > (Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
 				maxnnz += colinds[j].second - colinds[j].first;
 			} 
 		}	
@@ -361,6 +361,10 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 		{
 			pop_heap(wset, wset + hsize);         // result is stored in wset[hsize-1]
 			IT locb = wset[hsize-1].runr;	// relative location of the nonzero in B's current column 
+
+			// type promotion done here: 
+			// static T_promote multiply(const T1 & arg1, const T2 & arg2)
+			//	return (static_cast<T_promote>(arg1) * static_cast<T_promote>(arg2) );
 			T_promote mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
 			if(cnz != prevcnz && multstack[cnz-1].key.second == wset[hsize-1].key)	// if (cnz == prevcnz) => first nonzero for this column
 			{

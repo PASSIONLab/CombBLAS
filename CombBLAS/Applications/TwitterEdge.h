@@ -15,13 +15,26 @@ using namespace std;
 class TwitterEdge
 {
 public:
-	TwitterEdge():count(0), follower(0), latest(0) {};
+	TwitterEdge(): count(0), follower(0), latest(0) {};
+	template <typename X>
+	TwitterEdge(X x):count(0), follower(0), latest(0) {};	// any upcasting constructs the default object too
+
 	TwitterEdge(short mycount, bool myfollow, time_t mylatest):count(mycount), follower(myfollow), latest(mylatest) {};
 	bool isFollower() const {	return follower; };
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
 	bool TweetSince (time_t begin) const	{	return ((count > 0) && (begin <= latest));  };
 	operator bool () const	{	return true;	} ;       // Type conversion operator
+
+	TwitterEdge & operator+=(const TwitterEdge & rhs) 
+	{
+		cout << "Error: TwitterEdge::operator+=() shouldn't be executed" << endl;
+		count += rhs.count;
+		follower |= rhs.follower;
+		if(rhs.count > 0)	// ensure that addition with additive identity doesn't change "latest"
+			latest = max(latest, rhs.latest);
+		return *this;
+	}
 
 
 	friend std::ostream& operator<<( std::ostream& os, const TwitterEdge & twe);
