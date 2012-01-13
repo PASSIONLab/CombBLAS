@@ -16,6 +16,7 @@ class TwitterEdge
 {
 public:
 	TwitterEdge():count(0), follower(0), latest(0) {};
+	TwitterEdge(short mycount, bool myfollow, time_t mylatest):count(mycount), follower(myfollow), latest(mylatest) {};
 	bool isFollower() const {	return follower; };
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
@@ -115,11 +116,25 @@ struct ParentType
 		cout << "Error: ParentType::operator+=() shouldn't be executed" << endl;
 		return *this;
 	}
+	const ParentType operator++(int)	// for iota
+	{
+		ParentType temp(*this);	// post-fix requirement
+		++id;
+		return temp;
+	}
+	template <typename IT>
+	friend ParentType operator+( const IT & left, const ParentType & right); 
 };
 
 ParentType NumSetter(ParentType & num, int64_t index) 
 {
 	return ParentType(index);
+}
+
+template <typename IT>
+ParentType operator+( const IT & left, const ParentType & right)
+{
+	return ParentType(left+right.id);
 }
 
 

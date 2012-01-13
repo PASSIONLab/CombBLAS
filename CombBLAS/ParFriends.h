@@ -1221,7 +1221,9 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 
 
 /**
- * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not performed and ret does not contain an element at that position.
+ * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. 
+ * The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not 
+ * performed and ret does not contain an element at that position.
  * More formally the operation is defined as:
  * if (_doOp(V[i], W[i]))
  *    ret[i] = _binary_op(V[i], W[i])
@@ -1229,7 +1231,8 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
  *    // ret[i] is not set
  * Hence _doOp can be used to implement a filter on either of the vectors.
  *
- * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
+ * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) 
+ * the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
  *
  * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
  * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0)
@@ -1302,7 +1305,9 @@ FullyDistSpVec<IU,RET> EWiseApply
 }
 
 /**
- * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not performed and ret does not contain an element at that position.
+ * Performs an arbitrary binary operation _binary_op on the corresponding elements of two vectors with the result stored in a return vector ret. 
+ * The binary operatiation is only performed if the binary predicate _doOp returns true for those elements. Otherwise the binary operation is not 
+ * performed and ret does not contain an element at that position.
  * More formally the operation is defined as:
  * if (_doOp(V[i], W[i]))
  *    ret[i] = _binary_op(V[i], W[i])
@@ -1310,7 +1315,8 @@ FullyDistSpVec<IU,RET> EWiseApply
  *    // ret[i] is not set
  * Hence _doOp can be used to implement a filter on either of the vectors.
  *
- * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
+ * The above is only defined if both V[i] and W[i] exist (i.e. an intersection). To allow a union operation (ex. when V[i] doesn't exist but W[i] does) 
+ * the allowVNulls flag is set to true and the Vzero argument is used as the missing V[i] value.
  * !allowVNulls && !allowWNulls => intersection
  * !allowVNulls &&  allowWNulls => operate on all elements of V 
  *  allowVNulls && !allowWNulls => operate on all elements of W

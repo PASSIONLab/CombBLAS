@@ -681,6 +681,8 @@ void FullyDistVec<IT,NT>::RandPerm()
 	arr.swap(nnum);
 }
 
+// ABAB: In its current form, unless LengthUntil returns NT 
+// this won't work reliably for anything other than integers
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::iota(IT globalsize, NT first)
 {
