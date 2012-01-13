@@ -64,6 +64,7 @@ int main(int argc, char* argv[])
 	}		
 	{
 		typedef SpParMat < int64_t, TwitterEdge, SpDCCols<int64_t, TwitterEdge > > PSpMat_Twitter;
+		typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
 
 		// Declare objects
 		PSpMat_Twitter A;	
@@ -80,10 +81,11 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Read input\n");
 			return -1;
 
+			PSpMat_Bool * ABool = new PSpMat_Bool(A);
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
-			A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ABool->Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			ColSums->DebugPrint();
 			RowSums->DebugPrint();
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
