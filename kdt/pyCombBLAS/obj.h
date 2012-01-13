@@ -92,6 +92,12 @@ public:
 	// for copying just a nonzero structure
 	operator bool() const { return true; }
 
+	// to keep an unused by KDT CombBLAS optimization compiling
+	void operator=(int64_t b)
+	{
+		cout << "obj operator=() has been called! should not happen!" << endl;
+	}
+
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
 	bool hasPassedFilter;
@@ -112,8 +118,8 @@ public:
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
-	Obj2(): follower(0), count(0), latest(0) {}
-	Obj2(const Obj2& other): follower(other.follower), count(other.count), latest(other.latest) {}
+	Obj2(): follower(0), latest(0), count(0) {}
+	Obj2(const Obj2& other): follower(other.follower), latest(other.latest), count(other.count) {}
 
 	char *__repr__() const {
 		static char temp[256];
@@ -238,6 +244,12 @@ public:
 
 	// for copying just a nonzero structure
 	operator bool() const { return true; }
+	
+	// to keep an unused by KDT CombBLAS optimization compiling
+	void operator=(int64_t b)
+	{
+		cout << "obj operator=() has been called! should not happen!" << endl;
+	}
 
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.

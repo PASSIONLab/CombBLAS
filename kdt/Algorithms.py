@@ -49,13 +49,8 @@ def bfsTree(self, root, useOldFunc=False):
 	#ToDo:  doesn't handle filters on a doubleint DiGraph
 	if not self.isObj() and self._hasFilter(self):
 		raise NotImplementedError, 'DiGraph(element=default) with filters not supported'
-	if self.isObj():
-		#tmpG = self.copy()._toDiGraph()
-		matrix = self.copy(element=0).e
-	else:
-		matrix = self.e
 
-	if not matrix.isObj():
+	if not self.e.isObj():
 		sR = sr_select2nd
 	else:
 		mulFn = lambda x,y: y
@@ -68,7 +63,7 @@ def bfsTree(self, root, useOldFunc=False):
 	frontier[root] = root
 	while frontier.nnn() > 0:
 		frontier.spRange()
-		matrix.SpMV(frontier, semiring=sR, inPlace=True)
+		self.e.SpMV(frontier, semiring=sR, inPlace=True)
 		
 		if useOldFunc:
 			# this method uses an old CombBLAS routine.

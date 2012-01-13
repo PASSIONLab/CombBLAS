@@ -75,7 +75,9 @@ class FilterHelper:
 				def fn(x):
 					for i in range(len(tmpU.filter)):
 						if not tmpU.filter[i](x):
+							print "returning identity"
 							return tmpU.identity
+					print "x=",x,"returning op(x)=",op(x)
 					return op(x)
 			tmpInstance = tmpU()
 			return tmpInstance.fn

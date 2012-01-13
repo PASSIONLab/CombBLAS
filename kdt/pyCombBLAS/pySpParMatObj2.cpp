@@ -467,9 +467,6 @@ void pySpParMatObj2::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 template <class VECTYPE, class VEC>
 VEC pySpParMatObj2::SpMV_worker(const VEC& x, op::SemiringObj* sring)
 {
-	cout << "Obj2 SpMV temporarily disabled." << endl;
-	return VEC(getnrow());
-#if 0
 	if (sring == NULL)
 	{
 		cout << "You must supply a semiring for SpMV!" << endl;
@@ -489,17 +486,57 @@ VEC pySpParMatObj2::SpMV_worker(const VEC& x, op::SemiringObj* sring)
 		sring->disableSemiring();
 		return ret;
 	}
-#endif
+}
+
+template <class VECTYPE, class VEC>
+void pySpParMatObj2::SpMV_worker_inplace(VEC& x, op::SemiringObj* sring)
+{
+	if (sring == NULL)
+	{
+		cout << "You must supply a semiring for SpMV!" << endl;
+	}
+	else
+	{
+		sring->enableSemiring();
+		::SpMV< op::SemiringObjTemplArg<NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, x.v, false );
+		sring->disableSemiring();
+	}
 }
 
 pySpParVec     pySpParMatObj2::SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
 pySpParVecObj2 pySpParMatObj2::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
 pySpParVecObj1 pySpParMatObj2::SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
 
+void pySpParMatObj2::SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker_inplace<doubleint>(x, sring); }
+void pySpParMatObj2::SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker_inplace<Obj2>(x, sring); }
+void pySpParMatObj2::SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker_inplace<Obj1>(x, sring); }
+
+#if 0
+// these don't work yet because the CombBLAS dense vector SpMV hasn't been updated like the sparse vector one has.
+pyDenseParVec     pySpParMatObj2::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
+pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
+pyDenseParVecObj1 pySpParMatObj2::SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
+#endif 
+
+void pySpParMatObj2::SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring) { cout << "Mixed type dense SpMV not supported yet." << endl; }
+void pySpParMatObj2::SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring)
+{
+	if (sring == NULL)
+	{
+		cout << "You must supply a semiring for SpMV!" << endl;
+	}
+	else
+	{
+		sring->enableSemiring();
+		x.v = ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, x.v);
+		sring->disableSemiring();
+	}
+}
+void pySpParMatObj2::SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring) { cout << "Mixed type dense SpMV not supported yet." << endl; }
 
 pyDenseParVec     pySpParMatObj2::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring)
 {
-	cout << "Mixed type SpMV not supported yet." << endl;
+	cout << "Mixed type dense SpMV not supported yet." << endl;
 	//cout << "You must supply a semiring for SpMV!" << endl;
 	return pyDenseParVec(getnrow(), 0, 0);
 }
@@ -527,11 +564,10 @@ pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringO
 
 pyDenseParVecObj1 pySpParMatObj2::SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring)
 {
-	cout << "Mixed type SpMV not supported yet." << endl;
+	cout << "Mixed type dense SpMV not supported yet." << endl;
 	//cout << "You must supply a semiring for SpMV!" << endl;
 	return pyDenseParVecObj1(getnrow(), Obj1());
 }
-
 
 /*
 pySpParVec pySpParMatObj2::SpMV_PlusTimes(const pySpParVec& x)
