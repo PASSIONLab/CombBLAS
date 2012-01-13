@@ -9,7 +9,7 @@ OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 #COMPILER = /home/aydin/localinstall/mpich2-1.2/bin/mpicxx  # default mpicc is OpenMPI 1.3.2
 COMPILER = mpicxx
-FLAGS = $(OPT)
+FLAGS = $(OPT) -DCOMBBLAS_TR1
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o ../CommGrid.cpp
@@ -41,6 +41,9 @@ MultTiming.o: MultTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParH
 ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
+Roofline.o: Roofline.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Roofline.o Roofline.cpp
+
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
 
@@ -61,6 +64,9 @@ MultTime: MemoryPool.o CommGrid.o MPIType.o MultTiming.o
 
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
+
+Roofline: MemoryPool.o CommGrid.o MPIType.o Roofline.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o Roofline Roofline.o MemoryPool.o CommGrid.o MPIType.o
 
 clean:
 	rm -f TransposeTest

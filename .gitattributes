@@ -431,6 +431,7 @@ CombBLAS/ReleaseTests/NWAYSCALE22/btwcent64.1246098.out -text
 CombBLAS/ReleaseTests/NWAYSCALE22/btwcent64.1246102.err -text
 CombBLAS/ReleaseTests/NWAYSCALE22/btwcent64.1246102.out -text
 CombBLAS/ReleaseTests/ReduceTest.cpp -text
+CombBLAS/ReleaseTests/Roofline.cpp -text
 CombBLAS/ReleaseTests/SCALE21RMATRMAT/btwcent1.1256709.err -text
 CombBLAS/ReleaseTests/SCALE21RMATRMAT/btwcent1.1256709.out -text
 CombBLAS/ReleaseTests/SCALE21RMATRMAT/btwcent100.1243955.err -text
