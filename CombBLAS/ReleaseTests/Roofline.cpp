@@ -65,8 +65,8 @@ int main(int argc, char* argv[])
 			{
 				cout<<"EWiseApply Iterations finished"<<endl;	
 				double time = t2-t1;
-				double teps = (len*REPEAT) / (time * 1000000);
-				printf("%.6lf seconds elapsed for %d iterations on vector of length %lld\n", time, REPEAT, len);
+				double teps = (nprocs*len*REPEAT) / (time * 1000000);
+				printf("%.6lf seconds elapsed for %d iterations on vector of length %lld\n", time, REPEAT, nprocs*len);
 				printf("%.6lf million TEPS per second\n", teps);
 			}
 			len += INC;
