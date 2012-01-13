@@ -16,15 +16,20 @@ using namespace std;
 #define L1 2048	// maximum entries of edges+parents combined to fit 32 KB
 #define REPEAT 100
 
-struct twitter_mult : public std::binary_function<ParentType, TwitterEdge, ParentType>
+
+
+
+// all the local variables before the EWiseApply wouldn't be accessible, 
+// so we need to pass them as parameters to the functor constructor
+class twitter_mult : public std::binary_function<ParentType, TwitterEdge, ParentType>
 {
+private:
+	time_t sincedate;
+public:
+	twitter_mult(time_t since):sincedate(since) {};
   ParentType operator()(const ParentType & arg1, const TwitterEdge & arg2) const
   {
-	time_t now = time(0);
-        struct tm * timeinfo = localtime( &now);
-	timeinfo->tm_mon = timeinfo->tm_mon-1;
-	time_t monthago = mktime(timeinfo);
-	if(arg2.isRetwitter() && arg2.TweetWithinInterval(monthago, now))       // T1 is of type edges for BFS
+	if(arg2.isFollower() && arg2.TweetSince(sincedate))      
 		return arg1;
 	else
 		return ParentType();    // null-type parent id
@@ -54,8 +59,13 @@ int main(int argc, char* argv[])
 			MPI::COMM_WORLD.Barrier();
 			double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 
+			time_t now = time(0);
+			struct tm * timeinfo = localtime( &now);
+			timeinfo->tm_mon = timeinfo->tm_mon-1;
+			time_t monthago = mktime(timeinfo);
+			
 			for(int i=0; i< REPEAT; ++i)
-				pvec.EWiseApply(tvec, twitter_mult());
+				pvec.EWiseApply(tvec, twitter_mult(monthago));
 
 
 			MPI::COMM_WORLD.Barrier();

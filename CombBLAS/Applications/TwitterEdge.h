@@ -20,6 +20,7 @@ public:
 	bool isFollower() const {	return follower; };
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
+	bool TweetSince (time_t begin) const	{	return ((count > 0) && (begin <= latest));  };
 
 	friend std::ostream& operator<<( std::ostream& os, const TwitterEdge & twe);
 private:
