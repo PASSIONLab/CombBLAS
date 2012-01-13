@@ -78,6 +78,8 @@ public:
 //INTERFACE_INCLUDE_END
 	template <class VECTYPE, class VEC>
 	VEC SpMV_worker(const VEC& x, op::SemiringObj* sring);
+	template <class VECTYPE, class VEC>
+	void SpMV_worker_inplace(VEC& x, op::SemiringObj* sring);
 //INTERFACE_INCLUDE_BEGIN
 
 	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
@@ -88,6 +90,12 @@ public:
 	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring);
 
 	void Square(op::SemiringObj* sring);
 

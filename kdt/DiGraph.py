@@ -376,7 +376,7 @@ class DiGraph(gr.Graph):
 		if dir != DiGraph.In and dir != DiGraph.Out:
 			raise KeyError, 'Invalid edge-direction'
 		
-		return self.e.reduce(dir, (lambda x,y: x+y), unOp=(lambda x: 1), init=0)
+		return self.e.reduce(dir, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0)
 		
 	# NEEDED: update to new fields
 	# NEEDED: tests

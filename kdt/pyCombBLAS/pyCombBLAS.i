@@ -274,6 +274,12 @@ public:
 	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring);
 
 	void Square(op::SemiringObj* sring);
 
@@ -344,6 +350,12 @@ public:
 	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pySpParVec& x, op::SemiringObj* sring);
 //	void SpMV_inplace(pyDenseParVec& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring);
 
 	void Square(op::SemiringObj* sring);
 
@@ -673,7 +685,7 @@ pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::B
 
 class pyDenseParVec {
 public:
-	pyDenseParVec(int64_t size, double init);
+	pyDenseParVec(int64_t size, double init = 0);
 	pyDenseParVec(int64_t size, double init, double zero);
 	
 	pySpParVec sparse() const;
@@ -783,7 +795,7 @@ public:
 
 class pyDenseParVecObj1 {
 public:
-	pyDenseParVecObj1(int64_t size, Obj1 init);
+	pyDenseParVecObj1(int64_t size, Obj1 init = Obj1());
 	
 	pySpParVecObj1 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj1 sparse(double zero) const;
@@ -861,7 +873,7 @@ public:
 
 class pyDenseParVecObj2 {
 public:
-	pyDenseParVecObj2(int64_t size, Obj2 init);
+	pyDenseParVecObj2(int64_t size, Obj2 init = Obj2());
 	
 	pySpParVecObj2 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj2 sparse(double zero) const;
@@ -1097,8 +1109,8 @@ public:
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
-	Obj2(): follower(0), count(0), latest(0) {}
-	Obj2(const Obj2& other): follower(other.follower), count(other.count), latest(other.latest) {}
+	Obj2(): follower(0), latest(0), count(0) {}
+	Obj2(const Obj2& other): follower(other.follower), latest(other.latest), count(other.count) {}
 
 	char *__repr__() const {
 		static char temp[256];

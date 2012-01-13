@@ -791,8 +791,8 @@ class Mat:
 		if self._hasFilter():
 			if uniOp is None:
 				uniOp = (lambda x: x)
-			
-			uniOp = _makePythonOp(uniOp)
+			else:
+				uniOp = _makePythonOp(uniOp)
 			uniOp = FilterHelper.getFilteredUniOpOrVal(self, uniOp, init)
 			uniOp = pcb.unaryObj(uniOp)
 
@@ -945,10 +945,11 @@ class Mat:
 		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 			return self._materialized.SpMV(other._materialized, semiring, inPlace)
 
-		if self._hasFilter() or other._hasFilter():
-			raise NotImplementedError, "this operation does not support filters yet"
+		#if self._hasFilter() or other._hasFilter():
+		#	raise NotImplementedError, "this operation does not support filters yet"
 
-		if self._hasFilter() or other._hasFilter():
+		#if self._hasFilter() or other._hasFilter():
+		if self._hasFilter() and not other._hasFilter():
 			selfPred = FilterHelper.getFilterPred(self)
 			if selfPred is None:
 				selfPred = lambda x: True

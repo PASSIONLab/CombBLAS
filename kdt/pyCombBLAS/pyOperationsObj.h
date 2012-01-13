@@ -239,7 +239,8 @@ T UnaryFunctionObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		cerr << "UnaryFunctionObj_Python::operator(T) FAILED!" << endl;
+		//throw T();
 		return T();
 	}
 }
@@ -256,7 +257,8 @@ inline double UnaryFunctionObj_Python::callD(const double& x) const
 		return dres;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		cerr << "UnaryFunctionObj_Python::operator(double) FAILED!" << endl;
+		//throw doubleint();
 		return 0;
 	}
 }
@@ -282,7 +284,7 @@ bool UnaryPredicateObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		cerr << "UnaryPredicateObj_Python::operator(T) FAILED!" << endl;
 		return false;
 	}
 }
@@ -299,7 +301,7 @@ inline bool UnaryPredicateObj_Python::callD(const double& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator() FAILED!" << endl;
+		cerr << "UnaryPredicateObj_Python::operator(double) FAILED!" << endl;
 		return 0;
 	}
 }

@@ -27,7 +27,7 @@ protected:
 /////////////// everything below this appears in python interface:
 //INTERFACE_INCLUDE_BEGIN
 public:
-	pyDenseParVecObj1(int64_t size, Obj1 init);
+	pyDenseParVecObj1(int64_t size, Obj1 init = Obj1());
 	
 	pySpParVecObj1 sparse(op::UnaryPredicateObj* keep = NULL) const;
 	//pySpParVecObj1 sparse(double zero) const;

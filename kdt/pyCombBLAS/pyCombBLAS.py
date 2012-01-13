@@ -168,6 +168,7 @@ class pySpParMatObj1(_object):
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj1_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj1_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMatObj1_SpMV(*args)
+    def SpMV_inplace(*args): return _pyCombBLAS.pySpParMatObj1_SpMV_inplace(*args)
     def Square(*args): return _pyCombBLAS.pySpParMatObj1_Square(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj1_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj1_Column)
@@ -209,6 +210,7 @@ class pySpParMatObj2(_object):
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj2_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj2_Find(*args)
     def SpMV(*args): return _pyCombBLAS.pySpParMatObj2_SpMV(*args)
+    def SpMV_inplace(*args): return _pyCombBLAS.pySpParMatObj2_SpMV_inplace(*args)
     def Square(*args): return _pyCombBLAS.pySpParMatObj2_Square(*args)
     __swig_getmethods__["Column"] = lambda x: _pyCombBLAS.pySpParMatObj2_Column
     if _newclass:Column = staticmethod(_pyCombBLAS.pySpParMatObj2_Column)
