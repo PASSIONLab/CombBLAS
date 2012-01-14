@@ -83,6 +83,14 @@ int main(int argc, char* argv[])
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
 
+			A.Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
+			int64_t removed  = A.RemoveLoops();
+
+			ostringstream loopinfo;
+			loopinfo << "Calculated degrees and removed " << removed << " loops" << endl;
+			SpParHelper::Print(loopinfo.str());
+			A.PrintInfo();
+
 			PSpMat_Bool * ABool = new PSpMat_Bool(A);
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
 			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
@@ -174,11 +182,15 @@ int main(int argc, char* argv[])
 				while(fringe.getnnz() > 0)
 				{
 					fringe.ApplyInd(NumSetter);
-					//fringe.PrintInfo("fringe before SpMV");
+					fringe.PrintInfo("fringe before SpMV");
+					fringe.DebugPrint();
 
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-					// fringe.PrintInfo("fringe after SpMV");
+					fringe.PrintInfo("fringe after SpMV");
+					fringe.DebugPrint();
+
+					return -1;
 				
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)

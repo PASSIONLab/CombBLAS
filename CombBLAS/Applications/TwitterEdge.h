@@ -140,7 +140,7 @@ struct ParentType
 	}
 	ParentType & operator+=(const ParentType & rhs) 
 	{
-		cout << "Error: ParentType::operator+=() shouldn't be executed" << endl;
+		cout << "Adding parent with id: " << rhs.id << " to this one with id " << id << endl;
 		return *this;
 	}
 	const ParentType operator++(int)	// for iota
