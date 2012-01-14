@@ -149,12 +149,23 @@ struct ParentType
 		++id;
 		return temp;
 	}
+	friend ostream& operator<<(ostream& os, const ParentType & twe ); 
+
 	template <typename IT>
 	friend ParentType operator+( const IT & left, const ParentType & right); 
 };
 
+ostream& operator<<(ostream& os, const ParentType & twe )    
+{      
+	os << "Parent=" << twe.id;
+	return os;    
+};
+
+
+
 ParentType NumSetter(ParentType & num, int64_t index) 
 {
+	cout << "setting " << index << endl;
 	return ParentType(index);
 }
 

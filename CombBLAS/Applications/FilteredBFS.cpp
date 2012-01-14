@@ -105,11 +105,17 @@ int main(int argc, char* argv[])
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 
+			// Only permute the release case, debug should intact for verification
+#ifndef DEBUG
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			nonisov.DebugPrint();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
+
+			degrees = degrees(nonisov);	// fix the degrees array too
+			degrees.PrintInfo("Degrees array");
+#endif
 			
 			A.PrintInfo();
 			Symmetricize(A);	// A += A';
@@ -128,9 +134,6 @@ int main(int argc, char* argv[])
 
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
-
-		degrees = degrees(nonisov);	// fix the degrees array too
-		degrees.PrintInfo("Degrees array");
 
 		FullyDistVec<int64_t, int64_t> Cands(ITERS);
 		double nver = (double) degrees.TotalLength();
