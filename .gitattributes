@@ -2045,7 +2045,8 @@ examples/runtimes/script9_bc.e490347 -text
 examples/runtimes/script9_bc.e490700 -text
 examples/stats.py -text
 examples/to_time_t.cpp -text
-/hopper.sh -text
+/hopper_compile.sh -text
+/hopper_run.sh -text
 kdt/Algorithms.py -text
 kdt/DiGraph.py -text
 kdt/Graph.py -text
