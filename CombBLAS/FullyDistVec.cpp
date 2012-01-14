@@ -504,7 +504,8 @@ void FullyDistVec<IT,NT>::DebugPrint()
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read counts[i] integers and print them
-			fread(data, sizeof(NT), counts[i],f);
+			size_t result = fread(data, sizeof(NT), counts[i],f);
+			if (result != counts[i]) { cout << "Error in fread, only " << result << " entries read" << endl; }
 
 			cout << "Elements stored on proc " << i << ": {" ;	
 			for (int j = 0; j < counts[i]; j++)

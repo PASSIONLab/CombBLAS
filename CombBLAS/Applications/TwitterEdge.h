@@ -24,7 +24,7 @@ public:
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
 	bool TweetSince (time_t begin) const	{	return ((count > 0) && (begin <= latest));  };
-	operator bool () const	{	return true;	} ;       // Type conversion operator
+	operator bool () const	{	return true;	} ;       // Type conversion operator (ABAB: Shoots in the foot by implicitly converting many things)
 
 	TwitterEdge & operator+=(const TwitterEdge & rhs) 
 	{
@@ -35,9 +35,13 @@ public:
 			latest = max(latest, rhs.latest);
 		return *this;
 	}
+	bool operator ==(const TwitterEdge & b) const
+	{
+		return ((follower == b.follower) && (latest == b.latest) &&  (count == b.count));
+	}
 
-
-	friend std::ostream& operator<<( std::ostream& os, const TwitterEdge & twe);
+	friend ostream& operator<<( ostream& os, const TwitterEdge & twe);
+	friend TwitterEdge operator*( const TwitterEdge & a, const TwitterEdge & b);
 private:
 	bool follower;		// default constructor sets all to zero
 	time_t latest;		// not assigned if no retweets happened
@@ -55,6 +59,13 @@ ostream& operator<<(ostream& os, const TwitterEdge & twe )
 		os << 1;
 	return os;    
 };
+
+TwitterEdge operator*( const TwitterEdge & a, const TwitterEdge & b)
+{
+	// One of the parameters is an upcast from bool (used in Indexing), so return the other one
+	if(a == TwitterEdge())	return b;
+	else	return a;
+}
 
 
 template <class IT>

@@ -37,13 +37,16 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 using namespace std;
 
-template <class T>
-bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
-{
-        istringstream iss(s);
-        return !(iss >> f >> t).fail();
-}
 
+template <typename PARMAT>
+void Symmetricize(PARMAT & A)
+{
+	// boolean addition is practically a "logical or"
+	// therefore this doesn't destruct any links
+	PARMAT AT = A;
+	AT.Transpose();
+	A += AT;
+}
 
 int main(int argc, char* argv[])
 {
@@ -79,7 +82,6 @@ int main(int argc, char* argv[])
 			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
-			return -1;
 
 			PSpMat_Bool * ABool = new PSpMat_Bool(A);
 			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
@@ -89,6 +91,7 @@ int main(int argc, char* argv[])
 			ColSums->DebugPrint();
 			RowSums->DebugPrint();
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
+			delete ABool;
 			delete RowSums;
 
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
@@ -96,12 +99,13 @@ int main(int argc, char* argv[])
 
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-			A.PrintInfo();
+			nonisov.DebugPrint();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
-/*
+			
+			A.PrintInfo();
 			Symmetricize(A);	// A += A';
-*/
+			A.PrintInfo();
 		}
 		else 
 		{	
