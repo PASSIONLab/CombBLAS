@@ -56,9 +56,9 @@ kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 kdt.p("Reading network from %s"%inmatrixfile)
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 
-print G
+#print G
 G.addEFilter(twitterEdgeFilter)
-print G
+#print G
 
 kdt.p("Generating starting verts")
 degrees = G.degree()
