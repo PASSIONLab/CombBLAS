@@ -4,7 +4,7 @@ import kdt.pyCombBLAS as pcb
 import time
 
 #veclen = [10, 50, 100, 150, 200, 500, 1000, 1300, 1500, 1700]#, 2000, 2500, 3000, 5000, 10000, 15000]
-veclen = range(8, 88, 8)
+veclen = range(8, 2500, 8)
 #repeats = [10, 25, 50, 75, 100, 200, 300, 400]#, 1000, 10000, 100000]
 repeats = [100]
 
