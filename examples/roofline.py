@@ -52,7 +52,7 @@ def runExperiment(func, e, name):
 				best_repeats = r
 	
 	p = kdt._nproc()
-	kdt.p("BEST %s on %d procs: len %5d, repeat %3d times: %f Op/s"%(name, p, best_len, best_repeats, best_ops_per_s))
+	kdt.p("BEST %s on %3d procs: len %5d, repeat %3d times: %f Op/s"%(name, p, best_len, best_repeats, best_ops_per_s))
 
 
 kdt.p("running on Multiply:")
