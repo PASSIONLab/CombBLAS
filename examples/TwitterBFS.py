@@ -12,7 +12,7 @@ if (len(sys.argv) < 2):
 	sys.exit()
 
 inmatrixfile = sys.argv[1]
-nstarts = 8
+nstarts = 16
 materialize = False
 
 if (len(sys.argv) >= 3):
