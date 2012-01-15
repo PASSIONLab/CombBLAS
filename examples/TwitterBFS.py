@@ -7,11 +7,16 @@ from stats import splitthousands, printstats
 
 #parse arguments
 if (len(sys.argv) < 2):
-	print "Usage: python %s twittergraph.mtx"%(sys.argv[0])
+	print "Usage: python %s twittergraph.mtx [1]"%(sys.argv[0])
+	print "the 2nd argument determines whether or not to use a materializing filter"
 	sys.exit()
 
 inmatrixfile = sys.argv[1]
-nstarts = 64
+nstarts = 16
+materialize = False
+
+if (len(sys.argv) >= 3):
+	materialize = bool(int(sys.argv[2]))
 
 #def twitterMul(e, f):
 #	if e.count > 0 and e.latest > 946684800 and e.latest < 1249084800:
@@ -20,7 +25,10 @@ nstarts = 64
 #		return -1
 
 
+# 2009-06-10 0:0:0 == 1244592000
 def twitterEdgeFilter(e):
+	#return e.count > 0 and e.latest < 1244592000
+
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
 	return e.follower == 0
 
@@ -58,6 +66,9 @@ G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 
 #print G
 G.addEFilter(twitterEdgeFilter)
+if materialize:
+	kdt.p("Materializing the filter")
+	G.e.materializeFilter()
 #print G
 
 kdt.p("Generating starting verts")
@@ -77,7 +88,8 @@ if False:
 	#end temporary
 
 deg3verts = (degrees > 2).findInds()
-#deg3verts = (degrees > 0).findInds()
+if len(deg3verts) == 0:
+	deg3verts = (degrees > 0).findInds()
 deg3verts.randPerm()
 if nstarts > len(deg3verts):
 	nstarts = len(deg3verts)
