@@ -6,6 +6,8 @@
 #include <iostream>
 #include <math.h>
 
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 #ifndef USESEJITS
 #define USESEJITS 1
 #endif
@@ -254,12 +256,12 @@ T UnaryFunctionObj_Python::call(const T& x) const
 
 	T tempObj = x;
 	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	//PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O)", tempSwigObj);  
 
 	Py_XDECREF(tempSwigObj);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, T::SwigTypeInfo,  0  | 0)) && pret != NULL) {
 		T ret = T(*pret);
 		Py_XDECREF(resultPy);
@@ -347,12 +349,12 @@ bool UnaryPredicateObj_Python::call(const T& x) const
 
 	T tempObj = x;
 	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	//PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O)", tempSwigObj);  
 
 	Py_XDECREF(tempSwigObj);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy) {
 		bool ret = PyObject_IsTrue(resultPy);
 		Py_XDECREF(resultPy);
@@ -455,13 +457,14 @@ RET BinaryFunctionObj_Python::call(const T1& x, const T2& y) const
 	T2 tempObj2 = y;
 	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
 	PyObject *tempSwigObj2 = SWIG_NewPointerObj(&tempObj2, T2::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O O)", tempSwigObj1, tempSwigObj2);
+	//PyObject *vertexArgList = Py_BuildValue("(O O)", tempSwigObj1, tempSwigObj2);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	//resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O O)", tempSwigObj1, tempSwigObj2);  
 
 	Py_XDECREF(tempSwigObj1);
 	Py_XDECREF(tempSwigObj2);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, RET::SwigTypeInfo,  0  | 0)) && pret != NULL) {
 		RET ret = RET(*pret);
 		Py_XDECREF(resultPy);
@@ -482,12 +485,13 @@ double BinaryFunctionObj_Python::callOD_retD(const T1& x, const double& y) const
 
 	T1 tempObj1 = x;
 	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O d)", tempSwigObj1, y);
+	//PyObject *vertexArgList = Py_BuildValue("(O d)", tempSwigObj1, y);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	//resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O d)", tempSwigObj1, y);  
 
 	Py_XDECREF(tempSwigObj1);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy) {                                   // If no errors, return double
 		dres = PyFloat_AsDouble(resultPy);
 		Py_XDECREF(resultPy);
@@ -508,12 +512,13 @@ RET BinaryFunctionObj_Python::callOD_retO(const T1& x, const double& y) const
 
 	T1 tempObj1 = x;
 	PyObject *tempSwigObj1 = SWIG_NewPointerObj(&tempObj1, T1::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O d)", tempSwigObj1, y);
+	//PyObject *vertexArgList = Py_BuildValue("(O d)", tempSwigObj1, y);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	//resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O d)", tempSwigObj1, y);  
 
 	Py_XDECREF(tempSwigObj1);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy && SWIG_IsOK(SWIG_ConvertPtr(resultPy, (void**)&pret, RET::SwigTypeInfo,  0  | 0)) && pret != NULL) {
 		RET ret = RET(*pret);
 		Py_XDECREF(resultPy);
