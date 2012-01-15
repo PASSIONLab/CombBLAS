@@ -295,7 +295,7 @@ template <class T>
 double UnaryDoubleFunctionObj_Python::call(const T& x) const
 {
 	PyObject *resultPy;
-	T *pret;	
+	//T *pret;	
 
 	T tempObj = x;
 	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
