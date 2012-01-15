@@ -145,7 +145,7 @@ for start in starts:
 	
 	i += 1
 	# print result for this iteration
-	kdt.p("iteration %2d: start=%8d, BFS took %3.5fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime)))
+	kdt.p("iteration %2d: start=%8d, BFS took %10.4fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime)))
 
 # print results summary
 if kdt.master():
