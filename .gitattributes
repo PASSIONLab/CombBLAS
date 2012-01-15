@@ -2011,6 +2011,7 @@ examples/mcldraw.py -text
 examples/note_for_kdt_developers.txt -text
 examples/rmat4.mtx -text
 examples/roofline.py -text
+examples/run-roofline.sh -text
 examples/runtimes/script1024_4cores.e489933 -text
 examples/runtimes/script1024_bc.e470702 -text
 examples/runtimes/script1024_bc.e486635 -text
