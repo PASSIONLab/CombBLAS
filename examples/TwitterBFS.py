@@ -64,12 +64,14 @@ kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 kdt.p("Reading network from %s"%inmatrixfile)
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 
+kdt.p("Read %d vertices and %d edges."%(G.nvert(), G.nedge()))
 #print G
 G.addEFilter(twitterEdgeFilter)
 if materialize:
 	kdt.p("Materializing the filter")
 	G.e.materializeFilter()
 #print G
+kdt.p("%d edges survived the filter."%(G.nedge()))
 
 kdt.p("Generating starting verts")
 degrees = G.degree()
