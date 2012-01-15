@@ -171,6 +171,8 @@ int main(int argc, char* argv[])
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 			for(int i=0; i<ITERS; ++i)
 			{
+				SpParHelper::Print("NEW ITERATION\n");
+
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 				FullyDistVec<int64_t, ParentType> parents ( A.getcommgrid(), A.getncol(), ParentType());	
 
@@ -181,6 +183,7 @@ int main(int argc, char* argv[])
 				double t1 = MPI_Wtime();
 
 				fringe.SetElement(Cands[i], Cands[i]);
+				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
 				while(fringe.getnnz() > 0)
 				{
@@ -193,18 +196,16 @@ int main(int argc, char* argv[])
 					fringe.PrintInfo("fringe after SpMV");
 					fringe.DebugPrint();
 
-					return -1;
-				
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
-					// ABAB: Parallelize EWiseApply?
-					// ABAB: allowVNulls currently true, until we embed its logic to SpMV	
-					// #define prunediscovered_f(x,y) return ( y == ParentType() ) ? x: ParentType()
+					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
+					fringe.PrintInfo("fringe after cleanup");
+					fringe.DebugPrint();
 
-					fringe = EWiseApply<ParentType>(fringe, parents, prunediscovered_f(), bintotality<ParentType,ParentType>(), true, ParentType());
-					// fringe.PrintInfo("fringe after cleanup");
+					
 					parents += fringe;
-					// parents.PrintInfo("Parents after addition");
+					parents.PrintInfo("Parents after addition");
+					parents.DebugPrint();
 					iterations++;
 					MPI::COMM_WORLD.Barrier();
 				}

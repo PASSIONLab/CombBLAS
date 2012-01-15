@@ -533,7 +533,10 @@ void LocalSpMV(const SpParMat<IU,NUM,UDER> & A, int rowneighs, OptBuf<int32_t, O
 template <typename SR, typename IU, typename OVT>
 void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs)
 {
-		
+	// free memory of y, in case it was aliased
+	vector<IU>().swap(y.ind);
+	vector<OVT>().swap(y.num);
+	
 #ifndef HEAPMERGE
 	// Alternative 1: SPA-like data structure
 	DeleteAll(recvcnt, rdispls);
@@ -559,6 +562,7 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 	}
 	DeleteAll(isthere, recvindbuf, recvnumbuf);
 	sort(nzinds.begin(), nzinds.end());
+	copy(nzinds.begin(), nzinds.end(), ostream_iterator<IU>(cout, " ")); cout << endl;
 	int nnzy = nzinds.size();
 	y.ind.resize(nnzy);
 	y.num.resize(nnzy);
