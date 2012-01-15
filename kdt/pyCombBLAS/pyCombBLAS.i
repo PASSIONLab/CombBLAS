@@ -1258,9 +1258,9 @@ BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
 
 class SemiringObj {
 	protected:
-	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {}
 	public:
-	SemiringObj(PyObject *add, PyObject *multiply);
+	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
 	~SemiringObj();
 	
 	PyObject* getAddCallback() const { return binfunc_add != NULL ? binfunc_add->getCallback() : NULL; }

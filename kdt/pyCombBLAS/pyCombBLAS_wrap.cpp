@@ -41322,6 +41322,73 @@ SWIGINTERN PyObject *_wrap_new_SemiringObj__SWIG_1(PyObject *SWIGUNUSEDPARM(self
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
+  PyObject *arg4 = (PyObject *) 0 ;
+  op::SemiringObj *result = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:new_SemiringObj",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  arg1 = obj0;
+  arg2 = obj1;
+  arg3 = obj2;
+  arg4 = obj3;
+  {
+    try {
+      result = (op::SemiringObj *)new op::SemiringObj(arg1,arg2,arg3,arg4);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__SemiringObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SemiringObj__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = (PyObject *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
+  op::SemiringObj *result = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:new_SemiringObj",&obj0,&obj1,&obj2)) SWIG_fail;
+  arg1 = obj0;
+  arg2 = obj1;
+  arg3 = obj2;
+  {
+    try {
+      result = (op::SemiringObj *)new op::SemiringObj(arg1,arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__SemiringObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_SemiringObj__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PyObject *arg1 = (PyObject *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
   op::SemiringObj *result = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -41349,12 +41416,12 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_SemiringObj(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[3];
+  PyObject *argv[5];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+  for (ii = 0; (ii < argc) && (ii < 4); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 2) {
@@ -41363,13 +41430,42 @@ SWIGINTERN PyObject *_wrap_new_SemiringObj(PyObject *self, PyObject *args) {
     if (_v) {
       _v = (argv[1] != 0);
       if (_v) {
-        return _wrap_new_SemiringObj__SWIG_1(self, args);
+        return _wrap_new_SemiringObj__SWIG_3(self, args);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    _v = (argv[0] != 0);
+    if (_v) {
+      _v = (argv[1] != 0);
+      if (_v) {
+        _v = (argv[2] != 0);
+        if (_v) {
+          return _wrap_new_SemiringObj__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 4) {
+    int _v;
+    _v = (argv[0] != 0);
+    if (_v) {
+      _v = (argv[1] != 0);
+      if (_v) {
+        _v = (argv[2] != 0);
+        if (_v) {
+          _v = (argv[3] != 0);
+          if (_v) {
+            return _wrap_new_SemiringObj__SWIG_1(self, args);
+          }
+        }
       }
     }
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_SemiringObj'.\n  Possible C/C++ prototypes are:\n    op::SemiringObj(PyObject *,PyObject *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_SemiringObj'.\n  Possible C/C++ prototypes are:\n    op::SemiringObj(PyObject *,PyObject *,PyObject *,PyObject *)\n    op::SemiringObj(PyObject *,PyObject *,PyObject *)\n    op::SemiringObj(PyObject *,PyObject *)\n");
   return NULL;
 }
 

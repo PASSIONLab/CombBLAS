@@ -121,7 +121,7 @@ void BinaryFunctionObj::releaseMPIOp()
 //template <>
 SemiringObj* SemiringObj::currentlyApplied = NULL;
 
-SemiringObj::SemiringObj(PyObject *add, PyObject *multiply)
+SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py, PyObject* right_filter_py)
 	: type(CUSTOM)//, pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
 {
 	//Py_INCREF(pyfunc_add);
@@ -129,6 +129,16 @@ SemiringObj::SemiringObj(PyObject *add, PyObject *multiply)
 	
 	binfunc_add = new BinaryFunctionObj(add, true, true);
 	binfunc_mul = new BinaryFunctionObj(multiply, true, true);
+	
+	if (left_filter_py != NULL && Py_None != left_filter_py)
+		left_filter = new UnaryPredicateObj(left_filter_py);
+	else
+		left_filter = NULL;
+
+	if (right_filter_py != NULL && Py_None != right_filter_py)
+		right_filter = new UnaryPredicateObj(right_filter_py);
+	else
+		right_filter = NULL;
 }
 SemiringObj::~SemiringObj()
 {
@@ -138,6 +148,10 @@ SemiringObj::~SemiringObj()
 		delete binfunc_add;
 	if (binfunc_mul != NULL)
 		delete binfunc_mul;
+	if (left_filter != NULL)
+		delete left_filter;
+	if (right_filter != NULL)
+		delete right_filter;
 	assert(currentlyApplied != this);
 }
 
