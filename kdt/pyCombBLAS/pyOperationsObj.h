@@ -299,12 +299,12 @@ double UnaryDoubleFunctionObj_Python::call(const T& x) const
 
 	T tempObj = x;
 	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
-	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	//PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
 	
-	resultPy = PyEval_CallObject(callback,vertexArgList);  
+	resultPy = PyObject_CallFunction(callback,"(O)", tempSwigObj);  
 
 	Py_XDECREF(tempSwigObj);
-	Py_XDECREF(vertexArgList);
+	//Py_XDECREF(vertexArgList);
 	if (resultPy) {
 		double dres = PyFloat_AsDouble(resultPy);
 		Py_XDECREF(resultPy);
