@@ -33,7 +33,9 @@ int cblas_splits = 1;
 #include "../CombBLAS.h"
 #include "TwitterEdge.h"
 
-#define ITERS 64
+#define MAX_ITERS 512
+#define ITERS 16 
+#define CC_LIMIT 100
 #define PERMUTEFORBALANCE
 using namespace std;
 
@@ -95,7 +97,7 @@ int main(int argc, char* argv[])
 			delete ABool;
 
 #ifdef PERMUTEFORBALANCE
-			nonisov = oudegrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+			nonisov = degrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			// nonisov.DebugPrint();
@@ -127,28 +129,28 @@ int main(int argc, char* argv[])
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
 
-		FullyDistVec<int64_t, int64_t> Cands(ITERS);
+		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS);
 		double nver = (double) degrees.TotalLength();
 
 		MTRand M;	// generate random numbers with Mersenne Twister
-		vector<double> loccands(ITERS);
-		vector<int64_t> loccandints(ITERS);
+		vector<double> loccands(MAX_ITERS);
+		vector<int64_t> loccandints(MAX_ITERS);
 		if(myrank == 0)
 		{
-			for(int i=0; i<ITERS; ++i)
+			for(int i=0; i<MAX_ITERS; ++i)
 				loccands[i] = M.rand();
-			copy(loccands.begin(), loccands.end(), ostream_iterator<double>(cout," ")); cout << endl;
+			//copy(loccands.begin(), loccands.end(), ostream_iterator<double>(cout," ")); cout << endl;
 			transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
 			
-			for(int i=0; i<ITERS; ++i)
+			for(int i=0; i<MAX_ITERS; ++i)
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
-			copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
+			// copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
 		}
 
 		MPI::COMM_WORLD.Barrier();
-		MPI::COMM_WORLD.Bcast(&(loccandints[0]), ITERS, MPIType<int64_t>(),0);
+		MPI::COMM_WORLD.Bcast(&(loccandints[0]), MAX_ITERS, MPIType<int64_t>(),0);
 		MPI::COMM_WORLD.Barrier();
-		for(int i=0; i<ITERS; ++i)
+		for(int i=0; i<MAX_ITERS; ++i)
 		{
 			Cands.SetElement(i,loccandints[i]);
 		}
@@ -161,9 +163,9 @@ int main(int argc, char* argv[])
 			MPI_Pcontrol(1,"BFS");
 
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
-			for(int i=0; i<ITERS; ++i)
+			int sruns = 0;		// successful runs
+			for(int i=0; i<MAX_ITERS, sruns < ITERS; ++i)
 			{
-				SpParHelper::Print("NEW ITERATION\n");
 
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 				FullyDistVec<int64_t, ParentType> parents ( A.getcommgrid(), A.getncol(), ParentType());	
@@ -180,7 +182,7 @@ int main(int argc, char* argv[])
 				while(fringe.getnnz() > 0)
 				{
 					fringe.ApplyInd(NumSetter);
-					fringe.PrintInfo("fringe before SpMV");
+					//fringe.PrintInfo("fringe before SpMV");
 					//fringe.DebugPrint();
 
 					// SpMV with sparse vector, optimizations disabled for generality
@@ -191,7 +193,7 @@ int main(int argc, char* argv[])
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
-					fringe.PrintInfo("fringe after cleanup");
+					//fringe.PrintInfo("fringe after cleanup");
 					//fringe.DebugPrint();
 
 					
@@ -230,63 +232,64 @@ int main(int argc, char* argv[])
 				outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 				outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
 				outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
-				TIMES[i] = t2-t1;
-				EDGES[i] = nedges;
-				MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
+				if(parentsp.getnnz() > CC_LIMIT)
+				{
+					TIMES[sruns] = t2-t1;
+					EDGES[sruns] = ou_nedges;
+					MTEPS[sruns++] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
+				}
 				SpParHelper::Print(outnew.str());
 			}
-			SpParHelper::Print("Finished\n");
+			if (sruns < 2)
+			{
+				SpParHelper::Print("Not enough valid runs done\n");
+				MPI::Finalize();
+			}
 			ostringstream os;
 			MPI_Pcontrol(-1,"BFS");
 			
-
+			os << sruns << " valid runs done" << endl;
 			os << "Per iteration communication times: " << endl;
-			os << "AllGatherv: " << cblas_allgathertime / ITERS << endl;
-			os << "AlltoAllv: " << cblas_alltoalltime / ITERS << endl;
+			os << "AllGatherv: " << cblas_allgathertime / sruns << endl;
+			os << "AlltoAllv: " << cblas_alltoalltime / sruns << endl;
 
-			sort(EDGES, EDGES+ITERS);
+			sort(EDGES, EDGES+sruns);
 			os << "--------------------------" << endl;
 			os << "Min nedges: " << EDGES[0] << endl;
-			os << "First Quartile nedges: " << (EDGES[(ITERS/4)-1] + EDGES[ITERS/4])/2 << endl;
-			os << "Median nedges: " << (EDGES[(ITERS/2)-1] + EDGES[ITERS/2])/2 << endl;
-			os << "Third Quartile nedges: " << (EDGES[(3*ITERS/4) -1 ] + EDGES[3*ITERS/4])/2 << endl;
-			os << "Max nedges: " << EDGES[ITERS-1] << endl;
- 			double mean = accumulate( EDGES, EDGES+ITERS, 0.0 )/ ITERS;
-			vector<double> zero_mean(ITERS);	// find distances to the mean
-			transform(EDGES, EDGES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			os << "Median nedges: " << (EDGES[(sruns/2)-1] + EDGES[sruns/2])/2 << endl;
+			os << "Max nedges: " << EDGES[sruns-1] << endl;
+ 			double mean = accumulate( EDGES, EDGES+sruns, 0.0 )/ sruns;
+			vector<double> zero_mean(sruns);	// find distances to the mean
+			transform(EDGES, EDGES+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
 			// self inner-product is sum of sum of squares
 			double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-   			deviation = sqrt( deviation / (ITERS-1) );
+   			deviation = sqrt( deviation / (sruns-1) );
    			os << "Mean nedges: " << mean << endl;
 			os << "STDDEV nedges: " << deviation << endl;
 			os << "--------------------------" << endl;
 	
-			sort(TIMES,TIMES+ITERS);
+			sort(TIMES,TIMES+sruns);
 			os << "Min time: " << TIMES[0] << " seconds" << endl;
-			os << "First Quartile time: " << (TIMES[(ITERS/4)-1] + TIMES[ITERS/4])/2 << " seconds" << endl;
-			os << "Median time: " << (TIMES[(ITERS/2)-1] + TIMES[ITERS/2])/2 << " seconds" << endl;
-			os << "Third Quartile time: " << (TIMES[(3*ITERS/4)-1] + TIMES[3*ITERS/4])/2 << " seconds" << endl;
-			os << "Max time: " << TIMES[ITERS-1] << " seconds" << endl;
- 			mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ ITERS;
-			transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			os << "Median time: " << (TIMES[(sruns/2)-1] + TIMES[sruns/2])/2 << " seconds" << endl;
+			os << "Max time: " << TIMES[sruns-1] << " seconds" << endl;
+ 			mean = accumulate( TIMES, TIMES+sruns, 0.0 )/ sruns;
+			transform(TIMES, TIMES+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-   			deviation = sqrt( deviation / (ITERS-1) );
+   			deviation = sqrt( deviation / (sruns-1) );
    			os << "Mean time: " << mean << " seconds" << endl;
 			os << "STDDEV time: " << deviation << " seconds" << endl;
 			os << "--------------------------" << endl;
 
-			sort(MTEPS, MTEPS+ITERS);
+			sort(MTEPS, MTEPS+sruns);
 			os << "Min MTEPS: " << MTEPS[0] << endl;
-			os << "First Quartile MTEPS: " << (MTEPS[(ITERS/4)-1] + MTEPS[ITERS/4])/2 << endl;
-			os << "Median MTEPS: " << (MTEPS[(ITERS/2)-1] + MTEPS[ITERS/2])/2 << endl;
-			os << "Third Quartile MTEPS: " << (MTEPS[(3*ITERS/4)-1] + MTEPS[3*ITERS/4])/2 << endl;
-			os << "Max MTEPS: " << MTEPS[ITERS-1] << endl;
-			transform(MTEPS, MTEPS+ITERS, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
-			double hteps = static_cast<double>(ITERS) / accumulate(INVMTEPS, INVMTEPS+ITERS, 0.0);	
+			os << "Median MTEPS: " << (MTEPS[(sruns/2)-1] + MTEPS[sruns/2])/2 << endl;
+			os << "Max MTEPS: " << MTEPS[sruns-1] << endl;
+			transform(MTEPS, MTEPS+sruns, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
+			double hteps = static_cast<double>(sruns) / accumulate(INVMTEPS, INVMTEPS+sruns, 0.0);	
 			os << "Harmonic mean of MTEPS: " << hteps << endl;
-			transform(INVMTEPS, INVMTEPS+ITERS, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
+			transform(INVMTEPS, INVMTEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-   			deviation = sqrt( deviation / (ITERS-1) ) * (hteps*hteps);	// harmonic_std_dev
+   			deviation = sqrt( deviation / (sruns-1) ) * (hteps*hteps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
 			SpParHelper::Print(os.str());
 		}
