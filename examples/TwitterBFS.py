@@ -76,8 +76,8 @@ if False:
 	degrees.eWiseApply(degreesObj, lambda d, o: int(o.count), inPlace=True)
 	#end temporary
 
-#deg3verts = (degrees > 2).findInds()
-deg3verts = (degrees > 0).findInds()
+deg3verts = (degrees > 2).findInds()
+#deg3verts = (degrees > 0).findInds()
 deg3verts.randPerm()
 if nstarts > len(deg3verts):
 	nstarts = len(deg3verts)

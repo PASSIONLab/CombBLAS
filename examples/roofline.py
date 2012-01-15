@@ -8,11 +8,20 @@ veclen = range(8, 2500, 8)
 #repeats = [10, 25, 50, 75, 100, 200, 300, 400]#, 1000, 10000, 100000]
 repeats = [100]
 
-def twitterMulMod(e, f):
-	if e.follower and e.count > 0 and e.latest > 946684800:
-		return e
-	else:
-		return e
+useEWise = True
+
+if useEWise:
+	def twitterMulMod(f, e):
+		if e.follower and e.count > 0 and e.latest > 946684800:
+			return f
+		else:
+			return f
+else:
+	def twitterMulMod(e, f):
+		if e.follower and e.count > 0 and e.latest > 946684800:
+			return e
+		else:
+			return e
 
 def twitterAdd(f1, f2):
 	if f2 == -1:
@@ -26,10 +35,14 @@ def runExperiment(func, e, name):
 	
 	for vl in veclen:
 		vec = kdt.Vec(vl, element=e, sparse=False)
+		resVec = kdt.Vec(vl, element=0, sparse=False)
 		for r in repeats:
 			begin = time.time()
 			for i in range(r):
-				vec.applyInd(func)
+				if useEWise:
+					resVec.eWiseApply(vec, func)
+				else:
+					vec.applyInd(func)
 			t = time.time() - begin
 			ops = vl*r / t
 			if best_ops_per_s < ops:
