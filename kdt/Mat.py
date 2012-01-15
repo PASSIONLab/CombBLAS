@@ -233,6 +233,8 @@ class Mat:
 		returns the number of existing elements in this matrix.
 		"""
 		if self._hasFilter():
+			if self._hasMaterializedFilter():
+				return self._materialized.nnn()
 			return int(self.reduce(Mat.All, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0))
 			
 		return self._m_.getnee()		
