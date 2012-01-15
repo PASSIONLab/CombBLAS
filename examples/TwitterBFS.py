@@ -27,9 +27,9 @@ if (len(sys.argv) >= 3):
 
 # 2009-06-10 0:0:0 == 1244592000
 # 2009-06-13 0:0:0 == 1244851200
+# 2009-07-01 0:0:0 == 1246406400
 def twitterEdgeFilter(e):
-	#return e.count > 0 and e.latest < 1244592000
-	return e.count > 0 and e.latest < 1244851200
+	return e.count > 0 and e.latest < 1246406400
 
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
 #	return e.follower == 0
@@ -72,7 +72,7 @@ G.addEFilter(twitterEdgeFilter)
 if materialize:
 	kdt.p("Materializing the filter")
 	G.e.materializeFilter()
-	kdt.p("%d edges survived the filter."%(G.nedge()))
+kdt.p("%d edges survived the filter."%(G.nedge()))
 #print G
 
 kdt.p("Generating starting verts")
