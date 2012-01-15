@@ -29,6 +29,7 @@ if (len(sys.argv) >= 3):
 # 2009-06-13 0:0:0 == 1244851200
 # 2009-07-01 0:0:0 == 1246406400
 def twitterEdgeFilter(e):
+	#print e.latest, e
 	return e.count > 0 and e.latest < 1246406400
 
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
@@ -65,34 +66,25 @@ kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 # load
 kdt.p("Reading network from %s"%inmatrixfile)
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
-
 kdt.p("Read %d vertices and %d edges."%(G.nvert(), G.nedge()))
+
+kdt.p("calculating degrees on original graph")
+origDegrees = G.degree()
+
 #print G
 G.addEFilter(twitterEdgeFilter)
 if materialize:
 	kdt.p("Materializing the filter")
 	G.e.materializeFilter()
-kdt.p("%d edges survived the filter."%(G.nedge()))
+	kdt.p("%d edges survived the filter."%(G.nedge()))
 #print G
 
 kdt.p("Generating starting verts")
 degrees = G.degree()
-if False:
-	#temporary:
-	def obj2p(x, y):
-		x.count += y.count
-		return x
-	
-	def obj2setto1(x):
-		x.count = 1
-		return x
-	degreesObj = G.e.reduce(kdt.DiGraph.Out, obj2p, uniOp=obj2setto1, init=kdt.Obj2())
-	degrees = kdt.Vec(len(degreesObj), sparse=False)
-	degrees.eWiseApply(degreesObj, lambda d, o: int(o.count), inPlace=True)
-	#end temporary
 
 deg3verts = (degrees > 2).findInds()
 if len(deg3verts) == 0:
+	# this is mainly for filter_debug.txt
 	deg3verts = (degrees > 0).findInds()
 deg3verts.randPerm()
 if nstarts > len(deg3verts):
@@ -104,6 +96,7 @@ kdt.p("Doing BFS")
 K2elapsed = [];
 K2edges = [];
 K2TEPS = [];
+K2ORIGTEPS = []
 
 i = 0
 for start in starts:
@@ -137,6 +130,7 @@ for start in starts:
 		else:
 			return deg
 	nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add) 
+	nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add) 
 	
 	##nedges2 = len((parents[origI] != -1).find())
 	##if kdt.master():
@@ -146,10 +140,12 @@ for start in starts:
 	K2elapsed.append(itertime)
 	K2edges.append(nedges)
 	K2TEPS.append(nedges/itertime)
+	K2ORIGTEPS.append(nOrigEdges/itertime)
+	ndiscVerts = parents.count(lambda x: x != -1)
 	
 	i += 1
 	# print result for this iteration
-	kdt.p("iteration %2d: start=%8d, BFS took %fs, covered %10d edges, TEPS=%s"%(i, start, (itertime), nedges, splitthousands(nedges/itertime)))
+	kdt.p("iteration %2d: start=%8d, BFS took %3.5fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime)))
 
 # print results summary
 if kdt.master():
