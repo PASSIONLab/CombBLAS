@@ -219,7 +219,10 @@ struct LatestRetwitterBFS
 			timeinfo.tm_min = min;          // range 0...59
 			timeinfo.tm_sec = sec;          // range 0.
 			sincedate = timegm(&timeinfo);
-			cout << "Initializing since date (only once) to " << sincedate << endl;
+
+			ostringstream outs;
+			outs << "Initializing since date (only once) to " << sincedate << endl;
+			SpParHelper::Print(outs.str());
 		}
 		
 		if(arg1.isRetwitter() && arg1.LastTweetBy(sincedate))	// T1 is of type edges for BFS

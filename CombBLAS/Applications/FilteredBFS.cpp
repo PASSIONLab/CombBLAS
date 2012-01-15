@@ -33,8 +33,8 @@ int cblas_splits = 1;
 #include "../CombBLAS.h"
 #include "TwitterEdge.h"
 
-#define ITERS 16
-#define EDGEFACTOR 16
+#define ITERS 64
+#define PERMUTEFORBALANCE
 using namespace std;
 
 
@@ -98,12 +98,13 @@ int main(int argc, char* argv[])
 			nonisov = oudegrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-			nonisov.DebugPrint();
+			// nonisov.DebugPrint();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 
-			indegrees = indegrees(nonisov);	// fix the degrees array too
-			oudegrees = oudegrees(nonisov);	// fix the degrees array too
+			indegrees = indegrees(nonisov);	// fix the degrees arrays too
+			oudegrees = oudegrees(nonisov);	
+			degrees =degrees(nonisov);
 			indegrees.PrintInfo("In degrees array");
 			oudegrees.PrintInfo("Out degrees array");
 #endif
@@ -226,7 +227,8 @@ int main(int argc, char* argv[])
 				outnew << "Number of edges traversed in both directions: " << nedges << endl;
 				outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
 				outnew << "BFS time: " << t2-t1 << " seconds" << endl;
-				outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
+				outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
+				outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
 				outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 				TIMES[i] = t2-t1;
 				EDGES[i] = nedges;
