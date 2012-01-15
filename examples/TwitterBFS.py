@@ -12,7 +12,7 @@ if (len(sys.argv) < 2):
 	sys.exit()
 
 inmatrixfile = sys.argv[1]
-nstarts = 16
+nstarts = 8
 materialize = False
 
 if (len(sys.argv) >= 3):
@@ -27,10 +27,10 @@ if (len(sys.argv) >= 3):
 
 # 2009-06-10 0:0:0 == 1244592000
 def twitterEdgeFilter(e):
-	#return e.count > 0 and e.latest < 1244592000
+	return e.count > 0 and e.latest < 1244592000
 
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
-	return e.follower == 0
+#	return e.follower == 0
 
 # doubleint() constructor returns -1 now
 def twitterMul(e, f):
