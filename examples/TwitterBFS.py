@@ -130,7 +130,10 @@ for start in starts:
 		else:
 			return deg
 	nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add) 
-	nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add) 
+	if materialize:
+		nOrigEdges = 0
+	else:
+		nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add) 
 	
 	##nedges2 = len((parents[origI] != -1).find())
 	##if kdt.master():
