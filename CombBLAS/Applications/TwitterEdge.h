@@ -261,6 +261,27 @@ struct getfringe: public std::binary_function<ParentType, ParentType, ParentType
 	
 };
 
+// x: Parent type (always 1 if exits, sparse)
+// y: degree (dense)
+struct seldegree: public std::binary_function<ParentType, int64_t, int64_t>
+{
+  	int64_t operator()(ParentType x, const int64_t & y) const
+	{
+		return y;
+	}
+	
+};
+
+// This is like an "isparentset" with the extra parameter that we don't care
+struct passifthere: public std::binary_function<ParentType, int64_t, bool>
+{
+  	bool operator()(ParentType x, const int64_t & y) const
+	{
+		return  (x != ParentType());
+	}
+	
+};
+
 // x: elements from fringe (sparse), y: elements from parents (dense) 
 // return true for edges that are not filtered out, and not previously discovered
 // if the edge was filtered out, then x would be ParentType()
@@ -273,5 +294,15 @@ struct keepinfrontier_f: public std::binary_function<ParentType, ParentType, boo
 	}
 	
 };
+
+struct isparentset: public std::unary_function<ParentType, bool>
+{
+  	bool operator()(const ParentType & x) const
+	{
+		return ( x != ParentType() ) ;
+	}
+	
+};
+
 
 #endif
