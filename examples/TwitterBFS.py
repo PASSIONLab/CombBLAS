@@ -53,14 +53,14 @@ def bfsTreeTwitter(self, root):
 kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 
 # load
-print "Reading network from",inmatrixfile
+kdt.p("Reading network from %s"%inmatrixfile)
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 
 print G
 G.addEFilter(twitterEdgeFilter)
 print G
 
-print "Generating starting verts"
+kdt.p("Generating starting verts")
 degrees = G.degree()
 if False:
 	#temporary:
@@ -83,7 +83,7 @@ if nstarts > len(deg3verts):
 	nstarts = len(deg3verts)
 starts = deg3verts[kdt.Vec.range(nstarts)]
 
-print "Doing BFS"
+kdt.p("Doing BFS")
 
 K2elapsed = [];
 K2edges = [];
