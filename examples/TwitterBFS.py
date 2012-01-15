@@ -70,8 +70,8 @@ G.addEFilter(twitterEdgeFilter)
 if materialize:
 	kdt.p("Materializing the filter")
 	G.e.materializeFilter()
+	kdt.p("%d edges survived the filter."%(G.nedge()))
 #print G
-kdt.p("%d edges survived the filter."%(G.nedge()))
 
 kdt.p("Generating starting verts")
 degrees = G.degree()
