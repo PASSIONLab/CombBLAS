@@ -115,7 +115,7 @@ class TwitterReadSaveHandler
 			{
 				tw.latest = 0;	// initialized to dummy
 			}
-			cout << row << " follows " << col << "? : " << tw.follower << " and the retweet count is " << tw.count << endl;
+			//cout << row << " follows " << col << "? : " << tw.follower << " and the retweet count is " << tw.count << endl;
 			return tw;
 		}
 		
@@ -209,7 +209,7 @@ struct LatestRetwitterBFS
 			struct tm timeinfo;
 			memset(&timeinfo, 0, sizeof(struct tm));
 			int year, month, day, hour, min, sec;
-			year = 2009;	month = 6;	day = 10;
+			year = 2009;	month = 7;	day = 1;
 			hour = 0;		min = 0;	sec = 0;
 			
 			timeinfo.tm_year = year - 1900; // year is "years since 1900"

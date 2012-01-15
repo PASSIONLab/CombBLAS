@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 				parentsp.Apply(set<ParentType>(ParentType(1)));
 	
 				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
-				FullyDistSpVec<int64_t, int64_t> intraversed = EWiseApply<int64_t>(parentsp, degrees, seldegree(), passifthere(), true, ParentType());
+				FullyDistSpVec<int64_t, int64_t> intraversed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
 				FullyDistSpVec<int64_t, int64_t> outraversed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
 				intraversed.PrintInfo("Incoming edges traversed per vertex");
 				//intraversed.DebugPrint();
@@ -223,7 +223,8 @@ int main(int argc, char* argv[])
 				outnew << i << "th starting vertex was " << Cands[i] << endl;
 				outnew << "Number iterations: " << iterations << endl;
 				outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
-				outnew << "Number of edges traversed: " << nedges << endl;
+				outnew << "Number of edges traversed in both directions: " << nedges << endl;
+				outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
 				outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 				outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 				outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
