@@ -24,6 +24,8 @@ public:
 	bool isRetwitter() const {	return (count > 0); };
 	bool TweetWithinInterval (time_t begin, time_t end) const	{	return ((count > 0) && (begin <= latest && latest <= end));  };
 	bool TweetSince (time_t begin) const	{	return ((count > 0) && (begin <= latest));  };
+	bool LastTweetBy (time_t end) const	{	return ((count > 0) && (latest <= end));  };
+
 	operator bool () const	{	return true;	} ;       // Type conversion operator (ABAB: Shoots in the foot by implicitly converting many things)
 
 	TwitterEdge & operator+=(const TwitterEdge & rhs) 
@@ -95,7 +97,7 @@ class TwitterReadSaveHandler
 				is >> time;
 
 				struct tm timeinfo;
-                        	int year, month, day, hour, min, sec;
+				int year, month, day, hour, min, sec;
 				sscanf (date.c_str(),"%d-%d-%d",&year, &month, &day);
 				sscanf (time.c_str(),"%d:%d:%d",&hour, &min, &sec);
 
@@ -134,9 +136,13 @@ struct ParentType
 	ParentType():id(-1) { };
 	ParentType(int64_t myid):id(myid) { };
 	int64_t id;
-	bool operator==(const ParentType & rhs) const
+	bool operator ==(const ParentType & rhs) const
 	{
 		return (id == rhs.id);
+	}
+	bool operator !=(const ParentType & rhs) const
+	{
+		return (id != rhs.id);
 	}
 	ParentType & operator+=(const ParentType & rhs) 
 	{
@@ -161,11 +167,8 @@ ostream& operator<<(ostream& os, const ParentType & twe )
 	return os;    
 };
 
-
-
 ParentType NumSetter(ParentType & num, int64_t index) 
 {
-	cout << "setting " << index << endl;
 	return ParentType(index);
 }
 
@@ -190,7 +193,7 @@ struct LatestRetwitterBFS
 	static ParentType id() { return ParentType(); }	// additive identity
 	static ParentType add(const ParentType & arg1, const ParentType & arg2)
 	{
-		return arg2;
+		return ((arg2 == ParentType()) ? arg1: arg2);
 	}
 
 	static MPI_Op mpi_op() 
@@ -198,13 +201,28 @@ struct LatestRetwitterBFS
 		MPI_Op_create(select2nd, false, &MPI_BFSADD);	// todo: do this once only !
 		return MPI_BFSADD;
 	}
+	static time_t sincedate;
 	static ParentType multiply(const TwitterEdge & arg1, const ParentType & arg2)
 	{
-		time_t now = time(0);
-		struct tm * timeinfo = localtime( &now);
-		timeinfo->tm_mon = timeinfo->tm_mon-1;
-		time_t monthago = mktime(timeinfo);
-		if(arg1.isRetwitter() && arg1.TweetWithinInterval(monthago, now))	// T1 is of type edges for BFS
+		if(sincedate == -1)	// uninitialized
+		{
+			struct tm timeinfo;
+			memset(&timeinfo, 0, sizeof(struct tm));
+			int year, month, day, hour, min, sec;
+			year = 2009;	month = 6;	day = 10;
+			hour = 0;		min = 0;	sec = 0;
+			
+			timeinfo.tm_year = year - 1900; // year is "years since 1900"
+			timeinfo.tm_mon = month - 1 ;   // month is in range 0...11
+			timeinfo.tm_mday = day;         // range 1...31
+			timeinfo.tm_hour = hour;        // range 0...23
+			timeinfo.tm_min = min;          // range 0...59
+			timeinfo.tm_sec = sec;          // range 0.
+			sincedate = timegm(&timeinfo);
+			cout << "Initializing since date (only once) to " << sincedate << endl;
+		}
+		
+		if(arg1.isRetwitter() && arg1.LastTweetBy(sincedate))	// T1 is of type edges for BFS
 		{
 			return arg2;
 		}
@@ -215,9 +233,11 @@ struct LatestRetwitterBFS
 	}
 	static void axpy(TwitterEdge a, const ParentType & x, ParentType & y)
 	{
-		y = multiply(a, x);
+		y = add(y, multiply(a, x));
 	}
 };
+
+time_t LatestRetwitterBFS::sincedate = -1;
 
 
 void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
@@ -232,11 +252,24 @@ void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 
 MPI_Op LatestRetwitterBFS::MPI_BFSADD;
 
-struct prunediscovered_f: public std::binary_function<ParentType, ParentType, ParentType>
+struct getfringe: public std::binary_function<ParentType, ParentType, ParentType>
 {
   	ParentType operator()(ParentType x, const ParentType & y) const
 	{
-		return ( y == ParentType() ) ? x: ParentType();
+		return x;
+	}
+	
+};
+
+// x: elements from fringe (sparse), y: elements from parents (dense) 
+// return true for edges that are not filtered out, and not previously discovered
+// if the edge was filtered out, then x would be ParentType()
+// if y was already discovered its parent would NOT be ParentType()
+struct keepinfrontier_f: public std::binary_function<ParentType, ParentType, bool>
+{
+  	bool operator()(ParentType x, const ParentType & y) const
+	{
+		return ( x != ParentType() && y == ParentType()) ;
 	}
 	
 };
