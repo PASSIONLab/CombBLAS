@@ -2028,7 +2028,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					infile.getline(line, 1024);
 					stringstream linestream(line);
 					linestream >> temprow >> tempcol;
-					if (!nonumline)
+					if (!nonum)
 					{
 						// see if this line has a value
 						linestream >> skipws;
