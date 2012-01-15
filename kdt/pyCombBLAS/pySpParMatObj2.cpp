@@ -441,7 +441,7 @@ void pySpParMatObj2::Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionO
 	if (uf == NULL)
 		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity));
 	else
-		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity), *uf);
+		A.Reduce(ret->v, (Dim)dim, *bf, doubleint(identity), uf->getRetDoubleVersion());
 	bf->releaseMPIOp();
 }
 

@@ -17,7 +17,7 @@ struct doubleint
 {
 	double d;
 	
-	doubleint():					d(0) {}
+	doubleint():					d(-1) {}
 	doubleint(double v):			d(v) {}
 	doubleint(const doubleint & v):	d(v.d) {}
 	

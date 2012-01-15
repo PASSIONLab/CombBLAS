@@ -168,34 +168,24 @@ class DiGraph(gr.Graph):
 		return isinstance(self._identity_, bool)
 
 	# in-place, so no return value
-	# NEEDED: update to new fields
 	# NEEDED: tests
 	def addEFilter(self, filter):
 		"""
-		adds a vertex filter to the DiGraph instance.  
-
-		A vertex filter is a Python function that is applied elementally
-		to each vertex in the DiGraph, with a Boolean True return value
-		causing the vertex to be considered and a False return value
-		causing it not to be considered.
-
-		Vertex filters are additive, in that each vertex must pass all
-		filters to be considered.  All vertex filters are executed before
-		a vertex is considered in a computation.
-#FIX:  how is an argument passed to the function?
-
-		Input Arguments:
-			self:  a DiGraph instance
-			filter:  a Python function
+		adds an edge filter to the DiGraph instance.  
 
 		SEE ALSO:
 			delEFilter  
 		"""
-		if hasattr(self, '_eFilter_'):
-			self._eFilter_.append(filter)
-		else:
-			self._eFilter_ = [filter]
-		return
+		self.e.addFilter(filter)
+
+	def addVFilter(self, filter):
+		"""
+		adds a vertex filter to the DiGraph instance.  
+
+		SEE ALSO:
+			delVFilter  
+		"""
+		self.v.addFilter(filter)
 		
 	def contract(self, groups=None, clusterParents=None):
 		"""

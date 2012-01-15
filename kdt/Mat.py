@@ -947,30 +947,33 @@ class Mat:
 
 		#if self._hasFilter() or other._hasFilter():
 		#	raise NotImplementedError, "this operation does not support filters yet"
-
-		#if self._hasFilter() or other._hasFilter():
-		if self._hasFilter() and not other._hasFilter():
-			selfPred = FilterHelper.getFilterPred(self)
-			if selfPred is None:
-				selfPred = lambda x: True
-
-			otherPred = FilterHelper.getFilterPred(other)
-			if otherPred is None:
-				otherPred = lambda x: True
+		
+		if other._hasFilter():
+			raise NotImplementedError, "this operation does not support filters yet"
 			
-			class tmpMul:
-				filterA = selfPred
-				filterB = otherPred
-				nullval = self._identity_
-				origMulFunc = _sr_get_python_mul(semiring)
-				@staticmethod
-				def fn(x, y):
-					if tmpMul.filterA(x) and tmpMul.filterB(y):
-						return tmpMul.origMulFunc(x, y)
-					else:
-						return tmpMul.nullval
-			tmpMulInstance = tmpMul()
-			semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
+		if False:
+			if self._hasFilter() or other._hasFilter():
+				selfPred = FilterHelper.getFilterPred(self)
+				if selfPred is None:
+					selfPred = lambda x: True
+	
+				otherPred = FilterHelper.getFilterPred(other)
+				if otherPred is None:
+					otherPred = lambda x: True
+				
+				class tmpMul:
+					filterA = selfPred
+					filterB = otherPred
+					nullval = self._identity_
+					origMulFunc = _sr_get_python_mul(semiring)
+					@staticmethod
+					def fn(x, y):
+						if tmpMul.filterA(x) and tmpMul.filterB(y):
+							return tmpMul.origMulFunc(x, y)
+						else:
+							return tmpMul.nullval
+				tmpMulInstance = tmpMul()
+				semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
 
 		# the operation itself
 		if inPlace:

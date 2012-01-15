@@ -13,11 +13,20 @@ if (len(sys.argv) < 2):
 inmatrixfile = sys.argv[1]
 nstarts = 64
 
+#def twitterMul(e, f):
+#	if e.count > 0 and e.latest > 946684800 and e.latest < 1249084800:
+#		return f
+#	else:
+#		return -1
+
+
+def twitterEdgeFilter(e):
+#	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
+	return e.follower == 0
+
+# doubleint() constructor returns -1 now
 def twitterMul(e, f):
-	if e.count > 0 and e.latest > 946684800 and e.latest < 1249084800:
-		return f
-	else:
-		return -1
+	return f
 
 def twitterAdd(f1, f2):
 	if f2 == -1:
@@ -25,7 +34,7 @@ def twitterAdd(f1, f2):
 	return f2
 
 def bfsTreeTwitter(self, root):
-	sR = kdt.sr(twitterAdd, twitterMul)
+	sR = kdt.sr(twitterAdd, twitterMul, twitterEdgeFilter, None)
 
 	parents = kdt.Vec(self.nvert(), -1, sparse=False)
 	frontier = kdt.Vec(self.nvert(), sparse=True)
@@ -47,22 +56,25 @@ kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 print "Reading network from",inmatrixfile
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 
-#print G
+print G
+G.addEFilter(twitterEdgeFilter)
+print G
 
 print "Generating starting verts"
-#degrees = G.degree()
-#temporary:
-def obj2p(x, y):
-	x.count += y.count
-	return x
-
-def obj2setto1(x):
-	x.count = 1
-	return x
-degreesObj = G.e.reduce(kdt.DiGraph.Out, obj2p, uniOp=obj2setto1, init=kdt.Obj2())
-degrees = kdt.Vec(len(degreesObj), sparse=False)
-degrees.eWiseApply(degreesObj, lambda d, o: int(o.count), inPlace=True)
-#end temporary
+degrees = G.degree()
+if False:
+	#temporary:
+	def obj2p(x, y):
+		x.count += y.count
+		return x
+	
+	def obj2setto1(x):
+		x.count = 1
+		return x
+	degreesObj = G.e.reduce(kdt.DiGraph.Out, obj2p, uniOp=obj2setto1, init=kdt.Obj2())
+	degrees = kdt.Vec(len(degreesObj), sparse=False)
+	degrees.eWiseApply(degreesObj, lambda d, o: int(o.count), inPlace=True)
+	#end temporary
 
 #deg3verts = (degrees > 2).findInds()
 deg3verts = (degrees > 0).findInds()

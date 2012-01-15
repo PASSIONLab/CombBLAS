@@ -54,6 +54,31 @@ class UnaryPredicateObj_Python {
 	~UnaryPredicateObj_Python() { /*Py_XDECREF(callback);*/ }
 };
 
+// This class is meant to enable type conversion (for example in Reduce).
+// Yes it only allows changing to double, but that will be expanded in the future.
+class UnaryDoubleFunctionObj_Python {
+	public:
+	PyObject *callback;
+	UnaryDoubleFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
+
+	template <class T>
+	double call(const T& x) const;
+
+	double callD(const double& x) const;
+
+	double operator()(const Obj2& x) const { return call(x); }
+	double operator()(const Obj1& x) const { return call(x); }
+	double operator()(const double& x) const { return callD(x); }
+	
+	UnaryDoubleFunctionObj_Python() { // should never be called
+		printf("UnaryDoubleFunctionObj_Python()!!!\n");
+		callback = NULL;
+	}
+
+	public:
+	~UnaryDoubleFunctionObj_Python() { /*Py_XDECREF(callback);*/ }
+};
+
 class UnaryFunctionObj_Python {
 	public:
 	PyObject *callback;
@@ -203,6 +228,8 @@ class UnaryFunctionObj {
 	UnaryFunctionObj_WorkerType worker;
 	
 	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { }
+	
+	UnaryDoubleFunctionObj_Python getRetDoubleVersion() { return UnaryDoubleFunctionObj_Python(worker.callback); }
 
 //INTERFACE_INCLUDE_BEGIN
 	Obj2 operator()(const Obj2& x) const { return worker(x); }
@@ -262,6 +289,54 @@ inline double UnaryFunctionObj_Python::callD(const double& x) const
 		return 0;
 	}
 }
+/////////////////////////////
+
+template <class T>
+double UnaryDoubleFunctionObj_Python::call(const T& x) const
+{
+	PyObject *resultPy;
+	T *pret;	
+
+	T tempObj = x;
+	PyObject *tempSwigObj = SWIG_NewPointerObj(&tempObj, T::SwigTypeInfo, 0);
+	PyObject *vertexArgList = Py_BuildValue("(O)", tempSwigObj);
+	
+	resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(tempSwigObj);
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		double dres = PyFloat_AsDouble(resultPy);
+		Py_XDECREF(resultPy);
+		return dres;
+	} else
+	{
+		cerr << "UnaryDoubleFunctionObj_Python::operator(T) FAILED!" << endl;
+		throw doubleint();
+		return T();
+	}
+}
+
+inline double UnaryDoubleFunctionObj_Python::callD(const double& x) const
+{
+	PyObject *vertexArgList = Py_BuildValue("(d)", x);
+	PyObject *resultPy = PyEval_CallObject(callback,vertexArgList);  
+
+	Py_XDECREF(vertexArgList);
+	if (resultPy) {
+		double dres = PyFloat_AsDouble(resultPy);
+		Py_XDECREF(resultPy);
+		return dres;
+	} else
+	{
+		cerr << "UnaryDoubleFunctionObj_Python::operator(double) FAILED!" << endl;
+		throw doubleint();
+		return 0;
+	}
+}
+
+
+/////////////////////////////
 
 // This function is identical to UnaryFunctionObj_Python::call() except that it returns a boolean instead
 // of an object. Please keep the actual calling method the same if you make any changes.
@@ -679,6 +754,8 @@ class SemiringObj {
 	
 	BinaryFunctionObj *binfunc_add;
 	BinaryFunctionObj *binfunc_mul;
+	UnaryPredicateObj* left_filter;
+	UnaryPredicateObj* right_filter;
 	template <class T1, class T2, class OUT>
 	friend struct SemiringObjTemplArg;
 	
@@ -689,7 +766,7 @@ class SemiringObj {
 	void disableSemiring();
 	
 	public:
-	SemiringObj(SRingType t): type(t)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {
+	SemiringObj(SRingType t): type(t)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {
 		//if (t == CUSTOM)
 			// scream bloody murder
 	}
@@ -698,9 +775,9 @@ class SemiringObj {
 	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {}
 	public:
-	SemiringObj(PyObject *add, PyObject *multiply);
+	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
 	~SemiringObj();
 	
 	PyObject* getAddCallback() const { return binfunc_add != NULL ? binfunc_add->getCallback() : NULL; }
@@ -735,6 +812,16 @@ struct SemiringObjTemplArg
 	
 	static OUT multiply(const T1 & arg1, const T2 & arg2)
 	{
+		// see if we do filtering here
+		if (SemiringObj::currentlyApplied->left_filter != NULL || SemiringObj::currentlyApplied->right_filter != NULL)
+		{
+			// filter the left parameter
+			if (SemiringObj::currentlyApplied->left_filter != NULL && !(*(SemiringObj::currentlyApplied->left_filter))(arg1))
+				return id();
+			// filter the right parameter
+			if (SemiringObj::currentlyApplied->right_filter != NULL && !(*(SemiringObj::currentlyApplied->right_filter))(arg2))
+				return id();
+		}
 		return SemiringObj::currentlyApplied->binfunc_mul->rettype2nd_call(arg1, arg2);
 	}
 	
