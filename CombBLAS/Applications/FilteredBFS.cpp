@@ -71,7 +71,9 @@ int main(int argc, char* argv[])
 
 		// Declare objects
 		PSpMat_Twitter A;	
-		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
+		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 
 		if(string(argv[1]) == string("Text")) // text input option
@@ -83,38 +85,27 @@ int main(int argc, char* argv[])
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
 
-			A.Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
-			int64_t removed  = A.RemoveLoops();
-
-			ostringstream loopinfo;
-			loopinfo << "Calculated degrees and removed " << removed << " loops" << endl;
-			SpParHelper::Print(loopinfo.str());
-			A.PrintInfo();
-
 			PSpMat_Bool * ABool = new PSpMat_Bool(A);
-			FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
-			FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
-			ABool->Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			ColSums->DebugPrint();
-			RowSums->DebugPrint();
-			ColSums->EWiseApply(*RowSums, plus<int64_t>());
+			ABool->PrintInfo();
+			ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			degrees = indegrees;	
+			degrees.EWiseApply(oudegrees, plus<int64_t>());
+			SpParHelper::Print("All degrees calculated\n");
 			delete ABool;
-			delete RowSums;
 
-			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
-			delete ColSums;
-
-			// Only permute the release case, debug should intact for verification
-#ifndef DEBUG
+#ifdef PERMUTEFORBALANCE
+			nonisov = oudegrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			nonisov.DebugPrint();
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 
-			degrees = degrees(nonisov);	// fix the degrees array too
-			degrees.PrintInfo("Degrees array");
+			indegrees = indegrees(nonisov);	// fix the degrees array too
+			oudegrees = oudegrees(nonisov);	// fix the degrees array too
+			indegrees.PrintInfo("In degrees array");
+			oudegrees.PrintInfo("Out degrees array");
 #endif
 			
 			A.PrintInfo();
@@ -189,40 +180,49 @@ int main(int argc, char* argv[])
 				{
 					fringe.ApplyInd(NumSetter);
 					fringe.PrintInfo("fringe before SpMV");
-					fringe.DebugPrint();
+					//fringe.DebugPrint();
 
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-					fringe.PrintInfo("fringe after SpMV");
-					fringe.DebugPrint();
+					//fringe.PrintInfo("fringe after SpMV");
+					//fringe.DebugPrint();
 
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
 					fringe.PrintInfo("fringe after cleanup");
-					fringe.DebugPrint();
+					//fringe.DebugPrint();
 
 					
 					parents += fringe;
-					parents.PrintInfo("Parents after addition");
-					parents.DebugPrint();
+					//parents.PrintInfo("Parents after addition");
+					//parents.DebugPrint();
 					iterations++;
 					MPI::COMM_WORLD.Barrier();
 				}
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();
 	
-			/*
-				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
-				parentsp.Apply(set<int64_t>(1));
+			
+				FullyDistSpVec<int64_t, ParentType> parentsp = parents.Find(isparentset());
+				parentsp.Apply(set<ParentType>(ParentType(1)));
 	
 				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
-				int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
+				FullyDistSpVec<int64_t, int64_t> intraversed = EWiseApply<int64_t>(parentsp, degrees, seldegree(), passifthere(), true, ParentType());
+				FullyDistSpVec<int64_t, int64_t> outraversed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
+				intraversed.PrintInfo("Incoming edges traversed per vertex");
+				//intraversed.DebugPrint();
+				outraversed.PrintInfo("Outgoing edges traversed per vertex");
+				//outraversed.DebugPrint();
+				
+				int64_t in_nedges = intraversed.Reduce(plus<int64_t>(), (int64_t) 0);
+				int64_t ou_nedges = outraversed.Reduce(plus<int64_t>(), (int64_t) 0);
+				int64_t nedges = in_nedges + ou_nedges;	// count birectional edges twice
 	
 				ostringstream outnew;
 				outnew << i << "th starting vertex was " << Cands[i] << endl;
 				outnew << "Number iterations: " << iterations << endl;
-				outnew << "Number of vertices found: " << parentsp.Reduce(plus<int64_t>(), (int64_t) 0) << endl; 
+				outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
 				outnew << "Number of edges traversed: " << nedges << endl;
 				outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 				outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
@@ -231,7 +231,6 @@ int main(int argc, char* argv[])
 				EDGES[i] = nedges;
 				MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;
 				SpParHelper::Print(outnew.str());
-			*/
 			}
 			SpParHelper::Print("Finished\n");
 			ostringstream os;

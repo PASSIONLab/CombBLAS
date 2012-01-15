@@ -506,7 +506,12 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
 				#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
 				typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
-				while(begfinger != spSeq->endcol())
+				
+				// ABAB: What if this processor has an empty submatrix? (i.e. begfinger is spSeq->endcol())
+				// Then the collective Reduce calls below would hang without the first "begfinger == spSeq->begcol()" check.
+				// This extra check does no harm for larger matrices as it will fail after the first iteration
+				// All it does it to make sure the loop iterates at least once.
+				while(begfinger == spSeq->begcol() || begfinger != spSeq->endcol())
 				{
 					vector<typename DER::SpColIter::NzIter> nziters;
 					typename DER::SpColIter curfinger = begfinger; 
