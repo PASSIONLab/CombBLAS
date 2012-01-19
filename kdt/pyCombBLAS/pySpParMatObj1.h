@@ -54,8 +54,7 @@ public:
 	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
 	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
 	//pySpParMatObj1 operator*(pySpParMatObj1& other);
-#define NOPARMATSUBSREF
-	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatObj1 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();

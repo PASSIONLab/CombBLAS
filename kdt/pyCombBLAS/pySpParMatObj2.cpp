@@ -366,14 +366,17 @@ pySpParMatObj2 pySpParMatObj2::__getitem__(const pyDenseParVec& rows, const pyDe
 	return SubsRef(rows, cols);
 }
 
-pySpParMatObj2 pySpParMatObj2::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols)
+pySpParMatObj2 pySpParMatObj2::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace)
 {
-#ifdef NOPARMATSUBSREF
-	cout << "pySpParMatObj2::SubsRef() not implemented!" << endl;
-	return copy();
-#else
-	return pySpParMatObj2(A(rows.v, cols.v));
-#endif
+	if (inPlace)
+	{
+		A(rows.v, cols.v, true);
+		return pySpParMatObj2();
+	}
+	else
+	{
+		return pySpParMatObj2(A(rows.v, cols.v, false));
+	}
 }
 	
 int64_t pySpParMatObj2::removeSelfLoops()

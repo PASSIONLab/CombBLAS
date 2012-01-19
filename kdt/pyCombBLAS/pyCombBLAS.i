@@ -94,7 +94,7 @@ public:
 	pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
 	//pySpParMat SpGEMM(pySpParMat& other, op::SemiringObj* sring = NULL);
 	pySpParMat operator*(pySpParMat& other);
-	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();
@@ -181,7 +181,7 @@ public:
 	pySpParMatBool& assign(const pySpParMatBool& other);
 	pySpParMatBool SpGEMM(pySpParMatBool& other);
 	pySpParMatBool operator*(pySpParMatBool& other);
-	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();
@@ -244,8 +244,8 @@ public:
 	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
 	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
 	//pySpParMatObj1 operator*(pySpParMatObj1& other);
-#define NOPARMATSUBSREF
-	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+//#define NOPARMATSUBSREF
+	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatObj1 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();
@@ -320,8 +320,8 @@ public:
 	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
 	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
 	//pySpParMatObj2 operator*(pySpParMatObj2& other);
-#define NOPARMATSUBSREF
-	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols);
+//#define NOPARMATSUBSREF
+	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatObj2 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
 	int64_t removeSelfLoops();

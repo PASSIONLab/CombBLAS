@@ -242,9 +242,17 @@ pySpParMatBool pySpParMatBool::__getitem__(const pyDenseParVec& rows, const pyDe
 	return SubsRef(rows, cols);
 }
 
-pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols)
+pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace)
 {
-	return pySpParMatBool( A(rows.v, cols.v) );
+	if (inPlace)
+	{
+		A(rows.v, cols.v, true);
+		return pySpParMatBool();
+	}
+	else
+	{
+		return pySpParMatBool(A(rows.v, cols.v));
+	}
 }
 	
 int64_t pySpParMatBool::removeSelfLoops()

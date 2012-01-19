@@ -18,6 +18,97 @@ struct inf_plus{
   }
 };
 
+// This semiring is used in indexing (SpParMat::operator())
+template <class OUT>
+struct BoolCopy2ndSRing
+{
+	static OUT id() { return OUT(); }
+	static OUT add(const OUT & arg1, const OUT & arg2)
+	{
+		cout << "Add should not happen (BoolCopy2ndSRing)!" << endl;
+		throw std::string("Add should not happen!");
+		std::exit(1);
+		return arg2;
+	}
+	static const OUT& multiply(bool arg1, const OUT & arg2)
+	{
+		return arg2;
+	}
+	static void axpy(bool a, const OUT & x, OUT & y)
+	{
+		y = multiply(a, x);
+	}
+
+	static MPI_Op mpi_op()
+	{
+		static MPI_Op mpiop;
+		static bool exists = false;
+		if (exists)
+			return mpiop;
+		else
+		{
+			MPI_Op_create(MPI_func, true, &mpiop);
+			exists = true;
+			return mpiop;
+		}
+	}
+
+	static void MPI_func(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+	{
+		if (*len > 0)
+		{
+			cout << "MPI Add should not happen (BoolCopy2ndSRing)!" << endl;
+			std::exit(1);
+		}
+	}
+};
+
+// This semiring is used in indexing (SpParMat::operator())
+template <class OUT>
+struct BoolCopy1stSRing
+{
+	static OUT id() { return OUT(); }
+	static OUT add(const OUT & arg1, const OUT & arg2)
+	{
+		cout << "Add should not happen (BoolCopy1stSRing)!" << endl;
+		throw std::string("Add should not happen!");
+		std::exit(1);
+		return arg2;
+	}
+	static const OUT& multiply(const OUT & arg1, bool arg2)
+	{
+		return arg1;
+	}
+	static void axpy(const OUT& a, bool x, OUT & y)
+	{
+		y = multiply(a, x);
+	}
+
+	static MPI_Op mpi_op()
+	{
+		static MPI_Op mpiop;
+		static bool exists = false;
+		if (exists)
+			return mpiop;
+		else
+		{
+			MPI_Op_create(MPI_func, true, &mpiop);
+			exists = true;
+			return mpiop;
+		}
+	}
+
+	static void MPI_func(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+	{
+		if (*len > 0)
+		{
+			cout << "MPI Add should not happen (BoolCopy1stSRing)!" << endl;
+			std::exit(1);
+		}
+	}
+};
+
+
 
 template <class T1, class T2, class OUT>
 struct Select2ndSRing

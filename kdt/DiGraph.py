@@ -15,6 +15,7 @@ class DiGraph(gr.Graph):
 	# Traversing a matrix column will give the vertex's outgoing edges.
 	In  = Mat.Row
 	Out = Mat.Column
+	All = Mat.All
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
@@ -355,18 +356,20 @@ class DiGraph(gr.Graph):
 		Input Arguments:
 			self:  a DiGraph instance
 			dir:  a direction of edges to count, with choices being
-			    DiGraph.Out (default) or DiGraph.In.
+			    DiGraph.Out (default), DiGraph.In or DiGraph.All.
 
 		Output Argument:
-			ret:  a ParVec instance with each element containing the
-			    degree of the weights of the corresponding vertex.
+			ret:  a dense Vec instance with each element containing the
+			    degree of the corresponding vertex.
 
 		SEE ALSO:  sum 
 		"""
-		if dir != DiGraph.In and dir != DiGraph.Out:
+		if dir == DiGraph.In or dir == DiGraph.Out:
+			return self.e.reduce(dir, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0)
+		elif dir == DiGraph.All:
+			return self.degree(DiGraph.In) + self.degree(DiGraph.Out)
+		else:
 			raise KeyError, 'Invalid edge-direction'
-		
-		return self.e.reduce(dir, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0)
 		
 	# NEEDED: update to new fields
 	# NEEDED: tests
@@ -406,6 +409,22 @@ class DiGraph(gr.Graph):
 		if self.nvert() > 0:
 			self.e.removeMainDiagonal()
 		return
+	
+	def delIsolatedVerts(self, loadBalance=True):
+		"""
+		removes all vertices with no incoming our outgoing edges. Optionally
+
+		Input Argument:
+			self:  a DiGraph instance, modified in-place.
+		"""
+		
+		deg = self.degree(DiGraph.All)
+		nonisov = deg.findInds(lambda x: x > 0)
+		if loadBalance:
+			nonisov.randPerm()
+		
+		self.e[nonisov, nonisov, True]
+		self.v = self.v[nonisov]
 
 	def addSelfLoops(self, selfLoopAttr=1):
 		"""
