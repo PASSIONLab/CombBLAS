@@ -711,7 +711,7 @@ class Mat:
 				- an integer scalar
 				- the ":" slice denoting all vertices, represented
 				  as slice(None,None,None)
-				- a ParVec object containing a contiguous range
+				- a Vec object containing a contiguous range
 				  of monotonically increasing integers 
 		
 		Output Argument:
@@ -721,15 +721,16 @@ class Mat:
 		SEE ALSO:  subgraph
 		"""
 		
-		if self._hasMaterializedFilter():
-			return self._materialized.__getitem__(key)
-			
+		inPlace = False
+		
 		#ToDo:  accept slices for key0/key1 besides ParVecs
 		if type(key)==tuple:
 			if len(key)==1:
 				[key0] = key; key1 = -1
 			elif len(key)==2:
 				[key0, key1] = key
+			elif len(key)==3:
+				[key0, key1, inPlace] = key
 			else:
 				raise KeyError, 'Too many indices'
 		else:
@@ -742,6 +743,8 @@ class Mat:
 			tmp = Vec(1)
 			tmp[0] = key1
 			key1 = tmp
+		if type(inPlace) != bool:
+			raise KeyError, 'inPlace argument must be a boolean!'
 		#if type(key0)==slice and key0==slice(None,None,None):
 		#	key0mn = 0; 
 		#	key0tmp = self.nvert()
@@ -757,8 +760,16 @@ class Mat:
 		#	else:
 		#		key1mx = key1tmp - 1
 		
-		ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_))
-		return ret
+
+		if inPlace:
+			self._m_.SubsRef(key0._v_, key1._v_, inPlace)
+			self._dirty()
+		else:
+			if self._hasMaterializedFilter():
+				return self._materialized.__getitem__(key)
+
+			ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_, inPlace))
+			return ret
 		
 	# TODO: make a _keep() which reverses the predicate
 	def _prune(self, pred):

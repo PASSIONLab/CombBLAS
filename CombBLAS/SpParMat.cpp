@@ -687,8 +687,10 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 {
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
-	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
-	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+	//typedef PlusTimesSRing<NT, bool> PTNTBOOL;
+	//typedef PlusTimesSRing<bool, NT> PTBOOLNT;
+	typedef BoolCopy1stSRing<NT> PTNTBOOL;
+	typedef BoolCopy2ndSRing<NT> PTBOOLNT;
 
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
