@@ -61,7 +61,7 @@ public:
 	
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
-	void Prune(op::UnaryPredicateObj* pred);
+	pySpParMatObj1 Prune(op::UnaryPredicateObj* pred, bool inPlace);
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!

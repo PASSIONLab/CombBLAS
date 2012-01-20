@@ -259,18 +259,36 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 
 template <class IT, class NT>
 template <typename _UnaryOperation>
-void SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op)
+SpDCCols<IT,NT>* SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op, bool inPlace)
 {
 	if(nnz > 0)
 	{
-		dcsc->Prune (__unary_op);
-		nnz = dcsc->nz;
-
-		if(nnz == 0) 
-		{	
-			delete dcsc;
-			dcsc = NULL;
+		Dcsc<IT,NT>* ret = dcsc->Prune (__unary_op, inPlace);
+		if (inPlace)
+		{
+			nnz = dcsc->nz;
+	
+			if(nnz == 0) 
+			{	
+				delete dcsc;
+				dcsc = NULL;
+			}
+			return NULL;
 		}
+		else
+		{
+			// wrap the new pruned Dcsc into a new SpDCCols
+			SpDCCols<IT,NT>* retcols = new SpDCCols<IT, NT>();
+			retcols->dcsc = ret;
+			retcols->nnz = retcols->dcsc->nz;
+			retcols->n = n;
+			retcols->m = m;
+			return retcols;
+		}
+	}
+	else
+	{
+		return new SpDCCols<IT,NT>();
 	}
 }
 

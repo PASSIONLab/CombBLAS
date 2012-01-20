@@ -493,7 +493,7 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 
 template <class IT, class NT>
 template <typename _UnaryOperation>
-void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
+Dcsc<IT,NT>* Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op, bool inPlace)
 {
 	// Two-pass algorithm
 	IT prunednnz = 0;
@@ -543,10 +543,33 @@ void Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op)
 	}
 	assert(cnzc == prunednzc);
 	assert(cnnz == prunednnz);
-	// delete the memory pointed by previous pointers
-	DeleteAll(oldnumx, oldir, oldjc, oldcp);
-	nz = cnnz;
-	nzc = cnzc;
+	if (inPlace)
+	{
+		// delete the memory pointed by previous pointers
+		DeleteAll(oldnumx, oldir, oldjc, oldcp);
+		nz = cnnz;
+		nzc = cnzc;
+		return NULL;
+	}
+	else
+	{
+		// create a new object to store the data
+		Dcsc<IT,NT>* ret = new Dcsc<IT,NT>();
+		ret->cp = cp; 
+		ret->jc = jc;
+		ret->ir = ir;	
+		ret->numx = numx;
+		ret->nz = cnnz;
+		ret->nzc = cnzc;
+
+		// put the previous pointers back		
+		cp = oldcp;
+		jc = oldjc;
+		ir = oldir;
+		numx = oldnumx;
+		
+		return ret;
+	}
 }
 
 template <class IT, class NT>

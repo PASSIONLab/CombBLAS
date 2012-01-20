@@ -249,7 +249,7 @@ Obj2 pySpParVecObj2::__getitem__(int64_t key)
 	
 	if (!v.WasFound())
 	{
-		//cout << "Element " << key << " not found." << endl;
+		throw NotFoundError();
 	}
 	
 	return val;

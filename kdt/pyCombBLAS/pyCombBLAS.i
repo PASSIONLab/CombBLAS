@@ -103,7 +103,7 @@ public:
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
-	void Prune(op::UnaryFunction* f);
+	pySpParMat Prune(op::UnaryFunction* f, bool inPlace);
 	void Prune(op::UnaryPredicateObj* f);
 	int64_t Count(op::UnaryFunction* pred);
 	
@@ -188,7 +188,7 @@ public:
 	
 	void Apply(op::UnaryFunction* f);
 	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
-	void Prune(op::UnaryFunction* f);
+	pySpParMatBool Prune(op::UnaryFunction* f, bool inPlace);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -251,7 +251,7 @@ public:
 	
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
-	void Prune(op::UnaryPredicateObj* pred);
+	pySpParMatObj1 Prune(op::UnaryPredicateObj* pred, bool inPlace);
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -326,7 +326,7 @@ public:
 	
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj2& values, op::BinaryFunctionObj* f);
-	void Prune(op::UnaryPredicateObj* pred);
+	pySpParMatObj2 Prune(op::UnaryPredicateObj* pred, bool inPlace);
 	int64_t Count(op::UnaryPredicateObj* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -1289,6 +1289,8 @@ int _nprocs();
 void prnt(const char* str);
 
 void testFunc(double (*f)(double));
+
+class NotFoundError {};
 
 class EWiseArg
 {

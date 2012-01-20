@@ -271,9 +271,17 @@ class Vec(object):
 			if key < 0 or key > len(self)-1:
 				raise IndexError
 			
-			ret = self._v_[key]
+			try:
+				ret = self._v_[key]
+			except:
+				# not found in a sparse vector
+				ret = None
+			
 			if self._hasFilter() and not FilterHelper.getFilterPred(self)(ret):
-				ret = self._identity_
+				if self.isSparse():
+					ret = None
+				else:
+					ret = self._identity_
 
 			return ret
 		else:
@@ -412,8 +420,7 @@ class Vec(object):
 
 		SEE ALSO:  print, __repr__
 		"""
-		self._v_.printall()
-		return ' '
+		p(str(self))
 
 	def randPerm(self):
 		"""
@@ -516,30 +523,46 @@ class Vec(object):
 	# NEEDED: filters
 	def __repr__(self):
 		"""
-		prints the first N elements of the SpParVec instance, where N
-		is roughly equal to the value of self._REPR_MAX.
+		returns a string representation of this Vec instance.
 
 		SEE ALSO:  printAll
 		"""
-		if hasattr(self,'_v_'):
-			self._v_.printall()
-		else:
+		if not hasattr(self,'_v_'):
 			return "Vec with no _v_"
-		return ' '
-		#TODO:  limit amount of printout?
-		nPrinted = 0
-		i = 0
-		while i < len(self) and nPrinted < self._REPR_MAX:
-			#HACK check for nonnull
-			#ToDo: return string instead of printing here
-			print "__repr__ loop,", self[i]
-			if self[i].weight > info.eps or self[i].category!=0:
-				print self[i]
-				nPrinted += 1
-			i += 1
-		if i < len(self)-1 and master():
-			print "Limiting print-out to first %d elements" % self._REPR_MAX
-		return ' '
+
+		ret = "length=%d, "%len(self)
+		if self.isSparse():
+			ret += "sparse, ["
+		else:
+			ret += "dense, ["
+			
+		if len(self) > self._REPR_MAX:
+			ret += " *too many to print* ]"
+			return ret
+			
+		if self.isSparse():
+			first = True
+			for i in range(len(self._v_)):
+				val = self[i]
+				if val is not None:
+					if not first:
+						ret += ", "
+					else:
+						first = False
+					
+					ret += "%d => %s"%(i, str(val))
+		else:
+			first = True
+			for i in range(len(self._v_)):
+				if not first:
+					ret += ", "
+				else:
+					first = False
+				
+				ret += str(self[i])
+
+		ret += "]"
+		return ret
 	
 	def __setitem__(self, key, value):
 		"""

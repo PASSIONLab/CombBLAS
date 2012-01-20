@@ -277,9 +277,9 @@ pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::
 	return pySpParMatBool( EWiseApply<bool, pySpParMatBool::DCColsType>(A.A, B.A, *bf, notB, bool(defaultBValue)) );
 }
 
-void pySpParMatBool::Prune(op::UnaryFunction* op)
+pySpParMatBool pySpParMatBool::Prune(op::UnaryFunction* op, bool inPlace)
 {
-	A.Prune(*op);
+	return pySpParMatBool(A.Prune(*op, inPlace));
 }
 
 int64_t pySpParMatBool::Count(op::UnaryFunction* pred)

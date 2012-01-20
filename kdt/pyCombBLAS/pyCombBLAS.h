@@ -91,6 +91,8 @@ void prnt(const char* str);
 
 void testFunc(double (*f)(double));
 
+class NotFoundError {};
+
 class EWiseArg
 {
 	public:

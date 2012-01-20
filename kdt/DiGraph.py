@@ -73,9 +73,8 @@ class DiGraph(gr.Graph):
 
 	# NEEDED: tests
 	def __repr__(self):
-		ret = "edge Mat: " + self.e.__repr__() + "\nvertex Vec: " #+ self.v.__repr__()
-		print ret, self.v.__repr__()
-		return ""
+		ret = "edge Mat: " + self.e.__repr__() + "\nvertex attribute Vec: " + self.v.__repr__()
+		return ret
 	
 
 	#in-place, so no return value
@@ -376,7 +375,7 @@ class DiGraph(gr.Graph):
 	# in-place, so no return value
 	def delEFilter(self, filter=None):
 		"""
-		deletes a vertex filter from the DiGraph instance.  
+		deletes an edge filter from the DiGraph instance.  
 
 		Input Arguments:
 			self:  a DiGraph instance
@@ -388,13 +387,7 @@ class DiGraph(gr.Graph):
 		SEE ALSO:
 			addEFilter  
 		"""
-		if not hasattr(self, '_eFilter_'):
-			raise KeyError, "no edge filters previously created"
-		if filter is None:
-			del self._eFilter_	# remove all filters
-		else:
-			self._eFilter_.remove(filter)
-		return
+		self.e.delFilter(filter)
 
 	# in-place, so no return value
 	def removeSelfLoops(self):

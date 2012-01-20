@@ -63,7 +63,7 @@ public:
 	
 	void Apply(op::UnaryFunction* f);
 	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
-	void Prune(op::UnaryFunction* f);
+	pySpParMatBool Prune(op::UnaryFunction* f, bool inPlace);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
