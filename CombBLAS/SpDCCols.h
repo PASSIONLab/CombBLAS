@@ -228,6 +228,7 @@ public:
 	IT getnrow() const { return m; }
 	IT getncol() const { return n; }
 	IT getnnz() const { return nnz; }
+	IT getnzc() const { return (nnz == 0) ? 0: dcsc->nzc; }
 	int getnsplit() const { return splits; }
 	
 	ofstream& put(ofstream & outfile) const;

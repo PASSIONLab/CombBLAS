@@ -499,19 +499,19 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				//oput << "Maximum size: " << rvec.arr.max_size() << endl;
 				//oput << "Resizing to : " << loclens[rowrank] << endl;
 				//oput.close();
-
 				rvec.arr.resize(loclens[rowrank], id);
 
-				// keeping track of all nonzero iterators withing column at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
+				// keeping track of all nonzero iterators within columns at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
 				// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
 				#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
 				typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
 				
-				// ABAB: What if this processor has an empty submatrix? (i.e. begfinger is spSeq->endcol())
-				// Then the collective Reduce calls below would hang without the first "begfinger == spSeq->begcol()" check.
-				// This extra check does no harm for larger matrices as it will fail after the first iteration
-				// All it does it to make sure the loop iterates at least once.
-				do //while(begfinger == spSeq->begcol() || begfinger != spSeq->endcol())
+				// Each processor on the same processor row should execute the SAME number of reduce calls
+				int numreducecalls = spSeq->getnzc() / MAXCOLUMNBATCH;
+				int maxreducecalls;
+				(commGrid->GetRowWorld()).Allreduce( &numreducecalls, &maxreducecalls, 1, MPI::INT, MPI::MAX);
+				
+				for(int k=0; k< maxreducecalls; ++k)
 				{
 					vector<typename DER::SpColIter::NzIter> nziters;
 					typename DER::SpColIter curfinger = begfinger; 
@@ -549,7 +549,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 						delete [] sendbuf;
 					}
 					begfinger = curfinger;	// set the next begfilter
-				} while((begfinger == spSeq->begcol() || begfinger != spSeq->endcol()) && spSeq->begcol() != spSeq->endcol());
+				}
 				DeleteAll(loclens, lensums);	
 			}
 			catch (length_error& le) 

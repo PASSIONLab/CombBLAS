@@ -35,7 +35,7 @@ int cblas_splits = 1;
 
 #define MAX_ITERS 512
 #define ITERS 16 
-#define CC_LIMIT 100
+#define CC_LIMIT 3
 #define PERMUTEFORBALANCE
 using namespace std;
 
@@ -160,11 +160,10 @@ int main(int argc, char* argv[])
 		{
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
-			MPI_Pcontrol(1,"BFS");
 
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
 			int sruns = 0;		// successful runs
-			for(int i=0; i<MAX_ITERS, sruns < ITERS; ++i)
+			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
 			{
 
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
@@ -246,7 +245,6 @@ int main(int argc, char* argv[])
 				MPI::Finalize();
 			}
 			ostringstream os;
-			MPI_Pcontrol(-1,"BFS");
 			
 			os << sruns << " valid runs done" << endl;
 			os << "Per iteration communication times: " << endl;
