@@ -511,7 +511,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				// Then the collective Reduce calls below would hang without the first "begfinger == spSeq->begcol()" check.
 				// This extra check does no harm for larger matrices as it will fail after the first iteration
 				// All it does it to make sure the loop iterates at least once.
-				while(begfinger == spSeq->begcol() || begfinger != spSeq->endcol())
+				do //while(begfinger == spSeq->begcol() || begfinger != spSeq->endcol())
 				{
 					vector<typename DER::SpColIter::NzIter> nziters;
 					typename DER::SpColIter curfinger = begfinger; 
@@ -549,7 +549,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 						delete [] sendbuf;
 					}
 					begfinger = curfinger;	// set the next begfilter
-				}
+				} while((begfinger == spSeq->begcol() || begfinger != spSeq->endcol()) && spSeq->begcol() != spSeq->endcol());
 				DeleteAll(loclens, lensums);	
 			}
 			catch (length_error& le) 
