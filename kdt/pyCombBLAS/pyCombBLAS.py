@@ -708,6 +708,21 @@ root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs
 prnt = _pyCombBLAS.prnt
 testFunc = _pyCombBLAS.testFunc
+class NotFoundError(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, NotFoundError, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, NotFoundError, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_NotFoundError(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_NotFoundError
+    __del__ = lambda self : None;
+NotFoundError_swigregister = _pyCombBLAS.NotFoundError_swigregister
+NotFoundError_swigregister(NotFoundError)
+
 class EWiseArg(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, EWiseArg, name, value)

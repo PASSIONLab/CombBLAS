@@ -362,9 +362,9 @@ pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFu
 }
 
 
-void pySpParMat::Prune(op::UnaryFunction* op)
+pySpParMat pySpParMat::Prune(op::UnaryFunction* op, bool inPlace)
 {
-	A.Prune(*op);
+	return pySpParMat(A.Prune(*op, inPlace));
 }
 
 void pySpParMat::Prune(op::UnaryPredicateObj* op)

@@ -168,10 +168,9 @@ class Mat:
 							return True
 					return False
 			tmpInstance = tmpU()
-			ret = Mat._toMat(self._m_.copy())
-			#ret._m_.Apply(pcb.unaryObj(tmpInstance.fn))
-			#ret._m_.Prune(pcb.unaryObjPred(lambda x: x.prune()))
-			ret._m_.Prune(pcb.unaryObjPred(tmpInstance.fn))
+			#ret = Mat._toMat(self._m_.copy())
+			#ret._m_.Prune(pcb.unaryObjPred(tmpInstance.fn))
+			ret = self._prune(pcb.unaryObjPred(tmpInstance.fn), False, ignoreFilter=True)
 		else:
 			ret = Mat._toMat(self._m_.copy())
 		
@@ -772,14 +771,14 @@ class Mat:
 			return ret
 		
 	# TODO: make a _keep() which reverses the predicate
-	def _prune(self, pred):
+	def _prune(self, pred, inPlace=True, ignoreFilter=False):
 		"""
 		only keep elements for which pred(e) == false.
 		"""
-		if self._hasFilter():
+		if not ignoreFilter and self._hasFilter():
 			raise NotImplementedError,"_prune() doesn't do filters"
 			
-		self._m_.Prune(_op_make_unary_pred(pred))
+		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred), inPlace))
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""

@@ -69,7 +69,7 @@ before = time.time()
 G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
 
-#print G
+#kdt.p(G)
 #G.addEFilter(twitterEdgeFilter)
 
 # optimize the graph
@@ -87,7 +87,6 @@ kdt.p("Calculated in %fs."%(time.time()-before))
 def run(materialize):
 	global G, nstarts, origDegrees
 	
-	#print G
 	G.addEFilter(twitterEdgeFilter)
 	if materialize:
 		kdt.p("Materializing the filter")
@@ -96,7 +95,6 @@ def run(materialize):
 		kdt.p("Materialized in %fs."%(time.time()-before))
 		kdt.p("%d edges survived the filter."%(G.nedge()))
 
-	#print G
 	
 	kdt.p("Generating starting verts")
 	before = time.time()
@@ -181,6 +179,8 @@ def run(materialize):
 		
 		print "\nTEPS"
 		printstats(K2TEPS, "TEPS", True)
+	
+	G.delEFilter(twitterEdgeFilter)
 
 run(False)
 if materializeArg:

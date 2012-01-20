@@ -73,7 +73,7 @@ public:
 	}
 
 	template <typename _UnaryOperation>
-	void Prune(_UnaryOperation __unary_op);
+	Dcsc<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
 
 	IT AuxIndex(const IT colind, bool & found, IT * aux, IT csize) const;
 	

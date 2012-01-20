@@ -414,9 +414,9 @@ pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::
 	return pySpParMatObj1(EWiseApply<Obj1, pySpParMatObj1::DCColsType>(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
 }
 
-void pySpParMatObj1::Prune(op::UnaryPredicateObj* pred)
+pySpParMatObj1 pySpParMatObj1::Prune(op::UnaryPredicateObj* pred, bool inPlace)
 {
-	A.Prune(*pred);
+	return pySpParMatObj1(A.Prune(*pred, inPlace));
 }
 
 int64_t pySpParMatObj1::Count(op::UnaryPredicateObj* pred)
