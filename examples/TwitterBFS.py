@@ -12,7 +12,11 @@ if (len(sys.argv) < 2):
 	sys.exit()
 
 inmatrixfile = sys.argv[1]
-nstarts = 16
+# report results of keep_starts runs, where each run traverses at least keep_min_edges edges.
+# total maximum of runs is nstarts.
+nstarts = 512
+keep_starts = 16
+keep_min_edges = 100
 materializeArg = False
 
 if (len(sys.argv) >= 3):
@@ -159,15 +163,21 @@ def run(materialize):
 		##	if (nedges != nedges2):
 		##		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
 		
-		K2elapsed.append(itertime)
-		K2edges.append(nedges)
-		K2TEPS.append(nedges/itertime)
-		K2ORIGTEPS.append(nOrigEdges/itertime)
 		ndiscVerts = parents.count(lambda x: x != -1)
+		if nedges >= keep_min_edges:
+			K2elapsed.append(itertime)
+			K2edges.append(nedges)
+			K2TEPS.append(nedges/itertime)
+			K2ORIGTEPS.append(nOrigEdges/itertime)
+			discardedString = ""
+		else:
+			discardedString = "(result discarded)"
 		
 		i += 1
 		# print result for this iteration
-		kdt.p("iteration %2d: start=%8d, BFS took %10.4fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime)))
+		kdt.p("iteration %2d: start=%8d, BFS took %10.4fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s %s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
+		if len(K2edges) >= keep_starts:
+			break
 	
 	# print results summary
 	if kdt.master():
