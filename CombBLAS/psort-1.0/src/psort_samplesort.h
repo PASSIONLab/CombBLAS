@@ -194,7 +194,7 @@ namespace vpsort {
 
     _Distance n_loc = last - first;
 
-    progress (rank, 0, "Sample splitters");
+    progress (rank, 0, "Sample splitters", comm);
 
     // randomly pick s*k sample splitters
     long n_samp = s*k;
@@ -228,7 +228,7 @@ namespace vpsort {
 
     delete [] s_splitters;
 
-    progress (rank, 1, "Partition");
+    progress (rank, 1, "Partition", comm);
 
     // apply the splitters
     //  impl1: binary search each element over the splitters
@@ -289,7 +289,7 @@ namespace vpsort {
     delete [] part_ind;
     delete [] part_proc;
 
-    progress (rank, 2, "Alltoall");
+    progress (rank, 2, "Alltoall", comm);
 
     // tell each processor how many elements to expect from m
     int in_counts[nproc];
@@ -324,11 +324,11 @@ namespace vpsort {
 
     MPI_Waitall (nproc, recv_reqs, MPI_STATUS_IGNORE);
 
-    progress (rank, 3, "Sequential sort");    
+    progress (rank, 3, "Sequential sort", comm);    
 
     mysort.seqsort (trans_data, trans_data + n_loct, comp);
 
-    progress (rank, 4, "Adjust boundaries");    
+    progress (rank, 4, "Adjust boundaries", comm);    
 
     // starch
     int trans_dist[nproc], dist_out[nproc];
@@ -337,7 +337,7 @@ namespace vpsort {
     redist(trans_dist, trans_data, dist_out, first, rank, nproc, MPI_valueType, comm);
     delete [] trans_data;
 
-    progress (rank, 5, "Finish");    
+    progress (rank, 5, "Finish", comm);    
 
     MPI_Type_free (&MPI_valueType);
   }

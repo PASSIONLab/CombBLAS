@@ -61,7 +61,7 @@ namespace vpsort {
     // Sort the data locally 
     // ABAB: Progress calls use MPI::COMM_WORLD, instead of the passed communicator 
     // Since they are just debug prints, avoid them
-    progress (rank, 0, mysort.description());
+    progress (rank, 0, mysort.description(), comm);
     mysort.seqsort (first, last, comp);
   
     if (nproc == 1)
@@ -72,7 +72,7 @@ namespace vpsort {
     }
 
     // Find splitters
-    progress (rank, 1, mysplit.description());
+    progress (rank, 1, mysplit.description(), comm);
     // explicit vector ( size_type n, const T& value= T(), const Allocator& = Allocator() );
     // repetitive sequence constructor: Initializes the vector with its content set to a repetition, n times, of copies of value.
     vector< vector<_Distance> > right_ends(nproc + 1, vector<_Distance>(nproc, 0));
@@ -81,7 +81,7 @@ namespace vpsort {
 		   MPI_valueType, MPI_distanceType, comm);
     
     // Communicate to destination
-    progress (rank, 2, const_cast<char *>(string("alltoall").c_str()));
+    progress (rank, 2, const_cast<char *>(string("alltoall").c_str()), comm);
     _Distance n_loc = last - first;
     _ValueType *trans_data = new _ValueType[n_loc];
     _Distance *boundaries = new _Distance[nproc+1];
@@ -100,7 +100,7 @@ namespace vpsort {
     MPI_Type_free (&MPI_distanceType);
 
     // Finish    
-    progress (rank, 4, const_cast<char *>(string("finish").c_str()));
+    progress (rank, 4, const_cast<char *>(string("finish").c_str()), comm);
 
     return;
   }
