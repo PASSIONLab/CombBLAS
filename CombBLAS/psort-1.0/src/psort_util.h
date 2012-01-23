@@ -121,8 +121,8 @@ namespace vpsort {
   }
 
 
-  static void progress (int rank, int step, char *s) {
-    MPI_Barrier (MPI_COMM_WORLD);
+  static void progress (int rank, int step, char *s, MPI_Comm comm) {
+    MPI_Barrier (comm);
     psort_timing[step] = MPI_Wtime ();
     if (rank == 0) {
       PSORT_DEBUG (cout << step << ". " << s << endl;);
