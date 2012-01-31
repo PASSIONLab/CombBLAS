@@ -367,9 +367,9 @@ pySpParMat pySpParMat::Prune(op::UnaryFunction* op, bool inPlace)
 	return pySpParMat(A.Prune(*op, inPlace));
 }
 
-void pySpParMat::Prune(op::UnaryPredicateObj* op)
+pySpParMat pySpParMat::Prune(op::UnaryPredicateObj* op, bool inPlace)
 {
-	A.Prune(*op);
+	return pySpParMat(A.Prune(*op, inPlace));
 }
 
 int64_t pySpParMat::Count(op::UnaryFunction* pred)

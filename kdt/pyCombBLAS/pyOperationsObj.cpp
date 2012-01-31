@@ -152,7 +152,7 @@ SemiringObj::~SemiringObj()
 		delete left_filter;
 	if (right_filter != NULL)
 		delete right_filter;
-	assert(currentlyApplied != this);
+	//assert(currentlyApplied != this);
 }
 
 void SemiringObj::enableSemiring()

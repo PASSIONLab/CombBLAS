@@ -782,6 +782,14 @@ class Mat:
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""
+		Accumulate matrix elements along the specified dimension.
+		This function is equivalent to this (for rows if dir=Mat.Row):
+		accumulator = init
+		for all elements e in row:
+			accumulator = op(uniOp(e), accumulator)
+			
+		similarly for columns if dir=Mat.Column.
+		
 		ToDo:  write doc
 		NOTE:  need to doc clearly that the 2nd arg to the reduction
 		fn is the sum;  the first is the current addend and the second
@@ -826,14 +834,21 @@ class Mat:
 		multiplies the weights of the appropriate edges of each vertex of
 		the passed Mat instance in-place by a vertex-specific scale 
 		factor.
-
+		
+		This operation is equivalent to:
+		for all i,j:
+			M[i,j] = op(M[i,j], other[i or j])
+		(where [i or j] depends on the direction dir)
+		
 		Input Arguments:
 			other: a Vec whose elements are used
+			op:   the operation to perform (default is multiplication)
 			dir:  a direction of edges to scale, with choices being
 			    Mat.Column (default) or Mat.Row.
 
 		Output Argument:
 			None.
+		
 		"""
 		if self._hasMaterializedFilter():
 			raise ValueError, "materialized filters are read-only"
@@ -862,8 +877,10 @@ class Mat:
 					self.myop = myop
 				def __call__(self, x, y):
 					if self.pred(x):
+						#print "got x=",x,"y=",y,"pred(x)==true,  returning op(x,y)"
 						return self.myop(x, y)
 					else:
+						#print "got x=",x,"y=",y,"pred(x)==FALSE, returning x"
 						return x
 			
 			op = tmpS(op, FilterHelper.getFilterPred(self))

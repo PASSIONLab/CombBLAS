@@ -104,7 +104,7 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	pySpParMat Prune(op::UnaryFunction* f, bool inPlace);
-	void Prune(op::UnaryPredicateObj* f);
+	pySpParMat Prune(op::UnaryPredicateObj* f, bool inPlace);
 	int64_t Count(op::UnaryFunction* pred);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
@@ -1151,6 +1151,8 @@ public:
 };
 
 namespace op {
+
+class CallError {};
 
 // WORKERS
 //////////////////////

@@ -29,6 +29,8 @@
 //INTERFACE_INCLUDE_BEGIN
 namespace op {
 
+class CallError {};
+
 // WORKERS
 //////////////////////
 
@@ -599,6 +601,7 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 	} else
 	{
 		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDD)" << endl;
+		throw doubleint();
 		return 0;
 	}
 }
@@ -733,6 +736,7 @@ bool BinaryPredicateObj_Python::callDD(const double& x, const double& y) const
 	} else
 	{
 		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
+		throw doubleint();
 		return false;
 	}
 }
