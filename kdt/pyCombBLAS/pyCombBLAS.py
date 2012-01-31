@@ -624,6 +624,21 @@ class Obj2(_object):
 Obj2_swigregister = _pyCombBLAS.Obj2_swigregister
 Obj2_swigregister(Obj2)
 
+class CallError(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, CallError, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, CallError, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _pyCombBLAS.new_CallError(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _pyCombBLAS.delete_CallError
+    __del__ = lambda self : None;
+CallError_swigregister = _pyCombBLAS.CallError_swigregister
+CallError_swigregister(CallError)
+
 class UnaryPredicateObj(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryPredicateObj, name, value)

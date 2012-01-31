@@ -30,10 +30,15 @@ class MatTests(unittest.TestCase):
 	def fillMatFiltered(self, nvert, nedge, i, j, v):
 		ret = self.fillMat_worker(nvert, nedge, i, j, v)
 		ret = self.addFilteredElements(ret)
+		#ret.materializeFilter()
 		return ret
 
-	def initializeMat(self, nvert, nedge, i, j, v=1):
-		return self.fillMat(nvert, nedge, i, j, v)
+	useFilterFill = False
+	def initializeMat(self, nvert, nedge, i, j, v=1, allowFilter=True):
+		if MatTests.useFilterFill and allowFilter:
+			return self.fillMatFiltered(nvert, nedge, i, j, v)
+		else:
+			return self.fillMat(nvert, nedge, i, j, v)
 
 	def initializeIJMat(self, nvert, scale=1000):
 		"""
@@ -50,7 +55,7 @@ class MatTests(unittest.TestCase):
 		self.assertEqual(len(expV), G.nnn())
 
 		self.assertEqual(G.ncol(), G.nrow())
-		exp = self.initializeMat(G.ncol(), len(expI), expI, expJ, expV)
+		exp = self.initializeMat(G.ncol(), len(expI), expI, expJ, expV, allowFilter=False)
 		self.assertEqual(G.nnn(), exp.nnn())
 		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=(lambda x,y: x == y))
 		self.assertEqual(comp.nnn(), G.nnn())
@@ -75,12 +80,23 @@ class MatTests(unittest.TestCase):
 			rows = Vec.range(n)
 			cols = Vec.range(n)
 			cols.apply(lambda x: (x+offset)%nc) # move elements right by `offset`, wrapping around if needed
+			offset += 1
 		
-			ret = Mat(rows, cols, v, M.ncol(), M.nrow())
-			F = Mat.eye(n, nc, element=v)
+			F = Mat(rows, cols, v, M.ncol(), M.nrow())
+			#F = Mat.eye(n, nc, element=v)
+			#print F
+			def MoveFunc(m, f):
+				if m != 0:
+					return m
+				else:
+					return f
+			M.eWiseApply(F, op=MoveFunc, allowANulls=True, allowBNulls=True, inPlace=True)
+			
 			# prune out the intersection between F and M
-			F.eWiseApply(M, op=(lambda f, m: f), allowANulls=False, allowBNulls=False)
-			M += F
+			#Fp = F.eWiseApply(M, op=(lambda f, m: f), allowANulls=False, allowBNulls=False, inPlace=False)
+			#F.eWiseApply(Fp, op=(lambda f, p: f), allowANulls=False, allowBNulls=True, inPlace=True)
+			#print F
+			#M += F
 		
 		# add the filter that filters out the added nodes
 		if M.isObj():
@@ -159,7 +175,7 @@ class LinearAlgebraTests(MatTests):
 		G2 = G.SpGEMM(GT, sr_plustimes)
 		self.assertEqual(G2.ncol(),4)
 		self.assertEqual(G2.nrow(),4)
-
+		
 		expI = [0,     2,     3,     1,     2,     3,     0,     1,     2,     3,     0,     1,     2,     3]
 		expJ = [0,     0,     0,     1,     1,     1,     2,     2,     2,     2,     3,     3,     3,     3]
 		expV = [4.0, 6.0,   11.0,  35.25, 4.0,   5.5,   6.0,   4.0,  13.0,  16.5,  11.0,   5.5,  16.5,  31.25]
@@ -251,28 +267,26 @@ class ReductionTests(MatTests):
 	def test_sum_out_in(self):
 		nvert = 9
 		nedge = 19
-		print "taco0"
 		i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
 		j = [1, 0, 2, 1, 3, 1, 3, 2, 4, 3, 8, 6, 8, 7, 4, 5, 6, 7, 8]
 		v = [-01, -10, -12, -21, -13, -31, -23, -32, -34, -43, -68, -1.6e10, 
 				-78, -87, -14, -15, -16, -17, -18]
-		print "taco1"
 		G = self.initializeMat(nvert, nedge, i, j, v)
-		print G
-		print "taco2"
+
 		self.assertEqual(G.ncol(), nvert)
 		self.assertEqual(G.nrow(), nvert)
-		print "taco3"
 		self.assertEqual(G.nnn(), nedge)
-		print "taco4"
 		outsum = G.sum(dir=Mat.Row)
 		insum = G.sum(dir=Mat.Column)
-		print "rowsum:",outsum
-		print "colsum:",insum
 		outsumExpected = [-1, -115, -44, -97, -43, 0, -68, -78, 
 				-1.6000000087e+10]
 		insumExpected = [-10, -53, -44, -79, -48, -15, -1.6000000016e+10, 
 				-104, -164]
+		print "rowsum:",outsum
+		print "expected rowsum:",outsumExpected
+		print "colsum:",insum
+		print "expected colsum:", insumExpected
+		
 		self.assertEqual(len(outsum), len(outsumExpected))
 		self.assertEqual(len(insum), len(insumExpected))
 
@@ -334,10 +348,9 @@ class GeneralPurposeTests(MatTests):
 	def test_scale_column(self):
 		nvert1 = 9
 		nedge1 = 19
-		origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
-		origJ1 = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-		origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6,
-				17, 87, 8, 68, 78]
+		origI1 = [0,  1,  4,  6,  1,  5,  1,  2,  3,  1,  3,  1,   1,   8,  1,  8, 0,  6, 7]
+		origJ1 = [1,  1,  1,  1,  2,  2,  3,  3,  3,  4,  4,  5,   6,   6,  7,  7, 8,  8, 8]
+		origV1 = [10, 1, 41, 61, 12, 52, 13, 23, 33, 14, 34, 15, 1.6, 8.6, 17, 87, 8, 68, 78]
 		G1 = self.initializeMat(nvert1, nedge1, origI1, origJ1, origV1)
 		vec1 = Vec(nvert1, sparse=False)
 		# vec[0] null, scaling a null column in G1
@@ -696,7 +709,8 @@ def runTests(verbosity = 1):
 
 	print "running again using filtered data:"
 	
-	MatTests.fillMat = MatTests.fillMatFiltered
+	MatTests.useFilterFill = True
+	#MatTests.fillMat = MatTests.fillMatFiltered
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
