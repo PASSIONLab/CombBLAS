@@ -23,6 +23,7 @@ template <class OUT>
 struct BoolCopy2ndSRing
 {
 	static OUT id() { return OUT(); }
+	static bool returnedSAID() { return false; }
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
 		cout << "Add should not happen (BoolCopy2ndSRing)!" << endl;
@@ -68,6 +69,7 @@ template <class OUT>
 struct BoolCopy1stSRing
 {
 	static OUT id() { return OUT(); }
+	static bool returnedSAID() { return false; }
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
 		cout << "Add should not happen (BoolCopy1stSRing)!" << endl;
@@ -114,6 +116,7 @@ template <class T1, class T2, class OUT>
 struct Select2ndSRing
 {
 	static OUT id() { return OUT(); }
+	static bool returnedSAID() { return false; }
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
@@ -136,6 +139,7 @@ struct SelectMaxSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 	static T_promote id() {  return -1; };
+	static bool returnedSAID() { return false; }
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -161,6 +165,7 @@ struct SelectMaxSRing<bool, T2>
 {
 	typedef T2 T_promote;
 	static T_promote id(){ return -1; };
+	static bool returnedSAID() { return false; }
 	static MPI_Op mpi_op() { return MPI_MAX; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -181,6 +186,7 @@ struct PlusTimesSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 	static T_promote id(){ return 0; }
+	static bool returnedSAID() { return false; }
 	static MPI_Op mpi_op() { return MPI_SUM; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
@@ -203,6 +209,7 @@ struct MinPlusSRing
 {
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 	static T_promote id() { return  std::numeric_limits<T_promote>::max(); };
+	static bool returnedSAID() { return false; }
 	static MPI_Op mpi_op() { return MPI_MIN; };
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{

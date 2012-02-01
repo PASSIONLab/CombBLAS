@@ -585,6 +585,12 @@ RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 	}
 }
 
+// quick and dirty function. performs:
+// SemiringObj::currentlyApplied = NULL;
+// That can't be done directly because SemiringObj is still an incomplete type at this point, so
+// this prevents some nasty re-ordering of everything in the file.
+void clear_SemiringObj_currentlyApplied();
+
 inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y) const
 {
 	PyObject *arglist;
@@ -600,8 +606,11 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 		return dres;
 	} else
 	{
-		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDD)" << endl;
-		throw doubleint();
+		//cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDD)" << endl;
+		//if (BinaryFunctionObj::currentlyApplied == this)
+		BinaryFunctionObj::currentlyApplied = NULL;
+		clear_SemiringObj_currentlyApplied();
+		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDD)");
 		return 0;
 	}
 }
@@ -735,8 +744,10 @@ bool BinaryPredicateObj_Python::callDD(const double& x, const double& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
-		throw doubleint();
+		//cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
+		//if (BinaryFunctionObj::currentlyApplied == this)
+		//	BinaryFunctionObj::currentlyApplied = NULL;
+		throw string("BinaryPredicateObj_Python::operator() FAILED! (callDD)");
 		return false;
 	}
 }
@@ -750,6 +761,7 @@ class SemiringObj {
 //INTERFACE_INCLUDE_END
 	public:
 	static SemiringObj *currentlyApplied;
+	static bool returnedSAID;
 
 	// CUSTOM is a semiring with Python-defined methods
 	// The others are pre-implemented in C++ for speed.
@@ -789,6 +801,8 @@ class SemiringObj {
 	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
 	~SemiringObj();
 	
+	void setFilters(PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
+	
 	PyObject* getAddCallback() const { return binfunc_add != NULL ? binfunc_add->getCallback() : NULL; }
 	PyObject* getMulCallback() const { return binfunc_mul != NULL ? binfunc_mul->getCallback() : NULL; }
 	
@@ -809,6 +823,13 @@ struct SemiringObjTemplArg
 {
 	static OUT id() { return OUT();}
 
+	static bool returnedSAID()
+	{
+		bool temp = SemiringObj::returnedSAID; // this temporary allows us to avoid using an if statement yet still clear the flag
+		SemiringObj::returnedSAID = false; // clear the flag
+		return temp;
+	}
+	
 	static MPI_Op mpi_op()
 	{
 		return SemiringObj::currentlyApplied->mpi_op();
@@ -826,10 +847,16 @@ struct SemiringObjTemplArg
 		{
 			// filter the left parameter
 			if (SemiringObj::currentlyApplied->left_filter != NULL && !(*(SemiringObj::currentlyApplied->left_filter))(arg1))
+			{
+				SemiringObj::returnedSAID = true;
 				return id();
+			}
 			// filter the right parameter
 			if (SemiringObj::currentlyApplied->right_filter != NULL && !(*(SemiringObj::currentlyApplied->right_filter))(arg2))
+			{
+				SemiringObj::returnedSAID = true;
 				return id();
+			}
 		}
 		return SemiringObj::currentlyApplied->binfunc_mul->rettype2nd_call(arg1, arg2);
 	}

@@ -225,6 +225,15 @@ def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
 # built-in semirings
 sr_select2nd = pcb.SecondMaxSemiring()
 sr_plustimes = pcb.TimesPlusSemiring()
+
+def times(x, y):
+	return x*y
+def plus(x, y):
+	return x+y
+def select2nd(x, y):
+	return y
+py_sr_select2nd = sr(select2nd, select2nd)
+py_sr_plustimes = sr(plus, times)
 		
 # built-in operations that only work on floating point scalars
 op_add = pcb.plus()
@@ -400,6 +409,10 @@ def _makePythonOp(op):
 		return _op_builtin_pyfunc(op)
 	elif isinstance(op, (pcb.UnaryFunctionObj, pcb.BinaryFunctionObj)):
 		raise NotImplementedError, 'Unable to convert OBJ functor back to Python expression.'
+	elif op == sr_plustimes:
+		return py_sr_plustimes
+	elif op == sr_select2nd:
+		return py_sr_select2nd
 	else:
 		return op
 

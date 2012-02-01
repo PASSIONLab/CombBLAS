@@ -34,11 +34,23 @@ class MatTests(unittest.TestCase):
 		return ret
 
 	useFilterFill = False
+	useMaterializingFilter = False
 	def initializeMat(self, nvert, nedge, i, j, v=1, allowFilter=True):
 		if MatTests.useFilterFill and allowFilter:
-			return self.fillMatFiltered(nvert, nedge, i, j, v)
+			ret = self.fillMatFiltered(nvert, nedge, i, j, v)
+			if MatTests.useMaterializingFilter:
+				ret.materializeFilter()
+			return ret
 		else:
 			return self.fillMat(nvert, nedge, i, j, v)
+		
+	def loadMat(self, filename):
+		ret = Mat.load(filename)
+		if MatTests.useFilterFill:
+			ret = self.addFilteredElements(ret)
+			if MatTests.useMaterializingFilter:
+				ret.materializeFilter()
+		return ret
 
 	def initializeIJMat(self, nvert, scale=1000):
 		"""
@@ -137,7 +149,7 @@ class LinearAlgebraTests(MatTests):
 				self.assertEqual(v3[ind], expectedV[ind])
 
 	def disabled_test_matMul_simple(self):
-		G = Mat.load('testfiles/small_nonsym_fp.mtx')
+		G = self.loadMat('testfiles/small_nonsym_fp.mtx')
 		[i, j, v] = G.toVec()
 		print ""
 		print "G.i:",i
@@ -166,7 +178,7 @@ class LinearAlgebraTests(MatTests):
 				self.assertAlmostEqual(v2[ind], expectedV[ind], places=3)
 
 	def test_SpGEMM_simple(self):
-		G = Mat.load('testfiles/small.mtx')
+		G = self.loadMat('testfiles/small.mtx')
 		self.assertEqual(G.ncol(),4)
 		self.assertEqual(G.nrow(),4)
 		#[i, j, v] = G.toVec()
@@ -183,7 +195,7 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 
 	def test_SpGEMM_simple_square(self):
-		G = Mat.load('testfiles/small.mtx')
+		G = self.loadMat('testfiles/small.mtx')
 		G2 = G.SpGEMM(G, sr_plustimes)
 		self.assertEqual(G2.ncol(),4)
 		self.assertEqual(G2.nrow(),4)
@@ -195,7 +207,7 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 				
 	def test_SpMV_simple_sparse(self):
-		G = Mat.load('testfiles/small.mtx')
+		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=True)
 		vec[1] = 2
 		vec[3] = 5
@@ -205,10 +217,10 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqual(4, len(vec2))
 		for ind in range(4):
 			self.assertEqual(expV[ind], vec2[ind])
-
+		
 	def disabled_test_SpMV_simple_dense(self):
 		# segfaults
-		G = Mat.load('testfiles/small.mtx')
+		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=False)
 		vec[1] = 2
 		vec[3] = 5

@@ -1263,6 +1263,8 @@ class SemiringObj {
 	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
 	~SemiringObj();
 	
+	void setFilters(PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
+	
 	PyObject* getAddCallback() const { return binfunc_add != NULL ? binfunc_add->getCallback() : NULL; }
 	PyObject* getMulCallback() const { return binfunc_mul != NULL ? binfunc_mul->getCallback() : NULL; }
 	

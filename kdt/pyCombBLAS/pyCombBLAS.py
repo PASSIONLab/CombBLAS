@@ -711,6 +711,7 @@ class SemiringObj(_object):
         except: self.this = this
     __swig_destroy__ = _pyCombBLAS.delete_SemiringObj
     __del__ = lambda self : None;
+    def setFilters(*args): return _pyCombBLAS.SemiringObj_setFilters(*args)
     def getAddCallback(*args): return _pyCombBLAS.SemiringObj_getAddCallback(*args)
     def getMulCallback(*args): return _pyCombBLAS.SemiringObj_getMulCallback(*args)
     def mpi_op(*args): return _pyCombBLAS.SemiringObj_mpi_op(*args)
