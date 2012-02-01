@@ -207,12 +207,12 @@ public:
 	DER & seq() { return (*spSeq); }
 
 	//! Friend declarations
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU, NUO, UDERO> 
 	Mult_AnXBn_DoubleBuff (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
 
-	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
-	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
+	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+	friend SpParMat<IU,NUO,UDERO> 
 	Mult_AnXBn_Synch (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
@@ -277,6 +277,13 @@ private:
 	template <typename IU, typename NU, typename UDER> 	
 	friend ofstream& operator<< (ofstream& outfile, const SpParMat<IU,NU,UDER> & s);	
 };
+
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+void PSpGEMM(SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, SpParMat<IU,NUO,UDERO> & out, bool clearA = false, bool clearB = false)
+{
+	out = Mult_AnXBn_Synch<SR, NUO, UDERO> (A, B, clearA, clearB );
+}
+
 
 #include "SpParMat.cpp"
 #endif

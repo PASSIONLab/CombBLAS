@@ -100,8 +100,8 @@ void SpMat<IT, NT, DER>::SpGEMM(SpMat<IT, NT, DER> & A,
 };
 
 
-template<typename SR, typename IU, typename NU1, typename NU2, typename DER1, typename DER2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * MultiplyReturnTuples
+template<typename SR, typename NUO, typename IU, typename NU1, typename NU2, typename DER1, typename DER2>
+SpTuples<IU, NUO> * MultiplyReturnTuples
 					(const SpMat<IU, NU1, DER1> & A, 
 					 const SpMat<IU, NU2, DER2> & B, 
 					 bool isAT, bool isBT,
@@ -135,25 +135,25 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * MultiplyReturnTuples
 	{
 		if(isAT && isBT)
 		{
-			return Tuples_AtXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
+			return Tuples_AtXBt<SR, NUO>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else if(isAT && (!isBT))
 		{
-			return Tuples_AtXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
+			return Tuples_AtXBn<SR, NUO>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else if((!isAT) && isBT)
 		{
-			return Tuples_AnXBt<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
+			return Tuples_AnXBt<SR, NUO>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}
 		else
 		{
-			return Tuples_AnXBn<SR>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
+			return Tuples_AnXBn<SR, NUO>(static_cast< const DER1 & >(A), static_cast< const DER2 & >(B), clearA, clearB);
 		}				
 	}
 	else
 	{
 		cerr <<"Not multipliable: " << A_n << "!=" << B_m << endl;
-		return new SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> (0, 0, 0);
+		return new SpTuples<IU, NUO> (0, 0, 0);
 	}
 }
 

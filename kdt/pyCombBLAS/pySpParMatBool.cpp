@@ -227,14 +227,11 @@ pySpParMatBool& pySpParMatBool::assign(const pySpParMatBool& other)
 	return *this;
 }
 
-pySpParMatBool pySpParMatBool::operator*(pySpParMatBool& other)
-{
-	return SpGEMM(other);
-}
-
 pySpParMatBool pySpParMatBool::SpGEMM(pySpParMatBool& other)
 {
-	return pySpParMatBool( Mult_AnXBn_Synch<PlusTimesSRing<bool, bool > >(A, other.A) );
+	pySpParMatBool ret;
+	PSpGEMM<PlusTimesSRing<bool, bool > >(A, other.A, ret.A);
+	return ret;
 }
 
 pySpParMatBool pySpParMatBool::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)

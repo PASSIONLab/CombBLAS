@@ -441,20 +441,18 @@ void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits)
  * Support mixed precision multiplication
  * The multiplication is on the specified semiring (passed as parameter)
  */
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * Tuples_AnXBt 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B,
 					bool clearA = false, bool clearB = false)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote;  
-
 	IU mdim = A.m;	
 	IU ndim = B.m;	// B is already transposed
 
 	if(A.isZero() || B.isZero())
 	{
-		return new SpTuples< IU, T_promote >(0, mdim, ndim);	// just return an empty matrix
+		return new SpTuples< IU, NUO >(0, mdim, ndim);	// just return an empty matrix
 	}
 	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
 	SpHelper::SpIntersect(*(A.dcsc), *(B.dcsc), cols, rows, isect1, isect2, itr1, itr2);
@@ -463,10 +461,10 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 	if(kisect == 0)
 	{
 		DeleteAll(isect1, isect2, cols, rows);
-		return new SpTuples< IU, T_promote >(0, mdim, ndim);
+		return new SpTuples< IU, NUO >(0, mdim, ndim);
 	}
 	
-	StackEntry< T_promote, pair<IU,IU> > * multstack;
+	StackEntry< NUO, pair<IU,IU> > * multstack;
 
 	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
@@ -476,7 +474,7 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
 	if(clearB)
 		delete const_cast<SpDCCols<IU, NU2> *>(&B);
 
-	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
+	return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
 }
 
 /**
@@ -485,21 +483,19 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt
  * Support mixed precision multiplication
  * The multiplication is on the specified semiring (passed as parameter)
  */
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * Tuples_AnXBn 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B,
 					bool clearA = false, bool clearB = false)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-
 	IU mdim = A.m;	
 	IU ndim = B.n;	
 	if(A.isZero() || B.isZero())
 	{
-		return new SpTuples<IU, T_promote>(0, mdim, ndim);
+		return new SpTuples<IU, NUO>(0, mdim, ndim);
 	}
-	StackEntry< T_promote, pair<IU,IU> > * multstack;
+	StackEntry< NUO, pair<IU,IU> > * multstack;
 	IU cnz = SpHelper::SpColByCol< SR > (*(A.dcsc), *(B.dcsc), A.n,  multstack);  
 	
 	if(clearA)	
@@ -507,38 +503,34 @@ SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn
 	if(clearB)
 		delete const_cast<SpDCCols<IU, NU2> *>(&B);
 
-	return new SpTuples<IU, T_promote> (cnz, mdim, ndim, multstack);
+	return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
 }
 
 
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * Tuples_AtXBt 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B, 
 					bool clearA = false, bool clearB = false)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 
-	
 	IU mdim = A.n;	
 	IU ndim = B.m;	
 	cout << "Tuples_AtXBt function has not been implemented yet !" << endl;
 		
-	return new SpTuples<IU, T_promote> (0, mdim, ndim);
+	return new SpTuples<IU, NUO> (0, mdim, ndim);
 }
 
-template<class SR, class IU, class NU1, class NU2>
-SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * Tuples_AtXBn 
 					(const SpDCCols<IU, NU1> & A, 
 					 const SpDCCols<IU, NU2> & B,
 					bool clearA = false, bool clearB = false)
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote T_promote; 	// T_promote is a type (so the extra "typename"), NOT a value
-
 	IU mdim = A.n;	
 	IU ndim = B.n;	
 	cout << "Tuples_AtXBn function has not been implemented yet !" << endl;
 		
-	return new SpTuples<IU, T_promote> (0, mdim, ndim);
+	return new SpTuples<IU, NUO> (0, mdim, ndim);
 }
 
 // Performs a balanced merge of the array of SpTuples

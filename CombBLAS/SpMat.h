@@ -94,8 +94,8 @@ protected:
 
 	//! Returns a pointer to SpTuples, in order to avoid temporaries
 	//! It is the caller's responsibility to delete the returned pointer afterwards
-	template< class SR, class IU, class NU1, class NU2, class DER1, class DER2 >
-	friend SpTuples< IU, typename promote_trait<NU1,NU2>::T_promote > *
+	template< class SR, class NUO, class IU, class NU1, class NU2, class DER1, class DER2 >
+	friend SpTuples< IU, NUO > *
 	MultiplyReturnTuples (const SpMat< IU, NU1, DER1 > & A, const SpMat< IU, NU2, DER2 > & B, bool isAT, bool isBT, bool clearA, bool clearB);
 
 };

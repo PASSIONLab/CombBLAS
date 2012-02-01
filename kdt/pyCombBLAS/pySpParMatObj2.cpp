@@ -304,25 +304,11 @@ pySpParMatObj2 pySpParMatObj2::copy()
 	return pySpParMatObj2(*this);
 }
 
-/*
-pySpParMatObj2& pySpParMatObj2::operator+=(const pySpParMatObj2& other)
-{
-	A += other.A;
-	return *this;
-}*/
-
 pySpParMatObj2& pySpParMatObj2::assign(const pySpParMatObj2& other)
 {
 	A = other.A;
 	return *this;
 }
-
-/*
-pySpParMatObj2 pySpParMatObj2::operator*(pySpParMatObj2& other)
-{
-	return SpGEMM(other);
-}
-*/
 
 void pySpParMatObj2::Square(op::SemiringObj* sring)
 {
@@ -332,19 +318,22 @@ void pySpParMatObj2::Square(op::SemiringObj* sring)
 }
 
 pySpParMat pySpParMatObj2::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
-{/*
+{
 	sring->enableSemiring();
-	pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg>(A, other.A) );
+	pySpParMat ret;
+	PSpGEMM<op::SemiringObjTemplArg<Obj2, doubleint, doubleint> >(A, other.A, ret.A);
 	sring->disableSemiring();
-	return ret;*/
-	cout << "Mixed-type SpGEMM not supported yet!";
-	return pySpParMat();
+	return ret;
+//	cout << "Mixed-type SpGEMM not supported yet!";
+//	return pySpParMat();
 }
 
 pySpParMatObj2 pySpParMatObj2::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
-	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, other.A) );
+	//pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, other.A) );
+	pySpParMatObj2 ret;
+	PSpGEMM<op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, other.A, ret.A);
 	sring->disableSemiring();
 	return ret;
 }

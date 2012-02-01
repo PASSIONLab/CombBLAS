@@ -811,7 +811,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 			#ifdef DEBUG	
 			SpParHelper::Print("In place multiplication\n");
 			#endif
-        		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this, false, true);	// clear the memory of *this
+        		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
 
 			//ostringstream outb;
 			//outb << "P_after_" << commGrid->myrank;
@@ -819,14 +819,14 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 			//P.put(ofb);
 
 			P.Transpose();	
-       	 		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL>(*this, P, true, true);	// clear the memory of both *this and P
+       	 		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(*this, P, true, true);	// clear the memory of both *this and P
 			return SpParMat<IT,NT,DER>();	// dummy return to match signature
 		}
 		else
 		{
-			PA = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P,*this);
+			PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P,*this);
 			P.Transpose();
-			return Mult_AnXBn_DoubleBuff<PTNTBOOL>(PA, P);
+			return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, P);
 		}
 	}
 	else
@@ -836,7 +836,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 
 		// Do parallel matrix-matrix multiply
-        	PA = Mult_AnXBn_DoubleBuff<PTBOOLNT>(P, *this);
+        	PA = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this);
 	}	// P is destructed here
 #ifndef NDEBUG
 	PA.PrintInfo();
@@ -898,12 +898,12 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> &
 	Q.Transpose();	
 	if(inplace)
 	{
-       		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL>(PA, Q, true, true);	// clear the memory of both PA and P
+       		*this = Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q, true, true);	// clear the memory of both PA and P
 		return SpParMat<IT,NT,DER>();	// dummy return to match signature
 	}
 	else
 	{
-        	return Mult_AnXBn_DoubleBuff<PTNTBOOL>(PA, Q);
+        	return Mult_AnXBn_DoubleBuff<PTNTBOOL, NT, DER>(PA, Q);
 	}
 }
 
@@ -1083,7 +1083,7 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	typedef PlusTimesSRing<bool, NT> PTBOOLNT;
 	typedef PlusTimesSRing<NT, bool> PTNTBOOL;
 
-        return Mult_AnXBn_Synch<PTNTBOOL>(Mult_AnXBn_Synch<PTBOOLNT>(P, *this), Q);
+        return Mult_AnXBn_Synch<PTNTBOOL, NT, DER>(Mult_AnXBn_Synch<PTBOOLNT, NT, DER>(P, *this), Q);
 }
 
 
@@ -1564,7 +1564,7 @@ void SpParMat<IT,NT,DER>::Square ()
 		}
 		SpParHelper::BCastMatrix(Grid->GetColWorld(), *TRecv, ess, i);	
 
-		SpTuples<IT,NT> * AA_cont = MultiplyReturnTuples<SR>(*NRecv, *TRecv, false, true);
+		SpTuples<IT,NT> * AA_cont = MultiplyReturnTuples<SR, NT>(*NRecv, *TRecv, false, true);
 		if(!AA_cont->isZero()) 
 			tomerge.push_back(AA_cont);
 
