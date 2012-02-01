@@ -978,7 +978,13 @@ class Mat:
 		#	raise NotImplementedError, "this operation does not support filters yet"
 		
 		if other._hasFilter():
-			raise NotImplementedError, "this operation does not support filters yet"
+			raise NotImplementedError, "SpMV does not support vector filters yet"
+		
+		clearSemiringFilters = False
+		if self._hasFilter():
+			if semiring == sr_plustimes or semiring == sr_select2nd:
+				semiring = _makePythonOp(semiring)
+			semiring.setFilters(FilterHelper.getFilterPred(self), None)
 			
 		if False:
 			if self._hasFilter() or other._hasFilter():
@@ -1007,10 +1013,14 @@ class Mat:
 		# the operation itself
 		if inPlace:
 			self._m_.SpMV_inplace(other._v_, semiring)
-			return other
+			ret = other
 		else:
-			return Vec._toVec(self._m_.SpMV(other._v_, semiring))
+			ret = Vec._toVec(self._m_.SpMV(other._v_, semiring))
 		
+		if clearSemiringFilters:
+			semiring.setFilters(None, None)
+		return ret
+
 		# Adam:
 		# Why is the rest so complicated?
 		

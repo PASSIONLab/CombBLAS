@@ -83,8 +83,7 @@ void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Data
 		applyWorker(static_cast<Obj2*>(invec), static_cast<Obj2*>(inoutvec), len);
 	else
 	{
-		cout << "There is an internal error in applying a BinaryFunctionObj: Unknown datatype." << endl;
-		std::exit(1);
+		throw string("There is an internal error in applying a BinaryFunctionObj: Unknown datatype.");
 	}
 }
 
@@ -93,8 +92,7 @@ MPI_Op* BinaryFunctionObj::getMPIOp()
 	//cout << "setting mpi op" << endl;
 	if (currentlyApplied != NULL)
 	{
-		cout << "There is an internal error in creating an MPI version of a BinaryFunctionObj: Conflict between two BFOs." << endl;
-		std::exit(1);
+		throw string("There is an internal error in creating an MPI version of a BinaryFunctionObj: Conflict between two BFOs.");
 	}
 	else if (currentlyApplied == this)
 	{
@@ -120,7 +118,13 @@ void BinaryFunctionObj::releaseMPIOp()
 
 //template <>
 SemiringObj* SemiringObj::currentlyApplied = NULL;
+bool SemiringObj::returnedSAID = false;
 
+void clear_SemiringObj_currentlyApplied()
+{
+	SemiringObj::currentlyApplied = NULL;
+}
+		
 SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py, PyObject* right_filter_py)
 	: type(CUSTOM)//, pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
 {
@@ -155,12 +159,32 @@ SemiringObj::~SemiringObj()
 	//assert(currentlyApplied != this);
 }
 
+void SemiringObj::setFilters(PyObject* left_filter_py, PyObject* right_filter_py)
+{
+	if (left_filter_py != NULL && Py_None != left_filter_py)
+		left_filter = new UnaryPredicateObj(left_filter_py);
+	else
+	{
+		if (left_filter != NULL)
+			delete left_filter;
+		left_filter = NULL;
+	}
+
+	if (right_filter_py != NULL && Py_None != right_filter_py)
+		right_filter = new UnaryPredicateObj(right_filter_py);
+	else
+	{
+		if (right_filter != NULL)
+			delete right_filter;
+		right_filter = NULL;
+	}
+}
+
 void SemiringObj::enableSemiring()
 {
 	if (currentlyApplied != NULL)
 	{
-		cout << "There is an internal error in selecting a SemiringObj: Conflict between two Semirings." << endl;
-		std::exit(1);
+		throw string("There is an internal error in selecting a SemiringObj: Conflict between two Semirings.");
 	}
 	currentlyApplied = this;
 	binfunc_add->getMPIOp();

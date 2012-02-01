@@ -194,6 +194,12 @@ struct SemiringTemplArg
 	
 	typedef typename promote_trait<T1,T2>::T_promote T_promote;
 	static T_promote id() { return T_promote();}
+
+	static bool returnedSAID()
+	{
+		return false;
+	}
+	
 	static MPI_Op mpi_op()
 	{
 		return currentlyApplied->mpi_op();
