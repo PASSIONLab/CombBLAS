@@ -448,6 +448,7 @@ void pySpParMatBool::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
 	}
 }
 
+/*
 void pySpParMatBool::Square(op::Semiring* sring)
 {
 	if (sring->getType() == op::Semiring::TIMESPLUS)
@@ -464,12 +465,50 @@ void pySpParMatBool::Square(op::Semiring* sring)
 		A.Square<op::SemiringTemplArg<doubleint, doubleint> >();
 		sring->disableSemiring();
 	}
-}
+}*/
 
 void pySpParMatBool::Square(op::SemiringObj* sring)
 {
 	sring->enableSemiring();
 	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
 	sring->disableSemiring();
+}
+
+#define MATCLASS pySpParMatBool
+
+pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
+{
+	pySpParMat ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, doubleint, doubleint> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
+{
+	pySpParMatBool ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, bool, bool> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
+{
+	pySpParMatObj1 ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj1, Obj1> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
+}
+
+pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
+{
+	pySpParMatObj2 ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj2, Obj2> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
 }
 

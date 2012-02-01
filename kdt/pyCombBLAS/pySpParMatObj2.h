@@ -50,10 +50,6 @@ public:
 	pySpParMatObj2 copy();
 	//pySpParMatObj2& operator+=(const pySpParMatObj2& other);
 	pySpParMatObj2& assign(const pySpParMatObj2& other);
-	pySpParMat     SpGEMM(pySpParMat&     other, op::SemiringObj* sring);
-	pySpParMatObj2 SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring);
-	pySpParMatObj1 SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring);
-	//pySpParMatObj2 operator*(pySpParMatObj2& other);
 	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatObj2 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
@@ -97,6 +93,10 @@ public:
 	void SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring);
 
 	void Square(op::SemiringObj* sring);
+	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
+	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
+	pySpParMatObj2 SpGEMM(pySpParMatObj2 &other, op::SemiringObj* sring);
+	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);
 
 public:
 	static int Column() { return ::Column; }

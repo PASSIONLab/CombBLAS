@@ -219,7 +219,7 @@ class LinearAlgebraTests(MatTests):
 			self.assertEqual(expV[ind], vec2[ind])
 		
 	def disabled_test_SpMV_simple_dense(self):
-		# segfaults
+		# segfaults with *** An error occurred in MPI_Reduce: the reduction operation MPI_SUM is not defined for non-intrinsic datatypes
 		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=False)
 		vec[1] = 2
