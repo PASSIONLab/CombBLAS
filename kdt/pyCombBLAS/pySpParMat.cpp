@@ -250,36 +250,6 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 	return *this;
 }
 
-/*
-pySpParMat pySpParMat::operator*(pySpParMat& other)
-{
-	return SpGEMM(other);
-}*/
-
-/* obsolete in favor of SemiringObj
-pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		return pySpParMat( Mult_AnXBn_Synch<PlusTimesSRing<doubleint, doubleint > >(A, other.A) );
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pySpParMat( Mult_AnXBn_Synch<Select2ndSRing<doubleint, doubleint, doubleint > >(A, other.A) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pySpParMat ret( Mult_AnXBn_Synch<op::SemiringTemplArg<doubleint, doubleint > >(A, other.A) );
-		sring->disableSemiring();
-		return ret;
-	}
-}*/
-
 pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return SubsRef(rows, cols);
@@ -582,39 +552,71 @@ void pySpParMat::Square(op::SemiringObj* sring)
 	sring->disableSemiring();
 }
 
-pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
+// Only kept here to support built-in PlusTimes and Select2nd.
+// Otherwise use the SemiringObj version.
+pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
 {
-	sring->enableSemiring();
-	//pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A) );
+	if (sring == NULL)
+	{
+		throw string("Null semiring");
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		pySpParMat ret;
+		PSpGEMM<PlusTimesSRing<doubleint, doubleint > >(A, other.A, ret.A);
+		return ret;
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		pySpParMat ret;
+		PSpGEMM<Select2ndSRing<doubleint, doubleint, doubleint > >(A, other.A, ret.A);
+		return ret;
+	}
+	else
+	{
+		throw string("Do not use SpGEMM(Semiring) unless using a built-in. Otherwise use SpGEMM(SemiringObj) for all purposes.");
+		sring->enableSemiring();
+		pySpParMat ret;
+		PSpGEMM<op::SemiringTemplArg<doubleint, doubleint > >(A, other.A, ret.A);
+		sring->disableSemiring();
+		return ret;
+	}
+}
+
+#define MATCLASS pySpParMat
+
+pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
+{
 	pySpParMat ret;
-	PSpGEMM<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A, ret.A);
-
-	sring->disableSemiring();
-	return ret;
-}
-
-#if 0
-pySpParMatBool pySpParMat::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
-{
 	sring->enableSemiring();
-	pySpParMatBool ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, bool, bool> >(A, other.A) );
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, doubleint, doubleint> >(A, other.A, ret.A);
 	sring->disableSemiring();
 	return ret;
 }
 
-pySpParMatObj1 pySpParMat::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
+pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
 {
+	pySpParMatBool ret;
 	sring->enableSemiring();
-	pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, Obj1, Obj1> >(A, other.A) );
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, bool, bool> >(A, other.A, ret.A);
 	sring->disableSemiring();
 	return ret;
 }
 
-pySpParMatObj2 pySpParMat::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
+pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
 {
+	pySpParMatObj1 ret;
 	sring->enableSemiring();
-	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, Obj2, Obj2> >(A, other.A) );
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj1, Obj1> >(A, other.A, ret.A);
 	sring->disableSemiring();
 	return ret;
 }
-#endif
+
+pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
+{
+	pySpParMatObj2 ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj2, Obj2> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
+}

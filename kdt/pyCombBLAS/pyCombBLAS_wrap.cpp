@@ -6585,7 +6585,60 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  op::Semiring *arg3 = (op::Semiring *) 0 ;
+  pySpParMat result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpGEMM" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__Semiring, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_SpGEMM" "', argument " "3"" of type '" "op::Semiring *""'"); 
+  }
+  arg3 = reinterpret_cast< op::Semiring * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   pySpParMat *arg2 = 0 ;
@@ -6634,6 +6687,277 @@ SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM(PyObject *SWIGUNUSEDPARM(self), PyO
   resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMatBool *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatBool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpGEMM" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatBool,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatBool * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatBool(static_cast< const pySpParMatBool& >(result))), SWIGTYPE_p_pySpParMatBool, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMatObj1 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj1 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpGEMM" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMat *arg1 = (pySpParMat *) 0 ;
+  pySpParMatObj2 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj2 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_SpGEMM" "', argument " "1"" of type '" "pySpParMat *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMat_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMat_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMat_SpGEMM(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__Semiring, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMat_SpGEMM__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMat_SpGEMM__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMat_SpGEMM__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMat_SpGEMM__SWIG_3(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMat_SpGEMM__SWIG_4(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMat_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMat &,op::Semiring *)\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatBool &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n");
   return NULL;
 }
 
@@ -9208,7 +9532,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   pySpParMatBool *arg2 = 0 ;
@@ -10620,47 +10944,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_Square__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  op::Semiring *arg2 = (op::Semiring *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_Square",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_Square" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__Semiring, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_Square" "', argument " "2"" of type '" "op::Semiring *""'"); 
-  }
-  arg2 = reinterpret_cast< op::Semiring * >(argp2);
-  {
-    try {
-      (arg1)->Square(arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatBool_Square__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_Square(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
   op::SemiringObj *arg2 = (op::SemiringObj *) 0 ;
@@ -10700,14 +10984,226 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_Square(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMat result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpGEMM" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pySpParMatBool *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatBool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpGEMM" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatBool,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatBool * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatBool(static_cast< const pySpParMatBool& >(result))), SWIGTYPE_p_pySpParMatBool, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pySpParMatObj1 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj1 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpGEMM" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
+  pySpParMatObj2 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj2 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_SpGEMM" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatBool_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatBool_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatBool_SpGEMM(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[3];
+  PyObject *argv[4];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 2) {
@@ -10717,30 +11213,92 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_Square(PyObject *self, PyObject *args)
     _v = SWIG_CheckState(res);
     if (_v) {
       void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__Semiring, 0);
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_pySpParMatBool_Square__SWIG_0(self, args);
+        return _wrap_pySpParMatBool_SpGEMM__SWIG_0(self, args);
       }
     }
   }
-  if (argc == 2) {
+  if (argc == 3) {
     int _v;
     void *vptr = 0;
     int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
       _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_pySpParMatBool_Square__SWIG_1(self, args);
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpGEMM__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpGEMM__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpGEMM__SWIG_3(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatBool_SpGEMM__SWIG_4(self, args);
+        }
       }
     }
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_Square'.\n  Possible C/C++ prototypes are:\n    Square(op::Semiring *)\n    Square(op::SemiringObj *)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatBool_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMatBool &)\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatBool &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n");
   return NULL;
 }
 
@@ -11480,239 +12038,6 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj1_assign(PyObject *SWIGUNUSEDPARM(self),
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   return resultobj;
 fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  pySpParMat *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMat result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMat * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  pySpParMatObj1 *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMatObj1 result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  pySpParMatObj2 *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMatObj2 result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj1_SpGEMM__SWIG_0(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj1_SpGEMM__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj1_SpGEMM__SWIG_2(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatObj1_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n");
   return NULL;
 }
 
@@ -13631,6 +13956,311 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMat result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
+  pySpParMatBool *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatBool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatBool,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatBool * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatBool(static_cast< const pySpParMatBool& >(result))), SWIGTYPE_p_pySpParMatBool, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
+  pySpParMatObj1 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj1 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
+  pySpParMatObj2 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj2 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj1_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj1_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_SpGEMM(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj1_SpGEMM__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj1_SpGEMM__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj1_SpGEMM__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj1_SpGEMM__SWIG_3(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatObj1_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatBool &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n");
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_pySpParMatObj1_Column(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int result;
@@ -14353,239 +14983,6 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_assign(PyObject *SWIGUNUSEDPARM(self),
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   return resultobj;
 fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  pySpParMat *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMat result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMat * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  pySpParMatObj2 *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMatObj2 result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  pySpParMatObj1 *arg2 = 0 ;
-  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
-  pySpParMatObj1 result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
-  }
-  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
-  {
-    try {
-      result = (arg1)->SpGEMM(*arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj2_SpGEMM__SWIG_0(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj2_SpGEMM__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
-        _v = SWIG_CheckState(res);
-        if (_v) {
-          return _wrap_pySpParMatObj2_SpGEMM__SWIG_2(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatObj2_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n");
   return NULL;
 }
 
@@ -16500,6 +16897,311 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_Square(PyObject *SWIGUNUSEDPARM(self),
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
+  pySpParMat *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMat result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMat,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMat &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMat * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
+  pySpParMatBool *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatBool result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatBool,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatBool &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatBool * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatBool(static_cast< const pySpParMatBool& >(result))), SWIGTYPE_p_pySpParMatBool, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
+  pySpParMatObj2 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj2 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj2,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj2 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj2(static_cast< const pySpParMatObj2& >(result))), SWIGTYPE_p_pySpParMatObj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
+  pySpParMatObj1 *arg2 = 0 ;
+  op::SemiringObj *arg3 = (op::SemiringObj *) 0 ;
+  pySpParMatObj1 result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_SpGEMM",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_pySpParMatObj1,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "pySpParMatObj2_SpGEMM" "', argument " "2"" of type '" "pySpParMatObj1 &""'"); 
+  }
+  arg2 = reinterpret_cast< pySpParMatObj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pySpParMatObj2_SpGEMM" "', argument " "3"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg3 = reinterpret_cast< op::SemiringObj * >(argp3);
+  {
+    try {
+      result = (arg1)->SpGEMM(*arg2,arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new pySpParMatObj1(static_cast< const pySpParMatObj1& >(result))), SWIGTYPE_p_pySpParMatObj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_SpGEMM(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = PyObject_Length(args);
+  for (ii = 0; (ii < argc) && (ii < 3); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMat, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj2_SpGEMM__SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatBool, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj2_SpGEMM__SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj2_SpGEMM__SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_pySpParMatObj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(argv[2], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_pySpParMatObj2_SpGEMM__SWIG_3(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'pySpParMatObj2_SpGEMM'.\n  Possible C/C++ prototypes are:\n    SpGEMM(pySpParMat &,op::SemiringObj *)\n    SpGEMM(pySpParMatBool &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj2 &,op::SemiringObj *)\n    SpGEMM(pySpParMatObj1 &,op::SemiringObj *)\n");
   return NULL;
 }
 
@@ -42687,7 +43389,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_copy", _wrap_pySpParMatBool_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool___iadd__", _wrap_pySpParMatBool___iadd__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_assign", _wrap_pySpParMatBool_assign, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_SpGEMM", _wrap_pySpParMatBool_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_SubsRef", _wrap_pySpParMatBool_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool___getitem__", _wrap_pySpParMatBool___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_removeSelfLoops", _wrap_pySpParMatBool_removeSelfLoops, METH_VARARGS, NULL},
@@ -42700,6 +43401,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_SpMV", _wrap_pySpParMatBool_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_SpMV_inplace", _wrap_pySpParMatBool_SpMV_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Square", _wrap_pySpParMatBool_Square, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_SpGEMM", _wrap_pySpParMatBool_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Column", _wrap_pySpParMatBool_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Row", _wrap_pySpParMatBool_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatBool", _wrap_delete_pySpParMatBool, METH_VARARGS, NULL},
@@ -42712,7 +43414,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj1_save", _wrap_pySpParMatObj1_save, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_copy", _wrap_pySpParMatObj1_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_assign", _wrap_pySpParMatObj1_assign, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj1_SpGEMM", _wrap_pySpParMatObj1_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_SubsRef", _wrap_pySpParMatObj1_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1___getitem__", _wrap_pySpParMatObj1___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_removeSelfLoops", _wrap_pySpParMatObj1_removeSelfLoops, METH_VARARGS, NULL},
@@ -42726,6 +43427,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj1_SpMV", _wrap_pySpParMatObj1_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_SpMV_inplace", _wrap_pySpParMatObj1_SpMV_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Square", _wrap_pySpParMatObj1_Square, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj1_SpGEMM", _wrap_pySpParMatObj1_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Column", _wrap_pySpParMatObj1_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Row", _wrap_pySpParMatObj1_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatObj1", _wrap_delete_pySpParMatObj1, METH_VARARGS, NULL},
@@ -42738,7 +43440,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj2_save", _wrap_pySpParMatObj2_save, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_copy", _wrap_pySpParMatObj2_copy, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_assign", _wrap_pySpParMatObj2_assign, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj2_SpGEMM", _wrap_pySpParMatObj2_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_SubsRef", _wrap_pySpParMatObj2_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2___getitem__", _wrap_pySpParMatObj2___getitem__, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_removeSelfLoops", _wrap_pySpParMatObj2_removeSelfLoops, METH_VARARGS, NULL},
@@ -42752,6 +43453,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj2_SpMV", _wrap_pySpParMatObj2_SpMV, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_SpMV_inplace", _wrap_pySpParMatObj2_SpMV_inplace, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Square", _wrap_pySpParMatObj2_Square, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj2_SpGEMM", _wrap_pySpParMatObj2_SpGEMM, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Column", _wrap_pySpParMatObj2_Column, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Row", _wrap_pySpParMatObj2_Row, METH_VARARGS, NULL},
 	 { (char *)"delete_pySpParMatObj2", _wrap_delete_pySpParMatObj2, METH_VARARGS, NULL},

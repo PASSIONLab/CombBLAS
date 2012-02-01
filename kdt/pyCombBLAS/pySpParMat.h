@@ -56,9 +56,6 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	//pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
-	//pySpParMat SpGEMM(pySpParMat& other, op::SemiringObj* sring = NULL);
-	//pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
@@ -95,12 +92,11 @@ public:
 
 	void Square(op::Semiring* sring);
 	void Square(op::SemiringObj* sring);
+	pySpParMat     SpGEMM(pySpParMat     &other, op::Semiring* sring);
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
-	//pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
-	/* CombBLAS support for these is still not there.
+	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
 	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);
 	pySpParMatObj2 SpGEMM(pySpParMatObj2 &other, op::SemiringObj* sring);
-	*/
 	
 public:
 	static int Column() { return ::Column; }

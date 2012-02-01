@@ -310,46 +310,6 @@ pySpParMatObj1& pySpParMatObj1::assign(const pySpParMatObj1& other)
 	return *this;
 }
 
-void pySpParMatObj1::Square(op::SemiringObj* sring)
-{
-	sring->enableSemiring();
-	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
-	sring->disableSemiring();
-}
-
-pySpParMat pySpParMatObj1::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
-{
-	sring->enableSemiring();
-	pySpParMat ret;
-	PSpGEMM<op::SemiringObjTemplArg<Obj1, doubleint, doubleint> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-//	cout << "Mixed-type SpGEMM not supported yet!";
-//	return pySpParMat();
-}
-
-pySpParMatObj1 pySpParMatObj1::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
-{
-	sring->enableSemiring();
-	//pySpParMatObj1 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<Obj1, Obj1, Obj1> >(A, other.A) );
-	pySpParMatObj1 ret;
-	PSpGEMM<op::SemiringObjTemplArg<Obj1, Obj1, Obj1> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatObj2 pySpParMatObj1::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
-{
-	/*
-	sring->enableSemiring();
-	pySpParMatObj2 ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg>(A, other.A) );
-	sring->disableSemiring();
-	return ret;
-	*/
-	cout << "Mixed-type SpGEMM not supported yet!";
-	return pySpParMatObj2();
-}
-
 pySpParMatObj1 pySpParMatObj1::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
 	return SubsRef(rows, cols);
@@ -561,109 +521,47 @@ pyDenseParVecObj2 pySpParMatObj1::SpMV(const pyDenseParVecObj2& x, op::SemiringO
 	return pyDenseParVecObj2(getnrow(), Obj2());
 }
 
-/*
-pySpParVec pySpParMatObj1::SpMV_PlusTimes(const pySpParVec& x)
+void pySpParMatObj1::Square(op::SemiringObj* sring)
 {
-	return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
+	sring->enableSemiring();
+	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
+	sring->disableSemiring();
 }
 
-pySpParVec pySpParMatObj1::SpMV_SelMax(const pySpParVec& x)
+#define MATCLASS pySpParMatObj1
+
+pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 {
-	return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
+	pySpParMat ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, doubleint, doubleint> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
 }
 
-void pySpParMatObj1::SpMV_SelMax_inplace(pySpParVec& x)
+pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
 {
-	x.v = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
+	pySpParMatBool ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, bool, bool> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
 }
 
-pySpParVec pySpParMatObj1::SpMV(const pySpParVec& x, op::Semiring* sring)
+pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
 {
-	if (sring == NULL)
-	{
-		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pySpParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
-		sring->disableSemiring();
-		return ret;
-	}
+	pySpParMatObj1 ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj1, Obj1> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
 }
 
-pyDenseParVec pySpParMatObj1::SpMV(const pyDenseParVec& x, op::Semiring* sring)
+pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
 {
-	if (sring == NULL)
-	{
-		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pyDenseParVec( ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pyDenseParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
-		sring->disableSemiring();
-		return ret;
-	}
+	pySpParMatObj2 ret;
+	sring->enableSemiring();
+	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj2, Obj2> >(A, other.A, ret.A);
+	sring->disableSemiring();
+	return ret;
 }
-
-void pySpParMatObj1::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else
-	{
-		sring->enableSemiring();
-		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
-		sring->disableSemiring();
-	}
-}
-
-void pySpParMatObj1::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		x = ::SpMV< Select2ndSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else
-	{
-		sring->enableSemiring();
-		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
-		sring->disableSemiring();
-	}
-}
-*/
