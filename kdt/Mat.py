@@ -908,29 +908,36 @@ class Mat:
 			return self.SpGEMM(other._materialized, semiring, inPlace)
 		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 			return self._materialized.SpGEMM(other._materialized, semiring, inPlace)
-		
-		if self._hasFilter() or other._hasFilter():
-			selfPred = FilterHelper.getFilterPred(self)
-			if selfPred is None:
-				selfPred = lambda x: True
 
-			otherPred = FilterHelper.getFilterPred(other)
-			if otherPred is None:
-				otherPred = lambda x: True
-			
-			class tmpMul:
-				filterA = selfPred
-				filterB = otherPred
-				nullval = self._identity_
-				origMulFunc = _sr_get_python_mul(semiring)
-				@staticmethod
-				def fn(x, y):
-					if tmpMul.filterA(x) and tmpMul.filterB(y):
-						return tmpMul.origMulFunc(x, y)
-					else:
-						return tmpMul.nullval
-			tmpMulInstance = tmpMul()
-			semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
+		clearSemiringFilters = False
+		if self._hasFilter() or other._hasFilter():
+			if semiring == sr_plustimes or semiring == sr_select2nd:
+				semiring = _makePythonOp(semiring)
+			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
+
+		if False:		
+			if self._hasFilter() or other._hasFilter():
+				selfPred = FilterHelper.getFilterPred(self)
+				if selfPred is None:
+					selfPred = lambda x: True
+	
+				otherPred = FilterHelper.getFilterPred(other)
+				if otherPred is None:
+					otherPred = lambda x: True
+				
+				class tmpMul:
+					filterA = selfPred
+					filterB = otherPred
+					nullval = self._identity_
+					origMulFunc = _sr_get_python_mul(semiring)
+					@staticmethod
+					def fn(x, y):
+						if tmpMul.filterA(x) and tmpMul.filterB(y):
+							return tmpMul.origMulFunc(x, y)
+						else:
+							return tmpMul.nullval
+				tmpMulInstance = tmpMul()
+				semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
 
 			
 		if self._m_ is other._m_:
@@ -949,10 +956,14 @@ class Mat:
 		if inPlace:
 			other._m_ = self._m_.SpGEMM(other._m_, semiring)
 			other._dirty()
-			return other
+			ret = other
 		else:
 			ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
-			return ret
+
+		if clearSemiringFilters:
+			semiring.setFilters(None, None)
+		return ret
+
 	spGEMM = SpGEMM
 
 	# possibly in-place;  if so, no return value
