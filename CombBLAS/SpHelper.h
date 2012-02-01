@@ -117,21 +117,21 @@ public:
 	}
 
 	
-	template <typename SR, typename NT1, typename NT2, typename IT>
-	static IT Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack,
+	template <typename SR, typename NT1, typename NT2, typename IT, typename OVT>
+	static IT Popping(NT1 * numA, NT2 * numB, StackEntry< OVT, pair<IT,IT> > * multstack,
 		 	IT & cnz, KNHeap< pair<IT,IT> , IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2);
 
 	template <typename IT, typename NT1, typename NT2>
 	static void SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, Isect<IT>* & cols, Isect<IT>* & rows, 
 			Isect<IT>* & isect1, Isect<IT>* & isect2, Isect<IT>* & itr1, Isect<IT>* & itr2);
 
-	template <typename SR, typename IT, typename NT1, typename NT2>
+	template <typename SR, typename IT, typename NT1, typename NT2, typename OVT>
 	static IT SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
-			Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
+			Isect<IT> * isect2, StackEntry< OVT, pair<IT,IT> > * & multstack);
 
-	template <typename SR, typename IT, typename NT1, typename NT2>
+	template <typename SR, typename IT, typename NT1, typename NT2, typename OVT>
 	static IT SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT nA,	 
-			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack);
+			StackEntry< OVT, pair<IT,IT> > * & multstack);
 
 	template <typename NT, typename IT>
 	static void ShrinkArray(NT * & array, IT newsize)
@@ -165,15 +165,15 @@ public:
 /**
  * Pop an element, do the numerical semiring multiplication & insert the result into multstack
  */
-template <typename SR, typename NT1, typename NT2, typename IT>
-IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * multstack, 
+template <typename SR, typename NT1, typename NT2, typename IT, typename OVT>
+IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< OVT, pair<IT,IT> > * multstack, 
 			IT & cnz, KNHeap< pair<IT,IT>,IT > & sHeap, Isect<IT> * isect1, Isect<IT> * isect2)
 {
 	pair<IT,IT> key;	
 	IT inc;
 	sHeap.deleteMin(&key, &inc);
 
-	typename promote_trait<NT1,NT2>::T_promote value = SR::multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
+	OVT value = SR::multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
 	if (!SR::returnedSAID())
 	{
 		if(cnz != 0)
@@ -244,9 +244,9 @@ void SpHelper::SpIntersect(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcs
  * Returns the "actual" number of elements in the merged stack
  * Bdcsc is "already transposed" (i.e. Bdcsc->ir gives column indices, and Bdcsc->jc gives row indices)
  **/
-template <typename SR, typename IT, typename NT1, typename NT2>
+template <typename SR, typename IT, typename NT1, typename NT2, typename OVT>
 IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT kisect, Isect<IT> * isect1, 
-		Isect<IT> * isect2, StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+		Isect<IT> * isect2, StackEntry< OVT, pair<IT,IT> > * & multstack)
 {	
 	pair<IT,IT> supremum(numeric_limits<IT>::max(), numeric_limits<IT>::max());
 	pair<IT,IT> infimum (numeric_limits<IT>::min(), numeric_limits<IT>::min());
@@ -263,7 +263,7 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 
 	IT cnz = 0;						
 	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
-	multstack = new StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > [cnzmax];	
+	multstack = new StackEntry< OVT, pair<IT,IT> > [cnzmax];	
 
 	bool finished = false;
 	while(!finished)		// multiplication loop  (complexity O(flops * log (kisect))
@@ -307,15 +307,13 @@ IT SpHelper::SpCartesian(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc,
 }
 
 
-template <typename SR, typename IT, typename NT1, typename NT2>
+template <typename SR, typename IT, typename NT1, typename NT2, typename OVT>
 IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, IT nA, 
-			StackEntry< typename promote_trait<NT1,NT2>::T_promote, pair<IT,IT> > * & multstack)
+			StackEntry< OVT, pair<IT,IT> > * & multstack)
 {
-	typedef typename promote_trait<NT1,NT2>::T_promote T_promote;     
-
 	IT cnz = 0;
 	IT cnzmax = Adcsc.nz + Bdcsc.nz;	// estimate on the size of resulting matrix C
-	multstack = new StackEntry<T_promote, pair<IT,IT> >[cnzmax];	 
+	multstack = new StackEntry<OVT, pair<IT,IT> >[cnzmax];	 
 
 	float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
 	IT csize = static_cast<IT>(ceil(cf));   // chunk size
@@ -368,7 +366,7 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			// type promotion done here: 
 			// static T_promote multiply(const T1 & arg1, const T2 & arg2)
 			//	return (static_cast<T_promote>(arg1) * static_cast<T_promote>(arg2) );
-			T_promote mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
+			OVT mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
 			if (!SR::returnedSAID())
 			{
 				if(cnz != prevcnz && multstack[cnz-1].key.second == wset[hsize-1].key)	// if (cnz == prevcnz) => first nonzero for this column

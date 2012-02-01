@@ -294,10 +294,10 @@ class ReductionTests(MatTests):
 				-1.6000000087e+10]
 		insumExpected = [-10, -53, -44, -79, -48, -15, -1.6000000016e+10, 
 				-104, -164]
-		print "rowsum:",outsum
-		print "expected rowsum:",outsumExpected
-		print "colsum:",insum
-		print "expected colsum:", insumExpected
+		#print "rowsum:",outsum
+		#print "expected rowsum:",outsumExpected
+		#print "colsum:",insum
+		#print "expected colsum:", insumExpected
 		
 		self.assertEqual(len(outsum), len(outsumExpected))
 		self.assertEqual(len(insum), len(insumExpected))

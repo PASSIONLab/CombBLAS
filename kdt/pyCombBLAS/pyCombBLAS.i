@@ -91,9 +91,9 @@ public:
 	pySpParMat copy();
 	pySpParMat& operator+=(const pySpParMat& other);
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
+	//pySpParMat SpGEMM(pySpParMat& other, op::Semiring* sring = NULL);
 	//pySpParMat SpGEMM(pySpParMat& other, op::SemiringObj* sring = NULL);
-	pySpParMat operator*(pySpParMat& other);
+	//pySpParMat operator*(pySpParMat& other);
 	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	
@@ -180,7 +180,6 @@ public:
 	pySpParMatBool& operator+=(const pySpParMatBool& other);
 	pySpParMatBool& assign(const pySpParMatBool& other);
 	pySpParMatBool SpGEMM(pySpParMatBool& other);
-	pySpParMatBool operator*(pySpParMatBool& other);
 	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
 	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
 	

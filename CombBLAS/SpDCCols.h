@@ -304,20 +304,20 @@ private:
 	template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate> 
 	friend SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal);
 
-	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBn 
+	template<class SR, class NUO, class IU, class NU1, class NU2>
+	friend SpTuples<IU, NUO> * Tuples_AnXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
-	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AnXBt 
+	template<class SR, class NUO, class IU, class NU1, class NU2>
+	friend SpTuples<IU, NUO> * Tuples_AnXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
-	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBn 
+	template<class SR, class NUO, class IU, class NU1, class NU2>
+	friend SpTuples<IU, NUO> * Tuples_AtXBn 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
-	template<class SR, class IU, class NU1, class NU2>
-	friend SpTuples<IU, typename promote_trait<NU1,NU2>::T_promote> * Tuples_AtXBt 
+	template<class SR, class NUO, class IU, class NU1, class NU2>
+	friend SpTuples<IU, NUO> * Tuples_AtXBt 
 		(const SpDCCols<IU, NU1> & A, const SpDCCols<IU, NU2> & B, bool clearA, bool clearB);
 
 	template <typename SR, typename IU, typename NU, typename RHS, typename LHS>

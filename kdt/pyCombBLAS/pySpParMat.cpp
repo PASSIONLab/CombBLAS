@@ -250,11 +250,13 @@ pySpParMat& pySpParMat::assign(const pySpParMat& other)
 	return *this;
 }
 
+/*
 pySpParMat pySpParMat::operator*(pySpParMat& other)
 {
 	return SpGEMM(other);
-}
+}*/
 
+/* obsolete in favor of SemiringObj
 pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
 {
 	if (sring == NULL)
@@ -276,7 +278,7 @@ pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::Semiring* sring)
 		sring->disableSemiring();
 		return ret;
 	}
-}
+}*/
 
 pySpParMat pySpParMat::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
 {
@@ -583,7 +585,10 @@ void pySpParMat::Square(op::SemiringObj* sring)
 pySpParMat pySpParMat::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 {
 	sring->enableSemiring();
-	pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A) );
+	//pySpParMat ret( Mult_AnXBn_Synch<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A) );
+	pySpParMat ret;
+	PSpGEMM<op::SemiringObjTemplArg<doubleint, doubleint, doubleint> >(A, other.A, ret.A);
+
 	sring->disableSemiring();
 	return ret;
 }

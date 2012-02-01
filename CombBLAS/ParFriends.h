@@ -50,16 +50,14 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
  * Memory requirement during second sqrt(p) stages: <= nnz(A)+nnz(B)+nnz(C)
  * Final memory requirement: nnz(C) if clearA and clearB are true 
  **/  
-template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
-SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_DoubleBuff
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
 	if(!CheckSpGEMMCompliance(A,B) )
 	{
-		return SpParMat< IU,N_promote,DER_promote >();
+		return SpParMat< IU,NUO,UDERO >();
 	}
 
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
@@ -85,7 +83,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	// Remotely fetched matrices are stored as pointers
 	UDERA * ARecv; 
 	UDERB * BRecv;
-	vector< SpTuples<IU,N_promote>  *> tomerge;
+	vector< SpTuples<IU,NUO>  *> tomerge;
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
@@ -122,7 +120,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 			BRecv = new UDERB();
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
-		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
@@ -174,7 +172,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
-		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
@@ -211,9 +209,9 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	}
 			
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
+	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
 	// First get the result in SpTuples, then convert to UDER
-	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
+	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
 
@@ -222,16 +220,14 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
  * Relies on simple blocking broadcast
  * @pre { Input matrices, A and B, should not alias }
  **/  
-template <typename SR, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
-SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDERA,UDERB>::T_promote> Mult_AnXBn_Synch 
+template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB> 
+SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch 
 		(SpParMat<IU,NU1,UDERA> & A, SpParMat<IU,NU2,UDERB> & B, bool clearA = false, bool clearB = false )
 
 {
-	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
-	typedef typename promote_trait<UDERA,UDERB>::T_promote DER_promote;
 	if(!CheckSpGEMMCompliance(A,B) )
 	{
-		return SpParMat< IU,N_promote,DER_promote >();
+		return SpParMat< IU,NUO,UDERO >();
 	}
 	int stages, dummy; 	// last two parameters of ProductGrid are ignored for Synch multiplication
 	shared_ptr<CommGrid> GridC = ProductGrid((A.commGrid).get(), (B.commGrid).get(), stages, dummy, dummy);		
@@ -250,7 +246,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	// Remotely fetched matrices are stored as pointers
 	UDERA * ARecv; 
 	UDERB * BRecv;
-	vector< SpTuples<IU,N_promote>  *> tomerge;
+	vector< SpTuples<IU,NUO>  *> tomerge;
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
@@ -290,7 +286,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		}
 		SpParHelper::BCastMatrix(GridC->GetColWorld(), *BRecv, ess, i);	// then, receive its elements
 
-		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>
+		SpTuples<IU,NUO> * C_cont = MultiplyReturnTuples<SR, NUO>
 						(*ARecv, *BRecv, // parameters themselves
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
@@ -319,14 +315,14 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
 		
-	DER_promote * C = new DER_promote(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
+	UDERO * C = new UDERO(MergeAll<SR>(tomerge, C_m, C_n,true), false);	
 	// First get the result in SpTuples, then convert to UDER
 	// the last parameter to MergeAll deletes tomerge arrays
 
 	if(!clearB)
 		const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 
-	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
+	return SpParMat<IU,NUO,UDERO> (C, GridC);		// return the result object
 }
 
 
