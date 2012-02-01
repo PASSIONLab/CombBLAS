@@ -174,11 +174,20 @@ IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<
 	sHeap.deleteMin(&key, &inc);
 
 	typename promote_trait<NT1,NT2>::T_promote value = SR::multiply(numA[isect1[inc].current], numB[isect2[inc].current]);
-	if(cnz != 0)
+	if (!SR::returnedSAID())
 	{
-		if(multstack[cnz-1].key == key)	// already exists
+		if(cnz != 0)
 		{
-			multstack[cnz-1].value = SR::add(multstack[cnz-1].value, value);
+			if(multstack[cnz-1].key == key)	// already exists
+			{
+				multstack[cnz-1].value = SR::add(multstack[cnz-1].value, value);
+			}
+			else
+			{
+				multstack[cnz].value = value;
+				multstack[cnz].key   = key;
+				++cnz;
+			}
 		}
 		else
 		{
@@ -186,12 +195,6 @@ IT SpHelper::Popping(NT1 * numA, NT2 * numB, StackEntry< typename promote_trait<
 			multstack[cnz].key   = key;
 			++cnz;
 		}
-	}
-	else
-	{
-		multstack[cnz].value = value;
-		multstack[cnz].key   = key;
-		++cnz;
 	}
 	return inc;
 }
@@ -366,15 +369,18 @@ IT SpHelper::SpColByCol(const Dcsc<IT,NT1> & Adcsc, const Dcsc<IT,NT2> & Bdcsc, 
 			// static T_promote multiply(const T1 & arg1, const T2 & arg2)
 			//	return (static_cast<T_promote>(arg1) * static_cast<T_promote>(arg2) );
 			T_promote mrhs = SR::multiply(wset[hsize-1].num, Bdcsc.numx[Bdcsc.cp[i]+locb]);
-			if(cnz != prevcnz && multstack[cnz-1].key.second == wset[hsize-1].key)	// if (cnz == prevcnz) => first nonzero for this column
+			if (!SR::returnedSAID())
 			{
-				multstack[cnz-1].value = SR::add(multstack[cnz-1].value, mrhs);
-			}
-			else
-			{
-				multstack[cnz].value = mrhs;
-				multstack[cnz++].key = make_pair(Bdcsc.jc[i], wset[hsize-1].key);	
-				// first entry is the column index, as it is in column-major order
+				if(cnz != prevcnz && multstack[cnz-1].key.second == wset[hsize-1].key)	// if (cnz == prevcnz) => first nonzero for this column
+				{
+					multstack[cnz-1].value = SR::add(multstack[cnz-1].value, mrhs);
+				}
+				else
+				{
+					multstack[cnz].value = mrhs;
+					multstack[cnz++].key = make_pair(Bdcsc.jc[i], wset[hsize-1].key);	
+					// first entry is the column index, as it is in column-major order
+				}
 			}
 			
 			if( (++(colinds[locb].first)) != colinds[locb].second)	// current != end
