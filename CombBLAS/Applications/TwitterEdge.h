@@ -191,6 +191,7 @@ struct LatestRetwitterBFS
 {
 	static MPI_Op MPI_BFSADD;
 	static ParentType id() { return ParentType(); }	// additive identity
+	static bool returnedSAID() { return false; }
 	static ParentType add(const ParentType & arg1, const ParentType & arg2)
 	{
 		return ((arg2 == ParentType()) ? arg1: arg2);

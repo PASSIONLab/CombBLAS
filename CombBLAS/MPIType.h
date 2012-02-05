@@ -79,17 +79,17 @@ template <typename T>
 MPI::Datatype MPIType ( void )
 {
 	std::type_info const* t = &typeid(T);
-    	MPI::Datatype datatype = mpidtc.get(t);
+	MPI::Datatype datatype = mpidtc.get(t);
 
-    	if (datatype == MPI::DATATYPE_NULL) 
+	if (datatype == MPI::DATATYPE_NULL) 
 	{
 		datatype = MPI::CHAR.Create_contiguous(sizeof(T));
-	        datatype.Commit();
+		datatype.Commit();
 		int myrank = MPI::COMM_WORLD.Get_rank();
-	        if(myrank == 0)
-			cout << "Creating a new MPI data type for " << t->name() << endl;
-      		mpidtc.set(t, datatype);
-    	}
+		if(myrank == 0)
+		cout << "Creating a new MPI data type for " << t->name() << endl;
+		mpidtc.set(t, datatype);
+	}
    	return datatype;
 };
 

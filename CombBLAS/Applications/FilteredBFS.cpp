@@ -91,6 +91,7 @@ int main(int argc, char* argv[])
 			ABool->PrintInfo();
 			ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			indegrees.DebugPrint();
 			degrees = indegrees;	
 			degrees.EWiseApply(oudegrees, plus<int64_t>());
 			SpParHelper::Print("All degrees calculated\n");
