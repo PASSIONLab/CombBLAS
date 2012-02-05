@@ -507,7 +507,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
 				
 				// Each processor on the same processor row should execute the SAME number of reduce calls
-				int numreducecalls = spSeq->getnzc() / MAXCOLUMNBATCH;
+				int numreducecalls = (int) ceil(static_cast<float>(spSeq->getnzc()) / static_cast<float>(MAXCOLUMNBATCH));
 				int maxreducecalls;
 				(commGrid->GetRowWorld()).Allreduce( &numreducecalls, &maxreducecalls, 1, MPI::INT, MPI::MAX);
 				
