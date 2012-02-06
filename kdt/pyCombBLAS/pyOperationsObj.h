@@ -761,7 +761,6 @@ class SemiringObj {
 //INTERFACE_INCLUDE_END
 	public:
 	static SemiringObj *currentlyApplied;
-	static bool returnedSAID;
 
 	// CUSTOM is a semiring with Python-defined methods
 	// The others are pre-implemented in C++ for speed.
@@ -823,10 +822,15 @@ struct SemiringObjTemplArg
 {
 	static OUT id() { return OUT();}
 
-	static bool returnedSAID()
+	// the default argument means that this function can be used like this:
+	// if (returnedSAID()) {...}
+	// which is how it is called inside CombBLAS routines. That call conveniently clears the flag for us.
+	static bool returnedSAID(bool setFlagTo=false)
 	{
-		bool temp = SemiringObj::returnedSAID; // this temporary allows us to avoid using an if statement yet still clear the flag
-		SemiringObj::returnedSAID = false; // clear the flag
+		static bool flag = false;
+		
+		bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+		flag = setFlagTo; // set/clear the flag.
 		return temp;
 	}
 	
@@ -848,13 +852,13 @@ struct SemiringObjTemplArg
 			// filter the left parameter
 			if (SemiringObj::currentlyApplied->left_filter != NULL && !(*(SemiringObj::currentlyApplied->left_filter))(arg1))
 			{
-				SemiringObj::returnedSAID = true;
+				returnedSAID(true);
 				return id();
 			}
 			// filter the right parameter
 			if (SemiringObj::currentlyApplied->right_filter != NULL && !(*(SemiringObj::currentlyApplied->right_filter))(arg2))
 			{
-				SemiringObj::returnedSAID = true;
+				returnedSAID(true);
 				return id();
 			}
 		}

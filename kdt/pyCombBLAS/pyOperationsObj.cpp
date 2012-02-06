@@ -118,7 +118,6 @@ void BinaryFunctionObj::releaseMPIOp()
 
 //template <>
 SemiringObj* SemiringObj::currentlyApplied = NULL;
-bool SemiringObj::returnedSAID = false;
 
 void clear_SemiringObj_currentlyApplied()
 {
