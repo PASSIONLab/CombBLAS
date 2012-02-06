@@ -448,7 +448,6 @@ void pySpParMatBool::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
 	}
 }
 
-/*
 void pySpParMatBool::Square(op::Semiring* sring)
 {
 	if (sring->getType() == op::Semiring::TIMESPLUS)
@@ -465,13 +464,40 @@ void pySpParMatBool::Square(op::Semiring* sring)
 		A.Square<op::SemiringTemplArg<doubleint, doubleint> >();
 		sring->disableSemiring();
 	}
-}*/
+}
 
 void pySpParMatBool::Square(op::SemiringObj* sring)
 {
 	sring->enableSemiring();
 	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
 	sring->disableSemiring();
+}
+
+
+// Only kept here to support built-in PlusTimes and Select2nd.
+// Otherwise use the SemiringObj version.
+pySpParMat pySpParMatBool::SpGEMM(pySpParMat& other, op::Semiring* sring)
+{
+	if (sring == NULL)
+	{
+		throw string("Null semiring");
+	}
+	else if (sring->getType() == op::Semiring::TIMESPLUS)
+	{
+		pySpParMat ret;
+		PSpGEMM<PlusTimesSRing<bool, doubleint > >(A, other.A, ret.A);
+		return ret;
+	}
+	else if (sring->getType() == op::Semiring::SECONDMAX)
+	{
+		pySpParMat ret;
+		PSpGEMM<Select2ndSRing<bool, doubleint, doubleint > >(A, other.A, ret.A);
+		return ret;
+	}
+	else
+	{
+		throw string("Do not use SpGEMM(Semiring) unless using a built-in. Otherwise use SpGEMM(SemiringObj) for all purposes.");
+	}
 }
 
 #define MATCLASS pySpParMatBool

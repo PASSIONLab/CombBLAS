@@ -645,7 +645,7 @@ class Mat:
 		return self.reduce(dir, (lambda x,y: x+y), uniOp=pred, init=0.0)
 
 	# NEEDED: tests
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True):
 		"""
 		ToDo:  write doc
 		
@@ -653,8 +653,8 @@ class Mat:
 		"""
 		
 		if not isinstance(other, Mat):
-			raise NotImplementedError, "eWiseApply with scalars not implemented yet"
-			# use apply()
+			raise KeyError, "eWiseApply works on two Mat objects."
+			# use apply()?
 			return
 		
 		if self._hasMaterializedFilter() and not inPlace:
@@ -674,21 +674,13 @@ class Mat:
 		##if doOp is not None:
 		# new version
 		if inPlace:
-			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 			self._dirty()
 			return
 		else:
-			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 			ret = Mat._toMat(m)
 			return ret
-
-		# old version, will be removed
-		#if inPlace:
-		#	self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
-		#else:
-		#	m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp))
-		#	ret = self._toMat(m)
-		#	return ret
 
 	# NEEDED: tests
 	def __getitem__(self, key):
@@ -797,7 +789,7 @@ class Mat:
 		"""
 		if self._hasMaterializedFilter():
 			return self._materialized.reduce(dir, op, uniOp, init)
-
+		
 		if dir != Mat.Row and dir != Mat.Column and dir != Mat.All:
 			raise KeyError, 'unknown direction'
 		
@@ -992,10 +984,10 @@ class Mat:
 			raise NotImplementedError, "SpMV does not support vector filters yet"
 		
 		clearSemiringFilters = False
-		if self._hasFilter():
+		if self._hasFilter() or other._hasFilter():
 			if semiring == sr_plustimes or semiring == sr_select2nd:
 				semiring = _makePythonOp(semiring)
-			semiring.setFilters(FilterHelper.getFilterPred(self), None)
+			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
 			
 		if False:
 			if self._hasFilter() or other._hasFilter():

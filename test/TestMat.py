@@ -5,7 +5,7 @@ import unittest
 from kdt import *
 
 class MatTests(unittest.TestCase):
-	def fillMat_worker(self, nvert, nedge, i, j, v):
+	def fillMat(self, nvert, nedge, i, j, v):
 		"""
 		Initialize a graph with edge weights equal to one or the input value.
 		"""
@@ -23,33 +23,25 @@ class MatTests(unittest.TestCase):
 
 		return Mat(iInd, jInd, vInd, nvert)
 
-	def fillMat(self, nvert, nedge, i, j, v):
-		ret = self.fillMat_worker(nvert, nedge, i, j, v)
-		return ret
-
-	def fillMatFiltered(self, nvert, nedge, i, j, v):
-		ret = self.fillMat_worker(nvert, nedge, i, j, v)
-		ret = self.addFilteredElements(ret)
-		#ret.materializeFilter()
-		return ret
-
-	useFilterFill = False
-	useMaterializingFilter = False
+	@staticmethod
+	def addFilterStuff(M, addFilter=True, materializing=False):
+		if addFilter:
+			M = MatTests.addFilteredElements(M)
+			if materializing:
+				M.materializeFilter()
+		return M
+		
+	testFilter = False
+	testMaterializingFilter = False
 	def initializeMat(self, nvert, nedge, i, j, v=1, allowFilter=True):
-		if MatTests.useFilterFill and allowFilter:
-			ret = self.fillMatFiltered(nvert, nedge, i, j, v)
-			if MatTests.useMaterializingFilter:
-				ret.materializeFilter()
-			return ret
-		else:
-			return self.fillMat(nvert, nedge, i, j, v)
+		ret = self.fillMat(nvert, nedge, i, j, v)
+		
+		ret = MatTests.addFilterStuff(ret, (MatTests.testFilter and allowFilter), MatTests.testMaterializingFilter)
+		return ret
 		
 	def loadMat(self, filename):
 		ret = Mat.load(filename)
-		if MatTests.useFilterFill:
-			ret = self.addFilteredElements(ret)
-			if MatTests.useMaterializingFilter:
-				ret.materializeFilter()
+		ret = MatTests.addFilterStuff(ret, MatTests.testFilter, MatTests.testMaterializingFilter)
 		return ret
 
 	def initializeIJMat(self, nvert, scale=1000):
@@ -59,7 +51,9 @@ class MatTests(unittest.TestCase):
 		i = Vec.range(nvert*nvert) % nvert
 		j = (Vec.range(nvert*nvert) / nvert).floor()
 		v = i*scale + j
-		return Mat(i, j, v, nvert)
+		ret = Mat(i, j, v, nvert)
+		ret = MatTests.addFilterStuff(ret, MatTests.testFilter, MatTests.testMaterializingFilter)
+		return ret
 
 	def assertEqualMat(self, G, expI, expJ, expV):
 		self.assertEqual(len(expI), G.nnn())
@@ -72,7 +66,8 @@ class MatTests(unittest.TestCase):
 		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=(lambda x,y: x == y))
 		self.assertEqual(comp.nnn(), G.nnn())
 
-	def addFilteredElements(self, M):
+	@staticmethod
+	def addFilteredElements(M):
 		if M.isObj():
 			print "NF" # make it known that the test wasn't done due to no object filters
 			return M
@@ -307,7 +302,7 @@ class ReductionTests(MatTests):
 				self.assertEqual(insum[ind], insumExpected[ind])
 				
 class GeneralPurposeTests(MatTests):
-	def test_multNot(self):
+	def mulNot_is_deprecated_test_multNot(self):
 		nvert1 = 9
 		nedge1 = 19
 		origI1 = [1, 0, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
@@ -719,10 +714,13 @@ def runTests(verbosity = 1):
 	testSuite = suite()
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
-	print "running again using filtered data:"
+	print "running again using filtered data (on-the-fly):"
 	
-	MatTests.useFilterFill = True
-	#MatTests.fillMat = MatTests.fillMatFiltered
+	MatTests.testFilter = True
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	
+	print "running again using filtered data (materializing):"
+	MatTests.testMaterializingFilter = True
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
@@ -735,13 +733,12 @@ def suite():
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
+	##suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
+	##suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConnCompTests))

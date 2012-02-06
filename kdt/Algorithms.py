@@ -159,21 +159,21 @@ def isBfsTree(self, root, parents, sym=False):
 	builtGT = DiGraph(treeJ, treeI, 1, nvertG)
 	visited = ParVec.zeros(nvertG)
 	visited[root] = 1
-	fringe = SpParVec(nvertG)
-	fringe[root] = root
+	frontier = SpParVec(nvertG)
+	frontier[root] = root
 	cycle = False
 	multiparents = False
-	while fringe.nnn() > 0 and not cycle and not multiparents:
-		fringe.spOnes()
-		newfringe = SpParVec.toSpParVec(builtGT._spm.SpMV_PlusTimes(fringe._spv))
-		if visited[newfringe.toParVec().findInds()].any():
+	while frontier.nnn() > 0 and not cycle and not multiparents:
+		frontier.spOnes()
+		newfrontier = SpParVec.toSpParVec(builtGT._spm.SpMV_PlusTimes(frontier._spv))
+		if visited[newfrontier.toParVec().findInds()].any():
 			cycle = True
 			break
-		if (newfringe > 1).any():
+		if (newfrontier > 1).any():
 			multiparents = True
 			break
-		fringe = newfringe
-		visited[fringe] = 1
+		frontier = newfrontier
+		visited[frontier] = 1
 	if cycle or multiparents:
 		return (-1, None)
 	del visited, builtGT
@@ -187,20 +187,20 @@ def isBfsTree(self, root, parents, sym=False):
 		self.reverseEdges()
 	parents2 = ParVec.zeros(nvertG) - 1
 	parents2[root] = root
-	fringe = SpParVec(nvertG)
-	fringe[root] = root
+	frontier = SpParVec(nvertG)
+	frontier[root] = root
 	levels = ParVec.zeros(nvertG) - 1
 	levels[root] = 0
 
 	level = 1
-	while fringe.nnn() > 0:
-		fringe.spRange()
+	while frontier.nnn() > 0:
+		frontier.spRange()
 		#ToDo:  create PCB graph-level op
-		self._spm.SpMV_SelMax_inplace(fringe._spv)
+		self._spm.SpMV_SelMax_inplace(frontier._spv)
 		#ToDo:  create PCB graph-level op
-		pcb.EWiseMult_inplacefirst(fringe._spv, parents2._dpv, True, -1)
-		parents2[fringe] = fringe
-		levels[fringe] = level
+		pcb.EWiseMult_inplacefirst(frontier._spv, parents2._dpv, True, -1)
+		parents2[frontier] = frontier
+		levels[frontier] = level
 		level += 1
 	if not sym:
 		self.reverseEdges()
@@ -243,11 +243,11 @@ def neighbors(self, source, nhop=1):
 	"""
 
 	dest = Vec(self.nvert(), element=0.0, sparse=False)
-	fringe = SpParVec(self.nvert(), sparse=True)
-	fringe[source] = 1
+	frontier = SpParVec(self.nvert(), sparse=True)
+	frontier[source] = 1
 	for i in range(nhop):
-		self.e.SpMV(fringe, sr=sr_select2nd, inPlace=True)
-		dest[fringe] = 1
+		self.e.SpMV(frontier, sr=sr_select2nd, inPlace=True)
+		dest[frontier] = 1
 
 	return dest
 
@@ -263,7 +263,7 @@ DiGraph.neighbors = neighbors
 def pathsHop(self, source, sym=False):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
-	which can be viewed as the fringe of a set of paths, the vertices
+	which can be viewed as the frontier of a set of paths, the vertices
 	that are reachable by traversing one graph edge from one of the 
 	starting vertices.  The paths are kept distinct, as only one path
 	will extend to a given vertex.
@@ -285,11 +285,11 @@ def pathsHop(self, source, sym=False):
 	"""
 
 	ret = Vec(self2.nvert(), element=-1, sparse=False)
-	fringe = source.find()
-	fringe.spRange()
-	self.e.SpMV(fringe, sr=sr_select2nd, inPlace=True)
+	frontier = source.find()
+	frontier.spRange()
+	self.e.SpMV(frontier, sr=sr_select2nd, inPlace=True)
 
-	ret[fringe] = fringe
+	ret[frontier] = frontier
 
 	return ret
 DiGraph.pathsHop = pathsHop
@@ -440,26 +440,19 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		- memFract:  the fraction of node memory that will be considered
 		available for a single strip in the strip-mining
 		algorithm.  Fractions that lead to paging will likely
-		deliver atrocious performance.  The default is 0.1.  
+		deliver atrocious performance.  The default is 0.1.
+	
+	This function uses Brandes' algorithm.
 	"""
-	A = self.e.copy()
-	A.transpose()
-	A.spOnes()
+	A = self.e.copy(element=1.0)
+	A.transpose() # Adam: why?
+	#A.spOnes()
 	N = self.nvert()
-	if BCdebug>0 and master():
-		print "in _approxBC, A.nvert=%d, nproc=%d" % (N, nProcs)
 
-	if BCdebug>1 and master():
-		print "Apply(set(1))"
-	#Aint = self.spOnes()	# not needed;  Gs only int for now
-	if BCdebug>1 and master():
-		print "spm.nrow and col()"
+	# initialize final BC value vector
+	bc = Vec(N, sparse=False, element=0)
 
-	if BCdebug>1 and master():
-		print "densevec(%d, 0)"%N
-	bc = Vec(N, sparse=False)
-	if BCdebug>1 and master():
-		print "nrow()"
+	# create the batches
 	nVertToCalc = int(math.ceil(N * sample))
 	nVertToCalc = min(nVertToCalc, N)
 	
@@ -482,49 +475,17 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	# sources for the batches
 	# the i-th batch is defined as randVerts[ startVs[i] to (startVs[i]+numV[i]) ]
 	randVerts = Vec.range(N)
-	
-	#if master():
-	#	print "NOTE! SKIPPING RANDPERM()! starting vertices will be sequential."
 	randVerts.randPerm()
-	#randVerts.sort()
 	
 	if (batchSize >= nVertToCalc):
 		startVs = [0]
 		endVs = [nVertToCalc]
 		numVs = [nVertToCalc]
-	else: #elif sample == 1.0:
+	else: #sample == 1.0:
 		startVs = range(0,nVertToCalc,batchSize)
 		endVs = range(batchSize, nVertToCalc, batchSize)
 		endVs.append(nVertToCalc)
 		numVs = [y-x for [x,y] in zip(startVs,endVs)]
-	if False: #else:
-		if BCdebug>1 and master():
-			print "densevec iota(0, %d) (i think in that order)"%nPossBatches
-		perm = Vec.range(nPossBatches)
-		if BCdebug>1 and master():
-			print "densevec randperm()"
-		perm.randPerm()
-		#   ideally, could use following 2 lines, but may have
-		#   only 1-2 batches, which makes index vector look
-		#   like a Boolean, which doesn't work right
-		#startVs = Vec.range(nBatches)[perm[Vec.range(nBatches]]
-		#numVs = [min(x+batchSize,N)-x for x in startVs]
-		if BCdebug>1 and master():
-			print "densevec iota(0, %d) (i think in that order)"%nPossBatches
-		tmpRange = Vec.range(nPossBatches)
-		if BCdebug>1 and master():
-			print "densevec(%d, 0)"%nBatches
-		startVs = Vec.zeros(nBatches)
-		if BCdebug>1 and master():
-			print "densevec(%d, 0)"%nBatches
-		numVs = Vec.zeros(nBatches)
-		for i in range(nBatches):
-			if BCdebug>1 and master():
-				print "dense vec SubsRef, GetElement and SetElement"
-			startVs[i] = tmpRange[perm[i]]*batchSize
-			if BCdebug>1 and master():
-				print "dense vec GetElement and SetElement"
-			numVs[i] = min(startVs[i]+batchSize,N)-startVs[i]
 
 	if BCdebug>0:
 		p("batchSz=%d, nBatches=%d, nPossBatches=%d" % (batchSize, nBatches, nPossBatches))
@@ -532,7 +493,12 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		p("summary of batches:")
 		p(("startVs:",startVs))
 		p(("  numVs:", numVs))
+	
+	# main loop.
+	# iterate over each batch and update the BC values as we go along
 	for [startV, numV] in zip(startVs, numVs):
+		
+		# get the batch
 		startV = int(startV); numV = int(numV)
 		if BCdebug>0:
 			p("startV=%d, numV=%d" % (startV, numV))
@@ -544,76 +510,60 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 		if BCdebug>1:
 			p(("batch=",batch))
 		curSize = len(batch)
-		#next:  nsp is really a SpParMat
-		nsp = Mat(batch, Vec.range(curSize), 1, curSize, N) # original: Mat(Vec.range(curSize), batch, 1, curSize, N)
-		#print "nsp",nsp._reprTuples()
-		#print nsp
-		#next:  fringe should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
-		fringe = A[Vec.range(N), batch] # AL: swapped ##
-		#print "fringe:",fringe
+
+		nsp = Mat(batch, Vec.range(curSize), 1, curSize, N)
+		#next:  frontier should be Vs; indexing must be impl to support that; seems should be a collxn of spVs, hence a SpParMat
+		frontier = A[Vec.range(N), batch]
+
+		# main batched SSSP solve (using a BFS. Same algorithm as in bfsTree(), except instead of a single starting vertex we have numV of them)
 		depth = 0
-		while fringe.nnn() > 0:
-			before = time.time()
+		while frontier.nnn() > 0:
+			if BCdebug>1:
+				before = time.time()
+	
 			depth = depth+1
 			if BCdebug>1 and depth>1:
-				nspne = tmp.nnn(); tmpne = tmp.nnn(); fringene = fringe.nnn()
-				p("BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, fringe.nedge()=%d" % (depth, nspne, tmpne, fringene))
-			nsp += fringe
-			#print "nsp:",nsp
-			tmp = fringe.copy()
+				nspne = tmp.nnn(); tmpne = tmp.nnn(); frontierne = frontier.nnn()
+				p("BC: in while: depth=%d, nsp.nedge()=%d, tmp.nedge()=%d, frontier.nedge()=%d" % (depth, nspne, tmpne, frontierne))
+			nsp += frontier
+			tmp = frontier.copy()
 			tmp.spOnes()
-			bfs.append(tmp)
-			#next:  changes how???
-			#AL: should this be: 			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
-			tmp = A.SpGEMM(fringe, semiring=sr_plustimes)
-			#orig: tmp = fringe.SpGEMM(A, semiring=sr_plustimes)
-			if BCdebug>1:
-				#nspsum = nsp.sum(Mat.Row).sum() 
-				#fringesum = fringe.sum(Mat.Row).sum()
-				#tmpsum = tmp.sum(Mat.Row).sum()
-				if master():
-					#print depth, nspsum, fringesum, tmpsum
-					pass
-			# prune new-fringe to new verts
-			fringe = tmp._mulNot(nsp)
+			bfs.append(tmp) # save each BFS frontier
+			frontier = A.SpGEMM(frontier, semiring=sr_plustimes)
+
+			# prune new-frontier to new verts only
+			#frontier = tmp._mulNot(nsp)
+			frontier.eWiseApply(nsp, op=(lambda f,n: f), allowBNulls=True, allowIntersect=False, inPlace=True)
+			
 			if BCdebug>1:
 				p("    %f seconds" % (time.time()-before))
 
+		# compute the BC update for all vertices except the sources
 		bcu = Mat.ones(curSize,N)
-		##print "bcu",bcu
-		# compute the bc update for all vertices except the sources
 		for depth in range(depth-1,0,-1):
 			# compute the weights to be applied based on the child values
 			w = bfs[depth] / nsp 
 			w *= bcu
-			##if BCdebug>2:
-			##	tmptmp = w.sum(Mat.Row).sum()
-			##	if master():
-			##		print tmptmp
-			
+
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			#w.transpose() # AL: removed ##
 			w = A.SpGEMM(w, semiring=sr_plustimes)
-			#w.transpose() # AL: removed ##
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w
-		##print "BCU:----------",bcu
+
 		# update the bc with the bc update
-		
-		##if BCdebug>2:
-		##	tmptmp = bcu.sum(Mat.Row).sum()
-		##	if master():
-		##		print tmptmp
-		bc = bc + bcu.sum(Mat.Row)	# column sums # AL: swapped to Row ##
+		bc = bc + bcu.sum(Mat.Row)
 
 	# subtract off the additional values added in by precomputation
 	bc = bc - nVertToCalc
+	
+	# normalize, if desired
 	if normalize:
 		nVertSampled = sum(numVs)
 		bc = bc * (float(N)/float(nVertSampled*(N-1)*(N-2)))
 	
+	# return
 	if retNVerts:
 		return bc,nVertSampled
 	else:

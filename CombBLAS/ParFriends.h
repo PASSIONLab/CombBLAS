@@ -1063,11 +1063,11 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 
 template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate> 
 SpParMat<IU,RETT,RETDER> EWiseApply
-	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
 {
 	if(*(A.commGrid) == *(B.commGrid))	
 	{
-		RETDER * result = new RETDER( EWiseApply<RETT>(*(A.spSeq),*(B.spSeq), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal) );
+		RETDER * result = new RETDER( EWiseApply<RETT>(*(A.spSeq),*(B.spSeq), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect) );
 		return SpParMat<IU, RETT, RETDER> (result, A.commGrid);
 	}
 	else
@@ -1327,7 +1327,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero)
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect = true)
 {
 	typedef RET T_promote; // typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
@@ -1351,10 +1351,13 @@ FullyDistSpVec<IU,RET> EWiseApply
 				if (*indV == *indW)
 				{
 					// overlap
-					if (_doOp(*numV, *numW))
+					if (allowIntersect)
 					{
-						Product.ind.push_back(*indV);
-						Product.num.push_back(_binary_op(*numV, *numW));
+						if (_doOp(*numV, *numW))
+						{
+							Product.ind.push_back(*indV);
+							Product.num.push_back(_binary_op(*numV, *numW));
+						}
 					}
 					indV++; numV++;
 					indW++; numW++;
