@@ -1003,7 +1003,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _Binar
  * If both allowANulls and allowBNulls is false then the function degenerates into intersection
  */
 template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
 {
 	IU estnzc = A.nzc + B.nzc;
 	IU estnz  = A.nz + B.nz;
@@ -1080,7 +1080,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _Binar
 				}
 				else
 				{
-					if (do_op(A.numx[ii], B.numx[jj]))
+					if (allowIntersect && do_op(A.numx[ii], B.numx[jj]))
 					{
 						temp.ir[curnz] = A.ir[ii];
 						temp.numx[curnz++] = __binary_op(A.numx[ii++], B.numx[jj++]);	// might include zeros
@@ -1148,12 +1148,12 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _Binar
 }
 
 template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate> 
-SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
+SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
 {
 	assert(A.m == B.m);
 	assert(A.n == B.n);
 
-	Dcsc<IU, RETT> * tdcsc = new Dcsc<IU, RETT>(EWiseApply<RETT>(*(A.dcsc), *(B.dcsc), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal));
+	Dcsc<IU, RETT> * tdcsc = new Dcsc<IU, RETT>(EWiseApply<RETT>(*(A.dcsc), *(B.dcsc), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect));
 	return 	SpDCCols<IU, RETT> (A.m , A.n, tdcsc);
 }
 

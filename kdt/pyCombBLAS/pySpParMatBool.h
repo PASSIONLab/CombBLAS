@@ -80,8 +80,9 @@ public:
 	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
 	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
 
-	//void Square(op::Semiring* sring);
+	void Square(op::Semiring* sring);
 	void Square(op::SemiringObj* sring);
+	pySpParMat     SpGEMM(pySpParMat     &other, op::Semiring* sring);
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
 	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
 	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);

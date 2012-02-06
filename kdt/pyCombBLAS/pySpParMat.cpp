@@ -323,14 +323,14 @@ pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFu
 
 
 // New format:
-pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull)
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect)
 {
 	if (doOp != NULL)
 	{
-		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, *doOp, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull)));
+		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, *doOp, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull), allowIntersect));
 	}
 	else
-		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, retTrue<doubleint, doubleint>, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull)));
+		return pySpParMat(EWiseApply<doubleint, pySpParMat::DCColsType>(A.A, B.A, *op, retTrue<doubleint, doubleint>, allowANulls, allowBNulls, doubleint(ANull), doubleint(BNull), allowIntersect));
 }
 
 
