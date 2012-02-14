@@ -404,6 +404,31 @@ class BuiltInMethodTests(MatTests):
 				self.assertEqual(origJ[ind], actualJ[ind])
 				self.assertEqual(expV[ind], actualV[ind])
 		
+	def test_add_union_trivial(self):
+		# ensure that Mat addition creates the number, source/
+		# destination, and value pairs expected when some edges are not
+		# in both Mats.
+		nvert1 = 4
+		nedge1 = 2
+		origI1 = [ 0, 1]
+		origJ1 = [ 0, 1]
+		origV1 = [10,10]
+		G1 = self.initializeMat(nvert1, nedge1, origI1, origJ1, origV1)
+		nvert2 = 4
+		nedge2 = 2
+		origI2 = [ 0, 1]
+		origJ2 = [ 1, 1]
+		origV2 = [20, 20]
+		G2 = self.initializeMat(nvert2, nedge2, origI2, origJ2, origV2)
+		G3 = G1 + G2
+		[actualI, actualJ, actualV] = G3.toVec()
+		expNvert = 4
+		expNedge = 3
+		expI = [ 0, 0, 1]
+		expJ = [ 0, 1, 1]
+		expV = [10,20,30]
+		self.assertEqualMat(G3, expI, expJ, expV)
+
 	def test_add_union(self):
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
@@ -423,7 +448,6 @@ class BuiltInMethodTests(MatTests):
 				27, 77, 8, 28, 58]
 		G2 = self.initializeMat(nvert2, nedge2, origI2, origJ2, origV2)
 		G3 = G1 + G2
-		[actualI, actualJ, actualV] = G3.toVec()
 		expNvert = 9
 		expNedge = 38
 		expI = [1, 7, 0, 2, 3, 4, 6, 8, 1, 3, 5, 7, 1, 2, 3, 4, 5, 6, 1, 3, 5,
@@ -432,15 +456,33 @@ class BuiltInMethodTests(MatTests):
 				 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8]
 		expV = [10,70, 1,21,31,41,61,81,12,32,52,72,13,23,33,43,53,63,14,34,54,
 				74,15,75,16,26,1.6e+10,1.6e+10,17,27,77,87,8,18,28,58,68,78]
-		[actualI, actualJ, actualV] = G3.toVec()
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G3, expI, expJ, expV)
 		
+	def test_add_union_small(self):
+		# ensure that Mat addition creates the number, source/
+		# destination, and value pairs expected when some edges are not
+		# in both Mats.
+		nvert1 = 5
+		origI1 = [ 1, 0,  2,  4,  1,  3,  1,  2,  3,  1,  3,  1]
+		origJ1 = [ 0, 1,  1,  1,  2,  2,  3,  3,  3,  4,  4,  5]
+		origV1 = [10, 1, 21, 41, 12, 32, 13, 23, 33, 14, 34, 15]
+		G1 = self.initializeMat(nvert1, len(origI1), origI1, origJ1, origV1)
+		nvert2 = 5
+		origI2 = [ 3,  5,  4,  5,  5]
+		origJ2 = [ 1,  2,  3,  3,  4]
+		origV2 = [31, 52, 43, 53, 54]
+		G2 = self.initializeMat(nvert2, len(origI2), origI2, origJ2, origV2)
+		G3 = G1 + G2
+		print "union:"
+		print "G1:",G1
+		print "G2:",G2
+		print "G3:",G3
+		expNvert = 5
+		expI = [ 1, 0, 2, 3, 4, 1, 3, 5, 1, 2, 3, 4, 5, 1, 3, 5, 1]
+		expJ = [ 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 5]
+		expV = [10, 1,21,31,41,12,32,52,13,23,33,43,53,14,34,54,15]
+		self.assertEqualMat(G3, expI, expJ, expV)
+
 	def test_neg_simple(self):
 		# ensure that Mat negation creates the number, source/
 		# destination, and value pairs expected when all edges are 
@@ -509,6 +551,9 @@ class BuiltInMethodTests(MatTests):
 				27, 77, 8, 28, 58]
 		G2 = self.initializeMat(nvert2, nedge2, origI2, origJ2, origV2)
 		G3 = G1*G2
+		# AL: the test expects matlab-like behavior, i.e. that zeros are not present.
+		# let's use filters to ensure that's true.
+		G3.addFilter(lambda x: x != 0)
 		[actualI, actualJ, actualV] = G3.toVec()
 		expNvert = 9
 		expNedge = 6
@@ -542,6 +587,9 @@ class BuiltInMethodTests(MatTests):
 				27, 77, 8, 28, 58]
 		G2 = self.initializeMat(nvert2, nedge2, origI2, origJ2, origV2)
 		G1 *= G2
+		# AL: the test expects matlab-like behavior, i.e. that zeros are not present.
+		# let's use filters to ensure that's true.
+		G1.addFilter(lambda x: x != 0)
 		[actualI, actualJ, actualV] = G1.toVec()
 		expNvert = 9
 		expNedge = 6
@@ -713,9 +761,8 @@ class BuiltInMethodTests(MatTests):
 def runTests(verbosity = 1):
 	testSuite = suite()
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
-
-	print "running again using filtered data (on-the-fly):"
 	
+	print "running again using filtered data (on-the-fly):"
 	MatTests.testFilter = True
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
@@ -734,7 +781,7 @@ def suite():
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
 	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
 	##suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))

@@ -101,7 +101,7 @@ class FilterHelper:
 			return None
 			
 	@staticmethod
-	def getEWiseFilteredOps(myself, other, op, doOp, allowANulls, allowBNulls, ANull, BNull):
+	def getEWiseFilteredOps(myself, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect):
 		myselfFilter = FilterHelper.getFilterPred(myself)
 		otherFilter = FilterHelper.getFilterPred(other)
 		if myselfFilter is None and otherFilter is None:
@@ -126,28 +126,31 @@ class FilterHelper:
 			BNull = None
 			
 		# a class that is used for both filtered op and filtered doOp
-		class tmpB:
-			def __init__(self, xFilter, yFilter, xDflt, yDflt, origOp, retDflt):
+		class eWise_shim:
+			def __init__(self, xFilter, yFilter, xDflt, yDflt, origOp, retDflt, isDoOp):
 				self.xFilter = xFilter
 				self.yFilter = yFilter
 				self.xDflt = xDflt
 				self.yDflt = yDflt
 				self.origOp = origOp
 				self.retDflt = retDflt
+				self.isDoOp = isDoOp
 
 			def __call__(self, x, y):
-			#	print "-----"
-			#	print "got:",x,y
-			#	print "taco0. defaults:",self.xDflt, self.yDflt
 				xPass = bool(self.xFilter(x))
 				yPass = bool(self.yFilter(y))
 				
-			#	print "taco1. ",xPass,yPass
 				if xPass and yPass:
 					return self.origOp(x, y)
 
 				if not xPass and not yPass:
-					return self.retDflt
+					if self.isDoOp:
+						return self.retDflt
+						
+					if self.xDflt is None or self.yDflt is None:
+						return self.retDflt
+					else:
+						return self.origOp(self.xDflt, self.yDflt)
 
 				if xPass and not yPass:
 					if self.yDflt is None:
@@ -159,19 +162,18 @@ class FilterHelper:
 					if self.xDflt is None:
 						return self.retDflt
 					else:
-			#			print "here"
 						return self.origOp(self.xDflt, y)
 						
-				print "you've reached unreachable code!"
+				raise NotImplementedError, "you've reached unreachable code in eWiseApply filter shim!"
 				return self.retDflt
 
 		# create a filtered version of the doOp predicate
-		filteredDoOp = tmpB(myselfFilter, otherFilter, ANull, BNull, doOp, False)
+		filteredDoOp = eWise_shim(myselfFilter, otherFilter, ANull, BNull, doOp, False, True)
 
 		# create a filtered version of the op function
 		# default return value is None because the predicate should prevent that case
 		# from ever executing. If it does, there's a bug and we want to crash right away.
-		filteredOp = tmpB(myselfFilter, otherFilter, ANull, BNull, op, None)
+		filteredOp = eWise_shim(myselfFilter, otherFilter, ANull, BNull, op, None, False)
 		
 		return (filteredOp, filteredDoOp)
 def master():

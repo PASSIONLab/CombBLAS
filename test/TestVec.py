@@ -137,7 +137,7 @@ class ConstructorTests(VecTests):
 		for ind in range(sz):
 			self.assertAlmostEqual(expI[ind],vec[ind].weight)
 
-	def test_Vec_Obj2_simple(self):
+	def disableObj2_test_Vec_Obj2_simple(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		element = Obj2()
@@ -183,7 +183,7 @@ class ConstructorTests(VecTests):
 			self.assertAlmostEqual(expI[ind],vec[ind].weight)
 		return
 
-	def test_Vec_Obj2_null(self):
+	def disableObj2_test_Vec_Obj2_null(self):
 		sz = 25
 		i = []
 		element = Obj2()
@@ -236,7 +236,7 @@ class ConstructorTests(VecTests):
 			self.assertAlmostEqual(expW[ind],vec[ind].weight)
 		return
 
-	def test_Vec_Obj2(self):
+	def disableObj2_test_Vec_Obj2(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, 4, 16, 36, 64, 100]
@@ -315,7 +315,7 @@ class ConstructorTests(VecTests):
 			self.assertAlmostEqual(expW[ind],vec[ind].weight)
 		return
 
-	def test_Vec_Obj2_all_weight_all_type_zero(self):
+	def disableObj2_test_Vec_Obj2_all_weight_all_type_zero(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, 0, 0, 0, 0, 0]
@@ -1386,7 +1386,7 @@ class GeneralPurposeTests(VecTests):
 		for ind in range(sz):
 			self.assertAlmostEqual(expW[ind],res[ind].weight)
 
-	def test_abs_vectors_Obj2(self):
+	def disableObj2_test_abs_vectors_Obj2(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, -4, 16, -36, -64, 100]
@@ -1435,7 +1435,7 @@ class GeneralPurposeTests(VecTests):
 		for ind in range(sz):
 			self.assertAlmostEqual(expW[ind],res[ind].weight)
 
-	def test_abs_vectors_Obj2_filtered(self):
+	def disableObj2_test_abs_vectors_Obj2_filtered(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, 64, 1, 3, -2, -100]
