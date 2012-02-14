@@ -36,7 +36,7 @@ int cblas_splits = 1;
 #define MAX_ITERS 512
 #define ITERS 16 
 #define CC_LIMIT 3
-#define PERMUTEFORBALANCE
+//#define PERMUTEFORBALANCE
 using namespace std;
 
 
@@ -78,49 +78,59 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 
+		double t01 = MPI_Wtime();
 		if(string(argv[1]) == string("Text")) // text input option
 		{
 			ifstream input(argv[2]);
 			// ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
-			A.PrintInfo();
-			SpParHelper::Print("Read input\n");
-
-			PSpMat_Bool * ABool = new PSpMat_Bool(A);
-			ABool->PrintInfo();
-			ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			indegrees.DebugPrint();
-			degrees = indegrees;	
-			degrees.EWiseApply(oudegrees, plus<int64_t>());
-			SpParHelper::Print("All degrees calculated\n");
-			delete ABool;
-
-#ifdef PERMUTEFORBALANCE
-			nonisov = degrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
-			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
-			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-			// nonisov.DebugPrint();
-			A(nonisov, nonisov, true);	// in-place permute to save memory
-			SpParHelper::Print("Dropped isolated vertices from input\n");	
-
-			indegrees = indegrees(nonisov);	// fix the degrees arrays too
-			oudegrees = oudegrees(nonisov);	
-			degrees =degrees(nonisov);
-			indegrees.PrintInfo("In degrees array");
-			oudegrees.PrintInfo("Out degrees array");
-#endif
-			
-			A.PrintInfo();
-			Symmetricize(A);	// A += A';
-			A.PrintInfo();
+		}
+		else if(string(argv[1]) == string("Binary"))
+		{
+			ifstream input(argv[2]);
+			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(true), true);
 		}
 		else 
 		{	
 			SpParHelper::Print("Not supported yet\n");
 			return 0;
 		}
+		double t02 = MPI_Wtime();			
+		ostringstream tinfo;
+		tinfo << "I/O took " << t02-t01 << " seconds" << endl;                
+		SpParHelper::Print(tinfo.str());
+
+		A.PrintInfo();
+		SpParHelper::Print("Read input\n");
+
+		PSpMat_Bool * ABool = new PSpMat_Bool(A);
+		ABool->PrintInfo();
+		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+		indegrees.DebugPrint();
+		degrees = indegrees;	
+		degrees.EWiseApply(oudegrees, plus<int64_t>());
+		SpParHelper::Print("All degrees calculated\n");
+		delete ABool;
+
+#ifdef PERMUTEFORBALANCE
+		nonisov = degrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+		// nonisov.DebugPrint();
+		A(nonisov, nonisov, true);	// in-place permute to save memory
+		SpParHelper::Print("Dropped isolated vertices from input\n");	
+
+		indegrees = indegrees(nonisov);	// fix the degrees arrays too
+		oudegrees = oudegrees(nonisov);	
+		degrees =degrees(nonisov);
+		indegrees.PrintInfo("In degrees array");
+		oudegrees.PrintInfo("Out degrees array");
+#endif
+			
+		A.PrintInfo();
+		Symmetricize(A);	// A += A';
 		A.PrintInfo();
 		float balance = A.LoadImbalance();
 		ostringstream outs;
@@ -187,8 +197,13 @@ int main(int argc, char* argv[])
 
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-					//fringe.PrintInfo("fringe after SpMV");
-					//fringe.DebugPrint();
+				#ifdef DEBUG
+					if(fringe.getnnz() > 1)
+					{
+						fringe.PrintInfo("fringe after SpMV");
+						fringe.DebugPrint();
+					}
+				#endif
 
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
@@ -210,35 +225,41 @@ int main(int argc, char* argv[])
 				FullyDistSpVec<int64_t, ParentType> parentsp = parents.Find(isparentset());
 				parentsp.Apply(set<ParentType>(ParentType(1)));
 	
-				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
 				FullyDistSpVec<int64_t, int64_t> intraversed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
 				FullyDistSpVec<int64_t, int64_t> outraversed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
-				intraversed.PrintInfo("Incoming edges traversed per vertex");
-				//intraversed.DebugPrint();
-				outraversed.PrintInfo("Outgoing edges traversed per vertex");
-				//outraversed.DebugPrint();
 				
 				int64_t in_nedges = intraversed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t ou_nedges = outraversed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t nedges = in_nedges + ou_nedges;	// count birectional edges twice
 	
-				ostringstream outnew;
-				outnew << i << "th starting vertex was " << Cands[i] << endl;
-				outnew << "Number iterations: " << iterations << endl;
-				outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
-				outnew << "Number of edges traversed in both directions: " << nedges << endl;
-				outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
-				outnew << "BFS time: " << t2-t1 << " seconds" << endl;
-				outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
-				outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
-				outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 				if(parentsp.getnnz() > CC_LIMIT)
 				{
+					// intraversed.PrintInfo("Incoming edges traversed per vertex");
+					// intraversed.DebugPrint();
+					// outraversed.PrintInfo("Outgoing edges traversed per vertex");
+					// outraversed.DebugPrint();
+					
+				#ifdef DEBUG
+					parents.PrintInfo("Final parents array");
+					parents.DebugPrint();
+				#endif
+					
+					ostringstream outnew;
+					outnew << i << "th starting vertex was " << Cands[i] << endl;
+					outnew << "Number iterations: " << iterations << endl;
+					outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
+					outnew << "Number of edges traversed in both directions: " << nedges << endl;
+					outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
+					outnew << "BFS time: " << t2-t1 << " seconds" << endl;
+					outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
+					outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
+					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
+
 					TIMES[sruns] = t2-t1;
 					EDGES[sruns] = ou_nedges;
 					MTEPS[sruns++] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
+					SpParHelper::Print(outnew.str());
 				}
-				SpParHelper::Print(outnew.str());
 			}
 			if (sruns < 2)
 			{
@@ -248,6 +269,7 @@ int main(int argc, char* argv[])
 			ostringstream os;
 			
 			os << sruns << " valid runs done" << endl;
+			os << "Connected component lower limite was " << CC_LIMIT << endl;
 			os << "Per iteration communication times: " << endl;
 			os << "AllGatherv: " << cblas_allgathertime / sruns << endl;
 			os << "AlltoAllv: " << cblas_alltoalltime / sruns << endl;

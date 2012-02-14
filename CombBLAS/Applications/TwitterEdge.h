@@ -74,6 +74,9 @@ template <class IT>
 class TwitterReadSaveHandler
 {
 	public:
+		TwitterReadSaveHandler(bool bin=false): isbinary(bin) {};
+		bool isBinary()	{ return isbinary; };
+
 		TwitterEdge getNoNum(IT row, IT col) { return TwitterEdge(); }
 
 		MPI::Datatype getMPIType()
@@ -81,6 +84,15 @@ class TwitterReadSaveHandler
 			MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(TwitterEdge));
         		datatype.Commit();
 			return datatype;
+		}
+
+		void binaryfill(FILE * rFile, IT * row, IT * col, TwitterEdge * val)
+		{
+			TwitterInteraction twi;
+			fread (&twi,sizeof(TwitterInteraction),1,rFile);
+			*row = twi.from;
+			*col = twi.to;
+			*val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
 		}
 
 		template <typename c, typename t>
@@ -128,6 +140,17 @@ class TwitterReadSaveHandler
 			os << tw.count << "\t";
 			os << tw.latest << endl;
 		}
+	private:
+		bool isbinary;
+
+		struct TwitterInteraction
+		{
+     		  	int32_t from;
+      		  	int32_t to;
+      		  	bool follow;
+        		int16_t retweets;
+        		time_t twtime;
+		};
 };
 
 
@@ -191,7 +214,19 @@ struct LatestRetwitterBFS
 {
 	static MPI_Op MPI_BFSADD;
 	static ParentType id() { return ParentType(); }	// additive identity
-	static bool returnedSAID() { return false; }
+
+	// the default argument means that this function can be used like this:
+	// if (returnedSAID()) {...}
+	// which is how it is called inside CombBLAS routines. That call conveniently clears the flag for us.
+	static bool returnedSAID(bool setFlagTo = false) 
+	{
+		static bool flag = false;
+
+                bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+                flag = setFlagTo; // set/clear the flag.
+                return temp;
+	}
+
 	static ParentType add(const ParentType & arg1, const ParentType & arg2)
 	{
 		return ((arg2 == ParentType()) ? arg1: arg2);
@@ -211,7 +246,7 @@ struct LatestRetwitterBFS
 			memset(&timeinfo, 0, sizeof(struct tm));
 			int year, month, day, hour, min, sec;
 			year = 2009;	month = 7;	day = 1;
-			hour = 0;		min = 0;	sec = 0;
+			hour = 0;	min = 0;	sec = 0;
 			
 			timeinfo.tm_year = year - 1900; // year is "years since 1900"
 			timeinfo.tm_mon = month - 1 ;   // month is in range 0...11
@@ -232,6 +267,7 @@ struct LatestRetwitterBFS
 		}
 		else
 		{
+			returnedSAID(true);
 			return ParentType();	// null-type parent id
 		}
 	}
