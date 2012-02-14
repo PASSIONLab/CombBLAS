@@ -503,7 +503,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 
 				// keeping track of all nonzero iterators within columns at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
 				// thus we'll do batches of column as opposed to all columns at once. 5 million columns take 80MB (two pointers per column)
-				#define MAXCOLUMNBATCH (5 * 1024 * 1024) 
+				#define MAXCOLUMNBATCH 5 * 1024 * 1024
 				typename DER::SpColIter begfinger = spSeq->begcol();	// beginning finger to columns
 				
 				// Each processor on the same processor row should execute the SAME number of reduce calls
@@ -2027,6 +2027,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 			IT cnz = 0;
 			char line[1024];
 			bool nonumline = nonum;
+			FILE * binfile;	// open this if handler.isBinary()
 			try
 			{
 				while ( (!infile.eof()) && cnz < total_nnz)
@@ -2054,9 +2055,17 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					}
 
 					int colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
-					rows[ colrec * buffpercolneigh + ccurptrs[colrec] ] = temprow;
-					cols[ colrec * buffpercolneigh + ccurptrs[colrec] ] = tempcol;
-					vals[ colrec * buffpercolneigh + ccurptrs[colrec] ] = nonumline ? handler.getNoNum(ntrow, ntcol) : handler.read(linestream, ntrow, ntcol); //tempval;
+					size_t commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
+					if(handler.isBinary())
+					{
+						handler.binaryfill(binfile, rows + commonindex , cols + commonindex, vals + commonindex);
+					}	
+					else
+					{
+						rows[ commonindex ] = temprow;
+						cols[ commonindex ] = tempcol;
+						vals[ commonindex ] = nonumline ? handler.getNoNum(ntrow, ntcol) : handler.read(linestream, ntrow, ntcol); //tempval;
+					}
 					++ (ccurptrs[colrec]);				
 
 					if(ccurptrs[colrec] == buffpercolneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
