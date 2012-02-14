@@ -748,28 +748,31 @@ class Vec(object):
 
 	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate=False):
+	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate, allowIntersect):
 		"""
 		internal function. use eWiseApply().
 		"""
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 		
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
 		else:
 			superOp = _op_make_binaryObj(superOp)
 		
-		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull)
+		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 		ret = Vec._toVec(v)
 		return ret
 
 	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate=False):
+	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate, allowIntersect):
 		"""
 		internal function. use eWiseApply().
 		"""
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, True, ANull, other._identity_)
+		if not allowIntersect:
+			return Vec(len(self), init=self._identity_)
+
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, True, ANull, other._identity_, allowIntersect)
 
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -782,11 +785,14 @@ class Vec(object):
 
 	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate=False):
+	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate, allowIntersect):
 		"""
 		internal function. use eWiseApply().
 		"""
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, allowBNulls, self._identity_, BNull)
+		if not allowIntersect:
+			return Vec(len(self), init=self._identity_)
+			
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, allowBNulls, self._identity_, BNull, allowIntersect)
 			
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -797,11 +803,14 @@ class Vec(object):
 	
 	# NOTE: this function is specific because pyCombBLAS calling
 	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate=False):
+	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate, allowIntersect):
 		"""
 		internal function. use eWiseApply().
 		"""
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, True, self._identity_, other._identity_)
+		if not allowIntersect:
+			return Vec(len(self), init=self._identity_)
+
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, True, self._identity_, other._identity_, allowIntersect)
 
 		if predicate:
 			superOp = _op_make_binary_pred(superOp)
@@ -809,7 +818,7 @@ class Vec(object):
 			superOp = _op_make_binaryObj(superOp)
 		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False, allowIntersect=True):
 		"""
 		Performs an element-wise operation between the two vectors.
 		if inPlace is true the result is stored in self.
@@ -847,30 +856,30 @@ class Vec(object):
 		if self.isSparse():
 			if other.isSparse():
 				if inPlace:
-					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate)
+					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate)
+					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 			else: # sparse, dense
 				if inPlace:
-					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate)
+					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate)
+					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
 		else: # dense
 			if other.isSparse():
 				if inPlace:
-					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate)
+					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 				else:
 					ret = self.copy()
-					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate)
+					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					return ret
 			else: # dense, dense
 				if inPlace:
-					self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate)
+					self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
 				else:
 					ret = self.copy()
-					ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate)
+					ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
 					return ret
 
 #################################################

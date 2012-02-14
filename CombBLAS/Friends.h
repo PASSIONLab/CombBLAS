@@ -1003,8 +1003,82 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _Binar
  * If both allowANulls and allowBNulls is false then the function degenerates into intersection
  */
 template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
+Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect)
 {
+	if (Ap == NULL && Bp == NULL)
+		return Dcsc<IU,RETT>(0, 0);
+	
+	if (Ap == NULL && Bp != NULL)
+	{
+		if (!allowANulls)
+			return Dcsc<IU,RETT>(0, 0);
+			
+		const Dcsc<IU,NU1> & B = *Bp;
+		IU estnzc = B.nzc;
+		IU estnz  = B.nz;
+		Dcsc<IU,RETT> temp(estnz, estnzc);
+	
+		IU curnzc = 0;
+		IU curnz = 0;
+		//IU i = 0;
+		IU j = 0;
+		temp.cp[0] = 0;
+		while(j<B.nzc)
+		{
+			// Based on the if statement below which handles A null values.
+			j++;
+			temp.jc[curnzc++] = B.jc[j-1];
+			for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
+			{
+				if (do_op(ANullVal, B.numx[k]))
+				{
+					temp.ir[curnz] 		= B.ir[k];
+					temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k]);
+				}
+			}
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+		}
+		temp.Resize(curnzc, curnz);
+		return temp;
+	}
+	
+	if (Ap != NULL && Bp == NULL)
+	{
+		if (!allowBNulls)
+			return Dcsc<IU,RETT>(0, 0);
+
+		const Dcsc<IU,NU1> & A = *Ap;
+		IU estnzc = A.nzc;
+		IU estnz  = A.nz;
+		Dcsc<IU,RETT> temp(estnz, estnzc);
+	
+		IU curnzc = 0;
+		IU curnz = 0;
+		IU i = 0;
+		//IU j = 0;
+		temp.cp[0] = 0;
+		while(i< A.nzc)
+		{
+			i++;
+			temp.jc[curnzc++] = A.jc[i-1];
+			for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
+			{
+				if (do_op(A.numx[k], BNullVal))
+				{
+					temp.ir[curnz] 		= A.ir[k];
+					temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal);
+				}
+			}
+			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+		}
+		temp.Resize(curnzc, curnz);
+		return temp;
+	}
+	
+	// both A and B are non-NULL at this point
+	const Dcsc<IU,NU1> & A = *Ap;
+	const Dcsc<IU,NU1> & B = *Bp;
+	
 	IU estnzc = A.nzc + B.nzc;
 	IU estnz  = A.nz + B.nz;
 	Dcsc<IU,RETT> temp(estnz, estnzc);
@@ -1153,7 +1227,7 @@ SpDCCols<IU,RETT> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<IU,NU2>
 	assert(A.m == B.m);
 	assert(A.n == B.n);
 
-	Dcsc<IU, RETT> * tdcsc = new Dcsc<IU, RETT>(EWiseApply<RETT>(*(A.dcsc), *(B.dcsc), __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect));
+	Dcsc<IU, RETT> * tdcsc = new Dcsc<IU, RETT>(EWiseApply<RETT>(A.dcsc, B.dcsc, __binary_op, do_op, allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect));
 	return 	SpDCCols<IU, RETT> (A.m , A.n, tdcsc);
 }
 

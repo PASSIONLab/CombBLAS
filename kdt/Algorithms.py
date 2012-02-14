@@ -444,8 +444,20 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	
 	This function uses Brandes' algorithm.
 	"""
-	A = self.e.copy(element=1.0)
-	A.transpose() # Adam: why?
+	if True and False:
+		A = self.e.copy(element=1.0)
+		BC_SR = sr_plustimes
+	else:
+		# no copy, but slower because of Python semiring
+		A = self.e
+		A.spOnes()
+		def sel(x, y):
+			return y
+		def plus(x, y):
+			return x+y
+		BC_SR = sr(plus, sel)
+	
+	#A.transpose() # Adam: why?
 	#A.spOnes()
 	N = self.nvert()
 
@@ -529,7 +541,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 			tmp = frontier.copy()
 			tmp.spOnes()
 			bfs.append(tmp) # save each BFS frontier
-			frontier = A.SpGEMM(frontier, semiring=sr_plustimes)
+			frontier = A.SpGEMM(frontier, semiring=BC_SR)
 
 			# prune new-frontier to new verts only
 			#frontier = tmp._mulNot(nsp)
@@ -547,7 +559,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 
 			# Apply the child value weights and sum them up over the parents
 			# then apply the weights based on parent values
-			w = A.SpGEMM(w, semiring=sr_plustimes)
+			w = A.SpGEMM(w, semiring=BC_SR)
 			w *= bfs[depth-1]
 			w *= nsp
 			bcu += w

@@ -587,6 +587,15 @@ class Mat:
 		if self._hasMaterializedFilter():
 			del self._materialized
 			self._updateMaterializedFilter()
+	
+	_eWiseIgnoreMaterializedFilter = False
+	def _copyBackMaterialized(self):
+		if self._hasMaterializedFilter():
+			self._eWiseIgnoreMaterializedFilter = True
+			self.eWiseApply(self._materialized, (lambda s, m: m), allowANulls=False, allowBNulls=False, inPlace=True)
+			self._eWiseIgnoreMaterializedFilter = False
+		else:
+			raise ValueError, "Internal Error: copy back a materialized filter when no materialized filter exists!"
 
 ##########################
 ### Basic Methods
@@ -594,7 +603,7 @@ class Mat:
 
 	# NEEDED: tests
 	#in-place, so no return value
-	def apply(self, op, other=None, notB=False):
+	def apply(self, op):#, other=None, notB=False):
 		"""
 		applies the given operator to every edge in the Mat
 
@@ -606,16 +615,21 @@ class Mat:
 			None.
 
 		"""
+		if self._hasMaterializedFilter():
+			ret = self._materialized.apply(op)
+			self._copyBackMaterialized()
+			return ret
 		
-#		if self._hasFilter():
-#			op = _makePythonOp(op)
-#			if self.isSparse():
-#				op = FilterHelper.getFilteredUniOpOrSelf(self, op)
-#			else:
-#				op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
-#		
-#		self._m_.Apply(_op_make_unary(op))
-#		return
+		if self._hasFilter():
+			op = _makePythonOp(op)
+			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+			#if self.isSparse():
+			#	op = FilterHelper.getFilteredUniOpOrSelf(self, op)
+			#else:
+			#	op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
+		
+		self._m_.Apply(_op_make_unary(op))
+		return
 
 		if self._hasFilter():
 			if self._hasMaterializedFilter():
@@ -645,31 +659,35 @@ class Mat:
 		return self.reduce(dir, (lambda x,y: x+y), uniOp=pred, init=0.0)
 
 	# NEEDED: tests
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False):
 		"""
 		ToDo:  write doc
 		
 		See Also: Vec.eWiseApply
 		"""
 		
+		if predicate:
+			raise NotImplementedError, "predicate output not yet supported for Mat.eWiseApply"
+		
 		if not isinstance(other, Mat):
 			raise KeyError, "eWiseApply works on two Mat objects."
 			# use apply()?
 			return
-		
-		if self._hasMaterializedFilter() and not inPlace:
-			raise ValueError, "Materialized filters are read-only."
 
-		if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
-			return self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace)
-		if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
-			return self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
-		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
-			return self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+		if not self._eWiseIgnoreMaterializedFilter:
+			if self._hasMaterializedFilter() and inPlace:
+				raise ValueError, "Materialized filters are read-only."
+
+			if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
+				return self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace)
+			if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
+				return self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+			if self._hasMaterializedFilter() and other._hasMaterializedFilter():
+				return self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
 
 		ANull = self._identity_
 		BNull = other._identity_
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull)
+		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 		
 		##if doOp is not None:
 		# new version
@@ -843,7 +861,9 @@ class Mat:
 		
 		"""
 		if self._hasMaterializedFilter():
-			raise ValueError, "materialized filters are read-only"
+			ret = self._materialized.scale(other, op, dir)
+			self._copyBackMaterialized()
+			return ret
 
 		if self.isBool():
 			raise NotImplementedError, 'scale not implemented on boolean matrices do to C++ template irregularities.'
@@ -1119,10 +1139,10 @@ class Mat:
 		"""
 		makes every element to `element`, default 1.0.
 		"""
-		if self.isObj():
-			raise NotImplementedError, "at the moment only float matrices are supported."
-		
-		self.apply(op_set(element))
+		if not self.isObj() and not self._hasFilter():
+			self.apply(op_set(element))
+		else:
+			self.apply(lambda x: element)
 		self._dirty()
 		
 	def removeMainDiagonal(self):
@@ -1164,119 +1184,249 @@ class Mat:
 ### Arithmetic Operations
 ##########################
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
+	def _ewise_bin_op_worker(self, other, func, intOnly=False, predicate=False):
+		"""
+		is an internal function used to implement elementwise arithmetic operators.
+		"""
+		funcUse = func
+		if intOnly:
+			# if other is a floating point, make it an int
+			if isinstance(other, (float, int, long)):
+				other = int(other)
+			
+			# if self is a float vector, add conversions to int. Object vectors are assumed to handle
+			# conversion themselves.
+			if not self.isObj():
+				if isinstance(other, Mat) and not other.isObj():
+					funcUse = lambda x, y: func(int(x), int(y))
+				else:
+					funcUse = lambda x, y: func(int(x), y)
+
+		if not isinstance(other, Mat):
+			# if other is a scalar, then only apply it to the nonnull elements of self.
+			return self.eWiseApply(other, funcUse, allowANulls=False, allowBNulls=False, inPlace=False, predicate=predicate)
+		else:
+			return self.eWiseApply(other, funcUse, allowANulls=True, allowBNulls=True, inPlace=False, predicate=predicate)
+	
 	def __add__(self, other):
 		"""
-		adds corresponding edges of two Mat instances together,
-		resulting in edges in the result only where an edge exists in at
-		least one of the input Mat instances.
+		adds the corresponding elements of two Mat instances into the
+		result Mat instance, with a nonnull element where either of
+		the two input vectors was nonnull.
+		ToDo:  elucidate combinations, overloading, etc.
 		"""
-		if type(other) == int or type(other) == long or type(other) == float:
-			raise NotImplementedError
-		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrices must have matching dimensions'
-		elif isinstance(other, Mat):
-			ret = self.copy()
-			ret._m_ += other._m_
-			#ret._apply(pcb.plus(), other);  # only adds if both mats have nonnull elems!!
-			self._dirty()
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
+
+	def __and__(self, other):
+		"""
+		performs a bitwise And between the corresponding elements of two
+		Mat instances into the result Mat instance.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x & other), intOnly=True)
+
+	# NEEDED: update docstring
 	def __div__(self, other):
 		"""
-		divides corresponding edges of two Mat instances together,
-		resulting in edges in the result only where edges exist in both
-		input Mat instances.
+		divides each element of the first argument (a SpParVec instance),
+		by either a scalar or the corresonding element of the second 
+		SpParVec instance, with a non-null element where either of the 
+		two input vectors was nonnull.
+		
+		Note:  ZeroDivisionException will be raised if any element of 
+		the second argument is zero.
+
+		Note:  For v0.1, the second argument may only be a scalar.
 		"""
-		if type(other) == int or type(other) == long or type(other) == float:
-			ret = self.copy()
-			ret.apply(pcb.bind2nd(pcb.divides(),other))
-		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrices must have matching dimensions'
-		elif isinstance(other,Mat):
-			ret = self.copy()
-			ret.apply(pcb.divides(), other)
+		return self._ewise_bin_op_worker(other, (lambda x, other: x / other))
+
+	# NEEDED: update docstring
+	def __eq__(self, other):
+		"""
+		calculates the Boolean equality of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the scalar and the corresponding
+		element of the first argument are equal.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and equal.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x == other), predicate=True)
+
+	# NEEDED: update docstring
+	def __ge__(self, other):
+		"""
+		#FIX: doc
+		calculates the Boolean greater-than-or-equal relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is greater than or equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is greater than or equal to the second.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x >= other), predicate=True)
+
+	# NEEDED: update docstring
+	def __gt__(self, other):
+		"""
+		calculates the Boolean greater-than relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is greater than the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is greater than the second.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x > other), predicate=True)
+
+	def __invert__(self):
+		"""
+		bitwise inverts each nonnull element of the Vec instance.
+		"""
+		ret = self.copy()
+		if isinstance(self._identity_, (float, int, long)):
+			func = lambda x: int(x).__invert__()
 		else:
-			raise NotImplementedError
+			func = lambda x: x.__invert__()
+		ret.apply(func)
 		return ret
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def __iadd__(self, other):
-		if type(other) == int or type(other) == long or type(other) == float:
-			raise NotImplementedError
-		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrices must have matching dimensions'
-		elif isinstance(other, Mat):
-			#self._apply(pcb.plus(), other)
-			self._m_ += other._m_
-			self._dirty()
-		return self
+	# NEEDED: update docstring
+	def __le__(self, other):
+		"""
+		calculates the Boolean less-than-or-equal relationship of the first argument with the second argument 
 
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def __imul__(self, other):
-		if type(other) == int or type(other) == long or type(other) == float:
-			self.apply(pcb.bind2nd(pcb.multiplies(),other))
-		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrices must have matching dimensions'
-		elif isinstance(other,Mat):
-			self.apply(pcb.multiplies(), other)
-		else:
-			raise NotImplementedError
-		return self
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is less than or equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is less than or equal to the second.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x <= other), predicate=True)
 
-	# NEEDED: tests
+	# NEEDED: update docstring
+	def __lt__(self, other):
+		"""
+		calculates the Boolean less-than relationship of the first argument with the second argument 
+
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is less than the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is less than the second.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x < other), predicate=True)
+
+	# NEEDED: update docstring
+	def __mod__(self, other):
+		"""
+		calculates the modulus of each element of the first argument by the
+		second argument (a scalar or a SpParVec instance), with a nonnull
+		element where the input SpParVec argument(s) were nonnull.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x % other))
+
+	# NEEDED: update docstring
 	def __mul__(self, other):
 		"""
-		multiplies corresponding edges of two Mat instances together,
-		resulting in edges in the result only where edges exist in both
-		input Mat instances.
-
+		multiplies each element of the first argument by the second argument 
+		(a scalar or a SpParVec instance), with a nonnull element where 
+		the input SpParVec argument(s) were nonnull.
 		"""
-		if type(other) == int or type(other) == long or type(other) == float:
-			ret = self.copy()
-			ret.apply(pcb.bind2nd(pcb.multiplies(),other))
-		elif self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrices must have matching dimensions'
-		elif isinstance(other,Mat):
-			ret = self.copy()
-			ret.apply(pcb.multiplies(), other)
-		else:
-			raise NotImplementedError
-		return ret
-	
-	# NEEDED: This needs to be generalized
-	# NEEDED: update to new fields
-	# NEEDED: tests
-	def _mulNot(self, other):
+		return self._ewise_bin_op_worker(other, (lambda x, other: x * other))
+
+
+	# NEEDED: update docstring
+	def __ne__(self, other):
 		"""
-		!! THIS WILL BE ROLLED INTO THE MAIN eWiseApply
-		multiplies corresponding edge weights of two DiGraph instances,
-		taking the logical not of the second argument before doing the 
-		multiplication.  In effect, each nonzero edge of the second
-		argument deletes its corresponding edge of the first argument.
+		calculates the Boolean not-equal relationship of the first argument with the second argument 
 
-		Input Arguments:
-			self:  a DiGraph instance
-			other:  another DiGraph instance
-
-		Output arguments:
-			ret:  a DiGraph instance 
+	SpParVec == scalar
+	SpParVec == SpParVec
+		In the first form, the result is a SpParVec instance with the same
+		length and nonnull elements as the first argument, with each nonnull
+		element being True (1.0) only if the corresponding element of the 
+		first argument is not equal to the scalar.
+		In the second form, the result is a SpParVec instance with the
+		same length as the two SpParVec instances (which must be of the
+		same length).  The result will have nonnull elements where either
+		of the input arguments are nonnull, with the value being True (1.0)
+		only where the corresponding elements are both nonnull and the
+		first argument is not equal to the second.
 		"""
-		if self.nrow() != other.nrow() or self.ncol() != other.ncol():
-			raise IndexError, 'Matrix dimensions must match'
-		else:
-			ret = self.copy()
-			ret.apply(op_mul, other, True)
-		return ret
+		return self._ewise_bin_op_worker(other, (lambda x, other: x != other), predicate=True)
 
-	# NEEDED: tests
 	def __neg__(self):
+		"""
+		negates each nonnull element of the passed Vec instance.
+		"""
 		ret = self.copy()
-		ret.apply(op_negate)
+		func = lambda x: -x
+		ret.apply(func)
 		return ret
-			
+
+
+	# NEEDED: update docstring
+	def __or__(self, other):
+		"""
+		performs a logical Or between the corresponding elements of two
+		SpParVec instances into the result SpParVec instance, with a non-
+		null element where either of the two input vectors is nonnull,
+		and a True value where at least one of the input vectors is True.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x | other), intOnly=True)
+
+	# NEEDED: update docstring
+	def __sub__(self, other):
+		"""
+		subtracts the corresponding elements of the second argument (a
+		scalar or a SpParVec instance) from the first argument (a SpParVec
+		instance), with a nonnull element where the input SpParVec argument(s)
+		are nonnull.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
+
+	# NEEDED: update docstring
+	def __xor__(self, other):
+		"""
+		performs a logical Xor between the corresponding elements of two
+		SpParVec instances into the result SpParVec instance, with a non-
+		null element where either of the two input vectors is nonnull,
+		and a True value where exactly one of the input vectors is True.
+		"""
+		return self._ewise_bin_op_worker(other, (lambda x, other: x ^ other))
