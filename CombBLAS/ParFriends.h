@@ -1063,7 +1063,7 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 
 template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate> 
 SpParMat<IU,RETT,RETDER> EWiseApply
-	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
+	(const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect, const bool useExtendedBinOp)
 {
 	if(*(A.commGrid) == *(B.commGrid))	
 	{
@@ -1077,6 +1077,32 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 		return SpParMat< IU,RETT,RETDER >();
 	}
 }
+
+// An adapter function that allows using the above matrix EWiseApply with plain-old binary functions that don't want the extra parameters.
+template <typename RETT, typename NU1, typename NU2, typename BINOP>
+class EWiseExtToPlainAdapter
+{
+	public:
+	BINOP plain_binary_op;
+	
+	EWiseExtToPlainAdapter(BINOP op): plain_binary_op(op) {}
+	
+	RETT operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
+	{
+		return plain_binary_op(a, b);
+	}
+};
+
+template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate> 
+SpParMat<IU,RETT,RETDER>
+EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
+{
+	return EWiseApply<RETT, RETDER>(A, B,
+									EWiseExtToPlainAdapter<RETT, NU1, NU2, _BinaryOperation>(__binary_op),
+									EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(do_op),
+									allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, true);
+}
+// end adapter
 
 
 /**

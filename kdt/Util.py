@@ -140,6 +140,8 @@ class FilterHelper:
 				xPass = bool(self.xFilter(x))
 				yPass = bool(self.yFilter(y))
 				
+				print "isDoOp=",self.isDoOp,"x=",x,"y=",y,"xPass=",xPass,"yPass=",yPass
+				
 				if xPass and yPass:
 					return self.origOp(x, y)
 

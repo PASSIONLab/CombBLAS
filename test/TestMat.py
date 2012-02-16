@@ -1,7 +1,4 @@
 import unittest
-#import sys
-#print sys.prefix
-#print sys.path
 from kdt import *
 
 class MatTests(unittest.TestCase):
@@ -71,6 +68,9 @@ class MatTests(unittest.TestCase):
 		if M.isObj():
 			print "NF" # make it known that the test wasn't done due to no object filters
 			return M
+		
+		if M.count(Mat.All, lambda x: x == 0) > 0:
+			raise NotImplementedError, "the original matrix contains a 0, adding filtered elements will be flawed"
 			
 		filteredValues = [-8000.1, 8000.1, 33, 66, -55]
 		
@@ -90,8 +90,6 @@ class MatTests(unittest.TestCase):
 			offset += 1
 		
 			F = Mat(rows, cols, v, M.ncol(), M.nrow())
-			#F = Mat.eye(n, nc, element=v)
-			#print F
 			def MoveFunc(m, f):
 				if m != 0:
 					return m
@@ -289,10 +287,6 @@ class ReductionTests(MatTests):
 				-1.6000000087e+10]
 		insumExpected = [-10, -53, -44, -79, -48, -15, -1.6000000016e+10, 
 				-104, -164]
-		#print "rowsum:",outsum
-		#print "expected rowsum:",outsumExpected
-		#print "colsum:",insum
-		#print "expected colsum:", insumExpected
 		
 		self.assertEqual(len(outsum), len(outsumExpected))
 		self.assertEqual(len(insum), len(insumExpected))
@@ -462,25 +456,42 @@ class BuiltInMethodTests(MatTests):
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
-		nvert1 = 5
+		nvert1 = 6
 		origI1 = [ 1, 0,  2,  4,  1,  3,  1,  2,  3,  1,  3,  1]
 		origJ1 = [ 0, 1,  1,  1,  2,  2,  3,  3,  3,  4,  4,  5]
 		origV1 = [10, 1, 21, 41, 12, 32, 13, 23, 33, 14, 34, 15]
 		G1 = self.initializeMat(nvert1, len(origI1), origI1, origJ1, origV1)
-		nvert2 = 5
+		nvert2 = 6
 		origI2 = [ 3,  5,  4,  5,  5]
 		origJ2 = [ 1,  2,  3,  3,  4]
 		origV2 = [31, 52, 43, 53, 54]
 		G2 = self.initializeMat(nvert2, len(origI2), origI2, origJ2, origV2)
 		G3 = G1 + G2
-		print "union:"
-		print "G1:",G1
-		print "G2:",G2
-		print "G3:",G3
-		expNvert = 5
+		expNvert = 6
 		expI = [ 1, 0, 2, 3, 4, 1, 3, 5, 1, 2, 3, 4, 5, 1, 3, 5, 1]
 		expJ = [ 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 5]
 		expV = [10, 1,21,31,41,12,32,52,13,23,33,43,53,14,34,54,15]
+		self.assertEqualMat(G3, expI, expJ, expV)
+
+	def test_add_union_smaller(self):
+		# ensure that Mat addition creates the number, source/
+		# destination, and value pairs expected when some edges are not
+		# in both Mats.
+		nvert1 = 6
+		origI1 = [ 3]
+		origJ1 = [ 3]
+		origV1 = [33]
+		G1 = self.initializeMat(nvert1, len(origI1), origI1, origJ1, origV1)
+		nvert2 = 6
+		origI2 = []
+		origJ2 = []
+		origV2 = []
+		G2 = self.initializeMat(nvert2, len(origI2), origI2, origJ2, origV2)
+		G3 = G1 + G2
+		expNvert = 6
+		expI = [ 3]
+		expJ = [ 3]
+		expV = [33]
 		self.assertEqualMat(G3, expI, expJ, expV)
 
 	def test_neg_simple(self):

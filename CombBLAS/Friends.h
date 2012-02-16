@@ -918,81 +918,6 @@ SpDCCols<IU, N_promote> EWiseApply (const SpDCCols<IU,NU1> & A, const SpDCCols<I
 	}
 }
 
-#if 0
-// see below for the preffered version
-template <typename RETT, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
-Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal)
-{
-	IU estnzc, estnz;
-
-	estnzc = std::min(A.nzc, B->nzc);
-	estnz  = std::min(A.nz, B->nz);
-	
-	if (allowANulls || allowBNulls)
-	{
-		cout << "CombBLAS EWiseApply(Mat, Mat) does not yet support allowANulls/allowBNulls. Pretending they are false.." << endl;
-	}
-
-	Dcsc<IU,RETT> temp(estnz, estnzc);
-
-	IU curnzc = 0;
-	IU curnz = 0;
-	IU i = 0;
-	IU j = 0;
-	temp.cp[0] = 0;
-	
-	while(i< A.nzc && B != NULL && j<B->nzc)
-	{
-		if(A.jc[i] > B->jc[j]) 		++j;
-		else if(A.jc[i] < B->jc[j]) 	++i;
-		else
-		{
-			IU ii = A.cp[i];
-			IU jj = B->cp[j];
-			IU prevnz = curnz;		
-			while (ii < A.cp[i+1] && jj < B->cp[j+1])
-			{
-				if (A.ir[ii] < B->ir[jj])	++ii;
-				else if (A.ir[ii] > B->ir[jj])	++jj;
-				else
-				{
-					if (do_op(A.numx[ii], B->numx[jj]))
-					{
-						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = __binary_op(A.numx[ii], B->numx[jj]);
-					}
-					ii++;
-					jj++;
-				}
-			}
-			if(prevnz < curnz)	// at least one nonzero exists in this column
-			{
-				temp.jc[curnzc++] = A.jc[i];	
-				temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
-			}
-			++i;
-			++j;
-		}
-	}
-	/*
-	// change estnz above to account for extra possible values
-	while(i< A.nzc)
-	{
-		temp.jc[curnzc++] = A.jc[i++];
-		for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
-		{
-			temp.ir[curnz] 	= A.ir[k];
-			temp.numx[curnz++] = __binary_op(A.numx[k], defaultBVal);
-		}
-		temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
-	}*/
-
-	temp.Resize(curnzc, curnz);
-	return temp;
-}
-#endif
-
-
 /** 
  * Implementation based on operator +=
  * Element wise apply with the following constraints
@@ -1030,10 +955,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			temp.jc[curnzc++] = B.jc[j-1];
 			for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 			{
-				if (do_op(ANullVal, B.numx[k]))
+				if (do_op(ANullVal, B.numx[k], true, false))
 				{
 					temp.ir[curnz] 		= B.ir[k];
-					temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k]);
+					temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 				}
 			}
 			temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
@@ -1063,10 +988,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			temp.jc[curnzc++] = A.jc[i-1];
 			for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
 			{
-				if (do_op(A.numx[k], BNullVal))
+				if (do_op(A.numx[k], BNullVal, false, true))
 				{
 					temp.ir[curnz] 		= A.ir[k];
-					temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal);
+					temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal, false, true);
 				}
 			}
 			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
@@ -1098,10 +1023,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 				temp.jc[curnzc++] = B.jc[j-1];
 				for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 				{
-					if (do_op(ANullVal, B.numx[k]))
+					if (do_op(ANullVal, B.numx[k], true, false))
 					{
 						temp.ir[curnz] 		= B.ir[k];
-						temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k]);
+						temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 					}
 				}
 				temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
@@ -1115,10 +1040,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 				temp.jc[curnzc++] = A.jc[i-1];
 				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
 				{
-					if (do_op(A.numx[k], BNullVal))
+					if (do_op(A.numx[k], BNullVal, false, true))
 					{
 						temp.ir[curnz] 		= A.ir[k];
-						temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal);
+						temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal, false, true);
 					}
 				}
 				temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
@@ -1134,30 +1059,30 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			{
 				if (A.ir[ii] < B.ir[jj])
 				{
-					if (allowBNulls && do_op(A.numx[ii], BNullVal))
+					if (allowBNulls && do_op(A.numx[ii], BNullVal, false, true))
 					{
 						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = __binary_op(A.numx[ii++], BNullVal);
+						temp.numx[curnz++] = __binary_op(A.numx[ii++], BNullVal, false, true);
 					}
 					else
 						ii++;
 				}
 				else if (A.ir[ii] > B.ir[jj])
 				{
-					if (allowANulls && do_op(ANullVal, B.numx[jj]))
+					if (allowANulls && do_op(ANullVal, B.numx[jj], true, false))
 					{
 						temp.ir[curnz] = B.ir[jj];
-						temp.numx[curnz++] = __binary_op(ANullVal, B.numx[jj++]);
+						temp.numx[curnz++] = __binary_op(ANullVal, B.numx[jj++], true, false);
 					}
 					else
 						jj++;
 				}
 				else
 				{
-					if (allowIntersect && do_op(A.numx[ii], B.numx[jj]))
+					if (allowIntersect && do_op(A.numx[ii], B.numx[jj], false, false))
 					{
 						temp.ir[curnz] = A.ir[ii];
-						temp.numx[curnz++] = __binary_op(A.numx[ii++], B.numx[jj++]);	// might include zeros
+						temp.numx[curnz++] = __binary_op(A.numx[ii++], B.numx[jj++], false, false);	// might include zeros
 					}
 					else
 					{
@@ -1168,20 +1093,20 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			}
 			while (ii < A.cp[i+1])
 			{
-				if (allowBNulls && do_op(A.numx[ii], BNullVal))
+				if (allowBNulls && do_op(A.numx[ii], BNullVal, false, true))
 				{
 					temp.ir[curnz] = A.ir[ii];
-					temp.numx[curnz++] = __binary_op(A.numx[ii++], BNullVal);
+					temp.numx[curnz++] = __binary_op(A.numx[ii++], BNullVal, false, true);
 				}
 				else
 					ii++;
 			}
 			while (jj < B.cp[j+1])
 			{
-				if (allowANulls && do_op(ANullVal, B.numx[jj]))
+				if (allowANulls && do_op(ANullVal, B.numx[jj], true, false))
 				{
 					temp.ir[curnz] = B.ir[jj];
-					temp.numx[curnz++] = __binary_op(ANullVal, B.numx[jj++]);
+					temp.numx[curnz++] = __binary_op(ANullVal, B.numx[jj++], true, false);
 				}
 				else
 					jj++;
@@ -1196,10 +1121,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 		temp.jc[curnzc++] = A.jc[i++];
 		for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
 		{
-			if (do_op(A.numx[k], BNullVal))
+			if (do_op(A.numx[k], BNullVal, false, true))
 			{
 				temp.ir[curnz] 	= A.ir[k];
-				temp.numx[curnz++] = A.numx[k];
+				temp.numx[curnz++] = __binary_op(A.numx[k], BNullVal, false, true);
 			}
 		}
 		temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
@@ -1209,10 +1134,10 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 		temp.jc[curnzc++] = B.jc[j++];
 		for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 		{
-			if (do_op(ANullVal, B.numx[k]))
+			if (do_op(ANullVal, B.numx[k], true, false))
 			{
 				temp.ir[curnz] 	= B.ir[k];
-				temp.numx[curnz++] 	= B.numx[k];
+				temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 			}
 		}
 		temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);

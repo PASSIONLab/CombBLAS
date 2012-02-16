@@ -684,19 +684,21 @@ class Mat:
 				return self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
 			if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 				return self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+		# else:
+		#   ignoring materialized filters is used for copying data back from the materialized filter to the main Mat data structure
 
 		ANull = self._identity_
 		BNull = other._identity_
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
+		#superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 		
 		##if doOp is not None:
 		# new version
 		if inPlace:
-			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
+			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self)), _op_make_unary_pred(FilterHelper.getFilterPred(other)))
 			self._dirty()
 			return
 		else:
-			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(superOp), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
+			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self)), _op_make_unary_pred(FilterHelper.getFilterPred(other)))
 			ret = Mat._toMat(m)
 			return ret
 
