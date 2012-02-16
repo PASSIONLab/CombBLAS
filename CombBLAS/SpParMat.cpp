@@ -2058,7 +2058,7 @@ ifstream& SpParMat< IT,NT,DER >::ReadDistribute (ifstream& infile, int master, b
 					size_t commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
 					if(handler.isBinary())
 					{
-						handler.binaryfill(binfile, rows + commonindex , cols + commonindex, vals + commonindex);
+						//handler.binaryfill(binfile, rows + commonindex , cols + commonindex, vals + commonindex);
 					}	
 					else
 					{

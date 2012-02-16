@@ -48,6 +48,7 @@ class Obj1ReadSaveHandler
 {
 public:
 	Obj1 getNoNum(pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col) { return Obj1(); }
+	bool isBinary() { return false; } 
 
 	template <typename c, typename t>
 	Obj1 read(std::basic_istream<c,t>& is, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)

@@ -103,14 +103,16 @@ public:
 	static int Row() { return ::Row; }
 };
 
+// these are deprecated:
 pySpParMat EWiseMult(const pySpParMat& A1, const pySpParMat& A2, bool exclude);
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
 
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB = false, Obj1 defaultBValue = Obj1());
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB = false, Obj2 defaultBValue = Obj2());
 pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB = false, double defaultBValue = 0);
+// end deprecated
 
-pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect);
+pySpParMat EWiseApply(const pySpParMat& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 //INTERFACE_INCLUDE_END
 
