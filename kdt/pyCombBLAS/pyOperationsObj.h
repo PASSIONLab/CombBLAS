@@ -766,7 +766,8 @@ class SemiringObj {
 	// The others are pre-implemented in C++ for speed.
 	typedef enum {CUSTOM, NONE, TIMESPLUS, PLUSMIN, SECONDMAX} SRingType;
 
-	protected:
+	//protected: // this used to be protected, but there seems to be some issues with some compilers and friends, so screw it, these fields are now public.
+	public:
 	SRingType type;
 	
 	//PyObject *pyfunc_add;
@@ -776,8 +777,8 @@ class SemiringObj {
 	BinaryFunctionObj *binfunc_mul;
 	UnaryPredicateObj* left_filter;
 	UnaryPredicateObj* right_filter;
-	template <class T1, class T2, class OUT>
-	friend struct SemiringObjTemplArg;
+	//template <class T1, class T2, class OUT>
+	//friend struct SemiringObjTemplArg;
 	
 	public:
 	// CombBLAS' template mechanism means that we can have only one C++ semiring.

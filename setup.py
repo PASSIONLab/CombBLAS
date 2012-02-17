@@ -350,6 +350,9 @@ if not check_for_C99_CONSTANTS(include_dirs, define_macros):
 if not usingWindows and not check_for_restrict(include_dirs, define_macros):
 	define_macros.append(('restrict', ''))
 
+if not debug:
+	define_macros.append(('NDEBUG', '1'))
+
 ############################################################################
 #### RUN DISTUTILS
 
@@ -363,7 +366,7 @@ pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 	library_dirs=library_dirs,
 	libraries=libraries,
 	extra_link_args = extra_link_args, extra_compile_args = extra_compile_args,
-	define_macros=[('NDEBUG', '1'),('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
+	define_macros=[('GRAPH_GENERATOR_SEQ', '1')] + headerDefs + define_macros)
 
 setup(name='kdt',
 	version='0.2',

@@ -53,6 +53,7 @@ public:
 #include "obj.h"
 #include "pyOperations.h"
 #include "pyOperationsObj.h"
+#include "pySemirings.h"
 #include "pySpParVec.h"
 #include "pySpParVecObj1.h"
 #include "pySpParVecObj2.h"

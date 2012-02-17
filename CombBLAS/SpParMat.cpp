@@ -683,14 +683,16 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRefCol (const vector<IT> & ci) cons
  * Sequential indexing subroutine (via multiplication) is general enough.
  */
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace)
+template <typename PTNTBOOL, typename PTBOOLNT>
+SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, bool inplace)
 {
 	// infer the concrete type SpMat<IT,IT>
 	typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
 	//typedef PlusTimesSRing<NT, bool> PTNTBOOL;
 	//typedef PlusTimesSRing<bool, NT> PTBOOLNT;
-	typedef BoolCopy1stSRing<NT> PTNTBOOL;
-	typedef BoolCopy2ndSRing<NT> PTBOOLNT;
+	
+	//typedef BoolCopy1stSRing<NT> PTNTBOOL;
+	//typedef BoolCopy2ndSRing<NT> PTBOOLNT;
 
 	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
 	{
