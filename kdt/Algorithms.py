@@ -444,7 +444,7 @@ def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs()
 	
 	This function uses Brandes' algorithm.
 	"""
-	if True and False:
+	if True:
 		A = self.e.copy(element=1.0)
 		BC_SR = sr_plustimes
 	else:
