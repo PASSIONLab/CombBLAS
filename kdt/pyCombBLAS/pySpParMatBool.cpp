@@ -215,12 +215,6 @@ pySpParMatBool pySpParMatBool::copy()
 	return pySpParMatBool(*this);
 }
 
-pySpParMatBool& pySpParMatBool::operator+=(const pySpParMatBool& other)
-{
-	A += other.A;
-	return *this;
-}
-
 pySpParMatBool& pySpParMatBool::assign(const pySpParMatBool& other)
 {
 	A = other.A;
@@ -234,21 +228,40 @@ pySpParMatBool pySpParMatBool::SpGEMM(pySpParMatBool& other)
 	return ret;
 }
 
-pySpParMatBool pySpParMatBool::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
+pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter)
 {
-	return SubsRef(rows, cols);
-}
-
-pySpParMatBool pySpParMatBool::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace)
-{
-	if (inPlace)
+	if (matFilter == NULL)
 	{
-		A(rows.v, cols.v, true);
-		return pySpParMatBool();
+		if (inPlace)
+		{
+			A(rows.v, cols.v, true);
+			return pySpParMatBool();
+		}
+		else
+		{
+			return pySpParMatBool(A(rows.v, cols.v));
+		}
 	}
 	else
-	{
-		return pySpParMatBool(A(rows.v, cols.v));
+	{ // The filtering semiring is slightly heavier than the default one, so only use it if needed
+		if (inPlace)
+		{
+			SRFilterHelper<bool, bool, bool>::setFilterX(matFilter);
+			SRFilterHelper<bool, bool, bool>::setFilterY(matFilter);
+			A.SubsRef_SR<PCBBoolCopy1stSRing<bool>, PCBBoolCopy2ndSRing<bool> >(rows.v, cols.v, true);
+			SRFilterHelper<bool, bool, bool>::setFilterX(NULL);
+			SRFilterHelper<bool, bool, bool>::setFilterY(NULL);
+			return pySpParMatBool();
+		}
+		else
+		{
+			SRFilterHelper<bool, bool, bool>::setFilterX(matFilter);
+			SRFilterHelper<bool, bool, bool>::setFilterY(matFilter);
+			pySpParMatBool ret(A.SubsRef_SR<PCBBoolCopy1stSRing<bool>, PCBBoolCopy2ndSRing<bool> >(rows.v, cols.v, false));
+			SRFilterHelper<bool, bool, bool>::setFilterX(NULL);
+			SRFilterHelper<bool, bool, bool>::setFilterY(NULL);
+			return ret;
+		}
 	}
 }
 	

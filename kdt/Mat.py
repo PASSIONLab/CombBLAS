@@ -772,14 +772,20 @@ class Mat:
 		#		key1mx = key1tmp - 1
 		
 
+		# the key vectors passed to SubsRef cannot be filtered
+		if key0._hasFilter():
+			key0 = key0.copy();
+		if key1._hasFilter():
+			key1 = key0.copy();
+		
 		if inPlace:
-			self._m_.SubsRef(key0._v_, key1._v_, inPlace)
+			self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self)))
 			self._dirty()
 		else:
 			if self._hasMaterializedFilter():
 				return self._materialized.__getitem__(key)
 
-			ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_, inPlace))
+			ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self))))
 			return ret
 		
 	# TODO: make a _keep() which reverses the predicate

@@ -54,10 +54,9 @@ public:
 	
 public:
 	pySpParMat copy();
-	pySpParMat& operator+=(const pySpParMat& other);
+
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	

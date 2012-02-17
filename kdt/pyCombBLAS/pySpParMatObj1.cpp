@@ -311,21 +311,40 @@ pySpParMatObj1& pySpParMatObj1::assign(const pySpParMatObj1& other)
 	return *this;
 }
 
-pySpParMatObj1 pySpParMatObj1::__getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols)
+pySpParMatObj1 pySpParMatObj1::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter)
 {
-	return SubsRef(rows, cols);
-}
-
-pySpParMatObj1 pySpParMatObj1::SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace)
-{
-	if (inPlace)
+	if (matFilter == NULL)
 	{
-		A(rows.v, cols.v, true);
-		return pySpParMatObj1();
+		if (inPlace)
+		{
+			A(rows.v, cols.v, true);
+			return pySpParMatObj1();
+		}
+		else
+		{
+			return pySpParMatObj1(A(rows.v, cols.v, false));
+		}
 	}
 	else
-	{
-		return pySpParMatObj1(A(rows.v, cols.v, false));
+	{ // The filtering semiring is slightly heavier than the default one, so only use it if needed
+		if (inPlace)
+		{
+			SRFilterHelper<Obj1, Obj1, bool>::setFilterX(matFilter);
+			SRFilterHelper<Obj1, bool, Obj1>::setFilterY(matFilter);
+			A.SubsRef_SR<PCBBoolCopy1stSRing<Obj1>, PCBBoolCopy2ndSRing<Obj1> >(rows.v, cols.v, true);
+			SRFilterHelper<Obj1, Obj1, bool>::setFilterX(NULL);
+			SRFilterHelper<Obj1, bool, Obj1>::setFilterY(NULL);
+			return pySpParMatObj1();
+		}
+		else
+		{
+			SRFilterHelper<Obj1, Obj1, bool>::setFilterX(matFilter);
+			SRFilterHelper<Obj1, bool, Obj1>::setFilterY(matFilter);
+			pySpParMatObj1 ret(A.SubsRef_SR<PCBBoolCopy1stSRing<Obj1>, PCBBoolCopy2ndSRing<Obj1> >(rows.v, cols.v, false));
+			SRFilterHelper<Obj1, Obj1, bool>::setFilterX(NULL);
+			SRFilterHelper<Obj1, bool, Obj1>::setFilterY(NULL);
+			return ret;
+		}
 	}
 }
 	

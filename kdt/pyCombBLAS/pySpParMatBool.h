@@ -52,11 +52,10 @@ public:
 	
 public:
 	pySpParMatBool copy();
-	pySpParMatBool& operator+=(const pySpParMatBool& other);
+
 	pySpParMatBool& assign(const pySpParMatBool& other);
 	pySpParMatBool SpGEMM(pySpParMatBool& other);
-	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	
