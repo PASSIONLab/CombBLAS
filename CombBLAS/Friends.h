@@ -68,6 +68,11 @@ void dcsc_gespmv (const SpDCCols<IU, NU> & A, const RHS * x, LHS * y)
 			{
 				IU rowid = A.dcsc->ir[i];
 				SR::axpy(A.dcsc->numx[i], x[colid], y[rowid]);
+				if (SR::returnedSAID())
+				{
+					cout << "the semiring returned SAID but that is not implemented. results will be incorrect." << endl;
+					throw string("the semiring returned SAID but that is not implemented. results will be incorrect.");
+				}
 			}
 		}
 	}

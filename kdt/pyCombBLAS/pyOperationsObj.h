@@ -787,7 +787,7 @@ class SemiringObj {
 	void disableSemiring();
 	
 	public:
-	SemiringObj(SRingType t): type(t)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {
+	SemiringObj(SRingType t): type(t), binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {
 		//if (t == CUSTOM)
 			// scream bloody murder
 	}

@@ -89,10 +89,9 @@ public:
 	
 public:
 	pySpParMat copy();
-	pySpParMat& operator+=(const pySpParMat& other);
+
 	pySpParMat& assign(const pySpParMat& other);
-	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMat __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMat SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	
@@ -175,11 +174,10 @@ public:
 	
 public:
 	pySpParMatBool copy();
-	pySpParMatBool& operator+=(const pySpParMatBool& other);
+
 	pySpParMatBool& assign(const pySpParMatBool& other);
 	pySpParMatBool SpGEMM(pySpParMatBool& other);
-	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMatBool __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatBool SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	
@@ -240,10 +238,9 @@ public:
 	
 public:
 	pySpParMatObj1 copy();
-	//pySpParMatObj1& operator+=(const pySpParMatObj1& other);
+
 	pySpParMatObj1& assign(const pySpParMatObj1& other);
-	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMatObj1 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatObj1 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	
@@ -315,10 +312,9 @@ public:
 	
 public:
 	pySpParMatObj2 copy();
-	//pySpParMatObj2& operator+=(const pySpParMatObj2& other);
+
 	pySpParMatObj2& assign(const pySpParMatObj2& other);
-	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace = false);
-	pySpParMatObj2 __getitem__(const pyDenseParVec& rows, const pyDenseParVec& cols);
+	pySpParMatObj2 SubsRef(const pyDenseParVec& rows, const pyDenseParVec& cols, bool inPlace, op::UnaryPredicateObj* matFilter);
 	
 	int64_t removeSelfLoops();
 	
