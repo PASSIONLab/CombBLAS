@@ -74,9 +74,7 @@ template <class IT>
 class TwitterReadSaveHandler
 {
 	public:
-		TwitterReadSaveHandler(bool bin=false): isbinary(bin) {};
-		bool isBinary()	{ return isbinary; };
-
+		TwitterReadSaveHandler() {};
 		TwitterEdge getNoNum(IT row, IT col) { return TwitterEdge(); }
 
 		MPI::Datatype getMPIType()
@@ -86,13 +84,13 @@ class TwitterReadSaveHandler
 			return datatype;
 		}
 
-		void binaryfill(FILE * rFile, IT * row, IT * col, TwitterEdge * val)
+		void binaryfill(FILE * rFile, IT & row, IT & col, TwitterEdge & val)
 		{
 			TwitterInteraction twi;
 			fread (&twi,sizeof(TwitterInteraction),1,rFile);
-			*row = twi.from;
-			*col = twi.to;
-			*val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
+			row = twi.from;
+			col = twi.to;
+			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
 		}
 
 		template <typename c, typename t>
@@ -141,8 +139,6 @@ class TwitterReadSaveHandler
 			os << tw.latest << endl;
 		}
 	private:
-		bool isbinary;
-
 		struct TwitterInteraction
 		{
      		  	int32_t from;

@@ -81,15 +81,13 @@ int main(int argc, char* argv[])
 		double t01 = MPI_Wtime();
 		if(string(argv[1]) == string("Text")) // text input option
 		{
-			ifstream input(argv[2]);
-			// ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose)
+			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
-			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
+			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
 		}
 		else if(string(argv[1]) == string("Binary"))
 		{
-			ifstream input(argv[2]);
-			A.ReadDistribute(input, 0, false, TwitterReadSaveHandler<int64_t>(true), true);
+			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true);
 		}
 		else 
 		{	

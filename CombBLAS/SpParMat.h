@@ -180,7 +180,7 @@ public:
 	{
 	public:
 		NT getNoNum(IT row, IT col) { return static_cast<NT>(1); }
-		bool isBinary() { return false; } 
+		void binaryfill(FILE * rFile, IT & row, IT & col, NT & val) { return; }
 		
 		template <typename c, typename t>
 		NT read(std::basic_istream<c,t>& is, IT row, IT col)
@@ -198,8 +198,8 @@ public:
 	};
 	
 	template <class HANDLER>
-	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum, HANDLER handler, bool transpose = false);
-	ifstream& ReadDistribute (ifstream& infile, int master, bool nonum=false) { return ReadDistribute(infile, master, nonum, ScalarReadSaveHandler()); }
+	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false);
+	void ReadDistribute (const string & filename, int master, bool nonum=false) { ReadDistribute(filename, master, nonum, ScalarReadSaveHandler()); }
 
 	template <class HANDLER>
 	void SaveGathered(string filename, HANDLER handler, bool transpose = false) const;

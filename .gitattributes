@@ -285,6 +285,7 @@ CombBLAS/DistEdgeList.cpp -text
 CombBLAS/DistEdgeList.h -text
 CombBLAS/Doxyfile -text
 CombBLAS/Exception.h -text
+CombBLAS/FileHeader.h -text
 CombBLAS/Friends.h -text
 CombBLAS/FullyDist.h -text
 CombBLAS/FullyDistSpVec.cpp -text
@@ -680,6 +681,7 @@ CombBLAS/ReleaseTests/ranger/rangerscript81 -text
 CombBLAS/ReleaseTests/ranger/rangerscript841 -text
 CombBLAS/ReleaseTests/ranger/rangerscript9 -text
 CombBLAS/ReleaseTests/small_nonsym.mtx -text
+CombBLAS/SemanticGraph.h -text
 CombBLAS/Semirings.h -text
 CombBLAS/SequenceHeaps/heap-CLR.h -text
 CombBLAS/SequenceHeaps/heap2.h -text
@@ -1876,6 +1878,8 @@ CombBLAS/pspectralclustering/testdata/distances.txt -text
 CombBLAS/pspectralclustering/testdata/similarity.txt -text
 CombBLAS/pspectralclustering/usage -text
 CombBLAS/valgrindout -text
+/Input_File_Formats.docx -text
+/Input_File_Formats.pdf -text
 /KDT_User_Guide.doc -text
 /KDT_User_Guide.pdf -text
 /LICENSE.txt -text
