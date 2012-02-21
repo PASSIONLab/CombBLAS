@@ -48,7 +48,7 @@ class Obj2ReadSaveHandler
 {
 public:
 	Obj2 getNoNum(pySpParMatObj2::INDEXTYPE row, pySpParMatObj2::INDEXTYPE col) { return Obj2(); }
-	bool isBinary() { return false; } 
+	void binaryfill(FILE * rFile, pySpParMatObj2::INDEXTYPE & row, pySpParMatObj2::INDEXTYPE & col, Obj2 & val) { return; }
 
 	template <typename c, typename t>
 	Obj2 read(std::basic_istream<c,t>& is, pySpParMatObj2::INDEXTYPE row, pySpParMatObj2::INDEXTYPE col)
@@ -67,9 +67,7 @@ public:
 
 void pySpParMatObj2::load(const char* filename)
 {
-	ifstream input(filename);
-	A.ReadDistribute(input, 0, false, Obj2ReadSaveHandler(), true);
-	input.close();
+	A.ReadDistribute(filename, 0, false, Obj2ReadSaveHandler(), true);
 }
 
 void pySpParMatObj2::save(const char* filename)

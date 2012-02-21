@@ -66,9 +66,7 @@ int64_t pySpParMatBool::getncol()
 	
 void pySpParMatBool::load(const char* filename)
 {
-	ifstream input(filename);
-	A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler(), true);
-	input.close();
+	A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true);
 }
 
 void pySpParMatBool::save(const char* filename)

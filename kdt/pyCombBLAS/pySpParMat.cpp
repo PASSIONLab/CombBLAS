@@ -87,9 +87,7 @@ void pySpParMat::load(const char* filename)
 	else
 	{
 		// matrix market file
-		ifstream input(filename);
-		A.ReadDistribute(input, 0, false, MatType::ScalarReadSaveHandler(), true);
-		input.close();
+		A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true);
 	}
 }
 
