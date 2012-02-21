@@ -43,7 +43,7 @@ struct HeaderInfo
 };
 	
 
-HeaderInfo ParseHeader(const string & inputname, FILE * f)
+inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 {
 	f = fopen(inputname.c_str(), "r");
 	HeaderInfo hinfo;
@@ -56,7 +56,7 @@ HeaderInfo ParseHeader(const string & inputname, FILE * f)
 	}
 	char fourletters[4];
 	fread(fourletters, sizeof(char), 4, f);
-	if(strcmp(firstletters,'HKDT') == 0)
+	if(strcmp(fourletters,"HKDT") == 0)
 	{
 		cout << "First four letters are " << fourletters << endl;
 		cout << "Reverting to text mode" << endl;
