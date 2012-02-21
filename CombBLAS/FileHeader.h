@@ -33,9 +33,9 @@ struct HeaderInfo
 {
 	bool fileexists;
 	bool headerexists;
-	int16_t version;
-	int16_t objsize;
-	int16_t format;	// 0: binary, 1: ascii
+	uint64_t version;
+	uint64_t objsize;
+	uint64_t format;	// 0: binary, 1: ascii
 	
 	uint64_t m;
 	uint64_t n;
@@ -54,11 +54,11 @@ HeaderInfo ParseHeader(const string & inputname, FILE * f)
 		f = NULL;
 		return hinfo;
 	}
-	char firstletter;
-	fread(&firstletter, sizeof(firstletter), 1, f);
-	if(firstletter != 'H')
+	char fourletters[4];
+	fread(fourletters, sizeof(char), 4, f);
+	if(strcmp(firstletters,'HKDT') == 0)
 	{
-		cout << "First letter is " << firstletter << endl;
+		cout << "First four letters are " << fourletters << endl;
 		cout << "Reverting to text mode" << endl;
 		rewind(f);
 		fclose(f);
