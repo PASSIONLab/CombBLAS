@@ -60,6 +60,11 @@ class DiGraph(gr.Graph):
 		if edges is not None:
 			self.e = edges
 		else:
+			if destV is None or sourceV is None:
+				sourceV = Vec(0, element=0, sparse=False)
+				destV = Vec(0, element=0, sparse=False)
+			if valueV is None:
+				valueV = Vec(len(sourceV), element=element, sparse=False)
 			self.e = Mat(i=destV, j=sourceV, v=valueV, n=nv, element=element)  # AL: swapped
 		
 		if vertices is not None:

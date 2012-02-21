@@ -1,6 +1,8 @@
 import sys
+import os
 import time
 import math
+import random
 import kdt
 import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
@@ -11,7 +13,10 @@ if (len(sys.argv) < 2):
 	print "the 2nd argument determines whether or not to use a materializing filter"
 	sys.exit()
 
+datasource = "file"
 inmatrixfile = sys.argv[1]
+gen_scale = 10
+
 # report results of keep_starts runs, where each run traverses at least keep_min_edges edges.
 # total maximum of runs is nstarts.
 nstarts = 512
@@ -21,6 +26,20 @@ materializeArg = False
 
 if (len(sys.argv) >= 3):
 	materializeArg = bool(int(sys.argv[2]))
+
+# this function is used for generation.
+# obj is the object that needs to be filled in
+# bin is a throwaway value.
+# http://docs.python.org/library/random.html
+def Twitter_obj_randomizer(obj, bin):
+	obj.latest = random.randrange(1244592000, 1246406400)
+	if random.randrange(0, 2) > 0:
+		obj.count = 1
+	else:
+		obj.count = 0
+	obj.follower = 0
+	return obj
+
 
 #def twitterMul(e, f):
 #	if e.count > 0 and e.latest > 946684800 and e.latest < 1249084800:
@@ -67,20 +86,45 @@ def bfsTreeTwitter(self, root):
 	return parents
 kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 
-# load
-kdt.p("Reading network from %s"%inmatrixfile)
-before = time.time()
-G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
-kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
+# determine where the data is supposed to come from
+if os.path.isfile(inmatrixfile):
+	datasource = "file"
+else:
+	try:
+		gen_scale = int(inmatrixfile)
+		datasource = "generate"
+	except ValueError:
+		datasource = "unknown"
 
-#kdt.p(G)
-#G.addEFilter(twitterEdgeFilter)
+# get the data
+if datasource == "file":
+	# load
+	kdt.p("Reading network from %s"%inmatrixfile)
+	before = time.time()
+	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
+	kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
+	
+	# optimize the graph
+	kdt.p("deleting isolated vertices and randomly permuting matrix for load balance")
+	before = time.time()
+	G.delIsolatedVerts(True)
+	kdt.p("Done in %fs."%(time.time()-before))
+elif datasource == "generate":
+	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
+	kdt.p("Generating a plain RMAT graph of scale %d"%(gen_scale))
+	before = time.time()
+	binrmat = kdt.DiGraph.generateRMAT(gen_scale, element=1.0, delIsolated=True)
+	kdt.p("Generated in %fs: %d vertices and %d edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
 
-# optimize the graph
-kdt.p("deleting isolated vertices and randomly permuting matrix for load balance")
-before = time.time()
-G.delIsolatedVerts(True)
-kdt.p("Done in %fs."%(time.time()-before))
+	kdt.p("Converting binary RMAT to twitter object")
+	G = kdt.DiGraph(nv=binrmat.nvert(), element=kdt.Obj2())
+	G.e.eWiseApply(binrmat.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
+	kdt.p("Converted in %fs. G has %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
+	print G
+	
+else:
+	kdt.p("unknown data source. Does your file exist or did you specify an integer generation scale? quitting.")
+	sys.exit()
 
 kdt.p("calculating degrees on original graph")
 before = time.time()
