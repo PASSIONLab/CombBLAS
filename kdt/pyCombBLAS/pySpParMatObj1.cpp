@@ -381,6 +381,81 @@ pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::
 	return pySpParMatObj1(EWiseApply<Obj1, pySpParMatObj1::DCColsType>(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
 }
 
+
+// New format:
+template <typename NU1, typename NU2>
+class EWiseFilterDoOpAdapter
+{
+	public:
+	op::BinaryPredicateObj* plain_binary_op;
+	op::UnaryPredicateObj* AFilter;
+	op::UnaryPredicateObj* BFilter;
+	bool allowANulls, allowBNulls, allowIntersect;
+	
+	EWiseFilterDoOpAdapter(op::BinaryPredicateObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI) {}
+	
+	bool operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
+	{
+		bool aPass = aIsNull ? false : (AFilter == NULL ? true : (*AFilter)(a));
+		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
+		
+		if (!aPass && !bPass)
+			return false;
+		if (!aPass && !allowANulls)
+			return false;
+		if (!bPass && !allowBNulls)
+			return false;
+		
+		if (plain_binary_op == NULL)
+			return true;
+		else
+			return (*plain_binary_op)(a, b);
+	}
+};
+
+template <typename RETT, typename NU1, typename NU2>
+class EWiseFilterOpAdapter
+{
+	public:
+	op::BinaryFunctionObj* plain_binary_op;
+	op::UnaryPredicateObj* AFilter;
+	op::UnaryPredicateObj* BFilter;
+	bool allowANulls, allowBNulls, allowIntersect;
+	const NU1& ANull;
+	const NU2& BNull;
+	
+	EWiseFilterOpAdapter(op::BinaryFunctionObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI, const NU1& AN, const NU2& BN): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI), ANull(AN), BNull(BN)
+	{
+		if (plain_binary_op == NULL)
+			throw string("bloody murder! don't pass in null binary ops to eWiseApply!");
+	}
+	
+	RETT operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
+	{
+		bool aPass = aIsNull ? false : (AFilter == NULL ? true : (*AFilter)(a));
+		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
+		
+		if (!aPass && !bPass)
+			throw string("The DoOp adapter should have taken care of this case!");
+		else if (!aPass &&  bPass)
+			return (*plain_binary_op)(ANull, b);
+		else if ( aPass && !bPass)
+			return (*plain_binary_op)(a, BNull);
+		else
+			return (*plain_binary_op)(a, b);
+	}
+};
+
+pySpParMatObj1 EWiseApply(const pySpParMatObj1& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, const Obj1& ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred)
+{
+	return pySpParMatObj1(EWiseApply<pySpParMatObj1::NUMTYPE, pySpParMatObj1::DCColsType>(A.A, B.A,
+		EWiseFilterOpAdapter<Obj1, Obj1, doubleint>(  op, AFilterPred, BFilterPred, allowANulls, allowBNulls, allowIntersect, ANull, BNull),
+		EWiseFilterDoOpAdapter<Obj1, doubleint>         (doOp, AFilterPred, BFilterPred, allowANulls, allowBNulls, allowIntersect),
+		allowANulls, allowBNulls, ANull, doubleint(BNull), allowIntersect, true));
+}
+
+
+
 pySpParMatObj1 pySpParMatObj1::Prune(op::UnaryPredicateObj* pred, bool inPlace)
 {
 	return pySpParMatObj1(A.Prune(*pred, inPlace));

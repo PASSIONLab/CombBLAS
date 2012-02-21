@@ -943,7 +943,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 		if (!allowANulls)
 			return Dcsc<IU,RETT>(0, 0);
 			
-		const Dcsc<IU,NU1> & B = *Bp;
+		const Dcsc<IU,NU2> & B = *Bp;
 		IU estnzc = B.nzc;
 		IU estnz  = B.nz;
 		Dcsc<IU,RETT> temp(estnz, estnzc);
@@ -1007,7 +1007,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 	
 	// both A and B are non-NULL at this point
 	const Dcsc<IU,NU1> & A = *Ap;
-	const Dcsc<IU,NU1> & B = *Bp;
+	const Dcsc<IU,NU2> & B = *Bp;
 	
 	IU estnzc = A.nzc + B.nzc;
 	IU estnz  = A.nz + B.nz;
