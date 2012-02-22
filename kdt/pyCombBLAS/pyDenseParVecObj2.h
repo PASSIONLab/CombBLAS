@@ -8,6 +8,7 @@
 class pyDenseParVecObj2 {
 //INTERFACE_INCLUDE_END
 	typedef int64_t INDEXTYPE;
+	typedef Obj2 NUMTYPE;
 	typedef FullyDistVec<INDEXTYPE, Obj2> VectType;
 	
 	public:

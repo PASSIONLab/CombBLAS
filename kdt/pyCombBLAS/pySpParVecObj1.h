@@ -8,6 +8,7 @@ class pySpParVecObj1 {
 //INTERFACE_INCLUDE_END
 public:
 	typedef int64_t INDEXTYPE;
+	typedef Obj1 NUMTYPE;
 	typedef FullyDistSpVec<INDEXTYPE, Obj1> VectType;
 	VectType v;
 	
