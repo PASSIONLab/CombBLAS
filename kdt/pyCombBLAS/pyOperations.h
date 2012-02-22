@@ -138,93 +138,9 @@ UnaryFunction not1(UnaryFunction& f);
 BinaryFunction not2(BinaryFunction& f);
 
 
-
-class Semiring {
-//INTERFACE_INCLUDE_END
-	public:
-	// CUSTOM is a semiring with Python-defined methods
-	// The others are pre-implemented in C++ for speed.
-	typedef enum {CUSTOM, NONE, TIMESPLUS, PLUSMIN, SECONDMAX} SRingType;
-
-	protected:
-	SRingType type;
-	
-	PyObject *pyfunc_add;
-	PyObject *pyfunc_multiply;
-	
-	BinaryFunction *binfunc_add;
-	
-	public:
-	// CombBLAS' template mechanism means we have to compile in only one C++ semiring.
-	// So to support different Python semirings, we have to switch them in.
-	void enableSemiring();
-	void disableSemiring();
-	
-	public:
-	Semiring(SRingType t): type(t), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {
-		//if (t == CUSTOM)
-			// scream bloody murder
-	}
-	
-	SRingType getType() { return type; }
-	
 //INTERFACE_INCLUDE_BEGIN
-	protected:
-	Semiring(): type(NONE), pyfunc_add(NULL), pyfunc_multiply(NULL), binfunc_add(NULL) {}
-	public:
-	Semiring(PyObject *add, PyObject *multiply);
-	~Semiring();
-	
-	MPI_Op mpi_op()
-	{
-		return *(binfunc_add->getMPIOp());
-	}
-	
-	doubleint add(const doubleint & arg1, const doubleint & arg2);	
-	doubleint multiply(const doubleint & arg1, const doubleint & arg2);
-	void axpy(doubleint a, const doubleint & x, doubleint & y);
 
-};
-//INTERFACE_INCLUDE_END
-
-template <class T1, class T2>
-struct SemiringTemplArg
-{
-	static Semiring *currentlyApplied;
-	
-	typedef typename promote_trait<T1,T2>::T_promote T_promote;
-	static T_promote id() { return T_promote();}
-
-	static bool returnedSAID()
-	{
-		return false;
-	}
-	
-	static MPI_Op mpi_op()
-	{
-		return currentlyApplied->mpi_op();
-	}
-	
-	static T_promote add(const T_promote & arg1, const T_promote & arg2)
-	{
-		return currentlyApplied->add(arg1, arg2);
-	}
-	
-	static T_promote multiply(const T1 & arg1, const T2 & arg2)
-	{
-		return currentlyApplied->multiply(arg1, arg2);
-	}
-	
-	static void axpy(T1 a, const T2 & x, T_promote & y)
-	{
-		currentlyApplied->axpy(a, x, y);
-	}
-};
-
-//INTERFACE_INCLUDE_BEGIN
-Semiring TimesPlusSemiring();
-//Semiring MinPlusSemiring();
-Semiring SecondMaxSemiring();
+// Semiring class removed in favor of SemiringObj
 
 } // namespace op
 

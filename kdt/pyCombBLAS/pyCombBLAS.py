@@ -536,27 +536,6 @@ compose1 = _pyCombBLAS.compose1
 compose2 = _pyCombBLAS.compose2
 not1 = _pyCombBLAS.not1
 not2 = _pyCombBLAS.not2
-class Semiring(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, Semiring, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, Semiring, name)
-    __repr__ = _swig_repr
-    def __init__(self, *args): 
-        this = _pyCombBLAS.new_Semiring(*args)
-        try: self.this.append(this)
-        except: self.this = this
-    __swig_destroy__ = _pyCombBLAS.delete_Semiring
-    __del__ = lambda self : None;
-    def mpi_op(*args): return _pyCombBLAS.Semiring_mpi_op(*args)
-    def add(*args): return _pyCombBLAS.Semiring_add(*args)
-    def multiply(*args): return _pyCombBLAS.Semiring_multiply(*args)
-    def axpy(*args): return _pyCombBLAS.Semiring_axpy(*args)
-Semiring_swigregister = _pyCombBLAS.Semiring_swigregister
-Semiring_swigregister(Semiring)
-
-TimesPlusSemiring = _pyCombBLAS.TimesPlusSemiring
-SecondMaxSemiring = _pyCombBLAS.SecondMaxSemiring
 class Obj1(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, Obj1, name, value)
