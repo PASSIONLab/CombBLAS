@@ -2481,23 +2481,22 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 #define SWIGTYPE_p_op__BinaryFunctionObj swig_types[10]
 #define SWIGTYPE_p_op__BinaryPredicateObj swig_types[11]
 #define SWIGTYPE_p_op__CallError swig_types[12]
-#define SWIGTYPE_p_op__Semiring swig_types[13]
-#define SWIGTYPE_p_op__SemiringObj swig_types[14]
-#define SWIGTYPE_p_op__UnaryFunction swig_types[15]
-#define SWIGTYPE_p_op__UnaryFunctionObj swig_types[16]
-#define SWIGTYPE_p_op__UnaryPredicateObj swig_types[17]
-#define SWIGTYPE_p_pyDenseParVec swig_types[18]
-#define SWIGTYPE_p_pyDenseParVecObj1 swig_types[19]
-#define SWIGTYPE_p_pyDenseParVecObj2 swig_types[20]
-#define SWIGTYPE_p_pySpParMat swig_types[21]
-#define SWIGTYPE_p_pySpParMatBool swig_types[22]
-#define SWIGTYPE_p_pySpParMatObj1 swig_types[23]
-#define SWIGTYPE_p_pySpParMatObj2 swig_types[24]
-#define SWIGTYPE_p_pySpParVec swig_types[25]
-#define SWIGTYPE_p_pySpParVecObj1 swig_types[26]
-#define SWIGTYPE_p_pySpParVecObj2 swig_types[27]
-static swig_type_info *swig_types[29];
-static swig_module_info swig_module = {swig_types, 28, 0, 0, 0, 0};
+#define SWIGTYPE_p_op__SemiringObj swig_types[13]
+#define SWIGTYPE_p_op__UnaryFunction swig_types[14]
+#define SWIGTYPE_p_op__UnaryFunctionObj swig_types[15]
+#define SWIGTYPE_p_op__UnaryPredicateObj swig_types[16]
+#define SWIGTYPE_p_pyDenseParVec swig_types[17]
+#define SWIGTYPE_p_pyDenseParVecObj1 swig_types[18]
+#define SWIGTYPE_p_pyDenseParVecObj2 swig_types[19]
+#define SWIGTYPE_p_pySpParMat swig_types[20]
+#define SWIGTYPE_p_pySpParMatBool swig_types[21]
+#define SWIGTYPE_p_pySpParMatObj1 swig_types[22]
+#define SWIGTYPE_p_pySpParMatObj2 swig_types[23]
+#define SWIGTYPE_p_pySpParVec swig_types[24]
+#define SWIGTYPE_p_pySpParVecObj1 swig_types[25]
+#define SWIGTYPE_p_pySpParVecObj2 swig_types[26]
+static swig_type_info *swig_types[28];
+static swig_module_info swig_module = {swig_types, 27, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -40077,363 +40076,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Semiring__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  PyObject *arg1 = (PyObject *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  op::Semiring *result = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:new_Semiring",&obj0,&obj1)) SWIG_fail;
-  arg1 = obj0;
-  arg2 = obj1;
-  {
-    try {
-      result = (op::Semiring *)new op::Semiring(arg1,arg2);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__Semiring, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_new_Semiring(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[3];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = PyObject_Length(args);
-  for (ii = 0; (ii < argc) && (ii < 2); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 2) {
-    int _v;
-    _v = (argv[0] != 0);
-    if (_v) {
-      _v = (argv[1] != 0);
-      if (_v) {
-        return _wrap_new_Semiring__SWIG_1(self, args);
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_Semiring'.\n  Possible C/C++ prototypes are:\n    op::Semiring(PyObject *,PyObject *)\n");
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_delete_Semiring(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::Semiring *arg1 = (op::Semiring *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_Semiring",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__Semiring, SWIG_POINTER_DISOWN |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_Semiring" "', argument " "1"" of type '" "op::Semiring *""'"); 
-  }
-  arg1 = reinterpret_cast< op::Semiring * >(argp1);
-  {
-    try {
-      delete arg1;
-      
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Semiring_mpi_op(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::Semiring *arg1 = (op::Semiring *) 0 ;
-  MPI_Op result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:Semiring_mpi_op",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__Semiring, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Semiring_mpi_op" "', argument " "1"" of type '" "op::Semiring *""'"); 
-  }
-  arg1 = reinterpret_cast< op::Semiring * >(argp1);
-  {
-    try {
-      result = (arg1)->mpi_op();
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new MPI_Op(static_cast< const MPI_Op& >(result))), SWIGTYPE_p_MPI_Op, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Semiring_add(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::Semiring *arg1 = (op::Semiring *) 0 ;
-  doubleint *arg2 = 0 ;
-  doubleint *arg3 = 0 ;
-  doubleint result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Semiring_add",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__Semiring, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Semiring_add" "', argument " "1"" of type '" "op::Semiring *""'"); 
-  }
-  arg1 = reinterpret_cast< op::Semiring * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_doubleint,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Semiring_add" "', argument " "2"" of type '" "doubleint const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_add" "', argument " "2"" of type '" "doubleint const &""'"); 
-  }
-  arg2 = reinterpret_cast< doubleint * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_doubleint,  0  | 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Semiring_add" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_add" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  arg3 = reinterpret_cast< doubleint * >(argp3);
-  {
-    try {
-      result = (arg1)->add((doubleint const &)*arg2,(doubleint const &)*arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new doubleint(static_cast< const doubleint& >(result))), SWIGTYPE_p_doubleint, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Semiring_multiply(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::Semiring *arg1 = (op::Semiring *) 0 ;
-  doubleint *arg2 = 0 ;
-  doubleint *arg3 = 0 ;
-  doubleint result;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:Semiring_multiply",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__Semiring, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Semiring_multiply" "', argument " "1"" of type '" "op::Semiring *""'"); 
-  }
-  arg1 = reinterpret_cast< op::Semiring * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_doubleint,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Semiring_multiply" "', argument " "2"" of type '" "doubleint const &""'"); 
-  }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_multiply" "', argument " "2"" of type '" "doubleint const &""'"); 
-  }
-  arg2 = reinterpret_cast< doubleint * >(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_doubleint,  0  | 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Semiring_multiply" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_multiply" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  arg3 = reinterpret_cast< doubleint * >(argp3);
-  {
-    try {
-      result = (arg1)->multiply((doubleint const &)*arg2,(doubleint const &)*arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new doubleint(static_cast< const doubleint& >(result))), SWIGTYPE_p_doubleint, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Semiring_axpy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::Semiring *arg1 = (op::Semiring *) 0 ;
-  doubleint arg2 ;
-  doubleint *arg3 = 0 ;
-  doubleint *arg4 = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  void *argp4 = 0 ;
-  int res4 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:Semiring_axpy",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__Semiring, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Semiring_axpy" "', argument " "1"" of type '" "op::Semiring *""'"); 
-  }
-  arg1 = reinterpret_cast< op::Semiring * >(argp1);
-  {
-    res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_doubleint,  0  | 0);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Semiring_axpy" "', argument " "2"" of type '" "doubleint""'"); 
-    }  
-    if (!argp2) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_axpy" "', argument " "2"" of type '" "doubleint""'");
-    } else {
-      doubleint * temp = reinterpret_cast< doubleint * >(argp2);
-      arg2 = *temp;
-      if (SWIG_IsNewObj(res2)) delete temp;
-    }
-  }
-  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_doubleint,  0  | 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Semiring_axpy" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  if (!argp3) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_axpy" "', argument " "3"" of type '" "doubleint const &""'"); 
-  }
-  arg3 = reinterpret_cast< doubleint * >(argp3);
-  res4 = SWIG_ConvertPtr(obj3, &argp4, SWIGTYPE_p_doubleint,  0 );
-  if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "Semiring_axpy" "', argument " "4"" of type '" "doubleint &""'"); 
-  }
-  if (!argp4) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Semiring_axpy" "', argument " "4"" of type '" "doubleint &""'"); 
-  }
-  arg4 = reinterpret_cast< doubleint * >(argp4);
-  {
-    try {
-      (arg1)->axpy(arg2,(doubleint const &)*arg3,*arg4);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *Semiring_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *obj;
-  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_op__Semiring, SWIG_NewClientData(obj));
-  return SWIG_Py_Void();
-}
-
-SWIGINTERN PyObject *_wrap_TimesPlusSemiring(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SwigValueWrapper<op::Semiring > result;
-  
-  if (!PyArg_ParseTuple(args,(char *)":TimesPlusSemiring")) SWIG_fail;
-  {
-    try {
-      result = op::TimesPlusSemiring();
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new op::Semiring(static_cast< const op::Semiring& >(result))), SWIGTYPE_p_op__Semiring, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SecondMaxSemiring(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  SwigValueWrapper<op::Semiring > result;
-  
-  if (!PyArg_ParseTuple(args,(char *)":SecondMaxSemiring")) SWIG_fail;
-  {
-    try {
-      result = op::SecondMaxSemiring();
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new op::Semiring(static_cast< const op::Semiring& >(result))), SWIGTYPE_p_op__Semiring, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_Obj1_weight_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj1 *arg1 = (Obj1 *) 0 ;
@@ -44619,15 +44261,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"compose2", _wrap_compose2, METH_VARARGS, NULL},
 	 { (char *)"not1", _wrap_not1, METH_VARARGS, NULL},
 	 { (char *)"not2", _wrap_not2, METH_VARARGS, NULL},
-	 { (char *)"new_Semiring", _wrap_new_Semiring, METH_VARARGS, NULL},
-	 { (char *)"delete_Semiring", _wrap_delete_Semiring, METH_VARARGS, NULL},
-	 { (char *)"Semiring_mpi_op", _wrap_Semiring_mpi_op, METH_VARARGS, NULL},
-	 { (char *)"Semiring_add", _wrap_Semiring_add, METH_VARARGS, NULL},
-	 { (char *)"Semiring_multiply", _wrap_Semiring_multiply, METH_VARARGS, NULL},
-	 { (char *)"Semiring_axpy", _wrap_Semiring_axpy, METH_VARARGS, NULL},
-	 { (char *)"Semiring_swigregister", Semiring_swigregister, METH_VARARGS, NULL},
-	 { (char *)"TimesPlusSemiring", _wrap_TimesPlusSemiring, METH_VARARGS, NULL},
-	 { (char *)"SecondMaxSemiring", _wrap_SecondMaxSemiring, METH_VARARGS, NULL},
 	 { (char *)"Obj1_weight_set", _wrap_Obj1_weight_set, METH_VARARGS, NULL},
 	 { (char *)"Obj1_weight_get", _wrap_Obj1_weight_get, METH_VARARGS, NULL},
 	 { (char *)"Obj1_category_set", _wrap_Obj1_category_set, METH_VARARGS, NULL},
@@ -44721,7 +44354,6 @@ static swig_type_info _swigt__p_op__BinaryFunction = {"_p_op__BinaryFunction", "
 static swig_type_info _swigt__p_op__BinaryFunctionObj = {"_p_op__BinaryFunctionObj", "op::BinaryFunctionObj *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__BinaryPredicateObj = {"_p_op__BinaryPredicateObj", "op::BinaryPredicateObj *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__CallError = {"_p_op__CallError", "op::CallError *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_op__Semiring = {"_p_op__Semiring", "op::Semiring *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__SemiringObj = {"_p_op__SemiringObj", "op::SemiringObj *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__UnaryFunction = {"_p_op__UnaryFunction", "op::UnaryFunction *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_op__UnaryFunctionObj = {"_p_op__UnaryFunctionObj", "op::UnaryFunctionObj *", 0, 0, (void*)0, 0};
@@ -44751,7 +44383,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_op__BinaryFunctionObj,
   &_swigt__p_op__BinaryPredicateObj,
   &_swigt__p_op__CallError,
-  &_swigt__p_op__Semiring,
   &_swigt__p_op__SemiringObj,
   &_swigt__p_op__UnaryFunction,
   &_swigt__p_op__UnaryFunctionObj,
@@ -44781,7 +44412,6 @@ static swig_cast_info _swigc__p_op__BinaryFunction[] = {  {&_swigt__p_op__Binary
 static swig_cast_info _swigc__p_op__BinaryFunctionObj[] = {  {&_swigt__p_op__BinaryFunctionObj, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__BinaryPredicateObj[] = {  {&_swigt__p_op__BinaryPredicateObj, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__CallError[] = {  {&_swigt__p_op__CallError, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_op__Semiring[] = {  {&_swigt__p_op__Semiring, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__SemiringObj[] = {  {&_swigt__p_op__SemiringObj, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__UnaryFunction[] = {  {&_swigt__p_op__UnaryFunction, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_op__UnaryFunctionObj[] = {  {&_swigt__p_op__UnaryFunctionObj, 0, 0, 0},{0, 0, 0, 0}};
@@ -44811,7 +44441,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_op__BinaryFunctionObj,
   _swigc__p_op__BinaryPredicateObj,
   _swigc__p_op__CallError,
-  _swigc__p_op__Semiring,
   _swigc__p_op__SemiringObj,
   _swigc__p_op__UnaryFunction,
   _swigc__p_op__UnaryFunctionObj,
