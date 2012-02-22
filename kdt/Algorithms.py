@@ -50,12 +50,10 @@ def bfsTree(self, root, useOldFunc=False):
 	if not self.isObj() and self._hasFilter(self):
 		raise NotImplementedError, 'DiGraph(element=default) with filters not supported'
 
-	if not self.e.isObj():
-		sR = sr_select2nd
-	else:
-		mulFn = lambda x,y: y
-		addFn = lambda x,y: y
-		sR = sr(addFn, mulFn)
+	#mulFn = lambda x,y: y
+	#addFn = lambda x,y: y
+	#sR = sr(addFn, mulFn)
+	sR = sr_select2nd
 
 	parents = Vec(self.nvert(), -1, sparse=False)
 	frontier = Vec(self.nvert(), sparse=True)

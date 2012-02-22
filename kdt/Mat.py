@@ -934,6 +934,7 @@ class Mat:
 			if semiring == sr_plustimes or semiring == sr_select2nd:
 				semiring = _makePythonOp(semiring)
 			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
+			clearSemiringFilters = True
 
 		if False:		
 			if self._hasFilter() or other._hasFilter():
@@ -1013,9 +1014,10 @@ class Mat:
 		
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
-			if semiring == sr_plustimes or semiring == sr_select2nd:
+			if semiring == sr_plustimes:# or semiring == sr_select2nd:
 				semiring = _makePythonOp(semiring)
 			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
+			clearSemiringFilters = True
 			
 		if False:
 			if self._hasFilter() or other._hasFilter():

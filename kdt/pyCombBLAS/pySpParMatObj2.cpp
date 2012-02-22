@@ -360,115 +360,11 @@ void pySpParMatObj2::DimWiseApply(int dim, const pyDenseParVecObj2& values, op::
 {
 	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
 }
-/*
-pySpParMatObj2 EWiseMult(const pySpParMatObj2& A1, const pySpParMatObj2& A2, bool exclude)
-{
-	return pySpParMatObj2(EWiseMult(A1.A, A2.A, exclude));
-}*/
-
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj2& B, op::BinaryFunctionObj *bf, bool notB, Obj2 defaultBValue)
-{
-	return pySpParMatObj2(EWiseApply<Obj2, pySpParMatObj2::DCColsType>(A.A, B.A, *bf, notB, defaultBValue));
-}
-
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMatObj1& B, op::BinaryFunctionObj *bf, bool notB, Obj1 defaultBValue)
-{
-	return pySpParMatObj2(EWiseApply<Obj2, pySpParMatObj2::DCColsType>(A.A, B.A, *bf, notB, defaultBValue));
-}
-
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMat&     B, op::BinaryFunctionObj *bf, bool notB, double defaultBValue)
-{
-	return pySpParMatObj2(EWiseApply<Obj2, pySpParMatObj2::DCColsType>(A.A, B.A, *bf, notB, doubleint(defaultBValue)));
-}
-
-
-// New format:
-template <typename NU1, typename NU2>
-class EWiseFilterDoOpAdapter
-{
-	public:
-	op::BinaryPredicateObj* plain_binary_op;
-	op::UnaryPredicateObj* AFilter;
-	op::UnaryPredicateObj* BFilter;
-	bool allowANulls, allowBNulls, allowIntersect;
-	
-	EWiseFilterDoOpAdapter(op::BinaryPredicateObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI) {}
-	
-	bool operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
-	{
-		bool aPass = aIsNull ? false : (AFilter == NULL ? true : (*AFilter)(a));
-		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
-		
-		if (!aPass && !bPass)
-			return false;
-		if (!aPass && !allowANulls)
-			return false;
-		if (!bPass && !allowBNulls)
-			return false;
-		
-		if (plain_binary_op == NULL)
-			return true;
-		else
-			return (*plain_binary_op)(a, b);
-	}
-};
-
-template <typename RETT, typename NU1, typename NU2>
-class EWiseFilterOpAdapter
-{
-	public:
-	op::BinaryFunctionObj* plain_binary_op;
-	op::UnaryPredicateObj* AFilter;
-	op::UnaryPredicateObj* BFilter;
-	bool allowANulls, allowBNulls, allowIntersect;
-	const NU1& ANull;
-	const NU2& BNull;
-	
-	EWiseFilterOpAdapter(op::BinaryFunctionObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI, const NU1& AN, const NU2& BN): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI), ANull(AN), BNull(BN)
-	{
-		if (plain_binary_op == NULL)
-			throw string("bloody murder! don't pass in null binary ops to eWiseApply!");
-	}
-	
-	RETT operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
-	{
-		bool aPass = aIsNull ? false : (AFilter == NULL ? true : (*AFilter)(a));
-		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
-		
-		if (!aPass && !bPass)
-			throw string("The DoOp adapter should have taken care of this case!");
-		else if (!aPass &&  bPass)
-			return (*plain_binary_op)(ANull, b);
-		else if ( aPass && !bPass)
-			return (*plain_binary_op)(a, BNull);
-		else
-			return (*plain_binary_op)(a, b);
-	}
-};
-
-pySpParMatObj2 EWiseApply(const pySpParMatObj2& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, const Obj2& ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred)
-{
-	return pySpParMatObj2(EWiseApply<pySpParMatObj2::NUMTYPE, pySpParMatObj2::DCColsType>(A.A, B.A,
-		EWiseFilterOpAdapter<Obj2, Obj2, doubleint>(  op, AFilterPred, BFilterPred, allowANulls, allowBNulls, allowIntersect, ANull, BNull),
-		EWiseFilterDoOpAdapter<Obj2, doubleint>         (doOp, AFilterPred, BFilterPred, allowANulls, allowBNulls, allowIntersect),
-		allowANulls, allowBNulls, ANull, doubleint(BNull), allowIntersect, true));
-}
-
 
 
 pySpParMatObj2 pySpParMatObj2::Prune(op::UnaryPredicateObj* pred, bool inPlace)
 {
 	return pySpParMatObj2(A.Prune(*pred, inPlace));
-}
-
-int64_t pySpParMatObj2::Count(op::UnaryPredicateObj* pred)
-{
-	// use Reduce to count along the columns, then reduce the result vector into one value
-	//op::BinaryFunction p = op::plus();
-	//return static_cast<int64_t>(Reduce(Column(), &p, pred, 0).Reduce(&p));
-	FullyDistVec<INDEXTYPE, int64_t> colcounts;
-	A.Reduce(colcounts, ::Column, ::plus<int64_t>(), static_cast<int64_t>(0), *pred);
-	return colcounts.Reduce(::plus<int64_t>(), 0L);
 }
 
 void pySpParMatObj2::Reduce(int dim, pyDenseParVecObj2 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity)
@@ -490,15 +386,6 @@ void pySpParMatObj2::Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionO
 	bf->releaseMPIOp();
 }
 
-void pySpParMatObj2::Transpose()
-{
-	A.Transpose();
-}
-
-/*void pySpParMatObj2::EWiseMult(pySpParMatObj2* rhs, bool exclude)
-{
-	A.EWiseMult(rhs->A, exclude);
-}*/
 
 void pySpParMatObj2::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVecObj2* outvals) const
 {
@@ -509,152 +396,16 @@ void pySpParMatObj2::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDens
 	//A.Find(outrows->v, outcols->v, outvals->v);
 }
 
-template <class VECTYPE, class VEC>
-VEC pySpParMatObj2::SpMV_worker(const VEC& x, op::SemiringObj* sring)
-{
-	if (sring == NULL)
-	{
-		cout << "You must supply a semiring for SpMV!" << endl;
-		return VEC(getnrow());
-	}
-	/*else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		VEC ret(0);
-		::SpMV< Select2ndSRing<NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, ret.v, false );
-		return ret;
-	}*/
-	else
-	{
-		sring->enableSemiring();
-		VEC ret(0);
-		::SpMV< op::SemiringObjTemplArg<NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, ret.v, false );
-		sring->disableSemiring();
-		return ret;
-	}
-}
+/*
+Common operations are implemented in one place and shared among the different classes
+*/
 
-template <class VECTYPE, class VEC>
-void pySpParMatObj2::SpMV_worker_inplace(VEC& x, op::SemiringObj* sring)
-{
-	if (sring == NULL)
-	{
-		cout << "You must supply a semiring for SpMV!" << endl;
-	}
-	else
-	{
-		sring->enableSemiring();
-		::SpMV< op::SemiringObjTemplArg<NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, x.v, false );
-		sring->disableSemiring();
-	}
-}
-
-pySpParVec     pySpParMatObj2::SpMV(const pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
-pySpParVecObj2 pySpParMatObj2::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
-pySpParVecObj1 pySpParMatObj2::SpMV(const pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
-
-void pySpParMatObj2::SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring) { return SpMV_worker_inplace<doubleint>(x, sring); }
-void pySpParMatObj2::SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker_inplace<Obj2>(x, sring); }
-void pySpParMatObj2::SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker_inplace<Obj1>(x, sring); }
-
-#if 0
-// these don't work yet because the CombBLAS dense vector SpMV hasn't been updated like the sparse vector one has.
-pyDenseParVec     pySpParMatObj2::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring) { return SpMV_worker<doubleint>(x, sring); }
-pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring) { return SpMV_worker<Obj2>(x, sring); }
-pyDenseParVecObj1 pySpParMatObj2::SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring) { return SpMV_worker<Obj1>(x, sring); }
-#endif 
-
-void pySpParMatObj2::SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring) { cout << "Mixed type dense SpMV not supported yet." << endl; }
-void pySpParMatObj2::SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring)
-{
-	if (sring == NULL)
-	{
-		cout << "You must supply a semiring for SpMV!" << endl;
-	}
-	else
-	{
-		sring->enableSemiring();
-		x.v = ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, x.v);
-		sring->disableSemiring();
-	}
-}
-void pySpParMatObj2::SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring) { cout << "Mixed type dense SpMV not supported yet." << endl; }
-
-pyDenseParVec     pySpParMatObj2::SpMV(const pyDenseParVec&     x, op::SemiringObj* sring)
-{
-	cout << "Mixed type dense SpMV not supported yet." << endl;
-	//cout << "You must supply a semiring for SpMV!" << endl;
-	return pyDenseParVec(getnrow(), 0, 0);
-}
-
-pyDenseParVecObj2 pySpParMatObj2::SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring)
-{
-	if (sring == NULL)
-	{
-		cout << "You must supply a semiring for SpMV!" << endl;
-		return pyDenseParVecObj2(getnrow(), Obj2());
-	}
-	/*
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pySpParVecObj2( ::SpMV< Select2ndSRing>(A, x.v) );
-	}*/
-	else
-	{
-		sring->enableSemiring();
-		pyDenseParVecObj2 ret( ::SpMV< op::SemiringObjTemplArg<Obj2, Obj2, Obj2> >(A, x.v) );
-		sring->disableSemiring();
-		return ret;
-	}
-}
-
-pyDenseParVecObj1 pySpParMatObj2::SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring)
-{
-	cout << "Mixed type dense SpMV not supported yet." << endl;
-	//cout << "You must supply a semiring for SpMV!" << endl;
-	return pyDenseParVecObj1(getnrow(), Obj1());
-}
-
-void pySpParMatObj2::Square(op::SemiringObj* sring)
-{
-	sring->enableSemiring();
-	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
-	sring->disableSemiring();
-}
+// the type of this ANullValue
+#define NULL_PAR_TYPE   const Obj2&
+// how to pass in this ANullValue (i.e. ANull or doubleint(ANull))
+#define A_NULL_ARG      ANull
 
 #define MATCLASS pySpParMatObj2
+#define MATCLASS_OBJ
 
-pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
-{
-	pySpParMat ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, doubleint, doubleint> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
-{
-	pySpParMatBool ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, bool, bool> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
-{
-	pySpParMatObj2 ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj2, Obj2> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
-{
-	pySpParMatObj1 ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj1, Obj1> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
+#include "pyCommonMatFuncs.cpp"

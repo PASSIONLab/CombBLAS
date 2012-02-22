@@ -158,3 +158,52 @@ struct PCBBoolCopy1stSRing
 		}
 	}
 };
+
+
+template <class NT1, class NT2, class OUT>
+struct PCBSelect2ndSRing
+{
+	static OUT id() { return OUT(); }
+	static bool returnedSAID(bool setFlagTo=false)
+	{
+		static bool flag = false;
+		
+		bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+		flag = setFlagTo; // set/clear the flag.
+		return temp;
+	}
+	static OUT add(const OUT & arg1, const OUT & arg2)
+	{
+		return arg2;
+	}
+	static const OUT& multiply(const NT1 & arg1, const NT2& arg2)
+	{
+		if (!SRFilterHelper<OUT, NT1, NT2>::testFilterX(arg1) || !SRFilterHelper<OUT, NT1, NT2>::testFilterY(arg2))
+			returnedSAID(true);
+		return arg2;
+	}
+	static void axpy(const OUT& a, const NT2& x, OUT & y)
+	{
+		y = multiply(a, x);
+	}
+
+// MPI boilerplate
+	static MPI_Op mpi_op()
+	{
+		static MPI_Op mpiop;
+		static bool exists = false;
+		if (exists)
+			return mpiop;
+		else
+		{
+			MPI_Op_create(MPI_func, true, &mpiop);
+			exists = true;
+			return mpiop;
+		}
+	}
+
+	static void MPI_func(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+	{
+		// do nothing because the inoutvec already contains the 2nd element.
+	}
+};

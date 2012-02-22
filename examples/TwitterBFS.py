@@ -9,8 +9,12 @@ from stats import splitthousands, printstats
 
 #parse arguments
 if (len(sys.argv) < 2):
-	print "Usage: python %s twittergraph.mtx [1]"%(sys.argv[0])
-	print "the 2nd argument determines whether or not to use a materializing filter"
+	kdt.p("Usage: python %s twittergraph.mtx [1]"%(sys.argv[0]))
+	kdt.p("The 1st argument is either a datafile or an integer which is the scale for RMAT generation.")
+	kdt.p("The 2nd argument determines whether or not to use a materializing filter")
+	kdt.p("Examples:")
+	kdt.p("python filter_debug.mtx 1")
+	kdt.p("python 14")
 	sys.exit()
 
 datasource = "file"
@@ -32,9 +36,9 @@ if (len(sys.argv) >= 3):
 # bin is a throwaway value.
 # http://docs.python.org/library/random.html
 def Twitter_obj_randomizer(obj, bin):
-	obj.latest = random.randrange(1244592000, 1246406400)
 	if random.randrange(0, 2) > 0:
 		obj.count = 1
+		obj.latest = random.randrange(1244592000, 1246406400)
 	else:
 		obj.count = 0
 	obj.follower = 0
@@ -58,33 +62,7 @@ def twitterEdgeFilter(e):
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
 #	return e.follower == 0
 
-# doubleint() constructor returns -1 now
-def twitterMul(e, f):
-	return f
 
-def twitterAdd(f1, f2):
-	if f2 == -1:
-		return f1
-	return f2
-
-def bfsTreeTwitter(self, root):
-	sR = kdt.sr(twitterAdd, twitterMul, twitterEdgeFilter, None)
-
-	parents = kdt.Vec(self.nvert(), -1, sparse=False)
-	frontier = kdt.Vec(self.nvert(), sparse=True)
-	parents[root] = root
-	frontier[root] = root
-	while frontier.nnn() > 0:
-		frontier.spRange()
-		self.e.SpMV(frontier, semiring=sR, inPlace=True)
-		
-		# remove already discovered vertices from the frontier.
-		frontier.eWiseApply(parents, op=(lambda f,p: f), doOp=(lambda f,p: f != -1 and p == -1), inPlace=True)
-		# update the parents
-		parents[frontier] = frontier
-
-	return parents
-kdt.DiGraph.bfsTreeTwitter = bfsTreeTwitter
 
 # determine where the data is supposed to come from
 if os.path.isfile(inmatrixfile):
@@ -171,7 +149,7 @@ def run(materialize):
 		
 		before = time.time()
 		# the actual BFS
-		parents = G.bfsTreeTwitter(start)
+		parents = G.bfsTree(start)
 		itertime = time.time() - before
 		
 		## // Aydin's code for finding number of edges:
