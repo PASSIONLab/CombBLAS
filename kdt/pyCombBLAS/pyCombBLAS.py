@@ -155,7 +155,6 @@ class pySpParMatObj1(_object):
     def Apply(*args): return _pyCombBLAS.pySpParMatObj1_Apply(*args)
     def DimWiseApply(*args): return _pyCombBLAS.pySpParMatObj1_DimWiseApply(*args)
     def Prune(*args): return _pyCombBLAS.pySpParMatObj1_Prune(*args)
-    def Count(*args): return _pyCombBLAS.pySpParMatObj1_Count(*args)
     def Reduce(*args): return _pyCombBLAS.pySpParMatObj1_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj1_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj1_Find(*args)
@@ -196,7 +195,6 @@ class pySpParMatObj2(_object):
     def Apply(*args): return _pyCombBLAS.pySpParMatObj2_Apply(*args)
     def DimWiseApply(*args): return _pyCombBLAS.pySpParMatObj2_DimWiseApply(*args)
     def Prune(*args): return _pyCombBLAS.pySpParMatObj2_Prune(*args)
-    def Count(*args): return _pyCombBLAS.pySpParMatObj2_Count(*args)
     def Reduce(*args): return _pyCombBLAS.pySpParMatObj2_Reduce(*args)
     def Transpose(*args): return _pyCombBLAS.pySpParMatObj2_Transpose(*args)
     def Find(*args): return _pyCombBLAS.pySpParMatObj2_Find(*args)
@@ -264,6 +262,7 @@ pySpParVec_swigregister(pySpParVec)
 pySpParVec_zeros = _pyCombBLAS.pySpParVec_zeros
 pySpParVec_range = _pyCombBLAS.pySpParVec_range
 
+EWiseMult = _pyCombBLAS.EWiseMult
 EWiseMult_inplacefirst = _pyCombBLAS.EWiseMult_inplacefirst
 class pySpParVecObj1(_object):
     __swig_setmethods__ = {}
@@ -300,7 +299,6 @@ class pySpParVecObj1(_object):
     __del__ = lambda self : None;
 pySpParVecObj1_swigregister = _pyCombBLAS.pySpParVecObj1_swigregister
 pySpParVecObj1_swigregister(pySpParVecObj1)
-EWiseMult = _pyCombBLAS.EWiseMult
 
 class pySpParVecObj2(_object):
     __swig_setmethods__ = {}
@@ -711,6 +709,8 @@ SemiringObj_swigregister = _pyCombBLAS.SemiringObj_swigregister
 SemiringObj_swigregister(SemiringObj)
 binaryObj = _pyCombBLAS.binaryObj
 
+TimesPlusSemiringObj = _pyCombBLAS.TimesPlusSemiringObj
+SecondMaxSemiringObj = _pyCombBLAS.SecondMaxSemiringObj
 finalize = _pyCombBLAS.finalize
 root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs

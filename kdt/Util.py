@@ -227,8 +227,8 @@ def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
 ####
 
 # built-in semirings
-sr_select2nd = pcb.SecondMaxSemiring()
-sr_plustimes = pcb.TimesPlusSemiring()
+sr_select2nd = pcb.SecondMaxSemiringObj()
+sr_plustimes = pcb.TimesPlusSemiringObj()
 
 def times(x, y):
 	return x*y

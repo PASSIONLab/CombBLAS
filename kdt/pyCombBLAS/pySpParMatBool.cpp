@@ -1,6 +1,7 @@
 #include <iostream>
 #include "pySpParMatBool.h"
 
+#define MATCLASS pySpParMatBool
 
 pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude)
 {
@@ -280,11 +281,6 @@ void pySpParMatBool::DimWiseApply(int dim, const pyDenseParVec& values, op::Bina
 }
 */
 
-pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB, double defaultBValue)
-{
-	return pySpParMatBool( EWiseApply<bool, pySpParMatBool::DCColsType>(A.A, B.A, *bf, notB, bool(defaultBValue)) );
-}
-
 pySpParMatBool pySpParMatBool::Prune(op::UnaryFunction* op, bool inPlace)
 {
 	return pySpParMatBool(A.Prune(*op, inPlace));
@@ -297,7 +293,17 @@ int64_t pySpParMatBool::Count(op::UnaryFunction* pred)
 	return static_cast<int64_t>(Reduce(Column(), &p, pred, 0).Reduce(&p));
 }
 
+void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
+{
+	FullyDistVec<INDEXTYPE, INDEXTYPE> irows, icols;
+	A.Find(irows, icols);
+	outrows->v = irows;
+	outcols->v = icols;
 	
+	FullyDistVec<int64_t, doubleint> ones(irows.TotalLength(), 1);
+	outvals->v = ones;
+}
+
 pyDenseParVec pySpParMatBool::Reduce(int dim, op::BinaryFunction* f, double identity)
 {
 	return Reduce(dim, f, NULL, identity);
@@ -340,212 +346,12 @@ void pySpParMatBool::Reduce(int dim, pyDenseParVec *ret, op::BinaryFunctionObj* 
 	bf->releaseMPIOp();
 }
 
-void pySpParMatBool::Transpose()
-{
-	A.Transpose();
-}
-
-/*void pySpParMatBool::EWiseMult(pySpParMatBool rhs, bool exclude)
-{
-	A.EWiseMult(rhs->A, exclude);
-}*/
-
-void pySpParMatBool::Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const
-{
-	FullyDistVec<INDEXTYPE, INDEXTYPE> irows, icols;
-	A.Find(irows, icols);
-	outrows->v = irows;
-	outcols->v = icols;
-	
-	FullyDistVec<int64_t, doubleint> ones(irows.TotalLength(), 1);
-	outvals->v = ones;
-	/*
-	cout << "Find::vals:  ";
-	for (int i = 0; i < vals.TotalLength(); i++)
-	{
-		bool v = vals.GetElement(i);
-		cout << v << ", ";
-	}*/
-	//A.Find(outrows->v, outcols->v, outvals->v);
-}
-
-pySpParVec pySpParMatBool::SpMV(const pySpParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		return pySpParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pySpParVec( ::SpMV< Select2ndSRing<doubleint, doubleint, doubleint > >(A, x.v) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pySpParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
-		sring->disableSemiring();
-		return ret;
-	}
-}
-
-pyDenseParVec pySpParMatBool::SpMV(const pyDenseParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		return pyDenseParVec( ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v) );
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		return pyDenseParVec( ::SpMV< Select2ndSRing<doubleint, doubleint, doubleint > >(A, x.v) );
-	}
-	else
-	{
-		sring->enableSemiring();
-		pyDenseParVec ret( ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v) );
-		sring->disableSemiring();
-		return ret;
-	}
-}
-
-void pySpParMatBool::SpMV_inplace(pySpParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		x = ::SpMV< Select2ndSRing<doubleint, doubleint, doubleint > >(A, x.v);
-	}
-	else
-	{
-		sring->enableSemiring();
-		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
-		sring->disableSemiring();
-	}
-}
-
-void pySpParMatBool::SpMV_inplace(pyDenseParVec& x, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		x = ::SpMV< PlusTimesSRing<doubleint, doubleint > >(A, x.v);
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		x = ::SpMV< Select2ndSRing<doubleint, doubleint, doubleint > >(A, x.v);
-	}
-	else
-	{
-		sring->enableSemiring();
-		x = ::SpMV< op::SemiringTemplArg<doubleint, doubleint > >(A, x.v);
-		sring->disableSemiring();
-	}
-}
-
-void pySpParMatBool::Square(op::Semiring* sring)
-{
-	if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		A.Square< PlusTimesSRing<NUMTYPE, NUMTYPE > >();
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		A.Square< Select2ndSRing<NUMTYPE, NUMTYPE, NUMTYPE > >();
-	}
-	else
-	{
-		sring->enableSemiring();
-		A.Square<op::SemiringTemplArg<doubleint, doubleint> >();
-		sring->disableSemiring();
-	}
-}
-
-void pySpParMatBool::Square(op::SemiringObj* sring)
-{
-	sring->enableSemiring();
-	A.Square<op::SemiringObjTemplArg<NUMTYPE, NUMTYPE, NUMTYPE> >();
-	sring->disableSemiring();
-}
-
-
-// Only kept here to support built-in PlusTimes and Select2nd.
-// Otherwise use the SemiringObj version.
-pySpParMat pySpParMatBool::SpGEMM(pySpParMat& other, op::Semiring* sring)
-{
-	if (sring == NULL)
-	{
-		throw string("Null semiring");
-	}
-	else if (sring->getType() == op::Semiring::TIMESPLUS)
-	{
-		pySpParMat ret;
-		PSpGEMM<PlusTimesSRing<bool, doubleint > >(A, other.A, ret.A);
-		return ret;
-	}
-	else if (sring->getType() == op::Semiring::SECONDMAX)
-	{
-		pySpParMat ret;
-		PSpGEMM<Select2ndSRing<bool, doubleint, doubleint > >(A, other.A, ret.A);
-		return ret;
-	}
-	else
-	{
-		throw string("Do not use SpGEMM(Semiring) unless using a built-in. Otherwise use SpGEMM(SemiringObj) for all purposes.");
-	}
-}
+// the type of this ANullValue
+#define NULL_PAR_TYPE   bool
+// how to pass in this ANullValue (i.e. ANull or doubleint(ANull))
+#define A_NULL_ARG      ANull
 
 #define MATCLASS pySpParMatBool
+//#define MATCLASS_OBJ
 
-pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
-{
-	pySpParMat ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, doubleint, doubleint> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
-{
-	pySpParMatBool ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, bool, bool> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
-{
-	pySpParMatObj1 ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj1, Obj1> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
-pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
-{
-	pySpParMatObj2 ret;
-	sring->enableSemiring();
-	PSpGEMM<op::SemiringObjTemplArg<MATCLASS::NUMTYPE, Obj2, Obj2> >(A, other.A, ret.A);
-	sring->disableSemiring();
-	return ret;
-}
-
+#include "pyCommonMatFuncs.cpp"

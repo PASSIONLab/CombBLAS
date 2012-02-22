@@ -232,19 +232,21 @@ void SemiringObj::axpy(doubleint a, const doubleint & x, doubleint & y)
 	y = add(y, multiply(a, x));
 }
 
+*/
+
 SemiringObj TimesPlusSemiringObj()
 {
 	return SemiringObj(SemiringObj::TIMESPLUS);
 }
-
+/*
 SemiringObj MinPlusSemiringObj()
 {
 	return SemiringObj(SemiringObj::PLUSMIN);
-}
+}*/
 
 SemiringObj SecondMaxSemiringObj()
 {
 	return SemiringObj(SemiringObj::SECONDMAX);
 }
-*/
+
 } // namespace op

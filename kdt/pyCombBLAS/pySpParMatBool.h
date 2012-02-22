@@ -74,26 +74,36 @@ public:
 
 	void Find(pyDenseParVec* outrows, pyDenseParVec* outcols, pyDenseParVec* outvals) const;
 public:
-	pySpParVec SpMV(const pySpParVec& x, op::Semiring* sring);
-	pyDenseParVec SpMV(const pyDenseParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pySpParVec& x, op::Semiring* sring);
-	void SpMV_inplace(pyDenseParVec& x, op::Semiring* sring);
+	pySpParVec     SpMV(const pySpParVec&     x, op::SemiringObj* sring);
+	pySpParVecObj1 SpMV(const pySpParVecObj1& x, op::SemiringObj* sring);
+	pySpParVecObj2 SpMV(const pySpParVecObj2& x, op::SemiringObj* sring);
+	pyDenseParVec     SpMV(const pyDenseParVec&     x, op::SemiringObj* sring);
+	pyDenseParVecObj1 SpMV(const pyDenseParVecObj1& x, op::SemiringObj* sring);
+	pyDenseParVecObj2 SpMV(const pyDenseParVecObj2& x, op::SemiringObj* sring);
 
-	void Square(op::Semiring* sring);
+	void SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pySpParVecObj2& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVec&     x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj1& x, op::SemiringObj* sring);
+	void SpMV_inplace(pyDenseParVecObj2& x, op::SemiringObj* sring);
+
 	void Square(op::SemiringObj* sring);
-	pySpParMat     SpGEMM(pySpParMat     &other, op::Semiring* sring);
 	pySpParMat     SpGEMM(pySpParMat     &other, op::SemiringObj* sring);
 	pySpParMatBool SpGEMM(pySpParMatBool &other, op::SemiringObj* sring);
 	pySpParMatObj1 SpGEMM(pySpParMatObj1 &other, op::SemiringObj* sring);
 	pySpParMatObj2 SpGEMM(pySpParMatObj2 &other, op::SemiringObj* sring);
+
 
 public:
 	static int Column() { return ::Column; }
 	static int Row() { return ::Row; }
 };
 
-pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, bool exclude);
-pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunction *bf, bool notB = false, double defaultBValue = 1);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMat&     B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, bool ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatBool& B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, bool ANull, bool   BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatObj1& B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, bool ANull, const Obj1& BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParMatBool EWiseApply(const pySpParMatBool& A, const pySpParMatObj2& B, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, bool ANull, const Obj2& BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 //INTERFACE_INCLUDE_END
 

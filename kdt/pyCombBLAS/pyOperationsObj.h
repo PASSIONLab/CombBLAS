@@ -270,7 +270,7 @@ T UnaryFunctionObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator(T) FAILED!" << endl;
+		throw string("UnaryFunctionObj_Python::operator(T) FAILED!");
 		//throw T();
 		return T();
 	}
@@ -288,8 +288,7 @@ inline double UnaryFunctionObj_Python::callD(const double& x) const
 		return dres;
 	} else
 	{
-		cerr << "UnaryFunctionObj_Python::operator(double) FAILED!" << endl;
-		//throw doubleint();
+		throw string("UnaryFunctionObj_Python::operator(double) FAILED!");
 		return 0;
 	}
 }
@@ -315,8 +314,7 @@ double UnaryDoubleFunctionObj_Python::call(const T& x) const
 		return dres;
 	} else
 	{
-		cerr << "UnaryDoubleFunctionObj_Python::operator(T) FAILED!" << endl;
-		throw doubleint();
+		throw string("UnaryDoubleFunctionObj_Python::operator(T) FAILED!");
 		return T();
 	}
 }
@@ -333,8 +331,7 @@ inline double UnaryDoubleFunctionObj_Python::callD(const double& x) const
 		return dres;
 	} else
 	{
-		cerr << "UnaryDoubleFunctionObj_Python::operator(double) FAILED!" << endl;
-		throw doubleint();
+		throw string("UnaryDoubleFunctionObj_Python::operator(double) FAILED!");
 		return 0;
 	}
 }
@@ -363,7 +360,7 @@ bool UnaryPredicateObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryPredicateObj_Python::operator(T) FAILED!" << endl;
+		throw string("UnaryPredicateObj_Python::operator(T) FAILED!");
 		return false;
 	}
 }
@@ -380,7 +377,7 @@ inline bool UnaryPredicateObj_Python::callD(const double& x) const
 		return ret;
 	} else
 	{
-		cerr << "UnaryPredicateObj_Python::operator(double) FAILED!" << endl;
+		throw string("UnaryPredicateObj_Python::operator(double) FAILED!");
 		return 0;
 	}
 }
@@ -474,7 +471,7 @@ RET BinaryFunctionObj_Python::call(const T1& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOO)!" << endl;
+		throw string("BinaryFunctionObj_Python::operator() FAILED (callOO)!");
 		return RET();
 	}
 }
@@ -501,7 +498,7 @@ double BinaryFunctionObj_Python::callOD_retD(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOD)!" << endl;
+		throw string("BinaryFunctionObj_Python::operator() FAILED (callOD)!");
 		return 0;
 	}
 }
@@ -528,7 +525,7 @@ RET BinaryFunctionObj_Python::callOD_retO(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj_Python::operator() FAILED (callOD)!" << endl;
+		throw string("BinaryFunctionObj_Python::operator() FAILED (callOD)!");
 		return RET();
 	}
 }
@@ -554,7 +551,7 @@ double BinaryFunctionObj_Python::callDO_retD(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDO)" << endl;
+		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO)");
 		return 0;
 	}
 }
@@ -580,7 +577,7 @@ RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDO)" << endl;
+		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO)");
 		return RET();
 	}
 }
@@ -606,7 +603,7 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 		return dres;
 	} else
 	{
-		//cerr << "BinaryFunctionObj_Python::operator() FAILED! (callDD)" << endl;
+		//throw string("BinaryFunctionObj_Python::operator() FAILED! (callDD)");
 		//if (BinaryFunctionObj::currentlyApplied == this)
 		BinaryFunctionObj::currentlyApplied = NULL;
 		clear_SemiringObj_currentlyApplied();
@@ -676,7 +673,7 @@ bool BinaryPredicateObj_Python::call(const T1& x, const T2& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
+		throw string("BinaryPredicateObj_Python::operator() FAILED!");
 		return false;
 	}
 }
@@ -700,7 +697,7 @@ bool BinaryPredicateObj_Python::callOD(const T1& x, const double& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
+		throw string("BinaryPredicateObj_Python::operator() FAILED!");
 		return false;
 	}
 }
@@ -724,7 +721,7 @@ bool BinaryPredicateObj_Python::callDO(const double& x, const T2& y) const
 		return ret;
 	} else
 	{
-		cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
+		throw string("BinaryPredicateObj_Python::operator() FAILED!");
 		return false;
 	}
 }
@@ -875,9 +872,9 @@ struct SemiringObjTemplArg
 };
 
 //INTERFACE_INCLUDE_BEGIN
-//SemiringObj TimesPlusSemiringObj();
+SemiringObj TimesPlusSemiringObj();
 //SemiringObj MinPlusSemiringObj();
-//SemiringObj SecondMaxSemiringObj();
+SemiringObj SecondMaxSemiringObj();
 //SemiringObj SecondSecondSemiringObj();
 } // namespace op
 
