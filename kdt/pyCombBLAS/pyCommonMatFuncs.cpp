@@ -47,14 +47,19 @@ SEMIRING routines, SpMV, SpGEMM, Square
 
 //////// SpMV //////////////
 
-template <class VEC>
-void PlusTimesSpMVDoer(const MATCLASS::MatType& A, const VEC& x, VEC& ret)
+template <typename VEC, typename VECTYPE>
+void PlusTimesSpMVDoer(const MATCLASS::MatType& A, const VEC& x, VEC& ret, op::SemiringObj* sring)
 {
-	::SpMV< PlusTimesSRing<MATCLASS::NUMTYPE, MATCLASS::NUMTYPE > >(A, x.v, ret.v, false );
+//	::SpMV< PlusTimesSRing<MATCLASS::NUMTYPE, MATCLASS::NUMTYPE > >(A, x.v, ret.v, false );
+	SRFilterHelper<VECTYPE, MATCLASS::NUMTYPE, VECTYPE>::setFilterX(sring->left_filter);
+	SRFilterHelper<VECTYPE, MATCLASS::NUMTYPE, VECTYPE>::setFilterY(sring->right_filter);
+	::SpMV< PCBPlusTimesSRing<MATCLASS::NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, ret.v, false );
+	SRFilterHelper<VECTYPE, MATCLASS::NUMTYPE, VECTYPE>::setFilterX(NULL);
+	SRFilterHelper<VECTYPE, MATCLASS::NUMTYPE, VECTYPE>::setFilterY(NULL);
 }
 
-template <class VEC>
-void PlusTimesSpMVThrower(const MATCLASS::MatType& A, const VEC& x, VEC& ret)
+template <typename VEC>
+void PlusTimesSpMVThrower(const MATCLASS::MatType& A, const VEC& x, VEC& ret, op::SemiringObj* sring)
 {
 	throw string("built-in timesplus semiring not supported for objects.");
 }
@@ -79,7 +84,7 @@ VEC SpMV_worker(const MATCLASS::MatType& A, const VEC& x, op::SemiringObj* sring
 	{
 		VEC ret(0);
 #ifndef MATCLASS_OBJ
-		PlusTimesFunc(A, x, ret);
+		PlusTimesFunc(A, x, ret, sring);
 #else
 		throw string("built-in timesplus semiring not supported for objects.");
 #endif
@@ -109,7 +114,7 @@ void SpMV_worker_inplace(const MATCLASS::MatType& A, VEC& x, op::SemiringObj* sr
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
 	{
 #ifndef MATCLASS_OBJ
-		PlusTimesFunc(A, x, x);
+		PlusTimesFunc(A, x, x, sring);
 #else
 		throw string("built-in timesplus semiring not supported for objects.");
 #endif
@@ -125,7 +130,7 @@ void SpMV_worker_inplace(const MATCLASS::MatType& A, VEC& x, op::SemiringObj* sr
 pySpParVec     MATCLASS::SpMV(const pySpParVec&     x, op::SemiringObj* sring)
 {
 #ifndef MATCLASS_OBJ
-	return ::SpMV_worker<doubleint>(A, x, sring, PlusTimesSpMVDoer<pySpParVec>);
+	return ::SpMV_worker<doubleint>(A, x, sring, PlusTimesSpMVDoer<pySpParVec, doubleint>);
 #else
 	return ::SpMV_worker<doubleint>(A, x, sring, PlusTimesSpMVThrower<pySpParVec>);
 #endif
@@ -136,7 +141,7 @@ pySpParVecObj2 MATCLASS::SpMV(const pySpParVecObj2& x, op::SemiringObj* sring) {
 void MATCLASS::SpMV_inplace(pySpParVec&     x, op::SemiringObj* sring)
 {
 #ifndef MATCLASS_OBJ
-	::SpMV_worker_inplace<doubleint>(A, x, sring, PlusTimesSpMVDoer<pySpParVec>);
+	::SpMV_worker_inplace<doubleint>(A, x, sring, PlusTimesSpMVDoer<pySpParVec, doubleint>);
 #else
 	::SpMV_worker_inplace<doubleint>(A, x, sring, PlusTimesSpMVThrower<pySpParVec>);
 #endif
@@ -221,12 +226,20 @@ void MATCLASS::Square(op::SemiringObj* sring)
 {
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
-		A.Square< Select2ndSRing<NUMTYPE, NUMTYPE, NUMTYPE > >();
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterX(sring->left_filter);
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterY(sring->right_filter);
+		A.Square< PCBSelect2ndSRing<NUMTYPE, NUMTYPE, NUMTYPE > >();
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterX(NULL);
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterY(NULL);
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
 	{
 #ifndef MATCLASS_OBJ
-		A.Square< PlusTimesSRing<NUMTYPE, NUMTYPE > >();
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterX(sring->left_filter);
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterY(sring->right_filter);
+		A.Square< PCBPlusTimesSRing<NUMTYPE, NUMTYPE, NUMTYPE > >();
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterX(NULL);
+		SRFilterHelper<NUMTYPE, NUMTYPE, NUMTYPE>::setFilterY(NULL);
 #else
 		throw string("built-in timesplus semiring not supported for objects.");
 #endif
@@ -246,14 +259,22 @@ pySpParMat MATCLASS::SpGEMM(pySpParMat& other, op::SemiringObj* sring)
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
 		pySpParMat ret;
-		PSpGEMM<Select2ndSRing<MATCLASS::NUMTYPE, doubleint, doubleint > >(A, other.A, ret.A);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterX(sring->left_filter);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBSelect2ndSRing<MATCLASS::NUMTYPE, doubleint, doubleint > >(A, other.A, ret.A);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterX(NULL);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterY(NULL);
 		return ret;
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
 	{
 		pySpParMat ret;
 #ifndef MATCLASS_OBJ
-		PSpGEMM<PlusTimesSRing<MATCLASS::NUMTYPE, doubleint > >(A, other.A, ret.A);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterX(sring->left_filter);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBPlusTimesSRing<MATCLASS::NUMTYPE, doubleint, doubleint > >(A, other.A, ret.A);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterX(NULL);
+		SRFilterHelper<doubleint, MATCLASS::NUMTYPE, doubleint>::setFilterY(NULL);
 #else
 		throw string("built-in timesplus semiring not supported for objects.");
 #endif
@@ -274,14 +295,22 @@ pySpParMatBool MATCLASS::SpGEMM(pySpParMatBool& other, op::SemiringObj* sring)
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
 		pySpParMatBool ret;
-		PSpGEMM<Select2ndSRing<MATCLASS::NUMTYPE, bool, bool > >(A, other.A, ret.A);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterX(sring->left_filter);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBSelect2ndSRing<MATCLASS::NUMTYPE, bool, bool > >(A, other.A, ret.A);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterX(NULL);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterY(NULL);
 		return ret;
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
 	{
 		pySpParMatBool ret;
 #ifndef MATCLASS_OBJ
-		PSpGEMM<PlusTimesSRing<MATCLASS::NUMTYPE, bool > >(A, other.A, ret.A);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterX(sring->left_filter);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBPlusTimesSRing<MATCLASS::NUMTYPE, bool, bool > >(A, other.A, ret.A);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterX(NULL);
+		SRFilterHelper<bool, MATCLASS::NUMTYPE, bool>::setFilterY(NULL);
 #else
 		throw string("built-in timesplus semiring not supported for objects.");
 #endif
@@ -302,7 +331,11 @@ pySpParMatObj1 MATCLASS::SpGEMM(pySpParMatObj1& other, op::SemiringObj* sring)
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
 		pySpParMatObj1 ret;
-		PSpGEMM<Select2ndSRing<MATCLASS::NUMTYPE, Obj1, Obj1 > >(A, other.A, ret.A);
+		SRFilterHelper<Obj1, MATCLASS::NUMTYPE, Obj1>::setFilterX(sring->left_filter);
+		SRFilterHelper<Obj1, MATCLASS::NUMTYPE, Obj1>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBSelect2ndSRing<MATCLASS::NUMTYPE, Obj1, Obj1 > >(A, other.A, ret.A);
+		SRFilterHelper<Obj1, MATCLASS::NUMTYPE, Obj1>::setFilterX(NULL);
+		SRFilterHelper<Obj1, MATCLASS::NUMTYPE, Obj1>::setFilterY(NULL);
 		return ret;
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
@@ -325,7 +358,11 @@ pySpParMatObj2 MATCLASS::SpGEMM(pySpParMatObj2& other, op::SemiringObj* sring)
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
 		pySpParMatObj2 ret;
-		PSpGEMM<Select2ndSRing<MATCLASS::NUMTYPE, Obj2, Obj2 > >(A, other.A, ret.A);
+		SRFilterHelper<Obj2, MATCLASS::NUMTYPE, Obj2>::setFilterX(sring->left_filter);
+		SRFilterHelper<Obj2, MATCLASS::NUMTYPE, Obj2>::setFilterY(sring->right_filter);
+		PSpGEMM<PCBSelect2ndSRing<MATCLASS::NUMTYPE, Obj2, Obj2 > >(A, other.A, ret.A);
+		SRFilterHelper<Obj2, MATCLASS::NUMTYPE, Obj2>::setFilterX(NULL);
+		SRFilterHelper<Obj2, MATCLASS::NUMTYPE, Obj2>::setFilterY(NULL);
 		return ret;
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)

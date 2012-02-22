@@ -89,7 +89,6 @@ void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Data
 
 MPI_Op* BinaryFunctionObj::getMPIOp()
 {
-	//cout << "setting mpi op" << endl;
 	if (currentlyApplied != NULL)
 	{
 		throw string("There is an internal error in creating an MPI version of a BinaryFunctionObj: Conflict between two BFOs.");
@@ -106,8 +105,6 @@ MPI_Op* BinaryFunctionObj::getMPIOp()
 
 void BinaryFunctionObj::releaseMPIOp()
 {
-	//cout << "free mpi op" << endl;
-
 	if (currentlyApplied == this)
 		currentlyApplied = NULL;
 }

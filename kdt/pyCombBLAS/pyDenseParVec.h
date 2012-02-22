@@ -7,6 +7,7 @@
 class pyDenseParVec {
 //INTERFACE_INCLUDE_END
 	typedef int64_t INDEXTYPE;
+	typedef doubleint NUMTYPE;
 	typedef FullyDistVec<INDEXTYPE, doubleint> VectType;
 	
 	public:
