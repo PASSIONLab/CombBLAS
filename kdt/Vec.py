@@ -851,35 +851,65 @@ class Vec(object):
 		if len(self) != len(other):
 			raise IndexError, "vectors must be of the same length. len(self)==%d != len(other)==%d"%(len(self), len(other))
 		
+		# not allowing intersection means nothing needs to be done if either of the vectors is dense
+		if not allowIntersect and (not self.isSparse() or not other.isSparse):
+			if inPlace:
+				return
+			else:
+				return Vec(len(self), init=self._identity_)
+		
+		# wrap the ops
+		if predicate:
+			op = _op_make_binary_pred(op)
+		else:
+			op = _op_make_binaryObj(op)
+		doOp = _op_make_binary_pred(doOp)
+		selfFilter = _op_make_unary_pred(FilterHelper.getFilterPred(self))
+		otherFilter = _op_make_unary_pred(FilterHelper.getFilterPred(other))
+		ANull = self._identity_
+		BNull = other._identity_
+
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
 		if self.isSparse():
-			if other.isSparse():
+			if other.isSparse(): # sparse, sparse
 				if inPlace:
-					ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					#ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
+					ret = Vec._toVec(ret)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					#return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
+					return Vec._toVec(ret)
 			else: # sparse, dense
 				if inPlace:
-					ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					#ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
+					ret = Vec._toVec(ret)
 					self._stealFrom(ret)
 				else:
-					return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
-		else: # dense
-			if other.isSparse():
+					#return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
+					return Vec._toVec(ret)
+		else:
+			if other.isSparse(): # dense, sparse
 				if inPlace:
-					self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					#self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					self._v_.EWiseApply(other._v_, op, doOp, allowBNulls, BNull, selfFilter, otherFilter)
 				else:
 					ret = self.copy()
-					ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					#ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
+					ret._v_.EWiseApply(other._v_, op, doOp, allowBNulls, BNull, selfFilter, otherFilter)
 					return ret
 			else: # dense, dense
 				if inPlace:
-					self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
+					#self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
+					self._v_.EWiseApply(other._v_, op, doOp, selfFilter, otherFilter)
 				else:
 					ret = self.copy()
-					ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
+					#ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
+					ret._v_.EWiseApply(other._v_, op, doOp, selfFilter, otherFilter)
 					return ret
 
 #################################################

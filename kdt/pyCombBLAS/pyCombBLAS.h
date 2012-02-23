@@ -257,18 +257,18 @@ class EWiseFilterDoOpAdapter
 	}
 };
 
-template <typename RETT, typename NU1, typename NU2>
+template <typename RETT, typename NU1, typename NU2, typename BINOP_T = op::BinaryFunctionObj>
 class EWiseFilterOpAdapter
 {
 	public:
-	op::BinaryFunctionObj* plain_binary_op;
+	BINOP_T* plain_binary_op;
 	op::UnaryPredicateObj* AFilter;
 	op::UnaryPredicateObj* BFilter;
 	bool allowANulls, allowBNulls, allowIntersect;
 	const NU1& ANull;
 	const NU2& BNull;
 	
-	EWiseFilterOpAdapter(op::BinaryFunctionObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI, const NU1& AN, const NU2& BN): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI), ANull(AN), BNull(BN)
+	EWiseFilterOpAdapter(BINOP_T* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI, const NU1& AN, const NU2& BN): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI), ANull(AN), BNull(BN)
 	{
 		if (plain_binary_op == NULL)
 			throw string("bloody murder! don't pass in null binary ops to eWiseApply!");

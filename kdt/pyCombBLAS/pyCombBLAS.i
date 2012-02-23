@@ -443,25 +443,20 @@ public:
 	char* __repr__();
 };
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunction   * op, bool allowANulls = true, bool allowBNulls = true);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect);
-
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVec& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, double ANull, double BNull, bool allowIntersect);
-
-// With dense:
-
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
-/////
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
-pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull);
+/////////// with Dense
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVec& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, double ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -483,19 +478,9 @@ public:
 
 public:
 	int64_t getnee() const;
-	//int64_t getnnz() const;
 	int64_t __len__() const;
 	int64_t len() const;
 
-	//pySpParVecObj1 operator+(const pySpParVecObj1& other);
-	//pySpParVecObj1 operator-(const pySpParVecObj1& other);
-	//pySpParVecObj1 operator+(const pyDenseParVec& other);
-	//pySpParVecObj1 operator-(const pyDenseParVec& other);
-
-	//pySpParVecObj1& operator+=(const pySpParVecObj1& other);
-	//pySpParVecObj1& operator-=(const pySpParVecObj1& other);
-	//pySpParVecObj1& operator+=(const pyDenseParVec& other);
-	//pySpParVecObj1& operator-=(const pyDenseParVec& other);
 	pySpParVecObj1 copy();
 
 public:	
@@ -549,21 +534,21 @@ public:
 	char* __repr__();
 };
 
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, double BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 *ANull, double BNull, bool allowIntersect);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj1 ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 /////////// with Dense
 
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
-pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 *ANull);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj1 EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj1& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj1 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -584,19 +569,9 @@ public:
 
 public:
 	int64_t getnee() const;
-	//int64_t getnnz() const;
 	int64_t __len__() const;
 	int64_t len() const;
 
-	//pySpParVecObj2 operator+(const pySpParVecObj2& other);
-	//pySpParVecObj2 operator-(const pySpParVecObj2& other);
-	//pySpParVecObj2 operator+(const pyDenseParVec& other);
-	//pySpParVecObj2 operator-(const pyDenseParVec& other);
-
-	//pySpParVecObj2& operator+=(const pySpParVecObj2& other);
-	//pySpParVecObj2& operator-=(const pySpParVecObj2& other);
-	//pySpParVecObj2& operator+=(const pyDenseParVec& other);
-	//pySpParVecObj2& operator-=(const pyDenseParVec& other);
 	pySpParVecObj2 copy();
 
 public:	
@@ -650,21 +625,21 @@ public:
 	char* __repr__();
 };
 
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, double BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj2 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, Obj1 *BNull, bool allowIntersect);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 *ANull, double BNull, bool allowIntersect);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj2 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, Obj1 BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pySpParVec&     b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, bool allowBNulls, Obj2 ANull, double BNull, bool allowIntersect, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 /////////// with Dense
 
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
-pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
-pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 *ANull);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVecObj2 EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryFunctionObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVec& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj2& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::BinaryPredicateObj* op, op::BinaryPredicateObj* doOp, bool allowANulls, Obj2 ANull, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 //      EWiseMult has 2 flavors:
 //      - if Exclude is false, will do element-wise multiplication
@@ -689,25 +664,6 @@ public:
 	int64_t len() const;
 	int64_t __len__() const;
 	
-	void add(const pyDenseParVec& other);
-	void add(const pySpParVec& other);
-	pyDenseParVec& operator+=(const pyDenseParVec & rhs);
-	pyDenseParVec& operator-=(const pyDenseParVec & rhs);
-	pyDenseParVec& operator+=(const pySpParVec & rhs);
-	pyDenseParVec& operator-=(const pySpParVec & rhs);
-	pyDenseParVec& operator*=(const pyDenseParVec& rhs);
-	pyDenseParVec& operator*=(const pySpParVec& rhs);
-	
-	pyDenseParVec operator+(const pyDenseParVec & rhs);
-	pyDenseParVec operator-(const pyDenseParVec & rhs);
-	pyDenseParVec operator+(const pySpParVec & rhs);
-	pyDenseParVec operator-(const pySpParVec & rhs);
-	pyDenseParVec operator*(const pyDenseParVec& rhs);
-	pyDenseParVec operator*(const pySpParVec& rhs);
-	
-	pyDenseParVec operator==(const pyDenseParVec& other);
-	pyDenseParVec operator!=(const pyDenseParVec& other);
-
 	pyDenseParVec copy();
 	
 	pyDenseParVec SubsRef(const pyDenseParVec& ri);
@@ -721,9 +677,6 @@ public:
 public:
 	
 	int64_t getnee() const;
-	int64_t getnnz() const;
-	int64_t getnz() const;
-	bool any() const;
 	
 public:	
 	void load(const char* filename);
@@ -745,37 +698,25 @@ public:
 	void ApplyMasked(op::UnaryFunction* op, const pySpParVec& mask);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 
-	void EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f);
-	void EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls = false, double nullValue = 0);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
-
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
+	// predicate versions.
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
 public:
 	static pyDenseParVec range(int64_t howmany, int64_t start);
 	
 public:
-	// Functions from PyCombBLAS
-	pyDenseParVec abs();
-	
-	pyDenseParVec& operator+=(double value);
-	pyDenseParVec operator+(double value);
-	pyDenseParVec& operator-=(double value);
-	pyDenseParVec operator-(double value);
-	
-	pyDenseParVec __and__(const pyDenseParVec& other);
-	
 	double __getitem__(int64_t key);
 	double __getitem__(double  key);
 	pyDenseParVec __getitem__(const pyDenseParVec& key);
@@ -798,9 +739,6 @@ public:
 	int64_t len() const;
 	int64_t __len__() const;
 	
-	//pyDenseParVecObj1 operator==(const pyDenseParVecObj1& other);
-	//pyDenseParVecObj1 operator!=(const pyDenseParVecObj1& other);
-
 	pyDenseParVecObj1 copy();
 	
 	pyDenseParVecObj1 SubsRef(const pyDenseParVec& ri);
@@ -814,9 +752,6 @@ public:
 public:
 	
 	int64_t getnee() const;
-	//int64_t getnnz() const;
-	//int64_t getnz() const;
-	//bool any() const;
 	
 public:	
 	void load(const char* filename);
@@ -832,20 +767,20 @@ public:
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void ApplyInd(op::BinaryFunctionObj* op);
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
-	/* NEEDS to return new pyDenseParVec
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
+	/* predicate versions. NEEDS to return new pyDenseParVec
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 	*/
 public:
 	//static pyDenseParVecObj1 range(int64_t howmany, int64_t start);
@@ -876,9 +811,6 @@ public:
 	int64_t len() const;
 	int64_t __len__() const;
 	
-	//pyDenseParVecObj2 operator==(const pyDenseParVecObj2& other);
-	//pyDenseParVecObj2 operator!=(const pyDenseParVecObj2& other);
-
 	pyDenseParVecObj2 copy();
 	
 	pyDenseParVecObj2 SubsRef(const pyDenseParVec& ri);
@@ -892,9 +824,6 @@ public:
 public:
 	
 	int64_t getnee() const;
-	//int64_t getnnz() const;
-	//int64_t getnz() const;
-	//bool any() const;
 	
 public:	
 	void load(const char* filename);
@@ -910,20 +839,20 @@ public:
 	void Apply(op::UnaryFunctionObj* op);
 	void ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask);
 	void ApplyInd(op::BinaryFunctionObj* op);
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 
-	/* NEEDS to return new pyDenseParVec
-	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp);
-	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue);
-	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue);
-	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue);
+	/* predicate versions. NEEDS to return new pyDenseParVec
+	void EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
+	void EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *op, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue, op::UnaryPredicateObj* AFilterPred, op::UnaryPredicateObj* BFilterPred);
 	*/
 public:
 	//static pyDenseParVecObj2 range(int64_t howmany, int64_t start);

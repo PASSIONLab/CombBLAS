@@ -32,6 +32,21 @@ using namespace std::tr1;
 extern double cblas_alltoalltime;
 extern double cblas_allgathertime;
 
+// An adapter function that allows using extended-callback EWiseApply with plain-old binary functions that don't want the extra parameters.
+template <typename RETT, typename NU1, typename NU2, typename BINOP>
+class EWiseExtToPlainAdapter
+{
+	public:
+	BINOP plain_binary_op;
+	
+	EWiseExtToPlainAdapter(BINOP op): plain_binary_op(op) {}
+	
+	RETT operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
+	{
+		return plain_binary_op(a, b);
+	}
+};
+
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "SpParMat.h"
