@@ -158,10 +158,30 @@ public:
 	template <typename _UnaryOperation, typename IRRELEVANT_NT>
 	void Apply(_UnaryOperation __unary_op, const FullyDistSpVec<IT,IRRELEVANT_NT>& mask);
 
+	// extended callback versions
 	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
-	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op);
+	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, const bool useExtendedBinOp);
 	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
-	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue);
+	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue, const bool useExtendedBinOp);
+
+	// plain fallback versions
+	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+	void EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op)
+	{
+		EWiseApply(other,
+					EWiseExtToPlainAdapter<NT, NT, NT2, _BinaryOperation>(__binary_op),
+					EWiseExtToPlainAdapter<bool, NT, NT2, _BinaryPredicate>(_do_op),
+					true);
+	}
+	template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
+	void EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue)
+	{
+		EWiseApply(other,
+					EWiseExtToPlainAdapter<NT, NT, NT2, _BinaryOperation>(__binary_op),
+					EWiseExtToPlainAdapter<bool, NT, NT2, _BinaryPredicate>(_do_op),
+					applyNulls, nullValue, true);
+	}
+
 
 	template <typename T1, typename T2>
 	class retTrue {
@@ -241,7 +261,7 @@ private:
 
 	template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 	friend FullyDistSpVec<IU,RET> 
-	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero);
+	EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp);
 
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);

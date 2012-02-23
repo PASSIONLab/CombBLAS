@@ -166,109 +166,6 @@ void pyDenseParVecObj2::ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& 
 	v.Apply(*op, mask.v);
 }
 
-
-//////////////
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj2>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj1>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, doubleint>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj2>, doNulls, *nullValue);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj1>, doNulls, *nullValue);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, doubleint(nullValue));
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, doubleint>, doNulls, doubleint(nullValue));
-}
-
-////// predicate versions
-/*
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj2>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj1>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, doubleint>);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj2>, doNulls, *nullValue);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, Obj1>, doNulls, *nullValue);
-}
-
-void pyDenseParVecObj2::EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, doubleint(nullValue));
-	else
-		v.EWiseApply(other.v, *f, retTrue<Obj2, doubleint>, doNulls, doubleint(nullValue));
-}
-
-*/
-
-
 	
 pyDenseParVecObj2 pyDenseParVecObj2::SubsRef(const pyDenseParVec& ri)
 {
@@ -280,21 +177,6 @@ int64_t pyDenseParVecObj2::getnee() const
 {
 	return __len__();
 }
-/*
-int64_t pyDenseParVecObj2::getnnz() const
-{
-	return v.Count(bind2nd(not_equal_to<doubleint>(), (double)0));
-}
-
-int64_t pyDenseParVecObj2::getnz() const
-{
-	return v.Count(bind2nd(equal_to<doubleint>(), (double)0));
-}*/
-/*
-bool pyDenseParVecObj2::any() const
-{
-	return getnnz() > 0;
-}*/
 
 void pyDenseParVecObj2::RandPerm()
 {
@@ -373,3 +255,9 @@ pyDenseParVecObj2 pyDenseParVecObj2::range(int64_t howmany, int64_t start)
 	return ret;
 }
 */
+
+#define VECCLASS pyDenseParVecObj2
+#define DENSE_VEC
+#define OBJ_VEC
+
+#include "pyCommonVecFuncs.cpp"

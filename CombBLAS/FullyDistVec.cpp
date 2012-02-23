@@ -533,7 +533,7 @@ void FullyDistVec<IT,NT>::Apply(_UnaryOperation __unary_op, const FullyDistSpVec
 
 template <class IT, class NT>
 template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op)
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, const bool useExtendedBinOp)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -548,8 +548,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 			typename vector< NT2 >::const_iterator otherIter = other.arr.begin();
 			while (thisIter < arr.end())
 			{
-				if (_do_op(*thisIter, *otherIter))
-					*thisIter = __binary_op(*thisIter, *otherIter);
+				if (_do_op(*thisIter, *otherIter, false, false))
+					*thisIter = __binary_op(*thisIter, *otherIter, false, false);
 				thisIter++;
 				otherIter++;
 			}
@@ -564,7 +564,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 
 template <class IT, class NT>
 template <typename _BinaryOperation, typename _BinaryPredicate, class NT2>
-void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue)
+void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binary_op, _BinaryPredicate _do_op, bool applyNulls, NT2 nullValue, const bool useExtendedBinOp)
 {
 	if(*(commGrid) == *(other.commGrid))	
 	{
@@ -584,13 +584,13 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 				{
 					if (i < *otherInd)
 					{
-						if (_do_op(arr[i], nullValue))
-							arr[i] = __binary_op(arr[i], nullValue);
+						if (_do_op(arr[i], nullValue, false, true))
+							arr[i] = __binary_op(arr[i], nullValue, false, true);
 					}
 					else
 					{
-						if (_do_op(arr[i], *otherNum))
-							arr[i] = __binary_op(arr[i], *otherNum);
+						if (_do_op(arr[i], *otherNum, false, false))
+							arr[i] = __binary_op(arr[i], *otherNum, false, false);
 						otherInd++;
 						otherNum++;
 					}
@@ -600,8 +600,8 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			{
 				while (otherInd < other.ind.end())
 				{
-					if (_do_op(arr[*otherInd], *otherNum))
-						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum);
+					if (_do_op(arr[*otherInd], *otherNum, false, false))
+						arr[*otherInd] = __binary_op(arr[*otherInd], *otherNum, false, false);
 					otherInd++;
 					otherNum++;
 				}

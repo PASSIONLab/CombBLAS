@@ -1078,21 +1078,7 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 	}
 }
 
-// An adapter function that allows using the above matrix EWiseApply with plain-old binary functions that don't want the extra parameters.
-template <typename RETT, typename NU1, typename NU2, typename BINOP>
-class EWiseExtToPlainAdapter
-{
-	public:
-	BINOP plain_binary_op;
-	
-	EWiseExtToPlainAdapter(BINOP op): plain_binary_op(op) {}
-	
-	RETT operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
-	{
-		return plain_binary_op(a, b);
-	}
-};
-
+// plain adapter
 template <typename RETT, typename RETDER, typename IU, typename NU1, typename NU2, typename UDERA, typename UDERB, typename _BinaryOperation, typename _BinaryPredicate> 
 SpParMat<IU,RETT,RETDER>
 EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
@@ -1265,7 +1251,7 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero, const bool useExtendedBinOp)
 {
 	typedef RET T_promote; //typedef typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
@@ -1290,19 +1276,19 @@ FullyDistSpVec<IU,RET> EWiseApply
 				{
 					if(V.ind[sp_iter] == i)
 					{
-						if (_doOp(V.num[sp_iter], W.arr[i]))
+						if (_doOp(V.num[sp_iter], W.arr[i], false, false))
 						{
 							Product.ind.push_back(i);
-							Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[i]));
+							Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[i], false, false));
 						}
 						sp_iter++;
 					}
 					else
 					{
-						if (_doOp(Vzero, W.arr[i]))
+						if (_doOp(Vzero, W.arr[i], true, false))
 						{
 							Product.ind.push_back(i);
-							Product.num.push_back(_binary_op(Vzero, W.arr[i]));
+							Product.num.push_back(_binary_op(Vzero, W.arr[i], true, false));
 						}
 					}
 				}
@@ -1312,10 +1298,10 @@ FullyDistSpVec<IU,RET> EWiseApply
 				// iterate over the sparse vector
 				for(sp_iter = 0; sp_iter < spsize; ++sp_iter)
 				{
-					if (_doOp(V.num[sp_iter], W.arr[V.ind[sp_iter]]))
+					if (_doOp(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false))
 					{
 						Product.ind.push_back(V.ind[sp_iter]);
-						Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[V.ind[sp_iter]]));
+						Product.num.push_back(_binary_op(V.num[sp_iter], W.arr[V.ind[sp_iter]], false, false));
 					}
 				}
 			}
@@ -1353,7 +1339,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
-	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect = true)
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect, const bool useExtendedBinOp)
 {
 	typedef RET T_promote; // typename promote_trait<NU1,NU2>::T_promote T_promote;
 	if(*(V.commGrid) == *(W.commGrid))	
@@ -1379,10 +1365,10 @@ FullyDistSpVec<IU,RET> EWiseApply
 					// overlap
 					if (allowIntersect)
 					{
-						if (_doOp(*numV, *numW))
+						if (_doOp(*numV, *numW, false, false))
 						{
 							Product.ind.push_back(*indV);
-							Product.num.push_back(_binary_op(*numV, *numW));
+							Product.num.push_back(_binary_op(*numV, *numW, false, false));
 						}
 					}
 					indV++; numV++;
@@ -1393,10 +1379,10 @@ FullyDistSpVec<IU,RET> EWiseApply
 					// V has value but W does not
 					if (allowWNulls)
 					{
-						if (_doOp(*numV, Wzero))
+						if (_doOp(*numV, Wzero, false, true))
 						{
 							Product.ind.push_back(*indV);
-							Product.num.push_back(_binary_op(*numV, Wzero));
+							Product.num.push_back(_binary_op(*numV, Wzero, false, true));
 						}
 					}
 					indV++; numV++;
@@ -1406,10 +1392,10 @@ FullyDistSpVec<IU,RET> EWiseApply
 					// W has value but V does not
 					if (allowVNulls)
 					{
-						if (_doOp(Vzero, *numW))
+						if (_doOp(Vzero, *numW, true, false))
 						{
 							Product.ind.push_back(*indW);
-							Product.num.push_back(_binary_op(Vzero, *numW));
+							Product.num.push_back(_binary_op(Vzero, *numW, true, false));
 						}
 					}
 					indW++; numW++;
@@ -1418,19 +1404,19 @@ FullyDistSpVec<IU,RET> EWiseApply
 			// clean up
 			while (allowWNulls && indV < V.ind.end())
 			{
-				if (_doOp(*numV, Wzero))
+				if (_doOp(*numV, Wzero, false, true))
 				{
 					Product.ind.push_back(*indV);
-					Product.num.push_back(_binary_op(*numV, Wzero));
+					Product.num.push_back(_binary_op(*numV, Wzero, false, true));
 				}
 				indV++; numV++;
 			}
 			while (allowVNulls && indW < W.ind.end())
 			{
-				if (_doOp(Vzero, *numW))
+				if (_doOp(Vzero, *numW, true, false))
 				{
 					Product.ind.push_back(*indW);
-					Product.num.push_back(_binary_op(Vzero, *numW));
+					Product.num.push_back(_binary_op(Vzero, *numW, true, false));
 				}
 				indW++; numW++;
 			}
@@ -1444,5 +1430,29 @@ FullyDistSpVec<IU,RET> EWiseApply
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
+
+// plain callback versions
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+FullyDistSpVec<IU,RET> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
+{
+	return EWiseApply<RET>(V, W,
+					EWiseExtToPlainAdapter<RET, NU1, NU2, _BinaryOperation>(_binary_op),
+					EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
+					allowVNulls, Vzero, true);
+}
+
+template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
+FullyDistSpVec<IU,RET> EWiseApply 
+	(const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect = true)
+{
+	return EWiseApply<RET>(V, W,
+					EWiseExtToPlainAdapter<RET, NU1, NU2, _BinaryOperation>(_binary_op),
+					EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(_doOp),
+					allowVNulls, allowWNulls, Vzero, Wzero, allowIntersect, true);
+}
+
+
+
 #endif
 

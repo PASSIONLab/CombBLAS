@@ -54,121 +54,6 @@ void pyDenseParVec::save(const char* filename)
 	output.close();
 }
 
-void pyDenseParVec::add(const pyDenseParVec& other) {
-	v.operator+=(other.v);
-	//return *this;
-}
-
-void pyDenseParVec::add(const pySpParVec& other) {
-	v.operator+=(other.v);
-	//return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator+=(const pyDenseParVec & rhs)
-{
-	v.operator+=(rhs.v);
-	return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator-=(const pyDenseParVec & rhs)
-{
-	v.operator-=(rhs.v);
-	return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator+=(const pySpParVec & rhs)
-{
-	v.operator+=(rhs.v);
-	return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator-=(const pySpParVec & rhs)
-{
-	v.operator-=(rhs.v);
-	return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator*=(const pyDenseParVec & rhs)
-{
-	op::BinaryFunction m = op::multiplies();
-	EWiseApply(rhs, &m);
-	return *this;
-}
-
-pyDenseParVec& pyDenseParVec::operator*=(const pySpParVec & rhs)
-{
-	op::BinaryFunction m = op::multiplies();
-	EWiseApply(rhs, &m, true, doubleint(0.0));
-	return *this;
-}
-
-//pyDenseParVec& pyDenseParVec::operator=(const pyDenseParVec & rhs)
-//{
-//	v.operator=(rhs.v);
-//	return *this;
-//}
-
-pyDenseParVec pyDenseParVec::operator+(const pyDenseParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret += rhs;	
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator-(const pyDenseParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret -= rhs;	
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator+(const pySpParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret += rhs;	
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator-(const pySpParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret -= rhs;	
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator*(const pyDenseParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret *= rhs;	
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator*(const pySpParVec & rhs)
-{
-	pyDenseParVec ret = this->copy();
-	ret *= rhs;	
-	return ret;
-}
-
-
-pyDenseParVec pyDenseParVec::operator==(const pyDenseParVec & rhs)
-{
-	//return v.operator==(rhs.v);
-	pyDenseParVec ret = copy();
-	op::BinaryFunction eq = op::equal_to();
-	ret.EWiseApply(rhs, &eq);
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::operator!=(const pyDenseParVec & rhs)
-{
-	//return !(v.operator==(rhs.v));
-	pyDenseParVec ret = copy();
-	op::BinaryFunction ne = op::not_equal_to();
-	ret.EWiseApply(rhs, &ne);
-	return ret;
-}
-
 pyDenseParVec pyDenseParVec::copy()
 {
 	pyDenseParVec ret;
@@ -279,117 +164,6 @@ void pyDenseParVec::ApplyMasked(op::UnaryFunctionObj* op, const pySpParVec& mask
 }
 
 
-//////
-
-void pyDenseParVec::EWiseApply(const pyDenseParVec& other, op::BinaryFunction *f)
-{
-	v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVec& other, op::BinaryFunction *f, bool doNulls, double nullValue)
-{
-	v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>, doNulls, doubleint(nullValue));
-}
-
-void pyDenseParVec::EWiseApply(const pyDenseParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>);
-}
-
-void pyDenseParVec::EWiseApply(const pyDenseParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>);
-}
-
-void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, *nullValue);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, *nullValue);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryFunctionObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, doubleint(nullValue));
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>, doNulls, doubleint(nullValue));
-}
-
-// predicates:
-void pyDenseParVec::EWiseApply(const pyDenseParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>);
-}
-
-void pyDenseParVec::EWiseApply(const pyDenseParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>);
-}
-
-void pyDenseParVec::EWiseApply(const pyDenseParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVecObj1& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj1 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj1>, doNulls, *nullValue);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVecObj2& other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, Obj2 *nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, *nullValue);
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, Obj2>, doNulls, *nullValue);
-}
-
-void pyDenseParVec::EWiseApply(const pySpParVec&     other, op::BinaryPredicateObj *f, op::BinaryPredicateObj *doOp, bool doNulls, double nullValue)
-{
-	if (doOp != NULL)
-		v.EWiseApply(other.v, *f, *doOp, doNulls, doubleint(nullValue));
-	else
-		v.EWiseApply(other.v, *f, retTrue<doubleint, doubleint>, doNulls, doubleint(nullValue));
-}
-
-
-
 pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 {
 	FullyDistVec<INDEXTYPE, INDEXTYPE> indexv = ri.v;
@@ -399,21 +173,6 @@ pyDenseParVec pyDenseParVec::SubsRef(const pyDenseParVec& ri)
 int64_t pyDenseParVec::getnee() const
 {
 	return __len__();
-}
-
-int64_t pyDenseParVec::getnnz() const
-{
-	return v.Count(bind2nd(not_equal_to<doubleint>(), (double)0));
-}
-
-int64_t pyDenseParVec::getnz() const
-{
-	return v.Count(bind2nd(equal_to<doubleint>(), (double)0));
-}
-
-bool pyDenseParVec::any() const
-{
-	return getnnz() > 0;
 }
 
 void pyDenseParVec::RandPerm()
@@ -449,48 +208,6 @@ pyDenseParVec pyDenseParVec::TopK(int64_t k)
 void pyDenseParVec::printall()
 {
 	v.DebugPrint();
-}
-
-pyDenseParVec pyDenseParVec::abs()
-{
-	pyDenseParVec ret = copy();
-	op::UnaryFunction abs = op::abs();
-	ret.Apply(&abs);
-	return ret;
-}
-
-pyDenseParVec& pyDenseParVec::operator+=(double value)
-{
-	v.Apply(bind2nd(plus<doubleint>(), doubleint(value)));
-	return *this;
-}
-
-pyDenseParVec pyDenseParVec::operator+(double value)
-{
-	pyDenseParVec ret = this->copy();
-	ret += value;
-	return ret;
-}
-
-pyDenseParVec& pyDenseParVec::operator-=(double value)
-{
-	v.Apply(bind2nd(minus<doubleint>(), doubleint(value)));
-	return *this;
-}
-
-pyDenseParVec pyDenseParVec::operator-(double value)
-{
-	pyDenseParVec ret = this->copy();
-	ret -= value;
-	return ret;
-}
-
-pyDenseParVec pyDenseParVec::__and__(const pyDenseParVec& other)
-{
-	pyDenseParVec ret = copy();
-	op::BinaryFunction la = op::logical_and();
-	ret.EWiseApply(other, &la);
-	return ret;
 }
 
 double pyDenseParVec::__getitem__(int64_t key)
@@ -537,3 +254,8 @@ pyDenseParVec pyDenseParVec::range(int64_t howmany, int64_t start)
 	return ret;
 }
 
+#define VECCLASS pyDenseParVec
+#define DENSE_VEC
+//#define OBJ_VEC
+
+#include "pyCommonVecFuncs.cpp"
