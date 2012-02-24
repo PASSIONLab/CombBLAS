@@ -29,8 +29,11 @@
 #ifndef _COMBBLAS_FILE_HEADER_
 #define _COMBBLAS_FILE_HEADER_
 
+#include "CombBLAS.h"
+
 struct HeaderInfo
 {
+	HeaderInfo():fileexists(0), headerexists(0) {};
 	bool fileexists;
 	bool headerexists;
 	uint64_t version;
@@ -42,7 +45,7 @@ struct HeaderInfo
 	uint64_t nnz;
 };
 	
-
+// cout's are OK because ParseHeader is run by a single processor only
 inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 {
 	f = fopen(inputname.c_str(), "r");
@@ -55,8 +58,10 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 		return hinfo;
 	}
 	char fourletters[4];
-	fread(fourletters, sizeof(char), 4, f);
-	if(strcmp(fourletters,"HKDT") == 0)
+	size_t result = fread(fourletters, sizeof(char), 4, f);
+	if (result != 4) { cout << "Error in fread of header, only " << result << " entries read" << endl; return hinfo;}
+
+	if(strcmp(fourletters,"HKDT") != 0)
 	{
 		cout << "First four letters are " << fourletters << endl;
 		cout << "Reverting to text mode" << endl;
@@ -71,14 +76,20 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 		hinfo.headerexists = true;
 	}
 
+	size_t results[6];
+	results[0] = fread(&(hinfo.version), sizeof(hinfo.version), 1, f);
+	results[1] = fread(&(hinfo.objsize), sizeof(hinfo.objsize), 1, f);
+	results[2] = fread(&(hinfo.format), sizeof(hinfo.format), 1, f);
 	
-	fread(&(hinfo.version), sizeof(hinfo.version), 1, f);
-	fread(&(hinfo.objsize), sizeof(hinfo.objsize), 1, f);
-	fread(&(hinfo.format), sizeof(hinfo.format), 1, f);
-	
-	fread(&(hinfo.m), sizeof(hinfo.m), 1, f);
-	fread(&(hinfo.n), sizeof(hinfo.n), 1, f);
-	fread(&(hinfo.nnz), sizeof(hinfo.nnz), 1, f);
+	results[3] = fread(&(hinfo.m), sizeof(hinfo.m), 1, f);
+	results[4] = fread(&(hinfo.n), sizeof(hinfo.n), 1, f);
+	results[5] = fread(&(hinfo.nnz), sizeof(hinfo.nnz), 1, f);
+	if(accumulate(results,results+6,0) != 6)
+	{
+		cout << "The required 6 fields (version, objsize, format, m,n,nnz) are not read" << endl;
+		cout << "Only " << accumulate(results,results+6,0) << " fields are read" << endl;
+	} 
+
 	return hinfo;
 }
 				  
