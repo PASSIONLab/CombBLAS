@@ -16,7 +16,7 @@ def printstats(data, label, israte):
 	if n == 0:
 		return
 	if n == 1:
-		print "            %s: %20.17e"%(label, data[0])
+		print "            %s: \t%20.17e"%(label, data[0])
 		return
 	
 	#min
@@ -84,19 +84,19 @@ def printstats(data, label, israte):
 	harmonicSampleStdDev = (math.sqrt (s)/(n-1)) * harmonicMean * harmonicMean
 	
 	if n >= 2:
-		print "            min_%s: %20.17e"%(label, min)
+		print "            min_%s: \t%20.17e"%(label, min)
 	if n >= 4:
-		print "  firstquartile_%s: %20.17e"%(label, q1)
+		print "  firstquartile_%s: \t%20.17e"%(label, q1)
 	if n >= 2:
-		print "         median_%s: %20.17e"%(label, median)
+		print "         median_%s: \t%20.17e"%(label, median)
 	if n >= 4:
-		print "  thirdquartile_%s: %20.17e"%(label, q3)
+		print "  thirdquartile_%s: \t%20.17e"%(label, q3)
 	if n >= 1:
-		print "            max_%s: %20.17e"%(label, max)
+		print "            max_%s: \t%20.17e"%(label, max)
 	if (israte):
-		print "  harmonic_mean_%s: %20.17e"%(label, harmonicMean)
-		print "harmonic_stddev_%s: %20.17e"%(label, harmonicSampleStdDev)
+		print "  harmonic_mean_%s: \t%20.17e"%(label, harmonicMean)
+		print "harmonic_stddev_%s: \t%20.17e"%(label, harmonicSampleStdDev)
 	else:
-		print "           mean_%s: %20.17e"%(label, mean)
-		print "         stddev_%s: %20.17e"%(label, sampleStdDev)
+		print "           mean_%s: \t%20.17e"%(label, mean)
+		print "         stddev_%s: \t%20.17e"%(label, sampleStdDev)
 
