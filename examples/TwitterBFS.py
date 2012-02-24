@@ -77,34 +77,34 @@ else:
 # get the data
 if datasource == "file":
 	# load
-	kdt.p("Reading network from %s"%inmatrixfile)
+	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
 	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
 	kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
 	
 	# optimize the graph
-	kdt.p("deleting isolated vertices and randomly permuting matrix for load balance")
+	kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
 	before = time.time()
 	G.delIsolatedVerts(True)
 	kdt.p("Done in %fs."%(time.time()-before))
 elif datasource == "generate":
 	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
-	kdt.p("Generating a plain RMAT graph of scale %d"%(gen_scale))
+	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
 	before = time.time()
 	binrmat = kdt.DiGraph.generateRMAT(gen_scale, element=1.0, delIsolated=True)
 	kdt.p("Generated in %fs: %d vertices and %d edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
 
-	kdt.p("Converting binary RMAT to twitter object")
+	kdt.p("--Converting binary RMAT to twitter object")
 	G = kdt.DiGraph(nv=binrmat.nvert(), element=kdt.Obj2())
 	G.e.eWiseApply(binrmat.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
 	kdt.p("Converted in %fs. G has %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
-	print G
+	kdt.p(G)
 	
 else:
 	kdt.p("unknown data source. Does your file exist or did you specify an integer generation scale? quitting.")
 	sys.exit()
 
-kdt.p("calculating degrees on original graph")
+kdt.p("--calculating degrees on original graph")
 before = time.time()
 origDegrees = G.degree()
 kdt.p("Calculated in %fs."%(time.time()-before))
@@ -115,14 +115,14 @@ def run(materialize):
 	
 	G.addEFilter(twitterEdgeFilter)
 	if materialize:
-		kdt.p("Materializing the filter")
+		kdt.p("--Materializing the filter")
 		before = time.time()
 		G.e.materializeFilter()
 		kdt.p("Materialized in %fs."%(time.time()-before))
 		kdt.p("%d edges survived the filter."%(G.nedge()))
 
 	
-	kdt.p("Generating starting verts")
+	kdt.p("--Generating starting verts")
 	before = time.time()
 	degrees = G.degree()
 	
@@ -136,7 +136,7 @@ def run(materialize):
 	starts = deg3verts[kdt.Vec.range(nstarts)]
 	kdt.p("Generated in %fs."%(time.time()-before))
 	
-	kdt.p("Doing BFS")
+	kdt.p("--Doing BFS")
 	
 	K2elapsed = [];
 	K2edges = [];
@@ -203,14 +203,20 @@ def run(materialize):
 	
 	# print results summary
 	if kdt.master():
-		print "\nBFS execution times"
-		printstats(K2elapsed, "time", False)
+		if materialize:
+			Mat = "(materialized)"
+			Mat_ = "Mat_"
+		else:
+			Mat = "(on-the-fly)"
+			Mat_ = "OTF_"
+		print "\nBFS execution times %s"%(Mat)
+		printstats(K2elapsed, "%stime"%(Mat_), False)
 		
-		print "\nnumber of edges traversed"
-		printstats(K2edges, "nedge", False)
+		print "\nnumber of edges traversed %s"%(Mat)
+		printstats(K2edges, "%snedge"%(Mat_), False)
 		
-		print "\nTEPS"
-		printstats(K2TEPS, "TEPS", True)
+		print "\nTEPS %s"%(Mat)
+		printstats(K2TEPS, "%sTEPS"%(Mat_), True)
 	
 	G.delEFilter(twitterEdgeFilter)
 
