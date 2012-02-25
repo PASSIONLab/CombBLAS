@@ -88,8 +88,8 @@ class TwitterReadSaveHandler
 		{
 			TwitterInteraction twi;
 			fread (&twi,sizeof(TwitterInteraction),1,rFile);
-			row = twi.from;
-			col = twi.to;
+			row = twi.from - 1 ;
+			col = twi.to - 1;
 			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
 		}
 
