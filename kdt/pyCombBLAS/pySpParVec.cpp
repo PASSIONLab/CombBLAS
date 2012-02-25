@@ -31,11 +31,6 @@ int64_t pySpParVec::getnee() const
 	return v.getnnz();
 }
 
-int64_t pySpParVec::getnnz() const
-{
-	return v.Count(bind2nd(not_equal_to<doubleint>(), doubleint(0)));
-}
-
 int64_t pySpParVec::__len__() const
 {
 	return v.TotalLength();
@@ -44,47 +39,6 @@ int64_t pySpParVec::__len__() const
 int64_t pySpParVec::len() const
 {
 	return v.TotalLength();
-}
-
-pySpParVec pySpParVec::operator+(const pySpParVec& other)
-{
-	pySpParVec ret = copy();
-	ret.operator+=(other);
-	return ret;
-}
-
-pySpParVec pySpParVec::operator-(const pySpParVec& other)
-{
-	pySpParVec ret = copy();
-	ret.operator-=(other);
-	return ret;
-}
-
-pySpParVec pySpParVec::operator+(const pyDenseParVec& other)
-{
-	pySpParVec ret = copy();
-	ret.operator+=(other);
-	return ret;
-}
-
-pySpParVec pySpParVec::operator-(const pyDenseParVec& other)
-{
-	pySpParVec ret = copy();
-	ret.operator-=(other);
-	return ret;
-}
-
-pySpParVec& pySpParVec::operator+=(const pySpParVec& other)
-{
-	v.operator+=(other.v);
-
-	return *this;
-}
-
-pySpParVec& pySpParVec::operator-=(const pySpParVec& other)
-{
-	v -= other.v;
-	return *this;
 }
 
 pySpParVec& pySpParVec::operator+=(const pyDenseParVec& other)
@@ -96,31 +50,11 @@ pySpParVec& pySpParVec::operator+=(const pyDenseParVec& other)
 	return *this;
 }
 
-pySpParVec& pySpParVec::operator-=(const pyDenseParVec& other)
-{
-	pyDenseParVec tmpd = dense();
-	tmpd.v -= other.v;
-	pySpParVec tmps = tmpd.sparse();
-	this->v.stealFrom(tmps.v);
-
-	return *this;
-}
-
 pySpParVec pySpParVec::copy()
 {
 	pySpParVec ret(0);
 	ret.v = v;
 	return ret;
-}
-
-bool pySpParVec::any() const
-{
-	return getnnz() != 0;
-}
-
-bool pySpParVec::all() const
-{
-	return getnnz() == v.TotalLength();
 }
 
 int64_t pySpParVec::intersectSize(const pySpParVec& other)
@@ -288,14 +222,6 @@ pyDenseParVec pySpParVec::TopK(int64_t k)
 void pySpParVec::setNumToInd()
 {
 	v.setNumToInd();
-}
-
-pySpParVec pySpParVec::abs()
-{
-	pySpParVec ret = copy();
-	op::UnaryFunction abs = op::abs();
-	ret.Apply(&abs);
-	return ret;
 }
 
 void pySpParVec::__delitem__(const pyDenseParVec& key)

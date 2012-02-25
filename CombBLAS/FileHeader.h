@@ -63,8 +63,8 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 
 	if(strcmp(fourletters,"HKDT") != 0)
 	{
-		cout << "First four letters are " << fourletters << endl;
-		cout << "Reverting to text mode" << endl;
+		//cout << "First four letters are " << fourletters << endl;
+		//cout << "Reverting to text mode" << endl;
 		rewind(f);
 		fclose(f);
 		hinfo.fileexists = true;
