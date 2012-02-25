@@ -70,7 +70,7 @@ VEC SpMV_worker(const MATCLASS::MatType& A, const VEC& x, op::SemiringObj* sring
 {
 	if (sring->getType() == op::SemiringObj::SECONDMAX)
 	{
-		VEC ret(0);
+		VEC ret(x.__len__());
 		// Can't use the CombBLAS Select2ndSRing reliably because it uses MPI_MAX for the MPI_Op, which strictly speaking is not defined for Objs
 		//::SpMV< Select2ndSRing<MATCLASS::NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, ret.v, false );
 		SRFilterHelper<VECTYPE, MATCLASS::NUMTYPE, VECTYPE>::setFilterX(sring->left_filter);
@@ -82,7 +82,7 @@ VEC SpMV_worker(const MATCLASS::MatType& A, const VEC& x, op::SemiringObj* sring
 	}
 	else if (sring->getType() == op::SemiringObj::TIMESPLUS)
 	{
-		VEC ret(0);
+		VEC ret(x.__len__());
 #ifndef MATCLASS_OBJ
 		PlusTimesFunc(A, x, ret, sring);
 #else
@@ -92,8 +92,8 @@ VEC SpMV_worker(const MATCLASS::MatType& A, const VEC& x, op::SemiringObj* sring
 	}
 	else
 	{
+		VEC ret(x.__len__());
 		sring->enableSemiring();
-		VEC ret(0);
 		::SpMV< op::SemiringObjTemplArg<MATCLASS::NUMTYPE, VECTYPE, VECTYPE> >(A, x.v, ret.v, false );
 		sring->disableSemiring();
 		return ret;

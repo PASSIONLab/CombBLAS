@@ -23,6 +23,8 @@ protected:
 	friend void EWiseMult_inplacefirst(pySpParVec& a, const pyDenseParVec& b, bool exclude, double zero);
 
 	pySpParVec(); // used for initializing temporaries to be returned
+	
+	pySpParVec& operator+=(const pyDenseParVec& other); // used internally in setitem
 public:
 	pySpParVec(VectType other);
 
@@ -35,25 +37,12 @@ public:
 
 public:
 	int64_t getnee() const;
-	int64_t getnnz() const;
 	int64_t __len__() const;
 	int64_t len() const;
 
-	pySpParVec operator+(const pySpParVec& other);
-	pySpParVec operator-(const pySpParVec& other);
-	pySpParVec operator+(const pyDenseParVec& other);
-	pySpParVec operator-(const pyDenseParVec& other);
-
-	pySpParVec& operator+=(const pySpParVec& other);
-	pySpParVec& operator-=(const pySpParVec& other);
-	pySpParVec& operator+=(const pyDenseParVec& other);
-	pySpParVec& operator-=(const pyDenseParVec& other);
 	pySpParVec copy();
 
 public:	
-	bool any() const; // any nonzeros
-	bool all() const; // all nonzeros
-	
 	int64_t intersectSize(const pySpParVec& other);
 	
 	void printall();
@@ -89,7 +78,6 @@ public:
 	
 public:
 	// Functions from PyCombBLAS
-	pySpParVec abs();
 	void __delitem__(const pyDenseParVec& key);
 	void __delitem__(int64_t key);
 	

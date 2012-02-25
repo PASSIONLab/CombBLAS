@@ -205,8 +205,9 @@ class LinearAlgebraTests(MatTests):
 		vec[1] = 2
 		vec[3] = 5
 		vec2 = G.SpMV(vec, sr_plustimes)
-		expV = [4,    10,    16,    11]
 		
+		expV = [4,    10,    16,    11]
+
 		self.assertEqual(4, len(vec2))
 		for ind in range(4):
 			self.assertEqual(expV[ind], vec2[ind])

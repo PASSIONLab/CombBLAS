@@ -997,6 +997,7 @@ class Mat:
 		if len(other) != self.ncol():
 			raise ValueError, "Dimension mismatch in SpMV. The number of elements of the vector must equal the number of columns of the matrix."
 		
+		# materialized filters
 		if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
 			return self._materialized.SpMV(other, semiring, inPlace)
 		if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
@@ -1004,40 +1005,11 @@ class Mat:
 		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 			return self._materialized.SpMV(other._materialized, semiring, inPlace)
 
-		#if self._hasFilter() or other._hasFilter():
-		#	raise NotImplementedError, "this operation does not support filters yet"
-		
-		if other._hasFilter():
-			raise NotImplementedError, "SpMV does not support vector filters yet"
-		
+		# setup on-the-fly filter
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
 			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
 			clearSemiringFilters = True
-			
-		if False:
-			if self._hasFilter() or other._hasFilter():
-				selfPred = FilterHelper.getFilterPred(self)
-				if selfPred is None:
-					selfPred = lambda x: True
-	
-				otherPred = FilterHelper.getFilterPred(other)
-				if otherPred is None:
-					otherPred = lambda x: True
-				
-				class tmpMul:
-					filterA = selfPred
-					filterB = otherPred
-					nullval = self._identity_
-					origMulFunc = _sr_get_python_mul(semiring)
-					@staticmethod
-					def fn(x, y):
-						if tmpMul.filterA(x) and tmpMul.filterB(y):
-							return tmpMul.origMulFunc(x, y)
-						else:
-							return tmpMul.nullval
-				tmpMulInstance = tmpMul()
-				semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
 
 		# the operation itself
 		if inPlace:
@@ -1046,42 +1018,12 @@ class Mat:
 		else:
 			ret = Vec._toVec(self._m_.SpMV(other._v_, semiring))
 		
+		# clear out on-the-fly filter
 		if clearSemiringFilters:
 			semiring.setFilters(None, None)
-		return ret
-
-		# Adam:
-		# Why is the rest so complicated?
 		
-		#ToDo:  is code for if/else cases actually different?
-		if isinstance(self._identity_, (float, int, long, bool)) and isinstance(other._identity_, (float, int, long)):
-			if isinstance(self._identity_, bool):
-				#HACK OF HACKS!
-				self._m_.SpMV_SelMax_inplace(other._v_)
-				return
-			if semiring is None:
-				tSR = pcb.TimesPlusSemiring()
-			else:  
-				tSR = semiring
-			if not inPlace:
-				ret = Vec()
-				ret._v_ = self._m_.SpMV(other._v_, tSR)
-				return ret
-			else:
-				self._m_.SpMV_inplace(other._v_, tSR)
-				return
-		else:
-			if semiring is None:
-				tSR = pcb.TimesPlusSemiring()
-			else:
-				tSR = semiring
-			if not inPlace:
-				ret = Vec()
-				ret._v_ = self._m_.SpMV(other._v_, tSR)
-				return ret
-			else:
-				self._m_.SpMV_inplace(other._v_, tSR)
-				return
+		return ret
+		
 	spMV = SpMV
 
 	def transpose(self):

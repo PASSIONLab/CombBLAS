@@ -2009,6 +2009,7 @@ examples/Kmeans.py -text
 examples/MiniWorkflow.py -text
 examples/ModelProblemGen.py -text
 examples/TwitterBFS.py -text
+examples/TwitterFilterPercent.py -text
 examples/filter_debug.txt -text
 examples/mcl.py -text
 examples/mcldraw.py -text
