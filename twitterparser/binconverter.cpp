@@ -4,16 +4,12 @@
 #include <cstring>
 #include <string>
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <map>
 #include <vector>
 #include <sys/time.h>
 
 using namespace std;
-
-#define MILLION 1000000
-#define THOUSAND 1000
 
 
 struct TwitterInteraction
@@ -66,8 +62,8 @@ int main(int argc, char *argv[] )
 		{
 			cout << "Reading text file" << endl;
 
-			int n=256;
-			char comment[n];
+			size_t n=256;
+			char * comment = (char*) malloc(n);
 			int bytes_read = getline(&comment, &n, rFile);
 			while(comment[0] == '%')
 			{
@@ -162,11 +158,10 @@ int main(int argc, char *argv[] )
 	// test written file
 	cout << "Reading first line of binary file..." << endl;
 	bFile = fopen (outs.str().c_str(),"r");
-	int32_t num_vertices;
-	int64_t num_edges;
-	fread(&num_vertices, sizeof(num_vertices), 1, bFile);
-	fread(&num_edges, sizeof(num_edges), 1, bFile);
-	printf ("Vertices: %d, Edges: %lld\n", num_vertices, num_edges);
+	char begin[5];
+	fread(begin, 4, 1, bFile);
+	begin[4] = '\0';
+	printf ("Header of : %s\n", begin);
 	fclose(bFile);
 	
 	return 0;

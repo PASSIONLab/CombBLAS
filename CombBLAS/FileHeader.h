@@ -33,7 +33,7 @@
 
 struct HeaderInfo
 {
-	HeaderInfo():fileexists(0), headerexists(0) {};
+	HeaderInfo():fileexists(false), headerexists(false) {};
 	bool fileexists;
 	bool headerexists;
 	uint64_t version;
@@ -46,7 +46,7 @@ struct HeaderInfo
 };
 	
 // cout's are OK because ParseHeader is run by a single processor only
-inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
+inline HeaderInfo ParseHeader(const string & inputname, FILE * & f)
 {
 	f = fopen(inputname.c_str(), "r");
 	HeaderInfo hinfo;
@@ -57,14 +57,13 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 		f = NULL;
 		return hinfo;
 	}
-	char fourletters[4];
+	char fourletters[5];
 	size_t result = fread(fourletters, sizeof(char), 4, f);
+	fourletters[4] = '\0';
 	if (result != 4) { cout << "Error in fread of header, only " << result << " entries read" << endl; return hinfo;}
 
 	if(strcmp(fourletters,"HKDT") != 0)
 	{
-		//cout << "First four letters are " << fourletters << endl;
-		//cout << "Reverting to text mode" << endl;
 		rewind(f);
 		fclose(f);
 		hinfo.fileexists = true;
@@ -89,6 +88,13 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * f)
 		cout << "The required 6 fields (version, objsize, format, m,n,nnz) are not read" << endl;
 		cout << "Only " << accumulate(results,results+6,0) << " fields are read" << endl;
 	} 
+	else
+	{
+	#ifdef DEBUG
+		cout << "Version " << hinfo.version << ", object size " << hinfo.objsize << endl;
+		cout << "Rows " << hinfo.m << ", columns " << hinfo.m << ", nonzeros " << hinfo.nnz << endl;
+	#endif
+	}
 
 	return hinfo;
 }

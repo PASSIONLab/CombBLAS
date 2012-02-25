@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./FilteredBFS <Text, Binary, Gen> <Text Input Name | Binary Input Name | Scale Forced>" << endl;
-			cout << "Example: ./FilteredBFS Text twitter_small.txt" << endl;
+			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale>" << endl;
+			cout << "Example: ./FilteredBFS File twitter_small.txt" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
@@ -72,22 +72,18 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
 
 		// Declare objects
-		PSpMat_Twitter A;	
+		PSpMat_Twitter A, B;	
 		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 
 		double t01 = MPI_Wtime();
-		if(string(argv[1]) == string("Text")) // text input option
+		if(string(argv[1]) == string("File")) // text input option
 		{
 			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true);	// read it from file (and transpose on the fly)
-		}
-		else if(string(argv[1]) == string("Binary"))
-		{
-			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true);
 		}
 		else 
 		{	
@@ -105,8 +101,11 @@ int main(int argc, char* argv[])
 		PSpMat_Bool * ABool = new PSpMat_Bool(A);
 		ABool->PrintInfo();
 		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+		SpParHelper::Print("Column reduced\n");
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
-		indegrees.DebugPrint();
+		SpParHelper::Print("Row reduced\n");
+
+//		indegrees.DebugPrint();
 		degrees = indegrees;	
 		degrees.EWiseApply(oudegrees, plus<int64_t>());
 		SpParHelper::Print("All degrees calculated\n");
