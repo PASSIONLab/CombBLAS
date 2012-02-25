@@ -2132,6 +2132,7 @@ test/old/oldTestSpParVec.py -text
 test/testfiles/small.mtx -text
 test/testfiles/small_hyGraph.mtx -text
 test/testfiles/small_nonsym_fp.mtx -text
+twitterparser/binconverter.cpp -text
 twitterparser/graphbuilder.py -text
 twitterparser/makefile -text
 twitterparser/monthlyparser.cpp -text
