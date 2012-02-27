@@ -236,10 +236,6 @@ def run(materialize):
 			print "\nTEPS including filtered edges %s"%(Mat)
 			printstats(K2ORIGTEPS, "IncFiltered_%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
 	
-		if not materialize:
-			print "\nTEPS including filtered edges %s"%(Mat)
-			printstats(K2ORIGTEPS, "IncFiltered_%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
-
 	G.delEFilter(twitterEdgeFilter)
 
 
