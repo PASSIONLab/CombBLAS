@@ -142,6 +142,8 @@ def run(materialize):
 	if len(deg3verts) == 0:
 		# this is mainly for filter_debug.txt
 		deg3verts = (degrees > 0).findInds()
+	if len(deg3verts) == 0:
+		return
 	deg3verts.randPerm()
 	if runStarts > len(deg3verts):
 		runStarts = len(deg3verts)
@@ -230,9 +232,14 @@ def run(materialize):
 		print "\nTEPS %s"%(Mat)
 		printstats(K2TEPS, "%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
 	
+		if not materialize:
+			print "\nTEPS including filtered edges %s"%(Mat)
+			printstats(K2ORIGTEPS, "IncFiltered_%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
+
 	G.delEFilter(twitterEdgeFilter)
 
 
 for p in (0, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 97, 98, 99, 99.5, 99.9):
 	filterPercent = int(p*100)
 	run(False)
+	run(True)
