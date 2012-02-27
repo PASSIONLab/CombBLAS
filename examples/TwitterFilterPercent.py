@@ -142,8 +142,8 @@ def run(materialize):
 	if len(deg3verts) == 0:
 		# this is mainly for filter_debug.txt
 		deg3verts = (degrees > 0).findInds()
-#	if len(deg3verts) == 0:
-#		return
+	if len(deg3verts) == 0:
+		return
 	deg3verts.randPerm()
 	if runStarts > len(deg3verts):
 		runStarts = len(deg3verts)
