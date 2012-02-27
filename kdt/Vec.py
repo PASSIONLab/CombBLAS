@@ -428,6 +428,8 @@ class Vec(object):
 		supports dense vectors.
 		"""
 		if self.isDense():
+			if len(self) == 0:
+				return # otherwise some MPI implementations can crash
 			self._v_.RandPerm()
 		else:
 			raise NotImplementedError, "Sparse vectors do not support RandPerm."
