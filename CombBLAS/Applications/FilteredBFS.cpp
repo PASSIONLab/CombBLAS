@@ -36,7 +36,7 @@ int cblas_splits = 1;
 #define MAX_ITERS 512
 #define ITERS 16 
 #define CC_LIMIT 3
-//#define PERMUTEFORBALANCE
+#define PERMUTEFORBALANCE
 using namespace std;
 
 
@@ -101,9 +101,7 @@ int main(int argc, char* argv[])
 		PSpMat_Bool * ABool = new PSpMat_Bool(A);
 		ABool->PrintInfo();
 		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-		SpParHelper::Print("Column reduced\n");
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
-		SpParHelper::Print("Row reduced\n");
 
 //		indegrees.DebugPrint();
 		degrees = indegrees;	
