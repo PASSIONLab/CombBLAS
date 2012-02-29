@@ -3,6 +3,18 @@ import math
 from kdt import *
 import kdt.ObjMethods
 
+def ge0lt5(self):
+	if isinstance(self, (float, int, long)):
+		return self >= 0 and self < 5
+	else:
+		return self.weight >= 0 and self.weight < 5
+
+def geM2lt4(self):
+	if isinstance(self, (float, int, long)):
+		return self >= -2 and self < 4
+	else:
+		return self.weight >= -2 and self.weight < 4
+
 class VecTests(unittest.TestCase):
 	def fillVec(self, ret, i, v, element):
 		"""
@@ -25,11 +37,11 @@ class VecTests(unittest.TestCase):
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
 				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category   = v[1][ind]
+					val.latest = v[0][ind]
+					val.follower   = v[1][ind]
 				else:
-					val.weight = v
-					val.category   = v
+					val.latest = v
+					val.follower   = v
 			ret[i[ind]] = val
 	
 	def fillVecFilter(self, ret, i, v, element):
@@ -68,11 +80,11 @@ class VecTests(unittest.TestCase):
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
 				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
+					val.latest = v[0][ind]
+					val.follower = v[1][ind]
 				else:
-					val.weight = v
-					val.category = v
+					val.latest = v
+					val.follower = v
 				ret[i[ind]] = val
 
 				# make sure we don't filter out actual values
@@ -88,7 +100,7 @@ class VecTests(unittest.TestCase):
 				val.weight = fv
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
-				val.weight = fv
+				val.latest = fv
 			else:
 				val = fv
 			ret[filteredInds[ind]] = val
@@ -1409,7 +1421,7 @@ class GeneralPurposeTests(VecTests):
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeVec(sz, i, weight)
 		element = Obj1()
-		self.assertRaises(NotImplementedError, vec.addFilter, Obj1.ge0lt5)
+		self.assertRaises(NotImplementedError, vec.addFilter, ge0lt5)
 		#dead code
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
@@ -1426,7 +1438,7 @@ class GeneralPurposeTests(VecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (weight, category), element=element)
-		vec.addFilter(Obj1.geM2lt4)
+		vec.addFilter(geM2lt4)
 		expW = [0, 0, 2, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		res = abs(vec)
@@ -1442,7 +1454,7 @@ class GeneralPurposeTests(VecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj2()
 		vec = self.initializeVec(sz, i, (weight, category), element=element)
-		vec.addFilter(Obj2.geM2lt4)
+		vec.addFilter(geM2lt4)
 		expW = [0, 0, 0, 0, 1, 0, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0]
 		res = abs(vec)
@@ -1889,7 +1901,8 @@ class FindTests(VecTests):
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeVec(sz, i, v)
 		vec2 = vec.find(lambda x: x > 0 and x < 10)
-		vecExpected = [0, 0, 4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#vecExpected = [0, 0, 4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		vecExpected = [None, None, 4, None, 8, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 		self.assertEqual(sz, len(vec2))
 		for ind in range(sz):
 			self.assertEqual(vecExpected[ind], vec2[ind])
@@ -2065,12 +2078,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2085,12 +2098,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		# ---- commented----  vec2.addFilter(element.geM2lt4)
+		# ---- commented----  vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2105,12 +2118,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		# ----- commented out--- vec1.addFilter(element.ge0lt5)
+		# ----- commented out--- vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2132,9 +2145,9 @@ class FilterTests(VecTests):
 		c = [2, 2, 7, 7, 3,  3,  5]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
-		vec.addFilter(element.ge0lt5)
+		vec.addFilter(ge0lt5)
 		vec.apply(add5)
-		vec.delFilter(element.ge0lt5)
+		vec.delFilter(ge0lt5)
 		#assuming filters make a dense vector act sparse:
 		#vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		vecExpected = [6, 5, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
@@ -2156,11 +2169,11 @@ class FilterTests(VecTests):
 		c = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
-		vec.addFilter(element.ge0lt5)
-		vec.addFilter(element.geM2lt4)
+		vec.addFilter(ge0lt5)
+		vec.addFilter(geM2lt4)
 		vec.apply(add3p14)
-		vec.delFilter(element.ge0lt5)
-		vec.delFilter(element.geM2lt4)
+		vec.delFilter(ge0lt5)
+		vec.delFilter(geM2lt4)
 		#assuming filters make a dense vector act sparse:
 		#vecExpected = [-3, 3.14159, 5.14159, 3.14159, 6.14159, 3.14159, 4, 3.14159, 5, 3.14159, 6, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159]
 		vecExpected = [3.14159, 3.14159, 5.14159, 3.14159, 6.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159, 3.14159]
@@ -2183,8 +2196,8 @@ class FilterTests(VecTests):
 		c = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
-		vec.addFilter(element.ge0lt5)
-		vec.addFilter(element.geM2lt4)
+		vec.addFilter(ge0lt5)
+		vec.addFilter(geM2lt4)
 		vec.delFilter()
 		vec.apply(add3p14)
 		#assuming filters make a dense vector act sparse:
@@ -2208,11 +2221,11 @@ class FilterTests(VecTests):
 		c = [2, 2, 7, 7, 3,  3,  5]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
-		vec.addFilter(element.ge0lt5)
-		vec.addFilter(element.geM2lt4)
-		vec.delFilter(element.geM2lt4)
+		vec.addFilter(ge0lt5)
+		vec.addFilter(geM2lt4)
+		vec.delFilter(geM2lt4)
 		vec.apply(add5)
-		vec.delFilter(element.ge0lt5) # must remove this filter or else the [] operation is still filtered
+		vec.delFilter(ge0lt5) # must remove this filter or else the [] operation is still filtered
 		#assuming filters make a dense vector act sparse:
 		#vecExpected = [6, 5, 9, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		vecExpected = [6, 5, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
@@ -2234,11 +2247,11 @@ class FilterTests(VecTests):
 		c = [2, 2, 7, 7, 3,  3,  5]
 		element = Obj1()
 		vec = self.initializeVec(sz, i, (v,v), element=element)
-		vec.addFilter(element.ge0lt5)
-		vec.addFilter(element.geM2lt4)
-		vec.delFilter(element.ge0lt5)
+		vec.addFilter(ge0lt5)
+		vec.addFilter(geM2lt4)
+		vec.delFilter(ge0lt5)
 		vec.apply(add5)
-		vec.delFilter(element.geM2lt4) # must remove this filter or else the [] operation is still filtered
+		vec.delFilter(geM2lt4) # must remove this filter or else the [] operation is still filtered
 		#assuming filters make a dense vector act sparse:
 		#vecExpected = [6, 5, 4, 5, 8, 5, 12, 5, 16, 5, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 		vecExpected = [6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
@@ -2253,12 +2266,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1.eWiseApply(vec2, Obj1.__iadd__, True, True)
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2273,12 +2286,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		# ---- commented----  vec2.addFilter(element.geM2lt4)
+		# ---- commented----  vec2.addFilter(geM2lt4)
 		vec3 = vec1.eWiseApply(vec2, Obj1.__iadd__, True, True)
 		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2293,12 +2306,12 @@ class FilterTests(VecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeVec(sz, i1, (v1,v1), element=element)
-		# ----- commented out--- vec1.addFilter(element.ge0lt5)
+		# ----- commented out--- vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1.eWiseApply(vec2, Obj1.__iadd__, True, True)
 		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
@@ -2312,7 +2325,6 @@ def runTests(verbosity = 1):
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 	print "running again using filtered data:"
-	
 	VecTests.fillVec = VecTests.fillVecFilter
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 

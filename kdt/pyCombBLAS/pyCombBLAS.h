@@ -235,11 +235,23 @@ class EWiseFilterDoOpAdapter
 	op::UnaryPredicateObj* AFilter;
 	op::UnaryPredicateObj* BFilter;
 	bool allowANulls, allowBNulls, allowIntersect;
+	bool aDense, bDense;
 	
-	EWiseFilterDoOpAdapter(op::BinaryPredicateObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI) {}
+	EWiseFilterDoOpAdapter(op::BinaryPredicateObj* op, op::UnaryPredicateObj* AF, op::UnaryPredicateObj* BF, bool aAN, bool aBN, bool aI, bool aD=false, bool bD=false): plain_binary_op(op), AFilter(AF), BFilter(BF), allowANulls(aAN), allowBNulls(aBN), allowIntersect(aI), aDense(aD), bDense(bD) {}
 	
 	bool operator()(const NU1& a, const NU2& b, bool aIsNull, bool bIsNull)
 	{
+		// dense semantics mean that filtered-out elements need to pretend to exist like empty values,
+		// but the op still needs to happen.
+		if (aDense || bDense)
+		{
+			if (plain_binary_op == NULL)
+				return true;
+			else
+				return (*plain_binary_op)(a, b);
+		}
+		
+		// for all-sparse cases
 		bool aPass = aIsNull ? false : (AFilter == NULL ? true : (*AFilter)(a));
 		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
 		
@@ -280,7 +292,7 @@ class EWiseFilterOpAdapter
 		bool bPass = bIsNull ? false : (BFilter == NULL ? true : (*BFilter)(b));
 		
 		if (!aPass && !bPass)
-			throw string("The DoOp adapter should have taken care of this case!");
+			return (*plain_binary_op)(ANull, BNull); // should only happen in dense cases, the DoOp adapter should prevent this for happenning for sparse/sparse cases.
 		else if (!aPass &&  bPass)
 			return (*plain_binary_op)(ANull, b);
 		else if ( aPass && !bPass)
