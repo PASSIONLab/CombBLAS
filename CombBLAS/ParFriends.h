@@ -1272,9 +1272,9 @@ FullyDistSpVec<IU,RET> EWiseApply
 			if (allowVNulls)
 			{
 				// iterate over the dense vector
-				for(IU i=0; i<size && sp_iter < spsize; ++i)
+				for(IU i=0; i<size; ++i)
 				{
-					if(V.ind[sp_iter] == i)
+					if(sp_iter < spsize && V.ind[sp_iter] == i)
 					{
 						if (_doOp(V.num[sp_iter], W.arr[i], false, false))
 						{

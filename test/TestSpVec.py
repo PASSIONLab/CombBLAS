@@ -2,6 +2,21 @@ import unittest
 import math
 from kdt import *
 
+def ge0lt5(self):
+	if isinstance(self, (float, int, long)):
+		return self >= 0 and self < 5
+	else:
+		return self.weight >= 0 and self.weight < 5
+
+def geM2lt4(self):
+	if isinstance(self, (float, int, long)):
+		return self >= -2 and self < 4
+	else:
+		return self.weight >= -2 and self.weight < 4
+
+# AL note: disabled tests for all/any on object vectors because I'm not sure that function
+# makes any sense for objects. search for "disableObjAll_" to re-enable 
+
 class SpVecTests(unittest.TestCase):
 	def fillVec(self, ret, i, v, element):
 		"""
@@ -24,11 +39,11 @@ class SpVecTests(unittest.TestCase):
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
 				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category   = v[1][ind]
+					val.latest = v[0][ind]
+					val.count   = v[1][ind]
 				else:
-					val.weight = v
-					val.category   = v
+					val.latest = v
+					val.count   = v
 			ret[i[ind]] = val
 	
 	def fillVecFilter(self, ret, i, v, element):
@@ -75,8 +90,8 @@ class SpVecTests(unittest.TestCase):
 					val.weight = v[0][ind]
 					val.category = v[1][ind]
 				else:
-					val.weight = v
-					val.category = v
+					val.latest = v
+					val.count = v
 				ret[i[ind]] = val
 
 				# make sure we don't filter out actual values
@@ -98,7 +113,7 @@ class SpVecTests(unittest.TestCase):
 				val.weight = fv
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
-				val.weight = fv
+				val.latest = fv
 			else:
 				val = fv
 			ret[filteredInds[ind]] = val
@@ -119,49 +134,31 @@ class SpVecTests(unittest.TestCase):
 		self.fillVec(ret, i, v, element)
 		return ret
 
-	def old_initializeSpVec(self, length, i, v=1, element=0):
-		"""
-		Initialize a Vec instance with values equal to one or the input value.
-		"""
-		ret = Vec(length, element=element, sparse=True)
-		for ind in range(len(i)):
-			if isinstance(element, (float, int, long)):
-				if type(v) != int and type(v) != float:
-					val = v[ind]
-				else:
-					val = v
-			elif isinstance(element, Obj1):
-				val = pcb.Obj1()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category   = v[1][ind]
-				else:
-					val.weight = v
-					val.category   = v
-			elif isinstance(element, Obj2):
-				val = pcb.Obj2()
-				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category   = v[1][ind]
-				else:
-					val.weight = v
-					val.category   = v
-			ret[i[ind]] = val
-
-		return ret
- 
-	def old_initializeVec(self, length, i, v=1):
-		"""
-		Initialize a Vec instance with values equal to one or the input value.
-		"""
-		ret = Vec(length, 0)
-		for ind in range(len(i)):
-			if type(v) != int and type(v) != float:
-				ret[i[ind]] = v[ind]
+	def assertEqualVec(self, vec, expV, expT=None, nn=()):
+		self.assertEqual(len(vec), len(expV))
+		for i in range(len(vec)):
+			if vec[i] is None and expV[i] == 0 and i not in nn:
+				pass
 			else:
-				ret[i[ind]] = v
-
-		return ret
+				if vec.isObj():
+					self.assertEqual(vec[i].weight, expV[i])
+					if expT is not None:
+						self.assertEqual(vec[i].category, expT[i])
+				else:
+					self.assertEqual(vec[i], expV[i])
+	
+	def assertAlmostEqualVec(self, vec, expV, expT=None, nn=()):
+		self.assertEqual(len(vec), len(expV))
+		for i in range(len(vec)):
+			if vec[i] is None and expV[i] == 0 and i not in nn:
+				pass
+			else:
+				if vec.isObj():
+					self.assertAlmostEqual(vec[i].weight, expV[i])
+					if expT is not None:
+						self.assertAlmostEqual(vec[i].category, expT[i])
+				else:
+					self.assertAlmostEqual(vec[i], expV[i])
 
 class ConstructorTests(SpVecTests):
 	def test_SpVecDint_simple(self):
@@ -169,12 +166,8 @@ class ConstructorTests(SpVecTests):
 		i = [0, 2, 4, 6, 8, 10]
 		vec = self.initializeSpVec(sz, i, element=0)
 		expI = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind])
+				 0, 0, 0, 0]
+		self.assertEqualVec(vec, expI, nn=i)
 
 	def test_SpVecObj1_simple(self):
 		sz = 25
@@ -182,14 +175,9 @@ class ConstructorTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, element=element)
 		expI = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expI[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind].weight)
+		self.assertEqualVec(vec, expI, expI, nn=i)
 
 	def test_SpVecObj2_simple(self):
 		sz = 25
@@ -197,14 +185,9 @@ class ConstructorTests(SpVecTests):
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, element=element)
 		expI = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expI[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind].weight)
+		self.assertEqualVec(vec, expI, nn=i)
 
 	def test_SpVecDint_null(self):
 		sz = 25
@@ -212,14 +195,9 @@ class ConstructorTests(SpVecTests):
 		element = 0.0
 		vec = self.initializeSpVec(sz, i, element=element)
 		expI = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		self.assertEqual(type(element),type(vec[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind])
-		return
+				 0, 0, 0, 0]
+		#self.assertEqual(type(element),type(vec[0]))
+		self.assertEqualVec(vec, expI, expI)
 
 	def test_SpVecObj1_null(self):
 		sz = 25
@@ -227,15 +205,9 @@ class ConstructorTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, element=element)
 		expI = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		self.assertEqual(type(element),type(vec[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expI[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind].weight)
-		return
+				 0, 0, 0, 0]
+		#self.assertEqual(type(element),type(vec[0]))
+		self.assertEqualVec(vec, expI, expI)
 
 	def test_SpVecObj2_null(self):
 		sz = 25
@@ -243,15 +215,9 @@ class ConstructorTests(SpVecTests):
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, element=element)
 		expI = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		self.assertEqual(type(element),type(vec[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expI[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expI[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expI[ind],vec[ind].weight)
-		return
+				 0, 0, 0, 0]
+		#self.assertEqual(type(element),type(vec[0]))
+		self.assertEqualVec(vec, expI, expI)
 
 	def test_SpVecDint(self):
 		sz = 25
@@ -261,15 +227,10 @@ class ConstructorTests(SpVecTests):
 		element = 0.0
 		vec = self.initializeSpVec(sz, i, weight, element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
-		return
+		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj1(self):
 		sz = 25
@@ -279,16 +240,10 @@ class ConstructorTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj2(self):
 		sz = 25
@@ -298,16 +253,10 @@ class ConstructorTests(SpVecTests):
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj1_all_weight_zero(self):
 		sz = 25
@@ -317,17 +266,11 @@ class ConstructorTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, 2, 0, 2, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecDint_all_weight_all_type_zero(self):
 		sz = 25
@@ -336,17 +279,10 @@ class ConstructorTests(SpVecTests):
 		element = 0.0
 		vec = self.initializeSpVec(sz, i, weight, element=element)
 		expW = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
-		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
-		return
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj1_all_weight_all_type_zero(self):
 		sz = 25
@@ -356,18 +292,11 @@ class ConstructorTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj2_all_weight_all_type_zero(self):
 		sz = 25
@@ -377,17 +306,11 @@ class ConstructorTests(SpVecTests):
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecDint_spOnes(self):
 		sz = 25
@@ -398,16 +321,11 @@ class ConstructorTests(SpVecTests):
 		vec = self.initializeSpVec(sz, i, weight, element=element)
 		vec.spOnes()
 		expW = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
-		return
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj1_spOnes(self):
 		sz = 25
@@ -418,17 +336,11 @@ class ConstructorTests(SpVecTests):
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		vec.spOnes()
 		expW = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 	def test_SpVecObj2_spOnes(self):
 		sz = 25
@@ -439,17 +351,11 @@ class ConstructorTests(SpVecTests):
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		vec.spOnes()
 		expW = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0, 0]
+		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-		return
+		self.assertAlmostEqualVec(vec, expW, expT)
 
 	def test_SpVecDint_spRange(self):
 		sz = 25
@@ -458,12 +364,9 @@ class ConstructorTests(SpVecTests):
 		vec = self.initializeSpVec(sz, i, weight)
 		vec.spRange()
 		expW = [0, 0, 2, 0, 4, 0, 6, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
+		self.assertAlmostEqualVec(vec, expW)
 
 	def test_SpVecObj1_spRange(self):
 		sz = 25
@@ -474,16 +377,11 @@ class ConstructorTests(SpVecTests):
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		vec.spRange()
 		expW = [0, 0, 2, 0, 4, 0, 6, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, 2, 0, 2, 0, 3, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		self.assertEqual(type(element),type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec[i[ind]].weight)
-			#self.assertEqual(expT[i[ind]],vec[i[ind]].category)
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
+		self.assertEqualVec(vec, expW, expT, nn=i)
 
 ##	def test_SpVec_zeros(self):
 ##		sz = 25
@@ -581,14 +479,9 @@ class ConstructorTests(SpVecTests):
 		element2 = 0.0
 		vec2 = vec.copy(element=element2)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
+				 0, 0, 0, 0, 0]
 		self.assertEqual(type(element2),type(vec2[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec2[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec2[ind])
-		return
+		self.assertEqualVec(vec2, expW, nn=i)
 
 	def test_copy_elementArg_Obj2toDint(self):
 		sz = 25
@@ -600,14 +493,9 @@ class ConstructorTests(SpVecTests):
 		element2 = 0.0
 		vec2 = vec.copy(element=element2)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
+				 0, 0, 0, 0, 0]
 		self.assertEqual(type(element2),type(vec2[0]))
-		for ind in range(len(i)):
-			self.assertAlmostEqual(expW[i[ind]],vec2[i[ind]])
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec2[ind])
-		return
+		self.assertEqualVec(vec2, expW, nn=i)
 
 class xxxTests(SpVecTests):
 		pass
@@ -691,21 +579,17 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
+		self.assertEqualVec(vec3, expI)
 
 	def test_add_vectorDint_scalarDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
-		expW = [3.07, 0, -.93, 0, 19.07, 0, -32.93, 0, -60.93, 0, 103.07, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expW = [3.07, 0, -.93, 0, 19.07, 0, -32.93, 0, -60.93, 0, 103.07, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		res = vec + 3.07
-		self.assertEqual(sz, len(res))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind])
+		self.assertAlmostEqualVec(res, expW)
 
 	def test_add_vectorObj1_scalarDint(self):
 		sz = 25
@@ -715,14 +599,11 @@ class BuiltInTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [3.07, 0, -.93, 0, 19.07, 0, -32.93, 0, -60.93, 0, 103.07, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		res = vec + 3.07
-		self.assertEqual(sz, len(res))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
-			#self.assertEqual(expT[ind],res[ind].category)
+		self.assertAlmostEqualVec(res, expW, expT)
 
 	def test_add_vectorObj1_vectorObj1(self):
 		sz = 25
@@ -739,10 +620,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_add_vectorObj1_vectorObj2(self):
 		sz = 25
@@ -759,10 +638,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_add_vectorObj2_vectorObj2(self):
 		sz = 25
@@ -779,10 +656,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_add_vectorObj1_vectorDint(self):
 		sz = 25
@@ -797,10 +672,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_add_vectorDint_vectorObj2(self):
 		sz = 25
@@ -815,11 +688,9 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 + vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
-
+		self.assertEqualVec(vec3, expI)
+		
 	def test_add_vectorObj1Filt_vectorObj1Filt(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
@@ -827,18 +698,19 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
-		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
 		self.assertEqual(sz, len(vec2))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec3[ind].weight)
+		#for ind in range(sz):
+		#	self.assertEqual(vecExpected[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, vecExpected)
 
 	def test_add_vectorObj1Filt_vectorObj1(self):
 		sz = 25
@@ -847,18 +719,17 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		vec1.addFilter(element.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		# ---- commented----  vec2.addFilter(element.geM2lt4)
+		# ---- commented----  vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
-		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
 		self.assertEqual(sz, len(vec2))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec3[ind].weight)
+		self.assertAlmostEqualVec(vec3, vecExpected)
 
 	def test_add_vectorObj1_vectorObj1Filt(self):
 		sz = 25
@@ -867,18 +738,17 @@ class BuiltInTests(SpVecTests):
 		c1 = [2, 2, 7, 7, 3,  3]
 		element = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-		# ----- commented out--- vec1.addFilter(element.ge0lt5)
+		# ----- commented out--- vec1.addFilter(ge0lt5)
 		i2 = [ 0, 2, 4, 6, 8, 10]
 		v2 = [-3,-1, 0, 1, 2,  5]
 		c2 = [ 2, 2, 7, 7, 3,  3]
 		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-		vec2.addFilter(element.geM2lt4)
+		vec2.addFilter(geM2lt4)
 		vec3 = vec1 + vec2
-		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		self.assertEqual(sz, len(vec1))
 		self.assertEqual(sz, len(vec2))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec3[ind].weight)
+		self.assertAlmostEqualVec(vec3, vecExpected)
 
 	def test_bitwiseAnd_vectorDint_scalarDint(self):
 		sz = 25
@@ -889,11 +759,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 & scalar
 		expI = [0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
-		# self.assertEqual(3,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
-
+		self.assertEqualVec(vec3, expI)
+		
 	def test_bitwiseAnd_vectorDint_vectorDint(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
@@ -905,10 +772,7 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 & vec2
 		expI = [0x1, 0, 0x2, 0, 0x4, 0, 0x8, 0, 0x10, 0, 0x20, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
-		#self.assertEqual(len(i1),vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
+		self.assertEqualVec(vec3, expI)
 
 	def test_bitwiseAnd_vectorObj1_vectorObj2(self):
 		sz = 25
@@ -925,10 +789,8 @@ class BuiltInTests(SpVecTests):
 		vec3 = vec1 & vec2
 		expI = [0x1, 0, 0x2, 0, 0x4, 0, 0x8, 0, 0x10, 0, 0x20, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec3))
 		self.assertEqual(max(len(i1), len(i2)),vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_abs_vectorObj1(self):
 		sz = 25
@@ -938,14 +800,12 @@ class BuiltInTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(element), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
+		self.assertAlmostEqualVec(res, expW)
 
 	def test_iadd_vectorDint_scalarDint(self):
 		sz = 25
@@ -953,11 +813,10 @@ class BuiltInTests(SpVecTests):
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
 		expW = [3.07, 0, -.93, 0, 19.07, 0, -32.93, 0, -60.93, 0, 103.07, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		vec += 3.07
 		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
+		self.assertAlmostEqualVec(vec, expW)
 
 	def test_iadd_vectorObj_scalarDint(self):
 		sz = 25
@@ -967,13 +826,12 @@ class BuiltInTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [3.07, 0, -.93, 0, 19.07, 0, -32.93, 0, -60.93, 0, 103.07, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		vec += 3.07
 		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
+		self.assertAlmostEqualVec(vec, expW)
 
 	def test_iadd_vectorDint_vectorDint(self):
 		sz = 25
@@ -986,21 +844,17 @@ class BuiltInTests(SpVecTests):
 		vec1 += vec2
 		expI = [1, 0, 4, 27, 16, 0, 252, 0, 64, 729, 100, 0, 1728, 0, 0, 3375,
 				0, 0, 5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec1))
 		self.assertEqual(len(i1)+len(i2)-2,vec1.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec1[ind])
+		self.assertEqualVec(vec1, expI)
 
 	def test_invert_vectorDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
-		expW = [-1, 0, 3, 0, -17, 0, 35, 0, 63, 0, -101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expW = [-1, 0, 3, 0, -17, 0, 35, 0, 63, 0, -101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		res = ~vec
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind])
+		self.assertEqualVec(res, expW)
 
 	def test_invert_vectorObj1(self):
 		sz = 25
@@ -1009,24 +863,19 @@ class BuiltInTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		expW = [-1, 0, 3, 0, -17, 0, 35, 0, 63, 0, -101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expW = [-1, 0, 3, 0, -17, 0, 35, 0, 63, 0, -101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		res = ~vec
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
-			#self.assertEqual(expT[ind],res[ind].category)
+		self.assertEqualVec(res, expW)
 
 	def test_sub_vectorDint_scalarDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
-		expW = [-3.07, 0, -7.07, 0, 12.93, 0, -39.07, 0, -67.07, 0, 96.93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expW = [-3.07, 0, -7.07, 0, 12.93, 0, -39.07, 0, -67.07, 0, 96.93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		vec2 = vec - 3.07
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec2[ind])
+		self.assertEqualVec(vec2, expW)
 
 	def test_sub_vectorDint_vectorDint(self):
 		sz = 25
@@ -1042,10 +891,8 @@ class BuiltInTests(SpVecTests):
 		vec2 = self.initializeSpVec(sz, i2, (w2, t2), element=element2)
 		vec3 = vec1 - vec2
 		expI = [-1, 0, 4, -27, 16, 0, -180, 0, 64, -729, 100, 0, -1728, 0, 0, -3375, 0, 0, -5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec1))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expI)
 
 	def test_sub_vectorObj1_scalarDint(self):
 		sz = 25
@@ -1054,13 +901,11 @@ class BuiltInTests(SpVecTests):
 		category = [2, -2, 2, 5, -5, 5]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		expW = [-3.07, 0, -7.07, 0, 12.93, 0, -39.07, 0, -67.07, 0, 96.93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		expW = [-3.07, 0, -7.07, 0, 12.93, 0, -39.07, 0, -67.07, 0, 96.93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
+				 0, 0, 0, 0]
 		vec2 = vec - 3.07
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec2[ind].weight)
+		self.assertEqualVec(vec2, expW, expT)
 
 	def test_sub_vectorObj1_vectorObj1(self):
 		sz = 25
@@ -1076,10 +921,8 @@ class BuiltInTests(SpVecTests):
 		vec2 = self.initializeSpVec(sz, i2, (w2, t2), element=element2)
 		vec3 = vec1 - vec2
 		expW = [-1, 0, 4, -27, 16, 0, -180, 0, 64, -729, 100, 0, -1728, 0, 0, -3375, 0, 0, -5832, 0, 0, 0, 0, 0, 0,]
-		self.assertEqual(sz, len(vec1))
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
-		for ind in range(sz):
-			self.assertEqual(expW[ind], vec3[ind].weight)
+		self.assertEqualVec(vec3, expW)
 
 class BuiltInTests_disabled(SpVecTests):
 	def test_iadd_vectorObj1_vectorObj1(self):
@@ -1709,12 +1552,10 @@ class GeneralPurposeTests(SpVecTests):
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(vec[0]), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind])
+		self.assertEqualVec(res, expW)
 
 	def test_abs_vectorObj1(self):
 		sz = 25
@@ -1724,14 +1565,12 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(element), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
+		self.assertEqualVec(res, expW, expT)
 
 	def test_abs_vectorObj2(self):
 		sz = 25
@@ -1741,14 +1580,12 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, 16, 0, 36, 0, 64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(element), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
+		self.assertEqualVec(res, expW, expT)
 
 	def test_abs_vectorDint_filtered(self):
 		sz = 25
@@ -1759,13 +1596,11 @@ class GeneralPurposeTests(SpVecTests):
 		filter = lambda x: abs(x) >= 0 and abs(x) < 5
 		vec.addFilter(filter)
 		expW = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		res = abs(vec)
 		vec.delFilter(filter)
 		self.assertEqual(type(vec[0]), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind])
+		self.assertEqualVec(res, expW)
 
 	def test_abs_vectorDint_filtered_inplace(self):
 		sz = 25
@@ -1775,13 +1610,11 @@ class GeneralPurposeTests(SpVecTests):
 		filter = lambda x: abs(x) >= 0 and abs(x) < 5
 		vec.addFilter(filter)
 		expW = [0, 4, 4, 0, 16, 0, -36, 0, -64, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		vec.apply(lambda x: abs(x))
 		vec.delFilter(filter)
 		self.assertEqual(type(vec[0]), type(vec[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind])
+		self.assertEqualVec(vec, expW)
 
 	def test_abs_vectorObj1_filtered(self):
 		sz = 25
@@ -1790,14 +1623,12 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		vec.addFilter(Obj1.geM2lt4)
+		vec.addFilter(geM2lt4)
 		expW = [0, 0, 2, 0, 1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(vec[0]), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
+		self.assertEqualVec(res, expW)
 
 	def test_abs_vectorObj2_filtered(self):
 		sz = 25
@@ -1806,14 +1637,12 @@ class GeneralPurposeTests(SpVecTests):
 		category = [2, 2, 2, 2, 2, 2]
 		element = Obj2()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
-		vec.addFilter(Obj2.geM2lt4)
+		vec.addFilter(geM2lt4)
 		expW = [0, 0, 0, 0, 1, 0, 3, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		res = abs(vec)
 		self.assertEqual(type(vec[0]), type(res[0]))
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
+		self.assertEqualVec(res, expW)
 
 	def test_all_vectorDint_all_nonnull_all_true(self):
 		sz = 10
@@ -1884,7 +1713,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = True
 		self.assertEqual(expRes, res)
 
-	def test_all_vectorObj1_no_elem0(self):
+	def disableObjAll_test_all_vectorObj1_no_elem0(self):
 		sz = 6
 		i = [1, 2, 3, 4, 5]
 		weight = [-4, 16, 0, -64, 100]
@@ -1895,7 +1724,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = False
 		self.assertEqual(expRes, res)
 
-	def test_all_vectorObj1_no_elem3(self):
+	def disableObjAll_test_all_vectorObj1_no_elem3(self):
 		sz = 6
 		i = [0, 1, 2, 4, 5]
 		weight = [-1, 1, -4, -64, 100]
@@ -1906,7 +1735,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = True
 		self.assertEqual(expRes, res)
 
-	def test_all_vectorObj1_evens_nonnull_elem2_false(self):
+	def disableObjAll_test_all_vectorObj1_evens_nonnull_elem2_false(self):
 		sz = 6
 		i = [0, 2, 4]
 		weight = [1, 0, -64]
@@ -1917,7 +1746,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = False
 		self.assertEqual(expRes, res)
 
-	def test_any_vectorObj1_all_nonnull_all_true(self):
+	def disableObjAll_test_any_vectorObj1_all_nonnull_all_true(self):
 		sz = 6
 		i = [0, 1, 2, 3, 4, 5]
 		weight = [777, -4, 16, -36, -64, 100]
@@ -1928,7 +1757,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = True
 		self.assertEqual(expRes, res)
 
-	def test_any_vectorObj1_all_nonnull_elem0_false(self):
+	def disableObjAll_test_any_vectorObj1_all_nonnull_elem0_false(self):
 		sz = 6
 		i = [0, 1, 2, 3, 4, 5]
 		weight = [0, -4, 16, -36, -64, 100]
@@ -1939,7 +1768,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = True
 		self.assertEqual(expRes, res)
 
-	def test_any_vectorObj1_all_nonnull_elem3_false(self):
+	def disableObjAll_test_any_vectorObj1_all_nonnull_elem3_false(self):
 		sz = 6
 		i = [0, 1, 2, 3, 4, 5]
 		weight = [1, -4, 16, 0, -64, 100]
@@ -1950,7 +1779,7 @@ class GeneralPurposeTests(SpVecTests):
 		expRes = True
 		self.assertEqual(expRes, res)
 
-	def test_any_vectorObj1_evens_nonnull_elem2_false(self):
+	def disableObjAll_test_any_vectorObj1_evens_nonnull_elem2_false(self):
 		sz = 6
 		i = [0, 2, 4]
 		weight = [1, 0, -64]
@@ -2029,17 +1858,15 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [3.7, 0, 3.7, 0, 3.7, 0, 3.7, 0, 3.7, 0, 3.7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		
 		def f(x):
 			x.weight=k
 			return x
 		vec.apply(f)
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
+		self.assertEqualVec(vec, expW, expT)
 
 	def test_negate_vectorDint(self):
 		#print "\n\n\t\t***in test_negate_dint\n\n"
@@ -2048,11 +1875,9 @@ class GeneralPurposeTests(SpVecTests):
 		weight = [0, -4, 16, -36, -64, 100]
 		vec = self.initializeSpVec(sz, i, weight)
 		expW = [0, 0, 4, 0, -16, 0, 36, 0, 64, 0, -100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		res = -vec
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind])
+		self.assertEqualVec(res, expW)
 
 	def test_negate_vectorObj1(self):
 		sz = 25
@@ -2062,14 +1887,11 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [0, 0, 4, 0, -16, 0, 36, 0, 64, 0, -100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [2, 0, -2, 0, 2, 0, 5, 0, -5, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		res = -vec
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],res[ind].weight)
-			#self.assertEqual(expT[ind],res[ind].category)
+		self.assertEqualVec(res, expW)
 
 	def test_max_vectorObj1_some_nonnull_maxElem0(self):
 		sz = 25
@@ -2145,14 +1967,11 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [-64, 0, -36, 0, -4, 0, 0, 0, 16, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
-		expT = [-5, 0, 5, 0, -2, 0, 2, 0, 2, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0]
+		expT = [-5, 0, 5, 0, -2, 0, 2, 0, 2, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0]
 		vec.sort()
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec[ind].weight)
-			self.assertEqual(expT[ind],vec[ind].category)
+		self.assertEqualVec(vec, expW, expT)
 
 	def test_sorted_vectorObj1(self):
 		sz = 25
@@ -2162,17 +1981,14 @@ class GeneralPurposeTests(SpVecTests):
 		element = Obj1()
 		vec = self.initializeSpVec(sz, i, (weight, category), element=element)
 		expW = [-64, 0, -36, 0, -4, 0, 0, 0, 16, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0]
+				 0, 0, 0, 0, 0]
 		expT = [-5, 0, 5, 0, -2, 0, 2, 0, 2, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
+				 0, 0, 0, 0]
 		expNdx = [8, 0, 6, 0, 2, 0, 0, 0, 4, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0]
+				 0, 0, 0, 0]
 		(vec2, vec3) = vec.sorted()
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertAlmostEqual(expW[ind],vec2[ind].weight)
-			self.assertEqual(expT[ind], vec2[ind].category)
-			self.assertAlmostEqual(expNdx[ind],vec3[ind])
+		self.assertEqualVec(vec2, expW, expT)
+		self.assertEqualVec(vec3, expNdx)
 
 	def disabled_test_topK_vectorDint(self):
 		sz = 25
@@ -2224,6 +2040,7 @@ class MixedDenseSparseVecTests_disabled(SpVecTests):
 		vec3 = vec + vec2
 		expI = [0, -2, 4, 0.1, 8, 777, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0]
+
 		self.assertEqual(sz, len(vec3))
 		# odd behavior here; element 0 in vec1 and element 7 in vec2 become
 		# nulls in vec3 (!)
@@ -2306,10 +2123,8 @@ class ApplyReduceTests(SpVecTests):
 		v = [0, 4, 8,12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		vec.apply(ge0lt5)
-		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec[ind])
+		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.assertEqualVec(vec, vecExpected)
 
 	def test_apply_vectorDint_pcbabs(self):
 		sz = 25
@@ -2317,10 +2132,8 @@ class ApplyReduceTests(SpVecTests):
 		v = [0, 4, -4, 8, -12,16, 20]
 		vec = self.initializeSpVec(sz, i, v)
 		vec.apply(op_abs)
-		vecExpected = [0, 4, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec[ind])
+		vecExpected = [0, 4, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		self.assertEqualVec(vec, vecExpected)
 
 	def test_countvectorDint(self):
 		sz = 25
@@ -2379,9 +2192,7 @@ class ApplyReduceTests_disabled(SpVecTests):
 		vec = self.initializeSpVec(sz, i, v)
 		vec._apply(ge0lt5)
 		vecExpected = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec[ind])
+		self.assertEqualVec(vec, vecExpected)
 
 	def test_apply_vectorDint_pcbabs(self):
 		sz = 25
@@ -2390,9 +2201,7 @@ class ApplyReduceTests_disabled(SpVecTests):
 		vec = self.initializeSpVec(sz, i, v)
 		vec._apply(pcb.abs())
 		vecExpected = [0, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec))
-		for ind in range(sz):
-			self.assertEqual(vecExpected[ind], vec[ind])
+		self.assertEqualVec(vec, vecExpected)
 
 	def test_count_vectorDint(self):
 		sz = 25
@@ -2446,7 +2255,7 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addFilter(element.ge0lt5)
+#		vec.addFilter(ge0lt5)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 9, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2467,8 +2276,8 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addFilter(element.ge0lt5)
-#		vec.addFilter(element.geM2lt4)
+#		vec.addFilter(ge0lt5)
+#		vec.addFilter(geM2lt4)
 #		vec._apply(add3p14)
 #		vecExpected = [-3, 0, 5.14159, 0, 6.14159, 0, 4, 0, 5, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2490,8 +2299,8 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addFilter(element.ge0lt5)
-#		vec.addFilter(element.geM2lt4)
+#		vec.addFilter(ge0lt5)
+#		vec.addFilter(geM2lt4)
 #		vec.delFilter()
 #		vec._apply(add3p14)
 #		vecExpected = [0.14159, 0, 5.14159, 0, 6.14159, 0, 7.14159, 0, 8.14159, 0, 9.14159, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -2513,9 +2322,9 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addFilter(element.ge0lt5)
-#		vec.addFilter(element.geM2lt4)
-#		vec.delFilter(element.geM2lt4)
+#		vec.addFilter(ge0lt5)
+#		vec.addFilter(geM2lt4)
+#		vec.delFilter(geM2lt4)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 9, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2536,9 +2345,9 @@ class FilterTests(SpVecTests):
 #		c = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec = self.initializeSpVec(sz, i, (v,v), element=element)
-#		vec.addFilter(element.ge0lt5)
-#		vec.addFilter(element.geM2lt4)
-#		vec.delFilter(element.ge0lt5)
+#		vec.addFilter(ge0lt5)
+#		vec.addFilter(geM2lt4)
+#		vec.delFilter(ge0lt5)
 #		vec._apply(add5)
 #		vecExpected = [6, 0, 4, 0, 8, 0, 12, 0, 16, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec))
@@ -2552,12 +2361,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		vec1.addFilter(element.ge0lt5)
+#		vec1.addFilter(ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		vec2.addFilter(element.geM2lt4)
+#		vec2.addFilter(geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2572,12 +2381,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		vec1.addFilter(element.ge0lt5)
+#		vec1.addFilter(ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		# ---- commented----  vec2.addFilter(element.geM2lt4)
+#		# ---- commented----  vec2.addFilter(geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [-2, 0, 1, 0, 3, 0, 5, 0, 2, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2592,12 +2401,12 @@ class FilterTests(SpVecTests):
 #		c1 = [2, 2, 7, 7, 3,  3]
 #		element = Obj1()
 #		vec1 = self.initializeSpVec(sz, i1, (v1,v1), element=element)
-#		# ----- commented out--- vec1.addFilter(element.ge0lt5)
+#		# ----- commented out--- vec1.addFilter(ge0lt5)
 #		i2 = [ 0, 2, 4, 6, 8, 10]
 #		v2 = [-3,-1, 0, 1, 2,  5]
 #		c2 = [ 2, 2, 7, 7, 3,  3]
 #		vec2 = self.initializeSpVec(sz, i2, (v2,v2), element=element)
-#		vec2.addFilter(element.geM2lt4)
+#		vec2.addFilter(geM2lt4)
 #		vec3 = vec1._eWiseApply(vec2, Obj1.__iadd__, True, True)
 #		vecExpected = [1, 0, 1, 0, 3, 0, 5, 0, 7, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 #		self.assertEqual(sz, len(vec1))
@@ -2623,34 +2432,28 @@ class FilterTests(SpVecTests):
 		vec1.applyInd(set_ind_indpInd)
 		expW = [0, 0, 2.02, 0, 4.04, 0, 6.06, 0, 8.08, 0, 10.10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		expC = [0, 0, 2, 0, 4, 0, 6, 0, 8, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec1))
-		for ind in range(sz):
-			self.assertEqual(expW[ind], vec1[ind].weight)
-			self.assertEqual(expC[ind], vec1[ind].category)
+		self.assertAlmostEqualVec(vec1, expW, expC)
 
 	def test_applyInd_vectorDintFilt(self):
 		def set_ind_indpInd(x,y):
-				# x is the Obj1 instance;  y is the index of the element
-				if isinstance(x, (int, long, float)):
-						return y
-				else:
-						x.weight = y + y/100
-						x.category = int(y)
-						return x
+			# x is the Obj1 instance;  y is the index of the element
+			if isinstance(x, (int, long, float)):
+				return y
+			else:
+				x.weight = y + y/100
+				x.category = int(y)
+				return x
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [1, 4, 8,12,16, 20]
 		c1 = [2, 2, 7, 7, 3,  3]
 		element1 = Obj1()
 		vec1 = self.initializeSpVec(sz, i1, (w1,c1), element=element1)
-		vec1.addFilter(element1.ge0lt5)
+		vec1.addFilter(ge0lt5)
 		vec1.applyInd(set_ind_indpInd)
 		expW = [0, 0, 2.02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		expC = [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-		self.assertEqual(sz, len(vec1))
-		for ind in range(sz):
-			self.assertEqual(expW[ind], vec1[ind].weight)
-			self.assertEqual(expC[ind], vec1[ind].category)
+		self.assertAlmostEqualVec(vec1, expW, expC)
 
 
 def runTests(verbosity = 1):
@@ -2658,7 +2461,6 @@ def runTests(verbosity = 1):
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 	print "running again using filtered data:"
-	
 	SpVecTests.fillVec = SpVecTests.fillVecFilter
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 

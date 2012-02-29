@@ -552,10 +552,12 @@ class Mat:
 			raise KeyError, "no filters previously created"
 		if filter is None:
 			del self._filter_	# remove all filters
+			self.deMaterializeFilter()
 		else:
 			self._filter_.remove(filter)
 			if len(self._filter_) == 0:
 				del self._filter_
+				self.deMaterializeFilter()
 		
 		self._dirty()
 		return
@@ -565,10 +567,14 @@ class Mat:
 		self._materialized = 1
 		# do the materialization
 		self._dirty()
+	
+	def deMaterializeFilter(self):
+		if self._hasMaterializedFilter():
+			del self._materialized
 
 	def _hasFilter(self):
 		try:
-			ret = (hasattr(self,'_filter_') and len(self._filter_)>0) # ToDo:  
+			ret = (hasattr(self,'_filter_') and len(self._filter_)>0)
 		except AttributeError:
 			ret = False
 		return ret

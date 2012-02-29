@@ -277,7 +277,7 @@ class Vec(object):
 				# not found in a sparse vector
 				ret = None
 			
-			if self._hasFilter() and not FilterHelper.getFilterPred(self)(ret):
+			if ret is not None and self._hasFilter() and not FilterHelper.getFilterPred(self)(ret):
 				if self.isSparse():
 					ret = None
 				else:
