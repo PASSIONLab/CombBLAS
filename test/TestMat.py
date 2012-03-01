@@ -212,14 +212,20 @@ class LinearAlgebraTests(MatTests):
 		#vec2 = G.SpMV(vec, sr_plustimes)
 		vec2 = G.SpMV(vec, sr((lambda x,y: x+y),(lambda x,y: x*y)))
 		
+		expV = [4,    10,    16,    11]
+
 		p("\n=================\n")
+		p("matrix:")
 		p(G)
+		p("vector:")
 		p(vec)
 		vec._v_.printall()
+		p("\nresult vector:")
 		p(vec2)
 		vec2._v_.printall()
+		p("\nexpected result:")
+		p(expV)
 		p("\n=================\n")
-		expV = [4,    10,    16,    11]
 
 		self.assertEqual(4, len(vec2))
 		for ind in range(4):
