@@ -231,6 +231,9 @@ private:
 	friend FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
 
+	template <typename VT, typename IU, typename UDER>	// NoSR version (in BFSFriends.h)
+	friend FullyDistSpVec<IU,VT>  SpMV (const SpParMat<IU,bool,UDER> & A, const FullyDistSpVec<IU,VT> & x, bool indexisvalue, OptBuf<int32_t, VT > & optbuf);
+
 	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
 

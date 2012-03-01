@@ -624,42 +624,8 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 
 }
 
-
-/**
-  * This is essentially a SpMV for BFS because it lacks the semiring.
-  * It naturally justs selects columns of A (adjacencies of frontier) and 
-  * merges with the minimum entry succeeding. SpParMat has to be boolean
-  *
-template <typename IU, typename UDER>
-FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV 
-	(const SpParMat<IU,bool,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue, OptBuf<int32_t, typename promote_trait<bool,IU>::T_promote > & optbuf)
-{
-	typedef typename promote_trait<bool,IU>::T_promote T_promote;
-	CheckSpMVCompliance(A,x);
-
-	MPI::Intracomm World = x.commGrid->GetWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
-
-	int accnz;
-	IU trxlocnz, lenuntil;
-	int32_t *trxinds, *indacc;
-	IU *trxnums, *numacc;
-	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);			// trxinds (and potentially trxnums) is allocated
-	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
-	
-	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
-	int rowneighs = RowWorld.Get_size();
-	int * sendcnt = new int[rowneighs]();	
-	int32_t * sendindbuf;	
-	T_promote * sendnumbuf;
-	int * sdispls;
-	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
-}
- **/
-
 /** 
-  * This version is the most flexible sparse matrix X sparse vector
+  * This version is the most flexible sparse matrix X sparse vector [Used in KDT]
   * It accepts different types for the matrix (NUM), the input vector (IVT) and the output vector (OVT)
   * without relying on automatic type promotion
   * Input (x) and output (y) vectors can be ALIASED because y is not written until the algorithm is done with x.
@@ -688,36 +654,6 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	OVT * sendnumbuf;
 	int * sdispls;
 	LocalSpMV<SR>(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
-	
-	/* Skeleton:
-	 if(optbuf.totmax > 0)	// graph500 optimization enabled
-	 { 
-	 if(A.spSeq->getnsplit() > 0) // multithreading enabled
-	 {
-	 if(indexisvalue)
-	 {
-	 
-	 }
-	 else
-	 {
-	 
-	 }
-	 }
-	 }
-	 else
-	 {
-	 if(A.spSeq->getnsplit() > 0) // multithreading enabled
-	 {
-	 if(indexisvalue)
-	 {
-	 
-	 }
-	 else
-	 {
-	 
-	 }
-	 }
-	 }*/
 	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];

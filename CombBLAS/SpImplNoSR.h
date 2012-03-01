@@ -32,33 +32,53 @@
 template <class IT, class NT>
 class Dcsc;
 
-template <class IT, class NUM, class IVT, class OVT>
+template <class IT, class NUM, class VT>
 struct SpImplNoSR;
 
 //! Version without the Semiring (for BFS)
-template <class IT, class NUM, class IVT, class OVT>
-void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-			 int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
+template <class IT, class NUM, class VT>
+void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+			 int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
 {
-	SpImplNoSR<IT,NUM,IVT,OVT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
+	SpImplNoSR<IT,NUM,VT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
+};
+
+template <class IT, class NUM, class VT>
+void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+		vector<int32_t> & indy, vector< VT > & numy, int32_t offset)
+{
+	SpImplNoSR<IT,NUM,VT>::SpMXSpV_ForThreading(Adcsc, mA, indx, numx, veclen, indy, numy, offset);	// don't touch this
 };
 
 
-template <class IT, class NUM, class IVT, class OVT>
+
+template <class IT, class NUM, class VT>
 struct SpImplNoSR
 {
-	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
+	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
 	{
 		cout << "SpMXSpV (without a semiring) is only reserved for boolean matrices" << endl;
-	}
+	};
+
+	static void SpMXSpV_ForThreading(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<VT> & numy, int32_t offset)
+	{
+		cout << "SpMXSpV (without a semiring) is only reserved for boolean matrices" << endl;
+	};
 };
 
-template <class IT, class IVT, class OVT>
-struct SpImplNoSR<IT,bool, IVT,OVT>	// specialization
+
+//! Dcsc and vector index types do not need to match
+//! However, input and output vector numerical types should be identical
+template <class IT, class VT>
+struct SpImplNoSR<IT,bool, VT>	// specialization
 {
-	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-						int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c);
+	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c);
+
+	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<VT> & numy, int32_t offset);
 };
 
 
@@ -71,13 +91,13 @@ struct SpImplNoSR<IT,bool, IVT,OVT>	// specialization
  * Hence, Semiring operations are not needed (no add or multiply)
  * Also allows the vector's indices to be different than matrix's (for transition only) \TODO: Disable?
  **/
-template <typename IT, typename IVT, typename OVT>
-void SpImplNoSR<IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
-										   int32_t * indy, OVT * numy, int * cnts, int * dspls, int p_c)
+template <typename IT, typename VT>
+void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
 {   
 	bool * isthere = new bool[mA];
 	fill(isthere, isthere+mA, false);
-	vector< vector< pair<int32_t,IVT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	vector< vector< pair<int32_t,VT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
 	
 	int32_t perproc = mA / p_c;	
 	int32_t k = 0; 	// index to indx vector
@@ -112,10 +132,60 @@ void SpImplNoSR<IT,bool,IVT,OVT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t m
 		for(int i=0; i< cnts[p]; ++i)
 		{
 			indy[dspls[p]+i] = nzinds_vals[p][i].first - offset;	// convert to local offset
-			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	// implicit type conversion happens here (if needed: IVT -> OVT)
+			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	
 		}
 	}
 	delete [] isthere;
 }
+
+
+// BFS only version without any semiring parameters 
+template <typename IT, typename VT>
+void SpImplNoSR<IT,bool,VT>::SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
+			vector<int32_t> & indy, vector<VT> & numy, int32_t offset)
+{   
+	VT * localy = new VT[mA];
+	bool * isthere = new bool[mA];
+	fill(isthere, isthere+mA, false);
+	vector<int32_t> nzinds;	// nonzero indices		
+
+	// The following piece of code is not general, but it's more memory efficient than FillColInds
+	int32_t k = 0; 	// index to indx vector
+	IT i = 0; 	// index to columns of matrix
+	while(i< Adcsc.nzc && k < veclen)
+	{
+		if(Adcsc.jc[i] < indx[k]) ++i;
+		else if(indx[k] < Adcsc.jc[i]) ++k;
+		else
+		{
+			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
+			{
+				int32_t rowid = (int32_t) Adcsc.ir[j];
+				if(!isthere[rowid])
+				{
+					localy[rowid] = numx[k];	// initial assignment
+					nzinds.push_back(rowid);
+					isthere[rowid] = true;
+				}
+				// skip existing entries
+			}
+			++i;
+			++k;
+		}
+	}
+
+	sort(nzinds.begin(), nzinds.end());
+	int nnzy = nzinds.size();
+	indy.resize(nnzy);
+	numy.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		indy[i] = nzinds[i] + offset;	// return column-global index and let gespmv determine the receiver's local index
+		numy[i] = localy[nzinds[i]]; 	
+	}
+	delete [] localy;
+	delete [] isthere;
+}
+
 
 #endif
