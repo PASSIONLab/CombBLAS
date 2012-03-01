@@ -12,7 +12,11 @@ class MatTests(unittest.TestCase):
 		if type(v) == int or type(v) == float:
 			vInd = Vec(nedge, v, sparse=False)
 		else:
-			vInd = Vec(nedge, sparse=False)
+			if len(v) == 0:
+				element = 0.0
+			else:
+				element = v[0]
+			vInd = Vec(nedge, element=element, sparse=False)
 		for ind in range(nedge):
 			iInd[ind] = i[ind]
 			jInd[ind] = j[ind]
@@ -74,7 +78,7 @@ class MatTests(unittest.TestCase):
 		self.assertEqual(G.ncol(), G.nrow())
 		exp = self.initializeMat(G.ncol(), len(expI), expI, expJ, expV, allowFilter=False)
 		self.assertEqual(G.nnn(), exp.nnn())
-		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=equalityCheck)
+		comp = G.eWiseApply(exp, (lambda x,y: G._identity_), doOp=equalityCheck)
 		self.assertEqual(comp.nnn(), G.nnn())
 
 	def assertAlmostEqualMat(self, G, expI, expJ, expV):
@@ -91,7 +95,7 @@ class MatTests(unittest.TestCase):
 	@staticmethod
 	def addFilteredElements(M):
 		if M.isObj():
-			print "NF" # make it known that the test wasn't done due to no object filters
+			print "N" # make it known that the test wasn't done due to no object filters
 			return M
 		
 		filteredValues = [-8000.1, 8000.1, 33, 66, -55]
@@ -731,6 +735,29 @@ class LoadTests(MatTests):
 		expectedV = [1,2,3,5.5,5.5,2,1,2]
 
 		self.assertEqualMat(M, expectedI, expectedJ, expectedV)
+
+	def test_save_load_small_mtx(self):
+		origI = [1,0,2,  1,  3,1,3,2]
+		origJ = [0,1,1,  2,  1,3,2,3]
+		origV = [1,2,3,5.5,5.5,2,1,2]
+		M = self.initializeMat(4, len(origI), origI, origJ, origV)
+		M.save("tempsave.mtx")
+		M2 = Mat.load("tempsave.mtx", element=0.0)
+		self.assertEqualMat(M2, origI, origJ, origV)
+
+	def test_save_load_small_mtx_Obj1(self):
+		origI = [1,0,2,  1,  3,1,3,2]
+		origJ = [0,1,1,  2,  1,3,2,3]
+		origV = [1,2,3,5.5,5.5,2,1,2]
+		for i in range(len(origV)):
+			o = Obj1()
+			o.weight = origV[i]
+			origV[i] = o
+		
+		M = self.initializeMat(4, len(origI), origI, origJ, origV)
+		M.save("tempsave.mtx")
+		M2 = Mat.load("tempsave.mtx", element=Obj1())
+		self.assertEqualMat(M2, origI, origJ, origV)
 
 class ApplyReduceTests(MatTests):
 	pass
