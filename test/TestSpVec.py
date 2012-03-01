@@ -87,23 +87,23 @@ class SpVecTests(unittest.TestCase):
 			elif isinstance(element, Obj2):
 				val = pcb.Obj2()
 				if type(v) == tuple:
-					val.weight = v[0][ind]
-					val.category = v[1][ind]
+					val.latest = v[0][ind]
+					val.count = v[1][ind]
 				else:
 					val.latest = v
 					val.count = v
 				ret[i[ind]] = val
 
 				# make sure we don't filter out actual values
-				if filteredValues.count(val.weight) > 0:
-					filteredValues.remove(val.weight)
+				if filteredValues.count(val.latest) > 0:
+					filteredValues.remove(val.latest)
 		# make sure we don't override existing elements
 		if len(filteredInds) == 0:
 			if ret.nnn() == len(ret):
 				# the test uses a completely full vector, so skip filtering
 				return
 			else:
-				# fix the test so at least one filtered value gets added
+				# if this fails then fix the test so at least one filtered value gets added
 				self.assertTrue(len(filteredInds) > 0)
 		# add extra elements
 		for ind in range(len(filteredInds)):

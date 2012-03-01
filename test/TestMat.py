@@ -784,23 +784,10 @@ def runTests(verbosity = 1):
 
 def suite():
 	suite = unittest.TestSuite()
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PageRankTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NormalizeEdgeWeightsTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(DegreeTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CentralityTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BFSTreeTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(IsBFSTreeTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(NeighborsTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PathsHopTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ReductionTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
-	##suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ContractTests))
-	##suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(EdgeStatTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SemanticGraphTests))
-	#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ConnCompTests))
 	return suite
 
 if __name__ == '__main__':
