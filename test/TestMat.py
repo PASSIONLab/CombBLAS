@@ -57,7 +57,17 @@ class MatTests(unittest.TestCase):
 		ret = MatTests.addFilterStuff(ret, MatTests.testFilter, MatTests.testMaterializingFilter)
 		return ret
 
-	def assertEqualMat(self, G, expI, expJ, expV):
+	def assertEqualMat(self, G, expI, expJ, expV, equalityCheck=None):
+		if equalityCheck is None:
+			#(lambda x,y: x == y)
+			def EQ(x,y):
+				if x == y:
+					return True
+				else:
+					print "element",x,"!=",y
+					return False
+			equalityCheck = EQ
+
 		self.assertEqual(len(expI), G.nnn())
 		self.assertEqual(len(expJ), G.nnn())
 		self.assertEqual(len(expV), G.nnn())
@@ -65,8 +75,19 @@ class MatTests(unittest.TestCase):
 		self.assertEqual(G.ncol(), G.nrow())
 		exp = self.initializeMat(G.ncol(), len(expI), expI, expJ, expV, allowFilter=False)
 		self.assertEqual(G.nnn(), exp.nnn())
-		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=(lambda x,y: x == y))
+		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=equalityCheck)
 		self.assertEqual(comp.nnn(), G.nnn())
+
+	def assertAlmostEqualMat(self, G, expI, expJ, expV):
+		def almostEQ(x, y):
+			diff = x-y
+			if abs(diff) < 1E-4:
+				return True
+			else:
+				print "element",x,"!=",y
+				return False
+
+		self.assertEqualMat(G, expI, expJ, expV, almostEQ)
 
 	@staticmethod
 	def addFilteredElements(M):
@@ -120,19 +141,10 @@ class LinearAlgebraTests(MatTests):
 		G2 = self.initializeMat(nvert2, nedge2, origI2, origJ2, origV2)
 		G3 = G1.SpGEMM(G2, sr_plustimes)
 		self.assertEqual(G1.ncol(), G3.ncol())
-		[i3, j3, v3] = G3.toVec()
-		expLen = 1
-		self.assertEqual(len(i3),expLen)
-		self.assertEqual(len(j3),expLen)
-		self.assertEqual(len(v3),expLen)
 		expectedI = [0]
 		expectedJ = [0]
 		expectedV = [4]
-
-		for ind in range(len(expectedI)):
-				self.assertEqual(i3[ind], expectedI[ind])
-				self.assertEqual(j3[ind], expectedJ[ind])
-				self.assertEqual(v3[ind], expectedV[ind])
+		self.assertEqualMat(G3, expectedI, expectedJ, expectedV)
 
 	def disabled_test_matMul_simple(self):
 		G = self.loadMat('testfiles/small_nonsym_fp.mtx')
@@ -197,8 +209,16 @@ class LinearAlgebraTests(MatTests):
 		vec = Vec(4, sparse=True)
 		vec[1] = 2
 		vec[3] = 5
-		vec2 = G.SpMV(vec, sr_plustimes)
+		#vec2 = G.SpMV(vec, sr_plustimes)
+		vec2 = G.SpMV(vec, sr((lambda x,y: x+y),(lambda x,y: x*y)))
 		
+		p("\n=================\n")
+		p(G)
+		p(vec)
+		vec._v_.printall()
+		p(vec2)
+		vec2._v_.printall()
+		p("\n=================\n")
 		expV = [4,    10,    16,    11]
 
 		self.assertEqual(4, len(vec2))
@@ -383,14 +403,7 @@ class BuiltInMethodTests(MatTests):
 		G1 = self.initializeMat(nvert, nedge, origI, origJ, origV1)
 		G2 = self.initializeMat(nvert, nedge, origI, origJ, origV2)
 		G3 = G1+G2
-		[actualI, actualJ, actualV] = G3.toVec()
-		self.assertEqual(len(origI), len(actualI))
-		self.assertEqual(len(origJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(origI)):
-				self.assertEqual(origI[ind], actualI[ind])
-				self.assertEqual(origJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_add_union_trivial(self):
 		# ensure that Mat addition creates the number, source/
@@ -502,14 +515,7 @@ class BuiltInMethodTests(MatTests):
 				1.6e+10, -17, 87, -18, 68, -78]
 		G1 = self.initializeMat(nvert, nedge, origI, origJ, origV1)
 		G3 = -G1
-		[actualI, actualJ, actualV] = G3.toVec()
-		self.assertEqual(len(origI), len(actualI))
-		self.assertEqual(len(origJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(origI)):
-				self.assertEqual(origI[ind], actualI[ind])
-				self.assertEqual(origJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_mul_simple(self):
 		# ensure that Mat multiplication creates the number, source/
@@ -528,14 +534,7 @@ class BuiltInMethodTests(MatTests):
 		G1 = self.initializeMat(nvert, nedge, origI, origJ, origV1)
 		G2 = self.initializeMat(nvert, nedge, origI, origJ, origV2)
 		G3 = G1*G2
-		[actualI, actualJ, actualV] = G3.toVec()
-		self.assertEqual(len(origI), len(actualI))
-		self.assertEqual(len(origJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(origI)):
-				self.assertEqual(origI[ind], actualI[ind])
-				self.assertEqual(origJ[ind], actualJ[ind])
-				self.assertAlmostEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_mul_intersection(self):
 		# ensure that Mat multiplication creates the number, source/
@@ -559,19 +558,12 @@ class BuiltInMethodTests(MatTests):
 		# AL: the test expects matlab-like behavior, i.e. that zeros are not present.
 		# let's use filters to ensure that's true.
 		G3.addFilter(lambda x: x != 0)
-		[actualI, actualJ, actualV] = G3.toVec()
 		expNvert = 9
 		expNedge = 6
 		expI = [4, 5, 3, 3, 8, 0]
 		expJ = [1, 2, 3, 4, 6, 8]
 		expV = [1681, 2704, 1089, 1156, 59.29, 64]
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertAlmostEqual(expV[ind], actualV[ind])
+		self.assertAlmostEqualMat(G3, expI, expJ, expV)
 
 	def test_imul_intersection(self):
 		# ensure that Mat multiplication creates the number, source/
@@ -595,19 +587,12 @@ class BuiltInMethodTests(MatTests):
 		# AL: the test expects matlab-like behavior, i.e. that zeros are not present.
 		# let's use filters to ensure that's true.
 		G1.addFilter(lambda x: x != 0)
-		[actualI, actualJ, actualV] = G1.toVec()
 		expNvert = 9
 		expNedge = 6
 		expI = [4, 5, 3, 3, 8, 0]
 		expJ = [1, 2, 3, 4, 6, 8]
 		expV = [1681, 2704, 1089, 1156, 59.29, 64]
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertAlmostEqual(expV[ind], actualV[ind])
+		self.assertAlmostEqualMat(G1, expI, expJ, expV)
 
 	def test_div_simple(self):
 		# ensure that Mat addition creates the number, source/
@@ -627,14 +612,7 @@ class BuiltInMethodTests(MatTests):
 		G1 = self.initializeMat(nvert, nedge, origI, origJ, origV1)
 		G2 = self.initializeMat(nvert, nedge, origI, origJ, origV2)
 		G3 = G1/G2
-		[actualI, actualJ, actualV] = G3.toVec()
-		self.assertEqual(len(origI), len(actualI))
-		self.assertEqual(len(origJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(origI)):
-				self.assertEqual(origI[ind], actualI[ind])
-				self.assertEqual(origJ[ind], actualJ[ind])
-				self.assertAlmostEqual(expV[ind], actualV[ind])
+		self.assertAlmostEqualMat(G3, origI, origJ, expV)
 
 	def disabled_test_indexing_simple_scalar_scalar(self):
 		# ensure that a simple Mat constructor creates the number, source/
@@ -648,17 +626,10 @@ class BuiltInMethodTests(MatTests):
 		G = self.initializeMat(nvert, nedge, origI, origJ, origV)
 		ndx = 2
 		G2 = G[ndx,ndx]
-		[actualI, actualJ, actualV] = G2.toVec()
 		expI = [0]
 		expJ = [0]
 		expV = [21]
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def disabled_test_indexing_simple_scalar_null(self):
 		# ensure that a simple Mat constructor creates the number, source/
@@ -672,17 +643,10 @@ class BuiltInMethodTests(MatTests):
 		G = self.initializeMat(nvert, nedge, origI, origJ, origV)
 		ndx = 2
 		G2 = G[ndx,ndx]
-		[actualI, actualJ, actualV] = G2.toVec()
 		expI = []
 		expJ = []
 		expV = []
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclen1_scalar(self):
 		# ensure that a simple Mat constructor creates the number, source/
@@ -697,17 +661,10 @@ class BuiltInMethodTests(MatTests):
 		ndx = Vec(1, sparse=False)
 		ndx[0] = 2
 		G2 = G[ndx,ndx]
-		[actualI, actualJ, actualV] = G2.toVec()
 		expI = [0]
 		expJ = [0]
 		expV = [21]
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclen1_null(self):
 		# ensure that a simple Mat constructor creates the number, source/
@@ -722,17 +679,10 @@ class BuiltInMethodTests(MatTests):
 		ndx = Vec(1, sparse=False)
 		ndx[0] = 2
 		G2 = G[ndx,ndx]
-		[actualI, actualJ, actualV] = G2.toVec()
 		expI = []
 		expJ = []
 		expV = []
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclenk(self):
 		# ensure that a simple Mat constructor creates the number, source/
@@ -749,17 +699,10 @@ class BuiltInMethodTests(MatTests):
 		ndx[1] = 3
 		ndx[2] = 4
 		G2 = G[ndx,ndx]
-		[actualI, actualJ, actualV] = G2.toVec()
 		expI = [1, 0, 2, 1]
 		expJ = [0, 1, 1, 2]
 		expV = [32, 23, 43, 34]
-		self.assertEqual(len(expI), len(actualI))
-		self.assertEqual(len(expJ), len(actualJ))
-		self.assertEqual(len(expV), len(actualV))
-		for ind in range(len(expI)):
-				self.assertEqual(expI[ind], actualI[ind])
-				self.assertEqual(expJ[ind], actualJ[ind])
-				self.assertEqual(expV[ind], actualV[ind])
+		self.assertEqualMat(G2, expI, expJ, expV)
 
 
 class ApplyReduceTests(MatTests):
@@ -770,13 +713,13 @@ def runTests(verbosity = 1):
 	testSuite = suite()
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	print "running again using filtered data (on-the-fly):"
-	MatTests.testFilter = True
-	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	#print "running again using filtered data (on-the-fly):"
+	#MatTests.testFilter = True
+	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	print "running again using filtered data (materializing):"
-	MatTests.testMaterializingFilter = True
-	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	#print "running again using filtered data (materializing):"
+	#MatTests.testMaterializingFilter = True
+	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
 	suite = unittest.TestSuite()
