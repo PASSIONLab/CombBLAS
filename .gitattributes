@@ -2120,6 +2120,7 @@ kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
 /python-mpi -text
 /setup.py -text
+test/TestDiGraph.py -text
 test/TestKDT.py -text
 test/TestMat.py -text
 test/TestSpVec.py -text
