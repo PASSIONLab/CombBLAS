@@ -216,6 +216,11 @@ def revision():
 def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
 	return pcb.SemiringObj(addFn, mulFn, leftFilter, rightFilter)
 
+NONE = 0
+INFO = 1
+DEBUG = 2
+verbosity = NONE
+
 ####
 #
 # KDT-level wrapping of fast functions which only work on floating point values.
