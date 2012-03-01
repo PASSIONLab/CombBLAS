@@ -412,23 +412,11 @@ class LoadTests(DiGraphTests):
 		G = DiGraph.load('testfiles/small_nonsym_fp.mtx')
 		self.assertEqual(G.nvert(),9)
 		self.assertEqual(G.nedge(),19)
-		[i, j, v] = G.e.toVec()
-		self.assertEqual(len(i),19)
-		self.assertEqual(len(j),19)
-		self.assertEqual(len(v),19)
-		#expectedI = [1, 0, 2, 3, 1, 3, 1, 2, 4, 3, 1, 1, 8, 1, 8, 1, 6, 7]
-		#expectedJ = [0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 5, 6, 6, 7, 7, 8, 8, 8]
-		#expectedV = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
-		#				0.02, 0.01, 0.01, 1.6e+10, 0.01, 0.01, 0.01, 0.01, 0.01]
 		expectedI = [1,0,2,3,5,5,6,7,8,1,3,1,2,4,3,8,8,6,7]
 		expectedJ = [0,1,1,1,1,1,1,1,1,2,2,3,3,3,4,6,7,8,8]
 		expectedV = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,1.6e+10,0.01]
 
-
-		for ind in range(len(i)):
-			self.assertEqual(i[ind], expectedI[ind])
-			self.assertEqual(j[ind], expectedJ[ind])
-			self.assertEqual(v[ind], expectedV[ind])
+		self.assertEqualMat(G.e, expectedI, expectedJ, expectedV)
 
 	def test_load_bad_file(self):
 		self.assertRaises(IOError, DiGraph.load, 'not_a_real_file.mtx')
