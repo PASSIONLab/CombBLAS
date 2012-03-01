@@ -59,7 +59,6 @@ class MatTests(unittest.TestCase):
 
 	def assertEqualMat(self, G, expI, expJ, expV, equalityCheck=None):
 		if equalityCheck is None:
-			#(lambda x,y: x == y)
 			def EQ(x,y):
 				if x == y:
 					return True
