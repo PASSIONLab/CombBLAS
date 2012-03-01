@@ -208,23 +208,23 @@ class LinearAlgebraTests(MatTests):
 		vec = Vec(4, sparse=True)
 		vec[1] = 2
 		vec[3] = 5
-		#vec2 = G.SpMV(vec, sr_plustimes)
-		vec2 = G.SpMV(vec, sr((lambda x,y: x+y),(lambda x,y: x*y)))
+		vec2 = G.SpMV(vec, sr_plustimes)
 		
 		expV = [4,    10,    16,    11]
 
-		p("\n=================\n")
-		p("matrix:")
-		p(G)
-		p("vector:")
-		p(vec)
-		vec._v_.printall()
-		p("\nresult vector:")
-		p(vec2)
-		vec2._v_.printall()
-		p("\nexpected result:")
-		p(expV)
-		p("\n=================\n")
+		self.assertEqual(4, len(vec2))
+		for ind in range(4):
+			self.assertEqual(expV[ind], vec2[ind])
+
+	def test_SpMV_simple_sparse_custSemiring(self):
+		G = self.loadMat('testfiles/small.mtx')
+		vec = Vec(4, sparse=True)
+		vec[1] = 2
+		vec[3] = 5
+
+		vec2 = G.SpMV(vec, sr((lambda x,y: x+y),(lambda x,y: x*y)))
+		
+		expV = [4,    10,    16,    11]
 
 		self.assertEqual(4, len(vec2))
 		for ind in range(4):
@@ -709,6 +709,28 @@ class BuiltInMethodTests(MatTests):
 		expV = [32, 23, 43, 34]
 		self.assertEqualMat(G2, expI, expJ, expV)
 
+class LoadTests(MatTests):
+	def test_load_small_nonsym_fp_mtx(self):
+		M = Mat.load('testfiles/small_nonsym_fp.mtx')
+		self.assertEqual(M.nrow(),9)
+		self.assertEqual(M.ncol(),9)
+		self.assertEqual(M.nnn(),19)
+		expectedI = [1,0,2,3,5,5,6,7,8,1,3,1,2,4,3,8,8,6,7]
+		expectedJ = [0,1,1,1,1,1,1,1,1,2,2,3,3,3,4,6,7,8,8]
+		expectedV = [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,1.6e+10,0.01]
+
+		self.assertEqualMat(M, expectedI, expectedJ, expectedV)
+
+	def test_load_small_mtx(self):
+		M = Mat.load('testfiles/small.mtx')
+		self.assertEqual(M.nrow(),4)
+		self.assertEqual(M.ncol(),4)
+		self.assertEqual(M.nnn(),8)
+		expectedI = [1,0,2,  1,  3,1,3,2]
+		expectedJ = [0,1,1,  2,  1,3,2,3]
+		expectedV = [1,2,3,5.5,5.5,2,1,2]
+
+		self.assertEqualMat(M, expectedI, expectedJ, expectedV)
 
 class ApplyReduceTests(MatTests):
 	pass
@@ -718,13 +740,13 @@ def runTests(verbosity = 1):
 	testSuite = suite()
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	#print "running again using filtered data (on-the-fly):"
-	#MatTests.testFilter = True
-	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	print "running again using filtered data (on-the-fly):"
+	MatTests.testFilter = True
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	#print "running again using filtered data (materializing):"
-	#MatTests.testMaterializingFilter = True
-	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	print "running again using filtered data (materializing):"
+	MatTests.testMaterializingFilter = True
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
 	suite = unittest.TestSuite()
@@ -732,6 +754,7 @@ def suite():
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LoadTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests)) # empty
 	
 	return suite
