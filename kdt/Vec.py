@@ -606,7 +606,12 @@ class Vec(object):
 			if isinstance(value,Vec):
 				pass
 			elif type(value) == float or type(value) == long or type(value) == int:
-				value = Vec(len(key),value)
+				if key.isDense():
+					value = Vec(len(key), element=value, sparse=False)
+				else:
+					valV = Vec(len(key), sparse=True)
+					valV.eWiseApply(key, lambda v,k: value, allowANulls=True, inPlace=True)
+					value = valV
 			else:
 				raise KeyError, 'Unknown value type'
 				
@@ -623,46 +628,6 @@ class Vec(object):
 			raise KeyError, 'Unknown key type'
 		return
 		
-		# old
-		if isinstance(key, (float, int, long)):
-			if key < 0 or key > len(self)-1:
-				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
-			self._v_[key] = value
-		elif isinstance(key,Vec) and key.isDense():
-			if not key.isBool():
-				raise KeyError, 'only Boolean Vec indexing of Vecs supported'
-			if isinstance(value,Vec):
-				pass
-			elif type(value) == float or type(value) == long or type(value) == int:
-				value = Vec(len(key),value)
-			else:
-				raise KeyError, 'Unknown value type'
-			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
-				raise IndexError, 'Key and Value must be same length as Vec'
-			self._v_[key.sparse()._v_] = value.sparse()._v_
-		elif isinstance(key,Vec) and key.isSparse():
-			#FIX:  get isBool() working
-			#if key.isBool():
-			#	raise KeyError, 'Boolean SpVec indexing of SpParVecs not supported'
-			if isinstance(value,Vec):
-				value = value.dense()
-			elif type(value) == float or type(value) == long or type(value) == int:
-				tmp = value
-				value = key.copy()
-				value.set(tmp)
-				value = value.dense()
-			else:
-				raise KeyError, 'Unknown value type'
-			#key = key.toDeVec()
-			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
-				raise IndexError, 'Key and Value must be same length as Vec'
-			self._v_[key._v_] = value._v_
-		elif type(key) == str and key == 'nonnull':
-			self.apply(op_set(value))
-		else:
-			raise KeyError, 'Unknown key type'
-		return
-
 ################################
 #### Filter management
 ################################

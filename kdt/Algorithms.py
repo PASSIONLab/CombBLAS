@@ -46,10 +46,6 @@ def bfsTree(self, root, useOldFunc=False):
 
 	SEE ALSO: isBfsTree 
 	"""
-	#ToDo:  doesn't handle filters on a doubleint DiGraph
-	if not self.isObj() and self._hasFilter(self):
-		raise NotImplementedError, 'DiGraph(element=default) with filters not supported'
-
 	#mulFn = lambda x,y: y
 	#addFn = lambda x,y: y
 	#sR = sr(addFn, mulFn)
@@ -243,7 +239,10 @@ def neighbors(self, source, nhop=1):
 	frontier = Vec(self.nvert(), sparse=True)
 	frontier[source] = 1
 	for i in range(nhop):
+		frontier.spRange()
 		self.e.SpMV(frontier, semiring=sr_select2nd, inPlace=True)
+		# remove already discovered vertices from the frontier.
+		frontier.eWiseApply(dest, op=(lambda f,p: f), doOp=(lambda f,p: p == 0), inPlace=True)
 		dest[frontier] = 1
 
 	return dest
@@ -254,9 +253,6 @@ DiGraph.neighbors = neighbors
 #   - source:  a vector of the source vertex for each new vertex
 #   - dest:  a Boolean vector of the new vertices
 #ToDo:  nhop argument?
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
-# NEEDED: tests
 def pathsHop(self, source, sym=False):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
@@ -267,7 +263,7 @@ def pathsHop(self, source, sym=False):
 
 	Input Arguments:
 		self:  a DiGraph instance
-		source:  a Boolean Vec with True (1) in the positions
+		source:  a Boolean Vec of length nverts with True (1) in the positions
 			of the starting vertices.  
 
 	Output Arguments:
@@ -291,7 +287,6 @@ def pathsHop(self, source, sym=False):
 	return ret
 DiGraph.pathsHop = pathsHop
 
-# NEEDED: tests
 def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	"""
 	Normalize the outward edge weights of each vertex such
@@ -306,9 +301,6 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	self.e.scale(degscale, op=op_mul, dir=dir)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 
-# NEEDED: make sure normalization is done correctly
-# NEEDED: update to new fields
-# NEEDED: tests
 def pageRank(self, epsilon = 0.1, dampingFactor = 0.85, iterations=1000000):
 	"""
 	Compute the PageRank of vertices in the graph.
@@ -384,9 +376,6 @@ def pageRank(self, epsilon = 0.1, dampingFactor = 0.85, iterations=1000000):
 	return v1.dense()
 DiGraph.pageRank = pageRank
 	
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
-# NEEDED: tests
 def centrality(self, alg, **kwargs):
 	"""
 	calculates the centrality of each vertex in the DiGraph instance,
@@ -424,9 +413,6 @@ def centrality(self, alg, **kwargs):
 	return cent
 DiGraph.centrality = centrality
 
-# NEEDED: update to transposed edge matrix
-# NEEDED: update to new fields
-# NEEDED: tests
 def _centrality_approxBC(self, sample=0.05, normalize=True, nProcs=pcb._nprocs(), memFract=0.1, BCdebug=0, batchSize=-1, retNVerts=False):
 	"""
 	calculates the approximate or exact (with sample=1.0) betweenness
@@ -747,6 +733,7 @@ def _cluster_agglomerative(self, roots):
 	build len(roots) clusters. Each vertex in the graph is added
 	to the cluster closest to it. "closest" means shortest path.
 	"""
+	raise NotImplementedError, "broken."
 	A = self.e.copy()
 	
 	t = A.copy()

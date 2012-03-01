@@ -74,9 +74,6 @@ class MatTests(unittest.TestCase):
 			print "NF" # make it known that the test wasn't done due to no object filters
 			return M
 		
-		if M.count(Mat.All, lambda x: x == 0) > 0:
-			raise NotImplementedError, "the original matrix contains a 0, adding filtered elements will be flawed"
-			
 		filteredValues = [-8000.1, 8000.1, 33, 66, -55]
 		
 		# remove elements that already exist in the matrix
@@ -95,19 +92,10 @@ class MatTests(unittest.TestCase):
 			offset += 1
 		
 			F = Mat(rows, cols, v, M.ncol(), M.nrow())
-			def MoveFunc(m, f):
-				if m != 0:
-					return m
-				else:
-					return f
-			M.eWiseApply(F, op=MoveFunc, allowANulls=True, allowBNulls=True, inPlace=True)
-			
 			# prune out the intersection between F and M
-			#Fp = F.eWiseApply(M, op=(lambda f, m: f), allowANulls=False, allowBNulls=False, inPlace=False)
-			#F.eWiseApply(Fp, op=(lambda f, p: f), allowANulls=False, allowBNulls=True, inPlace=True)
-			#print F
-			#M += F
-		
+			F.eWiseApply(M, op=lambda f,m: f, allowANulls=False, allowBNulls=True, allowIntersect=False, inPlace=True)
+			M += F
+					
 		# add the filter that filters out the added nodes
 		if M.isObj():
 			M.addFilter(lambda e: filteredValues.count(e.weight) == 0)
@@ -774,6 +762,9 @@ class BuiltInMethodTests(MatTests):
 				self.assertEqual(expV[ind], actualV[ind])
 
 
+class ApplyReduceTests(MatTests):
+	pass
+
 
 def runTests(verbosity = 1):
 	testSuite = suite()
@@ -793,6 +784,8 @@ def suite():
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(BuiltInMethodTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(GeneralPurposeTests))
 	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LinearAlgebraTests))
+	suite.addTests(unittest.TestLoader().loadTestsFromTestCase(ApplyReduceTests)) # empty
+	
 	return suite
 
 if __name__ == '__main__':
