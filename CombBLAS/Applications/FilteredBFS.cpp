@@ -12,6 +12,8 @@
 	#endif
 	#include <omp.h>
 #endif
+#include <Profile/Profiler.h>
+
 
 // These macros should be defined before stdint.h is included
 #ifndef __STDC_CONSTANT_MACROS
@@ -52,6 +54,10 @@ void Symmetricize(PARMAT & A)
 
 int main(int argc, char* argv[])
 {
+	TAU_PROFILE_TIMER(maintimer, "main()", "int (int, char **)", TAU_DEFAULT);
+    	TAU_PROFILE_INIT(argc, argv);
+    	TAU_PROFILE_START(maintimer);
+
 	MPI::Init(argc, argv);
 	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
@@ -310,6 +316,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(os.str());
 		}
 	}
+    	TAU_PROFILE_STOP(maintimer);
 	MPI::Finalize();
 	return 0;
 }

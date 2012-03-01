@@ -1,7 +1,3 @@
-INCDIR = $(HOME)
-INCADD = -I$(INCDIR)
-#LIBDIR = -L/home/aydin/localinstall/openmpi_exceptions_1.4.3/lib/
-
 # notes for configure:
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
@@ -10,9 +6,18 @@ OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx
-FLAGS = $(OPT) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
 COMBBLAS = ..
 
+TAUROOTDIR = $(HOME)/tau-install
+include $(TAUROOTDIR)/include/Makefile
+
+INCADD = $(TAU_INCLUDE)
+
+FLAGS = $(DEB) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
+
+CFLAGS	= $(TAU_DEFS) $(TAU_MPI_INCLUDE) $(FLAGS)
+LIBDIR	= $(TAU_MPI_LIBS) $(TAU_LIBS) -lm
+LDFLAGS	= $(CFLAGS) $(TAU_LDFLAGS) $(FLAGS)
 
 #
 # build Graph500 generator
@@ -21,7 +26,7 @@ $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp $(LIBDIR)
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp
 
 MPIType.o:	../MPIType.cpp ../MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o ../MPIType.cpp $(LIBDIR)
@@ -39,10 +44,10 @@ APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o APowers.o APowers.cpp $(LIBDIR)
 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp $(LIBDIR)
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
 FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp $(LIBDIR)
+	$(COMPILER) $(INCADD) $(CFLAGS) -c -o FilteredBFS.o FilteredBFS.cpp $(LIBDIR)
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
@@ -51,10 +56,10 @@ apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
 
 graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LIBDIR)
+	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LIBDIR)
+	$(COMPILER) $(INCADD) $(LDFLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LIBDIR)
 
 SpMMError.o:	SpMMError.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpMMError.o SpMMError.cpp $(LIBDIR)
