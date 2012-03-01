@@ -2,7 +2,8 @@ import unittest
 from kdt import *
 
 class MatTests(unittest.TestCase):
-	def fillMat(self, nvert, nedge, i, j, v):
+	@staticmethod
+	def fillMat(nvert, nedge, i, j, v):
 		"""
 		Initialize a graph with edge weights equal to one or the input value.
 		"""
@@ -31,7 +32,11 @@ class MatTests(unittest.TestCase):
 	testFilter = False
 	testMaterializingFilter = False
 	def initializeMat(self, nvert, nedge, i, j, v=1, allowFilter=True):
-		ret = self.fillMat(nvert, nedge, i, j, v)
+		return MatTests.initializeMat(nvert, nedge, i, j, v, allowFilter)
+		
+	@staticmethod
+	def initializeMat(nvert, nedge, i, j, v=1, allowFilter=True):
+		ret = MatTests.fillMat(nvert, nedge, i, j, v)
 		
 		ret = MatTests.addFilterStuff(ret, (MatTests.testFilter and allowFilter), MatTests.testMaterializingFilter)
 		return ret

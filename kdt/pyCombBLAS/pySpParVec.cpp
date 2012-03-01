@@ -285,8 +285,7 @@ void pySpParVec::__setitem__(const pyDenseParVec& key, const pyDenseParVec& valu
 */
 	if (__len__() != key.__len__())
 	{
-		cout << "Vector and Key different lengths" << endl;
-		// throw
+		throw string("Vector and Key different lengths");
 	}
 	EWiseMult_inplacefirst(*this, key, 1, 0);
 	*this += value;

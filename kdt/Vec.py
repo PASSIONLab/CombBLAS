@@ -599,7 +599,33 @@ class Vec(object):
 		have a different number of nonzeros from the key and value. 
 		"""
 		if isinstance(key, (float, int, long)):
-			if key > len(self)-1:
+			if key < 0 or key > len(self)-1:
+				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
+			self._v_[key] = value
+		elif isinstance(key,Vec):
+			if isinstance(value,Vec):
+				pass
+			elif type(value) == float or type(value) == long or type(value) == int:
+				value = Vec(len(key),value)
+			else:
+				raise KeyError, 'Unknown value type'
+				
+			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
+				raise IndexError, 'Key and Value must be same length as Vec'
+			
+			if self.isDense():
+				self._v_[key.sparse()._v_] = value.sparse()._v_
+			else:
+				self._v_[key.dense()._v_] = value.dense()._v_
+		elif type(key) == str and key == 'nonnull':
+			self.apply(op_set(value))
+		else:
+			raise KeyError, 'Unknown key type'
+		return
+		
+		# old
+		if isinstance(key, (float, int, long)):
+			if key < 0 or key > len(self)-1:
 				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
 			self._v_[key] = value
 		elif isinstance(key,Vec) and key.isDense():
@@ -619,22 +645,20 @@ class Vec(object):
 			#if key.isBool():
 			#	raise KeyError, 'Boolean SpVec indexing of SpParVecs not supported'
 			if isinstance(value,Vec):
-				pass
-			elif isinstance(value,SpVec):
-				value = value.toDeVec()
+				value = value.dense()
 			elif type(value) == float or type(value) == long or type(value) == int:
 				tmp = value
 				value = key.copy()
 				value.set(tmp)
-				value = value.toDeVec()
+				value = value.dense()
 			else:
 				raise KeyError, 'Unknown value type'
 			#key = key.toDeVec()
 			if len(self._v_) != len(key._v_) or len(self._v_) != len(value._v_):
-				raise IndexError, 'Key and Value must be same length as SpVec'
+				raise IndexError, 'Key and Value must be same length as Vec'
 			self._v_[key._v_] = value._v_
 		elif type(key) == str and key == 'nonnull':
-			self.apply(pcb.set(value))
+			self.apply(op_set(value))
 		else:
 			raise KeyError, 'Unknown key type'
 		return

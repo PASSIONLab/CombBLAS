@@ -210,7 +210,6 @@ def isBfsTree(self, root, parents, sym=False):
 DiGraph.isBfsTree = isBfsTree
 
 # returns a Boolean vector of which vertices are neighbors
-# NEEDED: tests
 def neighbors(self, source, nhop=1):
 	"""
 	calculates, for the given DiGraph instance and starting vertices,
@@ -241,10 +240,10 @@ def neighbors(self, source, nhop=1):
 	"""
 
 	dest = Vec(self.nvert(), element=0.0, sparse=False)
-	frontier = SpParVec(self.nvert(), sparse=True)
+	frontier = Vec(self.nvert(), sparse=True)
 	frontier[source] = 1
 	for i in range(nhop):
-		self.e.SpMV(frontier, sr=sr_select2nd, inPlace=True)
+		self.e.SpMV(frontier, semiring=sr_select2nd, inPlace=True)
 		dest[frontier] = 1
 
 	return dest
@@ -282,10 +281,10 @@ def pathsHop(self, source, sym=False):
 	SEE ALSO:  neighbors
 	"""
 
-	ret = Vec(self2.nvert(), element=-1, sparse=False)
+	ret = Vec(self.nvert(), element=-1, sparse=False)
 	frontier = source.find()
 	frontier.spRange()
-	self.e.SpMV(frontier, sr=sr_select2nd, inPlace=True)
+	self.e.SpMV(frontier, semiring=sr_select2nd, inPlace=True)
 
 	ret[frontier] = frontier
 
