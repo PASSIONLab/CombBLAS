@@ -688,15 +688,19 @@ class Mat:
 			return
 
 		if not self._eWiseIgnoreMaterializedFilter:
-			if self._hasMaterializedFilter() and inPlace:
-				raise ValueError, "Materialized filters are read-only."
-
 			if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
-				return self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace)
-			if not self._hasMaterializedFilter() and other._hasMaterializedFilter():
-				return self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
-			if self._hasMaterializedFilter() and other._hasMaterializedFilter():
-				return self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace)
+				ret = self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+			elif not self._hasMaterializedFilter() and other._hasMaterializedFilter():
+				ret = self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+			elif self._hasMaterializedFilter() and other._hasMaterializedFilter():
+				ret = self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+			else:
+				ret = False
+			
+			if ret is not False:
+				if inPlace:
+					self._copyBackMaterialized()
+				return ret
 		# else:
 		#   ignoring materialized filters is used for copying data back from the materialized filter to the main Mat data structure
 
@@ -1119,8 +1123,11 @@ class Mat:
 			self:  a Mat instance, modified in-place.
 
 		"""
-		self._m_.removeSelfLoops()
-		self._dirty()
+		#self._m_.removeSelfLoops()
+		#self._dirty()
+		
+		diagonal = Mat.eye(n=self.nrow(), m=self.ncol())
+		self.eWiseApply(diagonal, op=(lambda s,d: s), allowANulls=False, allowBNulls=True, allowIntersect=False, inPlace=True)
 
 	
 	def sum(self, dir=Column):
