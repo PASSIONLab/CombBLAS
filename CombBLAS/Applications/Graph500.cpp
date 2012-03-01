@@ -434,7 +434,7 @@ int main(int argc, char* argv[])
 					fringe.setNumToInd();
 					//fringe.PrintInfo("fringe before SpMV");
 
-					fringe = SpMV<SR>(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
+					fringe = SpMV(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
 					// fringe.PrintInfo("fringe after SpMV");
 					
 					// ABAB: Below is the generalized EWiseApply way, semantically identical to EWiseMult (tested)

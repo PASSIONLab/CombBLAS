@@ -13,7 +13,7 @@ include $(TAUROOTDIR)/include/Makefile
 
 INCADD = $(TAU_INCLUDE)
 
-FLAGS = $(DEB) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
+FLAGS = $(OPT) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp #-w -openmp #-DTIMING
 
 CFLAGS	= $(TAU_DEFS) $(TAU_MPI_INCLUDE) $(FLAGS)
 LIBDIR	= $(TAU_MPI_LIBS) $(TAU_LIBS) -lm
