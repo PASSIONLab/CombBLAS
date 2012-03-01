@@ -420,8 +420,15 @@ class Mat:
 
 		SEE ALSO:  load, UFget
 		"""
-		self._m_.save(fname)
-		return
+		if self._hasMaterializedFilter():
+			self._materialized.save(fname)
+			return
+
+		if self._hasFilter():
+			mat = self.copy()
+			mat._m_.save(fname)
+		else:
+			self._m_.save(fname)
 
 ###########################
 ### Generators

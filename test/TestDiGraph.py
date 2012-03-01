@@ -71,7 +71,7 @@ class DiGraphTests(unittest.TestCase):
 		self.assertEqual(G.ncol(), G.nrow())
 		exp = MatTests.initializeMat(G.ncol(), len(expI), expI, expJ, expV, allowFilter=False)
 		self.assertEqual(G.nnn(), exp.nnn())
-		comp = G.eWiseApply(exp, (lambda x,y: 1), doOp=equalityCheck)
+		comp = G.eWiseApply(exp, (lambda x,y: G._identity_), doOp=equalityCheck)
 		self.assertEqual(comp.nnn(), G.nnn())
 	
 	def assertEqualGraph(self, G, expI, expJ, expV):
