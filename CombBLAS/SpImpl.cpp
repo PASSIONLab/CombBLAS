@@ -31,28 +31,29 @@
 /**
  * Base template version [full use of the semiring add() and multiply()]
  * @param[in] indx { vector that practically keeps column numbers requested from A }
+ *
+ * Base template version [full use of the semiring add() and multiply()]
+ * @param[in] indx { vector that practically keeps column numbers requested from A }
+ *
+ * Roughly how the below function works:
+ * Let's say our sparse vector has entries at 3, 7 and 9.
+ * FillColInds() creates a vector of pairs that contain the
+ * start and end indices (into matrix.ir and matrix.numx arrays).
+ * pair.first is the start index, pair.second is the end index.
+ *
+ * Here's how we merge these adjacencies of 3,7 and 9:
+ * We keep a heap of size 3 and push the first entries in adj{3}, adj{7}, adj{9} onto the heap wset.
+ * That happens in the first for loop.
+ *
+ * Then as we pop from the heap we push the next entry from the previously popped adjacency (i.e. matrix column).
+ * The heap ensures the output comes out sorted without using a SPA.
+ * that's why indy.back() == wset[hsize-1].key is enough to ensure proper merging.
  **/
 template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector< OVT > & numy)
 {
 	HeapEntry<IT, NUM> * wset = new HeapEntry<IT, NUM>[veclen]; 
-	
-/*
-Roughly how the below function works:
-Let's say our sparse vector has entries at 3, 7 and 9.
-FillColInds() creates a vector of pairs that contain the
-start and end indices (into matrix.ir and matrix.numx arrays).
-pair.first is the start index, pair.second is the end index.
-
-Here's how we merge these adjacencies of 3,7 and 9:
-We keep a heap of size 3 and push the first entries in adj{3}, adj{7}, adj{9} onto the heap wset.
-That happens in the first for loop.
-
-Then as we pop from the heap we push the next entry from the previously popped adjacency (i.e. matrix column).
-The heap ensures the output comes out sorted without using a SPA.
-that's why indy.back() == wset[hsize-1].key is enough to ensure proper merging.
-*/
 
 	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds( (IT) veclen);		

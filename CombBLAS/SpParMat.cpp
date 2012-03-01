@@ -514,7 +514,6 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 				
 				for(int k=0; k< maxreducecalls; ++k)
 				{
-					SpParHelper::Print("Reduce call\n");
 					vector<typename DER::SpColIter::NzIter> nziters;
 					typename DER::SpColIter curfinger = begfinger; 
 					for(; curfinger != spSeq->endcol() && nziters.size() < MAXCOLUMNBATCH ; ++curfinger)	
@@ -1957,6 +1956,11 @@ template <class IT, class NT, class DER>
 template <class HANDLER>
 void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose)
 {
+#ifdef TAU_PROFILE
+   	TAU_PROFILE_TIMER(rdtimer, "ReadDistribute", "void SpParMat::ReadDistribute (const string & , int, bool, HANDLER, bool)", TAU_DEFAULT);
+   	TAU_PROFILE_START(rdtimer);
+#endif
+
 	ifstream infile;
 	FILE * binfile;	// points to "past header" if the file is binary
 	HeaderInfo hfile = ParseHeader(filename, binfile);
@@ -2071,11 +2075,12 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			{	
 				int colrec;
 				size_t commonindex;
+				stringstream linestream;
 				if( (!hfile.headerexists) && (!infile.eof()))
 				{
 					// read one line at a time so that missing numerical values can be detected
 					infile.getline(line, 1024);
-					stringstream linestream(line);
+					linestream << line;
 					linestream >> temprow >> tempcol;
 					if (!nonum)
 					{
@@ -2088,30 +2093,31 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 					--tempcol;
 					ntrow = temprow;
 					ntcol = tempcol;
-
-					colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
-					commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
-					
-					rows[ commonindex ] = temprow;
-					cols[ commonindex ] = tempcol;
-					vals[ commonindex ] = nonumline ? handler.getNoNum(ntrow, ntcol) : handler.read(linestream, ntrow, ntcol); //tempval;
 				}
 				else if(hfile.headerexists && (!feof(binfile)) ) 
 				{
 					handler.binaryfill(binfile, temprow , tempcol, tempval);
-
-					colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
-					commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
-
-					rows[ commonindex ] = temprow;
-					cols[ commonindex ] = tempcol;
-					vals[ commonindex ] = tempval;
 				}
-				if(transpose)
+				if (transpose)
 				{
-					IT swap = rows[ commonindex ];
-					rows[ commonindex ] = cols[ commonindex ];
-					cols[ commonindex ] = swap;
+					IT swap = temprow;
+					temprow = tempcol;
+					tempcol = swap;
+				}
+
+				colrec = std::min(static_cast<int>(temprow / m_perproc), colneighs-1);	// precipient processor along the column
+				commonindex = colrec * buffpercolneigh + ccurptrs[colrec];
+					
+				rows[ commonindex ] = temprow;
+				cols[ commonindex ] = tempcol;
+				
+				if( (!hfile.headerexists) && (!infile.eof()))
+				{
+					vals[ commonindex ] = nonumline ? handler.getNoNum(ntrow, ntcol) : handler.read(linestream, ntrow, ntcol); //tempval;
+				}
+				else if(hfile.headerexists && (!feof(binfile)) ) 
+				{
+					vals[ commonindex ] = tempval;
 				}
 
 				++ (ccurptrs[colrec]);				
@@ -2320,9 +2326,14 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 	DeleteAll(cdispls, rdispls);
 	tuple<IT,IT,NT> * arrtuples = new tuple<IT,IT,NT>[localtuples.size()];  // the vector will go out of scope, make it stick !
 	copy(localtuples.begin(), localtuples.end(), arrtuples);
+
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
 	spSeq->Create( localtuples.size(), localm, localn, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
+
+#ifdef TAU_PROFILE
+   	TAU_PROFILE_STOP(rdtimer);
+#endif
 	return;
 }
 

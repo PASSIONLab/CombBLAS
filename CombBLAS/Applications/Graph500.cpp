@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 		if(myrank == 0)
 		{
 			cout << "Usage: ./Graph500 <Auto,Force,Input> <Available RAM in MB (per core) | Scale Forced | Input Name>" << endl;
-			cout << "Example: ./Graph500 Auto 1024" << endl;
+			cout << "Example: ./Graph500 Force 25 FastGen" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 		if(string(argv[1]) == string("Input")) // input option
 		{
 			A.ReadDistribute(string(argv[2]), 0);	// read it from file
-			SpParHelper::Print("Read input");
+			SpParHelper::Print("Read input\n");
 
 			PSpMat_Int64 * G = new PSpMat_Int64(A); 
 			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// identity is 0 
@@ -136,6 +136,8 @@ int main(int argc, char* argv[])
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 			A = A(nonisov, nonisov);
+			Aeff = PSpMat_s32p64(A);
+			A.FreeMemory();
 		}
 		else if(string(argv[1]) == string("Binary"))
 		{
@@ -350,7 +352,7 @@ int main(int argc, char* argv[])
 			Symmetricize(Aeff);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 
-	                //Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
+	                Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		#ifdef THREADED	
 			ostringstream tinfo;
 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
