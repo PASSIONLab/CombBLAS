@@ -784,6 +784,10 @@ class Mat:
 		if key1._hasFilter():
 			key1 = key0.copy();
 		
+		# CombBLAS SubsRef only takes dense vectors
+		key0 = key0.dense()
+		key1 = key1.dense()
+		
 		if inPlace:
 			self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self)))
 			self._dirty()

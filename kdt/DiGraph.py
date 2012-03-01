@@ -300,7 +300,6 @@ class DiGraph(gr.Graph):
 		verts = mask.findInds(lambda x: x == 1)
 		return verts
 
-	# NEEDED: tests
 	def copy(self, element=None):
 		"""
 		creates a deep copy of a DiGraph instance.
@@ -311,45 +310,7 @@ class DiGraph(gr.Graph):
 		Output Argument:
 			ret:  a DiGraph instance containing a copy of the input.
 		"""
-		ret = DiGraph()
-		ret.e = self.e.copy()
-		if hasattr(self,'_eFilter_'):
-			if type(self.nvert()) is tuple:
-				raise NotImplementedError, 'only square DiGraphs for now'
-			class tmpU:
-				_eFilter_ = self._eFilter_
-				@staticmethod
-				def fn(x):
-					for i in range(len(tmpU._eFilter_)):
-						if not tmpU._eFilter_[i](x):
-							return type(self._identity_)()
-					return x
-			tmpInstance = tmpU()
-			ret.e.Apply(pcb.unaryObj(tmpInstance.fn))
-			ret.e.Prune(pcb.unaryObjPred(lambda x: x.prune()))
-		if element is not None and type(self.e._identity_) is not type(element):
-			if not isinstance(element, (float, int, long)):
-				# because EWiseApply(pySpParMat,pySpParMatObj)
-				#   applies only where the first argument has
-				#   non-nulls;  the only way I know to avoid
-				#   is to use the result of 
-				#   pySpParMat(pySpParMatObj), which
-				#   only works for converting to doubleints
-				raise NotImplementedError, 'can only convert to long for now'
-			tmp = DiGraph(None,None,None,self.nvert(),element=element)
-			# FIX: remove following 2 lines when EWiseApply works 
-			#   as noted above 
-			tmpMat = pcb.pySpParMat(self.e)
-			tmp.e = tmpMat
-			def func(x, y): 
-				#ToDo:  assumes that at least x or y is an ObjX
-				if isinstance(x,(float,int,long)):
-					ret = y.coerce(x, False)
-				else:
-					ret = x.coerce(y, True)
-				return ret
-			tmp2 = tmp.eWiseApply(ret, func, True, True)
-			ret.e = tmp2
+		ret = DiGraph(edges=self.e.copy(), vertices=self.v.copy())
 		return ret
 
 	def degree(self, dir=Out):
