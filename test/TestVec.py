@@ -1841,7 +1841,7 @@ class MixedDenseSparseVecTests(VecTests):
 		self.assertEqual(sz, len(vec3))
 		#self.assertEqual(len(i)+len(i2)-1, vec3.nnn())
 		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
+			self.assertAlmostEqual(expI[ind], vec3[ind])
 
 	def test_subtract_sparse_dense(self):
 		sz = 25
@@ -1892,7 +1892,7 @@ class MixedDenseSparseVecTests(VecTests):
 		self.assertEqual(sz, len(vec3))
 		#self.assertEqual(len(i)+len(i2)-1, vec3.nnn())
 		for ind in range(sz):
-			self.assertEqual(expI[ind], vec3[ind])
+			self.assertAlmostEqual(expI[ind], vec3[ind])
 
 class FindTests(VecTests):
 	def test_find(self):
