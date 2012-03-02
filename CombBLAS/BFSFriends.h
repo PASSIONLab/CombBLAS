@@ -10,6 +10,7 @@
 #include "OptBuf.h"
 #include "ParFriends.h"
 #include "SpImplNoSR.h"
+#include <parallel/algorithm>
 
 using namespace std;
 
@@ -162,8 +163,11 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 		}
 		else
 		{
-		//	call something else?
-		//	dcsc_gespmv (*(A.spSeq), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs, indexisvalue);
+			// by-pass dcsc_gespmv call
+			if(A.getlocalnnz() > 0 && accnz > 0)
+			{
+				SpMXSpV(*((A.spSeq)->GetDCSC()), (int32_t) A.getlocalrows(), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+			}
 		}
 		DeleteAll(indacc,numacc);
 	}
@@ -173,6 +177,90 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 	}
 }
 
+
+template <typename IU, typename VT>
+void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs)
+{
+	// free memory of y, in case it was aliased
+	vector<IU>().swap(y.ind);
+	vector<VT>().swap(y.num);
+	
+#ifndef HEAPMERGE
+	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
+	bool * isthere = new bool[ysize];
+	vector< pair<IU,VT> > ts_pairs;	
+	fill_n(isthere, ysize, false);
+
+	// We don't need to keep a "merger" because minimum will always come from the processor
+	// with the smallest rank; so a linear sweep over the received buffer is enough	
+	for(int i=0; i<rowneighs; ++i)
+	{
+		for(int j=0; j< recvcnt[i]; ++j) 
+		{
+			int32_t index = recvindbuf[rdispls[i] + j];
+			if(!isthere[index])
+				ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
+			
+		}
+	}
+	DeleteAll(recvcnt, rdispls);
+	DeleteAll(isthere, recvindbuf, recvnumbuf);
+	__gnu_parallel::sort(ts_pairs.begin(), ts_pairs.end());
+	int nnzy = ts_pairs.size();
+	y.ind.resize(nnzy);
+	y.num.resize(nnzy);
+	for(int i=0; i< nnzy; ++i)
+	{
+		y.ind[i] = ts_pairs[i].first;
+		y.num[i] = ts_pairs[i].second; 	
+	}
+
+#else
+	// Alternative 2: Heap-merge
+	int32_t hsize = 0;		
+	int32_t inf = numeric_limits<int32_t>::min();
+	int32_t sup = numeric_limits<int32_t>::max(); 
+	KNHeap< int32_t, int32_t > sHeap(sup, inf); 
+	int * processed = new int[rowneighs]();
+	for(int i=0; i<rowneighs; ++i)
+	{
+		if(recvcnt[i] > 0)
+		{
+			// key, proc_id
+			sHeap.insert(recvindbuf[rdispls[i]], i);
+			++hsize;
+		}
+	}	
+	int32_t key, locv;
+	if(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		y.ind.push_back( static_cast<IU>(key));
+		y.num.push_back(recvnumbuf[rdispls[locv]]);	// nothing is processed yet
+		
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+			else
+				--hsize;
+	}
+	while(hsize > 0)
+	{
+		sHeap.deleteMin(&key, &locv);
+		IU deref = rdispls[locv] + processed[locv];
+		if(y.ind.back() != static_cast<IU>(key))	// y.ind is surely not empty
+		{
+			y.ind.push_back(static_cast<IU>(key));
+			y.num.push_back(recvnumbuf[deref]);
+		}
+		
+		if( (++(processed[locv])) < recvcnt[locv] )
+			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
+			else
+				--hsize;
+	}
+	DeleteAll(recvcnt, rdispls,processed);
+#endif
+}	
 
 /**
   * This is essentially a SpMV for BFS because it lacks the semiring.
@@ -240,9 +328,8 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	cblas_alltoalltime += (t3-t2);
 #endif
 
-	//MergeContributions<SR>(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+	MergeContributions(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
 	return y;	
-	
 }
 
 #endif

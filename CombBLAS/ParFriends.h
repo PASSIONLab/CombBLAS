@@ -534,41 +534,34 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 	vector<OVT>().swap(y.num);
 	
 #ifndef HEAPMERGE
-	// Alternative 1: SPA-like data structure
-	DeleteAll(recvcnt, rdispls);
 	IU ysize = y.MyLocLength();	// my local length is only O(n/p)
-	OVT * localy = new OVT[ysize];
 	bool * isthere = new bool[ysize];
-	vector<IU> nzinds;	// nonzero indices		
+	vector< pair<IU,OVT> > ts_pairs;	
 	fill_n(isthere, ysize, false);
-	
-	for(int i=0; i< totrecv; ++i)
+
+	// We don't need to keep a "merger" because minimum will always come from the processor
+	// with the smallest rank; so a linear sweep over the received buffer is enough	
+	for(int i=0; i<rowneighs; ++i)
 	{
-		int32_t topush = recvindbuf[i];
-		if(!isthere[topush])
+		for(int j=0; j< recvcnt[i]; ++j) 
 		{
-			localy[topush] = recvnumbuf[i];	// initial assignment
-			nzinds.push_back(topush);
-			isthere[topush] = true;
-		} 
-		else
-		{
-			localy[topush] = SR::add(localy[topush], recvnumbuf[i]);	
+			int32_t index = recvindbuf[rdispls[i] + j];
+			if(!isthere[index])
+				ts_pairs.push_back(make_pair(index, recvnumbuf[rdispls[i] + j]));
+			
 		}
 	}
+	DeleteAll(recvcnt, rdispls);
 	DeleteAll(isthere, recvindbuf, recvnumbuf);
-	sort(nzinds.begin(), nzinds.end());
-	copy(nzinds.begin(), nzinds.end(), ostream_iterator<IU>(cout, " ")); cout << endl;
-	int nnzy = nzinds.size();
+	sort(ts_pairs.begin(), ts_pairs.end());
+	int nnzy = ts_pairs.size();
 	y.ind.resize(nnzy);
 	y.num.resize(nnzy);
 	for(int i=0; i< nnzy; ++i)
 	{
-		y.ind[i] = nzinds[i];
-		y.num[i] = localy[nzinds[i]]; 	
+		y.ind[i] = ts_pairs[i].first;
+		y.num[i] = ts_pairs[i].second; 	
 	}
-	delete [] localy;
-	
 #else
 	// Alternative 2: Heap-merge
 	int32_t hsize = 0;		

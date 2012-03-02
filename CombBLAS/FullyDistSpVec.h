@@ -258,6 +258,9 @@ private:
 	//! Helper functions for sparse matrix X sparse vector
 	template <typename SR, typename IU, typename OVT>
 	friend void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, OVT * & recvnumbuf, int rowneighs);
+
+	template <typename IU, typename VT>
+	friend void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs);
 	
 	template<typename IU, typename NV>
 	friend void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue);
