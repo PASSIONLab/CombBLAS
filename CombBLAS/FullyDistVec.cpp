@@ -582,7 +582,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 			{
 				for(IT i=0; (unsigned)i < arr.size(); ++i)
 				{
-					if (i < *otherInd)
+					if (otherInd == other.ind.end() || i < *otherInd)
 					{
 						if (_do_op(arr[i], nullValue, false, true))
 							arr[i] = __binary_op(arr[i], nullValue, false, true);
