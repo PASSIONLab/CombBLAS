@@ -1428,7 +1428,7 @@ class Vec(object):
 			     sorted.
 		"""
 		if self._hasFilter():
-			raise NotImplementedError, "filtered sort"
+			raise NotImplementedError, "filtered sort not implemented"
 			
 		return Vec._toVec(self._v_.Sort())
 
@@ -1451,6 +1451,9 @@ class Vec(object):
 
 		See Also:  sort
 		"""
+		if self._hasFilter():
+			raise NotImplementedError, "filtered sort not implemented"
+
 		ret1 = self.copy();
 		ret2 = ret1.sort()
 		return (ret1, ret2)
