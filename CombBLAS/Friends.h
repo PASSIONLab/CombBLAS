@@ -957,6 +957,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 		{
 			// Based on the if statement below which handles A null values.
 			j++;
+			IU prevnz = curnz;		
 			temp.jc[curnzc++] = B.jc[j-1];
 			for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 			{
@@ -966,7 +967,8 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 					temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 				}
 			}
-			temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+			//temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+			temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 		}
 		temp.Resize(curnzc, curnz);
 		return temp;
@@ -990,6 +992,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 		while(i< A.nzc)
 		{
 			i++;
+			IU prevnz = curnz;		
 			temp.jc[curnzc++] = A.jc[i-1];
 			for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
 			{
@@ -999,7 +1002,8 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 					temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal, false, true);
 				}
 			}
-			temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+			//temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+			temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 		}
 		temp.Resize(curnzc, curnz);
 		return temp;
@@ -1025,6 +1029,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			j++;
 			if (allowANulls)
 			{
+				IU prevnz = curnz;		
 				temp.jc[curnzc++] = B.jc[j-1];
 				for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 				{
@@ -1034,7 +1039,8 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 						temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 					}
 				}
-				temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+				//temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+				temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 			}
 		}
 		else if(A.jc[i] < B.jc[j])
@@ -1042,6 +1048,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 			i++;
 			if (allowBNulls)
 			{
+				IU prevnz = curnz;		
 				temp.jc[curnzc++] = A.jc[i-1];
 				for(IU k = A.cp[i-1]; k< A.cp[i]; k++)
 				{
@@ -1051,7 +1058,8 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 						temp.numx[curnz++] 	= __binary_op(A.numx[k], BNullVal, false, true);
 					}
 				}
-				temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+				//temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+				temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 			}
 		}
 		else
@@ -1123,6 +1131,7 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 	}
 	while(allowBNulls && i< A.nzc) // remaining A elements after B ran out
 	{
+		IU prevnz = curnz;		
 		temp.jc[curnzc++] = A.jc[i++];
 		for(IU k = A.cp[i-1]; k< A.cp[i]; ++k)
 		{
@@ -1132,10 +1141,12 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 				temp.numx[curnz++] = __binary_op(A.numx[k], BNullVal, false, true);
 			}
 		}
-		temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+		//temp.cp[curnzc] = temp.cp[curnzc-1] + (A.cp[i] - A.cp[i-1]);
+		temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 	}
 	while(allowANulls && j < B.nzc) // remaining B elements after A ran out
 	{
+		IU prevnz = curnz;		
 		temp.jc[curnzc++] = B.jc[j++];
 		for(IU k = B.cp[j-1]; k< B.cp[j]; ++k)
 		{
@@ -1145,7 +1156,8 @@ Dcsc<IU, RETT> EWiseApply(const Dcsc<IU,NU1> * Ap, const Dcsc<IU,NU2> * Bp, _Bin
 				temp.numx[curnz++] 	= __binary_op(ANullVal, B.numx[k], true, false);
 			}
 		}
-		temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+		//temp.cp[curnzc] = temp.cp[curnzc-1] + (B.cp[j] - B.cp[j-1]);
+		temp.cp[curnzc] = temp.cp[curnzc-1] + curnz-prevnz;
 	}
 	temp.Resize(curnzc, curnz);
 	return temp;

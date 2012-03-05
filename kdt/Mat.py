@@ -336,6 +336,12 @@ class Mat:
 	def _reprGrid(self):
 		[i, j, v] = self.toVec()
 		ret = self._reprHeader()
+		
+		# test the indecies
+		for count in range(len(i)):
+			if i[count] < 0 or i[count] >= self.nrow() or j[count] < 0 or j[count] >= self.ncol():
+				raise ValueError,"Matrix structure error! Element %d is (%d,%d,%s), matrix is %s."%(count, i[count], j[count], str(v[count]), (str(self.nrow()) + "-by-" + str(self.ncol()) + " (row-by-col)"))
+		
 
 		# make empty 2D array, I'm sure there's a more proper way to initialize it
 		mat = []
