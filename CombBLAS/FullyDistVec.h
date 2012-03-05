@@ -151,7 +151,7 @@ public:
 		#ifdef _OPENMP
 		#pragma omp parallel for
 		#endif
-		for(IT i=0; i < arr.size(); ++i)
+		for(IT i=0; (unsigned)i < arr.size(); ++i)
 			arr[i] = __binary_op(arr[i], i + offset);
 	}
 
