@@ -3032,6 +3032,41 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
+  pySpParMat *arg1 = 0 ;
+  pySpParMat *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_pySpParMat",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pySpParMat,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMat const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_pySpParMat" "', argument " "1"" of type '" "pySpParMat const &""'"); 
+  }
+  arg1 = reinterpret_cast< pySpParMat * >(argp1);
+  {
+    try {
+      result = (pySpParMat *)new pySpParMat((pySpParMat const &)*arg1);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pySpParMat, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
   pySpParMatBool *arg1 = 0 ;
   pySpParMat *result = 0 ;
   void *argp1 = 0 ;
@@ -3065,7 +3100,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj1 *arg1 = 0 ;
   pySpParMat *result = 0 ;
@@ -3100,7 +3135,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_pySpParMat__SWIG_5(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj2 *arg1 = 0 ;
   pySpParMat *result = 0 ;
@@ -3150,7 +3185,7 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   if (argc == 1) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatBool, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMat, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       return _wrap_new_pySpParMat__SWIG_2(self, args);
@@ -3158,7 +3193,7 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   if (argc == 1) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatBool, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       return _wrap_new_pySpParMat__SWIG_3(self, args);
@@ -3166,10 +3201,18 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   if (argc == 1) {
     int _v;
-    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj1, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
       return _wrap_new_pySpParMat__SWIG_4(self, args);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_ConvertPtr(argv[0], 0, SWIGTYPE_p_pySpParMatObj2, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_pySpParMat__SWIG_5(self, args);
     }
   }
   if (argc == 5) {
@@ -3205,7 +3248,7 @@ SWIGINTERN PyObject *_wrap_new_pySpParMat(PyObject *self, PyObject *args) {
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_pySpParMat'.\n  Possible C/C++ prototypes are:\n    pySpParMat()\n    pySpParMat(int64_t,int64_t,pyDenseParVec *,pyDenseParVec *,pyDenseParVec *)\n    pySpParMat(pySpParMatBool const &)\n    pySpParMat(pySpParMatObj1 const &)\n    pySpParMat(pySpParMatObj2 const &)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_pySpParMat'.\n  Possible C/C++ prototypes are:\n    pySpParMat()\n    pySpParMat(int64_t,int64_t,pyDenseParVec *,pyDenseParVec *,pyDenseParVec *)\n    pySpParMat(pySpParMat const &)\n    pySpParMat(pySpParMatBool const &)\n    pySpParMat(pySpParMatObj1 const &)\n    pySpParMat(pySpParMatObj2 const &)\n");
   return NULL;
 }
 
