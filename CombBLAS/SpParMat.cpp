@@ -1586,7 +1586,7 @@ void SpParMat<IT,NT,DER>::Square ()
 	
 	delete spSeq;		
 	spSeq = new DER(MergeAll<SR>(tomerge, AA_m, AA_n), false);	// First get the result in SpTuples, then convert to UDER
-	for(int i=0; i<tomerge.size(); ++i)
+	for(unsigned int i=0; i<tomerge.size(); ++i)
 	{
 		delete tomerge[i];
 	}
