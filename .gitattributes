@@ -1907,6 +1907,7 @@ Matlab/utils/testmat.m -text
 /README.txt -text
 examples/BetwCent.py -text
 examples/Cluster.py -text
+examples/DrawGraph.py -text
 examples/FilteredBFS.py -text
 examples/GaBP/CSBP_matlab/GetSelfIndices.m -text
 examples/GaBP/CSBP_matlab/encoder.m -text
