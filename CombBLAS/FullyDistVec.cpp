@@ -505,7 +505,7 @@ void FullyDistVec<IT,NT>::DebugPrint()
 		{
 			// read counts[i] integers and print them
 			size_t result = fread(data, sizeof(NT), counts[i],f);
-			if (result != counts[i]) { cout << "Error in fread, only " << result << " entries read" << endl; }
+			if (result != (unsigned)counts[i]) { cout << "Error in fread, only " << result << " entries read" << endl; }
 
 			cout << "Elements stored on proc " << i << ": {" ;	
 			for (int j = 0; j < counts[i]; j++)
