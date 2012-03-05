@@ -70,6 +70,7 @@ public:
 	pySpParMat();
 	pySpParMat(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals);
 
+	pySpParMat(const pySpParMat& copyFrom);
 	pySpParMat(const pySpParMatBool& copyStructureFrom);
 	pySpParMat(const pySpParMatObj1& copyStructureFrom);
 	pySpParMat(const pySpParMatObj2& copyStructureFrom);
