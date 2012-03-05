@@ -10,7 +10,7 @@
 #include "OptBuf.h"
 #include "ParFriends.h"
 #include "SpImplNoSR.h"
-#include <parallel/algorithm>
+// AL: doesn't compile on OSX. #include <parallel/algorithm>
 
 using namespace std;
 

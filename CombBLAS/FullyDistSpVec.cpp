@@ -628,7 +628,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	mystruct * packed = new mystruct[count];
 	for(int i=0; i<count; ++i)
 	{
-		packed[i].ind = ind[i];
+		packed[i].ind = ind[i] + sizeuntil;
 		packed[i].num = num[i];
 	}
 	thefile.Write(packed, count, datatype);
