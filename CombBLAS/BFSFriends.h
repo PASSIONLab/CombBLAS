@@ -272,6 +272,8 @@ template <typename VT, typename IT, typename UDER>
 FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSpVec<IT,VT> & x, bool indexisvalue, OptBuf<int32_t, VT > & optbuf)
 {
 	CheckSpMVCompliance(A,x);
+	
+	SpParHelper::Print("Checked SpMV compliance\n");
 
 	MPI::Intracomm World = x.commGrid->GetWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
@@ -284,8 +286,11 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	VT *trxnums, *numacc;
 
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);			// trxinds (and potentially trxnums) is allocated
+	SpParHelper::Print("Transposed Vector\n");
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
 	
+	SpParHelper::Print("Gathered Vector\n");
+
 	FullyDistSpVec<IT, VT> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	int rowneighs = RowWorld.Get_size();
 	int * sendcnt = new int[rowneighs]();	
@@ -293,6 +298,8 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	VT * sendnumbuf;
 	int * sdispls;
 	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
+
+	SpParHelper::Print("LocalSpMV'd\n");
 
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
@@ -328,7 +335,11 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	cblas_alltoalltime += (t3-t2);
 #endif
 
+	SpParHelper::Print("Exchanged alltoall'd\n");
+
 	MergeContributions(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
+
+	SpParHelper::Print("Merged Contributions\n");
 	return y;	
 }
 

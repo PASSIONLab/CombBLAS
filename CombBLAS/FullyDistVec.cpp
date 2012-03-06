@@ -220,6 +220,20 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< I
 }
 
 template <class IT, class NT>
+void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & rhs)		
+{
+	IT spvecsize = rhs.getlocnnz();
+	#ifdef _OPENMP
+	#pragma omp parallel for
+	#endif
+	for(IT i=0; i< spvecsize; ++i)
+	{
+		arr[rhs.ind[i]] = rhs.num[i];
+	}
+}
+
+
+template <class IT, class NT>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator-=(const FullyDistSpVec< IT,NT > & rhs)		
 {
 	IT spvecsize = rhs.getlocnnz();
