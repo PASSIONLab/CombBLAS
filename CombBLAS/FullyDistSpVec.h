@@ -151,7 +151,7 @@ public:
 	{
 		IT totnnz = 0;
 		IT locnnz = ind.size();
-		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		(commGrid->GetWorld()).Allreduce( &locnnz, &totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
 	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::LengthUntil;
@@ -170,6 +170,8 @@ public:
 		#endif
 		for(IT i=0; i< spsize; ++i)
 			num[i] = ind[i] + offset;
+		(commGrid->GetWorld()).Barrier();
+		SpParHelper::Print("exiting set num to ind\n");
 	}
 
 	template <typename _Predicate>

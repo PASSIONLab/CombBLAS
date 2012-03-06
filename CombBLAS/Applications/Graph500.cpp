@@ -431,20 +431,28 @@ int main(int argc, char* argv[])
 				int iterations = 0;
 				while(fringe.getnnz() > 0)
 				{
+					SpParHelper::Print("Before Set num to ind\n");
 					fringe.setNumToInd();
-					//fringe.PrintInfo("fringe before SpMV");
+					fringe.PrintInfo("fringe before SpMV");
 
 					fringe = SpMV(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
-					// fringe.PrintInfo("fringe after SpMV");
+					fringe.PrintInfo("fringe after SpMV");
 					
 					// ABAB: Below is the generalized EWiseApply way, semantically identical to EWiseMult (tested)
 					// fringe = EWiseApply(fringe, parents, prunediscovered<int64_t, int64_t>(), (int64_t) -1);
 					fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
-					// fringe.PrintInfo("fringe after cleanup");
-					parents += fringe;
-					// parents.PrintInfo("Parents after addition");
+					fringe.PrintInfo("fringe after cleanup");
+					parents.Set(fringe);
+					parents.PrintInfo("parents?");
+
+					FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+					SpParHelper::Print("Addition done\n");
+
+					parentsp.PrintInfo("Parents after addition");
 					iterations++;
 					MPI::COMM_WORLD.Barrier();
+
+					fringe.PrintInfo("fringe before next iteration");
 				}
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();
