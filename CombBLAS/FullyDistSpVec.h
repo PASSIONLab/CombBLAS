@@ -170,8 +170,6 @@ public:
 		#endif
 		for(IT i=0; i< spsize; ++i)
 			num[i] = ind[i] + offset;
-		(commGrid->GetWorld()).Barrier();
-		SpParHelper::Print("exiting set num to ind\n");
 	}
 
 	template <typename _Predicate>
@@ -234,7 +232,7 @@ private:
 	SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IU> & x, bool indexisvalue);
 
 	template <typename VT, typename IU, typename UDER>	// NoSR version (in BFSFriends.h)
-	friend FullyDistSpVec<IU,VT>  SpMV (const SpParMat<IU,bool,UDER> & A, const FullyDistSpVec<IU,VT> & x, bool indexisvalue, OptBuf<int32_t, VT > & optbuf);
+	friend FullyDistSpVec<IU,VT>  SpMV (const SpParMat<IU,bool,UDER> & A, const FullyDistSpVec<IU,VT> & x, OptBuf<int32_t, VT > & optbuf);
 
 	template <typename SR, typename IVT, typename OVT, typename IU, typename NUM, typename UDER>
 	friend void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, FullyDistSpVec<IU,OVT> & y,bool indexisvalue, OptBuf<int32_t, OVT > & optbuf);
