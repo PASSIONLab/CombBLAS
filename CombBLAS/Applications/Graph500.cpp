@@ -99,14 +99,14 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./Graph500 <Auto,Force,Input> <Available RAM in MB (per core) | Scale Forced | Input Name>" << endl;
+			cout << "Usage: ./Graph500 <Force,Input> <Scale Forced | Input Name> {FastGen}" << endl;
 			cout << "Example: ./Graph500 Force 25 FastGen" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
 	}		
 	{
-		typedef SelectMaxSRing<bool, int32_t> SR;	
+		typedef SelectMaxSRing<bool, int32_t> SR;
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 		typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;	// sequentially use 32-bits for local matrices, but parallel semantics are 64-bits
 		typedef SpParMat < int64_t, int, SpDCCols<int32_t,int> > PSpMat_s32p64_Int;	// similarly mixed, but holds integers as upposed to booleans
@@ -204,51 +204,7 @@ int main(int argc, char* argv[])
 		}
 		else 
 		{	
-			if(string(argv[1]) == string("Auto"))	
-			{
-				// calculate the problem size that can be solved
-				// number of nonzero columns are at most the matrix dimension (for small p)
-				// for large p, though, nzc = nnz since each subcolumn will have a single nonzero 
-				// so assume (1+8+8+8)*nedges for the uint64 case and (1+4+4+4)*nedges for uint32
-				uint64_t raminbytes = static_cast<uint64_t>(atoi(argv[2])) * 1024 * 1024;	
-				uint64_t peredge = 1+3*sizeof(int64_t);
-				uint64_t maxnedges = raminbytes / peredge;
-				uint64_t maxvertices = maxnedges / 32;	
-				unsigned maxscale = highestbitset(maxvertices * nprocs);
-
-				string name;
-				if(maxscale > 36)	// at least 37 so it fits comfortably along with vectors 
-				{
-					name = "Medium";	
-					scale = 36;
-				}
-				else if(maxscale > 32)
-				{
-					name = "Small";
-					scale = 32;
-				}
-				else if(maxscale > 29)
-				{
-					name = "Mini";
-					scale = 29;
-				}
-				else if(maxscale > 26)
-				{
-					name = "Toy";
-					scale = 26;
-				}
-				else
-				{
-					name = "Debug";
-					scale = 20;	// fits even to single processor
-				}
-
-				ostringstream outs;
-				outs << "Max scale allowed : " << maxscale << endl;
-				outs << "Using the " << name << " problem" << endl;
-				SpParHelper::Print(outs.str());
-			}
-			else if(string(argv[1]) == string("Force"))	
+			if(string(argv[1]) == string("Force"))	
 			{
 				scale = static_cast<unsigned>(atoi(argv[2]));
 				ostringstream outs;
@@ -431,28 +387,11 @@ int main(int argc, char* argv[])
 				int iterations = 0;
 				while(fringe.getnnz() > 0)
 				{
-					SpParHelper::Print("Before Set num to ind\n");
 					fringe.setNumToInd();
-					fringe.PrintInfo("fringe before SpMV");
-
-					fringe = SpMV(Aeff, fringe,true, optbuf);	// SpMV with sparse vector (with indexisvalue flag set), optimization enabled
-					fringe.PrintInfo("fringe after SpMV");
-					
-					// ABAB: Below is the generalized EWiseApply way, semantically identical to EWiseMult (tested)
-					// fringe = EWiseApply(fringe, parents, prunediscovered<int64_t, int64_t>(), (int64_t) -1);
+					fringe = SpMV(Aeff, fringe,optbuf);	// SpMV with sparse vector (with indexisvalue flag preset), optimization enabled
 					fringe = EWiseMult(fringe, parents, true, (int64_t) -1);	// clean-up vertices that already has parents 
-					fringe.PrintInfo("fringe after cleanup");
 					parents.Set(fringe);
-					parents.PrintInfo("parents?");
-
-					FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
-					SpParHelper::Print("Addition done\n");
-
-					parentsp.PrintInfo("Parents after addition");
 					iterations++;
-					MPI::COMM_WORLD.Barrier();
-
-					fringe.PrintInfo("fringe before next iteration");
 				}
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();

@@ -17,6 +17,7 @@ public:
 		p_c =  maxsizes.size(); 
 		totmax = accumulate(maxsizes.begin(), maxsizes.end(), 0);
 		inds = new IT[totmax];
+		fill_n(inds, totmax, -1);
 		nums = new NT[totmax];
 		dspls = new int[p_c]();
 		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);			

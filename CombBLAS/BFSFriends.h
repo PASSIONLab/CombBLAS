@@ -75,12 +75,12 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
 				{
 					int32_t cur_rec = min( indy[i].front() / perproc, last_rec);
-					int32_t lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
+					int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
 					for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 					{
-						if(!((*it) < lastdata))
+						if( ( (*it) >= lastdata ) && cur_rec != last_rec)	
 						{
-							cur_rec = min( (*it) / perproc, last_rec);
+							cur_rec = min( (*it) / perproc, last_rec);	
 							lastdata = (cur_rec+1) * perproc;
 						}
 						++loc_rec_cnts[i][cur_rec];
@@ -110,10 +110,10 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 					else	// slow case
 					{
 						int32_t cur_rec = beg_rec;
-						int32_t lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
+						int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
 						for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 						{
-							if(!((*it) < lastdata))
+							if( ( (*it) >= lastdata ) && cur_rec != last_rec )
 							{
 								cur_rec = min( (*it) / perproc, last_rec);
 								lastdata = (cur_rec+1) * perproc;
@@ -151,8 +151,7 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
   * @param[in,out] sendindbuf, sendnumbuf {index and values of the output vector, created}
  **/
 template<typename VT, typename IT, typename UDER>
-void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, 
-			   int32_t * & sendindbuf, VT * & sendnumbuf, int * & sdispls, int * sendcnt, int accnz, bool indexisvalue)
+void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz)
 {	
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -222,7 +221,7 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 	int32_t sup = numeric_limits<int32_t>::max(); 
 	KNHeap< int32_t, int32_t > sHeap(sup, inf); 
 	int * processed = new int[rowneighs]();
-	for(int i=0; i<rowneighs; ++i)
+	for(int32_t i=0; i<rowneighs; ++i)
 	{
 		if(recvcnt[i] > 0)
 		{
@@ -240,9 +239,14 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 		
 		if( (++(processed[locv])) < recvcnt[locv] )
 			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-			else
-				--hsize;
+		else
+			--hsize;
 	}
+
+//	ofstream oput;
+//	y.commGrid->OpenDebugFile("Merge", oput);
+//	oput << "From displacements: "; copy(rdispls, rdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+//	oput << "From counts: "; copy(recvcnt, recvcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
 	while(hsize > 0)
 	{
 		sHeap.deleteMin(&key, &locv);
@@ -255,10 +259,11 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 		
 		if( (++(processed[locv])) < recvcnt[locv] )
 			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-			else
-				--hsize;
+		else
+			--hsize;
 	}
 	DeleteAll(recvcnt, rdispls,processed);
+	DeleteAll(recvindbuf, recvnumbuf);
 #endif
 }	
 
@@ -269,12 +274,10 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
   * input and output vectors are of type VT but their indices are IT
   */
 template <typename VT, typename IT, typename UDER>
-FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSpVec<IT,VT> & x, bool indexisvalue, OptBuf<int32_t, VT > & optbuf)
+FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSpVec<IT,VT> & x, OptBuf<int32_t, VT > & optbuf)
 {
 	CheckSpMVCompliance(A,x);
 	
-	SpParHelper::Print("Checked SpMV compliance\n");
-
 	MPI::Intracomm World = x.commGrid->GetWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
 	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
@@ -285,21 +288,13 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	int32_t *trxinds, *indacc;
 	VT *trxnums, *numacc;
 
-	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);			// trxinds (and potentially trxnums) is allocated
-	SpParHelper::Print("Transposed Vector\n");
-	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
+	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, true);			// trxinds (and potentially trxnums) is allocated
+	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
 	
-	SpParHelper::Print("Gathered Vector\n");
-
 	FullyDistSpVec<IT, VT> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	int rowneighs = RowWorld.Get_size();
 	int * sendcnt = new int[rowneighs]();	
-	int32_t * sendindbuf;	
-	VT * sendnumbuf;
-	int * sdispls;
-	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendindbuf, sendnumbuf, sdispls, sendcnt, accnz, indexisvalue);	// indacc/numacc deallocated, sendindbuf/sendnumbuf/sdispls allocated
-
-	SpParHelper::Print("LocalSpMV'd\n");
+	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendcnt, accnz);	// indacc/numacc deallocated
 
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
@@ -335,11 +330,7 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	cblas_alltoalltime += (t3-t2);
 #endif
 
-	SpParHelper::Print("Exchanged alltoall'd\n");
-
 	MergeContributions(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
-
-	SpParHelper::Print("Merged Contributions\n");
 	return y;	
 }
 

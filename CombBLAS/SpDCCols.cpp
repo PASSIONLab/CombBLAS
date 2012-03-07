@@ -737,13 +737,21 @@ void SpDCCols<IT,NT>::PrintInfo(ofstream &  out) const
 	out << "m: " << m ;
 	out << ", n: " << n ;
 	out << ", nnz: "<< nnz ;
-	if(dcsc != NULL)
+
+	if(splits > 0)
 	{
-		out << ", nzc: "<< dcsc->nzc << endl;
+		out << ", local splits: " << splits << endl;
 	}
 	else
 	{
-		out <<", nzc: "<< 0 << endl;
+		if(dcsc != NULL)
+		{
+			out << ", nzc: "<< dcsc->nzc << endl;
+		}
+		else
+		{
+			out <<", nzc: "<< 0 << endl;
+		}
 	}
 }
 
@@ -753,43 +761,51 @@ void SpDCCols<IT,NT>::PrintInfo() const
 	cout << "m: " << m ;
 	cout << ", n: " << n ;
 	cout << ", nnz: "<< nnz ;
-	if(dcsc != NULL)
+
+	if(splits > 0)
 	{
-		cout << ", nzc: "<< dcsc->nzc << endl;
+		cout << ", local splits: " << splits << endl;
 	}
 	else
 	{
-		cout <<", nzc: "<< 0 << endl;
-	}
-
-	if(m < 10 && n < 10)	// small enough to print
-	{
-		NT ** A = SpHelper::allocate2D<NT>(m,n);
-		for(IT i=0; i< m; ++i)
-			for(IT j=0; j<n; ++j)
-				A[i][j] = NT();
 		if(dcsc != NULL)
 		{
-			for(IT i=0; i< dcsc->nzc; ++i)
-			{
-				for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
-				{
-					IT colid = dcsc->jc[i];
-					IT rowid = dcsc->ir[j];
-					A[rowid][colid] = dcsc->numx[j];
-				}
-			}
-		} 
-		for(IT i=0; i< m; ++i)
-		{
-                        for(IT j=0; j<n; ++j)
-			{
-				cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
-				cout << " ";
-			}
-			cout << endl;
+			cout << ", nzc: "<< dcsc->nzc << endl;
 		}
-		SpHelper::deallocate2D(A,m);
+		else
+		{
+			cout <<", nzc: "<< 0 << endl;
+		}
+
+		if(m < 10 && n < 10)	// small enough to print
+		{
+			NT ** A = SpHelper::allocate2D<NT>(m,n);
+			for(IT i=0; i< m; ++i)
+				for(IT j=0; j<n; ++j)
+					A[i][j] = NT();
+			if(dcsc != NULL)
+			{
+				for(IT i=0; i< dcsc->nzc; ++i)
+				{
+					for(IT j = dcsc->cp[i]; j<dcsc->cp[i+1]; ++j)
+					{
+						IT colid = dcsc->jc[i];
+						IT rowid = dcsc->ir[j];
+						A[rowid][colid] = dcsc->numx[j];
+					}
+				}
+			} 
+			for(IT i=0; i< m; ++i)
+			{
+				for(IT j=0; j<n; ++j)
+				{
+					cout << setiosflags(ios::fixed) << setprecision(2) << A[i][j];
+					cout << " ";
+				}
+				cout << endl;
+			}
+			SpHelper::deallocate2D(A,m);
+		}
 	}
 }
 

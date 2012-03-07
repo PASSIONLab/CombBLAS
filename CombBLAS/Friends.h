@@ -263,10 +263,11 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 				if(!indy[i].empty())	// guarantee that .begin() and .end() are not null
 				{
 					int32_t cur_rec = min( indy[i].front() / perproc, last_rec);
-					int32_t lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
+					int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
 					for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 					{
-						if(!((*it) < lastdata))
+
+						if( ( (*it) >= lastdata ) && cur_rec != last_rec )
 						{
 							cur_rec = min( (*it) / perproc, last_rec);
 							lastdata = (cur_rec+1) * perproc;
@@ -298,10 +299,10 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IU, NUM> & A, const int32_t
 					else	// slow case
 					{
 						int32_t cur_rec = beg_rec;
-						int32_t lastdata = (cur_rec+1) * perproc;  // last entry that goes to this current recipient
+						int32_t lastdata = (cur_rec+1) * perproc;  // one past last entry that goes to this current recipient
 						for(typename vector<int32_t>::iterator it = indy[i].begin(); it != indy[i].end(); ++it)
 						{
-							if(!((*it) < lastdata))
+							if( ( (*it) >= lastdata ) && cur_rec != last_rec )
 							{
 								cur_rec = min( (*it) / perproc, last_rec);
 								lastdata = (cur_rec+1) * perproc;

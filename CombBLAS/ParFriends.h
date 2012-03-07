@@ -587,8 +587,8 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 		
 		if( (++(processed[locv])) < recvcnt[locv] )
 			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-			else
-				--hsize;
+		else
+			--hsize;
 	}
 	while(hsize > 0)
 	{
@@ -608,8 +608,8 @@ void MergeContributions(FullyDistSpVec<IU,OVT> & y, int * & recvcnt, int * & rdi
 		
 		if( (++(processed[locv])) < recvcnt[locv] )
 			sHeap.insert(recvindbuf[rdispls[locv]+processed[locv]], locv);
-			else
-				--hsize;
+		else
+			--hsize;
 	}
 	DeleteAll(recvcnt, rdispls,processed);
 	DeleteAll(recvindbuf, recvnumbuf);
