@@ -35,9 +35,9 @@ int cblas_splits = 1;
 #include "../CombBLAS.h"
 #include "TwitterEdge.h"
 
-#define MAX_ITERS 512
+#define MAX_ITERS 1024
 #define ITERS 16 
-#define CC_LIMIT 3
+#define CC_LIMIT 5
 #define PERMUTEFORBALANCE
 using namespace std;
 
