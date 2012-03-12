@@ -68,16 +68,16 @@ public:
 	}
 	FullyDist( shared_ptr<CommGrid> grid):glen(0)
 	{
-		commGrid.reset(new CommGrid(*grid));		
+		commGrid = grid;
 	}
 	FullyDist( shared_ptr<CommGrid> grid, IT globallen): glen(globallen)
 	{
-		commGrid.reset(new CommGrid(*grid));		
+		commGrid = grid;
 	}
 	FullyDist<IT,NT> & operator=(const FullyDist<IT,NT> & rhs)
 	{
 		glen = rhs.glen;
-		commGrid.reset(new CommGrid(*rhs.commGrid));		
+		commGrid = rhs.commGrid;
 		return *this;
 	}
 

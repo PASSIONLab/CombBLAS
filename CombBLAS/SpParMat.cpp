@@ -63,7 +63,7 @@ template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(myseq)
 {
 	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
-	commGrid.reset(new CommGrid(*grid)); 
+	commGrid = grid;
 }	
 
 /**
@@ -162,7 +162,7 @@ SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)
 	if(rhs.spSeq != NULL)	
 		spSeq = new DER(*(rhs.spSeq));  	// Deep copy of local block
 
-	commGrid.reset(new CommGrid(*(rhs.commGrid)));		
+	commGrid =  rhs.commGrid;
 }
 
 template <class IT, class NT, class DER>
@@ -176,7 +176,7 @@ SpParMat< IT,NT,DER > & SpParMat< IT,NT,DER >::operator=(const SpParMat< IT,NT,D
 		if(rhs.spSeq != NULL)	
 			spSeq = new DER(*(rhs.spSeq));  // Deep copy of local block
 	
-		commGrid.reset(new CommGrid(*(rhs.commGrid)));		
+		commGrid = rhs.commGrid;
 	}
 	return *this;
 }
@@ -1192,7 +1192,7 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 	}
 
-	commGrid.reset(new CommGrid(*(distrows.commGrid)));		
+	commGrid = distrows.commGrid;	
 	int nprocs = commGrid->GetSize();
 	vector< vector < tuple<IT,IT,NT> > > data(nprocs);
 
@@ -1260,7 +1260,7 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		MPI::COMM_WORLD.Abort(DIMMISMATCH);
 	}
 
-	commGrid.reset(new CommGrid(*(distrows.commGrid)));		
+	commGrid = distrows.commGrid;
 	int nprocs = commGrid->GetSize();
 	vector< vector < tuple<IT,IT,NT> > > data(nprocs);
 
@@ -1317,7 +1317,7 @@ template <class IT, class NT, class DER>
 template <class DELIT>
 SpParMat< IT,NT,DER >::SpParMat (const DistEdgeList<DELIT> & DEL, bool removeloops)
 {
-	commGrid.reset(new CommGrid(*(DEL.commGrid)));		
+	commGrid = DEL.commGrid;	
 	typedef typename DER::LocalIT LIT;
 
 	int nprocs = commGrid->GetSize();

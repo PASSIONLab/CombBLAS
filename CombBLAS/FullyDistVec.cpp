@@ -118,7 +118,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRH
 	{
 		//FullyDist<IT,NT>::operator= (rhs);	// to update glen and commGrid
 		glen = static_cast<IT>(rhs.glen);
-		commGrid.reset(new CommGrid(*rhs.commGrid));
+		commGrid = rhs.commGrid;
 		
 		arr.resize(rhs.arr.size(), NT());
 		for(IT i=0; (unsigned)i < arr.size(); ++i)
