@@ -620,8 +620,6 @@ class Mat:
 ### Basic Methods
 ##########################
 
-	# NEEDED: tests
-	#in-place, so no return value
 	def apply(self, op):#, other=None, notB=False):
 		"""
 		applies the given operator to every edge in the Mat
@@ -642,30 +640,8 @@ class Mat:
 		if self._hasFilter():
 			op = _makePythonOp(op)
 			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
-			#if self.isSparse():
-			#	op = FilterHelper.getFilteredUniOpOrSelf(self, op)
-			#else:
-			#	op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
 		
 		self._m_.Apply(_op_make_unary(op))
-		return
-
-		if self._hasFilter():
-			if self._hasMaterializedFilter():
-				raise NotImplementedError, "this operation does not support materialized filters"
-			raise NotImplementedError, "this operation does not support filters yet."
-
-		if other is None:
-			if not isinstance(op, pcb.UnaryFunction):
-				self._m_.Apply(pcb.unaryObj(op))
-			else:
-				self._m_.Apply(op)
-		else:
-			if not isinstance(op, pcb.BinaryFunction):
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, pcb.binaryObj(op), notB)
-			else:
-				self._m_ = pcb.EWiseApply(self._m_, other._m_, op, notB)
-
 		self._dirty()
 
 	def count(self, dir, pred=None):
@@ -677,7 +653,6 @@ class Mat:
 		
 		return self.reduce(dir, (lambda x,y: x+y), uniOp=pred, init=0.0)
 
-	# NEEDED: tests
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False):
 		"""
 		ToDo:  write doc
@@ -712,10 +687,7 @@ class Mat:
 
 		ANull = self._identity_
 		BNull = other._identity_
-		#superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
 		
-		##if doOp is not None:
-		# new version
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self)), _op_make_unary_pred(FilterHelper.getFilterPred(other)))
 			self._dirty()
@@ -815,7 +787,7 @@ class Mat:
 			ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self))))
 			return ret
 		
-	# TODO: make a _keep() which reverses the predicate
+	# TODO: make a keep() which reverses the predicate
 	def _prune(self, pred, inPlace=True, ignoreFilter=False):
 		"""
 		only keep elements for which pred(e) == false.
@@ -935,7 +907,6 @@ class Mat:
 		self._m_.DimWiseApply(dir, other.dense()._v_, _op_make_binary(op))
 		return
 
-	# NEEDED: tests
 	def SpGEMM(self, other, semiring, inPlace=False):
 		"""
 		"multiplies" two Mat instances together as though each was
@@ -960,42 +931,14 @@ class Mat:
 		if self._hasFilter() or other._hasFilter():
 			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
 			clearSemiringFilters = True
-
-		if False:		
-			if self._hasFilter() or other._hasFilter():
-				selfPred = FilterHelper.getFilterPred(self)
-				if selfPred is None:
-					selfPred = lambda x: True
-	
-				otherPred = FilterHelper.getFilterPred(other)
-				if otherPred is None:
-					otherPred = lambda x: True
-				
-				class tmpMul:
-					filterA = selfPred
-					filterB = otherPred
-					nullval = self._identity_
-					origMulFunc = _sr_get_python_mul(semiring)
-					@staticmethod
-					def fn(x, y):
-						if tmpMul.filterA(x) and tmpMul.filterB(y):
-							return tmpMul.origMulFunc(x, y)
-						else:
-							return tmpMul.nullval
-				tmpMulInstance = tmpMul()
-				semiring = sr(_sr_get_python_add(semiring), tmpMulInstance.fn)
-
 			
 		if self._m_ is other._m_:
 			# we're squaring the matrix
 			if inPlace:
-				#cp = self.copy()
-				#self._m_ = self._m_.SpGEMM(cp._m_, semiring)
 				self._m_.Square(semiring)
 				return self
 			else:
 				cp = self.copy()
-				#return Mat._toMat(self._m_.SpGEMM(cp._m_, semiring))
 				cp._m_.Square(semiring)
 				return cp
 		
@@ -1066,8 +1009,7 @@ class Mat:
 ### Operations
 ##########################
 
-	# NEEDED: Handle the init properly (i.e. don't use 0, will break a test)
-	def max(self, dir=Column):
+	def max(self, dir=Column, init=None):
 		"""
 		finds the maximum weights of the appropriate edges of each vertex 
 		of the passed DiGraph instance.
@@ -1083,9 +1025,12 @@ class Mat:
 
 		SEE ALSO:  degree, min 
 		"""
+		if init is None:
+			init = self._identity_
 		if dir != Mat.Row and dir != Mat.Column:
 			raise KeyError, 'Invalid edge-direction'
-		ret = self.reduce(dir, op_max, init=self._identity_)
+			
+		ret = self.reduce(dir, op_max, init=init)
 		return ret
 
 	# NEEDED: Handle the init properly (i.e. don't use 0, will break a test)

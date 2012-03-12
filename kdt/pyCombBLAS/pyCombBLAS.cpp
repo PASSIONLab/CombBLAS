@@ -274,6 +274,7 @@ void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v)
 ////////////////////////// INITALIZATION/FINALIZE
 
 bool has_MPI_Init_been_called = false;
+shared_ptr<CommGrid> commGrid;
 
 void init_pyCombBLAS_MPI()
 {
@@ -285,6 +286,9 @@ void init_pyCombBLAS_MPI()
 		has_MPI_Init_been_called = true;
 		atexit(finalize);
 	}
+	// create the shared communication grid
+	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	
 	// create doubleint MPI_Datatype
 	MPI::Datatype type[1] = {MPI::DOUBLE};
 	int blocklen[1] = {1};
@@ -304,6 +308,13 @@ void finalize()
 {
 	if (has_MPI_Init_been_called)
 	{
+		{
+			// Delete the shared commgrid by swapping it into a shared pointer
+			// that then goes out of scope
+			// (so ~shared_ptr() will call delete commGrid, which frees the MPI communicator).
+			shared_ptr<CommGrid> commGridDel;
+			commGridDel.swap(commGrid);
+		}
 		MPI::Finalize();
 	}
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "pySpParMatObj1.h"
 
-pySpParMatObj1::pySpParMatObj1()
+pySpParMatObj1::pySpParMatObj1(): A(new DCColsType(), commGrid)
 {
 }
 

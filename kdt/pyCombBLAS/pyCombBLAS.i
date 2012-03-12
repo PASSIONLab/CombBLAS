@@ -642,7 +642,6 @@ pySpParVec EWiseApply(const pySpParVecObj2& a, const pyDenseParVecObj1& b, op::B
 class pyDenseParVec {
 public:
 	pyDenseParVec(int64_t size, double init = 0);
-	pyDenseParVec(int64_t size, double init, double zero);
 	
 	pySpParVec sparse() const;
 	pySpParVec sparse(double zero) const;

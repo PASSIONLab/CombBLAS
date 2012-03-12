@@ -3,7 +3,7 @@
 #include <iostream>
 #include "pyDenseParVec.h"
 
-pyDenseParVec::pyDenseParVec()
+pyDenseParVec::pyDenseParVec(): v(commGrid)
 {
 }
 
@@ -11,11 +11,7 @@ pyDenseParVec::pyDenseParVec(VectType other): v(other)
 {
 }
 
-pyDenseParVec::pyDenseParVec(int64_t size, double id): v(size, id)
-{
-}
-
-pyDenseParVec::pyDenseParVec(int64_t size, double init, double zero): v(size, init)
+pyDenseParVec::pyDenseParVec(int64_t size, double id): v(commGrid, size, id)
 {
 }
 
@@ -182,7 +178,7 @@ void pyDenseParVec::RandPerm()
 
 pyDenseParVec pyDenseParVec::Sort()
 {
-	pyDenseParVec ret(1, 0, 0);
+	pyDenseParVec ret(1, 0);
 	ret.v = v.sort();
 	return ret; // Sort is in-place. The return value is the permutation used.
 }

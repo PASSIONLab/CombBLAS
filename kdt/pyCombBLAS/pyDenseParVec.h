@@ -27,7 +27,6 @@ protected:
 //INTERFACE_INCLUDE_BEGIN
 public:
 	pyDenseParVec(int64_t size, double init = 0);
-	pyDenseParVec(int64_t size, double init, double zero);
 	
 	pySpParVec sparse() const;
 	pySpParVec sparse(double zero) const;

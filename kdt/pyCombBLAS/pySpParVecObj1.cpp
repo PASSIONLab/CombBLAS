@@ -7,11 +7,11 @@
 
 using namespace std;
 
-pySpParVecObj1::pySpParVecObj1()
+pySpParVecObj1::pySpParVecObj1(): v(commGrid)
 {
 }
 
-pySpParVecObj1::pySpParVecObj1(int64_t size): v(size)
+pySpParVecObj1::pySpParVecObj1(int64_t size): v(commGrid, size)
 {
 }
 
