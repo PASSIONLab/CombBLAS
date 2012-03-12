@@ -5,18 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#ifdef NOTR1
-        #include <boost/tr1/tuple.hpp>
-#else
-        #include <tr1/tuple>
-#endif
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-
+#include "../CombBLAS.h"
 
 using namespace std;
 #define ITERATIONS 10
@@ -53,20 +42,17 @@ int main(int argc, char* argv[])
 		string Aname(argv[1]);		
 		string Bname(argv[2]);
 
-		ifstream inputA(Aname.c_str());
-		ifstream inputB(Bname.c_str());
-		MPI::COMM_WORLD.Barrier();
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 
 		PSpMat<double>::MPI_DCCols A, B;	// construct objects
 		
-		A.ReadDistribute(inputA, 0);
-		B.ReadDistribute(inputB, 0);
+		A.ReadDistribute(Aname, 0);
+		B.ReadDistribute(Bname, 0);
 		SpParHelper::Print("Data read\n");
 
 		// force the calling of C's destructor
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, B);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 			SpParHelper::Print("Warmed up for DoubleBuff\n");
 		}	
 		MPI::COMM_WORLD.Barrier();
@@ -74,7 +60,7 @@ int main(int argc, char* argv[])
 		double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, B);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		}
 		MPI::COMM_WORLD.Barrier();
 		double t2 = MPI::Wtime(); 	
@@ -87,7 +73,7 @@ int main(int argc, char* argv[])
 
 		// force the calling of C's destructor
 		{	
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		}
 		SpParHelper::Print("Warmed up for Synch\n");
 		MPI::COMM_WORLD.Barrier();
@@ -95,7 +81,7 @@ int main(int argc, char* argv[])
 		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, B);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		}
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(-1,"SpGEMM_Synch");
@@ -107,14 +93,14 @@ int main(int argc, char* argv[])
 		}
 
 		/*
-		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
+		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		SpParHelper::Print("Warmed up for ActiveTarget\n");
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(1,"SpGEMM_ActiveTarget");
 		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE>(A, B);
+			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		}
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(-1,"SpGEMM_ActiveTarget");
@@ -125,14 +111,14 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
 
-		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		SpParHelper::Print("Warmed up for PassiveTarget\n");
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(1,"SpGEMM_PassiveTarget");
 		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE>(A, B);
+			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
 		}
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(-1,"SpGEMM_PassiveTarget");
@@ -143,11 +129,6 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
 		*/
-
-		inputA.clear();
-		inputA.close();
-		inputB.clear();
-		inputB.close();
 	}
 	MPI::Finalize();
 	return 0;

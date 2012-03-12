@@ -5,18 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#ifdef NOTR1
-	#include <boost/tr1/tuple.hpp>
-#else
-	#include <tr1/tuple>
-#endif
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../FullyDistVec.h"
-#include "../SpDefs.h"
+#include "../CombBLAS.h"
 
 using namespace std;
 
@@ -30,7 +19,6 @@ public:
 	typedef SpDCCols < int, NT > DCCols;
 	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
 };
-
 
 int main(int argc, char* argv[])
 {
@@ -53,17 +41,16 @@ int main(int argc, char* argv[])
 		string Bname(argv[2]);
 		string Cname(argv[3]);
 
-		ifstream inputA(Aname.c_str());
 		ifstream inputB(Bname.c_str());
 		ifstream inputC(Cname.c_str());
 
 		MPI::COMM_WORLD.Barrier();
 	
 		PSpMat<double>::MPI_DCCols A;	
-		FullyDistVec<int,double> colsums(A.getcommgrid(), 0.0);
-		FullyDistVec<int,double> rowsums(A.getcommgrid(), 0.0);
+		FullyDistVec<int,double> colsums(A.getcommgrid());
+		FullyDistVec<int,double> rowsums(A.getcommgrid());
 
-		A.ReadDistribute(inputA, 0);
+		A.ReadDistribute(Aname, 0);
 		colsums.ReadDistribute(inputB, 0);
 		rowsums.ReadDistribute(inputC, 0);
 		
@@ -80,8 +67,6 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in Reduce via summation, go fix it!\n");	
 		}
 
-		inputA.clear();
-		inputA.close();
 		inputB.clear();
 		inputB.close();
 		inputC.clear();

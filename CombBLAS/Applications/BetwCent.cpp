@@ -90,27 +90,10 @@ int main(int argc, char* argv[])
 		string ifilename = "input.txt";
 		ifilename = directory+"/"+ifilename;
 
-		ifstream input(ifilename.c_str());
-		if( !input ) 
-		{
-			// maybe the user passed in a filename
-			input.open(directory.c_str());
-			
-			if ( !input )
-			{
-				SpParHelper::Print( "Error opening input stream\n");
-				return -1;
-			}
-  		}
-		MPI::COMM_WORLD.Barrier();
-	
 		Dist<bool>::MPI_DCCols A, AT;	// construct object
-		AT.ReadDistribute(input, 0);	// read it from file, note that we use the transpose of "input" data
+		AT.ReadDistribute(ifilename, 0);	// read it from file, note that we use the transpose of "input" data
 		A = AT;
 		A.Transpose();
-
-		input.clear();
-		input.close();
 			
 		int nPasses = (int) pow(2.0, K4Approx);
 		int numBatches = (int) ceil( static_cast<float>(nPasses)/ static_cast<float>(batchSize));
@@ -193,7 +176,7 @@ int main(int argc, char* argv[])
 				Dist<bool>::MPI_DCCols * level = new Dist<bool>::MPI_DCCols( fringe ); 
 				bfs.push_back(level);
 
-				fringe = Mult_AnXBn_Synch<PTBOOLINT>(AT, fringe);
+				fringe = PSpGEMM<PTBOOLINT>(AT, fringe);
 				fringe = EWiseMult(fringe, nsp, true);
 			}
 
@@ -212,7 +195,7 @@ int main(int argc, char* argv[])
 				Dist<double>::MPI_DCCols w = EWiseMult( *bfs[j], nspInv, false);
 				w.EWiseScale(bcu);
 
-				Dist<double>::MPI_DCCols product = Mult_AnXBn_Synch<PTBOOLDOUBLE>(A,w);
+				Dist<double>::MPI_DCCols product = PSpGEMM<PTBOOLDOUBLE>(A,w);
 				product = EWiseMult(product, *bfs[j-1], false);
 				product = EWiseMult(product, nsp, false);		
 

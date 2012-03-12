@@ -5,16 +5,9 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-
+#include "../CombBLAS.h"
 
 using namespace std;
-
 
 int main(int argc, char* argv[])
 {
@@ -39,18 +32,14 @@ int main(int argc, char* argv[])
 		normalname = directory+"/"+normalname;
 		transname = directory+"/"+transname;
 
-		ifstream inputnormal(normalname.c_str());
-		ifstream inputtrans(transname.c_str());
-		MPI::COMM_WORLD.Barrier();
-	
 		typedef SpParMat <int, bool, SpDCCols<int,bool> > PARBOOLMAT;
 
 		PARBOOLMAT A, AT, ATControl;		// construct object
-		A.ReadDistribute(inputnormal, 0);	// read it from file, note that we use the transpose of "input" data
+		A.ReadDistribute(normalname, 0);	// read it from file, note that we use the transpose of "input" data
 		AT = A;
 		AT.Transpose();
 
-		ATControl.ReadDistribute(inputtrans, 0);
+		ATControl.ReadDistribute(transname, 0);
 		if (ATControl == AT)
 		{
 			SpParHelper::Print("Transpose working correctly\n");	
@@ -59,11 +48,6 @@ int main(int argc, char* argv[])
 		{
 			SpParHelper::Print("ERROR in transpose, go fix it!\n");	
 		}
-
-		inputnormal.clear();
-		inputnormal.close();
-		inputtrans.clear();
-		inputtrans.close();
 	}
 	MPI::Finalize();
 	return 0;

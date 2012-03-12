@@ -5,21 +5,15 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-
+#include "../CombBLAS.h"
 
 using namespace std;
 
 template <typename IT, typename NT>
 pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v, IT k)
 {
-	// FullyDistVec::FullyDistVec(IT glen, NT initval, NT id) 
-	FullyDistVec<IT,IT> sel(k, 0, 0);
+	// FullyDistVec::FullyDistVec(IT glen, NT initval) 
+	FullyDistVec<IT,IT> sel(k, 0);
 	
 	//void FullyDistVec::iota(IT globalsize, NT first)
 	sel.iota(k, v.TotalLength() - k);
@@ -62,16 +56,14 @@ int main(int argc, char* argv[])
 		vec1name = directory+"/"+vec1name;
 		vec2name = directory+"/"+vec2name;
 
-		ifstream inputnormal(normalname.c_str());
-		ifstream inputindexd(indexdname.c_str());
 		ifstream inputvec1(vec1name.c_str());
 		ifstream inputvec2(vec2name.c_str());
 
 		if(myrank == 0)
 		{	
-			if(inputnormal.fail() || inputindexd.fail() || inputvec1.fail() || inputvec2.fail())
+			if(inputvec1.fail() || inputvec2.fail())
 			{
-				cout << "One of the input files do not exist, aborting" << endl;
+				cout << "One of the input vector files do not exist, aborting" << endl;
 				MPI::COMM_WORLD.Abort(NOFILE);
 				return -1;
 			}
@@ -81,8 +73,8 @@ int main(int argc, char* argv[])
 		PARDBMAT A, AID, ACID;		// declare objects
 		FullyDistVec<int,int> vec1, vec2;
 
-		A.ReadDistribute(inputnormal, 0);	
-		AID.ReadDistribute(inputindexd, 0);	
+		A.ReadDistribute(normalname, 0);	
+		AID.ReadDistribute(indexdname, 0);	
 		vec1.ReadDistribute(inputvec1, 0);
 		vec2.ReadDistribute(inputvec2, 0);
 
@@ -147,10 +139,6 @@ int main(int argc, char* argv[])
 			//C.PrintForPatoh("Restored.patoh");
 		}
 
-		inputnormal.clear();
-		inputnormal.close();
-		inputindexd.clear();
-		inputindexd.close();
 		inputvec1.clear();
 		inputvec1.close();
 		inputvec2.clear();

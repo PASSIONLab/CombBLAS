@@ -123,20 +123,9 @@ int main(int argc, char* argv[])
 		string ifilename = "input.txt";
 		ifilename = directory+"/"+ifilename;
 
-		ifstream input(ifilename.c_str());
-		if( !input ) 
-		{
-		    	SpParHelper::Print( "Error opening input stream\n");
-    			return -1;
-  		}
-		MPI::COMM_WORLD.Barrier();
-	
 		Dist<double>::MPI_DCCols A;	// construct object
-		A.ReadDistribute(input, 0);	// read it from file
+		A.ReadDistribute(ifilename, 0);	// read it from file
 	
-		input.clear();
-		input.close();
-
 		// chaos doesn't make sense for non-stochastic matrices	
 		// it is in the range {0,1} for stochastic matrices
 		double chaos = 1000;
@@ -147,7 +136,7 @@ int main(int argc, char* argv[])
 			double t1 = MPI_Wtime();
 			A.Square<PTDOUBLEDOUBLE>() ;		// expand 
 			// Dist<double>::MPI_DCCols TA = A;
-			// A = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(TA, A);
+			// A = PSpGEMM<PTDOUBLEDOUBLE>(TA, A);
 			
 			chaos = Inflate(A, inflation);	// inflate (and renormalize)
 
