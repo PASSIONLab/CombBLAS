@@ -13,7 +13,7 @@ pySpParMatObj1::pySpParMatObj1(MatType other): A(other)
 {
 }
 
-pySpParMatObj1::pySpParMatObj1(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVecObj1* vals)
+pySpParMatObj1::pySpParMatObj1(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVecObj1* vals): A(NULL, commGrid)
 {
 	FullyDistVec<INDEXTYPE, INDEXTYPE> irow = rows->v;
 	FullyDistVec<INDEXTYPE, INDEXTYPE> icol = cols->v;

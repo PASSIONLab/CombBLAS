@@ -29,7 +29,7 @@ pySpParMatBool::pySpParMatBool(MatType other): A(other)
 {
 }
 
-pySpParMatBool::pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals)
+pySpParMatBool::pySpParMatBool(int64_t m, int64_t n, pyDenseParVec* rows, pyDenseParVec* cols, pyDenseParVec* vals): A(NULL, commGrid)
 {
 	/*
 	// This should work, but it gives a compile error complaining about FullyDistVec<int64, bool> on that matrix constructor.
