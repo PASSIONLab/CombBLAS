@@ -4,11 +4,9 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
+#include "../CombBLAS.h"
 
 using namespace std;
-
 
 int main(int argc, char* argv[])
 {
@@ -32,13 +30,10 @@ int main(int argc, char* argv[])
 		string name(argv[2]);
 		name = directory+"/"+name;
 
-		ifstream input(name.c_str());
-		MPI::COMM_WORLD.Barrier();
-	
 		typedef SpParMat <int, double, SpDCCols<int,double> > PARMAT;
 
 		PARMAT A;
-		A.ReadDistribute(input, 0);	// read it from file
+		A.ReadDistribute(name, 0);	// read it from file
 
 		int count = 0;	
 		int total = 0;
@@ -58,9 +53,6 @@ int main(int argc, char* argv[])
 		else
 			SpParHelper::Print( "Iteration failed !!!\n") ;
 		
-			
-		input.clear();
-		input.close();
 	}
 	MPI::Finalize();
 	return 0;
