@@ -66,6 +66,14 @@ SpParMat< IT,NT,DER >::SpParMat (DER * myseq, shared_ptr<CommGrid> grid): spSeq(
 	commGrid = grid;
 }	
 
+template <class IT, class NT, class DER>
+SpParMat< IT,NT,DER >::SpParMat (shared_ptr<CommGrid> grid)
+{
+	assert( (sizeof(IT) >= sizeof(typename DER::LocalIT)) );
+	spSeq = new DER();
+	commGrid = grid;
+}
+
 /**
   * If there is a single file read by the master process only, use this and then call ReadDistribute()
   * Since this is the default constructor, you don't need to explicitly call it, just a declaration will call it
