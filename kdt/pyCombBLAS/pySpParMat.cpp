@@ -1,7 +1,7 @@
 #include <iostream>
 #include "pySpParMat.h"
 
-pySpParMat::pySpParMat()
+pySpParMat::pySpParMat(): A(new DCColsType(), commGrid)
 {
 }
 
@@ -335,7 +335,7 @@ pyDenseParVec pySpParMat::Reduce(int dim, op::BinaryFunction* bf, op::UnaryFunct
 	else
 		len = getncol();
 		
-	pyDenseParVec ret(len, identity, identity);
+	pyDenseParVec ret(len, identity);
 
 	bf->getMPIOp();
 	if (uf == NULL)

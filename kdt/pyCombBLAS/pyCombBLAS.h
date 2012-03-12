@@ -50,6 +50,8 @@ public:
 	const RET& operator()(const T1& a, const T2& b) const { return b; }
 };
 
+extern shared_ptr<CommGrid> commGrid;
+
 #include "obj.h"
 #include "pyOperations.h"
 #include "pyOperationsObj.h"

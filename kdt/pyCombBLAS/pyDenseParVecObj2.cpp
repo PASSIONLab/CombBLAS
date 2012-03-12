@@ -3,7 +3,7 @@
 #include <iostream>
 #include "pyDenseParVecObj2.h"
 
-pyDenseParVecObj2::pyDenseParVecObj2()
+pyDenseParVecObj2::pyDenseParVecObj2(): v(commGrid)
 {
 }
 
@@ -11,7 +11,7 @@ pyDenseParVecObj2::pyDenseParVecObj2(VectType other): v(other)
 {
 }
 
-pyDenseParVecObj2::pyDenseParVecObj2(int64_t size, Obj2 id): v(size, id)
+pyDenseParVecObj2::pyDenseParVecObj2(int64_t size, Obj2 id): v(commGrid, size, id)
 {
 }
 

@@ -47,6 +47,33 @@ class Vec(object):
 		else:
 			raise TypeError, "don't know type %s"%(type(element))
 	
+	@staticmethod
+	def _buildSparse(vlen, ind, val):
+		if len(ind) != len(val):
+			raise KeyError, "index and value vectors must have equal length!"
+		if ind.nnn() != len(ind) or val.nnn() != len(val):
+			raise KeyError, "index and value vectors must be full!"
+		
+		ind = ind.dense()
+		val = val.dense()
+		
+		# AL: This method works in a roundabout way and is very inefficient.
+		# It does this because that's the only way to do it at the moment.
+		
+		# use a temporary matrix and SpMV to create this because that's the only
+		# set of implemented CombBLAS routines that can result in what we want.
+		M = Mat(i=ind, j=Vec(len(ind), sparse=False), v=val, n=vlen, m=vlen)
+		ret = Vec(vlen, element=val._identity_, sparse=False)
+		ret = ret.sparse() # gets us a sparse but full vector
+		
+		def mul(m,v):
+			return m
+		def add(x,y):
+			raise ValueError,"duplicate coordinates"
+		M.SpMV(ret, semiring=sr(add, mul), inPlace=True)
+		
+		return ret
+	
 	def _stealFrom(self, other):
 		self._v_ = other._v_
 		self._identity_ = other._identity_
@@ -77,7 +104,7 @@ class Vec(object):
 		return ret
 
 	# NEEDED: type change needs to be updated		
-	def copy(self, element=None, hardFilter=True):
+	def copy(self, element=None, materializeFilter=True):
 		"""
 		creates a deep copy of the input argument.
 		FIX:  doc 'element' arg that converts element of result
@@ -87,8 +114,8 @@ class Vec(object):
 		ret._identity_ = self._identity_
 		if element is not None and type(self._identity_) is not type(element):
 			# changing elemental type. This will also implement a hard filter.
-			if not hardFilter:
-				raise KeyError, "cannot do a soft filter copy if changing type. Specify hardFilter=True"
+			if not materializeFilter:
+				raise KeyError, "cannot copy a filter copy if changing type. Specify materializeFilter=True"
 				
 			ret = Vec(len(self), element=element, sparse=self.isSparse())
 			def coercefunc(x, y): 
@@ -102,12 +129,12 @@ class Vec(object):
 			ret.eWiseApply(self, coercefunc, allowANulls=True, inPlace=True)
 			
 		elif self._hasFilter():
-			if hardFilter:
+			if materializeFilter:
 				# materialize the filter
 				ret = Vec(len(self), element=self._identity_, sparse=self.isSparse())
-				# eWiseApply already has filtering implemented, so piggy-back on it
-				# inPlace ensures that eWiseApply doesn't try to make a copy, leading
-				# to an infinite loop
+				# eWiseApply already has filtering implemented, so piggy-back on it.
+				# inPlace ensures that eWiseApply doesn't try to make a copy (leading
+				# to an infinite loop)
 				ret.eWiseApply(self, (lambda r, s: s), allowANulls=True, inPlace=True)
 			else:
 				# copy all the data as is and copy the filters
@@ -118,34 +145,7 @@ class Vec(object):
 			ret._v_ = self._v_.copy()
 		
 		return ret
-		
-		# filter the new vector; note generic issue of distinguishing
-		#   zero from null
-		if self._hasFilter():
-			class tmpU:
-				_filter_ = self._filter_
-				@staticmethod
-				def fn(x):
-					for i in range(len(tmpU._filter_)):
-						if not tmpU._filter_[i](x):
-							return type(self._identity_)()
-					return x
-			tmpInstance = tmpU()
-			ret._v_.Apply(pcb.unaryObj(tmpInstance.fn))
-			pass
-		if element is not None and type(self._identity_) is not type(element):
-			tmp = Vec(len(self), element=element, sparse=self.isSparse())
-			def func(x, y): 
-				#ToDo:  assumes that at least x or y is an ObjX
-				if isinstance(x,(float,int,long)):
-					ret = y.coerce(x, False)
-				else:
-					ret = x.coerce(y, True)
-				return ret
-			tmp2 = tmp.eWiseApply(ret, func, True, True)
-			ret = tmp2
-		return ret	
-	
+			
 	@staticmethod
 	def load(fname, element=0.0, sparse=True):
 		"""
@@ -160,12 +160,11 @@ class Vec(object):
 		saves this vector to a file.
 		"""
 		if self._hasFilter():
-			f = self.copy(hardFilter=True)
+			f = self.copy(materializeFilter=True)
 			f._v_.save(fname)
 		else:
 			self._v_.save(fname)
 
-	# NEEDED: filters
 	def dense(self):	
 		"""
 		converts a sparse Vec instance into a dense instance of the same
@@ -178,8 +177,7 @@ class Vec(object):
 		else:
 			return Vec._toVec(self._v_.dense())
 
-	# TODO: have it accept a predicate that defines the sparsity. Use eWiseApply to implement.
-	# NEEDED: filters
+	# TODO: accept a predicate that defines the sparsity. Use eWiseApply to implement.
 	def sparse(self):
 		"""
 		converts a dense Vec instance into a sparse instance which
@@ -368,7 +366,6 @@ class Vec(object):
 		"""
 		return isinstance(self._v_, (pcb.pySpParVec, pcb.pySpParVecObj1, pcb.pySpParVecObj2))
 	
-	# NEEDED: update with proper init
 	@staticmethod
 	def ones(sz, element=1.0, sparse=False):
 		"""
@@ -412,7 +409,6 @@ class Vec(object):
 		ret = Vec(sz, element, sparse=False)
 		return ret
 
-	# NEEDED: filters
 	def printAll(self):
 		"""
 		prints all elements of a Vec instance (which may number millions
@@ -458,17 +454,9 @@ class Vec(object):
 		ret = Vec(stop-start, element=element)
 		if not ret.isObj():
 			if sparse:
-	#			if master():
-	#				print "Calling sparse range"			
 				ret._v_ = pcb.pySpParVec.range(stop-start,start)
-	#			if master():
-	#				print "Called sparse range"			
 			else:
-	#			if master():
-	#				print "Calling dense range"			
 				ret._v_ = pcb.pyDenseParVec.range(stop-start,start)
-	#			if master():
-	#				print "Called dense range"			
 		else:
 			#HACK:  serial set is not practical for large sizes
 			Obj1 = pcb.Obj1()
@@ -522,7 +510,6 @@ class Vec(object):
 
 	_REPR_MAX = 30;
 	_REPR_WARN = 0
-	# NEEDED: filters
 	def __repr__(self):
 		"""
 		returns a string representation of this Vec instance.
@@ -707,107 +694,6 @@ class Vec(object):
 #### EWiseApply
 ################################
 
-
-# Old filtering code left here for reference:
-#
-#		if hasattr(self, '_filter_') or hasattr(other, '_filter_'):
-#			class tmpB:
-#				if hasattr(self,'_filter_') and len(self._filter_) > 0:
-#					selfVFLen = len(self._filter_)
-#					vFilter1 = self._filter_
-#				else:
-#					selfVFLen = 0
-#				if hasattr(other,'_filter_') and len(other._filter_) > 0:
-#					otherVFLen = len(other._filter_)
-#					vFilter2 = other._filter_
-#				else:
-#					otherVFLen = 0
-#				@staticmethod
-#				def fn(x, y):
-#					for i in range(tmpB.selfVFLen):
-#						if not tmpB.vFilter1[i](x):
-#							x = type(self._identity_)()
-#							break
-#					for i in range(tmpB.otherVFLen):
-#						if not tmpB.vFilter2[i](y):
-#							y = type(other._identity_)()
-#							break
-#					return op(x, y)
-#			superOp = tmpB().fn
-#		else:
-#			superOp = op
-
-	# NOTE: this function is specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_sparse_eWiseApply(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, predicate, allowIntersect):
-		"""
-		internal function. use eWiseApply().
-		"""
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect)
-		
-		if predicate:
-			superOp = _op_make_binary_pred(superOp)
-		else:
-			superOp = _op_make_binaryObj(superOp)
-		
-		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect)
-		ret = Vec._toVec(v)
-		return ret
-
-	# NOTE: this function is specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _sparse_dense_eWiseApply(self, other, op, doOp, allowANulls, ANull, predicate, allowIntersect):
-		"""
-		internal function. use eWiseApply().
-		"""
-		if not allowIntersect:
-			return Vec(len(self), init=self._identity_)
-
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, allowANulls, True, ANull, other._identity_, allowIntersect)
-
-		if predicate:
-			superOp = _op_make_binary_pred(superOp)
-		else:
-			superOp = _op_make_binaryObj(superOp)
-
-		v = pcb.EWiseApply(self._v_, other._v_, superOp, _op_make_binary_pred(doOp), allowANulls, ANull)
-		ret = Vec._toVec(v)
-		return ret
-
-	# NOTE: this function is specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_sparse_eWiseApply_inPlace(self, other, op, doOp, allowBNulls, BNull, predicate, allowIntersect):
-		"""
-		internal function. use eWiseApply().
-		"""
-		if not allowIntersect:
-			return Vec(len(self), init=self._identity_)
-			
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, allowBNulls, self._identity_, BNull, allowIntersect)
-			
-		if predicate:
-			superOp = _op_make_binary_pred(superOp)
-		else:
-			superOp = _op_make_binaryObj(superOp)
-			
-		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp), allowBNulls, BNull)
-	
-	# NOTE: this function is specific because pyCombBLAS calling
-	#  sequences are different for EWiseApply on sparse/dense vectors
-	def _dense_dense_eWiseApply_inPlace(self, other, op, doOp, predicate, allowIntersect):
-		"""
-		internal function. use eWiseApply().
-		"""
-		if not allowIntersect:
-			return Vec(len(self), init=self._identity_)
-
-		superOp, doOp = FilterHelper.getEWiseFilteredOps(self, other, op, doOp, True, True, self._identity_, other._identity_, allowIntersect)
-
-		if predicate:
-			superOp = _op_make_binary_pred(superOp)
-		else:
-			superOp = _op_make_binaryObj(superOp)
-		self._v_.EWiseApply(other._v_, superOp, _op_make_binary_pred(doOp))
 	
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False, allowIntersect=True):
 		"""
@@ -865,41 +751,33 @@ class Vec(object):
 		if self.isSparse():
 			if other.isSparse(): # sparse, sparse
 				if inPlace:
-					#ret = self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
 					ret = Vec._toVec(ret)
 					self._stealFrom(ret)
 				else:
-					#return self._sparse_sparse_eWiseApply(other, op, doOp, allowANulls=allowANulls, allowBNulls=allowBNulls, ANull=self._identity_, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
 					return Vec._toVec(ret)
 			else: # sparse, dense
 				if inPlace:
-					#ret = self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
 					ret = Vec._toVec(ret)
 					self._stealFrom(ret)
 				else:
-					#return self._sparse_dense_eWiseApply(other, op, doOp, allowANulls=allowANulls, ANull=self._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
 					return Vec._toVec(ret)
 		else:
 			if other.isSparse(): # dense, sparse
 				if inPlace:
-					#self._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					self._v_.EWiseApply(other._v_, op, doOp, allowBNulls, BNull, selfFilter, otherFilter)
 				else:
 					ret = self.copy()
-					#ret._dense_sparse_eWiseApply_inPlace(other, op, doOp, allowBNulls=allowBNulls, BNull=other._identity_, predicate=predicate, allowIntersect=allowIntersect)
 					ret._v_.EWiseApply(other._v_, op, doOp, allowBNulls, BNull, selfFilter, otherFilter)
 					return ret
 			else: # dense, dense
 				if inPlace:
-					#self._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
 					self._v_.EWiseApply(other._v_, op, doOp, selfFilter, otherFilter)
 				else:
 					ret = self.copy()
-					#ret._dense_dense_eWiseApply_inPlace(other, op, doOp, predicate=predicate, allowIntersect=allowIntersect)
 					ret._v_.EWiseApply(other._v_, op, doOp, selfFilter, otherFilter)
 					return ret
 
@@ -1496,26 +1374,12 @@ class Vec(object):
 		ret = math.sqrt((diff*diff).sum()/len(self))
 		return ret 
 
-	# NEEDED: AL: shouldn't this just be a call to reduce?
 	def sum(self):
 		"""
 		returns the sum of all the non-null values in the Vec instance.
 		"""
 		return self.reduce(lambda x,y: x+y)
 		
-		if self.nnn() == 0:
-			if isinstance(self._identity_, (float, int, long)):
-				ret = 0
-			elif isinstance(self._identity_, pcb.Obj1):
-				ret = pcb.Obj1()
-		else:
-			if isinstance(self._identity_, (float, int, long)):
-				ret = self.reduce(op_add)
-			elif isinstance(self._identity_, (pcb.Obj1, pcb.Obj2)):
-		 		func = lambda x, other: x.__iadd__(other)
-				ret = self.reduce(pcb.binaryObj(func))
-		return ret
-
 	#in-place, so no return value
 	# NEEDED: handle objects
 	def toBool(self):

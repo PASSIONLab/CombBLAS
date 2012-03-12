@@ -8,7 +8,7 @@ pySpParMatBool EWiseMult(const pySpParMatBool& A1, const pySpParMatBool& A2, boo
 	return pySpParMatBool(EWiseMult(A1.A, A2.A, exclude));
 }
 
-pySpParMatBool::pySpParMatBool()
+pySpParMatBool::pySpParMatBool(): A(new DCColsType(), commGrid)
 {
 }
 
@@ -317,7 +317,7 @@ pyDenseParVec pySpParMatBool::Reduce(int dim, op::BinaryFunction* bf, op::UnaryF
 	else
 		len = getncol();
 		
-	pyDenseParVec ret(len, identity, identity);
+	pyDenseParVec ret(len, identity);
 	FullyDistVec<INDEXTYPE, doubleint> tmp;
 	
 	// Make a temporary graph	
