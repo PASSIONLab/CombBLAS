@@ -217,11 +217,11 @@ public:
 	//! Friend declarations
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU, NUO, UDERO> 
-	Mult_AnXBn_DoubleBuff (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
+	Mult_AnXBn_DoubleBuff (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
 
 	template <typename SR, typename NUO, typename UDERO, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,NUO,UDERO> 
-	Mult_AnXBn_Synch (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB );
+	Mult_AnXBn_Synch (SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA, bool clearB);
 
 	template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
 	friend SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER1,UDER2>::T_promote> 
@@ -295,6 +295,14 @@ void PSpGEMM(SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, SpParMat<IU
 	out = Mult_AnXBn_Synch<SR, NUO, UDERO> (A, B, clearA, clearB );
 }
 
+template <typename SR, typename IU, typename NU1, typename NU2, typename UDER1, typename UDER2> 
+SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UDER2,UDER2>::T_promote>
+	PSpGEMM	(SpParMat<IU,NU1,UDER1> & A, SpParMat<IU,NU2,UDER2> & B, bool clearA = false, bool clearB = false)
+{
+	typedef typename promote_trait<NU1,NU2>::T_promote N_promote;
+	typedef typename promote_trait<UDER1,UDER2>::T_promote DER_promote;
+	return Mult_AnXBn_Synch<SR, N_promote, DER_promote> (A, B, clearA, clearB );
+}
 
 #include "SpParMat.cpp"
 #endif

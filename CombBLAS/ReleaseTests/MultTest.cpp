@@ -5,26 +5,14 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#ifdef NOTR1
-        #include <boost/tr1/memory.hpp>
-#else
-        #include <tr1/memory>
-#endif
+#include "../CombBLAS.h"
+
 using namespace std;
 #ifdef TIMING
 double cblas_alltoalltime;
 double cblas_allgathertime;
 #endif
 
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-#include "../FullyDistVec.h"
-#include "../FullyDistSpVec.h"
-#include "../ParFriends.h"
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -60,9 +48,6 @@ int main(int argc, char* argv[])
 		string V1name(argv[4]);
 		string V2name(argv[5]);
 
-		ifstream inputA(Aname.c_str());
-		ifstream inputB(Bname.c_str());
-		ifstream inputC(Cname.c_str());
 		ifstream vecinpx(V1name.c_str());
 		ifstream vecinpy(V2name.c_str());
 
@@ -75,10 +60,10 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, double> ycontrol, x;
 		FullyDistSpVec<int64_t, double> spycontrol, spx;
 		
-		A.ReadDistribute(inputA, 0);
+		A.ReadDistribute(Aname, 0);
 #ifndef NOGEMM
-		B.ReadDistribute(inputB, 0);
-		CControl.ReadDistribute(inputC, 0);
+		B.ReadDistribute(Bname, 0);
+		CControl.ReadDistribute(Cname, 0);
 #endif
 		x.ReadDistribute(vecinpx, 0);
 		spx.ReadDistribute(vecinpx, 0);
@@ -93,6 +78,9 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Dense SpMV, go fix it!\n");	
+			ofstream ydense("ycontrol_dense.txt");
+			y.SaveGathered(ydense,0);
+			ydense.close();
 		}
 
 		FullyDistSpVec<int64_t, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
@@ -104,9 +92,12 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in Sparse SpMV, go fix it!\n");	
+			ofstream ysparse("ycontrol_sparse.txt");
+			spy.SaveGathered(ysparse,0);
+			ysparse.close();
 		}
 #ifndef NOGEMM
-		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A,B);
+		C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
 		if (CControl == C)
 		{
 			SpParHelper::Print("Synchronous Multiplication working correctly\n");	
@@ -117,7 +108,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in Synchronous Multiplication, go fix it!\n");	
 		}
 
-		C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A,B);
+		C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A,B);
 		if (CControl == C)
 		{
 			SpParHelper::Print("Double buffered multiplication working correctly\n");	
@@ -157,12 +148,6 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in multithreaded sparse SpMV, go fix it!\n");	
 		}
 
-		inputA.clear();
-		inputA.close();
-		inputB.clear();
-		inputB.close();
-		inputC.clear();
-		inputC.close();
 		vecinpx.clear();
 		vecinpx.close();
 		vecinpy.clear();

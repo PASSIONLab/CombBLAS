@@ -729,9 +729,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
 }
 
 /**
- * Old version that is no longer considered optimal
- * Kept for legacy purposes
- * To be removed when other functionals are fully tested.
+ * Parallel dense SpMV
  **/ 
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
@@ -806,6 +804,11 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 }
 
 	
+/**
+ * Old version that is no longer considered optimal
+ * Kept for legacy purposes
+ * To be removed when other functionals are fully tested.
+ **/ 
 template <typename SR, typename IU, typename NUM, typename NUV, typename UDER> 
 FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV 
 	(const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,NUV> & x)

@@ -7,13 +7,13 @@
 *
 * @section intro Introduction
 * <b>Download</b> 
-* - The latest CMake'd tarball (version 1.2, August 2011) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). The previous version (1.1, May 2011) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_11.tar.gz"> here </a> for backwards compatibility and benchmarking. 
+* - The latest CMake'd tarball (version 1.2.0, March 2012) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). The previous version (1.1.1, August 2011) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_11_1.tar.gz"> here </a> for backwards compatibility and benchmarking. 
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		-  <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata.tar.gz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata.tar.gz"
+* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/testdata_combblas1.2.tar.gz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.tar.gz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-neumann) 
 * 
@@ -46,9 +46,15 @@
 * much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
 * (sparse matrix-dense vector multiplication) 
 *
+* <b> New in version 1.2</b>: 
+* - It is possible to create matrices with globally 64-bit, locally 32-bit indices. This is very handy because the index range 
+* for submatrices are typically addressible with 32-bit indices but the global semantics require 64-bit computation.
+* Example: SpParMat<int64_t, float, SpDCCols<int32_t,float> > A;
+* - Some primitives (Sparse SpMV, EWiseMult, Apply, Set) are hybrid multithreaded within a socket. Read this <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLASv1.2_threading.txt"> short tutorial </a>.  
+* - A new binary format. Read the manual <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/Input_File_Formats.pdf">here</a>.
 *
 * The supported operations (a growing list) are:
-* - Sparse matrix-matrix multiplication on a semiring SR: Mult_AnXBn_Synch(), and other variants
+* - Sparse matrix-matrix multiplication on a semiring SR: PSpGEMM()
 * - Elementwise multiplication of sparse matrices (A .* B and A .* not(B) in Matlab): EWiseMult()
 * - Unary operations on nonzeros: SpParMat::Apply()
 * - Matrix-matrix and matrix-vector scaling (the latter scales each row/column with the same scalar of the vector) 
@@ -58,10 +64,11 @@
 * - Generalized matrix indexing: SpParMat::operator(const vector<IT> & ri, const vector<IT> & ci)
 * - Numeric type conversion through conversion operators
 * - Elementwise operations between sparse and dense matrices: SpParMat::EWiseScale() and operator+=()  
+* - BFS specific optimizations inside BFSFriends.h
 * 
 * All the binary operations can be performed on matrices with different numerical value representations.
 * The type-traits mechanism will take care of the automatic type promotion, and automatic MPI data type determination.
-* Of course, you have to declare the return value type appropriately (until C++0x is out, which has <a href="http://www.research.att.com/~bs/C++0xFAQ.html#auto"> auto </a>) 
+* Of course, you have to declare the return value type appropriately (until C++11 is stable, which has <a href="http://www.research.att.com/~bs/C++0xFAQ.html#auto"> auto </a>) 
 *
 * Some features it uses:
 * - templates (for generic types, and for metaprogramming through "curiously recurring template pattern")
@@ -78,15 +85,12 @@
 * 
 * Important Sequential classes:
 * - SpTuples		: uses triples format to store matrices, mostly used for input/output and intermediate tasks (such as sorting)
-* - SpCCols		: multiplication is similar to Matlab's, holds CSC. 
 * - SpDCCols		: implements Alg 1B and Alg 2 [2], holds DCSC.
 
 * Important Parallel classes:
 * - SpParMat		: distributed memory MPI implementation 
 	\n Each processor locally stores its submatrix (block) as a sequential SpDCCols object
-	\n Uses a polyalgorithm for SpGEMM. 
-	\n If robust MPI-2 support is not available, then it reverts back to a less scalable synchronous algorithm that is based on SUMMA [3]
-	\n Otherwise, it uses an asyncronous algorithm based on one sided communication. This performs best on an interconnect with RDMA support
+	\n Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BFS like Sparse SUMMA [3] algorithm.
 * - FullyDistVec	: dense vector distributed to all processors
 * - FullyDistSpVec:	: sparse vector distributed to all processors
 *
@@ -95,7 +99,7 @@
 * - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/code/CombBLAS/scale17_bc_inp.tar.gz"> here </a>.
 * - MCL.cpp : An implementation of the MCL graph clustering algorithm.
 * - Graph500.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a>.
-* 
+*
 * <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]
 *
 * Test programs demonstrating how to use the library:

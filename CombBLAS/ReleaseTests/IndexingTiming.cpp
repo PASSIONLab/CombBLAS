@@ -5,13 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../FullyDistVec.h"
-#include "../FullyDistSpVec.h"
-#include "../ParFriends.h"
-#include "../DistEdgeList.h"
+#include "../CombBLAS.h"
 
 using namespace std;
 
@@ -44,20 +38,8 @@ int main(int argc, char* argv[])
 		PARDBMAT * A;		// declare objects
 		if(string(argv[1]) == string("Input"))
 		{
-			ifstream input(argv[2]);
-			if(myrank == 0)
-			{	
-				if(input.fail())
-				{
-					cout << "One of the input files do not exist, aborting" << endl;
-					MPI::COMM_WORLD.Abort(NOFILE);
-					return -1;
-				}
-			}
 			MPI::COMM_WORLD.Barrier();
-			A->ReadDistribute(input, 0);	
-			input.clear();
-			input.close();
+			A->ReadDistribute(argv[2], 0);	
 		}
 		else if(string(argv[1]) == string("Binary"))
 		{

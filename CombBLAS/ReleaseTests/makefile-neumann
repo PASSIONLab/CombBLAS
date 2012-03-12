@@ -7,9 +7,12 @@ INCADD = -I$(INCDIR)
 
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
-#COMPILER = /home/aydin/localinstall/mpich2-1.2/bin/mpicxx  # default mpicc is OpenMPI 1.3.2
 COMPILER = mpicxx
 FLAGS = $(OPT) -DCOMBBLAS_TR1
+COMBBLAS = ..
+
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o CommGrid.o ../CommGrid.cpp
@@ -56,8 +59,8 @@ MultTest: MemoryPool.o CommGrid.o MPIType.o MultTest.o
 IndexingTest: MemoryPool.o CommGrid.o MPIType.o IndexingTest.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o IndexingTest IndexingTest.o MemoryPool.o CommGrid.o MPIType.o
 
-IndexingTiming: MemoryPool.o CommGrid.o MPIType.o IndexingTiming.o
-	$(COMPILER) $(INCADD) $(FLAGS) -o IndexingTiming IndexingTiming.o MemoryPool.o CommGrid.o MPIType.o
+IndexingTiming: MemoryPool.o CommGrid.o MPIType.o IndexingTiming.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o IndexingTiming IndexingTiming.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 MultTime: MemoryPool.o CommGrid.o MPIType.o MultTiming.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o MultTime MultTiming.o MemoryPool.o CommGrid.o MPIType.o
