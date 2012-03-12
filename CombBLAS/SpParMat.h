@@ -74,6 +74,7 @@ public:
 	
 	// Constructors
 	SpParMat ();
+	SpParMat (shared_ptr<CommGrid> grid);
 	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
 		
 	SpParMat (ifstream & input, MPI::Intracomm & world);
