@@ -267,6 +267,7 @@ CombBLAS/Applications/script1024 -text
 CombBLAS/Applications/script256 -text
 CombBLAS/Applications/script4096 -text
 CombBLAS/Applications/torus.mtx -text
+CombBLAS/Applications/twitterresults/largetwitter_p16.results -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BFSFriends.h -text
 CombBLAS/BranchTrial/Friends.h -text
