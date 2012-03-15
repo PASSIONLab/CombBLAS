@@ -12,7 +12,9 @@
 	#endif
 	#include <omp.h>
 #endif
-#include <Profile/Profiler.h>
+#ifdef TAU_PROFILE
+	#include <Profile/Profiler.h>
+#endif
 
 
 // These macros should be defined before stdint.h is included
@@ -54,9 +56,11 @@ void Symmetricize(PARMAT & A)
 
 int main(int argc, char* argv[])
 {
+#ifdef TAU_PROFILE
 	TAU_PROFILE_TIMER(maintimer, "main()", "int (int, char **)", TAU_DEFAULT);
     	TAU_PROFILE_INIT(argc, argv);
     	TAU_PROFILE_START(maintimer);
+#endif
 
 	MPI::Init(argc, argv);
 	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
@@ -316,7 +320,9 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(os.str());
 		}
 	}
+#ifdef TAU_PROFILE
     	TAU_PROFILE_STOP(maintimer);
+#endif
 	MPI::Finalize();
 	return 0;
 }

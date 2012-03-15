@@ -87,11 +87,14 @@ class TwitterReadSaveHandler
 		void binaryfill(FILE * rFile, IT & row, IT & col, TwitterEdge & val)
 		{
 			TwitterInteraction twi;
-			fread (&twi,sizeof(TwitterInteraction),1,rFile);
+			size_t entryLength = fread (&twi,sizeof(TwitterInteraction),1,rFile);
 			row = twi.from - 1 ;
 			col = twi.to - 1;
 			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
+			if(entryLength != entrylength())
+				cout << "Not enough bytes read in binaryfill" << endl;
 		}
+		size_t entrylength() { return sizeof(TwitterInteraction); }
 
 		template <typename c, typename t>
 		TwitterEdge read(std::basic_istream<c,t>& is, IT row, IT col)
