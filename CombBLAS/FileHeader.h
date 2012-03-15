@@ -46,9 +46,9 @@ struct HeaderInfo
 };
 	
 // cout's are OK because ParseHeader is run by a single processor only
-inline HeaderInfo ParseHeader(const string & inputname, FILE * & f)
+inline HeaderInfo ParseHeader(const string & inputname, FILE * & f, int & seeklength)
 {
-	f = fopen(inputname.c_str(), "r");
+	f = fopen(inputname.c_str(), "rb");
 	HeaderInfo hinfo;
 	memset(&hinfo, 0, sizeof(hinfo));
 	if(!f)
@@ -96,6 +96,7 @@ inline HeaderInfo ParseHeader(const string & inputname, FILE * & f)
 	#endif
 	}
 
+	seeklength = 4 + 6 * sizeof(uint64_t);
 	return hinfo;
 }
 				  

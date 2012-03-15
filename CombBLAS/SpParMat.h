@@ -181,7 +181,14 @@ public:
 	{
 	public:
 		NT getNoNum(IT row, IT col) { return static_cast<NT>(1); }
-		void binaryfill(FILE * rFile, IT & row, IT & col, NT & val) { return; }
+		void binaryfill(FILE * rFile, IT & row, IT & col, NT & val) 
+		{ 
+			fread(row, sizeof(IT), 1,rFile);
+			fread(col, sizeof(IT), 1,rFile);
+			fread(val, sizeof(NT), 1,rFile);
+			return; 
+		}
+		size_t entrylength() { return 2*sizeof(IT)+sizeof(NT); }
 		
 		template <typename c, typename t>
 		NT read(std::basic_istream<c,t>& is, IT row, IT col)
@@ -199,8 +206,11 @@ public:
 	};
 	
 	template <class HANDLER>
-	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false);
-	void ReadDistribute (const string & filename, int master, bool nonum=false) { ReadDistribute(filename, master, nonum, ScalarReadSaveHandler()); }
+	void ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose = false, bool pario = false);
+	void ReadDistribute (const string & filename, int master, bool nonum=false, bool pario = false) 
+	{ 
+		ReadDistribute(filename, master, nonum, ScalarReadSaveHandler(), false, pario); 
+	}
 
 	template <class HANDLER>
 	void SaveGathered(string filename, HANDLER handler, bool transpose = false) const;
@@ -280,6 +290,19 @@ public:
 
 private:
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
+	
+	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, vector < tuple <IT,IT,NT> > & localtuples,
+						int * rcurptrs, int * rdispls, IT buffperrowneigh, int rowneighs, int recvcount, IT m_perproc, IT n_perproc, int rankinrow);
+	
+        template <class HANDLER>
+	void ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, NT * & vals, vector< tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
+			IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, IT entriestoread, HANDLER handler, int rankinrow, bool transpose);
+
+	void VerticalSend(IT * & rows, IT * & cols, NT * & vals, vector< tuple<IT,IT,NT> > & localtuples, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls, 
+				IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, int rankinrow);
+	
+	void AllocateSetBuffers(IT * & rows, IT * & cols, NT * & vals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh);
+	
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
 	
