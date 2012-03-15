@@ -100,7 +100,7 @@ public:
 
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
-	bool hasPassedFilter;
+	//bool hasPassedFilter;
 };
 
 
@@ -253,7 +253,7 @@ public:
 
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
-	bool hasPassedFilter;	
+	//bool hasPassedFilter;	
 };
 //INTERFACE_INCLUDE_END
 

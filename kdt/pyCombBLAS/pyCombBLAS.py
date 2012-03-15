@@ -533,9 +533,6 @@ class Obj1(_object):
     def __eq__(*args): return _pyCombBLAS.Obj1___eq__(*args)
     def __ne__(*args): return _pyCombBLAS.Obj1___ne__(*args)
     def __lt__(*args): return _pyCombBLAS.Obj1___lt__(*args)
-    __swig_setmethods__["hasPassedFilter"] = _pyCombBLAS.Obj1_hasPassedFilter_set
-    __swig_getmethods__["hasPassedFilter"] = _pyCombBLAS.Obj1_hasPassedFilter_get
-    if _newclass:hasPassedFilter = _swig_property(_pyCombBLAS.Obj1_hasPassedFilter_get, _pyCombBLAS.Obj1_hasPassedFilter_set)
     __swig_destroy__ = _pyCombBLAS.delete_Obj1
     __del__ = lambda self : None;
 Obj1_swigregister = _pyCombBLAS.Obj1_swigregister
@@ -563,9 +560,6 @@ class Obj2(_object):
     def __eq__(*args): return _pyCombBLAS.Obj2___eq__(*args)
     def __ne__(*args): return _pyCombBLAS.Obj2___ne__(*args)
     def __lt__(*args): return _pyCombBLAS.Obj2___lt__(*args)
-    __swig_setmethods__["hasPassedFilter"] = _pyCombBLAS.Obj2_hasPassedFilter_set
-    __swig_getmethods__["hasPassedFilter"] = _pyCombBLAS.Obj2_hasPassedFilter_get
-    if _newclass:hasPassedFilter = _swig_property(_pyCombBLAS.Obj2_hasPassedFilter_get, _pyCombBLAS.Obj2_hasPassedFilter_set)
     __swig_destroy__ = _pyCombBLAS.delete_Obj2
     __del__ = lambda self : None;
 Obj2_swigregister = _pyCombBLAS.Obj2_swigregister
