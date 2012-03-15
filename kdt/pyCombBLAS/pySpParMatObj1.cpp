@@ -48,8 +48,16 @@ class Obj1ReadSaveHandler
 {
 public:
 	Obj1 getNoNum(pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col) { return Obj1(); }
-	void binaryfill(FILE * rFile, pySpParMatObj1::INDEXTYPE & row, pySpParMatObj1::INDEXTYPE & col, Obj1 & val) { return; }
-
+	void binaryfill(FILE * rFile, pySpParMatObj1::INDEXTYPE & row, pySpParMatObj1::INDEXTYPE & col, Obj1 & val)
+	{
+		fread(&row, sizeof(pySpParMatObj1::INDEXTYPE), 1,rFile);
+		fread(&col, sizeof(pySpParMatObj1::INDEXTYPE), 1,rFile);
+		fread(&val, sizeof(Obj1), 1,rFile);
+		return;
+	}
+	
+	size_t entrylength() { return 2*sizeof(pySpParMatObj1::INDEXTYPE)+sizeof(Obj1); }
+	
 	template <typename c, typename t>
 	Obj1 read(std::basic_istream<c,t>& is, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
 	{

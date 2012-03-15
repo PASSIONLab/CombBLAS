@@ -585,8 +585,6 @@ def cluster(self, alg, **kwargs):
 	"""
 	if alg=='Markov' or alg=='markov':
 		A = DiGraph._MCL(self, **kwargs)
-		#A.save("problemMat.mtx")
-		#A = Mat.load("problemMat.mtx")
 		G = DiGraph(edges=A)
 		clus = G.connComp()
 		return clus, G
@@ -643,7 +641,7 @@ def connComp(self):
 	
 DiGraph.connComp = connComp
 
-def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False, retNEdges=False):
+def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, prunelimit=0.00001, sym=False):
 	"""
 	Performs Markov Clustering (MCL) on self and returns a graph representing the clusters.
 	"""
@@ -660,7 +658,7 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 	if inflation <= 1:
 		raise KeyError, 'inflation parameter must be greater than 1'
 	
-	A = self.e.copy()
+	A = self.e.copy(element=1.0)
 	#if not sym:
 		#A = A + A.Transpose() at the points where A is 0 or null
 	
@@ -681,9 +679,6 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 	invSums.apply(inv)
 	A.scale( invSums , dir=Mat.Column)
 	
-	if retNEdges:
-		nedges = 0
-	
 	#Iterations tally
 	iterNum = 0
 	
@@ -692,15 +687,10 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 		iterNum += 1;
 	
 		#Expansion - A^(expansion)
-		if retNEdges:
-			AA = A.copy()
+		A_copy = A.copy()
 		for i in range(1, expansion):
-			if retNEdges:
-				AA.apply(op_set(1))
-				AA.SpGEMM(AA, semiring=sr_plustimes, inPlace=True)
-				nedges += AA.sum(Mat.Column).reduce(op_add)
-			#A = A.SpGEMM(A, semiring=sr_plustimes)
-			A.SpGEMM(A, semiring=sr_plustimes, inPlace=True)
+			# A = A_copy*A
+			A_copy.SpGEMM(A, semiring=sr_plustimes, inPlace=True)
 	
 		#Inflation - Hadamard power - greater inflation parameter -> more granular results
 		A.apply((lambda x: x**inflation))
@@ -718,12 +708,6 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 
 		# Pruning implementation - switch out with TopK / give option
 		A._prune((lambda x: x < prunelimit))
-		#print "number of edges remaining =", A._spm.getnee()
-
-	#print "Iterations = %d" % iterNum
-	
-	if retNEdges:
-		return A,nedges
 
 	return A
 DiGraph._MCL = _MCL
@@ -733,7 +717,7 @@ def _cluster_agglomerative(self, roots):
 	build len(roots) clusters. Each vertex in the graph is added
 	to the cluster closest to it. "closest" means shortest path.
 	"""
-	raise NotImplementedError, "broken."
+	raise NotImplementedError, "agglomerative clustering is broken"
 	A = self.e.copy()
 	
 	t = A.copy()

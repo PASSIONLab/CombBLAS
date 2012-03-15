@@ -981,7 +981,7 @@ public:
 	}
 
 	// for filtering matrices.
-	bool hasPassedFilter;
+	//bool hasPassedFilter;
 };
 
 
@@ -1039,7 +1039,7 @@ public:
 	}
 
 	// for filtering matrices.
-	bool hasPassedFilter;	
+	//bool hasPassedFilter;	
 };
 
 namespace op {

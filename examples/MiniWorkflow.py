@@ -2,15 +2,18 @@ import sys
 import kdt
 import pygraphviz as pgv
 
-directed = False
+directed = False # whether or not to draw the final graphs as directed or undirected
 
 #parse arguments
 if (len(sys.argv) < 2):
-	print "Usage: python %s graph.mtx graph_image_filename"%(sys.argv[0])
-	sys.exit()
-	
-inmatrixfile = sys.argv[1]
-outfile = sys.argv[2]
+	kdt.p("Usage: python %s graph.mtx graph_image_filename"%(sys.argv[0]))
+	kdt.p("Not enough parameters were given, so an example graph will be used. This graph is loaded from the University of Florida Sparse Matrix Collection using the kdt.UFget() function, so it requires internet access.")
+	useDfltGraph = True
+	outfile = "KDT-MiniWorkflow.png"
+else:	
+	useDfltGraph = False
+	inmatrixfile = sys.argv[1]
+	outfile = sys.argv[2]
 
 def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, directed = False, selfLoopsOK = False):
 	"""
@@ -55,13 +58,22 @@ def draw(G, outfile, copyLocationFrom = None, copyFromIndexLookup = None, direct
 	DG.draw(outfile)
 	return DG
 
-
-# load
-bigG = kdt.DiGraph.load(inmatrixfile)
-bigG.spOnes()
-
-# The picture in the SDM paper actually used a transposed matrix:
-bigG.e.transpose()
+# get the graph to visualize
+if useDfltGraph:
+	# load the graph from UFget
+	# we use this particular graph only because it happens to make a relatively nice picture.
+	# it is the same graph we used in our paper, but we used non-default MCL algorithm parameters,
+	# so the clustered images will be different.
+	bigG = kdt.UFget("Bai/bfwb62")
+	bigG.spOnes()
+	
+	# The picture in the SDM paper actually used a transposed matrix. 
+	bigG.e.transpose()
+	
+else:
+	# load the user's file
+	bigG = kdt.DiGraph.load(inmatrixfile)
+	bigG.spOnes()
 
 print "drawing the original graph:"
 OrigVertLocSource = draw(bigG, outfile.replace(".", "-1-original."), None, directed=directed)
@@ -71,13 +83,6 @@ print "Finding the largest component:"
 # comp[i] specifies vertex i's component ID (the ID is the index of a vertex in that component)
 comp = bigG.connComp()
 
-## hist() computes the histogram of comp, i.e. returns how many vertices each component has
-#hist = comp.hist()
-## we only want the largest
-#giantCompSize = hist.max()
-## find the ID of the largest component. The ID is the index of the component's root vertex
-#giantCompRoot = hist.findInds(lambda x: x == giantCompSize)[0]
-
 giantCompRoot = comp.hist().argmax()
 G = bigG.subgraph(mask=(comp==giantCompRoot))
 
@@ -85,10 +90,11 @@ G = bigG.subgraph(mask=(comp==giantCompRoot))
 # These indices are used to make sure the vertices in the subgraph appear at the same x,y positions
 # as they did in the original plot.
 compInds = kdt.DiGraph.convMaskToIndices(comp==giantCompRoot)
+
 OrigVertLocSource = draw(G, outfile.replace(".", "-2-largestcomp."), OrigVertLocSource, copyFromIndexLookup=compInds, directed=directed)
 
 print "Clustering:"
-clus, markovG = G.cluster('Markov', addSelfLoops=True, expansion=3, inflation=3, prunelimit=0.00001)
+clus, markovG = G.cluster('Markov', addSelfLoops=True, expansion=2, inflation=2, prunelimit=0.00001)
 draw(markovG, outfile.replace(".", "-3-clusters."), OrigVertLocSource, directed=False)
 
 print "Contracting:"
@@ -97,5 +103,4 @@ smallG = G.contract(clusterParents=clus)
 # Make a lookup table to convert a contracted vertex number into its old cluster parent so it can
 # use the same position in the graph.
 clusterGroup, perm = kdt.DiGraph.convClusterParentToGroup(clus, retInvPerm=True)
-
 draw(smallG, outfile.replace(".", "-4-contracted."), OrigVertLocSource, copyFromIndexLookup=perm, directed=directed)
