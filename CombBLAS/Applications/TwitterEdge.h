@@ -91,8 +91,8 @@ class TwitterReadSaveHandler
 			row = twi.from - 1 ;
 			col = twi.to - 1;
 			val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
-			if(entryLength != entrylength())
-				cout << "Not enough bytes read in binaryfill" << endl;
+			if(entryLength != 1)
+				cout << "Not enough bytes read in binaryfill " << endl;
 		}
 		size_t entrylength() { return sizeof(TwitterInteraction); }
 
