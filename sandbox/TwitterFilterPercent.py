@@ -13,8 +13,8 @@ if (len(sys.argv) < 2):
 	kdt.p("The 1st argument is either a datafile or an integer which is the scale for RMAT generation.")
 	kdt.p("The 2nd argument determines whether or not to use a materializing filter")
 	kdt.p("Examples:")
-	kdt.p("python filter_debug.mtx 1")
-	kdt.p("python 14")
+	kdt.p("python %s filter_debug.mtx 1"%(sys.argv[0]))
+	kdt.p("python %s 14"%(sys.argv[0]))
 	sys.exit()
 
 datasource = "file"
@@ -65,10 +65,10 @@ def Twitter_obj_randomizer(obj, bin):
 # 2009-06-13 0:0:0 == 1244851200
 # 2009-07-01 0:0:0 == 1246406400
 
-filterPercent = 1000000
+filterUpperValue = None
 def twitterEdgeFilter(e):
 	#print e.latest, e
-	return e.count > 0 and e.latest < filterPercent
+	return e.count > 0 and e.latest < filterUpperValue
 
 #	return e.count > 0 and e.latest > 946684800 and e.latest < 1249084800
 #	return e.follower == 0
@@ -122,15 +122,18 @@ kdt.p("Calculated in %fs."%(time.time()-before))
 
 
 def run(materialize):
-	global G, nstarts, origDegrees, filterPercent
+	global G, nstarts, origDegrees, filterUpperValue
 	runStarts = nstarts
+	filterPercent = filterUpperValue/100.0
 	
 	G.addEFilter(twitterEdgeFilter)
+	materializeTime = 0
 	if materialize:
 		kdt.p("--Materializing the filter")
 		before = time.time()
 		G.e.materializeFilter()
-		kdt.p("Materialized in %fs."%(time.time()-before))
+		materializeTime = time.time()-before
+		kdt.p("Materialized %f in\t%f\ts."%(filterPercent, materializeTime))
 		kdt.p("%d edges survived the filter."%(G.nedge()))
 
 	
@@ -143,11 +146,12 @@ def run(materialize):
 		# this is mainly for filter_debug.txt
 		deg3verts = (degrees > 0).findInds()
 	if len(deg3verts) == 0:
-		return
-	deg3verts.randPerm()
-	if runStarts > len(deg3verts):
-		runStarts = len(deg3verts)
-	starts = deg3verts[kdt.Vec.range(runStarts)]
+		starts = []
+	else:
+		deg3verts.randPerm()
+		if runStarts > len(deg3verts):
+			runStarts = len(deg3verts)
+		starts = deg3verts[kdt.Vec.range(runStarts)]
 	kdt.p("Generated in %fs."%(time.time()-before))
 
 	kdt.p("--Doing BFS")
@@ -156,6 +160,7 @@ def run(materialize):
 	K2edges = [];
 	K2TEPS = [];
 	K2ORIGTEPS = []
+	K2MATTEPS = []
 	
 	i = 0
 	for start in starts:
@@ -205,13 +210,14 @@ def run(materialize):
 			K2edges.append(nedges)
 			K2TEPS.append(nedges/itertime)
 			K2ORIGTEPS.append(nOrigEdges/itertime)
+			K2MATTEPS.append(nedges/(itertime+materializeTime))
 			discardedString = ""
 		else:
 			discardedString = "(result discarded)"
 		
 		i += 1
 		# print result for this iteration
-		kdt.p("iteration %2d: start=%8d, BFS took %10.4fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s %s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
+		kdt.p("%f\t: iteration %2d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
 		if len(K2edges) >= keep_starts:
 			break
 	
@@ -223,23 +229,26 @@ def run(materialize):
 		else:
 			Mat = "(on-the-fly)"
 			Mat_ = "OTF"
-		#print "\nBFS execution times %s"%(Mat)
-		#printstats(K2elapsed, "%stime"%(Mat_), False)
+		print "\nBFS execution times %s"%(Mat)
+		printstats(K2elapsed, "%stime\t%f\t"%(Mat_, filterPercent), False, True, True)
 		
-		#print "\nnumber of edges traversed %s"%(Mat)
-		#printstats(K2edges, "%snedge"%(Mat_), False)
+		print "\nnumber of edges traversed %s"%(Mat)
+		printstats(K2edges, "%snedge\t%f\t"%(Mat_, filterPercent), False, True, True)
 		
 		print "\nTEPS %s"%(Mat)
-		printstats(K2TEPS, "%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
+		printstats(K2TEPS, "%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
 
 		if not materialize:
 			print "\nTEPS including filtered edges %s"%(Mat)
-			printstats(K2ORIGTEPS, "IncFiltered_%s_\t%f\t_TEPS"%(Mat_, filterPercent/100.0), True)
+			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+		else:
+			print "\nTEPS including materialization time %s"%(Mat)
+			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
 	
 	G.delEFilter(twitterEdgeFilter)
 
 
-for p in (0, 0.5, 1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 97, 98, 99, 99.5, 99.9):
-	filterPercent = int(p*100)
+for p in (0, 0.5, 1, 2, 5, 10, 20, 30, 40, 60, 100):
+	filterUpperValue = int(p*100)
 	run(False)
 	run(True)
