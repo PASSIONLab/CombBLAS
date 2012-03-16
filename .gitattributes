@@ -2086,11 +2086,13 @@ kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
 /python-mpi -text
 sandbox/Graph500_HyGraph.py -text
+sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
 sandbox/TwitterFilterPercent.py -text
 sandbox/mcl.py -text
 sandbox/roofline.py -text
 sandbox/run-roofline.sh -text
+sandbox/stats.py -text
 /setup.py -text
 test/TestDiGraph.py -text
 test/TestKDT.py -text
