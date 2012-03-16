@@ -91,7 +91,7 @@ if datasource == "file":
 	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
 	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
-	kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
+	kdt.p("Read in %fs. Read \t%d\t vertices and \t%d\t edges."%(time.time()-before, G.nvert(), G.nedge()))
 	
 	# optimize the graph
 	kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
@@ -103,7 +103,7 @@ elif datasource == "generate":
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
 	before = time.time()
 	binrmat = kdt.DiGraph.generateRMAT(gen_scale, element=1.0, delIsolated=True)
-	kdt.p("Generated in %fs: %d vertices and %d edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
+	kdt.p("Generated in %fs: \t%d\t vertices and \t%d\t edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
 
 	kdt.p("--Converting binary RMAT to twitter object")
 	G = kdt.DiGraph(nv=binrmat.nvert(), element=kdt.Obj2())
@@ -134,7 +134,7 @@ def run(materialize):
 		G.e.materializeFilter()
 		materializeTime = time.time()-before
 		kdt.p("Materialized %f in\t%f\ts."%(filterPercent, materializeTime))
-		kdt.p("%d edges survived the filter."%(G.nedge()))
+		kdt.p("%f\t: \t%d\t edges survived the filter."%(filterPercent, G.nedge()))
 
 	
 	kdt.p("--Generating starting verts")
