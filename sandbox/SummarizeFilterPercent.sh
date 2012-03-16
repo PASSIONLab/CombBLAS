@@ -29,3 +29,8 @@ grep "Materialized" $f
 echo
 echo "Materialized mean iteration time"
 grep "mean_Mattime" $f
+
+echo
+echo "Stats"
+grep "vertices and" $f
+grep "edges survived the filter" $f
