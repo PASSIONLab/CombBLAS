@@ -38,6 +38,7 @@ int cblas_splits = 1;
 #include "TwitterEdge.h"
 
 #define MAX_ITERS 1024
+#define EDGEFACTOR 16
 #define ITERS 16 
 #define CC_LIMIT 5
 #define PERMUTEFORBALANCE
@@ -87,13 +88,40 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+		PSpMat_Bool * ABool;
 
 		double t01 = MPI_Wtime();
-		if(string(argv[1]) == string("File")) // text input option
+		if(string(argv[1]) == string("File")) // text|binary input option
 		{
 			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose, bool pario)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, true);	// read it from file (and transpose on the fly)
+
+			A.PrintInfo();
+			SpParHelper::Print("Read input\n");
+
+			ABool = new PSpMat_Bool(A);
+		}
+		else if(string(argv[1]) == string("Gen"))
+		{
+ 			double initiator[4] = {.57, .19, .19, .05};
+
+			double t01 = MPI_Wtime();
+			double t02;
+			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
+
+			unsigned scale = static_cast<unsigned>(atoi(argv[2]));
+			ostringstream outs;
+			outs << "Forcing scale to : " << scale << endl;
+			SpParHelper::Print(outs.str());
+
+			DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );	// generate packed edges
+			SpParHelper::Print("Generated renamed edge lists\n");
+
+			ABool = new PSpMat_Bool(*DEL, false); 
+			delete DEL;	// free memory
+			SpParHelper::Print("Created sparse matrix with boolean edges\n");
+			// A = PSpMat_Twitter(ABool, PERCENTAGE); // second paramater is the percentage of edges kept
 		}
 		else 
 		{	
@@ -102,13 +130,9 @@ int main(int argc, char* argv[])
 		}
 		double t02 = MPI_Wtime();			
 		ostringstream tinfo;
-		tinfo << "I/O took " << t02-t01 << " seconds" << endl;                
+		tinfo << "I/O (or generation) took " << t02-t01 << " seconds" << endl;                
 		SpParHelper::Print(tinfo.str());
 
-		A.PrintInfo();
-		SpParHelper::Print("Read input\n");
-
-		PSpMat_Bool * ABool = new PSpMat_Bool(A);
 		ABool->PrintInfo();
 		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	

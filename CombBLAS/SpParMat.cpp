@@ -2061,12 +2061,12 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 
 				IT entriestoread =  total_nnz / colneighs;
 
-			#ifdef DEBUG
-			ofstream oput;
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << endl;
-			oput.close();
-			#endif
+				#ifdef DEBUG
+				ofstream oput;
+				commGrid->OpenDebugFile("Read", oput);
+				oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << endl;
+				oput.close();
+				#endif
 				ReadAllMine(binfile, rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
 					rowneighs, colneighs, buffperrowneigh, buffpercolneigh, entriestoread, handler, rankinrow, transpose);
 			}
@@ -2077,7 +2077,8 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 				IT ntrow, ntcol; // not transposed row and column index
 				char line[1024];
 				bool nonumline = nonum;
-				for(IT cnz = 0; cnz < total_nnz; ++cnz)
+				IT cnz = 0;
+				for(; cnz < total_nnz; ++cnz)
 				{	
 					int colrec;
 					size_t commonindex;
@@ -2152,7 +2153,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 						}
 					} // end_if for "send buffer is full" case 
 				} // end_for for "cnz < entriestoread" case
-				assert (cnz == entriestoread);
+				assert (cnz == total_nnz);
 				
 				// Signal the end of file to other processors along the column
 				fill_n(ccurptrs, colneighs, numeric_limits<int>::max());	

@@ -122,6 +122,8 @@ public:
 		else
 			return make_pair(0,0);
 	}
+	tuple<IT, IT, NT> front() { return tuples[0]; };
+	tuple<IT, IT, NT> back() { return tuples[nnz-1]; };
 
 	// Performs a balanced merge of the array of SpTuples
 	template<typename SR, typename IU, typename NU>
