@@ -47,7 +47,7 @@ Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
 FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
-	$(COMPILER) $(INCADD) $(CFLAGS) -c -o FilteredBFS.o FilteredBFS.cpp $(LIBDIR)
+	$(COMPILER) $(INCADD) $(CFLAGS) -c -o FilteredBFS.o FilteredBFS.cpp
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o $(LIBDIR)
@@ -59,7 +59,7 @@ graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/
 	$(COMPILER) $(INCADD) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(LDFLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(LIBDIR)
+	$(COMPILER) $(INCADD) $(LDFLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 SpMMError.o:	SpMMError.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o SpMMError.o SpMMError.cpp $(LIBDIR)
