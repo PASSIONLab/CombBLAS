@@ -302,6 +302,7 @@ private:
 				IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, int rankinrow);
 	
 	void AllocateSetBuffers(IT * & rows, IT * & cols, NT * & vals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh);
+	void BcastEssentials(MPI::Intracomm & world, IT & total_m, IT & total_n, IT & total_nnz, int master);
 	
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;

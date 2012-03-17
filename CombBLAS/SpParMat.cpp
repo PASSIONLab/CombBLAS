@@ -503,11 +503,6 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			partial_sum(loclens, loclens+rowneighs, lensums+1);
 			try
 			{
-				//ofstream oput;
-				//commGrid->OpenDebugFile("Vec", oput);
-				//oput << "Maximum size: " << rvec.arr.max_size() << endl;
-				//oput << "Resizing to : " << loclens[rowrank] << endl;
-				//oput.close();
 				rvec.arr.resize(loclens[rowrank], id);
 
 				// keeping track of all nonzero iterators within columns at once is unscalable w.r.t. memory (due to sqrt(p) scaling)
@@ -2019,16 +2014,14 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 		{
 			SpParHelper::Print( "COMBBLAS: Input file doesn't exist\n");
 			total_n = 0; total_m = 0;	
-			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);								
+			BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 			return;
 		}
 		if (hfile.headerexists && hfile.format == 1) 
 		{
 			SpParHelper::Print("COMBBLAS: Ascii input with binary headers is not supported");
 			total_n = 0; total_m = 0;	
-			(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-			(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);								
+			BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 			return;
 		}
 		if ( !hfile.headerexists )	// no header - ascii file (at this point, file exists)
@@ -2047,8 +2040,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			{
 				SpParHelper::Print("COMBBLAS: Trying to read binary headerless file in parallel, aborting\n");
 				total_n = 0; total_m = 0;	
-				(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-				(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);								
+				BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 				return;				
 			}
 		}
@@ -2060,15 +2052,19 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 		}
 		m_perproc = total_m / colneighs;
 		n_perproc = total_n / rowneighs;
-		(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-		(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
-		
+		BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 		AllocateSetBuffers(rows, cols, vals,  rcurptrs, ccurptrs, rowneighs, colneighs, buffpercolneigh);
 		try
 		{
 			if(seeklength > 0 && pario)   // sqrt(p) processors also do parallel binary i/o
 			{
+
 				IT entriestoread =  total_nnz / colneighs;
+
+			ofstream oput;
+			commGrid->OpenDebugFile("Read", oput);
+			oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << endl;
+			oput.close();
 				ReadAllMine(binfile, rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
 					rowneighs, colneighs, buffperrowneigh, buffpercolneigh, entriestoread, handler, rankinrow, transpose);
 			}
@@ -2173,8 +2169,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 	}	// end_if for "master processor" case
 	else if( commGrid->OnSameProcCol(master) ) 	// (r-1) processors
 	{
-		(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-		(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
+		BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 		m_perproc = total_m / colneighs;
 		n_perproc = total_n / rowneighs;
 
@@ -2189,6 +2184,12 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			if (myrankincol == colneighs-1) 
 				entriestoread = total_nnz - static_cast<IT>(myrankincol) * perreader;
 			fseek(binfile, read_offset, SEEK_SET);
+
+			ofstream oput;
+			commGrid->OpenDebugFile("Read", oput);
+			oput << "Total nnz: " << total_nnz << "OFFSET : " << read_offset << " entries to read: " << entriestoread << endl;
+			oput.close();
+			
 			AllocateSetBuffers(rows, cols, vals,  rcurptrs, ccurptrs, rowneighs, colneighs, buffpercolneigh);
 			
 			ReadAllMine(binfile, rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
@@ -2236,11 +2237,9 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 	}
 	else		// r * (s-1) processors that only participate in the horizontal communication step
 	{
-		(commGrid->commWorld).Bcast(&total_m, 1, MPIType<IT>(), master);
-		(commGrid->commWorld).Bcast(&total_n, 1, MPIType<IT>(), master);
+		BcastEssentials(commGrid->commWorld, total_m, total_n, total_nnz, master);
 		m_perproc = total_m / colneighs;
 		n_perproc = total_n / rowneighs;
-		
 		while(total_n > 0 || total_m > 0)	// otherwise input file does not exist !
 		{
 			// receive the receive count
@@ -2248,6 +2247,11 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			if( recvcount == numeric_limits<int>::max())
 				break;
 		
+
+					ofstream oput;
+					commGrid->OpenDebugFile("Read", oput);
+					oput << "Matched to receive " << recvcount << " bytes of data" << endl;
+					oput.close();
 			// create space for incoming data ... 
 			IT * temprows = new IT[recvcount];
 			IT * tempcols = new IT[recvcount];
@@ -2273,6 +2277,11 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
+
+	ofstream oput;
+	commGrid->OpenDebugFile("Read", oput);
+	oput << "Total number of tuples received: " << localtuples.size() << endl;
+	oput.close();
 	spSeq->Create( localtuples.size(), localm, localn, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
 
 #ifdef TAU_PROFILE
@@ -2293,6 +2302,14 @@ void SpParMat<IT,NT,DER>::AllocateSetBuffers(IT * & rows, IT * & cols, NT * & va
 	rcurptrs = new int[rowneighs];
 	fill_n(ccurptrs, colneighs, 0);	// fill with zero
 	fill_n(rcurptrs, rowneighs, 0);	
+}
+
+template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::BcastEssentials(MPI::Intracomm & world, IT & total_m, IT & total_n, IT & total_nnz, int master)
+{
+	world.Bcast(&total_m, 1, MPIType<IT>(), master);
+	world.Bcast(&total_n, 1, MPIType<IT>(), master);
+	world.Bcast(&total_nnz, 1, MPIType<IT>(), master);
 }
 	
 /*
@@ -2370,6 +2387,12 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 		++ (ccurptrs[colrec]);	
 		if(ccurptrs[colrec] == buffpercolneigh || (cnz == (entriestoread-1)) )		// one buffer is full, or this processor's share is done !
 		{			
+
+			ofstream oput;
+			commGrid->OpenDebugFile("Read", oput);
+			oput << "To column neighbors: ";
+			copy(ccurptrs, ccurptrs+colneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+			oput.close();
 			VerticalSend(rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
 					rowneighs, colneighs, buffperrowneigh, buffpercolneigh, rankinrow);
 
@@ -2379,6 +2402,12 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 				(commGrid->colWorld).Allreduce( &finishedlocal, &finishedglobal, 1, MPI::INT, MPI::BAND);
 				while(!finishedglobal)
 				{
+					ofstream oput;
+					commGrid->OpenDebugFile("Read", oput);
+					oput << "To column neighbors: ";
+					copy(ccurptrs, ccurptrs+colneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+					oput.close();
+
 					// postcondition of VerticalSend: ccurptrs are set to zero
 					// if another call is made to this function without modifying ccurptrs, no data will be send from this procesor
 					VerticalSend(rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
