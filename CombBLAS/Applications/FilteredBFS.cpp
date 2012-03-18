@@ -55,6 +55,20 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
+MTRand GlobalMT;
+struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterEdge>
+{
+  const TwitterEdge operator()(const TwitterEdge & x) const
+  {
+	short mycount = 1;
+	bool myfollow = 0;
+	time_t mylatest = static_cast<int64_t>(GlobalMT.rand() * 10000);	// random.randrange(0,10000)
+
+	return TwitterEdge(mycount, myfollow, mylatest);
+  }
+};
+
+
 int main(int argc, char* argv[])
 {
 #ifdef TAU_PROFILE
@@ -67,6 +81,7 @@ int main(int argc, char* argv[])
 	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
 	int nprocs = MPI::COMM_WORLD.Get_size();
 	int myrank = MPI::COMM_WORLD.Get_rank();
+	int MAXTRIALS;
 	
 	if(argc < 3)
 	{
@@ -95,12 +110,13 @@ int main(int argc, char* argv[])
 		{
 			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose, bool pario)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
-			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, true);	// read it from file (and transpose on the fly)
+			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, false);	// read it from file (and transpose on the fly)
 
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
 
 			ABool = new PSpMat_Bool(A);
+			MAXTRIALS = 1;
 		}
 		else if(string(argv[1]) == string("Gen"))
 		{
@@ -121,7 +137,11 @@ int main(int argc, char* argv[])
 			ABool = new PSpMat_Bool(*DEL, false); 
 			delete DEL;	// free memory
 			SpParHelper::Print("Created sparse matrix with boolean edges\n");
-			// A = PSpMat_Twitter(ABool, PERCENTAGE); // second paramater is the percentage of edges kept
+			A = PSpMat_Twitter(*ABool); // any upcasting generates the default object
+			
+			MTRand M;
+			A.Apply(Twitter_obj_randomizer());
+			MAXTRIALS = 4;	// benchmarking
 		}
 		else 
 		{	
@@ -157,7 +177,6 @@ int main(int argc, char* argv[])
 		indegrees.PrintInfo("In degrees array");
 		oudegrees.PrintInfo("Out degrees array");
 #endif
-			
 		A.PrintInfo();
 		Symmetricize(A);	// A += A';
 		A.PrintInfo();
@@ -179,12 +198,10 @@ int main(int argc, char* argv[])
 		{
 			for(int i=0; i<MAX_ITERS; ++i)
 				loccands[i] = M.rand();
-			//copy(loccands.begin(), loccands.end(), ostream_iterator<double>(cout," ")); cout << endl;
 			transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
 			
 			for(int i=0; i<MAX_ITERS; ++i)
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
-			// copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
 		}
 
 		MPI::COMM_WORLD.Barrier();
@@ -195,9 +212,12 @@ int main(int argc, char* argv[])
 			Cands.SetElement(i,loccandints[i]);
 		}
 
-		#define MAXTRIALS 1
-		for(int trials =0; trials < MAXTRIALS; trials++)	// try different algorithms for BFS
+		int64_t keep[4] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
+		for(int trials =0; trials < MAXTRIALS; trials++)	
 		{
+			if(string(argv[1]) == string("Gen"))
+				LatestRetwitterBFS::sincedate = keep[trials];
+
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
 
@@ -205,7 +225,6 @@ int main(int argc, char* argv[])
 			int sruns = 0;		// successful runs
 			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
 			{
-
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 				FullyDistVec<int64_t, ParentType> parents ( A.getcommgrid(), A.getncol(), ParentType());	
 
@@ -221,31 +240,15 @@ int main(int argc, char* argv[])
 				while(fringe.getnnz() > 0)
 				{
 					fringe.ApplyInd(NumSetter);
-					//fringe.PrintInfo("fringe before SpMV");
-					//fringe.DebugPrint();
 
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-				#ifdef DEBUG
-					if(fringe.getnnz() > 1)
-					{
-						fringe.PrintInfo("fringe after SpMV");
-						fringe.DebugPrint();
-					}
-				#endif
 
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
-					//fringe.PrintInfo("fringe after cleanup");
-					//fringe.DebugPrint();
-
-					
 					parents += fringe;
-					//parents.PrintInfo("Parents after addition");
-					//parents.DebugPrint();
 					iterations++;
-					MPI::COMM_WORLD.Barrier();
 				}
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();

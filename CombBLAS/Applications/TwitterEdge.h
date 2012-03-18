@@ -44,6 +44,7 @@ public:
 
 	friend ostream& operator<<( ostream& os, const TwitterEdge & twe);
 	friend TwitterEdge operator*( const TwitterEdge & a, const TwitterEdge & b);
+
 private:
 	bool follower;		// default constructor sets all to zero
 	time_t latest;		// not assigned if no retweets happened
