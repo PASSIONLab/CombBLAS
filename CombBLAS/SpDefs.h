@@ -88,7 +88,7 @@ Row
 #endif
 
 #ifndef MEMORYINBYTES
-#define MEMORYINBYTES  (64 * 1048576)	// 64 MB, it is advised to define MEMORYINBYTES to be "at most" (1/4)th of available memory per core
+#define MEMORYINBYTES  (196 * 1048576)	// 196 MB, it is advised to define MEMORYINBYTES to be "at most" (1/4)th of available memory per core
 #endif
 
 #endif

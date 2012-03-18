@@ -2066,9 +2066,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 		{
 			if(seeklength > 0 && pario)   // sqrt(p) processors also do parallel binary i/o
 			{
-
 				IT entriestoread =  total_nnz / colneighs;
-
 				#ifdef DEBUG
 				ofstream oput;
 				commGrid->OpenDebugFile("Read", oput);
@@ -2204,7 +2202,6 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			#endif
 			
 			AllocateSetBuffers(rows, cols, vals,  rcurptrs, ccurptrs, rowneighs, colneighs, buffpercolneigh);
-			
 			ReadAllMine(binfile, rows, cols, vals, localtuples, rcurptrs, ccurptrs, rdispls, cdispls, m_perproc, n_perproc, 
 				rowneighs, colneighs, buffperrowneigh, buffpercolneigh, entriestoread, handler, rankinrow, transpose);
 		}
@@ -2259,13 +2256,6 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow);
 			if( recvcount == numeric_limits<int>::max())
 				break;
-		
-			#ifdef DEBUG
-			ofstream oput;
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "Matched to receive " << recvcount << " bytes of data" << endl;
-			oput.close();
-			#endif
 
 			// create space for incoming data ... 
 			IT * temprows = new IT[recvcount];
@@ -2279,11 +2269,6 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			// now push what is ours to tuples
 			IT moffset = commGrid->myprocrow * m_perproc; 
 			IT noffset = commGrid->myproccol * n_perproc;
-			#ifdef DEBUG
-			commGrid->OpenDebugFile("Read", oput);
-			oput << "moffset: " << moffset << ", noffset: " << noffset << endl;
-			oput.close();
-			#endif
 			
 			for(IT i=0; i< recvcount; ++i)
 			{					
@@ -2298,14 +2283,6 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 
  	IT localm = (commGrid->myprocrow != (commGrid->grrows-1))? m_perproc: (total_m - (m_perproc * (commGrid->grrows-1)));
  	IT localn = (commGrid->myproccol != (commGrid->grcols-1))? n_perproc: (total_n - (n_perproc * (commGrid->grcols-1)));
-
-	#ifdef DEBUG
-	ofstream oput;
-	commGrid->OpenDebugFile("Read", oput);
-	oput << "Total number of tuples received: " << localtuples.size() << endl;
-	oput.close();
-	#endif
-
 	spSeq->Create( localtuples.size(), localm, localn, arrtuples);		// the deletion of arrtuples[] is handled by SpMat::Create
 
 #ifdef TAU_PROFILE
@@ -2496,7 +2473,6 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 	
 	(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow); // Send the receive counts for horizontal communication
 
-	
 	// the data is now stored in rows/cols/vals, can reset temporaries
 	// sets size and capacity to new recvcount
 	DeleteAll(temprows, tempcols, tempvals);
@@ -2512,12 +2488,6 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 	// now push what is ours to tuples
 	IT moffset = commGrid->myprocrow * m_perproc; 
 	IT noffset = commGrid->myproccol * n_perproc; 
-	
-	#ifdef DEBUG
-	commGrid->OpenDebugFile("Read", oput);
-	oput << "moffset: " << moffset << ", noffset: " << noffset << endl;
-	oput.close();
-	#endif
 	
 	for(int i=0; i< recvcount; ++i)
 	{					
