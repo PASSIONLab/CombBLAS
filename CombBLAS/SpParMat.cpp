@@ -1982,6 +1982,14 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 
 	IT buffpercolneigh = MEMORYINBYTES / (colneighs * (2 * sizeof(IT) + sizeof(NT)));
 	IT buffperrowneigh = MEMORYINBYTES / (rowneighs * (2 * sizeof(IT) + sizeof(NT)));
+	if(pario)
+	{
+		// since all colneighs will be reading the data at the same time
+		// chances are they might all read the data that should go to one
+		// in that case buffperrowneigh > colneighs * buffpercolneigh 
+		// in order not to overflow
+		buffpercolneigh /= colneighs; 
+	}
 
 	// make sure that buffperrowneigh >= buffpercolneigh to cover for this patological case:
 	//   	-- all data received by a given column head (by vertical communication) are headed to a single processor along the row
@@ -2191,7 +2199,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			#ifdef DEBUG
 			ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
-			oput << "Total nnz: " << total_nnz << "OFFSET : " << read_offset << " entries to read: " << entriestoread << endl;
+			oput << "Total nnz: " << total_nnz << " OFFSET : " << read_offset << " entries to read: " << entriestoread << endl;
 			oput.close();
 			#endif
 			
@@ -2271,6 +2279,12 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			// now push what is ours to tuples
 			IT moffset = commGrid->myprocrow * m_perproc; 
 			IT noffset = commGrid->myproccol * n_perproc;
+			#ifdef DEBUG
+			commGrid->OpenDebugFile("Read", oput);
+			oput << "moffset: " << moffset << ", noffset: " << noffset << endl;
+			oput.close();
+			#endif
+			
 			for(IT i=0; i< recvcount; ++i)
 			{					
 				localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
@@ -2469,6 +2483,17 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 		vals[ rowrec * buffperrowneigh + rcurptrs[rowrec] ] = tempvals[i];
 		++ (rcurptrs[rowrec]);	
 	}
+
+	#ifdef DEBUG
+	ofstream oput;
+	commGrid->OpenDebugFile("Read", oput);
+	oput << "To row neighbors: ";
+	copy(rcurptrs, rcurptrs+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+	oput << "Row displacements were: ";
+	copy(rdispls, rdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
+	oput.close();
+	#endif
+	
 	(commGrid->rowWorld).Scatter(rcurptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, rankinrow); // Send the receive counts for horizontal communication
 
 	
@@ -2487,6 +2512,13 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 	// now push what is ours to tuples
 	IT moffset = commGrid->myprocrow * m_perproc; 
 	IT noffset = commGrid->myproccol * n_perproc; 
+	
+	#ifdef DEBUG
+	commGrid->OpenDebugFile("Read", oput);
+	oput << "moffset: " << moffset << ", noffset: " << noffset << endl;
+	oput.close();
+	#endif
+	
 	for(int i=0; i< recvcount; ++i)
 	{					
 		localtuples.push_back( 	make_tuple(temprows[i]-moffset, tempcols[i]-noffset, tempvals[i]) );
