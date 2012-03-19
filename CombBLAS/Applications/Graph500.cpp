@@ -24,6 +24,9 @@
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
+double cblas_mergeconttime;
+double cblas_transvectime;
+double cblas_localspmvtime;
 #ifdef _OPENMP
 int cblas_splits = omp_get_max_threads(); 
 #else
@@ -369,6 +372,9 @@ int main(int argc, char* argv[])
 		{
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
+			cblas_mergeconttime = 0;
+			cblas_transvectime  = 0;
+			cblas_localspmvtime = 0;
 			MPI_Pcontrol(1,"BFS");
 
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
@@ -423,6 +429,11 @@ int main(int argc, char* argv[])
 			os << "Per iteration communication times: " << endl;
 			os << "AllGatherv: " << cblas_allgathertime / ITERS << endl;
 			os << "AlltoAllv: " << cblas_alltoalltime / ITERS << endl;
+			os << "Transvec: " << cblas_transvectime / ITERS << endl;
+
+			os << "Per iteration computation times: " << endl;
+			os << "MergeCont: " << cblas_mergeconttime / ITERS << endl;
+			os << "LocalSpmv: "  << cblas_localspmvtime / ITERS << endl;
 
 			sort(EDGES, EDGES+ITERS);
 			os << "--------------------------" << endl;

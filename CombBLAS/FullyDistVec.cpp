@@ -749,8 +749,6 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
 	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,0);
-	IT * recvbuf = new IT[totrecv];
-
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
@@ -763,6 +761,8 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);	// reversemap array is unique
 		vector<IT>().swap(revr_map[i]);
 	}
+
+	IT * recvbuf = new IT[totrecv];
 	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
 	delete [] sendbuf;
 		
