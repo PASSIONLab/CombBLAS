@@ -43,7 +43,7 @@ int main(int argc, char *argv[] )
 
 	stringstream outs;
 	outs << argv[1] << ".converted";
-       	FILE * bFile = fopen (outs.str().c_str(),"wb+");
+       	FILE * bFile = fopen (outs.str().c_str(),"wb");
 	int32_t vid;
 	int64_t edges;
 	char start[5] = "HKDT";
@@ -74,6 +74,7 @@ int main(int argc, char *argv[] )
 			ss >> hdr.m >> hdr.n >> hdr.nnz;
 
 			cout << "Size of Header: " << sizeof(hdr) << endl;
+			cout << hdr.m << " " << hdr.n << " " << hdr.nnz << endl;
 			fwrite(start, 4, 1, bFile); 
 			fwrite(&hdr.version, sizeof(uint64_t), 1,bFile);
 			fwrite(&hdr.objsize, sizeof(uint64_t), 1,bFile);
@@ -87,12 +88,32 @@ int main(int argc, char *argv[] )
 			while(!feof(rFile))
 			{
 				TwitterInteraction twi;
+				int from, to, follow, retweets; 
 
 				// example time format (for text): 2009-06-08 21:49:30
-				if(fscanf (rFile, "%d %d %d %d",&(twi.from),&(twi.to),&(twi.follow),&(twi.retweets)) ==  0) break;
+				bytes_read = getline(&comment, &n, rFile);
+				cout << comment ;
+				
+				bytes_read = getline(&comment, &n, rFile);
+				cout << comment ;
+
+				bytes_read = getline(&comment, &n, rFile);
+				cout << comment ;
+				
+				return 1;
+				if(fscanf (rFile, "%d %d %d %d",&from,&to,&follow,&retweets) ==  0) 
+				{
+					cout << "breaking... from " << from << " to " << to << " follows? " << follow << ", retweets? " << retweets << endl;
+					break;
+				}
+				else
+				{
+					cout << "all good" << endl;
+				}
+				
 				if(twi.retweets > 0)
 				{
-					if(fscanf (rFile, "%d-%d-%d %d:%d:%d\n", &year, &month, &day, &hour, &min, &sec) == 0) 
+					if(fscanf (rFile, " %d-%d-%d %d:%d:%d\n", &year, &month, &day, &hour, &min, &sec) == 0) 
 					{
 						cout << "Expected retweet data non-existent\n";
 						break;
