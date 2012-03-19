@@ -1,0 +1,2 @@
+mpirun -np 4 ./fbfs Gen 14 > ran_scale14_p4
+mpirun -np 9 ./fbfs Gen 14 > ran_scale14_p9

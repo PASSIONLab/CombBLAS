@@ -68,6 +68,16 @@ struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterE
   }
 };
 
+struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, bool>
+{
+	bool operator()(const TwitterEdge & x, time_t sincedate) const
+	{
+		if(x.isRetwitter() && x.LastTweetBy(sincedate))	
+			return false;	// false if the edge is going to be kept
+		else
+			return true;	// true if the edge is to be pruned
+	}
+};
 
 int main(int argc, char* argv[])
 {
@@ -98,7 +108,7 @@ int main(int argc, char* argv[])
 		typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
 
 		// Declare objects
-		PSpMat_Twitter A, B;	
+		PSpMat_Twitter A;	
 		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
@@ -110,7 +120,7 @@ int main(int argc, char* argv[])
 		{
 			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose, bool pario)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
-			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, false);	// read it from file (and transpose on the fly)
+			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, true);	// read it from file (and transpose on the fly)
 
 			A.PrintInfo();
 			SpParHelper::Print("Read input\n");
@@ -153,11 +163,55 @@ int main(int argc, char* argv[])
 		tinfo << "I/O (or generation) took " << t02-t01 << " seconds" << endl;                
 		SpParHelper::Print(tinfo.str());
 
+		// indegrees is sum along rows because A is loaded as "tranposed", similarly oudegrees is sum along columns
 		ABool->PrintInfo();
 		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
+		
+		FullyDistVec<int64_t, int64_t> indegrees_arr[4];	
+		FullyDistVec<int64_t, int64_t> oudegrees_arr[4];	
+		FullyDistVec<int64_t, int64_t> degrees_arr[4];	
+		int64_t keep[4] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
+		
+		if(string(argv[1]) == string("Gen"))
+		{
+			for (int i=0; i < 4; i++) 
+			{
+				PSpMat_Twitter B = A;
+				B.Prune(bind2nd(Twitter_materialize(), keep[i]));
+				PSpMat_Bool BBool = B;
+				BBool.PrintInfo();
+				BBool.Reduce(oudegrees_arr[i], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+				BBool.Reduce(indegrees_arr[i], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
+				degrees_arr[i] = indegrees_arr[i];	
+				degrees_arr[i].EWiseApply(oudegrees_arr[i], plus<int64_t>());
+			}
+		}
+		else {
+			struct tm timeinfo;
+			memset(&timeinfo, 0, sizeof(struct tm));
+			int year, month, day, hour, min, sec;
+			year = 2009;	month = 7;	day = 1;
+			hour = 0;	min = 0;	sec = 0;
+			
+			timeinfo.tm_year = year - 1900; // year is "years since 1900"
+			timeinfo.tm_mon = month - 1 ;   // month is in range 0...11
+			timeinfo.tm_mday = day;         // range 1...31
+			timeinfo.tm_hour = hour;        // range 0...23
+			timeinfo.tm_min = min;          // range 0...59
+			timeinfo.tm_sec = sec;          // range 0.
+			time_t mysincedate = timegm(&timeinfo);
+			
+			PSpMat_Twitter B = A;
+			B.Prune(bind2nd(Twitter_materialize(), mysincedate));
+			PSpMat_Bool BBool = B;
+			BBool.PrintInfo();
+			BBool.Reduce(oudegrees_arr[0], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			BBool.Reduce(indegrees_arr[0], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
+			degrees_arr[0] = indegrees_arr[0];	
+			degrees_arr[0].EWiseApply(oudegrees_arr[0], plus<int64_t>());	
+		}
 
-//		indegrees.DebugPrint();
 		degrees = indegrees;	
 		degrees.EWiseApply(oudegrees, plus<int64_t>());
 		SpParHelper::Print("All degrees calculated\n");
@@ -167,15 +221,27 @@ int main(int argc, char* argv[])
 		nonisov = degrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-		// nonisov.DebugPrint();
 		A(nonisov, nonisov, true);	// in-place permute to save memory
 		SpParHelper::Print("Dropped isolated vertices from input\n");	
 
 		indegrees = indegrees(nonisov);	// fix the degrees arrays too
 		oudegrees = oudegrees(nonisov);	
-		degrees =degrees(nonisov);
-		indegrees.PrintInfo("In degrees array");
-		oudegrees.PrintInfo("Out degrees array");
+		degrees = degrees(nonisov);
+		if(string(argv[1]) == string("Gen"))
+		{
+			for (int i=0; i < 4; i++) 
+			{
+				indegrees_arr[i] = indegrees_arr[i](nonisov);	
+				oudegrees_arr[i] = oudegrees_arr[i](nonisov);	
+				degrees_arr[i] = degrees_arr[i](nonisov);
+			}
+		}
+		else
+		{	
+			indegrees_arr[0] = indegrees_arr[0](nonisov);	
+			oudegrees_arr[0] = oudegrees_arr[0](nonisov);	
+			degrees_arr[0] = degrees_arr[0](nonisov);
+		}
 #endif
 		A.PrintInfo();
 		Symmetricize(A);	// A += A';
@@ -204,19 +270,19 @@ int main(int argc, char* argv[])
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
 		}
 
-		MPI::COMM_WORLD.Barrier();
 		MPI::COMM_WORLD.Bcast(&(loccandints[0]), MAX_ITERS, MPIType<int64_t>(),0);
-		MPI::COMM_WORLD.Barrier();
 		for(int i=0; i<MAX_ITERS; ++i)
-		{
 			Cands.SetElement(i,loccandints[i]);
-		}
 
-		int64_t keep[4] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
 		for(int trials =0; trials < MAXTRIALS; trials++)	
 		{
 			if(string(argv[1]) == string("Gen"))
+			{
 				LatestRetwitterBFS::sincedate = keep[trials];
+				ostringstream outs;
+				outs << "Initializing since date (only once) to " << LatestRetwitterBFS::sincedate << endl;
+				SpParHelper::Print(outs.str());
+			}
 
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
@@ -257,13 +323,19 @@ int main(int argc, char* argv[])
 				FullyDistSpVec<int64_t, ParentType> parentsp = parents.Find(isparentset());
 				parentsp.Apply(set<ParentType>(ParentType(1)));
 	
-				FullyDistSpVec<int64_t, int64_t> intraversed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
-				FullyDistSpVec<int64_t, int64_t> outraversed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
+				FullyDistSpVec<int64_t, int64_t> intraversed, inprocessed, outraversed, ouprocessed;
+				inprocessed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
+				ouprocessed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
+				intraversed = EWiseApply<int64_t>(parentsp, indegrees_arr[trials], seldegree(), passifthere(), true, ParentType());
+				outraversed = EWiseApply<int64_t>(parentsp, oudegrees_arr[trials], seldegree(), passifthere(), true, ParentType());
 				
 				int64_t in_nedges = intraversed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t ou_nedges = outraversed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t nedges = in_nedges + ou_nedges;	// count birectional edges twice
-	
+				int64_t in_nedges_processed = inprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
+				int64_t ou_nedges_processed = ouprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
+				int64_t nedges_processed = in_nedges_processed + ou_nedges_processed;	// count birectional edges twice
+
 				if(parentsp.getnnz() > CC_LIMIT)
 				{
 					// intraversed.PrintInfo("Incoming edges traversed per vertex");
@@ -282,9 +354,13 @@ int main(int argc, char* argv[])
 					outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
 					outnew << "Number of edges traversed in both directions: " << nedges << endl;
 					outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
+					outnew << "Number of edges processed in both directions: " << nedges_processed << endl;
+					outnew << "Number of edges processed in one direction: " << ou_nedges_processed << endl;
 					outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 					outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
 					outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
+					outnew << "MPEPS (bidirectional): " << static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0 << endl;
+					outnew << "MPEPS (unidirectional): " << static_cast<double>(ou_nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 
 					TIMES[sruns] = t2-t1;
