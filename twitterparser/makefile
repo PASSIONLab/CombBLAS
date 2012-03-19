@@ -8,3 +8,6 @@ parser:	monthlyparser.cpp
 
 mapper:	remapper.cpp
 	g++ -std=c++0x -O3 -fopenmp -o mapper remapper.cpp
+
+balancer: balancer.cpp
+	g++ -std=c++0x -O3 -fopenmp -o balancer balancer.cpp
