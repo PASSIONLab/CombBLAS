@@ -153,6 +153,11 @@ void dcsc_gespmv_threaded_setbuffers (const SpDCCols<IT, bool> & A, const int32_
 template<typename VT, typename IT, typename UDER>
 void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz)
 {	
+
+#ifdef TIMING
+	MPI::COMM_WORLD.Barrier();
+	double t0=MPI::Wtime();
+#endif
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
 		if(A.spSeq->getnsplit() > 0)
@@ -174,12 +179,23 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 	{
 		SpParHelper::Print("BFS only (no semiring) function only work with optimization buffers\n");
 	}
+
+#ifdef TIMING
+	MPI::COMM_WORLD.Barrier();
+	double t1=MPI::Wtime();
+	cblas_localspmvtime += (t1-t0);
+#endif
 }
 
 
 template <typename IU, typename VT>
 void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs)
 {
+
+#ifdef TIMING
+	MPI::COMM_WORLD.Barrier();
+	double t0=MPI::Wtime();
+#endif
 	// free memory of y, in case it was aliased
 	vector<IU>().swap(y.ind);
 	vector<VT>().swap(y.num);
@@ -265,6 +281,12 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 	DeleteAll(recvcnt, rdispls,processed);
 	DeleteAll(recvindbuf, recvnumbuf);
 #endif
+
+#ifdef TIMING
+	MPI::COMM_WORLD.Barrier();
+	double t1=MPI::Wtime();
+	cblas_mergeconttime += (t1-t0);
+#endif
 }	
 
 /**
@@ -288,12 +310,26 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	int32_t *trxinds, *indacc;
 	VT *trxnums, *numacc;
 
+	
+#ifdef TIMING
+	World.Barrier();
+	double t0=MPI::Wtime();
+#endif
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, true);			// trxinds (and potentially trxnums) is allocated
+
+#ifdef TIMING
+	World.Barrier();
+	double t1=MPI::Wtime();
+	cblas_transvectime += (t1-t0);
+#endif
+
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
 	
 	FullyDistSpVec<IT, VT> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	int rowneighs = RowWorld.Get_size();
 	int * sendcnt = new int[rowneighs]();	
+
+
 	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendcnt, accnz);	// indacc/numacc deallocated
 
 	int * rdispls = new int[rowneighs];

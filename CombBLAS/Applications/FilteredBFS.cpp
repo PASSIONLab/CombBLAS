@@ -112,7 +112,6 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> oudegrees;	// out-degrees of vertices (including multi-edges and self-loops)
 		FullyDistVec<int64_t, int64_t> degrees;	// combined degrees of vertices (including multi-edges and self-loops)
-		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
 		PSpMat_Bool * ABool;
 
 		double t01 = MPI_Wtime();
@@ -170,7 +169,6 @@ int main(int argc, char* argv[])
 		
 		FullyDistVec<int64_t, int64_t> indegrees_arr[4];	
 		FullyDistVec<int64_t, int64_t> oudegrees_arr[4];	
-		FullyDistVec<int64_t, int64_t> degrees_arr[4];	
 		int64_t keep[4] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
 		
 		if(string(argv[1]) == string("Gen"))
@@ -183,8 +181,6 @@ int main(int argc, char* argv[])
 				BBool.PrintInfo();
 				BBool.Reduce(oudegrees_arr[i], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 				BBool.Reduce(indegrees_arr[i], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
-				degrees_arr[i] = indegrees_arr[i];	
-				degrees_arr[i].EWiseApply(oudegrees_arr[i], plus<int64_t>());
 			}
 		}
 		else {
@@ -208,8 +204,6 @@ int main(int argc, char* argv[])
 			BBool.PrintInfo();
 			BBool.Reduce(oudegrees_arr[0], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			BBool.Reduce(indegrees_arr[0], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
-			degrees_arr[0] = indegrees_arr[0];	
-			degrees_arr[0].EWiseApply(oudegrees_arr[0], plus<int64_t>());	
 		}
 
 		degrees = indegrees;	
@@ -218,33 +212,37 @@ int main(int argc, char* argv[])
 		delete ABool;
 
 #ifdef PERMUTEFORBALANCE
-		nonisov = degrees.FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
+		// nonisov: id's of non-isolated (connected) vertices
+		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
 		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
-		nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-		A(nonisov, nonisov, true);	// in-place permute to save memory
+		nonisov->RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+		A(*nonisov, *nonisov, true);	// in-place permute to save memory
 		SpParHelper::Print("Dropped isolated vertices from input\n");	
 
-		indegrees = indegrees(nonisov);	// fix the degrees arrays too
-		oudegrees = oudegrees(nonisov);	
-		degrees = degrees(nonisov);
+		indegrees = indegrees(*nonisov);	// fix the degrees arrays too
+		oudegrees = oudegrees(*nonisov);	
+		degrees = degrees(*nonisov);
 		if(string(argv[1]) == string("Gen"))
 		{
 			for (int i=0; i < 4; i++) 
 			{
-				indegrees_arr[i] = indegrees_arr[i](nonisov);	
-				oudegrees_arr[i] = oudegrees_arr[i](nonisov);	
-				degrees_arr[i] = degrees_arr[i](nonisov);
+				indegrees_arr[i] = indegrees_arr[i](*nonisov);	
+				oudegrees_arr[i] = oudegrees_arr[i](*nonisov);	
 			}
 		}
 		else
 		{	
-			indegrees_arr[0] = indegrees_arr[0](nonisov);	
-			oudegrees_arr[0] = oudegrees_arr[0](nonisov);	
-			degrees_arr[0] = degrees_arr[0](nonisov);
+			indegrees_arr[0] = indegrees_arr[0](*nonisov);	
+			oudegrees_arr[0] = oudegrees_arr[0](*nonisov);	
 		}
+		delete nonisov;
 #endif
+
+		SpParHelper::Print("Finished generating in/out degrees\n");	
 		A.PrintInfo();
 		Symmetricize(A);	// A += A';
+
+		SpParHelper::Print("Symmetricized\n");	
 		A.PrintInfo();
 		float balance = A.LoadImbalance();
 		ostringstream outs;

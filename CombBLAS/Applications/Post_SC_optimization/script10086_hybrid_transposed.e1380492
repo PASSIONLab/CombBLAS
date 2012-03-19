@@ -1,0 +1,1871 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+[PE_0]: MPI rank order: Using a custom rank order from file: MPICH_RANK_ORDER
+[PE_0]: rank 0 is on nid03759; originally was on nid03759
+[PE_0]: rank 1 is on nid04647; originally was on nid03759
+[PE_0]: rank 2 is on nid05337; originally was on nid03759
+[PE_0]: rank 3 is on nid04651; originally was on nid03759
+[PE_0]: rank 4 is on nid04554; originally was on nid03824
+[PE_0]: rank 5 is on nid03784; originally was on nid03824
+[PE_0]: rank 6 is on nid03794; originally was on nid03824
+[PE_0]: rank 7 is on nid03888; originally was on nid03824
+[PE_0]: rank 8 is on nid03708; originally was on nid04551
+[PE_0]: rank 9 is on nid03992; originally was on nid04551
+[PE_0]: rank 10 is on nid04037; originally was on nid04551
+[PE_0]: rank 11 is on nid04804; originally was on nid04551
+[PE_0]: rank 12 is on nid05179; originally was on nid04548
+[PE_0]: rank 13 is on nid04810; originally was on nid04548
+[PE_0]: rank 14 is on nid04404; originally was on nid04548
+[PE_0]: rank 15 is on nid03638; originally was on nid04548
+[PE_0]: rank 16 is on nid03637; originally was on nid04549
+[PE_0]: rank 17 is on nid04047; originally was on nid04549
+[PE_0]: rank 18 is on nid04401; originally was on nid04549
+[PE_0]: rank 19 is on nid04815; originally was on nid04549
+[PE_0]: rank 20 is on nid05166; originally was on nid04666
+[PE_0]: rank 21 is on nid04876; originally was on nid04666
+[PE_0]: rank 22 is on nid04110; originally was on nid04666
+[PE_0]: rank 23 is on nid04108; originally was on nid04666
+[PE_0]: rank 24 is on nid03624; originally was on nid04667
+[PE_0]: rank 25 is on nid04394; originally was on nid04667
+[PE_0]: rank 26 is on nid03547; originally was on nid04667
+[PE_0]: rank 27 is on nid04982; originally was on nid04667
+[PE_0]: rank 28 is on nid04244; originally was on nid04644
+[PE_0]: rank 29 is on nid05014; originally was on nid04644
+[PE_0]: rank 30 is on nid04198; originally was on nid04644
+[PE_0]: rank 31 is on nid04941; originally was on nid04644
+[PE_0]: rank 32 is on nid03071; originally was on nid04645
+[PE_0]: rank 33 is on nid02301; originally was on nid04645
+[PE_0]: rank 34 is on nid03160; originally was on nid04645
+[PE_0]: rank 35 is on nid02292; originally was on nid04645
+[PE_0]: rank 36 is on nid02743; originally was on nid04646
+[PE_0]: rank 37 is on nid01973; originally was on nid04646
+[PE_0]: rank 38 is on nid02638; originally was on nid04646
+[PE_0]: rank 39 is on nid03404; originally was on nid04646
+[PE_0]: rank 40 is on nid00736; originally was on nid04647
+[PE_0]: rank 41 is on nid03759; originally was on nid04647
+[PE_0]: rank 42 is on nid04647; originally was on nid04647
+[PE_0]: rank 43 is on nid05337; originally was on nid04647
+[PE_0]: rank 44 is on nid04660; originally was on nid04664
+[PE_0]: rank 45 is on nid04554; originally was on nid04664
+[PE_0]: rank 46 is on nid03784; originally was on nid04664
+[PE_0]: rank 47 is on nid03794; originally was on nid04664
+[PE_0]: rank 48 is on nid03889; originally was on nid04665
+[PE_0]: rank 49 is on nid03708; originally was on nid04665
+[PE_0]: rank 50 is on nid03992; originally was on nid04665
+[PE_0]: rank 51 is on nid04037; originally was on nid04665
+[PE_0]: rank 52 is on nid04805; originally was on nid05318
+[PE_0]: rank 53 is on nid05179; originally was on nid05318
+[PE_0]: rank 54 is on nid04810; originally was on nid05318
+[PE_0]: rank 55 is on nid04404; originally was on nid05318
+[PE_0]: rank 56 is on nid03639; originally was on nid05319
+[PE_0]: rank 57 is on nid03637; originally was on nid05319
+[PE_0]: rank 58 is on nid04047; originally was on nid05319
+[PE_0]: rank 59 is on nid04401; originally was on nid05319
+[PE_0]: rank 60 is on nid04880; originally was on nid05316
+[PE_0]: rank 61 is on nid05166; originally was on nid05316
+[PE_0]: rank 62 is on nid04876; originally was on nid05316
+[PE_0]: rank 63 is on nid04110; originally was on nid05316
+[PE_0]: rank 64 is on nid04050; originally was on nid05317
+[PE_0]: rank 65 is on nid03624; originally was on nid05317
+[PE_0]: rank 66 is on nid04394; originally was on nid05317
+[PE_0]: rank 67 is on nid03547; originally was on nid05317
+[PE_0]: rank 68 is on nid04983; originally was on nid05338
+[PE_0]: rank 69 is on nid04244; originally was on nid05338
+[PE_0]: rank 70 is on nid05014; originally was on nid05338
+[PE_0]: rank 71 is on nid04198; originally was on nid05338
+[PE_0]: rank 72 is on nid05038; originally was on nid05339
+[PE_0]: rank 73 is on nid03071; originally was on nid05339
+[PE_0]: rank 74 is on nid02301; originally was on nid05339
+[PE_0]: rank 75 is on nid03160; originally was on nid05339
+[PE_0]: rank 76 is on nid02549; originally was on nid05336
+[PE_0]: rank 77 is on nid02743; originally was on nid05336
+[PE_0]: rank 78 is on nid01973; originally was on nid05336
+[PE_0]: rank 79 is on nid02638; originally was on nid05336
+[PE_0]: rank 80 is on nid03405; originally was on nid05337
+[PE_0]: rank 81 is on nid00736; originally was on nid05337
+[PE_0]: rank 82 is on nid03759; originally was on nid05337
+[PE_0]: rank 83 is on nid04647; originally was on nid05337
+[PE_0]: rank 84 is on nid05334; originally was on nid05334
+[PE_0]: rank 85 is on nid04660; originally was on nid05334
+[PE_0]: rank 86 is on nid04554; originally was on nid05334
+[PE_0]: rank 87 is on nid03784; originally was on nid05334
+[PE_0]: rank 88 is on nid03795; originally was on nid05335
+[PE_0]: rank 89 is on nid03889; originally was on nid05335
+[PE_0]: rank 90 is on nid03708; originally was on nid05335
+[PE_0]: rank 91 is on nid03992; originally was on nid05335
+[PE_0]: rank 92 is on nid04410; originally was on nid05320
+[PE_0]: rank 93 is on nid04805; originally was on nid05320
+[PE_0]: rank 94 is on nid05179; originally was on nid05320
+[PE_0]: rank 95 is on nid04810; originally was on nid05320
+[PE_0]: rank 96 is on nid04405; originally was on nid05321
+[PE_0]: rank 97 is on nid03639; originally was on nid05321
+[PE_0]: rank 98 is on nid03637; originally was on nid05321
+[PE_0]: rank 99 is on nid04047; originally was on nid05321
+[PE_0]: rank 100 is on nid04334; originally was on nid05322
+[PE_0]: rank 101 is on nid04880; originally was on nid05322
+[PE_0]: rank 102 is on nid05166; originally was on nid05322
+[PE_0]: rank 103 is on nid04876; originally was on nid05322
+[PE_0]: rank 104 is on nid04111; originally was on nid05323
+[PE_0]: rank 105 is on nid04050; originally was on nid05323
+[PE_0]: rank 106 is on nid03624; originally was on nid05323
+[PE_0]: rank 107 is on nid04394; originally was on nid05323
+[PE_0]: rank 108 is on nid04902; originally was on nid05332
+[PE_0]: rank 109 is on nid04983; originally was on nid05332
+[PE_0]: rank 110 is on nid04244; originally was on nid05332
+[PE_0]: rank 111 is on nid05014; originally was on nid05332
+[PE_0]: rank 112 is on nid04199; originally was on nid05333
+[PE_0]: rank 113 is on nid05038; originally was on nid05333
+[PE_0]: rank 114 is on nid03071; originally was on nid05333
+[PE_0]: rank 115 is on nid02301; originally was on nid05333
+[PE_0]: rank 116 is on nid03161; originally was on nid04650
+[PE_0]: rank 117 is on nid02549; originally was on nid04650
+[PE_0]: rank 118 is on nid02743; originally was on nid04650
+[PE_0]: rank 119 is on nid01973; originally was on nid04650
+[PE_0]: rank 120 is on nid02733; originally was on nid04651
+[PE_0]: rank 121 is on nid03405; originally was on nid04651
+[PE_0]: rank 122 is on nid00736; originally was on nid04651
+[PE_0]: rank 123 is on nid03759; originally was on nid04651
+[PE_0]: rank 124 is on nid04664; originally was on nid04660
+[PE_0]: rank 125 is on nid05334; originally was on nid04660
+[PE_0]: rank 126 is on nid04660; originally was on nid04660
+[PE_0]: rank 127 is on nid04554; originally was on nid04660
+[PE_0]: rank 128 is on nid03785; originally was on nid04661
+[PE_0]: rank 129 is on nid03795; originally was on nid04661
+[PE_0]: rank 130 is on nid03889; originally was on nid04661
+[PE_0]: rank 131 is on nid03708; originally was on nid04661
+[PE_0]: rank 132 is on nid03993; originally was on nid04662
+[PE_0]: rank 133 is on nid04410; originally was on nid04662
+[PE_0]: rank 134 is on nid04805; originally was on nid04662
+[PE_0]: rank 135 is on nid05179; originally was on nid04662
+[PE_0]: rank 136 is on nid04811; originally was on nid04663
+[PE_0]: rank 137 is on nid04405; originally was on nid04663
+[PE_0]: rank 138 is on nid03639; originally was on nid04663
+[PE_0]: rank 139 is on nid03637; originally was on nid04663
+[PE_0]: rank 140 is on nid04112; originally was on nid04648
+[PE_0]: rank 141 is on nid04334; originally was on nid04648
+[PE_0]: rank 142 is on nid04880; originally was on nid04648
+[PE_0]: rank 143 is on nid05166; originally was on nid04648
+[PE_0]: rank 144 is on nid04877; originally was on nid04649
+[PE_0]: rank 145 is on nid04111; originally was on nid04649
+[PE_0]: rank 146 is on nid04050; originally was on nid04649
+[PE_0]: rank 147 is on nid03624; originally was on nid04649
+[PE_0]: rank 148 is on nid04395; originally was on nid04566
+[PE_0]: rank 149 is on nid04902; originally was on nid04566
+[PE_0]: rank 150 is on nid04983; originally was on nid04566
+[PE_0]: rank 151 is on nid04244; originally was on nid04566
+[PE_0]: rank 152 is on nid05015; originally was on nid04567
+[PE_0]: rank 153 is on nid04199; originally was on nid04567
+[PE_0]: rank 154 is on nid05038; originally was on nid04567
+[PE_0]: rank 155 is on nid03071; originally was on nid04567
+[PE_0]: rank 156 is on nid02306; originally was on nid04564
+[PE_0]: rank 157 is on nid03161; originally was on nid04564
+[PE_0]: rank 158 is on nid02549; originally was on nid04564
+[PE_0]: rank 159 is on nid02743; originally was on nid04564
+[PE_0]: rank 160 is on nid02634; originally was on nid04565
+[PE_0]: rank 161 is on nid02733; originally was on nid04565
+[PE_0]: rank 162 is on nid03405; originally was on nid04565
+[PE_0]: rank 163 is on nid00736; originally was on nid04565
+[PE_0]: rank 164 is on nid03824; originally was on nid04554
+[PE_0]: rank 165 is on nid04664; originally was on nid04554
+[PE_0]: rank 166 is on nid05334; originally was on nid04554
+[PE_0]: rank 167 is on nid04660; originally was on nid04554
+[PE_0]: rank 168 is on nid04555; originally was on nid04555
+[PE_0]: rank 169 is on nid03785; originally was on nid04555
+[PE_0]: rank 170 is on nid03795; originally was on nid04555
+[PE_0]: rank 171 is on nid03889; originally was on nid04555
+[PE_0]: rank 172 is on nid03709; originally was on nid04552
+[PE_0]: rank 173 is on nid03993; originally was on nid04552
+[PE_0]: rank 174 is on nid04410; originally was on nid04552
+[PE_0]: rank 175 is on nid04805; originally was on nid04552
+[PE_0]: rank 176 is on nid05176; originally was on nid04553
+[PE_0]: rank 177 is on nid04811; originally was on nid04553
+[PE_0]: rank 178 is on nid04405; originally was on nid04553
+[PE_0]: rank 179 is on nid03639; originally was on nid04553
+[PE_0]: rank 180 is on nid03634; originally was on nid03894
+[PE_0]: rank 181 is on nid04112; originally was on nid03894
+[PE_0]: rank 182 is on nid04334; originally was on nid03894
+[PE_0]: rank 183 is on nid04880; originally was on nid03894
+[PE_0]: rank 184 is on nid05167; originally was on nid03895
+[PE_0]: rank 185 is on nid04877; originally was on nid03895
+[PE_0]: rank 186 is on nid04111; originally was on nid03895
+[PE_0]: rank 187 is on nid04050; originally was on nid03895
+[PE_0]: rank 188 is on nid03625; originally was on nid03880
+[PE_0]: rank 189 is on nid04395; originally was on nid03880
+[PE_0]: rank 190 is on nid04902; originally was on nid03880
+[PE_0]: rank 191 is on nid04983; originally was on nid03880
+[PE_0]: rank 192 is on nid04245; originally was on nid03881
+[PE_0]: rank 193 is on nid05015; originally was on nid03881
+[PE_0]: rank 194 is on nid04199; originally was on nid03881
+[PE_0]: rank 195 is on nid05038; originally was on nid03881
+[PE_0]: rank 196 is on nid02304; originally was on nid03798
+[PE_0]: rank 197 is on nid02306; originally was on nid03798
+[PE_0]: rank 198 is on nid03161; originally was on nid03798
+[PE_0]: rank 199 is on nid02549; originally was on nid03798
+[PE_0]: rank 200 is on nid02632; originally was on nid03799
+[PE_0]: rank 201 is on nid02634; originally was on nid03799
+[PE_0]: rank 202 is on nid02733; originally was on nid03799
+[PE_0]: rank 203 is on nid03405; originally was on nid03799
+[PE_0]: rank 204 is on nid00737; originally was on nid03784
+[PE_0]: rank 205 is on nid03824; originally was on nid03784
+[PE_0]: rank 206 is on nid04664; originally was on nid03784
+[PE_0]: rank 207 is on nid05334; originally was on nid03784
+[PE_0]: rank 208 is on nid04661; originally was on nid03785
+[PE_0]: rank 209 is on nid04555; originally was on nid03785
+[PE_0]: rank 210 is on nid03785; originally was on nid03785
+[PE_0]: rank 211 is on nid03795; originally was on nid03785
+[PE_0]: rank 212 is on nid03890; originally was on nid03786
+[PE_0]: rank 213 is on nid03709; originally was on nid03786
+[PE_0]: rank 214 is on nid03993; originally was on nid03786
+[PE_0]: rank 215 is on nid04410; originally was on nid03786
+[PE_0]: rank 216 is on nid04806; originally was on nid03787
+[PE_0]: rank 217 is on nid05176; originally was on nid03787
+[PE_0]: rank 218 is on nid04811; originally was on nid03787
+[PE_0]: rank 219 is on nid04405; originally was on nid03787
+[PE_0]: rank 220 is on nid03560; originally was on nid03892
+[PE_0]: rank 221 is on nid03634; originally was on nid03892
+[PE_0]: rank 222 is on nid04112; originally was on nid03892
+[PE_0]: rank 223 is on nid04334; originally was on nid03892
+[PE_0]: rank 224 is on nid04881; originally was on nid03893
+[PE_0]: rank 225 is on nid05167; originally was on nid03893
+[PE_0]: rank 226 is on nid04877; originally was on nid03893
+[PE_0]: rank 227 is on nid04111; originally was on nid03893
+[PE_0]: rank 228 is on nid04051; originally was on nid03882
+[PE_0]: rank 229 is on nid03625; originally was on nid03882
+[PE_0]: rank 230 is on nid04395; originally was on nid03882
+[PE_0]: rank 231 is on nid04902; originally was on nid03882
+[PE_0]: rank 232 is on nid04904; originally was on nid03883
+[PE_0]: rank 233 is on nid04245; originally was on nid03883
+[PE_0]: rank 234 is on nid05015; originally was on nid03883
+[PE_0]: rank 235 is on nid04199; originally was on nid03883
+[PE_0]: rank 236 is on nid05039; originally was on nid03796
+[PE_0]: rank 237 is on nid02304; originally was on nid03796
+[PE_0]: rank 238 is on nid02306; originally was on nid03796
+[PE_0]: rank 239 is on nid03161; originally was on nid03796
+[PE_0]: rank 240 is on nid02059; originally was on nid03797
+[PE_0]: rank 241 is on nid02632; originally was on nid03797
+[PE_0]: rank 242 is on nid02634; originally was on nid03797
+[PE_0]: rank 243 is on nid02733; originally was on nid03797
+[PE_0]: rank 244 is on nid03406; originally was on nid03794
+[PE_0]: rank 245 is on nid00737; originally was on nid03794
+[PE_0]: rank 246 is on nid03824; originally was on nid03794
+[PE_0]: rank 247 is on nid04664; originally was on nid03794
+[PE_0]: rank 248 is on nid05335; originally was on nid03795
+[PE_0]: rank 249 is on nid04661; originally was on nid03795
+[PE_0]: rank 250 is on nid04555; originally was on nid03795
+[PE_0]: rank 251 is on nid03785; originally was on nid03795
+[PE_0]: rank 252 is on nid03788; originally was on nid03788
+[PE_0]: rank 253 is on nid03890; originally was on nid03788
+[PE_0]: rank 254 is on nid03709; originally was on nid03788
+[PE_0]: rank 255 is on nid03993; originally was on nid03788
+[PE_0]: rank 256 is on nid04411; originally was on nid03789
+[PE_0]: rank 257 is on nid04806; originally was on nid03789
+[PE_0]: rank 258 is on nid05176; originally was on nid03789
+[PE_0]: rank 259 is on nid04811; originally was on nid03789
+[PE_0]: rank 260 is on nid04330; originally was on nid03790
+[PE_0]: rank 261 is on nid03560; originally was on nid03790
+[PE_0]: rank 262 is on nid03634; originally was on nid03790
+[PE_0]: rank 263 is on nid04112; originally was on nid03790
+[PE_0]: rank 264 is on nid04335; originally was on nid03791
+[PE_0]: rank 265 is on nid04881; originally was on nid03791
+[PE_0]: rank 266 is on nid05167; originally was on nid03791
+[PE_0]: rank 267 is on nid04877; originally was on nid03791
+[PE_0]: rank 268 is on nid04048; originally was on nid03792
+[PE_0]: rank 269 is on nid04051; originally was on nid03792
+[PE_0]: rank 270 is on nid03625; originally was on nid03792
+[PE_0]: rank 271 is on nid04395; originally was on nid03792
+[PE_0]: rank 272 is on nid04903; originally was on nid03793
+[PE_0]: rank 273 is on nid04904; originally was on nid03793
+[PE_0]: rank 274 is on nid04245; originally was on nid03793
+[PE_0]: rank 275 is on nid05015; originally was on nid03793
+[PE_0]: rank 276 is on nid04152; originally was on nid03886
+[PE_0]: rank 277 is on nid05039; originally was on nid03886
+[PE_0]: rank 278 is on nid02304; originally was on nid03886
+[PE_0]: rank 279 is on nid02306; originally was on nid03886
+[PE_0]: rank 280 is on nid03163; originally was on nid03887
+[PE_0]: rank 281 is on nid02059; originally was on nid03887
+[PE_0]: rank 282 is on nid02632; originally was on nid03887
+[PE_0]: rank 283 is on nid02634; originally was on nid03887
+[PE_0]: rank 284 is on nid02738; originally was on nid03888
+[PE_0]: rank 285 is on nid03406; originally was on nid03888
+[PE_0]: rank 286 is on nid00737; originally was on nid03888
+[PE_0]: rank 287 is on nid03824; originally was on nid03888
+[PE_0]: rank 288 is on nid04665; originally was on nid03889
+[PE_0]: rank 289 is on nid05335; originally was on nid03889
+[PE_0]: rank 290 is on nid04661; originally was on nid03889
+[PE_0]: rank 291 is on nid04555; originally was on nid03889
+[PE_0]: rank 292 is on nid03786; originally was on nid03890
+[PE_0]: rank 293 is on nid03788; originally was on nid03890
+[PE_0]: rank 294 is on nid03890; originally was on nid03890
+[PE_0]: rank 295 is on nid03709; originally was on nid03890
+[PE_0]: rank 296 is on nid04740; originally was on nid03891
+[PE_0]: rank 297 is on nid04411; originally was on nid03891
+[PE_0]: rank 298 is on nid04806; originally was on nid03891
+[PE_0]: rank 299 is on nid05176; originally was on nid03891
+[PE_0]: rank 300 is on nid04884; originally was on nid03884
+[PE_0]: rank 301 is on nid04330; originally was on nid03884
+[PE_0]: rank 302 is on nid03560; originally was on nid03884
+[PE_0]: rank 303 is on nid03634; originally was on nid03884
+[PE_0]: rank 304 is on nid04113; originally was on nid05260
+[PE_0]: rank 305 is on nid04335; originally was on nid05260
+[PE_0]: rank 306 is on nid04881; originally was on nid05260
+[PE_0]: rank 307 is on nid05167; originally was on nid05260
+[PE_0]: rank 308 is on nid04878; originally was on nid05207
+[PE_0]: rank 309 is on nid04048; originally was on nid05207
+[PE_0]: rank 310 is on nid04051; originally was on nid05207
+[PE_0]: rank 311 is on nid03625; originally was on nid05207
+[PE_0]: rank 312 is on nid04392; originally was on nid05204
+[PE_0]: rank 313 is on nid04903; originally was on nid05204
+[PE_0]: rank 314 is on nid04904; originally was on nid05204
+[PE_0]: rank 315 is on nid04245; originally was on nid05204
+[PE_0]: rank 316 is on nid05012; originally was on nid03969
+[PE_0]: rank 317 is on nid04152; originally was on nid03969
+[PE_0]: rank 318 is on nid05039; originally was on nid03969
+[PE_0]: rank 319 is on nid02304; originally was on nid03969
+[PE_0]: rank 320 is on nid02307; originally was on nid03970
+[PE_0]: rank 321 is on nid03163; originally was on nid03970
+[PE_0]: rank 322 is on nid02059; originally was on nid03970
+[PE_0]: rank 323 is on nid02632; originally was on nid03970
+[PE_0]: rank 324 is on nid01970; originally was on nid03971
+[PE_0]: rank 325 is on nid02738; originally was on nid03971
+[PE_0]: rank 326 is on nid03406; originally was on nid03971
+[PE_0]: rank 327 is on nid00737; originally was on nid03971
+[PE_0]: rank 328 is on nid04551; originally was on nid03708
+[PE_0]: rank 329 is on nid04665; originally was on nid03708
+[PE_0]: rank 330 is on nid05335; originally was on nid03708
+[PE_0]: rank 331 is on nid04661; originally was on nid03708
+[PE_0]: rank 332 is on nid04552; originally was on nid03709
+[PE_0]: rank 333 is on nid03786; originally was on nid03709
+[PE_0]: rank 334 is on nid03788; originally was on nid03709
+[PE_0]: rank 335 is on nid03890; originally was on nid03709
+[PE_0]: rank 336 is on nid03706; originally was on nid03706
+[PE_0]: rank 337 is on nid04740; originally was on nid03706
+[PE_0]: rank 338 is on nid04411; originally was on nid03706
+[PE_0]: rank 339 is on nid04806; originally was on nid03706
+[PE_0]: rank 340 is on nid05174; originally was on nid03707
+[PE_0]: rank 341 is on nid04884; originally was on nid03707
+[PE_0]: rank 342 is on nid04330; originally was on nid03707
+[PE_0]: rank 343 is on nid03560; originally was on nid03707
+[PE_0]: rank 344 is on nid03635; originally was on nid03684
+[PE_0]: rank 345 is on nid04113; originally was on nid03684
+[PE_0]: rank 346 is on nid04335; originally was on nid03684
+[PE_0]: rank 347 is on nid04881; originally was on nid03684
+[PE_0]: rank 348 is on nid05104; originally was on nid03685
+[PE_0]: rank 349 is on nid04878; originally was on nid03685
+[PE_0]: rank 350 is on nid04048; originally was on nid03685
+[PE_0]: rank 351 is on nid04051; originally was on nid03685
+[PE_0]: rank 352 is on nid04054; originally was on nid03686
+[PE_0]: rank 353 is on nid04392; originally was on nid03686
+[PE_0]: rank 354 is on nid04903; originally was on nid03686
+[PE_0]: rank 355 is on nid04904; originally was on nid03686
+[PE_0]: rank 356 is on nid04970; originally was on nid03687
+[PE_0]: rank 357 is on nid05012; originally was on nid03687
+[PE_0]: rank 358 is on nid04152; originally was on nid03687
+[PE_0]: rank 359 is on nid05039; originally was on nid03687
+[PE_0]: rank 360 is on nid02305; originally was on nid03704
+[PE_0]: rank 361 is on nid02307; originally was on nid03704
+[PE_0]: rank 362 is on nid03163; originally was on nid03704
+[PE_0]: rank 363 is on nid02059; originally was on nid03704
+[PE_0]: rank 364 is on nid02633; originally was on nid03705
+[PE_0]: rank 365 is on nid01970; originally was on nid03705
+[PE_0]: rank 366 is on nid02738; originally was on nid03705
+[PE_0]: rank 367 is on nid03406; originally was on nid03705
+[PE_0]: rank 368 is on nid00734; originally was on nid03992
+[PE_0]: rank 369 is on nid04551; originally was on nid03992
+[PE_0]: rank 370 is on nid04665; originally was on nid03992
+[PE_0]: rank 371 is on nid05335; originally was on nid03992
+[PE_0]: rank 372 is on nid04662; originally was on nid03993
+[PE_0]: rank 373 is on nid04552; originally was on nid03993
+[PE_0]: rank 374 is on nid03786; originally was on nid03993
+[PE_0]: rank 375 is on nid03788; originally was on nid03993
+[PE_0]: rank 376 is on nid03891; originally was on nid04740
+[PE_0]: rank 377 is on nid03706; originally was on nid04740
+[PE_0]: rank 378 is on nid04740; originally was on nid04740
+[PE_0]: rank 379 is on nid04411; originally was on nid04740
+[PE_0]: rank 380 is on nid04807; originally was on nid03980
+[PE_0]: rank 381 is on nid05174; originally was on nid03980
+[PE_0]: rank 382 is on nid04884; originally was on nid03980
+[PE_0]: rank 383 is on nid04330; originally was on nid03980
+[PE_0]: rank 384 is on nid03561; originally was on nid04467
+[PE_0]: rank 385 is on nid03635; originally was on nid04467
+[PE_0]: rank 386 is on nid04113; originally was on nid04467
+[PE_0]: rank 387 is on nid04335; originally was on nid04467
+[PE_0]: rank 388 is on nid05102; originally was on nid04464
+[PE_0]: rank 389 is on nid05104; originally was on nid04464
+[PE_0]: rank 390 is on nid04878; originally was on nid04464
+[PE_0]: rank 391 is on nid04048; originally was on nid04464
+[PE_0]: rank 392 is on nid03628; originally was on nid04465
+[PE_0]: rank 393 is on nid04054; originally was on nid04465
+[PE_0]: rank 394 is on nid04392; originally was on nid04465
+[PE_0]: rank 395 is on nid04903; originally was on nid04465
+[PE_0]: rank 396 is on nid04200; originally was on nid04462
+[PE_0]: rank 397 is on nid04970; originally was on nid04462
+[PE_0]: rank 398 is on nid05012; originally was on nid04462
+[PE_0]: rank 399 is on nid04152; originally was on nid04462
+[PE_0]: rank 400 is on nid05036; originally was on nid04463
+[PE_0]: rank 401 is on nid02305; originally was on nid04463
+[PE_0]: rank 402 is on nid02307; originally was on nid04463
+[PE_0]: rank 403 is on nid03163; originally was on nid04463
+[PE_0]: rank 404 is on nid03403; originally was on nid04460
+[PE_0]: rank 405 is on nid02633; originally was on nid04460
+[PE_0]: rank 406 is on nid01970; originally was on nid04460
+[PE_0]: rank 407 is on nid02738; originally was on nid04460
+[PE_0]: rank 408 is on nid03407; originally was on nid04037
+[PE_0]: rank 409 is on nid00734; originally was on nid04037
+[PE_0]: rank 410 is on nid04551; originally was on nid04037
+[PE_0]: rank 411 is on nid04665; originally was on nid04037
+[PE_0]: rank 412 is on nid05320; originally was on nid04410
+[PE_0]: rank 413 is on nid04662; originally was on nid04410
+[PE_0]: rank 414 is on nid04552; originally was on nid04410
+[PE_0]: rank 415 is on nid03786; originally was on nid04410
+[PE_0]: rank 416 is on nid03789; originally was on nid04411
+[PE_0]: rank 417 is on nid03891; originally was on nid04411
+[PE_0]: rank 418 is on nid03706; originally was on nid04411
+[PE_0]: rank 419 is on nid04740; originally was on nid04411
+[PE_0]: rank 420 is on nid04408; originally was on nid04408
+[PE_0]: rank 421 is on nid04807; originally was on nid04408
+[PE_0]: rank 422 is on nid05174; originally was on nid04408
+[PE_0]: rank 423 is on nid04884; originally was on nid04408
+[PE_0]: rank 424 is on nid04331; originally was on nid04409
+[PE_0]: rank 425 is on nid03561; originally was on nid04409
+[PE_0]: rank 426 is on nid03635; originally was on nid04409
+[PE_0]: rank 427 is on nid04113; originally was on nid04409
+[PE_0]: rank 428 is on nid04332; originally was on nid04326
+[PE_0]: rank 429 is on nid05102; originally was on nid04326
+[PE_0]: rank 430 is on nid05104; originally was on nid04326
+[PE_0]: rank 431 is on nid04878; originally was on nid04326
+[PE_0]: rank 432 is on nid04049; originally was on nid04327
+[PE_0]: rank 433 is on nid03628; originally was on nid04327
+[PE_0]: rank 434 is on nid04054; originally was on nid04327
+[PE_0]: rank 435 is on nid04392; originally was on nid04327
+[PE_0]: rank 436 is on nid04984; originally was on nid04324
+[PE_0]: rank 437 is on nid04200; originally was on nid04324
+[PE_0]: rank 438 is on nid04970; originally was on nid04324
+[PE_0]: rank 439 is on nid05012; originally was on nid04324
+[PE_0]: rank 440 is on nid04153; originally was on nid04325
+[PE_0]: rank 441 is on nid05036; originally was on nid04325
+[PE_0]: rank 442 is on nid02305; originally was on nid04325
+[PE_0]: rank 443 is on nid02307; originally was on nid04325
+[PE_0]: rank 444 is on nid03076; originally was on nid04891
+[PE_0]: rank 445 is on nid03403; originally was on nid04891
+[PE_0]: rank 446 is on nid02633; originally was on nid04891
+[PE_0]: rank 447 is on nid01970; originally was on nid04891
+[PE_0]: rank 448 is on nid02739; originally was on nid04804
+[PE_0]: rank 449 is on nid03407; originally was on nid04804
+[PE_0]: rank 450 is on nid00734; originally was on nid04804
+[PE_0]: rank 451 is on nid04551; originally was on nid04804
+[PE_0]: rank 452 is on nid05318; originally was on nid04805
+[PE_0]: rank 453 is on nid05320; originally was on nid04805
+[PE_0]: rank 454 is on nid04662; originally was on nid04805
+[PE_0]: rank 455 is on nid04552; originally was on nid04805
+[PE_0]: rank 456 is on nid03787; originally was on nid04806
+[PE_0]: rank 457 is on nid03789; originally was on nid04806
+[PE_0]: rank 458 is on nid03891; originally was on nid04806
+[PE_0]: rank 459 is on nid03706; originally was on nid04806
+[PE_0]: rank 460 is on nid03980; originally was on nid04807
+[PE_0]: rank 461 is on nid04408; originally was on nid04807
+[PE_0]: rank 462 is on nid04807; originally was on nid04807
+[PE_0]: rank 463 is on nid05174; originally was on nid04807
+[PE_0]: rank 464 is on nid04885; originally was on nid04888
+[PE_0]: rank 465 is on nid04331; originally was on nid04888
+[PE_0]: rank 466 is on nid03561; originally was on nid04888
+[PE_0]: rank 467 is on nid03635; originally was on nid04888
+[PE_0]: rank 468 is on nid04114; originally was on nid04889
+[PE_0]: rank 469 is on nid04332; originally was on nid04889
+[PE_0]: rank 470 is on nid05102; originally was on nid04889
+[PE_0]: rank 471 is on nid05104; originally was on nid04889
+[PE_0]: rank 472 is on nid04879; originally was on nid05094
+[PE_0]: rank 473 is on nid04049; originally was on nid05094
+[PE_0]: rank 474 is on nid03628; originally was on nid05094
+[PE_0]: rank 475 is on nid04054; originally was on nid05094
+[PE_0]: rank 476 is on nid04871; originally was on nid05095
+[PE_0]: rank 477 is on nid04984; originally was on nid05095
+[PE_0]: rank 478 is on nid04200; originally was on nid05095
+[PE_0]: rank 479 is on nid04970; originally was on nid05095
+[PE_0]: rank 480 is on nid05066; originally was on nid05092
+[PE_0]: rank 481 is on nid04153; originally was on nid05092
+[PE_0]: rank 482 is on nid05036; originally was on nid05092
+[PE_0]: rank 483 is on nid02305; originally was on nid05092
+[PE_0]: rank 484 is on nid02396; originally was on nid05093
+[PE_0]: rank 485 is on nid03076; originally was on nid05093
+[PE_0]: rank 486 is on nid03403; originally was on nid05093
+[PE_0]: rank 487 is on nid02633; originally was on nid05093
+[PE_0]: rank 488 is on nid01971; originally was on nid05178
+[PE_0]: rank 489 is on nid02739; originally was on nid05178
+[PE_0]: rank 490 is on nid03407; originally was on nid05178
+[PE_0]: rank 491 is on nid00734; originally was on nid05178
+[PE_0]: rank 492 is on nid04548; originally was on nid05179
+[PE_0]: rank 493 is on nid05318; originally was on nid05179
+[PE_0]: rank 494 is on nid05320; originally was on nid05179
+[PE_0]: rank 495 is on nid04662; originally was on nid05179
+[PE_0]: rank 496 is on nid04553; originally was on nid05176
+[PE_0]: rank 497 is on nid03787; originally was on nid05176
+[PE_0]: rank 498 is on nid03789; originally was on nid05176
+[PE_0]: rank 499 is on nid03891; originally was on nid05176
+[PE_0]: rank 500 is on nid03707; originally was on nid05174
+[PE_0]: rank 501 is on nid03980; originally was on nid05174
+[PE_0]: rank 502 is on nid04408; originally was on nid05174
+[PE_0]: rank 503 is on nid04807; originally was on nid05174
+[PE_0]: rank 504 is on nid05175; originally was on nid05175
+[PE_0]: rank 505 is on nid04885; originally was on nid05175
+[PE_0]: rank 506 is on nid04331; originally was on nid05175
+[PE_0]: rank 507 is on nid03561; originally was on nid05175
+[PE_0]: rank 508 is on nid03564; originally was on nid05096
+[PE_0]: rank 509 is on nid04114; originally was on nid05096
+[PE_0]: rank 510 is on nid04332; originally was on nid05096
+[PE_0]: rank 511 is on nid05102; originally was on nid05096
+[PE_0]: rank 512 is on nid05105; originally was on nid05097
+[PE_0]: rank 513 is on nid04879; originally was on nid05097
+[PE_0]: rank 514 is on nid04049; originally was on nid05097
+[PE_0]: rank 515 is on nid03628; originally was on nid05097
+[PE_0]: rank 516 is on nid04055; originally was on nid05098
+[PE_0]: rank 517 is on nid04871; originally was on nid05098
+[PE_0]: rank 518 is on nid04984; originally was on nid05098
+[PE_0]: rank 519 is on nid04200; originally was on nid05098
+[PE_0]: rank 520 is on nid04971; originally was on nid05099
+[PE_0]: rank 521 is on nid05066; originally was on nid05099
+[PE_0]: rank 522 is on nid04153; originally was on nid05099
+[PE_0]: rank 523 is on nid05036; originally was on nid05099
+[PE_0]: rank 524 is on nid02398; originally was on nid05172
+[PE_0]: rank 525 is on nid02396; originally was on nid05172
+[PE_0]: rank 526 is on nid03076; originally was on nid05172
+[PE_0]: rank 527 is on nid03403; originally was on nid05172
+[PE_0]: rank 528 is on nid02646; originally was on nid05173
+[PE_0]: rank 529 is on nid01971; originally was on nid05173
+[PE_0]: rank 530 is on nid02739; originally was on nid05173
+[PE_0]: rank 531 is on nid03407; originally was on nid05173
+[PE_0]: rank 532 is on nid00735; originally was on nid04810
+[PE_0]: rank 533 is on nid04548; originally was on nid04810
+[PE_0]: rank 534 is on nid05318; originally was on nid04810
+[PE_0]: rank 535 is on nid05320; originally was on nid04810
+[PE_0]: rank 536 is on nid04663; originally was on nid04811
+[PE_0]: rank 537 is on nid04553; originally was on nid04811
+[PE_0]: rank 538 is on nid03787; originally was on nid04811
+[PE_0]: rank 539 is on nid03789; originally was on nid04811
+[PE_0]: rank 540 is on nid03884; originally was on nid04884
+[PE_0]: rank 541 is on nid03707; originally was on nid04884
+[PE_0]: rank 542 is on nid03980; originally was on nid04884
+[PE_0]: rank 543 is on nid04408; originally was on nid04884
+[PE_0]: rank 544 is on nid04888; originally was on nid04885
+[PE_0]: rank 545 is on nid05175; originally was on nid04885
+[PE_0]: rank 546 is on nid04885; originally was on nid04885
+[PE_0]: rank 547 is on nid04331; originally was on nid04885
+[PE_0]: rank 548 is on nid03562; originally was on nid04886
+[PE_0]: rank 549 is on nid03564; originally was on nid04886
+[PE_0]: rank 550 is on nid04114; originally was on nid04886
+[PE_0]: rank 551 is on nid04332; originally was on nid04886
+[PE_0]: rank 552 is on nid05103; originally was on nid04887
+[PE_0]: rank 553 is on nid05105; originally was on nid04887
+[PE_0]: rank 554 is on nid04879; originally was on nid04887
+[PE_0]: rank 555 is on nid04049; originally was on nid04887
+[PE_0]: rank 556 is on nid03629; originally was on nid04808
+[PE_0]: rank 557 is on nid04055; originally was on nid04808
+[PE_0]: rank 558 is on nid04871; originally was on nid04808
+[PE_0]: rank 559 is on nid04984; originally was on nid04808
+[PE_0]: rank 560 is on nid04202; originally was on nid04809
+[PE_0]: rank 561 is on nid04971; originally was on nid04809
+[PE_0]: rank 562 is on nid05066; originally was on nid04809
+[PE_0]: rank 563 is on nid04153; originally was on nid04809
+[PE_0]: rank 564 is on nid05037; originally was on nid04406
+[PE_0]: rank 565 is on nid02398; originally was on nid04406
+[PE_0]: rank 566 is on nid02396; originally was on nid04406
+[PE_0]: rank 567 is on nid03076; originally was on nid04406
+[PE_0]: rank 568 is on nid02740; originally was on nid04407
+[PE_0]: rank 569 is on nid02646; originally was on nid04407
+[PE_0]: rank 570 is on nid01971; originally was on nid04407
+[PE_0]: rank 571 is on nid02739; originally was on nid04407
+[PE_0]: rank 572 is on nid00769; originally was on nid04404
+[PE_0]: rank 573 is on nid00735; originally was on nid04404
+[PE_0]: rank 574 is on nid04548; originally was on nid04404
+[PE_0]: rank 575 is on nid05318; originally was on nid04404
+[PE_0]: rank 576 is on nid05321; originally was on nid04405
+[PE_0]: rank 577 is on nid04663; originally was on nid04405
+[PE_0]: rank 578 is on nid04553; originally was on nid04405
+[PE_0]: rank 579 is on nid03787; originally was on nid04405
+[PE_0]: rank 580 is on nid03790; originally was on nid04330
+[PE_0]: rank 581 is on nid03884; originally was on nid04330
+[PE_0]: rank 582 is on nid03707; originally was on nid04330
+[PE_0]: rank 583 is on nid03980; originally was on nid04330
+[PE_0]: rank 584 is on nid04409; originally was on nid04331
+[PE_0]: rank 585 is on nid04888; originally was on nid04331
+[PE_0]: rank 586 is on nid05175; originally was on nid04331
+[PE_0]: rank 587 is on nid04885; originally was on nid04331
+[PE_0]: rank 588 is on nid04328; originally was on nid04328
+[PE_0]: rank 589 is on nid03562; originally was on nid04328
+[PE_0]: rank 590 is on nid03564; originally was on nid04328
+[PE_0]: rank 591 is on nid04114; originally was on nid04328
+[PE_0]: rank 592 is on nid04333; originally was on nid04329
+[PE_0]: rank 593 is on nid05103; originally was on nid04329
+[PE_0]: rank 594 is on nid05105; originally was on nid04329
+[PE_0]: rank 595 is on nid04879; originally was on nid04329
+[PE_0]: rank 596 is on nid03630; originally was on nid04118
+[PE_0]: rank 597 is on nid03629; originally was on nid04118
+[PE_0]: rank 598 is on nid04055; originally was on nid04118
+[PE_0]: rank 599 is on nid04871; originally was on nid04118
+[PE_0]: rank 600 is on nid04985; originally was on nid04119
+[PE_0]: rank 601 is on nid04202; originally was on nid04119
+[PE_0]: rank 602 is on nid04971; originally was on nid04119
+[PE_0]: rank 603 is on nid05066; originally was on nid04119
+[PE_0]: rank 604 is on nid03480; originally was on nid04040
+[PE_0]: rank 605 is on nid05037; originally was on nid04040
+[PE_0]: rank 606 is on nid02398; originally was on nid04040
+[PE_0]: rank 607 is on nid02396; originally was on nid04040
+[PE_0]: rank 608 is on nid03077; originally was on nid04041
+[PE_0]: rank 609 is on nid02740; originally was on nid04041
+[PE_0]: rank 610 is on nid02646; originally was on nid04041
+[PE_0]: rank 611 is on nid01971; originally was on nid04041
+[PE_0]: rank 612 is on nid02736; originally was on nid03638
+[PE_0]: rank 613 is on nid00769; originally was on nid03638
+[PE_0]: rank 614 is on nid00735; originally was on nid03638
+[PE_0]: rank 615 is on nid04548; originally was on nid03638
+[PE_0]: rank 616 is on nid05319; originally was on nid03639
+[PE_0]: rank 617 is on nid05321; originally was on nid03639
+[PE_0]: rank 618 is on nid04663; originally was on nid03639
+[PE_0]: rank 619 is on nid04553; originally was on nid03639
+[PE_0]: rank 620 is on nid03892; originally was on nid03560
+[PE_0]: rank 621 is on nid03790; originally was on nid03560
+[PE_0]: rank 622 is on nid03884; originally was on nid03560
+[PE_0]: rank 623 is on nid03707; originally was on nid03560
+[PE_0]: rank 624 is on nid04467; originally was on nid03561
+[PE_0]: rank 625 is on nid04409; originally was on nid03561
+[PE_0]: rank 626 is on nid04888; originally was on nid03561
+[PE_0]: rank 627 is on nid05175; originally was on nid03561
+[PE_0]: rank 628 is on nid04886; originally was on nid03562
+[PE_0]: rank 629 is on nid04328; originally was on nid03562
+[PE_0]: rank 630 is on nid03562; originally was on nid03562
+[PE_0]: rank 631 is on nid03564; originally was on nid03562
+[PE_0]: rank 632 is on nid04115; originally was on nid03563
+[PE_0]: rank 633 is on nid04333; originally was on nid03563
+[PE_0]: rank 634 is on nid05103; originally was on nid03563
+[PE_0]: rank 635 is on nid05105; originally was on nid03563
+[PE_0]: rank 636 is on nid04816; originally was on nid04116
+[PE_0]: rank 637 is on nid03630; originally was on nid04116
+[PE_0]: rank 638 is on nid03629; originally was on nid04116
+[PE_0]: rank 639 is on nid04055; originally was on nid04116
+[PE_0]: rank 640 is on nid04824; originally was on nid04117
+[PE_0]: rank 641 is on nid04985; originally was on nid04117
+[PE_0]: rank 642 is on nid04202; originally was on nid04117
+[PE_0]: rank 643 is on nid04971; originally was on nid04117
+[PE_0]: rank 644 is on nid04292; originally was on nid04042
+[PE_0]: rank 645 is on nid03480; originally was on nid04042
+[PE_0]: rank 646 is on nid05037; originally was on nid04042
+[PE_0]: rank 647 is on nid02398; originally was on nid04042
+[PE_0]: rank 648 is on nid02397; originally was on nid04043
+[PE_0]: rank 649 is on nid03077; originally was on nid04043
+[PE_0]: rank 650 is on nid02740; originally was on nid04043
+[PE_0]: rank 651 is on nid02646; originally was on nid04043
+[PE_0]: rank 652 is on nid01968; originally was on nid03636
+[PE_0]: rank 653 is on nid02736; originally was on nid03636
+[PE_0]: rank 654 is on nid00769; originally was on nid03636
+[PE_0]: rank 655 is on nid00735; originally was on nid03636
+[PE_0]: rank 656 is on nid04549; originally was on nid03637
+[PE_0]: rank 657 is on nid05319; originally was on nid03637
+[PE_0]: rank 658 is on nid05321; originally was on nid03637
+[PE_0]: rank 659 is on nid04663; originally was on nid03637
+[PE_0]: rank 660 is on nid03894; originally was on nid03634
+[PE_0]: rank 661 is on nid03892; originally was on nid03634
+[PE_0]: rank 662 is on nid03790; originally was on nid03634
+[PE_0]: rank 663 is on nid03884; originally was on nid03634
+[PE_0]: rank 664 is on nid03684; originally was on nid03635
+[PE_0]: rank 665 is on nid04467; originally was on nid03635
+[PE_0]: rank 666 is on nid04409; originally was on nid03635
+[PE_0]: rank 667 is on nid04888; originally was on nid03635
+[PE_0]: rank 668 is on nid05096; originally was on nid03564
+[PE_0]: rank 669 is on nid04886; originally was on nid03564
+[PE_0]: rank 670 is on nid04328; originally was on nid03564
+[PE_0]: rank 671 is on nid03562; originally was on nid03564
+[PE_0]: rank 672 is on nid03565; originally was on nid03565
+[PE_0]: rank 673 is on nid04115; originally was on nid03565
+[PE_0]: rank 674 is on nid04333; originally was on nid03565
+[PE_0]: rank 675 is on nid05103; originally was on nid03565
+[PE_0]: rank 676 is on nid05106; originally was on nid03566
+[PE_0]: rank 677 is on nid04816; originally was on nid03566
+[PE_0]: rank 678 is on nid03630; originally was on nid03566
+[PE_0]: rank 679 is on nid03629; originally was on nid03566
+[PE_0]: rank 680 is on nid04104; originally was on nid03567
+[PE_0]: rank 681 is on nid04824; originally was on nid03567
+[PE_0]: rank 682 is on nid04985; originally was on nid03567
+[PE_0]: rank 683 is on nid04202; originally was on nid03567
+[PE_0]: rank 684 is on nid04916; originally was on nid03632
+[PE_0]: rank 685 is on nid04292; originally was on nid03632
+[PE_0]: rank 686 is on nid03480; originally was on nid03632
+[PE_0]: rank 687 is on nid05037; originally was on nid03632
+[PE_0]: rank 688 is on nid02399; originally was on nid03633
+[PE_0]: rank 689 is on nid02397; originally was on nid03633
+[PE_0]: rank 690 is on nid03077; originally was on nid03633
+[PE_0]: rank 691 is on nid02740; originally was on nid03633
+[PE_0]: rank 692 is on nid02647; originally was on nid04046
+[PE_0]: rank 693 is on nid01968; originally was on nid04046
+[PE_0]: rank 694 is on nid02736; originally was on nid04046
+[PE_0]: rank 695 is on nid00769; originally was on nid04046
+[PE_0]: rank 696 is on nid00732; originally was on nid04047
+[PE_0]: rank 697 is on nid04549; originally was on nid04047
+[PE_0]: rank 698 is on nid05319; originally was on nid04047
+[PE_0]: rank 699 is on nid05321; originally was on nid04047
+[PE_0]: rank 700 is on nid04648; originally was on nid04112
+[PE_0]: rank 701 is on nid03894; originally was on nid04112
+[PE_0]: rank 702 is on nid03892; originally was on nid04112
+[PE_0]: rank 703 is on nid03790; originally was on nid04112
+[PE_0]: rank 704 is on nid05260; originally was on nid04113
+[PE_0]: rank 705 is on nid03684; originally was on nid04113
+[PE_0]: rank 706 is on nid04467; originally was on nid04113
+[PE_0]: rank 707 is on nid04409; originally was on nid04113
+[PE_0]: rank 708 is on nid04889; originally was on nid04114
+[PE_0]: rank 709 is on nid05096; originally was on nid04114
+[PE_0]: rank 710 is on nid04886; originally was on nid04114
+[PE_0]: rank 711 is on nid04328; originally was on nid04114
+[PE_0]: rank 712 is on nid03563; originally was on nid04115
+[PE_0]: rank 713 is on nid03565; originally was on nid04115
+[PE_0]: rank 714 is on nid04115; originally was on nid04115
+[PE_0]: rank 715 is on nid04333; originally was on nid04115
+[PE_0]: rank 716 is on nid05100; originally was on nid04044
+[PE_0]: rank 717 is on nid05106; originally was on nid04044
+[PE_0]: rank 718 is on nid04816; originally was on nid04044
+[PE_0]: rank 719 is on nid03630; originally was on nid04044
+[PE_0]: rank 720 is on nid03626; originally was on nid04045
+[PE_0]: rank 721 is on nid04104; originally was on nid04045
+[PE_0]: rank 722 is on nid04824; originally was on nid04045
+[PE_0]: rank 723 is on nid04985; originally was on nid04045
+[PE_0]: rank 724 is on nid04203; originally was on nid04402
+[PE_0]: rank 725 is on nid04916; originally was on nid04402
+[PE_0]: rank 726 is on nid04292; originally was on nid04402
+[PE_0]: rank 727 is on nid03480; originally was on nid04402
+[PE_0]: rank 728 is on nid03073; originally was on nid04403
+[PE_0]: rank 729 is on nid02399; originally was on nid04403
+[PE_0]: rank 730 is on nid02397; originally was on nid04403
+[PE_0]: rank 731 is on nid03077; originally was on nid04403
+[PE_0]: rank 732 is on nid02741; originally was on nid04400
+[PE_0]: rank 733 is on nid02647; originally was on nid04400
+[PE_0]: rank 734 is on nid01968; originally was on nid04400
+[PE_0]: rank 735 is on nid02736; originally was on nid04400
+[PE_0]: rank 736 is on nid00698; originally was on nid04401
+[PE_0]: rank 737 is on nid00732; originally was on nid04401
+[PE_0]: rank 738 is on nid04549; originally was on nid04401
+[PE_0]: rank 739 is on nid05319; originally was on nid04401
+[PE_0]: rank 740 is on nid05322; originally was on nid04334
+[PE_0]: rank 741 is on nid04648; originally was on nid04334
+[PE_0]: rank 742 is on nid03894; originally was on nid04334
+[PE_0]: rank 743 is on nid03892; originally was on nid04334
+[PE_0]: rank 744 is on nid03791; originally was on nid04335
+[PE_0]: rank 745 is on nid05260; originally was on nid04335
+[PE_0]: rank 746 is on nid03684; originally was on nid04335
+[PE_0]: rank 747 is on nid04467; originally was on nid04335
+[PE_0]: rank 748 is on nid04326; originally was on nid04332
+[PE_0]: rank 749 is on nid04889; originally was on nid04332
+[PE_0]: rank 750 is on nid05096; originally was on nid04332
+[PE_0]: rank 751 is on nid04886; originally was on nid04332
+[PE_0]: rank 752 is on nid04329; originally was on nid04333
+[PE_0]: rank 753 is on nid03563; originally was on nid04333
+[PE_0]: rank 754 is on nid03565; originally was on nid04333
+[PE_0]: rank 755 is on nid04115; originally was on nid04333
+[PE_0]: rank 756 is on nid04882; originally was on nid04882
+[PE_0]: rank 757 is on nid05100; originally was on nid04882
+[PE_0]: rank 758 is on nid05106; originally was on nid04882
+[PE_0]: rank 759 is on nid04816; originally was on nid04882
+[PE_0]: rank 760 is on nid03631; originally was on nid04883
+[PE_0]: rank 761 is on nid03626; originally was on nid04883
+[PE_0]: rank 762 is on nid04104; originally was on nid04883
+[PE_0]: rank 763 is on nid04824; originally was on nid04883
+[PE_0]: rank 764 is on nid05080; originally was on nid04812
+[PE_0]: rank 765 is on nid04203; originally was on nid04812
+[PE_0]: rank 766 is on nid04916; originally was on nid04812
+[PE_0]: rank 767 is on nid04292; originally was on nid04812
+[PE_0]: rank 768 is on nid03481; originally was on nid04813
+[PE_0]: rank 769 is on nid03073; originally was on nid04813
+[PE_0]: rank 770 is on nid02399; originally was on nid04813
+[PE_0]: rank 771 is on nid02397; originally was on nid04813
+[PE_0]: rank 772 is on nid03078; originally was on nid04814
+[PE_0]: rank 773 is on nid02741; originally was on nid04814
+[PE_0]: rank 774 is on nid02647; originally was on nid04814
+[PE_0]: rank 775 is on nid01968; originally was on nid04814
+[PE_0]: rank 776 is on nid02737; originally was on nid04815
+[PE_0]: rank 777 is on nid00698; originally was on nid04815
+[PE_0]: rank 778 is on nid00732; originally was on nid04815
+[PE_0]: rank 779 is on nid04549; originally was on nid04815
+[PE_0]: rank 780 is on nid05316; originally was on nid04880
+[PE_0]: rank 781 is on nid05322; originally was on nid04880
+[PE_0]: rank 782 is on nid04648; originally was on nid04880
+[PE_0]: rank 783 is on nid03894; originally was on nid04880
+[PE_0]: rank 784 is on nid03893; originally was on nid04881
+[PE_0]: rank 785 is on nid03791; originally was on nid04881
+[PE_0]: rank 786 is on nid05260; originally was on nid04881
+[PE_0]: rank 787 is on nid03684; originally was on nid04881
+[PE_0]: rank 788 is on nid04464; originally was on nid05102
+[PE_0]: rank 789 is on nid04326; originally was on nid05102
+[PE_0]: rank 790 is on nid04889; originally was on nid05102
+[PE_0]: rank 791 is on nid05096; originally was on nid05102
+[PE_0]: rank 792 is on nid04887; originally was on nid05103
+[PE_0]: rank 793 is on nid04329; originally was on nid05103
+[PE_0]: rank 794 is on nid03563; originally was on nid05103
+[PE_0]: rank 795 is on nid03565; originally was on nid05103
+[PE_0]: rank 796 is on nid04044; originally was on nid05100
+[PE_0]: rank 797 is on nid04882; originally was on nid05100
+[PE_0]: rank 798 is on nid05100; originally was on nid05100
+[PE_0]: rank 799 is on nid05106; originally was on nid05100
+[PE_0]: rank 800 is on nid04817; originally was on nid05101
+[PE_0]: rank 801 is on nid03631; originally was on nid05101
+[PE_0]: rank 802 is on nid03626; originally was on nid05101
+[PE_0]: rank 803 is on nid04104; originally was on nid05101
+[PE_0]: rank 804 is on nid04825; originally was on nid05170
+[PE_0]: rank 805 is on nid05080; originally was on nid05170
+[PE_0]: rank 806 is on nid04203; originally was on nid05170
+[PE_0]: rank 807 is on nid04916; originally was on nid05170
+[PE_0]: rank 808 is on nid04293; originally was on nid05171
+[PE_0]: rank 809 is on nid03481; originally was on nid05171
+[PE_0]: rank 810 is on nid03073; originally was on nid05171
+[PE_0]: rank 811 is on nid02399; originally was on nid05171
+[PE_0]: rank 812 is on nid02210; originally was on nid05168
+[PE_0]: rank 813 is on nid03078; originally was on nid05168
+[PE_0]: rank 814 is on nid02741; originally was on nid05168
+[PE_0]: rank 815 is on nid02647; originally was on nid05168
+[PE_0]: rank 816 is on nid01969; originally was on nid05169
+[PE_0]: rank 817 is on nid02737; originally was on nid05169
+[PE_0]: rank 818 is on nid00698; originally was on nid05169
+[PE_0]: rank 819 is on nid00732; originally was on nid05169
+[PE_0]: rank 820 is on nid04666; originally was on nid05166
+[PE_0]: rank 821 is on nid05316; originally was on nid05166
+[PE_0]: rank 822 is on nid05322; originally was on nid05166
+[PE_0]: rank 823 is on nid04648; originally was on nid05166
+[PE_0]: rank 824 is on nid03895; originally was on nid05167
+[PE_0]: rank 825 is on nid03893; originally was on nid05167
+[PE_0]: rank 826 is on nid03791; originally was on nid05167
+[PE_0]: rank 827 is on nid05260; originally was on nid05167
+[PE_0]: rank 828 is on nid03685; originally was on nid05104
+[PE_0]: rank 829 is on nid04464; originally was on nid05104
+[PE_0]: rank 830 is on nid04326; originally was on nid05104
+[PE_0]: rank 831 is on nid04889; originally was on nid05104
+[PE_0]: rank 832 is on nid05097; originally was on nid05105
+[PE_0]: rank 833 is on nid04887; originally was on nid05105
+[PE_0]: rank 834 is on nid04329; originally was on nid05105
+[PE_0]: rank 835 is on nid03563; originally was on nid05105
+[PE_0]: rank 836 is on nid03566; originally was on nid05106
+[PE_0]: rank 837 is on nid04044; originally was on nid05106
+[PE_0]: rank 838 is on nid04882; originally was on nid05106
+[PE_0]: rank 839 is on nid05100; originally was on nid05106
+[PE_0]: rank 840 is on nid05107; originally was on nid05107
+[PE_0]: rank 841 is on nid04817; originally was on nid05107
+[PE_0]: rank 842 is on nid03631; originally was on nid05107
+[PE_0]: rank 843 is on nid03626; originally was on nid05107
+[PE_0]: rank 844 is on nid04105; originally was on nid05164
+[PE_0]: rank 845 is on nid04825; originally was on nid05164
+[PE_0]: rank 846 is on nid05080; originally was on nid05164
+[PE_0]: rank 847 is on nid04203; originally was on nid05164
+[PE_0]: rank 848 is on nid04917; originally was on nid05165
+[PE_0]: rank 849 is on nid04293; originally was on nid05165
+[PE_0]: rank 850 is on nid03481; originally was on nid05165
+[PE_0]: rank 851 is on nid03073; originally was on nid05165
+[PE_0]: rank 852 is on nid02208; originally was on nid04818
+[PE_0]: rank 853 is on nid02210; originally was on nid04818
+[PE_0]: rank 854 is on nid03078; originally was on nid04818
+[PE_0]: rank 855 is on nid02741; originally was on nid04818
+[PE_0]: rank 856 is on nid01960; originally was on nid04819
+[PE_0]: rank 857 is on nid01969; originally was on nid04819
+[PE_0]: rank 858 is on nid02737; originally was on nid04819
+[PE_0]: rank 859 is on nid00698; originally was on nid04819
+[PE_0]: rank 860 is on nid00711; originally was on nid04876
+[PE_0]: rank 861 is on nid04666; originally was on nid04876
+[PE_0]: rank 862 is on nid05316; originally was on nid04876
+[PE_0]: rank 863 is on nid05322; originally was on nid04876
+[PE_0]: rank 864 is on nid04649; originally was on nid04877
+[PE_0]: rank 865 is on nid03895; originally was on nid04877
+[PE_0]: rank 866 is on nid03893; originally was on nid04877
+[PE_0]: rank 867 is on nid03791; originally was on nid04877
+[PE_0]: rank 868 is on nid05207; originally was on nid04878
+[PE_0]: rank 869 is on nid03685; originally was on nid04878
+[PE_0]: rank 870 is on nid04464; originally was on nid04878
+[PE_0]: rank 871 is on nid04326; originally was on nid04878
+[PE_0]: rank 872 is on nid05094; originally was on nid04879
+[PE_0]: rank 873 is on nid05097; originally was on nid04879
+[PE_0]: rank 874 is on nid04887; originally was on nid04879
+[PE_0]: rank 875 is on nid04329; originally was on nid04879
+[PE_0]: rank 876 is on nid04116; originally was on nid04816
+[PE_0]: rank 877 is on nid03566; originally was on nid04816
+[PE_0]: rank 878 is on nid04044; originally was on nid04816
+[PE_0]: rank 879 is on nid04882; originally was on nid04816
+[PE_0]: rank 880 is on nid05101; originally was on nid04817
+[PE_0]: rank 881 is on nid05107; originally was on nid04817
+[PE_0]: rank 882 is on nid04817; originally was on nid04817
+[PE_0]: rank 883 is on nid03631; originally was on nid04817
+[PE_0]: rank 884 is on nid03627; originally was on nid04398
+[PE_0]: rank 885 is on nid04105; originally was on nid04398
+[PE_0]: rank 886 is on nid04825; originally was on nid04398
+[PE_0]: rank 887 is on nid05080; originally was on nid04398
+[PE_0]: rank 888 is on nid04148; originally was on nid04399
+[PE_0]: rank 889 is on nid04917; originally was on nid04399
+[PE_0]: rank 890 is on nid04293; originally was on nid04399
+[PE_0]: rank 891 is on nid03481; originally was on nid04399
+[PE_0]: rank 892 is on nid03166; originally was on nid04336
+[PE_0]: rank 893 is on nid02208; originally was on nid04336
+[PE_0]: rank 894 is on nid02210; originally was on nid04336
+[PE_0]: rank 895 is on nid03078; originally was on nid04336
+[PE_0]: rank 896 is on nid02730; originally was on nid04337
+[PE_0]: rank 897 is on nid01960; originally was on nid04337
+[PE_0]: rank 898 is on nid01969; originally was on nid04337
+[PE_0]: rank 899 is on nid02737; originally was on nid04337
+[PE_0]: rank 900 is on nid00699; originally was on nid04110
+[PE_0]: rank 901 is on nid00711; originally was on nid04110
+[PE_0]: rank 902 is on nid04666; originally was on nid04110
+[PE_0]: rank 903 is on nid05316; originally was on nid04110
+[PE_0]: rank 904 is on nid05323; originally was on nid04111
+[PE_0]: rank 905 is on nid04649; originally was on nid04111
+[PE_0]: rank 906 is on nid03895; originally was on nid04111
+[PE_0]: rank 907 is on nid03893; originally was on nid04111
+[PE_0]: rank 908 is on nid03792; originally was on nid04048
+[PE_0]: rank 909 is on nid05207; originally was on nid04048
+[PE_0]: rank 910 is on nid03685; originally was on nid04048
+[PE_0]: rank 911 is on nid04464; originally was on nid04048
+[PE_0]: rank 912 is on nid04327; originally was on nid04049
+[PE_0]: rank 913 is on nid05094; originally was on nid04049
+[PE_0]: rank 914 is on nid05097; originally was on nid04049
+[PE_0]: rank 915 is on nid04887; originally was on nid04049
+[PE_0]: rank 916 is on nid04118; originally was on nid03630
+[PE_0]: rank 917 is on nid04116; originally was on nid03630
+[PE_0]: rank 918 is on nid03566; originally was on nid03630
+[PE_0]: rank 919 is on nid04044; originally was on nid03630
+[PE_0]: rank 920 is on nid04883; originally was on nid03631
+[PE_0]: rank 921 is on nid05101; originally was on nid03631
+[PE_0]: rank 922 is on nid05107; originally was on nid03631
+[PE_0]: rank 923 is on nid04817; originally was on nid03631
+[PE_0]: rank 924 is on nid03568; originally was on nid03568
+[PE_0]: rank 925 is on nid03627; originally was on nid03568
+[PE_0]: rank 926 is on nid04105; originally was on nid03568
+[PE_0]: rank 927 is on nid04825; originally was on nid03568
+[PE_0]: rank 928 is on nid04906; originally was on nid03569
+[PE_0]: rank 929 is on nid04148; originally was on nid03569
+[PE_0]: rank 930 is on nid04917; originally was on nid03569
+[PE_0]: rank 931 is on nid04293; originally was on nid03569
+[PE_0]: rank 932 is on nid03482; originally was on nid03570
+[PE_0]: rank 933 is on nid03166; originally was on nid03570
+[PE_0]: rank 934 is on nid02208; originally was on nid03570
+[PE_0]: rank 935 is on nid02210; originally was on nid03570
+[PE_0]: rank 936 is on nid03079; originally was on nid03571
+[PE_0]: rank 937 is on nid02730; originally was on nid03571
+[PE_0]: rank 938 is on nid01960; originally was on nid03571
+[PE_0]: rank 939 is on nid01969; originally was on nid03571
+[PE_0]: rank 940 is on nid02734; originally was on nid04108
+[PE_0]: rank 941 is on nid00699; originally was on nid04108
+[PE_0]: rank 942 is on nid00711; originally was on nid04108
+[PE_0]: rank 943 is on nid04666; originally was on nid04108
+[PE_0]: rank 944 is on nid05317; originally was on nid04050
+[PE_0]: rank 945 is on nid05323; originally was on nid04050
+[PE_0]: rank 946 is on nid04649; originally was on nid04050
+[PE_0]: rank 947 is on nid03895; originally was on nid04050
+[PE_0]: rank 948 is on nid03882; originally was on nid04051
+[PE_0]: rank 949 is on nid03792; originally was on nid04051
+[PE_0]: rank 950 is on nid05207; originally was on nid04051
+[PE_0]: rank 951 is on nid03685; originally was on nid04051
+[PE_0]: rank 952 is on nid04465; originally was on nid03628
+[PE_0]: rank 953 is on nid04327; originally was on nid03628
+[PE_0]: rank 954 is on nid05094; originally was on nid03628
+[PE_0]: rank 955 is on nid05097; originally was on nid03628
+[PE_0]: rank 956 is on nid04808; originally was on nid03629
+[PE_0]: rank 957 is on nid04118; originally was on nid03629
+[PE_0]: rank 958 is on nid04116; originally was on nid03629
+[PE_0]: rank 959 is on nid03566; originally was on nid03629
+[PE_0]: rank 960 is on nid04045; originally was on nid03626
+[PE_0]: rank 961 is on nid04883; originally was on nid03626
+[PE_0]: rank 962 is on nid05101; originally was on nid03626
+[PE_0]: rank 963 is on nid05107; originally was on nid03626
+[PE_0]: rank 964 is on nid04398; originally was on nid03627
+[PE_0]: rank 965 is on nid03568; originally was on nid03627
+[PE_0]: rank 966 is on nid03627; originally was on nid03627
+[PE_0]: rank 967 is on nid04105; originally was on nid03627
+[PE_0]: rank 968 is on nid04390; originally was on nid03572
+[PE_0]: rank 969 is on nid04906; originally was on nid03572
+[PE_0]: rank 970 is on nid04148; originally was on nid03572
+[PE_0]: rank 971 is on nid04917; originally was on nid03572
+[PE_0]: rank 972 is on nid04250; originally was on nid03573
+[PE_0]: rank 973 is on nid03482; originally was on nid03573
+[PE_0]: rank 974 is on nid03166; originally was on nid03573
+[PE_0]: rank 975 is on nid02208; originally was on nid03573
+[PE_0]: rank 976 is on nid02211; originally was on nid03574
+[PE_0]: rank 977 is on nid03079; originally was on nid03574
+[PE_0]: rank 978 is on nid02730; originally was on nid03574
+[PE_0]: rank 979 is on nid01960; originally was on nid03574
+[PE_0]: rank 980 is on nid01966; originally was on nid03575
+[PE_0]: rank 981 is on nid02734; originally was on nid03575
+[PE_0]: rank 982 is on nid00699; originally was on nid03575
+[PE_0]: rank 983 is on nid00711; originally was on nid03575
+[PE_0]: rank 984 is on nid04667; originally was on nid03624
+[PE_0]: rank 985 is on nid05317; originally was on nid03624
+[PE_0]: rank 986 is on nid05323; originally was on nid03624
+[PE_0]: rank 987 is on nid04649; originally was on nid03624
+[PE_0]: rank 988 is on nid03880; originally was on nid03625
+[PE_0]: rank 989 is on nid03882; originally was on nid03625
+[PE_0]: rank 990 is on nid03792; originally was on nid03625
+[PE_0]: rank 991 is on nid05207; originally was on nid03625
+[PE_0]: rank 992 is on nid03686; originally was on nid04054
+[PE_0]: rank 993 is on nid04465; originally was on nid04054
+[PE_0]: rank 994 is on nid04327; originally was on nid04054
+[PE_0]: rank 995 is on nid05094; originally was on nid04054
+[PE_0]: rank 996 is on nid05098; originally was on nid04055
+[PE_0]: rank 997 is on nid04808; originally was on nid04055
+[PE_0]: rank 998 is on nid04118; originally was on nid04055
+[PE_0]: rank 999 is on nid04116; originally was on nid04055
+[PE_0]: rank 1000 is on nid03567; originally was on nid04104
+[PE_0]: rank 1001 is on nid04045; originally was on nid04104
+[PE_0]: rank 1002 is on nid04883; originally was on nid04104
+[PE_0]: rank 1003 is on nid05101; originally was on nid04104
+[PE_0]: rank 1004 is on nid05164; originally was on nid04105
+[PE_0]: rank 1005 is on nid04398; originally was on nid04105
+[PE_0]: rank 1006 is on nid03568; originally was on nid04105
+[PE_0]: rank 1007 is on nid03627; originally was on nid04105
+[PE_0]: rank 1008 is on nid04106; originally was on nid04106
+[PE_0]: rank 1009 is on nid04390; originally was on nid04106
+[PE_0]: rank 1010 is on nid04906; originally was on nid04106
+[PE_0]: rank 1011 is on nid04148; originally was on nid04106
+[PE_0]: rank 1012 is on nid04918; originally was on nid04107
+[PE_0]: rank 1013 is on nid04250; originally was on nid04107
+[PE_0]: rank 1014 is on nid03482; originally was on nid04107
+[PE_0]: rank 1015 is on nid03166; originally was on nid04107
+[PE_0]: rank 1016 is on nid02209; originally was on nid04052
+[PE_0]: rank 1017 is on nid02211; originally was on nid04052
+[PE_0]: rank 1018 is on nid03079; originally was on nid04052
+[PE_0]: rank 1019 is on nid02730; originally was on nid04052
+[PE_0]: rank 1020 is on nid01961; originally was on nid04053
+[PE_0]: rank 1021 is on nid01966; originally was on nid04053
+[PE_0]: rank 1022 is on nid02734; originally was on nid04053
+[PE_0]: rank 1023 is on nid00699; originally was on nid04053
+[PE_0]: rank 1024 is on nid00718; originally was on nid04394
+[PE_0]: rank 1025 is on nid04667; originally was on nid04394
+[PE_0]: rank 1026 is on nid05317; originally was on nid04394
+[PE_0]: rank 1027 is on nid05323; originally was on nid04394
+[PE_0]: rank 1028 is on nid04566; originally was on nid04395
+[PE_0]: rank 1029 is on nid03880; originally was on nid04395
+[PE_0]: rank 1030 is on nid03882; originally was on nid04395
+[PE_0]: rank 1031 is on nid03792; originally was on nid04395
+[PE_0]: rank 1032 is on nid05204; originally was on nid04392
+[PE_0]: rank 1033 is on nid03686; originally was on nid04392
+[PE_0]: rank 1034 is on nid04465; originally was on nid04392
+[PE_0]: rank 1035 is on nid04327; originally was on nid04392
+[PE_0]: rank 1036 is on nid05095; originally was on nid04871
+[PE_0]: rank 1037 is on nid05098; originally was on nid04871
+[PE_0]: rank 1038 is on nid04808; originally was on nid04871
+[PE_0]: rank 1039 is on nid04118; originally was on nid04871
+[PE_0]: rank 1040 is on nid04117; originally was on nid04824
+[PE_0]: rank 1041 is on nid03567; originally was on nid04824
+[PE_0]: rank 1042 is on nid04045; originally was on nid04824
+[PE_0]: rank 1043 is on nid04883; originally was on nid04824
+[PE_0]: rank 1044 is on nid05170; originally was on nid04825
+[PE_0]: rank 1045 is on nid05164; originally was on nid04825
+[PE_0]: rank 1046 is on nid04398; originally was on nid04825
+[PE_0]: rank 1047 is on nid03568; originally was on nid04825
+[PE_0]: rank 1048 is on nid03572; originally was on nid04390
+[PE_0]: rank 1049 is on nid04106; originally was on nid04390
+[PE_0]: rank 1050 is on nid04390; originally was on nid04390
+[PE_0]: rank 1051 is on nid04906; originally was on nid04390
+[PE_0]: rank 1052 is on nid04149; originally was on nid03550
+[PE_0]: rank 1053 is on nid04918; originally was on nid03550
+[PE_0]: rank 1054 is on nid04250; originally was on nid03550
+[PE_0]: rank 1055 is on nid03482; originally was on nid03550
+[PE_0]: rank 1056 is on nid03167; originally was on nid03551
+[PE_0]: rank 1057 is on nid02209; originally was on nid03551
+[PE_0]: rank 1058 is on nid02211; originally was on nid03551
+[PE_0]: rank 1059 is on nid03079; originally was on nid03551
+[PE_0]: rank 1060 is on nid02731; originally was on nid03456
+[PE_0]: rank 1061 is on nid01961; originally was on nid03456
+[PE_0]: rank 1062 is on nid01966; originally was on nid03456
+[PE_0]: rank 1063 is on nid02734; originally was on nid03456
+[PE_0]: rank 1064 is on nid00700; originally was on nid03547
+[PE_0]: rank 1065 is on nid00718; originally was on nid03547
+[PE_0]: rank 1066 is on nid04667; originally was on nid03547
+[PE_0]: rank 1067 is on nid05317; originally was on nid03547
+[PE_0]: rank 1068 is on nid05332; originally was on nid04902
+[PE_0]: rank 1069 is on nid04566; originally was on nid04902
+[PE_0]: rank 1070 is on nid03880; originally was on nid04902
+[PE_0]: rank 1071 is on nid03882; originally was on nid04902
+[PE_0]: rank 1072 is on nid03793; originally was on nid04903
+[PE_0]: rank 1073 is on nid05204; originally was on nid04903
+[PE_0]: rank 1074 is on nid03686; originally was on nid04903
+[PE_0]: rank 1075 is on nid04465; originally was on nid04903
+[PE_0]: rank 1076 is on nid04324; originally was on nid04984
+[PE_0]: rank 1077 is on nid05095; originally was on nid04984
+[PE_0]: rank 1078 is on nid05098; originally was on nid04984
+[PE_0]: rank 1079 is on nid04808; originally was on nid04984
+[PE_0]: rank 1080 is on nid04119; originally was on nid04985
+[PE_0]: rank 1081 is on nid04117; originally was on nid04985
+[PE_0]: rank 1082 is on nid03567; originally was on nid04985
+[PE_0]: rank 1083 is on nid04045; originally was on nid04985
+[PE_0]: rank 1084 is on nid04812; originally was on nid05080
+[PE_0]: rank 1085 is on nid05170; originally was on nid05080
+[PE_0]: rank 1086 is on nid05164; originally was on nid05080
+[PE_0]: rank 1087 is on nid04398; originally was on nid05080
+[PE_0]: rank 1088 is on nid03569; originally was on nid04906
+[PE_0]: rank 1089 is on nid03572; originally was on nid04906
+[PE_0]: rank 1090 is on nid04106; originally was on nid04906
+[PE_0]: rank 1091 is on nid04390; originally was on nid04906
+[PE_0]: rank 1092 is on nid04907; originally was on nid04907
+[PE_0]: rank 1093 is on nid04149; originally was on nid04907
+[PE_0]: rank 1094 is on nid04918; originally was on nid04907
+[PE_0]: rank 1095 is on nid04250; originally was on nid04907
+[PE_0]: rank 1096 is on nid03483; originally was on nid04980
+[PE_0]: rank 1097 is on nid03167; originally was on nid04980
+[PE_0]: rank 1098 is on nid02209; originally was on nid04980
+[PE_0]: rank 1099 is on nid02211; originally was on nid04980
+[PE_0]: rank 1100 is on nid03081; originally was on nid04981
+[PE_0]: rank 1101 is on nid02731; originally was on nid04981
+[PE_0]: rank 1102 is on nid01961; originally was on nid04981
+[PE_0]: rank 1103 is on nid01966; originally was on nid04981
+[PE_0]: rank 1104 is on nid02735; originally was on nid04982
+[PE_0]: rank 1105 is on nid00700; originally was on nid04982
+[PE_0]: rank 1106 is on nid00718; originally was on nid04982
+[PE_0]: rank 1107 is on nid04667; originally was on nid04982
+[PE_0]: rank 1108 is on nid05338; originally was on nid04983
+[PE_0]: rank 1109 is on nid05332; originally was on nid04983
+[PE_0]: rank 1110 is on nid04566; originally was on nid04983
+[PE_0]: rank 1111 is on nid03880; originally was on nid04983
+[PE_0]: rank 1112 is on nid03883; originally was on nid04904
+[PE_0]: rank 1113 is on nid03793; originally was on nid04904
+[PE_0]: rank 1114 is on nid05204; originally was on nid04904
+[PE_0]: rank 1115 is on nid03686; originally was on nid04904
+[PE_0]: rank 1116 is on nid04462; originally was on nid04200
+[PE_0]: rank 1117 is on nid04324; originally was on nid04200
+[PE_0]: rank 1118 is on nid05095; originally was on nid04200
+[PE_0]: rank 1119 is on nid05098; originally was on nid04200
+[PE_0]: rank 1120 is on nid04809; originally was on nid04202
+[PE_0]: rank 1121 is on nid04119; originally was on nid04202
+[PE_0]: rank 1122 is on nid04117; originally was on nid04202
+[PE_0]: rank 1123 is on nid03567; originally was on nid04202
+[PE_0]: rank 1124 is on nid04402; originally was on nid04203
+[PE_0]: rank 1125 is on nid04812; originally was on nid04203
+[PE_0]: rank 1126 is on nid05170; originally was on nid04203
+[PE_0]: rank 1127 is on nid05164; originally was on nid04203
+[PE_0]: rank 1128 is on nid04399; originally was on nid04148
+[PE_0]: rank 1129 is on nid03569; originally was on nid04148
+[PE_0]: rank 1130 is on nid03572; originally was on nid04148
+[PE_0]: rank 1131 is on nid04106; originally was on nid04148
+[PE_0]: rank 1132 is on nid03550; originally was on nid04149
+[PE_0]: rank 1133 is on nid04907; originally was on nid04149
+[PE_0]: rank 1134 is on nid04149; originally was on nid04149
+[PE_0]: rank 1135 is on nid04918; originally was on nid04149
+[PE_0]: rank 1136 is on nid04251; originally was on nid04297
+[PE_0]: rank 1137 is on nid03483; originally was on nid04297
+[PE_0]: rank 1138 is on nid03167; originally was on nid04297
+[PE_0]: rank 1139 is on nid02209; originally was on nid04297
+[PE_0]: rank 1140 is on nid02212; originally was on nid04246
+[PE_0]: rank 1141 is on nid03081; originally was on nid04246
+[PE_0]: rank 1142 is on nid02731; originally was on nid04246
+[PE_0]: rank 1143 is on nid01961; originally was on nid04246
+[PE_0]: rank 1144 is on nid01967; originally was on nid04247
+[PE_0]: rank 1145 is on nid02735; originally was on nid04247
+[PE_0]: rank 1146 is on nid00700; originally was on nid04247
+[PE_0]: rank 1147 is on nid00718; originally was on nid04247
+[PE_0]: rank 1148 is on nid04644; originally was on nid04244
+[PE_0]: rank 1149 is on nid05338; originally was on nid04244
+[PE_0]: rank 1150 is on nid05332; originally was on nid04244
+[PE_0]: rank 1151 is on nid04566; originally was on nid04244
+[PE_0]: rank 1152 is on nid03881; originally was on nid04245
+[PE_0]: rank 1153 is on nid03883; originally was on nid04245
+[PE_0]: rank 1154 is on nid03793; originally was on nid04245
+[PE_0]: rank 1155 is on nid05204; originally was on nid04245
+[PE_0]: rank 1156 is on nid03687; originally was on nid04970
+[PE_0]: rank 1157 is on nid04462; originally was on nid04970
+[PE_0]: rank 1158 is on nid04324; originally was on nid04970
+[PE_0]: rank 1159 is on nid05095; originally was on nid04970
+[PE_0]: rank 1160 is on nid05099; originally was on nid04971
+[PE_0]: rank 1161 is on nid04809; originally was on nid04971
+[PE_0]: rank 1162 is on nid04119; originally was on nid04971
+[PE_0]: rank 1163 is on nid04117; originally was on nid04971
+[PE_0]: rank 1164 is on nid03632; originally was on nid04916
+[PE_0]: rank 1165 is on nid04402; originally was on nid04916
+[PE_0]: rank 1166 is on nid04812; originally was on nid04916
+[PE_0]: rank 1167 is on nid05170; originally was on nid04916
+[PE_0]: rank 1168 is on nid05165; originally was on nid04917
+[PE_0]: rank 1169 is on nid04399; originally was on nid04917
+[PE_0]: rank 1170 is on nid03569; originally was on nid04917
+[PE_0]: rank 1171 is on nid03572; originally was on nid04917
+[PE_0]: rank 1172 is on nid04107; originally was on nid04918
+[PE_0]: rank 1173 is on nid03550; originally was on nid04918
+[PE_0]: rank 1174 is on nid04907; originally was on nid04918
+[PE_0]: rank 1175 is on nid04149; originally was on nid04918
+[PE_0]: rank 1176 is on nid04919; originally was on nid04919
+[PE_0]: rank 1177 is on nid04251; originally was on nid04919
+[PE_0]: rank 1178 is on nid03483; originally was on nid04919
+[PE_0]: rank 1179 is on nid03167; originally was on nid04919
+[PE_0]: rank 1180 is on nid02302; originally was on nid04968
+[PE_0]: rank 1181 is on nid02212; originally was on nid04968
+[PE_0]: rank 1182 is on nid03081; originally was on nid04968
+[PE_0]: rank 1183 is on nid02731; originally was on nid04968
+[PE_0]: rank 1184 is on nid01974; originally was on nid04969
+[PE_0]: rank 1185 is on nid01967; originally was on nid04969
+[PE_0]: rank 1186 is on nid02735; originally was on nid04969
+[PE_0]: rank 1187 is on nid00700; originally was on nid04969
+[PE_0]: rank 1188 is on nid00578; originally was on nid05014
+[PE_0]: rank 1189 is on nid04644; originally was on nid05014
+[PE_0]: rank 1190 is on nid05338; originally was on nid05014
+[PE_0]: rank 1191 is on nid05332; originally was on nid05014
+[PE_0]: rank 1192 is on nid04567; originally was on nid05015
+[PE_0]: rank 1193 is on nid03881; originally was on nid05015
+[PE_0]: rank 1194 is on nid03883; originally was on nid05015
+[PE_0]: rank 1195 is on nid03793; originally was on nid05015
+[PE_0]: rank 1196 is on nid03969; originally was on nid05012
+[PE_0]: rank 1197 is on nid03687; originally was on nid05012
+[PE_0]: rank 1198 is on nid04462; originally was on nid05012
+[PE_0]: rank 1199 is on nid04324; originally was on nid05012
+[PE_0]: rank 1200 is on nid05092; originally was on nid05066
+[PE_0]: rank 1201 is on nid05099; originally was on nid05066
+[PE_0]: rank 1202 is on nid04809; originally was on nid05066
+[PE_0]: rank 1203 is on nid04119; originally was on nid05066
+[PE_0]: rank 1204 is on nid04042; originally was on nid04292
+[PE_0]: rank 1205 is on nid03632; originally was on nid04292
+[PE_0]: rank 1206 is on nid04402; originally was on nid04292
+[PE_0]: rank 1207 is on nid04812; originally was on nid04292
+[PE_0]: rank 1208 is on nid05171; originally was on nid04293
+[PE_0]: rank 1209 is on nid05165; originally was on nid04293
+[PE_0]: rank 1210 is on nid04399; originally was on nid04293
+[PE_0]: rank 1211 is on nid03569; originally was on nid04293
+[PE_0]: rank 1212 is on nid03573; originally was on nid04250
+[PE_0]: rank 1213 is on nid04107; originally was on nid04250
+[PE_0]: rank 1214 is on nid03550; originally was on nid04250
+[PE_0]: rank 1215 is on nid04907; originally was on nid04250
+[PE_0]: rank 1216 is on nid04297; originally was on nid04251
+[PE_0]: rank 1217 is on nid04919; originally was on nid04251
+[PE_0]: rank 1218 is on nid04251; originally was on nid04251
+[PE_0]: rank 1219 is on nid03483; originally was on nid04251
+[PE_0]: rank 1220 is on nid03075; originally was on nid04248
+[PE_0]: rank 1221 is on nid02302; originally was on nid04248
+[PE_0]: rank 1222 is on nid02212; originally was on nid04248
+[PE_0]: rank 1223 is on nid03081; originally was on nid04248
+[PE_0]: rank 1224 is on nid02728; originally was on nid04249
+[PE_0]: rank 1225 is on nid01974; originally was on nid04249
+[PE_0]: rank 1226 is on nid01967; originally was on nid04249
+[PE_0]: rank 1227 is on nid02735; originally was on nid04249
+[PE_0]: rank 1228 is on nid00701; originally was on nid04198
+[PE_0]: rank 1229 is on nid00578; originally was on nid04198
+[PE_0]: rank 1230 is on nid04644; originally was on nid04198
+[PE_0]: rank 1231 is on nid05338; originally was on nid04198
+[PE_0]: rank 1232 is on nid05333; originally was on nid04199
+[PE_0]: rank 1233 is on nid04567; originally was on nid04199
+[PE_0]: rank 1234 is on nid03881; originally was on nid04199
+[PE_0]: rank 1235 is on nid03883; originally was on nid04199
+[PE_0]: rank 1236 is on nid03886; originally was on nid04152
+[PE_0]: rank 1237 is on nid03969; originally was on nid04152
+[PE_0]: rank 1238 is on nid03687; originally was on nid04152
+[PE_0]: rank 1239 is on nid04462; originally was on nid04152
+[PE_0]: rank 1240 is on nid04325; originally was on nid04153
+[PE_0]: rank 1241 is on nid05092; originally was on nid04153
+[PE_0]: rank 1242 is on nid05099; originally was on nid04153
+[PE_0]: rank 1243 is on nid04809; originally was on nid04153
+[PE_0]: rank 1244 is on nid04040; originally was on nid03480
+[PE_0]: rank 1245 is on nid04042; originally was on nid03480
+[PE_0]: rank 1246 is on nid03632; originally was on nid03480
+[PE_0]: rank 1247 is on nid04402; originally was on nid03480
+[PE_0]: rank 1248 is on nid04813; originally was on nid03481
+[PE_0]: rank 1249 is on nid05171; originally was on nid03481
+[PE_0]: rank 1250 is on nid05165; originally was on nid03481
+[PE_0]: rank 1251 is on nid04399; originally was on nid03481
+[PE_0]: rank 1252 is on nid03570; originally was on nid03482
+[PE_0]: rank 1253 is on nid03573; originally was on nid03482
+[PE_0]: rank 1254 is on nid04107; originally was on nid03482
+[PE_0]: rank 1255 is on nid03550; originally was on nid03482
+[PE_0]: rank 1256 is on nid04980; originally was on nid03483
+[PE_0]: rank 1257 is on nid04297; originally was on nid03483
+[PE_0]: rank 1258 is on nid04919; originally was on nid03483
+[PE_0]: rank 1259 is on nid04251; originally was on nid03483
+[PE_0]: rank 1260 is on nid04196; originally was on nid04196
+[PE_0]: rank 1261 is on nid03075; originally was on nid04196
+[PE_0]: rank 1262 is on nid02302; originally was on nid04196
+[PE_0]: rank 1263 is on nid02212; originally was on nid04196
+[PE_0]: rank 1264 is on nid03158; originally was on nid04940
+[PE_0]: rank 1265 is on nid02728; originally was on nid04940
+[PE_0]: rank 1266 is on nid01974; originally was on nid04940
+[PE_0]: rank 1267 is on nid01967; originally was on nid04940
+[PE_0]: rank 1268 is on nid03408; originally was on nid04941
+[PE_0]: rank 1269 is on nid00701; originally was on nid04941
+[PE_0]: rank 1270 is on nid00578; originally was on nid04941
+[PE_0]: rank 1271 is on nid04644; originally was on nid04941
+[PE_0]: rank 1272 is on nid05339; originally was on nid05038
+[PE_0]: rank 1273 is on nid05333; originally was on nid05038
+[PE_0]: rank 1274 is on nid04567; originally was on nid05038
+[PE_0]: rank 1275 is on nid03881; originally was on nid05038
+[PE_0]: rank 1276 is on nid03796; originally was on nid05039
+[PE_0]: rank 1277 is on nid03886; originally was on nid05039
+[PE_0]: rank 1278 is on nid03969; originally was on nid05039
+[PE_0]: rank 1279 is on nid03687; originally was on nid05039
+[PE_0]: rank 1280 is on nid04463; originally was on nid05036
+[PE_0]: rank 1281 is on nid04325; originally was on nid05036
+[PE_0]: rank 1282 is on nid05092; originally was on nid05036
+[PE_0]: rank 1283 is on nid05099; originally was on nid05036
+[PE_0]: rank 1284 is on nid04406; originally was on nid05037
+[PE_0]: rank 1285 is on nid04040; originally was on nid05037
+[PE_0]: rank 1286 is on nid04042; originally was on nid05037
+[PE_0]: rank 1287 is on nid03632; originally was on nid05037
+[PE_0]: rank 1288 is on nid04403; originally was on nid03073
+[PE_0]: rank 1289 is on nid04813; originally was on nid03073
+[PE_0]: rank 1290 is on nid05171; originally was on nid03073
+[PE_0]: rank 1291 is on nid05165; originally was on nid03073
+[PE_0]: rank 1292 is on nid04336; originally was on nid03166
+[PE_0]: rank 1293 is on nid03570; originally was on nid03166
+[PE_0]: rank 1294 is on nid03573; originally was on nid03166
+[PE_0]: rank 1295 is on nid04107; originally was on nid03166
+[PE_0]: rank 1296 is on nid03551; originally was on nid03167
+[PE_0]: rank 1297 is on nid04980; originally was on nid03167
+[PE_0]: rank 1298 is on nid04297; originally was on nid03167
+[PE_0]: rank 1299 is on nid04919; originally was on nid03167
+[PE_0]: rank 1300 is on nid04248; originally was on nid03075
+[PE_0]: rank 1301 is on nid04196; originally was on nid03075
+[PE_0]: rank 1302 is on nid03075; originally was on nid03075
+[PE_0]: rank 1303 is on nid02302; originally was on nid03075
+[PE_0]: rank 1304 is on nid02213; originally was on nid03068
+[PE_0]: rank 1305 is on nid03158; originally was on nid03068
+[PE_0]: rank 1306 is on nid02728; originally was on nid03068
+[PE_0]: rank 1307 is on nid01974; originally was on nid03068
+[PE_0]: rank 1308 is on nid02640; originally was on nid03070
+[PE_0]: rank 1309 is on nid03408; originally was on nid03070
+[PE_0]: rank 1310 is on nid00701; originally was on nid03070
+[PE_0]: rank 1311 is on nid00578; originally was on nid03070
+[PE_0]: rank 1312 is on nid04645; originally was on nid03071
+[PE_0]: rank 1313 is on nid05339; originally was on nid03071
+[PE_0]: rank 1314 is on nid05333; originally was on nid03071
+[PE_0]: rank 1315 is on nid04567; originally was on nid03071
+[PE_0]: rank 1316 is on nid03798; originally was on nid02304
+[PE_0]: rank 1317 is on nid03796; originally was on nid02304
+[PE_0]: rank 1318 is on nid03886; originally was on nid02304
+[PE_0]: rank 1319 is on nid03969; originally was on nid02304
+[PE_0]: rank 1320 is on nid03704; originally was on nid02305
+[PE_0]: rank 1321 is on nid04463; originally was on nid02305
+[PE_0]: rank 1322 is on nid04325; originally was on nid02305
+[PE_0]: rank 1323 is on nid05092; originally was on nid02305
+[PE_0]: rank 1324 is on nid05172; originally was on nid02398
+[PE_0]: rank 1325 is on nid04406; originally was on nid02398
+[PE_0]: rank 1326 is on nid04040; originally was on nid02398
+[PE_0]: rank 1327 is on nid04042; originally was on nid02398
+[PE_0]: rank 1328 is on nid03633; originally was on nid02399
+[PE_0]: rank 1329 is on nid04403; originally was on nid02399
+[PE_0]: rank 1330 is on nid04813; originally was on nid02399
+[PE_0]: rank 1331 is on nid05171; originally was on nid02399
+[PE_0]: rank 1332 is on nid04818; originally was on nid02208
+[PE_0]: rank 1333 is on nid04336; originally was on nid02208
+[PE_0]: rank 1334 is on nid03570; originally was on nid02208
+[PE_0]: rank 1335 is on nid03573; originally was on nid02208
+[PE_0]: rank 1336 is on nid04052; originally was on nid02209
+[PE_0]: rank 1337 is on nid03551; originally was on nid02209
+[PE_0]: rank 1338 is on nid04980; originally was on nid02209
+[PE_0]: rank 1339 is on nid04297; originally was on nid02209
+[PE_0]: rank 1340 is on nid04968; originally was on nid02302
+[PE_0]: rank 1341 is on nid04248; originally was on nid02302
+[PE_0]: rank 1342 is on nid04196; originally was on nid02302
+[PE_0]: rank 1343 is on nid03075; originally was on nid02302
+[PE_0]: rank 1344 is on nid02303; originally was on nid02303
+[PE_0]: rank 1345 is on nid02213; originally was on nid02303
+[PE_0]: rank 1346 is on nid03158; originally was on nid02303
+[PE_0]: rank 1347 is on nid02728; originally was on nid02303
+[PE_0]: rank 1348 is on nid01975; originally was on nid02300
+[PE_0]: rank 1349 is on nid02640; originally was on nid02300
+[PE_0]: rank 1350 is on nid03408; originally was on nid02300
+[PE_0]: rank 1351 is on nid00701; originally was on nid02300
+[PE_0]: rank 1352 is on nid01710; originally was on nid02301
+[PE_0]: rank 1353 is on nid04645; originally was on nid02301
+[PE_0]: rank 1354 is on nid05339; originally was on nid02301
+[PE_0]: rank 1355 is on nid05333; originally was on nid02301
+[PE_0]: rank 1356 is on nid04564; originally was on nid02306
+[PE_0]: rank 1357 is on nid03798; originally was on nid02306
+[PE_0]: rank 1358 is on nid03796; originally was on nid02306
+[PE_0]: rank 1359 is on nid03886; originally was on nid02306
+[PE_0]: rank 1360 is on nid03970; originally was on nid02307
+[PE_0]: rank 1361 is on nid03704; originally was on nid02307
+[PE_0]: rank 1362 is on nid04463; originally was on nid02307
+[PE_0]: rank 1363 is on nid04325; originally was on nid02307
+[PE_0]: rank 1364 is on nid05093; originally was on nid02396
+[PE_0]: rank 1365 is on nid05172; originally was on nid02396
+[PE_0]: rank 1366 is on nid04406; originally was on nid02396
+[PE_0]: rank 1367 is on nid04040; originally was on nid02396
+[PE_0]: rank 1368 is on nid04043; originally was on nid02397
+[PE_0]: rank 1369 is on nid03633; originally was on nid02397
+[PE_0]: rank 1370 is on nid04403; originally was on nid02397
+[PE_0]: rank 1371 is on nid04813; originally was on nid02397
+[PE_0]: rank 1372 is on nid05168; originally was on nid02210
+[PE_0]: rank 1373 is on nid04818; originally was on nid02210
+[PE_0]: rank 1374 is on nid04336; originally was on nid02210
+[PE_0]: rank 1375 is on nid03570; originally was on nid02210
+[PE_0]: rank 1376 is on nid03574; originally was on nid02211
+[PE_0]: rank 1377 is on nid04052; originally was on nid02211
+[PE_0]: rank 1378 is on nid03551; originally was on nid02211
+[PE_0]: rank 1379 is on nid04980; originally was on nid02211
+[PE_0]: rank 1380 is on nid04246; originally was on nid02212
+[PE_0]: rank 1381 is on nid04968; originally was on nid02212
+[PE_0]: rank 1382 is on nid04248; originally was on nid02212
+[PE_0]: rank 1383 is on nid04196; originally was on nid02212
+[PE_0]: rank 1384 is on nid03068; originally was on nid02213
+[PE_0]: rank 1385 is on nid02303; originally was on nid02213
+[PE_0]: rank 1386 is on nid02213; originally was on nid02213
+[PE_0]: rank 1387 is on nid03158; originally was on nid02213
+[PE_0]: rank 1388 is on nid02729; originally was on nid02983
+[PE_0]: rank 1389 is on nid01975; originally was on nid02983
+[PE_0]: rank 1390 is on nid02640; originally was on nid02983
+[PE_0]: rank 1391 is on nid03408; originally was on nid02983
+[PE_0]: rank 1392 is on nid00738; originally was on nid03160
+[PE_0]: rank 1393 is on nid01710; originally was on nid03160
+[PE_0]: rank 1394 is on nid04645; originally was on nid03160
+[PE_0]: rank 1395 is on nid05339; originally was on nid03160
+[PE_0]: rank 1396 is on nid04650; originally was on nid03161
+[PE_0]: rank 1397 is on nid04564; originally was on nid03161
+[PE_0]: rank 1398 is on nid03798; originally was on nid03161
+[PE_0]: rank 1399 is on nid03796; originally was on nid03161
+[PE_0]: rank 1400 is on nid03887; originally was on nid03163
+[PE_0]: rank 1401 is on nid03970; originally was on nid03163
+[PE_0]: rank 1402 is on nid03704; originally was on nid03163
+[PE_0]: rank 1403 is on nid04463; originally was on nid03163
+[PE_0]: rank 1404 is on nid04891; originally was on nid03076
+[PE_0]: rank 1405 is on nid05093; originally was on nid03076
+[PE_0]: rank 1406 is on nid05172; originally was on nid03076
+[PE_0]: rank 1407 is on nid04406; originally was on nid03076
+[PE_0]: rank 1408 is on nid04041; originally was on nid03077
+[PE_0]: rank 1409 is on nid04043; originally was on nid03077
+[PE_0]: rank 1410 is on nid03633; originally was on nid03077
+[PE_0]: rank 1411 is on nid04403; originally was on nid03077
+[PE_0]: rank 1412 is on nid04814; originally was on nid03078
+[PE_0]: rank 1413 is on nid05168; originally was on nid03078
+[PE_0]: rank 1414 is on nid04818; originally was on nid03078
+[PE_0]: rank 1415 is on nid04336; originally was on nid03078
+[PE_0]: rank 1416 is on nid03571; originally was on nid03079
+[PE_0]: rank 1417 is on nid03574; originally was on nid03079
+[PE_0]: rank 1418 is on nid04052; originally was on nid03079
+[PE_0]: rank 1419 is on nid03551; originally was on nid03079
+[PE_0]: rank 1420 is on nid04981; originally was on nid03081
+[PE_0]: rank 1421 is on nid04246; originally was on nid03081
+[PE_0]: rank 1422 is on nid04968; originally was on nid03081
+[PE_0]: rank 1423 is on nid04248; originally was on nid03081
+[PE_0]: rank 1424 is on nid04940; originally was on nid03158
+[PE_0]: rank 1425 is on nid03068; originally was on nid03158
+[PE_0]: rank 1426 is on nid02303; originally was on nid03158
+[PE_0]: rank 1427 is on nid02213; originally was on nid03158
+[PE_0]: rank 1428 is on nid03157; originally was on nid03157
+[PE_0]: rank 1429 is on nid02729; originally was on nid03157
+[PE_0]: rank 1430 is on nid01975; originally was on nid03157
+[PE_0]: rank 1431 is on nid02640; originally was on nid03157
+[PE_0]: rank 1432 is on nid03411; originally was on nid02292
+[PE_0]: rank 1433 is on nid00738; originally was on nid02292
+[PE_0]: rank 1434 is on nid01710; originally was on nid02292
+[PE_0]: rank 1435 is on nid04645; originally was on nid02292
+[PE_0]: rank 1436 is on nid05336; originally was on nid02549
+[PE_0]: rank 1437 is on nid04650; originally was on nid02549
+[PE_0]: rank 1438 is on nid04564; originally was on nid02549
+[PE_0]: rank 1439 is on nid03798; originally was on nid02549
+[PE_0]: rank 1440 is on nid03797; originally was on nid02059
+[PE_0]: rank 1441 is on nid03887; originally was on nid02059
+[PE_0]: rank 1442 is on nid03970; originally was on nid02059
+[PE_0]: rank 1443 is on nid03704; originally was on nid02059
+[PE_0]: rank 1444 is on nid04460; originally was on nid03403
+[PE_0]: rank 1445 is on nid04891; originally was on nid03403
+[PE_0]: rank 1446 is on nid05093; originally was on nid03403
+[PE_0]: rank 1447 is on nid05172; originally was on nid03403
+[PE_0]: rank 1448 is on nid04407; originally was on nid02740
+[PE_0]: rank 1449 is on nid04041; originally was on nid02740
+[PE_0]: rank 1450 is on nid04043; originally was on nid02740
+[PE_0]: rank 1451 is on nid03633; originally was on nid02740
+[PE_0]: rank 1452 is on nid04400; originally was on nid02741
+[PE_0]: rank 1453 is on nid04814; originally was on nid02741
+[PE_0]: rank 1454 is on nid05168; originally was on nid02741
+[PE_0]: rank 1455 is on nid04818; originally was on nid02741
+[PE_0]: rank 1456 is on nid04337; originally was on nid02730
+[PE_0]: rank 1457 is on nid03571; originally was on nid02730
+[PE_0]: rank 1458 is on nid03574; originally was on nid02730
+[PE_0]: rank 1459 is on nid04052; originally was on nid02730
+[PE_0]: rank 1460 is on nid03456; originally was on nid02731
+[PE_0]: rank 1461 is on nid04981; originally was on nid02731
+[PE_0]: rank 1462 is on nid04246; originally was on nid02731
+[PE_0]: rank 1463 is on nid04968; originally was on nid02731
+[PE_0]: rank 1464 is on nid04249; originally was on nid02728
+[PE_0]: rank 1465 is on nid04940; originally was on nid02728
+[PE_0]: rank 1466 is on nid03068; originally was on nid02728
+[PE_0]: rank 1467 is on nid02303; originally was on nid02728
+[PE_0]: rank 1468 is on nid02983; originally was on nid02729
+[PE_0]: rank 1469 is on nid03157; originally was on nid02729
+[PE_0]: rank 1470 is on nid02729; originally was on nid02729
+[PE_0]: rank 1471 is on nid01975; originally was on nid02729
+[PE_0]: rank 1472 is on nid02641; originally was on nid02742
+[PE_0]: rank 1473 is on nid03411; originally was on nid02742
+[PE_0]: rank 1474 is on nid00738; originally was on nid02742
+[PE_0]: rank 1475 is on nid01710; originally was on nid02742
+[PE_0]: rank 1476 is on nid04646; originally was on nid02743
+[PE_0]: rank 1477 is on nid05336; originally was on nid02743
+[PE_0]: rank 1478 is on nid04650; originally was on nid02743
+[PE_0]: rank 1479 is on nid04564; originally was on nid02743
+[PE_0]: rank 1480 is on nid03799; originally was on nid02632
+[PE_0]: rank 1481 is on nid03797; originally was on nid02632
+[PE_0]: rank 1482 is on nid03887; originally was on nid02632
+[PE_0]: rank 1483 is on nid03970; originally was on nid02632
+[PE_0]: rank 1484 is on nid03705; originally was on nid02633
+[PE_0]: rank 1485 is on nid04460; originally was on nid02633
+[PE_0]: rank 1486 is on nid04891; originally was on nid02633
+[PE_0]: rank 1487 is on nid05093; originally was on nid02633
+[PE_0]: rank 1488 is on nid05173; originally was on nid02646
+[PE_0]: rank 1489 is on nid04407; originally was on nid02646
+[PE_0]: rank 1490 is on nid04041; originally was on nid02646
+[PE_0]: rank 1491 is on nid04043; originally was on nid02646
+[PE_0]: rank 1492 is on nid04046; originally was on nid02647
+[PE_0]: rank 1493 is on nid04400; originally was on nid02647
+[PE_0]: rank 1494 is on nid04814; originally was on nid02647
+[PE_0]: rank 1495 is on nid05168; originally was on nid02647
+[PE_0]: rank 1496 is on nid04819; originally was on nid01960
+[PE_0]: rank 1497 is on nid04337; originally was on nid01960
+[PE_0]: rank 1498 is on nid03571; originally was on nid01960
+[PE_0]: rank 1499 is on nid03574; originally was on nid01960
+[PE_0]: rank 1500 is on nid04053; originally was on nid01961
+[PE_0]: rank 1501 is on nid03456; originally was on nid01961
+[PE_0]: rank 1502 is on nid04981; originally was on nid01961
+[PE_0]: rank 1503 is on nid04246; originally was on nid01961
+[PE_0]: rank 1504 is on nid04969; originally was on nid01974
+[PE_0]: rank 1505 is on nid04249; originally was on nid01974
+[PE_0]: rank 1506 is on nid04940; originally was on nid01974
+[PE_0]: rank 1507 is on nid03068; originally was on nid01974
+[PE_0]: rank 1508 is on nid02300; originally was on nid01975
+[PE_0]: rank 1509 is on nid02983; originally was on nid01975
+[PE_0]: rank 1510 is on nid03157; originally was on nid01975
+[PE_0]: rank 1511 is on nid02729; originally was on nid01975
+[PE_0]: rank 1512 is on nid01972; originally was on nid01972
+[PE_0]: rank 1513 is on nid02641; originally was on nid01972
+[PE_0]: rank 1514 is on nid03411; originally was on nid01972
+[PE_0]: rank 1515 is on nid00738; originally was on nid01972
+[PE_0]: rank 1516 is on nid01711; originally was on nid01973
+[PE_0]: rank 1517 is on nid04646; originally was on nid01973
+[PE_0]: rank 1518 is on nid05336; originally was on nid01973
+[PE_0]: rank 1519 is on nid04650; originally was on nid01973
+[PE_0]: rank 1520 is on nid04565; originally was on nid02634
+[PE_0]: rank 1521 is on nid03799; originally was on nid02634
+[PE_0]: rank 1522 is on nid03797; originally was on nid02634
+[PE_0]: rank 1523 is on nid03887; originally was on nid02634
+[PE_0]: rank 1524 is on nid03971; originally was on nid01970
+[PE_0]: rank 1525 is on nid03705; originally was on nid01970
+[PE_0]: rank 1526 is on nid04460; originally was on nid01970
+[PE_0]: rank 1527 is on nid04891; originally was on nid01970
+[PE_0]: rank 1528 is on nid05178; originally was on nid01971
+[PE_0]: rank 1529 is on nid05173; originally was on nid01971
+[PE_0]: rank 1530 is on nid04407; originally was on nid01971
+[PE_0]: rank 1531 is on nid04041; originally was on nid01971
+[PE_0]: rank 1532 is on nid03636; originally was on nid01968
+[PE_0]: rank 1533 is on nid04046; originally was on nid01968
+[PE_0]: rank 1534 is on nid04400; originally was on nid01968
+[PE_0]: rank 1535 is on nid04814; originally was on nid01968
+[PE_0]: rank 1536 is on nid05169; originally was on nid01969
+[PE_0]: rank 1537 is on nid04819; originally was on nid01969
+[PE_0]: rank 1538 is on nid04337; originally was on nid01969
+[PE_0]: rank 1539 is on nid03571; originally was on nid01969
+[PE_0]: rank 1540 is on nid03575; originally was on nid01966
+[PE_0]: rank 1541 is on nid04053; originally was on nid01966
+[PE_0]: rank 1542 is on nid03456; originally was on nid01966
+[PE_0]: rank 1543 is on nid04981; originally was on nid01966
+[PE_0]: rank 1544 is on nid04247; originally was on nid01967
+[PE_0]: rank 1545 is on nid04969; originally was on nid01967
+[PE_0]: rank 1546 is on nid04249; originally was on nid01967
+[PE_0]: rank 1547 is on nid04940; originally was on nid01967
+[PE_0]: rank 1548 is on nid03070; originally was on nid02640
+[PE_0]: rank 1549 is on nid02300; originally was on nid02640
+[PE_0]: rank 1550 is on nid02983; originally was on nid02640
+[PE_0]: rank 1551 is on nid03157; originally was on nid02640
+[PE_0]: rank 1552 is on nid02742; originally was on nid02641
+[PE_0]: rank 1553 is on nid01972; originally was on nid02641
+[PE_0]: rank 1554 is on nid02641; originally was on nid02641
+[PE_0]: rank 1555 is on nid03411; originally was on nid02641
+[PE_0]: rank 1556 is on nid00739; originally was on nid02638
+[PE_0]: rank 1557 is on nid01711; originally was on nid02638
+[PE_0]: rank 1558 is on nid04646; originally was on nid02638
+[PE_0]: rank 1559 is on nid05336; originally was on nid02638
+[PE_0]: rank 1560 is on nid04651; originally was on nid02733
+[PE_0]: rank 1561 is on nid04565; originally was on nid02733
+[PE_0]: rank 1562 is on nid03799; originally was on nid02733
+[PE_0]: rank 1563 is on nid03797; originally was on nid02733
+[PE_0]: rank 1564 is on nid03888; originally was on nid02738
+[PE_0]: rank 1565 is on nid03971; originally was on nid02738
+[PE_0]: rank 1566 is on nid03705; originally was on nid02738
+[PE_0]: rank 1567 is on nid04460; originally was on nid02738
+[PE_0]: rank 1568 is on nid04804; originally was on nid02739
+[PE_0]: rank 1569 is on nid05178; originally was on nid02739
+[PE_0]: rank 1570 is on nid05173; originally was on nid02739
+[PE_0]: rank 1571 is on nid04407; originally was on nid02739
+[PE_0]: rank 1572 is on nid03638; originally was on nid02736
+[PE_0]: rank 1573 is on nid03636; originally was on nid02736
+[PE_0]: rank 1574 is on nid04046; originally was on nid02736
+[PE_0]: rank 1575 is on nid04400; originally was on nid02736
+[PE_0]: rank 1576 is on nid04815; originally was on nid02737
+[PE_0]: rank 1577 is on nid05169; originally was on nid02737
+[PE_0]: rank 1578 is on nid04819; originally was on nid02737
+[PE_0]: rank 1579 is on nid04337; originally was on nid02737
+[PE_0]: rank 1580 is on nid04108; originally was on nid02734
+[PE_0]: rank 1581 is on nid03575; originally was on nid02734
+[PE_0]: rank 1582 is on nid04053; originally was on nid02734
+[PE_0]: rank 1583 is on nid03456; originally was on nid02734
+[PE_0]: rank 1584 is on nid04982; originally was on nid02735
+[PE_0]: rank 1585 is on nid04247; originally was on nid02735
+[PE_0]: rank 1586 is on nid04969; originally was on nid02735
+[PE_0]: rank 1587 is on nid04249; originally was on nid02735
+[PE_0]: rank 1588 is on nid04941; originally was on nid03408
+[PE_0]: rank 1589 is on nid03070; originally was on nid03408
+[PE_0]: rank 1590 is on nid02300; originally was on nid03408
+[PE_0]: rank 1591 is on nid02983; originally was on nid03408
+[PE_0]: rank 1592 is on nid02292; originally was on nid03411
+[PE_0]: rank 1593 is on nid02742; originally was on nid03411
+[PE_0]: rank 1594 is on nid01972; originally was on nid03411
+[PE_0]: rank 1595 is on nid02641; originally was on nid03411
+[PE_0]: rank 1596 is on nid03404; originally was on nid03404
+[PE_0]: rank 1597 is on nid00739; originally was on nid03404
+[PE_0]: rank 1598 is on nid01711; originally was on nid03404
+[PE_0]: rank 1599 is on nid04646; originally was on nid03404
+[PE_0]: rank 1600 is on nid05337; originally was on nid03405
+[PE_0]: rank 1601 is on nid04651; originally was on nid03405
+[PE_0]: rank 1602 is on nid04565; originally was on nid03405
+[PE_0]: rank 1603 is on nid03799; originally was on nid03405
+[PE_0]: rank 1604 is on nid03794; originally was on nid03406
+[PE_0]: rank 1605 is on nid03888; originally was on nid03406
+[PE_0]: rank 1606 is on nid03971; originally was on nid03406
+[PE_0]: rank 1607 is on nid03705; originally was on nid03406
+[PE_0]: rank 1608 is on nid04037; originally was on nid03407
+[PE_0]: rank 1609 is on nid04804; originally was on nid03407
+[PE_0]: rank 1610 is on nid05178; originally was on nid03407
+[PE_0]: rank 1611 is on nid05173; originally was on nid03407
+[PE_0]: rank 1612 is on nid04404; originally was on nid00769
+[PE_0]: rank 1613 is on nid03638; originally was on nid00769
+[PE_0]: rank 1614 is on nid03636; originally was on nid00769
+[PE_0]: rank 1615 is on nid04046; originally was on nid00769
+[PE_0]: rank 1616 is on nid04401; originally was on nid00698
+[PE_0]: rank 1617 is on nid04815; originally was on nid00698
+[PE_0]: rank 1618 is on nid05169; originally was on nid00698
+[PE_0]: rank 1619 is on nid04819; originally was on nid00698
+[PE_0]: rank 1620 is on nid04110; originally was on nid00699
+[PE_0]: rank 1621 is on nid04108; originally was on nid00699
+[PE_0]: rank 1622 is on nid03575; originally was on nid00699
+[PE_0]: rank 1623 is on nid04053; originally was on nid00699
+[PE_0]: rank 1624 is on nid03547; originally was on nid00700
+[PE_0]: rank 1625 is on nid04982; originally was on nid00700
+[PE_0]: rank 1626 is on nid04247; originally was on nid00700
+[PE_0]: rank 1627 is on nid04969; originally was on nid00700
+[PE_0]: rank 1628 is on nid04198; originally was on nid00701
+[PE_0]: rank 1629 is on nid04941; originally was on nid00701
+[PE_0]: rank 1630 is on nid03070; originally was on nid00701
+[PE_0]: rank 1631 is on nid02300; originally was on nid00701
+[PE_0]: rank 1632 is on nid03160; originally was on nid00738
+[PE_0]: rank 1633 is on nid02292; originally was on nid00738
+[PE_0]: rank 1634 is on nid02742; originally was on nid00738
+[PE_0]: rank 1635 is on nid01972; originally was on nid00738
+[PE_0]: rank 1636 is on nid02638; originally was on nid00739
+[PE_0]: rank 1637 is on nid03404; originally was on nid00739
+[PE_0]: rank 1638 is on nid00739; originally was on nid00739
+[PE_0]: rank 1639 is on nid01711; originally was on nid00739
+[PE_0]: rank 1640 is on nid04647; originally was on nid00736
+[PE_0]: rank 1641 is on nid05337; originally was on nid00736
+[PE_0]: rank 1642 is on nid04651; originally was on nid00736
+[PE_0]: rank 1643 is on nid04565; originally was on nid00736
+[PE_0]: rank 1644 is on nid03784; originally was on nid00737
+[PE_0]: rank 1645 is on nid03794; originally was on nid00737
+[PE_0]: rank 1646 is on nid03888; originally was on nid00737
+[PE_0]: rank 1647 is on nid03971; originally was on nid00737
+[PE_0]: rank 1648 is on nid03992; originally was on nid00734
+[PE_0]: rank 1649 is on nid04037; originally was on nid00734
+[PE_0]: rank 1650 is on nid04804; originally was on nid00734
+[PE_0]: rank 1651 is on nid05178; originally was on nid00734
+[PE_0]: rank 1652 is on nid04810; originally was on nid00735
+[PE_0]: rank 1653 is on nid04404; originally was on nid00735
+[PE_0]: rank 1654 is on nid03638; originally was on nid00735
+[PE_0]: rank 1655 is on nid03636; originally was on nid00735
+[PE_0]: rank 1656 is on nid04047; originally was on nid00732
+[PE_0]: rank 1657 is on nid04401; originally was on nid00732
+[PE_0]: rank 1658 is on nid04815; originally was on nid00732
+[PE_0]: rank 1659 is on nid05169; originally was on nid00732
+[PE_0]: rank 1660 is on nid04876; originally was on nid00711
+[PE_0]: rank 1661 is on nid04110; originally was on nid00711
+[PE_0]: rank 1662 is on nid04108; originally was on nid00711
+[PE_0]: rank 1663 is on nid03575; originally was on nid00711
+[PE_0]: rank 1664 is on nid04394; originally was on nid00718
+[PE_0]: rank 1665 is on nid03547; originally was on nid00718
+[PE_0]: rank 1666 is on nid04982; originally was on nid00718
+[PE_0]: rank 1667 is on nid04247; originally was on nid00718
+[PE_0]: rank 1668 is on nid05014; originally was on nid00578
+[PE_0]: rank 1669 is on nid04198; originally was on nid00578
+[PE_0]: rank 1670 is on nid04941; originally was on nid00578
+[PE_0]: rank 1671 is on nid03070; originally was on nid00578
+[PE_0]: rank 1672 is on nid02301; originally was on nid01710
+[PE_0]: rank 1673 is on nid03160; originally was on nid01710
+[PE_0]: rank 1674 is on nid02292; originally was on nid01710
+[PE_0]: rank 1675 is on nid02742; originally was on nid01710
+[PE_0]: rank 1676 is on nid01973; originally was on nid01711
+[PE_0]: rank 1677 is on nid02638; originally was on nid01711
+[PE_0]: rank 1678 is on nid03404; originally was on nid01711
+[PE_0]: rank 1679 is on nid00739; originally was on nid01711
+[PE_0]: rank 1680 is on nid01701; originally was on nid01701
+Forcing scale to : 32
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               7.265822 s
+Generated renamed edge lists
+Generation took 7.26837 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 104755299-by-104755299
+Duplicates removed (or summed): 421463299 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 17.9448 seconds
+Converted to Boolean and removed 6916 loops
+As a whole: 4294967296 rows and 4294967296 columns and 68298006521 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 4294967296 rows and 4294967296 columns and 68298006521 nonzeros
+Dropped isolated vertices from input
+As a whole: 1652687032 rows and 1652687032 columns and 68298006521 nonzeros
+Symmetricized
+Optimization buffers set
+Threading activated with 6 threads
+As a whole: 1652687032 rows and 1652687032 columns and 136596013042 nonzeros
+874.613 seconds elapsed for Kernel #1
+As a whole: 1652687032 rows and 1652687032 columns and 136596013042 nonzeros
+Load balance: 1.01598
+As a whole, Degrees array has length 1652687032
+0.0984468 0.143064 0.501284 0.0451911 0.955052 0.243926 0.553957 0.384111 0.17975 0.414583 0.601021 0.947076 0.715005 0.280767 0.542912 0.277386 
+1.62702e+08 2.3644e+08 8.28466e+08 7.46868e+07 1.5784e+09 4.03133e+08 9.15517e+08 6.34815e+08 2.97071e+08 6.85177e+08 9.933e+08 1.56522e+09 1.18168e+09 4.6402e+08 8.97263e+08 4.58432e+08 
+0th starting vertex was 162701699
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.1995 seconds
+MTEPS: 11084.6
+Total communication (average so far): 2.10878
+1th starting vertex was 236440490
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.304 seconds
+MTEPS: 10900.9
+Total communication (average so far): 2.11041
+2th starting vertex was 828466081
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 5.95861 seconds
+MTEPS: 11532.7
+Total communication (average so far): 2.04718
+3th starting vertex was 74686823
+Number iterations: 9
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.27559 seconds
+MTEPS: 10950.2
+Total communication (average so far): 2.05172
+4th starting vertex was 1578402154
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 5.88938 seconds
+MTEPS: 11668.3
+Total communication (average so far): 2.0264
+5th starting vertex was 403132616
+Number iterations: 9
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.44241 seconds
+MTEPS: 10666.7
+Total communication (average so far): 2.04858
+6th starting vertex was 915517122
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.67724 seconds
+MTEPS: 10291.5
+Total communication (average so far): 2.08297
+7th starting vertex was 634815212
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.2197 seconds
+MTEPS: 11048.6
+Total communication (average so far): 2.08135
+8th starting vertex was 297071157
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.09962 seconds
+MTEPS: 11266.1
+Total communication (average so far): 2.07254
+9th starting vertex was 685176528
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.21528 seconds
+MTEPS: 11056.5
+Total communication (average so far): 2.07401
+10th starting vertex was 993299895
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.06212 seconds
+MTEPS: 11335.8
+Total communication (average so far): 2.06931
+11th starting vertex was 1565219982
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 5.81747 seconds
+MTEPS: 11812.5
+Total communication (average so far): 2.0519
+12th starting vertex was 1181679950
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.39948 seconds
+MTEPS: 10738.2
+Total communication (average so far): 2.05965
+13th starting vertex was 464020020
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 6.04977 seconds
+MTEPS: 11358.9
+Total communication (average so far): 2.05476
+14th starting vertex was 897263090
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 5.91084 seconds
+MTEPS: 11625.9
+Total communication (average so far): 2.05014
+15th starting vertex was 458432059
+Number iterations: 8
+Number of vertices found: 1651645626
+Number of edges traversed: 68718955452
+BFS time: 5.91844 seconds
+MTEPS: 11611
+Total communication (average so far): 2.04064
+Finished
+Per iteration communication times: 
+AllGatherv: 0.477641
+AlltoAllv: 1.563
+--------------------------
+Min nedges: 6.8719e+10
+First Quartile nedges: 6.8719e+10
+Median nedges: 6.8719e+10
+Third Quartile nedges: 6.8719e+10
+Max nedges: 6.8719e+10
+Mean nedges: 6.8719e+10
+STDDEV nedges: 0
+--------------------------
+Min time: 5.81747 seconds
+First Quartile time: 5.93853 seconds
+Median time: 6.14956 seconds
+Third Quartile time: 6.28979 seconds
+Max time: 6.67724 seconds
+Mean time: 6.15247 seconds
+STDDEV time: 0.234228 seconds
+--------------------------
+Min MTEPS: 10291.5
+First Quartile MTEPS: 10925.5
+Median MTEPS: 11175.3
+Third Quartile MTEPS: 11571.9
+Max MTEPS: 11812.5
+Harmonic mean of MTEPS: 11169.3
+Harmonic standard deviation of MTEPS: 425.223
+Application 6285618 resources: utime ~1784411s, stime ~232071s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script10086_hybrid_transposed
+ +          Job Id: 1380492.sdb
+ +          System: hopper
+ +     Queued Time: Fri Mar  9 08:28:34 2012
+ +      Start Time: Fri Mar  9 13:20:14 2012
+ + Completion Time: Fri Mar  9 13:37:01 2012
+ +            User: abuluc
+ +        MOM Host: nid04749
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:54788:hopper11,walltime=00:29:00
+ +  Used Resources: cput=00:00:00,mem=5852kb,vmem=40408kb,walltime=00:16:47
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script10086_hybrid_transposed
+ + --------------------------------------------------------------------------
+
