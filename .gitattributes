@@ -139,6 +139,17 @@ CombBLAS/Applications/HopperResults/script529.24pernode_Dec23 -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Feb10 -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
+CombBLAS/Applications/PACTResults/script121_filtered_scale23.e1418668 -text
+CombBLAS/Applications/PACTResults/script121_filtered_scale25.e1418423 -text
+CombBLAS/Applications/PACTResults/script256_filtered_large.e1420526 -text
+CombBLAS/Applications/PACTResults/script256_filtered_large_permute.e1420528 -text
+CombBLAS/Applications/PACTResults/script256_filtered_medium.e1417760 -text
+CombBLAS/Applications/PACTResults/script256_filtered_medium.old -text
+CombBLAS/Applications/PACTResults/script256_filtered_scale23.e1417769 -text
+CombBLAS/Applications/PACTResults/script256_filtered_scale25.e1417770 -text
+CombBLAS/Applications/PACTResults/script256_filtered_small.e1417766 -text
+CombBLAS/Applications/PACTResults/script576_filtered_large.e1420530 -text
+CombBLAS/Applications/PACTResults/script576_filtered_scale27.e1419567 -text
 CombBLAS/Applications/Post_SC_optimization/script10000_hop_all.e693793 -text
 CombBLAS/Applications/Post_SC_optimization/script10000_hop_all.e896607 -text
 CombBLAS/Applications/Post_SC_optimization/script10000_transposed.e1036076 -text
