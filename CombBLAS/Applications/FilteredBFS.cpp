@@ -42,6 +42,7 @@ int cblas_splits = 1;
 #define ITERS 16 
 #define CC_LIMIT 5
 #define PERMUTEFORBALANCE
+#define PERCENTS 4
 using namespace std;
 
 
@@ -150,7 +151,7 @@ int main(int argc, char* argv[])
 			
 			MTRand M;
 			A.Apply(Twitter_obj_randomizer());
-			MAXTRIALS = 4;	// benchmarking
+			MAXTRIALS = PERCENTS;	// benchmarking
 		}
 		else 
 		{	
@@ -173,7 +174,7 @@ int main(int argc, char* argv[])
 		
 		if(string(argv[1]) == string("Gen"))
 		{
-			for (int i=0; i < 4; i++) 
+			for (int i=0; i < PERCENTS; i++) 
 			{
 				PSpMat_Twitter B = A;
 				B.Prune(bind2nd(Twitter_materialize(), keep[i]));
@@ -224,7 +225,7 @@ int main(int argc, char* argv[])
 		degrees = degrees(*nonisov);
 		if(string(argv[1]) == string("Gen"))
 		{
-			for (int i=0; i < 4; i++) 
+			for (int i=0; i < PERCENTS; i++) 
 			{
 				indegrees_arr[i] = indegrees_arr[i](*nonisov);	
 				oudegrees_arr[i] = oudegrees_arr[i](*nonisov);	
