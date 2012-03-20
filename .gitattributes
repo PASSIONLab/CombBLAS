@@ -151,6 +151,12 @@ CombBLAS/Applications/MirasolFilteredRuns/ran_scale22_p25 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_scale22_p36 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_scale22_p4 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_scale22_p9 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p1 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p16 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p25 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p36 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p4 -text
+CombBLAS/Applications/MirasolFilteredRuns/ran_scale23_p9 -text
 CombBLAS/Applications/PACTResults/script121_filtered_scale23.e1418668 -text
 CombBLAS/Applications/PACTResults/script121_filtered_scale25.e1418423 -text
 CombBLAS/Applications/PACTResults/script256_filtered_large.e1420526 -text

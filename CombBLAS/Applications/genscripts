@@ -1,6 +1,6 @@
-mpirun -np 1 ./fbfs Gen 22 > ran_scale22_p1
-mpirun -np 4 ./fbfs Gen 22 > ran_scale22_p4
-mpirun -np 9 ./fbfs Gen 22 > ran_scale22_p9
-mpirun -np 16 ./fbfs Gen 22 > ran_scale22_p16
-mpirun -np 25 ./fbfs Gen 22 > ran_scale22_p25
-mpirun -np 36 ./fbfs Gen 22 > ran_scale22_p36
+mpirun -np 1 ./fbfs Gen 23 > ran_scale23_p1
+mpirun -np 4 ./fbfs Gen 23 > ran_scale23_p4
+mpirun -np 9 ./fbfs Gen 23 > ran_scale23_p9
+mpirun -np 16 ./fbfs Gen 23 > ran_scale23_p16
+mpirun -np 25 ./fbfs Gen 23 > ran_scale23_p25
+mpirun -np 36 ./fbfs Gen 23 > ran_scale23_p36
