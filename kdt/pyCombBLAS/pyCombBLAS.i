@@ -82,7 +82,7 @@ public:
 	int64_t getncol();
 	
 public:	
-	void load(const char* filename);
+	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
 	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
@@ -163,7 +163,7 @@ public:
 	int64_t getncol();
 	
 public:	
-	void load(const char* filename);
+	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
 	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
@@ -237,7 +237,7 @@ public:
 	int64_t getncol() const;
 	
 public:	
-	void load(const char* filename);
+	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
 	//double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);
@@ -307,7 +307,7 @@ public:
 	int64_t getncol() const;
 	
 public:	
-	void load(const char* filename);
+	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
 	//double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16);

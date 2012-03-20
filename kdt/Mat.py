@@ -288,8 +288,8 @@ class Mat:
 		Input Argument:
 			self:  a DiGraph instance
 
-		Output Argument:
-			ret:  a 3-element tuple with ParVec instances denoting the
+		Returns:
+			    a 3-element tuple with ParVec instances denoting the
 			    source vertex, destination vertex, and weight, respectively.
 
 		SEE ALSO:  DiGraph 
@@ -379,9 +379,8 @@ class Mat:
 			ret = self._reprHeader()
 			return ret + "Too many elements to print."
 
-	# NEEDED: support for filters
 	@staticmethod
-	def load(fname, element=0.0):
+	def load(fname, element=0.0, par_IO=False):
 		"""
 		loads the contents of the file named fname (in the Coordinate Format 
 		of the Matrix Market Exchange Format) into a Mat instance.
@@ -407,10 +406,9 @@ class Mat:
 		#FIX:  crashes if any out-of-bound indices in file; easy to
 		#      fall into with file being 1-based and Py being 0-based
 		ret = Mat(element=element)
-		ret._m_.load(fname)
+		ret._m_.load(fname, par_IO)
 		return ret
 
-	# NEEDED:  support for filters
 	def save(self, fname):
 		"""
 		saves the contents of the passed Mat instance to a file named

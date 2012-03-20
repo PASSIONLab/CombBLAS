@@ -248,7 +248,7 @@ def run(materialize):
 	G.delEFilter(twitterEdgeFilter)
 
 
-for p in (0, 0.5, 1, 2, 5, 10, 20, 30, 40, 60, 100):
+for p in (1, 10, 25, 100):
 	filterUpperValue = int(p*100)
 	run(False)
 	run(True)

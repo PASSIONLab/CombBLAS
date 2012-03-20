@@ -56,7 +56,7 @@ int64_t pySpParMat::getncol()
 	return A.getncol();
 }
 	
-void pySpParMat::load(const char* filename)
+void pySpParMat::load(const char* filename, bool pario)
 {
 	string fn(filename);
 	unsigned int dot = fn.find_last_of('.');
@@ -87,7 +87,7 @@ void pySpParMat::load(const char* filename)
 	else
 	{
 		// matrix market file
-		A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true);
+		A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true, pario);
 	}
 }
 

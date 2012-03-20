@@ -73,9 +73,9 @@ public:
 	}
 };
 
-void pySpParMatObj2::load(const char* filename)
+void pySpParMatObj2::load(const char* filename, bool pario)
 {
-	A.ReadDistribute(filename, 0, false, Obj2ReadSaveHandler(), true);
+	A.ReadDistribute(filename, 0, false, Obj2ReadSaveHandler(), true, pario);
 }
 
 void pySpParMatObj2::save(const char* filename)

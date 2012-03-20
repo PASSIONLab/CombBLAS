@@ -2067,7 +2067,6 @@ examples/Kmeans.py -text
 examples/MiniWorkflow.py -text
 examples/ModelProblemGen.py -text
 examples/PageRank.py -text
-examples/filter_debug.txt -text
 examples/mcldraw.py -text
 examples/note_for_kdt_developers.txt -text
 examples/stats.py -text
@@ -2144,6 +2143,7 @@ sandbox/Graph500_HyGraph.py -text
 sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
 sandbox/TwitterFilterPercent.py -text
+sandbox/filter_debug.txt -text
 sandbox/mcl.py -text
 sandbox/roofline.py -text
 sandbox/run-roofline.sh -text
