@@ -212,6 +212,11 @@ int main(int argc, char* argv[])
 		SpParHelper::Print("All degrees calculated\n");
 		delete ABool;
 
+		float balance = A.LoadImbalance();
+		ostringstream outs;
+		outs << "Load balance: " << balance << endl;
+		SpParHelper::Print(outs.str());
+
 #ifdef PERMUTEFORBALANCE
 		// nonisov: id's of non-isolated (connected) vertices
 		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
@@ -245,10 +250,10 @@ int main(int argc, char* argv[])
 
 		SpParHelper::Print("Symmetricized\n");	
 		A.PrintInfo();
-		float balance = A.LoadImbalance();
-		ostringstream outs;
-		outs << "Load balance: " << balance << endl;
-		SpParHelper::Print(outs.str());
+		float balance_former = A.LoadImbalance();
+		ostringstream outs_former;
+		outs_former << "Load balance: " << balance_former << endl;
+		SpParHelper::Print(outs_former.str());
 
 		MPI::COMM_WORLD.Barrier();
 		double t1 = MPI_Wtime();
