@@ -1,0 +1,3303 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Creating a new MPI data type for 11TwitterEdge
+As a whole: 4297477 rows and 4297477 columns and 395915816 nonzeros
+Read input
+As a whole: 4297477 rows and 4297477 columns and 395915816 nonzeros
+All degrees calculated
+Found (and permuted) non-isolated vertices
+Dropped isolated vertices from input
+As a whole, In degrees array has length 4297477
+As a whole, Out degrees array has length 4297477
+As a whole: 4297477 rows and 4297477 columns and 395915815 nonzeros
+As a whole: 4297477 rows and 4297477 columns and 559958401 nonzeros
+As a whole: 4297477 rows and 4297477 columns and 559958401 nonzeros
+Load balance: 1.06961
+Creating a new MPI data type for 10ParentType
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+0th starting vertex was 1401328
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 78
+Number of edges traversed in one direction: 34
+BFS time: 0.003546 seconds
+MTEPS (bidirectional): 0.0219966
+MTEPS (unidirectional): 0.00958827
+Total communication (average so far): 0.000466824
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+1th starting vertex was 3455232
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 2
+BFS time: 0.00251603 seconds
+MTEPS (bidirectional): 0.00278216
+MTEPS (unidirectional): 0.000794903
+Total communication (average so far): 0.000288486
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+2th starting vertex was 1023871
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 28
+Number of edges traversed in one direction: 14
+BFS time: 0.00253296 seconds
+MTEPS (bidirectional): 0.0110543
+MTEPS (unidirectional): 0.00552713
+Total communication (average so far): 0.000217994
+As a whole, Incoming edges traversed per vertex has: 2 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 2 nonzeros and length 4297477
+3th starting vertex was 1128104
+Number iterations: 2
+Number of vertices found: 2
+Number of edges traversed in both directions: 1673
+Number of edges traversed in one direction: 187
+BFS time: 0.00436902 seconds
+MTEPS (bidirectional): 0.382923
+MTEPS (unidirectional): 0.0428014
+Total communication (average so far): 0.000219107
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+4th starting vertex was 3431818
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 139
+Number of edges traversed in one direction: 98
+BFS time: 0.00214601 seconds
+MTEPS (bidirectional): 0.0647715
+MTEPS (unidirectional): 0.0456662
+Total communication (average so far): 0.000192881
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+5th starting vertex was 2820303
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 75
+Number of edges traversed in one direction: 70
+BFS time: 0.00234413 seconds
+MTEPS (bidirectional): 0.0319948
+MTEPS (unidirectional): 0.0298618
+Total communication (average so far): 0.000173887
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+6th starting vertex was 2915778
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 63
+Number of edges traversed in one direction: 42
+BFS time: 0.00208092 seconds
+MTEPS (bidirectional): 0.0302751
+MTEPS (unidirectional): 0.0201834
+Total communication (average so far): 0.000160456
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+7th starting vertex was 2571332
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 47
+Number of edges traversed in one direction: 13
+BFS time: 0.00243998 seconds
+MTEPS (bidirectional): 0.0192625
+MTEPS (unidirectional): 0.00532792
+Total communication (average so far): 0.000149667
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+8th starting vertex was 2940750
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 60
+Number of edges traversed in one direction: 39
+BFS time: 0.00238991 seconds
+MTEPS (bidirectional): 0.0251056
+MTEPS (unidirectional): 0.0163186
+Total communication (average so far): 0.00014117
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+9th starting vertex was 4232701
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 92
+Number of edges traversed in one direction: 61
+BFS time: 0.00255013 seconds
+MTEPS (bidirectional): 0.0360767
+MTEPS (unidirectional): 0.0239204
+Total communication (average so far): 0.00013485
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+10th starting vertex was 385716
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 8
+Number of edges traversed in one direction: 4
+BFS time: 0.00237703 seconds
+MTEPS (bidirectional): 0.00336554
+MTEPS (unidirectional): 0.00168277
+Total communication (average so far): 0.000128486
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+11th starting vertex was 768015
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 73
+Number of edges traversed in one direction: 26
+BFS time: 0.00261402 seconds
+MTEPS (bidirectional): 0.0279263
+MTEPS (unidirectional): 0.00994636
+Total communication (average so far): 0.000123958
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+12th starting vertex was 3993887
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 0
+BFS time: 0.00239897 seconds
+MTEPS (bidirectional): 0.00291792
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.000119723
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+13th starting vertex was 2583417
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1102
+Number of edges traversed in one direction: 863
+BFS time: 0.00261283 seconds
+MTEPS (bidirectional): 0.421765
+MTEPS (unidirectional): 0.330293
+Total communication (average so far): 0.000119533
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+14th starting vertex was 3344270
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 81
+Number of edges traversed in one direction: 65
+BFS time: 0.00220203 seconds
+MTEPS (bidirectional): 0.0367842
+MTEPS (unidirectional): 0.0295182
+Total communication (average so far): 0.000116777
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+15th starting vertex was 2705991
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00203085 seconds
+MTEPS (bidirectional): 0.000492405
+MTEPS (unidirectional): 0.000492405
+Total communication (average so far): 0.000113547
+Initializing since date (only once) to 1246406424
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+16th starting vertex was 2405756
+Number iterations: 20
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.558028 seconds
+MTEPS (bidirectional): 423.923
+MTEPS (unidirectional): 168.719
+Total communication (average so far): 0.00729979
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+17th starting vertex was 3739620
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 84
+Number of edges traversed in one direction: 60
+BFS time: 0.00227594 seconds
+MTEPS (bidirectional): 0.0369078
+MTEPS (unidirectional): 0.0263627
+Total communication (average so far): 0.00689858
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+18th starting vertex was 337774
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 136
+Number of edges traversed in one direction: 93
+BFS time: 0.00243807 seconds
+MTEPS (bidirectional): 0.0557819
+MTEPS (unidirectional): 0.038145
+Total communication (average so far): 0.00654047
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+19th starting vertex was 2049333
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 39
+Number of edges traversed in one direction: 24
+BFS time: 0.00227308 seconds
+MTEPS (bidirectional): 0.0171573
+MTEPS (unidirectional): 0.0105583
+Total communication (average so far): 0.0062173
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+20th starting vertex was 2826624
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00216293 seconds
+MTEPS (bidirectional): 0.000462335
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00592528
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+21th starting vertex was 2289078
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 42
+Number of edges traversed in one direction: 27
+BFS time: 0.00233316 seconds
+MTEPS (bidirectional): 0.0180013
+MTEPS (unidirectional): 0.0115723
+Total communication (average so far): 0.00566427
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+22th starting vertex was 2669954
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 17
+Number of edges traversed in one direction: 6
+BFS time: 0.00248599 seconds
+MTEPS (bidirectional): 0.00683832
+MTEPS (unidirectional): 0.00241352
+Total communication (average so far): 0.00542096
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+23th starting vertex was 4066210
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 22
+Number of edges traversed in one direction: 18
+BFS time: 0.00203991 seconds
+MTEPS (bidirectional): 0.0107848
+MTEPS (unidirectional): 0.00882392
+Total communication (average so far): 0.00519801
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+24th starting vertex was 2823562
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00214601 seconds
+MTEPS (bidirectional): 0.000465982
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00499253
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+25th starting vertex was 1136836
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00224018 seconds
+MTEPS (bidirectional): 0.000446393
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.0048029
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+26th starting vertex was 3759309
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 8
+Number of edges traversed in one direction: 2
+BFS time: 0.00365591 seconds
+MTEPS (bidirectional): 0.00218824
+MTEPS (unidirectional): 0.000547059
+Total communication (average so far): 0.00462764
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+27th starting vertex was 1760809
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 43
+Number of edges traversed in one direction: 37
+BFS time: 0.00262499 seconds
+MTEPS (bidirectional): 0.016381
+MTEPS (unidirectional): 0.0140953
+Total communication (average so far): 0.00446502
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+28th starting vertex was 1981855
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 47
+Number of edges traversed in one direction: 38
+BFS time: 0.00221801 seconds
+MTEPS (bidirectional): 0.0211902
+MTEPS (unidirectional): 0.0171325
+Total communication (average so far): 0.00431364
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+29th starting vertex was 2311727
+Number iterations: 21
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.417291 seconds
+MTEPS (bidirectional): 566.897
+MTEPS (unidirectional): 225.621
+Total communication (average so far): 0.00490038
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+30th starting vertex was 1566414
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 105
+Number of edges traversed in one direction: 75
+BFS time: 0.00268197 seconds
+MTEPS (bidirectional): 0.0391503
+MTEPS (unidirectional): 0.0279645
+Total communication (average so far): 0.00474488
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+31th starting vertex was 3901983
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 12
+Number of edges traversed in one direction: 8
+BFS time: 0.00225496 seconds
+MTEPS (bidirectional): 0.0053216
+MTEPS (unidirectional): 0.00354773
+Total communication (average so far): 0.00459869
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+32th starting vertex was 4096540
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 4
+BFS time: 0.00220203 seconds
+MTEPS (bidirectional): 0.00317888
+MTEPS (unidirectional): 0.0018165
+Total communication (average so far): 0.00446127
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+33th starting vertex was 2430499
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00204611 seconds
+MTEPS (bidirectional): 0.000488733
+MTEPS (unidirectional): 0.000488733
+Total communication (average so far): 0.00433291
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+34th starting vertex was 1624376
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 8
+Number of edges traversed in one direction: 2
+BFS time: 0.00229597 seconds
+MTEPS (bidirectional): 0.00348436
+MTEPS (unidirectional): 0.000871091
+Total communication (average so far): 0.00421126
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+35th starting vertex was 352903
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00228882 seconds
+MTEPS (bidirectional): 0.000436907
+MTEPS (unidirectional): 0.000436907
+Total communication (average so far): 0.00409595
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+36th starting vertex was 727737
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 120
+Number of edges traversed in one direction: 112
+BFS time: 0.00260782 seconds
+MTEPS (bidirectional): 0.0460154
+MTEPS (unidirectional): 0.0429477
+Total communication (average so far): 0.00398773
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+37th starting vertex was 1445876
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 197
+Number of edges traversed in one direction: 93
+BFS time: 0.00237083 seconds
+MTEPS (bidirectional): 0.0830931
+MTEPS (unidirectional): 0.0392267
+Total communication (average so far): 0.00388553
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+38th starting vertex was 4180652
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00232697 seconds
+MTEPS (bidirectional): 0.000429744
+MTEPS (unidirectional): 0.000429744
+Total communication (average so far): 0.00378757
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+39th starting vertex was 565382
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 2
+BFS time: 0.00216889 seconds
+MTEPS (bidirectional): 0.00184426
+MTEPS (unidirectional): 0.000922129
+Total communication (average so far): 0.00369438
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+40th starting vertex was 1902291
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 452
+Number of edges traversed in one direction: 308
+BFS time: 0.00210094 seconds
+MTEPS (bidirectional): 0.215141
+MTEPS (unidirectional): 0.146601
+Total communication (average so far): 0.00360708
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+41th starting vertex was 1814872
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00254703 seconds
+MTEPS (bidirectional): 0.000392615
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00352286
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+42th starting vertex was 1282423
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 11
+BFS time: 0.00264096 seconds
+MTEPS (bidirectional): 0.0090876
+MTEPS (unidirectional): 0.00416515
+Total communication (average so far): 0.00344261
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+43th starting vertex was 2214731
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 9
+Number of edges traversed in one direction: 8
+BFS time: 0.00215602 seconds
+MTEPS (bidirectional): 0.00417436
+MTEPS (unidirectional): 0.00371054
+Total communication (average so far): 0.0033658
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+44th starting vertex was 3041948
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00218391 seconds
+MTEPS (bidirectional): 0.000457893
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00329238
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+45th starting vertex was 972274
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00226021 seconds
+MTEPS (bidirectional): 0.000442437
+MTEPS (unidirectional): 0.000442437
+Total communication (average so far): 0.00322218
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+46th starting vertex was 4101316
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 66
+Number of edges traversed in one direction: 44
+BFS time: 0.00255299 seconds
+MTEPS (bidirectional): 0.0258521
+MTEPS (unidirectional): 0.0172347
+Total communication (average so far): 0.00315547
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+47th starting vertex was 3762475
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 36
+Number of edges traversed in one direction: 13
+BFS time: 0.00238299 seconds
+MTEPS (bidirectional): 0.015107
+MTEPS (unidirectional): 0.00545532
+Total communication (average so far): 0.0030913
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+48th starting vertex was 2912831
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 32
+Number of edges traversed in one direction: 20
+BFS time: 0.0023272 seconds
+MTEPS (bidirectional): 0.0137504
+MTEPS (unidirectional): 0.008594
+Total communication (average so far): 0.0030296
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+49th starting vertex was 1896258
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 22
+BFS time: 0.002069 seconds
+MTEPS (bidirectional): 0.0149831
+MTEPS (unidirectional): 0.0106332
+Total communication (average so far): 0.00297117
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+50th starting vertex was 487103
+Number iterations: 21
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.422857 seconds
+MTEPS (bidirectional): 559.435
+MTEPS (unidirectional): 222.651
+Total communication (average so far): 0.00332459
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+51th starting vertex was 811606
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 19
+BFS time: 0.00185895 seconds
+MTEPS (bidirectional): 0.0166761
+MTEPS (unidirectional): 0.0102208
+Total communication (average so far): 0.00326197
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+52th starting vertex was 50965
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 167
+Number of edges traversed in one direction: 14
+BFS time: 0.00216389 seconds
+MTEPS (bidirectional): 0.0771759
+MTEPS (unidirectional): 0.00646984
+Total communication (average so far): 0.00320227
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+53th starting vertex was 1770217
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00254488 seconds
+MTEPS (bidirectional): 0.000392946
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00314411
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+54th starting vertex was 1828866
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 164
+Number of edges traversed in one direction: 91
+BFS time: 0.00244212 seconds
+MTEPS (bidirectional): 0.0671547
+MTEPS (unidirectional): 0.0372627
+Total communication (average so far): 0.00308853
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+55th starting vertex was 1451586
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 109
+Number of edges traversed in one direction: 35
+BFS time: 0.00236893 seconds
+MTEPS (bidirectional): 0.0460124
+MTEPS (unidirectional): 0.0147746
+Total communication (average so far): 0.00303489
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+56th starting vertex was 163332
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 57
+Number of edges traversed in one direction: 28
+BFS time: 0.00217819 seconds
+MTEPS (bidirectional): 0.0261685
+MTEPS (unidirectional): 0.0128547
+Total communication (average so far): 0.00298279
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+57th starting vertex was 2249162
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 142
+Number of edges traversed in one direction: 68
+BFS time: 0.00221515 seconds
+MTEPS (bidirectional): 0.0641041
+MTEPS (unidirectional): 0.0306977
+Total communication (average so far): 0.00293305
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+58th starting vertex was 1265191
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 17
+Number of edges traversed in one direction: 13
+BFS time: 0.00252795 seconds
+MTEPS (bidirectional): 0.00672481
+MTEPS (unidirectional): 0.0051425
+Total communication (average so far): 0.00288562
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+59th starting vertex was 3765955
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 50
+Number of edges traversed in one direction: 46
+BFS time: 0.002105 seconds
+MTEPS (bidirectional): 0.023753
+MTEPS (unidirectional): 0.0218528
+Total communication (average so far): 0.00283892
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+60th starting vertex was 1872247
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00269103 seconds
+MTEPS (bidirectional): 0.000371605
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.0027934
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+61th starting vertex was 588254
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 149
+Number of edges traversed in one direction: 78
+BFS time: 0.00239992 seconds
+MTEPS (bidirectional): 0.0620854
+MTEPS (unidirectional): 0.0325011
+Total communication (average so far): 0.00274992
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+62th starting vertex was 3054028
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00217104 seconds
+MTEPS (bidirectional): 0.000921218
+MTEPS (unidirectional): 0.000921218
+Total communication (average so far): 0.00270729
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+63th starting vertex was 2612515
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 62
+Number of edges traversed in one direction: 53
+BFS time: 0.0023551 seconds
+MTEPS (bidirectional): 0.0263259
+MTEPS (unidirectional): 0.0225044
+Total communication (average so far): 0.00266613
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+64th starting vertex was 3553917
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 148
+Number of edges traversed in one direction: 88
+BFS time: 0.00213003 seconds
+MTEPS (bidirectional): 0.0694825
+MTEPS (unidirectional): 0.0413139
+Total communication (average so far): 0.00262633
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+65th starting vertex was 3039258
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00212693 seconds
+MTEPS (bidirectional): 0.000470161
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00258754
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+66th starting vertex was 2109884
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 23
+BFS time: 0.00397491 seconds
+MTEPS (bidirectional): 0.00603787
+MTEPS (unidirectional): 0.00578629
+Total communication (average so far): 0.00255469
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+67th starting vertex was 322488
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 63
+Number of edges traversed in one direction: 35
+BFS time: 0.00233603 seconds
+MTEPS (bidirectional): 0.0269689
+MTEPS (unidirectional): 0.0149827
+Total communication (average so far): 0.00251831
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+68th starting vertex was 2234342
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 103
+Number of edges traversed in one direction: 78
+BFS time: 0.00221395 seconds
+MTEPS (bidirectional): 0.0465231
+MTEPS (unidirectional): 0.0352311
+Total communication (average so far): 0.00248317
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+69th starting vertex was 2175614
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 176
+Number of edges traversed in one direction: 13
+BFS time: 0.00187898 seconds
+MTEPS (bidirectional): 0.093668
+MTEPS (unidirectional): 0.00691866
+Total communication (average so far): 0.00244969
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+70th starting vertex was 1418038
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 28
+Number of edges traversed in one direction: 19
+BFS time: 0.00233006 seconds
+MTEPS (bidirectional): 0.0120168
+MTEPS (unidirectional): 0.00815428
+Total communication (average so far): 0.00241614
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+71th starting vertex was 3902268
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 10
+Number of edges traversed in one direction: 10
+BFS time: 0.00234294 seconds
+MTEPS (bidirectional): 0.00426814
+MTEPS (unidirectional): 0.00426814
+Total communication (average so far): 0.00238359
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+72th starting vertex was 1272056
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 60
+Number of edges traversed in one direction: 56
+BFS time: 0.00264096 seconds
+MTEPS (bidirectional): 0.022719
+MTEPS (unidirectional): 0.0212044
+Total communication (average so far): 0.00235196
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+73th starting vertex was 1216313
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 507
+Number of edges traversed in one direction: 28
+BFS time: 0.00214219 seconds
+MTEPS (bidirectional): 0.236674
+MTEPS (unidirectional): 0.0130707
+Total communication (average so far): 0.00232175
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+74th starting vertex was 2412043
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 88
+Number of edges traversed in one direction: 22
+BFS time: 0.00249696 seconds
+MTEPS (bidirectional): 0.0352429
+MTEPS (unidirectional): 0.00881072
+Total communication (average so far): 0.00229194
+As a whole, Incoming edges traversed per vertex has: 6 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 6 nonzeros and length 4297477
+75th starting vertex was 910644
+Number iterations: 4
+Number of vertices found: 6
+Number of edges traversed in both directions: 4078
+Number of edges traversed in one direction: 1533
+BFS time: 0.00909615 seconds
+MTEPS (bidirectional): 0.448322
+MTEPS (unidirectional): 0.168533
+Total communication (average so far): 0.00226681
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+76th starting vertex was 423601
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 130
+Number of edges traversed in one direction: 108
+BFS time: 0.00255394 seconds
+MTEPS (bidirectional): 0.0509017
+MTEPS (unidirectional): 0.0422876
+Total communication (average so far): 0.00223867
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+77th starting vertex was 354912
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1167
+Number of edges traversed in one direction: 632
+BFS time: 0.0020318 seconds
+MTEPS (bidirectional): 0.574367
+MTEPS (unidirectional): 0.311054
+Total communication (average so far): 0.00221208
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+78th starting vertex was 646333
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 58
+Number of edges traversed in one direction: 44
+BFS time: 0.00240111 seconds
+MTEPS (bidirectional): 0.0241555
+MTEPS (unidirectional): 0.0183248
+Total communication (average so far): 0.0021852
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+79th starting vertex was 3786773
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00199986 seconds
+MTEPS (bidirectional): 0.000500036
+MTEPS (unidirectional): 0.000500036
+Total communication (average so far): 0.00215865
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+80th starting vertex was 1833279
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 36
+Number of edges traversed in one direction: 8
+BFS time: 0.00290608 seconds
+MTEPS (bidirectional): 0.0123878
+MTEPS (unidirectional): 0.00275285
+Total communication (average so far): 0.00213471
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+81th starting vertex was 2825823
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 3
+BFS time: 0.00219893 seconds
+MTEPS (bidirectional): 0.00318336
+MTEPS (unidirectional): 0.0013643
+Total communication (average so far): 0.00210948
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+82th starting vertex was 2332180
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 136
+Number of edges traversed in one direction: 45
+BFS time: 0.00239801 seconds
+MTEPS (bidirectional): 0.0567136
+MTEPS (unidirectional): 0.0187655
+Total communication (average so far): 0.00208513
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+83th starting vertex was 2133048
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00244904 seconds
+MTEPS (bidirectional): 0.000408324
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00206107
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+84th starting vertex was 262093
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 23
+BFS time: 0.00248098 seconds
+MTEPS (bidirectional): 0.00967358
+MTEPS (unidirectional): 0.00927052
+Total communication (average so far): 0.00203756
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+85th starting vertex was 902448
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 225
+Number of edges traversed in one direction: 130
+BFS time: 0.00355816 seconds
+MTEPS (bidirectional): 0.063235
+MTEPS (unidirectional): 0.0365357
+Total communication (average so far): 0.00201972
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+86th starting vertex was 3697813
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 125
+Number of edges traversed in one direction: 90
+BFS time: 0.00235009 seconds
+MTEPS (bidirectional): 0.0531894
+MTEPS (unidirectional): 0.0382964
+Total communication (average so far): 0.00199754
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+87th starting vertex was 2220901
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00211501 seconds
+MTEPS (bidirectional): 0.000472811
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00197552
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+88th starting vertex was 1713257
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00248313 seconds
+MTEPS (bidirectional): 0.000805435
+MTEPS (unidirectional): 0.000805435
+Total communication (average so far): 0.00195402
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+89th starting vertex was 35349
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00203896 seconds
+MTEPS (bidirectional): 0.000490447
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00193296
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+90th starting vertex was 2589473
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 73
+Number of edges traversed in one direction: 48
+BFS time: 0.00224519 seconds
+MTEPS (bidirectional): 0.032514
+MTEPS (unidirectional): 0.0213791
+Total communication (average so far): 0.00191258
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+91th starting vertex was 3595488
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 12
+BFS time: 0.00258708 seconds
+MTEPS (bidirectional): 0.00927687
+MTEPS (unidirectional): 0.00463843
+Total communication (average so far): 0.0018925
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+92th starting vertex was 3788462
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 401
+Number of edges traversed in one direction: 195
+BFS time: 0.00211191 seconds
+MTEPS (bidirectional): 0.189875
+MTEPS (unidirectional): 0.0923334
+Total communication (average so far): 0.00187327
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+93th starting vertex was 4129695
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 72
+Number of edges traversed in one direction: 58
+BFS time: 0.00226498 seconds
+MTEPS (bidirectional): 0.0317884
+MTEPS (unidirectional): 0.0256073
+Total communication (average so far): 0.00185412
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+94th starting vertex was 473756
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 17
+Number of edges traversed in one direction: 11
+BFS time: 0.00294495 seconds
+MTEPS (bidirectional): 0.0057726
+MTEPS (unidirectional): 0.00373521
+Total communication (average so far): 0.00183631
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+95th starting vertex was 560353
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 29
+Number of edges traversed in one direction: 17
+BFS time: 0.0022049 seconds
+MTEPS (bidirectional): 0.0131526
+MTEPS (unidirectional): 0.00771012
+Total communication (average so far): 0.00181796
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+96th starting vertex was 3562196
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 285
+Number of edges traversed in one direction: 154
+BFS time: 0.00219297 seconds
+MTEPS (bidirectional): 0.12996
+MTEPS (unidirectional): 0.0702243
+Total communication (average so far): 0.00180029
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+97th starting vertex was 2501287
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 93
+Number of edges traversed in one direction: 82
+BFS time: 0.00215816 seconds
+MTEPS (bidirectional): 0.0430922
+MTEPS (unidirectional): 0.0379952
+Total communication (average so far): 0.00178335
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+98th starting vertex was 2002106
+Number iterations: 20
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.415124 seconds
+MTEPS (bidirectional): 569.856
+MTEPS (unidirectional): 226.799
+Total communication (average so far): 0.00198333
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+99th starting vertex was 932881
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 69
+Number of edges traversed in one direction: 32
+BFS time: 0.00235391 seconds
+MTEPS (bidirectional): 0.029313
+MTEPS (unidirectional): 0.0135944
+Total communication (average so far): 0.0019644
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+100th starting vertex was 900458
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 64
+Number of edges traversed in one direction: 33
+BFS time: 0.00209498 seconds
+MTEPS (bidirectional): 0.0305492
+MTEPS (unidirectional): 0.0157519
+Total communication (average so far): 0.00194567
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+101th starting vertex was 485616
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2774
+Number of edges traversed in one direction: 1791
+BFS time: 0.00267506 seconds
+MTEPS (bidirectional): 1.03699
+MTEPS (unidirectional): 0.669519
+Total communication (average so far): 0.00192776
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+102th starting vertex was 2046053
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 169
+Number of edges traversed in one direction: 0
+BFS time: 0.00235415 seconds
+MTEPS (bidirectional): 0.0717883
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00191002
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+103th starting vertex was 2773766
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 22
+Number of edges traversed in one direction: 10
+BFS time: 0.00206113 seconds
+MTEPS (bidirectional): 0.0106738
+MTEPS (unidirectional): 0.00485171
+Total communication (average so far): 0.00189233
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+104th starting vertex was 255196
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 48
+Number of edges traversed in one direction: 33
+BFS time: 0.00237703 seconds
+MTEPS (bidirectional): 0.0201932
+MTEPS (unidirectional): 0.0138829
+Total communication (average so far): 0.00187493
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+105th starting vertex was 3333034
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 25
+Number of edges traversed in one direction: 12
+BFS time: 0.00234199 seconds
+MTEPS (bidirectional): 0.0106747
+MTEPS (unidirectional): 0.00512386
+Total communication (average so far): 0.00185921
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+106th starting vertex was 2396541
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 16
+Number of edges traversed in one direction: 16
+BFS time: 0.00336504 seconds
+MTEPS (bidirectional): 0.00475477
+MTEPS (unidirectional): 0.00475477
+Total communication (average so far): 0.00184591
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+107th starting vertex was 3041747
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00219011 seconds
+MTEPS (bidirectional): 0.000456597
+MTEPS (unidirectional): 0.000456597
+Total communication (average so far): 0.00182997
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+108th starting vertex was 1242349
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 146
+Number of edges traversed in one direction: 10
+BFS time: 0.00244999 seconds
+MTEPS (bidirectional): 0.0595921
+MTEPS (unidirectional): 0.00408165
+Total communication (average so far): 0.00181403
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+109th starting vertex was 3652136
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 35
+Number of edges traversed in one direction: 18
+BFS time: 0.00228596 seconds
+MTEPS (bidirectional): 0.0153109
+MTEPS (unidirectional): 0.00787416
+Total communication (average so far): 0.00179819
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+110th starting vertex was 4272848
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 36
+Number of edges traversed in one direction: 22
+BFS time: 0.00243807 seconds
+MTEPS (bidirectional): 0.0147658
+MTEPS (unidirectional): 0.00902354
+Total communication (average so far): 0.00178272
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+111th starting vertex was 2505865
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 71
+Number of edges traversed in one direction: 42
+BFS time: 0.00233793 seconds
+MTEPS (bidirectional): 0.0303687
+MTEPS (unidirectional): 0.0179646
+Total communication (average so far): 0.00176759
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+112th starting vertex was 3414377
+Number iterations: 20
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.413371 seconds
+MTEPS (bidirectional): 572.273
+MTEPS (unidirectional): 227.761
+Total communication (average so far): 0.00190872
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+113th starting vertex was 2971922
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00205183 seconds
+MTEPS (bidirectional): 0.00048737
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00189251
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+114th starting vertex was 1646583
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00233102 seconds
+MTEPS (bidirectional): 0.000428997
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00187659
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+115th starting vertex was 2535863
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 9
+Number of edges traversed in one direction: 8
+BFS time: 0.00222683 seconds
+MTEPS (bidirectional): 0.00404162
+MTEPS (unidirectional): 0.00359255
+Total communication (average so far): 0.00186098
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+116th starting vertex was 23312
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 25
+Number of edges traversed in one direction: 17
+BFS time: 0.00216699 seconds
+MTEPS (bidirectional): 0.0115368
+MTEPS (unidirectional): 0.007845
+Total communication (average so far): 0.00184562
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+117th starting vertex was 4119812
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 20
+Number of edges traversed in one direction: 14
+BFS time: 0.00223804 seconds
+MTEPS (bidirectional): 0.00893641
+MTEPS (unidirectional): 0.00625549
+Total communication (average so far): 0.00183062
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+118th starting vertex was 1994056
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00218201 seconds
+MTEPS (bidirectional): 0.000458294
+MTEPS (unidirectional): 0.000458294
+Total communication (average so far): 0.00181574
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+119th starting vertex was 1499860
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00257301 seconds
+MTEPS (bidirectional): 0.000388649
+MTEPS (unidirectional): 0.000388649
+Total communication (average so far): 0.00180121
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+120th starting vertex was 3023052
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00210094 seconds
+MTEPS (bidirectional): 0.000475976
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00178686
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+121th starting vertex was 2390467
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00237799 seconds
+MTEPS (bidirectional): 0.000841048
+MTEPS (unidirectional): 0.000841048
+Total communication (average so far): 0.00177274
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+122th starting vertex was 1223331
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00237298 seconds
+MTEPS (bidirectional): 0.000842822
+MTEPS (unidirectional): 0.000842822
+Total communication (average so far): 0.00175885
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+123th starting vertex was 752371
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 27
+Number of edges traversed in one direction: 19
+BFS time: 0.00253701 seconds
+MTEPS (bidirectional): 0.0106424
+MTEPS (unidirectional): 0.00748912
+Total communication (average so far): 0.00174526
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+124th starting vertex was 244076
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 188
+Number of edges traversed in one direction: 35
+BFS time: 0.00242591 seconds
+MTEPS (bidirectional): 0.0774967
+MTEPS (unidirectional): 0.0144276
+Total communication (average so far): 0.00173203
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+125th starting vertex was 579958
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00225997 seconds
+MTEPS (bidirectional): 0.000442484
+MTEPS (unidirectional): 0.000442484
+Total communication (average so far): 0.00171877
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+126th starting vertex was 3528635
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 4
+BFS time: 0.00208497 seconds
+MTEPS (bidirectional): 0.00335736
+MTEPS (unidirectional): 0.00191849
+Total communication (average so far): 0.00170573
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+127th starting vertex was 4178064
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00389099 seconds
+MTEPS (bidirectional): 0.000257004
+MTEPS (unidirectional): 0.000257004
+Total communication (average so far): 0.00169292
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+128th starting vertex was 2601878
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00225711 seconds
+MTEPS (bidirectional): 0.000886089
+MTEPS (unidirectional): 0.000886089
+Total communication (average so far): 0.00168029
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+129th starting vertex was 3447562
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00228906 seconds
+MTEPS (bidirectional): 0.000436861
+MTEPS (unidirectional): 0.000436861
+Total communication (average so far): 0.00166785
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+130th starting vertex was 736612
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 236
+Number of edges traversed in one direction: 197
+BFS time: 0.00231194 seconds
+MTEPS (bidirectional): 0.102079
+MTEPS (unidirectional): 0.0852096
+Total communication (average so far): 0.0016559
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+131th starting vertex was 918356
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1253
+Number of edges traversed in one direction: 866
+BFS time: 0.00238585 seconds
+MTEPS (bidirectional): 0.525179
+MTEPS (unidirectional): 0.362973
+Total communication (average so far): 0.00164426
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+132th starting vertex was 3884853
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 15
+Number of edges traversed in one direction: 7
+BFS time: 0.00248694 seconds
+MTEPS (bidirectional): 0.0060315
+MTEPS (unidirectional): 0.0028147
+Total communication (average so far): 0.00163243
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+133th starting vertex was 3051548
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1919
+Number of edges traversed in one direction: 1163
+BFS time: 0.00236106 seconds
+MTEPS (bidirectional): 0.812771
+MTEPS (unidirectional): 0.492576
+Total communication (average so far): 0.00162115
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+134th starting vertex was 464319
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 11
+Number of edges traversed in one direction: 4
+BFS time: 0.0025959 seconds
+MTEPS (bidirectional): 0.00423745
+MTEPS (unidirectional): 0.00154089
+Total communication (average so far): 0.00160967
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+135th starting vertex was 3151059
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00214601 seconds
+MTEPS (bidirectional): 0.000465982
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00159873
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+136th starting vertex was 891118
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 80
+Number of edges traversed in one direction: 47
+BFS time: 0.00214291 seconds
+MTEPS (bidirectional): 0.0373325
+MTEPS (unidirectional): 0.0219328
+Total communication (average so far): 0.00158758
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+137th starting vertex was 1048296
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 20
+Number of edges traversed in one direction: 18
+BFS time: 0.002141 seconds
+MTEPS (bidirectional): 0.00934143
+MTEPS (unidirectional): 0.00840729
+Total communication (average so far): 0.00157659
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+138th starting vertex was 2153825
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 4
+BFS time: 0.00201297 seconds
+MTEPS (bidirectional): 0.00198712
+MTEPS (unidirectional): 0.00198712
+Total communication (average so far): 0.00156573
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+139th starting vertex was 1268715
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 17
+Number of edges traversed in one direction: 11
+BFS time: 0.00244403 seconds
+MTEPS (bidirectional): 0.00695573
+MTEPS (unidirectional): 0.00450077
+Total communication (average so far): 0.00155505
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+140th starting vertex was 2106785
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 4
+BFS time: 0.00232601 seconds
+MTEPS (bidirectional): 0.00171968
+MTEPS (unidirectional): 0.00171968
+Total communication (average so far): 0.00154449
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+141th starting vertex was 3628243
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 5
+Number of edges traversed in one direction: 3
+BFS time: 0.00220895 seconds
+MTEPS (bidirectional): 0.00226352
+MTEPS (unidirectional): 0.00135811
+Total communication (average so far): 0.00153407
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+142th starting vertex was 52009
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 12
+Number of edges traversed in one direction: 3
+BFS time: 0.00222707 seconds
+MTEPS (bidirectional): 0.00538825
+MTEPS (unidirectional): 0.00134706
+Total communication (average so far): 0.00152379
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+143th starting vertex was 694326
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00247288 seconds
+MTEPS (bidirectional): 0.000808774
+MTEPS (unidirectional): 0.000808774
+Total communication (average so far): 0.0015137
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+144th starting vertex was 1529340
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.00248408 seconds
+MTEPS (bidirectional): 0.00120769
+MTEPS (unidirectional): 0.00120769
+Total communication (average so far): 0.00150368
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+145th starting vertex was 1194954
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00229692 seconds
+MTEPS (bidirectional): 0.000435365
+MTEPS (unidirectional): 0.000435365
+Total communication (average so far): 0.00149385
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+146th starting vertex was 3929768
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 468
+Number of edges traversed in one direction: 353
+BFS time: 0.00233793 seconds
+MTEPS (bidirectional): 0.200177
+MTEPS (unidirectional): 0.150988
+Total communication (average so far): 0.00148443
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+147th starting vertex was 524014
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3963
+Number of edges traversed in one direction: 1963
+BFS time: 0.00291896 seconds
+MTEPS (bidirectional): 1.35768
+MTEPS (unidirectional): 0.6725
+Total communication (average so far): 0.00147533
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+148th starting vertex was 1543806
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 16
+Number of edges traversed in one direction: 12
+BFS time: 0.00303817 seconds
+MTEPS (bidirectional): 0.00526633
+MTEPS (unidirectional): 0.00394975
+Total communication (average so far): 0.00146589
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+149th starting vertex was 2110818
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 89
+Number of edges traversed in one direction: 64
+BFS time: 0.00234103 seconds
+MTEPS (bidirectional): 0.0380174
+MTEPS (unidirectional): 0.0273384
+Total communication (average so far): 0.00145659
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+150th starting vertex was 2462807
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 47
+Number of edges traversed in one direction: 33
+BFS time: 0.00218987 seconds
+MTEPS (bidirectional): 0.0214624
+MTEPS (unidirectional): 0.0150694
+Total communication (average so far): 0.00144746
+As a whole, Incoming edges traversed per vertex has: 2 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 2 nonzeros and length 4297477
+151th starting vertex was 3350724
+Number iterations: 2
+Number of vertices found: 2
+Number of edges traversed in both directions: 1739
+Number of edges traversed in one direction: 892
+BFS time: 0.00445986 seconds
+MTEPS (bidirectional): 0.389923
+MTEPS (unidirectional): 0.200006
+Total communication (average so far): 0.00143918
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+152th starting vertex was 2006304
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 20
+Number of edges traversed in one direction: 14
+BFS time: 0.00207496 seconds
+MTEPS (bidirectional): 0.00963875
+MTEPS (unidirectional): 0.00674713
+Total communication (average so far): 0.0014302
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+153th starting vertex was 3355575
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00206208 seconds
+MTEPS (bidirectional): 0.000484947
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.0014213
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+154th starting vertex was 523416
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 22
+Number of edges traversed in one direction: 16
+BFS time: 0.00260997 seconds
+MTEPS (bidirectional): 0.00842922
+MTEPS (unidirectional): 0.00613034
+Total communication (average so far): 0.00141258
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+155th starting vertex was 715195
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00240207 seconds
+MTEPS (bidirectional): 0.000416308
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00140393
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+156th starting vertex was 3597685
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 66
+Number of edges traversed in one direction: 42
+BFS time: 0.00232196 seconds
+MTEPS (bidirectional): 0.0284243
+MTEPS (unidirectional): 0.0180882
+Total communication (average so far): 0.00139579
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+157th starting vertex was 630587
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 470
+Number of edges traversed in one direction: 275
+BFS time: 0.00210786 seconds
+MTEPS (bidirectional): 0.222975
+MTEPS (unidirectional): 0.130464
+Total communication (average so far): 0.00138765
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+158th starting vertex was 3993342
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 96
+Number of edges traversed in one direction: 30
+BFS time: 0.00245595 seconds
+MTEPS (bidirectional): 0.0390887
+MTEPS (unidirectional): 0.0122152
+Total communication (average so far): 0.0013794
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+159th starting vertex was 1384074
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00235987 seconds
+MTEPS (bidirectional): 0.000423753
+MTEPS (unidirectional): 0.000423753
+Total communication (average so far): 0.00137117
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+160th starting vertex was 1386362
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 58
+Number of edges traversed in one direction: 42
+BFS time: 0.00195599 seconds
+MTEPS (bidirectional): 0.0296526
+MTEPS (unidirectional): 0.0214725
+Total communication (average so far): 0.00136318
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+161th starting vertex was 644331
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00230503 seconds
+MTEPS (bidirectional): 0.000433834
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00135514
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+162th starting vertex was 3609495
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.0020411 seconds
+MTEPS (bidirectional): 0.00146979
+MTEPS (unidirectional): 0.00146979
+Total communication (average so far): 0.00134722
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+163th starting vertex was 2578935
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 0
+BFS time: 0.00221419 seconds
+MTEPS (bidirectional): 0.000903263
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.0013394
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+164th starting vertex was 2339353
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 5
+BFS time: 0.00231409 seconds
+MTEPS (bidirectional): 0.0133962
+MTEPS (unidirectional): 0.00216068
+Total communication (average so far): 0.00133169
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+165th starting vertex was 3901417
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00210404 seconds
+MTEPS (bidirectional): 0.000475275
+MTEPS (unidirectional): 0.000475275
+Total communication (average so far): 0.00132405
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+166th starting vertex was 4118215
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 473
+Number of edges traversed in one direction: 286
+BFS time: 0.00219202 seconds
+MTEPS (bidirectional): 0.215783
+MTEPS (unidirectional): 0.130473
+Total communication (average so far): 0.00131677
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+167th starting vertex was 727129
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00236511 seconds
+MTEPS (bidirectional): 0.000422813
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00130929
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+168th starting vertex was 959975
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.002882 seconds
+MTEPS (bidirectional): 0.000346981
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00130192
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+169th starting vertex was 2603509
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.00249791 seconds
+MTEPS (bidirectional): 0.001201
+MTEPS (unidirectional): 0.001201
+Total communication (average so far): 0.00129512
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+170th starting vertex was 1406050
+Number iterations: 22
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.417146 seconds
+MTEPS (bidirectional): 567.094
+MTEPS (unidirectional): 225.7
+Total communication (average so far): 0.00139815
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+171th starting vertex was 2608221
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 133
+Number of edges traversed in one direction: 109
+BFS time: 0.00221801 seconds
+MTEPS (bidirectional): 0.0599637
+MTEPS (unidirectional): 0.0491432
+Total communication (average so far): 0.00139054
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+172th starting vertex was 2413446
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1672
+Number of edges traversed in one direction: 1115
+BFS time: 0.00245905 seconds
+MTEPS (bidirectional): 0.679938
+MTEPS (unidirectional): 0.453427
+Total communication (average so far): 0.00138314
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+173th starting vertex was 2889236
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00225592 seconds
+MTEPS (bidirectional): 0.000443279
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00137558
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+174th starting vertex was 3372015
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 15
+Number of edges traversed in one direction: 9
+BFS time: 0.00222588 seconds
+MTEPS (bidirectional): 0.00673892
+MTEPS (unidirectional): 0.00404335
+Total communication (average so far): 0.00136814
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+175th starting vertex was 2268234
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00215006 seconds
+MTEPS (bidirectional): 0.000465104
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00136072
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+176th starting vertex was 3730478
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 23
+BFS time: 0.00235796 seconds
+MTEPS (bidirectional): 0.013147
+MTEPS (unidirectional): 0.0097542
+Total communication (average so far): 0.00135341
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+177th starting vertex was 3556422
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 97
+Number of edges traversed in one direction: 46
+BFS time: 0.001827 seconds
+MTEPS (bidirectional): 0.0530925
+MTEPS (unidirectional): 0.0251779
+Total communication (average so far): 0.00134624
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+178th starting vertex was 2178214
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 77
+Number of edges traversed in one direction: 63
+BFS time: 0.00201511 seconds
+MTEPS (bidirectional): 0.0382112
+MTEPS (unidirectional): 0.0312637
+Total communication (average so far): 0.00133914
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+179th starting vertex was 806866
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00183511 seconds
+MTEPS (bidirectional): 0.000544927
+MTEPS (unidirectional): 0.000544927
+Total communication (average so far): 0.00133204
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+180th starting vertex was 1970421
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00208187 seconds
+MTEPS (bidirectional): 0.000480337
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00132503
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+181th starting vertex was 2584166
+Number iterations: 23
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.433276 seconds
+MTEPS (bidirectional): 545.982
+MTEPS (unidirectional): 217.297
+Total communication (average so far): 0.00141496
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+182th starting vertex was 2594884
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.00215793 seconds
+MTEPS (bidirectional): 0.00139022
+MTEPS (unidirectional): 0.00139022
+Total communication (average so far): 0.00140758
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+183th starting vertex was 1579815
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 8
+Number of edges traversed in one direction: 5
+BFS time: 0.00251818 seconds
+MTEPS (bidirectional): 0.0031769
+MTEPS (unidirectional): 0.00198556
+Total communication (average so far): 0.00140029
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+184th starting vertex was 1537709
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 110
+Number of edges traversed in one direction: 53
+BFS time: 0.00208187 seconds
+MTEPS (bidirectional): 0.0528371
+MTEPS (unidirectional): 0.0254579
+Total communication (average so far): 0.00139324
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+185th starting vertex was 4220954
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 13
+Number of edges traversed in one direction: 9
+BFS time: 0.00427508 seconds
+MTEPS (bidirectional): 0.00304088
+MTEPS (unidirectional): 0.00210522
+Total communication (average so far): 0.00138613
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+186th starting vertex was 3861542
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00222611 seconds
+MTEPS (bidirectional): 0.000898426
+MTEPS (unidirectional): 0.000898426
+Total communication (average so far): 0.00137906
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+187th starting vertex was 3235761
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00197387 seconds
+MTEPS (bidirectional): 0.00050662
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00137206
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+188th starting vertex was 3679278
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.0022459 seconds
+MTEPS (bidirectional): 0.000445255
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00136512
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+189th starting vertex was 4142448
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 26
+Number of edges traversed in one direction: 16
+BFS time: 0.00218201 seconds
+MTEPS (bidirectional): 0.0119156
+MTEPS (unidirectional): 0.0073327
+Total communication (average so far): 0.00135829
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+190th starting vertex was 3647038
+Number iterations: 21
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.415771 seconds
+MTEPS (bidirectional): 568.969
+MTEPS (unidirectional): 226.446
+Total communication (average so far): 0.00145034
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+191th starting vertex was 1480222
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00237298 seconds
+MTEPS (bidirectional): 0.000421411
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00144311
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+192th starting vertex was 3293693
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 21
+Number of edges traversed in one direction: 11
+BFS time: 0.00205803 seconds
+MTEPS (bidirectional): 0.0102039
+MTEPS (unidirectional): 0.00534492
+Total communication (average so far): 0.00143601
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+193th starting vertex was 808325
+Number iterations: 23
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.423517 seconds
+MTEPS (bidirectional): 558.563
+MTEPS (unidirectional): 222.304
+Total communication (average so far): 0.00152351
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+194th starting vertex was 3710325
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 8
+Number of edges traversed in one direction: 8
+BFS time: 0.00218892 seconds
+MTEPS (bidirectional): 0.00365477
+MTEPS (unidirectional): 0.00365477
+Total communication (average so far): 0.00151605
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+195th starting vertex was 1675197
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 0
+BFS time: 0.00234699 seconds
+MTEPS (bidirectional): 0.00127823
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00150864
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+196th starting vertex was 189464
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 42
+Number of edges traversed in one direction: 19
+BFS time: 0.00227809 seconds
+MTEPS (bidirectional): 0.0184365
+MTEPS (unidirectional): 0.00834032
+Total communication (average so far): 0.00150134
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+197th starting vertex was 3564900
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 7
+Number of edges traversed in one direction: 7
+BFS time: 0.00196505 seconds
+MTEPS (bidirectional): 0.00356226
+MTEPS (unidirectional): 0.00356226
+Total communication (average so far): 0.00149407
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+198th starting vertex was 102486
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.00209308 seconds
+MTEPS (bidirectional): 0.0014333
+MTEPS (unidirectional): 0.0014333
+Total communication (average so far): 0.00148688
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+199th starting vertex was 3085228
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00228596 seconds
+MTEPS (bidirectional): 0.000437453
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00148031
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+200th starting vertex was 1523823
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 45
+Number of edges traversed in one direction: 39
+BFS time: 0.00244093 seconds
+MTEPS (bidirectional): 0.0184356
+MTEPS (unidirectional): 0.0159775
+Total communication (average so far): 0.00147332
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+201th starting vertex was 3274985
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00206709 seconds
+MTEPS (bidirectional): 0.000483772
+MTEPS (unidirectional): 0.000483772
+Total communication (average so far): 0.00146633
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+202th starting vertex was 2483377
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 15
+Number of edges traversed in one direction: 8
+BFS time: 0.00209904 seconds
+MTEPS (bidirectional): 0.00714613
+MTEPS (unidirectional): 0.00381127
+Total communication (average so far): 0.00145942
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+203th starting vertex was 3822419
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 13
+Number of edges traversed in one direction: 8
+BFS time: 0.00212097 seconds
+MTEPS (bidirectional): 0.00612927
+MTEPS (unidirectional): 0.00377186
+Total communication (average so far): 0.0014526
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+204th starting vertex was 2167840
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 2
+BFS time: 0.00214386 seconds
+MTEPS (bidirectional): 0.00139935
+MTEPS (unidirectional): 0.000932897
+Total communication (average so far): 0.00144583
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+205th starting vertex was 1139250
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00377297 seconds
+MTEPS (bidirectional): 0.000265043
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00144012
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+206th starting vertex was 1557909
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 145
+Number of edges traversed in one direction: 92
+BFS time: 0.00256705 seconds
+MTEPS (bidirectional): 0.056485
+MTEPS (unidirectional): 0.0358388
+Total communication (average so far): 0.00143361
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+207th starting vertex was 2644022
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 124
+Number of edges traversed in one direction: 42
+BFS time: 0.00230408 seconds
+MTEPS (bidirectional): 0.0538176
+MTEPS (unidirectional): 0.0182286
+Total communication (average so far): 0.00142715
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+208th starting vertex was 3432393
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 38
+Number of edges traversed in one direction: 13
+BFS time: 0.00236702 seconds
+MTEPS (bidirectional): 0.0160539
+MTEPS (unidirectional): 0.00549214
+Total communication (average so far): 0.00142065
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+209th starting vertex was 980586
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 23
+Number of edges traversed in one direction: 20
+BFS time: 0.0023582 seconds
+MTEPS (bidirectional): 0.00975321
+MTEPS (unidirectional): 0.00848105
+Total communication (average so far): 0.00141423
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+210th starting vertex was 144169
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 130
+Number of edges traversed in one direction: 53
+BFS time: 0.00239801 seconds
+MTEPS (bidirectional): 0.0542115
+MTEPS (unidirectional): 0.0221016
+Total communication (average so far): 0.00140787
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+211th starting vertex was 3362494
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 25
+BFS time: 0.0021379 seconds
+MTEPS (bidirectional): 0.0145002
+MTEPS (unidirectional): 0.0116937
+Total communication (average so far): 0.00140159
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+212th starting vertex was 3110276
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00227809 seconds
+MTEPS (bidirectional): 0.000438964
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00139531
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+213th starting vertex was 2264079
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 25
+Number of edges traversed in one direction: 15
+BFS time: 0.00219202 seconds
+MTEPS (bidirectional): 0.011405
+MTEPS (unidirectional): 0.006843
+Total communication (average so far): 0.00138911
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+214th starting vertex was 3376560
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 220
+Number of edges traversed in one direction: 126
+BFS time: 0.002249 seconds
+MTEPS (bidirectional): 0.0978211
+MTEPS (unidirectional): 0.0560248
+Total communication (average so far): 0.00138304
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+215th starting vertex was 787523
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.002527 seconds
+MTEPS (bidirectional): 0.000395726
+MTEPS (unidirectional): 0.000395726
+Total communication (average so far): 0.00137694
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+216th starting vertex was 1765718
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00256896 seconds
+MTEPS (bidirectional): 0.000389263
+MTEPS (unidirectional): 0.000389263
+Total communication (average so far): 0.0013709
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+217th starting vertex was 448838
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 83
+Number of edges traversed in one direction: 42
+BFS time: 0.00249696 seconds
+MTEPS (bidirectional): 0.0332404
+MTEPS (unidirectional): 0.0168205
+Total communication (average so far): 0.00136493
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+218th starting vertex was 3014651
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 553
+Number of edges traversed in one direction: 412
+BFS time: 0.002141 seconds
+MTEPS (bidirectional): 0.258291
+MTEPS (unidirectional): 0.192434
+Total communication (average so far): 0.00135922
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+219th starting vertex was 1063393
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 21
+BFS time: 0.00248313 seconds
+MTEPS (bidirectional): 0.0124842
+MTEPS (unidirectional): 0.00845707
+Total communication (average so far): 0.00135339
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+220th starting vertex was 4005638
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00236988 seconds
+MTEPS (bidirectional): 0.000421962
+MTEPS (unidirectional): 0.000421962
+Total communication (average so far): 0.00134755
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+221th starting vertex was 3705696
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 74
+Number of edges traversed in one direction: 18
+BFS time: 0.00233006 seconds
+MTEPS (bidirectional): 0.0317588
+MTEPS (unidirectional): 0.00772511
+Total communication (average so far): 0.00134182
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+222th starting vertex was 1805386
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 3
+BFS time: 0.00248599 seconds
+MTEPS (bidirectional): 0.00160902
+MTEPS (unidirectional): 0.00120676
+Total communication (average so far): 0.00133609
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+223th starting vertex was 1619405
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 14
+Number of edges traversed in one direction: 9
+BFS time: 0.00280595 seconds
+MTEPS (bidirectional): 0.0049894
+MTEPS (unidirectional): 0.00320747
+Total communication (average so far): 0.00133176
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+224th starting vertex was 312598
+Number iterations: 22
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.419258 seconds
+MTEPS (bidirectional): 564.237
+MTEPS (unidirectional): 224.563
+Total communication (average so far): 0.00140657
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+225th starting vertex was 1103948
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00354099 seconds
+MTEPS (bidirectional): 0.000282407
+MTEPS (unidirectional): 0.000282407
+Total communication (average so far): 0.0014025
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+226th starting vertex was 1131037
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 0
+BFS time: 0.00195408 seconds
+MTEPS (bidirectional): 0.002047
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00139664
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+227th starting vertex was 949282
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 301
+Number of edges traversed in one direction: 189
+BFS time: 0.00228405 seconds
+MTEPS (bidirectional): 0.131783
+MTEPS (unidirectional): 0.0827478
+Total communication (average so far): 0.00139099
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+228th starting vertex was 4102594
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 132
+Number of edges traversed in one direction: 57
+BFS time: 0.00217605 seconds
+MTEPS (bidirectional): 0.0606605
+MTEPS (unidirectional): 0.0261943
+Total communication (average so far): 0.00138552
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+229th starting vertex was 374343
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 0
+BFS time: 0.00248384 seconds
+MTEPS (bidirectional): 0.000805203
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.0013799
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+230th starting vertex was 2519489
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 522
+Number of edges traversed in one direction: 284
+BFS time: 0.00214195 seconds
+MTEPS (bidirectional): 0.243703
+MTEPS (unidirectional): 0.132589
+Total communication (average so far): 0.00137439
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+231th starting vertex was 3762248
+Number iterations: 23
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.42124 seconds
+MTEPS (bidirectional): 561.582
+MTEPS (unidirectional): 223.506
+Total communication (average so far): 0.00145213
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+232th starting vertex was 2773531
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 42
+Number of edges traversed in one direction: 32
+BFS time: 0.00199318 seconds
+MTEPS (bidirectional): 0.0210719
+MTEPS (unidirectional): 0.0160548
+Total communication (average so far): 0.00144621
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+233th starting vertex was 2631770
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 55
+Number of edges traversed in one direction: 46
+BFS time: 0.00225115 seconds
+MTEPS (bidirectional): 0.024432
+MTEPS (unidirectional): 0.020434
+Total communication (average so far): 0.00144033
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+234th starting vertex was 2496076
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 152
+Number of edges traversed in one direction: 99
+BFS time: 0.00188804 seconds
+MTEPS (bidirectional): 0.0805069
+MTEPS (unidirectional): 0.0524354
+Total communication (average so far): 0.0014346
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+235th starting vertex was 2384509
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 1
+BFS time: 0.00237203 seconds
+MTEPS (bidirectional): 0.000843161
+MTEPS (unidirectional): 0.00042158
+Total communication (average so far): 0.00142886
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+236th starting vertex was 3838042
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 19
+Number of edges traversed in one direction: 18
+BFS time: 0.00221896 seconds
+MTEPS (bidirectional): 0.00856256
+MTEPS (unidirectional): 0.0081119
+Total communication (average so far): 0.00142313
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+237th starting vertex was 918355
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2
+Number of edges traversed in one direction: 2
+BFS time: 0.00209594 seconds
+MTEPS (bidirectional): 0.000954227
+MTEPS (unidirectional): 0.000954227
+Total communication (average so far): 0.00141743
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+238th starting vertex was 421115
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 56
+Number of edges traversed in one direction: 29
+BFS time: 0.00249791 seconds
+MTEPS (bidirectional): 0.0224187
+MTEPS (unidirectional): 0.0116097
+Total communication (average so far): 0.00141185
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+239th starting vertex was 1355859
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 421
+Number of edges traversed in one direction: 239
+BFS time: 0.00237989 seconds
+MTEPS (bidirectional): 0.176899
+MTEPS (unidirectional): 0.100425
+Total communication (average so far): 0.00140644
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+240th starting vertex was 3394429
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00237393 seconds
+MTEPS (bidirectional): 0.000421242
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00140086
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+241th starting vertex was 2635141
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 354
+Number of edges traversed in one direction: 233
+BFS time: 0.00247502 seconds
+MTEPS (bidirectional): 0.143029
+MTEPS (unidirectional): 0.0941405
+Total communication (average so far): 0.00139551
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+242th starting vertex was 1848165
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00277209 seconds
+MTEPS (bidirectional): 0.000360738
+MTEPS (unidirectional): 0.000360738
+Total communication (average so far): 0.00139005
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+243th starting vertex was 1966976
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 47
+Number of edges traversed in one direction: 28
+BFS time: 0.00222778 seconds
+MTEPS (bidirectional): 0.0210972
+MTEPS (unidirectional): 0.0125685
+Total communication (average so far): 0.00138466
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+244th starting vertex was 1039252
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 25
+Number of edges traversed in one direction: 9
+BFS time: 0.00260782 seconds
+MTEPS (bidirectional): 0.00958654
+MTEPS (unidirectional): 0.00345116
+Total communication (average so far): 0.00137933
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+245th starting vertex was 3592454
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 18
+Number of edges traversed in one direction: 8
+BFS time: 0.00257397 seconds
+MTEPS (bidirectional): 0.0069931
+MTEPS (unidirectional): 0.00310804
+Total communication (average so far): 0.00137402
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+246th starting vertex was 4191048
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 4
+Number of edges traversed in one direction: 2
+BFS time: 0.00240302 seconds
+MTEPS (bidirectional): 0.00166457
+MTEPS (unidirectional): 0.000832286
+Total communication (average so far): 0.00136872
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+247th starting vertex was 3105604
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00222611 seconds
+MTEPS (bidirectional): 0.000449213
+MTEPS (unidirectional): 0.000449213
+Total communication (average so far): 0.00136346
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+248th starting vertex was 3591455
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 29
+Number of edges traversed in one direction: 18
+BFS time: 0.00215507 seconds
+MTEPS (bidirectional): 0.0134567
+MTEPS (unidirectional): 0.00835241
+Total communication (average so far): 0.00135827
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+249th starting vertex was 1240033
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 73
+Number of edges traversed in one direction: 43
+BFS time: 0.00243497 seconds
+MTEPS (bidirectional): 0.0299798
+MTEPS (unidirectional): 0.0176594
+Total communication (average so far): 0.00135318
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+250th starting vertex was 2374816
+Number iterations: 22
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.424501 seconds
+MTEPS (bidirectional): 557.268
+MTEPS (unidirectional): 221.789
+Total communication (average so far): 0.00142153
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+251th starting vertex was 3977759
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 21
+BFS time: 0.00231314 seconds
+MTEPS (bidirectional): 0.0103755
+MTEPS (unidirectional): 0.00907858
+Total communication (average so far): 0.00141615
+As a whole, Incoming edges traversed per vertex has: 2 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 2 nonzeros and length 4297477
+252th starting vertex was 981157
+Number iterations: 2
+Number of vertices found: 2
+Number of edges traversed in both directions: 113
+Number of edges traversed in one direction: 61
+BFS time: 0.00474405 seconds
+MTEPS (bidirectional): 0.0238193
+MTEPS (unidirectional): 0.0128582
+Total communication (average so far): 0.00141126
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+253th starting vertex was 1676893
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 35
+Number of edges traversed in one direction: 31
+BFS time: 0.00234914 seconds
+MTEPS (bidirectional): 0.0148991
+MTEPS (unidirectional): 0.0131963
+Total communication (average so far): 0.00140613
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+254th starting vertex was 2361993
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 26
+Number of edges traversed in one direction: 13
+BFS time: 0.00233984 seconds
+MTEPS (bidirectional): 0.0111119
+MTEPS (unidirectional): 0.00555594
+Total communication (average so far): 0.00140087
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+255th starting vertex was 2641631
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 24
+Number of edges traversed in one direction: 19
+BFS time: 0.00243402 seconds
+MTEPS (bidirectional): 0.00986025
+MTEPS (unidirectional): 0.00780603
+Total communication (average so far): 0.0013957
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+256th starting vertex was 2019924
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 30
+Number of edges traversed in one direction: 10
+BFS time: 0.00219107 seconds
+MTEPS (bidirectional): 0.013692
+MTEPS (unidirectional): 0.00456399
+Total communication (average so far): 0.00139054
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+257th starting vertex was 1268942
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 54
+Number of edges traversed in one direction: 36
+BFS time: 0.00250816 seconds
+MTEPS (bidirectional): 0.0215297
+MTEPS (unidirectional): 0.0143531
+Total communication (average so far): 0.0013855
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+258th starting vertex was 900946
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 122
+Number of edges traversed in one direction: 65
+BFS time: 0.00221419 seconds
+MTEPS (bidirectional): 0.0550991
+MTEPS (unidirectional): 0.0293561
+Total communication (average so far): 0.00138044
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+259th starting vertex was 2778710
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 79
+Number of edges traversed in one direction: 27
+BFS time: 0.00213814 seconds
+MTEPS (bidirectional): 0.036948
+MTEPS (unidirectional): 0.0126278
+Total communication (average so far): 0.00137543
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+260th starting vertex was 2333942
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 2404
+Number of edges traversed in one direction: 1411
+BFS time: 0.00255609 seconds
+MTEPS (bidirectional): 0.940501
+MTEPS (unidirectional): 0.552016
+Total communication (average so far): 0.00137061
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+261th starting vertex was 3528407
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 626
+Number of edges traversed in one direction: 357
+BFS time: 0.00223112 seconds
+MTEPS (bidirectional): 0.280576
+MTEPS (unidirectional): 0.160009
+Total communication (average so far): 0.00136579
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+262th starting vertex was 1422336
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 145
+Number of edges traversed in one direction: 89
+BFS time: 0.00254202 seconds
+MTEPS (bidirectional): 0.0570413
+MTEPS (unidirectional): 0.0350115
+Total communication (average so far): 0.00136091
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+263th starting vertex was 284018
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 3
+BFS time: 0.00286412 seconds
+MTEPS (bidirectional): 0.00104744
+MTEPS (unidirectional): 0.00104744
+Total communication (average so far): 0.00135599
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+264th starting vertex was 3063460
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 6
+Number of edges traversed in one direction: 0
+BFS time: 0.00213599 seconds
+MTEPS (bidirectional): 0.002809
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00135113
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+265th starting vertex was 3965925
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 43
+Number of edges traversed in one direction: 30
+BFS time: 0.00245714 seconds
+MTEPS (bidirectional): 0.0175
+MTEPS (unidirectional): 0.0122093
+Total communication (average so far): 0.00134633
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+266th starting vertex was 4033033
+Number iterations: 22
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.417545 seconds
+MTEPS (bidirectional): 566.552
+MTEPS (unidirectional): 225.484
+Total communication (average so far): 0.00140862
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+267th starting vertex was 2512313
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 93
+Number of edges traversed in one direction: 92
+BFS time: 0.00204086 seconds
+MTEPS (bidirectional): 0.045569
+MTEPS (unidirectional): 0.045079
+Total communication (average so far): 0.00140368
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+268th starting vertex was 3983175
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 51
+Number of edges traversed in one direction: 33
+BFS time: 0.00242805 seconds
+MTEPS (bidirectional): 0.0210045
+MTEPS (unidirectional): 0.0135911
+Total communication (average so far): 0.00139916
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+269th starting vertex was 3175060
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 569
+Number of edges traversed in one direction: 341
+BFS time: 0.002496 seconds
+MTEPS (bidirectional): 0.227964
+MTEPS (unidirectional): 0.136618
+Total communication (average so far): 0.00139443
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+270th starting vertex was 1521589
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 311
+Number of edges traversed in one direction: 69
+BFS time: 0.00257802 seconds
+MTEPS (bidirectional): 0.120635
+MTEPS (unidirectional): 0.0267647
+Total communication (average so far): 0.00138971
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+271th starting vertex was 3780611
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 99
+Number of edges traversed in one direction: 80
+BFS time: 0.0021081 seconds
+MTEPS (bidirectional): 0.0469618
+MTEPS (unidirectional): 0.0379489
+Total communication (average so far): 0.00138495
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+272th starting vertex was 880496
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 17
+Number of edges traversed in one direction: 7
+BFS time: 0.00222492 seconds
+MTEPS (bidirectional): 0.00764072
+MTEPS (unidirectional): 0.00314618
+Total communication (average so far): 0.00138031
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+273th starting vertex was 3521681
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 0
+BFS time: 0.002105 seconds
+MTEPS (bidirectional): 0.00142518
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00137567
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+274th starting vertex was 4099887
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00227189 seconds
+MTEPS (bidirectional): 0.000440162
+MTEPS (unidirectional): 0.000440162
+Total communication (average so far): 0.00137137
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+275th starting vertex was 4070274
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 49
+Number of edges traversed in one direction: 33
+BFS time: 0.00182986 seconds
+MTEPS (bidirectional): 0.026778
+MTEPS (unidirectional): 0.0180341
+Total communication (average so far): 0.00136667
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+276th starting vertex was 1680961
+Number iterations: 21
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.418745 seconds
+MTEPS (bidirectional): 564.928
+MTEPS (unidirectional): 224.838
+Total communication (average so far): 0.00142773
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+277th starting vertex was 3763953
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 37
+Number of edges traversed in one direction: 35
+BFS time: 0.00234199 seconds
+MTEPS (bidirectional): 0.0157986
+MTEPS (unidirectional): 0.0149446
+Total communication (average so far): 0.00142312
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+278th starting vertex was 4218222
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 41
+Number of edges traversed in one direction: 32
+BFS time: 0.00231004 seconds
+MTEPS (bidirectional): 0.0177486
+MTEPS (unidirectional): 0.0138526
+Total communication (average so far): 0.0014183
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+279th starting vertex was 2875698
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 19
+Number of edges traversed in one direction: 16
+BFS time: 0.00233293 seconds
+MTEPS (bidirectional): 0.00814428
+MTEPS (unidirectional): 0.00685834
+Total communication (average so far): 0.00141347
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+280th starting vertex was 1023729
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 0
+BFS time: 0.00235796 seconds
+MTEPS (bidirectional): 0.000424095
+MTEPS (unidirectional): 0
+Total communication (average so far): 0.00140867
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+281th starting vertex was 1911039
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 11
+Number of edges traversed in one direction: 11
+BFS time: 0.00212598 seconds
+MTEPS (bidirectional): 0.00517409
+MTEPS (unidirectional): 0.00517409
+Total communication (average so far): 0.0014039
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+282th starting vertex was 1171712
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 28
+Number of edges traversed in one direction: 20
+BFS time: 0.00240183 seconds
+MTEPS (bidirectional): 0.0116578
+MTEPS (unidirectional): 0.00832699
+Total communication (average so far): 0.00139921
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+283th starting vertex was 690591
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 3
+Number of edges traversed in one direction: 2
+BFS time: 0.0023849 seconds
+MTEPS (bidirectional): 0.00125791
+MTEPS (unidirectional): 0.000838609
+Total communication (average so far): 0.00139451
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+284th starting vertex was 2715031
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 27
+Number of edges traversed in one direction: 16
+BFS time: 0.00261092 seconds
+MTEPS (bidirectional): 0.0103412
+MTEPS (unidirectional): 0.0061281
+Total communication (average so far): 0.00138983
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+285th starting vertex was 934071
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 25
+Number of edges traversed in one direction: 15
+BFS time: 0.00228095 seconds
+MTEPS (bidirectional): 0.0109603
+MTEPS (unidirectional): 0.00657621
+Total communication (average so far): 0.00138522
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+286th starting vertex was 4252030
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 31
+Number of edges traversed in one direction: 22
+BFS time: 0.00232601 seconds
+MTEPS (bidirectional): 0.0133275
+MTEPS (unidirectional): 0.00945825
+Total communication (average so far): 0.00138062
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+287th starting vertex was 2302509
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 960
+Number of edges traversed in one direction: 651
+BFS time: 0.002352 seconds
+MTEPS (bidirectional): 0.408163
+MTEPS (unidirectional): 0.276786
+Total communication (average so far): 0.00137625
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+288th starting vertex was 1770737
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 119
+Number of edges traversed in one direction: 69
+BFS time: 0.00286603 seconds
+MTEPS (bidirectional): 0.0415209
+MTEPS (unidirectional): 0.0240751
+Total communication (average so far): 0.00137178
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+289th starting vertex was 2553723
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 287
+Number of edges traversed in one direction: 164
+BFS time: 0.00235295 seconds
+MTEPS (bidirectional): 0.121974
+MTEPS (unidirectional): 0.0696997
+Total communication (average so far): 0.00136735
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+290th starting vertex was 4118450
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00197506 seconds
+MTEPS (bidirectional): 0.000506314
+MTEPS (unidirectional): 0.000506314
+Total communication (average so far): 0.00136285
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+291th starting vertex was 2574024
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 1
+Number of edges traversed in one direction: 1
+BFS time: 0.00193596 seconds
+MTEPS (bidirectional): 0.00051654
+MTEPS (unidirectional): 0.00051654
+Total communication (average so far): 0.0013584
+As a whole, Incoming edges traversed per vertex has: 1 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 1 nonzeros and length 4297477
+292th starting vertex was 3913982
+Number iterations: 1
+Number of vertices found: 1
+Number of edges traversed in both directions: 73
+Number of edges traversed in one direction: 35
+BFS time: 0.00236678 seconds
+MTEPS (bidirectional): 0.0308436
+MTEPS (unidirectional): 0.014788
+Total communication (average so far): 0.00135404
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+293th starting vertex was 3868318
+Number iterations: 22
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.411978 seconds
+MTEPS (bidirectional): 574.208
+MTEPS (unidirectional): 228.531
+Total communication (average so far): 0.00140747
+As a whole, Incoming edges traversed per vertex has: 244386 nonzeros and length 4297477
+As a whole, Outgoing edges traversed per vertex has: 244386 nonzeros and length 4297477
+294th starting vertex was 939977
+Number iterations: 21
+Number of vertices found: 244386
+Number of edges traversed in both directions: 236560982
+Number of edges traversed in one direction: 94149650
+BFS time: 0.410413 seconds
+MTEPS (bidirectional): 576.397
+MTEPS (unidirectional): 229.402
+Total communication (average so far): 0.00145904
+16 valid runs done
+Per iteration communication times: 
+AllGatherv: 0.00383909
+AlltoAllv: 0.023062
+--------------------------
+Min nedges: 9.41496e+07
+Median nedges: 9.41496e+07
+Max nedges: 9.41496e+07
+Mean nedges: 9.41496e+07
+STDDEV nedges: 0
+--------------------------
+Min time: 0.410413 seconds
+Median time: 0.418145 seconds
+Max time: 0.558028 seconds
+Mean time: 0.427504 seconds
+STDDEV time: 0.0352467 seconds
+--------------------------
+Min MTEPS: 168.719
+Median MTEPS: 225.161
+Max MTEPS: 229.402
+Harmonic mean of MTEPS: 220.231
+Harmonic standard deviation of MTEPS: 18.1575
+Application 5250384 resources: utime ~284414s, stime ~2151s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script256_filtered_medium
+ +          Job Id: 1173339.sdb
+ +          System: hopper
+ +     Queued Time: Sun Jan 15 16:41:37 2012
+ +      Start Time: Sun Jan 15 16:42:43 2012
+ + Completion Time: Sun Jan 15 17:01:30 2012
+ +            User: abuluc
+ +        MOM Host: nid04942
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:22382:hopper03,walltime=00:30:00
+ +  Used Resources: cput=00:00:01,mem=5664kb,vmem=36740kb,walltime=00:18:47
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script256_filtered_medium
+ + --------------------------------------------------------------------------
+

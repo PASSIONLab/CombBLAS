@@ -1,0 +1,968 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 25
+graph_generation:               3.817570 s
+Generated renamed edge lists
+Duplicates removed (or summed): 13265430 and self-loops removed: 0
+Created sparse matrix with boolean edges
+I/O (or generation) took 9.40096 seconds
+As a whole: 33554432 rows and 33554432 columns and 523605482 nonzeros
+As a whole: 33554432 rows and 33554432 columns and 5290967 nonzeros
+As a whole: 33554432 rows and 33554432 columns and 52408337 nonzeros
+As a whole: 33554432 rows and 33554432 columns and 130943551 nonzeros
+As a whole: 33554432 rows and 33554432 columns and 523605482 nonzeros
+All degrees calculated
+Found (and permuted) non-isolated vertices
+Creating a new MPI data type for 11TwitterEdge
+Dropped isolated vertices from input
+As a whole: 17060737 rows and 17060737 columns and 523605482 nonzeros
+As a whole: 17060737 rows and 17060737 columns and 1047209663 nonzeros
+Load balance: 1.02988
+Initializing since date (only once) to 100
+Creating a new MPI data type for 10ParentType
+10th starting vertex was 6614330
+Number iterations: 13
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.17135 seconds
+MTEPS (bidirectional): 1.67756
+MTEPS (unidirectional): 0.838779
+MPEPS (bidirectional): 143.481
+MPEPS (unidirectional): 67.6718
+Total communication (average so far): 0
+25th starting vertex was 16164992
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.15275 seconds
+MTEPS (bidirectional): 1.68263
+MTEPS (unidirectional): 0.841314
+MPEPS (bidirectional): 143.915
+MPEPS (unidirectional): 67.8763
+Total communication (average so far): 0
+33th starting vertex was 6439507
+Number iterations: 14
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.17094 seconds
+MTEPS (bidirectional): 1.67767
+MTEPS (unidirectional): 0.838835
+MPEPS (bidirectional): 143.491
+MPEPS (unidirectional): 67.6763
+Total communication (average so far): 0
+37th starting vertex was 1617776
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.13005 seconds
+MTEPS (bidirectional): 1.68886
+MTEPS (unidirectional): 0.844429
+MPEPS (bidirectional): 144.448
+MPEPS (unidirectional): 68.1277
+Total communication (average so far): 0
+52th starting vertex was 9943019
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.00031 seconds
+MTEPS (bidirectional): 1.72538
+MTEPS (unidirectional): 0.862689
+MPEPS (bidirectional): 147.571
+MPEPS (unidirectional): 69.6008
+Total communication (average so far): 0
+55th starting vertex was 14579645
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 5.98759 seconds
+MTEPS (bidirectional): 1.72904
+MTEPS (unidirectional): 0.864521
+MPEPS (bidirectional): 147.885
+MPEPS (unidirectional): 69.7486
+Total communication (average so far): 0
+61th starting vertex was 14610451
+Number iterations: 13
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.13668 seconds
+MTEPS (bidirectional): 1.68703
+MTEPS (unidirectional): 0.843517
+MPEPS (bidirectional): 144.292
+MPEPS (unidirectional): 68.054
+Total communication (average so far): 0
+62th starting vertex was 13457493
+Number iterations: 14
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.16279 seconds
+MTEPS (bidirectional): 1.67989
+MTEPS (unidirectional): 0.839944
+MPEPS (bidirectional): 143.681
+MPEPS (unidirectional): 67.7658
+Total communication (average so far): 0
+63th starting vertex was 574265
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.11919 seconds
+MTEPS (bidirectional): 1.69186
+MTEPS (unidirectional): 0.845928
+MPEPS (bidirectional): 144.704
+MPEPS (unidirectional): 68.2486
+Total communication (average so far): 0
+82th starting vertex was 16914005
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.12669 seconds
+MTEPS (bidirectional): 1.68979
+MTEPS (unidirectional): 0.844893
+MPEPS (bidirectional): 144.527
+MPEPS (unidirectional): 68.165
+Total communication (average so far): 0
+83th starting vertex was 12940485
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.17451 seconds
+MTEPS (bidirectional): 1.6767
+MTEPS (unidirectional): 0.838349
+MPEPS (bidirectional): 143.408
+MPEPS (unidirectional): 67.6371
+Total communication (average so far): 0
+98th starting vertex was 14925653
+Number iterations: 11
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.15633 seconds
+MTEPS (bidirectional): 1.68165
+MTEPS (unidirectional): 0.840825
+MPEPS (bidirectional): 143.831
+MPEPS (unidirectional): 67.8369
+Total communication (average so far): 0
+101th starting vertex was 6542506
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.16532 seconds
+MTEPS (bidirectional): 1.6792
+MTEPS (unidirectional): 0.839599
+MPEPS (bidirectional): 143.621
+MPEPS (unidirectional): 67.7379
+Total communication (average so far): 0
+123th starting vertex was 7824126
+Number iterations: 13
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.13274 seconds
+MTEPS (bidirectional): 1.68812
+MTEPS (unidirectional): 0.84406
+MPEPS (bidirectional): 144.385
+MPEPS (unidirectional): 68.0979
+Total communication (average so far): 0
+133th starting vertex was 9597038
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 6.134 seconds
+MTEPS (bidirectional): 1.68777
+MTEPS (unidirectional): 0.843886
+MPEPS (bidirectional): 144.355
+MPEPS (unidirectional): 68.0838
+Total communication (average so far): 0
+135th starting vertex was 5362959
+Number iterations: 12
+Number of vertices found: 2419801
+Number of edges traversed in both directions: 10352792
+Number of edges traversed in one direction: 5176396
+Number of edges processed in both directions: 885472657
+Number of edges processed in one direction: 417626137
+BFS time: 5.98754 seconds
+MTEPS (bidirectional): 1.72906
+MTEPS (unidirectional): 0.864528
+MPEPS (bidirectional): 147.886
+MPEPS (unidirectional): 69.7492
+Total communication (average so far): 0
+16 valid runs done
+Connected component lower limite was 5
+Per iteration communication times: 
+AllGatherv: 0
+AlltoAllv: 0
+--------------------------
+Min nedges: 5.1764e+06
+Median nedges: 5.1764e+06
+Max nedges: 5.1764e+06
+Mean nedges: 5.1764e+06
+STDDEV nedges: 0
+--------------------------
+Min time: 5.98754 seconds
+Median time: 6.13534 seconds
+Max time: 6.17451 seconds
+Mean time: 6.1193 seconds
+STDDEV time: 0.0656559 seconds
+--------------------------
+Min MTEPS: 0.838349
+Median MTEPS: 0.843701
+Max MTEPS: 0.864528
+Harmonic mean of MTEPS: 0.845913
+Harmonic standard deviation of MTEPS: 0.00907607
+Initializing since date (only once) to 1000
+0th starting vertex was 227627
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 8.96153 seconds
+MTEPS (bidirectional): 11.687
+MTEPS (unidirectional): 5.84351
+MPEPS (bidirectional): 113.503
+MPEPS (unidirectional): 56.0343
+Total communication (average so far): 0
+3th starting vertex was 4373607
+Number iterations: 10
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.59944 seconds
+MTEPS (bidirectional): 10.9104
+MTEPS (unidirectional): 5.45519
+MPEPS (bidirectional): 105.961
+MPEPS (unidirectional): 52.3107
+Total communication (average so far): 0
+8th starting vertex was 3483952
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.46877 seconds
+MTEPS (bidirectional): 11.0609
+MTEPS (unidirectional): 5.53047
+MPEPS (bidirectional): 107.423
+MPEPS (unidirectional): 53.0326
+Total communication (average so far): 0
+10th starting vertex was 6614330
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.16223 seconds
+MTEPS (bidirectional): 11.431
+MTEPS (unidirectional): 5.7155
+MPEPS (bidirectional): 111.017
+MPEPS (unidirectional): 54.8069
+Total communication (average so far): 0
+11th starting vertex was 6132805
+Number iterations: 10
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.19378 seconds
+MTEPS (bidirectional): 11.3918
+MTEPS (unidirectional): 5.69589
+MPEPS (bidirectional): 110.636
+MPEPS (unidirectional): 54.6188
+Total communication (average so far): 0
+14th starting vertex was 3292219
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 8.88419 seconds
+MTEPS (bidirectional): 11.7888
+MTEPS (unidirectional): 5.89438
+MPEPS (bidirectional): 114.491
+MPEPS (unidirectional): 56.5221
+Total communication (average so far): 0
+16th starting vertex was 3396901
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 8.88224 seconds
+MTEPS (bidirectional): 11.7913
+MTEPS (unidirectional): 5.89567
+MPEPS (bidirectional): 114.517
+MPEPS (unidirectional): 56.5346
+Total communication (average so far): 0
+18th starting vertex was 16675171
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.35993 seconds
+MTEPS (bidirectional): 11.1896
+MTEPS (unidirectional): 5.59478
+MPEPS (bidirectional): 108.672
+MPEPS (unidirectional): 53.6493
+Total communication (average so far): 0
+19th starting vertex was 3108224
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.13941 seconds
+MTEPS (bidirectional): 11.4596
+MTEPS (unidirectional): 5.72978
+MPEPS (bidirectional): 111.294
+MPEPS (unidirectional): 54.9438
+Total communication (average so far): 0
+21th starting vertex was 12916979
+Number iterations: 10
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.57423 seconds
+MTEPS (bidirectional): 10.9391
+MTEPS (unidirectional): 5.46956
+MPEPS (bidirectional): 106.24
+MPEPS (unidirectional): 52.4485
+Total communication (average so far): 0
+22th starting vertex was 16462775
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.47286 seconds
+MTEPS (bidirectional): 11.0562
+MTEPS (unidirectional): 5.52808
+MPEPS (bidirectional): 107.377
+MPEPS (unidirectional): 53.0097
+Total communication (average so far): 0
+23th starting vertex was 12999569
+Number iterations: 10
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.60533 seconds
+MTEPS (bidirectional): 10.9037
+MTEPS (unidirectional): 5.45184
+MPEPS (bidirectional): 105.896
+MPEPS (unidirectional): 52.2786
+Total communication (average so far): 0
+24th starting vertex was 6185324
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 8.93124 seconds
+MTEPS (bidirectional): 11.7266
+MTEPS (unidirectional): 5.86332
+MPEPS (bidirectional): 113.888
+MPEPS (unidirectional): 56.2244
+Total communication (average so far): 0
+25th starting vertex was 16164992
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.65389 seconds
+MTEPS (bidirectional): 10.8488
+MTEPS (unidirectional): 5.42442
+MPEPS (bidirectional): 105.363
+MPEPS (unidirectional): 52.0156
+Total communication (average so far): 0
+26th starting vertex was 7511050
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.012 seconds
+MTEPS (bidirectional): 11.6216
+MTEPS (unidirectional): 5.81078
+MPEPS (bidirectional): 112.868
+MPEPS (unidirectional): 55.7205
+Total communication (average so far): 0
+28th starting vertex was 7426874
+Number iterations: 9
+Number of vertices found: 8004967
+Number of edges traversed in both directions: 104733526
+Number of edges traversed in one direction: 52366763
+Number of edges processed in both directions: 1017163016
+Number of edges processed in one direction: 502153441
+BFS time: 9.30603 seconds
+MTEPS (bidirectional): 11.2544
+MTEPS (unidirectional): 5.62719
+MPEPS (bidirectional): 109.302
+MPEPS (unidirectional): 53.96
+Total communication (average so far): 0
+16 valid runs done
+Connected component lower limite was 5
+Per iteration communication times: 
+AllGatherv: 0
+AlltoAllv: 0
+--------------------------
+Min nedges: 5.23668e+07
+Median nedges: 5.23668e+07
+Max nedges: 5.23668e+07
+Mean nedges: 5.23668e+07
+STDDEV nedges: 0
+--------------------------
+Min time: 8.88224 seconds
+Median time: 9.24991 seconds
+Max time: 9.65389 seconds
+Mean time: 9.26294 seconds
+STDDEV time: 0.278127 seconds
+--------------------------
+Min MTEPS: 5.42442
+Median MTEPS: 5.66154
+Max MTEPS: 5.89567
+Harmonic mean of MTEPS: 5.65336
+Harmonic standard deviation of MTEPS: 0.169747
+Initializing since date (only once) to 2500
+0th starting vertex was 227627
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6518 seconds
+MTEPS (bidirectional): 24.5822
+MTEPS (unidirectional): 12.2911
+MPEPS (bidirectional): 97.2118
+MPEPS (unidirectional): 48.347
+Total communication (average so far): 0
+1th starting vertex was 7489797
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.386 seconds
+MTEPS (bidirectional): 25.2113
+MTEPS (unidirectional): 12.6057
+MPEPS (bidirectional): 99.6999
+MPEPS (unidirectional): 49.5844
+Total communication (average so far): 0
+3th starting vertex was 4373607
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6108 seconds
+MTEPS (bidirectional): 24.6773
+MTEPS (unidirectional): 12.3386
+MPEPS (bidirectional): 97.5878
+MPEPS (unidirectional): 48.534
+Total communication (average so far): 0
+5th starting vertex was 7087112
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 9.78326 seconds
+MTEPS (bidirectional): 26.7646
+MTEPS (unidirectional): 13.3823
+MPEPS (bidirectional): 105.842
+MPEPS (unidirectional): 52.6393
+Total communication (average so far): 0
+7th starting vertex was 10344591
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 9.79768 seconds
+MTEPS (bidirectional): 26.7252
+MTEPS (unidirectional): 13.3626
+MPEPS (bidirectional): 105.687
+MPEPS (unidirectional): 52.5618
+Total communication (average so far): 0
+8th starting vertex was 3483952
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.2188 seconds
+MTEPS (bidirectional): 25.624
+MTEPS (unidirectional): 12.812
+MPEPS (bidirectional): 101.332
+MPEPS (unidirectional): 50.3959
+Total communication (average so far): 0
+10th starting vertex was 6614330
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6372 seconds
+MTEPS (bidirectional): 24.616
+MTEPS (unidirectional): 12.308
+MPEPS (bidirectional): 97.3456
+MPEPS (unidirectional): 48.4135
+Total communication (average so far): 0
+11th starting vertex was 6132805
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.7545 seconds
+MTEPS (bidirectional): 24.3474
+MTEPS (unidirectional): 12.1737
+MPEPS (bidirectional): 96.2833
+MPEPS (unidirectional): 47.8852
+Total communication (average so far): 0
+12th starting vertex was 7840377
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6075 seconds
+MTEPS (bidirectional): 24.6849
+MTEPS (unidirectional): 12.3424
+MPEPS (bidirectional): 97.618
+MPEPS (unidirectional): 48.549
+Total communication (average so far): 0
+13th starting vertex was 7501892
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 9.73581 seconds
+MTEPS (bidirectional): 26.895
+MTEPS (unidirectional): 13.4475
+MPEPS (bidirectional): 106.358
+MPEPS (unidirectional): 52.8958
+Total communication (average so far): 0
+14th starting vertex was 3292219
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.5785 seconds
+MTEPS (bidirectional): 24.7526
+MTEPS (unidirectional): 12.3763
+MPEPS (bidirectional): 97.8858
+MPEPS (unidirectional): 48.6822
+Total communication (average so far): 0
+16th starting vertex was 3396901
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.3065 seconds
+MTEPS (bidirectional): 25.4058
+MTEPS (unidirectional): 12.7029
+MPEPS (bidirectional): 100.469
+MPEPS (unidirectional): 49.9669
+Total communication (average so far): 0
+18th starting vertex was 16675171
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 9.73042 seconds
+MTEPS (bidirectional): 26.91
+MTEPS (unidirectional): 13.455
+MPEPS (bidirectional): 106.417
+MPEPS (unidirectional): 52.9252
+Total communication (average so far): 0
+19th starting vertex was 3108224
+Number iterations: 8
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6668 seconds
+MTEPS (bidirectional): 24.5476
+MTEPS (unidirectional): 12.2738
+MPEPS (bidirectional): 97.0751
+MPEPS (unidirectional): 48.279
+Total communication (average so far): 0
+20th starting vertex was 13567150
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 10.6586 seconds
+MTEPS (bidirectional): 24.5664
+MTEPS (unidirectional): 12.2832
+MPEPS (bidirectional): 97.1497
+MPEPS (unidirectional): 48.3161
+Total communication (average so far): 0
+21th starting vertex was 12916979
+Number iterations: 9
+Number of vertices found: 11322421
+Number of edges traversed in both directions: 261845024
+Number of edges traversed in one direction: 130922512
+Number of edges processed in both directions: 1035483626
+Number of edges processed in one direction: 514983861
+BFS time: 9.67618 seconds
+MTEPS (bidirectional): 27.0608
+MTEPS (unidirectional): 13.5304
+MPEPS (bidirectional): 107.014
+MPEPS (unidirectional): 53.2218
+Total communication (average so far): 0
+16 valid runs done
+Connected component lower limite was 5
+Per iteration communication times: 
+AllGatherv: 0
+AlltoAllv: 0
+--------------------------
+Min nedges: 1.30923e+08
+Median nedges: 1.30923e+08
+Max nedges: 1.30923e+08
+Mean nedges: 1.30923e+08
+STDDEV nedges: 0
+--------------------------
+Min time: 9.67618 seconds
+Median time: 10.4822 seconds
+Max time: 10.7545 seconds
+Mean time: 10.3 seconds
+STDDEV time: 0.411602 seconds
+--------------------------
+Min MTEPS: 12.1737
+Median MTEPS: 12.491
+Max MTEPS: 13.5304
+Harmonic mean of MTEPS: 12.7109
+Harmonic standard deviation of MTEPS: 0.507943
+Initializing since date (only once) to 10000
+0th starting vertex was 227627
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.8804 seconds
+MTEPS (bidirectional): 96.2461
+MTEPS (unidirectional): 48.123
+MPEPS (bidirectional): 96.2461
+MPEPS (unidirectional): 48.123
+Total communication (average so far): 0
+1th starting vertex was 7489797
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.9603 seconds
+MTEPS (bidirectional): 95.545
+MTEPS (unidirectional): 47.7725
+MPEPS (bidirectional): 95.545
+MPEPS (unidirectional): 47.7725
+Total communication (average so far): 0
+2th starting vertex was 9778134
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 12.6984 seconds
+MTEPS (bidirectional): 82.4671
+MTEPS (unidirectional): 41.2335
+MPEPS (bidirectional): 82.4671
+MPEPS (unidirectional): 41.2335
+Total communication (average so far): 0
+3th starting vertex was 4373607
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.7215 seconds
+MTEPS (bidirectional): 97.673
+MTEPS (unidirectional): 48.8365
+MPEPS (bidirectional): 97.673
+MPEPS (unidirectional): 48.8365
+Total communication (average so far): 0
+4th starting vertex was 15977069
+Number iterations: 8
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 12.5449 seconds
+MTEPS (bidirectional): 83.4759
+MTEPS (unidirectional): 41.738
+MPEPS (bidirectional): 83.4759
+MPEPS (unidirectional): 41.738
+Total communication (average so far): 0
+5th starting vertex was 7087112
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.9924 seconds
+MTEPS (bidirectional): 95.266
+MTEPS (unidirectional): 47.633
+MPEPS (bidirectional): 95.266
+MPEPS (unidirectional): 47.633
+Total communication (average so far): 0
+6th starting vertex was 14397577
+Number iterations: 8
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 11.9474 seconds
+MTEPS (bidirectional): 87.6509
+MTEPS (unidirectional): 43.8254
+MPEPS (bidirectional): 87.6509
+MPEPS (unidirectional): 43.8254
+Total communication (average so far): 0
+7th starting vertex was 10344591
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 12.4416 seconds
+MTEPS (bidirectional): 84.1691
+MTEPS (unidirectional): 42.0846
+MPEPS (bidirectional): 84.1691
+MPEPS (unidirectional): 42.0846
+Total communication (average so far): 0
+8th starting vertex was 3483952
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.7156 seconds
+MTEPS (bidirectional): 97.7267
+MTEPS (unidirectional): 48.8633
+MPEPS (bidirectional): 97.7267
+MPEPS (unidirectional): 48.8633
+Total communication (average so far): 0
+9th starting vertex was 4978679
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 11.9255 seconds
+MTEPS (bidirectional): 87.8118
+MTEPS (unidirectional): 43.9059
+MPEPS (bidirectional): 87.8118
+MPEPS (unidirectional): 43.9059
+Total communication (average so far): 0
+10th starting vertex was 6614330
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.6837 seconds
+MTEPS (bidirectional): 98.0181
+MTEPS (unidirectional): 49.0091
+MPEPS (bidirectional): 98.0181
+MPEPS (unidirectional): 49.0091
+Total communication (average so far): 0
+11th starting vertex was 6132805
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.8142 seconds
+MTEPS (bidirectional): 96.8355
+MTEPS (unidirectional): 48.4178
+MPEPS (bidirectional): 96.8355
+MPEPS (unidirectional): 48.4178
+Total communication (average so far): 0
+12th starting vertex was 7840377
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 12.0467 seconds
+MTEPS (bidirectional): 86.9285
+MTEPS (unidirectional): 43.4642
+MPEPS (bidirectional): 86.9285
+MPEPS (unidirectional): 43.4642
+Total communication (average so far): 0
+13th starting vertex was 7501892
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 12.057 seconds
+MTEPS (bidirectional): 86.8541
+MTEPS (unidirectional): 43.4271
+MPEPS (bidirectional): 86.8541
+MPEPS (unidirectional): 43.4271
+Total communication (average so far): 0
+14th starting vertex was 3292219
+Number iterations: 7
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 10.6851 seconds
+MTEPS (bidirectional): 98.0055
+MTEPS (unidirectional): 49.0027
+MPEPS (bidirectional): 98.0055
+MPEPS (unidirectional): 49.0027
+Total communication (average so far): 0
+15th starting vertex was 930693
+Number iterations: 8
+Number of vertices found: 17049925
+Number of edges traversed in both directions: 1047200136
+Number of edges traversed in one direction: 523600068
+Number of edges processed in both directions: 1047200136
+Number of edges processed in one direction: 523600068
+BFS time: 11.9511 seconds
+MTEPS (bidirectional): 87.6239
+MTEPS (unidirectional): 43.8119
+MPEPS (bidirectional): 87.6239
+MPEPS (unidirectional): 43.8119
+Total communication (average so far): 0
+16 valid runs done
+Connected component lower limite was 5
+Per iteration communication times: 
+AllGatherv: 0
+AlltoAllv: 0
+--------------------------
+Min nedges: 5.236e+08
+Median nedges: 5.236e+08
+Max nedges: 5.236e+08
+Mean nedges: 5.236e+08
+STDDEV nedges: 0
+--------------------------
+Min time: 10.6837 seconds
+Median time: 11.4589 seconds
+Max time: 12.6984 seconds
+Mean time: 11.5041 seconds
+STDDEV time: 0.755559 seconds
+--------------------------
+Min MTEPS: 41.2335
+Median MTEPS: 45.7694
+Max MTEPS: 49.0091
+Harmonic mean of MTEPS: 45.5141
+Harmonic standard deviation of MTEPS: 2.98924
+Application 6459013 resources: utime ~78742s, stime ~3186s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script121_filtered_scale25
+ +          Job Id: 1418423.sdb
+ +          System: hopper
+ +     Queued Time: Mon Mar 19 13:31:48 2012
+ +      Start Time: Mon Mar 19 13:38:25 2012
+ + Completion Time: Mon Mar 19 13:49:54 2012
+ +            User: abuluc
+ +        MOM Host: nid04943
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:6641:hopper03,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5568kb,vmem=40144kb,walltime=00:11:22
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: script121_filtered_scale25
+ + --------------------------------------------------------------------------
+
