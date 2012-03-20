@@ -65,9 +65,9 @@ int64_t pySpParMatBool::getncol()
 	return A.getncol();
 }
 	
-void pySpParMatBool::load(const char* filename)
+void pySpParMatBool::load(const char* filename, bool pario)
 {
-	A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true);
+	A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true, pario);
 }
 
 void pySpParMatBool::save(const char* filename)

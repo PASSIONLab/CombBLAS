@@ -9,12 +9,15 @@ from stats import splitthousands, printstats
 
 #parse arguments
 if (len(sys.argv) < 2):
-	kdt.p("Usage: python %s twittergraph.mtx [1]"%(sys.argv[0]))
+	kdt.p("Usage: python %s twittergraph.mtx [1 [0 [1]]]"%(sys.argv[0]))
 	kdt.p("The 1st argument is either a datafile or an integer which is the scale for RMAT generation.")
 	kdt.p("The 2nd argument determines whether or not to use a materializing filter")
+	kdt.p("The 3rd argument determines whether or not to delete isolated vertices.")
+	kdt.p("The 4th argument determines whether or not to use parallel I/O when loading the matrix.")
 	kdt.p("Examples:")
 	kdt.p("python filter_debug.mtx 1")
 	kdt.p("python 14")
+	kdt.p("python bigmat.mtx 0 0 1")
 	sys.exit()
 
 datasource = "file"
@@ -27,9 +30,17 @@ nstarts = 512
 keep_starts = 16
 keep_min_edges = 100
 materializeArg = False
+useDelIsolated = True
+useParIO = False
 
 if (len(sys.argv) >= 3):
 	materializeArg = bool(int(sys.argv[2]))
+
+if (len(sys.argv) >= 4):
+	useDelIsolated = bool(int(sys.argv[3]))
+
+if (len(sys.argv) >= 5):
+	useParIO = bool(int(sys.argv[4]))
 
 # this function is used for generation.
 # obj is the object that needs to be filled in
@@ -79,14 +90,15 @@ if datasource == "file":
 	# load
 	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
-	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
+	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2(), par_IO=useParIO)
 	kdt.p("Read in %fs. Read %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
 	
-	# optimize the graph
-	kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
-	before = time.time()
-	G.delIsolatedVerts(True)
-	kdt.p("Done in %fs."%(time.time()-before))
+	if useDelIsolated:
+		# optimize the graph
+		kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
+		before = time.time()
+		G.delIsolatedVerts(True)
+		kdt.p("Done in %fs."%(time.time()-before))
 elif datasource == "generate":
 	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
@@ -112,14 +124,18 @@ kdt.p("Calculated in %fs."%(time.time()-before))
 
 def run(materialize):
 	global G, nstarts, origDegrees
+	runStarts = nstarts
+	filterPercent = -1
 	
 	G.addEFilter(twitterEdgeFilter)
+	materializeTime = 0
 	if materialize:
 		kdt.p("--Materializing the filter")
 		before = time.time()
 		G.e.materializeFilter()
-		kdt.p("Materialized in %fs."%(time.time()-before))
-		kdt.p("%d edges survived the filter."%(G.nedge()))
+		materializeTime = time.time()-before
+		kdt.p("Materialized %f in\t%f\ts."%(filterPercent, materializeTime))
+		kdt.p("%f\t: \t%d\t edges survived the filter."%(filterPercent, G.nedge()))
 
 	
 	kdt.p("--Generating starting verts")
@@ -130,18 +146,22 @@ def run(materialize):
 	if len(deg3verts) == 0:
 		# this is mainly for filter_debug.txt
 		deg3verts = (degrees > 0).findInds()
-	deg3verts.randPerm()
-	if nstarts > len(deg3verts):
-		nstarts = len(deg3verts)
-	starts = deg3verts[kdt.Vec.range(nstarts)]
+	if len(deg3verts) == 0:
+		starts = []
+	else:
+		deg3verts.randPerm()
+		if runStarts > len(deg3verts):
+			runStarts = len(deg3verts)
+		starts = deg3verts[kdt.Vec.range(runStarts)]
 	kdt.p("Generated in %fs."%(time.time()-before))
-	
+
 	kdt.p("--Doing BFS")
 	
 	K2elapsed = [];
 	K2edges = [];
 	K2TEPS = [];
 	K2ORIGTEPS = []
+	K2MATTEPS = []
 	
 	i = 0
 	for start in starts:
@@ -191,13 +211,14 @@ def run(materialize):
 			K2edges.append(nedges)
 			K2TEPS.append(nedges/itertime)
 			K2ORIGTEPS.append(nOrigEdges/itertime)
+			K2MATTEPS.append(nedges/(itertime+materializeTime))
 			discardedString = ""
 		else:
 			discardedString = "(result discarded)"
 		
 		i += 1
 		# print result for this iteration
-		kdt.p("iteration %2d: start=%8d, BFS took %10.4fs, covered %10d edges, discovered %8d verts, TEPS incl. filtered edges=%10s, TEPS=%s %s"%(i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
+		kdt.p("%f\t: iteration %2d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
 		if len(K2edges) >= keep_starts:
 			break
 	
@@ -205,20 +226,28 @@ def run(materialize):
 	if kdt.master():
 		if materialize:
 			Mat = "(materialized)"
-			Mat_ = "Mat_"
+			Mat_ = "Mat"
 		else:
 			Mat = "(on-the-fly)"
-			Mat_ = "OTF_"
+			Mat_ = "OTF"
 		print "\nBFS execution times %s"%(Mat)
-		printstats(K2elapsed, "%stime"%(Mat_), False)
+		printstats(K2elapsed, "%stime\t%f\t"%(Mat_, filterPercent), False, True, True)
 		
 		print "\nnumber of edges traversed %s"%(Mat)
-		printstats(K2edges, "%snedge"%(Mat_), False)
+		printstats(K2edges, "%snedge\t%f\t"%(Mat_, filterPercent), False, True, True)
 		
 		print "\nTEPS %s"%(Mat)
-		printstats(K2TEPS, "%sTEPS"%(Mat_), True)
+		printstats(K2TEPS, "%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+
+		if not materialize:
+			print "\nTEPS including filtered edges %s"%(Mat)
+			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+		else:
+			print "\nTEPS including materialization time %s"%(Mat)
+			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
 	
 	G.delEFilter(twitterEdgeFilter)
+
 
 run(False)
 if materializeArg:
