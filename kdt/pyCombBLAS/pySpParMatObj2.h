@@ -3,18 +3,6 @@
 
 #include "pyCombBLAS.h"
 
-// constants to allow conditional compilation based on whether this is an Obj2 or Obj1 file.
-#define const_Obj2 1
-#define const_Obj1 2
-#if const_Obj2 == 1
-#define IS_ONE 1
-#else
-#define IS_ONE 0
-#endif
-
-#undef const_Obj2
-#undef const_Obj1
-
 //INTERFACE_INCLUDE_BEGIN
 class pySpParMatObj2 {
 //INTERFACE_INCLUDE_END

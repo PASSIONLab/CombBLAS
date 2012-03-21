@@ -64,6 +64,23 @@ public:
 		os << weight << "\t" << category;
 	}
 
+	template <typename INDEXTYPE>
+	static void binaryfill(FILE * rFile, INDEXTYPE & row, INDEXTYPE & col, Obj1 & val)
+	{
+		size_t read = 0;
+		read += fread(&row, sizeof(INDEXTYPE), 1,rFile);
+		read += fread(&col, sizeof(INDEXTYPE), 1,rFile);
+		read += fread(&val, sizeof(Obj1), 1,rFile);
+		if (read != 3)
+			throw string("Not enough bytes read in binaryfill");
+	}
+	
+	template <typename INDEXTYPE>
+	static size_t entrylength()
+	{
+		return 2*sizeof(INDEXTYPE)+sizeof(Obj1);
+	}
+
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -215,6 +232,37 @@ public:
 											timeinfo.tm_sec);
 			os << s;
 		}
+	}
+
+	struct TwitterInteraction
+	{
+		int32_t from;
+		int32_t to;
+		bool follow;
+		int16_t retweets;
+		time_t twtime;
+	};
+
+	// for binary loader
+	template <typename INDEXTYPE>
+	static void binaryfill(FILE * rFile, INDEXTYPE & row, INDEXTYPE & col, Obj2 & val)
+	{
+		TwitterInteraction twi;
+		size_t entryLength = fread (&twi,sizeof(TwitterInteraction),1,rFile);
+		row = twi.from - 1 ;
+		col = twi.to - 1;
+		//val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
+		val.follower = twi.follow;
+		val.count = twi.retweets;
+		val.latest = twi.twtime;
+		if(entryLength != 1)
+			throw string("Not enough bytes read in binaryfill");
+	}
+	
+	template <typename INDEXTYPE>
+	static size_t entrylength()
+	{
+		return sizeof(TwitterInteraction);
 	}
 
 ///// USER CHANGEABLE CODE END
