@@ -83,7 +83,14 @@ public:
 #endif
 	}
 	
-	size_t entrylength() { return 2*sizeof(pySpParMatObj1::INDEXTYPE)+sizeof(Obj1); }
+	size_t entrylength()
+	{
+#if IS_ONE
+		return 2*sizeof(pySpParMatObj1::INDEXTYPE)+sizeof(Obj1);
+#else
+		return sizeof(TwitterInteraction);
+#endif
+	}
 	
 	template <typename c, typename t>
 	Obj1 read(std::basic_istream<c,t>& is, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
