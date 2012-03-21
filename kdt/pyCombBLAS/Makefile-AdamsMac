@@ -1,0 +1,92 @@
+INCDIR = $(HOME)
+#INCADD = -I$(INCDIR) -I/usr/include/python2.4
+INCADD = -I$(INCDIR) -I/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7/
+COMBBLAS = ../../CombBLAS
+
+# notes for configure:
+# -fno-exceptions does not work with MPICH2
+# -fno-rtti does not work with tr1:tuples
+
+OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w 
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DTR1 -DNDEBUG
+COMPILER = mpicxx
+FLAGS = $(DEB) -fPIC -DCOMBBLAS_TR1 -undefined dynamic_lookup
+
+all: pyCombBLAS.py
+
+pyCombBLAS.i: pyCombBLAS.i.templ pyCombBLAS.h pyDenseParVecObj1.h pyDenseParVecObj2.h pyDenseParVec.h pySpParVec.h pySpParVecObj1.h pySpParVecObj2.h pySpParMat.h pySpParMatObj1.h pySpParMatObj2.h pySpParMatBool.h obj.h pyOperationsObj.h pyOperations.h
+	python makei.py pyCombBLAS.i.templ pyCombBLAS.i
+
+pyCombBLAS_wrap.cpp: pyCombBLAS.i
+	swig -python -c++ -shadow -o pyCombBLAS_wrap.cpp -DSWIG_TYPE_TABLE=pyCombBLAS pyCombBLAS.i  
+	swig -python -external-runtime swigpyrun.h -DSWIG_TYPE_TABLE=pyCombBLAS
+
+swigpyrun.h: pyCombBLAS_wrap.cpp
+
+pyCombBLAS.h: obj.h swigpyrun.h pyDenseParVecObj1.h pyDenseParVecObj2.h pyDenseParVec.h pySpParVec.h pySpParVecObj1.h pySpParVecObj2.h pySpParMat.h pySpParMatObj1.h pySpParMatObj2.h pySpParMatBool.h obj.h pyOperationsObj.h pyOperations.h pySemirings.h
+
+%Obj2.h: %Obj1.h
+	cp $< $@
+	sed -i '' 's/Obj2/Obj2BACK/g' $@
+	sed -i '' 's/Obj1/Obj2/g' $@
+	sed -i '' 's/Obj2BACK/Obj1/g' $@
+
+%Obj2.cpp: %Obj1.cpp
+	cp $< $@
+	sed -i '' 's/Obj2/Obj2BACK/g' $@
+	sed -i '' 's/Obj1/Obj2/g' $@
+	sed -i '' 's/Obj2BACK/Obj1/g' $@
+
+# This is to keep Make from deleting the *Obj2.* files because it thinks they're intermediaries. 
+.SECONDARY: pySpParVecObj2.h pySpParVecObj2.cpp pyDenseParVecObj2.h pyDenseParVecObj2.cpp pySpParMatObj2.h pySpParMatObj2.cpp
+
+pyCombBLAS_wrap.o: pyCombBLAS_wrap.cpp pyCombBLAS.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c $< -o $@
+
+%.o : %.cpp %.h pyCombBLAS.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c $< -o $@
+
+
+# The rules below create a CombBLAS statically linked library for the non-templated functions.
+# Maybe we should move this to CombBLAS?
+
+CommGrid.o:	$(COMBBLAS)/CommGrid.cpp $(COMBBLAS)/CommGrid.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o $(COMBBLAS)/CommGrid.cpp
+
+MPIType.o:	$(COMBBLAS)/MPIType.cpp $(COMBBLAS)/MPIType.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS)/MPIType.cpp
+
+MemoryPool.o:	$(COMBBLAS)/MemoryPool.cpp $(COMBBLAS)/SpDefs.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp	
+
+libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
+	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o 
+
+$(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
+	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
+
+_pyCombBLAS.so: pyCombBLAS.o pySpParMat.o pySpParMatObj1.o pySpParMatObj2.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyOperations.h pyCombBLAS_wrap.o libCombBLAS.a $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -shared -o _pyCombBLAS.so pyCombBLAS.o pySpParMat.o pySpParMatObj1.o pySpParMatObj2.o pySpParMatBool.o pySpParVec.o pySpParVecObj1.o pySpParVecObj2.o pyDenseParVec.o pyDenseParVecObj1.o pyDenseParVecObj2.o pyOperations.o pyOperationsObj.o pyCombBLAS_wrap.o -L. -lCombBLAS -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+	cp -f _pyCombBLAS.so ..
+	cp -f pyCombBLAS.py ..
+
+# the swig command that creates DiGraph_wrap.cpp also creates DiGraph.py
+pyCombBLAS.py:	_pyCombBLAS.so
+
+
+
+clean:
+	rm -f *.so
+	rm -f *.o
+	rm -f *.a
+	rm -f *.pyc
+	rm -f pyCombBLAS_wrap.cpp
+	rm -f swigpyrun.h
+	rm -f pyCombBLAS.py
+	rm -f pyCombBLAS.i
+	rm -f *Obj2.h
+	rm -f *Obj2.cpp
+
+cleanout:
+	rm out.*
+	rm err.*
