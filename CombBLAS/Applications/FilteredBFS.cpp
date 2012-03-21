@@ -41,7 +41,7 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 #define ITERS 16 
 #define CC_LIMIT 5
-//#define PERMUTEFORBALANCE
+#define PERMUTEFORBALANCE
 #define PERCENTS 4
 using namespace std;
 
