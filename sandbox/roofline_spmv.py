@@ -3,8 +3,8 @@ import kdt
 import kdt.pyCombBLAS as pcb
 import time
 
-mults_mulonly = range(8, 500, 8)
-mults_muladd = range(1, 20, 2)
+mults_mulonly = range(8, 2000, 8)
+mults_muladd = range(1, 40, 1)
 adds = range(8, 200, 16) 
 repeats = [100]
 
