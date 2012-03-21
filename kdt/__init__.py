@@ -11,7 +11,10 @@ from Mat import Mat
 #from DeVec import DeVec
 from feedback import sendFeedback
 from UFget import UFget, UFdownload
-import kdt.pyCombBLAS as pcb
+try:
+	import kdt.pyCombBLAS as pcb
+except ImportError:
+	raise ImportError,"Failed to import pyCombBLAS. If you just installed KDT, please use a different working directory. Python is loading the kdt module from the current directory (which is unbuilt), NOT from the installation."
 Obj1 = pcb.Obj1
 Obj2 = pcb.Obj2
 import kdt.ObjMethods

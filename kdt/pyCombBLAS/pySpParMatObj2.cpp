@@ -44,16 +44,43 @@ int64_t pySpParMatObj2::getncol() const
 	return A.getncol();
 }
 
+#if IS_ONE == 0
+// for Obj1
+struct TwitterInteraction
+{
+		int32_t from;
+		int32_t to;
+		bool follow;
+		int16_t retweets;
+		time_t twtime;
+};
+#endif
+
 class Obj2ReadSaveHandler
 {
 public:
 	Obj2 getNoNum(pySpParMatObj2::INDEXTYPE row, pySpParMatObj2::INDEXTYPE col) { return Obj2(); }
 	void binaryfill(FILE * rFile, pySpParMatObj2::INDEXTYPE & row, pySpParMatObj2::INDEXTYPE & col, Obj2 & val)
 	{
-		fread(&row, sizeof(pySpParMatObj2::INDEXTYPE), 1,rFile);
-		fread(&col, sizeof(pySpParMatObj2::INDEXTYPE), 1,rFile);
-		fread(&val, sizeof(Obj2), 1,rFile);
-		return;
+#if IS_ONE
+		size_t read = 0;
+		read += fread(&row, sizeof(pySpParMatObj2::INDEXTYPE), 1,rFile);
+		read += fread(&col, sizeof(pySpParMatObj2::INDEXTYPE), 1,rFile);
+		read += fread(&val, sizeof(Obj2), 1,rFile);
+		if (read != 3)
+			throw string("Not enough bytes read in binaryfill");
+#else
+		TwitterInteraction twi;
+		size_t entryLength = fread (&twi,sizeof(TwitterInteraction),1,rFile);
+		row = twi.from - 1 ;
+		col = twi.to - 1;
+		//val = TwitterEdge(twi.retweets, twi.follow, twi.twtime); 
+		val.follower = twi.follow;
+		val.counts = twi.retweets;
+		val.latest = twi.twtime
+		if(entryLength != 1)
+			throw string("Not enough bytes read in binaryfill");
+#endif
 	}
 	
 	size_t entrylength() { return 2*sizeof(pySpParMatObj2::INDEXTYPE)+sizeof(Obj2); }
