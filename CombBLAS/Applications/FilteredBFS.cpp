@@ -37,11 +37,11 @@ int cblas_splits = 1;
 #include "../CombBLAS.h"
 #include "TwitterEdge.h"
 
-#define MAX_ITERS 1024
+#define MAX_ITERS 20000
 #define EDGEFACTOR 16
 #define ITERS 16 
-#define CC_LIMIT 40
-#define PERMUTEFORBALANCE
+#define CC_LIMIT 100
+//#define PERMUTEFORBALANCE
 #define PERCENTS 4
 using namespace std;
 
@@ -293,6 +293,7 @@ int main(int argc, char* argv[])
 			cblas_alltoalltime = 0;
 
 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];
+			double MPEPS[ITERS]; double INVMPEPS[ITERS];
 			int sruns = 0;		// successful runs
 			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
 			{
@@ -370,7 +371,8 @@ int main(int argc, char* argv[])
 
 					TIMES[sruns] = t2-t1;
 					EDGES[sruns] = ou_nedges;
-					MTEPS[sruns++] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
+					MTEPS[sruns] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
+					MPEPS[sruns++] = static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0;
 					SpParHelper::Print(outnew.str());
 				}
 			}
@@ -425,6 +427,20 @@ int main(int argc, char* argv[])
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) ) * (hteps*hteps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
+			SpParHelper::Print(os.str());
+
+			sort(MPEPS, MPEPS+sruns);
+			os << "Bidirectional Processed Edges per second (to estimate sustained BW)"<< endl;
+			os << "Min MPEPS: " << MPEPS[0] << endl;
+			os << "Median MPEPS: " << (MPEPS[(sruns/2)-1] + MPEPS[sruns/2])/2 << endl;
+			os << "Max MPEPS: " << MPEPS[sruns-1] << endl;
+			transform(MPEPS, MPEPS+sruns, INVMPEPS, safemultinv<double>()); 	// returns inf for zero teps
+			double hpeps = static_cast<double>(sruns) / accumulate(INVMPEPS, INVMPEPS+sruns, 0.0);	
+			os << "Harmonic mean of MPEPS: " << hpeps << endl;
+			transform(INVMPEPS, INVMPEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hpeps));
+			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+   			deviation = sqrt( deviation / (sruns-1) ) * (hpeps*hpeps);	// harmonic_std_dev
+			os << "Harmonic standard deviation of MPEPS: " << deviation << endl;
 			SpParHelper::Print(os.str());
 		}
 	}
