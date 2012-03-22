@@ -40,7 +40,7 @@ int cblas_splits = 1;
 #define MAX_ITERS 1024
 #define EDGEFACTOR 16
 #define ITERS 16 
-#define CC_LIMIT 5
+#define CC_LIMIT 40
 #define PERMUTEFORBALANCE
 #define PERCENTS 4
 using namespace std;
@@ -246,10 +246,11 @@ int main(int argc, char* argv[])
 
 		SpParHelper::Print("Finished generating in/out degrees\n");	
 		A.PrintInfo();
+#ifdef UNDIRECTED
 		Symmetricize(A);	// A += A';
-
 		SpParHelper::Print("Symmetricized\n");	
 		A.PrintInfo();
+#endif
 		float balance_former = A.LoadImbalance();
 		ostringstream outs_former;
 		outs_former << "Load balance: " << balance_former << endl;
