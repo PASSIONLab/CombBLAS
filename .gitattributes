@@ -2167,7 +2167,9 @@ sandbox/TwitterFilterPercent.py -text
 sandbox/filter_debug.txt -text
 sandbox/mcl.py -text
 sandbox/roofline_ewise.py -text
+sandbox/roofline_pure_parser.py -text
 sandbox/roofline_spmv.py -text
+sandbox/roofline_spmv_pure.py -text
 sandbox/run-roofline.sh -text
 sandbox/stats.py -text
 /setup.py -text
