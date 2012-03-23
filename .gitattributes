@@ -139,6 +139,9 @@ CombBLAS/Applications/HopperResults/script529.24pernode_Dec23 -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Feb10 -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
 CombBLAS/Applications/MCL.cpp -text
+CombBLAS/Applications/MirasolFilteredRuns/huge_mirasol_p36_directed -text
+CombBLAS/Applications/MirasolFilteredRuns/large_mirasol_p36_directed -text
+CombBLAS/Applications/MirasolFilteredRuns/medium_mirasol_p36_directed -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_huge_p36 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_huge_p36_notiming -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_huge_p4 -text
@@ -193,6 +196,7 @@ CombBLAS/Applications/MirasolFilteredRuns/ran_small_p36 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_small_p36_notiming -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_small_p4 -text
 CombBLAS/Applications/MirasolFilteredRuns/ran_small_p9 -text
+CombBLAS/Applications/MirasolFilteredRuns/small_mirasol_p36_directed -text
 CombBLAS/Applications/PACTResults/script121_filtered_scale23.e1418668 -text
 CombBLAS/Applications/PACTResults/script121_filtered_scale25.e1418423 -text
 CombBLAS/Applications/PACTResults/script256_filtered_large.e1420526 -text
