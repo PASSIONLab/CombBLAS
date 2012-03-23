@@ -36,8 +36,11 @@ def runExperiment(name, full):
 	
 	for r in mults:
 		for c in cols:
+			if (c*c) < kdt._nproc():
+				continue
 			M = makeMat(r, c, full)
 			M.addFilter(twitterFilter)
+			M.materializeFilter()
 			v = kdt.Vec.ones(c, sparse=True)
 			sr = kdt.sr_select2nd
 			
