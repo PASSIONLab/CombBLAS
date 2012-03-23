@@ -29,11 +29,11 @@ def runExperiment(name, full):
 	if full:
 		mults = mults_muladd
 		cols = adds
-		kdt.p("a")
+		#kdt.p("a")
 	else:
 		mults = mults_mulonly
 		cols = [1]
-		kdt.p("m")
+		#kdt.p("m")
 	
 	p = kdt._nproc()
 	for r in mults:
@@ -52,24 +52,26 @@ def runExperiment(name, full):
 				
 				op *= 10000 # LOTSOFRUNS
 
-				kdt.p("b %d\t(Ops) on \t%d procs\t%5d-by-%5d\t(row-by-col), repeat\t%3d\ttimes"%(op, p, r, c, rpt))
+				#kdt.p("b %d\t(Ops) on \t%d procs\t%5d-by-%5d\t(row-by-col), repeat\t%3d\ttimes"%(op, p, r, c, rpt))
 				begin = time.time()
 				for i in range(rpt):
 					M.SpMV(v, semiring=sr, inPlace=True)
 				t = time.time() - begin
-				kdt.p("%f"%(t))
+				#kdt.p("%f"%(t))
 				
-				kdt.p("t")
-				#ops = op*rpt / t
-				#if best_ops_per_s < ops:
+				#kdt.p("t")
+				ops = op*rpt / t
+				if best_ops_per_s < ops:
 					#kdt.p("%5d-by-%5d (row-by-col), repeat %3d times: %f (took %f seconds)"%(r, c, rpt, ops, t))
-					#best_ops_per_s = ops
-					#best_r = r
-					#best_c = c
-					#best_repeats = rpt
+					best_op = op
+					best_ops_per_s = ops
+					best_r = r
+					best_c = c
+					best_repeats = rpt
+					best_time = t
 	
-	#p = kdt._nproc()
-	#kdt.p("BEST %s on %3d procs: %5d-by-%5d (row-by-col), repeat %3d times: %f Op/s"%(name, p, best_r, best_c, best_repeats, best_ops_per_s))
+	p = kdt._nproc()
+	kdt.p("BEST\t%s\ton %3d procs:\t%5d-by-%5d (row-by-col), repeat %3d times on %f ops (\t%f\tsec):\t%f Op/s"%(name, p, best_r, best_c, best_repeats, best_op, best_time, best_ops_per_s))
 
 
 #kdt.p("running on Multiply only:")
