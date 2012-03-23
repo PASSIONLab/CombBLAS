@@ -53,9 +53,11 @@ def runExperiment(name, full):
 				op *= 10000 # LOTSOFRUNS
 
 				kdt.p("b %d\t(Ops) on \t%d procs\t%5d-by-%5d\t(row-by-col), repeat\t%3d\ttimes"%(op, p, r, c, rpt))
+				begin = time.time()
 				for i in range(rpt):
 					M.SpMV(v, semiring=sr, inPlace=True)
-
+				t = time.time() - begin
+				kdt.p("%f"%(t))
 				
 				kdt.p("t")
 				#ops = op*rpt / t
