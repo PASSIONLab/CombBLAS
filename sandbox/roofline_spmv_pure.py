@@ -3,10 +3,32 @@ import kdt
 import kdt.pyCombBLAS as pcb
 import time
 
-mults_mulonly = [36]
-mults_muladd = [6]
-adds = [36] 
+mults_mulonly = [100]
+mults_muladd = [20]
+adds = [20] 
 repeats = [1]
+
+p = kdt._nproc()
+if p == 9:
+	mults_mulonly = [297]
+	mults_muladd = [18]
+	adds=[18]
+if p == 16:
+	mults_mulonly = [640]
+	mults_muladd = [32]
+	adds=[32]
+if p == 25:
+	mults_mulonly = [1000]
+	mults_muladd = [50]
+	adds = [50]
+if p==36:
+	mults_mulonly = [720]
+	mults_muladd = [72]
+	adds = [72]
+if p==49:
+	mults_mulonly = [980]
+	mults_muladd = [98]
+	adds = [98]
 
 def twitterFilter(e):
 	return (e.follower == 0 and e.count >= 0 and e.latest < 946684800)
@@ -35,7 +57,9 @@ def runExperiment(name, full):
 		cols = [1]
 		#kdt.p("m")
 	
-	p = kdt._nproc()
+	#p = kdt._nproc()
+	#mults = [2*p]
+	#cols = [p]
 	for r in mults:
 		for c in cols:
 			M = makeMat(r, c, full)
@@ -71,7 +95,7 @@ def runExperiment(name, full):
 					best_time = t
 	
 	p = kdt._nproc()
-	kdt.p("BEST\t%s\ton %3d procs:\t%5d-by-%5d (row-by-col), repeat %3d times on %f ops (\t%f\tsec):\t%f Op/s"%(name, p, best_r, best_c, best_repeats, best_op, best_time, best_ops_per_s))
+	kdt.p("BEST\t%s\ton %3d procs:\t%5d-by-%5d (row-by-col), repeat %3d times on \t%f\t ops (\t%f\tsec):\t%f\tOp/s"%(name, p, best_r, best_c, best_repeats, best_op, best_time, best_ops_per_s))
 
 
 #kdt.p("running on Multiply only:")
