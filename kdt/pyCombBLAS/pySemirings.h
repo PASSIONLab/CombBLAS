@@ -228,7 +228,13 @@ struct PCBPlusTimesSRing
 	{
 		if (!SRFilterHelper<OUT, NT1, NT2>::testFilterX(arg1) || !SRFilterHelper<OUT, NT1, NT2>::testFilterY(arg2))
 			returnedSAID(true);
+
+#ifndef _MSC_VER
 		return arg1 * arg2;
+#else
+		// maybe not the most efficient way, but this will only be used on scalars VC can't figure out anything else
+		return static_cast<OUT>(static_cast<NT1>(arg1) * static_cast<NT1>(arg2));
+#endif
 	}
 	static void axpy(const OUT& a, const NT2& x, OUT & y)
 	{
