@@ -146,6 +146,7 @@ public:
 		}
 		else
 		{
+#ifndef _MSC_VER
 			struct tm timeinfo;
 			gmtime_r((time_t*)&latest, &timeinfo);
 			
@@ -157,7 +158,10 @@ public:
 											timeinfo.tm_min,
 											timeinfo.tm_sec);
 			sprintf(temp,"[ %d, %d, %s ]", follower, count, s);
-		}
+#else
+			sprintf(temp,"[Unsup. on Win.]");
+#endif
+			}
 		return &temp[0];
 	}
 	
@@ -187,6 +191,7 @@ public:
 		is >> count;
 		if(count > 0)
 		{
+#ifndef _MSC_VER
 			string date;
 			string time;
 			is >> date;
@@ -206,6 +211,9 @@ public:
 			timeinfo.tm_sec = sec;          // range 0.
 			latest = timegm(&timeinfo);
 			if(latest == -1) { cout << "Can not parse time date" << endl; exit(-1);}
+#else
+			throw string("Loading Obj2 is unsupported on Windows due to lack of timegm().");
+#endif
 		}
 		else
 		{
@@ -220,6 +228,7 @@ public:
 		os << follower << "\t" << count;
 		if (count > 0)
 		{
+#ifndef _MSC_VER
 			struct tm timeinfo;
 			gmtime_r((time_t*)&latest, &timeinfo);
 			
@@ -231,6 +240,9 @@ public:
 											timeinfo.tm_min,
 											timeinfo.tm_sec);
 			os << s;
+#else
+			throw string("Saving Obj2 is unsupported on Windows due to lack of gmtime_r().");
+#endif
 		}
 	}
 
