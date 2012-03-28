@@ -1010,6 +1010,7 @@ public:
 		}
 		else
 		{
+#ifndef _MSC_VER
 			struct tm timeinfo;
 			gmtime_r((time_t*)&latest, &timeinfo);
 			
@@ -1021,7 +1022,10 @@ public:
 											timeinfo.tm_min,
 											timeinfo.tm_sec);
 			sprintf(temp,"[ %d, %d, %s ]", follower, count, s);
-		}
+#else
+			sprintf(temp,"[Unsup. on Win.]");
+#endif
+			}
 		return &temp[0];
 	}
 	
