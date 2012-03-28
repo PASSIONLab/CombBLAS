@@ -104,11 +104,11 @@ class Vec(object):
 		return ret
 
 	# NEEDED: type change needs to be updated		
+	# ToDo:  add a doFilter=True arg at some point?
 	def copy(self, element=None, materializeFilter=True):
 		"""
 		creates a deep copy of the input argument.
 		FIX:  doc 'element' arg that converts element of result
-		ToDo:  add a doFilter=True arg at some point?
 		"""
 		ret = Vec() #Vec(element=self._identity_, sparse=self.isSparse())
 		ret._identity_ = self._identity_
@@ -196,7 +196,13 @@ class Vec(object):
 	# in-place, so no return value
 	def apply(self, op):
 		"""
-		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
+		applies an operator to every element in the vector.
+		For every element x in the vector, the following is performed:
+		x = op(x)
+
+		Input Arguments:
+			self:  a Vec instance, modified in-place
+			op:  the operation to perform.
 		"""
 		if self._hasFilter():
 			op = _makePythonOp(op)
@@ -212,7 +218,13 @@ class Vec(object):
 	# NEEDED: filters
 	def applyInd(self, op):
 		"""
-		ToDo:  write doc;  note pcb built-ins cannot be used as filters.
+		applies an operator to every element in the vector.
+		For every element x at position i in the vector, the following is performed:
+		x = op(x, i)
+
+		Input Arguments:
+			self:  a Vec instance, modified in-place
+			op:  the operation to perform.
 		"""
 		
 		if self._hasFilter():
@@ -251,17 +263,17 @@ class Vec(object):
 	# NEEDED: filters
 	def __getitem__(self, key):
 		"""
-		performs indexing of a SpParVec instance on the right-hand side
+		performs indexing of a Vec instance on the right-hand side
 		of an equation.  The following forms are supported:
-	scalar = spparvec[integer scalar]
-	spparvec = spparvec[non-boolean parvec]
+	scalar = vec[integer scalar]
+	vec = vec[non-boolean vec]
 
 		The first form takes as the index an integer scalar and returns
-		the corresponding element of the SpParVec instance.  This form is
+		the corresponding element of the Vec instance.  This form is
 		for convenience and is not highly performing.
 
-		The second form takes as the index a non-Boolean SpParVec instance
-		and returns an SpParVec instance of the same length with the 
+		The second form takes as the index a non-Boolean Vec instance
+		and returns an Vec instance of the same length with the 
 		elements of the result corresponding to the nonnull values of the
 		index set to the values of the base SpParVec instance. 
 		"""
@@ -292,11 +304,11 @@ class Vec(object):
 	#ToDO:  simplfy to avoid dense() when pySpParVec.Find available
 	def find(self, pred=None):
 		"""
-		returns the elements of a Boolean Vec instance that are both
-		nonnull and nonzero.
+		returns the elements of a Vec for which a predicate returns True.
 
 		Input Argument:
 			self:  a Vec instance
+			pred:  the predicate to check with. Default checks for non-zero.
 
 		Output Argument:
 			ret:  a Vec instance
@@ -323,15 +335,14 @@ class Vec(object):
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
 	def findInds(self, pred=None):
 		"""
-		returns the indices of the elements of a Boolean Vec instance
-		that are both nonnull and nonzero.
+		returns the indices of elements of a Vec for which a predicate returns True.
 
 		Input Argument:
 			self:  a Vec instance
+			pred:  the predicate to check with. Default checks for non-zero.
 
 		Output Argument:
-			ret:  a Vec instance of length equal to the number of
-			    nonnull and nonzero elements in self
+			ret:  a Vec instance
 
 		SEE ALSO:  find
 		"""
@@ -467,8 +478,22 @@ class Vec(object):
 
 	def reduce(self, op, uniOp=None, init=None):
 		"""
-		ToDo:  write doc
-			return is a scalar
+		accumulates vector elements.
+		
+		Input Arguments:
+			self:  a Vec instance
+			op:  a binary function. Its first argument is the result of application
+				of uniOp to an element. Its second argument is the sum accumulated
+				so far. Having incorporated the uniOp of another element into the sum,
+				the function returns this new value of the sum. Example:
+				lambda convertedElement, sum: sum + convertedElement
+			uniOp:  a unary function that converts a matrix element before it is passed
+				to op function as its first argument. In its simplest form, uniOp may
+				return its input, i.e. lambda element: element.
+			init:  the value to which the accumulated sum is initialized.
+
+		Output Arguments:
+			ret: the final accumulation value, or init if the vector has no elements.
 		"""
 		if init is None:
 			init = self._identity_
@@ -502,6 +527,8 @@ class Vec(object):
 	def count(self, pred=None):
 		"""
 		returns the number of elements for which `pred` is true.
+		
+		SEE ALSO: find, findInds
 		"""
 		if pred is None:
 			pred = lambda x: bool(x)
@@ -697,14 +724,41 @@ class Vec(object):
 	
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False, allowIntersect=True):
 		"""
-		Performs an element-wise operation between the two vectors.
-		if inPlace is true the result is stored in self.
-		if inPlace is false, the result is returned in a new vector.
+		applies a binary operation to corresponding elements of two vectors.
+		The operation may be optionally performed in-place.
+		This function is equivalent to:
+		for all i:
+		    if doOp(self[i], other[i]):
+		        ret[i] = op(self[i], other[i])
 		
-		doOp is a predicate that determines whether or not a op is performed on each pair of values.
-		i.e.:
-			if doOp(self[i], other[i])
-				op(self[i], other[i])
+		Since KDT vectors might be sparse, there are multiple ways to handle different
+		sparsity patterns. This is for cases where one vector has an element at
+		position i but the other does not or vice versa. The allowANulls,
+		allowBNulls, and allowIntersect parameters are used to control what happens
+		in each portion of the sparsity Venn diagram.
+
+		Input Arguments:
+			self:  a Vec instance representing the first vector
+			other:  a Vec instance representing the second vector
+			op:  a binary operation accepting two elements and returning an element
+			allowANulls:  If True and self does not have a value at a position but
+				other does, still perform the operation using a default value.
+				If False, do not perform the operation at any position where self
+				does not have a value.
+			allowBNulls:  If True and other does not have a value at a position but
+				self does, still perform the operation using a default value.
+				If False, do not perform the operation at any position where other
+				does not have a value.
+			doOp:  a binary predicate accepting two corresponding elements of two
+				matrices and returning True if they should be processed and False
+				otherwise.
+			inPlace:  indicates whether to perform the operation in-place storing
+				the result in self or to create a new vector.
+			allowIntersect:  indicates whether or not the operation should be
+			    performed if both self and copy have a value at a position.
+			predicate:  Not Supported Yet
+
+		SEE ALSO: Mat.eWiseApply
 		"""
 		
 		# elementwise operation with a regular object
@@ -852,34 +906,21 @@ class Vec(object):
 	# NEEDED: update docstring
 	def __div__(self, other):
 		"""
-		divides each element of the first argument (a SpParVec instance),
+		divides each element of the first argument (a Vec instance),
 		by either a scalar or the corresonding element of the second 
-		SpParVec instance, with a non-null element where either of the 
+		Vec instance, with a non-null element where either of the 
 		two input vectors was nonnull.
 		
 		Note:  ZeroDivisionException will be raised if any element of 
 		the second argument is zero.
-
-		Note:  For v0.1, the second argument may only be a scalar.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x / other))
 
 	# NEEDED: update docstring
 	def __eq__(self, other):
 		"""
-		calculates the Boolean equality of the first argument with the second argument 
+		calculates the element-wise Boolean equality of the first argument with the second argument 
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the scalar and the corresponding
-		element of the first argument are equal.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and equal.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x == other), predicate=True)
 
@@ -887,40 +928,15 @@ class Vec(object):
 	def __ge__(self, other):
 		"""
 		#FIX: doc
-		calculates the Boolean greater-than-or-equal relationship of the first argument with the second argument 
+		calculates the elementwise Boolean greater-than-or-equal relationship of the first argument with the second argument 
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is greater than or equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is greater than or equal to the second.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x >= other), predicate=True)
 
 	# NEEDED: update docstring
 	def __gt__(self, other):
 		"""
-		calculates the Boolean greater-than relationship of the first argument with the second argument 
-
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is greater than the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is greater than the second.
+		calculates the elementwise Boolean greater-than relationship of the first argument with the second argument 
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x > other), predicate=True)
 
@@ -958,40 +974,15 @@ class Vec(object):
 	# NEEDED: update docstring
 	def __le__(self, other):
 		"""
-		calculates the Boolean less-than-or-equal relationship of the first argument with the second argument 
-
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is less than or equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is less than or equal to the second.
+		calculates the elementwise Boolean less-than-or-equal relationship of the first argument with the second argument 
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x <= other), predicate=True)
 
 	# NEEDED: update docstring
 	def __lt__(self, other):
 		"""
-		calculates the Boolean less-than relationship of the first argument with the second argument 
+		calculates the elementwise Boolean less-than relationship of the first argument with the second argument 
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is less than the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is less than the second.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x < other), predicate=True)
 
@@ -999,8 +990,8 @@ class Vec(object):
 	def __mod__(self, other):
 		"""
 		calculates the modulus of each element of the first argument by the
-		second argument (a scalar or a SpParVec instance), with a nonnull
-		element where the input SpParVec argument(s) were nonnull.
+		second argument (a scalar or a Vec instance), with a nonnull
+		element where the input Vec argument(s) were nonnull.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x % other))
 
@@ -1008,8 +999,8 @@ class Vec(object):
 	def __mul__(self, other):
 		"""
 		multiplies each element of the first argument by the second argument 
-		(a scalar or a SpParVec instance), with a nonnull element where 
-		the input SpParVec argument(s) were nonnull.
+		(a scalar or a Vec instance), with a nonnull element where 
+		the input Vec argument(s) were nonnull.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x * other))
 
@@ -1017,20 +1008,8 @@ class Vec(object):
 	# NEEDED: update docstring
 	def __ne__(self, other):
 		"""
-		calculates the Boolean not-equal relationship of the first argument with the second argument 
-
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is not equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is not equal to the second.
+		calculates the Boolean not-equal relationship of the first argument with the second argument.
+		other can be a Vec or a scalar.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x != other), predicate=True)
 
@@ -1047,10 +1026,8 @@ class Vec(object):
 	# NEEDED: update docstring
 	def __or__(self, other):
 		"""
-		performs a logical Or between the corresponding elements of two
-		SpParVec instances into the result SpParVec instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where at least one of the input vectors is True.
+		performs a bitwise Or between the corresponding elements of two
+		Vec instances.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x | other), intOnly=True)
 
@@ -1058,8 +1035,8 @@ class Vec(object):
 	def __sub__(self, other):
 		"""
 		subtracts the corresponding elements of the second argument (a
-		scalar or a SpParVec instance) from the first argument (a SpParVec
-		instance), with a nonnull element where the input SpParVec argument(s)
+		scalar or a Vec instance) from the first argument (a Vec
+		instance), with a nonnull element where the input Vec argument(s)
 		are nonnull.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
@@ -1067,10 +1044,8 @@ class Vec(object):
 	# NEEDED: update docstring
 	def __xor__(self, other):
 		"""
-		performs a logical Xor between the corresponding elements of two
-		SpParVec instances into the result SpParVec instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where exactly one of the input vectors is True.
+		performs a bitwise Xor between the corresponding elements of two
+		Vec instances.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x ^ other))
 	
@@ -1098,7 +1073,7 @@ class Vec(object):
 	def allCloseToInt(self):
 		"""
 		returns a Boolean True if all the nonnull elements of the
-		SpParVec instance have values within epsilon of an integer,
+		Vec instance have values within epsilon of an integer,
 		and False otherwise.
 		"""
 		if self.nnn() == 0:
@@ -1152,9 +1127,7 @@ class Vec(object):
 	def logicalAnd(self, other):
 		"""
 		performs a logical And between the corresponding elements of two
-		SpVecObj instances into the result SpVecObj instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where both of the input vectors are True.
+		Vec instances.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) and bool(other)))
 
@@ -1167,19 +1140,15 @@ class Vec(object):
 	def logicalOr(self, other):
 		"""
 		performs a logical Or between the corresponding elements of two
-		SpVecObj instances into the result SpVecObj instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where either of the input vectors is True.
+		Vec instances.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) or bool(other)))
 
 	# NEEDED: update docstring
 	def logicalXor(self, other):
 		"""
-		performs a logical Or between the corresponding elements of two
-		SpVecObj instances into the result SpVecObj instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where either of the input vectors is True.
+		performs a logical XOr between the corresponding elements of two
+		Vec instances.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: bool(x) != bool(other)))
 
@@ -1227,12 +1196,12 @@ class Vec(object):
 	def nn(self):
 		"""
 		returns the number of nulls (non-existent entries) in the 
-		SpVec instance.
+		Vec instance.
 
-		Note:  for x a SpVec instance, x.nnn()+x.nn() always equals 
+		Note:  for x a Vec instance, x.nnn()+x.nn() always equals 
 		len(x).
 
-		SEE ALSO:  nnn, nnz
+		SEE ALSO:  nnn, len
 		"""
 		if self.isDense():
 			return 0
@@ -1246,7 +1215,7 @@ class Vec(object):
 		Note:  for Vec instance x, x.nnn()+x.nn() always equals 
 		len(x).
 
-		SEE ALSO:  nn, nnz
+		SEE ALSO:  nn, len
 		"""
 		if self.isDense():
 			return len(self)
@@ -1281,8 +1250,7 @@ class Vec(object):
 	#in-place, so no return value
 	def set(self, value):
 		"""
-		sets every non-null value in the Vec instance to the second
-		argument, in-place.
+		sets every non-null value in the Vec instance to value, in-place.
 		"""
 		def f(x):
 			x = value
@@ -1313,15 +1281,15 @@ class Vec(object):
 	# NEEDED: update docstring
 	def sorted(self):
 		"""
-		returns a new SpParVec instance with the sorted values (in ascending
-		order) from the input SpParVec instance and a SpParVec permutation 
+		returns a new Vec instance with the sorted values (in ascending
+		order) from the input Vec instance and a Vec permutation 
 		vector.
 
 		Input Arguments:
-			self:  a SpParVec instance.
+			self:  a Vec instance.
 
 		Output Argument:
-			ret:  a tuple containing as its first element a SpParVec 
+			ret:  a tuple containing as its first element a Vec 
 			    instance of the same length and same number and position
 			    of non-nulls containing the sorted non-null values and
 			    as its second element the indices of the sorted values
@@ -1350,7 +1318,7 @@ class Vec(object):
 	#in-place, so no return value
 	def spRange(self):
 		"""
-		sets every non-null value in the SpParVec instance to its position
+		sets every non-null value in the Vec instance to its position
 		(offset) in the vector, in-place.
 		"""
 
@@ -1397,14 +1365,14 @@ class Vec(object):
 	# NEEDED: make it work (bugs in CombBLAS/PCB implementation)
 	def topK(self, k):
 		"""
-		returns the largest k non-null values in the passed SpParVec instance.
+		returns the largest k non-null values in the passed Vec instance.
 
 		Input Arguments:
-			self:  a SpParVec instance.
+			self:  a Vec instance.
 			k:  a scalar integer denoting how many values to return.
 
 		Output Argument:
-			ret:  a ParVec instance of length k containing the k largest
+			ret:  a Vec instance of length k containing the k largest
 			    values from the input vector, in ascending order.
 		"""
 		raise NotImplementedError, "TopK does not work properly"

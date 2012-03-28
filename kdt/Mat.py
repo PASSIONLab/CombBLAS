@@ -46,15 +46,14 @@ class Mat:
 			element:  a representative matrix element by which the matrix type is
 				determined. Default is 0, which corresponds to a float-valued matrix.
 				Other possible values include True (results in a Boolean-valued
-				matrix), kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
+				matrix), kdt.Obj1, and kdt.Obj2.
 
 		Output Arguments:
 			ret:  a Mat instance
 
 		Note: If more than one 3-tuple address the same element in the matrix
 			((x, y, value1), ..., (x, y, valueN)), then the value of the [x, y]'th
-			element of the matrix equals the sum of the values of all these 3-tuples
-			(value1 + ... + valueN).
+			element of the matrix is undefined and the matrix is corrupted.
 
 		SEE ALSO:  toVec
 		"""
@@ -148,10 +147,10 @@ class Mat:
 
 		Input Arguments:
 			self:  a Mat instance
-			element:  a representative matrix element by which the matrix type is
-				determined. Default is None, which corresponds to a float-valued
-				matrix. Other possible value is True (results in a Boolean-valued
-				matrix).
+			element: used for type conversion. If specified, the copy's elements with be
+				of the same type as this parameter. For numerical types the built-in 
+				type conversion is used, for objects the coerce() method is assumed
+				to be defined and is used.
 
 		Output Arguments:
 			ret:  a Mat instance representing a deep copy of the input matrix
@@ -210,13 +209,13 @@ class Mat:
 
 	def isObj(self):
 		'''
-		returns a Boolean indicating whether the matrix is a Object-valued.
+		returns a Boolean indicating whether the matrix elements are objects.
 
 		Input Arguments:
 			self: a Mat instance
 
 		Output Arguments:
-			ret: a Boolean
+			ret: True if matrix elements are Obj1/Obj2, False otherwise
 		'''
 		return not isinstance(self._identity_, (float, int, long, bool))
 		#try:
@@ -239,8 +238,7 @@ class Mat:
 
 	def isScalar(self):
 		"""
-		returns a Boolean indicating whether the matrix is a general-purpose
-		scalar-valued sparse matrix.
+		returns a Boolean indicating whether the matrix elements are floating-point values.
 
 		Input Arguments:
 			self: a Mat instance
@@ -276,7 +274,7 @@ class Mat:
 	
 	def nnn(self):
 		"""
-		gets the number of elements in the matrix.
+		gets the number of elements in the matrix. This is known as 'nnz' in Matlab.
 
 		Input Arguments:
 			self: a Mat instance
@@ -302,7 +300,7 @@ class Mat:
 				in-place. Default is True.
 
 		Output Arguments:
-			ret:  if inPlace=True, the function returns an instance of Mat
+			ret:  if inPlace=False, the function returns a new instance of Mat
 				representing the conversion result. Otherwise, nothing is
 				returned.
 		"""
@@ -316,7 +314,7 @@ class Mat:
 
 	def toScalar(self, inPlace=True):
 		"""
-		converts each element of a matrix into a 64-bit scalar. The
+		converts each element of a matrix into a floating-point scalar. The
 		conversion may be optionally performed in-place.
 
 		Input Arguments:
@@ -325,7 +323,7 @@ class Mat:
 				in-place. Default is True.
 
 		Output Arguments:
-			ret:  if inPlace=True, the function returns an instance of Mat
+			ret:  if inPlace=False, the function returns a new instance of Mat
 				representing the result of conversion. Otherwise, nothing
 				is returned.
 		"""
@@ -371,9 +369,6 @@ class Mat:
 			retv = Vec(0, element=self._identity_, sparse=False)
 		#ToDo:  return nvert() of original graph, too
 		return (reti, retj, retv)
-
-	# NEEDED: tests
-	#ToDo:  put in method to modify _REPR_MAX
 
 	def _reprHeader(self):
 		nnn = self.nnn()
@@ -427,6 +422,7 @@ class Mat:
 		
 		return ret
 				
+	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 400
 	def __repr__(self):
 
@@ -443,8 +439,8 @@ class Mat:
 	def load(fname, element=0.0, par_IO=False):
 		"""
 		loads the contents of the matrix from a file fname in the
-		Coordinate Format of the Matrix Market Exchange Formats
-		(http://math.nist.gov/MatrixMarket/formats.html#MMformat).
+		format specified at
+		http://kdt.sourceforge.net/wiki/index.php/File_Format_Guide
 
 		Input Arguments:
 			fname:  the name of a file from which the matrix data
@@ -453,13 +449,20 @@ class Mat:
 				matrix type is determined. Default is 0.0, which
 				corresponds to a float-valued matrix. Other possible
 				values include True (results in a Boolean- valued
-				matrix), , kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
+				matrix), kdt.Obj1(), and kdt.Obj2().
 			par_IO:  a Boolean specifying whether to use parallel I/O.
-				Default is False.
+				Default is False. This is purely experimental and
+				will be properly supported in a future release.
+				Do not use.
 		Output Arguments:
 			ret:  a Mat instance containing the matrix represented
 			    by the file's contents.
 
+		NOTE:  Elements in the matrix are transposed during loading.
+		       The reason is so when the matrix is used as an
+		       adjacency matrix for a graph then outgoing edges are
+		       along columns, making for efficient traversals.
+		       
 		NOTE:  The Matrix Market Format numbers vertices from 1 to N,
 			while Python and KDT do it from 0 to N-1. The load method
 			converts indexes while reading the data and creating the
@@ -480,9 +483,8 @@ class Mat:
 
 	def save(self, fname):
 		"""
-		saves the matrix to a file in the Coordinate Format of the
-		Matrix Market Exchange Formats
-		(http://math.nist.gov/MatrixMarket/formats.html#MMformat).
+		saves the matrix to a file in the Format specified at
+		http://kdt.sourceforge.net/wiki/index.php/File_Format_Guide
 
 		Input Arguments:
 			self:  a Mat instance
@@ -516,9 +518,10 @@ class Mat:
 		(see http://www.graph500.org/reference.html).
 		
 		Input Arguments:
-			scale:  a binary logarithm of the number of vertices in the graph
+			scale:  a base-2 logarithm of the number of vertices in the graph.
+			    The result will have 2^scale vertices (if delIsolated=False). 
 			fillFactor:  the ratio of the number of edges to the number of
-				vertices in the graph.
+				vertices in the graph. Default is 16.
 			initiator:  a 4-tuple of initiators A, B, C, and D. Default value is
 				[0.57, 0.19, 0.19, 0.05].
 			delIsolated:  a Boolean indicating whether to delete isolated vertices
@@ -526,7 +529,7 @@ class Mat:
 			element:  a representative matrix element by which the matrix type is
 				determined. Default is True, which corresponds to a matrix of
 				Booleans. Other possible values include 1 (results in a float-
-				valued matrix), kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
+				valued matrix), kdt.Obj1, and kdt.Obj2.
 
 		Output Arguments:
 			ret: a 3-tuple containing a Mat, a Vec, and a time. The matrix is
@@ -534,8 +537,6 @@ class Mat:
 				vertex of the original graph; and the time is the time for the
 				Graph500 Kernel 1.
 
-		SEE ALSO:
-			http://kdt.sourceforge.net/wiki/index.php/Generating_a_Random_Graph
 		"""
 		degrees = Vec(0, element=1.0, sparse=False)
 		matrix = Mat(element=element)
@@ -597,22 +598,24 @@ class Mat:
 	# in-place, so no return value
 	def addFilter(self, filter):
 		"""
-		adds a vertex filter to the matrix.
+		adds a filter to the matrix.
 
-		A vertex filter is a unary predicate accepting a vertex and returning
-		True for those vertices that should be considered and False for those
-		that should not.
+		A filter is a unary predicate accepting an element and returning
+		True for those that should be considered in computations and False for those
+		that should not. I.e. True to keep the element, False to discard it.
 
-		Vertex filters are additive, in that each vertex must pass all filters
-		in order to be considered. All vertex filters are executed before a vertex
+		Filters are additive, in that each element must pass all filters
+		in order to be considered. All filters are executed before an element
 		is considered in a computation.
+		
+		Unless materializeFilter is called, filters are On-The-Fly.
 
 		Input Arguments:
 			self:  a Mat instance
-			filter:  a vertex filter
+			filter:  a filter predicate
 
 		SEE ALSO:
-			delFilter
+			delFilter, materializeFilter
 		"""
 		if hasattr(self, '_filter_'):
 			self._filter_.append(filter)
@@ -634,21 +637,16 @@ class Mat:
 		
 	def delFilter(self, filter=None):
 		"""
-		deletes a vertex filter from the matrix.
-
-		A vertex filter is a unary predicate accepting a vertex and returning
-		True for those vertices that should be considered and False for those
-		that should not.
+		deletes a filter that is already applied to the matrix.
 
 		Input Arguments:
-			filter:  either a vertex filter that has previoiusly been added to
-				this matrix by a call to addFilter or None, which signals the
-				deletion of all filters.
+			filter:  a filter that has previoiusly been added to
+				this matrix by a call to addFilter. If None, all filters are deleted.
 
 		SEE ALSO: addFilter
 		"""
 		if not hasattr(self, '_filter_'):
-			raise KeyError, "no filters previously created"
+			raise KeyError, "no filters previously added"
 		if filter is None:
 			del self._filter_	# remove all filters
 			self.deMaterializeFilter()
@@ -662,12 +660,29 @@ class Mat:
 		return
 
 	def materializeFilter(self):
+		"""
+		materializes the filter(s) already added. Materialization creates an internal copy
+		of the matrix with all filtered elements actually discarded (not stored at all).
+		All operations are performed using this copy.
+		
+		The filter predicates are executed once for every element in the filter.
+		This is an O(number of elements) operation.
+		The original matrix is kept (hence delFilter is still a valid operation).
+
+		SEE ALSO: addFilter, deMaterializeFilter
+		"""
 		# a materialized filter is being used if the self._materialized element exists.
 		self._materialized = 1
 		# do the materialization
 		self._dirty()
 	
 	def deMaterializeFilter(self):
+		"""
+		turns a materialized filter back into an On-The-Fly filter.
+		Deletes the materialized copy.
+		
+		SEE ALSO: materializeFilter
+		"""
 		if self._hasMaterializedFilter():
 			del self._materialized
 
@@ -706,13 +721,15 @@ class Mat:
 ### Basic Methods
 ##########################
 
-	def apply(self, op):#, other=None, notB=False):
+	def apply(self, op):
 		"""
 		applies an operator to every element in the matrix.
+		For every element x in the matrix, the following is performed:
+		x = op(x)
 
 		Input Arguments:
 			self:  a Mat instance, modified in-place
-			op:  a Python or pyCombBLAS function
+			op:  the operation to perform.
 		"""
 		if self._hasMaterializedFilter():
 			ret = self._materialized.apply(op)
@@ -736,7 +753,7 @@ class Mat:
 			dir:  a direction along which counting is performed. Possible
 				values are Mat.Column, Mat.Row, and Mat.All. If dir=Mat.Column,
 				then counting is performed within each column and the resulting
-				counts are places in a vector. If dir=Mat.Row, then the counting
+				counts are placed in a vector. If dir=Mat.Row, then the counting
 				is performed similarly within rows resulting in a vector of
 				counts. If dir=Mat.All, then the counting is performed by all
 				the elements in the matrix resulting in one scalar value.
@@ -755,23 +772,41 @@ class Mat:
 
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False):
 		"""
-		applies an operation to corresponding elements of two matrices. The operation
-		may be optionally performed in-place.
+		applies a binary operation to corresponding elements of two matrices.
+		The operation may be optionally performed in-place.
+		This function is equivalent to:
+		for all i,j:
+		    if doOp(self[i,j], other[i,j]):
+		        ret[i,j] = op(self[i,j], other[i,j])
+		
+		Since KDT matrices are sparse, there are multiple ways to handle different
+		sparsity patterns. This is for cases where one matrix has an element at
+		position [i,j] but the other does not or vice versa. The allowANulls,
+		allowBNulls, and allowIntersect parameters are used to control what happens
+		in each portion of the sparsity Venn diagram.
 
 		Input Arguments:
 			self:  a Mat instance representing the first matrix
 			other:  a Mat instance representing the second matrix
 			op:  a binary operation accepting two elements and returning an element
-			allowANulls:  TODO
-			allowBNulls:  TODO
+			allowANulls:  If True and self does not have a value at a position but
+				other does, still perform the operation using a default value.
+				If False, do not perform the operation at any position where self
+				does not have a value.
+			allowBNulls:  If True and other does not have a value at a position but
+				self does, still perform the operation using a default value.
+				If False, do not perform the operation at any position where other
+				does not have a value.
 			doOp:  a binary predicate accepting two corresponding elements of two
 				matrices and returning True if they should be processed and False
 				otherwise.
 			inPlace:  indicates whether to perform the operation in-place storing
-				the result in the first matrix or to create a new matrix.
-			allowIntersect:  TODO
+				the result in self or to create a new matrix.
+			allowIntersect:  indicates whether or not the operation should be
+			    performed if both self and copy have a value at a position.
 			predicate:  Not Supported Yet
-		See Also: Vec.eWiseApply
+
+		SEE ALSO: Vec.eWiseApply
 		"""
 		
 		if predicate:
@@ -930,7 +965,7 @@ class Mat:
 			uniOp:  a unary function that converts a matrix element before it is passed
 				to op function as its first argument. In its simplest form, uniOp may
 				return its input, i.e. lambda element: element.
-			init:  the value with which an accumulated sum is initialized.
+			init:  the value to which the accumulated sum is initialized.
 
 		Output Arguments:
 			ret: a Vec instance containing the accumulated values. If the chosen reduction
@@ -1039,16 +1074,20 @@ class Mat:
 
 	def SpGEMM(self, other, semiring, inPlace=False):
 		"""
-		multiples two matrices together.
+		multiples two matrices together using the specified semiring.
 
 		Input Arguments:
 			self:  a Mat instance representing the left factor
 			other:  a Mat instance representing the right factor
 			semiring:  a semiring object that determines the behavior of elementwise
-				addition and multiplication operations. The possible values include
-				  - TimesPlusSemiringObj: a semiring where addition and multiplication
-				      operations are defined naturally
-				  - SecondMaxSemiringObj: a semiring where both addition and multiplication
+				addition and multiplication operations. This can be custom defined
+				using kdt.sr(add_func, mult_func), or we supply two pre-built ones.
+				The pre-built ones are compiled into C++ and do not suffer the performance
+				penalty of an upcall to Python for each operation. They include:
+				  - sr_plustimes: a semiring where addition and multiplication
+				      operations are the standard scalar + and * operators. Only available
+				      on non-object matrices.
+				  - sr_select2nd: a semiring where both addition and multiplication
 				      operations return their second operand
 			inPlace:  specifies whether to perform the multiplication in-place storing the
 				multiplication result in the first matrix or to create a new matrix.
@@ -1057,6 +1096,8 @@ class Mat:
 		Output Arguments:
 			ret:  if inPlace=False, returns a matrix representing the result of matrix
 				multiplication. Otherwise, nothing is returned.
+		
+		SEE ALSO: sr()
 		"""
 		
 		# check input
@@ -1103,16 +1144,21 @@ class Mat:
 	# possibly in-place;  if so, no return value
 	def SpMV(self, other, semiring, inPlace=False):
 		"""
-		multiplies a matrix from the right by a column vector.
+		multiplies a matrix from the right by a vector. The vector is assumed to be a column
+		vector.
 
 		Input Arguments:
 			self:  a Mat instance
 			other:  a Vec instance
 			semiring:  a semiring object that determines the behavior of elementwise
-				addition and multiplication operations. The possible values include
-				  - TimesPlusSemiringObj: a semiring where addition and multiplication
-				      operations are defined naturally
-				  - SecondMaxSemiringObj: a semiring where both addition and multiplication
+				addition and multiplication operations. This can be custom defined
+				using kdt.sr(add_func, mult_func), or we supply two pre-built ones.
+				The pre-built ones are compiled into C++ and do not suffer the performance
+				penalty of an upcall to Python for each operation. They include:
+				  - sr_plustimes: a semiring where addition and multiplication
+				      operations are the standard scalar + and * operators. Only available
+				      on non-object matrices.
+				  - sr_select2nd: a semiring where both addition and multiplication
 				      operations return their second operand
 			inPlace:  specifies whether to perform the multiplication in-place storing the
 				multiplication result in the matrix or to create a new vector.
@@ -1194,7 +1240,8 @@ class Mat:
 			init:  a minimal value for each maximum. In no element along the
 				chosen direction is greater than this value, then the
 				corresponding maximum in the resulting vector will be equal
-				to init. Default is None.
+				to init.
+				TODO: handle init specially for floats (set to neg infinity)
 
 		Output Arguments:
 			ret:  a Vec instance containing maximums computed along the chosen
@@ -1226,6 +1273,8 @@ class Mat:
 				of each vertex; if dir=Mat.Column, then the search if performed
 				by the weights of the outgoing edges. Default is Mat.Column.
 
+				TODO: handle init specially for floats (set to neg infinity)
+
 		Output Arguments:
 			ret:  a Vec instance containing maximums computed along the chosen
 				direction.
@@ -1255,7 +1304,7 @@ class Mat:
 		
 	def removeMainDiagonal(self):
 		"""
-		removes elements residing on the main diagonal of the matrix.
+		removes elements residing on the main diagonal of the matrix. In Place.
 
 		Input Arguments:
 			self:  a Mat instance
@@ -1563,7 +1612,7 @@ class Mat:
 
 	def __neg__(self):
 		"""
-		replaces each element in the matrix with its bitwise negation.
+		replaces each element x in the matrix with -x.
 
 		Input Arguments:
 			self: a Mat instance
