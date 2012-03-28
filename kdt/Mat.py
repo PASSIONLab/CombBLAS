@@ -24,40 +24,37 @@ class Mat:
 	#	are in the row
 	def __init__(self, i=None, j=None, v=None, n=None, m=None, element=0):
 		"""
-		FIX:  doc
-		creates a new Mat instance.  Can be called in one of the 
-		following forms:
+		creates a new matrix. In KDT, it is usually seen as an adjacency matrix
+		of a (directed) graph, with the [i, j]'th element's being the weight of
+		the edge from vertex j to vertex i in the corresponding graph. A matrix
+		may be constructed in one of the following ways:
 
-	Mat():  creates an empty Mat instance with no elements.
+	Mat():  creates an empty matrix
 
 	Mat(i, j, v, n)
-	Mat(i, j, v, n, m)
-		create a Mat instance with n columns, m rows, and initialized
-		by the tuples i,j,v. 
-		edges with source represented by 
-		each element of sourceV and destination represented by each 
-		element of destV with weight represented by each element of 
-		weightV.  In the 4-argument form, the resulting Mat will 
-		have n out- and in-vertices.  In the 5-argument form, the 
-		resulting Mat will have n out-vertices and m in-vertices.
+	Mat(i, j, v, n, m, element=0)
+		creates a matrix with n columns and m rows (or n columns and n rows if m
+		is omitted). The matrix is initialized with 3-tuples (i[k], j[k], v[k])
+		by assigning value v[k] to the [i[k], j[k]]'th element.
 
 		Input Arguments:
-			i:  a Vec containing integers denoting the 
-			    (0-based) row of each element.
-			i:  a Vec containing integers denoting the 
-			    (0-based) column of each element.
-			v:  a Vec containing the value of each element.
-			n:  an integer scalar denoting the number of columns
-			    (out-vertices for an adjacency matrix) 
-			    (and also rows in the 4-argument case).
-			m:  an integer scalar denoting the number of rows
-			    (in-vertices for an adjacency matrix)
+			i:  a Vec containing column indices (correspond to destination vertices)
+			j:  a Vec containing row indices (correspond to source vertices)
+			v:  a Vec containing matrix element values (correspond to edge weights)
+			n:  an integer number of columns (and rows if m is omitted)
+			m:  an integer number of rows
+			element:  a representative matrix element by which the matrix type is
+				determined. Default is 0, which corresponds to a float-valued matrix.
+				Other possible values include True (results in a Boolean-valued
+				matrix), kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
 
-		Output Argument:  
+		Output Arguments:
 			ret:  a Mat instance
 
-		Note:  If two or more elements (tuples) have the same i and j
-		values then their values are summed.
+		Note: If more than one 3-tuple address the same element in the matrix
+			((x, y, value1), ..., (x, y, valueN)), then the value of the [x, y]'th
+			element of the matrix equals the sum of the values of all these 3-tuples
+			(value1 + ... + valueN).
 
 		SEE ALSO:  toVec
 		"""
@@ -92,25 +89,25 @@ class Mat:
 			#i = destV
 			#v = valueV
 			if type(v) == tuple and isinstance(element,(float,int,long)):
-				raise NotImplementedError, 'tuple valueV only valid for Obj element'
+				raise NotImplementedError, 'tuple v only valid for Obj element'
 			if len(i) != len(j):
-				raise KeyError, 'source and destination vectors must be same length'
+				raise KeyError, 'source and destination vectors must be of the same length'
 			if type(v) == int or type(v) == long or type(v) == float:
 				v = Vec(len(i), v, sparse=False)
 #			if i.max() > n-1:
 #				raise KeyError, 'at least one first index greater than #vertices'
 #			if j.max() > n-1:
 #				raise KeyError, 'at least one second index greater than #vertices'
-			
+
 			if i.isObj() or j.isObj():
-				raise ValueError, "sourceV and destV cannot be objects!"
+				raise ValueError, "j and i cannot be objects!"
 			if i.isSparse() or j.isSparse():
-				raise ValueError, "sourceV and destV cannot be sparse!"
-			
+				raise ValueError, "j and i cannot be sparse!"
+
 			if isinstance(v, Vec):
 				element = v._identity_
 				if v.isSparse():
-					raise ValueError, "valueV cannot be sparse!"
+					raise ValueError, "v cannot be sparse!"
 			else:
 				element = v
 			
@@ -147,13 +144,17 @@ class Mat:
 
 	def copy(self, element=None):
 		"""
-		creates a deep copy of a DiGraph instance.
+		creates a deep copy of a matrix.
 
-		Input Argument:
-			self:  a DiGraph instance.
+		Input Arguments:
+			self:  a Mat instance
+			element:  a representative matrix element by which the matrix type is
+				determined. Default is None, which corresponds to a float-valued
+				matrix. Other possible value is True (results in a Boolean-valued
+				matrix).
 
-		Output Argument:
-			ret:  a DiGraph instance containing a copy of the input.
+		Output Arguments:
+			ret:  a Mat instance representing a deep copy of the input matrix
 		"""
 
 		if hasattr(self,'_filter_'):
@@ -208,6 +209,15 @@ class Mat:
 		return ret
 
 	def isObj(self):
+		'''
+		returns a Boolean indicating whether the matrix is a Object-valued.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: a Boolean
+		'''
 		return not isinstance(self._identity_, (float, int, long, bool))
 		#try:
 		#	ret = hasattr(self,'_elementIsObject') and self._elementIsObject
@@ -216,39 +226,85 @@ class Mat:
 		#return ret
 
 	def isBool(self):
+		"""
+		returns a Boolean indicating whether the matrix is Boolean-valued.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: a Boolean
+		"""
 		return isinstance(self._m_, (pcb.pySpParMatBool))
 
 	def isScalar(self):
+		"""
+		returns a Boolean indicating whether the matrix is a general-purpose
+		scalar-valued sparse matrix.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: a Boolean
+		"""
 		return isinstance(self._m_, (pcb.pySpParMat))
 
 	def nrow(self):
+		"""
+		gets the number of rows in the matrix.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: an integer number of rows
+		"""
 		return self._m_.getnrow()
 		
 	def ncol(self):
+		"""
+		gets the number of columns in the matrix.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: an integer number of columns
+		"""
 		return self._m_.getncol()
 	
 	def nnn(self):
 		"""
-		returns the number of existing elements in this matrix.
+		gets the number of elements in the matrix.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			ret: an integer number of elements
 		"""
 		if self._hasFilter():
 			if self._hasMaterializedFilter():
 				return self._materialized.nnn()
 			return int(self.reduce(Mat.All, (lambda x,y: x+y), uniOp=(lambda x: 1), init=0))
 			
-		return self._m_.getnee()		
+		return self._m_.getnee()
 	
 	def toBool(self, inPlace=True):
 		"""
-		converts the Mat instance in-place such that each element only has
-		a Boolean (True) value, thereby consuming less space and making
-		some operations faster.
+		converts each nonnull element in the matrix into a Boolean True. The
+		conversion may be optionally performed in-place.
 
-		Input Argument:
-			self:  a Mat instance that is overwritten by the method
+		Input Arguments:
+			self:  a Mat instance
+			inPlace:  a Boolean specifying whether to perform the convertion
+				in-place. Default is True.
 
-		Output Argument:
-			None.
+		Output Arguments:
+			ret:  if inPlace=True, the function returns an instance of Mat
+				representing the conversion result. Otherwise, nothing is
+				returned.
 		"""
 		
 		if inPlace:
@@ -260,14 +316,18 @@ class Mat:
 
 	def toScalar(self, inPlace=True):
 		"""
-		converts the Mat instance in-place such that each element only has
-		a scalar (64-bit) value.
+		converts each element of a matrix into a 64-bit scalar. The
+		conversion may be optionally performed in-place.
 
-		Input Argument:
-			self:  a Mat instance that is overwritten by the method
+		Input Arguments:
+			self:  a Mat instance
+			inPlace: a Boolean specifying whether to perform the convertion
+				in-place. Default is True.
 
-		Output Argument:
-			None.
+		Output Arguments:
+			ret:  if inPlace=True, the function returns an instance of Mat
+				representing the result of conversion. Otherwise, nothing
+				is returned.
 		"""
 		
 		if inPlace:
@@ -279,20 +339,20 @@ class Mat:
 
 	def toVec(self):
 		"""
-		decomposes a DiGraph instance to 3 Vec instances, with each
-		element of the first ParVec denoting the source vertex of an edge,
-		the corresponding element of the second ParVec denoting the 
-		destination vertex of the edge, and the corresponding element of
-		the third ParVec denoting the value or weight of the edge.
+		converts a matrix into 3 vectors i, j, and v, where each 3-tuple
+		(i[k], j[k], v[k]) corresponds to a nonnull [i[k],j[k]]'th element
+		of the matrix equal to v[k]. Alternatively, i[k], j[k], and v[k]
+		denote the source vertex, the destination vertex, and the edge weight
+		in the corresponding graph.
 
-		Input Argument:
-			self:  a DiGraph instance
+		Input Arguments:
+			self:  a Mat instance
 
-		Returns:
-			    a 3-element tuple with ParVec instances denoting the
-			    source vertex, destination vertex, and weight, respectively.
+		Output Arguments:
+			ret: a 3-tuple containing three Vec instances denoting source
+				vertices, destination vertices, and edge weights, respectively.
 
-		SEE ALSO:  DiGraph 
+		SEE ALSO:  Mat
 		"""
 		if self._hasFilter():
 			mat = self.copy()
@@ -382,19 +442,28 @@ class Mat:
 	@staticmethod
 	def load(fname, element=0.0, par_IO=False):
 		"""
-		loads the contents of the file named fname (in the Coordinate Format 
-		of the Matrix Market Exchange Format) into a Mat instance.
+		loads the contents of the matrix from a file fname in the
+		Coordinate Format of the Matrix Market Exchange Formats
+		(http://math.nist.gov/MatrixMarket/formats.html#MMformat).
 
-		Input Argument:
-			fname:  a filename from which the matrix data will be loaded.
-		Output Argument:
+		Input Arguments:
+			fname:  the name of a file from which the matrix data
+				will be loaded.
+			element:  a representative matrix element by which the
+				matrix type is determined. Default is 0.0, which
+				corresponds to a float-valued matrix. Other possible
+				values include True (results in a Boolean- valued
+				matrix), , kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
+			par_IO:  a Boolean specifying whether to use parallel I/O.
+				Default is False.
+		Output Arguments:
 			ret:  a Mat instance containing the matrix represented
 			    by the file's contents.
 
-		NOTE:  The Matrix Market format numbers vertex numbers from 1 to
-		N.  Python and KDT number vertex numbers from 0 to N-1.  The load
-		method makes this conversion while reading the data and creating
-		the graph.
+		NOTE:  The Matrix Market Format numbers vertices from 1 to N,
+			while Python and KDT do it from 0 to N-1. The load method
+			converts indexes while reading the data and creating the
+			matrix.
 
 		SEE ALSO:  save, UFget
 		"""
@@ -411,16 +480,18 @@ class Mat:
 
 	def save(self, fname):
 		"""
-		saves the contents of the passed Mat instance to a file named
-		fname in the Coordinate Format of the Matrix Market Exchange Format.
+		saves the matrix to a file in the Coordinate Format of the
+		Matrix Market Exchange Formats
+		(http://math.nist.gov/MatrixMarket/formats.html#MMformat).
 
 		Input Arguments:
-			self:  a DiGraph instance
-			fname:  a filename to which the matrix data will be saved.
+			self:  a Mat instance
+			fname:  the name of a file to which the matrix data will be
+				saved.
 
-		NOTE:  The Matrix Market format numbers vertex numbers from 1 to
-		N.  Python and KDT number vertex numbers from 0 to N-1.  The save
-		method makes this conversion while writing the data.
+		NOTE:  The Matrix Market Format numbers vertices from 1 to N,
+			while Python and KDT do it from 0 to N-1. The save method
+			converts indexes while writing the data.
 
 		SEE ALSO:  load, UFget
 		"""
@@ -441,35 +512,52 @@ class Mat:
 	@staticmethod
 	def generateRMAT(scale, fillFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, element=True):
 		"""
-		generates a Kroenecker product matrix using the Graph500 RMAT graph generator.
+		generates a Kronecker product matrix using the Graph500 RMAT graph generator
+		(see http://www.graph500.org/reference.html).
 		
-		Output Argument:
-			ret: a tuple: Mat, Vec, time.
-				Mat is the matrix itself,
-				Vec is a vector containing the degrees of each vertex in the original graph
-				time is the time for the Graph500 Kernel 1.
+		Input Arguments:
+			scale:  a binary logarithm of the number of vertices in the graph
+			fillFactor:  the ratio of the number of edges to the number of
+				vertices in the graph.
+			initiator:  a 4-tuple of initiators A, B, C, and D. Default value is
+				[0.57, 0.19, 0.19, 0.05].
+			delIsolated:  a Boolean indicating whether to delete isolated vertices
+				from the graph.
+			element:  a representative matrix element by which the matrix type is
+				determined. Default is True, which corresponds to a matrix of
+				Booleans. Other possible values include 1 (results in a float-
+				valued matrix), kdt.pyCombBLAS.Obj1, and kdt.pyCombBLAS.Obj2.
+
+		Output Arguments:
+			ret: a 3-tuple containing a Mat, a Vec, and a time. The matrix is
+				the generated matrix; the vector contains the degree of each
+				vertex of the original graph; and the time is the time for the
+				Graph500 Kernel 1.
+
+		SEE ALSO:
+			http://kdt.sourceforge.net/wiki/index.php/Generating_a_Random_Graph
 		"""
 		degrees = Vec(0, element=1.0, sparse=False)
 		matrix = Mat(element=element)
 		if matrix.isObj():
-			raise NotImplementedError,"RMAT generation to supported on object matrices yet."
+			raise NotImplementedError,"RMAT generation has not yet been supported for object matrices."
 		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, fillFactor, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
 		return matrix, degrees, kernel1Time
 
 	@staticmethod
 	def eye(n, m=None, element=1.0):
 		"""
-		creates an identity matrix. The resulting matrix is n-by-n
-		with `element` on the main diagonal.
-		In other words, ret[i,i] = element for 0 < i < n.
+		creates a matrix with n columns and m rows (or n rows if m is omitted)
+		having `element` values on its main diagonal.
 
 		Input Arguments:
-			n:  number of columns of the matrix
-			m:  number of rows of the matrix
-			element: the value to put on the main diagonal elements.
+			n:  an integer number of columns in the matrix
+			m:  an integer number of rows in the matrix. If omitted, the
+				value of n is used.
+			element:  the value to put on the main diagonal. Default is 1.0
 
-		Output Argument:
-			ret:  an identity matrix. 
+		Output Arguments:
+			ret:  a Mat instance
 		"""
 		if m is None:
 			m = n
@@ -481,18 +569,19 @@ class Mat:
 	@staticmethod
 	def ones(n,m=None, element=1.0):
 		"""
-		creates an `m`-by-`n` matrix with all elements set to `element`.
+		creates a matrix with n columns and m rows (or n rows if m is omitted)
+		having all its elements set to `element`.
 
 		Input Arguments:
-			n:  an integer specifying the number of rows in the matrix.
-			m:  an integer specifying the number of columns in the matrix.
-			    If omitted, it defaults to the same value as `n`.
-		element: the value to set every Mat element to. Default is 1.0.
+			n:  an integer number of columns in the matrix
+			m:  an integer number of rows in the matrix. If omitted, the
+				value of n is used.
+		element:  the value to set every matrix element to. Default is 1.0.
 
-		Output Argument:
-			ret:  an m-by-n full Mat instance. 
+		Output Arguments:
+			ret:  a Mat instance.
 		"""
-		
+
 		if m is None:
 			m = n
 		i = (Vec.range(n*m) / n).floor()
@@ -508,24 +597,22 @@ class Mat:
 	# in-place, so no return value
 	def addFilter(self, filter):
 		"""
-		adds a vertex filter to the Mat instance.  
+		adds a vertex filter to the matrix.
 
-		A vertex filter is a Python function that is applied elementally
-		to each vertex in the Mat, with a Boolean True return value
-		causing the vertex to be considered and a False return value
-		causing it not to be considered.
+		A vertex filter is a unary predicate accepting a vertex and returning
+		True for those vertices that should be considered and False for those
+		that should not.
 
-		Vertex filters are additive, in that each vertex must pass all
-		filters to be considered.  All vertex filters are executed before
-		a vertex is considered in a computation.
-#FIX:  how is an argument passed to the function?
+		Vertex filters are additive, in that each vertex must pass all filters
+		in order to be considered. All vertex filters are executed before a vertex
+		is considered in a computation.
 
 		Input Arguments:
 			self:  a Mat instance
-			filter:  a Python function
+			filter:  a vertex filter
 
 		SEE ALSO:
-			delEFilter  
+			delFilter
 		"""
 		if hasattr(self, '_filter_'):
 			self._filter_.append(filter)
@@ -545,19 +632,20 @@ class Mat:
 		self._dirty()
 		return
 		
-	# in-place, so no return value
 	def delFilter(self, filter=None):
 		"""
-		deletes a filter from the Mat instance.  
+		deletes a vertex filter from the matrix.
+
+		A vertex filter is a unary predicate accepting a vertex and returning
+		True for those vertices that should be considered and False for those
+		that should not.
 
 		Input Arguments:
-			filter:  either a Python predicate function which has
-			    been previoiusly added to this instance by a call to
-			    addFilter or None, which signals the deletion of all
-			    filters.
+			filter:  either a vertex filter that has previoiusly been added to
+				this matrix by a call to addFilter or None, which signals the
+				deletion of all filters.
 
-		SEE ALSO:
-			addFilter  
+		SEE ALSO: addFilter
 		"""
 		if not hasattr(self, '_filter_'):
 			raise KeyError, "no filters previously created"
@@ -620,15 +708,11 @@ class Mat:
 
 	def apply(self, op):#, other=None, notB=False):
 		"""
-		applies the given operator to every edge in the Mat
+		applies an operator to every element in the matrix.
 
-		Input Argument:
-			self:  a Mat instance, modified in place.
+		Input Arguments:
+			self:  a Mat instance, modified in-place
 			op:  a Python or pyCombBLAS function
-
-		Output Argument:  
-			None.
-
 		"""
 		if self._hasMaterializedFilter():
 			ret = self._materialized.apply(op)
@@ -644,7 +728,25 @@ class Mat:
 
 	def count(self, dir, pred=None):
 		"""
-		returns the number of elements for which `pred` is true.
+		returns the number of elements in the matrix for which a unary
+		predicate evaluates to True.
+
+		Input Arguments:
+			self:  a Mat instance
+			dir:  a direction along which counting is performed. Possible
+				values are Mat.Column, Mat.Row, and Mat.All. If dir=Mat.Column,
+				then counting is performed within each column and the resulting
+				counts are places in a vector. If dir=Mat.Row, then the counting
+				is performed similarly within rows resulting in a vector of
+				counts. If dir=Mat.All, then the counting is performed by all
+				the elements in the matrix resulting in one scalar value.
+			pred:  a unary predicate. If not specified, then the default
+				predicate is considered which accepts a vertex, converts
+				it to a Boolean and returns the result.
+
+		Output Arguments:
+			ret: either a scalar count (if dir=Mat.All) or a vector of counts
+				(if dir=Mat.Row or dir=Mat.Column).
 		"""
 		if pred is None:
 			pred = lambda x: bool(x)
@@ -653,8 +755,22 @@ class Mat:
 
 	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False):
 		"""
-		ToDo:  write doc
-		
+		applies an operation to corresponding elements of two matrices. The operation
+		may be optionally performed in-place.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix
+			op:  a binary operation accepting two elements and returning an element
+			allowANulls:  TODO
+			allowBNulls:  TODO
+			doOp:  a binary predicate accepting two corresponding elements of two
+				matrices and returning True if they should be processed and False
+				otherwise.
+			inPlace:  indicates whether to perform the operation in-place storing
+				the result in the first matrix or to create a new matrix.
+			allowIntersect:  TODO
+			predicate:  Not Supported Yet
 		See Also: Vec.eWiseApply
 		"""
 		
@@ -698,31 +814,27 @@ class Mat:
 	# NEEDED: tests
 	def __getitem__(self, key):
 		"""
-		FIX:  fix documentation
-
-		implements indexing on the right-hand side of an assignment.
-		Usually accessed through the "[]" syntax.
+		an indexing operator that allows to retrieve a submatrix by the
+		keys of the elements to include in the submatrix. In its simplest
+		form, allows to retrieve an element from the matrix by this
+		element's key. Usually accessed through the "matrix[key]" syntax.
 
 		Input Arguments:
 			self:  a Mat instance
-			key:  one of the following forms:
-			    - a non-tuple denoting the key for both dimensions
-			    - a tuple of length 2, with the first element denoting
-			        the key for the first dimension and the second 
-			        element denoting for the second dimension.
-			    Each key denotes the out-/in-vertices to be addressed,
-			    and may be one of the following:
-				- an integer scalar
-				- the ":" slice denoting all vertices, represented
-				  as slice(None,None,None)
-				- a Vec object containing a contiguous range
-				  of monotonically increasing integers 
-		
-		Output Argument:
-			ret:  a Mat instance, containing the indicated vertices
-			    and their incident edges from the input Mat.
+			key:  one of the following
+					- a non-tuple denoting the key for both dimensions
+					- a 2-tuple with two keys, one for each dimension
+				Each key denotes the out-/in-vertices to be addressed,
+				and may be one of the following:
+					- an integer
+					- a ":"-slice denoting all vertices, represented as
+					  slice(None,None,None)
+					- a Vec containing a contiguous range of monotonically
+					  increasing integers
 
-		SEE ALSO:  subgraph
+		Output Arguments:
+			ret:  a Mat instance, containing the selected vertices along with
+				their incident edges from the original matrix.
 		"""
 		
 		inPlace = False
@@ -748,7 +860,7 @@ class Mat:
 			tmp[0] = key1
 			key1 = tmp
 		if type(inPlace) != bool:
-			raise KeyError, 'inPlace argument must be a boolean!'
+			raise KeyError, 'inPlace argument must be a Boolean!'
 		#if type(key0)==slice and key0==slice(None,None,None):
 		#	key0mn = 0; 
 		#	key0tmp = self.nvert()
@@ -797,18 +909,35 @@ class Mat:
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""
-		Accumulate matrix elements along the specified dimension.
-		This function is equivalent to this (for rows if dir=Mat.Row):
-		accumulator = init
-		for all elements e in row:
-			accumulator = op(uniOp(e), accumulator)
-			
-		similarly for columns if dir=Mat.Column.
-		
-		ToDo:  write doc
-		NOTE:  need to doc clearly that the 2nd arg to the reduction
-		fn is the sum;  the first is the current addend and the second
-		is the running sum
+		accumulates matrix elements along the specified direction.
+
+		Input Arguments:
+			self:  a Mat instance
+			dir:  the direction along which to accumulate elements. Possible
+				values are Mat.Row, Mat.Column, and Mat.All. If dir=Mat.Row,
+				then accumulation is performed along each row, and the result
+				of the operation is a vector with its i'th element equal to
+				the sum accumulated along the i'th row of the matrix. If
+				dir=Mat.Column, accumulation is performed similarly along the
+				columns. If dir=Mat.All, then, first, accumulation is performed
+				along the rows of the original matrix and, later, along the only
+				column of the result of accumulation along rows.
+			op:  a binary function. Its first argument is the result of application
+				of uniOp to a matrix element. Its second argument is the sum accumulated
+				so far. Having incorporated the uniOp of another element into the sum,
+				the function returns this new value of the sum. Example:
+				lambda convertedElement, sum: sum + convertedElement
+			uniOp:  a unary function that converts a matrix element before it is passed
+				to op function as its first argument. In its simplest form, uniOp may
+				return its input, i.e. lambda element: element.
+			init:  the value with which an accumulated sum is initialized.
+
+		Output Arguments:
+			ret: a Vec instance containing the accumulated values. If the chosen reduction
+				direction is either Mat.Row or Mat.Column, then the vector's length will be
+				equal to one of the dimensions of the matrix (which exactly depends on dir).
+				If the reduction is performed in both directions (Mat.All), then the reduction
+				results in a single value.
 		"""
 		if self._hasMaterializedFilter():
 			return self._materialized.reduce(dir, op, uniOp, init)
@@ -846,24 +975,27 @@ class Mat:
 	#in-place, so no return value
 	def scale(self, other, op=op_mul, dir=Column):
 		"""
-		multiplies the weights of the appropriate edges of each vertex of
-		the passed Mat instance in-place by a vertex-specific scale 
-		factor.
-		
-		This operation is equivalent to:
-		for all i,j:
-			M[i,j] = op(M[i,j], other[i or j])
-		(where [i or j] depends on the direction dir)
-		
-		Input Arguments:
-			other: a Vec whose elements are used
-			op:   the operation to perform (default is multiplication)
-			dir:  a direction of edges to scale, with choices being
-			    Mat.Column (default) or Mat.Row.
+		applies an operation in-place to a matrix using a vector. In its simplest
+		form, this operation represents row-wise or column-wise scaling of
+		a matrix, that is multiplying a matrix from the right by a column vector
+		(dir=Mat.Row) or multiplying a matrix from the left by a row vector
+		(dir=Mat.Column).
 
-		Output Argument:
+		Input Arguments:
+			self:  a Mat instance
+			other:  a Vec instance length equal to the corresponding dimension
+				of the matrix (which dimension depends on the choice of dir)
+			op:  a binary function that accepts a matrix' element and a
+				corresponding vector's element and returns some value. If op is
+				omitted, then the multiplication operation is used, which
+				corresponds to row-wise or column-wise scaling of the matrix.
+			dir:  the direction in which to apply the vector to the matrix. The
+				possible values are Mat.Column and Mat.Row. If dir=Mat.Column,
+				then the vector is applied to each column of the matrix; otherwise,
+				the vector is applied to each row. Default is Mat.Column.
+
+		Output Arguments:
 			None.
-		
 		"""
 		if self._hasMaterializedFilter():
 			ret = self._materialized.scale(other, op, dir)
@@ -871,7 +1003,7 @@ class Mat:
 			return ret
 
 		if self.isBool():
-			raise NotImplementedError, 'scale not implemented on boolean matrices do to C++ template irregularities.'
+			raise NotImplementedError, 'scale not implemented on boolean matrices due to C++ template irregularities.'
 		
 		if not isinstance(other, Vec):
 			raise KeyError, 'Invalid type for scale vector'
@@ -907,9 +1039,24 @@ class Mat:
 
 	def SpGEMM(self, other, semiring, inPlace=False):
 		"""
-		"multiplies" two Mat instances together as though each was
-		represented by a sparse matrix, with rows representing in-edges
-		and columns representing out-edges.
+		multiples two matrices together.
+
+		Input Arguments:
+			self:  a Mat instance representing the left factor
+			other:  a Mat instance representing the right factor
+			semiring:  a semiring object that determines the behavior of elementwise
+				addition and multiplication operations. The possible values include
+				  - TimesPlusSemiringObj: a semiring where addition and multiplication
+				      operations are defined naturally
+				  - SecondMaxSemiringObj: a semiring where both addition and multiplication
+				      operations return their second operand
+			inPlace:  specifies whether to perform the multiplication in-place storing the
+				multiplication result in the first matrix or to create a new matrix.
+				Default is False.
+
+		Output Arguments:
+			ret:  if inPlace=False, returns a matrix representing the result of matrix
+				multiplication. Otherwise, nothing is returned.
 		"""
 		
 		# check input
@@ -956,8 +1103,25 @@ class Mat:
 	# possibly in-place;  if so, no return value
 	def SpMV(self, other, semiring, inPlace=False):
 		"""
-		FIX:  add doc
-		inPlace -> no return value
+		multiplies a matrix from the right by a column vector.
+
+		Input Arguments:
+			self:  a Mat instance
+			other:  a Vec instance
+			semiring:  a semiring object that determines the behavior of elementwise
+				addition and multiplication operations. The possible values include
+				  - TimesPlusSemiringObj: a semiring where addition and multiplication
+				      operations are defined naturally
+				  - SecondMaxSemiringObj: a semiring where both addition and multiplication
+				      operations return their second operand
+			inPlace:  specifies whether to perform the multiplication in-place storing the
+				multiplication result in the matrix or to create a new vector.
+				Default is False.
+
+		Output Arguments:
+			ret:  if inPlace=False, returns a vector representing the multiplication result;
+				otherwise, the result is stored in the matrix, and the input vector is
+				returned.
 		"""
 		# check input
 		if not isinstance(other, Vec):
@@ -996,7 +1160,13 @@ class Mat:
 
 	def transpose(self):
 		"""
-		performs an in-place transpose of this Mat instance
+		transposes a matrix in-place.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			None
 		"""
 		self._m_.Transpose()
 		self._dirty()
@@ -1009,19 +1179,28 @@ class Mat:
 
 	def max(self, dir=Column, init=None):
 		"""
-		finds the maximum weights of the appropriate edges of each vertex 
-		of the passed DiGraph instance.
+		finds the maximum elements along the specified direction, which
+		corresponds to finding the maximum edge weight among the weights of
+		the edges incoming to (dir=Mat.Row) or outgoing from (dir=Mat.Column)
+		each vertex of the corresponding graph.
 
 		Input Arguments:
-			self:  a DiGraph instance
-			dir:  a direction of edges over which to find the maximum,
-			    with choices being DiGraph.Out (default) or DiGraph.In.
+			self:  a Mat instance
+			dir:  a direction along which to find maximums. Possible values
+				are Mat.Row and Mat.Column. If dir=Mat.Row, then the maximum
+				weights are looked for among the weights of the incoming edges
+				of each vertex; if dir=Mat.Column, then the search if performed
+				by the weights of the outgoing edges. Default is Mat.Column.
+			init:  a minimal value for each maximum. In no element along the
+				chosen direction is greater than this value, then the
+				corresponding maximum in the resulting vector will be equal
+				to init. Default is None.
 
-		Output Argument:
-			ret:  a ParVec instance with each element containing the
-			    maximum of the weights of the corresponding vertex.
+		Output Arguments:
+			ret:  a Vec instance containing maximums computed along the chosen
+				direction.
 
-		SEE ALSO:  degree, min 
+		SEE ALSO:  degree, min
 		"""
 		if init is None:
 			init = self._identity_
@@ -1034,19 +1213,24 @@ class Mat:
 	# NEEDED: Handle the init properly (i.e. don't use 0, will break a test)
 	def min(self, dir=Column):
 		"""
-		finds the minimum weights of the appropriate edges of each vertex 
-		of the passed DiGraph instance.
+		finds the minimum elements along the specified direction, which
+		corresponds to finding the minimum edge weight among the weights of
+		the edges incoming to (dir=Mat.Row) or outgoing from (dir=Mat.Column)
+		each vertex of the graph.
 
 		Input Arguments:
-			self:  a DiGraph instance
-			dir:  a direction of edges over which to find the minimum,
-			    with choices being DiGraph.Out (default), DiGraph.In.
+			self:  a Mat instance
+			dir:  a direction along which to find minimums. Possible values
+				are Mat.Row and Mat.Column. If dir=Mat.Row, then the minimum
+				weights are looked for among the weights of the incoming edges
+				of each vertex; if dir=Mat.Column, then the search if performed
+				by the weights of the outgoing edges. Default is Mat.Column.
 
-		Output Argument:
-			ret:  a ParVec instance with each element containing the
-			    minimum of the weights of the corresponding vertex.
+		Output Arguments:
+			ret:  a Vec instance containing maximums computed along the chosen
+				direction.
 
-		SEE ALSO:  degree, max 
+		SEE ALSO:  degree, max
 		"""
 		if dir != Mat.Row and dir != Mat.Column:
 			raise KeyError, 'Invalid edge-direction'
@@ -1055,7 +1239,13 @@ class Mat:
 
 	def spOnes(self, element=1.0):
 		"""
-		makes every element to `element`, default 1.0.
+		assigns value `element` to each element of the matrix.
+
+		Input Arguments:
+			element: a value to assign to matrix elements. Default is 1.0
+		
+		Output Arguments:
+			None
 		"""
 		if not self.isObj() and not self._hasFilter():
 			self.apply(op_set(element))
@@ -1065,12 +1255,13 @@ class Mat:
 		
 	def removeMainDiagonal(self):
 		"""
-		removes all elements whose row and column index are equal.
-		Operation is in-place.
+		removes elements residing on the main diagonal of the matrix.
 
-		Input Argument:
-			self:  a Mat instance, modified in-place.
+		Input Arguments:
+			self:  a Mat instance
 
+		Output Arguments:
+			None.
 		"""
 		#self._m_.removeSelfLoops()
 		#self._dirty()
@@ -1081,21 +1272,22 @@ class Mat:
 	
 	def sum(self, dir=Column):
 		"""
-		adds the weights of the elements along a row or column.
+		sums in-place matrix elements along the chosen direction. This is
+		a particular case of reduce operation.
 
 		Input Arguments:
 			self:  a Mat instance
-			dir:  a direction of elements to sum, with choices being
-			    Mat.Column (default) or Mat.Row.
+			dir:  a direction along which summation is performed. Possible
+				values are Mat.Column and Mat.Row. Default is Mat.Column.
 
-		Output Argument:
+		Output Arguments:
 			ret:  a Vec instance with each element containing the
-			    sum of the weights of the corresponding row/column.
+				sum of the elements in the corresponding row/column.
 
-		SEE ALSO:  degree 
+		SEE ALSO:  reduce, degree
 		"""
 		if dir != Mat.Row and dir != Mat.Column:
-			raise KeyError, 'Invalid edge-direction'
+			raise KeyError, 'Invalid direction'
 		ret = self.reduce(dir, op_add, init=self._identity_)
 		return ret
 	
@@ -1131,99 +1323,135 @@ class Mat:
 	
 	def __add__(self, other):
 		"""
-		adds the corresponding elements of two Mat instances into the
-		result Mat instance, with a nonnull element where either of
-		the two input vectors was nonnull.
-		ToDo:  elucidate combinations, overloading, etc.
+		adds corresponding elements of two matrices and stores the
+		result in a new matrix. If other is not a matric, but rather
+		a scalar, then this scalar is added to each element of the
+		first matrix.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result of addition
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x + other))
 
 
 	def __and__(self, other):
 		"""
-		performs a bitwise And between the corresponding elements of two
-		Mat instances into the result Mat instance.
+		performs bitwise And between corresponding elements of two
+		matrices and stores the result in a new matrix. If other is
+		not a matrix, but rather an integer, than bitwise And is
+		performed between each element of the first matrix and this
+		integer.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				an integer.
+
+		Output Arguments:
+			ret:  a Mat instance containing the result of bitwise And
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x & other), intOnly=True)
 
-	# NEEDED: update docstring
 	def __div__(self, other):
 		"""
-		divides each element of the first argument (a SpParVec instance),
-		by either a scalar or the corresonding element of the second 
-		SpParVec instance, with a non-null element where either of the 
-		two input vectors was nonnull.
-		
-		Note:  ZeroDivisionException will be raised if any element of 
-		the second argument is zero.
+		divides elements of the first matrix by the corresponding
+		elements of the second matrix and stores the result in a new
+		matrix. If other is not a matrix, but rather a scalar, then
+		every element of the first matrix is divided by this scalar.
+		The function raises a ZeroDivisionException if a division
+		by zero occures.
 
-		Note:  For v0.1, the second argument may only be a scalar.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result of division
+
+		NOTE:  for KDT v0.1, the second argument may be only a scalar
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x / other))
 
-	# NEEDED: update docstring
 	def __eq__(self, other):
 		"""
-		calculates the Boolean equality of the first argument with the second argument 
+		checks corresponding elements of two matrices for equality
+		and stores the Boolean results of these checks in a new matrix.
+		If other is not a matrix, but rather a scalar, then every element
+		of the first matrix is compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the scalar and the corresponding
-		element of the first argument are equal.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and equal.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and equal.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x == other), predicate=True)
 
-	# NEEDED: update docstring
 	def __ge__(self, other):
 		"""
-		#FIX: doc
-		calculates the Boolean greater-than-or-equal relationship of the first argument with the second argument 
+		compares corresponding elements of two matrices using `greater
+		or equal` as a binary predicate for comparison. If other is not
+		a matrix, but rather a scalar, then every element of the first
+		matrix is compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is greater than or equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is greater than or equal to the second.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and the left one is greater
+				than or equal to the right one.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x >= other), predicate=True)
 
-	# NEEDED: update docstring
 	def __gt__(self, other):
 		"""
-		calculates the Boolean greater-than relationship of the first argument with the second argument 
+		compares corresponding elements of two matrices using `greater`
+		as a binary predicate for comparison. If other is not a matrix,
+		but rather a scalar, then every element of the first matrix is
+		compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is greater than the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is greater than the second.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and the left one is greater
+				than the right one.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x > other), predicate=True)
 
 	def __invert__(self):
 		"""
-		bitwise inverts each nonnull element of the Vec instance.
+		replaces each nonnull element in the matrix with its bitwise inverse.
+		
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			None
 		"""
 		ret = self.copy()
 		if isinstance(self._identity_, (float, int, long)):
@@ -1233,88 +1461,115 @@ class Mat:
 		ret.apply(func)
 		return ret
 
-	# NEEDED: update docstring
 	def __le__(self, other):
 		"""
-		calculates the Boolean less-than-or-equal relationship of the first argument with the second argument 
+		compares corresponding elements of two matrices using `less
+		or equal` as a binary predicate for comparison. If other is not
+		a matrix, but rather a scalar, then every element of the first
+		matrix is compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is less than or equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is less than or equal to the second.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and the left one is less than
+				or equal to the right one.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x <= other), predicate=True)
 
-	# NEEDED: update docstring
 	def __lt__(self, other):
 		"""
-		calculates the Boolean less-than relationship of the first argument with the second argument 
+		compares corresponding elements of two matrices using `less`
+		as a binary predicate for comparison. If other is not a matrix,
+		but rather a scalar, then every element of the first matrix is
+		compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is less than the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is less than the second.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and the left one is less
+				than the right one.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x < other), predicate=True)
 
-	# NEEDED: update docstring
 	def __mod__(self, other):
 		"""
-		calculates the modulus of each element of the first argument by the
-		second argument (a scalar or a SpParVec instance), with a nonnull
-		element where the input SpParVec argument(s) were nonnull.
+		computes each element of the first matrix modulo the
+		corresponding element of the second matrix. If other is not
+		a matrix, but rather a scalar, then every element of the first
+		matrix is taken modulo this scalar.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x % other))
 
-	# NEEDED: update docstring
 	def __mul__(self, other):
 		"""
-		multiplies each element of the first argument by the second argument 
-		(a scalar or a SpParVec instance), with a nonnull element where 
-		the input SpParVec argument(s) were nonnull.
+		multiplies elements of the first matrix by the corresponding
+		elements of the second matrix and stores the result in a new
+		matrix. If other is not a matrix, but rather a scalar, then
+		every element of the first matrix is multiplied by this scalar.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result of multiplication
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x * other))
 
 
-	# NEEDED: update docstring
 	def __ne__(self, other):
 		"""
-		calculates the Boolean not-equal relationship of the first argument with the second argument 
+		checks corresponding elements of two matrices for inequality
+		and stores the Boolean results of these checks in a new matrix.
+		If other is not a matrix, but rather a scalar, then every element
+		of the first matrix is compared to this scalar.
 
-	SpParVec == scalar
-	SpParVec == SpParVec
-		In the first form, the result is a SpParVec instance with the same
-		length and nonnull elements as the first argument, with each nonnull
-		element being True (1.0) only if the corresponding element of the 
-		first argument is not equal to the scalar.
-		In the second form, the result is a SpParVec instance with the
-		same length as the two SpParVec instances (which must be of the
-		same length).  The result will have nonnull elements where either
-		of the input arguments are nonnull, with the value being True (1.0)
-		only where the corresponding elements are both nonnull and the
-		first argument is not equal to the second.
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the Boolean results of
+				comparisons. The resulting matrix will have nonnull
+				elements where either of comparands is nonnull, with
+				the value being True only where the corresponding
+				elements are both nonnull and not equal.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x != other), predicate=True)
 
 	def __neg__(self):
 		"""
-		negates each nonnull element of the passed Vec instance.
+		replaces each element in the matrix with its bitwise negation.
+
+		Input Arguments:
+			self: a Mat instance
+
+		Output Arguments:
+			None
 		"""
 		ret = self.copy()
 		func = lambda x: -x
@@ -1322,32 +1577,53 @@ class Mat:
 		return ret
 
 
-	# NEEDED: update docstring
 	def __or__(self, other):
 		"""
-		performs a logical Or between the corresponding elements of two
-		SpParVec instances into the result SpParVec instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where at least one of the input vectors is True.
+		computes the bitwise logical Or between the corresponding elements
+		of two matrices and stores the result in a new matrix. If other is
+		not a matrix, but rather a scalar, then the logical bitwise Or is
+		computed between every element of the first matrix and this scalar.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x | other), intOnly=True)
 
-	# NEEDED: update docstring
 	def __sub__(self, other):
 		"""
-		subtracts the corresponding elements of the second argument (a
-		scalar or a SpParVec instance) from the first argument (a SpParVec
-		instance), with a nonnull element where the input SpParVec argument(s)
-		are nonnull.
+		subtracts each element of the second matrix from the corresponding
+		elements of the first matrix and stores the result in a new matrix.
+		If other is not a matrix, but rather a scalar, then this scalar is
+		subtracted from every element of the first matrix.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix (minuend)
+			other:  a Mat instance representing the second matrix or
+				a scalar (subtrahend)
+
+		Output Arguments:
+			ret:  a Mat instance containing the result of subtraction.
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x - other))
 
-	# NEEDED: update docstring
 	def __xor__(self, other):
 		"""
-		performs a logical Xor between the corresponding elements of two
-		SpParVec instances into the result SpParVec instance, with a non-
-		null element where either of the two input vectors is nonnull,
-		and a True value where exactly one of the input vectors is True.
+		computes bitwise Xor between the corresponding elements of two
+		matrices and stores the result in a new matrix. If other is not
+		a matrix, but rather a scalar, then bitwise Xor is computed
+		between every element of the first matrix and this scalar.
+
+		Input Arguments:
+			self:  a Mat instance representing the first matrix
+			other:  a Mat instance representing the second matrix or
+				a scalar
+
+		Output Arguments:
+			ret:  a Mat instance containing the result
 		"""
 		return self._ewise_bin_op_worker(other, (lambda x, other: x ^ other))
