@@ -141,6 +141,15 @@ int main(int argc, char* argv[])
 			A = A(nonisov, nonisov);
 			Aeff = PSpMat_s32p64(A);
 			A.FreeMemory();
+			SpParHelper::Print("Symmetricized and pruned\n");
+
+                        Aeff.OptimizeForGraph500(optbuf);               // Should be called before threading is activated
+                #ifdef THREADED
+                        ostringstream tinfo;
+                        tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
+                        SpParHelper::Print(tinfo.str());
+                        Aeff.ActivateThreading(cblas_splits);
+                #endif
 		}
 		else if(string(argv[1]) == string("Binary"))
 		{
