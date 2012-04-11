@@ -915,9 +915,37 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 
 
 template <class IT, class NT, class DER>
-SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
+void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
 {
+	typedef PlusTimesSRing<NT, NT> PTRing;
 
+	if((*(ri.commGrid) != *(commGrid)) || (*(ci.commGrid) != *(commGrid)))
+	{
+		SpParHelper::Print("Grids are not comparable, Prune fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+
+	// Safety check
+	IT locmax_ri = 0;
+	IT locmax_ci = 0;
+	if(!ri.arr.empty())
+		locmax_ri = *max_element(ri.arr.begin(), ri.arr.end());
+	if(!ci.arr.empty())
+		locmax_ci = *max_element(ci.arr.begin(), ci.arr.end());
+
+	IT total_m = getnrow();
+	IT total_n = getncol();
+	if(locmax_ri > total_m || locmax_ci > total_n)	
+	{
+		throw outofrangeexception();
+	}
+
+	SpParMat<IT,NT,DER> S(total_m, total_m, ri, ri, 1);
+	SpParMat<IT,NT,DER> SA = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(S, *this, true, false); // clear memory of S but not *this
+
+	SpParMat<IT,NT,DER> T(total_n, total_n, ci, ci, 1);
+	SpParMat<IT,NT,DER> SAT = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(SA, T, true, true); // clear memory of SA and T
+	EWiseMult(SAT, true);	// In-place EWiseMult with not(SAT)
 }
 
 
