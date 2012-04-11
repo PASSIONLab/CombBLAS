@@ -784,6 +784,7 @@ CombBLAS/SpParHelper.cpp -text
 CombBLAS/SpParHelper.h -text
 CombBLAS/SpParMat.cpp -text
 CombBLAS/SpParMat.h -text
+CombBLAS/SpParMatExt.cpp -text
 CombBLAS/SpParVec.cpp -text
 CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text

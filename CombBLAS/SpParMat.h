@@ -172,6 +172,7 @@ public:
 	{
 		return SubsRef_SR<BoolCopy1stSRing<NT>, BoolCopy2ndSRing<NT> >(ri, ci, inplace);
 	}
+	SpParMat<IT,NT,DER> Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci);
 	
 	SpParMat<IT,NT,DER> operator() (const SpParVec<IT,IT> & ri, const SpParVec<IT,IT> & ci) const;
 
@@ -330,4 +331,5 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 }
 
 #include "SpParMat.cpp"
+#include "SpParMatExt.cpp"
 #endif
