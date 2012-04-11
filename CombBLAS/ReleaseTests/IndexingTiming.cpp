@@ -156,6 +156,10 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
 
+		// Test #3: Pruning for SpAsgn
+		B = *A;
+		B.Prune(clusters[0], clusters[0]);
+
 		delete A;
 	}
 	MPI::Finalize();
