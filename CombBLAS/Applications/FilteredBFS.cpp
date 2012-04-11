@@ -42,7 +42,10 @@ int cblas_splits = 1;
 #define ITERS 16 
 #define CC_LIMIT 100
 //#define PERMUTEFORBALANCE
-#define PERCENTS 4
+#define PERCENTS 0
+#define UNDIRECTED
+#define ONLYTIME
+
 using namespace std;
 
 
@@ -151,7 +154,7 @@ int main(int argc, char* argv[])
 			
 			MTRand M;
 			A.Apply(Twitter_obj_randomizer());
-			MAXTRIALS = PERCENTS;	// benchmarking
+			MAXTRIALS = 4;	// benchmarking
 		}
 		else 
 		{	
@@ -328,7 +331,8 @@ int main(int argc, char* argv[])
 			
 				FullyDistSpVec<int64_t, ParentType> parentsp = parents.Find(isparentset());
 				parentsp.Apply(set<ParentType>(ParentType(1)));
-	
+
+#ifndef ONLYTIME
 				FullyDistSpVec<int64_t, int64_t> intraversed, inprocessed, outraversed, ouprocessed;
 				inprocessed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
 				ouprocessed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
@@ -341,6 +345,9 @@ int main(int argc, char* argv[])
 				int64_t in_nedges_processed = inprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t ou_nedges_processed = ouprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t nedges_processed = in_nedges_processed + ou_nedges_processed;	// count birectional edges twice
+#else
+				int64_t in_nedges, ou_nedges, nedges, in_nedges_processed, ou_nedges_processed, nedges_processed = 0;
+#endif
 
 				if(parentsp.getnnz() > CC_LIMIT)
 				{
