@@ -64,7 +64,7 @@ public:
 	void EWiseScale(NT ** scaler);				//<! scale elements of "this" with the elements dense rhs matrix
 	
 	template <typename IU, typename NU1, typename NU2>
-	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> & B, bool exclude);
+	friend Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, bool exclude);	// Note that the second parameter is a POINTER
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)

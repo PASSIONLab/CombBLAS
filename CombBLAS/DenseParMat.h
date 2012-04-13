@@ -34,18 +34,13 @@ THE SOFTWARE.
 #include <cmath>
 #include <mpi.h>
 #include <vector>
-#include "CommGrid.h"
-#include "MPIType.h"
-#include "Deleter.h"
-#include "SpHelper.h"
 #include "SpParMat.h"
 #include "DenseParVec.h"
+#include "CombBLAS.h"
 
 template <class IU, class NU, class DER>
 class SpParMat;
 
-using namespace std;
-using namespace std::tr1;
 
 template <class IT, class NT>
 class DenseParMat

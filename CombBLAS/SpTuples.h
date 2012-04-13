@@ -12,15 +12,12 @@
 #include <fstream>
 #include <cmath>
 #include <cassert>
-
-// TR1 includes belong in CombBLAS.h
+#include "CombBLAS.h"
 #include "SpMat.h"
 #include "SpDefs.h"
 #include "StackEntry.h"
 #include "Compare.h"
-
 using namespace std;
-using namespace std::tr1;
 
 template <class IU, class NU>
 class SpDCCols;
@@ -51,13 +48,13 @@ public:
 
 	SpTuples<IT,NT> & operator=(const SpTuples<IT,NT> & rhs);
 
-	IT & rowindex (IT i) { return tr1::get<0>(tuples[i]); }
-	IT & colindex (IT i) { return tr1::get<1>(tuples[i]); }
-	NT & numvalue (IT i) { return tr1::get<2>(tuples[i]); }
+	IT & rowindex (IT i) { return joker::get<0>(tuples[i]); }
+	IT & colindex (IT i) { return joker::get<1>(tuples[i]); }
+	NT & numvalue (IT i) { return joker::get<2>(tuples[i]); }
 
-	IT rowindex (IT i) const { return tr1::get<0>(tuples[i]); }
-	IT colindex (IT i) const { return tr1::get<1>(tuples[i]); } 
-	NT numvalue (IT i) const { return tr1::get<2>(tuples[i]); } 
+	IT rowindex (IT i) const { return joker::get<0>(tuples[i]); }
+	IT colindex (IT i) const { return joker::get<1>(tuples[i]); } 
+	NT numvalue (IT i) const { return joker::get<2>(tuples[i]); } 
 
 	void SortRowBased()
 	{
@@ -80,14 +77,14 @@ public:
 		IT loop = 0;
 		for(IT i=0; i< nnz; ++i)
 		{
-			if(tr1::get<0>(tuples[i]) == tr1::get<1>(tuples[i])) ++loop;
+			if(get<0>(tuples[i]) == get<1>(tuples[i])) ++loop;
 		}
 		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz-loop];
 
 		IT ni = 0;
 		for(IT i=0; i< nnz; ++i)
 		{
-			if(tr1::get<0>(tuples[i]) != tr1::get<1>(tuples[i])) 
+			if(get<0>(tuples[i]) != get<1>(tuples[i])) 
 			{
 				ntuples[ni++] = tuples[i];
 			}
@@ -105,7 +102,7 @@ public:
 			RowCompare<IT,NT> rowcmp;
 			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
 			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
-			return make_pair(tr1::get<0>(*minit), tr1::get<0>(*maxit));
+			return make_pair(get<0>(*minit), get<0>(*maxit));
 		}
 		else
 			return make_pair(0,0);
@@ -117,7 +114,7 @@ public:
 			ColCompare<IT,NT> colcmp;
 			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
 			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
-			return make_pair(tr1::get<1>(*minit), tr1::get<1>(*maxit));
+			return make_pair(get<1>(*minit), get<1>(*maxit));
 		}
 		else
 			return make_pair(0,0);
@@ -132,8 +129,8 @@ public:
 	template<typename SR, typename IU, typename NU>
 	friend SpTuples<IU,NU> * MergeAllRec(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
 	
-	ofstream& put (ofstream& outfile) const;		
-	ifstream& get (ifstream& infile); 
+	ofstream& putstream (ofstream& outfile) const;		
+	ifstream& getstream (ifstream& infile); 
 
 	bool isZero() const { return (nnz == 0); }	
 	IT getnrow() const { return m; }

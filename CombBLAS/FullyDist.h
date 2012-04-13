@@ -55,7 +55,7 @@ class FullyDist
   * need any communication between sparse and dense formats
  **/
 template <class IT, class NT>
-class FullyDist<IT, NT, typename disable_if< is_boolean<NT>::value, NT >::type >
+class FullyDist<IT, NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 {
 public:
 	FullyDist():glen(0)
@@ -100,7 +100,7 @@ protected:
 //! Return the owner processor id, and
 //! Assign the local index to lind
 template <class IT, class NT>
-int FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
+int FullyDist<IT,NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>
 ::Owner(IT gind, IT & lind) const
 {
 	int procrows = commGrid->GetGridRows();
@@ -147,7 +147,7 @@ int FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
  * Return the owner processor id (within processor row)
  **/
 template <class IT, class NT>
-int FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+int FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 ::OwnerWithinRow(IT n_thisrow, IT ind_withinrow, IT & lind) const
 {
 	int proccols = commGrid->GetGridCols();
@@ -168,7 +168,7 @@ int FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
 }
 
 template <class IT, class NT>
-IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+IT FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 ::LengthUntil() const
 {
 	int procrows = commGrid->GetGridRows();
@@ -188,7 +188,7 @@ IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
 
 // Return the length until this processor, within this processor row only
 template <class IT, class NT>
-IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+IT FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 ::RowLenUntil() const
 {
 	int procrows = commGrid->GetGridRows();
@@ -208,7 +208,7 @@ IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
 
 // Return the length until the kth processor, within this processor row only
 template <class IT, class NT>
-IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
+IT FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 ::RowLenUntil(int k) const
 {
 	int procrows = commGrid->GetGridRows();
@@ -227,7 +227,7 @@ IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type >
 }
 
 template <class IT, class NT>
-IT FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
+IT FullyDist<IT,NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>
 ::MyLocLength() const
 {
 	int procrows = commGrid->GetGridRows();
@@ -250,7 +250,7 @@ IT FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type>
 
 
 template <class IT, class NT>
-IT FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>
+IT FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>
 ::MyRowLength() const
 {
 	int procrows = commGrid->GetGridRows();

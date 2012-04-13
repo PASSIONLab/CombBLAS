@@ -482,6 +482,7 @@ CombBLAS/ReleaseTests/GALERKIN/cores64_scale23_order2 -text
 CombBLAS/ReleaseTests/GALERKIN/cores64_scale23_order4 -text
 CombBLAS/ReleaseTests/GALERKIN/cores64_scale23_order8 -text
 CombBLAS/ReleaseTests/GALERKIN/failed/galerkin1024.1284895.err -text
+CombBLAS/ReleaseTests/Galerkin.cpp -text
 CombBLAS/ReleaseTests/IndexingTest.cpp -text
 CombBLAS/ReleaseTests/IndexingTiming.cpp -text
 CombBLAS/ReleaseTests/IteratorTest.cpp -text
@@ -664,6 +665,7 @@ CombBLAS/ReleaseTests/VectorTest.cpp -text
 CombBLAS/ReleaseTests/exectests -text
 CombBLAS/ReleaseTests/makefile-lonestar -text
 CombBLAS/ReleaseTests/makefile-mac -text
+CombBLAS/ReleaseTests/makefile-nersc -text
 CombBLAS/ReleaseTests/makefile-neumann -text
 CombBLAS/ReleaseTests/myhosts -text
 CombBLAS/ReleaseTests/pathtompich2 -text

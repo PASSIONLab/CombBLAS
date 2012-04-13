@@ -11,15 +11,11 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-
-// TR1 includes belong in CombBLAS.h
-
+#include "CombBLAS.h"
 #include "SpDefs.h"
 #include "promote.h"
 #include "LocArr.h"
 
-using namespace std;
-using namespace std::tr1;
 
 // Forward declaration (required since a friend function returns a SpTuples object)
 template <class IU, class NU>	
