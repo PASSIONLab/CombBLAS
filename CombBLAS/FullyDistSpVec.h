@@ -38,8 +38,7 @@ THE SOFTWARE.
 #include "FullyDist.h"
 #include "Exception.h"
 #include "OptBuf.h"
-using namespace std;
-using namespace std::tr1;
+#include "CombBLAS.h"
 
 template <class IT, class NT, class DER>
 class SpParMat;
@@ -68,7 +67,7 @@ class SparseVectorLocalIterator;
   * \warning Always create vectors with the right length, setting elements won't increase its length (similar to operator[] on std::vector)
  **/
 template <class IT, class NT>
-class FullyDistSpVec: public FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>
+class FullyDistSpVec: public FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>
 {
 public:
 	FullyDistSpVec ( );
@@ -154,12 +153,12 @@ public:
 		(commGrid->GetWorld()).Allreduce( &locnnz, &totnnz, 1, MPIType<IT>(), MPI::SUM); 
 		return totnnz;
 	}
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::LengthUntil;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyLocLength;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyRowLength;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::TotalLength;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::Owner;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::RowLenUntil;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::LengthUntil;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::MyLocLength;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::MyRowLength;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::TotalLength;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::Owner;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::RowLenUntil;
 
 	void setNumToInd()
 	{
@@ -203,8 +202,8 @@ public:
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 
 protected:
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::commGrid; 
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros

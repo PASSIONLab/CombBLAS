@@ -8,11 +8,11 @@ struct promote_trait  { };
 
 // typename disable_if< is_boolean<NT>::value, NT >::type won't work, 
 // because then it will send Enable=NT which is different from the default template parameter
-template <class NT> struct promote_trait< NT , bool, typename disable_if< is_boolean<NT>::value >::type >      
+template <class NT> struct promote_trait< NT , bool, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
 {                                           
 	typedef NT T_promote;                    
 };
-template <class NT> struct promote_trait< bool , NT, typename disable_if< is_boolean<NT>::value >::type >      
+template <class NT> struct promote_trait< bool , NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
 {                                           
 	typedef NT T_promote;                    
 };

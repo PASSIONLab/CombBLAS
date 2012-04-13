@@ -209,7 +209,7 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 //! Loads a triplet matrix from infile
 //! \remarks Assumes matlab type indexing for the input (i.e. indices start from 1)
 template <class IT,class NT>
-ifstream& SpTuples<IT,NT>::get (ifstream& infile)
+ifstream& SpTuples<IT,NT>::getstream (ifstream& infile)
 {
 	cout << "Getting... SpTuples" << endl;
 	IT cnz = 0;
@@ -240,7 +240,7 @@ ifstream& SpTuples<IT,NT>::get (ifstream& infile)
 //! Output to a triplets file
 //! \remarks Uses matlab type indexing for the output (i.e. indices start from 1)
 template <class IT,class NT>
-ofstream& SpTuples<IT,NT>::put(ofstream& outfile) const
+ofstream& SpTuples<IT,NT>::putstream(ofstream& outfile) const
 {
 	outfile << m <<"\t"<< n <<"\t"<< nnz<<endl;
 	for (IT i = 0; i < nnz; ++i)

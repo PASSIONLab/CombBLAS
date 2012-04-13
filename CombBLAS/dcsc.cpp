@@ -487,7 +487,9 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 template <class IT, class NT>
 void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)	
 {
-	*this = EWiseMult((*this), rhs, exclude);	// call the binary version
+	// We have a class with a friend function and a member function with the same name. Calling the friend function from the member function 
+	// might (if the signature is the same) give compilation errors if not preceded by :: that denotes the global scope.
+	*this = ::EWiseMult((*this), &rhs, exclude);	// call the binary version
 }
 
 

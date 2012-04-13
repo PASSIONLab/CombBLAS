@@ -51,9 +51,8 @@
 #include "Friends.h"
 #include "Operations.h"
 #include "DistEdgeList.h"
+#include "CombBLAS.h"
 
-using namespace std;
-using namespace std::tr1;
 
 /**
   * Fundamental 2D distributed sparse matrix class

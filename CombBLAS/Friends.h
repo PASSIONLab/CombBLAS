@@ -39,6 +39,7 @@ THE SOFTWARE.
 #include "SpImplNoSR.h"
 #include "SpParHelper.h"
 #include "Compare.h"
+#include "CombBLAS.h"
 using namespace std;
 
 template <class IU, class NU>	
@@ -573,7 +574,7 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 		for(int i=0; i< hsize; ++i)
 		{
 			estnnz += ArrSpTups[i]->getnnz();
-			heap[i] = make_tuple(tr1::get<0>(ArrSpTups[i]->tuples[0]), tr1::get<1>(ArrSpTups[i]->tuples[0]), i);
+			heap[i] = make_tuple(get<0>(ArrSpTups[i]->tuples[0]), get<1>(ArrSpTups[i]->tuples[0]), i);
 		}	
 		make_heap(heap, heap+hsize, not2(heapcomp));
 
@@ -583,12 +584,12 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 		while(hsize > 0)
 		{
 			pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
-			int source = tr1::get<2>(heap[hsize-1]);
+			int source = get<2>(heap[hsize-1]);
 
 			if( (cnz != 0) && 
-				((tr1::get<0>(ntuples[cnz-1]) == tr1::get<0>(heap[hsize-1])) && (tr1::get<1>(ntuples[cnz-1]) == tr1::get<1>(heap[hsize-1]))) )
+				((get<0>(ntuples[cnz-1]) == get<0>(heap[hsize-1])) && (get<1>(ntuples[cnz-1]) == get<1>(heap[hsize-1]))) )
 			{
-				tr1::get<2>(ntuples[cnz-1])  = SR::add(tr1::get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++)); 
+				get<2>(ntuples[cnz-1])  = SR::add(get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++)); 
 			}
 			else
 			{
@@ -597,8 +598,8 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 			
 			if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
 			{
-				heap[hsize-1] = make_tuple(tr1::get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
-								tr1::get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
+				heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]), 
+								get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
 				push_heap(heap, heap+hsize, not2(heapcomp));
 			}
 			else
@@ -625,14 +626,10 @@ SpTuples<IU,NU> MergeAll( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar 
 	}
 }
 
-
 /**
  * @param[in]   exclude if false,
  *      \n              then operation is A = A .* B
  *      \n              else operation is A = A .* not(B) 
- * \attention The memory pool of the lvalue is preserved:
- * 	\n	If A = A .* B where B uses pinnedPool and A uses NULL before the operation,
- * 	\n	then after the operation A still uses NULL memory (old school 'malloc')
  **/
 template <typename IU, typename NU1, typename NU2>
 Dcsc<IU, typename promote_trait<NU1,NU2>::T_promote> EWiseMult(const Dcsc<IU,NU1> & A, const Dcsc<IU,NU2> * B, bool exclude)

@@ -34,12 +34,10 @@ THE SOFTWARE.
 #include <vector>
 #include <utility>
 #include <iterator>
-// TR1 includes belong in CombBLAS.h
+#include "CombBLAS.h"
 #include "CommGrid.h"
 #include "FullyDist.h"
 #include "Exception.h"
-using namespace std;
-using namespace std::tr1;
 
 template <class IT, class NT>
 class FullyDistSpVec;
@@ -56,7 +54,7 @@ class DenseVectorLocalIterator;
 // ABAB: As opposed to SpParMat, IT here is used to encode global size and global indices;
 // therefore it can not be 32-bits, in general.
 template <class IT, class NT>
-class FullyDistVec: public FullyDist<IT,NT, typename disable_if< is_boolean<NT>::value, NT >::type >
+class FullyDistVec: public FullyDist<IT,NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type >
 {
 public:
 	FullyDistVec ( );
@@ -124,10 +122,10 @@ public:
 	void RandPerm();	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation
 
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::LengthUntil;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::TotalLength;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::Owner;
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::MyLocLength;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::LengthUntil;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::TotalLength;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::Owner;
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::MyLocLength;
 	IT LocArrSize() const { return arr.size(); }	// = MyLocLength() once arr is resized
 	
 	template <typename _Predicate>
@@ -224,8 +222,8 @@ public:
 	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
 
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::glen; 
-	using FullyDist<IT,NT,typename disable_if< is_boolean<NT>::value, NT >::type>::commGrid; 
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
+	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
 
 private:
 	vector< NT > arr;

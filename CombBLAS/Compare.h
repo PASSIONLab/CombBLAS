@@ -31,10 +31,7 @@ THE SOFTWARE.
 
 #include <cmath>
 #include "SpDefs.h"
-
-// TR1 includes belong in CombBLAS.h
-using namespace std;
-using namespace std::tr1;
+#include "CombBLAS.h"
 
 template <class T>
 struct ErrorTolerantEqual:

@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include <mpi.h>
 #include <vector>
 #include <iterator>
-// TR1 includes belong in CombBLAS.h
+#include "CombBLAS.h"
 #include "SpMat.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
@@ -51,8 +51,6 @@ THE SOFTWARE.
 #include "Friends.h"
 #include "Operations.h"
 
-using namespace std;
-using namespace std::tr1;
 
 /** 
  * From Graph 500 reference implementation v2.1.1

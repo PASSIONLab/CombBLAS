@@ -339,12 +339,12 @@ template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<I
         typedef SpDCCols<IT,NT> T_promote;                    
     };
 // General case #2: First is boolean the second is anything except boolean (to prevent ambiguity) 
-template <class IT, class NT> struct promote_trait< SpDCCols<IT,bool> , SpDCCols<IT,NT>, typename disable_if< is_boolean<NT>::value >::type >      
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,bool> , SpDCCols<IT,NT>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
     {                                           
         typedef SpDCCols<IT,NT> T_promote;                    
     };
 // General case #3: Second is boolean the first is anything except boolean (to prevent ambiguity) 
-template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,bool>, typename disable_if< is_boolean<NT>::value >::type >      
+template <class IT, class NT> struct promote_trait< SpDCCols<IT,NT> , SpDCCols<IT,bool>, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value >::type >      
 	{                                           
 		typedef SpDCCols<IT,NT> T_promote;                    
 	};

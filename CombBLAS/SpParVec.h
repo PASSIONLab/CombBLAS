@@ -4,16 +4,11 @@
 #include <iostream>
 #include <vector>
 #include <utility>
-
-// TR1 includes belong in CombBLAS.h
-
+#include "CombBLAS.h"
 #include "CommGrid.h"
 #include "promote.h"
 #include "SpParMat.h"
 #include "Operations.h"
-
-using namespace std;
-using namespace std::tr1;
 
 template <class IT, class NT, class DER>
 class SpParMat;
