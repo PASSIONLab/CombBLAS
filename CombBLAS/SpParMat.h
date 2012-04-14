@@ -97,7 +97,7 @@ public:
 	void FreeMemory();
 	void EWiseMult (const SpParMat< IT,NT,DER >  & rhs, bool exclude);
 	void EWiseScale (const DenseParMat<IT,NT> & rhs);
-	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);
+	void DimScale (const DenseParVec<IT,NT> & v, Dim dim);	//! deprecated: use DimApply instead
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & , FullyDistVec<IT,NT> & ) const;
 	void Find (FullyDistVec<IT,IT> & , FullyDistVec<IT,IT> & ) const;
 
