@@ -5,18 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#ifdef NOTR1
-        #include <boost/tr1/tuple.hpp>
-#else
-        #include <tr1/tuple>
-#endif
-#include "../SpParVec.h"
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../DenseParMat.h"
-#include "../DenseParVec.h"
-
+#include "../CombBLAS.h"
 
 using namespace std;
 #define ITERATIONS 10
@@ -43,7 +32,7 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./MultTest <Matrix> <S> <STranspose>" << endl;
+			cout << "Usage: ./Galerkin <Matrix> <S> <STranspose>" << endl;
 			cout << "<Matrix>,<S>,<STranspose> are absolute addresses, and files should be in triples format" << endl;
 		}
 		MPI::Finalize(); 

@@ -23,6 +23,12 @@ MPIType.o:	../MPIType.cpp ../MPIType.h
 MemoryPool.o:	../MemoryPool.cpp ../SpDefs.h
 	$(COMPILER) $(FLAGS) $(INCADD) -c -o MemoryPool.o ../MemoryPool.cpp
 
+Galerkin.o: Galerkin.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(FLAGS) -c -o Galerkin.o Galerkin.cpp
+
+GalerkinNew.o: GalerkinNew.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
+	$(COMPILER) $(FLAGS) -c -o GalerkinNew.o GalerkinNew.cpp
+
 TransposeTest.o: TransposeTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o TransposeTest.o TransposeTest.cpp
 
@@ -46,6 +52,12 @@ ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParH
 
 Roofline.o: Roofline.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Roofline.o Roofline.cpp
+
+Galerkin: MemoryPool.o CommGrid.o MPIType.o Galerkin.o
+	$(COMPILER) $(FLAGS) -o Galerkin Galerkin.o MemoryPool.o CommGrid.o MPIType.o 
+
+GalerkinNew: MemoryPool.o CommGrid.o MPIType.o GalerkinNew.o
+	$(COMPILER) $(FLAGS) -o GalerkinNew GalerkinNew.o MemoryPool.o CommGrid.o MPIType.o 
 
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
