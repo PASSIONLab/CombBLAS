@@ -640,6 +640,7 @@ CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269002.err -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269002.out -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.err -text
 CombBLAS/ReleaseTests/SCALE26RECT8192/failed/rect4096.1269004.out -text
+CombBLAS/ReleaseTests/SpAsgnTest.cpp -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script121_ipm.e7324513 -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script135_ipm.e7324514 -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script150_ipm.e7324515 -text
