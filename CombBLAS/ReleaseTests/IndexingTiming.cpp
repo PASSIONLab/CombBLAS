@@ -157,9 +157,23 @@ int main(int argc, char* argv[])
 		}
 
 		// Test #3: Pruning for SpAsgn
-		B = *A;
-		B.Prune(clusters[0], clusters[0]);
+		for(int i=0; i< nclust; i++)
+		{
+			PARDBMAT C = *A;
+			C.Prune(clusters[i], clusters[i]);
+			C.PrintInfo();
 
+			B = (*A)(clusters[i], clusters[i]);
+			C.SpAsgn(clusters[i], clusters[i], B);	
+			
+			// We should get the original A back.
+			if( C == (*A))
+			{
+				SpParHelper::Print("Pruning and SpAsgn seem to be working\n");
+			}
+		}
+
+		
 		delete A;
 	}
 	MPI::Finalize();

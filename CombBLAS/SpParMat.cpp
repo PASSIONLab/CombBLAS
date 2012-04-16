@@ -854,6 +854,46 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 
 
 template <class IT, class NT, class DER>
+void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci, SpParMat<IT,NT,DER> & B)
+{
+	typedef PlusTimesSRing<NT, NT> PTRing;
+	
+	if((*(ri.commGrid) != *(B.commGrid)) || (*(ci.commGrid) != *(B.commGrid)))
+	{
+		SpParHelper::Print("Grids are not comparable, SpAsgn fails !"); 
+		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+	}
+	IT total_m_A = getnrow();
+	IT total_n_A = getncol();
+	IT total_m_B = B.getnrow();
+	IT total_n_B = B.getncol();
+	
+	if(total_m_B != ri.TotalLength())
+	{
+		SpParHelper::Print("First dimension of B does NOT match the length of ri, SpAsgn fails !"); 
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
+	if(total_n_B != ci.TotalLength())
+	{
+		SpParHelper::Print("Second dimension of B does NOT match the length of ci, SpAsgn fails !"); 
+		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+	}
+	Prune(ri, ci);	// make a hole	
+	
+	// embed B to the size of A
+	FullyDistVec<IT,IT> rvec, qvec;
+	rvec.iota(total_m_B, 1);
+	qvec.iota(total_n_B, 1);
+	
+	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, rvec, 1);
+	SpParMat<IT,NT,DER> RB = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(R, B, true, false); // clear memory of R but not B
+	
+	SpParMat<IT,NT,DER> Q(total_n_B, total_n_A, qvec, ci, 1);
+	SpParMat<IT,NT,DER> RBQ = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(RB, Q, true, true); // clear memory of RB and Q
+	*this += RBQ;	// extend-add
+}
+
+template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::Prune(const FullyDistVec<IT,IT> & ri, const FullyDistVec<IT,IT> & ci)
 {
 	typedef PlusTimesSRing<NT, NT> PTRing;
