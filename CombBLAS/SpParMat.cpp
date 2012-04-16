@@ -882,8 +882,8 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	
 	// embed B to the size of A
 	FullyDistVec<IT,IT> rvec, qvec;
-	rvec.iota(total_m_B, 1);
-	qvec.iota(total_n_B, 1);
+	rvec.iota(total_m_B, 0);	// sparse() expects a zero based index
+	qvec.iota(total_n_B, 0);
 	
 	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, rvec, 1);
 	SpParMat<IT,NT,DER> RB = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(R, B, true, false); // clear memory of R but not B
@@ -1015,6 +1015,7 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
 }
 
 
+//! All vectors are zero-based indexed (as usual)
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & distrows, 
 				const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)

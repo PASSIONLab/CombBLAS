@@ -171,6 +171,12 @@ int main(int argc, char* argv[])
 			{
 				SpParHelper::Print("Pruning and SpAsgn seem to be working\n");
 			}
+			else
+			{
+				SpParHelper::Print("A and C don't match, below is C's info followed by B's info\n");
+				C.PrintInfo();
+				B.PrintInfo();
+			}
 		}
 
 		
