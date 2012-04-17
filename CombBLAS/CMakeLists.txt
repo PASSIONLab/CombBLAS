@@ -57,6 +57,7 @@ ADD_TEST( Iterator_Test mpirun -n 4 ReleaseTests/IteratorTest TESTDATA sprand100
 ADD_TEST( Transpose_Test mpirun -n 4 ReleaseTests/TransposeTest TESTDATA betwinput_scale16 betwinput_transposed_scale16)
 ADD_TEST( Indexing_Test mpirun -n 4 ReleaseTests/IndexingTest TESTDATA B_100x100.txt B_10x30_Indexed.txt rand10outta100.txt rand30outta100.txt)
 ADD_TEST( SpAsgn_Test mpirun -n 4 ReleaseTests/SpAsgnTest TESTDATA A_100x100.txt A_with20x30hole.txt dense_20x30matrix.txt A_wdenseblocks.txt 20outta100.txt 30outta100.txt)
+ADD_TEST( GalerkinNew_Test mpirun -n 4 ReleaseTests/GalerkinNew TESTDATA/grid3d_k5.txt TESTDATA/offdiag_grid3d_k5.txt TESTDATA/diag_grid3d_k5.txt TESTDATA/restrict_T_grid3d_k5.txt)
 ADD_TEST( FindSparse_Test mpirun -n 4 ReleaseTests/FindSparse TESTDATA findmatrix.txt)
 ADD_TEST( BetwCent_Test mpirun -n 4 Applications/betwcent TESTDATA/SCALE16BTW-TRANSBOOL/ 10 64 )
 ADD_TEST( G500_Test mpirun -n 4 Applications/graph500 Force 20 )

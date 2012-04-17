@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 		{
 			cout << "Usage: ./GalerkinNew <Matrix> <OffDiagonal> <Diagonal> <T(right hand side restriction matrix)>" << endl;
 			cout << "<Matrix> <OffDiagonal> <Diagonal> <T> are absolute addresses, and files should be in triples format" << endl;
+			cout << "Example: ./GalerkinNew TESTDATA/grid3d_k5.txt TESTDATA/offdiag_grid3d_k5.txt TESTDATA/diag_grid3d_k5.txt TESTDATA/restrict_T_grid3d_k5.txt" << endl;
 		}
 		MPI::Finalize(); 
 		return -1;
