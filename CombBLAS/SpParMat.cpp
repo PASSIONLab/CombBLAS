@@ -886,6 +886,7 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	qvec.iota(total_n_B, 0);
 	
 	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, rvec, 1);
+	R.SaveGathered("R.txt");
 	SpParMat<IT,NT,DER> RB = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(R, B, true, false); // clear memory of R but not B
 	
 	SpParMat<IT,NT,DER> Q(total_n_B, total_n_A, qvec, ci, 1);

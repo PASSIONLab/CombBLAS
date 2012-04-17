@@ -299,9 +299,16 @@ void SpDCCols<IT,NT>::EWiseMult (const SpDCCols<IT,NT> & rhs, bool exclude)
 	{
 		if(m == rhs.m && n == rhs.n)
 		{
-			if(rhs.nnz == 0 && exclude)
+			if(rhs.nnz == 0)
 			{
-				*this = SpDCCols<IT,NT>(0,m,n,0);	// completely reset the matrix
+				if(exclude)	// then we don't exclude anything
+				{
+					return;
+				}
+				else	// A .* zeros() is zeros()
+				{
+					*this = SpDCCols<IT,NT>(0,m,n,0);	// completely reset the matrix
+				}
 			}
 			else if (rhs.nnz != 0 && nnz != 0)
 			{
