@@ -1,6 +1,10 @@
 import unittest
 from kdt import *
 
+import inspect
+def debug_testcase_find():
+	print "running testcase on line #",inspect.currentframe().f_back.f_lineno
+
 class MatTests(unittest.TestCase):
 	@staticmethod
 	def fillMat(nvert, nedge, i, j, v):
@@ -130,6 +134,7 @@ class MatTests(unittest.TestCase):
 
 class LinearAlgebraTests(MatTests):
 	def test_matMul_1row1col(self):
+		debug_testcase_find()
 		nvert1 = 16
 		nedge1 = 4
 		origI1 = [0, 0, 0, 0]
@@ -150,6 +155,7 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqualMat(G3, expectedI, expectedJ, expectedV)
 
 	def disabled_test_matMul_simple(self):
+		debug_testcase_find()
 		G = self.loadMat('testfiles/small_nonsym_fp.mtx')
 		[i, j, v] = G.toVec()
 		print ""
@@ -179,6 +185,7 @@ class LinearAlgebraTests(MatTests):
 				self.assertAlmostEqual(v2[ind], expectedV[ind], places=3)
 
 	def test_SpGEMM_simple(self):
+		debug_testcase_find()
 		G = self.loadMat('testfiles/small.mtx')
 		self.assertEqual(G.ncol(),4)
 		self.assertEqual(G.nrow(),4)
@@ -196,6 +203,7 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 
 	def test_SpGEMM_simple_square(self):
+		debug_testcase_find()
 		G = self.loadMat('testfiles/small.mtx')
 		G2 = G.SpGEMM(G, sr_plustimes)
 		self.assertEqual(G2.ncol(),4)
@@ -208,6 +216,7 @@ class LinearAlgebraTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 				
 	def test_SpMV_simple_sparse(self):
+		debug_testcase_find()
 		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=True)
 		vec[1] = 2
@@ -221,6 +230,7 @@ class LinearAlgebraTests(MatTests):
 			self.assertEqual(expV[ind], vec2[ind])
 
 	def test_SpMV_simple_sparse_custSemiring(self):
+		debug_testcase_find()
 		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=True)
 		vec[1] = 2
@@ -235,6 +245,7 @@ class LinearAlgebraTests(MatTests):
 			self.assertEqual(expV[ind], vec2[ind])
 		
 	def disabled_test_SpMV_simple_dense(self):
+		debug_testcase_find()
 		# segfaults with *** An error occurred in MPI_Reduce: the reduction operation MPI_SUM is not defined for non-intrinsic datatypes
 		G = self.loadMat('testfiles/small.mtx')
 		vec = Vec(4, sparse=False)
@@ -249,6 +260,7 @@ class LinearAlgebraTests(MatTests):
 				
 class ReductionTests(MatTests):
 	def test_max_out_in(self):
+		debug_testcase_find()
 		nvert = 9
 		nedge = 19
 		i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
@@ -271,6 +283,7 @@ class ReductionTests(MatTests):
 				self.assertEqual(inmax[ind], inmaxExpected[ind])
 		
 	def test_min_out_in(self):
+		debug_testcase_find()
 		nvert = 9
 		nedge = 19
 		i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
@@ -293,6 +306,7 @@ class ReductionTests(MatTests):
 				self.assertEqual(inmin[ind], inminExpected[ind])
 		
 	def test_sum_out_in(self):
+		debug_testcase_find()
 		nvert = 9
 		nedge = 19
 		i = [0, 1, 1, 2, 1, 3, 2, 3, 3, 4, 6, 8, 7, 8, 1, 1, 1, 1, 1]
@@ -320,6 +334,7 @@ class ReductionTests(MatTests):
 				
 class GeneralPurposeTests(MatTests):
 	def mulNot_is_deprecated_test_multNot(self):
+		debug_testcase_find()
 		nvert1 = 9
 		nedge1 = 19
 		origI1 = [1, 0, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
@@ -343,6 +358,7 @@ class GeneralPurposeTests(MatTests):
 		self.assertEqualMat(G3, expI, expJ, expV)
 
 	def test_scale_row(self):
+		debug_testcase_find()
 		nvert1 = 9
 		nedge1 = 19
 		origI1 = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 7]
@@ -370,6 +386,7 @@ class GeneralPurposeTests(MatTests):
 		self.assertEqualMat(G1, expI, expJ, expV)
 
 	def test_scale_column(self):
+		debug_testcase_find()
 		nvert1 = 9
 		nedge1 = 19
 		origI1 = [0,  1,  4,  6,  1,  5,  1,  2,  3,  1,  3,  1,   1,   8,  1,  8, 0,  6, 7]
@@ -395,6 +412,7 @@ class GeneralPurposeTests(MatTests):
 		self.assertEqualMat(G1, expI, expJ, expV)
 	
 	def test_removeMainDiagonal(self):
+		debug_testcase_find()
 		nvert = 9
 		origI = [0, 1, 4, 6, 1, 5, 1, 2, 3, 1, 3, 1, 1, 8, 1, 8, 0, 6, 8]
 		origJ = [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 8]
@@ -408,6 +426,7 @@ class GeneralPurposeTests(MatTests):
 
 class BuiltInMethodTests(MatTests):
 	def test_add_simple(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when all edges are 
 		# in both Mats.
@@ -427,6 +446,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_add_union_trivial(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -452,6 +472,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, expI, expJ, expV)
 
 	def test_add_union(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -481,6 +502,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, expI, expJ, expV)
 		
 	def test_add_union_small(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -502,6 +524,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, expI, expJ, expV)
 
 	def test_add_union_smaller(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -523,6 +546,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, expI, expJ, expV)
 
 	def test_neg_simple(self):
+		debug_testcase_find()
 		# ensure that Mat negation creates the number, source/
 		# destination, and value pairs expected when all edges are 
 		# in both Mats.
@@ -539,6 +563,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_mul_simple(self):
+		debug_testcase_find()
 		# ensure that Mat multiplication creates the number, source/
 		# destination, and value pairs expected when all edges are 
 		# in both Mats.
@@ -558,6 +583,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G3, origI, origJ, expV)
 		
 	def test_mul_intersection(self):
+		debug_testcase_find()
 		# ensure that Mat multiplication creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -587,6 +613,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertAlmostEqualMat(G3, expI, expJ, expV)
 
 	def test_imul_intersection(self):
+		debug_testcase_find()
 		# ensure that Mat multiplication creates the number, source/
 		# destination, and value pairs expected when some edges are not
 		# in both Mats.
@@ -616,6 +643,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertAlmostEqualMat(G1, expI, expJ, expV)
 
 	def test_div_simple(self):
+		debug_testcase_find()
 		# ensure that Mat addition creates the number, source/
 		# destination, and value pairs expected when all edges are 
 		# in both Mats.
@@ -636,6 +664,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertAlmostEqualMat(G3, origI, origJ, expV)
 
 	def disabled_test_indexing_simple_scalar_scalar(self):
+		debug_testcase_find()
 		# ensure that a simple Mat constructor creates the number, source/
 		# destination, and value pairs expected.
 		nvert = 9
@@ -653,6 +682,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def disabled_test_indexing_simple_scalar_null(self):
+		debug_testcase_find()
 		# ensure that a simple Mat constructor creates the number, source/
 		# destination, and value pairs expected.
 		nvert = 9
@@ -670,6 +700,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclen1_scalar(self):
+		debug_testcase_find()
 		# ensure that a simple Mat constructor creates the number, source/
 		# destination, and value pairs expected.
 		nvert = 9
@@ -688,6 +719,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclen1_null(self):
+		debug_testcase_find()
 		# ensure that a simple Mat constructor creates the number, source/
 		# destination, and value pairs expected.
 		nvert = 9
@@ -706,6 +738,7 @@ class BuiltInMethodTests(MatTests):
 		self.assertEqualMat(G2, expI, expJ, expV)
 		
 	def test_indexing_simple_Veclenk(self):
+		debug_testcase_find()
 		# ensure that a simple Mat constructor creates the number, source/
 		# destination, and value pairs expected.
 		nvert = 9
@@ -727,6 +760,7 @@ class BuiltInMethodTests(MatTests):
 
 class LoadTests(MatTests):
 	def test_load_small_nonsym_fp_mtx(self):
+		debug_testcase_find()
 		M = Mat.load('testfiles/small_nonsym_fp.mtx')
 		self.assertEqual(M.nrow(),9)
 		self.assertEqual(M.ncol(),9)
@@ -738,6 +772,7 @@ class LoadTests(MatTests):
 		self.assertEqualMat(M, expectedI, expectedJ, expectedV)
 
 	def test_load_small_mtx(self):
+		debug_testcase_find()
 		M = Mat.load('testfiles/small.mtx')
 		self.assertEqual(M.nrow(),4)
 		self.assertEqual(M.ncol(),4)
@@ -749,6 +784,7 @@ class LoadTests(MatTests):
 		self.assertEqualMat(M, expectedI, expectedJ, expectedV)
 
 	def test_save_load_small_mtx(self):
+		debug_testcase_find()
 		origI = [1,0,2,  1,  3,1,3,2]
 		origJ = [0,1,1,  2,  1,3,2,3]
 		origV = [1,2,3,5.5,5.5,2,1,2]
@@ -758,6 +794,7 @@ class LoadTests(MatTests):
 		self.assertEqualMat(M2, origI, origJ, origV)
 
 	def disabled_test_save_load_small_mtx_Obj1(self):
+		debug_testcase_find()
 		origI = [1,0,2,  1,  3,1,3,2]
 		origJ = [0,1,1,  2,  1,3,2,3]
 		origV = [1,2,3,5.5,5.5,2,1,2]
@@ -777,15 +814,15 @@ class ApplyReduceTests(MatTests):
 
 def runTests(verbosity = 1):
 	testSuite = suite()
-	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
 	print "running again using filtered data (on-the-fly):"
 	MatTests.testFilter = True
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	print "running again using filtered data (materializing):"
-	MatTests.testMaterializingFilter = True
-	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	#print "running again using filtered data (materializing):"
+	#MatTests.testMaterializingFilter = True
+	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
 	suite = unittest.TestSuite()
