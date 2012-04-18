@@ -41,11 +41,12 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 #define ITERS 16 
 #define CC_LIMIT 100
-//#define PERMUTEFORBALANCE
+#define PERMUTEFORBALANCE
 #define PERCENTS 0
 #define UNDIRECTED
 #define ONLYTIME
 
+#define UNDIRECTED
 using namespace std;
 
 

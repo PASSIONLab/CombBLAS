@@ -1826,6 +1826,8 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 		// in that case buffperrowneigh > colneighs * buffpercolneigh 
 		// in order not to overflow
 		buffpercolneigh /= colneighs; 
+		if(seeklength == 0)
+			SpParHelper::Print("COMBBLAS: Parallel I/O requested but binary header is corrupted\n");
 	}
 
 	// make sure that buffperrowneigh >= buffpercolneigh to cover for this patological case:

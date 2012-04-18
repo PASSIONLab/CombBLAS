@@ -13,8 +13,8 @@ using namespace std;
 // One edge = 16 bytes (rounded up from 11)
 // One parent = 8 bytes
 #define INC 256
-#define L1 2048	// maximum entries of edges+parents combined to fit 32 KB
-#define REPEAT 100
+#define L1 4096	// maximum entries of edges+parents combined to fit 32 KB
+#define REPEAT 1000
 
 
 

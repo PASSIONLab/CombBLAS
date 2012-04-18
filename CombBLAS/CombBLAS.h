@@ -30,6 +30,9 @@ using namespace std;
 
 extern double cblas_alltoalltime;
 extern double cblas_allgathertime;
+extern double cblas_localspmvtime;
+extern double cblas_mergeconttime;
+extern double cblas_transvectime;
 
 // An adapter function that allows using extended-callback EWiseApply with plain-old binary functions that don't want the extra parameters.
 template <typename RETT, typename NU1, typename NU2, typename BINOP>
