@@ -53,7 +53,12 @@ int main(int argc, char* argv[])
 		// force the calling of C's destructor
 		{
 			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			int64_t cnnz = C.getnnz();
+			ostringstream tinfo;
+                        tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
+                        SpParHelper::Print(tinfo.str());
 			SpParHelper::Print("Warmed up for DoubleBuff\n");
+			
 		}	
 		MPI::COMM_WORLD.Barrier();
 		MPI_Pcontrol(1,"SpGEMM_DoubleBuff");

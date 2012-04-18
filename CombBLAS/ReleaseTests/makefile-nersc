@@ -46,6 +46,9 @@ IndexingTest.o: IndexingTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../Sp
 SpAsgnTest.o: SpAsgnTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o SpAsgnTest.o SpAsgnTest.cpp
 
+SpAsgnTiming.o: SpAsgnTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
+	$(COMPILER) $(FLAGS) -c -o SpAsgnTiming.o SpAsgnTiming.cpp
+
 IndexingTiming.o: IndexingTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h ../SpParVec.cpp
 	$(COMPILER) $(FLAGS) -c -o IndexingTiming.o IndexingTiming.cpp
 
@@ -78,6 +81,9 @@ IndexingTest: MemoryPool.o CommGrid.o MPIType.o IndexingTest.o
 
 SpAsgnTest: MemoryPool.o CommGrid.o MPIType.o SpAsgnTest.o
 	$(COMPILER) $(FLAGS) -o SpAsgnTest SpAsgnTest.o MemoryPool.o CommGrid.o MPIType.o
+
+SpAsgnTiming: MemoryPool.o CommGrid.o MPIType.o SpAsgnTiming.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) -o SpAsgnTiming SpAsgnTiming.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 IndexingTiming: MemoryPool.o CommGrid.o MPIType.o IndexingTiming.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) -o IndexingTiming IndexingTiming.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
