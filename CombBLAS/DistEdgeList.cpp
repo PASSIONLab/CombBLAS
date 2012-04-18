@@ -82,9 +82,9 @@ template <typename IT>
 void DistEdgeList<IT>::Dump64bit(string filename)
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-    	int rank = World.Get_rank();
-    	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
 
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = 2*nedges;
@@ -104,9 +104,9 @@ template <typename IT>
 void DistEdgeList<IT>::Dump32bit(string filename)
 {
 	MPI::Intracomm World = commGrid->GetWorld();
-    	int rank = World.Get_rank();
-    	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	int rank = World.Get_rank();
+	int nprocs = World.Get_size();
+	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
 
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = 2*nedges;
