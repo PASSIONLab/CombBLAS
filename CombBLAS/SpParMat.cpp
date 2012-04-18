@@ -881,15 +881,17 @@ void SpParMat<IT,NT,DER>::SpAsgn(const FullyDistVec<IT,IT> & ri, const FullyDist
 	Prune(ri, ci);	// make a hole	
 	
 	// embed B to the size of A
-	FullyDistVec<IT,IT> rvec, qvec;
-	rvec.iota(total_m_B, 0);	// sparse() expects a zero based index
-	qvec.iota(total_n_B, 0);
+	FullyDistVec<IT,IT> * rvec = new FullyDistVec<IT,IT>();
+	rvec->iota(total_m_B, 0);	// sparse() expects a zero based index
 	
-	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, rvec, 1);
-	R.SaveGathered("R.txt");
+	SpParMat<IT,NT,DER> R(total_m_A, total_m_B, ri, *rvec, 1);
+	delete rvec;	// free memory
 	SpParMat<IT,NT,DER> RB = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(R, B, true, false); // clear memory of R but not B
 	
-	SpParMat<IT,NT,DER> Q(total_n_B, total_n_A, qvec, ci, 1);
+	FullyDistVec<IT,IT> * qvec = new FullyDistVec<IT,IT>();
+	qvec->iota(total_n_B, 0);
+	SpParMat<IT,NT,DER> Q(total_n_B, total_n_A, *qvec, ci, 1);
+	delete qvec;	// free memory
 	SpParMat<IT,NT,DER> RBQ = Mult_AnXBn_DoubleBuff<PTRing, NT, DER>(RB, Q, true, true); // clear memory of RB and Q
 	*this += RBQ;	// extend-add
 }

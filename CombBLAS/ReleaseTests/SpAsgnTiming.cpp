@@ -68,28 +68,20 @@ int main(int argc, char* argv[])
 			perm = perm(sel);  // just get the first B->getnrow() entries of the permutation
 			perm.PrintInfo("Index vector");
 		
-			PARDBMAT ATemp = *A; 	
-			ATemp.SpAsgn(perm,perm,*B);
-			ATemp.PrintInfo();
+			A->SpAsgn(perm,perm,*B);	// overriding A with a structurally similar piece. 
+			A->PrintInfo();
 		
-			double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
-			for(int j=0; j< ITERATIONS; ++j)
-				PARDBMAT ATemp = *A;
-			double t2 = MPI::Wtime(); 	
-			double copytime = t2-t1;
-
-			t1 = MPI::Wtime();
+			double t1 = MPI::Wtime();
 			for(int j=0; j< ITERATIONS; ++j)
 			{
-				PARDBMAT ATemp = *A;
-				ATemp.SpAsgn(perm,perm,*B);
+				A->SpAsgn(perm,perm,*B);
 			}	
-			t2 = MPI::Wtime();
+			double t2 = MPI::Wtime();
 
 			if(myrank == 0)
 			{
 				cout<< "Scale " << scale-i << " assignment iterations finished"<<endl;	
-				printf("%.6lf seconds elapsed per iteration\n", ((t2-t1)-copytime)/(double)ITERATIONS);
+				printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 			
 			}	
 			delete B;
