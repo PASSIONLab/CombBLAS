@@ -12,13 +12,6 @@ using namespace std;
 #define ITERATIONS 10
 #define EDGEFACTOR 8
 
-template <class T>
-bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
-{
-        istringstream iss(s);
-        return !(iss >> f >> t).fail();
-}
-
 int main(int argc, char* argv[])
 {
 	MPI::Init(argc, argv);
@@ -41,33 +34,43 @@ int main(int argc, char* argv[])
 		DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
 
 		int scale = static_cast<unsigned>(atoi(argv[1]));
-		ostringstream outs;
+		ostringstream outs, outs2, outs3;
 		outs << "Forcing scale to : " << scale << endl;
 		SpParHelper::Print(outs.str());
 		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );        // generate packed edges
 		SpParHelper::Print("Generated renamed edge lists\n");
 		
 		// conversion from distributed edge list, keeps self-loops, sums duplicates
-		A = new PARDBMAT(*DEL, false); 
+		A = new PARDBMAT(*DEL, false); 	// already creates renumbered vertices (hence balanced)
 		delete DEL;	// free memory before symmetricizing
 		SpParHelper::Print("Created double Sparse Matrix\n");
-		A->PrintInfo();	
 
-		for(unsigned i=1; i<3; i++)
+		float balance = A->LoadImbalance();
+		outs2 << "Load balance: " << balance << endl;
+		SpParHelper::Print(outs2.str());
+		A->PrintInfo();
+
+		for(unsigned i=1; i<4; i++)
 		{
-			DEL->GenGraph500Data(initiator, scale-i, EDGEFACTOR, true, true );        // "i" scale smaller
+			DEL = new DistEdgeList<int64_t>();
+			DEL->GenGraph500Data(initiator, scale-i, ((double) EDGEFACTOR) / pow(2.0,i) , true, true );        // "i" scale smaller
 			B = new PARDBMAT(*DEL, false);
 			delete DEL;
 			SpParHelper::Print("Created RHS Matrix\n");
 			B->PrintInfo();
-			FullyDistVec<int,int> p;
-			p.iota(A->getnrow(), 0);
-			p.RandPerm();
-			p = p(B->getnrow());  // just get the first B->getnrow() entries of the permutation
-			p.PrintInfo();
+			FullyDistVec<int,int> perm;	// get a different permutation
+			perm.iota(A->getnrow(), 0);
+			perm.RandPerm();
+
+			//void FullyDistVec::iota(IT globalsize, NT first)
+			FullyDistVec<int,int> sel;
+			sel.iota(B->getnrow(), 0);
+			perm = perm(sel);  // just get the first B->getnrow() entries of the permutation
+			perm.PrintInfo("Index vector");
 		
 			PARDBMAT ATemp = *A; 	
-			ATemp.SpAsgn(p,p,*B);
+			ATemp.SpAsgn(perm,perm,*B);
+			ATemp.PrintInfo();
 		
 			double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
 			for(int j=0; j< ITERATIONS; ++j)
@@ -79,7 +82,7 @@ int main(int argc, char* argv[])
 			for(int j=0; j< ITERATIONS; ++j)
 			{
 				PARDBMAT ATemp = *A;
-				ATemp.SpAsgn(p,p,*B);
+				ATemp.SpAsgn(perm,perm,*B);
 			}	
 			t2 = MPI::Wtime();
 
