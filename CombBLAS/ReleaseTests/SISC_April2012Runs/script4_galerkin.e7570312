@@ -1,0 +1,27 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Data read
+Splitting approach is correct
+Full restriction (without splitting) finished
+10.997680 seconds elapsed per iteration
+Full restriction (with splitting) finished
+10.861421 seconds elapsed per iteration
+Application 26922906 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4_galerkin
+ +          Job Id: 7570312.nid00003
+ +          System: franklin
+ +     Queued Time: Tue Apr 17 13:28:05 2012
+ +      Start Time: Tue Apr 17 14:20:55 2012
+ + Completion Time: Tue Apr 17 14:26:24 2012
+ +            User: abuluc
+ +        MOM Host: nid04096
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:69826:nid00256,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5332kb,vmem=22468kb,walltime=00:05:29
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script4_galerkin
+ + --------------------------------------------------------------------------
+
