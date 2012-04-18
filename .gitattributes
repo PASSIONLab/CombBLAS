@@ -661,6 +661,7 @@ CombBLAS/ReleaseTests/SISC_April2012Runs/script64_galerkin_ldoor.e7570283 -text
 CombBLAS/ReleaseTests/SISC_April2012Runs/script9_galerkin.e7570313 -text
 CombBLAS/ReleaseTests/SISC_April2012Runs/script9_galerkin_ldoor.e7570280 -text
 CombBLAS/ReleaseTests/SpAsgnTest.cpp -text
+CombBLAS/ReleaseTests/SpAsgnTiming.cpp -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script121_ipm.e7324513 -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script135_ipm.e7324514 -text
 CombBLAS/ReleaseTests/SpRef_Franklin/EpetraExt/script150_ipm.e7324515 -text
