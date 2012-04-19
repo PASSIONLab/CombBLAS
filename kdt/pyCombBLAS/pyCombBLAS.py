@@ -665,6 +665,7 @@ SecondMaxSemiringObj = _pyCombBLAS.SecondMaxSemiringObj
 finalize = _pyCombBLAS.finalize
 root = _pyCombBLAS.root
 _nprocs = _pyCombBLAS._nprocs
+_rank = _pyCombBLAS._rank
 prnt = _pyCombBLAS.prnt
 testFunc = _pyCombBLAS.testFunc
 class NotFoundError(_object):

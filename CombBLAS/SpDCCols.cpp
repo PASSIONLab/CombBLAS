@@ -288,7 +288,19 @@ SpDCCols<IT,NT>* SpDCCols<IT,NT>::Prune(_UnaryOperation __unary_op, bool inPlace
 	}
 	else
 	{
-		return new SpDCCols<IT,NT>();
+		if (inPlace)
+		{
+			return NULL;
+		}
+		else
+		{
+			SpDCCols<IT,NT>* retcols = new SpDCCols<IT, NT>();
+			retcols->dcsc = NULL;
+			retcols->nnz = 0;
+			retcols->n = n;
+			retcols->m = m;
+			return retcols;
+		}
 	}
 }
 

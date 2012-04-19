@@ -3,7 +3,8 @@ from kdt import *
 
 import inspect
 def debug_testcase_find():
-	print "running testcase on line #",inspect.currentframe().f_back.f_lineno
+	#print kdt._rank(),": running testcase on line #",inspect.currentframe().f_back.f_lineno
+	pass
 
 class MatTests(unittest.TestCase):
 	@staticmethod
@@ -814,15 +815,15 @@ class ApplyReduceTests(MatTests):
 
 def runTests(verbosity = 1):
 	testSuite = suite()
-	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	print "running again using filtered data (on-the-fly):"
+	kdt.p("running again using filtered data (on-the-fly):")
 	MatTests.testFilter = True
 	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 	
-	#print "running again using filtered data (materializing):"
-	#MatTests.testMaterializingFilter = True
-	#unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
+	kdt.p("running again using filtered data (materializing):")
+	MatTests.testMaterializingFilter = True
+	unittest.TextTestRunner(verbosity=verbosity).run(testSuite)
 
 def suite():
 	suite = unittest.TestSuite()
