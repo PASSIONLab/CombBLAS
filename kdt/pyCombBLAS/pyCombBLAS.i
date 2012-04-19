@@ -1186,6 +1186,7 @@ SemiringObj SecondMaxSemiringObj();
 void finalize();
 bool root();
 int _nprocs();
+int _rank();
 void prnt(const char* str);
 
 void testFunc(double (*f)(double));

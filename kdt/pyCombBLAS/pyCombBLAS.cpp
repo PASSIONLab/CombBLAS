@@ -329,6 +329,11 @@ int _nprocs()
 	return MPI::COMM_WORLD.Get_size();
 }
 
+int _rank()
+{
+	return MPI::COMM_WORLD.Get_rank();
+}
+
 void prnt(const char* str)
 {
 	SpParHelper::Print(str);

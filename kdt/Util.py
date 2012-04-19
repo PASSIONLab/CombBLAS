@@ -123,6 +123,12 @@ def _nproc():
 	"""
 	return pcb._nprocs()
 
+def _rank():
+	"""
+	Return the number of the processor executing this function (MPI rank).
+	"""
+	return pcb._rank()
+
 def version():
 	"""
 	Return KDT version number, as a string.

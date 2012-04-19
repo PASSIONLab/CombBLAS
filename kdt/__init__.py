@@ -1,7 +1,7 @@
 # package marker
 
 from Util import *
-from Util import master, version, revision, _nproc
+from Util import master, version, revision, _nproc, _rank
 
 from DiGraph import DiGraph
 from HyGraph import HyGraph

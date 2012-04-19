@@ -42686,6 +42686,29 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap__rank(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":_rank")) SWIG_fail;
+  {
+    try {
+      result = (int)_rank();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_prnt(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -43510,6 +43533,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"finalize", _wrap_finalize, METH_VARARGS, NULL},
 	 { (char *)"root", _wrap_root, METH_VARARGS, NULL},
 	 { (char *)"_nprocs", _wrap__nprocs, METH_VARARGS, NULL},
+	 { (char *)"_rank", _wrap__rank, METH_VARARGS, NULL},
 	 { (char *)"prnt", _wrap_prnt, METH_VARARGS, NULL},
 	 { (char *)"testFunc", _wrap_testFunc, METH_VARARGS, NULL},
 	 { (char *)"new_NotFoundError", _wrap_new_NotFoundError, METH_VARARGS, NULL},
