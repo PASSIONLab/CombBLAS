@@ -125,9 +125,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
+		else
+			delete C_cont;
 	}
 	if(clearA) delete A1seq;
 	if(clearB) delete B1seq;
@@ -177,9 +178,10 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 						false, true,	// transpose information (B is transposed)
 						i != Aself, 	// 'delete A' condition
 						i != Bself);	// 'delete B' condition
-
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
+		else
+			delete C_cont;
 	}
 	SpHelper::deallocate2D(ARecvSizes, UDERA::esscount);
 	SpHelper::deallocate2D(BRecvSizes, UDERB::esscount);
