@@ -86,8 +86,10 @@ MPI::Datatype MPIType ( void )
 		datatype = MPI::CHAR.Create_contiguous(sizeof(T));
 		datatype.Commit();
 		int myrank = MPI::COMM_WORLD.Get_rank();
+	#ifdef DEBUG
 		if(myrank == 0)
-		cout << "Creating a new MPI data type for " << t->name() << endl;
+			cout << "Creating a new MPI data type for " << t->name() << endl;
+	#endif
 		mpidtc.set(t, datatype);
 	}
    	return datatype;

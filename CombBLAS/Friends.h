@@ -459,6 +459,8 @@ SpTuples<IU, NUO> * Tuples_AnXBt
 
 	if(A.isZero() || B.isZero())
 	{
+		if(clearA)	delete const_cast<SpDCCols<IU, NU1> *>(&A);
+		if(clearB)	delete const_cast<SpDCCols<IU, NU2> *>(&B);
 		return new SpTuples< IU, NUO >(0, mdim, ndim);	// just return an empty matrix
 	}
 	Isect<IU> *isect1, *isect2, *itr1, *itr2, *cols, *rows;
@@ -467,6 +469,8 @@ SpTuples<IU, NUO> * Tuples_AnXBt
 	IU kisect = static_cast<IU>(itr1-isect1);		// size of the intersection ((itr1-isect1) == (itr2-isect2))
 	if(kisect == 0)
 	{
+		if(clearA)	delete const_cast<SpDCCols<IU, NU1> *>(&A);
+		if(clearB)	delete const_cast<SpDCCols<IU, NU2> *>(&B);
 		DeleteAll(isect1, isect2, cols, rows);
 		return new SpTuples< IU, NUO >(0, mdim, ndim);
 	}
@@ -476,11 +480,8 @@ SpTuples<IU, NUO> * Tuples_AnXBt
 	IU cnz = SpHelper::SpCartesian< SR > (*(A.dcsc), *(B.dcsc), kisect, isect1, isect2, multstack);  
 	DeleteAll(isect1, isect2, cols, rows);
 
-	if(clearA)	
-		delete const_cast<SpDCCols<IU, NU1> *>(&A);
-	if(clearB)
-		delete const_cast<SpDCCols<IU, NU2> *>(&B);
-
+	if(clearA)	delete const_cast<SpDCCols<IU, NU1> *>(&A);
+	if(clearB)	delete const_cast<SpDCCols<IU, NU2> *>(&B);
 	return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
 }
 

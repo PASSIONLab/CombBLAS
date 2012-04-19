@@ -1138,6 +1138,7 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 	tuple<IT,IT,NT> * recvdata = new tuple<IT,IT,NT>[totrecv];	
 	commGrid->GetWorld().Alltoallv(senddata, sendcnt, sdispls, MPI_triple, recvdata, recvcnt, rdispls, MPI_triple); 
 	DeleteAll(senddata, sendcnt, recvcnt, sdispls, rdispls);
+	MPI_triple.Free();
 
 	int r = commGrid->GetGridRows();
 	int s = commGrid->GetGridCols();
@@ -1527,8 +1528,8 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool 
 	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(pair<IT,NT>));
 	datatype.Commit();
 	//Adam: gives unused variable warning: int dsize = datatype.Get_size();
-
 	//Adam: gives unused variable warning: IT nzr = 0;	// nonempty row counts per processor row
+	
 	for(int i = 0; i < procrows; i++)	// for all processor row (in order)
 	{
 		if(commGrid->GetRankInProcCol() == i)	// only the ith processor row
