@@ -463,6 +463,15 @@ CombBLAS/ReleaseTests/FranklinSpGEMM/script8100_ipm.Scale24 -text
 CombBLAS/ReleaseTests/FranklinSpGEMM/script9_ipm.Scale21 -text
 CombBLAS/ReleaseTests/FranklinSpGEMM/script9_ipm.Scale22 -text
 CombBLAS/ReleaseTests/FranklinSpGEMM/script9_ipm.Scale23 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script1.e7572845 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script1024.e7571928 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script1024.e7572846 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script16.e7572758 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script256.e7572760 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script256.e7572761 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script4.e7572757 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script4096.e7572847 -text
+CombBLAS/ReleaseTests/FranklinTimings_SpAsgn/script64.e7572759 -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order2 -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order4 -text
 CombBLAS/ReleaseTests/GALERKIN/cores1024_scale23_order8 -text

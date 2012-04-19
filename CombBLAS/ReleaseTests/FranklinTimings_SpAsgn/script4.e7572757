@@ -1,0 +1,60 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+Forcing scale to : 22
+graph_generation:               6.062855 s
+Generated renamed edge lists
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 2097152-by-2097152
+Duplicates removed (or summed): 931172 and self-loops removed: 0
+Created double Sparse Matrix
+Load balance: 1.00069
+As a whole: 4194304 rows and 4194304 columns and 32623260 nonzeros
+graph_generation:               1.474212 s
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 1048576-by-1048576
+Duplicates removed (or summed): 174353 and self-loops removed: 0
+Created RHS Matrix
+As a whole: 2097152 rows and 2097152 columns and 8214255 nonzeros
+As a whole, Index vector has length 2097152
+As a whole: 4194304 rows and 4194304 columns and 32877518 nonzeros
+Scale 21 assignment iterations finished
+19.994362 seconds elapsed per iteration
+graph_generation:               0.353719 s
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 524288-by-524288
+Duplicates removed (or summed): 31228 and self-loops removed: 0
+Created RHS Matrix
+As a whole: 1048576 rows and 1048576 columns and 2065924 nonzeros
+As a whole, Index vector has length 1048576
+As a whole: 4194304 rows and 4194304 columns and 32958517 nonzeros
+Scale 20 assignment iterations finished
+12.388866 seconds elapsed per iteration
+graph_generation:               0.082103 s
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 262144-by-262144
+Duplicates removed (or summed): 5612 and self-loops removed: 0
+Created RHS Matrix
+As a whole: 524288 rows and 524288 columns and 518676 nonzeros
+As a whole, Index vector has length 524288
+As a whole: 4194304 rows and 4194304 columns and 32944923 nonzeros
+Scale 19 assignment iterations finished
+9.538237 seconds elapsed per iteration
+Application 26976189 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4
+ +          Job Id: 7572757.nid00003
+ +          System: franklin
+ +     Queued Time: Thu Apr 19 12:07:40 2012
+ +      Start Time: Thu Apr 19 12:08:14 2012
+ + Completion Time: Thu Apr 19 12:16:12 2012
+ +            User: abuluc
+ +        MOM Host: nid04099
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:70176:nid00095,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5436kb,vmem=22564kb,walltime=00:07:58
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/kdt/trunk/CombBLAS/ReleaseTests
+ +     Submit Args: script4
+ + --------------------------------------------------------------------------
+
