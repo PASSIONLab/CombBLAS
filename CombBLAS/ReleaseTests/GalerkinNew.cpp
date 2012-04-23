@@ -85,6 +85,10 @@ int main(int argc, char* argv[])
 			else
 			{
 				SpParHelper::Print("Error in splitting, go fix it\n");
+				SLT.PrintInfo();	
+				SAT.PrintInfo();
+				//SLT.SaveGathered("SLT.txt");
+				//SAT.SaveGathered("SAT.txt");
 			}
 		}	
 		MPI::COMM_WORLD.Barrier();
