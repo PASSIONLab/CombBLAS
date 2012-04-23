@@ -473,8 +473,20 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	bool same = std::equal(cp, cp+nzc+1, rhs.cp); 
 	same = same && std::equal(jc, jc+nzc, rhs.jc);
 	same = same && std::equal(ir, ir+nz, rhs.ir);
+	
+#ifdef DEBUG
+	vector<NT> error(nz);
+	transform(numx, numx+nz, rhs.numx, error.begin(), absdiff<NT>());
+	vector< pair<NT, NT> > error_original_pair(nz);
+	for(IT i=0; i < nz; ++i)
+		error_original_pair[i] = make_pair(error[i], numx[i]);
+	partial_sort(error_original_pair.begin(), error_original_pair.begin()+10, error_original_pair.end(), greater< pair<NT,NT> >());
+	cout << "Highest 10 different entries are: " << endl;
+	for(IT i=0; i < 10; ++i)
+		cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << endl;
+#endif
 
-	ErrorTolerantEqual<NT> epsilonequal;
+	ErrorTolerantEqual<NT> epsilonequal(EPSILON);
 	same = same && std::equal(numx, numx+nz, rhs.numx, epsilonequal );
 	return same;
 }

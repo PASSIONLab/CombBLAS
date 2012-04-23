@@ -33,15 +33,34 @@ THE SOFTWARE.
 #include "SpDefs.h"
 #include "CombBLAS.h"
 
+//! Uses relative (as opposed to absolute) error to report
 template <class T>
 struct ErrorTolerantEqual:
 	public binary_function< T, T, bool >
 	{
+		ErrorTolerantEqual(const T & myepsilon):epsilon(myepsilon) {};
 		inline bool operator() (const T & a, const T & b) const
 		{
-			return ( std::abs(a - b) < EPSILON ) ; 
+			// According to the IEEE 754 standard, negative zero and positive zero should 
+			// compare as equal with the usual (numerical) comparison operators, like the == operators of C++ 
+			T zero = T();
+			if(a == zero && b == zero)	// avoid division by zero
+				return true;
+			
+			return ( (std::abs(a - b) / max(std::abs(a), std::abs(b))) < epsilon ) ; 
 		}
+		T epsilon;
 	};
+
+template < typename T >
+struct absdiff : binary_function<T, T, T>
+{
+        T operator () ( T const &arg1, T const &arg2 ) const
+        {
+                using std::abs;
+                return abs( arg1 - arg2 );
+        }
+};
 	
 
 template<class IT, class NT>
