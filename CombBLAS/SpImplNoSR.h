@@ -38,9 +38,9 @@ struct SpImplNoSR;
 //! Version without the Semiring (for BFS)
 template <class IT, class NUM, class VT>
 void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-			 int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
+			 int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
 {
-	SpImplNoSR<IT,NUM,VT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c);	// don't touch this
+	SpImplNoSR<IT,NUM,VT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c, isthere);	// don't touch this
 };
 
 template <class IT, class NUM, class VT>
@@ -56,7 +56,7 @@ template <class IT, class NUM, class VT>
 struct SpImplNoSR
 {
 	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
 	{
 		cout << "SpMXSpV (without a semiring) is only reserved for boolean matrices" << endl;
 	};
@@ -75,7 +75,7 @@ template <class IT, class VT>
 struct SpImplNoSR<IT,bool, VT>	// specialization
 {
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c);
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere);
 
 	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector<VT> & numy, int32_t offset);
@@ -93,10 +93,8 @@ struct SpImplNoSR<IT,bool, VT>	// specialization
  **/
 template <typename IT, typename VT>
 void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c)
+										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
 {   
-	bool * isthere = new bool[mA];
-	fill(isthere, isthere+mA, false);
 	vector< vector< pair<int32_t,VT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
 	
 	int32_t perproc = mA / p_c;	
@@ -135,7 +133,6 @@ void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, co
 			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	
 		}
 	}
-	delete [] isthere;
 }
 
 

@@ -11,8 +11,14 @@ template <class IT, class NT>
 class OptBuf
 {
 public:
-	OptBuf(): p_c(0), totmax(0) {};
-	void Set(const vector<int> & maxsizes) 
+	OptBuf(): p_c(0), totmax(0), localm(0) {};
+	void MarkEmpty()
+	{
+		if(totmax > 0)
+			fill(isthere, isthere+localm, false);
+	}
+	
+	void Set(const vector<int> & maxsizes, int mA) 
 	{
 		p_c =  maxsizes.size(); 
 		totmax = accumulate(maxsizes.begin(), maxsizes.end(), 0);
@@ -20,10 +26,15 @@ public:
 		fill_n(inds, totmax, -1);
 		nums = new NT[totmax];
 		dspls = new int[p_c]();
-		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);			
+		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);
+		localm = mA;
+		isthere = new bool[localm];
+		fill(isthere, isthere+localm, false);
 	};
 	~OptBuf()
-	{
+	{	if(localm > 0)
+			delete [] isthere;
+		
 		if(totmax > 0)
 		{
 			delete [] inds;
@@ -36,14 +47,19 @@ public:
 	{
 		p_c = rhs.p_c;
 		totmax = rhs.totmax;
+		localm = rhs.localm;
 		inds = new IT[totmax];
 		nums = new NT[totmax];
 		dspls = new int[p_c]();	
+		isthere = new bool[localm];
+		fill(isthere, isthere+localm, false);
 	}
 	OptBuf<IT,NT> & operator=(const OptBuf<IT,NT> & rhs)
 	{
 		if(this != &rhs)
 		{
+			if(localm > 0)
+				delete [] isthere;
 			if(totmax > 0)
 			{
 				delete [] inds;
@@ -54,6 +70,7 @@ public:
 	
 			p_c = rhs.p_c;
 			totmax = rhs.totmax;
+			localm = rhs.localm;
 			inds = new IT[totmax];
 			nums = new NT[totmax];
 			dspls = new int[p_c]();	
@@ -64,8 +81,10 @@ public:
 	IT * inds;	
 	NT * nums;	
 	int * dspls;
+	bool * isthere;
 	int p_c;
 	int totmax;
+	int localm;
 };
 
 #endif

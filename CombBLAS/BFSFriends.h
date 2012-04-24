@@ -170,7 +170,8 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 			// by-pass dcsc_gespmv call
 			if(A.getlocalnnz() > 0 && accnz > 0)
 			{
-				SpMXSpV(*((A.spSeq)->GetDCSC()), (int32_t) A.getlocalrows(), indacc, numacc, accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs);
+				SpMXSpV(*((A.spSeq)->GetDCSC()), (int32_t) A.getlocalrows(), indacc, numacc, 
+					accnz, optbuf.inds, optbuf.nums, sendcnt, optbuf.dspls, rowneighs, optbuf.isthere);
 			}
 		}
 		DeleteAll(indacc,numacc);
@@ -299,6 +300,7 @@ template <typename VT, typename IT, typename UDER>
 FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSpVec<IT,VT> & x, OptBuf<int32_t, VT > & optbuf)
 {
 	CheckSpMVCompliance(A,x);
+	optbuf.MarkEmpty();
 	
 	MPI::Intracomm World = x.commGrid->GetWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
