@@ -12,7 +12,7 @@ TAUROOTDIR = $(HOME)/tau-install
 #include $(TAUROOTDIR)/include/Makefile
 INCADD = $(TAU_INCLUDE)
 
-FLAGS = $(OPT) -DCOMBBLAS_TR1 #-DTIMING #-DTHREADED -fopenmp -DTIMING #-w -openmp #-DTIMING
+FLAGS = $(OPT) -DCOMBBLAS_TR1 -DTIMING #-DTHREADED -fopenmp -DTIMING #-w -openmp #-DTIMING
 
 
 #CFLAGS	= $(TAU_DEFS) $(TAU_MPI_INCLUDE) $(FLAGS)
