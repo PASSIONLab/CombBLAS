@@ -1300,7 +1300,6 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 	return totrem;
 }		
 
-
 template <class IT, class NT, class DER>
 template <typename LIT, typename OT>
 void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
@@ -1312,10 +1311,10 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 	}
 
 	// Set up communication buffers, one for all
-	IT mA = spSeq->getnrow();
+	typename DER::LocalIT mA = spSeq->getnrow();
 	typename DER::LocalIT p_c = commGrid->GetGridCols();
 	vector<bool> isthere(mA, false); // perhaps the only appropriate use of this crippled data structure
-	typename DER::LocalIT perproc = mA / p_c; // perproc columns would fit DER::LocalIT
+	typename DER::LocalIT perproc = mA / p_c; 
 	vector<int> maxlens(p_c,0);	// maximum data size to be sent to any neighbor along the processor row
 
 	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
@@ -1332,9 +1331,8 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 		}
 	}
 	SpParHelper::Print("Optimization buffers set\n");
-	optbuf.Set(maxlens);
+	optbuf.Set(maxlens,mA);
 }
-
 
 template <class IT, class NT, class DER>
 void SpParMat<IT,NT,DER>::ActivateThreading(int numsplits)

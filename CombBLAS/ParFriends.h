@@ -630,6 +630,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 			bool indexisvalue, OptBuf<int32_t, OVT > & optbuf)
 {
 	CheckSpMVCompliance(A,x);
+	optbuf.MarkEmpty();
 	
 	MPI::Intracomm World = x.commGrid->GetWorld();
 	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
