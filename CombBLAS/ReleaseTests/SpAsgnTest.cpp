@@ -89,7 +89,6 @@ int main(int argc, char* argv[])
 
 		PARDBMAT Atemp = A;
 		Atemp.Prune(vec1, vec2);
-		Atemp.PrintInfo();
 			
 		// We should get the original A back.
 		if( Atemp  == Apr)
@@ -102,7 +101,6 @@ int main(int argc, char* argv[])
 		}
 		
 		A.SpAsgn(vec1, vec2, B);
-		A.PrintInfo();
 		if (A == C)
 		{
 			SpParHelper::Print("SpAsgn working correctly\n");	
@@ -121,8 +119,8 @@ int main(int argc, char* argv[])
 
 		pair< FullyDistVec<int,int> , FullyDistVec<int,double> > ptopk; 
 		ptopk = TopK(sval, 3);
-		ptopk.first.DebugPrint();
-		ptopk.second.DebugPrint();
+		//ptopk.first.DebugPrint();
+		//ptopk.second.DebugPrint();
 
 		
 		inputvec1.clear();
