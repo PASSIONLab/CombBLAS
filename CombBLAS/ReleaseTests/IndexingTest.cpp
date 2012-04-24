@@ -82,7 +82,6 @@ int main(int argc, char* argv[])
 		vec2.Apply(bind2nd(minus<int>(), 1));	
 		ACID = A(vec1, vec2);
 
-		ACID.PrintInfo();
 		if (ACID == AID)
 		{
 			SpParHelper::Print("Indexing working correctly\n");	
@@ -100,8 +99,8 @@ int main(int argc, char* argv[])
 
 		pair< FullyDistVec<int,int> , FullyDistVec<int,double> > ptopk; 
 		ptopk = TopK(sval, 3);
-		ptopk.first.DebugPrint();
-		ptopk.second.DebugPrint();
+		//ptopk.first.DebugPrint();
+		//ptopk.second.DebugPrint();
 
 		// generate random permutations
 		FullyDistVec<int,int> p, q;
