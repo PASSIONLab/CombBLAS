@@ -135,6 +135,10 @@ int main(int argc, char* argv[])
 		else
 		{
 			SpParHelper::Print("ERROR in graph500 optimizations, go fix it!\n");	
+			ofstream of1("Original_SpMSV.txt");
+			ofstream of2("Buffered_SpMSV.txt");
+			spyint64.SaveGathered(of1,0);
+			spyint64buf.SaveGathered(of2,0);
 		}
 		ABool.ActivateThreading(6);
 		FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);

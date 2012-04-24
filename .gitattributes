@@ -1369,6 +1369,7 @@ CombBLAS/mfiles/genrestrict.m -text
 CombBLAS/mfiles/graph_preprocessor.cpp -text
 CombBLAS/mfiles/readtriples.m -text
 CombBLAS/mfiles/readvector.m -text
+CombBLAS/mfiles/rmat.m -text
 CombBLAS/mfiles/rmatdenseness.m -text
 CombBLAS/mfiles/splitdiag_genpermute.cpp -text
 CombBLAS/mfiles/writecolvector.m -text
