@@ -236,7 +236,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 template <class IT, class NT>
 bool DenseParVec<IT,NT>::operator==(const DenseParVec<IT,NT> & rhs) const
 {
-	ErrorTolerantEqual<NT> epsilonequal;
+	ErrorTolerantEqual<NT> epsilonequal(EPSILON);
 	int local = 1;
 	if(diagonal)
 	{
