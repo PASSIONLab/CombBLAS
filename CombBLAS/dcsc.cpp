@@ -484,6 +484,7 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	cout << "Highest 10 different entries are: " << endl;
 	for(IT i=0; i < 10; ++i)
 		cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << endl;
+	cout << "Same before num: " << same << endl;
 #endif
 
 	ErrorTolerantEqual<NT> epsilonequal(EPSILON);
