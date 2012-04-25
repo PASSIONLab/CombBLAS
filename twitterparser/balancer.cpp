@@ -128,8 +128,8 @@ int main(int argc, char *argv[] )
 	fwrite(&hdr.n, sizeof(uint64_t), 1,bFile);
 	fwrite(&hdr.nnz, sizeof(uint64_t), 1,bFile);
 
-	vector<uint64_t> permutation(hdr.m, 0);
-	my_iota(permutation.begin(), permutation.end(), 0);
+	vector<uint64_t> permutation(hdr.m, 1);
+	my_iota(permutation.begin(), permutation.end(), 1);	// first value 1, last value hdr.m
 	random_shuffle (permutation.begin(), permutation.end()); 
 
 	if(rFile != NULL)
@@ -139,8 +139,8 @@ int main(int argc, char *argv[] )
 		{
 			TwitterInteraction twi;
 			fread (&twi,sizeof(TwitterInteraction),1,rFile);	
-			twi.from = permutation[twi.from];
-			twi.to = permutation[twi.to];
+			twi.from = permutation[twi.from-1];
+			twi.to = permutation[twi.to-1];
 			fwrite(&twi,sizeof(TwitterInteraction),1,bFile);	// write binary file	
 		}
 	}
