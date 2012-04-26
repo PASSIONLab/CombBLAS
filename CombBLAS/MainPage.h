@@ -1,13 +1,22 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydin Buluc </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>
+* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>
 *
 * <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) </i>
 *
 *
 * @section intro Introduction
+* The Combinatorial BLAS is an extensible distributed-memory parallel graph library offering a small but powerful set of linear
+* algebra primitives specifically targeting graph analytics. 
+* - The Combinatorial BLAS is also the backend of the Python <a href="http://kdt.sourceforge.net">
+* Knowledge Discovery Toolbox (KDT) </a>. 
+* - It achieves scalability via its two dimensional distribution and coarse-grained parallelism. 
+* - For an illustrative overview, check out <a href="http://gauss.cs.ucsb.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
+*
 * <b>Download</b> 
-* - The latest CMake'd tarball (version 1.2.0, March 2012) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). The previous version (1.1.1, August 2011) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_11_1.tar.gz"> here </a> for backwards compatibility and benchmarking. 
+* - Read release notes <a href="../release-notes.html">here</a>.
+* - The latest CMake'd tarball (version 1.2.1, April 2012) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12_1.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). 
+ The previous version (version 1.2.0, March 2012) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12_1.tgz"> here </a> for backwards compatibility and benchmarking. 
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		-  <i> cmake . </i>
@@ -19,7 +28,7 @@
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
-* has them). If not, you can use the boost library and pass the -DNOTR1 option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
+* has them). If not, you can use the boost library and pass the -DCOMBBLAS_BOOST option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
 * $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
 * CombBLAS works successfully with PGI, GNU and Intel compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
 * 
@@ -27,10 +36,14 @@
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
 * It is purposefully designed for distributed memory platforms though it also runs in uniprocessor and shared-memory (such as multicores) platforms. 
 * It contains efficient implementations of novel data structures/algorithms
-* as well as reimplementations of some previously known data structures/algorithms for convenience. More details can be found in the accompanying paper [1].
+* as well as reimplementations of some previously known data structures/algorithms for convenience. More details can be found in the accompanying paper [1]. One of
+* the distinguishing features of the Combinatorial BLAS is its decoupling of parallel logic from the
+* sequential parts of the computation, making it possible to implement new formats and plug them in
+* without changing the rest of the library.
 *
 * The implementation supports both formatted and binary I/O. The latter is much faster but no human readable. Formatted I/O uses a tuples format very similar to the Matrix Market.
-* We encourage in-memory generators for faster benchmarking. A port to University of Florida Sparse Matrix Collection is under construction.
+* We encourage in-memory generators for faster benchmarking. A port to University of Florida Sparse Matrix Collection is under construction. More info on I/O formats are 
+* <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/Input_File_Formats.pdf">here</a>
 *
 * The main data structure is a distributed sparse matrix ( SpParMat <IT,NT,DER> ) which HAS-A sequential sparse matrix ( SpMat <IT,NT> ) that 
 * can be implemented in various ways as long as it supports the interface of the base class (currently: SpTuples, SpCCols, SpDCCols).
@@ -61,7 +74,8 @@
 * - Reductions along row/column: SpParMat::Reduce()
 * - Sparse matrix-dense vector multiplication on a semiring, SpMV()
 * - Sparse matrix-sparse vector multiplication on a semiring, SpMV()
-* - Generalized matrix indexing: SpParMat::operator(const vector<IT> & ri, const vector<IT> & ci)
+* - Generalized matrix indexing: SpParMat::operator(const FullyDistVec & ri, const FullyDistVec & ci)
+* - Generalized sparse matrix assignment: SpParMat::SpAsgn (const FullyDistVec & ri, const FullyDistVec &ci, SpParMat & B)
 * - Numeric type conversion through conversion operators
 * - Elementwise operations between sparse and dense matrices: SpParMat::EWiseScale() and operator+=()  
 * - BFS specific optimizations inside BFSFriends.h
@@ -90,7 +104,7 @@
 * Important Parallel classes:
 * - SpParMat		: distributed memory MPI implementation 
 	\n Each processor locally stores its submatrix (block) as a sequential SpDCCols object
-	\n Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BFS like Sparse SUMMA [3] algorithm.
+	\n Uses a polyalgorithm for SpGEMM: For most systems this boils down to a BSP like Sparse SUMMA [3] algorithm.
 * - FullyDistVec	: dense vector distributed to all processors
 * - FullyDistSpVec:	: sparse vector distributed to all processors
 *
@@ -100,20 +114,23 @@
 * - MCL.cpp : An implementation of the MCL graph clustering algorithm.
 * - Graph500.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a>.
 *
-* <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]
+* <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most
+recent sparse matrix indexing, assignment, and multiplication results can be found in [5].
 *
-* Test programs demonstrating how to use the library:
+* A subset of test programs demonstrating how to use the library (under ReleaseTests):
 * - TransposeTest.cpp : File I/O and parallel transpose tests
 * - MultTiming.cpp : Parallel SpGEMM tests
 * - IndexingTest.cpp: Various sparse matrix indexing usages
+* - SpAsgnTiming.cpp: Sparse matrix assignment usage and timing. 
 * - FindSparse.cpp : Parallel find/sparse routines akin to Matlab's
 *
 * <b> Citation: </b> Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 *
-* - [1] Aydin Buluc and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), 2011. <a href="http://www.cs.ucsb.edu/research/tech_reports/reports/2010-18.pdf"> Preprint </a>, <a href="http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract">Link</a>
-* - [2] Aydin Buluc and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
-* - [3] Aydin Buluc and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
-* - [4] Aydin Buluc and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. To appear, Supercomputing (SC'11). <a href="http://arxiv.org/abs/1104.4518">Extended preprint</a>
-* - [5] Aydin Buluc. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
-* 
+* - [1] Aydın Buluç and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), 2011. <a href="http://www.cs.ucsb.edu/research/tech_reports/reports/2010-18.pdf"> Preprint </a>, <a href="http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract">Link</a>
+* - [2] Aydın Buluç and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
+* - [3] Aydın Buluç and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
+* - [4] Aydın Buluç and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. Supercomputing (SC'11), Seattle, USA. <a href="http://arxiv.org/abs/1104.4518">Extended preprint</a>
+* - [5] Aydın Buluç and John R. Gilbert. <i> Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments </i>. SIAM Journal of Scientific Computing (Under Review). <a href="http://arxiv.org/abs/1109.3739"> Preprint </a>
+* - [6] Aydın Buluç. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
+*
 */

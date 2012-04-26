@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Draft//EN">
+<HTML><HEAD>
+<TITLE>The Combinatorial BLAS Release Notes</TITLE>
+<LINK rel="Bookmark" title="The Combinatorial BLAS Release Notes" href="release-notes.html">
+<LINK rel="Contents" href="index.html">
+<LINK REL="icon" HREF="fftw-16.png" TYPE="image/png">
+<LINK REL="SHORTCUT ICON" HREF="favicon.ico"></HEAD>
+<BODY TEXT="#000000" BGCOLOR="#FFFFFF">
+
+<h1>The Combinatorial BLAS Release Notes</h1>
+
+This document describes the new features and changes in each release
+of the Combinatorial BLAS. The numbering is of the form Z.Y.X. 
+<li> X denotes bug fixes and/or minor updates for existing functionality. 
+<li> Y denotes new major functionality.
+<li> Z denotes an overall paradigm shift in terms of abstractions.   
+
+
+<h3>CombBLAS 1.2.1</h3>
+
+<small>April, 2012</small>
+
+<ul>
+<li> Sparse matrix assignment is improved to cover cases where the additive inverses are not available.
+<li> Prune with row/column vector indices are supported.
+<li> New test/timing scripts for galerkin restriction. 
+</ul>
+
+
+<h2>CombBLAS 1.2</h2>
+
+<small>March, 2012</small>
+
+<ul>
+ <li> It is made possible to create matrices with globally 64-bit, locally 32-bit indices. <ul>
+  <li> This is very handy because the index range for submatrices are typically addressible with 32-bit indices but the global semantics require 64-bit computation. <li> Example: <code> SpParMat &lt;int64_t, float, SpDCCols&lt;int32_t,float&gt; &gt; A; </code> </ul>
+</li>
+<li> Some primitives (Sparse SpMV, EWiseMult, Apply, Set) are hybrid multithreaded (using OpenMP) within a socket. 
+<li> A new binary format is introduced that enables parallel I/O.
+<li> Filtering (in the context of semantic graphs) is supported in Sparse SpMV and SpGEMM by checking against the semiring additive identity (SAID) that is returned by the scalar semiring multiply if the edge is filtered. 
+</ul>
+
+<h3>CombBLAS 1.1.1</h3>
+
+<small>August, 2011</small>
+
+<ul>
+
+<li>Bug fixes for the Graph500 sample script and some sample input files. 
+
+</ul>
+
+<h2>CombBLAS 1.1</h2>
+
+<small>May 2011</small>
+
+<ul>
+
+<li> Fully distributed vectors are supported for better load balance; diagonally distributed vectors are deprecated.
+<li> Scalable Sparse SpMV (that enables breadth-first search) is exposed. 
+<li> Many new functions such as Matlab equivalent <code>Sparse()</code>-like constructor and <code>Find()</code>
+<li> An exact splitter is used recursively until the range is covered by at most 512 core, before PSort is called. This is because PSort needed local memory that was quadratic in the number of processors.
+<li> Sparse matrix to dense vector reduction along rows is made memory efficient for large number of cores. 
+</ul>
+
+<h2>CombBLAS 1.0</h2>
+
+<small>May 2011</small>
+
+
+<ul>
+
+<li>Initial release of the Combinatorial BLAS.
+</ul>
+
+<hr>Go <a href="index.html">back</a> to the the Combinatorial BLAS home page.
+
+</BODY>
+</HTML>
