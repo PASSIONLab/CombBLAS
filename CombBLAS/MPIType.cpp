@@ -10,41 +10,31 @@ template<> MPI::Datatype MPIType< signed char >( void )
 {
 	return MPI::CHAR;
 }; 
-
-template<> MPI::Datatype MPIType< signed short int >( void )
-{
-	return MPI::SHORT;
-}; 
-template<> MPI::Datatype MPIType< signed int >( void )
-{
-	return MPI::INT;
-};  
-template<> MPI::Datatype MPIType< signed long int >( void )
-{
-	return MPI::LONG;
-};  
 template<> MPI::Datatype MPIType< unsigned char >( void )
 {
 	return MPI::UNSIGNED_CHAR;
 }; 
-
+template<> MPI::Datatype MPIType< signed short int >( void )
+{
+	return MPI::SHORT;
+}; 
 template<> MPI::Datatype MPIType< unsigned short int >( void )
 {
 	return MPI::UNSIGNED_SHORT;
 }; 
-template<> MPI::Datatype MPIType< unsigned int >( void )
+template<> MPI::Datatype MPIType< int32_t >( void )
+{
+	return MPI::INT;
+};  
+template<> MPI::Datatype MPIType< uint32_t >( void )
 {
 	return MPI::UNSIGNED;
 };
-template<> MPI::Datatype MPIType< unsigned long int >( void )
-{
-	return MPI::UNSIGNED_LONG;
-};
-template<> MPI::Datatype MPIType<long long>(void)
+template<> MPI::Datatype MPIType<int64_t>(void)
 {
 	return MPI::LONG_LONG;
 };
-template<> MPI::Datatype MPIType< unsigned long long>(void)
+template<> MPI::Datatype MPIType< uint64_t>(void)
 {
 	return MPI::UNSIGNED_LONG_LONG;
 };
