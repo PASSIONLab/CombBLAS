@@ -86,10 +86,8 @@ MPI::Datatype MPIType ( void )
 		datatype = MPI::CHAR.Create_contiguous(sizeof(T));
 		datatype.Commit();
 		int myrank = MPI::COMM_WORLD.Get_rank();
-	#ifdef DEBUG
 		if(myrank == 0)
-			cout << "Creating a new MPI data type for " << t->name() << endl;
-	#endif
+		cout << "Creating a new MPI data type for " << t->name() << endl;
 		mpidtc.set(t, datatype);
 	}
    	return datatype;
@@ -97,12 +95,10 @@ MPI::Datatype MPIType ( void )
 
 template<> MPI::Datatype MPIType< signed char >( void );
 template<> MPI::Datatype MPIType< signed short int >( void );
-template<> MPI::Datatype MPIType< signed int >( void );
-template<> MPI::Datatype MPIType< signed long int >( void );
 template<> MPI::Datatype MPIType< unsigned char >( void );
 template<> MPI::Datatype MPIType< unsigned short int >( void );
-template<> MPI::Datatype MPIType< unsigned int >( void );
-template<> MPI::Datatype MPIType< unsigned long int >( void );
+template<> MPI::Datatype MPIType< int32_t >( void );
+template<> MPI::Datatype MPIType< uint32_t >( void );
 template<> MPI::Datatype MPIType< int64_t >( void );
 template<> MPI::Datatype MPIType< uint64_t >( void );
 template<> MPI::Datatype MPIType< float >( void );
