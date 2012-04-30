@@ -103,6 +103,7 @@ template <class IT, class NT>
 int FullyDist<IT,NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>
 ::Owner(IT gind, IT & lind) const
 {
+	// C++ implicitly upcasts both operands to 64-bit if one is 64-bit and other is 32-bit
 	int procrows = commGrid->GetGridRows();
 	IT n_perprocrow = glen / procrows;	// length on a typical processor row
 	IT n_thisrow;		// length assigned to owner's processor row	

@@ -199,9 +199,11 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			A.PrintInfo();
+		#ifndef NOPERMUTE
 			A(nonisov, nonisov, true);	// in-place permute to save memory
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
+		#endif
 
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
@@ -301,8 +303,8 @@ int main(int argc, char* argv[])
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			SpParHelper::Print("Reductions done\n");
 			ColSums->EWiseApply(*RowSums, plus<int64_t>());
-			SpParHelper::Print("Intersection of colsums and rowsums found\n");
 			delete RowSums;
+			SpParHelper::Print("Intersection of colsums and rowsums found\n");
 
 			// TODO: seg fault in FindInds for scale 33 
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
@@ -311,9 +313,11 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
 			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
 			A.PrintInfo();
+		#ifndef NOPERMUTE
 			A(nonisov, nonisov, true);	// in-place permute to save memory	
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
+		#endif
 		
 			Aeff = PSpMat_s32p64(A);	// Convert to 32-bit local integers
 			A.FreeMemory();
@@ -347,8 +351,10 @@ int main(int argc, char* argv[])
 
 		// TODO: Threaded code crashes in FullyDistVec()
 		// Now that every remaining vertex is non-isolated, randomly pick ITERS many of them as starting vertices
+		#ifndef NOPERMUTE
 		degrees = degrees(nonisov);	// fix the degrees array too
 		degrees.PrintInfo("Degrees array");
+		#endif
 		// degrees.DebugPrint();
 		FullyDistVec<int64_t, int64_t> Cands(ITERS);
 		double nver = (double) degrees.TotalLength();
