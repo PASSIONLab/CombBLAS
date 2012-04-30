@@ -338,8 +338,8 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	IT nsize = found.arr.size(); 
 	dist[rank] = nsize;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(dist, dist+rank, 0);
-	found.glen = accumulate(dist, dist+nprocs, 0);
+	IT lengthuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
+	found.glen = accumulate(dist, dist+nprocs, static_cast<IT>(0));
 
 	// Although the found vector is not reshuffled yet, its glen and commGrid are set
 	// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
@@ -365,7 +365,7 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, (IT) 0);
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	vector<IT> recvbuf(totrecv);
 			
 	// data is already in the right order in found.arr
