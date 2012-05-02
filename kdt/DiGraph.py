@@ -192,7 +192,7 @@ class DiGraph(gr.Graph):
 		"""
 		self.v.addFilter(filter)
 		
-	def contract(self, groups=None, clusterParents=None):
+	def contract(self, groups=None, clusterParents=None, eOp=sr_plustimes, vOp=sr_plustimes, removeLoops=True):
 		"""
 		contracts all vertices that are like-numbered in the groups
 		argument into single vertices, removing all edges between
@@ -238,10 +238,16 @@ class DiGraph(gr.Graph):
 		origVtx = Vec.range(n)
 		# lhrMat == left-/right-hand-side matrix
 		lrhMat = Mat(groups, origVtx, Vec.ones(n), n, nvRes)
-		tmpMat = lrhMat.SpGEMM(self.e, semiring=sr_plustimes)
+		newWeights = lrhMat.SpMV(self.v.sparse(), semiring=vOp)
+		tmpMat = lrhMat.SpGEMM(self.e, semiring=eOp)
 		lrhMat.transpose()
-		res = tmpMat.SpGEMM(lrhMat, semiring=sr_plustimes)
-		return DiGraph(edges=res);
+		res = tmpMat.SpGEMM(lrhMat, semiring=eOp)
+		contracted = DiGraph(edges=res,vertices=newWeights.dense());
+		
+		if removeLoops:
+			contracted.removeSelfLoops()
+		
+		return contracted
 	
 	@staticmethod
 	def convClusterParentToGroup(clusterParents, retInvPerm = False):
@@ -777,3 +783,5 @@ class DiGraph(gr.Graph):
 		"""
 
 		self.e.toScalar()
+
+
