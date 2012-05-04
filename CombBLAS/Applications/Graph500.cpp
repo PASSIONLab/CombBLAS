@@ -204,16 +204,19 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Dropped isolated vertices from input\n");	
 			A.PrintInfo();
 		#endif
+			Aeff = PSpMat_s32p64(A);	// Convert to 32-bit local integers
+			A.FreeMemory();
 
-			Symmetricize(A);	// A += A';
+			Symmetricize(Aeff);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 			//A.Dump("graph_symmetric");
 
+	                Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		#ifdef THREADED	
 			ostringstream tinfo;
 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
 			SpParHelper::Print(tinfo.str());
-			A.ActivateThreading(cblas_splits);	
+			Aeff.ActivateThreading(cblas_splits);	
 		#endif
 		}
 		else 

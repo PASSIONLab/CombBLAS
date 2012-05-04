@@ -328,6 +328,17 @@ CombBLAS/Applications/filter_debug.txt -text
 CombBLAS/Applications/genscripts -text
 CombBLAS/Applications/graph_p25_singleiter_scale21 -text
 CombBLAS/Applications/gridtransposer.py -text
+CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh.notiming -text
+CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh.scale30 -text
+CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh_timing -text
+CombBLAS/Applications/jaguar_runtimes/script23104_jaguar.sh.scale33 -text
+CombBLAS/Applications/jaguar_runtimes/script23104_jaguar_threaded.sh.scale32 -text
+CombBLAS/Applications/jaguar_runtimes/script23104_jaguar_threaded_tranposed.sh.scale32 -text
+CombBLAS/Applications/jaguar_runtimes/script361_jaguar.sh.twitter -text
+CombBLAS/Applications/jaguar_runtimes/script46656_jaguar.sh.scale32_timing_notiming -text
+CombBLAS/Applications/jaguar_runtimes/script46656_jaguar_threaded.sh.scale34 -text
+CombBLAS/Applications/jaguar_runtimes/script5776_jaguar.sh.scale30 -text
+CombBLAS/Applications/jaguar_runtimes/script5776_jaguar.sh.scale31 -text
 CombBLAS/Applications/makefile-carver -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
