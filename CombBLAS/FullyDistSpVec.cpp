@@ -789,6 +789,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 			}
 			cout << "}" << endl;
 		}
+		fclose(f);
 		delete [] data;
 		delete [] dist;
 	}
