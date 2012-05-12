@@ -663,6 +663,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 				outfile << endl;
 			}
 		}
+		fclose(f);
 		delete [] data;
 		delete [] dist;
 	}
