@@ -89,6 +89,8 @@ class EWiseArgDescriptor
 
 void finalize();
 bool root();
+void _broadcast(char *outMsg, char *inMsg);
+void _barrier();
 int _nprocs();
 int _rank();
 void prnt(const char* str);

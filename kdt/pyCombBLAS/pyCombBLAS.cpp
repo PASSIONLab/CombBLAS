@@ -319,6 +319,27 @@ void finalize()
 	}
 }
 
+void _broadcast(char *outMsg, char* inMsg) {
+	const int MaxMsgLen = 1024;
+
+	bool isRoot = root();
+	if(isRoot) {
+		if(!outMsg)
+			return;
+		if(strlen(outMsg) >= MaxMsgLen)
+			throw "Unable to broadcast, the message is too long.";
+	}
+
+	MPI::COMM_WORLD.Bcast(isRoot ? outMsg : inMsg, MaxMsgLen, MPI::CHAR, 0);
+
+	if(isRoot)
+		memcpy(inMsg, outMsg, sizeof(char) * MaxMsgLen);
+}
+
+void _barrier() {
+	MPI::COMM_WORLD.Barrier();
+}
+
 bool root()
 {
 	return MPI::COMM_WORLD.Get_rank() == 0;

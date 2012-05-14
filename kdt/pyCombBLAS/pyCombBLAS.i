@@ -28,6 +28,7 @@ SWIG_Obj1Info = SWIGTYPE_p_Obj1;
 SWIG_Obj2Info = SWIGTYPE_p_Obj2;
 %}
 
+%include cstring.i
 
 // Language independent exception handler
 %include exception.i    
@@ -1185,6 +1186,9 @@ SemiringObj SecondMaxSemiringObj();
 
 void finalize();
 bool root();
+%cstring_bounded_output(char *inMsg, 1024);
+void _broadcast(char *outMsg, char *inMsg);
+void _barrier();
 int _nprocs();
 int _rank();
 void prnt(const char* str);
