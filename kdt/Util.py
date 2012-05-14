@@ -106,7 +106,53 @@ def master():
 	master process or a slave process in a parallel program.
 	"""
 	return pcb.root()
-	
+
+def _barrier():
+	"""
+	Synchronizes multiple processes. Corresponds to an MPI barrier.
+	"""
+	pcb._barrier();
+
+def _broadcast(obj):
+	"""
+	Broadcasts a Python object from the root process to others.
+	If no serializers are available, the function broadcasts
+	a string representation of an object. Currently, the function
+	is limited to broadcasting the objects whose string
+	representation is less than 1024 bytes.
+
+	Input Arguments:
+		obj - an object to broadcast. This argument is important
+			only in the root process, the broadcaster. It may have
+			any value in a receiver process.
+
+	Output Arguments:
+		The function returns a copy of the broadcasted object in
+		every process, including the root.
+	"""
+	serializer = None;
+	try:
+		import cPickle as serializer;
+	except ImportError:
+		try:
+			import pickle as serializer;
+		except ImportError:
+			if(not isinstance(obj, str)):
+				raise "Unable to broadcast a non-string object due to "\
+					  "the absence of both cPickle and pickle serializers.";
+
+	isRoot = master();
+	toSend = None;
+	if(isRoot):
+		toSend = serializer.dumps(obj) if serializer != None else str(obj);
+	received = pcb._broadcast(toSend);
+	if(isRoot):
+		return obj;
+	else:
+		result = received if serializer == None\
+			else serializer.loads(received);
+		return result;
+
 def p(s):
 	"""
 	printer helper

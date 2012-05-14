@@ -599,7 +599,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	MPI::Intracomm World = commGrid->GetWorld();
 	int rank = World.Get_rank();
 	int nprocs = World.Get_size();
-	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
@@ -632,6 +632,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		packed[i].num = num[i];
 	}
 	thefile.Write(packed, count, datatype);
+	World.Barrier();
 	thefile.Close();
 	delete [] packed;
 	
@@ -639,19 +640,19 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistspvec", "r");
-                if(!f)
-                { 
-                        cerr << "Problem reading binary input file\n";
-                        return;
-                }
+        if(!f)
+        { 
+			cerr << "Problem reading binary input file\n";
+			return;
+        }
 		IT maxd = *max_element(dist, dist+nprocs);
 		mystruct * data = new mystruct[maxd];
-		
+	
 		outfile << totalLength << "\t1\t" << totalNNZ << endl;
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, dsize, dist[i],f);	
+			fread(data, dsize, dist[i], f);
 
 			if (printProcSplits)
 				outfile << "Elements stored on proc " << i << ":" << endl;
@@ -664,9 +665,11 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 			}
 		}
 		fclose(f);
+		remove("temp_fullydistspvec");
 		delete [] data;
 		delete [] dist;
 	}
+	World.Barrier();
 }
 
 
@@ -762,6 +765,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		packed[i].num = num[i];
 	}
 	thefile.Write(packed, count, datatype);
+	World.Barrier();
 	thefile.Close();
 	delete [] packed;
 	
@@ -790,7 +794,9 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 			cout << "}" << endl;
 		}
 		fclose(f);
+		remove("temp_fullydistspvec");
 		delete [] data;
 		delete [] dist;
 	}
+	World.Barrier();
 }
