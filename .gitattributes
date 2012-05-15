@@ -358,6 +358,7 @@ CombBLAS/Applications/torus.mtx -text
 CombBLAS/Applications/twitterresults/largetwitter_p16.results -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BFSFriends.h -text
+CombBLAS/BitMap.h -text
 CombBLAS/BranchTrial/Friends.h -text
 CombBLAS/BranchTrial/ParFriends.h -text
 CombBLAS/BranchTrial/SpParMat.cpp -text
@@ -394,6 +395,8 @@ CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
 CombBLAS/Operations.h -text
 CombBLAS/OptBuf.h -text
+CombBLAS/PBBS/radixSort.h -text
+CombBLAS/PBBS/utils.h -text
 CombBLAS/ParFriends.h -text
 CombBLAS/ParFriendsExt.h -text
 CombBLAS/README -text

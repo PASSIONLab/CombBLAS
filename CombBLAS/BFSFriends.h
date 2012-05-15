@@ -155,7 +155,6 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 {	
 
 #ifdef TIMING
-	MPI::COMM_WORLD.Barrier();
 	double t0=MPI::Wtime();
 #endif
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
@@ -182,7 +181,6 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 	}
 
 #ifdef TIMING
-	MPI::COMM_WORLD.Barrier();
 	double t1=MPI::Wtime();
 	cblas_localspmvtime += (t1-t0);
 #endif
@@ -192,9 +190,7 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 template <typename IU, typename VT>
 void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs)
 {
-
 #ifdef TIMING
-	MPI::COMM_WORLD.Barrier();
 	double t0=MPI::Wtime();
 #endif
 	// free memory of y, in case it was aliased
@@ -284,7 +280,6 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 #endif
 
 #ifdef TIMING
-	MPI::COMM_WORLD.Barrier();
 	double t1=MPI::Wtime();
 	cblas_mergeconttime += (t1-t0);
 #endif
@@ -314,17 +309,13 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 
 	
 #ifdef TIMING
-	World.Barrier();
 	double t0=MPI::Wtime();
 #endif
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, true);			// trxinds (and potentially trxnums) is allocated
-
 #ifdef TIMING
-	World.Barrier();
 	double t1=MPI::Wtime();
 	cblas_transvectime += (t1-t0);
 #endif
-
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
 	
 	FullyDistSpVec<IT, VT> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
@@ -349,7 +340,6 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	VT * recvnumbuf = new VT[totrecv];
 	
 #ifdef TIMING
-	World.Barrier();
 	double t2=MPI::Wtime();
 #endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
@@ -363,7 +353,6 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 		SpParHelper::Print("BFS only (no semiring) function only work with optimization buffers\n");
 	}
 #ifdef TIMING
-	World.Barrier();
 	double t3=MPI::Wtime();
 	cblas_alltoalltime += (t3-t2);
 #endif
