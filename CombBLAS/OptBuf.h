@@ -1,5 +1,6 @@
 #ifndef _OPT_BUF_H
 #define _OPT_BUF_H
+#include "BitMap.h"
 
 /**
   * This special data structure is used for optimizing BFS iterations
@@ -11,11 +12,14 @@ template <class IT, class NT>
 class OptBuf
 {
 public:
-	OptBuf(): p_c(0), totmax(0), localm(0) {};
+	OptBuf(): p_c(0), totmax(0), localm(0), isthere(NULL) {};
 	void MarkEmpty()
 	{
 		if(totmax > 0)
-			fill(isthere, isthere+localm, false);
+		{
+		//	fill(isthere, isthere+localm, false);
+			isthere->reset();
+		}
 	}
 	
 	void Set(const vector<int> & maxsizes, int mA) 
@@ -28,12 +32,16 @@ public:
 		dspls = new int[p_c]();
 		partial_sum(maxsizes.begin(), maxsizes.end()-1, dspls+1);
 		localm = mA;
-		isthere = new bool[localm];
-		fill(isthere, isthere+localm, false);
+		//isthere = new bool[localm];
+		//fill(isthere, isthere+localm, false);
+		isthere = new BitMap(localm);
 	};
 	~OptBuf()
 	{	if(localm > 0)
-			delete [] isthere;
+		{
+			//delete [] isthere;
+			delete isthere;
+		}
 		
 		if(totmax > 0)
 		{
@@ -51,15 +59,19 @@ public:
 		inds = new IT[totmax];
 		nums = new NT[totmax];
 		dspls = new int[p_c]();	
-		isthere = new bool[localm];
-		fill(isthere, isthere+localm, false);
+		//isthere = new bool[localm];
+		//fill(isthere, isthere+localm, false);
+		isthere = new BitMap(localm);
 	}
 	OptBuf<IT,NT> & operator=(const OptBuf<IT,NT> & rhs)
 	{
 		if(this != &rhs)
 		{
 			if(localm > 0)
-				delete [] isthere;
+			{
+				//delete [] isthere;
+				delete isthere;
+			}
 			if(totmax > 0)
 			{
 				delete [] inds;
@@ -74,6 +86,7 @@ public:
 			inds = new IT[totmax];
 			nums = new NT[totmax];
 			dspls = new int[p_c]();	
+			isthere = new BitMap(*(rhs.isthere));
 		}
 		return *this;
 	}
@@ -81,7 +94,8 @@ public:
 	IT * inds;	
 	NT * nums;	
 	int * dspls;
-	bool * isthere;
+	//bool * isthere;
+	BitMap * isthere;
 	int p_c;
 	int totmax;
 	int localm;

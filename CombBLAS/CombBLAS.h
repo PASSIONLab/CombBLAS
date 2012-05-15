@@ -49,6 +49,7 @@ class EWiseExtToPlainAdapter
 	}
 };
 
+#include "BitMap.h"
 #include "SpTuples.h"
 #include "SpDCCols.h"
 #include "SpParMat.h"

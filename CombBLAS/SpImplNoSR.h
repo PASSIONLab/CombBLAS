@@ -28,6 +28,8 @@
 
 #ifndef _SP_IMPL_NOSR_H_
 #define _SP_IMPL_NOSR_H_
+#include "PBBS/radixSort.h"
+
 
 template <class IT, class NT>
 class Dcsc;
@@ -38,7 +40,7 @@ struct SpImplNoSR;
 //! Version without the Semiring (for BFS)
 template <class IT, class NUM, class VT>
 void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-			 int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
+			 int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, BitMap * isthere)
 {
 	SpImplNoSR<IT,NUM,VT>::SpMXSpV(Adcsc, mA, indx, numx, veclen, indy, numy, cnts, dspls,p_c, isthere);	// don't touch this
 };
@@ -56,7 +58,7 @@ template <class IT, class NUM, class VT>
 struct SpImplNoSR
 {
 	static void SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, BitMap * isthere)
 	{
 		cout << "SpMXSpV (without a semiring) is only reserved for boolean matrices" << endl;
 	};
@@ -75,7 +77,7 @@ template <class IT, class VT>
 struct SpImplNoSR<IT,bool, VT>	// specialization
 {
 	static void SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere);
+						int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, BitMap * isthere);
 
 	static void SpMXSpV_ForThreading(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector<VT> & numy, int32_t offset);
@@ -93,45 +95,75 @@ struct SpImplNoSR<IT,bool, VT>	// specialization
  **/
 template <typename IT, typename VT>
 void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, const int32_t * indx, const VT * numx, int32_t veclen,  
-										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, bool * isthere)
+										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, BitMap * isthere)
 {   
-	vector< vector< pair<int32_t,VT> > > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
-	
+	typedef pair<uint32_t,VT>  UPAIR; 
+	vector< UPAIR* > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	vector< int > counts(p_c, 0);
 	int32_t perproc = mA / p_c;	
+	
+	BitMap * tempisthere = new BitMap(*isthere);
 	int32_t k = 0; 	// index to indx vector
 	IT i = 0; 	// index to columns of matrix
+	vector<int32_t> matfingers;	// fingers to matrix
+	vector<int32_t> vecfingers; // fingers to vector
 	while(i< Adcsc.nzc && k < veclen)
 	{
 		if(Adcsc.jc[i] < indx[k]) ++i;
 		else if(indx[k] < Adcsc.jc[i]) ++k;
 		else
 		{
+			matfingers.push_back(i);
+			vecfingers.push_back(k);
 			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
 			{
 				int32_t rowid = (int32_t) Adcsc.ir[j];
-				if(!isthere[rowid])
+				if(!tempisthere->get_bit(rowid))
 				{
 					int32_t owner = min(rowid / perproc, static_cast<int32_t>(p_c-1)); 			
-					nzinds_vals[owner].push_back( make_pair(rowid, numx[k]) );
-					isthere[rowid] = true;
+					++counts[owner];
+					tempisthere->set_bit(rowid);
 				}
-				// skip existing entries
 			}
 			++i;
 			++k;
 		}
 	}
+	delete tempisthere;
+
+	for(int p=0; p< p_c; ++p)
+		nzinds_vals[p] = (UPAIR*) malloc(sizeof(UPAIR) * counts[p]);
 	
+	fill(counts.begin(), counts.end(), 0);	// reset counts
+	
+	int fsize = matfingers.size();
+	for(int i=0; i< fsize; ++i)
+	{
+		int colfin = matfingers[i];	// column finger
+		for(IT j=Adcsc.cp[colfin]; j < Adcsc.cp[colfin+1]; ++j)	// for all nonzeros in this column
+		{
+			int32_t rowid = (int32_t) Adcsc.ir[j];
+			if(!isthere->get_bit(rowid))
+			{
+				int32_t owner = min(rowid / perproc, static_cast<int32_t>(p_c-1)); 			
+				nzinds_vals[owner][counts[owner]++] =  UPAIR(rowid, numx[vecfingers[i]]) ;
+				isthere->set_bit(rowid);
+			}
+		}
+	}
+
 	for(int p = 0; p< p_c; ++p)
 	{
-		sort(nzinds_vals[p].begin(), nzinds_vals[p].end());
-		cnts[p] = nzinds_vals[p].size();
+		integerSort(nzinds_vals[p] , counts[p]);
+		int oldcnt = cnts[p];
+		cnts[p] += counts[p];
 		int32_t offset = perproc * p;
-		for(int i=0; i< cnts[p]; ++i)
+		for(int i=oldcnt; i< cnts[p]; ++i)
 		{
-			indy[dspls[p]+i] = nzinds_vals[p][i].first - offset;	// convert to local offset
-			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	
+			indy[dspls[p]+i] = nzinds_vals[p][i-oldcnt].first - offset;	// convert to local offset
+			numy[dspls[p]+i] = nzinds_vals[p][i-oldcnt].second; 	
 		}
+		free(nzinds_vals[p]);
 	}
 }
 
