@@ -371,10 +371,9 @@ void dcsc_gespmv (const SpDCCols<IU, NUM> & A, const int32_t * indx, const IVT *
 			if(indexisvalue)
 			{
 				int32_t localm = (int32_t) A.getnrow();
-				bool * isthere = new bool[localm];
-				fill(isthere, isthere+localm, false);
+				BitMap * isthere = new BitMap(localm);
 				SpMXSpV(*(A.GetDCSC()), localm, indx, numx, nnzx, indy, numy, cnts, dspls, p_c, isthere);
-				delete [] isthere;
+				delete isthere;
 			}
 			else
 				SpMXSpV<SR>(*(A.GetDCSC()), (int32_t) A.getnrow(), indx, numx, nnzx, indy, numy, cnts, dspls, p_c);
