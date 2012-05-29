@@ -545,7 +545,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				++ cnz;
 			}
 			assert (cnz == total_nnz);
-		
+			
 			// Signal the end of file to other processors along the diagonal
 			fill_n(curptrs, neighs, numeric_limits<int>::max());	
 			World.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
@@ -647,7 +647,9 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
         }
 		IT maxd = *max_element(dist, dist+nprocs);
 		mystruct * data = new mystruct[maxd];
-	
+
+		streamsize oldPrecision = outfile.precision();
+		outfile.precision(21);
 		outfile << totalLength << "\t1\t" << totalNNZ << endl;
 		for(int i=0; i<nprocs; ++i)
 		{
@@ -664,6 +666,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 				outfile << endl;
 			}
 		}
+		outfile.precision(oldPrecision);
 		fclose(f);
 		remove("temp_fullydistspvec");
 		delete [] data;
