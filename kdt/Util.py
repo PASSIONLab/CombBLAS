@@ -143,14 +143,22 @@ def _broadcast(obj):
 
 	isRoot = master();
 	toSend = None;
+
 	if(isRoot):
-		toSend = serializer.dumps(obj) if serializer != None else str(obj);
+		if serializer != None:
+			toSend = serializer.dumps(obj);
+		else:
+			toSend = str(obj);
+
 	received = pcb._broadcast(toSend);
+
 	if(isRoot):
 		return obj;
 	else:
-		result = received if serializer == None\
-			else serializer.loads(received);
+		if serializer == None:
+			result = received;
+		else:
+			result = serializer.loads(received);
 		return result;
 
 def p(s):
