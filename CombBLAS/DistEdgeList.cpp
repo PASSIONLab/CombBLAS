@@ -57,7 +57,6 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
 
 	int nprocs = commGrid->GetSize();
 	int rank = commGrid->GetRank();
-
 	nedges = (rank == nprocs-1)? (globalm - rank * (globalm / nprocs)) : (globalm / nprocs);
 
 	FILE * infp = fopen(filename, "rb");
@@ -67,15 +66,32 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
 	read_offset_end = (rank+1) * 8 * (globalm / nprocs);
 	if (rank == nprocs - 1)
    		read_offset_end = 8*globalm;
+
+
+	ofstream oput;
+	commGrid->OpenDebugFile("BinRead", oput);
+	if(infp != NULL)
+	{	
+		oput << "File exists" << endl;
+		oput << "Trying to read " << nedges << " edges out of " << globalm << endl;
+	}
+	else
+	{
+		oput << "File does not exist" << endl;
+	}
 	
 	/* gen_edges is an array of unsigned ints of size 2*nedges */
 	uint32_t * gen_edges = new uint32_t[2*nedges];
 	fseek(infp, read_offset_start, SEEK_SET);
 	fread(gen_edges, 2*nedges, sizeof(uint32_t), infp);
 	SetMemSize(nedges);
+	oput << "Freads done " << endl;
 	for(IT i=0; i< 2*nedges; ++i)
 		edges[i] = (IT) gen_edges[i];
+	oput << "Puts done " << endl;
 	delete [] gen_edges;
+	oput.close();
+	
 }
 
 template <typename IT>
