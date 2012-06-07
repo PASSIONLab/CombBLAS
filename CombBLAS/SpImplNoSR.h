@@ -98,13 +98,45 @@ void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, co
 										   int32_t * indy, VT * numy, int * cnts, int * dspls, int p_c, BitMap * isthere)
 {   
 	typedef pair<uint32_t,VT>  UPAIR; 
-	vector< UPAIR* > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
-	vector< int > counts(p_c, 0);
 	int32_t perproc = mA / p_c;	
-	
-	BitMap * tempisthere = new BitMap(*isthere);
 	int32_t k = 0; 	// index to indx vector
 	IT i = 0; 	// index to columns of matrix
+#ifndef INTEGERSORT
+	vector< vector<UPAIR> > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	while(i< Adcsc.nzc && k < veclen)
+	{
+		if(Adcsc.jc[i] < indx[k]) ++i;
+		else if(indx[k] < Adcsc.jc[i]) ++k;
+		else
+		{
+			for(IT j=Adcsc.cp[i]; j < Adcsc.cp[i+1]; ++j)	// for all nonzeros in this column
+			{
+				int32_t rowid = (int32_t) Adcsc.ir[j];
+				if(!isthere->get_bit(rowid))
+				{
+					int32_t owner = min(rowid / perproc, static_cast<int32_t>(p_c-1)); 			
+					nzinds_vals[owner].push_back( UPAIR(rowid, numx[k]) );
+					isthere->set_bit(rowid);
+				}	// skip existing entries
+			}
+			++i; ++k;
+		}
+	}
+	for(int p = 0; p< p_c; ++p)
+	{
+		sort(nzinds_vals[p].begin(), nzinds_vals[p].end());
+		cnts[p] = nzinds_vals[p].size();
+		int32_t offset = perproc * p;
+		for(int i=0; i< cnts[p]; ++i)
+		{
+			indy[dspls[p]+i] = nzinds_vals[p][i].first - offset;	// convert to local offset
+			numy[dspls[p]+i] = nzinds_vals[p][i].second; 	
+		}
+	}
+#else
+	vector< UPAIR* > nzinds_vals(p_c);	// nonzero indices + associated parent assignments
+	vector< int > counts(p_c, 0);
+	BitMap * tempisthere = new BitMap(*isthere);
 	vector<int32_t> matfingers;	// fingers to matrix
 	vector<int32_t> vecfingers; // fingers to vector
 	while(i< Adcsc.nzc && k < veclen)
@@ -125,17 +157,14 @@ void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, co
 					tempisthere->set_bit(rowid);
 				}
 			}
-			++i;
-			++k;
+			++i;	++k;
 		}
 	}
 	delete tempisthere;
-
 	for(int p=0; p< p_c; ++p)
 		nzinds_vals[p] = (UPAIR*) malloc(sizeof(UPAIR) * counts[p]);
 	
 	fill(counts.begin(), counts.end(), 0);	// reset counts
-	
 	int fsize = matfingers.size();
 	for(int i=0; i< fsize; ++i)
 	{
@@ -165,6 +194,7 @@ void SpImplNoSR<IT,bool,VT>::SpMXSpV(const Dcsc<IT,bool> & Adcsc, int32_t mA, co
 		}
 		free(nzinds_vals[p]);
 	}
+#endif
 }
 
 
