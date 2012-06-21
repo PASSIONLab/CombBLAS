@@ -1,14 +1,61 @@
 class UnaryPredicateObj_SEJITS : public UnaryPredicateObj_Python {
 	public:
-	UnaryPredicateObj_SEJITS(PyObject *pyfunc): UnaryPredicateObj_Python(pyfunc) {  }
-	
-	bool operator()(const Obj2& x) const { return call(x); }
-	bool operator()(const Obj1& x) const { return call(x); }
-	bool operator()(const double& x) const { return callD(x); }
 
+    // specialized functions, for each possible input type
+    bool (*customFuncO1)(const Obj1& x); 
+    bool (*customFuncO2)(const Obj2& x); 
+    bool (*customFuncD)(const double& x);
+
+	UnaryPredicateObj_SEJITS(PyObject *pyfunc): UnaryPredicateObj_Python(pyfunc) {  
+      // set specialized function pointers to NULL.
+      // specializer code will replace them
+      customFuncO1 = NULL; 
+      customFuncO2 = NULL;  
+      customFuncD = NULL;
+
+      // now we check if the PyObject is actually a UnaryPredicateObj
+      // in disguise
+      swig_module_info* module = SWIG_Python_GetModule();
+      swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+      UnaryPredicateObj_SEJITS* tmp;
+
+      if ((SWIG_ConvertPtr(callback, (void**)&tmp, ty, 0)) == 0) {
+        // yes, it is a UnaryPredicateObj
+        //printf("UnaryPredicateObj detected, replicating customized callbacks...\n");
+        customFuncO1 = tmp->customFuncO1;
+        customFuncO2 = tmp->customFuncO2;
+        customFuncD = tmp->customFuncD;
+      }
+        
+    }
+	
 	UnaryPredicateObj_SEJITS() { // should never be called
 		printf("UnaryPredicateObj_SEJITS()!!!\n");
 	}
+
+    // for each operator, first check whether a specialized function
+    // exists and call the specialized version if so.
+	bool operator()(const Obj2& x) const { 
+      if (customFuncO2 != NULL)
+        return (*customFuncO2)(x); 
+      else
+        return call(x);
+    }
+
+	bool operator()(const Obj1& x) const { 
+      if (customFuncO1 != NULL)
+        return (*customFuncO1)(x);
+      else
+        return call(x); 
+    }
+
+	bool operator()(const double& x) const {
+      if (customFuncD != NULL)
+        return (*customFuncD)(x);
+      else
+        return callD(x); 
+    }
 
 	public:
 	~UnaryPredicateObj_SEJITS() { }
