@@ -217,7 +217,7 @@ class UnaryPredicateObj {
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
 
-	protected:
+	//protected:
 	UnaryPredicateObj() { // should never be called
 		printf("UnaryPredicateObj()!!!\n");
 	}

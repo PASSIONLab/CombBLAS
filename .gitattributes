@@ -2218,6 +2218,7 @@ kdt/pyCombBLAS/testscript.py -text
 sandbox/Graph500_HyGraph.py -text
 sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
+sandbox/TwitterFilterPercent-sejits.py -text
 sandbox/TwitterFilterPercent.py -text
 sandbox/filter_debug.txt -text
 sandbox/mcl.py -text
@@ -2228,6 +2229,12 @@ sandbox/roofline_spmv_pure.py -text
 sandbox/run-roofline.sh -text
 sandbox/stats.py -text
 /setup.py -text
+specializer/pcb_operator_convert.py -text
+specializer/pcb_predicate.py -text
+specializer/pcb_predicate_frontend.py -text
+specializer/pcb_predicate_sm.py -text
+specializer/tests/pcb_predicate_frontend_test.py -text
+specializer/tests/pcb_predicate_full_test.py -text
 test/TestDiGraph.py -text
 test/TestKDT.py -text
 test/TestMat.py -text

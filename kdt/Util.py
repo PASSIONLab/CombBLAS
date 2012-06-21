@@ -96,7 +96,10 @@ class FilterHelper:
 							return False
 					return True
 			tmpInstance = tmpU()
-			return tmpInstance.fn
+			#return tmpInstance.fn
+                        # FIXME: only supports one filter
+                        #print "getFilterPred() called, only returning first, type " + type(filteredObject._filter_[0])
+                        return filteredObject._filter_[0]
 		else:
 			return None
 			
