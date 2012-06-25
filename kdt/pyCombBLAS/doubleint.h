@@ -128,7 +128,7 @@ template <typename c, typename t>
 inline std::basic_istream<c,t>& operator>>(std::basic_istream<c,t>& lhs, doubleint& rhs) { double d; lhs >> d; rhs.d = d; return lhs; }
 
 
-
+#if PYCOMBBLAS_MPIOK
 // From CombBLAS/promote.h:
 /*
 template <class T1, class T2>
@@ -177,5 +177,6 @@ template<> struct MPIOp< std::plus<doubleint>, doubleint >
 	}
 };
 */
+#endif
 
 #endif
