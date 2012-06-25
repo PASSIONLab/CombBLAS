@@ -9,50 +9,12 @@
 #include <Python.h>
 #include "../../CombBLAS/CombBLAS.h"
 
-template <typename T1, typename T2>
-bool retTrue(const T1& x, const T2& y)
-{
-	return true;
-}
-
-namespace op{
-class UnaryFunction;
-class UnaryFunctionObj;
-class UnaryPredicateObj;
-class BinaryFunction;
-class BinaryFunctionObj;
-class BinaryPredicateObj;
-class Semiring;
-class SemiringObj;
-}
-
-#ifndef NO_SWIGPYRUN
-#include "swigpyrun.h"
-#endif
-
-#include "doubleint.h"
-
-class pySpParMat;
-class pySpParMatBool;
-class pySpParMatObj1;
-class pySpParMatObj2;
-class pySpParVec;
-class pySpParVecObj1;
-class pySpParVecObj2;
-class pyDenseParVec;
-class pyDenseParVecObj1;
-class pyDenseParVecObj2;
-
-template <typename RET, typename T1=RET, typename T2=RET>
-class use2nd
-{
-public:
-	const RET& operator()(const T1& a, const T2& b) const { return b; }
-};
+#define PYCOMBBLAS_MPIOK 1
+#include "pyCombBLAS-NoMPI.h"
 
 extern shared_ptr<CommGrid> commGrid;
 
-#include "obj.h"
+
 #include "pyOperations.h"
 #include "pyOperationsObj.h"
 #include "pySemirings.h"

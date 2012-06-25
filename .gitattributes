@@ -2177,6 +2177,7 @@ kdt/pyCombBLAS/Makefile-triton -text
 kdt/pyCombBLAS/doubleint.h -text
 kdt/pyCombBLAS/makei.py -text
 kdt/pyCombBLAS/obj.h -text
+kdt/pyCombBLAS/pyCombBLAS-NoMPI.h -text
 kdt/pyCombBLAS/pyCombBLAS.cpp -text
 kdt/pyCombBLAS/pyCombBLAS.h -text
 kdt/pyCombBLAS/pyCombBLAS.i -text
@@ -2196,6 +2197,7 @@ kdt/pyCombBLAS/pyOperations.h -text
 kdt/pyCombBLAS/pyOperationsObj.cpp -text
 kdt/pyCombBLAS/pyOperationsObj.h -text
 kdt/pyCombBLAS/pyOperationsSEJITS.h -text
+kdt/pyCombBLAS/pyOperationsWorkers.h -text
 kdt/pyCombBLAS/pySemirings.h -text
 kdt/pyCombBLAS/pySpParMat.cpp -text
 kdt/pyCombBLAS/pySpParMat.h -text

@@ -28,7 +28,6 @@ SWIG_Obj1Info = SWIGTYPE_p_Obj1;
 SWIG_Obj2Info = SWIGTYPE_p_Obj2;
 %}
 
-%include cstring.i
 
 // Language independent exception handler
 %include exception.i    
@@ -1051,16 +1050,13 @@ namespace op {
 
 class CallError {};
 
-// WORKERS
-//////////////////////
-
 
 class UnaryPredicateObj {
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
 
-	protected:
+	//protected:
 	UnaryPredicateObj() { // should never be called
 		printf("UnaryPredicateObj()!!!\n");
 	}
@@ -1186,7 +1182,6 @@ SemiringObj SecondMaxSemiringObj();
 
 void finalize();
 bool root();
-%cstring_bounded_output(char *inMsg, 1024);
 void _broadcast(char *outMsg, char *inMsg);
 void _barrier();
 int _nprocs();

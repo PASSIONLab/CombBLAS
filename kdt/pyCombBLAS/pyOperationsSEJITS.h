@@ -1,3 +1,9 @@
+#ifndef PYOPERATIONSSEJITS_H
+#define PYOPERATIONSSEJITS_H
+
+#include "pyCombBLAS-NoMPI.h"
+#include "pyOperationsWorkers.h"
+
 class UnaryPredicateObj_SEJITS : public UnaryPredicateObj_Python {
 	public:
 
@@ -147,3 +153,5 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 	double rettype2nd_call(const double& x, const double& y) const { return callDD(x, y); }
 
 };
+
+#endif

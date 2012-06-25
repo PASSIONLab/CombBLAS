@@ -332,7 +332,7 @@ inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const O
 #define SWIGTYPE_p_Obj2 SWIG_Obj2Info
 #endif
 
-
+#if PYCOMBBLAS_MPIOK
 // From CombBLAS/promote.h:
 DECLARE_PROMOTE(Obj1, Obj1, Obj1)
 DECLARE_PROMOTE(Obj2, Obj2, Obj2)
@@ -342,9 +342,12 @@ DECLARE_PROMOTE(Obj2, Obj1, Obj1) // for semirings
 
 DECLARE_PROMOTE(bool, Obj1, Obj1)
 DECLARE_PROMOTE(Obj1, bool, Obj1)
+#endif
 
 // From CombBLAS/MPIType.h
 #ifndef PYCOMBBLAS_CPP
+
+#if PYCOMBBLAS_MPIOK
 /////////////////////////////////////////////////////////////
 // Forward declarations
 /////////////////////////////////////////////////////////////
@@ -364,6 +367,7 @@ void create_EDGE_and_VERTEX_MPI_Datatypes();
 
 template<> MPI::Datatype MPIType< Obj1 >( void );
 template<> MPI::Datatype MPIType< Obj2 >( void );
+#endif
 
 #else 
 /////////////////////////////////////////////////////////////
@@ -379,6 +383,7 @@ swig_type_info*& Obj1::SwigTypeInfo = SWIG_Obj1Info;
 swig_type_info*& Obj2::SwigTypeInfo = SWIG_Obj2Info;
 
 
+#if PYCOMBBLAS_MPIOK
 // definitions
 MPI::Datatype Obj1_MPI_datatype;
 MPI::Datatype Obj2_MPI_datatype;
@@ -404,6 +409,8 @@ template<> MPI::Datatype MPIType< Obj2 >( void )
 {
 	return Obj2_MPI_datatype;
 }
+
+#endif
 
 #endif
 
