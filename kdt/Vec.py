@@ -3,6 +3,7 @@ import kdt.pyCombBLAS as pcb
 import feedback
 import UFget as uf
 import Mat as Mat
+import ctypes
 from Util import *
 from Util import _op_make_unary
 from Util import _op_make_unary_pred
@@ -11,6 +12,11 @@ from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
 from Util import _op_is_wrapped
 from Util import _makePythonOp
+from Util import _opStruct_int
+from Util import _opStruct_float
+from Util import _coerceToInternal
+from Util import _coerceToExternal
+from Util import _typeWrapInfo
 
 #	naming convention:
 #	names that start with a single underscore and have no final underscore
@@ -26,24 +32,39 @@ class Vec(object):
 		if length < 0:
 			raise ValueError, "length must be positive"
 
-		if isinstance(element, (float, int, long)):
+		typeInfo = _typeWrapInfo(type(element))
+		
+		if issubclass(typeInfo._getStorageType(), (float, int, long)):
 			if sparse:
 				self._v_ = pcb.pySpParVec(length)
 			else:
 				self._v_ = pcb.pyDenseParVec(length, element)
 			self._identity_ = 0.0
-		elif isinstance(element, pcb.Obj1):
+		elif issubclass(typeInfo._getStorageType(), pcb.Obj1):
 			if sparse:
 				self._v_ = pcb.pySpParVecObj1(length)
 			else:
-				self._v_ = pcb.pyDenseParVecObj1(length, element)
-			self._identity_ = pcb.Obj1()
-		elif isinstance(element, pcb.Obj2):
+				self._v_ = pcb.pyDenseParVecObj1(length, _coerceToInternal(element, pcb.Obj1))
+			#self._identity_ = pcb.Obj1()
+			self._identity_ = typeInfo._getElementType()()
+		elif issubclass(typeInfo._getStorageType(), pcb.Obj2):
 			if sparse:
 				self._v_ = pcb.pySpParVecObj2(length)
 			else:
-				self._v_ = pcb.pyDenseParVecObj2(length, element)
-			self._identity_ = pcb.Obj2()
+				self._v_ = pcb.pyDenseParVecObj2(length, _coerceToInternal(element, pcb.Obj2))
+			#self._identity_ = pcb.Obj2()
+			self._identity_ = typeInfo._getElementType()()
+		#elif isinstance(element, ctypes.Structure):
+			# Python-defined object type
+		#	elType = type(element)
+		#	if ctypes.sizeof(elType) <= pcb.Obj1.capacity():
+		#		if sparse:
+		#			self._v_ = pcb.pySpParVecObj1(length)
+		#		else:
+		#			self._v_ = pcb.pyDenseParVecObj1(length, _coerceToInternal(element, pcb.Obj1))
+		#		self._identity_ = elType()
+		#	else:
+		#		raise TypeError, "Cannot fit object into any available sizes. Largest possible object is %d bytes."%(kdt.Obj1.capacity())
 		else:
 			raise TypeError, "don't know type %s"%(type(element))
 	
@@ -78,6 +99,21 @@ class Vec(object):
 		self._v_ = other._v_
 		self._identity_ = other._identity_
 	
+	def _getStorageType(self):
+		if isinstance(self._v_, (pcb.pyDenseParVec, pcb.pySpParVec)):
+			return float
+		if isinstance(self._v_, (pcb.pyDenseParVecObj1, pcb.pySpParVecObj1)):
+			return pcb.Obj1
+		if isinstance(self._v_, (pcb.pyDenseParVecObj2, pcb.pySpParVecObj2)):
+			return pcb.Obj2
+		raise NotImplementedError, 'Unknown vector type!'
+	
+	def _getElementType(self):
+		if isinstance(self._identity_, (float, int, bool)):
+			return float
+		else:
+			return type(self._identity_)
+
 	@staticmethod
 	def _getExampleElement(pcbVec):
 		if isinstance(pcbVec, (pcb.pyDenseParVec, pcb.pySpParVec)):
@@ -97,10 +133,10 @@ class Vec(object):
 		raise NotImplementedError, 'Unknown vector type!'
 	
 	@staticmethod
-	def _toVec(pcbVec):
+	def _toVec(pcbVec, identity):
 		ret = Vec(_leaveEmpty=True)
 		ret._v_ = pcbVec
-		ret._identity_ = Vec._getExampleElement(pcbVec)
+		ret._identity_ = identity  #Vec._getExampleElement(pcbVec)
 		return ret
 
 	# NEEDED: type change needs to be updated		
@@ -175,7 +211,7 @@ class Vec(object):
 		if self.isDense():
 			return self
 		else:
-			return Vec._toVec(self._v_.dense())
+			return Vec._toVec(self._v_.dense(), self._identity_)
 
 	# TODO: accept a predicate that defines the sparsity. Use eWiseApply to implement.
 	def sparse(self):
@@ -187,7 +223,7 @@ class Vec(object):
 		if self.isSparse():
 			return self
 		else:
-			return Vec._toVec(self._v_.sparse())
+			return Vec._toVec(self._v_.sparse(), self._identity_)
 
 #########################
 ### Methods
@@ -211,7 +247,7 @@ class Vec(object):
 			else:
 				op = FilterHelper.getFilteredUniOpOrOpVal(self, op, self._identity_)
 		
-		self._v_.Apply(_op_make_unary(op))
+		self._v_.Apply(_op_make_unary(op, self, self))
 		return
 		
 	# in-place, so no return value
@@ -243,7 +279,7 @@ class Vec(object):
 		else:
 			superOp = op
 
-		self._v_.ApplyInd(_op_make_binary(superOp))
+		self._v_.ApplyInd(_op_make_binary(superOp, self, _opStruct_float(), self))
 	
 	def __len__(self):
 		"""
@@ -282,7 +318,7 @@ class Vec(object):
 				raise IndexError
 			
 			try:
-				ret = self._v_[key]
+				ret = _coerceToExternal(self._v_[key], type(self._identity_))
 			except:
 				# not found in a sparse vector
 				ret = None
@@ -297,7 +333,7 @@ class Vec(object):
 		else:
 			if self._hasFilter() or key._hasFilter():
 				raise NotImplementedError,"filtered __getitem__(Vec)"
-			return Vec._toVec(self._v_[key._v_])
+			return Vec._toVec(self._v_[key._v_], self._identity_)
 
 	#ToDo:  implement find/findInds when problem of any zero elements
 	#         in the sparse vector getting stripped out is solved
@@ -328,8 +364,9 @@ class Vec(object):
 		if self._hasFilter():
 			pred = FilterHelper.getFilteredUniOpOrVal(self, pred, False)
 
-		ret = self._v_.Find(_op_make_unary_pred(pred))
-		return Vec._toVec(ret)
+		retV = self._v_.Find(_op_make_unary_pred(pred, self))
+		ret = Vec._toVec(retV, self._identity_)
+		return ret
 
 
 	#ToDO:  simplfy to avoid dense() when pySpParVec.FindInds available
@@ -359,8 +396,8 @@ class Vec(object):
 		if self._hasFilter():
 			pred = FilterHelper.getFilteredUniOpOrVal(self, pred, False)
 
-		ret = self._v_.FindInds(_op_make_unary_pred(pred))
-		return Vec._toVec(ret)
+		ret = self._v_.FindInds(_op_make_unary_pred(pred, self))
+		return Vec._toVec(ret, 0.0)
 
 	def isDense(self):
 		"""
@@ -513,16 +550,19 @@ class Vec(object):
 			if not isinstance(init, (float, int, long)):
 				raise NotImplementedError, "at the moment the result of reduce must have the same type as the Vec itself."
 		
+		# get the return type
+		uniRetType = _typeWrapInfo(type(init))
+		
 		# cannot mix and match new and old reduce versions, so until we can totally get rid of
 		# non-object BinaryFunction and UnaryFunction we have to support both.
 		# In the future only the else clause of this if will be kept.
 		if (isinstance(op, pcb.BinaryFunction) or isinstance(uniOp, pcb.UnaryFunction)) and not (isinstance(op, pcb.BinaryFunctionObj) or isinstance(uniOp, pcb.UnaryFunctionObj)):
 			if init is not None and init is not self._identity_:
 				raise ValueError, "you called the old reduce by using a built-in function, but this old version does not support the init attribute. Use a Python function instead of a builtin."
-			ret = self._v_.Reduce(_op_make_binary(op), _op_make_unary(uniOp))
+			ret = self._v_.Reduce(_op_make_binary(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType))
 		else:
-			ret = self._v_.Reduce(_op_make_binaryObj(op), _op_make_unary(uniOp), init)
-		return ret
+			ret = self._v_.Reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _coerceToInternal(init, uniRetType._getStorageType()))
+		return _coerceToExternal(ret, uniRetType._getElementType())
 	
 	def count(self, pred=None):
 		"""
@@ -615,7 +655,7 @@ class Vec(object):
 		if isinstance(key, (float, int, long)):
 			if key < 0 or key > len(self)-1:
 				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
-			self._v_[key] = value
+			self._v_[key] = _coerceToInternal(value, self._getStorageType())
 		elif isinstance(key,Vec):
 			if isinstance(value,Vec):
 				pass
@@ -637,7 +677,7 @@ class Vec(object):
 			else:
 				self._v_[key.dense()._v_] = value.dense()._v_
 		elif type(key) == str and key == 'nonnull':
-			self.apply(op_set(value))
+			self.apply(op_set(_coerceToInternal(value, self._getStorageType())))
 		else:
 			raise KeyError, 'Unknown key type'
 		return
@@ -791,14 +831,14 @@ class Vec(object):
 		
 		# wrap the ops
 		if predicate:
-			op = _op_make_binary_pred(op)
+			op = _op_make_binary_pred(op, self, other)
 		else:
-			op = _op_make_binaryObj(op)
-		doOp = _op_make_binary_pred(doOp)
-		selfFilter = _op_make_unary_pred(FilterHelper.getFilterPred(self))
-		otherFilter = _op_make_unary_pred(FilterHelper.getFilterPred(other))
-		ANull = self._identity_
-		BNull = other._identity_
+			op = _op_make_binaryObj(op, self, other, self)
+		doOp = _op_make_binary_pred(doOp, self, other)
+		selfFilter = _op_make_unary_pred(FilterHelper.getFilterPred(self), self)
+		otherFilter = _op_make_unary_pred(FilterHelper.getFilterPred(other), other)
+		ANull = _coerceToInternal(self._identity_, self._getStorageType())
+		BNull = _coerceToInternal(other._identity_, other._getStorageType())
 
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
@@ -806,19 +846,19 @@ class Vec(object):
 			if other.isSparse(): # sparse, sparse
 				if inPlace:
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
-					ret = Vec._toVec(ret)
+					ret = Vec._toVec(ret, self._identity_)
 					self._stealFrom(ret)
 				else:
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, allowBNulls, ANull, BNull, allowIntersect, selfFilter, otherFilter)
-					return Vec._toVec(ret)
+					return Vec._toVec(ret, self._identity_)
 			else: # sparse, dense
 				if inPlace:
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
-					ret = Vec._toVec(ret)
+					ret = Vec._toVec(ret, self._identity_)
 					self._stealFrom(ret)
 				else:
 					ret = pcb.EWiseApply(self._v_, other._v_, op, doOp, allowANulls, ANull, selfFilter, otherFilter)
-					return Vec._toVec(ret)
+					return Vec._toVec(ret, self._identity_)
 		else:
 			if other.isSparse(): # dense, sparse
 				if inPlace:
@@ -1055,12 +1095,17 @@ class Vec(object):
 		returns a Boolean True if all the nonnull elements of the
 		Vec instance are True (nonzero), and False otherwise.
 		"""
-		tmp = self.copy()
-		# only because have to set tmp[0]
-					# because of element0 snafu
 		if isinstance(self._identity_, (float, int, long)):
-			return self.reduce(op_and, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			#ret = self.reduce(op_and, pcb.ifthenelse(pcb.bind2nd(pcb.not_equal_to(),0), pcb.set(1), pcb.set(0)))
+			#ret = (ret != 0)
+			ret = self.reduce((lambda x,y: bool(x) and bool(y)), uniOp=(lambda x: bool(x)), init=1)
+			ret = bool(ret)
+			#print "all on vector:",self," result:",ret
+			return ret
 		else:
+			tmp = self.copy()
+			# only because have to set tmp[0]
+					# because of element0 snafu
 			identity = pcb.Obj1()
 			identity.weight = tmp[0].weight
 			#FIX: "=  bool(...)"?
@@ -1276,7 +1321,7 @@ class Vec(object):
 		if self._hasFilter():
 			raise NotImplementedError, "filtered sort not implemented"
 			
-		return Vec._toVec(self._v_.Sort())
+		return Vec._toVec(self._v_.Sort(), self._identity_)
 
 	# NEEDED: update docstring
 	def sorted(self):

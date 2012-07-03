@@ -152,9 +152,9 @@ double pySpParVec::Reduce(op::BinaryFunction* bf, op::UnaryFunction* uf)
 	
 	bf->getMPIOp();
 	if (uf == NULL)
-		ret = v.Reduce(*bf, doubleint::nan(), ::identity<doubleint>());
+		ret = v.Reduce(*bf, doubleint(), ::identity<doubleint>());
 	else
-		ret = v.Reduce(*bf, doubleint::nan(), *uf);
+		ret = v.Reduce(*bf, doubleint(), *uf);
 	bf->releaseMPIOp();
 	return ret;
 }

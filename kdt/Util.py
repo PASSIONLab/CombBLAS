@@ -1,5 +1,7 @@
 import pyCombBLAS as pcb
 
+import ctypes
+
 class info:
 	@staticmethod
 	def eps():
@@ -199,7 +201,13 @@ def revision():
 	return "r7xx"
 
 def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
-	return pcb.SemiringObj(addFn, mulFn, leftFilter, rightFilter)
+	ret = pcb.SemiringObj(addFn, mulFn, leftFilter, rightFilter)
+	ret.origAddFn = addFn
+	ret.origMulFn = mulFn
+	#ret.origLeftFilter = leftFilter # overrriden by setFilters()
+	#ret.origRightFilter = rightFilter # overrriden by setFilters()
+	return ret
+
 
 NONE = 0
 INFO = 1
@@ -357,47 +365,189 @@ def _op_builtin_pyfunc(op):
 		return lambda x: (not x)
 	
 	raise NotImplementedError, 'Unable to convert functor to Python expression.'
+
+
+## Python-defined object helpers
+
+# take a pure ctypes structure and put it into a pyCombBLAS object
+def _coerceToInternal(value, storageType):
+	if isinstance(value, storageType) or (isinstance(value, (bool, int, float)) and issubclass(storageType, float)):
+		return value
+	else:
+		if not issubclass(type(value), ctypes.Structure):
+			raise ValueError,"coercion is meant to work on Python-defined types. You provided %s => %s"%(str(type(value)), str(storageType))
+		
+		# create the pyCombBLAS obj to store the object
+		ret = storageType()
+		ctypesObj = type(value).from_address(ret.getDataPtrLong())
+		# copy the object into its new location
+		ctypes.memmove(ctypes.byref(ctypesObj), ctypes.byref(value), ctypes.sizeof(value))
+		#done
+		return ret
+
+# take a pyCombBLAS object and turn it into a ctypes object
+def _coerceToExternal(value, extType):
+	#print "_coerceToExternal types:",type(value),extType
+	if isinstance(value, extType) or (isinstance(value, (bool, int, float)) and issubclass(extType, (bool, int, float))):
+		return value
+	else:
+		if not issubclass(extType, ctypes.Structure):
+			raise ValueError,"coercion is meant to work on Python-defined types. You provided %s => %s"%(str(type(value)), str(extType))
+		
+		ret = extType.from_address(value.getDataPtrLong())
+		ret.referenceToMemoryObj = value # keep a reference to the storage object so it doesn't get garbage collected
+		return ret
+		
+# shim to make a CombBLAS object act like a ctypes-defined object
+class _python_def_shim_unary:
+	def __init__(self, callback, ctypesClass, retStorageType):
+		self.callback = callback
+		self.ctypesClass = ctypesClass
+		self.retStorageType = retStorageType
 	
-def _op_make_unary(op):
+	def __call__(self, arg1):
+		result = self.callback(_coerceToExternal(arg1, self.ctypesClass))
+		if self.retStorageType is not None:
+			# a value stored back in the structure
+			return _coerceToInternal(result, self.retStorageType)
+		else:
+			# a POD type, eg for predicates
+			return result
+
+class _python_def_shim_binary:
+	def __init__(self, callback, ctypesClass1, ctypesClass2, retStorageType):
+		self.callback = callback
+		self.ctypesClass1 = ctypesClass1
+		self.ctypesClass2 = ctypesClass2
+		self.retStorageType = retStorageType
+	
+	def __call__(self, arg1, arg2):
+		#print "in binop callback. types of args:",type(arg1), type(arg2), " ctypesTypes:",self.ctypesClass1, self.ctypesClass2, self.retStorageType
+		result = self.callback(_coerceToExternal(arg1, self.ctypesClass1),
+			_coerceToExternal(arg2, self.ctypesClass2))
+			
+		if self.retStorageType is not None:
+			# a value stored back in the structure
+			return _coerceToInternal(result, self.retStorageType)
+		else:
+			# a POD type, eg for predicates
+			return result
+
+## helper functions to transform Python callbacks into pyCombBLAS functor objects
+
+# Wrap a Python unary callback into pyCombBLAS's UnaryFunctionObj,
+# or, if already wrapped, return the existing wrapper.
+def _op_make_unary(op, opStruct, opStructRet=None):
 	if op is None:
 		return None
+	if issubclass(opStruct._getElementType(), ctypes.Structure):
+		if opStructRet is None:
+			opStructRet = opStruct
+		op = _python_def_shim_unary(op, opStruct._getElementType(), opStructRet._getStorageType())
+
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj)):
 		return op
 	return pcb.unaryObj(op)
 
-def _op_make_binary(op):
+def _op_make_unary_pred(op, opStruct, opStructRet=None):
 	if op is None:
 		return None
+	if issubclass(opStruct._getElementType(), ctypes.Structure):
+		op = _python_def_shim_unary(op, opStruct._getElementType(), None)
+
+	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
+		return op
+	return pcb.unaryObjPred(op)
+
+# Wrap a Python binary callback into pyCombBLAS's BinaryFunctionObj,
+# or, if already wrapped, return the existing wrapper.
+def _op_make_binary(op, opStruct1, opStruct2, opStructRet):
+	if op is None:
+		return None
+	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		op = _python_def_shim_binary(op, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
+
 	if isinstance(op, (pcb.BinaryFunction, pcb.BinaryFunctionObj)):
 		return op
 	return pcb.binaryObj(op)
 
-def _op_make_binaryObj(op):
+# same as above, but will convert a BinaryFunction into a
+# BinaryFunctionObj, if necessary.
+def _op_make_binaryObj(op, opStruct1, opStruct2, opStructRet):
 	if op is None:
 		return None
+	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		op = _python_def_shim_binary(op, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
+
 	if isinstance(op, (pcb.BinaryFunctionObj)):
 		return op
 	if isinstance(op, (pcb.BinaryFunction)):
 		return pcb.binaryObj(_op_builtin_pyfunc(op))
 	return pcb.binaryObj(op)
 
-def _op_make_unary_pred(op):
+def _op_make_binary_pred(op, opStruct1, opStruct2, opStructRet=None):
 	if op is None:
 		return None
-	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
-		return op
-	return pcb.unaryObjPred(op)
+	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		op = _python_def_shim_binary(op, opStruct1._getElementType(), opStruct2._getElementType(), None)
 
-def _op_make_binary_pred(op):
-	if op is None:
-		return None
 	if isinstance(op, (pcb.BinaryFunction, pcb.BinaryPredicateObj)):
 		return op
 	return pcb.binaryObjPred(op)
 
+def _sr_addTypes(inSR, opStruct1, opStruct2, opStructRet):
+	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		mul = inSR.origMulFn
+		add = inSR.origAddFn
+		mul = _python_def_shim_binary(mul, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
+		add = _python_def_shim_binary(add, opStruct2._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
+		outSR = sr(add, mul)
+		return outSR
+	else:
+		return inSR
+		
+# more type management helpers
+class _typeWrapInfo:
+	def __init__(self, externalType):
+		self.externalType = externalType;
+
+		if issubclass(externalType, ctypes.Structure):
+			if ctypes.sizeof(externalType) <= pcb.Obj1.capacity():
+				self.storageType = pcb.Obj1
+			else:
+				raise TypeError, "Cannot fit object into any available storage sizes. Largest supported object size is %d bytes, yours is %d."%(kdt.Obj1.capacity(), ctypes.sizeof(externalType))
+		else:
+			self.storageType = externalType
+
+	def _getStorageType(self):
+		return self.storageType
+	
+	def _getElementType(self):
+		return self.externalType
+
+# stub classes to use built-in types with the above functions
+# ints
+class _opStruct_int:
+	def _getStorageType(self):
+		return int
+	
+	def _getElementType(self):
+		return int
+# floats
+class _opStruct_float:
+	def _getStorageType(self):
+		return float
+	
+	def _getElementType(self):
+		return float
+
+
 def _op_is_wrapped(op):
 	return isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj, pcb.UnaryPredicateObj, pcb.BinaryFunction, pcb.BinaryFunctionObj, pcb.BinaryPredicateObj))
 
+# given a built-in routine (like op_add), return a Python equivalent.
+# this is used to filter the built-in routines, because the filters
+# operate on Python, not C++ code.
 def _makePythonOp(op):
 	if isinstance(op, (pcb.UnaryFunction, pcb.BinaryFunction)):
 		return _op_builtin_pyfunc(op)

@@ -15,12 +15,18 @@ pyDenseParVecObj2::pyDenseParVecObj2(int64_t size, Obj2 id): v(commGrid, size, i
 {
 }
 
+
+bool returnTrue(const Obj2& o)
+{
+	return true;
+}
+
 pySpParVecObj2 pyDenseParVecObj2::sparse(op::UnaryPredicateObj* keep) const
 {
 	if (keep != NULL)
 		return pySpParVecObj2(v.Find(*keep));
 	else
-		return pySpParVecObj2(v.Find(bind2nd(not_equal_to<Obj2>(), Obj2())));
+		return pySpParVecObj2(v.Find(returnTrue));
 }
 
 int64_t pyDenseParVecObj2::len() const
