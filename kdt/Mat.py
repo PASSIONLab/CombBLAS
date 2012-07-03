@@ -10,6 +10,12 @@ from Util import _op_make_binary_pred
 from Util import _sr_get_python_mul
 from Util import _sr_get_python_add
 from Util import _makePythonOp
+from Util import _opStruct_int
+from Util import _opStruct_float
+from Util import _coerceToInternal
+from Util import _coerceToExternal
+from Util import _typeWrapInfo
+from Util import _sr_addTypes
 
 import kdt.pyCombBLAS as pcb
 
@@ -22,7 +28,7 @@ class Mat:
 
 	# NOTE:  for any vertex, out-edges are in the column and in-edges
 	#	are in the row
-	def __init__(self, i=None, j=None, v=None, n=None, m=None, element=0):
+	def __init__(self, i=None, j=None, v=None, n=None, m=None, element=0.0):
 		"""
 		creates a new matrix. In KDT, it is usually seen as an adjacency matrix
 		of a (directed) graph, with the [i, j]'th element's being the weight of
@@ -59,35 +65,38 @@ class Mat:
 		"""
 		if m is None and n is not None:
 			m = n
+
+		typeInfo = _typeWrapInfo(type(element))
+
 		if i is None:
 			if n is not None: #create a Mat with an underlying pySpParMat* of the right size with no nonnulls
 				nullVec = pcb.pyDenseParVec(0,0)
-			if isinstance(element, (float, int, long)):
+			if issubclass(typeInfo._getStorageType(), (float, int, long)):
 				if n is None:
 					self._m_ = pcb.pySpParMat()
 				else:
 					self._m_ = pcb.pySpParMat(m,n,nullVec,nullVec, nullVec)
-			elif isinstance(element, bool):
+			elif issubclass(typeInfo._getStorageType(), bool):
 				if n is None:
 					self._m_ = pcb.pySpParMatBool()
 				else:
 					self._m_ = pcb.pySpParMatBool(m,n,nullVec,nullVec, nullVec)
-			elif isinstance(element, pcb.Obj1):
+			elif issubclass(typeInfo._getStorageType(), pcb.Obj1):
 				if n is None:
 					self._m_ = pcb.pySpParMatObj1()
 				else:
 					self._m_ = pcb.pySpParMatObj1(m,n,nullVec,nullVec, nullVec)
-			elif isinstance(element, pcb.Obj2):
+			elif issubclass(typeInfo._getStorageType(), pcb.Obj2):
 				if n is None:
 					self._m_ = pcb.pySpParMatObj2()
 				else:
 					self._m_ = pcb.pySpParMatObj2(m,n,nullVec,nullVec, nullVec)
-			self._identity_ = element
+			self._identity_ = typeInfo._getElementType()()
 		elif i is not None and j is not None and n is not None:
 			#j = sourceV
 			#i = destV
 			#v = valueV
-			if type(v) == tuple and isinstance(element,(float,int,long)):
+			if type(v) == tuple and issubclass(typeInfo._getStorageType(),(float,int,long)):
 				raise NotImplementedError, 'tuple v only valid for Obj element'
 			if len(i) != len(j):
 				raise KeyError, 'source and destination vectors must be of the same length'
@@ -104,24 +113,42 @@ class Mat:
 				raise ValueError, "j and i cannot be sparse!"
 
 			if isinstance(v, Vec):
-				element = v._identity_
+				typeInfo = _typeWrapInfo(type(v._identity_))
 				if v.isSparse():
 					raise ValueError, "v cannot be sparse!"
 			else:
-				element = v
+				#element = v
+				typeInfo = _typeWrapInfo(type(v))
 			
-			if isinstance(element, (float, int, long)):
+			if issubclass(typeInfo._getStorageType(), (float, int, long)):
 				self._m_ = pcb.pySpParMat(m,n,i._v_,j._v_,v._v_)
-			elif isinstance(element, bool):
+			elif issubclass(typeInfo._getStorageType(), bool):
 				self._m_ = pcb.pySpParMatBool(m,n,i._v_,j._v_,v._v_)
-			elif isinstance(element, pcb.Obj1):
+			elif issubclass(typeInfo._getStorageType(), pcb.Obj1):
 				self._m_ = pcb.pySpParMatObj1(m,n,i._v_,j._v_,v._v_)
-			elif isinstance(element, pcb.Obj2):
+			elif issubclass(typeInfo._getStorageType(), pcb.Obj2):
 				self._m_ = pcb.pySpParMatObj2(m,n,i._v_,j._v_,v._v_)
-			self._identity_ = Mat._getExampleElement(self._m_)
+			self._identity_ = typeInfo._getElementType()()
 		else:
 			raise ValueError, "Incomplete arguments to Mat()"
 	
+	def _getStorageType(self):
+		if isinstance(self._m_, pcb.pySpParMat):
+			return float
+		if isinstance(self._m_, pcb.pySpParMatBool):
+			return bool
+		if isinstance(self._m_, pcb.pySpParMatObj1):
+			return pcb.Obj1
+		if isinstance(self._m_, pcb.pySpParMatObj2):
+			return pcb.Obj2
+		raise NotImplementedError, 'Unknown vector type!'
+	
+	def _getElementType(self):
+		if isinstance(self._identity_, (float, int)):
+			return float
+		else:
+			return type(self._identity_)
+
 	@staticmethod
 	def _getExampleElement(pcbMat):
 		if isinstance(pcbMat, pcb.pySpParMat):
@@ -132,13 +159,13 @@ class Mat:
 			return pcb.Obj1()
 		if isinstance(pcbMat, pcb.pySpParMatObj2):
 			return pcb.Obj2()
-		raise NotImplementedError, 'Unknown vector type!'
+		raise NotImplementedError, 'Unknown matrix type!'
 
 	@staticmethod
-	def _toMat(pcbMat):
+	def _toMat(pcbMat, identity):
 		ret = Mat()
 		ret._m_ = pcbMat
-		ret._identity_ = Mat._getExampleElement(pcbMat)
+		ret._identity_ = identity #Mat._getExampleElement(pcbMat)
 		return ret
 
 	def copy(self, element=None):
@@ -172,7 +199,7 @@ class Mat:
 			#ret._m_.Prune(pcb.unaryObjPred(tmpInstance.fn))
 			ret = self._prune(pcb.unaryObjPred(tmpInstance.fn), False, ignoreFilter=True)
 		else:
-			ret = Mat._toMat(self._m_.copy())
+			ret = Mat._toMat(self._m_.copy(), self._identity_)
 		
 		# TODO: integrate filter/copy and element conversion
 		# so they are not a separate steps that make two copies of the matrix.
@@ -187,11 +214,11 @@ class Mat:
 			#	raise NotImplementedError, 'can only convert to long for now'
 			
 			if isinstance(element, bool):
-				ret = Mat._toMat(pcb.pySpParMatBool(ret._m_))
+				ret = Mat._toMat(pcb.pySpParMatBool(ret._m_), True)
 			elif isinstance(element, (float, int, long)):		
 				# FIX: remove following 2 lines when EWiseApply works 
 				#   as noted above 
-				ret = Mat._toMat(pcb.pySpParMat(ret._m_))
+				ret = Mat._toMat(pcb.pySpParMat(ret._m_), 0.0)
 				
 				if self.isObj():
 					def func(x, y): 
@@ -310,7 +337,7 @@ class Mat:
 				self._m_ = pcb.pySpParMatBool(self._m_)
 				self._identity_ = Mat._getExampleElement(self._m_)
 		else:
-			return Mat._toMat(pcb.pySpParMatBool(self._m_))
+			return Mat._toMat(pcb.pySpParMatBool(self._m_), True)
 
 	def toScalar(self, inPlace=True):
 		"""
@@ -333,7 +360,7 @@ class Mat:
 				self._m_ = pcb.pySpParMat(self._m_)
 				self._identity_ = Mat._getExampleElement(self._m_)
 		else:
-			return Mat._toMat(pcb.pySpParMat(self._m_))
+			return Mat._toMat(pcb.pySpParMat(self._m_), 0.0)
 
 	def toVec(self):
 		"""
@@ -740,7 +767,7 @@ class Mat:
 			op = _makePythonOp(op)
 			op = FilterHelper.getFilteredUniOpOrSelf(self, op)
 		
-		self._m_.Apply(_op_make_unary(op))
+		self._m_.Apply(_op_make_unary(op, self, self))
 		self._dirty()
 
 	def count(self, dir, pred=None):
@@ -834,16 +861,16 @@ class Mat:
 		# else:
 		#   ignoring materialized filters is used for copying data back from the materialized filter to the main Mat data structure
 
-		ANull = self._identity_
-		BNull = other._identity_
+		ANull = _coerceToInternal(self._identity_, self._getStorageType())
+		BNull = _coerceToInternal(other._identity_, self._getStorageType())
 		
 		if inPlace:
-			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self)), _op_make_unary_pred(FilterHelper.getFilterPred(other)))
+			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op, self, other, self), _op_make_binary_pred(doOp, self, other), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self), self), _op_make_unary_pred(FilterHelper.getFilterPred(other), other))
 			self._dirty()
 			return
 		else:
-			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op), _op_make_binary_pred(doOp), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self)), _op_make_unary_pred(FilterHelper.getFilterPred(other)))
-			ret = Mat._toMat(m)
+			m = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op, self, other, self), _op_make_binary_pred(doOp, self, other), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self), self), _op_make_unary_pred(FilterHelper.getFilterPred(other), other))
+			ret = Mat._toMat(m, self._identity_)
 			return ret
 
 	# NEEDED: tests
@@ -923,13 +950,14 @@ class Mat:
 		key1 = key1.dense()
 		
 		if inPlace:
-			self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self)))
+			self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self), self))
 			self._dirty()
 		else:
 			if self._hasMaterializedFilter():
 				return self._materialized.__getitem__(key)
 
-			ret = Mat._toMat(self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self))))
+			SubsRefOut = self._m_.SubsRef(key0._v_, key1._v_, inPlace, _op_make_unary_pred(FilterHelper.getFilterPred(self), self))
+			ret = Mat._toMat(SubsRefOut, self._identity_)
 			return ret
 		
 	# TODO: make a keep() which reverses the predicate
@@ -940,7 +968,7 @@ class Mat:
 		if not ignoreFilter and self._hasFilter():
 			raise NotImplementedError,"_prune() doesn't do filters"
 			
-		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred), inPlace))
+		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred, self), inPlace), self._identity_)
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""
@@ -994,6 +1022,9 @@ class Mat:
 				uniOp = _makePythonOp(uniOp)
 			uniOp = FilterHelper.getFilteredUniOpOrVal(self, uniOp, init)
 			uniOp = pcb.unaryObj(uniOp)
+		
+		# get the return type
+		uniRetType = _typeWrapInfo(type(init))
 
 		ret = Vec(element=init, sparse=False)
 		
@@ -1002,10 +1033,12 @@ class Mat:
 			dir = Mat.Column
 			doall = True
 
-		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op), _op_make_unary(uniOp), init)
+		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _coerceToInternal(init, uniRetType._getStorageType()))
 		if doall:
-			ret = ret.reduce(_op_make_binaryObj(op), None, init)
-		return ret
+			ret = ret.reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), None, _coerceToInternal(init, uniRetType._getStorageType()))
+			return _coerceToExternal(ret, uniRetType._getElementType())
+		else:
+			return ret
 
 	#in-place, so no return value
 	def scale(self, other, op=op_mul, dir=Column):
@@ -1069,7 +1102,7 @@ class Mat:
 			
 			op = tmpS(op, FilterHelper.getFilterPred(self))
 
-		self._m_.DimWiseApply(dir, other.dense()._v_, _op_make_binary(op))
+		self._m_.DimWiseApply(dir, other.dense()._v_, _op_make_binary(op, self, other, self))
 		return
 
 	def SpGEMM(self, other, semiring, inPlace=False):
@@ -1113,11 +1146,16 @@ class Mat:
 		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 			return self._materialized.SpGEMM(other._materialized, semiring, inPlace)
 
+		# notify semiring of argument types (for Python-defined objects)
+		semiring = _sr_addTypes(semiring, self, other, other)
+		
+		# setup on-the-fly filter
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
 			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
 			clearSemiringFilters = True
 			
+		# multiplying a matrix by itself is handled by a separate routine
 		if self._m_ is other._m_:
 			# we're squaring the matrix
 			if inPlace:
@@ -1128,13 +1166,15 @@ class Mat:
 				cp._m_.Square(semiring)
 				return cp
 		
+		# the operation itself
 		if inPlace:
 			other._m_ = self._m_.SpGEMM(other._m_, semiring)
 			other._dirty()
 			ret = other
 		else:
-			ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring))
+			ret = Mat._toMat(self._m_.SpGEMM(other._m_, semiring), other._identity_)
 
+		# clear out on-the-fly filter
 		if clearSemiringFilters:
 			semiring.setFilters(None, None)
 		return ret
@@ -1183,6 +1223,9 @@ class Mat:
 		if self._hasMaterializedFilter() and other._hasMaterializedFilter():
 			return self._materialized.SpMV(other._materialized, semiring, inPlace)
 
+		# notify semiring of argument types (for Python-defined objects)
+		semiring = _sr_addTypes(semiring, self, other, other)
+		
 		# setup on-the-fly filter
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
@@ -1194,7 +1237,7 @@ class Mat:
 			self._m_.SpMV_inplace(other._v_, semiring)
 			ret = other
 		else:
-			ret = Vec._toVec(self._m_.SpMV(other._v_, semiring))
+			ret = Vec._toVec(self._m_.SpMV(other._v_, semiring), other._identity_)
 		
 		# clear out on-the-fly filter
 		if clearSemiringFilters:

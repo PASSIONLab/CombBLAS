@@ -525,6 +525,13 @@ class Obj1(_object):
     __swig_setmethods__["category"] = _pyCombBLAS.Obj1_category_set
     __swig_getmethods__["category"] = _pyCombBLAS.Obj1_category_get
     if _newclass:category = _swig_property(_pyCombBLAS.Obj1_category_get, _pyCombBLAS.Obj1_category_set)
+    __swig_setmethods__["data"] = _pyCombBLAS.Obj1_data_set
+    __swig_getmethods__["data"] = _pyCombBLAS.Obj1_data_get
+    if _newclass:data = _swig_property(_pyCombBLAS.Obj1_data_get, _pyCombBLAS.Obj1_data_set)
+    __swig_getmethods__["capacity"] = lambda x: _pyCombBLAS.Obj1_capacity
+    if _newclass:capacity = staticmethod(_pyCombBLAS.Obj1_capacity)
+    def getDataPtr(*args): return _pyCombBLAS.Obj1_getDataPtr(*args)
+    def getDataPtrLong(*args): return _pyCombBLAS.Obj1_getDataPtrLong(*args)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj1(*args)
         try: self.this.append(this)
@@ -537,6 +544,7 @@ class Obj1(_object):
     __del__ = lambda self : None;
 Obj1_swigregister = _pyCombBLAS.Obj1_swigregister
 Obj1_swigregister(Obj1)
+Obj1_capacity = _pyCombBLAS.Obj1_capacity
 
 class Obj2(_object):
     __swig_setmethods__ = {}

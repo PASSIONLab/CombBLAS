@@ -953,13 +953,32 @@ public:
 
 	double weight;
 	int category;
+	
+	////////////////
+	// for Python-definable objects
+	uint8_t data[64];
+	
+	static size_t capacity() {
+		return sizeof(uint8_t)*64;
+	}
+
+	void* getDataPtr() {
+		return data;
+	}
+	
+	// void* gets wrapped by SWIG into something that doesn't talk with ctypes,
+	// while a regular integer can be cast into a ctypes pointer.
+	unsigned long long getDataPtrLong() {
+		return reinterpret_cast<unsigned long long>(data);
+	}
+	////////////////
 
 	// Note: It's important that this default constructor creates a "zero" element. Some operations
 	// (eg. Reduce) need a starting element, and this constructor is used to create one. If the
 	// "zero" rule is not followed then you may get different results on different numbers of
 	// processors.
 	Obj1(): weight(0), category(0) {}
-	Obj1(const Obj1& other): weight(other.weight), category(other.category) {}
+	Obj1(const Obj1& other): weight(other.weight), category(other.category) { memcpy(data, other.data, capacity()); }
 
 	char *__repr__() const {
 		static char temp[256];

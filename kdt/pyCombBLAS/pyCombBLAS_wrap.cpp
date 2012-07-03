@@ -2495,8 +2495,10 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 #define SWIGTYPE_p_pySpParVec swig_types[24]
 #define SWIGTYPE_p_pySpParVecObj1 swig_types[25]
 #define SWIGTYPE_p_pySpParVecObj2 swig_types[26]
-static swig_type_info *swig_types[28];
-static swig_module_info swig_module = {swig_types, 27, 0, 0, 0, 0};
+#define SWIGTYPE_p_uint8_t swig_types[27]
+#define SWIGTYPE_p_void swig_types[28]
+static swig_type_info *swig_types[30];
+static swig_module_info swig_module = {swig_types, 29, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2911,6 +2913,29 @@ SWIGINTERNINLINE PyObject*
   SWIG_From_bool  (bool value)
 {
   return PyBool_FromLong(value ? 1 : 0);
+}
+
+
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long  (unsigned long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLong(value) : PyInt_FromLong(static_cast< long >(value)); 
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_size_t  (size_t value)
+{    
+  return SWIG_From_unsigned_SS_long  (static_cast< unsigned long >(value));
+}
+
+
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long_SS_long  (unsigned long long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLongLong(value) : PyInt_FromLong(static_cast< long >(value)); 
 }
 
 
@@ -39501,6 +39526,152 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Obj1_data_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  uint8_t *arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Obj1_data_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_data_set" "', argument " "1"" of type '" "Obj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Obj1_data_set" "', argument " "2"" of type '" "uint8_t [64]""'"); 
+  } 
+  arg2 = reinterpret_cast< uint8_t * >(argp2);
+  {
+    if (arg2) {
+      size_t ii = 0;
+      for (; ii < (size_t)64; ++ii) arg1->data[ii] = arg2[ii];
+    } else {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in variable '""data""' of type '""uint8_t [64]""'");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj1_data_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  uint8_t *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_data_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_data_get" "', argument " "1"" of type '" "Obj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  result = (uint8_t *)(uint8_t *) ((arg1)->data);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj1_capacity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  size_t result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":Obj1_capacity")) SWIG_fail;
+  {
+    try {
+      result = Obj1::capacity();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_size_t(static_cast< size_t >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj1_getDataPtr(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  void *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_getDataPtr",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_getDataPtr" "', argument " "1"" of type '" "Obj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  {
+    try {
+      result = (void *)(arg1)->getDataPtr();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Obj1_getDataPtrLong(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  Obj1 *arg1 = (Obj1 *) 0 ;
+  unsigned long long result;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Obj1_getDataPtrLong",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_Obj1, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Obj1_getDataPtrLong" "', argument " "1"" of type '" "Obj1 *""'"); 
+  }
+  arg1 = reinterpret_cast< Obj1 * >(argp1);
+  {
+    try {
+      result = (unsigned long long)(arg1)->getDataPtrLong();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_Obj1__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   Obj1 *result = 0 ;
@@ -43547,6 +43718,11 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Obj1_weight_get", _wrap_Obj1_weight_get, METH_VARARGS, NULL},
 	 { (char *)"Obj1_category_set", _wrap_Obj1_category_set, METH_VARARGS, NULL},
 	 { (char *)"Obj1_category_get", _wrap_Obj1_category_get, METH_VARARGS, NULL},
+	 { (char *)"Obj1_data_set", _wrap_Obj1_data_set, METH_VARARGS, NULL},
+	 { (char *)"Obj1_data_get", _wrap_Obj1_data_get, METH_VARARGS, NULL},
+	 { (char *)"Obj1_capacity", _wrap_Obj1_capacity, METH_VARARGS, NULL},
+	 { (char *)"Obj1_getDataPtr", _wrap_Obj1_getDataPtr, METH_VARARGS, NULL},
+	 { (char *)"Obj1_getDataPtrLong", _wrap_Obj1_getDataPtrLong, METH_VARARGS, NULL},
 	 { (char *)"new_Obj1", _wrap_new_Obj1, METH_VARARGS, NULL},
 	 { (char *)"Obj1___repr__", _wrap_Obj1___repr__, METH_VARARGS, NULL},
 	 { (char *)"Obj1___eq__", _wrap_Obj1___eq__, METH_VARARGS, NULL},
@@ -43649,6 +43825,8 @@ static swig_type_info _swigt__p_pySpParMatObj2 = {"_p_pySpParMatObj2", "pySpParM
 static swig_type_info _swigt__p_pySpParVec = {"_p_pySpParVec", "pySpParVec *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_pySpParVecObj1 = {"_p_pySpParVecObj1", "pySpParVecObj1 *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_pySpParVecObj2 = {"_p_pySpParVecObj2", "pySpParVecObj2 *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_uint8_t = {"_p_uint8_t", "uint8_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_EWiseArg,
@@ -43678,6 +43856,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_pySpParVec,
   &_swigt__p_pySpParVecObj1,
   &_swigt__p_pySpParVecObj2,
+  &_swigt__p_uint8_t,
+  &_swigt__p_void,
 };
 
 static swig_cast_info _swigc__p_EWiseArg[] = {  {&_swigt__p_EWiseArg, 0, 0, 0},{0, 0, 0, 0}};
@@ -43707,6 +43887,8 @@ static swig_cast_info _swigc__p_pySpParMatObj2[] = {  {&_swigt__p_pySpParMatObj2
 static swig_cast_info _swigc__p_pySpParVec[] = {  {&_swigt__p_pySpParVec, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pySpParVecObj1[] = {  {&_swigt__p_pySpParVecObj1, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pySpParVecObj2[] = {  {&_swigt__p_pySpParVecObj2, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_uint8_t[] = {  {&_swigt__p_uint8_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_EWiseArg,
@@ -43736,6 +43918,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_pySpParVec,
   _swigc__p_pySpParVecObj1,
   _swigc__p_pySpParVecObj2,
+  _swigc__p_uint8_t,
+  _swigc__p_void,
 };
 
 

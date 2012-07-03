@@ -281,7 +281,7 @@ def pathsHop(self, source, sym=False):
 	return ret
 DiGraph.pathsHop = pathsHop
 
-def normalizeEdgeWeights(self, dir=DiGraph.Out):
+def normalize(self, dir=Mat.Column):
 	"""
 	normalizes edge weights for each vertex in the graph. Depending
 	on the value of dir, only outward (DiGraph.Out) or inward (DiGraph.In)
@@ -290,11 +290,22 @@ def normalizeEdgeWeights(self, dir=DiGraph.Out):
 	degree computed only by the edges of the chosen type.
 	"""
 	if self.isObj():
-		raise NotImplementedError, "Cannot normalize object weights yet."
+		raise NotImplementedError, "Cannot normalize object matrices yet."
 
-	degscale = self.e.reduce(dir, (lambda x,y: x+y), init=0)
+	degscale = self.reduce(dir, (lambda x,y: x+y), init=0)
 	degscale.apply(pcb.ifthenelse(pcb.bind2nd(pcb.equal_to(), 0), pcb.identity(), pcb.bind1st(pcb.divides(), 1)))
-	self.e.scale(degscale, op=op_mul, dir=dir)
+	self.scale(degscale, op=op_mul, dir=dir)
+Mat.normalize = normalize
+
+def normalizeEdgeWeights(self, dir=DiGraph.Out):
+	"""
+	normalizes edge weights for each vertex in the graph. Depending
+	on the value of dir, only outward (DiGraph.Out) or inward (DiGraph.In)
+	edges are taken into account. Normalization is performed by dividing
+	the weight of each edge of the chosen type by the corresponding node's
+	degree computed only by the edges of the chosen type.
+	"""
+	self.e.normalize(dir=dir)
 DiGraph.normalizeEdgeWeights = normalizeEdgeWeights
 
 def pageRank(self, epsilon = 0.1, dampingFactor = 0.85, iterations = 1000000):
