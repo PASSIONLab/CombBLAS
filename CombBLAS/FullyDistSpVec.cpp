@@ -710,8 +710,8 @@ OUT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val,
 	if (num.size() > 0)
 	{
 		typename vector< NT >::const_iterator iter = num.begin();
-		localsum = __unary_op(*iter);
-		iter++;
+		//localsum = __unary_op(*iter);
+		//iter++;
 		while (iter < num.end())
 		{
 			localsum = __binary_op(localsum, __unary_op(*iter));
