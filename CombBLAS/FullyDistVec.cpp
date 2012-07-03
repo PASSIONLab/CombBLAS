@@ -96,8 +96,8 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 	if (arr.size() > 0)
 	{
 		typename vector< NT >::const_iterator iter = arr.begin();
-		localsum = __unary_op(*iter);
-		iter++;
+		//localsum = __unary_op(*iter);
+		//iter++;
 		while (iter < arr.end())
 		{
 			localsum = __binary_op(localsum, __unary_op(*iter));
