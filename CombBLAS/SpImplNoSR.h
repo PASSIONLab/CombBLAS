@@ -28,7 +28,10 @@
 
 #ifndef _SP_IMPL_NOSR_H_
 #define _SP_IMPL_NOSR_H_
+
+#ifdef INTEGERSORT
 #include "PBBS/radixSort.h"
+#endif
 
 
 template <class IT, class NT>

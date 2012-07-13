@@ -2,6 +2,9 @@
 #define COMBBLAS_H
 
 #if defined(COMBBLAS_BOOST)
+	#ifdef CRAYCOMP
+		#include <boost/config/compiler/cray.hpp>
+	#endif
 	#include <boost/tr1/memory.hpp>
 	#include <boost/tr1/unordered_map.hpp>
 	#include <boost/tr1/tuple.hpp>

@@ -10,6 +10,9 @@
 	#ifndef _OPENMP
 	#define _OPENMP
 	#endif
+#endif
+
+#ifdef _OPENMP
 	#include <omp.h>
 #endif
 
@@ -421,7 +424,7 @@ int main(int argc, char* argv[])
 				double t2 = MPI_Wtime();
 	
 				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
-				parentsp.Apply(set<int64_t>(1));
+				parentsp.Apply(myset<int64_t>(1));
 	
 				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
 				int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);

@@ -96,6 +96,24 @@ struct ColLexiCompare:  // struct instead of class so that operator() is public
                 }
         };
 
+template <class IT, class NT>
+struct RowLexiCompare:  // struct instead of class so that operator() is public
+        public binary_function< tuple<IT, IT, NT>, tuple<IT, IT, NT>, bool >  // (par1, par2, return_type)
+        {
+                inline bool operator()(const tuple<IT, IT, NT> & lhs, const tuple<IT, IT, NT> & rhs) const
+                {
+                        if(get<0>(lhs) == get<0>(rhs))
+                        {
+                                return get<1>(lhs) < get<1>(rhs);
+                        }
+                        else
+                        {
+                                return get<0>(lhs) < get<0>(rhs);
+			}
+		}
+	};
+
+
 // Non-lexicographical, just compares columns
 template <class IT, class NT>
 struct ColCompare:  // struct instead of class so that operator() is public
