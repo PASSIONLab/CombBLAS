@@ -33,7 +33,7 @@ THE SOFTWARE.
 #include <exception>
 using namespace std;
 
-class outofrangeexception: public exception
+class outofrangeexception: public std::exception
 {
   virtual const char* what() const throw()
   {

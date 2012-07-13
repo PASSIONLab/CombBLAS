@@ -58,8 +58,12 @@ public:
 
 	void SortRowBased()
 	{
-		if(!SpHelper::is_sorted(tuples, tuples+nnz))
-			sort(tuples , tuples+nnz);	// Default "operator<" for tuples uses lexicographical ordering 
+		RowLexiCompare<IT,NT> rowlexicogcmp;
+		if(!SpHelper::is_sorted(tuples, tuples+nnz, rowlexicogcmp))
+			sort(tuples , tuples+nnz, rowlexicogcmp);	
+
+		// Default "operator<" for tuples uses lexicographical ordering 
+		// However, cray compiler complains about it, so we use rowlexicogcmp
 	}
 
 	void SortColBased()
@@ -77,14 +81,14 @@ public:
 		IT loop = 0;
 		for(IT i=0; i< nnz; ++i)
 		{
-			if(get<0>(tuples[i]) == get<1>(tuples[i])) ++loop;
+			if(joker::get<0>(tuples[i]) == joker::get<1>(tuples[i])) ++loop;
 		}
 		tuple<IT, IT, NT> * ntuples = new tuple<IT,IT,NT>[nnz-loop];
 
 		IT ni = 0;
 		for(IT i=0; i< nnz; ++i)
 		{
-			if(get<0>(tuples[i]) != get<1>(tuples[i])) 
+			if(joker::get<0>(tuples[i]) != joker::get<1>(tuples[i])) 
 			{
 				ntuples[ni++] = tuples[i];
 			}
@@ -102,7 +106,7 @@ public:
 			RowCompare<IT,NT> rowcmp;
 			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, rowcmp);	
 			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, rowcmp);
-			return make_pair(get<0>(*minit), get<0>(*maxit));
+			return make_pair(joker::get<0>(*minit), joker::get<0>(*maxit));
 		}
 		else
 			return make_pair(0,0);
@@ -114,7 +118,7 @@ public:
 			ColCompare<IT,NT> colcmp;
 			tuple<IT,IT,NT> * maxit = max_element(tuples, tuples+nnz, colcmp);
 			tuple<IT,IT,NT> * minit = min_element(tuples, tuples+nnz, colcmp);
-			return make_pair(get<1>(*minit), get<1>(*maxit));
+			return make_pair(joker::get<1>(*minit), joker::get<1>(*maxit));
 		}
 		else
 			return make_pair(0,0);

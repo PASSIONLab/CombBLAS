@@ -42,9 +42,9 @@ using namespace std;
 
 
 template<typename T>
-struct set: public std::unary_function<T, T>
+struct myset: public std::unary_function<T, T>
 {
-  set(T myvalue): value(myvalue) {};
+  myset(T myvalue): value(myvalue) {};
   /** @returns value regardless of x */
   const T& operator()(const T& x) const
   {
