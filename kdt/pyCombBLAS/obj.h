@@ -134,6 +134,11 @@ public:
 		cout << "obj operator=() has been called! should not happen!" << endl;
 	}
 
+	void operator=(const Obj1& other)
+	{
+		cout << "obj operator=() has been called! should not happen!" << endl;
+	}
+
 //INTERFACE_INCLUDE_BEGIN
 	// for filtering matrices.
 	//bool hasPassedFilter;

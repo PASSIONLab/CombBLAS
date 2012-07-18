@@ -46,6 +46,19 @@ class EWiseArgDescriptor
 	~EWiseArgDescriptor() { delete iter; }
 };
 
+// this is equivalent to ::set, but for some reason ::set is not found on some systems
+// (Shoaib's OSX 10.7, apparently)
+template <typename T>
+class pcb_set {
+	public:
+	const T& value;
+	pcb_set(const T& setto): value(setto) {}
+	
+	const T& operator()(const T& )
+	{
+		return value;
+	}
+};
 
 //INTERFACE_INCLUDE_BEGIN
 
