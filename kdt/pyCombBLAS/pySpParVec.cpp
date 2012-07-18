@@ -295,11 +295,12 @@ void pySpParVec::__setitem__(const char* key, double value)
 {
 	if (strcmp(key, "existent") == 0)
 	{
-		v.Apply(::set<doubleint>(doubleint(value)));
+		v.Apply(pcb_set<doubleint>(doubleint(value)));
 	}
 	else
 	{
 		// throw
+		throw string("unknown key");
 	}
 }
 
