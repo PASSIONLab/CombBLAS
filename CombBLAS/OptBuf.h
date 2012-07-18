@@ -12,7 +12,7 @@ template <class IT, class NT>
 class OptBuf
 {
 public:
-	OptBuf(): p_c(0), totmax(0), localm(0), isthere(NULL) {};
+	OptBuf(): isthere(NULL), p_c(0), totmax(0), localm(0) {};
 	void MarkEmpty()
 	{
 		if(totmax > 0)
