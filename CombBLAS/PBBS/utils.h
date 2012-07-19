@@ -43,7 +43,8 @@ static int __jj =  mallopt(M_TRIM_THRESHOLD,-1);
 
 namespace utils {
 
-static void myAssert(int cond, std::string s) {
+// ADAM: added inline to remove "defined but not used" warning
+static inline void myAssert(int cond, std::string s) {
   if (!cond) {
     std::cout << s << std::endl;
     abort();
@@ -59,14 +60,16 @@ static int log2Up(T i) {
   return a;
 }
 
-static int logUp(unsigned int i) {
+// ADAM: added inline to remove "defined but not used" warning
+static inline int logUp(unsigned int i) {
   int a=0;
   int b=i-1;
   while (b > 0) {b = b >> 1; a++;}
   return a;
 }
 
-static int logUpLong(unsigned long i) {
+// ADAM: added inline to remove "defined but not used" warning
+static inline int logUpLong(unsigned long i) {
   int a=0;
   long b=i-1;
   while (b > 0) {b = b >> 1; a++;}

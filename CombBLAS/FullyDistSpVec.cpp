@@ -750,7 +750,7 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		IT ind;
 		NT num;
 	};
-	mystruct data;
+	//mystruct data;
 
 	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
 	datatype.Commit();

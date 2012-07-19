@@ -39,7 +39,7 @@
 class BitMap {
  public:
   // actually always rounds up
-  BitMap() { start = NULL; end == NULL;};	// default constructor
+  BitMap() { start = NULL; end = NULL;};	// default constructor
 
   BitMap(uint64_t size) {
     uint64_t num_longs = (size + 63) / 64;

@@ -65,8 +65,9 @@ namespace intSort {
   template <class E, class F>
     struct eBits {
       F _f;  int _mask;  int _offset;
-      eBits(int bits, int offset, F f): _mask((1<<bits)-1), 
-					_offset(offset), _f(f) {}
+// ADAM: moved initialization of _f to the front to remove "x will be initialized after y" warning
+      eBits(int bits, int offset, F f): _f(f), _mask((1<<bits)-1), 
+					_offset(offset) {}
       int operator() (E p) {return _mask&(_f(p)>>_offset);}
     };
 
@@ -105,7 +106,8 @@ namespace intSort {
   }
 }
 
-static void integerSort(uint32_t *A, int n) {
+// ADAM: added inline to remove "defined but not used" warning
+static inline void integerSort(uint32_t *A, int n) {
   uint32_t maxV = 0;
   for (int i=0; i<n; i++) maxV = std::max(maxV,A[i]);
   intSort::iSort(A, n, maxV+1,  utils::identityF<uint32_t>());

@@ -1920,7 +1920,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			{
 				IT temprow, tempcol;
 				NT tempval;	
-				IT ntrow, ntcol; // not transposed row and column index
+				IT ntrow = 0, ntcol = 0; // not transposed row and column index
 				char line[1024];
 				bool nonumline = nonum;
 				IT cnz = 0;
