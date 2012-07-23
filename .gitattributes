@@ -2223,6 +2223,7 @@ sandbox/TwitterFilterPercent-sejits.py -text
 sandbox/TwitterFilterPercent.py -text
 sandbox/filter_debug.txt -text
 sandbox/mcl.py -text
+sandbox/pythondeftest.py -text
 sandbox/roofline_ewise.py -text
 sandbox/roofline_pure_parser.py -text
 sandbox/roofline_spmv.py -text
