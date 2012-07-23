@@ -6,7 +6,7 @@ from asp.codegen import cpp_ast
 
 class PcbUnaryPredicate(object):
     """
-    Top-level for PCB predicate functions.  
+    Top-level for PCB predicate functions.
 
     """
 
@@ -40,7 +40,8 @@ class PcbUnaryPredicate(object):
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
                                  [installDir+"/../kdt/pyCombBLAS"],
-                                 library_dirs=[installDir+"/../build/lib.linux-x86_64-2.6"])#,
+                                 ##library_dirs=[installDir+"/../build/lib.linux-x86_64-2.6"])#,
+				 library_dirs=[installDir+"/../build/lib.macosx-10.6-universal-2.6"])
             #libraries=["mpichcxx"])
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=["bool", "Obj2"]))
@@ -50,14 +51,14 @@ class PcbUnaryPredicate(object):
 
         except:
             print "WARNING: Specialization failed, proceeding with pure Python."
-        
-        
+
+
     def gen_get_predicate(self):
         # this function generates the code that passes a specialized UnaryPredicateObj back to Python for later use
         # TODO: this should actually generate all the filled possible customFuncs for all datatypes
         import asp.codegen.templating.template as template
         t = template.Template("""
-                        
+
 
             PyObject* get_predicate()
             {
@@ -68,12 +69,12 @@ class PcbUnaryPredicate(object):
 
               UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
               retf->customFuncO2 = &myfunc;
-                              
+
               UnaryPredicateObj* retO = new UnaryPredicateObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-              
+
               return ret_obj;
             }
             """, disable_unicode=True)
