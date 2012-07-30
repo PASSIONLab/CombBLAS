@@ -1,3 +1,4 @@
+#include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
@@ -17,15 +18,6 @@
 #endif
 
 
-// These macros should be defined before stdint.h is included
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-#include <stdint.h>
-
 double cblas_alltoalltime;
 double cblas_allgathertime;
 #ifdef _OPENMP
@@ -44,9 +36,8 @@ int cblas_splits = 1;
 #define PERMUTEFORBALANCE
 #define PERCENTS 0
 #define UNDIRECTED
-#define ONLYTIME
+//#define ONLYTIME
 
-#define UNDIRECTED
 using namespace std;
 
 
@@ -313,6 +304,9 @@ int main(int argc, char* argv[])
 				fringe.SetElement(Cands[i], Cands[i]);
 				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
+				parents.PrintInfo("Parents");
+				fringe.PrintInfo("Fringe");
+				indegrees.PrintInfo("indegrees");
 				while(fringe.getnnz() > 0)
 				{
 					fringe.ApplyInd(NumSetter);
@@ -331,7 +325,7 @@ int main(int argc, char* argv[])
 	
 			
 				FullyDistSpVec<int64_t, ParentType> parentsp = parents.Find(isparentset());
-				parentsp.Apply(set<ParentType>(ParentType(1)));
+				parentsp.Apply(myset<ParentType>(ParentType(1)));
 
 #ifndef ONLYTIME
 				FullyDistSpVec<int64_t, int64_t> intraversed, inprocessed, outraversed, ouprocessed;

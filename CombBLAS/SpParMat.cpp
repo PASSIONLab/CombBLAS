@@ -121,16 +121,16 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 		rowcnts[rankincol] = getlocalrows();
 		colcnts[rankinrow] = getlocalcols();
 
-		commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), colcnts, 1, MPIType<IT>());
+		commGrid->GetRowWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), colcnts, 1, MPIType<IT>());
 		IT coloffset = accumulate(colcnts, colcnts+rankinrow, 0);
 	
-		commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), rowcnts, 1, MPIType<IT>());
+		commGrid->GetColWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), rowcnts, 1, MPIType<IT>());
 		IT rowoffset = accumulate(rowcnts, rowcnts+rankincol, 0);
 		DeleteAll(colcnts, rowcnts);
 
 		IT * prelens = new IT[nprocs];
 		prelens[rank] = 2*getlocalnnz();
-		commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+		commGrid->GetWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
 		IT lengthuntil = accumulate(prelens, prelens+rank, static_cast<IT>(0));
 
 		// The disp displacement argument specifies the position 
@@ -278,7 +278,7 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _Bina
 			int colrank = ColWorld.Get_rank();
 			int * colsize = new int[colneighs];
 			colsize[colrank] = trxsize;
-			ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colsize, 1, MPI::INT);
+			ColWorld.Allgather(MPI_IN_PLACE, 1, MPI::INT, colsize, 1, MPI::INT);
 			int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 			std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
 			int accsize = std::accumulate(colsize, colsize+colneighs, 0);
@@ -304,7 +304,7 @@ void SpParMat<IT,NT,DER>::DimApply(Dim dim, const FullyDistVec<IT, NT>& x, _Bina
 			int rowrank = RowWorld.Get_rank();
 			int * rowsize = new int[rowneighs];
 			rowsize[rowrank] = xsize;
-			RowWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, rowsize, 1, MPI::INT);
+			RowWorld.Allgather(MPI_IN_PLACE, 1, MPI::INT, rowsize, 1, MPI::INT);
 			int * dpls = new int[rowneighs]();	// displacements (zero initialized pid) 
 			std::partial_sum(rowsize, rowsize+rowneighs-1, dpls+1);
 			int accsize = std::accumulate(rowsize, rowsize+rowneighs, 0);
@@ -391,7 +391,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
         		else
                 		loclens[colrank] = n_perproc;
 
-			commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
+			commGrid->GetColWorld().Allgather(MPI_IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
 			partial_sum(loclens, loclens+colneighs, lensums+1);	// loclens and lensums are different, but both would fit in 32-bits
 
 			vector<VT> trarr;
@@ -438,7 +438,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 			GIT * loclens = new GIT[rowneighs];
 			GIT * lensums = new GIT[rowneighs+1]();	// begin/end points of local lengths
 			loclens[rowrank] = rvec.MyLocLength();
-			commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
+			commGrid->GetRowWorld().Allgather(MPI_IN_PLACE, 0, MPIType<GIT>(), loclens, 1, MPIType<GIT>());
 			partial_sum(loclens, loclens+rowneighs, lensums+1);
 			try
 			{
@@ -1520,7 +1520,7 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool 
 	int colneighs = commGrid->GetGridRows();
 	IT * locnrows = new IT[colneighs];	// number of rows is calculated by a reduction among the processor column
 	locnrows[colrank] = (IT) getlocalrows();
-	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
+	commGrid->GetColWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
 	IT roffset = accumulate(locnrows, locnrows+colrank, 0);
 	delete [] locnrows;	
 	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(pair<IT,NT>));
@@ -2363,7 +2363,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	int nprocs = commGrid->GetSize();
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = prelen;
-	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	commGrid->GetWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
 	IT prelenuntil = accumulate(prelens, prelens+rank, 0);
 
 	int * sendcnt = new int[nprocs]();	// zero initialize
@@ -2380,8 +2380,8 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	locnrows[colrank] = getlocalrows();
 	locncols[rowrank] = getlocalcols();
 
-	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
-	commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locncols, 1, MPIType<IT>());
+	commGrid->GetColWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
+	commGrid->GetRowWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(),locncols, 1, MPIType<IT>());
 	IT roffset = accumulate(locnrows, locnrows+colrank, 0);
 	IT coffset = accumulate(locncols, locncols+rowrank, 0);
 	
@@ -2438,7 +2438,7 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	int nprocs = commGrid->GetSize();
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = prelen;
-	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	commGrid->GetWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
 	IT prelenuntil = accumulate(prelens, prelens+rank, 0);
 
 	int * sendcnt = new int[nprocs]();	// zero initialize
@@ -2455,8 +2455,8 @@ void SpParMat<IT,NT,DER>::Find (FullyDistVec<IT,IT> & distrows, FullyDistVec<IT,
 	locnrows[colrank] = getlocalrows();
 	locncols[rowrank] = getlocalcols();
 
-	commGrid->GetColWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
-	commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(),locncols, 1, MPIType<IT>());
+	commGrid->GetColWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(),locnrows, 1, MPIType<IT>());
+	commGrid->GetRowWorld().Allgather(MPI_IN_PLACE, 0, MPIType<IT>(),locncols, 1, MPIType<IT>());
 	IT roffset = accumulate(locnrows, locnrows+colrank, 0);
 	IT coffset = accumulate(locncols, locncols+rowrank, 0);
 	

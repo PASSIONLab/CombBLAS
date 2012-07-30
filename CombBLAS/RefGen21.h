@@ -13,17 +13,18 @@
 #ifndef _REF_GEN_2_1_H_
 #define _REF_GEN_2_1_H_
 
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
 #ifdef _STDINT_H
 	#undef _STDINT_H
 #endif
 #ifdef _GCC_STDINT_H 	// for cray
 	#undef _GCC_STDINT_H // original stdint does #include_next<"/opt/gcc/4.5.2/snos/lib/gcc/x86_64-suse-linux/4.5.2/include/stdint-gcc.h">
+#endif
+
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
 #endif
 #include <stdint.h>
 #include <inttypes.h>

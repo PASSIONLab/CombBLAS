@@ -1,3 +1,4 @@
+#include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
 #include <iostream>
@@ -16,15 +17,6 @@
 	#include <omp.h>
 #endif
 
-// These macros should be defined before stdint.h is included
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-#include <stdint.h>
-
 double cblas_alltoalltime;
 double cblas_allgathertime;
 double cblas_mergeconttime;
@@ -35,8 +27,6 @@ int cblas_splits = omp_get_max_threads();
 #else
 int cblas_splits = 1;
 #endif
-
-#include "../CombBLAS.h"
 
 #define ITERS 16
 #define EDGEFACTOR 16
