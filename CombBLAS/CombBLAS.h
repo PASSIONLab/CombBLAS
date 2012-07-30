@@ -1,6 +1,15 @@
 #ifndef COMBBLAS_H
 #define COMBBLAS_H
 
+// These macros should be defined before stdint.h is included
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#include <stdint.h>
+
 #if defined(COMBBLAS_BOOST)
 	#ifdef CRAYCOMP
 		#include <boost/config/compiler/cray.hpp>
