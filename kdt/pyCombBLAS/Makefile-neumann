@@ -1,5 +1,5 @@
 INCDIR = $(HOME)
-INCADD = -I$(INCDIR) -I/usr/include/python2.4
+INCADD = -I$(INCDIR) -I/usr/include/python2.6
 #INCADD = -I$(INCDIR) -I/usr/local/include/python2.7
 COMBBLAS = ../../CombBLAS
 

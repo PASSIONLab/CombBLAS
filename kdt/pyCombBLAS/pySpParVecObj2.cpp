@@ -297,12 +297,11 @@ void pySpParVecObj2::__setitem__(const char* key, const Obj2* value)
 {
 	if (strcmp(key, "existent") == 0)
 	{
-		v.Apply(pcb_set<Obj2>(*value));
+		v.Apply(::set<Obj2>(*value));
 	}
 	else
 	{
 		// throw
-		throw string("unknown key");
 	}
 }
 

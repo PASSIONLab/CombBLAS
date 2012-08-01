@@ -369,8 +369,19 @@ def _op_builtin_pyfunc(op):
 
 ## Python-defined object helpers
 
+# a flag to enable or disable Python-Defined Objects.
+# if disabled, the Obj->PDO conversion functions become simple passthroughs.
+PDO_enabled = True
+
+def PDO_enable(tf):
+	global PDO_enabled
+	PDO_enabled = tf
+
 # take a pure ctypes structure and put it into a pyCombBLAS object
 def _coerceToInternal(value, storageType):
+	if not PDO_enabled:
+		return value
+
 	if isinstance(value, storageType) or (isinstance(value, (bool, int, float)) and issubclass(storageType, float)):
 		return value
 	else:
@@ -387,6 +398,9 @@ def _coerceToInternal(value, storageType):
 
 # take a pyCombBLAS object and turn it into a ctypes object
 def _coerceToExternal(value, extType):
+	if not PDO_enabled:
+		return value
+
 	#print "_coerceToExternal types:",type(value),extType
 	if isinstance(value, extType) or (isinstance(value, (bool, int, float)) and issubclass(extType, (bool, int, float))):
 		return value

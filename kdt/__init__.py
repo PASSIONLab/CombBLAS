@@ -2,6 +2,7 @@
 
 from Util import *
 from Util import master, version, revision, _nproc, _rank
+from Util import PDO_enable
 
 from DiGraph import DiGraph
 from HyGraph import HyGraph

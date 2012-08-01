@@ -244,13 +244,13 @@ void pyDenseParVecObj2::__setitem__(int64_t key, Obj2 * value)
 /*
 void pyDenseParVecObj2::__setitem__(const pySpParVec& key, const pySpParVecObj2& value)
 {
-	//v.Apply(pcb_set<Obj2>(Obj2()), key.v);
+	//v.Apply(::set<Obj2>(Obj2()), key.v);
 	//v += value.v;
 }*/
 
 void pyDenseParVecObj2::__setitem__(const pySpParVec& key, Obj2 * value)
 {
-	v.Apply(pcb_set<Obj2>(*value), key.v);
+	v.Apply(::set<Obj2>(*value), key.v);
 }
 
 /*
