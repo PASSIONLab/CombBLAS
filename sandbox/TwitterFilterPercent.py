@@ -7,6 +7,8 @@ import kdt
 import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
 
+kdt.PDO_enable(False)
+
 #parse arguments
 if (len(sys.argv) < 2):
 	kdt.p("Usage: python %s twittergraph.mtx [1]"%(sys.argv[0]))

@@ -320,7 +320,7 @@ void finalize()
 }
 
 void _broadcast(char *outMsg, char* inMsg) {
-	const unsigned int MaxMsgLen = 1024;
+	const int MaxMsgLen = 1024;
 
 	bool isRoot = root();
 	if(isRoot) {

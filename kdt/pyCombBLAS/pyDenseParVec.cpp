@@ -233,13 +233,13 @@ void pyDenseParVec::__setitem__(double  key, double value)
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, const pySpParVec& value)
 {
-	v.Apply(pcb_set<doubleint>(doubleint(0)), key.v);
+	v.Apply(::set<doubleint>(doubleint(0)), key.v);
 	v += value.v;
 }
 
 void pyDenseParVec::__setitem__(const pySpParVec& key, double value)
 {
-	v.Apply(pcb_set<doubleint>(doubleint(value)), key.v);
+	v.Apply(::set<doubleint>(value), key.v);
 }
 
 
