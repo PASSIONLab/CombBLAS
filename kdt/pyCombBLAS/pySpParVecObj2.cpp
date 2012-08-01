@@ -297,7 +297,7 @@ void pySpParVecObj2::__setitem__(const char* key, const Obj2* value)
 {
 	if (strcmp(key, "existent") == 0)
 	{
-		v.Apply(::set<Obj2>(*value));
+		v.Apply(::myset<Obj2>(*value));
 	}
 	else
 	{

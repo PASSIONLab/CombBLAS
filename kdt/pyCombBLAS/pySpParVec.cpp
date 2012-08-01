@@ -295,7 +295,7 @@ void pySpParVec::__setitem__(const char* key, double value)
 {
 	if (strcmp(key, "existent") == 0)
 	{
-		v.Apply(::set<doubleint>(doubleint(value)));
+		v.Apply(::myset<doubleint>(doubleint(value)));
 	}
 	else
 	{
