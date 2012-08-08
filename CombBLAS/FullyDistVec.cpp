@@ -553,7 +553,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	{
 		if(glen != other.glen)
 		{
-			cerr << "Vector dimensions don't match for EWiseApply\n";
+			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
 			MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		}
 		else
@@ -584,7 +584,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 	{
 		if(glen != other.glen)
 		{
-			cerr << "Vector dimensions don't match for EWiseApply\n";
+			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
 			MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		}
 		else
@@ -735,11 +735,11 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	int * sendcnt = new int[nprocs];
 	int * sdispls = new int[nprocs];
 	for(int i=0; i<nprocs; ++i)
-		sendcnt[i] = data_req[i].size();
+		sendcnt[i] = (int) data_req[i].size();
 
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
-	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	World.Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT);	// share the request counts 
 
 	sdispls[0] = 0;
 	rdispls[0] = 0;
