@@ -385,8 +385,8 @@ template <typename _Predicate>
 FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 {
 	FullyDistSpVec<IT,NT> found(commGrid);
-	IT size = arr.size();
-	for(IT i=0; i<size; ++i)
+	size_t size = arr.size();
+	for(size_t i=0; i<size; ++i)
 	{
 		if(pred(arr[i]))
 		{
