@@ -820,3 +820,85 @@ DiGraph._cluster_agglomerative = _cluster_agglomerative
 def _findClusterModularity(self, C):
 	return 3
 DiGraph._findClusterModularity = _findClusterModularity
+
+##############################
+# MIS
+
+def rand( verc ):
+	import random
+	if verc > 0:
+		return random.random()
+
+def remove(v1, v2):
+	return 0
+
+def add_to(v1, v2):
+	if v2 != 0:
+		return 1
+	else:
+		return v1
+
+def isMin(m, c):
+	if c < m:
+		return 1
+	else:
+		return 0
+
+def add(x,y): # replaced by Adam with min
+	if x<y:
+		return x
+	else:
+		return y
+
+def multiply(x,y): # replaced by Adam with select2nd
+	return x*y
+
+def select2nd(x, y):
+	return y
+
+def logOr(x,y):
+	return (x or y )
+
+def pruneZeros(v):
+	pruned = Vec(len(v), sparse=True)
+	pruned.eWiseApply(v, op=(lambda p, v: v), doOp=(lambda p, v: v != 0), allowANulls=True, inPlace=True)
+	return pruned
+
+def MIS(self):
+	graph = self
+	
+	Gmatrix = graph.e
+	#Gmatrix.spOnes() # removed by Adam
+	nver = graph.nvert();
+	S = Vec.zeros(nver, sparse=True)
+	C = Vec.ones(nver, sparse=True)
+	r = Vec.ones(nver, sparse=True)
+	neighbors_to_remove = Vec.ones(nver, sparse=True)
+	min_neighbor = Vec.ones(nver, sparse=True)
+	while(C.nnn()>0):
+		C.apply(rand)
+		#find the smallest neighbor for each vertex
+		min_neighbor = Gmatrix.SpMV(C, sr(min,select2nd)) # Erica had (add, multiply)
+		#check if v(c)<v(smallest neighbor)
+		min_neighbor.eWiseApply(C, isMin, allowANulls=True, inPlace=True)
+		min_neighbor = pruneZeros(min_neighbor)
+		#find neighbors of min_neighbor
+		neighbors_to_remove = Gmatrix.SpMV(min_neighbor, sr(logOr,select2nd)) # Erica had (logOr, multiply)
+		#remove min_neighbor forrm C
+		C.eWiseApply(min_neighbor, remove, allowANulls=True, inPlace=True)
+		C = pruneZeros(C)
+		#remove neighbors of min_neighbor from C
+		C.eWiseApply(neighbors_to_remove, remove, allowANulls=True, inPlace=True)
+		C = pruneZeros(C)
+		#add min_neighbor to S
+		S.eWiseApply(min_neighbor, add_to, allowANulls=True, inPlace=True)
+	
+	return S
+
+DiGraph.MIS = MIS
+
+
+
+
+
+
