@@ -53,54 +53,99 @@ template <class SR, class IT, class NUM, class IVT, class OVT>
 void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, const int32_t * indx, const IVT * numx, int32_t veclen,  
 			vector<int32_t> & indy, vector< OVT > & numy)
 {
-	HeapEntry<IT, NUM> * wset = new HeapEntry<IT, NUM>[veclen]; 
-
+	int32_t hsize = 0;		
 	// colinds dereferences A.ir (valid from colinds[].first to colinds[].second)
 	vector< pair<IT,IT> > colinds( (IT) veclen);		
 	Adcsc.FillColInds(indx, (IT) veclen, colinds, NULL, 0);	// csize is irrelevant if aux is NULL	
-	int32_t hsize = 0;		
-	for(IT j =0; j< veclen; ++j)		// create the initial heap 
-	{
-		if(colinds[j].first != colinds[j].second)	// current != end
-		{
-			// HeapEntry(key, run, num)
-			wset[hsize++] = HeapEntry< IT,NUM > ( Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);
-		} 
-	}	
-	make_heap(wset, wset+hsize);
 
-	while(hsize > 0)
+	if(sizeof(NUM) > sizeof(OVT))	// ABAB: include a filtering based runtime choice as well?
 	{
-		pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
-		IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
-		OVT mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);	// TODO: Check against identity
-		
-		if (!SR::returnedSAID())
+		HeapEntry<IT, OVT> * wset = new HeapEntry<IT, OVT>[veclen]; 
+
+		for(IT j =0; j< veclen; ++j)		// create the initial heap 
 		{
+			while(colinds[j].first != colinds[j].second )	// iterate until finding the first entry within this column that passes the filter
+			{
+				OVT mrhs = SR::multiply(Adcsc.numx[colinds[j].first], numx[j]);
+				if(SR::returnedSAID())
+				{
+					++(colinds[j].first);	// increment the active row index within the jth column
+				}
+				else
+				{
+					wset[hsize++] = HeapEntry< IT,OVT > ( Adcsc.ir[colinds[j].first], j, mrhs);
+					break;	// this column successfully inserted an entry to the heap
+				}
+			} 
+		}
+
+		make_heap(wset, wset+hsize);
+		while(hsize > 0)
+		{
+			pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
+			IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
+		
 			if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
 			{
-				numy.back() = SR::add(numy.back(), mrhs);
+				numy.back() = SR::add(numy.back(), wset[hsize-1].num);
 			}
 			else
 			{
 				indy.push_back( (int32_t) wset[hsize-1].key);
-				numy.push_back(mrhs);	
+				numy.push_back(wset[hsize-1].num);	
 			}
+			while ( (++(colinds[locv].first)) != colinds[locv].second)	// iterate until finding another passing entry
+			{
+				wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
+				wset[hsize-1].num = SR::multiply(Adcsc.numx[colinds[locv].first], numx[locv]);	// FIXME: Pushing SAID entries
+				push_heap(wset, wset+hsize);	// runr stays the same
+			}
+			//else		--hsize;
 		}
-
-		if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
-		{
-			// runr stays the same !
-			wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
-			wset[hsize-1].num = Adcsc.numx[colinds[locv].first];  
-			push_heap(wset, wset+hsize);
-		}
-		else
-		{
-			--hsize;
-		}
+		delete [] wset;
 	}
-	delete [] wset;
+	
+	else
+	{
+		HeapEntry<IT, NUM> * wset = new HeapEntry<IT, NUM>[veclen]; 
+		for(IT j =0; j< veclen; ++j)		// create the initial heap 
+		{
+			if(colinds[j].first != colinds[j].second)	// current != end
+			{
+				wset[hsize++] = HeapEntry< IT,NUM > ( Adcsc.ir[colinds[j].first], j, Adcsc.numx[colinds[j].first]);  // HeapEntry(key, run, num)
+			} 
+		}	
+		make_heap(wset, wset+hsize);
+		while(hsize > 0)
+		{
+			pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
+			IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
+			OVT mrhs = SR::multiply(wset[hsize-1].num, numx[locv]);	
+		
+			if (!SR::returnedSAID())
+			{
+				if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
+				{
+					numy.back() = SR::add(numy.back(), mrhs);
+				}
+				else
+				{
+					indy.push_back( (int32_t) wset[hsize-1].key);
+					numy.push_back(mrhs);	
+				}
+			}
+
+			if( (++(colinds[locv].first)) != colinds[locv].second)	// current != end
+			{
+				// runr stays the same !
+				wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
+				wset[hsize-1].num = Adcsc.numx[colinds[locv].first];  
+				push_heap(wset, wset+hsize);
+			}
+			else		--hsize;
+		}
+		delete [] wset;
+	}
 }
 
 

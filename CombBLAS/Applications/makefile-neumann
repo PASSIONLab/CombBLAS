@@ -11,6 +11,7 @@ COMBBLAS = ..
 TAUROOTDIR = $(HOME)/tau-install
 #include $(TAUROOTDIR)/include/Makefile
 INCADD = $(TAU_INCLUDE)
+WARN = -Wconversion 
 
 FLAGS = $(OPT) -DCOMBBLAS_TR1 -DTIMING #-DTHREADED -fopenmp -DTIMING #-w -openmp #-DTIMING
 

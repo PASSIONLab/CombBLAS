@@ -674,18 +674,18 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	}
 	else
 	{
-		/*		ofstream oput;
+				ofstream oput;
 		 x.commGrid->OpenDebugFile("Send", oput);
 		 oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
 		 oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
 		 for(int i=0; i< rowneighs; ++i)
 		 {
 		 oput << "To neighbor: " << i << endl; 
-		 copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<IU>(oput, " ")); oput << endl;
-		 copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<T_promote>(oput, " ")); oput << endl;
+		 copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<int32_t>(oput, " ")); oput << endl;
+		 copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<OVT>(oput, " ")); oput << endl;
 		 }
 		 oput.close(); 
-		 */
+		 
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
 		DeleteAll(sendindbuf, sendnumbuf);
@@ -1189,9 +1189,11 @@ FullyDistSpVec<IU,RET> EWiseApply
 	{
 		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
 		FullyDistVec< IU, NU1> DV (V);
-		if(V.glen != W.glen)
+		if(V.TotalLength() != W.TotalLength())
 		{
-			cerr << "Vector dimensions don't match for EWiseApply\n";
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << V.TotalLength() << " vs " << W.TotalLength() << ") for EWiseApply (short version)\n";
+			SpParHelper::Print(outs.str());
 			MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		}
 		else
@@ -1278,7 +1280,9 @@ FullyDistSpVec<IU,RET> EWiseApply
 		FullyDistSpVec< IU, T_promote> Product(V.commGrid);
 		if(V.glen != W.glen)
 		{
-			cerr << "Vector dimensions don't match for EWiseApply\n";
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << V.glen << " vs " << W.glen << ") for EWiseApply (full version)\n";
+			SpParHelper::Print(outs.str());
 			MPI::COMM_WORLD.Abort(DIMMISMATCH);
 		}
 		else

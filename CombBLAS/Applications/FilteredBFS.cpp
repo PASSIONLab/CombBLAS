@@ -34,7 +34,7 @@ int cblas_splits = 1;
 #define ITERS 16 
 #define CC_LIMIT 100
 #define PERMUTEFORBALANCE
-#define PERCENTS 0
+#define PERCENTS 4
 #define UNDIRECTED
 //#define ONLYTIME
 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 			
 			MTRand M;
 			A.Apply(Twitter_obj_randomizer());
-			MAXTRIALS = 4;	// benchmarking
+			MAXTRIALS = PERCENTS;	// benchmarking
 		}
 		else 
 		{	
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 		
 		FullyDistVec<int64_t, int64_t> indegrees_arr[4];	
 		FullyDistVec<int64_t, int64_t> oudegrees_arr[4];	
-		int64_t keep[4] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
+		int64_t keep[PERCENTS] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
 		
 		if(string(argv[1]) == string("Gen"))
 		{
@@ -304,21 +304,19 @@ int main(int argc, char* argv[])
 				fringe.SetElement(Cands[i], Cands[i]);
 				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
-				parents.PrintInfo("Parents");
-				fringe.PrintInfo("Fringe");
-				indegrees.PrintInfo("indegrees");
 				while(fringe.getnnz() > 0)
 				{
 					fringe.ApplyInd(NumSetter);
 
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-
+					
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
 					parents += fringe;
 					iterations++;
+					
 				}
 				MPI::COMM_WORLD.Barrier();
 				double t2 = MPI_Wtime();
@@ -372,7 +370,7 @@ int main(int argc, char* argv[])
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 
 					TIMES[sruns] = t2-t1;
-					EDGES[sruns] = ou_nedges;
+					EDGES[sruns] = static_cast<double>(ou_nedges);
 					MTEPS[sruns] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
 					MPEPS[sruns++] = static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0;
 					SpParHelper::Print(outnew.str());
@@ -407,6 +405,7 @@ int main(int argc, char* argv[])
 			os << "--------------------------" << endl;
 	
 			sort(TIMES,TIMES+sruns);
+			os << "Filter keeps " << static_cast<double>(keep[trials])/100.0 << " percentage of edges" << endl;
 			os << "Min time: " << TIMES[0] << " seconds" << endl;
 			os << "Median time: " << (TIMES[(sruns/2)-1] + TIMES[sruns/2])/2 << " seconds" << endl;
 			os << "Max time: " << TIMES[sruns-1] << " seconds" << endl;
