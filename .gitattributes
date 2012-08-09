@@ -2217,6 +2217,7 @@ kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
 /python-mpi -text
 sandbox/Graph500_HyGraph.py -text
+sandbox/MIStest.py -text
 sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
 sandbox/TwitterFilterPercent-sejits.py -text
