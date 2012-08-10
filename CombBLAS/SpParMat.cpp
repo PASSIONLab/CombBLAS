@@ -747,13 +747,13 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::SubsRef_SR (const FullyDistVec<IT,IT> &
 	if(&ri == &ci)	// Symmetric permutation
 	{
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
-		#ifdef DEBUG
+		#ifdef SPREFDEBUG
 		SpParHelper::Print("Symmetric permutation\n");
 		#endif
 		SpParMat<IT,bool,DER_IT> P (PSeq, commGrid);
 		if(inplace) 
 		{
-			#ifdef DEBUG	
+			#ifdef SPREFDEBUG	
 			SpParHelper::Print("In place multiplication\n");
 			#endif
         		*this = Mult_AnXBn_DoubleBuff<PTBOOLNT, NT, DER>(P, *this, false, true);	// clear the memory of *this
@@ -1907,7 +1907,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 			if(seeklength > 0 && pario)   // sqrt(p) processors also do parallel binary i/o
 			{
 				IT entriestoread =  total_nnz / colneighs;
-				#ifdef DEBUG
+				#ifdef IODEBUG
 				ofstream oput;
 				commGrid->OpenDebugFile("Read", oput);
 				oput << "Total nnz: " << total_nnz << " entries to read: " << entriestoread << endl;
@@ -2034,7 +2034,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 				entriestoread = total_nnz - static_cast<IT>(myrankincol) * perreader;
 			fseek(binfile, read_offset, SEEK_SET);
 
-			#ifdef DEBUG
+			#ifdef IODEBUG
 			ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "Total nnz: " << total_nnz << " OFFSET : " << read_offset << " entries to read: " << entriestoread << endl;
@@ -2228,7 +2228,7 @@ void SpParMat<IT,NT,DER>::ReadAllMine(FILE * binfile, IT * & rows, IT * & cols, 
 		++ (ccurptrs[colrec]);	
 		if(ccurptrs[colrec] == buffpercolneigh || (cnz == (entriestoread-1)) )		// one buffer is full, or this processor's share is done !
 		{			
-			#ifdef DEBUG
+			#ifdef IODEBUG
 			ofstream oput;
 			commGrid->OpenDebugFile("Read", oput);
 			oput << "To column neighbors: ";
@@ -2301,7 +2301,7 @@ void SpParMat<IT,NT,DER>::HorizontalSend(IT * & rows, IT * & cols, NT * & vals, 
 		++ (rcurptrs[rowrec]);	
 	}
 
-	#ifdef DEBUG
+	#ifdef IODEBUG
 	ofstream oput;
 	commGrid->OpenDebugFile("Read", oput);
 	oput << "To row neighbors: ";
