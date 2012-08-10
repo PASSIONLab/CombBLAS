@@ -34,8 +34,9 @@ int cblas_splits = 1;
 #define ITERS 16 
 #define CC_LIMIT 100
 #define PERMUTEFORBALANCE
-#define PERCENTS 4
+#define PERCENTS 4  // testing with 4 different percentiles
 #define UNDIRECTED
+#define MINRUNS 4
 //#define ONLYTIME
 
 using namespace std;
@@ -376,7 +377,7 @@ int main(int argc, char* argv[])
 					SpParHelper::Print(outnew.str());
 				}
 			}
-			if (sruns < 2)
+			if (sruns < MINRUNS)
 			{
 				SpParHelper::Print("Not enough valid runs done\n");
 				MPI::Finalize();
