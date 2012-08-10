@@ -57,12 +57,17 @@
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors
 #define MEM_EFFICIENT_STAGES 16
 
+// MPI::Abort codes
 #define GRIDMISMATCH 3001
 #define DIMMISMATCH 3002
 #define NOTSQUARE 3003
 #define NOFILE 3004
 #define MATRIXALIAS 3005
 #define UNKNOWNMPITYPE 3006
+
+// Enable bebug prints
+//#define SPREFDEBUG
+//#define IODEBUG
 
 // MPI Message tags 
 // Prefixes denote functions

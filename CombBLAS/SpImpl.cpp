@@ -94,13 +94,20 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 				indy.push_back( (int32_t) wset[hsize-1].key);
 				numy.push_back(wset[hsize-1].num);	
 			}
-			while ( (++(colinds[locv].first)) != colinds[locv].second)	// iterate until finding another passing entry
+			bool pushed = false;
+			// invariant: if ++(colinds[locv].first) == colinds[locv].second, then locv will not appear again in the heap
+			while ( (++(colinds[locv].first)) != colinds[locv].second )	// iterate until finding another passing entry
 			{
-				wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
-				wset[hsize-1].num = SR::multiply(Adcsc.numx[colinds[locv].first], numx[locv]);	// FIXME: Pushing SAID entries
-				push_heap(wset, wset+hsize);	// runr stays the same
+				OVT mrhs =  SR::multiply(Adcsc.numx[colinds[locv].first], numx[locv]);
+				if(!SR::returnedSAID())
+                                {
+					wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
+					wset[hsize-1].num = mrhs;
+					push_heap(wset, wset+hsize);	// runr stays the same
+					break;
+				}
 			}
-			//else		--hsize;
+			if(!pushed)	--hsize;
 		}
 		delete [] wset;
 	}
