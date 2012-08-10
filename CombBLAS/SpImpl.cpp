@@ -61,7 +61,6 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 	if(sizeof(NUM) > sizeof(OVT))	// ABAB: include a filtering based runtime choice as well?
 	{
 		HeapEntry<IT, OVT> * wset = new HeapEntry<IT, OVT>[veclen]; 
-
 		for(IT j =0; j< veclen; ++j)		// create the initial heap 
 		{
 			while(colinds[j].first != colinds[j].second )	// iterate until finding the first entry within this column that passes the filter
@@ -78,13 +77,11 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 				}
 			} 
 		}
-
 		make_heap(wset, wset+hsize);
 		while(hsize > 0)
 		{
 			pop_heap(wset, wset + hsize);         	// result is stored in wset[hsize-1]
 			IT locv = wset[hsize-1].runr;		// relative location of the nonzero in sparse column vector 
-		
 			if((!indy.empty()) && indy.back() == wset[hsize-1].key)	
 			{
 				numy.back() = SR::add(numy.back(), wset[hsize-1].num);
@@ -104,6 +101,7 @@ void SpImpl<SR,IT,NUM,IVT,OVT>::SpMXSpV(const Dcsc<IT,NUM> & Adcsc, int32_t mA, 
 					wset[hsize-1].key = Adcsc.ir[colinds[locv].first];
 					wset[hsize-1].num = mrhs;
 					push_heap(wset, wset+hsize);	// runr stays the same
+					pushed = true;
 					break;
 				}
 			}

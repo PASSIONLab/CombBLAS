@@ -674,7 +674,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	}
 	else
 	{
-				ofstream oput;
+		 /*		ofstream oput;
 		 x.commGrid->OpenDebugFile("Send", oput);
 		 oput << "To displacements: "; copy(sdispls, sdispls+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
 		 oput << "To counts: "; copy(sendcnt, sendcnt+rowneighs, ostream_iterator<int>(oput, " ")); oput << endl;
@@ -684,7 +684,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 		 copy(sendindbuf+sdispls[i], sendindbuf+sdispls[i]+sendcnt[i], ostream_iterator<int32_t>(oput, " ")); oput << endl;
 		 copy(sendnumbuf+sdispls[i], sendnumbuf+sdispls[i]+sendcnt[i], ostream_iterator<OVT>(oput, " ")); oput << endl;
 		 }
-		 oput.close(); 
+		 oput.close(); */
 		 
 		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
 		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
