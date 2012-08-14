@@ -2220,6 +2220,7 @@ sandbox/Graph500_HyGraph.py -text
 sandbox/MIStest.py -text
 sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
+sandbox/TwitterFilterPercent-combined.py -text
 sandbox/TwitterFilterPercent-sejits.py -text
 sandbox/TwitterFilterPercent.py -text
 sandbox/filter_debug.txt -text
