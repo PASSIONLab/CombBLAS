@@ -846,6 +846,13 @@ def _MIS_select2nd(x, y):
 
 
 def MIS(self):
+	"""
+	find the Maximal Independent Set of an undirected graph.
+
+	Output Arguments:
+		ret: a sparse Vec of length equal to the number of vertices where
+		     ret[i] exists and is 1 if i is part of the MIS.
+	"""
 	graph = self
 	
 	Gmatrix = graph.e
