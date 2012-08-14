@@ -843,7 +843,7 @@ def MIS(self):
 		if verc > 0:
 			return random.random()
 	
-	def binRet1(x, y):
+	def return1(x, y):
 		return 1
 	
 	def is2ndSmaller(m, c):
@@ -879,19 +879,19 @@ def MIS(self):
 		# The vertices to be added to S this iteration are those whose random value is
 		# smaller than those of all its neighbors:
 		# new_S_members[i] exists if C[i] < min_neighbor_r[i]
-		new_S_members = min_neighbor_r.eWiseApply(C, binRet1, doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
+		new_S_members = min_neighbor_r.eWiseApply(C, return1, doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
 
 		# new_S_members are no longer candidates, so remove them from C
-		C.eWiseApply(new_S_members, binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+		C.eWiseApply(new_S_members, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
 		# find neighbors of new_S_members
 		new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(select2nd,select2nd))
 
 		# remove neighbors of new_S_members from C, because they cannot be part of the MIS anymore
-		C.eWiseApply(new_S_neighbors, binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+		C.eWiseApply(new_S_neighbors, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
 		# add new_S_members to S
-		S.eWiseApply(new_S_members, binRet1, allowANulls=True, allowBNulls=True, inPlace=True)
+		S.eWiseApply(new_S_members, return1, allowANulls=True, allowBNulls=True, inPlace=True)
 		
 	return S
 
