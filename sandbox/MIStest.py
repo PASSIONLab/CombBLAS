@@ -1,6 +1,25 @@
 import kdt
 import time
 import math
+import sys
+
+if (len(sys.argv) < 2):
+	kdt.p("Usage: python %s scale [1]"%(sys.argv[0]))
+	kdt.p("The 1st argument is the scale for RMAT generation. THIS IS NOT THE GRAPH 500 RMAT")
+	kdt.p("The 2nd argument determines which matrices to do: 1=RMAT, 2=Torus")
+	kdt.p("Examples:")
+	kdt.p("python %s 16 1"%(sys.argv[0]))
+	kdt.p("python %s 14 3"%(sys.argv[0]))
+	sys.exit()
+
+scale = int(sys.argv[1])
+
+whatToDoArg = 1
+if (len(sys.argv) >= 3):
+	whatToDoArg = int(sys.argv[2])
+
+doRMAT = bool(whatToDoArg & 1)
+doTorus = bool(whatToDoArg & 2)
 
 def printGraphStats(G):
 	kdt.p("")
@@ -39,30 +58,29 @@ def verifyMIS(G, MIS):
 	else:
 		return "VERIFICATION FAILED"
 
-scale = 12
-
 ## RMAT
-GRmat = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], delIsolated=False)
-
-printGraphStats(GRmat)
-
-start = time.time()
-S = GRmat.MIS()
-finish = time.time()
-
-verifyString = verifyMIS(GRmat, S)
-kdt.p("MIS time (sec) RMAT scale\t%d\t(%d verts, %d edges) on \t%d\t procs:\t%f\t%s"%(scale, GRmat.nvert(), GRmat.nedge(), kdt._nproc(), (finish-start), verifyString))
+if doRMAT:
+	GRmat = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], delIsolated=False)
+	
+	printGraphStats(GRmat)
+	
+	start = time.time()
+	S = GRmat.MIS()
+	finish = time.time()
+	
+	verifyString = verifyMIS(GRmat, S)
+	kdt.p("MIS time (sec) RMAT scale\t%d\t(%d verts, %d edges) on \t%d\t procs:\t%f\t%s"%(scale, GRmat.nvert(), GRmat.nedge(), kdt._nproc(), (finish-start), verifyString))
 
 
 ## torus
-
-torusDim = int(math.sqrt(2**scale)) # match scale of RMAT
-Gtorus = kdt.DiGraph.generate2DTorus(torusDim)
-printGraphStats(Gtorus)
-
-start = time.time()
-S = Gtorus.MIS()
-finish = time.time()
-verifyString = verifyMIS(Gtorus, S)
-kdt.p("MIS time (sec) Torus scale\t%d\t(Torus dim %d, %d verts, %d edges) on \t%d\t procs:\t%f\t%s"%(scale, torusDim, Gtorus.nvert(), Gtorus.nedge(), kdt._nproc(), (finish-start), verifyString))
+if doTorus:
+	torusDim = int(math.sqrt(2**scale)) # match scale of RMAT
+	Gtorus = kdt.DiGraph.generate2DTorus(torusDim)
+	printGraphStats(Gtorus)
+	
+	start = time.time()
+	S = Gtorus.MIS()
+	finish = time.time()
+	verifyString = verifyMIS(Gtorus, S)
+	kdt.p("MIS time (sec) Torus scale\t%d\t(Torus dim %d, %d verts, %d edges) on \t%d\t procs:\t%f\t%s"%(scale, torusDim, Gtorus.nvert(), Gtorus.nedge(), kdt._nproc(), (finish-start), verifyString))
 
