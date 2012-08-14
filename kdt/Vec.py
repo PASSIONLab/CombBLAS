@@ -762,7 +762,7 @@ class Vec(object):
 ################################
 
 	
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False, allowIntersect=True):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, predicate=False, allowIntersect=True, ANull=None, BNull=None):
 		"""
 		applies a binary operation to corresponding elements of two vectors.
 		The operation may be optionally performed in-place.
@@ -837,8 +837,10 @@ class Vec(object):
 		doOp = _op_make_binary_pred(doOp, self, other)
 		selfFilter = _op_make_unary_pred(FilterHelper.getFilterPred(self), self)
 		otherFilter = _op_make_unary_pred(FilterHelper.getFilterPred(other), other)
-		ANull = _coerceToInternal(self._identity_, self._getStorageType())
-		BNull = _coerceToInternal(other._identity_, other._getStorageType())
+		if ANull is None:
+			ANull = _coerceToInternal(self._identity_, self._getStorageType())
+		if BNull is None:
+			BNull = _coerceToInternal(other._identity_, other._getStorageType())
 
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.

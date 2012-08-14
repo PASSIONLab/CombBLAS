@@ -16,7 +16,7 @@ def verifyMIS(G, MIS):
 		return 1
 		
 	invMIS = G.e.SpMV(MIS, semiring=kdt.sr(add, traverse), inPlace=False)
-	
+		
 	# sanity check
 	if (invMIS.nnn() + MIS.nnn() != G.nvert()):
 		kdt.p("size of MIS does not match: MIS size=%d, inverse size=%d, (sum=%d, should be number of verts=%d)"%(MIS.nnn(), invMIS.nnn(), (invMIS.nnn() + MIS.nnn()), G.nvert()))
@@ -27,10 +27,16 @@ def verifyMIS(G, MIS):
 		print invMIS.dense()
 		ok = False
 	
+	# make sure there is no overlap
+	overlap_set = invMIS.eWiseApply(MIS, op=(lambda x,y: 1), allowANulls=False, allowBNulls=False, allowIntersect=True, inPlace=False)
+	if (overlap_set.nnn() != 0):
+		kdt.p("MIS and invMIS overlap at %d places!"%(overlap_set.nnn()))
+		ok=False
+	
 	if ok:
 		kdt.p("verification succeeded")
 
-GRmat = kdt.DiGraph.generateRMAT(4, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], delIsolated=False)
+GRmat = kdt.DiGraph.generateRMAT(14, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], delIsolated=False)
 
 printGraphStats(GRmat)
 
