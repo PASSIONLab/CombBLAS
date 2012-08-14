@@ -824,28 +824,6 @@ DiGraph._findClusterModularity = _findClusterModularity
 ##############################
 # Maximal Independent Set
 
-# callbacks used by MIS
-def _MIS_rand( verc ):
-	import random
-	if verc > 0:
-		return random.random()
-
-def _MIS_binRet1(x, y):
-	return 1
-
-def _MIS_is2ndSmaller(m, c):
-	return (c < m)
-
-def _MIS_myMin(x,y):
-	if x<y:
-		return x
-	else:
-		return y
-
-def _MIS_select2nd(x, y):
-	return y
-
-
 def MIS(self):
 	"""
 	find the Maximal Independent Set of an undirected graph.
@@ -859,6 +837,28 @@ def MIS(self):
 	Gmatrix = graph.e
 	nvert = graph.nvert();
 	
+	# callbacks used by MIS
+	def rand( verc ):
+		import random
+		if verc > 0:
+			return random.random()
+	
+	def binRet1(x, y):
+		return 1
+	
+	def is2ndSmaller(m, c):
+		return (c < m)
+	
+	def myMin(x,y):
+		if x<y:
+			return x
+		else:
+			return y
+	
+	def select2nd(x, y):
+		return y
+
+
 	# the final result set. S[i] exists and is 1 if vertex i is in the MIS
 	S = Vec(nvert, sparse=True)
 	
@@ -869,29 +869,29 @@ def MIS(self):
 		
 	while (C.nnn()>0):
 		# label each vertex in C with a random value
-		C.apply(_MIS_rand)
+		C.apply(rand)
 		
 		# find the smallest random value among a vertex's neighbors
 		# In other words:
 		# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
-		min_neighbor_r = Gmatrix.SpMV(C, sr(_MIS_myMin,_MIS_select2nd)) # could use "min" directly
+		min_neighbor_r = Gmatrix.SpMV(C, sr(myMin,select2nd)) # could use "min" directly
 
 		# The vertices to be added to S this iteration are those whose random value is
 		# smaller than those of all its neighbors:
 		# new_S_members[i] exists if C[i] < min_neighbor_r[i]
-		new_S_members = min_neighbor_r.eWiseApply(C, _MIS_binRet1, doOp=_MIS_is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
+		new_S_members = min_neighbor_r.eWiseApply(C, binRet1, doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
 
 		# new_S_members are no longer candidates, so remove them from C
-		C.eWiseApply(new_S_members, _MIS_binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+		C.eWiseApply(new_S_members, binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
 		# find neighbors of new_S_members
-		new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(_MIS_select2nd,_MIS_select2nd))
+		new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(select2nd,select2nd))
 
 		# remove neighbors of new_S_members from C, because they cannot be part of the MIS anymore
-		C.eWiseApply(new_S_neighbors, _MIS_binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+		C.eWiseApply(new_S_neighbors, binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
 		# add new_S_members to S
-		S.eWiseApply(new_S_members, _MIS_binRet1, allowANulls=True, allowBNulls=True, inPlace=True)
+		S.eWiseApply(new_S_members, binRet1, allowANulls=True, allowBNulls=True, inPlace=True)
 		
 	return S
 
