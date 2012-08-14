@@ -824,6 +824,7 @@ DiGraph._findClusterModularity = _findClusterModularity
 ##############################
 # Maximal Independent Set
 
+# callbacks used by MIS
 def _MIS_rand( verc ):
 	import random
 	if verc > 0:
@@ -866,7 +867,7 @@ def MIS(self):
 	# i.e. if C[i] exists, then i is a candidate. The value C[i] is i's r for this iteration.
 	C = Vec.ones(nvert, sparse=True)
 		
-	while(C.nnn()>0):
+	while (C.nnn()>0):
 		# label each vertex in C with a random value
 		C.apply(_MIS_rand)
 		
@@ -896,8 +897,5 @@ def MIS(self):
 
 DiGraph.MIS = MIS
 
-
-
-
-
+##############################
 
