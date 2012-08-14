@@ -1,6 +1,6 @@
 INCDIR = $(HOME)
 #INCADD = -I$(INCDIR) -I/usr/include/python2.4
-INCADD = -I$(INCDIR) -I/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7/
+INCADD = -I$(INCDIR) -I/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
 COMBBLAS = ../../CombBLAS
 
 # notes for configure:
