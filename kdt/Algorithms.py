@@ -822,282 +822,69 @@ def _findClusterModularity(self, C):
 DiGraph._findClusterModularity = _findClusterModularity
 
 ##############################
-# MIS
+# Maximal Independent Set
 
-def rand( verc ):
+def _MIS_rand( verc ):
 	import random
 	if verc > 0:
 		return random.random()
 
-def remove(v1, v2):
+def _MIS_binRet1(x, y):
 	return 1
 
-def add_to(v1, v2):
-	return 1
-	#if v2 != 0:
-	#	return 1
-	#else:
-	#	return v1
-
-def is2ndSmaller(m, c):
+def _MIS_is2ndSmaller(m, c):
 	return (c < m)
 
-def myMin(x,y): # Erica called this add
+def _MIS_myMin(x,y):
 	if x<y:
 		return x
 	else:
 		return y
 
-def multiply(x,y): # replaced by Adam with select2nd
-	return x*y
-
-def select2nd(x, y):
+def _MIS_select2nd(x, y):
 	return y
 
-def logOr(x,y):
-	return (x or y )
-
-def pruneZeros(v):
-	pruned = Vec(len(v), sparse=True)
-	pruned.eWiseApply(v, op=(lambda p, v: v), doOp=(lambda p, v: v != 0), allowANulls=True, inPlace=True)
-	return pruned
-
-def MIS_erica(self):
-	graph = self
-	
-	#graph.addSelfLoops() # added by Adam
-	
-	Gmatrix = graph.e
-	Gmatrix.spOnes() # removed by Adam
-	nver = graph.nvert();
-	S = Vec.zeros(nver, sparse=True)
-	C = Vec.ones(nver, sparse=True)
-	#r = Vec.ones(nver, sparse=True) # Adam: not used
-	neighbors_to_remove = Vec.ones(nver, sparse=True)
-	min_neighbor = Vec.ones(nver, sparse=True)
-
-
-
-##########
-	import vis
-	def MISecho(vert, index, vals):
-		vert.set_color("#9999FF")
-		if vals[0]: # in S
-			vert.set_style("filled")
-		elif not vals[1]: # no longer in C, i.e. a neighbor of S
-			vert.set_color("grey")
-		vert.set_label("C="+str(vals[1])+"\nmin_n="+str(vals[2])+"\nNtR="+str(vals[3]))
-	
-	def labelEdgeWeights(edge, src, dest, val):
-		edge.set_label(str(val))
-			
-	dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-	layout = vis.DotLayout(dot)
-	layout.scale(3)
-	layout.set_to_dot(dot)
-	dot.write("MISiteration-0.png", prog=["neato", "-n"], format="png")
-
-	i = 1
-	# vectors: S, C, min_neighbor, neighbors_to_remove
-#######
-	while(C.nnn()>0):
-		# label each vertex in C with a random value
-		C.apply(rand)
-		
-		#find the smallest neighbor for each vertex
-		min_neighbor = Gmatrix.SpMV(C, sr(myMin,select2nd)) # Erica had (add, multiply)
-
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-1-send_mins.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#check if v(c)<v(smallest neighbor)
-		min_neighbor.eWiseApply(C, op=(lambda m, c: c), doOp=isMin, allowANulls=True, allowBNulls=False, inPlace=True)
-		# Erica's: min_neighbor.eWiseApply(C, isMin, allowANulls=True, allowBNulls=False, inPlace=True)
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-2-min_neighbor_is_min.png"%i, prog=["neato", "-n"], format="png")
-		############
-		min_neighbor = pruneZeros(min_neighbor)
-
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-3-set_min_neighbor.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#find neighbors of min_neighbor
-		neighbors_to_remove = Gmatrix.SpMV(min_neighbor, sr(logOr,select2nd)) # Erica had (logOr, multiply)
-
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-4-set_neighbors_to_remove.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#remove min_neighbor forrm C
-		C.eWiseApply(min_neighbor, remove, allowANulls=True, inPlace=True)
-		C = pruneZeros(C)
-
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-5-remove_min_neighbor_from_C.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#remove neighbors of min_neighbor from C
-		C.eWiseApply(neighbors_to_remove, remove, allowANulls=True, inPlace=True)
-		C = pruneZeros(C)
-
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-6-remove_neighbors_of_min_neighbor_from_C.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#add min_neighbor to S
-		S.eWiseApply(min_neighbor, add_to, allowANulls=True, inPlace=True)
-		
-		############
-		if True:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-7-update_S.png"%i, prog=["neato", "-n"], format="png")
-		############
-		############
-		i+=1
-	
-	print "finished in %d iterations"%(i-1)
-	return S
 
 def MIS(self):
 	graph = self
 	
-	#graph.addSelfLoops() # added by Adam
-	
 	Gmatrix = graph.e
-	Gmatrix.spOnes() # removed by Adam
-	nver = graph.nvert();
-	S = Vec.zeros(nver, sparse=True)
-	C = Vec.ones(nver, sparse=True)
-	#r = Vec.ones(nver, sparse=True) # Adam: not used
-	neighbors_to_remove = Vec.ones(nver, sparse=True)
-	min_neighbor = Vec.ones(nver, sparse=True)
-
-
-
-##########
-	drawme = False
-	if drawme:
-		import vis
-		def MISecho(vert, index, vals):
-			vert.set_color("#9999FF")
-			if vals[0]: # in S
-				vert.set_style("filled")
-			elif not vals[1]: # no longer in C, i.e. a neighbor of S
-				vert.set_color("grey")
-			vert.set_label("C="+str(vals[1])+"\nmin_n="+str(vals[2])+"\nNtR="+str(vals[3]))
+	nvert = graph.nvert();
+	
+	# the final result set. S[i] exists and is 1 if vertex i is in the MIS
+	S = Vec(nvert, sparse=True)
+	
+	# the candidate set. initially all vertices are candidates.
+	# this vector doubles as 'r', the random value vector.
+	# i.e. if C[i] exists, then i is a candidate. The value C[i] is i's r for this iteration.
+	C = Vec.ones(nvert, sparse=True)
 		
-		def labelEdgeWeights(edge, src, dest, val):
-			edge.set_label(str(val))
-				
-		dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), layout="neato", directed=False, vertexCallback=MISecho, edgeCallback=None)
-		layout = vis.DotLayout(dot)
-		layout.scale(3)
-		layout.set_to_dot(dot)
-		dot.write("MISiteration-0.png", prog=["neato", "-n"], format="png")
-
-	i = 1
-	# vectors: S, C, min_neighbor, neighbors_to_remove
-#######
 	while(C.nnn()>0):
 		# label each vertex in C with a random value
-		C.apply(rand)
+		C.apply(_MIS_rand)
 		
-		#find the smallest neighbor for each vertex
-		min_neighbor = Gmatrix.SpMV(C, sr(myMin,select2nd)) # Erica had (add, multiply)
+		# find the smallest random value among a vertex's neighbors
+		# In other words:
+		# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
+		min_neighbor_r = Gmatrix.SpMV(C, sr(_MIS_myMin,_MIS_select2nd)) # could use "min" directly
 
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-1-send_mins.png"%i, prog=["neato", "-n"], format="png")
-		############
+		# The vertices to be added to S this iteration are those whose random value is
+		# smaller than those of all its neighbors:
+		# new_S_members[i] exists if C[i] < min_neighbor_r[i]
+		new_S_members = min_neighbor_r.eWiseApply(C, _MIS_binRet1, doOp=_MIS_is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
 
-		#check if v(c)<v(smallest neighbor)
-		min_neighbor.eWiseApply(C, op=(lambda m, c: c), doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=True, ANull=2)
-		# TODO: WRITE ANULL DOCS AND PUT IT INTO MAT
-		# Erica's: min_neighbor.eWiseApply(C, isMin, allowANulls=True, allowBNulls=False, inPlace=True)
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-2-min_neighbor_is_min.png"%i, prog=["neato", "-n"], format="png")
-		############
-		# min_neighbor = pruneZeros(min_neighbor) # adam: unneeded
-		# existing elements of min_neighbor signify vertices to add to the new set
+		# new_S_members are no longer candidates, so remove them from C
+		C.eWiseApply(new_S_members, _MIS_binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-3-set_min_neighbor.png"%i, prog=["neato", "-n"], format="png")
-		############
+		# find neighbors of new_S_members
+		new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(_MIS_select2nd,_MIS_select2nd))
 
-		#find neighbors of min_neighbor
-		neighbors_to_remove = Gmatrix.SpMV(min_neighbor, sr(logOr,select2nd)) # Erica had (logOr, multiply)
+		# remove neighbors of new_S_members from C, because they cannot be part of the MIS anymore
+		C.eWiseApply(new_S_neighbors, _MIS_binRet1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-4-set_neighbors_to_remove.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#remove min_neighbor from C
-		C.eWiseApply(min_neighbor, remove, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
-		C = pruneZeros(C)
-
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-5-remove_min_neighbor_from_C.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#remove neighbors of min_neighbor from C
-		C.eWiseApply(neighbors_to_remove, remove, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
-		C = pruneZeros(C)
-
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-6-remove_neighbors_of_min_neighbor_from_C.png"%i, prog=["neato", "-n"], format="png")
-		############
-
-		#add min_neighbor to S
-		S.eWiseApply(min_neighbor, add_to, allowANulls=True, allowBNulls=True, inPlace=True)
+		# add new_S_members to S
+		S.eWiseApply(new_S_members, _MIS_binRet1, allowANulls=True, allowBNulls=True, inPlace=True)
 		
-		############
-		if drawme:
-			dot = vis.get_dot(graph, vertices=(S, C, min_neighbor, neighbors_to_remove), directed=False, vertexCallback=MISecho, edgeCallback=None)
-			layout.set_to_dot(dot)
-			dot.write("MISiteration-%d-7-update_S.png"%i, prog=["neato", "-n"], format="png")
-		############
-		############
-		i+=1
-	
-	print "finished in %d iterations"%(i-1)
 	return S
 
 DiGraph.MIS = MIS

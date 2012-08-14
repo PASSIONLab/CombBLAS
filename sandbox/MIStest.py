@@ -30,7 +30,7 @@ def verifyMIS(G, MIS):
 	# make sure there is no overlap
 	overlap_set = invMIS.eWiseApply(MIS, op=(lambda x,y: 1), allowANulls=False, allowBNulls=False, allowIntersect=True, inPlace=False)
 	if (overlap_set.nnn() != 0):
-		kdt.p("MIS and invMIS overlap at %d places!"%(overlap_set.nnn()))
+		kdt.p("MIS and invMIS overlap in %d vertices!"%(overlap_set.nnn()))
 		ok=False
 	
 	if ok:

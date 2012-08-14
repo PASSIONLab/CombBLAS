@@ -797,7 +797,7 @@ class Mat:
 		
 		return self.reduce(dir, (lambda x,y: x+y), uniOp=pred, init=0.0)
 
-	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False):
+	def eWiseApply(self, other, op, allowANulls=False, allowBNulls=False, doOp=None, inPlace=False, allowIntersect=True, predicate=False, ANull=None, BNull=None):
 		"""
 		applies a binary operation to corresponding elements of two matrices.
 		The operation may be optionally performed in-place.
@@ -831,6 +831,8 @@ class Mat:
 				the result in self or to create a new matrix.
 			allowIntersect:  indicates whether or not the operation should be
 			    performed if both self and copy have a value at a position.
+			ANull: Value to pass to op and doOp if allowANulls is True and self has a null element.
+			BNull: Value to pass to op and doOp if allowBNulls is True and other has a null element.
 			predicate:  Not Supported Yet
 
 		SEE ALSO: Vec.eWiseApply
@@ -846,11 +848,11 @@ class Mat:
 
 		if not self._eWiseIgnoreMaterializedFilter:
 			if self._hasMaterializedFilter() and not other._hasMaterializedFilter():
-				ret = self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+				ret = self._materialized.eWiseApply(other, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate, ANull, BNull)
 			elif not self._hasMaterializedFilter() and other._hasMaterializedFilter():
-				ret = self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+				ret = self.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate, ANull, BNull)
 			elif self._hasMaterializedFilter() and other._hasMaterializedFilter():
-				ret = self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate)
+				ret = self._materialized.eWiseApply(other._materialized, op, allowANulls, allowBNulls, doOp, inPlace, allowIntersect, predicate, ANull, BNull)
 			else:
 				ret = False
 			
@@ -860,9 +862,13 @@ class Mat:
 				return ret
 		# else:
 		#   ignoring materialized filters is used for copying data back from the materialized filter to the main Mat data structure
-
-		ANull = _coerceToInternal(self._identity_, self._getStorageType())
-		BNull = _coerceToInternal(other._identity_, self._getStorageType())
+		
+		if ANull is None:
+			ANull = self._identity_
+		if BNull is None:
+			BNull = other._identity_
+		ANull = _coerceToInternal(ANull, self._getStorageType())
+		BNull = _coerceToInternal(BNull, self._getStorageType())
 		
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op, self, other, self), _op_make_binary_pred(doOp, self, other), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self), self), _op_make_unary_pred(FilterHelper.getFilterPred(other), other))
