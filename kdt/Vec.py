@@ -796,6 +796,8 @@ class Vec(object):
 				the result in self or to create a new vector.
 			allowIntersect:  indicates whether or not the operation should be
 			    performed if both self and copy have a value at a position.
+			ANull: Value to pass to op and doOp if allowANulls is True and self has a null element.
+			BNull: Value to pass to op and doOp if allowBNulls is True and other has a null element.
 			predicate:  Not Supported Yet
 
 		SEE ALSO: Mat.eWiseApply
@@ -837,10 +839,13 @@ class Vec(object):
 		doOp = _op_make_binary_pred(doOp, self, other)
 		selfFilter = _op_make_unary_pred(FilterHelper.getFilterPred(self), self)
 		otherFilter = _op_make_unary_pred(FilterHelper.getFilterPred(other), other)
+		
 		if ANull is None:
-			ANull = _coerceToInternal(self._identity_, self._getStorageType())
+			ANull = self._identity_
 		if BNull is None:
-			BNull = _coerceToInternal(other._identity_, other._getStorageType())
+			BNull = other._identity_
+		ANull = _coerceToInternal(ANull, self._getStorageType())
+		BNull = _coerceToInternal(BNull, self._getStorageType())
 
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
