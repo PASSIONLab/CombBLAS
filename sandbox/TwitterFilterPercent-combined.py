@@ -6,18 +6,27 @@ import random
 import kdt
 import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
-from pcb_predicate import *
-from pcb_predicate_sm import *
+
+# Adam: these imports seem unneeded, because they're imported again when they're used.
+# commenting out so the script works on systems without SEJITS
+#from pcb_predicate import *
+#from pcb_predicate_sm import *
 
 kdt.PDO_enable(False)
 
 #parse arguments
 if (len(sys.argv) < 2):
-	kdt.p("Usage: python %s twittergraph.mtx [1]"%(sys.argv[0]))
+	kdt.p("Usage: python %s twittergraph.mtx [whatToDoArg1 whatToDoArg2 ...]"%(sys.argv[0]))
 	kdt.p("The 1st argument is either a datafile or an integer which is the scale for RMAT generation.")
-	kdt.p("The 2nd argument determines which runs to do: 1=Python OTF, 2=materializing filter, 4=SEJITS OTF. Add the numbers if you want to do multiple runs together.")
+	kdt.p("")
+	kdt.p("The next arguments specify what runs to do. Each argument specifies one run to do, and any number of runs are allowed. (default is cpo)")
+	kdt.p("Each argument is a string of 3 letters.")
+	kdt.p("The 1st letter specifies the semiring to use: p = pure Python, c = C++ (i.e. built-in), s = SEJITS (Python semiring run through SEJITS)")
+	kdt.p("The 2nd letter specifies the filter type: p = pure Python, s = SEJITS")
+	kdt.p("The 3rd letter specifes materialization: o = On-The-Fly, m = materialize")
+	kdt.p("")
 	kdt.p("Examples:")
-	kdt.p("python %s filter_debug.mtx 1"%(sys.argv[0]))
+	kdt.p("python %s filter_debug.mtx ppo cpo"%(sys.argv[0]))
 	kdt.p("python %s 14"%(sys.argv[0]))
 	sys.exit()
 
@@ -32,15 +41,10 @@ keep_starts = 16
 keep_min_edges = 100
 
 # figure out what to do
-whatToDoArg = 5 # Python OTF and SEJITS OTF
-
 if (len(sys.argv) >= 3):
-	whatToDoArg = int(sys.argv[2])
-
-doPythonOTF = bool(whatToDoArg & 1)
-doPythonMat = bool(whatToDoArg & 2)
-doSEJITSOTF = bool(whatToDoArg & 4)
-
+	whatToDoList = sys.argv[2:]
+else:
+	whatToDoList = ("cpo") # Python/Python OTF, C++/Python OTF
 
 # this function is used for generation.
 # obj is the object that needs to be filled in
@@ -125,7 +129,18 @@ kdt.p("Calculated in %fs."%(time.time()-before))
 
 sejits_filter = None
 
-def run(materialize, useSEJITS):
+class SemiringTypeToUse:
+	PYTHON = 0
+	CPP = 1
+	SEJITS = 2
+	
+	@staticmethod
+	def get_string(value):
+		return {SemiringTypeToUse.PYTHON: "PythonSR",
+		 SemiringTypeToUse.CPP: "C++SR",
+		 SemiringTypeToUse.SEJITS: "SejitsSR"}[value]
+ 
+def run(SR_to_use, use_SEJITS_Filter, materialize):
 	global G, nstarts, origDegrees, filterUpperValue, sejits_filter
 	runStarts = nstarts
 	filterPercent = filterUpperValue/100.0
@@ -159,7 +174,7 @@ def run(materialize, useSEJITS):
 	kdt.p("Generated in %fs."%(time.time()-before))
 
 	kdt.p("--Doing BFS")
-	if useSEJITS:
+	if use_SEJITS_Filter:
 		G.delEFilter(twitterEdgeFilter)
 		G.addEFilter(sejits_filter)
 	K2elapsed = [];
@@ -172,9 +187,20 @@ def run(materialize, useSEJITS):
 	for start in starts:
 		start = int(start)
 		
+		# figure out which Semiring to use
+		if SR_to_use == SemiringTypeToUse.PYTHON:
+			PythonSR = True
+			SEJITSSR = False
+		if SR_to_use == SemiringTypeToUse.CPP:
+			PythonSR = False
+			SEJITSSR = False
+		if SR_to_use == SemiringTypeToUse.SEJITS:
+			PythonSR = True
+			SEJITSSR = True
+		
 		before = time.time()
 		# the actual BFS
-		parents = G.bfsTree(start)
+		parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 		itertime = time.time() - before
 		
 		## // Aydin's code for finding number of edges:
@@ -230,28 +256,33 @@ def run(materialize, useSEJITS):
 	# print results summary
 	if kdt.master():
 		if materialize:
-			Mat = "(materialized)"
-			Mat_ = "Mat"
+			Mat = "Mat"
 		else:
-			Mat = "(on-the-fly)"
-			Mat_ = "OTF"
-		print "\nBFS execution times %s"%(Mat)
-		printstats(K2elapsed, "%stime\t%f\t"%(Mat_, filterPercent), False, True, True)
+			Mat = "OTF"
+		if use_SEJITS_Filter:
+			SF = "SejitsFilter"
+		else:
+			SF = "PythonFilter"
+		
+		labeling = SemiringTypeToUse.get_string(SR_to_use)+"_"+SF+"_"+Mat
+		
+		print "\nBFS execution times (%s)"%(labeling)
+		printstats(K2elapsed, "%stime\t%f\t"%(labeling, filterPercent), False, True, True)
 		
 		print "\nnumber of edges traversed %s"%(Mat)
-		printstats(K2edges, "%snedge\t%f\t"%(Mat_, filterPercent), False, True, True)
+		printstats(K2edges, "%snedge\t%f\t"%(labeling, filterPercent), False, True, True)
 		
-		print "\nTEPS %s"%(Mat)
-		printstats(K2TEPS, "%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+		print "\nTEPS (%s)"%(labeling)
+		printstats(K2TEPS, "%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
 
 		if not materialize:
-			print "\nTEPS including filtered edges %s"%(Mat)
-			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+			print "\nTEPS including filtered edges (%s)"%(labeling)
+			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
 		else:
-			print "\nTEPS including materialization time %s"%(Mat)
-			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS_\t%f\t"%(Mat_, filterPercent), True, True)
+			print "\nTEPS including materialization time (%)s"%(labeling)
+			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
 	
-	if useSEJITS:
+	if use_SEJITS_Filter:
 		G.delEFilter(sejits_filter)
 	else:
 		G.delEFilter(twitterEdgeFilter)
@@ -260,24 +291,46 @@ def run(materialize, useSEJITS):
 for p in (1, 10, 25, 100):
 	filterUpperValue = int(p*100)
 
-	from pcb_predicate import *
+	for whatToDo in whatToDoList:
+		# determine the semiring type to use
+		if whatToDo[0] == 'p':
+			SR_to_Use = SemiringTypeToUse.PYTHON
+		elif whatToDo[0] == 'c':
+			SR_to_Use = SemiringTypeToUse.CPP
+		elif whatToDo[0] == 's':
+			SR_to_Use = SemiringTypeToUse.SEJITS
+		else:
+			raise ValueError,"Invalid semiring specified in whatToDo %s"%whatToDo
+		
+		# determine the filter type to use
+		if whatToDo[1] == 'p':
+			use_SEJITS_Filter = False
+		elif whatToDo[1] == 's':
+			use_SEJITS_Filter = True
+		else:
+			raise ValueError,"Invalid filter type specified in whatToDo %s"%whatToDo
+		
+		# determine OTF or Materialize
+		if whatToDo[2] == 'o':
+			materialize = False
+		elif whatToDo[2] == 'm':
+			materialize = True
+		else:
+			raise ValueError,"Invalid materialization flag specified in whatToDo %s"%whatToDo
+		
+		if use_SEJITS_Filter: # put here so if the system doesn't have SEJITS it won't crash
+			from pcb_predicate import *
 	
-	class TwitterFilter(PcbUnaryPredicate):
-		def __init__(self, filterUpperValue):
-			self.filterUpperValue = filterUpperValue
-			super(TwitterFilter, self).__init__()
-		def __call__(self, e):
-			if (e.count > 0 and e.latest < self.filterUpperValue):
-					return True
-			else:
-					return False
-
-	sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
-
-
-	if doPythonOTF:
-		run(False, False)
-	if doPythonMat:
-		run(True, False)
-	if doSEJITSOTF:
-		run(False, True)
+			class TwitterFilter(PcbUnaryPredicate):
+				def __init__(self, filterUpperValue):
+					self.filterUpperValue = filterUpperValue
+					super(TwitterFilter, self).__init__()
+				def __call__(self, e):
+					if (e.count > 0 and e.latest < self.filterUpperValue):
+							return True
+					else:
+							return False
+		
+			sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
+		
+		run(SR_to_Use, use_SEJITS_Filter, materialize)
