@@ -21,7 +21,7 @@ import kdt.pyCombBLAS as pcb
 #
 # NEEDED: update to new EWiseApply
 # NEEDED: tests
-def bfsTree(self, root, useOldFunc=False):
+def bfsTree(self, root, useOldFunc=False, usePythonSemiring=False, SEJITS_Python_SR=False):
 	"""
 	calculates a breadth-first search tree by the edges of the
 	graph, starting from the root vertex. "Breadth-first"
@@ -49,8 +49,15 @@ def bfsTree(self, root, useOldFunc=False):
 	#mulFn = lambda x,y: y
 	#addFn = lambda x,y: y
 	#sR = sr(addFn, mulFn)
-	sR = sr_select2nd
-
+	if usePythonSemiring:
+		def f_select2nd(x, y):
+			return y
+		sR = sr(f_select2nd, f_select2nd)
+		if SEJITS_Python_SR:
+			raise NotImplementedError, "SEJITS Semiring not implemented yet"
+	else:
+		sR = sr_select2nd
+	
 	parents = Vec(self.nvert(), -1, sparse=False)
 	frontier = Vec(self.nvert(), sparse=True)
 	parents[root] = root
@@ -72,7 +79,8 @@ def bfsTree(self, root, useOldFunc=False):
 			# remove already discovered vertices from the frontier.
 			frontier.eWiseApply(parents, op=(lambda f,p: f), doOp=(lambda f,p: p == -1), inPlace=True)
 			# update the parents
-			parents[frontier] = frontier
+			#parents[frontier] = frontier
+			parents.eWiseApply(frontier, op=(lambda p, f: f), inPlace=True)
 
 	return parents
 DiGraph.bfsTree = bfsTree
