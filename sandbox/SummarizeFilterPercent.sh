@@ -3,34 +3,78 @@
 f=$1
 
 echo
-echo "OTF TEPS:"
-grep "harmonic_mean_OTF" $f
+echo "Python SR / Python Filter"
+echo
+grep "mean_PythonSR_PythonFilter_OTFtime" $f
+echo
+grep "min_PythonSR_PythonFilter_OTFtime" $f
+echo
+grep "max_PythonSR_PythonFilter_OTFtime" $f
+echo
+grep "stddev_PythonSR_PythonFilter_OTFtime" $f
 
 echo
-echo "OTF PEPS:"
-grep "harmonic_mean_IncFiltered" $f
+echo "C++ SR / Python filter"
+echo
+grep "mean_C++SR_PythonFilter_OTFtime" $f
+echo
+grep "min_C++SR_PythonFilter_OTFtime" $f
+echo
+grep "max_C++SR_PythonFilter_OTFtime" $f
+echo
+grep "stddev_C++SR_PythonFilter_OTFtime" $f
 
 echo
-echo "OTF mean iteration time"
-grep "mean_OTFtime" $f
+echo "C++ SR / SEJITS filter"
+echo
+grep "mean_C++SR_SejitsFilter_OTFtime" $f
+echo
+grep "min_C++SR_SejitsFilter_OTFtime" $f
+echo
+grep "max_C++SR_SejitsFilter_OTFtime" $f
+echo
+grep "stddev_C++SR_SejitsFilter_OTFtime" $f
+echo
 
 echo
-echo "Pure TEPS on materialized graph excl. materialization time"
-grep "harmonic_mean_Mat" $f
+echo "SEJITS SR / SEJITS filter"
+echo
+grep "mean_SejitsSR_SejitsFilter_OTFtime" $f
+echo
+grep "min_SejitsSR_SejitsFilter_OTFtime" $f
+echo
+grep "max_SejitsSR_SejitsFilter_OTFtime" $f
+echo
+grep "stddev_SejitsSR_SejitsFilter_OTFtime" $f
+echo
 
 echo
-echo "TEPS on materialized graph incl. materialization time"
-grep "harmonic_mean_PlusMatTime" $f
+echo "C++ SR / Python filter materialized"
+echo
+grep "mean_C++SR_PythonFilter_Mattime" $f
+echo
+grep "min_C++SR_PythonFilter_Mattime" $f
+echo
+grep "max_C++SR_PythonFilter_Mattime" $f
+echo
+grep "stddev_C++SR_PythonFilter_Mattime" $f
+echo
 
 echo
 echo "materialization time"
 grep "Materialized" $f
 
 echo
-echo "Materialized mean iteration time"
-grep "mean_Mattime" $f
+echo "SEJITS time"
+grep "Created SEJITS filter" $f
+echo 
+echo "TODO: Sejits SR create time"
 
 echo
 echo "Stats"
 grep "vertices and" $f
 grep "edges survived the filter" $f
+
+echo
+echo
+grep "Total runtime" $f
