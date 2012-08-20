@@ -14,6 +14,17 @@ echo
 grep "stddev_PythonSR_PythonFilter_OTFtime" $f
 
 echo
+echo "Python SR / SEJITS Filter"
+echo
+grep "mean_PythonSR_SejitsFilter_OTFtime" $f
+echo
+grep "min_PythonSR_SejitsFilter_OTFtime" $f
+echo
+grep "max_PythonSR_SejitsFilter_OTFtime" $f
+echo
+grep "stddev_PythonSR_SejitsFilter_OTFtime" $f
+
+echo
 echo "C++ SR / Python filter"
 echo
 grep "mean_C++SR_PythonFilter_OTFtime" $f
