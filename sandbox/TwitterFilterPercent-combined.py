@@ -320,6 +320,7 @@ for p in (1, 10, 25, 100):
 		else:
 			raise ValueError,"Invalid materialization flag specified in whatToDo %s"%whatToDo
 		
+		single_runtime_before = time.time()
 		if use_SEJITS_Filter: # put here so if the system doesn't have SEJITS it won't crash
 			from pcb_predicate import *
 	
@@ -337,9 +338,8 @@ for p in (1, 10, 25, 100):
 			sejits_filter_create_time = time.time()-before
 			kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(p, sejits_filter_create_time))
 
-		before = time.time()
 		run(SR_to_Use, use_SEJITS_Filter, materialize)
-		single_runtime = time.time() - before
+		single_runtime = time.time() - single_runtime_before
 		kdt.p("Total runtime for %s on %d%% is\t%f\ts."%(whatToDo, p, single_runtime))
 
 kdt.p("Total runtime for everything is %f"%(time.time()-time_very_beginning))
