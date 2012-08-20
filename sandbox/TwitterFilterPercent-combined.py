@@ -1,6 +1,8 @@
+import time
+time_very_beginning = time.time()
+
 import sys
 import os
-import time
 import math
 import random
 import kdt
@@ -110,7 +112,7 @@ elif datasource == "generate":
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
 	before = time.time()
 	binrmat = kdt.DiGraph.generateRMAT(gen_scale, element=1.0, delIsolated=True)
-	kdt.p("Generated in %fs: \t%d\t vertices and \t%d\t edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
+	kdt.p("Generated graph in %fs: \t%d\t vertices and \t%d\t edges."%(time.time()-before, binrmat.nvert(), binrmat.nedge()))
 
 	kdt.p("--Converting binary RMAT to twitter object")
 	G = kdt.DiGraph(nv=binrmat.nvert(), element=kdt.Obj2())
@@ -171,7 +173,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		if runStarts > len(deg3verts):
 			runStarts = len(deg3verts)
 		starts = deg3verts[kdt.Vec.range(runStarts)]
-	kdt.p("Generated in %fs."%(time.time()-before))
+	kdt.p("Generated starting verts in %fs."%(time.time()-before))
 
 	kdt.p("--Doing BFS")
 	if use_SEJITS_Filter:
@@ -273,14 +275,14 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		printstats(K2edges, "%snedge\t%f\t"%(labeling, filterPercent), False, True, True)
 		
 		print "\nTEPS (%s)"%(labeling)
-		printstats(K2TEPS, "%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
+		printstats(K2TEPS, "%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
 
 		if not materialize:
 			print "\nTEPS including filtered edges (%s)"%(labeling)
-			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
+			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
 		else:
-			print "\nTEPS including materialization time (%)s"%(labeling)
-			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS_\t%f\t"%(labeling, filterPercent), True, True)
+			print "\nTEPS including materialization time (%s)"%(labeling)
+			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
 	
 	if use_SEJITS_Filter:
 		G.delEFilter(sejits_filter)
@@ -330,7 +332,14 @@ for p in (1, 10, 25, 100):
 							return True
 					else:
 							return False
-		
+			before = time.time()
 			sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
-		
+			sejits_filter_create_time = time.time()-before
+			kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(p, sejits_filter_create_time))
+
+		before = time.time()
 		run(SR_to_Use, use_SEJITS_Filter, materialize)
+		single_runtime = time.time() - before
+		kdt.p("Total runtime for %s on %d%% is\t%f\ts."%(whatToDo, p, single_runtime))
+
+kdt.p("Total runtime for everything is %f"%(time.time()-time_very_beginning))
