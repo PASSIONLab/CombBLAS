@@ -61,9 +61,10 @@ public:
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	
 	typedef PlusTimesSRing<bool, int> PTBOOLINT;	
 	typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
                 	cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
 			cout << "Because <BATCHSIZE> is for the overall matrix (similarly, <K4APPROX> is global as well) " << endl;
  		}
-		MPI::Finalize(); 
+		MPI_Finalize();
 		return -1;
         }
 
@@ -124,7 +125,7 @@ int main(int argc, char* argv[])
 			single.push_back(vrtxid);		// will return ERROR if vrtxid > N (the column dimension) 
 			int locnnz = ((AT.seq())(empty,single)).getnnz();
 			int totnnz;
-			(AT.getcommgrid())->GetColWorld().Allreduce( &locnnz, &totnnz, 1, MPI::INT, MPI::SUM);
+			MPI_Allreduce( &locnnz, &totnnz, 1, MPI_INT, MPI_SUM, (AT.getcommgrid())->GetColWorld());
 					
 			if(totnnz > 0)
 			{
@@ -222,7 +223,7 @@ int main(int argc, char* argv[])
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
-	MPI::Finalize();	
+	MPI_Finalize();
 	return 0;
 }
 
