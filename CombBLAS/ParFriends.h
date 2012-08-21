@@ -27,7 +27,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 		outs << "Can not multiply, dimensions does not match"<< endl;
 		outs << A.getncol() << " != " << B.getnrow() << endl;
 		SpParHelper::Print(outs.str());
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		return false;
 	}	
 	if((void*) &A == (void*) &B)
@@ -35,7 +35,7 @@ bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)
 		ostringstream outs;
 		outs << "Can not multiply, inputs alias (make a temporary copy of one of them first)"<< endl;
 		SpParHelper::Print(outs.str());
-		MPI::COMM_WORLD.Abort(MATRIXALIAS);
+		MPI_Abort(MPI_COMM_WORLD, MATRIXALIAS);
 		return false;
 	}	
 	return true;
@@ -72,7 +72,7 @@ SpParMat<IU,NUO,UDERO> Mult_AnXBn_DoubleBuff
 	(A.spSeq)->Split( *A1seq, *A2seq); 
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	(B.spSeq)->Split( *B1seq, *B2seq);
-	GridC->GetWorld().Barrier();
+	MPI_Barrier(GridC->GetWorld());
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -237,7 +237,7 @@ SpParMat<IU, NUO, UDERO> Mult_AnXBn_Synch
 	IU C_n = B.spSeq->getncol();
 	
 	const_cast< UDERB* >(B.spSeq)->Transpose();	
-	GridC->GetWorld().Barrier();
+	MPI_Barrier(GridC->GetWorld());
 
 	IU ** ARecvSizes = SpHelper::allocate2D<IU>(UDERA::esscount, stages);
 	IU ** BRecvSizes = SpHelper::allocate2D<IU>(UDERB::esscount, stages);
@@ -337,12 +337,12 @@ void CheckSpMVCompliance(const MATRIX & A, const VECTOR & x)
 		outs << "Can not multiply, dimensions does not match"<< endl;
 		outs << A.getncol() << " != " << x.TotalLength() << endl;
 		SpParHelper::Print(outs.str());
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	if(! ( *(A.getcommgrid()) == *(x.getcommgrid())) ) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }			
 
@@ -366,38 +366,31 @@ FullyDistSpVec<IU,typename promote_trait<NUM,IU>::T_promote>  SpMV
  * @param[in] 	indexisvalue	
  **/
 template<typename IU, typename NV>
-void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue)
+void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue)
 {
 	int32_t xlocnz = (int32_t) x.getlocnnz();	
 	int32_t roffst = (int32_t) x.RowLenUntil();	// since trxinds is int32_t
 	int32_t roffset;
 	IU luntil = x.LengthUntil();
 	int diagneigh = x.commGrid->GetComplementRank();
-	World.Sendrecv(&roffst, 1, MPIType<int32_t>(), diagneigh, TROST, &roffset, 1, MPIType<int32_t>(), diagneigh, TROST);
-	World.Sendrecv(&xlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ);
-	World.Sendrecv(&luntil, 1, MPIType<IU>(), diagneigh, TRLUT, &lenuntil, 1, MPIType<IU>(), diagneigh, TRLUT);
+
+	MPI_Sendrecv(&roffst, 1, MPIType<int32_t>(), diagneigh, TROST, &roffset, 1, MPIType<int32_t>(), diagneigh, TROST, World, NULL);
+	MPI_Sendrecv(&xlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ, &trxlocnz, 1, MPIType<int32_t>(), diagneigh, TRNNZ, World, NULL);
+	MPI_Sendrecv(&luntil, 1, MPIType<IU>(), diagneigh, TRLUT, &lenuntil, 1, MPIType<IU>(), diagneigh, TRLUT, World, NULL);
 	
 	// ABAB: Important observation is that local indices (given by x.ind) is 32-bit addressible
 	// Copy them to 32 bit integers and transfer that to save 50% of off-node bandwidth
 	trxinds = new int32_t[trxlocnz];
-	try
+	int32_t * temp_xind = new int32_t[xlocnz];
+	for(int i=0; i< xlocnz; ++i)	temp_xind[i] = (int32_t) x.ind[i];
+	MPI_Sendrecv(temp_xind, xlocnz, MPIType<int32_t>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<int32_t>(), diagneigh, TRI, World, NULL);
+	delete [] temp_xind;
+	if(!indexisvalue)
 	{
-		int32_t * temp_xind = new int32_t[xlocnz];
-		for(int i=0; i< xlocnz; ++i)	temp_xind[i] = (int32_t) x.ind[i];
-		World.Sendrecv(temp_xind, xlocnz, MPIType<int32_t>(), diagneigh, TRI, trxinds, trxlocnz, MPIType<int32_t>(), diagneigh, TRI);
-		delete [] temp_xind;
-		if(!indexisvalue)
-		{
-			trxnums = new NV[trxlocnz];
-			World.Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX);
-		}
-		transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
+		trxnums = new NV[trxlocnz];
+		MPI_Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX, World, NULL);
 	}
-	catch(MPI::Exception e)
-	{
-		cerr << "Exception during Sendrecv file" << endl;
-		cerr << e.Get_error_string() << endl;
-	}
+	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
 }	
 
 /**
@@ -408,14 +401,15 @@ void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,NV> & x, in
  * @param[in] 		trxlocnz, lenuntil, indexisvalue
  **/
 template<typename IU, typename NV>
-void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32_t * & trxinds, NV * & trxnums, 
+void AllGatherVector(MPI_Comm & ColWorld, int trxlocnz, IU lenuntil, int32_t * & trxinds, NV * & trxnums, 
 					 int32_t * & indacc, NV * & numacc, int & accnz, bool indexisvalue)
 {
-	int colneighs = ColWorld.Get_size();
-	int colrank = ColWorld.Get_rank();
+        int colneighs, colrank;
+	MPI_Comm_size(ColWorld, &colneighs);
+	MPI_Comm_rank(ColWorld, &colrank);
 	int * colnz = new int[colneighs];
 	colnz[colrank] = trxlocnz;
-	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colnz, 1, MPI_INT, ColWorld);
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
 	accnz = std::accumulate(colnz, colnz+colneighs, 0);
@@ -430,16 +424,16 @@ void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32
 	// 2^35 / 180 ~ 2^29 / 3 which is not an issue !
 	
 #ifdef TIMING
-	double t0=MPI::Wtime();
+	double t0=MPI_Wtime();
 #endif
-	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<int32_t>(), indacc, colnz, dpls, MPIType<int32_t>());
+	MPI_Allgatherv(trxinds, trxlocnz, MPIType<int32_t>(), indacc, colnz, dpls, MPIType<int32_t>(), ColWorld);
 	
 	delete [] trxinds;
 	if(indexisvalue)
 	{
 		IU lenuntilcol;
 		if(colrank == 0)  lenuntilcol = lenuntil;
-		ColWorld.Bcast(&lenuntilcol, 1, MPIType<IU>(), 0);
+		MPI_Bcast(&lenuntilcol, 1, MPIType<IU>(), 0, ColWorld);
 		for(int i=0; i< accnz; ++i)	// fill numerical values from indices
 		{
 			numacc[i] = indacc[i] + lenuntilcol;
@@ -447,11 +441,11 @@ void AllGatherVector(MPI::Intracomm & ColWorld, int trxlocnz, IU lenuntil, int32
 	}
 	else
 	{
-		ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<NV>(), numacc, colnz, dpls, MPIType<NV>());
+		MPI_Allgatherv(trxnums, trxlocnz, MPIType<NV>(), numacc, colnz, dpls, MPIType<NV>(), ColWorld);
 		delete [] trxnums;
 	}	
 #ifdef TIMING
-	double t1=MPI::Wtime();
+	double t1=MPI_Wtime();
 	cblas_allgathertime += (t1-t0);
 #endif
 	DeleteAll(colnz,dpls);
@@ -630,9 +624,9 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	CheckSpMVCompliance(A,x);
 	optbuf.MarkEmpty();
 	
-	MPI::Intracomm World = x.commGrid->GetWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	MPI_Comm World = x.commGrid->GetWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 	
 	int accnz;
 	int32_t trxlocnz;
@@ -642,7 +636,8 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);
 	
-	int rowneighs = RowWorld.Get_size();
+	int rowneighs;
+	MPI_Comm_size(RowWorld, &rowneighs);
 	int * sendcnt = new int[rowneighs]();	
 	int32_t * sendindbuf;	
 	OVT * sendnumbuf;
@@ -651,7 +646,7 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
-	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, RowWorld);       // share the request counts
 	
 	// receive displacements are exact whereas send displacements have slack
 	rdispls[0] = 0;
@@ -664,12 +659,13 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	OVT * recvnumbuf = new OVT[totrecv];
 	
 #ifdef TIMING
-	double t2=MPI::Wtime();
+	double t2=MPI_Wtime();
 #endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
-		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
-		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
+		MPI_Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>(), RowWorld);
+		MPI_Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>(), RowWorld);
+
 		delete [] sendcnt;
 	}
 	else
@@ -686,13 +682,14 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 		 }
 		 oput.close(); */
 		 
-		RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
-		RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>());  
+		MPI_Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>(), RowWorld);
+		MPI_Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<OVT>(), recvnumbuf, recvcnt, rdispls, MPIType<OVT>(), RowWorld);
+
 		DeleteAll(sendindbuf, sendnumbuf);
 		DeleteAll(sendcnt, sdispls);
 	}
 #ifdef TIMING
-	double t3=MPI::Wtime();
+	double t3=MPI_Wtime();
 	cblas_alltoalltime += (t3-t2);
 #endif
 	
@@ -737,30 +734,31 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
 	CheckSpMVCompliance(A, x);
 
-	MPI::Intracomm World = x.commGrid->GetWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	MPI_Comm World = x.commGrid->GetWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 
 	int xsize = (int) x.LocArrSize();
 	int trxsize = 0;
 
 	int diagneigh = x.commGrid->GetComplementRank();
-	World.Sendrecv(&xsize, 1, MPI::INT, diagneigh, TRX, &trxsize, 1, MPI::INT, diagneigh, TRX);
+	MPI_Sendrecv(&xsize, 1, MPI_INT, diagneigh, TRX, &trxsize, 1, MPI_INT, diagneigh, TRX, World, NULL);
 	
 	NUV * trxnums = new NUV[trxsize];
-	World.Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.arr)), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX);
+	MPI_Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.arr)), xsize, MPIType<NUV>(), diagneigh, TRX, trxnums, trxsize, MPIType<NUV>(), diagneigh, TRX, World, NULL);
 
-	int colneighs = ColWorld.Get_size();
-	int colrank = ColWorld.Get_rank();
+        int colneighs, colrank;
+	MPI_Comm_size(ColWorld, &colneighs);
+	MPI_Comm_rank(ColWorld, &colrank);
 	int * colsize = new int[colneighs];
 	colsize[colrank] = trxsize;
-	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colsize, 1, MPI::INT);
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colsize, 1, MPI_INT, ColWorld);
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colsize, colsize+colneighs-1, dpls+1);
 	int accsize = std::accumulate(colsize, colsize+colneighs, 0);
 	NUV * numacc = new NUV[accsize];
 
-	ColWorld.Allgatherv(trxnums, trxsize, MPIType<NUV>(), numacc, colsize, dpls, MPIType<NUV>());
+	MPI_Allgatherv(trxnums, trxsize, MPIType<NUV>(), numacc, colsize, dpls, MPIType<NUV>(), ColWorld);
 	delete [] trxnums;
 
 	// serial SpMV with dense vector
@@ -770,19 +768,14 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	fill_n(localy, ysize, id);		
 	dcsc_gespmv<SR>(*(A.spSeq), numacc, localy);	
 	
-	//ofstream oput;
-	//A.commGrid->OpenDebugFile("localy", oput);
-	//copy(localy, localy+ysize, ostream_iterator<T_promote>(oput, " ")); oput << endl;
-	//oput.close();
-
 	DeleteAll(numacc,colsize, dpls);
 
 	// FullyDistVec<IT,NT>(shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id)
 	FullyDistVec<IU, T_promote> y ( x.commGrid, A.getnrow(), id);
-	//AL: compiler warns this is unused: IU yintlen = y.MyRowLength();
 	
-	int rowneighs = RowWorld.Get_size();
-	//AL: compiler warns this is unused: int rowrank = RowWorld.Get_rank();
+	int rowneighs;
+	MPI_Comm_size(RowWorld, &rowneighs);
+
 	IU begptr, endptr;
 	for(int i=0; i< rowneighs; ++i)
 	{
@@ -795,8 +788,7 @@ FullyDistVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		{
 			endptr = y.RowLenUntil(i+1);
 		}
-		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root), recvbuf is irrelevant except root
-                RowWorld.Reduce(localy+begptr, SpHelper::p2a(y.arr), endptr-begptr, MPIType<T_promote>(), SR::mpi_op(), i);
+		MPI_Reduce(localy+begptr, SpHelper::p2a(y.arr), endptr-begptr, MPIType<T_promote>(), SR::mpi_op(), i, RowWorld);
 	}
 	delete [] localy;
 	return y;
@@ -815,9 +807,9 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	typedef typename promote_trait<NUM,NUV>::T_promote T_promote;
 	CheckSpMVCompliance(A, x);
 
-	MPI::Intracomm World = x.commGrid->GetWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	MPI_Comm World = x.commGrid->GetWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 
 	int xlocnz = (int) x.getlocnnz();
 	int trxlocnz = 0;
@@ -825,20 +817,22 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	int offset;
 
 	int diagneigh = x.commGrid->GetComplementRank();
-	World.Sendrecv(&xlocnz, 1, MPI::INT, diagneigh, TRX, &trxlocnz, 1, MPI::INT, diagneigh, TRX);
-	World.Sendrecv(&roffst, 1, MPI::INT, diagneigh, TROST, &offset, 1, MPI::INT, diagneigh, TROST);
+
+	MPI_Sendrecv(&xlocnz, 1, MPI_INT, diagneigh, TRX, &trxlocnz, 1, MPI_INT, diagneigh, TRX, World, NULL);
+	MPI_Sendrecv(&roffst, 1, MPI_INT, diagneigh, TROST, &offset, 1, MPI_INT, diagneigh, TROST, World, NULL);
 	
 	IU * trxinds = new IU[trxlocnz];
 	NUV * trxnums = new NUV[trxlocnz];
-	World.Sendrecv(const_cast<IU*>(SpHelper::p2a(x.ind)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX);
-	World.Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX);
+	MPI_Sendrecv(const_cast<IU*>(SpHelper::p2a(x.ind)), xlocnz, MPIType<IU>(), diagneigh, TRX, trxinds, trxlocnz, MPIType<IU>(), diagneigh, TRX, World, NULL);
+	MPI_Sendrecv(const_cast<NUV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NUV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NUV>(), diagneigh, TRX, World, NULL);
 	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<IU>(), offset)); // fullydist indexing (n pieces) -> matrix indexing (sqrt(p) pieces)
 
-	int colneighs = ColWorld.Get_size();
-	int colrank = ColWorld.Get_rank();
+        int colneighs, colrank;
+	MPI_Comm_size(ColWorld, &colneighs);
+	MPI_Comm_rank(ColWorld, &colrank);
 	int * colnz = new int[colneighs];
 	colnz[colrank] = trxlocnz;
-	ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, colnz, 1, MPI::INT);
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, colnz, 1, MPI_INT, ColWorld);
 	int * dpls = new int[colneighs]();	// displacements (zero initialized pid) 
 	std::partial_sum(colnz, colnz+colneighs-1, dpls+1);
 	int accnz = std::accumulate(colnz, colnz+colneighs, 0);
@@ -847,8 +841,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 	// ABAB: Future issues here, colnz is of type int (MPI limitation)
 	// What if the aggregate vector size along the processor row/column is not 32-bit addressible?
-	ColWorld.Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>());
-	ColWorld.Allgatherv(trxnums, trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>());
+	MPI_Allgatherv(trxinds, trxlocnz, MPIType<IU>(), indacc, colnz, dpls, MPIType<IU>(), ColWorld);
+	MPI_Allgatherv(trxnums, trxlocnz, MPIType<NUV>(), numacc, colnz, dpls, MPIType<NUV>(), ColWorld);
 	DeleteAll(trxinds, trxnums);
 
 	// serial SpMV with sparse vector
@@ -867,7 +861,8 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	FullyDistSpVec<IU, T_promote> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
 	IU yintlen = y.MyRowLength();
 
-	int rowneighs = RowWorld.Get_size();
+	int rowneighs;
+	MPI_Comm_size(RowWorld,&rowneighs);
 	vector< vector<IU> > sendind(rowneighs);
 	vector< vector<T_promote> > sendnum(rowneighs);
 	typename vector<int32_t>::size_type outnz = indy.size();
@@ -888,7 +883,7 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
-	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, RowWorld);       // share the request counts
 
 	sdispls[0] = 0;
 	rdispls[0] = 0;
@@ -911,9 +906,9 @@ FullyDistSpVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		copy(sendnum[i].begin(), sendnum[i].end(), sendnumbuf+sdispls[i]);
 		vector<T_promote>().swap(sendnum[i]);
 	}
-		
-	RowWorld.Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>());  
-	RowWorld.Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>());  
+	MPI_Alltoallv(sendindbuf, sendcnt, sdispls, MPIType<IU>(), recvindbuf, recvcnt, rdispls, MPIType<IU>(), RowWorld);
+	MPI_Alltoallv(sendnumbuf, sendcnt, sdispls, MPIType<T_promote>(), recvnumbuf, recvcnt, rdispls, MPIType<T_promote>(), RowWorld);
+	
 	DeleteAll(sendindbuf, sendnumbuf);
 	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 		
@@ -967,7 +962,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	else
 	{
 		cout << "Grids are not comparable elementwise multiplication" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
 }
@@ -987,7 +982,7 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 	else
 	{
 		cout << "Grids are not comparable elementwise apply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return SpParMat< IU,RETT,RETDER >();
 	}
 }
@@ -1004,7 +999,7 @@ SpParMat<IU,RETT,RETDER> EWiseApply
 	else
 	{
 		cout << "Grids are not comparable elementwise apply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return SpParMat< IU,RETT,RETDER >();
 	}
 }
@@ -1068,7 +1063,7 @@ SpParVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 	else
 	{
 		cout << "Grids are not comparable elementwise multiplication" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return SpParVec< IU,T_promote>();
 	}
 }
@@ -1089,7 +1084,7 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 		if(V.glen != W.glen)
 		{
 			cerr << "Vector dimensions don't match for EWiseMult\n";
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		}
 		else
 		{
@@ -1157,7 +1152,7 @@ FullyDistSpVec<IU,typename promote_trait<NU1,NU2>::T_promote> EWiseMult
 	else
 	{
 		cout << "Grids are not comparable elementwise multiplication" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
@@ -1194,7 +1189,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 			ostringstream outs;
 			outs << "Vector dimensions don't match (" << V.TotalLength() << " vs " << W.TotalLength() << ") for EWiseApply (short version)\n";
 			SpParHelper::Print(outs.str());
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		}
 		else
 		{
@@ -1244,7 +1239,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 	else
 	{
 		cout << "Grids are not comparable for EWiseApply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
@@ -1283,7 +1278,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 			ostringstream outs;
 			outs << "Vector dimensions don't match (" << V.glen << " vs " << W.glen << ") for EWiseApply (full version)\n";
 			SpParHelper::Print(outs.str());
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		}
 		else
 		{
@@ -1361,7 +1356,7 @@ FullyDistSpVec<IU,RET> EWiseApply
 	else
 	{
 		cout << "Grids are not comparable for EWiseApply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		return FullyDistSpVec< IU,T_promote>();
 	}
 }
