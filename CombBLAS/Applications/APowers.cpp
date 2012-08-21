@@ -40,12 +40,12 @@ public:
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
-	
-	typedef PlusTimesSRing<bool, bool> PTBOOLBOOL;
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
+	typedef PlusTimesSRing<bool, bool> PTBOOLBOOL;
 	if(argc < 4)
         {
 		if(myrank == 0)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
                 	cout << "Example: ./apowers Data/input.txt 4 0" << endl;
 			cout << "If <NONUM> is set, then the input file is unweighted" << endl;
                 }
-		MPI::Finalize(); 
+		MPI_Finalize();
 		return -1;
         }
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 		    	SpParHelper::Print( "Error opening input stream\n");
     			return -1;
   		}
-		MPI::COMM_WORLD.Barrier();
+		MPI_Barrier(MPI_COMM_WORLD);
 	
 		Dist<double>::MPI_DCCols A;	// construct object
 		bool nonum = static_cast<bool>(atoi(argv[3]));
@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
-	MPI::Finalize();	
+	MPI_Finalize();
 	return 0;
 }
 

@@ -82,7 +82,7 @@ class TwitterReadSaveHandler
 		{
 			MPI_Datatype datatype;
 			MPI_Type_contiguous(sizeof(TwitterEdge), MPI_CHAR, &datatype);
-			MPI_Type_Commit(&datatype);
+			MPI_Type_commit(&datatype);
 			return datatype;
 		}
 

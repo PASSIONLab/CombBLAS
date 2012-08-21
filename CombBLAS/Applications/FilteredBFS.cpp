@@ -83,13 +83,11 @@ int main(int argc, char* argv[])
     	TAU_PROFILE_INIT(argc, argv);
     	TAU_PROFILE_START(maintimer);
 #endif
-
-	MPI::Init(argc, argv);
-	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	int MAXTRIALS;
-	
 	if(argc < 3)
 	{
 		if(myrank == 0)
@@ -97,7 +95,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale>" << endl;
 			cout << "Example: ./FilteredBFS File twitter_small.txt" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize();
 		return -1;
 	}		
 	{
@@ -252,7 +250,7 @@ int main(int argc, char* argv[])
 		outs_former << "Load balance: " << balance_former << endl;
 		SpParHelper::Print(outs_former.str());
 
-		MPI::COMM_WORLD.Barrier();
+		MPI_Barrier(MPI_COMM_WORLD);
 		double t1 = MPI_Wtime();
 
 		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS);
@@ -270,8 +268,7 @@ int main(int argc, char* argv[])
 			for(int i=0; i<MAX_ITERS; ++i)
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
 		}
-
-		MPI::COMM_WORLD.Bcast(&(loccandints[0]), MAX_ITERS, MPIType<int64_t>(),0);
+		MPI_Bcast(&(loccandints[0]), MAX_ITERS, MPIType<int64_t>(),0, MPI_COMM_WORLD);
 		for(int i=0; i<MAX_ITERS; ++i)
 			Cands.SetElement(i,loccandints[i]);
 
@@ -299,7 +296,7 @@ int main(int argc, char* argv[])
 				// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 				FullyDistSpVec<int64_t, ParentType> fringe(A.getcommgrid(), A.getncol());	
 
-				MPI::COMM_WORLD.Barrier();
+				MPI_Barrier(MPI_COMM_WORLD);
 				double t1 = MPI_Wtime();
 
 				fringe.SetElement(Cands[i], Cands[i]);
@@ -319,7 +316,7 @@ int main(int argc, char* argv[])
 					iterations++;
 					
 				}
-				MPI::COMM_WORLD.Barrier();
+				MPI_Barrier(MPI_COMM_WORLD);
 				double t2 = MPI_Wtime();
 	
 			
@@ -380,7 +377,7 @@ int main(int argc, char* argv[])
 			if (sruns < MINRUNS)
 			{
 				SpParHelper::Print("Not enough valid runs done\n");
-				MPI::Finalize();
+				MPI_Finalize();
 			}
 			ostringstream os;
 			
@@ -449,7 +446,7 @@ int main(int argc, char* argv[])
 #ifdef TAU_PROFILE
     	TAU_PROFILE_STOP(maintimer);
 #endif
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 
