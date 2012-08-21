@@ -97,12 +97,11 @@ double Inflate(Dist<double>::MPI_DCCols & A, double power)
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
-	
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;
-
 	if(argc < 4)
         {
 		if(myrank == 0)
@@ -111,7 +110,7 @@ int main(int argc, char* argv[])
                 	cout << "Example: ./mcl Data/ 2 0.00001" << endl;
                 	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
                 }
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
         }
 
@@ -163,6 +162,6 @@ int main(int argc, char* argv[])
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
-	MPI::Finalize();	
+	MPI_Finalize();	
 	return 0;
 }
