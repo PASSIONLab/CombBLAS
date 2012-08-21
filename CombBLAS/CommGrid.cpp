@@ -28,11 +28,12 @@ THE SOFTWARE.
 
 #include "CombBLAS.h"
 
-CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)
+CommGrid::CommGrid(MPI_Comm world, int nrowproc, int ncolproc): grrows(nrowproc), grcols(ncolproc)
 {
-	commWorld = world.Dup();
-	myrank = commWorld.Get_rank();
-	int nproc = commWorld.Get_size();
+	MPI_Comm_dup(world, &commWorld);
+	MPI_Comm_rank(commWorld, &myrank);
+	int nproc;
+	MPI_Comm_size(commWorld,&nproc);
 
 	if(grrows == 0 && grcols == 0)
 	{
@@ -42,7 +43,7 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 		if(grcols * grrows != nproc)
 		{
 			cerr << "This version of the Combinatorial BLAS only works on a square logical processor grid" << endl;
-			MPI::COMM_WORLD.Abort(NOTSQUARE);
+			MPI_Abort(MPI_COMM_WORLD,NOTSQUARE);
 		}
 	}
 	assert((nproc == (grrows*grcols)));
@@ -56,12 +57,15 @@ CommGrid::CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc): grrows(n
 	  * C++ syntax: MPI::Intercomm MPI::Intercomm::Split(int color, int key) consts  
 	  * Semantics: Processes with the same color are in the same new communicator 
 	  */
-	rowWorld = commWorld.Split(myprocrow, myrank);
-	colWorld = commWorld.Split(myproccol, myrank);
+	MPI_Comm_split(commWorld,myprocrow, myrank,&rowWorld);
+	MPI_Comm_split(commWorld,myproccol, myrank,&colWorld);
 	CreateDiagWorld();
 
-	assert( ((rowWorld.Get_rank()) == myproccol) );
-	assert( ((colWorld.Get_rank()) == myprocrow) );
+	int rowRank, colRank;
+	MPI_Comm_rank(rowWorld,&rowRank);
+	MPI_Comm_rank(colWorld,&colRank);
+	assert( (colRank == myproccol) );
+	assert( (rowRank == myprocrow) );
 }
 
 void CommGrid::CreateDiagWorld()
@@ -78,15 +82,16 @@ void CommGrid::CreateDiagWorld()
 	{
 		process_ranks[i] = i*grcols + i;
 	}
-	MPI::Group group = commWorld.Get_group();
-	MPI::Group diag_group = group.Incl(grcols, process_ranks);
-	group.Free();
-
+	MPI_Group group;
+	MPI_Comm_group(commWorld,&group);
+	MPI_Group diag_group;
+	MPI_Group_incl(group,grcols, process_ranks, &diag_group); // int MPI_Group_incl(MPI_Group group, int n, int *ranks, MPI_Group *newgroup)
+	MPI_Group_free(&group);
 	delete [] process_ranks;
 
 	// The Create() function returns MPI_COMM_NULL to processes that are NOT in group	
-	diagWorld = commWorld.Create(diag_group);		
-	diag_group.Free();
+	MPI_Comm_create(commWorld,diag_group,&diagWorld);
+	MPI_Group_free(&diag_group);
 }
 
 bool CommGrid::OnSameProcCol( int rhsrank)
@@ -127,8 +132,9 @@ int CommGrid::GetDiagOfProcCol( )
 
 bool CommGrid::operator== (const CommGrid & rhs) const
 {
-	int result = MPI::Comm::Compare(commWorld, rhs.commWorld);
-	if ((result != MPI::IDENT) && (result != MPI::CONGRUENT))
+        int result;
+	MPI_Comm_compare(commWorld, rhs.commWorld, &result);
+	if ((result != MPI_IDENT) && (result != MPI_CONGRUENT))
 	{
 		// A call to MPI::Comm::Compare after MPI::Comm::Dup returns MPI_CONGRUENT
 		// MPI::CONGRUENT means the communicators have the same group members, in the same order
@@ -154,14 +160,13 @@ shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & inner
 	if(gridA->grcols != gridB->grrows)
 	{
 		cout << "Grids don't confirm for multiplication" << endl;
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 	}
 	innerdim = gridA->grcols;
-
 	Aoffset = (gridA->myprocrow + gridA->myproccol) % gridA->grcols;	// get sequences that avoids contention
 	Boffset = (gridB->myprocrow + gridB->myproccol) % gridB->grrows;
-
 		
-	return shared_ptr<CommGrid>( new CommGrid(MPI::COMM_WORLD, gridA->grrows, gridB->grcols) );
+	MPI_Comm world = MPI_COMM_WORLD;
+	return shared_ptr<CommGrid>( new CommGrid(world, gridA->grrows, gridB->grcols) );
 }
 

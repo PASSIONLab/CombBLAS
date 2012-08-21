@@ -59,7 +59,7 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 				parvec.arr.resize(n);
 				recvbuf = &parvec.arr[0];	
 			}
-			(commGrid->GetColWorld()).Reduce(sendbuf, recvbuf, n, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			MPI_Reduce(sendbuf, recvbuf, n, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root,commGrid->GetColWorld());
 			delete sendbuf;
 			break;
 		}
@@ -77,7 +77,7 @@ DenseParVec< IT,NT > DenseParMat<IT,NT>::Reduce(Dim dim, _BinaryOperation __bina
 				parvec.arr.resize(m);
 				recvbuf = &parvec.arr[0];	
 			}
-			(commGrid->GetRowWorld()).Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root);
+			MPI_Reduce(sendbuf, recvbuf, m, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), root,commGrid->GetRowWorld());
 			delete [] sendbuf;
 			break;
 		}
@@ -101,7 +101,7 @@ DenseParMat< IT,NT > & DenseParMat<IT,NT>::operator+=(const SpParMat< IT,NT,DER 
 	else
 	{
 		cout << "Grids are not comparable elementwise addition" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 	}
 	return *this;	
 }

@@ -26,6 +26,13 @@
  	#include <tr1/type_traits>
 	using namespace std::tr1;
 	#define joker std::tr1
+#elif defined(_MSC_VER) && (_MSC_VER < 1600)
+	#include <memory>
+	#include <unordered_map>
+	#include <tuple>
+	#include <type_traits>
+	using namespace std::tr1;
+	#define joker std::tr1
 #else // C++11
 	#include <memory>
 	#include <unordered_map>
