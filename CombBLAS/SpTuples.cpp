@@ -79,8 +79,8 @@ SpTuples<IT,NT>::SpTuples (int64_t maxnnz, IT nRow, IT nCol, vector<IT> & edges,
 	}
 
 	int64_t totdup = 0; int64_t totself = 0; 
-	MPI::COMM_WORLD.Allreduce( &dup, &totdup, 1, MPIType<int64_t>(), MPI::SUM);
-	MPI::COMM_WORLD.Allreduce( &self, &totself, 1, MPIType<int64_t>(), MPI::SUM);
+	MPI_Allreduce( &dup, &totdup, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce( &self, &totself, 1, MPIType<int64_t>(), MPI_SUM, MPI_COMM_WORLD);
 	ostringstream os;
 	os << "Duplicates removed (or summed): " << totdup << " and self-loops removed: " <<  totself << endl;  
 	SpParHelper::Print(os.str());
