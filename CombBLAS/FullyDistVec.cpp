@@ -82,7 +82,7 @@ NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 	NT localsum = std::accumulate( arr.begin(), arr.end(), identity, __binary_op);
 
 	NT totalsum = identity;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -106,7 +106,7 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 	}
 
 	OUT totalsum = default_val;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<OUT>(), MPIOp<_BinaryOperation, OUT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<OUT>(), MPIOp<_BinaryOperation, OUT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -163,7 +163,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 	if(*commGrid != *rhs.commGrid) 		
 	{
 		cout << "Grids are not comparable elementwise addition" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	else
 	{
@@ -185,7 +185,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 		}
 
 		int rowroot = commGrid->GetDiagOfProcRow();
-		(commGrid->GetRowWorld()).Scatterv(&(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot);
+		MPI_Scatterv(&(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot, commGrid->GetRowWorld());
 	}
 	return *this;
 }
@@ -265,7 +265,7 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator+=(const FullyDistVec<IT,NT>
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
 			cout << "Grids are not comparable elementwise addition" << endl; 
-			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else 
 		{
@@ -283,7 +283,7 @@ FullyDistVec<IT,NT> & FullyDistVec<IT, NT>::operator-=(const FullyDistVec<IT,NT>
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
 			cout << "Grids are not comparable elementwise addition" << endl; 
-			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else 
 		{
@@ -300,7 +300,7 @@ bool FullyDistVec<IT,NT>::operator==(const FullyDistVec<IT,NT> & rhs) const
 	int local = 1;
 	local = (int) std::equal(arr.begin(), arr.end(), rhs.arr.begin(), epsilonequal );
 	int whole = 1;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, commGrid->GetWorld());
 	return static_cast<bool>(whole);	
 }
 
@@ -310,7 +310,7 @@ IT FullyDistVec<IT,NT>::Count(_Predicate pred) const
 {
 	IT local = count_if( arr.begin(), arr.end(), pred );
 	IT whole = 0;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
+	MPI_Allreduce( &local, &whole, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
 	return whole;	
 }
 
@@ -321,7 +321,7 @@ template <typename _Predicate>
 FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 {
 	FullyDistVec<IT,IT> found(commGrid);
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	int nprocs = commGrid->GetSize();
 	int rank = commGrid->GetRank();
 
@@ -337,7 +337,7 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	IT * dist = new IT[nprocs];
 	IT nsize = found.arr.size(); 
 	dist[rank] = nsize;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
 	IT lengthuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
 	found.glen = accumulate(dist, dist+nprocs, static_cast<IT>(0));
 
@@ -354,7 +354,7 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 		++sendcnt[owner];
 	}
 	int * recvcnt = new int[nprocs];
-	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
 
 	int * sdispls = new int[nprocs];
 	int * rdispls = new int[nprocs];
@@ -369,7 +369,7 @@ FullyDistVec<IT,IT> FullyDistVec<IT,NT>::FindInds(_Predicate pred) const
 	vector<IT> recvbuf(totrecv);
 			
 	// data is already in the right order in found.arr
-	World.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
+	MPI_Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), World);
 	found.arr.swap(recvbuf);
 	delete [] dist;
 	DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
@@ -390,7 +390,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::Find(_Predicate pred) const
 	{
 		if(pred(arr[i]))
 		{
-			found.ind.push_back(i);
+			found.ind.push_back( (IT) i);
 			found.num.push_back(arr[i]);
 		}
 	}
@@ -450,7 +450,7 @@ template <class IT, class NT>
 NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	int rank = commGrid->GetRank();
 	if (glen == 0) 
 	{
@@ -479,7 +479,7 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 			ret = arr[locind];
 		}
 	}
-	World.Bcast(&ret, 1, MPIType<NT>(), owner);
+	MPI_Bcast(&ret, 1, MPIType<NT>(), owner, World);
 	return ret;
 }
 
@@ -487,23 +487,25 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::DebugPrint()
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-    	int rank = World.Get_rank();
-    	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+    	int nprocs, rank;
+	MPI_Comm World = commGrid->GetWorld();
+	MPI_Comm_rank(World, &rank);
+	MPI_Comm_size(World, &nprocs);
+    	MPI_File thefile;
+	MPI_File_open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 	IT lengthuntil = LengthUntil();
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI::INFO_NULL);
+    	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI_INFO_NULL);
 
 	IT count = LocArrSize();	
-	thefile.Write(&(arr[0]), count, MPIType<NT>());
-	thefile.Close();
+	MPI_File_write(thefile, &(arr[0]), count, MPIType<NT>(), NULL);
+	MPI_File_close(&thefile);
 	
 	// Now let processor-0 read the file and print
 	IT * counts = new IT[nprocs];
-	World.Gather(&count, 1, MPIType<IT>(), counts, 1, MPIType<IT>(), 0);	// gather at root=0
+	MPI_Gather(&count, 1, MPIType<IT>(), counts, 1, MPIType<IT>(), 0, World);	// gather at root=0
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistvec", "r");
@@ -554,7 +556,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 		if(glen != other.glen)
 		{
 			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else
 		{
@@ -572,7 +574,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	else
 	{
 		cout << "Grids are not comparable elementwise apply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }	
 
@@ -585,7 +587,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 		if(glen != other.glen)
 		{
 			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
-			MPI::COMM_WORLD.Abort(DIMMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else
 		{
@@ -625,7 +627,7 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 	else
 	{
 		cout << "Grids are not comparable elementwise apply" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }	
 
@@ -633,16 +635,16 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistSpVec<IT,NT2> & other, _Bina
 template <class IT, class NT>
 FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 {
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	FullyDistVec<IT,IT> temp(commGrid);
 	IT nnz = LocArrSize(); 
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
-	int nprocs = World.Get_size();
-	int rank = World.Get_rank();
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
 	IT sizeuntil = LengthUntil();	// size = length, for dense vectors
 	for(IT i=0; i< nnz; ++i)
 	{
@@ -670,14 +672,14 @@ FullyDistVec<IT, IT> FullyDistVec<IT, NT>::sort()
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::RandPerm()
 {
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	IT size = LocArrSize();
 	pair<double,NT> * vecpair = new pair<double,NT>[size];
-	int nprocs = World.Get_size();
-	int rank = World.Get_rank();
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
   	MTRand M;	// generate random numbers with Mersenne Twister
 	for(int i=0; i<size; ++i)
 	{
@@ -717,9 +719,9 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		return FullyDistVec<IT,NT>();
 	}
 
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	FullyDistVec<IT,NT> Indexed(commGrid, ri.glen, NT());	// length(Indexed) = length(ri)
-	int nprocs = World.Get_size();
+	int nprocs = commGrid->GetSize();
 	vector< vector< IT > > data_req(nprocs);	
 	vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
 
@@ -739,8 +741,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
-	World.Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT);	// share the request counts 
-
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
 	sdispls[0] = 0;
 	rdispls[0] = 0;
 	for(int i=0; i<nprocs-1; ++i)
@@ -763,7 +764,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	}
 
 	IT * recvbuf = new IT[totrecv];
-	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+	MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  // request data
 	delete [] sendbuf;
 		
 	// We will return the requested data,
@@ -782,7 +783,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	NT * databuf = new NT[riloclen];
 
 	// the response counts are the same as the request counts 
-	World.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+	MPI_Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>(), World);  // send data
 	DeleteAll(rdispls, recvcnt, databack);
 
 	// Now create the output from databuf

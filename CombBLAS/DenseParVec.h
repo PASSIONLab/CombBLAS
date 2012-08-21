@@ -7,6 +7,9 @@
 /*
 Copyright (c) 2011, Aydin Buluc
 
+WARNING: This file is deprecated with Combinatorial v1.2
+Please consider using the FullyDistVec object
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -81,7 +84,7 @@ public:
 	void RandPerm();	// randomly permute the vector
 
 	IT getTypicalLocLength() const;
-	IT getTotalLength(MPI::Intracomm & comm) const;
+	IT getTotalLength(MPI_Comm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
 	IT getLocalLength() const { return arr.size(); }
 	

@@ -150,7 +150,7 @@ public:
 	{
 		IT totnnz = 0;
 		IT locnnz = ind.size();
-		(commGrid->GetWorld()).Allreduce( &locnnz, &totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		MPI_Allreduce( &locnnz, &totnnz, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
 		return totnnz;
 	}
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::LengthUntil;
@@ -262,7 +262,7 @@ private:
 	friend void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs);
 	
 	template<typename IU, typename NV>
-	friend void TransposeVector(MPI::Intracomm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue);
+	friend void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue);
 };
 
 #include "FullyDistSpVec.cpp"

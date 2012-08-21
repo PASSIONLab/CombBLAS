@@ -49,7 +49,7 @@ public:
 	// Constructors
 	DenseParMat (): array(NULL), m(0), n(0)
 	{
-		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));		
+		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));		
 	}
 	DenseParMat (NT value, shared_ptr<CommGrid> grid, IT rows, IT cols): m(rows), n(cols)
 	{
