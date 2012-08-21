@@ -78,10 +78,11 @@ class TwitterReadSaveHandler
 		TwitterReadSaveHandler() {};
 		TwitterEdge getNoNum(IT row, IT col) { return TwitterEdge(); }
 
-		MPI::Datatype getMPIType()
+		MPI_Datatype getMPIType()
 		{
-			MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(TwitterEdge));
-        		datatype.Commit();
+			MPI_Datatype datatype;
+			MPI_Type_contiguous(sizeof(TwitterEdge), MPI_CHAR, &datatype);
+			MPI_Type_Commit(&datatype);
 			return datatype;
 		}
 
