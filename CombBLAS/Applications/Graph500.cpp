@@ -86,11 +86,10 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
-	
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	if(argc < 3)
 	{
 		if(myrank == 0)
@@ -98,7 +97,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./Graph500 <Force,Input> <Scale Forced | Input Name> {FastGen}" << endl;
 			cout << "Example: ./Graph500 Force 25 FastGen" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize();
 		return -1;
 	}		
 	{
@@ -230,7 +229,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				SpParHelper::Print("Unknown option\n");
-				MPI::Finalize(); 
+				MPI_Finalize();
 				return -1;	
 			}
 			// this is an undirected graph, so A*x does indeed BFS
@@ -267,7 +266,7 @@ int main(int argc, char* argv[])
 			}
 
 			// Start Kernel #1
-			MPI::COMM_WORLD.Barrier();
+			MPI_Barrier(MPI_COMM_WORLD);
 			double t1 = MPI_Wtime();
 
 			// conversion from distributed edge list, keeps self-loops, sums duplicates
@@ -275,10 +274,10 @@ int main(int argc, char* argv[])
 			delete DEL;	// free memory before symmetricizing
 			SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 
-			MPI::COMM_WORLD.Barrier();
+			MPI_Barrier(MPI_COMM_WORLD);
 			double redts = MPI_Wtime();
 			G->Reduce(degrees, Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
-			MPI::COMM_WORLD.Barrier();
+			MPI_Barrier(MPI_COMM_WORLD);
 			double redtf = MPI_Wtime();
 
 			ostringstream redtimeinfo;
@@ -329,7 +328,7 @@ int main(int argc, char* argv[])
 		#endif
 			Aeff.PrintInfo();
 			
-			MPI::COMM_WORLD.Barrier();
+			MPI_Barrier(MPI_COMM_WORLD);
 			double t2=MPI_Wtime();
 			
 			ostringstream k1timeinfo;
@@ -342,10 +341,9 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
-		MPI::COMM_WORLD.Barrier();
+		MPI_Barrier(MPI_COMM_WORLD);
 		double t1 = MPI_Wtime();
 
-		// TODO: Threaded code crashes in FullyDistVec()
 		// Now that every remaining vertex is non-isolated, randomly pick ITERS many of them as starting vertices
 		#ifndef NOPERMUTE
 		degrees = degrees(nonisov);	// fix the degrees array too
@@ -369,10 +367,7 @@ int main(int argc, char* argv[])
 				loccandints[i] = static_cast<int64_t>(loccands[i]);
 			copy(loccandints.begin(), loccandints.end(), ostream_iterator<double>(cout," ")); cout << endl;
 		}
-
-		MPI::COMM_WORLD.Barrier();
-		MPI::COMM_WORLD.Bcast(&(loccandints[0]), ITERS, MPIType<int64_t>(),0);
-		MPI::COMM_WORLD.Barrier();
+		MPI_Bcast(&(loccandints[0]), ITERS, MPIType<int64_t>(),0,MPI_COMM_WORLD);
 		for(int i=0; i<ITERS; ++i)
 		{
 			Cands.SetElement(i,loccandints[i]);
@@ -397,7 +392,7 @@ int main(int argc, char* argv[])
 				// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 				FullyDistSpVec<int64_t, int64_t> fringe(Aeff.getcommgrid(), Aeff.getncol());	// numerical values are stored 0-based
 
-				MPI::COMM_WORLD.Barrier();
+				MPI_Barrier(MPI_COMM_WORLD);
 				double t1 = MPI_Wtime();
 
 				fringe.SetElement(Cands[i], Cands[i]);
@@ -410,7 +405,7 @@ int main(int argc, char* argv[])
 					parents.Set(fringe);
 					iterations++;
 				}
-				MPI::COMM_WORLD.Barrier();
+				MPI_Barrier(MPI_COMM_WORLD);
 				double t2 = MPI_Wtime();
 	
 				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
@@ -493,7 +488,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print(os.str());
 		}
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 
