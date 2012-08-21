@@ -6,52 +6,52 @@ using namespace std;
 
 MPIDataTypeCache mpidtc;	// global variable
 
-template<> MPI::Datatype MPIType< signed char >( void )
+template<> MPI_Datatype MPIType< signed char >( void )
 {
-	return MPI::CHAR;
+	return MPI_CHAR;
 }; 
-template<> MPI::Datatype MPIType< unsigned char >( void )
+template<> MPI_Datatype MPIType< unsigned char >( void )
 {
-	return MPI::UNSIGNED_CHAR;
+	return MPI_UNSIGNED_CHAR;
 }; 
-template<> MPI::Datatype MPIType< signed short int >( void )
+template<> MPI_Datatype MPIType< signed short int >( void )
 {
-	return MPI::SHORT;
+	return MPI_SHORT;
 }; 
-template<> MPI::Datatype MPIType< unsigned short int >( void )
+template<> MPI_Datatype MPIType< unsigned short int >( void )
 {
-	return MPI::UNSIGNED_SHORT;
+	return MPI_UNSIGNED_SHORT;
 }; 
-template<> MPI::Datatype MPIType< int32_t >( void )
+template<> MPI_Datatype MPIType< int32_t >( void )
 {
-	return MPI::INT;
+	return MPI_INT;
 };  
-template<> MPI::Datatype MPIType< uint32_t >( void )
+template<> MPI_Datatype MPIType< uint32_t >( void )
 {
-	return MPI::UNSIGNED;
+	return MPI_UNSIGNED;
 };
-template<> MPI::Datatype MPIType<int64_t>(void)
+template<> MPI_Datatype MPIType<int64_t>(void)
 {
-	return MPI::LONG_LONG;
+	return MPI_LONG_LONG;
 };
-template<> MPI::Datatype MPIType< uint64_t>(void)
+template<> MPI_Datatype MPIType< uint64_t>(void)
 {
-	return MPI::UNSIGNED_LONG_LONG;
+	return MPI_UNSIGNED_LONG_LONG;
 };
-template<> MPI::Datatype MPIType< float >( void )
+template<> MPI_Datatype MPIType< float >( void )
 {
-	return MPI::FLOAT;
+	return MPI_FLOAT;
 }; 
-template<> MPI::Datatype MPIType< double >( void )
+template<> MPI_Datatype MPIType< double >( void )
 {
-	return MPI::DOUBLE;
+	return MPI_DOUBLE;
 }; 
-template<> MPI::Datatype MPIType< long double >( void )
+template<> MPI_Datatype MPIType< long double >( void )
 {
-	return MPI::LONG_DOUBLE;
+	return MPI_LONG_DOUBLE;
 }; 
-template<> MPI::Datatype MPIType< bool >( void )
+template<> MPI_Datatype MPIType< bool >( void )
 {
-	return MPI::BOOL;
+	return MPI_BYTE;  // usually  #define MPI_BOOL MPI_BYTE anyway
 };
 
