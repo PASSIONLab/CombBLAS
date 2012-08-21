@@ -155,7 +155,7 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 {	
 
 #ifdef TIMING
-	double t0=MPI::Wtime();
+	double t0=MPI_Wtime();
 #endif
 	if(optbuf.totmax > 0)	// graph500 optimization enabled
 	{ 
@@ -181,7 +181,7 @@ void LocalSpMV(const SpParMat<IT,bool,UDER> & A, int rowneighs, OptBuf<int32_t, 
 	}
 
 #ifdef TIMING
-	double t1=MPI::Wtime();
+	double t1=MPI_Wtime();
 	cblas_localspmvtime += (t1-t0);
 #endif
 }
@@ -191,7 +191,7 @@ template <typename IU, typename VT>
 void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdispls, int32_t * & recvindbuf, VT * & recvnumbuf, int rowneighs)
 {
 #ifdef TIMING
-	double t0=MPI::Wtime();
+	double t0=MPI_Wtime();
 #endif
 	// free memory of y, in case it was aliased
 	vector<IU>().swap(y.ind);
@@ -280,7 +280,7 @@ void MergeContributions(FullyDistSpVec<IU,VT> & y, int * & recvcnt, int * & rdis
 #endif
 
 #ifdef TIMING
-	double t1=MPI::Wtime();
+	double t1=MPI_Wtime();
 	cblas_mergeconttime += (t1-t0);
 #endif
 }	
@@ -296,38 +296,36 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 {
 	CheckSpMVCompliance(A,x);
 	optbuf.MarkEmpty();
-	
-	MPI::Intracomm World = x.commGrid->GetWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+		
+	MPI_Comm World = x.commGrid->GetWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 
 	int accnz;
 	int32_t trxlocnz;
 	IT lenuntil;
 	int32_t *trxinds, *indacc;
 	VT *trxnums, *numacc;
-
 	
 #ifdef TIMING
-	double t0=MPI::Wtime();
+	double t0=MPI_Wtime();
 #endif
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, true);			// trxinds (and potentially trxnums) is allocated
 #ifdef TIMING
-	double t1=MPI::Wtime();
+	double t1=MPI_Wtime();
 	cblas_transvectime += (t1-t0);
 #endif
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, true);	// trxinds (and potentially trxnums) is deallocated, indacc/numacc allocated
 	
 	FullyDistSpVec<IT, VT> y ( x.commGrid, A.getnrow());	// identity doesn't matter for sparse vectors
-	int rowneighs = RowWorld.Get_size();
+	int rowneighs; MPI_Comm_size(RowWorld,&rowneighs);
 	int * sendcnt = new int[rowneighs]();	
-
 
 	LocalSpMV(A, rowneighs, optbuf, indacc, numacc, sendcnt, accnz);	// indacc/numacc deallocated
 
 	int * rdispls = new int[rowneighs];
 	int * recvcnt = new int[rowneighs];
-	RowWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, RowWorld);	// share the request counts
 	
 	// receive displacements are exact whereas send displacements have slack
 	rdispls[0] = 0;
@@ -340,12 +338,12 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 	VT * recvnumbuf = new VT[totrecv];
 	
 #ifdef TIMING
-	double t2=MPI::Wtime();
+	double t2=MPI_Wtime();
 #endif
 	if(optbuf.totmax > 0 )	// graph500 optimization enabled
 	{
-		RowWorld.Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>());  
-		RowWorld.Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<VT>(), recvnumbuf, recvcnt, rdispls, MPIType<VT>());  
+	        MPI_Alltoallv(optbuf.inds, sendcnt, optbuf.dspls, MPIType<int32_t>(), recvindbuf, recvcnt, rdispls, MPIType<int32_t>(), RowWorld);  
+		MPI_Alltoallv(optbuf.nums, sendcnt, optbuf.dspls, MPIType<VT>(), recvnumbuf, recvcnt, rdispls, MPIType<VT>(), RowWorld);  
 		delete [] sendcnt;
 	}
 	else
@@ -353,7 +351,7 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 		SpParHelper::Print("BFS only (no semiring) function only work with optimization buffers\n");
 	}
 #ifdef TIMING
-	double t3=MPI::Wtime();
+	double t3=MPI_Wtime();
 	cblas_alltoalltime += (t3-t2);
 #endif
 
