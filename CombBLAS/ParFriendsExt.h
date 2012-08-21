@@ -36,7 +36,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
@@ -55,16 +55,11 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	(B.spSeq)->Split( B1seq, B2seq);
 	
 	// Create row and column windows (collective operation, i.e. everybody exposes its window to others)
-	vector<MPI::Win> rowwins1, rowwins2, colwins1, colwins2;
+	vector<MPI_Win> rowwins1, rowwins2, colwins1, colwins2;
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A1seq, rowwins1);
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A2seq, rowwins2);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B1seq, colwins1);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B2seq, colwins2);
-
-	SpParHelper::SetWinErrHandler(rowwins1);	// set the error handler to THROW_EXCEPTIONS
-	SpParHelper::SetWinErrHandler(rowwins2);	
-	SpParHelper::SetWinErrHandler(colwins1);	
-	SpParHelper::SetWinErrHandler(colwins2);	
 
 	// ABAB: We can optimize the call to create windows in the absence of passive synchronization
 	// 	MPI_Info info; 
@@ -88,82 +83,70 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	UDERB * BRecv1, * BRecv2;
 	vector< SpTuples<IU,N_promote>  *> tomerge;
 
-	MPI::Group row_group = (A.commGrid)->GetRowWorld().Get_group();
-	MPI::Group col_group = (B.commGrid)->GetColWorld().Get_group();
+	MPI_Group row_group, col_group;
+	MPI_Comm_group((A.commGrid)->GetRowWorld(), &row_group);
+	MPI_Comm_group((B.commGrid)->GetColWorld(), &col_group);
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
-	
-	GridC->GetWorld().Barrier();	
 
+#ifdef SPGEMMDEBUG
+	MPI_Barrier(GridC->GetWorld());
 	SpParHelper::Print("Writing to file\n");
 	ofstream oput;
 	GridC->OpenDebugFile("deb", oput);
-
 	oput << "A1seq: " << A1seq.getnrow() << " " << A1seq.getncol() << " " << A1seq.getnnz() << endl;
 	oput << "A2seq: " << A2seq.getnrow() << " " << A2seq.getncol() << " " << A2seq.getnnz() << endl;
 	oput << "B1seq: " << B1seq.getnrow() << " " << B1seq.getncol() << " " << B1seq.getnnz() << endl;
 	oput << "B2seq: " << B2seq.getnrow() << " " << B2seq.getncol() << " " << B2seq.getnnz() << endl;
-
 	SpParHelper::Print("Wrote to file\n");
-	GridC->GetWorld().Barrier();
+	MPI_Barrier(GridC->GetWorld());
+#endif
 	
-	// Start exposure epochs to all windows
-	try
-	{
-		SpParHelper::PostExposureEpoch(Aself, rowwins1, row_group);
-		SpParHelper::PostExposureEpoch(Aself, rowwins2, row_group);
-		SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
-		SpParHelper::PostExposureEpoch(Bself, colwins2, col_group);
-	}
-    	catch(MPI::Exception e)
-	{
-		oput << "Exception while posting exposure epoch" << endl;
-       		oput << e.Get_error_string() << endl;
-     	}
-
-	GridC->GetWorld().Barrier();
+	SpParHelper::PostExposureEpoch(Aself, rowwins1, row_group);
+	SpParHelper::PostExposureEpoch(Aself, rowwins2, row_group);
+	SpParHelper::PostExposureEpoch(Bself, colwins1, col_group);
+	SpParHelper::PostExposureEpoch(Bself, colwins2, col_group);
+	
+	MPI_Barrier(GridC->GetWorld());
 	SpParHelper::Print("Exposure epochs posted\n");	
-	GridC->GetWorld().Barrier();
-
+	MPI_Barrier(GridC->GetWorld());
 	
 	int Aowner = (0+Aoffset) % stages;		
 	int Bowner = (0+Boffset) % stages;
-	try
-	{	
-		SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
-		SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);	// Start prefetching next half 
+	SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
+	SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);	// Start prefetching next half 
 
-		for(int j=0; j< rowwins1.size(); ++j)	// wait for the first half to complete
-			rowwins1[j].Complete();
+	for(int j=0; j< rowwins1.size(); ++j)	// wait for the first half to complete
+		rowwins1[j].Complete();
 		
-		SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
-		SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);	// Start prefetching next half 
+	SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
+	SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);	// Start prefetching next half 
 			
-		for(int j=0; j< colwins1.size(); ++j)
-			colwins1[j].Complete();
-	}
+	for(int j=0; j< colwins1.size(); ++j)
+		colwins1[j].Complete();
 
-    	catch(MPI::Exception e)
-	{
-		oput << "Exception while starting access epoch or the first fetch" << endl;
-       		oput << e.Get_error_string() << endl;
-     	}
-	
 	for(int i = 1; i < stages; ++i) 
 	{
+
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Stage starting\n");
+#endif
+
 		SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
 
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Multiplied\n");
+#endif
 
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Pushed back\n");
+		MPI_Barrier(GridC->GetWorld());	
+#endif
 
-		
-		GridC->GetWorld().Barrier();
 		bool remoteA = false;
 		bool remoteB = false;
 
@@ -176,28 +159,32 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		for(int j=0; j< colwins2.size(); ++j)	// wait for the previous second half to complete
 			colwins2[j].Complete();
 		
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Completed B\n");
+		MPI_Barrier(GridC->GetWorld());
+#endif
 
-		
-		GridC->GetWorld().Barrier();
 		Aowner = (i+Aoffset) % stages;		
 		Bowner = (i+Boffset) % stages;
-	
 
 		// start fetching the current first half 
 		SpParHelper::AccessNFetch(ARecv1, Aowner, rowwins1, row_group, ARecvSizes1);
 		SpParHelper::AccessNFetch(BRecv1, Bowner, colwins1, col_group, BRecvSizes1);
 	
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Fetched next\n");
+		MPI_Barrier(GridC->GetWorld());
+#endif
 		
-		GridC->GetWorld().Barrier();
 		// while multiplying the already completed previous second halfs
 		C_cont = MultiplyReturnTuples<SR>(*ARecv2, *BRecv2, false, true);	
 		if(!C_cont->isZero()) 
 			tomerge.push_back(C_cont);
 
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Multiplied and pushed\n");
-		GridC->GetWorld().Barrier();
+		MPI_Barrier(GridC->GetWorld());
+#endif
 
 		delete ARecv2;		// free memory of the previous second half
 		delete BRecv2;
@@ -207,14 +194,15 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 		for(int j=0; j< colwins1.size(); ++j)
 			colwins1[j].Complete();
 		
+#ifdef SPGEMMDEBUG
 		SpParHelper::Print("Completed next\n");	
-		GridC->GetWorld().Barrier();
+		MPI_Barrier(GridC->GetWorld());
+#endif
 
 		// start prefetching the current second half 
 		SpParHelper::AccessNFetch(ARecv2, Aowner, rowwins2, row_group, ARecvSizes2);
 		SpParHelper::AccessNFetch(BRecv2, Bowner, colwins2, col_group, BRecvSizes2);
 	}
-	//SpParHelper::Print("Stages finished\n");
 	SpTuples<IU,N_promote> * C_cont = MultiplyReturnTuples<SR>(*ARecv1, *BRecv1, false, true);
 	if(!C_cont->isZero()) 
 		tomerge.push_back(C_cont);
@@ -253,8 +241,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	(A.spSeq)->Merge(A1seq, A2seq);
 	(B.spSeq)->Merge(B1seq, B2seq);	
 	
-	row_group.Free();
-	col_group.Free();
+	MPI_Group_free(&row_group);
+	MPI_Group_free(&col_group);
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
@@ -281,7 +269,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
 	int stages, Aoffset, Boffset; 	// stages = inner dimension of matrix blocks
@@ -300,7 +288,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	(B.spSeq)->Split( B1seq, B2seq);
 	
 	// Create row and column windows (collective operation, i.e. everybody exposes its window to others)
-	vector<MPI::Win> rowwins1, rowwins2, colwins1, colwins2;
+	vector<MPI_Win> rowwins1, rowwins2, colwins1, colwins2;
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A1seq, rowwins1);
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), A2seq, rowwins2);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), B1seq, colwins1);
@@ -321,8 +309,9 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	UDERB * BRecv1, * BRecv2;
 	vector< SpTuples<IU,N_promote> *> tomerge;	// sorted triples to be merged
 
-	MPI::Group row_group = (A.commGrid)->GetRowWorld().Get_group();
-	MPI::Group col_group = (B.commGrid)->GetColWorld().Get_group();
+	MPI_Group row_group, col_group;
+	MPI_Comm_group((A.commGrid)->GetRowWorld(), &row_group);
+	MPI_Comm_group((B.commGrid)->GetColWorld(), &col_group);
 
 	int Aself = (A.commGrid)->GetRankInProcRow();
 	int Bself = (B.commGrid)->GetRankInProcCol();	
@@ -415,8 +404,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	(A.spSeq)->Merge(A1seq, A2seq);
 	(B.spSeq)->Merge(B1seq, B2seq);	
 
-	row_group.Free();
-	col_group.Free();	
+	MPI_Group_free(&row_group);
+	MPI_Group_free(&col_group);
 	const_cast< UDERB* >(B.spSeq)->Transpose();	// transpose back to original
 	return SpParMat<IU,N_promote,DER_promote> (C, GridC);		// return the result object
 }
@@ -436,7 +425,7 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	if(A.getncol() != B.getnrow())
 	{
 		cout<<"Can not multiply, dimensions does not match"<<endl;
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 		return SpParMat< IU,N_promote,DER_promote >();
 	}
 
@@ -448,8 +437,8 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	const_cast< UDERB* >(B.spSeq)->Transpose();
 	
 	// set row & col window handles
-	vector<MPI::Win> rowwindows, colwindows;
-	vector<MPI::Win> rowwinnext, colwinnext;
+	vector<MPI_Win> rowwindows, colwindows;
+	vector<MPI_Win> rowwinnext, colwinnext;
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwindows);
 	SpParHelper::SetWindows((B.commGrid)->GetColWorld(), *(B.spSeq), colwindows);
 	SpParHelper::SetWindows((A.commGrid)->GetRowWorld(), *(A.spSeq), rowwinnext);
@@ -669,15 +658,15 @@ SpParMat<IU,typename promote_trait<NU1,NU2>::T_promote,typename promote_trait<UD
 	}
 	for(int i=0; i< rowwindows.size(); ++i)
 	{
-		rowwindows[i].Free();
-		rowwinnext[i].Free();
+		MPI_Win_free(&rowwindows[i]);
+		MPI_Win_free(&rowwinnext[i]);
 	}
 	for(int i=0; i< colwindows.size(); ++i)
 	{
-		colwindows[i].Free();
-		colwinnext[i].Free();
+		MPI_Win_free(&colwindows[i]);
+		MPI_Win_free(&colwinnext[i]);
 	}
-	GridC->GetWorld().Barrier();
+	MPI_Barrier(GridC->GetWorld());
 
 	IU C_m = A.spSeq->getnrow();
 	IU C_n = B.spSeq->getncol();
@@ -702,18 +691,19 @@ template <typename IU>
 void RandPerm(SpParVec<IU,IU> & V)
 {
 	SpParHelper::Print("COMBBLAS: This version of RandPerm(SpParVec &) is obsolete, please use DenseParVec::RandPerm()\n");
-	MPI::Intracomm DiagWorld = V.commGrid->GetDiagWorld();
+	MPI_Intracomm DiagWorld = V.commGrid->GetDiagWorld();
 	
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
 		pair<double,IU> * vecpair = new pair<double,IU>[V.getlocnnz()];
 		
-		int nproc = DiagWorld.Get_size();
-		int diagrank = DiagWorld.Get_rank();
+		int nproc, diagrank;
+		MPI_Comm_size(DiagWorld, &nproc);
+		MPI_Comm_rank(DiagWorld, &diagrank);
 		
 		long * dist = new long[nproc];
 		dist[diagrank] = (long) V.getlocnnz();
-		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPIType<long>(), dist, 1, MPIType<long>());
+		MPI_Allgather(MPI_IN_PLACE, 0, MPIType<long>(), dist, 1, MPIType<long>(), DiagWorld);
 		
   		MTRand M;	// generate random numbers with Mersenne Twister
 		for(int i=0; i<V.getlocnnz(); ++i)
@@ -753,16 +743,16 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		outs << "Can not multiply, dimensions does not match"<< endl;
 		outs << ncolA << " != " << x.getTotalLength() << endl;
 		SpParHelper::Print(outs.str());
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
-	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	MPI_Comm DiagWorld = x.commGrid->GetDiagWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 	int diaginrow = x.commGrid->GetDiagOfProcRow();
 	int diagincol = x.commGrid->GetDiagOfProcCol();
 	
@@ -772,15 +762,14 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	if(x.diagonal)
 	{
 		IU size = x.arr.size();
-		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<NUV*>(SpHelper::p2a(x.arr)), size, MPIType<NUV>(), diagincol); 
+		MPI_Bcast(&size, 1, MPIType<IU>(), diagincol, ColWorld);
+		MPI_Bcast(const_cast<NUV*>(SpHelper::p2a(x.arr)), size, MPIType<NUV>(), diagincol, ColWorld);
 		
 		T_promote * localy = new T_promote[ysize];
 		fill_n(localy, ysize, id);		
 		dcsc_gespmv<SR>(*(A.spSeq), SpHelper::p2a(x.arr), localy);	
 		
-		// IntraComm::Reduce(sendbuf, recvbuf, count, type, op, root)
-		RowWorld.Reduce(MPI::IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);
+		MPI_Reduce(MPI_IN_PLACE, localy, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow, RowWorld);
 		y.arr.resize(ysize);
 		copy(localy, localy+ysize, y.arr.begin());
 		delete [] localy;
@@ -788,18 +777,18 @@ DenseParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	else
 	{
 		IU size;
-		ColWorld.Bcast(&size, 1, MPIType<IU>(), diagincol);
+		MPI_Bcast(&size, 1, MPIType<IU>(), diagincol, ColWorld);
 		
 		NUV * localx = new NUV[size];
-		ColWorld.Bcast(localx, size, MPIType<NUV>(), diagincol); 
-		
+		MPI_Bcast(localx, size, MPIType<NUV>(), diagincol, ColWorld);
+
 		T_promote * localy = new T_promote[ysize];		
 		fill_n(localy, ysize, id);		
 		
 		dcsc_gespmv<SR>(*(A.spSeq), localx, localy);
 		delete [] localx;
 		
-		RowWorld.Reduce(localy, NULL, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow);	
+		MPI_Reduce(localy, NULL, ysize, MPIType<T_promote>(), SR::mpi_op(), diaginrow, RowWorld);
 		delete [] localy;
 	}
 	return y;
@@ -819,17 +808,17 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		outs << "Can not multiply, dimensions does not match"<< endl;
 		outs << ncolA << " != " << x.getTotalLength() << endl;
 		SpParHelper::Print(outs.str());
-		MPI::COMM_WORLD.Abort(DIMMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
 	}
 	if(!(*A.commGrid == *x.commGrid)) 		
 	{
 		cout << "Grids are not comparable for SpMV" << endl; 
-		MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 	
-	MPI::Intracomm DiagWorld = x.commGrid->GetDiagWorld();
-	MPI::Intracomm ColWorld = x.commGrid->GetColWorld();
-	MPI::Intracomm RowWorld = x.commGrid->GetRowWorld();
+	MPI_Comm DiagWorld = x.commGrid->GetDiagWorld();
+	MPI_Comm ColWorld = x.commGrid->GetColWorld();
+	MPI_Comm RowWorld = x.commGrid->GetRowWorld();
 	int diaginrow = x.commGrid->GetDiagOfProcRow();
 	int diagincol = x.commGrid->GetDiagOfProcCol();
 	
@@ -838,9 +827,9 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	if(x.diagonal)
 	{
 		IU nnzx = x.getlocnnz();
-		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
-		ColWorld.Bcast(const_cast<IU*>(SpHelper::p2a(x.ind)), nnzx, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(const_cast<NUV*>(SpHelper::p2a(x.num)), nnzx, MPIType<NUV>(), diagincol); 
+		MPI_Bcast(&nnzx, 1, MPIType<IU>(), diagincol, ColWorld);
+		MPI_Bcast(const_cast<IU*>(SpHelper::p2a(x.ind)), nnzx, MPIType<IU>(), diagincol, ColWorld); 
+		MPI_Bcast(const_cast<NUV*>(SpHelper::p2a(x.num)), nnzx, MPIType<NUV>(), diagincol, ColWorld); 
 		
 		// define a SPA-like data structure
 		T_promote * localy = new T_promote[ysize];
@@ -856,7 +845,7 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		int proccols = x.commGrid->GetGridCols();
 		int * gsizes = new int[proccols];	// # of processor columns = number of processors in the RowWorld
 		int mysize = indy.size();
-		RowWorld.Gather(&mysize, 1, MPI::INT, gsizes, 1, MPI::INT, diaginrow);
+		MPI_Gather(&mysize, 1, MPI_INT, gsizes, 1, MPI_INT, diaginrow, RowWorld);
 		int maxnnz = std::accumulate(gsizes, gsizes+proccols, 0);
 		int * dpls = new int[proccols]();	// displacements (zero initialized pid) 
 		std::partial_sum(gsizes, gsizes+proccols-1, dpls+1);
@@ -865,8 +854,8 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		T_promote * numbuf = new T_promote[maxnnz];
 		
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-		RowWorld.Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow);
-		RowWorld.Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow);
+		MPI_Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), indbuf, gsizes, dpls, MPIType<IU>(), diaginrow, RowWorld);
+		MPI_Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), numbuf, gsizes, dpls, MPIType<T_promote>(), diaginrow, RowWorld);
 		
 		for(int i=0; i< maxnnz; ++i)
 		{
@@ -898,12 +887,12 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 	else
 	{
 		IU nnzx;
-		ColWorld.Bcast(&nnzx, 1, MPIType<IU>(), diagincol);
+		MPI_Bcast(&nnzx, 1, MPIType<IU>(), diagincol, ColWorld);
 		
 		IU * xinds = new IU[nnzx];
 		NUV * xnums = new NUV[nnzx];
-		ColWorld.Bcast(xinds, nnzx, MPIType<IU>(), diagincol); 
-		ColWorld.Bcast(xnums, nnzx, MPIType<NUV>(), diagincol); 
+		MPI_Bcast(xinds, nnzx, MPIType<IU>(), diagincol, ColWorld);
+		MPI_Bcast(xnums, nnzx, MPIType<NUV>(), diagincol, ColWorld);
 		
 		// serial SpMV with sparse vector
 		vector< IU > indy;
@@ -911,11 +900,11 @@ SpParVec<IU,typename promote_trait<NUM,NUV>::T_promote>  SpMV
 		dcsc_gespmv<SR>(*(A.spSeq), xinds, xnums, nnzx, indy, numy);	
 		
 		int mysize = indy.size();
-		RowWorld.Gather(&mysize, 1, MPI::INT, NULL, 1, MPI::INT, diaginrow);
+		MPI_Gather(&mysize, 1, MPI_INT, NULL, 1, MPI_INT, diaginrow, RowWorld);
 		
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-		RowWorld.Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow);
-		RowWorld.Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow);
+		MPI_Gatherv(SpHelper::p2a(indy), mysize, MPIType<IU>(), NULL, NULL, NULL, MPIType<IU>(), diaginrow, RowWorld);
+		MPI_Gatherv(SpHelper::p2a(numy), mysize, MPIType<T_promote>(), NULL, NULL, NULL, MPIType<T_promote>(), diaginrow, RowWorld);
 		
 		delete [] xinds;
 		delete [] xnums;

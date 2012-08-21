@@ -76,8 +76,8 @@ public:
 	SpParMat (shared_ptr<CommGrid> grid);
 	SpParMat (DER * myseq, shared_ptr<CommGrid> grid);
 		
-	SpParMat (ifstream & input, MPI::Intracomm & world);
-	SpParMat (DER * myseq, MPI::Intracomm & world);	
+	SpParMat (ifstream & input, MPI_Comm & world);
+	SpParMat (DER * myseq, MPI_Comm & world);	
 
 	template <class DELIT>
 	SpParMat (const DistEdgeList< DELIT > & rhs, bool removeloops = true);	// conversion from distributed edge list
@@ -290,6 +290,7 @@ public:
 	friend void LocalSpMV(const SpParMat<IU,bool,UDER> & A, int rowneighs, OptBuf<int32_t, VT > & optbuf, int32_t * & indacc, VT * & numacc, int * sendcnt, int accnz);
 
 private:
+	void SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n);
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
 	
 	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, vector < tuple <IT,IT,NT> > & localtuples,
@@ -303,7 +304,7 @@ private:
 				IT m_perproc, IT n_perproc, int rowneighs, int colneighs, IT buffperrowneigh, IT buffpercolneigh, int rankinrow);
 	
 	void AllocateSetBuffers(IT * & rows, IT * & cols, NT * & vals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh);
-	void BcastEssentials(MPI::Intracomm & world, IT & total_m, IT & total_n, IT & total_nnz, int master);
+	void BcastEssentials(MPI_Comm & world, IT & total_m, IT & total_n, IT & total_nnz, int master);
 	
 	shared_ptr<CommGrid> commGrid; 
 	DER * spSeq;
