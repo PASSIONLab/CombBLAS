@@ -60,11 +60,11 @@ class FullyDist<IT, NT, typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>:
 public:
 	FullyDist():glen(0)
 	{
-		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
 	FullyDist(IT globallen): glen(globallen) 
 	{
-		commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+		commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	}
 	FullyDist( shared_ptr<CommGrid> grid):glen(0)
 	{

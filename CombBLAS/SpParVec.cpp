@@ -31,7 +31,7 @@ SpParVec<IT, NT>::SpParVec ( shared_ptr<CommGrid> grid, IT loclen): commGrid(gri
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec (): length(0), NOT_FOUND(numeric_limits<NT>::min())
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -42,7 +42,7 @@ SpParVec<IT, NT>::SpParVec (): length(0), NOT_FOUND(numeric_limits<NT>::min())
 template <class IT, class NT>
 SpParVec<IT, NT>::SpParVec (IT loclen): NOT_FOUND(numeric_limits<NT>::min())
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 	{
 		diagonal = true;
@@ -68,12 +68,16 @@ void SpParVec<IT,NT>::stealFrom(SpParVec<IT,NT> & victim)
 template <class IT, class NT>
 NT SpParVec<IT,NT>::operator[](IT indx) const
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	NT val;
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		IT dgrank = (IT) DiagWorld.Get_rank();
-		IT nprocs = (IT) DiagWorld.Get_size();
+		int rank, size;
+		MPI_Comm_rank(DiagWorld, &rank); 
+		MPI_Comm_size(DiagWorld, &size);
+		IT dgrank = (IT) rank;
+		IT nprocs = (IT) size;	
+
 		IT n_perproc = getTypicalLocLength();
 		IT offset = dgrank * n_perproc;
 
@@ -93,12 +97,12 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 				diagval = NOT_FOUND;	// return NULL
 			}
 		}
-		DiagWorld.Bcast(&diagval, 1, MPIType<NT>(), owner);			
+		MPI_Bcast(&diagval, 1, MPIType<NT>(), owner, DiagWorld);
 		val = diagval;
 	}
 
 	IT diaginrow = commGrid->GetDiagOfProcRow();
-	(commGrid->GetRowWorld()).Bcast(&val, 1, MPIType<NT>(), diaginrow);
+	MPI_Bcast(&val, 1, MPIType<NT>(), diaginrow, commGrid->GetRowWorld());
 	return val;
 }
 
@@ -107,12 +111,13 @@ NT SpParVec<IT,NT>::operator[](IT indx) const
 template <class IT, class NT>
 void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
-		
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
+
 		IT n_perproc = getTypicalLocLength();
 		int owner = std::min(static_cast<int>(indx/n_perproc), nprocs-1);
 		
@@ -152,12 +157,13 @@ void SpParVec<IT,NT>::SetElement (IT indx, NT numx)
 template <class IT, class NT>
 SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	SpParVec<IT,NT> Indexed(commGrid);
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = getTypicalLocLength();
 		vector< vector<IT> > data_req(nprocs);
 		for(IT i=0; i < ri.num.size(); ++i)
@@ -174,7 +180,7 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 
 		int * rdispls = new int[nprocs];
 		int * recvcnt = new int[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, DiagWorld);      // share the request counts
 
 		sdispls[0] = 0;
 		rdispls[0] = 0;
@@ -188,8 +194,8 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 
 		for(int i=0; i<nprocs; ++i)
 			copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
-
-		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+	
+		MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), DiagWorld);  // request data
 		
 		// We will return the requested data, 
 		// our return can be at most as big as the request
@@ -218,9 +224,9 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 		DeleteAll(recvbuf, ddispls);
 		NT * databuf = new NT[ri.num.size()];
 
-		DiagWorld.Alltoall(recvcnt, 1, MPI::INT, sendcnt, 1, MPI::INT);	// share the response counts, overriding request counts 
-		DiagWorld.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send data
-		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+		MPI_Alltoall(recvcnt, 1, MPI_INT, sendcnt, 1, MPI_INT, DiagWorld);      // share the response counts, overriding request counts
+		MPI_Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>(), DiagWorld);  // send data
+		MPI_Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>(), DiagWorld);  // send data
 
 		DeleteAll(rdispls, recvcnt, indsback, databack);
 
@@ -245,11 +251,12 @@ SpParVec<IT,NT> SpParVec<IT,NT>::operator() (const SpParVec<IT,IT> & ri) const
 template <class IT, class NT>
 void SpParVec<IT,NT>::iota(IT size, NT first)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = size / nprocs;
 
 		length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
@@ -263,26 +270,28 @@ void SpParVec<IT,NT>::iota(IT size, NT first)
 template <class IT, class NT>
 SpParVec<IT, IT> SpParVec<IT, NT>::sort()
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	SpParVec<IT,IT> temp(commGrid);
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
 		IT nnz = ind.size(); 
 		pair<IT,IT> * vecpair = new pair<IT,IT>[nnz];
 
-		int nproc = DiagWorld.Get_size();
-		int diagrank = DiagWorld.Get_rank();
-		IT * dist = new IT[nproc];
-		dist[diagrank] = nnz;
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
+		
+		IT * dist = new IT[nprocs];
+		dist[dgrank] = nnz;
+		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), DiagWorld);
+		IT lengthuntil = accumulate(dist, dist+dgrank, static_cast<IT>(0));
 		for(size_t i=0; i<nnz; ++i)
 		{
 			vecpair[i].first = num[i];	// we'll sort wrt numerical values
 			vecpair[i].second = ind[i] + lengthuntil;	// return 0-based indices	
 		}
-		long * dist_in = new long[nproc];
-		for(int i=0; i< nproc; ++i)	dist_in[i] = (long) dist[i];	
+		long * dist_in = new long[nprocs];
+		for(int i=0; i< nprocs; ++i)	dist_in[i] = (long) dist[i];	
     		vpsort::parallel_sort (vecpair, vecpair + nnz,  dist_in, DiagWorld);
 		DeleteAll(dist_in,dist);
 
@@ -439,12 +448,14 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 {
 	length = 0;	// will be updated for diagonal processors
 	IT total_n, total_nnz, n_perproc;
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL)	// Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL)	// Diagonal processors only
 	{
-		int neighs = DiagWorld.Get_size();	// number of neighbors along diagonal (including oneself)
-		int buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
+		int neighs, diagrank;
+		MPI_Comm_size(DiagWorld, &neighs);      // number of neighbors along diagonal (including oneself)
+		MPI_Comm_rank(DiagWorld, &diagrank);
 
+		int buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 		int * displs = new int[neighs];
 		for (int i=0; i<neighs; ++i)
 			displs[i] = i*buffperneigh;
@@ -454,7 +465,6 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		IT * inds; 
 		NT * vals;
 
-		int diagrank = DiagWorld.Get_rank();	
 		if(diagrank == master)	// 1 processor only
 		{		
 			inds = new IT [ buffperneigh * neighs ];
@@ -469,8 +479,8 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				infile.seekg(0);
 				infile >> total_n >> total_nnz;
 				n_perproc = total_n / neighs;	// the last proc gets the extras
-				DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);			
-	
+				MPI_Bcast(&total_n, 1, MPIType<IT>(), master, DiagWorld);
+
 				IT tempind;
 				NT tempval;
 				IT cnz = 0;
@@ -488,16 +498,16 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 					if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 					{
 						// first, send the receive counts ...
-						DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+						MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, DiagWorld);
 
 						// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 						IT * tempinds = new IT[recvcount];
 						NT * tempvals = new NT[recvcount];
 					
 						// then, send all buffers that to their recipients ...
-						DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
-						DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
-	
+						MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, DiagWorld);
+						MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, DiagWorld);
+
 						// now push what is ours to tuples
 						IT offset = master * n_perproc;
 						for(IT i=0; i< recvcount; ++i)
@@ -516,24 +526,24 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 			
 				// Signal the end of file to other processors along the diagonal
 				fill_n(curptrs, neighs, numeric_limits<int>::max());	
-				DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+				MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, DiagWorld);
 			}
 			else	// input file does not exist !
 			{
 				total_n = 0;	
-				DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);						
+				MPI_Bcast(&total_n, 1, MPIType<IT>(), master, DiagWorld);
 			}
 			DeleteAll(inds,vals, curptrs);
 		}
 		else 	 	// (r-1) processors on the diagonal
 		{
-			DiagWorld.Bcast(&total_n, 1, MPIType<IT>(), master);
+			MPI_Bcast(&total_n, 1, MPIType<IT>(), master, DiagWorld);
 			n_perproc = total_n / neighs;
 
 			while(total_n > 0)	// otherwise, input file do not exist
 			{
 				// first receive the receive counts ...
-				DiagWorld.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+				MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, DiagWorld);
 
 				if( recvcount == numeric_limits<int>::max())
 					break;
@@ -543,8 +553,8 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 				NT * tempvals = new NT[recvcount];
 
 				// receive actual data ... (first 4 arguments are ignored in the receiver side)
-				DiagWorld.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
-				DiagWorld.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
+				MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, DiagWorld);
+				MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, DiagWorld);
 
 				// now push what is ours to tuples
 				IT offset = diagrank * n_perproc;
@@ -560,17 +570,17 @@ ifstream& SpParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 		delete [] displs;
  		length = (diagrank != neighs-1) ? n_perproc: (total_n - (n_perproc * (neighs-1)));
 	}	
-	commGrid->GetWorld().Barrier();
+	MPI_Barrier(commGrid->GetWorld());
 	return infile;
 }
 
 template <class IT, class NT>
-IT SpParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
+IT SpParVec<IT,NT>::getTotalLength(MPI_Comm & comm) const
 {
 	IT totlen = 0;
-	if(comm != MPI::COMM_NULL)
+	if(comm != MPI_COMM_NULL)
 	{
-		comm.Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI::SUM); 
+		MPI_Allreduce( &length, & totlen, 1, MPIType<IT>(), MPI_SUM, comm);
 	}
 	return totlen;
 }
@@ -579,21 +589,22 @@ template <class IT, class NT>
 IT SpParVec<IT,NT>::getTypicalLocLength() const
 {
 	IT n_perproc = 0 ;
-        MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-        if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+        MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+        if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
         {
-                int dgrank = DiagWorld.Get_rank();
-                int nprocs = DiagWorld.Get_size();
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
                 n_perproc = length;
                 if (dgrank == nprocs-1 && nprocs > 1)
                 {
                         // the local length on the last processor will be greater than the others if the vector length is not evenly divisible
                         // but for these calculations we need that length
-                        DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+			MPI_Recv(&n_perproc, 1, MPIType<IT>(), 0, 1, DiagWorld, NULL);
                 }
                 else if (dgrank == 0 && nprocs > 1)
                 {
-                        DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
+			MPI_Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1, DiagWorld);
                 }
         }
         return n_perproc;
@@ -608,7 +619,7 @@ NT SpParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
 	NT localsum = std::accumulate( num.begin(), num.end(), init, __binary_op);
 
 	NT totalsum = init;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -628,16 +639,17 @@ void SpParVec<IT,NT>::PrintInfo(string vectorname) const
 template <class IT, class NT>
 void SpParVec<IT,NT>::DebugPrint()
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+		int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank); 
+		MPI_Comm_size(DiagWorld, &nprocs);
 
 		IT* all_nnzs = new IT[nprocs];
 		
 		all_nnzs[dgrank] = ind.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), all_nnzs, 1, MPIType<IT>());
+		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), all_nnzs, 1, MPIType<IT>(), DiagWorld);
 		IT offset = 0;
 		
 		for (int i = 0; i < nprocs; i++)
@@ -652,11 +664,10 @@ void SpParVec<IT,NT>::DebugPrint()
 				}
 			}
 			offset += all_nnzs[i];
-			DiagWorld.Barrier();
+			MPI_Barrier(DiagWorld);
 		}
-		DiagWorld.Barrier();
+		MPI_Barrier(DiagWorld);
 		if (dgrank == 0)
 			cout << "total size: " << offset << endl;
-		DiagWorld.Barrier();
 	}
 }

@@ -77,23 +77,24 @@ public:
 	{
 		IT totnnz = 0;
 		IT locnnz = ind.size();
-		(commGrid->GetWorld()).Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		MPI_Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
 		return totnnz;
 	}
 
 	IT getTypicalLocLength() const;
-	IT getTotalLength(MPI::Intracomm & comm) const;
+	IT getTotalLength(MPI_Comm & comm) const;
 	IT getTotalLength() const { return getTotalLength(commGrid->GetWorld()); }
 	
 	void setNumToInd()
 	{
-		MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-        	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+		MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+        	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
         	{
-           		IT dgrank = (IT) DiagWorld.Get_rank();
-            		IT nprocs = (IT) DiagWorld.Get_size();
+			int rank;
+			MPI_Comm_rank(DiagWorld,&rank);
+
             		IT n_perproc = getTypicalLocLength();
-            		IT offset = dgrank * n_perproc;
+            		IT offset = static_cast<IT>(rank) * n_perproc;
 
             		transform(ind.begin(), ind.end(), num.begin(), bind2nd(plus<IT>(), offset));
 		}

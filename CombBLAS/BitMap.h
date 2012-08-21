@@ -43,6 +43,7 @@ class BitMap {
 
   BitMap(uint64_t size) {
     uint64_t num_longs = (size + 63) / 64;
+    // VS9:  warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
     start = new uint64_t[num_longs];
     end = start + num_longs;
   }
@@ -53,6 +54,7 @@ class BitMap {
   BitMap(const BitMap & rhs)
   {
 	uint64_t num_longs = rhs.end - rhs.start;
+	// VS9: warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
 	start = new uint64_t[num_longs];
 	end = start + num_longs;
 	copy(rhs.start, rhs.end, start);
@@ -63,6 +65,7 @@ class BitMap {
         {
 		delete [] start;
 		uint64_t num_longs = rhs.end - rhs.start;
+		// VS9: warning C4244: 'initializing' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
         	start = new uint64_t[num_longs];
         	end = start + num_longs;
         	copy(rhs.start, rhs.end, start);
@@ -79,7 +82,7 @@ class BitMap {
 
   inline
   void set_bit(uint64_t pos) {
-    start[WORD_OFFSET(pos)] |= ((uint64_t) 1l<<BIT_OFFSET(pos));
+    start[WORD_OFFSET(pos)] |= ( static_cast<uint64_t>(1l)<<BIT_OFFSET(pos));
   }
 
   inline
@@ -95,7 +98,8 @@ class BitMap {
 
   inline
   bool get_bit(uint64_t pos) {
-    if (start[WORD_OFFSET(pos)] & (1l<<BIT_OFFSET(pos)))
+// VS9: warning C4334: '<<' : result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+    if (start[WORD_OFFSET(pos)] & ( static_cast<uint64_t>(1l) <<BIT_OFFSET(pos)))
       return true;
     else
       return false;
