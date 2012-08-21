@@ -7,6 +7,9 @@
 /*
 Copyright (c) 2011, Aydin Buluc
 
+WARNING: This file is deprecated with Combinatorial v1.2
+Please consider using the FullyDistVec object
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -34,7 +37,7 @@ template <class IT, class NT>
 DenseParVec<IT, NT>::DenseParVec ()
 {
 	zero = static_cast<NT>(0);
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -47,7 +50,7 @@ template<class IT, class NT>
 DenseParVec<IT, NT>::DenseParVec (IT globallength)
 {
 	zero = static_cast<NT>(0);
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
 	else
@@ -55,8 +58,8 @@ DenseParVec<IT, NT>::DenseParVec (IT globallength)
 	
 	if (diagonal)
 	{
-		int nprocs = commGrid->GetDiagWorld().Get_size();
-		int ndrank = commGrid->GetDiagWorld().Get_rank();
+		int nprocs = commGrid->GetDiagSize();
+		int ndrank = commGrid->GetDiagRank();
 
 		IT typical = globallength/nprocs;
 		if(ndrank == nprocs - 1)
@@ -69,7 +72,7 @@ DenseParVec<IT, NT>::DenseParVec (IT globallength)
 template <class IT, class NT>
 DenseParVec<IT, NT>::DenseParVec (IT locallength, NT initval, NT id): zero(id)
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 
 	if(commGrid->GetRankInProcRow() == commGrid->GetRankInProcCol())
 		diagonal = true;
@@ -110,7 +113,7 @@ NT DenseParVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
 	NT localsum = std::accumulate( arr.begin(), arr.end(), identity, __binary_op);
 
 	NT totalsum = identity;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -205,7 +208,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator+=(const DenseParVec<IT,NT> & 
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
 			cout << "Grids are not comparable elementwise addition" << endl; 
-			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 		}
 		else if(diagonal)	// Only the diagonal processors hold values
 		{
@@ -223,7 +226,7 @@ DenseParVec<IT,NT> & DenseParVec<IT, NT>::operator-=(const DenseParVec<IT,NT> & 
 		if(!(*commGrid == *rhs.commGrid)) 		
 		{
 			cout << "Grids are not comparable elementwise addition" << endl; 
-			MPI::COMM_WORLD.Abort(GRIDMISMATCH);
+			MPI_Abort(MPI_COMM_WORLD,GRIDMISMATCH);
 		}
 		else if(diagonal)	// Only the diagonal processors hold values
 		{
@@ -251,7 +254,7 @@ bool DenseParVec<IT,NT>::operator==(const DenseParVec<IT,NT> & rhs) const
 #endif
 	}
 	int whole = 1;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, commGrid->GetWorld());
 	return static_cast<bool>(whole);	
 }
 
@@ -265,7 +268,7 @@ IT DenseParVec<IT,NT>::Count(_Predicate pred) const
 		local = count_if( arr.begin(), arr.end(), pred );
 	}
 	IT whole = 0;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
+	MPI_Allreduce( &local, &whole, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
 	return whole;	
 }
 
@@ -277,11 +280,12 @@ template <typename _Predicate>
 DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 {
 	DenseParVec<IT,IT> found(commGrid, (IT) 0);
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT old_n_perproc = getTypicalLocLength();
 		
 		IT size = arr.size();
@@ -292,7 +296,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 				found.arr.push_back(i+old_n_perproc*dgrank);
 			}
 		}
-		DiagWorld.Barrier();
+		MPI_Barrier(DiagWorld);
 		
 		// Since the found vector is not reshuffled yet, we can't use getTypicalLocLength() at this point
 		IT n_perproc = found.getTotalLength(DiagWorld) / nprocs;
@@ -301,14 +305,14 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 			if(dgrank != nprocs-1)
 			{
 				int arrsize = found.arr.size();
-				DiagWorld.Gather(&arrsize, 1, MPI::INT, NULL, 1, MPI::INT, nprocs-1);
-				DiagWorld.Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1);
+				MPI_Gather(&arrsize, 1, MPI_INT, NULL, 1, MPI_INT, nprocs-1, DiagWorld);
+				MPI_Gatherv(&(found.arr[0]), arrsize, MPIType<IT>(), NULL, NULL, NULL, MPIType<IT>(), nprocs-1, DiagWorld);
 			}
 			else
 			{	
 				int * allnnzs = new int[nprocs];
 				allnnzs[dgrank] = found.arr.size();
-				DiagWorld.Gather(MPI::IN_PLACE, 1, MPI::INT, allnnzs, 1, MPI::INT, nprocs-1);
+				MPI_Gather(MPI_IN_PLACE, 1, MPI_INT, allnnzs, 1, MPI_INT, nprocs-1, DiagWorld);
 				
 				int * rdispls = new int[nprocs];
 				rdispls[0] = 0;
@@ -317,7 +321,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 
 				IT totrecv = accumulate(allnnzs, allnnzs+nprocs, 0);
 				vector<IT> recvbuf(totrecv);
-				DiagWorld.Gatherv(MPI::IN_PLACE, 1, MPI::INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1);
+				MPI_Gatherv(MPI_IN_PLACE, 1, MPI_INT, &(recvbuf[0]), allnnzs, rdispls, MPIType<IT>(), nprocs-1, DiagWorld);
 
 				found.arr.swap(recvbuf);
 				DeleteAll(allnnzs, rdispls);
@@ -338,7 +342,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 		}
 
 		int * recvcnt = new int[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT); // share the counts 
+		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, DiagWorld); // share the counts
 
 		int * sdispls = new int[nprocs];
 		int * rdispls = new int[nprocs];
@@ -354,7 +358,7 @@ DenseParVec<IT,IT> DenseParVec<IT,NT>::FindInds(_Predicate pred) const
 		vector<IT> recvbuf(totrecv);
 			
 		// data is already in the right order in found.arr
-		DiagWorld.Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>()); 
+		MPI_Alltoallv(&(found.arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), DiagWorld);
 		found.arr.swap(recvbuf);
 		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
 	}
@@ -399,11 +403,12 @@ ifstream& DenseParVec<IT,NT>::ReadDistribute (ifstream& infile, int master)
 template <class IT, class NT>
 void DenseParVec<IT,NT>::SetElement (IT indx, NT numx)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = getTypicalLocLength();	
 		IT offset = dgrank * n_perproc;
 		
@@ -437,11 +442,12 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 {
 	NT ret;
 	int owner = 0;
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = getTypicalLocLength();
 		IT offset = dgrank * n_perproc;
 		
@@ -468,8 +474,8 @@ NT DenseParVec<IT,NT>::GetElement (IT indx) const
 		}
 	}
 	int worldowner = commGrid->GetRank(owner);	// 0 is always on the diagonal
-	(commGrid->GetWorld()).Bcast(&worldowner, 1, MPIType<int>(), 0);
-	(commGrid->GetWorld()).Bcast(&ret, 1, MPIType<NT>(), worldowner);
+	MPI_Bcast(&worldowner, 1, MPIType<int>(), 0, commGrid->GetWorld());
+	MPI_Bcast(&ret, 1, MPIType<NT>(), worldowner, commGrid->GetWorld());
 	return ret;
 }
 
@@ -482,16 +488,17 @@ void DenseParVec<IT,NT>::DebugPrint()
 	// copy(recvbuf, recvbuf+totrecv, ostream_iterator<IT>(out, " "));
 	// out << " <end_of_vector>"<< endl;
 
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 
 		int64_t* all_nnzs = new int64_t[nprocs];
 		
 		all_nnzs[dgrank] = arr.size();
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<int64_t>(), all_nnzs, 1, MPIType<int64_t>());
+		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<int64_t>(), all_nnzs, 1, MPIType<int64_t>(), DiagWorld);
 		int64_t offset = 0;
 		
 		for (int i = 0; i < nprocs; i++)
@@ -507,12 +514,12 @@ void DenseParVec<IT,NT>::DebugPrint()
 				cerr << endl;
 			}
 			offset += all_nnzs[i];
-			DiagWorld.Barrier();
+			MPI_Barrier(DiagWorld);
 		}
-		DiagWorld.Barrier();
+		MPI_Barrier(DiagWorld);
 		if (dgrank == 0)
 			cerr << "total size: " << offset << endl;
-		DiagWorld.Barrier();
+		MPI_Barrier(DiagWorld);
 	}
 }
 
@@ -532,19 +539,20 @@ void DenseParVec<IT,NT>::Apply(_UnaryOperation __unary_op, const SpParVec<IT,NT>
 template <class IT, class NT>
 void DenseParVec<IT,NT>::RandPerm()
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
 		IT size = arr.size();
 		pair<double,IT> * vecpair = new pair<double,IT>[size];
 
-		int nproc = DiagWorld.Get_size();
-		int diagrank = DiagWorld.Get_rank();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 
-		long * dist = new long[nproc];
-		dist[diagrank] = size;
-		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());
-		IT lengthuntil = accumulate(dist, dist+diagrank, 0);
+		long * dist = new long[nprocs];
+		dist[dgrank] = size;
+		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>(), DiagWorld);
+		IT lengthuntil = accumulate(dist, dist+dgrank, 0);
 
   		MTRand M;	// generate random numbers with Mersenne Twister
 		for(int i=0; i<size; ++i)
@@ -570,11 +578,12 @@ void DenseParVec<IT,NT>::RandPerm()
 template <class IT, class NT>
 void DenseParVec<IT,NT>::iota(IT size, NT first)
 {
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-	if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+	if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = size / nprocs;
 
 		IT length = (dgrank != nprocs-1) ? n_perproc: (size - (n_perproc * (nprocs-1)));
@@ -592,12 +601,13 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		return DenseParVec<IT,NT>();
 	}
 
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
 	DenseParVec<IT,NT> Indexed(commGrid, zero);	// length(Indexed) = length(ri)
-	if(DiagWorld != MPI::COMM_NULL) 		// Diagonal processors only
+	if(DiagWorld != MPI_COMM_NULL) 		// Diagonal processors only
 	{
-		int dgrank = DiagWorld.Get_rank();
-		int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
 		IT n_perproc = getTypicalLocLength();
 		vector< vector< IT > > data_req(nprocs);	
 		vector< vector< IT > > revr_map(nprocs);	// to put the incoming data to the correct location	
@@ -616,7 +626,7 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 
 		int * rdispls = new int[nprocs];
 		int * recvcnt = new int[nprocs];
-		DiagWorld.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, DiagWorld);      // share the request count
 
 		sdispls[0] = 0;
 		rdispls[0] = 0;
@@ -640,9 +650,8 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 			copy(revr_map[i].begin(), revr_map[i].end(), reversemap+sdispls[i]);
 			vector<IT>().swap(revr_map[i]);
 		}
+		MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), DiagWorld); // request data
 
-		DiagWorld.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
-		
 		// We will return the requested data,
 		// our return will be as big as the request 
 		// as we are indexing a dense vector, all elements exist
@@ -661,7 +670,7 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 		NT * databuf = new NT[ri.arr.size()];
 
 		// the response counts are the same as the request counts 
-		DiagWorld.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+		MPI_Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>(), DiagWorld);  // send data
 		DeleteAll(rdispls, recvcnt, databack);
 
 		// Now create the output from databuf
@@ -679,13 +688,13 @@ DenseParVec<IT,NT> DenseParVec<IT,NT>::operator() (const DenseParVec<IT,IT> & ri
 }
 
 template <class IT, class NT>
-IT DenseParVec<IT,NT>::getTotalLength(MPI::Intracomm & comm) const
+IT DenseParVec<IT,NT>::getTotalLength(MPI_Comm & comm) const
 {
 	IT totnnz = 0;
-	if (comm != MPI::COMM_NULL)	
+	if (comm != MPI_COMM_NULL)	
 	{
 		IT locnnz = arr.size();
-		comm.Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI::SUM); 
+		MPI_Allreduce( &locnnz, & totnnz, 1, MPIType<IT>(), MPI_SUM, comm);
 	}
 	return totnnz;
 }
@@ -694,21 +703,22 @@ template <class IT, class NT>
 IT DenseParVec<IT,NT>::getTypicalLocLength() const
 {
 	IT n_perproc = 0 ;
-	MPI::Intracomm DiagWorld = commGrid->GetDiagWorld();
-        if(DiagWorld != MPI::COMM_NULL) // Diagonal processors only
+	MPI_Comm DiagWorld = commGrid->GetDiagWorld();
+        if(DiagWorld != MPI_COMM_NULL) // Diagonal processors only
         {
-                int dgrank = DiagWorld.Get_rank();
-                int nprocs = DiagWorld.Get_size();
+	        int dgrank, nprocs;
+		MPI_Comm_rank(DiagWorld, &dgrank);
+		MPI_Comm_size(DiagWorld, &nprocs);
                 n_perproc = arr.size(); 
                 if (dgrank == nprocs-1 && nprocs > 1)
                 {
                         // the local length on the last processor will be greater than the others if the vector length is not evenly divisible
                         // but for these calculations we need that length
-                        DiagWorld.Recv(&n_perproc, 1, MPIType<IT>(), 0, 1);
+			MPI_Recv(&n_perproc, 1, MPIType<IT>(), 0, 1, DiagWorld, NULL);
                 }
                 else if (dgrank == 0 && nprocs > 1)
                 {
-                        DiagWorld.Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1);
+			MPI_Send(&n_perproc, 1, MPIType<IT>(), nprocs-1, 1, DiagWorld);
                 }
 	}
 	return n_perproc;

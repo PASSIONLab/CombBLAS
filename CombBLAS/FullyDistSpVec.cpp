@@ -117,8 +117,8 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx)
 			found = 0;
 		}
 	}
-	(commGrid->GetWorld()).Bcast(&found, 1, MPIType<int>(), owner);
-	(commGrid->GetWorld()).Bcast(&val, 1, MPIType<NT>(), owner);
+	MPI_Bcast(&found, 1, MPI_INT, owner, commGrid->GetWorld());
+	MPI_Bcast(&val, 1, MPIType<NT>(), owner, commGrid->GetWorld());
 	wasFound = found;
 	return val;
 }
@@ -181,11 +181,11 @@ void FullyDistSpVec<IT,NT>::DelElement (IT indx)
 template <class IT, class NT>
 FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT> & ri) const
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval, NT id);
-	FullyDistVec<IT,NT> Indexed(ri.commGrid, ri.glen, NT());
-	int nprocs = World.Get_size();
-        unordered_map<IT, IT> revr_map;       // inverted index that maps indices of *this to indices of output
+	MPI_Comm World = commGrid->GetWorld();
+	FullyDistVec<IT,NT> Indexed(ri.commGrid, ri.glen, NT());	// NT() is the initial value
+	int nprocs;
+	MPI_Comm_size(World, &nprocs);
+	unordered_map<IT, IT> revr_map;       // inverted index that maps indices of *this to indices of output
 	vector< vector<IT> > data_req(nprocs);
 	IT locnnz = ri.LocArrSize();
 
@@ -199,7 +199,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 			local = 0;
 		} 
 	}
-	World.Allreduce( &local, &whole, 1, MPI::INT, MPI::BAND);
+	MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, World);
 	if(whole == 0)
 	{
 		throw outofrangeexception();
@@ -220,7 +220,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
-	World.Alltoall(sendcnt, 1, MPI::INT, recvcnt, 1, MPI::INT);	// share the request counts 
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
 
 	sdispls[0] = 0;
 	rdispls[0] = 0;
@@ -237,7 +237,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
 		vector<IT>().swap(data_req[i]);
 	}
-	World.Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>());  // request data
+	MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  // request data
 		
 	// We will return the requested data, 
 	// our return can be at most as big as the request
@@ -266,9 +266,9 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 	DeleteAll(recvbuf, ddispls);
 	NT * databuf = new NT[ri.LocArrSize()];
 
-	World.Alltoall(recvcnt, 1, MPI::INT, sendcnt, 1, MPI::INT);	// share the response counts, overriding request counts 
-	World.Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>());  // send indices
-	World.Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>());  // send data
+	MPI_Alltoall(recvcnt, 1, MPI_INT, sendcnt, 1, MPI_INT, World);	// share the response counts, overriding request counts 
+	MPI_Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>(), World);  // send indices
+	MPI_Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>(), World);  // send data
 	DeleteAll(rdispls, recvcnt, indsback, databack);
 
 	// Now create the output from databuf (holds numerical values) and sendbuf (holds indices)
@@ -303,16 +303,18 @@ void FullyDistSpVec<IT,NT>::iota(IT globalsize, NT first)
 template <class IT, class NT>
 FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
-	MPI::Intracomm World = commGrid->GetWorld();
+	MPI_Comm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
 	IT nnz = getlocnnz(); 
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
-	int nprocs = World.Get_size();
-	int rank = World.Get_rank();
 
+	int nprocs, rank;
+	MPI_Comm_size(World, &nprocs);
+	MPI_Comm_rank(World, &rank);
+	
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
 	IT sizeuntil = accumulate(dist, dist+rank, 0);
 	for(IT i=0; i< nnz; ++i)
 	{
@@ -461,8 +463,8 @@ template <class HANDLER>
 ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, HANDLER handler)
 {
 	IT total_nnz;
-	MPI::Intracomm World = commGrid->GetWorld();
-	int neighs = World.Get_size();	// number of neighbors (including oneself)
+	MPI_Comm World = commGrid->GetWorld();
+	int neighs = commGrid->GetSize();  // number of neighbors (including oneself)
 	int buffperneigh = MEMORYINBYTES / (neighs * (sizeof(IT) + sizeof(NT)));
 
 	int * displs = new int[neighs];
@@ -473,7 +475,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 	int recvcount = 0;
 	IT * inds = NULL; 
 	NT * vals = NULL;
-	int rank = World.Get_rank();	
+	int rank = commGrid->GetRank();	
 	if(rank == master)	// 1 processor only
 	{		
 		inds = new IT [ buffperneigh * neighs ];
@@ -498,7 +500,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				indIsRow = false;
 				glen = numcols;
 			}
-			World.Bcast(&glen, 1, MPIType<IT>(), master);			
+			MPI_Bcast(&glen, 1, MPIType<IT>(), master, World);
 	
 			IT tempind;
 			IT temprow, tempcol;
@@ -521,15 +523,15 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 				{
 					// first, send the receive counts ...
-					World.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+					MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, World);
 
 					// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 					IT * tempinds = new IT[recvcount];
 					NT * tempvals = new NT[recvcount];
 					
 					// then, send all buffers that to their recipients ...
-					World.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
-					World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
+					MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, World); 
+					MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, World); 
 		
 					// now push what is ours to tuples
 					for(IT i=0; i< recvcount; ++i)
@@ -548,23 +550,22 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 			
 			// Signal the end of file to other processors along the diagonal
 			fill_n(curptrs, neighs, numeric_limits<int>::max());	
-			World.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+			MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, World);
 		}
 		else	// input file does not exist !
 		{
 			glen = 0;	
-			World.Bcast(&glen, 1, MPIType<IT>(), master);						
+			MPI_Bcast(&glen, 1, MPIType<IT>(), master, World);
 		}
 		DeleteAll(inds,vals, curptrs);
 	}
 	else 	 	// all other processors
 	{
-		World.Bcast(&glen, 1, MPIType<IT>(), master);
-
+		MPI_Bcast(&glen, 1, MPIType<IT>(), master, World);
 		while(glen > 0)	// otherwise, input file do not exist
 		{
 			// first receive the receive counts ...
-			World.Scatter(curptrs, 1, MPI::INT, &recvcount, 1, MPI::INT, master);
+			MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, World);
 
 			if( recvcount == numeric_limits<int>::max())
 				break;
@@ -574,8 +575,8 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 			NT * tempvals = new NT[recvcount];
 				
 			// receive actual data ... (first 4 arguments are ignored in the receiver side)
-			World.Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master); 
-			World.Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master); 
+			MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, World);
+			MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, World);
 
 			// now push what is ours to tuples
 			for(IT i=0; i< recvcount; ++i)
@@ -587,7 +588,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 		}
 	}
 	delete [] displs;
-	World.Barrier();
+	MPI_Barrier(World);
 	return infile;
 }
 
@@ -595,17 +596,17 @@ template <class IT, class NT>
 template <class HANDLER>
 void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits)
 {
-	// This is based on DebugPrint. Make it not use temporary files and send data directly!
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);
+    	int rank, nprocs;
+	MPI_Comm World = commGrid->GetWorld();
+	MPI_Comm_rank(World, &rank);
+	MPI_Comm_size(World, &nprocs);
+    	MPI_File thefile;
+	MPI_File_open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT sizeuntil = accumulate(dist, dist+rank, 0);
-
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+	IT sizeuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
 	IT totalLength = TotalLength();
 	IT totalNNZ = getnnz();
 
@@ -614,15 +615,16 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		IT ind;
 		NT num;
 	};
-	mystruct data;
 
-	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
-	datatype.Commit();
-	int dsize = datatype.Get_size();
+	MPI_Datatype datatype;
+	MPI_Type_contiguous(sizeof(mystruct), MPI_CHAR, &datatype );
+	MPI_Type_commit(&datatype);
+	int dsize;
+	MPI_Type_size(datatype, &dsize);
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI::INFO_NULL);
+    	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI_INFO_NULL);
 
 	int count = ind.size();
 	mystruct * packed = new mystruct[count];
@@ -631,20 +633,20 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		packed[i].ind = ind[i] + sizeuntil;
 		packed[i].num = num[i];
 	}
-	thefile.Write(packed, count, datatype);
-	World.Barrier();
-	thefile.Close();
+	MPI_File_write(thefile, packed, count, datatype, NULL);
+	MPI_Barrier(World);
+	MPI_File_close(&thefile);
 	delete [] packed;
-	
+
 	// Now let processor-0 read the file and print
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistspvec", "r");
-        if(!f)
-        { 
+        	if(!f)
+        	{ 
 			cerr << "Problem reading binary input file\n";
 			return;
-        }
+	        }
 		IT maxd = *max_element(dist, dist+nprocs);
 		mystruct * data = new mystruct[maxd];
 
@@ -672,7 +674,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		delete [] data;
 		delete [] dist;
 	}
-	World.Barrier();
+	MPI_Barrier(World);
 }
 
 
@@ -682,7 +684,7 @@ IT FullyDistSpVec<IT,NT>::Count(_Predicate pred) const
 {
 	IT local = count_if( num.begin(), num.end(), pred );
 	IT whole = 0;
-	commGrid->GetWorld().Allreduce( &local, &whole, 1, MPIType<IT>(), MPI::SUM);
+	MPI_Allreduce( &local, &whole, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
 	return whole;	
 }
 
@@ -696,7 +698,7 @@ NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
 	NT localsum = std::accumulate( num.begin(), num.end(), init, __binary_op);
 
 	NT totalsum = init;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<NT>(), MPIOp<_BinaryOperation, NT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -720,7 +722,7 @@ OUT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val,
 	}
 
 	OUT totalsum = default_val;
-	(commGrid->GetWorld()).Allreduce( &localsum, &totalsum, 1, MPIType<OUT>(), MPIOp<_BinaryOperation, OUT>::op());
+	MPI_Allreduce( &localsum, &totalsum, 1, MPIType<OUT>(), MPIOp<_BinaryOperation, OUT>::op(), commGrid->GetWorld());
 	return totalsum;
 }
 
@@ -735,30 +737,33 @@ void FullyDistSpVec<IT,NT>::PrintInfo(string vectorname) const
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::DebugPrint()
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-    	int rank = World.Get_rank();
-    	int nprocs = World.Get_size();
-    	MPI::File thefile = MPI::File::Open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	int rank, nprocs;
+	MPI_Comm World = commGrid->GetWorld();
+	MPI_Comm_rank(World, &rank);
+	MPI_Comm_size(World, &nprocs);
+    	MPI_File thefile;
+	MPI_File_open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
-	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
-	IT sizeuntil = accumulate(dist, dist+rank, 0);
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+	IT sizeuntil = accumulate(dist, dist+rank, static_cast<IT>(0));
 
 	struct mystruct
 	{
 		IT ind;
 		NT num;
 	};
-	//mystruct data;
 
-	MPI::Datatype datatype = MPI::CHAR.Create_contiguous(sizeof(mystruct));
-	datatype.Commit();
-	int dsize = datatype.Get_size();
+	MPI_Datatype datatype;
+	MPI_Type_contiguous(sizeof(mystruct), MPI_CHAR, &datatype );
+	MPI_Type_commit(&datatype);
+	int dsize;
+	MPI_Type_size(datatype, &dsize);
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI::INFO_NULL);
+    	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI_INFO_NULL);
 
 	int count = ind.size();
 	mystruct * packed = new mystruct[count];
@@ -767,9 +772,9 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		packed[i].ind = ind[i];
 		packed[i].num = num[i];
 	}
-	thefile.Write(packed, count, datatype);
-	World.Barrier();
-	thefile.Close();
+	MPI_File_write(thefile, packed, count, datatype, NULL);
+	MPI_Barrier(World);
+	MPI_File_close(&thefile);
 	delete [] packed;
 	
 	// Now let processor-0 read the file and print
@@ -801,5 +806,5 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		delete [] data;
 		delete [] dist;
 	}
-	World.Barrier();
+	MPI_Barrier(World);
 }

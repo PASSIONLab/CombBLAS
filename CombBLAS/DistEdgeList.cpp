@@ -47,13 +47,13 @@ using namespace std;
 template <typename IT>
 DistEdgeList<IT>::DistEdgeList(): edges(NULL), pedges(NULL), nedges(0), globalV(0)
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 }
 
 template <typename IT>
 DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): edges(NULL), pedges(NULL), globalV(globaln)
 {
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	commGrid.reset(new CommGrid(MPI_COMM_WORLD, 0, 0));
 
 	int nprocs = commGrid->GetSize();
 	int rank = commGrid->GetRank();
@@ -97,47 +97,50 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
 template <typename IT>
 void DistEdgeList<IT>::Dump64bit(string filename)
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	int rank,nprocs;
+	MPI_Comm World = commGrid->GetWorld();
+	MPI_Comm_rank(World, &rank);
+	MPI_Comm_size(World, &nprocs);
+	MPI_File thefile;
+	MPI_File_open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = 2*nedges;
-	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
+	MPI_Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>(), commGrid->GetWorld());
 	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(int64_t(lengthuntil * sizeof(IT)), MPIType<IT>(), MPIType<IT>(), "native", MPI::INFO_NULL);
-	thefile.Write(edges, prelens[rank], MPIType<IT>());
-	thefile.Close();
-
+    	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(IT)), MPIType<IT>(), MPIType<IT>(), "native", MPI_INFO_NULL);
+	MPI_File_write(thefile, edges, prelens[rank], MPIType<IT>(), NULL);
+	MPI_File_close(&thefile);
 	delete [] prelens;
 }	
 
 template <typename IT>
 void DistEdgeList<IT>::Dump32bit(string filename)
 {
-	MPI::Intracomm World = commGrid->GetWorld();
-	int rank = World.Get_rank();
-	int nprocs = World.Get_size();
-	MPI::File thefile = MPI::File::Open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI::INFO_NULL);    
+	int rank, nprocs;
+	MPI_Comm World = commGrid->GetWorld();
+	MPI_Comm_rank(World, &rank);
+	MPI_Comm_size(World, &nprocs);
+	MPI_File thefile;
+	MPI_File_open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	IT * prelens = new IT[nprocs];
 	prelens[rank] = 2*nedges;
-	commGrid->GetWorld().Allgather(MPI::IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>());
-	IT lengthuntil = accumulate(prelens, prelens+rank, 0);
+	MPI_Allgather(MPI_IN_PLACE, 0, MPIType<IT>(), prelens, 1, MPIType<IT>(), commGrid->GetWorld());
+	IT lengthuntil = accumulate(prelens, prelens+rank, static_cast<IT>(0));
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	thefile.Set_view(int64_t(lengthuntil * sizeof(uint32_t)), MPI_UNSIGNED, MPI_UNSIGNED, "native", MPI::INFO_NULL);
+    	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(uint32_t)), MPI_UNSIGNED, MPI_UNSIGNED, "native", MPI_INFO_NULL);
 	uint32_t * gen_edges = new uint32_t[prelens[rank]];
 	for(IT i=0; i< prelens[rank]; ++i)
 		gen_edges[i] = (uint32_t) edges[i];
 
-	thefile.Write(gen_edges, prelens[rank], MPI_UNSIGNED);
-	thefile.Close();
+	MPI_File_write(thefile, gen_edges, prelens[rank], MPI_UNSIGNED, NULL);
+	MPI_File_close(&thefile);
 
 	delete [] prelens;
 	delete [] gen_edges;
@@ -225,8 +228,9 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 		// local RMAT matrices all having vertex ranges [0,...,globalmax-1]
 		// Spread the two 64-bit numbers into five nonzero values in the correct range
 		uint_fast32_t seed[5];
-		uint64_t rank = MPI::COMM_WORLD.Get_rank();
-		uint64_t size = MPI::COMM_WORLD.Get_size();
+
+		uint64_t size = (uint64_t) commGrid->GetSize();
+		uint64_t rank = (uint64_t) commGrid->GetRank();
 		uint64_t seed2 = time(NULL);
 		make_mrg_seed(rank, seed2, seed);
 
@@ -237,8 +241,8 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 			if(rank == 0)		
 				RefGen21::MakeScrambleValues(val0, val1, seed);	// ignore the return value
 
-			MPI::COMM_WORLD.Bcast(&val0, 1, MPIType<uint64_t>(),0);
-			MPI::COMM_WORLD.Bcast(&val1, 1, MPIType<uint64_t>(),0);
+			MPI_Bcast(&val0, 1, MPIType<uint64_t>(),0, commGrid->GetWorld());
+ 			MPI_Bcast(&val1, 1, MPIType<uint64_t>(),0, commGrid->GetWorld());
 		}
 
 		nedges = globaledges/size;
@@ -298,7 +302,7 @@ void PermEdges(DistEdgeList<IT> & DEL)
 
 		pair<double, pair<IT,IT> >* vecpair = new pair<double, pair<IT,IT> >[n_thisstage];
 		dist[rank] = n_thisstage;
-		(DEL.commGrid->GetWorld()).Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());
+		MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), DEL.commGrid->GetWorld());
 
 		for (IT i = 0; i < n_thisstage; i++)
 		{
@@ -341,7 +345,7 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 {
 	int nprocs = DEL.commGrid->GetSize();
 	int rank = DEL.commGrid->GetRank();
-	MPI::Intracomm World = DEL.commGrid->GetWorld(); 
+	MPI_Comm World = DEL.commGrid->GetWorld(); 
 
 	// create permutation
 	FullyDistVec<IU, IU> globalPerm(DEL.commGrid);
@@ -376,12 +380,12 @@ void RenameVertices(DistEdgeList<IU> & DEL)
 			localPerm = new IU[permsize];
 			copy(globalPerm.arr.begin(), globalPerm.arr.end(), localPerm);
 		}
-		World.Bcast(&permsize, 1, MPIType<IU>(), round);
+		MPI_Bcast(&permsize, 1, MPIType<IU>(), round, World);
 		if(rank != round)
 		{
 			localPerm = new IU[permsize];
 		}
-		World.Bcast(localPerm, permsize, MPIType<IU>(), round);
+		MPI_Bcast(localPerm, permsize, MPIType<IU>(), round, World);
 	
 		// iterate over 	
 		for (typename vector<IU>::size_type j = 0; j < (unsigned)locedgelist ; j++)

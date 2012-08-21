@@ -41,44 +41,41 @@ THE SOFTWARE.
 #include "CombBLAS.h"
 
 using namespace std;
-class CommGrid;	// forward declaration
-
-//shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 
 class CommGrid
 {
 public:
-	CommGrid(MPI::Intracomm & world, int nrowproc, int ncolproc);
+	CommGrid(MPI_Comm world, int nrowproc, int ncolproc);
 
 	~CommGrid()
 	{
-		commWorld.Free();
-		rowWorld.Free();
-		colWorld.Free();
-		if(diagWorld != MPI::COMM_NULL) diagWorld.Free();
+		MPI_Comm_free(&commWorld);
+		MPI_Comm_free(&rowWorld);
+		MPI_Comm_free(&colWorld);
+		if(diagWorld != MPI_COMM_NULL) MPI_Comm_free(&diagWorld);
 	}
 	CommGrid (const CommGrid & rhs): grrows(rhs.grrows), grcols(rhs.grcols),
 			myprocrow(rhs.myprocrow), myproccol(rhs.myproccol), myrank(rhs.myrank) // copy constructor
 	{
-		commWorld = rhs.commWorld.Dup();
-		rowWorld = rhs.rowWorld.Dup();
-		colWorld = rhs.colWorld.Dup();
+		MPI_Comm_dup(rhs.commWorld, &commWorld);
+		MPI_Comm_dup(rhs.rowWorld, &rowWorld);
+		MPI_Comm_dup(rhs.colWorld, &colWorld);
 
 		// don't use the shortcut ternary ? operator, C++ syntax fails as
 		// mpich implements MPI::COMM_NULL of different type than MPI::IntraComm
-		if(rhs.diagWorld == MPI::COMM_NULL)
-			diagWorld = MPI::COMM_NULL;
+		if(rhs.diagWorld == MPI_COMM_NULL)
+			diagWorld = MPI_COMM_NULL;
 		else
-			diagWorld = rhs.diagWorld.Dup();
+			MPI_Comm_dup(rhs.diagWorld,&diagWorld);
 	}
 	
 	CommGrid & operator=(const CommGrid & rhs)	// assignment operator
 	{
 		if(this != &rhs)		
 		{
-			commWorld.Free();
-			rowWorld.Free();
-			colWorld.Free();
+			MPI_Comm_free(&commWorld);
+			MPI_Comm_free(&rowWorld);
+			MPI_Comm_free(&colWorld);
 
 			grrows = rhs.grrows;
 			grcols = rhs.grcols;
@@ -86,14 +83,12 @@ public:
 			myprocrow = rhs.myprocrow;
 			myproccol = rhs.myproccol;
 
-			commWorld = rhs.commWorld.Dup();
-			rowWorld = rhs.rowWorld.Dup();
-			colWorld = rhs.colWorld.Dup();
+			MPI_Comm_dup(rhs.commWorld, &commWorld);
+			MPI_Comm_dup(rhs.rowWorld, &rowWorld);
+			MPI_Comm_dup(rhs.colWorld, &colWorld);
 			
-			if(rhs.diagWorld == MPI::COMM_NULL)
-				diagWorld = MPI::COMM_NULL;
-			else
-				diagWorld = rhs.diagWorld.Dup();
+			if(rhs.diagWorld == MPI_COMM_NULL)	diagWorld = MPI_COMM_NULL;
+			else	MPI_Comm_dup(rhs.diagWorld,&diagWorld);
 		}
 		return *this;
 	}
@@ -112,6 +107,12 @@ public:
 	int GetRank() { return myrank; }
 	int GetRankInProcRow() { return myproccol; }
 	int GetRankInProcCol() { return myprocrow; }
+	int GetDiagRank()
+	{
+		int rank;
+		MPI_Comm_rank(diagWorld, &rank);
+		return rank;
+	}
 
 	int GetRankInProcRow(int wholerank);
 	int GetRankInProcCol(int wholerank);
@@ -124,25 +125,31 @@ public:
 		return ((grcols * myproccol) + myprocrow);
 	}
 	
-	MPI::Intracomm & GetWorld() { return commWorld; }
-	MPI::Intracomm & GetRowWorld() { return rowWorld; }
-	MPI::Intracomm & GetColWorld() { return colWorld; }
-	MPI::Intracomm & GetDiagWorld() { return diagWorld; }
-	MPI::Intracomm GetWorld() const { return commWorld; }
-	MPI::Intracomm GetRowWorld() const { return rowWorld; }
-	MPI::Intracomm GetColWorld() const { return colWorld; }
-	MPI::Intracomm GetDiagWorld() const { return diagWorld; }
+	MPI_Comm & GetWorld() { return commWorld; }
+	MPI_Comm & GetRowWorld() { return rowWorld; }
+	MPI_Comm & GetColWorld() { return colWorld; }
+	MPI_Comm & GetDiagWorld() { return diagWorld; }
+	MPI_Comm GetWorld() const { return commWorld; }
+	MPI_Comm GetRowWorld() const { return rowWorld; }
+	MPI_Comm GetColWorld() const { return colWorld; }
+	MPI_Comm GetDiagWorld() const { return diagWorld; }
 
 	int GetGridRows() { return grrows; }
 	int GetGridCols() { return grcols; }
 	int GetSize() { return grrows * grcols; }
+	int GetDiagSize() 
+	{ 
+		int size;
+		MPI_Comm_size(diagWorld, &size);
+		return size;
+	}
 
 	void OpenDebugFile(string prefix, ofstream & output) const; 
 
 	friend shared_ptr<CommGrid> ProductGrid(CommGrid * gridA, CommGrid * gridB, int & innerdim, int & Aoffset, int & Boffset);
 private:
 	// A "normal" MPI-1 communicator is an intracommunicator; MPI::COMM_WORLD is also an MPI::Intracomm object
-	MPI::Intracomm commWorld, rowWorld, colWorld, diagWorld;
+	MPI_Comm commWorld, rowWorld, colWorld, diagWorld;
 
 	// Processor grid is (grrow X grcol)
 	int grrows, grcols;
