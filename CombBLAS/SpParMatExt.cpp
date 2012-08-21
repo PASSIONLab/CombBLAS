@@ -58,7 +58,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			{	
 				scaler = new NT[getlocalcols()];	
 			}
-			(commGrid->GetColWorld()).Bcast(scaler, getlocalcols(), MPIType<NT>(), root);	
+			MPI_Bcast(scaler, getlocalcols(), MPIType<NT>(), root, commGrid->GetColWorld());	
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)	// iterate over columns
 			{
@@ -82,7 +82,7 @@ void SpParMat<IT,NT,DER>::DimScale(const DenseParVec<IT,NT> & v, Dim dim)
 			{	
 				scaler = new NT[getlocalrows()];	
 			}
-			(commGrid->GetRowWorld()).Bcast(scaler, getlocalrows(), MPIType<NT>(), root);	
+			MPI_Bcast(scaler, getlocalrows(), MPIType<NT>(), root, commGrid->GetRowWorld());	
 
 			for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 			{
@@ -139,16 +139,16 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	IT mylocalrows = getlocalrows();
 	IT mylocalcols = getlocalcols();
 	IT trlocalrows, trlocalcols;
-	commGrid->GetWorld().Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX);
-	commGrid->GetWorld().Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX);
+	MPI_Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, commGrid->GetWorld(), NULL);
+	MPI_Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, commGrid->GetWorld(), NULL);
 
 	if(ri.diagonal)		// only the diagonal processors hold vectors
 	{
 		// broadcast the size 
 		rilen = ri.ind.size();
 		cilen = ci.ind.size();
-		(commGrid->rowWorld).Bcast(&rilen, 1, MPIType<IT>(), diaginrow);
-		(commGrid->colWorld).Bcast(&cilen, 1, MPIType<IT>(), diagincol);
+		MPI_Bcast(&rilen, 1, MPIType<IT>(), diaginrow, commGrid->rowWorld);
+		MPI_Bcast(&cilen, 1, MPIType<IT>(), diagincol, commGrid->colWorld);
 
 		vector< vector<IT> > rowdata_rowid(rowneighs);
 		vector< vector<IT> > rowdata_colid(rowneighs);
@@ -188,15 +188,15 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 			qcnts[i] = coldata_rowid[i].size();
 
 		// the second parameter, sendcount, is the number of elements sent to *each* processor
-		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
-		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
+		MPI_Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow, (commGrid->rowWorld));
+		MPI_Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol, (commGrid->colWorld));
 
 		for(IT i=0; i<rowneighs; ++i)
 		{
 			if(i != diaginrow)	// destination is not me	
 			{
-				(commGrid->rowWorld).Send(SpHelper::p2a(rowdata_rowid[i]), pcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->rowWorld).Send(SpHelper::p2a(rowdata_colid[i]), pcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				MPI_Send(SpHelper::p2a(rowdata_rowid[i]), pcnts[i], MPIType<IT>(), i, RFROWIDS, commGrid->rowWorld); 
+				MPI_Send(SpHelper::p2a(rowdata_colid[i]), pcnts[i], MPIType<IT>(), i, RFCOLIDS, commGrid->rowWorld);
 			}
 		}
 
@@ -204,8 +204,8 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		{
 			if(i != diagincol)	// destination is not me	
 			{
-				(commGrid->colWorld).Send(SpHelper::p2a(coldata_rowid[i]), qcnts[i], MPIType<IT>(), i, RFROWIDS); 
-				(commGrid->colWorld).Send(SpHelper::p2a(coldata_colid[i]), qcnts[i], MPIType<IT>(), i, RFCOLIDS); 
+				MPI_Send(SpHelper::p2a(coldata_rowid[i]), qcnts[i], MPIType<IT>(), i, RFROWIDS, commGrid->colWorld); 
+				MPI_Send(SpHelper::p2a(coldata_colid[i]), qcnts[i], MPIType<IT>(), i, RFCOLIDS, commGrid->colWorld); 
 			}
 		}
 		DeleteAll(pcnts, qcnts);
@@ -231,12 +231,12 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	}
 	else	// all others receive data from the diagonal
 	{
-		(commGrid->rowWorld).Bcast(&rilen, 1, MPIType<IT>(), diaginrow);
-		(commGrid->colWorld).Bcast(&cilen, 1, MPIType<IT>(), diagincol);
+		MPI_Bcast(&rilen, 1, MPIType<IT>(), diaginrow, commGrid->rowWorld);
+		MPI_Bcast(&cilen, 1, MPIType<IT>(), diagincol, commGrid->colWorld);
 
 		// receive the receive counts ...
-		(commGrid->rowWorld).Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow);
-		(commGrid->colWorld).Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol);
+		MPI_Scatter(pcnts, 1, MPIType<IT>(), &p_nnz, 1, MPIType<IT>(), diaginrow, commGrid->rowWorld);
+		MPI_Scatter(qcnts, 1, MPIType<IT>(), &q_nnz, 1, MPIType<IT>(), diagincol, commGrid->colWorld);
 		
 		// create space for incoming data ... 
 		IT * p_rows = new IT[p_nnz];
@@ -245,11 +245,11 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 		IT * q_cols = new IT[q_nnz];
 		
 		// receive actual data ... 
-		(commGrid->rowWorld).Recv(p_rows, p_nnz, MPIType<IT>(), diaginrow, RFROWIDS);	
-		(commGrid->rowWorld).Recv(p_cols, p_nnz, MPIType<IT>(), diaginrow, RFCOLIDS);	
+		MPI_Recv(p_rows, p_nnz, MPIType<IT>(), diaginrow, RFROWIDS, commGrid->rowWorld);	
+		MPI_Recv(p_cols, p_nnz, MPIType<IT>(), diaginrow, RFCOLIDS, commGrid->rowWorld);	
 	
-		(commGrid->colWorld).Recv(q_rows, q_nnz, MPIType<IT>(), diagincol, RFROWIDS);	
-		(commGrid->colWorld).Recv(q_cols, q_nnz, MPIType<IT>(), diagincol, RFCOLIDS);	
+		MPI_Recv(q_rows, q_nnz, MPIType<IT>(), diagincol, RFROWIDS, commGrid->colWorld);	
+		MPI_Recv(q_cols, q_nnz, MPIType<IT>(), diagincol, RFCOLIDS, commGrid->colWorld);	
 
 		tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz]; 
 		for(IT i=0; i< p_nnz; ++i)

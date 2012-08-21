@@ -68,6 +68,7 @@
 // Enable bebug prints
 //#define SPREFDEBUG
 //#define IODEBUG
+//#define SPGEMMDEBUG
 
 // MPI Message tags 
 // Prefixes denote functions

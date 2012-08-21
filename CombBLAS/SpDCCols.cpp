@@ -390,7 +390,8 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 	ofstream oput;
 	stringstream ss;
 	string rank;
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int myrank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	ss << myrank;
 	ss >> rank;
 	string ofilename = "Read";
@@ -398,10 +399,10 @@ void SpDCCols<IT,NT>::CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * 
 	oput.open(ofilename.c_str(), ios_base::app );
 	oput << "Creating of dimensions " << nRow << "-by-" << nCol << " of size: " << size << 
 			" with row range (" << rlim.first  << "," << rlim.second << ") and column range (" << clim.first  << "," << clim.second << ")" << endl;
-	IT minfr = tr1::get<0>(tuples.front());
-	IT minto = tr1::get<1>(tuples.front());
-	IT maxfr = tr1::get<0>(tuples.back());
-	IT maxto = tr1::get<1>(tuples.back());
+	IT minfr = joker::get<0>(tuples.front());
+	IT minto = joker::get<1>(tuples.front());
+	IT maxfr = joker::get<0>(tuples.back());
+	IT maxto = joker::get<1>(tuples.back());
 
 	oput << "Min: " << minfr << ", " << minto << "; Max: " << maxfr << ", " << maxto << endl;
 	oput.close();
