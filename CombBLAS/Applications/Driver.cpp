@@ -10,9 +10,10 @@ using namespace std;
 
 int main()
 {
-	MPI::Init();
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	MPI_Init(NULL,NULL);
+	int nprocs, myrank; 
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	typedef PlusTimesSRing<double, double> PT;	
 
 	if (myrank == 0)
@@ -209,5 +210,5 @@ int main()
 			input2.close();
 		}
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 }
