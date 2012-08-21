@@ -7,22 +7,10 @@
 #include <string>
 #include <sstream>
 #include <stdint.h>
-#ifdef NOTR1
-        #include <boost/tr1/memory.hpp>
-#else
-        #include <tr1/memory>
-#endif
+#include "../CombBLAS.h"
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
-
-#include "../SpTuples.h"
-#include "../SpDCCols.h"
-#include "../SpParMat.h"
-#include "../FullyDistVec.h"
-#include "../FullyDistSpVec.h"
-#include "../ParFriends.h"
-#include "../DistEdgeList.h"
 
 
 typedef SelectMaxSRing<bool, int64_t> SR;
@@ -42,10 +30,10 @@ int main(int argc, char* argv[])
 	int torusi[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 	int torusj[] = {3,0,1,2,7,4,5,6,11,8,9,10,15,12,13,14,1,2,3,0,5,6,7,4,9,10,11,8,13,14,15,12,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,4,5,6,7,8,9,10,11,12,13,14,15,0,1,2,3};
 
-	MPI::Init(argc, argv);
-	//MPI::COMM_WORLD.Set_errhandler ( MPI::ERRORS_THROW_EXCEPTIONS );
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	{
 		SpParHelper::Print("Usage: SpMMError [arg]\nIf arg is present then matrix will be read from torus.mtx (no error).\nIf arg is absent, matrix will be created from vectors (error present)\n\n");
 		// Declare objects
@@ -102,7 +90,7 @@ int main(int argc, char* argv[])
 		G23.PrintInfo();
 
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 
