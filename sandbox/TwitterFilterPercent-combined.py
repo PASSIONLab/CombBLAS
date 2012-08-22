@@ -48,6 +48,64 @@ if (len(sys.argv) >= 3):
 else:
 	whatToDoList = ("cpo") # Python/Python OTF, C++/Python OTF
 
+# this function initializes the SEJITS semiring
+sejits_SR = None
+isneg1 = None
+s1st = None
+
+def initialize_sejits_SR():
+        global sejits_SR, isneg1, s1st
+
+        import pcb_predicate, pcb_function, pcb_function_sm as f_sm
+
+        s2nd = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                             f_sm.FunctionReturn(f_sm.Identifier("y"))),
+                         types=["double", "Obj2", "double"])
+        s2nd_d = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                               f_sm.FunctionReturn(f_sm.Identifier("y"))),
+                           types=["double", "double", "double"])
+        func = s2nd.get_function()
+        func2 = s2nd_d.get_function()
+
+        sejits_SR = kdt.sr(func2, func)
+
+        s1st = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                             f_sm.FunctionReturn(f_sm.Identifier("x"))),
+                         types=["double", "double", "double"]).get_function()
+
+        class IsNeg1(pcb_predicate.PcbBinaryPredicate):
+                def __call__(self, x, y):
+                        return y == -1
+
+        isneg1 = IsNeg1().get_predicate()
+
+
+# this is the SEJITS-enabled BFS.
+# eventually this will go into Algorithms.py but right now, since the front-end translation is not in
+# place, it should stay out of there.
+
+def sejits_bfsTree(mat, root, usePySemiring=False):
+	"""
+        Same as KDT's bfsTree, except SEJITS-ized
+	"""
+        global sejits_SR, isneg1, s1st
+	parents = kdt.Vec(mat.nvert(), -1, sparse=False)
+	frontier = kdt.Vec(mat.nvert(), sparse=True)
+	parents[root] = root
+	frontier[root] = root
+	while frontier.nnn() > 0:
+		frontier.spRange()
+		mat.e.SpMV(frontier, semiring=sejits_SR, inPlace=True)
+                # remove already discovered vertices from the frontier.
+
+                frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
+
+                # update the parents
+                parents[frontier] = frontier
+
+	return parents
+
+
 # this function is used for generation.
 # obj is the object that needs to be filled in
 # bin is a throwaway value.
@@ -143,7 +201,7 @@ class SemiringTypeToUse:
 		 SemiringTypeToUse.SEJITS: "SejitsSR"}[value]
  
 def run(SR_to_use, use_SEJITS_Filter, materialize):
-	global G, nstarts, origDegrees, filterUpperValue, sejits_filter
+	global G, nstarts, origDegrees, filterUpperValue, sejits_filter, sejits_SR
 	runStarts = nstarts
 	filterPercent = filterUpperValue/100.0
 	
@@ -199,10 +257,15 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		if SR_to_use == SemiringTypeToUse.SEJITS:
 			PythonSR = True
 			SEJITSSR = True
-		
-		before = time.time()
-		# the actual BFS
-		parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
+
+
+                # the actual BFS		
+                if SR_to_use == SemiringTypeToUse.SEJITS:
+                        before = time.time()
+                        parents = sejits_bfsTree(G, start)
+                else:
+                        before = time.time()
+                        parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 		itertime = time.time() - before
 		
 		## // Aydin's code for finding number of edges:
@@ -301,6 +364,7 @@ for p in (1, 10, 25, 100):
 			SR_to_Use = SemiringTypeToUse.CPP
 		elif whatToDo[0] == 's':
 			SR_to_Use = SemiringTypeToUse.SEJITS
+                        initialize_sejits_SR()
 		else:
 			raise ValueError,"Invalid semiring specified in whatToDo %s"%whatToDo
 		
