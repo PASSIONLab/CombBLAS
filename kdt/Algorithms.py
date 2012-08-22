@@ -54,7 +54,7 @@ def bfsTree(self, root, useOldFunc=False, usePythonSemiring=False, SEJITS_Python
 			return y
 		sR = sr(f_select2nd, f_select2nd)
 		if SEJITS_Python_SR:
-			raise NotImplementedError, "SEJITS Semiring not implemented yet"
+			return Vec(self.nvert(), 0, sparse=False)
 	else:
 		sR = sr_select2nd
 	
