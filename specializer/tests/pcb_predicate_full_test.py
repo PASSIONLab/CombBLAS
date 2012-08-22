@@ -34,6 +34,18 @@ class FullTwitterTest(unittest.TestCase):
         # this should not throw an exception
         pred = TwitterFilter(10000).get_predicate()
 
+class FullBinaryPredicateTest(unittest.TestCase):
+    def test_basic(self):
+        class MyFilter(PcbBinaryPredicate):
+            def __call__(self, x, y):
+                return True
+
+        import kdt
+
+        # this should not throw an exception
+        pred = MyFilter().get_predicate()
+
+
 
 if __name__ == '__main__':
     unittest.main()
