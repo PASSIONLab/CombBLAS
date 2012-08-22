@@ -7,6 +7,17 @@ def get_ast(func):
     import ast, inspect
     return ast.parse(inspect.getsource(func).lstrip())
 
+class BinaryFilterTest(unittest.TestCase):
+    def test_simple(self):
+        class TinyFilter(object):
+            def __call__(self, x, y):
+                return True
+
+        model = PcbBinaryPredicateFrontEnd().parse(get_ast(TinyFilter.__call__))
+
+        assert_contains_node_type(model, BinaryPredicate)
+
+
 class TinyFilterTest(unittest.TestCase):
     def test_tiny(self):
         class TinyFilter(PcbUnaryPredicate):
