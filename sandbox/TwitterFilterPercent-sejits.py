@@ -9,6 +9,8 @@ from stats import splitthousands, printstats
 from pcb_predicate import *
 from pcb_predicate_sm import *
 
+kdt.PDO_enable(False)
+
 #parse arguments
 if (len(sys.argv) < 2):
 	kdt.p("Usage: python %s twittergraph.mtx [1]"%(sys.argv[0]))
