@@ -35,7 +35,6 @@ THE SOFTWARE.
 #endif
 #include <stdint.h>
 #include <mpi.h>
-#include <sys/time.h>
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -64,8 +64,8 @@ CommGrid::CommGrid(MPI_Comm world, int nrowproc, int ncolproc): grrows(nrowproc)
 	int rowRank, colRank;
 	MPI_Comm_rank(rowWorld,&rowRank);
 	MPI_Comm_rank(colWorld,&colRank);
-	assert( (colRank == myproccol) );
-	assert( (rowRank == myprocrow) );
+	assert( (rowRank == myproccol) );
+	assert( (colRank == myprocrow) );
 }
 
 void CommGrid::CreateDiagWorld()
