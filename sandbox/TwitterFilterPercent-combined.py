@@ -342,4 +342,4 @@ for p in (1, 10, 25, 100):
 		single_runtime = time.time() - single_runtime_before
 		kdt.p("Total runtime for %s on %d%% is\t%f\ts."%(whatToDo, p, single_runtime))
 
-kdt.p("Total runtime for everything is %f"%(time.time()-time_very_beginning))
+kdt.p("Total runtime for everything is\t\t%f"%(time.time()-time_very_beginning))

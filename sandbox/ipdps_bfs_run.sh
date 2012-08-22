@@ -1,6 +1,6 @@
 #/bin/bash
 
-for p in 36 25 16 9 4 1
+for p in 9 4 1 #36 25 16 9 4 1
 do
 	for scale in 22
 	do
