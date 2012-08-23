@@ -87,6 +87,11 @@ void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Data
 	}
 }
 
+extern "C" void BinaryFunctionObjApplyWrapper(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+{
+        BinaryFunctionObj::apply(invec, inoutvec, len, datatype);
+}
+
 MPI_Op* BinaryFunctionObj::getMPIOp()
 {
 	if (currentlyApplied != NULL)
@@ -99,7 +104,8 @@ MPI_Op* BinaryFunctionObj::getMPIOp()
 	}
 
 	currentlyApplied = this;
-	MPI_Op_create(BinaryFunctionObj::apply, commutable, &staticMPIop);
+	int commutable_flag = int(commutable);
+	MPI_Op_create((MPI_User_function *)BinaryFunctionObjApplyWrapper, commutable_flag, &staticMPIop);
 	return &staticMPIop;
 }
 

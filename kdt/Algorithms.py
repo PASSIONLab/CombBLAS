@@ -832,7 +832,7 @@ DiGraph._findClusterModularity = _findClusterModularity
 ##############################
 # Maximal Independent Set
 
-def MIS(self):
+def MIS(self, use_SEJITS_SR=False):
 	"""
 	find the Maximal Independent Set of an undirected graph.
 

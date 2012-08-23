@@ -152,8 +152,8 @@ DECLARE_PROMOTE(doubleint, int64_t, doubleint)
 
 
 // From CombBLAS/MPIType.h
-extern MPI::Datatype doubleint_MPI_datatype; // Defined in pyCombBLAS.cpp
-template<> MPI::Datatype MPIType< doubleint >( void );
+extern MPI_Datatype doubleint_MPI_datatype; // Defined in pyCombBLAS.cpp
+template<> MPI_Datatype MPIType< doubleint >( void );
 
 /*
 inline void doubleint_plus(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)

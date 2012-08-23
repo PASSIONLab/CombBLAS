@@ -360,6 +360,7 @@ BinaryFunction not2(BinaryFunction& f)
 BinaryFunction* BinaryFunction::currentlyApplied = NULL;
 MPI_Op BinaryFunction::staticMPIop;
 	
+
 void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
 	doubleint* in = (doubleint*)invec;
@@ -378,6 +379,12 @@ void BinaryFunction::apply(void * invec, void * inoutvec, int * len, MPI_Datatyp
 	}
 }
 
+extern "C" void BinaryFunctionApplyWrapper(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+{
+        BinaryFunction::apply(invec, inoutvec, len, datatype);
+}
+
+
 MPI_Op* BinaryFunction::getMPIOp()
 {
 	//cout << "setting mpi op" << endl;
@@ -390,9 +397,9 @@ MPI_Op* BinaryFunction::getMPIOp()
 	{
 		return &staticMPIop;
 	}
-
 	currentlyApplied = this;
-	MPI_Op_create(BinaryFunction::apply, commutable, &staticMPIop);
+	int commutable_flag = int(commutable);
+	MPI_Op_create((MPI_User_function *)BinaryFunctionApplyWrapper, commutable_flag, &staticMPIop);
 	return &staticMPIop;
 }
 

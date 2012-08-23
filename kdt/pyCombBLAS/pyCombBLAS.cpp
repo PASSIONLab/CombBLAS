@@ -278,27 +278,35 @@ shared_ptr<CommGrid> commGrid;
 
 void init_pyCombBLAS_MPI()
 {
-	if (!has_MPI_Init_been_called && !MPI::Is_initialized())
+        int is_initialized=0;
+	MPI_Initialized(&is_initialized);
+	if (!has_MPI_Init_been_called && is_initialized != 0)
 	{
 		//cout << "calling MPI::Init" << endl;
-		MPI::Init();
-		
+	        int argv=0;
+		MPI_Init(&argv, NULL);
 		has_MPI_Init_been_called = true;
 		atexit(finalize);
 	}
 	// create the shared communication grid
-	commGrid.reset(new CommGrid(MPI::COMM_WORLD, 0, 0));
+	MPI_Comm world = MPI_COMM_WORLD;
+	commGrid.reset(new CommGrid(world, 0, 0));
 	
 	// create doubleint MPI_Datatype
-	MPI::Datatype type[1] = {MPI::DOUBLE};
+	MPI_Datatype type[1] = {MPI_DOUBLE};
 	int blocklen[1] = {1};
-	MPI::Aint disp[1];
+	MPI_Aint disp[1];
 	
 	doubleint data;
-	disp[0] = (MPI::Get_address(&data.d) - MPI::Get_address(&data));
+	MPI_Aint d1, d2;
+	MPI_Get_address(&data.d, &d1);
+	MPI_Get_address(&data, &d2);
+	disp[0] = (d1 - d2);
 
-	doubleint_MPI_datatype = MPI::Datatype::Create_struct(1,blocklen,disp,type);
-	doubleint_MPI_datatype.Commit();
+	doubleint_MPI_datatype;
+	// MPI::Datatype::Create_struct(1,blocklen,disp,type);
+	MPI_Type_struct(1,blocklen,disp,type, &doubleint_MPI_datatype);
+	MPI_Type_commit(&doubleint_MPI_datatype);
 	
 	// create VERTEXTYPE and EDGETYPE MPI_Datatypes
 	create_EDGE_and_VERTEX_MPI_Datatypes();
@@ -312,10 +320,10 @@ void finalize()
 			// Delete the shared commgrid by swapping it into a shared pointer
 			// that then goes out of scope
 			// (so ~shared_ptr() will call delete commGrid, which frees the MPI communicator).
-			shared_ptr<CommGrid> commGridDel;
+		        shared_ptr<CommGrid> commGridDel;
 			commGridDel.swap(commGrid);
 		}
-		MPI::Finalize();
+		MPI_Finalize();
 	}
 }
 
@@ -330,39 +338,44 @@ void _broadcast(char *outMsg, char* inMsg) {
 			throw "Unable to broadcast, the message is too long.";
 	}
 
-	MPI::COMM_WORLD.Bcast(isRoot ? outMsg : inMsg, MaxMsgLen, MPI::CHAR, 0);
+	MPI_Bcast(isRoot ? outMsg : inMsg, MaxMsgLen, MPI_CHAR, 0, MPI_COMM_WORLD);
 
 	if(isRoot)
 		memcpy(inMsg, outMsg, sizeof(char) * MaxMsgLen);
 }
 
 void _barrier() {
-	MPI::COMM_WORLD.Barrier();
-}
-
-bool root()
-{
-	return MPI::COMM_WORLD.Get_rank() == 0;
-}
-
-int _nprocs()
-{
-	return MPI::COMM_WORLD.Get_size();
+	MPI_Barrier(MPI_COMM_WORLD);
 }
 
 int _rank()
 {
-	return MPI::COMM_WORLD.Get_rank();
+        int myrank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	return myrank;
 }
+
+bool root()
+{
+        return _rank() == 0;
+}
+
+int _nprocs()
+{
+        int size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	return size;
+}
+
 
 void prnt(const char* str)
 {
 	SpParHelper::Print(str);
 }
 
-MPI::Datatype doubleint_MPI_datatype;
+MPI_Datatype doubleint_MPI_datatype;
 
-template<> MPI::Datatype MPIType< doubleint >( void )
+template<> MPI_Datatype MPIType< doubleint >( void )
 {
 	//cout << "returning doubleint MPIType" << endl;
 	return doubleint_MPI_datatype;

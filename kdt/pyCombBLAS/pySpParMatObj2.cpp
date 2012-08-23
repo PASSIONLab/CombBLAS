@@ -147,7 +147,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	}
 	
 	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t1 = MPI_Wtime();
 	
 	// conversion from distributed edge list, keeps self-loops, sums duplicates
@@ -155,10 +155,10 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	delete DEL;	// free memory before symmetricizing
 	SpParHelper::Print("Created Sparse Matrix (with int32 local indices and values)\n");
 	
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double redts = MPI_Wtime();
 	G->Reduce(degrees, ::Row, plus<int64_t>(), static_cast<int64_t>(0));	// Identity is 0 
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double redtf = MPI_Wtime();
 	
 	ostringstream redtimeinfo;
@@ -200,7 +200,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	#endif
 	A.PrintInfo();
 	
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t2=MPI_Wtime();
 	
 	//ostringstream k1timeinfo;
@@ -230,7 +230,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	RenameVertices(*DEL);
 
 	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t1 = MPI_Wtime();
 
 	// conversion from distributed edge list, keeps self-loops, sums duplicates
@@ -248,7 +248,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	A += *AT;
 	delete AT;
 	
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t2=MPI_Wtime();
 	
 	// END OF COPY
@@ -288,7 +288,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	delete G;
 
 	// Start Kernel #1
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t1 = MPI_Wtime();
 
 	A = MatType(DEL);	// remove self loops and duplicates (since this is of type boolean)
@@ -296,7 +296,7 @@ double pySpParMatObj2::GenGraph500Edges(int scale, pyDenseParVec& pyDegrees)
 	AT.Transpose();
 	A += AT;
 	
-	MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	double t2=MPI_Wtime();
 	
 	// END OF COPY
