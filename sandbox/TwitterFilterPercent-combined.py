@@ -124,7 +124,8 @@ def Twitter_obj_randomizer_runs(obj, bin):
 # used for a percentage-based filtering scheme
 def Twitter_obj_randomizer(obj, bin):
 	obj.count = 1
-	obj.latest = random.randrange(0, 10000)
+	obj.latest = int(float(pcb._random())*10000.0)#random.randrange(0, 10000)
+	#print "rnd result:",obj.latest
 	obj.follower = 0
 	return obj
 
@@ -178,7 +179,6 @@ elif datasource == "generate":
 	G.e.eWiseApply(binrmat.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
 	kdt.p("Converted in %fs. G has %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
 	kdt.p(G)
-	
 else:
 	kdt.p("unknown data source. Does your file exist or did you specify an integer generation scale? quitting.")
 	sys.exit()
@@ -221,17 +221,26 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 	before = time.time()
 	degrees = G.degree()
 	
-	deg3verts = (degrees > 2).findInds()
-	if len(deg3verts) == 0:
-		# this is mainly for filter_debug.txt
-		deg3verts = (degrees > 0).findInds()
-	if len(deg3verts) == 0:
-		starts = []
+	# This starting vertex generation is fine, but we want to
+	# use the same scheme as the CombBLAS FilteredBFS.cpp so that
+	# we reduce variability due to random number generation.
+	if False:
+		#deg3verts = (degrees > 2).findInds()
+		#if len(deg3verts) == 0:
+		#	# this is mainly for filter_debug.txt
+		#	deg3verts = (degrees > 0).findInds()
+		#if len(deg3verts) == 0:
+		#	starts = []
+		#else:
+		#	deg3verts.randPerm()
+		#	if runStarts > len(deg3verts):
+		#		runStarts = len(deg3verts)
+		#	starts = deg3verts[kdt.Vec.range(runStarts)]
+		pass
 	else:
-		deg3verts.randPerm()
-		if runStarts > len(deg3verts):
-			runStarts = len(deg3verts)
-		starts = deg3verts[kdt.Vec.range(runStarts)]
+		starts = kdt.Vec.ones(runStarts, sparse=False)
+		starts._v_.SelectCandidates(G.nvert(), True)
+		
 	kdt.p("Generated starting verts in %fs."%(time.time()-before))
 
 	kdt.p("--Doing BFS")

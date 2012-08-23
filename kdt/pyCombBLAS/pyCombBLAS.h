@@ -56,8 +56,7 @@ void _barrier();
 int _nprocs();
 int _rank();
 void prnt(const char* str);
-
-void testFunc(double (*f)(double));
+double _random();
 
 class NotFoundError {};
 

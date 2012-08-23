@@ -406,6 +406,7 @@ class pyDenseParVec(_object):
     def Sort(self): return _pyCombBLAS.pyDenseParVec_Sort(self)
     def TopK(self, *args): return _pyCombBLAS.pyDenseParVec_TopK(self, *args)
     def printall(self): return _pyCombBLAS.pyDenseParVec_printall(self)
+    def SelectCandidates(self, *args): return _pyCombBLAS.pyDenseParVec_SelectCandidates(self, *args)
     def getnee(self): return _pyCombBLAS.pyDenseParVec_getnee(self)
     def load(self, *args): return _pyCombBLAS.pyDenseParVec_load(self, *args)
     def save(self, *args): return _pyCombBLAS.pyDenseParVec_save(self, *args)
@@ -898,9 +899,9 @@ def prnt(*args):
   return _pyCombBLAS.prnt(*args)
 prnt = _pyCombBLAS.prnt
 
-def testFunc(*args):
-  return _pyCombBLAS.testFunc(*args)
-testFunc = _pyCombBLAS.testFunc
+def _random():
+  return _pyCombBLAS._random()
+_random = _pyCombBLAS._random
 class NotFoundError(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, NotFoundError, name, value)

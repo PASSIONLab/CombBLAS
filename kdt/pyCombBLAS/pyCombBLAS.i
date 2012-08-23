@@ -659,6 +659,7 @@ public:
 	pyDenseParVec TopK(int64_t k); // Returns a vector of the k largest elements.
 
 	void printall();
+	void SelectCandidates(double nvert, bool deterministic); // Graph500 candidate selection. Very specialized routine, not meant for general consumption. It exists purely to use the exact same code that CombBLAS runs use to remove run differences due to RNG.
 	
 public:
 	
@@ -1206,8 +1207,7 @@ void _barrier();
 int _nprocs();
 int _rank();
 void prnt(const char* str);
-
-void testFunc(double (*f)(double));
+double _random();
 
 class NotFoundError {};
 
