@@ -6,6 +6,6 @@ do
 	do
 		command="mpirun -np $p python TwitterFilterPercent-combined.py $scale sso cso cpm cpo pso ppo > result_ipdps_bfs_${scale}_${p}.txt"
 		echo $command
-		mpirun -np $p python TwitterFilterPercent-combined.py $scale sso cso cpm cpo pso ppo > result_ipdps_bfs_${scale}_${p}.txt
+		#mpirun -np $p python TwitterFilterPercent-combined.py $scale sso cso cpm cpo pso ppo > result_ipdps_bfs_${scale}_${p}.txt
 	done
 done
