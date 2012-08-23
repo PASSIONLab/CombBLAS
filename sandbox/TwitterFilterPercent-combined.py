@@ -9,11 +9,6 @@ import kdt
 import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
 
-# Adam: these imports seem unneeded, because they're imported again when they're used.
-# commenting out so the script works on systems without SEJITS
-#from pcb_predicate import *
-#from pcb_predicate_sm import *
-
 kdt.PDO_enable(False)
 
 #parse arguments
@@ -41,6 +36,7 @@ gen_scale = 10
 nstarts = 512
 keep_starts = 16
 keep_min_edges = 100
+CC_LIMIT = 100 # Aydin's 
 
 # figure out what to do
 if (len(sys.argv) >= 3):
@@ -112,21 +108,25 @@ def sejits_bfsTree(mat, root, usePySemiring=False):
 # bin is a throwaway value.
 # http://docs.python.org/library/random.html
 
-def Twitter_obj_randomizer_runs(obj, bin):
-	if random.randrange(0, 2) > 0:
-		obj.count = 1
-		obj.latest = random.randrange(1244592000, 1246406400)
-	else:
-		obj.count = 0
+#def Twitter_obj_randomizer_runs(obj, bin):
+#	if random.randrange(0, 2) > 0:
+#		obj.count = 1
+#		obj.latest = random.randrange(1244592000, 1246406400)
+#	else:
+#		obj.count = 0
+#	obj.follower = 0
+#	return obj
+
+# used for a percentage-based filtering scheme
+def Twitter_obj_converter(obj, bin):
+	obj.count = 1
+	obj.latest = 1
 	obj.follower = 0
 	return obj
 
-# used for a percentage-based filtering scheme
-def Twitter_obj_randomizer(obj, bin):
-	obj.count = 1
-	obj.latest = int(float(pcb._random())*10000.0)#random.randrange(0, 10000)
+def Twitter_obj_randomizer_Apply(obj):
+	obj.latest = int(float(pcb._random())*10000.0) #random.randrange(0, 10000)
 	#print "rnd result:",obj.latest
-	obj.follower = 0
 	return obj
 
 
@@ -176,7 +176,8 @@ elif datasource == "generate":
 
 	kdt.p("--Converting binary RMAT to twitter object")
 	G = kdt.DiGraph(nv=binrmat.nvert(), element=kdt.Obj2())
-	G.e.eWiseApply(binrmat.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
+	G.e.eWiseApply(binrmat.e, op=Twitter_obj_converter, allowANulls=True, inPlace=True)
+	G.e.apply(Twitter_obj_randomizer_Apply)
 	kdt.p("Converted in %fs. G has %d vertices and %d edges."%(time.time()-before, G.nvert(), G.nedge()))
 	kdt.p(G)
 else:
@@ -215,7 +216,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		materializeTime = time.time()-before
 		kdt.p("Materialized %f in\t%f\ts."%(filterPercent, materializeTime))
 		kdt.p("%f\t: \t%d\t edges survived the filter."%(filterPercent, G.nedge()))
-
+		kdt.p(G)
 	
 	kdt.p("--Generating starting verts")
 	before = time.time()
@@ -269,13 +270,13 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			SEJITSSR = True
 
 
-                # the actual BFS		
-                if SR_to_use == SemiringTypeToUse.SEJITS:
-                        before = time.time()
-                        parents = sejits_bfsTree(G, start)
-                else:
-                        before = time.time()
-                        parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
+		# the actual BFS		
+		if SR_to_use == SemiringTypeToUse.SEJITS:
+			before = time.time()
+			parents = sejits_bfsTree(G, start)
+		else:
+			before = time.time()
+			parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 		itertime = time.time() - before
 		
 		## // Aydin's code for finding number of edges:
@@ -312,7 +313,8 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		##		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
 		
 		ndiscVerts = parents.count(lambda x: x != -1)
-		if nedges >= keep_min_edges:
+		#if nedges >= keep_min_edges: # old method, but not what Aydin uses
+		if ndiscVerts > CC_LIMIT:
 			K2elapsed.append(itertime)
 			K2edges.append(nedges)
 			K2TEPS.append(nedges/itertime)
