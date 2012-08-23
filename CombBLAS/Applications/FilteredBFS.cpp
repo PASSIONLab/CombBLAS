@@ -37,7 +37,8 @@ int cblas_splits = 1;
 #define PERCENTS 4  // testing with 4 different percentiles
 #define UNDIRECTED
 #define MINRUNS 4
-//#define ONLYTIME
+//#define ONLYTIME // don't calculate TEPS
+// DETERMINISTIC defined or underdefined at SpDef.h (for candidate selection)
 
 using namespace std;
 
@@ -52,7 +53,11 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-MTRand GlobalMT;
+#ifdef DETERMINISTIC
+        MTRand GlobalMT(1);
+#else
+        MTRand GlobalMT;
+#endif
 struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterEdge>
 {
   const TwitterEdge operator()(const TwitterEdge & x) const
@@ -143,7 +148,6 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Created sparse matrix with boolean edges\n");
 			A = PSpMat_Twitter(*ABool); // any upcasting generates the default object
 			
-			MTRand M;
 			A.Apply(Twitter_obj_randomizer());
 			MAXTRIALS = PERCENTS;	// benchmarking
 		}
@@ -255,22 +259,7 @@ int main(int argc, char* argv[])
 
 		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS);
 		double nver = (double) degrees.TotalLength();
-
-		MTRand M;	// generate random numbers with Mersenne Twister
-		vector<double> loccands(MAX_ITERS);
-		vector<int64_t> loccandints(MAX_ITERS);
-		if(myrank == 0)
-		{
-			for(int i=0; i<MAX_ITERS; ++i)
-				loccands[i] = M.rand();
-			transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
-			
-			for(int i=0; i<MAX_ITERS; ++i)
-				loccandints[i] = static_cast<int64_t>(loccands[i]);
-		}
-		MPI_Bcast(&(loccandints[0]), MAX_ITERS, MPIType<int64_t>(),0, MPI_COMM_WORLD);
-		for(int i=0; i<MAX_ITERS; ++i)
-			Cands.SetElement(i,loccandints[i]);
+		Cands.SelectCandidates(nver, true);
 
 		for(int trials =0; trials < MAXTRIALS; trials++)	
 		{

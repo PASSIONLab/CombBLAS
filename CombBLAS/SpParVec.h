@@ -110,7 +110,7 @@ public:
 	NT Reduce(_BinaryOperation __binary_op, NT init);
 
 	void DebugPrint();
-	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
+	shared_ptr<CommGrid> getcommgrid() { return commGrid; }
 	NT NOT_FOUND; 
 private:
 	shared_ptr<CommGrid> commGrid;
