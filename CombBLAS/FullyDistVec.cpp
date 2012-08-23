@@ -121,7 +121,7 @@ void FullyDistVec<IT,NT>::SelectCandidates(double nver, bool deterministic)
 
 	IT length = TotalLength();
 	vector<double> loccands(length);
-	vector<IT> loccandints(length);
+	vector<NT> loccandints(length);
 	MPI_Comm World = commGrid->GetWorld();
 	int myrank = commGrid->GetRank();
 	if(myrank == 0)
@@ -131,9 +131,9 @@ void FullyDistVec<IT,NT>::SelectCandidates(double nver, bool deterministic)
 		transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
 		
 		for(int i=0; i<length; ++i)
-			loccandints[i] = static_cast<IT>(loccands[i]);
+			loccandints[i] = static_cast<NT>(loccands[i]);
 	}
-	MPI_Bcast(&(loccandints[0]), length, MPIType<IT>(),0, World);
+	MPI_Bcast(&(loccandints[0]), length, MPIType<NT>(),0, World);
 	for(IT i=0; i<length; ++i)
 		SetElement(i,loccandints[i]);
 }
