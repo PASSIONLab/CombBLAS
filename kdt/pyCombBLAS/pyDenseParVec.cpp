@@ -206,6 +206,11 @@ void pyDenseParVec::printall()
 	v.DebugPrint();
 }
 
+void pyDenseParVec::SelectCandidates(double nvert, bool deterministic)
+{
+	v.SelectCandidates(nvert, deterministic);
+}
+
 double pyDenseParVec::__getitem__(int64_t key)
 {
 	return v.GetElement(key);

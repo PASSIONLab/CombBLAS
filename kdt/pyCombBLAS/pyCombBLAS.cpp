@@ -2,9 +2,25 @@
 #include "pyCombBLAS.h"
 #include <stdlib.h>
 
-void testFunc(double (*f)(double))
+
+////////////
+// Random number generator that can be consistent between Python and C++ CombBLAS
+//
+
+#define DETERMINISTIC
+
+
+#ifdef DETERMINISTIC
+        MTRand GlobalMT(1);
+#else
+        MTRand GlobalMT;
+#endif
+
+double _random()
 {
-	cout << "f(10) = " << f(10) << endl;
+	double val = GlobalMT.rand();
+	//cout << "c++ rnd result: " << val << endl;
+	return val;
 }
 
 
@@ -278,12 +294,12 @@ shared_ptr<CommGrid> commGrid;
 
 void init_pyCombBLAS_MPI()
 {
-        int is_initialized=0;
+	int is_initialized=0;
 	MPI_Initialized(&is_initialized);
-	if (!has_MPI_Init_been_called && is_initialized != 0)
+	if (!has_MPI_Init_been_called && is_initialized == 0)
 	{
 		//cout << "calling MPI::Init" << endl;
-	        int argv=0;
+		int argv=0;
 		MPI_Init(&argv, NULL);
 		has_MPI_Init_been_called = true;
 		atexit(finalize);
@@ -320,7 +336,7 @@ void finalize()
 			// Delete the shared commgrid by swapping it into a shared pointer
 			// that then goes out of scope
 			// (so ~shared_ptr() will call delete commGrid, which frees the MPI communicator).
-		        shared_ptr<CommGrid> commGridDel;
+			shared_ptr<CommGrid> commGridDel;
 			commGridDel.swap(commGrid);
 		}
 		MPI_Finalize();
@@ -350,19 +366,19 @@ void _barrier() {
 
 int _rank()
 {
-        int myrank;
+	int myrank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	return myrank;
 }
 
 bool root()
 {
-        return _rank() == 0;
+	return _rank() == 0;
 }
 
 int _nprocs()
 {
-        int size;
+	int size;
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	return size;
 }
