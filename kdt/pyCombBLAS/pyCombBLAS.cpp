@@ -1,4 +1,5 @@
 #define PYCOMBBLAS_CPP
+#define DETERMINISTIC
 #include "pyCombBLAS.h"
 #include <stdlib.h>
 
@@ -6,8 +7,6 @@
 ////////////
 // Random number generator that can be consistent between Python and C++ CombBLAS
 //
-
-#define DETERMINISTIC
 
 
 #ifdef DETERMINISTIC
