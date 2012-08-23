@@ -52,9 +52,10 @@ else:
 sejits_SR = None
 isneg1 = None
 s1st = None
+func2 = None
 
 def initialize_sejits_SR():
-        global sejits_SR, isneg1, s1st
+        global sejits_SR, isneg1, s1st, func2
 
         import pcb_predicate, pcb_function, pcb_function_sm as f_sm
 
@@ -101,8 +102,8 @@ def sejits_bfsTree(mat, root, usePySemiring=False):
                 frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
 
                 # update the parents
-                parents[frontier] = frontier
-
+                #parents[frontier] = frontier
+                parents.eWiseApply(frontier, op=func2, inPlace=True)
 	return parents
 
 
