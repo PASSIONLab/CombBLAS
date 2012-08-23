@@ -377,15 +377,15 @@ extern swig_type_info *SWIG_Obj1Info;
 extern swig_type_info *SWIG_Obj2Info;
 }
 
-extern MPI::Datatype Obj1_MPI_datatype;
-extern MPI::Datatype Obj2_MPI_datatype;
+extern MPI_Datatype Obj1_MPI_datatype;
+extern MPI_Datatype Obj2_MPI_datatype;
 
 //extern "C" {
 void create_EDGE_and_VERTEX_MPI_Datatypes();
 //}
 
-template<> MPI::Datatype MPIType< Obj1 >( void );
-template<> MPI::Datatype MPIType< Obj2 >( void );
+template<> MPI_Datatype MPIType< Obj1 >( void );
+template<> MPI_Datatype MPIType< Obj2 >( void );
 #endif
 
 #else 
@@ -404,27 +404,29 @@ swig_type_info*& Obj2::SwigTypeInfo = SWIG_Obj2Info;
 
 #if PYCOMBBLAS_MPIOK
 // definitions
-MPI::Datatype Obj1_MPI_datatype;
-MPI::Datatype Obj2_MPI_datatype;
+MPI_Datatype Obj1_MPI_datatype;
+MPI_Datatype Obj2_MPI_datatype;
 
 // called from init_pyCombBLAS_MPI() in pyCombBLAS.cpp
 //extern "C" {
 void create_EDGE_and_VERTEX_MPI_Datatypes()
 {
-	Obj1_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(Obj1));
-	Obj1_MPI_datatype.Commit();
+	MPI_Type_contiguous(sizeof(Obj1), MPI_CHAR, &Obj1_MPI_datatype);
+	MPI_Type_commit(&Obj1_MPI_datatype);
 
-	Obj2_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(Obj2));
-	Obj2_MPI_datatype.Commit();
+	// Obj2_MPI_datatype = MPI::CHAR.Create_contiguous(sizeof(Obj2));
+	MPI_Type_contiguous(sizeof(Obj2), MPI_CHAR, &Obj2_MPI_datatype);
+	MPI_Type_commit(&Obj2_MPI_datatype);
+	// Obj2_MPI_datatype.Commit();
 }
 //}
 
-template<> MPI::Datatype MPIType< Obj1 >( void )
+template<> MPI_Datatype MPIType< Obj1 >( void )
 {
 	return Obj1_MPI_datatype;
 }
 
-template<> MPI::Datatype MPIType< Obj2 >( void )
+template<> MPI_Datatype MPIType< Obj2 >( void )
 {
 	return Obj2_MPI_datatype;
 }

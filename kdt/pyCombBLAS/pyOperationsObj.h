@@ -6,7 +6,9 @@
 #include <iostream>
 #include <math.h>
 
+#if !defined(_WIN32)
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#endif
 
 #ifndef USESEJITS
 #define USESEJITS 1
