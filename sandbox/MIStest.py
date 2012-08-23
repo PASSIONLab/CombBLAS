@@ -53,12 +53,12 @@ def verifyMIS(G, MIS):
 
 
 
-
 # used for a percentage-based filtering scheme
 def Twitter_obj_randomizer(obj, bin):
 	obj.count = 1
-	obj.latest = random.randrange(0, 5000) # not 10,000 because we'll get two latests added together during symmetrication
+	obj.latest = random.randrange(0, 10000) # not 10,000 because we'll get two latests added together during symmetrication
 	obj.follower = 0
+	
 	return obj
 
 # random numbers on the filter will mean that the graph will no longer be undirected
@@ -68,7 +68,12 @@ def SymmetricizeRands(G, name):
 	GT = G.copy()
 	GT.reverseEdges()
 	def callback(g, t):
-		g.latest = (g.latest+t.latest)
+		# have to deterministically choose between one of the two values.
+		# cannot just add them because that will change the distribution (small values are unlikely to survive)
+		if (int(g.latest + t.latest) & 1) == 1:
+			g.latest = min(g.latest, t.latest)
+		else:
+			g.latest = max(g.latest, t.latest)
 		return g
 	G.e.eWiseApply(GT.e, callback, inPlace=True)
 	kdt.p("Symmetricized randoms in %fs. %s has %d vertices and %d edges."%(time.time()-before, name, G.nvert(), G.nedge()))
@@ -82,7 +87,7 @@ for whatToDo in whatToDoArg:
 	if whatToDo[3] == '1':
 		if GRmat is None:
 			before = time.time()
-			tempG = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], delIsolated=False, element=1.0)
+			tempG = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.3, 0.1, 0.1, 0.5], element=1.0) #, delIsolated=False) # delIsolated commented out to keep random number generator deterministic
 			kdt.p("Generated RMAT graph in %fs: \t%d\t vertices and \t%d\t edges."%(time.time()-before, tempG.nvert(), tempG.nedge()))
 			GRmat = kdt.DiGraph(nv=tempG.nvert(), element=kdt.Obj2())
 			GRmat.e.eWiseApply(tempG.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
@@ -92,7 +97,7 @@ for whatToDo in whatToDoArg:
 		if GER is None:
 			before = time.time()
 			# fake Erdos-Renyi generator with equal weight RMAT
-			tempG = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.25, 0.25, 0.25, 0.25], delIsolated=False, element=1.0)
+			tempG = kdt.DiGraph.generateRMAT(scale, edgeFactor=5, initiator=[0.25, 0.25, 0.25, 0.25], element=1.0) #, delIsolated=False) # delIsolated commented out to keep random number generator deterministic
 			kdt.p("Generated Erdos-Renyi graph in %fs: \t%d\t vertices and \t%d\t edges."%(time.time()-before, tempG.nvert(), tempG.nedge()))
 			GER = kdt.DiGraph(nv=tempG.nvert(), element=kdt.Obj2())
 			GER.e.eWiseApply(tempG.e, op=Twitter_obj_randomizer, allowANulls=True, inPlace=True)
