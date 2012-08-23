@@ -708,7 +708,11 @@ void FullyDistVec<IT,NT>::RandPerm()
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
+#ifdef DETERMINISTIC
+	MTRand M(1);
+#else
   	MTRand M;	// generate random numbers with Mersenne Twister
+#endif
 	for(int i=0; i<size; ++i)
 	{
 		vecpair[i].first = M.rand();
