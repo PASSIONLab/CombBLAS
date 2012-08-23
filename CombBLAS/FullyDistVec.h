@@ -94,6 +94,7 @@ public:
 	void SaveGathered(ofstream& outfile, int master, HANDLER handler, bool printProcSplits = false);
 	void SaveGathered(ofstream& outfile, int master) { SaveGathered(outfile, master, ScalarReadSaveHandler(), false); }
 
+
 	template <class ITRHS, class NTRHS>
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec< ITRHS,NTRHS > & rhs);	// assignment with type conversion
 	FullyDistVec<IT,NT> & operator=(const FullyDistVec<IT,NT> & rhs);	//!< Actual assignment operator
@@ -213,7 +214,6 @@ public:
 
 	void PrintInfo(string vectorname) const;
 	void DebugPrint();
-	shared_ptr<CommGrid> getCommGrid() { return commGrid; }
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
 	template <typename _BinaryOperation>
@@ -221,6 +221,8 @@ public:
 
 	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
+
+	void SelectCandidates(double nver, bool deterministic);
 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 

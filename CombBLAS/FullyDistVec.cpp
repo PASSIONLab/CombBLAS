@@ -110,6 +110,34 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 	return totalsum;
 }
 
+
+//! ABAB: Put concept check, NT should be integer for this to make sense
+template<class IT, class NT>
+void FullyDistVec<IT,NT>::SelectCandidates(double nver, bool deterministic)
+{
+	MTRand M;       // generate random numbers with Mersenne Twister
+	if(deterministic)
+		M.seed(1);
+
+	IT length = TotalLength();
+	vector<double> loccands(length);
+	vector<IT> loccandints(length);
+	MPI_Comm World = commGrid->GetWorld();
+	int myrank = commGrid->GetRank();
+	if(myrank == 0)
+	{
+		for(int i=0; i<length; ++i)
+			loccands[i] = M.rand();
+		transform(loccands.begin(), loccands.end(), loccands.begin(), bind2nd( multiplies<double>(), nver ));
+		
+		for(int i=0; i<length; ++i)
+			loccandints[i] = static_cast<IT>(loccands[i]);
+	}
+	MPI_Bcast(&(loccandints[0]), length, MPIType<IT>(),0, World);
+	for(IT i=0; i<length; ++i)
+		SetElement(i,loccandints[i]);
+}
+
 template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const FullyDistVec< ITRHS,NTRHS > & rhs)	
