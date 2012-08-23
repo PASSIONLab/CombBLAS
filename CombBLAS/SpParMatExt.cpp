@@ -139,8 +139,9 @@ SpParMat<IT,NT,DER> SpParMat<IT,NT,DER>::operator() (const SpParVec<IT,IT> & ri,
 	IT mylocalrows = getlocalrows();
 	IT mylocalcols = getlocalcols();
 	IT trlocalrows, trlocalcols;
-	MPI_Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, commGrid->GetWorld(), NULL);
-	MPI_Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, commGrid->GetWorld(), NULL);
+	MPI_Status status;
+	MPI_Sendrecv(&mylocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, &trlocalrows, 1, MPIType<IT>(), diagneigh, TRROWX, commGrid->GetWorld(), &status);
+	MPI_Sendrecv(&mylocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, &trlocalcols, 1, MPIType<IT>(), diagneigh, TRCOLX, commGrid->GetWorld(), &status);
 
 	if(ri.diagonal)		// only the diagonal processors hold vectors
 	{
