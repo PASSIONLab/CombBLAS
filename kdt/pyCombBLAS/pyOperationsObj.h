@@ -180,7 +180,13 @@ bool UnaryPredicateObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		throw string("UnaryPredicateObj_Python::operator(T) FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryPredicateObj_Python::operator(T) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryPredicateObj_Python::operator(T) FAILED! (no exception)");
 		return false;
 	}
 }
