@@ -1,3 +1,4 @@
+#define DETERMINISTIC
 #include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
@@ -26,16 +27,14 @@ int cblas_splits = omp_get_max_threads();
 int cblas_splits = 1;
 #endif
 
-#include "../CombBLAS.h"
 #include "TwitterEdge.h"
 
 #define MAX_ITERS 20000
 #define EDGEFACTOR 16
 #define ITERS 16 
 #define CC_LIMIT 100
-#define PERMUTEFORBALANCE
+//#define PERMUTEFORBALANCE
 #define PERCENTS 4  // testing with 4 different percentiles
-#define UNDIRECTED
 #define MINRUNS 4
 //#define ONLYTIME // don't calculate TEPS
 // DETERMINISTIC defined or underdefined at SpDef.h (for candidate selection)
@@ -144,11 +143,15 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Generated renamed edge lists\n");
 
 			ABool = new PSpMat_Bool(*DEL, false); 
+
+			int64_t removed  = ABool->RemoveLoops();
+                        ostringstream loopinfo;
+                        loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
+                        SpParHelper::Print(loopinfo.str());
+                        ABool->PrintInfo();
 			delete DEL;	// free memory
-			SpParHelper::Print("Created sparse matrix with boolean edges\n");
 			A = PSpMat_Twitter(*ABool); // any upcasting generates the default object
 			
-			A.Apply(Twitter_obj_randomizer());
 			MAXTRIALS = PERCENTS;	// benchmarking
 		}
 		else 
@@ -244,11 +247,16 @@ int main(int argc, char* argv[])
 
 		SpParHelper::Print("Finished generating in/out degrees\n");	
 		A.PrintInfo();
-#ifdef UNDIRECTED
-		Symmetricize(A);	// A += A';
-		SpParHelper::Print("Symmetricized\n");	
-		A.PrintInfo();
-#endif
+
+		if(string(argv[1]) == string("Gen"))
+		{
+			Symmetricize(A);	// A += A';
+			SpParHelper::Print("Symmetricized\n");	
+
+			A.Apply(Twitter_obj_randomizer());
+			A.PrintInfo();
+		}
+			
 		float balance_former = A.LoadImbalance();
 		ostringstream outs_former;
 		outs_former << "Load balance: " << balance_former << endl;
@@ -367,6 +375,7 @@ int main(int argc, char* argv[])
 			{
 				SpParHelper::Print("Not enough valid runs done\n");
 				MPI_Finalize();
+				return 0;
 			}
 			ostringstream os;
 			
