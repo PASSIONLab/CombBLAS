@@ -70,16 +70,32 @@ class UnaryPredicateObj_SEJITS : public UnaryPredicateObj_Python {
 
 class UnaryFunctionObj_SEJITS : public UnaryFunctionObj_Python {
 	public:
-	UnaryFunctionObj_SEJITS(PyObject *pyfunc): UnaryFunctionObj_Python(pyfunc) { }
+	UnaryFunctionObj_SEJITS(PyObject *pyfunc): UnaryFunctionObj_Python(pyfunc) { 
+    customFunc_double_double = NULL;
+    customFunc_Obj2_double = NULL;
+  }
 
 	Obj2 operator()(const Obj2& x) const { return call(x); }
 	Obj1 operator()(const Obj1& x) const { return call(x); }
-	double operator()(const double& x) const { return callD(x); }
+	double operator()(const double& x) const { 
+      if (customFunc_double_double != NULL)
+        return (*customFunc_double_double)(x);
+      else
+        return callD(x); 
+    }
+
+    // specialized functions, for each possible input type and output
+    // type
+    // convention: name is customFunc_<type1>_<return type>
+    double (*customFunc_double_double)(const double& x);     
+    double (*customFunc_Obj2_double)(const Obj2& x);     
 	
 	UnaryFunctionObj_SEJITS() { // should never be called
 		printf("UnaryFunctionObj_SEJITS()!!!\n");
 		callback = NULL;
 	}
+
+
 
 	public:
 	~UnaryFunctionObj_SEJITS() { }
@@ -88,20 +104,62 @@ class UnaryFunctionObj_SEJITS : public UnaryFunctionObj_Python {
 class BinaryPredicateObj_SEJITS : public BinaryPredicateObj_Python {
 	public:
 	PyObject *callback;
-	BinaryPredicateObj_SEJITS(PyObject *pyfunc): BinaryPredicateObj_Python(pyfunc) { }
+  // FIXME: need all possible input combinations
+  bool (*customFuncO1O1)(const Obj1& x, const Obj1& y); 
+  bool (*customFuncO2O2)(const Obj2& x, const Obj2& y); 
+  bool (*customFuncDD)(const double& x, const double& y);
 
+	BinaryPredicateObj_SEJITS(PyObject *pyfunc): BinaryPredicateObj_Python(pyfunc) { 
+
+      // set specialized function pointers to NULL.
+      // specializer code will replace them
+      customFuncO1O1 = NULL; 
+      customFuncO2O2 = NULL;  
+      customFuncDD = NULL;
+
+      // now we check if the PyObject is actually a UnaryPredicateObj
+      // in disguise
+      swig_module_info* module = SWIG_Python_GetModule();
+      swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+      BinaryPredicateObj_SEJITS* tmp;
+
+      if (module != NULL && ty != NULL && (SWIG_ConvertPtr(pyfunc, (void**)&tmp, ty, 0)) == 0) {
+	printf("BinaryPredicateObj_SEJITS detected, replicating callbacks...\n");
+        customFuncO1O1 = tmp->customFuncO1O1;
+        customFuncO2O2 = tmp->customFuncO2O2;
+        customFuncDD = tmp->customFuncDD;
+      }
+        
+    }
 	
-	bool operator()(const Obj1& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj1& x, const Obj1& y) const { 
+    if (customFuncO1O1 != NULL)
+      return (*customFuncO1O1)(x, y);
+    else
+      return call(x, y); 
+  }
+
 	bool operator()(const Obj1& x, const Obj2& y) const { return call(x, y); }
-	bool operator()(const Obj2& x, const Obj2& y) const { return call(x, y); }
 	bool operator()(const Obj2& x, const Obj1& y) const { return call(x, y); }
+	bool operator()(const Obj2& x, const Obj2& y) const { 
+    if (customFuncO2O2 != NULL)
+      return (*customFuncO2O2)(x, y);
+    else
+      return call(x, y); 
+  }
 
 	bool operator()(const Obj1& x, const double& y) const { return callOD(x, y); }
 	bool operator()(const Obj2& x, const double& y) const { return callOD(x, y); }
 	bool operator()(const double& x, const Obj2& y) const { return callDO(x, y); }
 	bool operator()(const double& x, const Obj1& y) const { return callDO(x, y); }
 
-	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
+	bool operator()(const double& x, const double& y) const { 
+    if (customFuncDD != NULL)
+      { /*printf("using customfunc\n");*/ return (*customFuncDD)(x, y); }
+    else
+      { /*printf("using python callback\n");*/ return callDD(x, y); }
+  }
 
 	BinaryPredicateObj_SEJITS() { // should never be called
 		printf("BinaryPredicateObj_SEJITS()!!!\n");
@@ -116,7 +174,39 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 	public:
 	PyObject *callback;
 
-	BinaryFunctionObj_SEJITS(PyObject *pyfunc): BinaryFunctionObj_Python(pyfunc) { }
+    // specialized functions, for each possible input type and output
+    // type
+    // convention: name is customFunc_<type1><type2>_<return type>
+    double (*customFunc_doubledouble_double)(const double& x, const double& y);     
+    double (*customFunc_Obj2double_double)(const Obj2& x, const double& y);     
+    Obj2 (*customFunc_Obj2double_Obj2)(const Obj2& x, const double& y);
+
+	BinaryFunctionObj_SEJITS(PyObject *pyfunc): BinaryFunctionObj_Python(pyfunc) { 
+      customFunc_doubledouble_double = NULL;
+      customFunc_Obj2double_double = NULL;
+      customFunc_Obj2double_Obj2 = NULL;
+      /*
+      if (pyfunc != Py_None) {
+        // now we check if the PyObject is actually a BinaryFunctionObj
+        // in disguise
+        swig_module_info* module = SWIG_Python_GetModule();
+        swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj_SEJITS *");
+
+        BinaryFunctionObj_SEJITS* tmp;
+
+        if ((SWIG_ConvertPtr(callback, (void**)&tmp, ty, 0)) == 0) {
+          // yes, it is a BinaryFunctionObj
+          printf("UnaryPredicateObj detected, replicating customized callbacks...\n");
+          customFunc_doubledouble_double = tmp->customFunc_doubledouble_double;
+          customFunc_Obj2double_double = tmp->customFunc_Obj2double_double;
+          customFunc_Obj2double_Obj2 = tmp->customFunc_Obj2double_Obj2;
+        }
+      }
+      */
+      if (pyfunc==NULL)
+        printf("WTF GETTING PASSED A NULL!!!!");
+
+    }
 
 	
 	BinaryFunctionObj_SEJITS(): callback(NULL) {}
@@ -131,11 +221,36 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
 
 	Obj1 operator()(const Obj1& x, const double& y) const { return callOD_retO<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const double& y) const { return callOD_retO<Obj2>(x, y); }
+	Obj2 operator()(const Obj2& x, const double& y) const { 
+      /*      printf("O2,d,retO2\n"); 
+      if (customFunc_Obj2double_double != NULL)
+        printf("    specialized for double f(Obj2, double)\n");
+      if (customFunc_doubledouble_double != NULL)
+        printf("    specialized for double f(double, double)\n");
+      */
+      if (customFunc_Obj2double_Obj2 != NULL)
+        return (*customFunc_Obj2double_Obj2)(x,y);
+      else
+        return callOD_retO<Obj2>(x, y); 
+
+    }
 	double operator()(const double& x, const Obj1& y) const { return callDO_retD(x, y); }
 	double operator()(const double& x, const Obj2& y) const { return callDO_retD(x, y); }
 
-	double operator()(const double& x, const double& y) const { return callDD(x, y); }
+	double operator()(const double& x, const double& y) const { 
+      /*printf("d,d,d\n");
+      if (customFunc_Obj2double_double != NULL)
+        printf("   specialized for double f(Obj2, double)\n");
+      if (customFunc_Obj2double_Obj2 != NULL)
+        printf("   specialized for Obj2 f(Obj2, double)\n");
+      if (callback == Py_None)
+        printf("   callback is NONE!\n");
+      */
+      if (customFunc_doubledouble_double != NULL)
+        return (*customFunc_doubledouble_double)(x,y);
+      else
+        return callDD(x, y); 
+    }
 
 
 	// These are used by the semiring ops. They do the same thing as the operator() above,
@@ -145,12 +260,23 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return call<Obj2>(x, y); }
 
-	double rettype2nd_call(const Obj1& x, const double& y) const { return callOD_retD(x, y); }
-	double rettype2nd_call(const Obj2& x, const double& y) const { return callOD_retD(x, y); }
+	double rettype2nd_call(const Obj1& x, const double& y) const { printf("O1,d\n"); return callOD_retD(x, y); }
+	double rettype2nd_call(const Obj2& x, const double& y) const { 
+      //      printf("O2, d, retd\n");
+      if (customFunc_Obj2double_double != NULL)
+        {
+          //  printf("using customFunc\n");
+          return (*customFunc_Obj2double_double)(x, y);
+        }
+      else {
+        //printf("using interpretation\n");
+        return callOD_retD(x, y); 
+      }
+    }
 	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return callDO_retO<Obj1>(x, y); }
 	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return callDO_retO<Obj2>(x, y); }
 
-	double rettype2nd_call(const double& x, const double& y) const { return callDD(x, y); }
+	double rettype2nd_call(const double& x, const double& y) const { return operator()(x, y); }
 
 };
 

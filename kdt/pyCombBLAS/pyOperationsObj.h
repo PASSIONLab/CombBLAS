@@ -56,7 +56,20 @@ class UnaryFunctionObj {
 	public:
 	UnaryFunctionObj_WorkerType worker;
 	
-	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { }
+	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { 
+      swig_module_info* module = SWIG_Python_GetModule();
+      swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
+      
+      UnaryFunctionObj * tmp;
+      
+      if ((SWIG_ConvertPtr(pyfunc, (void**)&tmp, ty, 0)) == 0) {
+        // yes, it is a BinaryFunctionObj
+        //          printf("UnaryPredicateObj detected, replicating customized callbacks...\n");
+          worker.customFunc_double_double = tmp->worker.customFunc_double_double;
+          worker.customFunc_Obj2_double = tmp->worker.customFunc_Obj2_double;
+      }
+
+    }
 	
 	UnaryDoubleFunctionObj_Python getRetDoubleVersion() { return UnaryDoubleFunctionObj_Python(worker.callback); }
 
@@ -65,7 +78,7 @@ class UnaryFunctionObj {
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
 	double operator()(const double& x) const { return worker(x); }
 	
-	protected:
+    //	protected:
 	UnaryFunctionObj() { // should never be called
 		printf("UnaryFunctionObj()!!!\n");
 	}
@@ -252,7 +265,21 @@ class BinaryFunctionObj {
 	public:
 	BinaryFunctionObj_WorkerType worker;
 
-	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): worker(pyfunc), commutable(com), associative(as) { }
+    //	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): worker(pyfunc), commutable(com), associative(as) { }
+    BinaryFunctionObj(PyObject *pyfunc, bool as, bool com) : worker(pyfunc), commutable(com), associative(as) {
+      swig_module_info* module = SWIG_Python_GetModule();
+      swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+      
+      BinaryFunctionObj * tmp;
+      
+      if ((SWIG_ConvertPtr(pyfunc, (void**)&tmp, ty, 0)) == 0) {
+        // yes, it is a BinaryFunctionObj
+        //          printf("UnaryPredicateObj detected, replicating customized callbacks...\n");
+          worker.customFunc_doubledouble_double = tmp->worker.customFunc_doubledouble_double;
+          worker.customFunc_Obj2double_double = tmp->worker.customFunc_Obj2double_double;
+          worker.customFunc_Obj2double_Obj2 = tmp->worker.customFunc_Obj2double_Obj2;
+      }
+    }
 
 	// for creating an MPI_Op that can be used with MPI Reduce
 	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
@@ -266,7 +293,7 @@ class BinaryFunctionObj {
 	void releaseMPIOp();
 
 //INTERFACE_INCLUDE_BEGIN
-	protected:
+//	protected:
 	BinaryFunctionObj(): commutable(false), associative(false) {}
 	public:
 	~BinaryFunctionObj() {  }
@@ -465,14 +492,20 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 	PyObject *arglist;
 	PyObject *resultPy;
 	double dres = 0;
-	
+
+    /*    printf("Doing callback in callDD\n");
+    if (callback == Py_None)
+      printf("But callback is NONE\n");
+    if (callback == NULL)
+      printf("But callback is NULL\n");
+    */
 	arglist = Py_BuildValue("(d d)", x, y);    // Build argument list
 	resultPy = PyEval_CallObject(callback,arglist);     // Call Python
 	Py_DECREF(arglist);                             // Trash arglist
 	if (resultPy) {                                   // If no errors, return double
 		dres = PyFloat_AsDouble(resultPy);
 		Py_XDECREF(resultPy);
-		return dres;
+        return dres;
 	} else
 	{
 		BinaryFunctionObj::currentlyApplied = NULL;
@@ -517,7 +550,7 @@ class BinaryPredicateObj {
 
 	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
-	protected:
+	//protected:
 	BinaryPredicateObj() { // should never be called
 		printf("BinaryPredicateObj()!!!\n");
 	}
@@ -736,11 +769,13 @@ struct SemiringObjTemplArg
 	
 	static OUT add(const OUT & arg1, const OUT & arg2)
 	{
+      //      printf("calling SEMIRING ADD\n");
 		return (*(SemiringObj::currentlyApplied->binfunc_add))(arg1, arg2);
 	}
 	
 	static OUT multiply(const T1 & arg1, const T2 & arg2)
 	{
+      //printf("calling SEMIRING MUL\n");
 		// see if we do filtering here
 		if (SemiringObj::currentlyApplied->left_filter != NULL || SemiringObj::currentlyApplied->right_filter != NULL)
 		{
