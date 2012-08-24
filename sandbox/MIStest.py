@@ -53,6 +53,142 @@ def verifyMIS(G, MIS):
 
 
 
+
+# this is the MIS algorithm from Algorithms.py but is currently placed here because of the incomplete front-end
+# translation for SEJITS semirings
+
+MISrand = None
+MISreturn1 = None
+MISis2ndSmaller = None
+MISmyMin = None
+MISselect2nd = None
+MISselect2nd_d = None
+
+def initialize_sejitsMIS():
+        global MISrand, MISreturn1, MISis2ndSmaller, MISmyMin, MISselect2nd, MISselect2nd_d
+        import kdt.pyCombBLAS
+	# callbacks used by MIS
+#	def rand( verc ):
+#		import random
+#		if verc > 0:
+#			return random.random()
+        import pcb_predicate, pcb_function, pcb_function_sm as f_sm
+        import asp.codegen.python_ast as ast
+        MISrand = pcb_function.PcbUnaryFunction(f_sm.UnaryFunction(f_sm.Identifier("v"),
+                                                                   f_sm.FunctionReturn(f_sm.Identifier("_random()")))).get_function()
+
+	
+#	def return1(x, y):
+#		return 1
+
+        MISreturn1 = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                                                        f_sm.FunctionReturn(f_sm.Constant(1)))).get_function()
+	
+#	def is2ndSmaller(m, c):
+#		return (c < m)
+
+        class Is2ndSmaller(pcb_predicate.PcbBinaryPredicate):
+                def __call__(self, x, y):
+                    return y<x
+
+        MISis2ndSmaller = Is2ndSmaller().get_predicate()
+	
+#	def myMin(x,y):
+#		if x<y:
+#			return x
+#		else:
+#			return y
+
+        MISmyMin = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                                                      f_sm.IfExp(f_sm.Compare(f_sm.Identifier("x"),
+                                                                                              ast.Lt(),
+                                                                                              f_sm.Identifier("y")),
+                                                                                 f_sm.FunctionReturn(f_sm.Identifier("x")),
+                                                                                 f_sm.FunctionReturn(f_sm.Identifier("y"))))).get_function()
+	
+#	def select2nd(x, y):
+#		return y
+
+        MISselect2nd_d = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                                                          f_sm.FunctionReturn(f_sm.Identifier("y")))).get_function()
+
+        MISselect2nd = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+                                             f_sm.FunctionReturn(f_sm.Identifier("y"))),
+                         types=["double", "Obj2", "double"]).get_function()
+
+
+def sejitsMIS(G, use_SEJITS_SR=True):
+	"""
+	find the Maximal Independent Set of an undirected graph.
+
+	Output Arguments:
+		ret: a sparse Vec of length equal to the number of vertices where
+		     ret[i] exists and is 1 if i is part of the MIS.
+	"""
+        global MISrand, MISreturn1, MISis2ndSmaller, MISmyMin, MISselect2nd, MISselect2nd_d
+	graph = G
+	
+	Gmatrix = graph.e
+	nvert = graph.nvert();
+	
+        def myMin(x,y):
+            if (x<y):
+                return x
+            else:
+                return y
+
+        def select2nd(x,y):
+            return y
+
+	def is2ndSmaller(m, c):
+		return (c < m)
+
+        def return1(x,y):
+            return 1
+
+
+
+
+	# the final result set. S[i] exists and is 1 if vertex i is in the MIS
+	S = kdt.Vec(nvert, sparse=True)
+	
+	# the candidate set. initially all vertices are candidates.
+	# this vector doubles as 'r', the random value vector.
+	# i.e. if C[i] exists, then i is a candidate. The value C[i] is i's r for this iteration.
+	C = kdt.Vec.ones(nvert, sparse=True)
+		
+	while (C.nnn()>0):
+		# label each vertex in C with a random value
+		C.apply(MISrand)
+		
+		# find the smallest random value among a vertex's neighbors
+		# In other words:
+		# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
+		min_neighbor_r = Gmatrix.SpMV(C, kdt.sr(MISmyMin,MISselect2nd)) # could use "min" directly
+
+		# The vertices to be added to S this iteration are those whose random value is
+		# smaller than those of all its neighbors:
+		# new_S_members[i] exists if C[i] < min_neighbor_r[i]
+		new_S_members = min_neighbor_r.eWiseApply(C, MISreturn1, doOp=MISis2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
+
+		# new_S_members are no longer candidates, so remove them from C
+		C.eWiseApply(new_S_members, MISreturn1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+
+		# find neighbors of new_S_members
+		new_S_neighbors = Gmatrix.SpMV(new_S_members, kdt.sr(MISselect2nd_d,MISselect2nd))
+
+		# remove neighbors of new_S_members from C, because they cannot be part of the MIS anymore
+		C.eWiseApply(new_S_neighbors, MISreturn1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+
+		# add new_S_members to S
+		S.eWiseApply(new_S_members, MISreturn1, allowANulls=True, allowBNulls=True, inPlace=True)
+		
+	return S
+
+
+
+
+
 # used for a percentage-based filtering scheme
 def Twitter_obj_randomizer(obj, bin):
 	obj.count = 1
@@ -134,7 +270,10 @@ def run(G, filter, filterPercent, run_ID, use_SEJITS_SR, use_SEJITS_Filter, mate
 
 	for i in range(16):
 		start = time.time()
-		S = G.MIS(use_SEJITS_SR=use_SEJITS_SR)
+                if use_SEJITS_SR:
+                    S = sejitsMIS(G)
+                else:
+                    S = G.MIS(use_SEJITS_SR=use_SEJITS_SR)
 		finish = time.time()
 		verifyString = verifyMIS(G, S)
 		iter_time = finish-start
@@ -164,6 +303,7 @@ for filterPercent in (1, 10, 25, 100):
 		elif whatToDo[0] == 's':
 			use_SEJITS_SR = True
 			SR_str = "Sejits"
+                        initialize_sejitsMIS()
 		else:
 			raise ValueError,"Invalid semiring specified in whatToDo %s"%whatToDo
 		
