@@ -5406,57 +5406,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pySpParMat *arg1 = (pySpParMat *) 0 ;
-  op::UnaryFunction *arg2 = (op::UnaryFunction *) 0 ;
-  bool arg3 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  bool val3 ;
-  int ecode3 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  pySpParMat result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_Prune",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Prune" "', argument " "1"" of type '" "pySpParMat *""'"); 
-  }
-  arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Prune" "', argument " "2"" of type '" "op::UnaryFunction *""'"); 
-  }
-  arg2 = reinterpret_cast< op::UnaryFunction * >(argp2);
-  ecode3 = SWIG_AsVal_bool(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMat_Prune" "', argument " "3"" of type '" "bool""'");
-  } 
-  arg3 = static_cast< bool >(val3);
-  {
-    try {
-      result = (arg1)->Prune(arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_NewPointerObj((new pySpParMat(static_cast< const pySpParMat& >(result))), SWIGTYPE_p_pySpParMat, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMat_Keep(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
   op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
@@ -5472,25 +5422,25 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   PyObject * obj2 = 0 ;
   pySpParMat result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_Prune",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_Keep",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Prune" "', argument " "1"" of type '" "pySpParMat *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_Keep" "', argument " "1"" of type '" "pySpParMat *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMat * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Prune" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMat_Keep" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
   }
   arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
   ecode3 = SWIG_AsVal_bool(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMat_Prune" "', argument " "3"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMat_Keep" "', argument " "3"" of type '" "bool""'");
   } 
   arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->Prune(arg2,arg3);
+      result = (arg1)->Keep(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -5503,66 +5453,6 @@ SWIGINTERN PyObject *_wrap_pySpParMat_Prune__SWIG_1(PyObject *SWIGUNUSEDPARM(sel
   return resultobj;
 fail:
   return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_pySpParMat_Prune(PyObject *self, PyObject *args) {
-  int argc;
-  PyObject *argv[4];
-  int ii;
-  
-  if (!PyTuple_Check(args)) SWIG_fail;
-  argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
-    argv[ii] = PyTuple_GET_ITEM(args,ii);
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryFunction, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        {
-          int res = SWIG_AsVal_bool(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_pySpParMat_Prune__SWIG_0(self, args);
-        }
-      }
-    }
-  }
-  if (argc == 3) {
-    int _v;
-    void *vptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_pySpParMat, 0);
-    _v = SWIG_CheckState(res);
-    if (_v) {
-      void *vptr = 0;
-      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
-      _v = SWIG_CheckState(res);
-      if (_v) {
-        {
-          int res = SWIG_AsVal_bool(argv[2], NULL);
-          _v = SWIG_CheckState(res);
-        }
-        if (_v) {
-          return _wrap_pySpParMat_Prune__SWIG_1(self, args);
-        }
-      }
-    }
-  }
-  
-fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'pySpParMat_Prune'.\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    pySpParMat::Prune(op::UnaryFunction *,bool)\n"
-    "    pySpParMat::Prune(op::UnaryPredicateObj *,bool)\n");
-  return 0;
 }
 
 
@@ -9816,10 +9706,10 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatBool_Prune(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatBool_Keep(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  op::UnaryFunction *arg2 = (op::UnaryFunction *) 0 ;
+  op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
   bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -9832,25 +9722,25 @@ SWIGINTERN PyObject *_wrap_pySpParMatBool_Prune(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj2 = 0 ;
   pySpParMatBool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_Prune",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_Keep",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_Prune" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_Keep" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryFunction, 0 |  0 );
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_Prune" "', argument " "2"" of type '" "op::UnaryFunction *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatBool_Keep" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
   }
-  arg2 = reinterpret_cast< op::UnaryFunction * >(argp2);
+  arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
   ecode3 = SWIG_AsVal_bool(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatBool_Prune" "', argument " "3"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatBool_Keep" "', argument " "3"" of type '" "bool""'");
   } 
   arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->Prune(arg2,arg3);
+      result = (arg1)->Keep(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -13053,7 +12943,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatObj1_Prune(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatObj1_Keep(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
   op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
@@ -13069,25 +12959,25 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj1_Prune(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj2 = 0 ;
   pySpParMatObj1 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_Prune",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_Keep",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_Prune" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_Keep" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_Prune" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj1_Keep" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
   }
   arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
   ecode3 = SWIG_AsVal_bool(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj1_Prune" "', argument " "3"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj1_Keep" "', argument " "3"" of type '" "bool""'");
   } 
   arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->Prune(arg2,arg3);
+      result = (arg1)->Keep(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16121,7 +16011,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pySpParMatObj2_Prune(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_pySpParMatObj2_Keep(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
   op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
@@ -16137,25 +16027,25 @@ SWIGINTERN PyObject *_wrap_pySpParMatObj2_Prune(PyObject *SWIGUNUSEDPARM(self), 
   PyObject * obj2 = 0 ;
   pySpParMatObj2 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_Prune",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_Keep",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_Prune" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_Keep" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_Prune" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pySpParMatObj2_Keep" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
   }
   arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
   ecode3 = SWIG_AsVal_bool(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj2_Prune" "', argument " "3"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj2_Keep" "', argument " "3"" of type '" "bool""'");
   } 
   arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->Prune(arg2,arg3);
+      result = (arg1)->Keep(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -44311,7 +44201,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMat_removeSelfLoops", _wrap_pySpParMat_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Apply", _wrap_pySpParMat_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_DimWiseApply", _wrap_pySpParMat_DimWiseApply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMat_Prune", _wrap_pySpParMat_Prune, METH_VARARGS, NULL},
+	 { (char *)"pySpParMat_Keep", _wrap_pySpParMat_Keep, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Count", _wrap_pySpParMat_Count, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Reduce", _wrap_pySpParMat_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMat_Transpose", _wrap_pySpParMat_Transpose, METH_VARARGS, NULL},
@@ -44337,7 +44227,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatBool_SubsRef", _wrap_pySpParMatBool_SubsRef, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_removeSelfLoops", _wrap_pySpParMatBool_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Apply", _wrap_pySpParMatBool_Apply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatBool_Prune", _wrap_pySpParMatBool_Prune, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatBool_Keep", _wrap_pySpParMatBool_Keep, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Count", _wrap_pySpParMatBool_Count, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Reduce", _wrap_pySpParMatBool_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatBool_Transpose", _wrap_pySpParMatBool_Transpose, METH_VARARGS, NULL},
@@ -44362,7 +44252,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj1_removeSelfLoops", _wrap_pySpParMatObj1_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Apply", _wrap_pySpParMatObj1_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_DimWiseApply", _wrap_pySpParMatObj1_DimWiseApply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj1_Prune", _wrap_pySpParMatObj1_Prune, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj1_Keep", _wrap_pySpParMatObj1_Keep, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Reduce", _wrap_pySpParMatObj1_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Transpose", _wrap_pySpParMatObj1_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj1_Find", _wrap_pySpParMatObj1_Find, METH_VARARGS, NULL},
@@ -44386,7 +44276,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"pySpParMatObj2_removeSelfLoops", _wrap_pySpParMatObj2_removeSelfLoops, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Apply", _wrap_pySpParMatObj2_Apply, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_DimWiseApply", _wrap_pySpParMatObj2_DimWiseApply, METH_VARARGS, NULL},
-	 { (char *)"pySpParMatObj2_Prune", _wrap_pySpParMatObj2_Prune, METH_VARARGS, NULL},
+	 { (char *)"pySpParMatObj2_Keep", _wrap_pySpParMatObj2_Keep, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Reduce", _wrap_pySpParMatObj2_Reduce, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Transpose", _wrap_pySpParMatObj2_Transpose, METH_VARARGS, NULL},
 	 { (char *)"pySpParMatObj2_Find", _wrap_pySpParMatObj2_Find, METH_VARARGS, NULL},

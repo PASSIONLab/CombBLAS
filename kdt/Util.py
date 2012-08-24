@@ -89,19 +89,22 @@ class FilterHelper:
 	@staticmethod
 	def getFilterPred(filteredObject):
 		if filteredObject._hasFilter():
-			class tmpU:
-				filter = filteredObject._filter_
-				@staticmethod
-				def fn(x):
-					for i in range(len(tmpU.filter)):
-						if not tmpU.filter[i](x):
-							return False
-					return True
-			tmpInstance = tmpU()
-			#return tmpInstance.fn
-                        # FIXME: only supports one filter
-                        #print "getFilterPred() called, only returning first, type " + type(filteredObject._filter_[0])
-                        return filteredObject._filter_[0]
+			if len(filteredObject._filter_) == 1:
+				# only one filter, so pass the single predicate along
+				return filteredObject._filter_[0]
+			else:
+				# multiple filters, so create a shim that calls each one
+				# successively, supporting shortcuts.
+				class FilterStacker:
+					def __init__(self, f):
+						self.filters = f
+	
+					def __call__(self, x):
+						for i in range(len(self.filters)):
+							if not self.filters[i](x):
+								return False
+						return True
+				return FilterStacker(filteredObject._filter_)
 		else:
 			return None
 			

@@ -281,9 +281,9 @@ void pySpParMatBool::DimWiseApply(int dim, const pyDenseParVec& values, op::Bina
 }
 */
 
-pySpParMatBool pySpParMatBool::Prune(op::UnaryFunction* op, bool inPlace)
+pySpParMatBool pySpParMatBool::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 {
-	return pySpParMatBool(A.Prune(*op, inPlace));
+	return pySpParMatBool(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
 
 int64_t pySpParMatBool::Count(op::UnaryFunction* pred)
