@@ -304,14 +304,9 @@ void pySpParMat::DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFu
 	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
 }
 
-pySpParMat pySpParMat::Prune(op::UnaryFunction* op, bool inPlace)
+pySpParMat pySpParMat::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 {
-	return pySpParMat(A.Prune(*op, inPlace));
-}
-
-pySpParMat pySpParMat::Prune(op::UnaryPredicateObj* op, bool inPlace)
-{
-	return pySpParMat(A.Prune(*op, inPlace));
+	return pySpParMat(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
 
 int64_t pySpParMat::Count(op::UnaryFunction* pred)

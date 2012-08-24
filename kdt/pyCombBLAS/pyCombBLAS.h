@@ -192,6 +192,21 @@ void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v);
 
 //INTERFACE_INCLUDE_END
 
+// used to reverse predicates. Useful to turn Prune into Keep
+template <typename PT>
+class pcb_logical_not
+{
+	public:
+	PT& pred;
+	pcb_logical_not(PT& p): pred(p) {}
+	
+	template <typename T>
+	bool operator()(T& val)
+	{
+		return !pred(val);
+	}
+};
+
 // Helpers for EWiseApply
 template <typename NU1, typename NU2>
 class EWiseFilterDoOpAdapter

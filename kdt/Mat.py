@@ -184,20 +184,7 @@ class Mat:
 		"""
 
 		if hasattr(self,'_filter_'):
-#			if type(self.nvert()) is tuple:
-#				raise NotImplementedError, 'only square Mats for now'
-			class tmpU:
-				_filter_ = self._filter_
-				@staticmethod
-				def fn(x):
-					for i in range(len(tmpU._filter_)):
-						if not tmpU._filter_[i](x):
-							return True
-					return False
-			tmpInstance = tmpU()
-			#ret = Mat._toMat(self._m_.copy())
-			#ret._m_.Prune(pcb.unaryObjPred(tmpInstance.fn))
-			ret = self._prune(pcb.unaryObjPred(tmpInstance.fn), False, ignoreFilter=True)
+			ret = self.keep(FilterHelper.getFilterPred(self), False, ignoreFilter=True)
 		else:
 			ret = Mat._toMat(self._m_.copy(), self._identity_)
 		
@@ -967,14 +954,14 @@ class Mat:
 			return ret
 		
 	# TODO: make a keep() which reverses the predicate
-	def _prune(self, pred, inPlace=True, ignoreFilter=False):
+	def keep(self, pred, inPlace=True, ignoreFilter=False):
 		"""
-		only keep elements for which pred(e) == false.
+		only keep elements for which pred(e) == True.
 		"""
 		if not ignoreFilter and self._hasFilter():
-			raise NotImplementedError,"_prune() doesn't do filters"
+			raise NotImplementedError,"keep() doesn't support filters yet"
 			
-		return Mat._toMat(self._m_.Prune(_op_make_unary_pred(pred, self), inPlace), self._identity_)
+		return Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""

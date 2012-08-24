@@ -370,9 +370,9 @@ void pySpParMatObj2::DimWiseApply(int dim, const pyDenseParVecObj2& values, op::
 }
 
 
-pySpParMatObj2 pySpParMatObj2::Prune(op::UnaryPredicateObj* pred, bool inPlace)
+pySpParMatObj2 pySpParMatObj2::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 {
-	return pySpParMatObj2(A.Prune(*pred, inPlace));
+	return pySpParMatObj2(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
 
 void pySpParMatObj2::Reduce(int dim, pyDenseParVecObj2 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity)

@@ -738,7 +738,7 @@ def _MCL(self, expansion=2, inflation=2, addSelfLoops=False, selfLoopWeight=1, p
 		#print "chaos=",chaos
 
 		# Pruning implementation - switch out with TopK / give option
-		A._prune((lambda x: x < prunelimit))
+		A.keep((lambda x: x >= prunelimit))
 
 	return A
 DiGraph._MCL = _MCL

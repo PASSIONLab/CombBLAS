@@ -56,7 +56,7 @@ public:
 	
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
-	pySpParMatObj1 Prune(op::UnaryPredicateObj* pred, bool inPlace);
+	pySpParMatObj1 Keep(op::UnaryPredicateObj* pred, bool inPlace);
 	
 	// Be wary of identity value with min()/max()!!!!!!!
 	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
