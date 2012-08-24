@@ -36,6 +36,11 @@ class UnaryPredicateObj {
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
+ // these are exactly the same as the operator()s, but they are directly callable from Python
+ // and make stacked SEJITS filters easier.
+ 	bool __call__(const Obj2& x) const { return worker(x); }
+	bool __call__(const Obj1& x) const { return worker(x); }
+	bool __call__(const double& x) const { return worker(x); }
 
 	//protected:
 	UnaryPredicateObj() { // should never be called
@@ -90,8 +95,13 @@ T UnaryFunctionObj_Python::call(const T& x) const
 		return ret;
 	} else
 	{
-		throw string("UnaryFunctionObj_Python::operator(T) FAILED!");
-		//throw T();
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryFunctionObj_Python::operator(T) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryFunctionObj_Python::operator(T) FAILED! (no exception, maybe return value was expected but not found)");
 		return T();
 	}
 }
@@ -108,7 +118,13 @@ inline double UnaryFunctionObj_Python::callD(const double& x) const
 		return dres;
 	} else
 	{
-		throw string("UnaryFunctionObj_Python::operator(double) FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryFunctionObj_Python::operator(double) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryFunctionObj_Python::operator(double) FAILED! (no exception, maybe return value was expected but not found)");
 		return 0;
 	}
 }
@@ -134,7 +150,13 @@ double UnaryDoubleFunctionObj_Python::call(const T& x) const
 		return dres;
 	} else
 	{
-		throw string("UnaryDoubleFunctionObj_Python::operator(T) FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryDoublePredicateObj_Python::operator(T) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryDoubleFunctionObj_Python::operator(T) FAILED! (no exception, maybe return value was expected but not found)");
 		return T();
 	}
 }
@@ -151,7 +173,13 @@ inline double UnaryDoubleFunctionObj_Python::callD(const double& x) const
 		return dres;
 	} else
 	{
-		throw string("UnaryDoubleFunctionObj_Python::operator(double) FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryDoublePredicateObj_Python::operator(double) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryDoubleFunctionObj_Python::operator(double) FAILED! (no exception, maybe return value was expected but not found)");
 		return 0;
 	}
 }
@@ -186,7 +214,7 @@ bool UnaryPredicateObj_Python::call(const T& x) const
 			throw string("UnaryPredicateObj_Python::operator(T) FAILED! (with exception)");
 		}
 		else
-			throw string("UnaryPredicateObj_Python::operator(T) FAILED! (no exception)");
+			throw string("UnaryPredicateObj_Python::operator(T) FAILED! (no exception, maybe return value was expected but not found)");
 		return false;
 	}
 }
@@ -203,7 +231,13 @@ inline bool UnaryPredicateObj_Python::callD(const double& x) const
 		return ret;
 	} else
 	{
-		throw string("UnaryPredicateObj_Python::operator(double) FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("UnaryPredicateObj_Python::operator(double) FAILED! (with exception)");
+		}
+		else
+			throw string("UnaryPredicateObj_Python::operator(double) FAILED! (no exception, maybe return value was expected but not found)");
 		return 0;
 	}
 }
@@ -377,7 +411,13 @@ double BinaryFunctionObj_Python::callDO_retD(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO)");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO_retD) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDO)");
 		return 0;
 	}
 }
@@ -403,7 +443,13 @@ RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO)");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO_retO) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDO)");
 		return RET();
 	}
 }
@@ -429,11 +475,15 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 		return dres;
 	} else
 	{
-		//throw string("BinaryFunctionObj_Python::operator() FAILED! (callDD)");
-		//if (BinaryFunctionObj::currentlyApplied == this)
 		BinaryFunctionObj::currentlyApplied = NULL;
 		clear_SemiringObj_currentlyApplied();
-		throw string("BinaryFunctionObj_Python::operator() FAILED! (callDD)");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callDD) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDD)");
 		return 0;
 	}
 }
@@ -499,7 +549,13 @@ bool BinaryPredicateObj_Python::call(const T1& x, const T2& y) const
 		return ret;
 	} else
 	{
-		throw string("BinaryPredicateObj_Python::operator() FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (call (OO)) (with exception)");
+		}
+		else
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
 		return false;
 	}
 }
@@ -523,7 +579,13 @@ bool BinaryPredicateObj_Python::callOD(const T1& x, const double& y) const
 		return ret;
 	} else
 	{
-		throw string("BinaryPredicateObj_Python::operator() FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (callOD) (with exception)");
+		}
+		else
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
 		return false;
 	}
 }
@@ -547,7 +609,13 @@ bool BinaryPredicateObj_Python::callDO(const double& x, const T2& y) const
 		return ret;
 	} else
 	{
-		throw string("BinaryPredicateObj_Python::operator() FAILED!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (callDO) (with exception)");
+		}
+		else
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
 		return false;
 	}
 }
@@ -567,10 +635,13 @@ bool BinaryPredicateObj_Python::callDD(const double& x, const double& y) const
 		return ret;
 	} else
 	{
-		//cerr << "BinaryPredicateObj_Python::operator() FAILED!" << endl;
-		//if (BinaryFunctionObj::currentlyApplied == this)
-		//	BinaryFunctionObj::currentlyApplied = NULL;
-		throw string("BinaryPredicateObj_Python::operator() FAILED! (callDD)");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (callDD) (with exception)");
+		}
+		else
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDD)");
 		return false;
 	}
 }
