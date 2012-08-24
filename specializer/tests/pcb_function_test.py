@@ -5,6 +5,14 @@ from pcb_function import *
 import unittest
 
 
+class UnaryTests(unittest.TestCase):
+    def test_get_function(self):
+        sm = UnaryFunction(Identifier("x"),
+                           FunctionReturn(Identifier("x")))
+
+        import kdt
+        PcbUnaryFunction(sm, types=["double", "double"]).get_function()
+
 class Select2ndTests(unittest.TestCase):
     def test_get_function(self):
         sm = BinaryFunction([Identifier("x"), Identifier("y")],

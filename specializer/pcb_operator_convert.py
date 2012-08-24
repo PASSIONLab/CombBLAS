@@ -66,11 +66,9 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
 
     def visit_UnaryFunction(self, node):
         # FIXME: have to worry about type specialization on return & passed-in types
-        return CppClass("MyUnaryFunction",
-                        cpp_ast.FunctionBody(cpp_ast.Template("class T", cpp_ast.FunctionDeclaration(cpp_ast.Value("T", "call"),
-                                                                                                     [cpp_ast.Reference(cpp_ast.Value("T", self.visit(node.input)))])),
-                                             cpp_ast.Block(contents=[self.visit(node.body)])),
-                        "UnaryFunctionObj")
+        return cpp_ast.FunctionBody(cpp_ast.FunctionDeclaration(cpp_ast.Value(self.types[0], self.name),
+                                                                [cpp_ast.Reference(cpp_ast.Value("const %s" % self.types[1], self.visit(node.input)))]),
+                                    cpp_ast.Block(contents=[self.visit(node.body)]))
 
 
     def visit_BinaryFunction(self, node):
