@@ -1075,6 +1075,11 @@ class UnaryPredicateObj {
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
+ // these are exactly the same as the operator()s, but they are directly callable from Python
+ // and make stacked SEJITS filters easier.
+ 	bool __call__(const Obj2& x) const { return worker(x); }
+	bool __call__(const Obj1& x) const { return worker(x); }
+	bool __call__(const double& x) const { return worker(x); }
 
 	//protected:
 	UnaryPredicateObj() { // should never be called
