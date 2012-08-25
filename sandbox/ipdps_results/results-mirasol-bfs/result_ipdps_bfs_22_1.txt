@@ -1,0 +1,2101 @@
+--Generating a plain RMAT graph of scale 22
+graph_generation:               44.350849 s
+Generated renamed edge lists
+Generation took 44.351 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 4194304-by-4194304
+Duplicates removed (or summed): 2953347 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.881123 seconds
+Converted to Boolean and removed 675 loops
+As a whole: 4194304 rows and 4194304 columns and 64154842 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 4194304 rows and 4194304 columns and 64154842 nonzeros
+Dropped isolated vertices from input
+As a whole: 2396784 rows and 2396784 columns and 64154842 nonzeros
+Symmetricized
+As a whole: 2396784 rows and 2396784 columns and 128309684 nonzeros
+Generated graph in 157.401166s: 	2396784	 vertices and 	128309684	 edges.
+--Converting binary RMAT to twitter object
+Converted in 1421.350713s. G has 2396784 vertices and 128309684 edges.
+edge Mat: 2396784-by-2396784 (row-by-col) Mat with 128309684 elements.
+Too many elements to print.
+vertex attribute Vec: length=2396784, dense, [ *too many to print* ]
+--calculating degrees on original graph
+Calculated in 158.621465s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 100))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	1	% in	0.076895	s.
+--Generating starting verts
+Generated starting verts in 556.400071s.
+--Doing BFS
+1.000000	: iteration  1: start=  999511, BFS took 	0.043404	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+1.000000	: iteration  2: start= 2390036, BFS took 	3.256478	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,930,004	, TEPS=	319,243	 
+1.000000	: iteration  3: start= 1726462, BFS took 	3.263639	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,859,945	, TEPS=	318,543	 
+1.000000	: iteration  4: start= 2235138, BFS took 	0.046308	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	43	, TEPS=	0	 (result discarded)
+1.000000	: iteration  5: start=     274, BFS took 	0.036093	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	138	, TEPS=	0	 (result discarded)
+1.000000	: iteration  6: start=  307086, BFS took 	0.037475	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	80	, TEPS=	0	 (result discarded)
+1.000000	: iteration  7: start=  724625, BFS took 	0.039576	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+1.000000	: iteration  8: start= 2394484, BFS took 	0.047354	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	126	, TEPS=	0	 (result discarded)
+1.000000	: iteration  9: start=  351742, BFS took 	0.037587	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	718	, TEPS=	0	 (result discarded)
+1.000000	: iteration 10: start=  565854, BFS took 	0.038873	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+1.000000	: iteration 11: start=  221315, BFS took 	0.037107	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 12: start=  950518, BFS took 	0.040603	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	763	, TEPS=	0	 (result discarded)
+1.000000	: iteration 13: start=  446425, BFS took 	0.038128	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	157	, TEPS=	0	 (result discarded)
+1.000000	: iteration 14: start=  929738, BFS took 	0.040402	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	2,301	, TEPS=	0	 (result discarded)
+1.000000	: iteration 15: start=  828234, BFS took 	0.039910	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	100	, TEPS=	0	 (result discarded)
+1.000000	: iteration 16: start= 1605236, BFS took 	0.043566	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	183	, TEPS=	0	 (result discarded)
+1.000000	: iteration 17: start=  950965, BFS took 	0.040570	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	714	, TEPS=	0	 (result discarded)
+1.000000	: iteration 18: start= 2242285, BFS took 	0.046696	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	64	, TEPS=	0	 (result discarded)
+1.000000	: iteration 19: start= 1291427, BFS took 	0.042112	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	71	, TEPS=	0	 (result discarded)
+1.000000	: iteration 20: start= 2028424, BFS took 	0.045568	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	43	, TEPS=	0	 (result discarded)
+1.000000	: iteration 21: start= 1004718, BFS took 	0.040725	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	736	, TEPS=	0	 (result discarded)
+1.000000	: iteration 22: start=  750848, BFS took 	0.039599	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+1.000000	: iteration 23: start= 1642323, BFS took 	0.043752	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	22	, TEPS=	0	 (result discarded)
+1.000000	: iteration 24: start= 1257228, BFS took 	3.290266	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	31,602,120	, TEPS=	315,965	 
+1.000000	: iteration 25: start=  490027, BFS took 	0.038405	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	885	, TEPS=	0	 (result discarded)
+1.000000	: iteration 26: start= 1062860, BFS took 	3.214938	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	32,342,571	, TEPS=	323,368	 
+1.000000	: iteration 27: start= 2104657, BFS took 	3.218004	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	32,311,755	, TEPS=	323,060	 
+1.000000	: iteration 28: start=  550247, BFS took 	0.038615	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	51	, TEPS=	0	 (result discarded)
+1.000000	: iteration 29: start=   65642, BFS took 	0.036424	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+1.000000	: iteration 30: start= 1280874, BFS took 	0.042031	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	95	, TEPS=	0	 (result discarded)
+1.000000	: iteration 31: start= 1606965, BFS took 	0.043533	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	91	, TEPS=	0	 (result discarded)
+1.000000	: iteration 32: start= 2190569, BFS took 	0.046287	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	21	, TEPS=	0	 (result discarded)
+1.000000	: iteration 33: start= 1000189, BFS took 	0.040692	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	196	, TEPS=	0	 (result discarded)
+1.000000	: iteration 34: start= 1095821, BFS took 	0.041243	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	315	, TEPS=	0	 (result discarded)
+1.000000	: iteration 35: start= 1339058, BFS took 	0.042404	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	47	, TEPS=	0	 (result discarded)
+1.000000	: iteration 36: start= 1032291, BFS took 	3.251823	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,975,713	, TEPS=	319,700	 
+1.000000	: iteration 37: start=  336477, BFS took 	3.249989	s, covered 	1039613	 edges, discovered 	340142	 verts, TEPS incl. filtered edges=	31,993,792	, TEPS=	319,882	 
+1.000000	: iteration 38: start= 2250886, BFS took 	0.046782	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	277	, TEPS=	0	 (result discarded)
+1.000000	: iteration 39: start=  474806, BFS took 	0.038289	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 40: start= 1865630, BFS took 	0.044711	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	67	, TEPS=	0	 (result discarded)
+1.000000	: iteration 41: start= 1919211, BFS took 	0.080778	s, covered 	1	 edges, discovered 	2	 verts, TEPS incl. filtered edges=	1,361	, TEPS=	12	 (result discarded)
+1.000000	: iteration 42: start= 1716026, BFS took 	3.211816	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	32,374,016	, TEPS=	323,683	 
+1.000000	: iteration 43: start= 2320713, BFS took 	3.264408	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,852,440	, TEPS=	318,468	 
+1.000000	: iteration 44: start= 1924036, BFS took 	3.255267	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	31,941,887	, TEPS=	319,363	 
+1.000000	: iteration 45: start=  751210, BFS took 	0.039604	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	75	, TEPS=	0	 (result discarded)
+1.000000	: iteration 46: start=  222423, BFS took 	0.037079	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	296	, TEPS=	0	 (result discarded)
+1.000000	: iteration 47: start= 1659347, BFS took 	0.043861	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	113	, TEPS=	0	 (result discarded)
+1.000000	: iteration 48: start= 1241899, BFS took 	0.041810	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	597	, TEPS=	0	 (result discarded)
+1.000000	: iteration 49: start= 2100515, BFS took 	0.045783	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	109	, TEPS=	0	 (result discarded)
+1.000000	: iteration 50: start= 2073266, BFS took 	0.045754	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	917	, TEPS=	0	 (result discarded)
+1.000000	: iteration 51: start= 2144178, BFS took 	0.046150	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	130	, TEPS=	0	 (result discarded)
+1.000000	: iteration 52: start= 1987286, BFS took 	0.045481	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	153	, TEPS=	0	 (result discarded)
+1.000000	: iteration 53: start=  203832, BFS took 	0.037019	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	81	, TEPS=	0	 (result discarded)
+1.000000	: iteration 54: start= 1988380, BFS took 	0.045347	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	242	, TEPS=	0	 (result discarded)
+1.000000	: iteration 55: start=   93605, BFS took 	3.212655	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	32,365,554	, TEPS=	323,599	 
+1.000000	: iteration 56: start=  654441, BFS took 	0.039126	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	306	, TEPS=	0	 (result discarded)
+1.000000	: iteration 57: start=  407046, BFS took 	0.037898	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	105	, TEPS=	0	 (result discarded)
+1.000000	: iteration 58: start=  141993, BFS took 	3.243766	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	32,055,134	, TEPS=	320,495	 
+1.000000	: iteration 59: start= 2104717, BFS took 	0.045864	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	43	, TEPS=	0	 (result discarded)
+1.000000	: iteration 60: start= 1607110, BFS took 	3.263316	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	31,863,105	, TEPS=	318,575	 
+1.000000	: iteration 61: start=  235716, BFS took 	0.037156	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 62: start= 1421449, BFS took 	0.042726	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	70	, TEPS=	0	 (result discarded)
+1.000000	: iteration 63: start= 1009304, BFS took 	3.290133	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,603,390	, TEPS=	315,978	 
+1.000000	: iteration 64: start= 1609809, BFS took 	0.043754	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	845	, TEPS=	0	 (result discarded)
+1.000000	: iteration 65: start= 2295854, BFS took 	0.046789	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	662	, TEPS=	0	 (result discarded)
+1.000000	: iteration 66: start=  986966, BFS took 	0.040671	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	49	, TEPS=	0	 (result discarded)
+1.000000	: iteration 67: start= 1277882, BFS took 	0.042122	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	546	, TEPS=	0	 (result discarded)
+1.000000	: iteration 68: start=  473486, BFS took 	0.038244	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 69: start= 1658279, BFS took 	0.043679	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	68	, TEPS=	0	 (result discarded)
+1.000000	: iteration 70: start=  694179, BFS took 	0.039329	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	177	, TEPS=	0	 (result discarded)
+1.000000	: iteration 71: start=  756222, BFS took 	0.039723	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	730	, TEPS=	0	 (result discarded)
+1.000000	: iteration 72: start=  340631, BFS took 	0.037551	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	53	, TEPS=	0	 (result discarded)
+1.000000	: iteration 73: start= 1645394, BFS took 	0.043865	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	91	, TEPS=	0	 (result discarded)
+1.000000	: iteration 74: start= 1877435, BFS took 	0.044791	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	111	, TEPS=	0	 (result discarded)
+1.000000	: iteration 75: start= 2000417, BFS took 	0.045399	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	44	, TEPS=	0	 (result discarded)
+1.000000	: iteration 76: start=  988766, BFS took 	0.040715	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	24	, TEPS=	0	 (result discarded)
+1.000000	: iteration 77: start=   43833, BFS took 	3.251747	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	31,976,461	, TEPS=	319,708	 
+1.000000	: iteration 78: start=   81901, BFS took 	0.036427	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	1,015	, TEPS=	0	 (result discarded)
+1.000000	: iteration 79: start= 1797933, BFS took 	0.044415	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	90	, TEPS=	0	 (result discarded)
+1.000000	: iteration 80: start= 1495665, BFS took 	3.219828	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	32,293,452	, TEPS=	322,877	 
+
+BFS execution times (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.21181607246398926e+00
+  firstquartile_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.21845996379852295e+00
+         median_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.25178492069244385e+00
+  thirdquartile_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.26355826854705811e+00
+            max_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.29026603698730469e+00
+           mean_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	3.24737955629825592e+00
+         stddev_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	2.55918228840769785e-02
+          total_SejitsSR_SejitsFilter_OTFtime	1.000000	: 	5.195807e+01
+
+number of edges traversed OTF
+            min_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+  firstquartile_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+         median_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+  thirdquartile_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961200000000000e+06
+            max_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961300000000000e+06
+           mean_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.03961143750000000e+06
+         stddev_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	6.29152869605895781e-01
+          total_SejitsSR_SejitsFilter_OTFnedge	1.000000	: 	1.663378e+07
+
+TEPS (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.15965939627152169e+05
+  firstquartile_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.18551460209940153e+05
+         median_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.19704723866177257e+05
+  thirdquartile_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.23015067540551303e+05
+            max_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.23683541194327234e+05
+  harmonic_mean_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.20138566960834374e+05
+harmonic_stddev_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	2.33743317487608778e+02
+
+TEPS including filtered edges (SejitsSR_SejitsFilter_OTF)
+            min_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.16021202635661513e+07
+  firstquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.18607353952951841e+07
+         median_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.19760874566324428e+07
+  thirdquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.23071799646293037e+07
+            max_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.23740160252173990e+07
+  harmonic_mean_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	3.20194699183452502e+07
+harmonic_stddev_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	1.000000	: 	2.33775515005952002e+04
+Total runtime for sso on 1% is	855.366667	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 100))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	1	% in	0.076806	s.
+--Generating starting verts
+Generated starting verts in 557.440311s.
+--Doing BFS
+1.000000	: iteration  1: start=  999511, BFS took 	0.042867	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+1.000000	: iteration  2: start= 2390036, BFS took 	3.515612	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,576,461	, TEPS=	295,712	 
+1.000000	: iteration  3: start= 1726462, BFS took 	3.531688	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,441,830	, TEPS=	294,366	 
+1.000000	: iteration  4: start= 2235138, BFS took 	0.046061	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	43	, TEPS=	0	 (result discarded)
+1.000000	: iteration  5: start=     274, BFS took 	0.035703	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	140	, TEPS=	0	 (result discarded)
+1.000000	: iteration  6: start=  307086, BFS took 	0.037055	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	80	, TEPS=	0	 (result discarded)
+1.000000	: iteration  7: start=  724625, BFS took 	0.038911	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+1.000000	: iteration  8: start= 2394484, BFS took 	0.046754	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	128	, TEPS=	0	 (result discarded)
+1.000000	: iteration  9: start=  351742, BFS took 	0.037347	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	722	, TEPS=	0	 (result discarded)
+1.000000	: iteration 10: start=  565854, BFS took 	0.038223	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 11: start=  221315, BFS took 	0.036663	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+1.000000	: iteration 12: start=  950518, BFS took 	0.040023	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	774	, TEPS=	0	 (result discarded)
+1.000000	: iteration 13: start=  446425, BFS took 	0.037678	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	159	, TEPS=	0	 (result discarded)
+1.000000	: iteration 14: start=  929738, BFS took 	0.039965	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	2,327	, TEPS=	0	 (result discarded)
+1.000000	: iteration 15: start=  828234, BFS took 	0.039471	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	101	, TEPS=	0	 (result discarded)
+1.000000	: iteration 16: start= 1605236, BFS took 	0.043175	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	185	, TEPS=	0	 (result discarded)
+1.000000	: iteration 17: start=  950965, BFS took 	0.040149	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	722	, TEPS=	0	 (result discarded)
+1.000000	: iteration 18: start= 2242285, BFS took 	0.045997	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	65	, TEPS=	0	 (result discarded)
+1.000000	: iteration 19: start= 1291427, BFS took 	0.041570	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	72	, TEPS=	0	 (result discarded)
+1.000000	: iteration 20: start= 2028424, BFS took 	0.046720	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	42	, TEPS=	0	 (result discarded)
+1.000000	: iteration 21: start= 1004718, BFS took 	0.040296	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	744	, TEPS=	0	 (result discarded)
+1.000000	: iteration 22: start=  750848, BFS took 	0.039121	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+1.000000	: iteration 23: start= 1642323, BFS took 	0.043307	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+1.000000	: iteration 24: start= 1257228, BFS took 	3.555487	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	29,244,764	, TEPS=	292,396	 
+1.000000	: iteration 25: start=  490027, BFS took 	0.037980	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	895	, TEPS=	0	 (result discarded)
+1.000000	: iteration 26: start= 1062860, BFS took 	3.471372	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,953,390	, TEPS=	299,481	 
+1.000000	: iteration 27: start= 2104657, BFS took 	3.482340	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,859,049	, TEPS=	298,538	 
+1.000000	: iteration 28: start=  550247, BFS took 	0.038156	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	52	, TEPS=	0	 (result discarded)
+1.000000	: iteration 29: start=   65642, BFS took 	0.035958	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+1.000000	: iteration 30: start= 1280874, BFS took 	0.041620	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	96	, TEPS=	0	 (result discarded)
+1.000000	: iteration 31: start= 1606965, BFS took 	0.043027	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	92	, TEPS=	0	 (result discarded)
+1.000000	: iteration 32: start= 2190569, BFS took 	0.045730	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	21	, TEPS=	0	 (result discarded)
+1.000000	: iteration 33: start= 1000189, BFS took 	0.040369	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	198	, TEPS=	0	 (result discarded)
+1.000000	: iteration 34: start= 1095821, BFS took 	0.040776	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	318	, TEPS=	0	 (result discarded)
+1.000000	: iteration 35: start= 1339058, BFS took 	0.041810	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	47	, TEPS=	0	 (result discarded)
+1.000000	: iteration 36: start= 1032291, BFS took 	3.519381	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,544,785	, TEPS=	295,395	 
+1.000000	: iteration 37: start=  336477, BFS took 	3.521817	s, covered 	1039613	 edges, discovered 	340142	 verts, TEPS incl. filtered edges=	29,524,383	, TEPS=	295,192	 
+1.000000	: iteration 38: start= 2250886, BFS took 	0.045984	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	282	, TEPS=	0	 (result discarded)
+1.000000	: iteration 39: start=  474806, BFS took 	0.037811	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 40: start= 1865630, BFS took 	0.044263	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	67	, TEPS=	0	 (result discarded)
+1.000000	: iteration 41: start= 1919211, BFS took 	0.079960	s, covered 	1	 edges, discovered 	2	 verts, TEPS incl. filtered edges=	1,375	, TEPS=	12	 (result discarded)
+1.000000	: iteration 42: start= 1716026, BFS took 	3.476538	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	29,908,888	, TEPS=	299,036	 
+1.000000	: iteration 43: start= 2320713, BFS took 	3.523866	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,507,183	, TEPS=	295,020	 
+1.000000	: iteration 44: start= 1924036, BFS took 	3.522780	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	29,516,281	, TEPS=	295,111	 
+1.000000	: iteration 45: start=  751210, BFS took 	0.039147	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	76	, TEPS=	0	 (result discarded)
+1.000000	: iteration 46: start=  222423, BFS took 	0.036575	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	300	, TEPS=	0	 (result discarded)
+1.000000	: iteration 47: start= 1659347, BFS took 	0.043446	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	115	, TEPS=	0	 (result discarded)
+1.000000	: iteration 48: start= 1241899, BFS took 	0.041378	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	604	, TEPS=	0	 (result discarded)
+1.000000	: iteration 49: start= 2100515, BFS took 	0.045408	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	110	, TEPS=	0	 (result discarded)
+1.000000	: iteration 50: start= 2073266, BFS took 	0.045215	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	928	, TEPS=	0	 (result discarded)
+1.000000	: iteration 51: start= 2144178, BFS took 	0.045578	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	131	, TEPS=	0	 (result discarded)
+1.000000	: iteration 52: start= 1987286, BFS took 	0.044799	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	156	, TEPS=	0	 (result discarded)
+1.000000	: iteration 53: start=  203832, BFS took 	0.036562	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	82	, TEPS=	0	 (result discarded)
+1.000000	: iteration 54: start= 1988380, BFS took 	0.044809	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	245	, TEPS=	0	 (result discarded)
+1.000000	: iteration 55: start=   93605, BFS took 	3.475782	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	29,915,385	, TEPS=	299,101	 
+1.000000	: iteration 56: start=  654441, BFS took 	0.038541	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	311	, TEPS=	0	 (result discarded)
+1.000000	: iteration 57: start=  407046, BFS took 	0.037510	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	106	, TEPS=	0	 (result discarded)
+1.000000	: iteration 58: start=  141993, BFS took 	3.510149	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,622,491	, TEPS=	296,172	 
+1.000000	: iteration 59: start= 2104717, BFS took 	0.045386	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	44	, TEPS=	0	 (result discarded)
+1.000000	: iteration 60: start= 1607110, BFS took 	3.521703	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	29,525,314	, TEPS=	295,201	 
+1.000000	: iteration 61: start=  235716, BFS took 	0.036643	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+1.000000	: iteration 62: start= 1421449, BFS took 	0.042243	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	71	, TEPS=	0	 (result discarded)
+1.000000	: iteration 63: start= 1009304, BFS took 	3.557531	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,227,954	, TEPS=	292,228	 
+1.000000	: iteration 64: start= 1609809, BFS took 	0.043144	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	857	, TEPS=	0	 (result discarded)
+1.000000	: iteration 65: start= 2295854, BFS took 	0.046483	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	666	, TEPS=	0	 (result discarded)
+1.000000	: iteration 66: start=  986966, BFS took 	0.040169	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	49	, TEPS=	0	 (result discarded)
+1.000000	: iteration 67: start= 1277882, BFS took 	0.041547	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	553	, TEPS=	0	 (result discarded)
+1.000000	: iteration 68: start=  473486, BFS took 	0.037787	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+1.000000	: iteration 69: start= 1658279, BFS took 	0.043403	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	69	, TEPS=	0	 (result discarded)
+1.000000	: iteration 70: start=  694179, BFS took 	0.038869	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	180	, TEPS=	0	 (result discarded)
+1.000000	: iteration 71: start=  756222, BFS took 	0.039239	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	739	, TEPS=	0	 (result discarded)
+1.000000	: iteration 72: start=  340631, BFS took 	0.037170	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	53	, TEPS=	0	 (result discarded)
+1.000000	: iteration 73: start= 1645394, BFS took 	0.043226	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	92	, TEPS=	0	 (result discarded)
+1.000000	: iteration 74: start= 1877435, BFS took 	0.044244	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	113	, TEPS=	0	 (result discarded)
+1.000000	: iteration 75: start= 2000417, BFS took 	0.045050	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	44	, TEPS=	0	 (result discarded)
+1.000000	: iteration 76: start=  988766, BFS took 	0.040200	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	24	, TEPS=	0	 (result discarded)
+1.000000	: iteration 77: start=   43833, BFS took 	3.515819	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,574,718	, TEPS=	295,695	 
+1.000000	: iteration 78: start=   81901, BFS took 	0.035943	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	1,029	, TEPS=	0	 (result discarded)
+1.000000	: iteration 79: start= 1797933, BFS took 	0.043946	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	91	, TEPS=	0	 (result discarded)
+1.000000	: iteration 80: start= 1495665, BFS took 	3.485214	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	29,834,423	, TEPS=	298,291	 
+
+BFS execution times (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.47137188911437988e+00
+  firstquartile_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.48305845260620117e+00
+         median_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.51760005950927734e+00
+  thirdquartile_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.52359449863433838e+00
+            max_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.55753111839294434e+00
+           mean_C++SR_SejitsFilter_OTFtime	1.000000	: 	3.51169246435165405e+00
+         stddev_C++SR_SejitsFilter_OTFtime	1.000000	: 	2.67089547780090426e-02
+          total_C++SR_SejitsFilter_OTFtime	1.000000	: 	5.618708e+01
+
+number of edges traversed OTF
+            min_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+  firstquartile_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+         median_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961100000000000e+06
+  thirdquartile_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961200000000000e+06
+            max_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961300000000000e+06
+           mean_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.03961143750000000e+06
+         stddev_C++SR_SejitsFilter_OTFnedge	1.000000	: 	6.29152869605895781e-01
+          total_C++SR_SejitsFilter_OTFnedge	1.000000	: 	1.663378e+07
+
+TEPS (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.92228223844638385e+05
+  firstquartile_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.95042823165909271e+05
+         median_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.95545613177640364e+05
+  thirdquartile_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.98476510469761153e+05
+            max_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.99481309755385097e+05
+  harmonic_mean_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.96042847801628639e+05
+harmonic_stddev_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.26598908554938959e+02
+
+TEPS including filtered edges (C++SR_SejitsFilter_OTF)
+            min_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.92279548764624596e+07
+  firstquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.95094579249615669e+07
+         median_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.95597520740671270e+07
+  thirdquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.98528932795079648e+07
+            max_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.99533908556617722e+07
+  harmonic_mean_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.96094755119084753e+07
+harmonic_stddev_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	1.000000	: 	2.26644411158723960e+04
+Total runtime for cso on 1% is	860.476195	s.
+--Materializing the filter
+Materialized 1.000000 in	908.838966	s.
+1.000000	: 	1282497	 edges survived the filter.
+edge Mat: 2396784-by-2396784 (row-by-col) Mat with 1282497 elements.
+1 filter(s) remove 127027187 additional elements (128309684 total elements stored).
+Too many elements to print.
+vertex attribute Vec: length=2396784, dense, [ *too many to print* ]
+--Generating starting verts
+Generated starting verts in 1.622835s.
+--Doing BFS
+1.000000	: iteration  1: start=  999511, BFS took 	0.016388	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  2: start= 2390036, BFS took 	0.767894	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,353,846	 
+1.000000	: iteration  3: start= 1726462, BFS took 	0.765044	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,358,890	 
+1.000000	: iteration  4: start= 2235138, BFS took 	0.012673	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  5: start=     274, BFS took 	0.012088	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  6: start=  307086, BFS took 	0.012168	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  7: start=  724625, BFS took 	0.012243	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  8: start= 2394484, BFS took 	0.012664	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration  9: start=  351742, BFS took 	0.012131	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 10: start=  565854, BFS took 	0.012256	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 11: start=  221315, BFS took 	0.012114	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 12: start=  950518, BFS took 	0.012328	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 13: start=  446425, BFS took 	0.012298	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 14: start=  929738, BFS took 	0.012353	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 15: start=  828234, BFS took 	0.012272	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 16: start= 1605236, BFS took 	0.012479	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 17: start=  950965, BFS took 	0.012294	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 18: start= 2242285, BFS took 	0.012665	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 19: start= 1291427, BFS took 	0.012442	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 20: start= 2028424, BFS took 	0.012653	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 21: start= 1004718, BFS took 	0.012294	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 22: start=  750848, BFS took 	0.012267	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 23: start= 1642323, BFS took 	0.012433	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 24: start= 1257228, BFS took 	0.771319	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,347,836	 
+1.000000	: iteration 25: start=  490027, BFS took 	0.012217	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 26: start= 1062860, BFS took 	0.758959	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,369,785	 
+1.000000	: iteration 27: start= 2104657, BFS took 	0.755945	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,375,246	 
+1.000000	: iteration 28: start=  550247, BFS took 	0.012263	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 29: start=   65642, BFS took 	0.012090	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 30: start= 1280874, BFS took 	0.012455	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 31: start= 1606965, BFS took 	0.012453	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 32: start= 2190569, BFS took 	0.012640	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 33: start= 1000189, BFS took 	0.012315	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 34: start= 1095821, BFS took 	0.012519	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 35: start= 1339058, BFS took 	0.012377	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 36: start= 1032291, BFS took 	0.766709	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,355,939	 
+1.000000	: iteration 37: start=  336477, BFS took 	0.769344	s, covered 	1039613	 edges, discovered 	340142	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,351,297	 
+1.000000	: iteration 38: start= 2250886, BFS took 	0.012649	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 39: start=  474806, BFS took 	0.012244	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 40: start= 1865630, BFS took 	0.012504	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 41: start= 1919211, BFS took 	0.019915	s, covered 	1	 edges, discovered 	2	 verts, TEPS incl. filtered edges=	0	, TEPS=	50	 (result discarded)
+1.000000	: iteration 42: start= 1716026, BFS took 	0.760132	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,367,672	 
+1.000000	: iteration 43: start= 2320713, BFS took 	0.763986	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,360,772	 
+1.000000	: iteration 44: start= 1924036, BFS took 	0.761668	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,364,914	 
+1.000000	: iteration 45: start=  751210, BFS took 	0.012272	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 46: start=  222423, BFS took 	0.012134	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 47: start= 1659347, BFS took 	0.012457	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 48: start= 1241899, BFS took 	0.012461	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 49: start= 2100515, BFS took 	0.012558	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 50: start= 2073266, BFS took 	0.012576	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 51: start= 2144178, BFS took 	0.012591	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 52: start= 1987286, BFS took 	0.012550	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 53: start=  203832, BFS took 	0.012121	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 54: start= 1988380, BFS took 	0.012664	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 55: start=   93605, BFS took 	0.754294	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,378,258	 
+1.000000	: iteration 56: start=  654441, BFS took 	0.012287	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 57: start=  407046, BFS took 	0.012156	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 58: start=  141993, BFS took 	0.766700	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,355,955	 
+1.000000	: iteration 59: start= 2104717, BFS took 	0.012652	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 60: start= 1607110, BFS took 	0.760266	s, covered 	1039612	 edges, discovered 	340141	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,367,431	 
+1.000000	: iteration 61: start=  235716, BFS took 	0.012121	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 62: start= 1421449, BFS took 	0.012461	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 63: start= 1009304, BFS took 	0.768970	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,351,953	 
+1.000000	: iteration 64: start= 1609809, BFS took 	0.012503	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 65: start= 2295854, BFS took 	0.012643	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 66: start=  986966, BFS took 	0.012357	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 67: start= 1277882, BFS took 	0.012387	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 68: start=  473486, BFS took 	0.012201	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 69: start= 1658279, BFS took 	0.012426	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 70: start=  694179, BFS took 	0.012276	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 71: start=  756222, BFS took 	0.012491	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 72: start=  340631, BFS took 	0.012180	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 73: start= 1645394, BFS took 	0.012446	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 74: start= 1877435, BFS took 	0.012519	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 75: start= 2000417, BFS took 	0.012539	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 76: start=  988766, BFS took 	0.012352	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 77: start=   43833, BFS took 	0.765115	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,358,764	 
+1.000000	: iteration 78: start=   81901, BFS took 	0.012161	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 79: start= 1797933, BFS took 	0.012499	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+1.000000	: iteration 80: start= 1495665, BFS took 	0.764574	s, covered 	1039611	 edges, discovered 	340140	 verts, TEPS incl. filtered edges=	0	, TEPS=	1,359,726	 
+
+BFS execution times (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mattime	1.000000	: 	7.54293918609619141e-01
+  firstquartile_C++SR_PythonFilter_Mattime	1.000000	: 	7.60165572166442871e-01
+         median_C++SR_PythonFilter_Mattime	1.000000	: 	7.64808893203735352e-01
+  thirdquartile_C++SR_PythonFilter_Mattime	1.000000	: 	7.67597794532775879e-01
+            max_C++SR_PythonFilter_Mattime	1.000000	: 	7.71318912506103516e-01
+           mean_C++SR_PythonFilter_Mattime	1.000000	: 	7.63807401061058044e-01
+         stddev_C++SR_PythonFilter_Mattime	1.000000	: 	4.88213920745121568e-03
+          total_C++SR_PythonFilter_Mattime	1.000000	: 	1.222092e+01
+
+number of edges traversed Mat
+            min_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961100000000000e+06
+  firstquartile_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961100000000000e+06
+         median_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961100000000000e+06
+  thirdquartile_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961200000000000e+06
+            max_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961300000000000e+06
+           mean_C++SR_PythonFilter_Matnedge	1.000000	: 	1.03961143750000000e+06
+         stddev_C++SR_PythonFilter_Matnedge	1.000000	: 	6.29152869605895781e-01
+          total_C++SR_PythonFilter_Matnedge	1.000000	: 	1.663378e+07
+
+TEPS (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.34783678079690994e+06
+  firstquartile_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.35437005196790118e+06
+         median_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.35930832847005897e+06
+  thirdquartile_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.36761258878501179e+06
+            max_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.37825849360724562e+06
+  harmonic_mean_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.36109107614321448e+06
+harmonic_stddev_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.13023881558251765e+03
+
+TEPS including materialization time (C++SR_PythonFilter_Mat)
+            min_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14292023418582562e+03
+  firstquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14292409295157131e+03
+         median_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14292731466749456e+03
+  thirdquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14293424846740618e+03
+            max_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14294162639580099e+03
+  harmonic_mean_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	1.14292905403365035e+03
+harmonic_stddev_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	1.000000	: 	8.38148256972898729e-04
+Total runtime for cpm on 1% is	1103.336603	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	10	% in	0.083701	s.
+--Generating starting verts
+Generated starting verts in 560.544415s.
+--Doing BFS
+10.000000	: iteration  1: start=  999511, BFS took 	0.043115	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+10.000000	: iteration  2: start= 2390036, BFS took 	11.744008	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,559,752	, TEPS=	1,055,925	 
+10.000000	: iteration  3: start= 1726462, BFS took 	11.557572	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,730,092	, TEPS=	1,072,958	 
+10.000000	: iteration  4: start= 2235138, BFS took 	0.046784	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	42	, TEPS=	0	 (result discarded)
+10.000000	: iteration  5: start=     274, BFS took 	0.036076	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	138	, TEPS=	0	 (result discarded)
+10.000000	: iteration  6: start=  307086, BFS took 	0.037541	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	79	, TEPS=	0	 (result discarded)
+10.000000	: iteration  7: start=  724625, BFS took 	0.039387	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+10.000000	: iteration  8: start= 2394484, BFS took 	11.391127	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	10,886,879	, TEPS=	1,088,636	 
+10.000000	: iteration  9: start=  351742, BFS took 	11.352369	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,924,047	, TEPS=	1,092,352	 
+10.000000	: iteration 10: start=  565854, BFS took 	0.038636	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+10.000000	: iteration 11: start=  221315, BFS took 	0.037208	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+10.000000	: iteration 12: start=  950518, BFS took 	11.286131	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,988,160	, TEPS=	1,098,763	 
+10.000000	: iteration 13: start=  446425, BFS took 	0.032644	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	183	, TEPS=	0	 (result discarded)
+10.000000	: iteration 14: start=  929738, BFS took 	11.557862	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,729,823	, TEPS=	1,072,931	 
+10.000000	: iteration 15: start=  828234, BFS took 	0.034370	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	116	, TEPS=	0	 (result discarded)
+10.000000	: iteration 16: start= 1605236, BFS took 	0.043471	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	184	, TEPS=	0	 (result discarded)
+10.000000	: iteration 17: start=  950965, BFS took 	11.442683	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,837,827	, TEPS=	1,083,731	 
+10.000000	: iteration 18: start= 2242285, BFS took 	0.046292	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	64	, TEPS=	0	 (result discarded)
+10.000000	: iteration 19: start= 1291427, BFS took 	0.042231	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	71	, TEPS=	0	 (result discarded)
+10.000000	: iteration 20: start= 2028424, BFS took 	11.662904	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	10,633,185	, TEPS=	1,063,268	 
+10.000000	: iteration 21: start= 1004718, BFS took 	0.035019	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	856	, TEPS=	0	 (result discarded)
+10.000000	: iteration 22: start=  750848, BFS took 	0.039212	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+10.000000	: iteration 23: start= 1642323, BFS took 	0.043421	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+10.000000	: iteration 24: start= 1257228, BFS took 	11.642553	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,651,771	, TEPS=	1,065,126	 
+10.000000	: iteration 25: start=  490027, BFS took 	11.182065	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,090,421	, TEPS=	1,108,989	 
+10.000000	: iteration 26: start= 1062860, BFS took 	11.173303	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,099,119	, TEPS=	1,109,859	 
+10.000000	: iteration 27: start= 2104657, BFS took 	11.253455	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,020,066	, TEPS=	1,101,954	 
+10.000000	: iteration 28: start=  550247, BFS took 	0.038418	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	52	, TEPS=	0	 (result discarded)
+10.000000	: iteration 29: start=   65642, BFS took 	0.036110	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+10.000000	: iteration 30: start= 1280874, BFS took 	11.394212	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	10,883,931	, TEPS=	1,088,341	 
+10.000000	: iteration 31: start= 1606965, BFS took 	0.037932	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	105	, TEPS=	0	 (result discarded)
+10.000000	: iteration 32: start= 2190569, BFS took 	0.046010	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	21	, TEPS=	0	 (result discarded)
+10.000000	: iteration 33: start= 1000189, BFS took 	11.243658	s, covered 	12400796	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,029,669	, TEPS=	1,102,914	 
+10.000000	: iteration 34: start= 1095821, BFS took 	11.535181	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	10,750,922	, TEPS=	1,075,041	 
+10.000000	: iteration 35: start= 1339058, BFS took 	0.036076	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	55	, TEPS=	0	 (result discarded)
+10.000000	: iteration 36: start= 1032291, BFS took 	11.545308	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	10,741,490	, TEPS=	1,074,098	 
+
+BFS execution times (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.11733028888702393e+01
+  firstquartile_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.12616240978240967e+01
+         median_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.14184474945068359e+01
+  thirdquartile_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.15577895045280457e+01
+            max_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.17440080642700195e+01
+           mean_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.14352744668722153e+01
+         stddev_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.78418146970281577e-01
+          total_SejitsSR_SejitsFilter_OTFtime	10.000000	: 	1.829644e+02
+
+number of edges traversed OTF
+            min_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+  firstquartile_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+         median_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+  thirdquartile_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007950000000000e+07
+            max_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007960000000000e+07
+           mean_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.24007943750000000e+07
+         stddev_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	6.19139187366890331e-01
+          total_SejitsSR_SejitsFilter_OTFnedge	10.000000	: 	1.984127e+08
+
+TEPS (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.05592519454479823e+06
+  firstquartile_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.07293821163701988e+06
+         median_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.08603646617998858e+06
+  thirdquartile_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.10115676378989476e+06
+            max_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.10985928899792628e+06
+  harmonic_mean_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.08443347032506461e+06
+harmonic_stddev_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.65622249310312259e+03
+
+TEPS including filtered edges (SejitsSR_SejitsFilter_OTF)
+            min_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.05597525411532838e+07
+  firstquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.07298907776499689e+07
+         median_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.08608792694211509e+07
+  thirdquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.10120896771017872e+07
+            max_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.10991190548974145e+07
+  harmonic_mean_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.08448486672207806e+07
+harmonic_stddev_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	10.000000	: 	1.65630194689005293e+04
+Total runtime for sso on 10% is	854.606333	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	10	% in	0.086705	s.
+--Generating starting verts
+Generated starting verts in 558.990134s.
+--Doing BFS
+10.000000	: iteration  1: start=  999511, BFS took 	0.040126	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	24	, TEPS=	0	 (result discarded)
+10.000000	: iteration  2: start= 2390036, BFS took 	10.548615	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,756,407	, TEPS=	1,175,585	 
+10.000000	: iteration  3: start= 1726462, BFS took 	10.476623	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,837,193	, TEPS=	1,183,663	 
+10.000000	: iteration  4: start= 2235138, BFS took 	0.044163	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	45	, TEPS=	0	 (result discarded)
+10.000000	: iteration  5: start=     274, BFS took 	0.033714	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	148	, TEPS=	0	 (result discarded)
+10.000000	: iteration  6: start=  307086, BFS took 	0.035229	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	85	, TEPS=	0	 (result discarded)
+10.000000	: iteration  7: start=  724625, BFS took 	0.037252	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+10.000000	: iteration  8: start= 2394484, BFS took 	10.448523	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,869,029	, TEPS=	1,186,846	 
+10.000000	: iteration  9: start=  351742, BFS took 	10.403523	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,920,367	, TEPS=	1,191,980	 
+10.000000	: iteration 10: start=  565854, BFS took 	0.036002	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+10.000000	: iteration 11: start=  221315, BFS took 	0.034467	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	29	, TEPS=	0	 (result discarded)
+10.000000	: iteration 12: start=  950518, BFS took 	10.449705	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,867,685	, TEPS=	1,186,712	 
+10.000000	: iteration 13: start=  446425, BFS took 	0.036011	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	166	, TEPS=	0	 (result discarded)
+10.000000	: iteration 14: start=  929738, BFS took 	10.490499	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,821,536	, TEPS=	1,182,097	 
+10.000000	: iteration 15: start=  828234, BFS took 	0.032042	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	124	, TEPS=	0	 (result discarded)
+10.000000	: iteration 16: start= 1605236, BFS took 	0.041088	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	194	, TEPS=	0	 (result discarded)
+10.000000	: iteration 17: start=  950965, BFS took 	10.410563	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,912,306	, TEPS=	1,191,174	 
+10.000000	: iteration 18: start= 2242285, BFS took 	0.044405	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	67	, TEPS=	0	 (result discarded)
+10.000000	: iteration 19: start= 1291427, BFS took 	0.039616	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	75	, TEPS=	0	 (result discarded)
+10.000000	: iteration 20: start= 2028424, BFS took 	10.713709	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,575,246	, TEPS=	1,157,469	 
+10.000000	: iteration 21: start= 1004718, BFS took 	0.032500	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	923	, TEPS=	0	 (result discarded)
+10.000000	: iteration 22: start=  750848, BFS took 	0.037464	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+10.000000	: iteration 23: start= 1642323, BFS took 	0.041563	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	24	, TEPS=	0	 (result discarded)
+10.000000	: iteration 24: start= 1257228, BFS took 	10.731945	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,555,577	, TEPS=	1,155,502	 
+10.000000	: iteration 25: start=  490027, BFS took 	10.271238	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	12,073,891	, TEPS=	1,207,331	 
+10.000000	: iteration 26: start= 1062860, BFS took 	10.311935	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	12,026,241	, TEPS=	1,202,567	 
+10.000000	: iteration 27: start= 2104657, BFS took 	10.441013	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,877,565	, TEPS=	1,187,700	 
+10.000000	: iteration 28: start=  550247, BFS took 	0.028978	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	69	, TEPS=	0	 (result discarded)
+10.000000	: iteration 29: start=   65642, BFS took 	0.027155	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	36	, TEPS=	0	 (result discarded)
+10.000000	: iteration 30: start= 1280874, BFS took 	10.488436	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,823,862	, TEPS=	1,182,330	 
+10.000000	: iteration 31: start= 1606965, BFS took 	0.035653	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	112	, TEPS=	0	 (result discarded)
+10.000000	: iteration 32: start= 2190569, BFS took 	0.043970	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	22	, TEPS=	0	 (result discarded)
+10.000000	: iteration 33: start= 1000189, BFS took 	10.365134	s, covered 	12400796	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,964,517	, TEPS=	1,196,395	 
+10.000000	: iteration 34: start= 1095821, BFS took 	10.598724	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	11,700,826	, TEPS=	1,170,027	 
+10.000000	: iteration 35: start= 1339058, BFS took 	0.034218	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	58	, TEPS=	0	 (result discarded)
+10.000000	: iteration 36: start= 1032291, BFS took 	10.617019	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	11,680,662	, TEPS=	1,168,010	 
+
+BFS execution times (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.02712380886077881e+01
+  firstquartile_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.04052829742431641e+01
+         median_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.04631640911102295e+01
+  thirdquartile_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.05861966609954834e+01
+            max_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.07319447994232178e+01
+           mean_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.04854502379894257e+01
+         stddev_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.30259120102253184e-01
+          total_C++SR_SejitsFilter_OTFtime	10.000000	: 	1.677672e+02
+
+number of edges traversed OTF
+            min_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+  firstquartile_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+         median_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007940000000000e+07
+  thirdquartile_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007950000000000e+07
+            max_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007960000000000e+07
+           mean_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.24007943750000000e+07
+         stddev_C++SR_SejitsFilter_OTFnedge	10.000000	: 	6.19139187366890331e-01
+          total_C++SR_SejitsFilter_OTFnedge	10.000000	: 	1.984127e+08
+
+TEPS (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.15550296165020089e+06
+  firstquartile_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.17141664429651108e+06
+         median_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.18518780844989000e+06
+  thirdquartile_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.19177874303881754e+06
+            max_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.20733195872016461e+06
+  harmonic_mean_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.18266684729190287e+06
+harmonic_stddev_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.61074780691844694e+03
+
+TEPS including filtered edges (C++SR_SejitsFilter_OTF)
+            min_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.15555774202887304e+07
+  firstquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.17147220034071878e+07
+         median_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.18524399613533877e+07
+  thirdquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.19183524318897184e+07
+            max_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.20738919622112866e+07
+  harmonic_mean_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.18272289937252309e+07
+harmonic_stddev_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	10.000000	: 	1.61082519852877740e+04
+Total runtime for cso on 10% is	837.943903	s.
+--Materializing the filter
+Materialized 10.000000 in	912.040406	s.
+10.000000	: 	12830011	 edges survived the filter.
+edge Mat: 2396784-by-2396784 (row-by-col) Mat with 12830011 elements.
+1 filter(s) remove 115479673 additional elements (128309684 total elements stored).
+Too many elements to print.
+vertex attribute Vec: length=2396784, dense, [ *too many to print* ]
+--Generating starting verts
+Generated starting verts in 15.985531s.
+--Doing BFS
+10.000000	: iteration  1: start=  999511, BFS took 	0.023292	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration  2: start= 2390036, BFS took 	5.267199	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,354,343	 
+10.000000	: iteration  3: start= 1726462, BFS took 	5.287065	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,345,496	 
+10.000000	: iteration  4: start= 2235138, BFS took 	0.021272	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration  5: start=     274, BFS took 	0.018009	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration  6: start=  307086, BFS took 	0.018430	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration  7: start=  724625, BFS took 	0.019239	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration  8: start= 2394484, BFS took 	5.265839	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,354,951	 
+10.000000	: iteration  9: start=  351742, BFS took 	5.246874	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,363,463	 
+10.000000	: iteration 10: start=  565854, BFS took 	0.018733	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 11: start=  221315, BFS took 	0.018331	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 12: start=  950518, BFS took 	5.524197	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,244,813	 
+10.000000	: iteration 13: start=  446425, BFS took 	0.019583	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 14: start=  929738, BFS took 	5.260405	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,357,383	 
+10.000000	: iteration 15: start=  828234, BFS took 	0.019512	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 16: start= 1605236, BFS took 	0.020246	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 17: start=  950965, BFS took 	5.261401	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,356,937	 
+10.000000	: iteration 18: start= 2242285, BFS took 	0.020986	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 19: start= 1291427, BFS took 	0.020061	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 20: start= 2028424, BFS took 	5.469353	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,267,323	 
+10.000000	: iteration 21: start= 1004718, BFS took 	0.020690	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 22: start=  750848, BFS took 	0.018879	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 23: start= 1642323, BFS took 	0.020335	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 24: start= 1257228, BFS took 	5.332259	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,325,617	 
+10.000000	: iteration 25: start=  490027, BFS took 	5.307591	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,336,426	 
+10.000000	: iteration 26: start= 1062860, BFS took 	5.413119	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,290,877	 
+10.000000	: iteration 27: start= 2104657, BFS took 	5.511418	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,250,018	 
+10.000000	: iteration 28: start=  550247, BFS took 	0.018697	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 29: start=   65642, BFS took 	0.018043	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 30: start= 1280874, BFS took 	5.531285	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,241,937	 
+10.000000	: iteration 31: start= 1606965, BFS took 	0.021009	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 32: start= 2190569, BFS took 	0.021227	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 33: start= 1000189, BFS took 	5.438533	s, covered 	12400796	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,280,173	 
+10.000000	: iteration 34: start= 1095821, BFS took 	5.514319	s, covered 	12400795	 edges, discovered 	1156478	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,248,835	 
+10.000000	: iteration 35: start= 1339058, BFS took 	0.020308	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+10.000000	: iteration 36: start= 1032291, BFS took 	5.415618	s, covered 	12400794	 edges, discovered 	1156477	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,289,820	 
+
+BFS execution times (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mattime	10.000000	: 	5.24687409400939941e+00
+  firstquartile_C++SR_PythonFilter_Mattime	10.000000	: 	5.26617908477783203e+00
+         median_C++SR_PythonFilter_Mattime	10.000000	: 	5.37268900871276855e+00
+  thirdquartile_C++SR_PythonFilter_Mattime	10.000000	: 	5.50090169906616211e+00
+            max_C++SR_PythonFilter_Mattime	10.000000	: 	5.53128504753112793e+00
+           mean_C++SR_PythonFilter_Mattime	10.000000	: 	5.37790468335151672e+00
+         stddev_C++SR_PythonFilter_Mattime	10.000000	: 	1.09758737885938470e-01
+          total_C++SR_PythonFilter_Mattime	10.000000	: 	8.604647e+01
+
+number of edges traversed Mat
+            min_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007940000000000e+07
+  firstquartile_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007940000000000e+07
+         median_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007940000000000e+07
+  thirdquartile_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007950000000000e+07
+            max_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007960000000000e+07
+           mean_C++SR_PythonFilter_Matnedge	10.000000	: 	1.24007943750000000e+07
+         stddev_C++SR_PythonFilter_Matnedge	10.000000	: 	6.19139187366890331e-01
+          total_C++SR_PythonFilter_Matnedge	10.000000	: 	1.984127e+08
+
+TEPS (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.24193743288190430e+06
+  firstquartile_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.25434509018743644e+06
+         median_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.30824755400128476e+06
+  thirdquartile_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.35479931568092480e+06
+            max_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.36346323121390771e+06
+  harmonic_mean_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	2.30587842471935693e+06
+harmonic_stddev_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	3.74545176286988408e+03
+
+TEPS including materialization time (C++SR_PythonFilter_Mat)
+            min_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35147968503645079e+04
+  firstquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35152435655960981e+04
+         median_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35171321313209082e+04
+  thirdquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35187024183546619e+04
+            max_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35189861118339541e+04
+  harmonic_mean_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.35170556667247074e+04
+harmonic_stddev_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	10.000000	: 	1.28677963408289436e-01
+Total runtime for cpm on 10% is	1095.834137	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 2500))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	25	% in	0.085332	s.
+--Generating starting verts
+Generated starting verts in 567.853499s.
+--Doing BFS
+25.000000	: iteration  1: start=  999511, BFS took 	0.042930	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	23	, TEPS=	0	 (result discarded)
+25.000000	: iteration  2: start= 2390036, BFS took 	21.814581	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,807,215	, TEPS=	1,451,944	 
+25.000000	: iteration  3: start= 1726462, BFS took 	22.418694	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,650,729	, TEPS=	1,412,819	 
+25.000000	: iteration  4: start= 2235138, BFS took 	0.046387	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	43	, TEPS=	0	 (result discarded)
+25.000000	: iteration  5: start=     274, BFS took 	0.035716	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	139	, TEPS=	0	 (result discarded)
+25.000000	: iteration  6: start=  307086, BFS took 	0.037099	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	80	, TEPS=	0	 (result discarded)
+25.000000	: iteration  7: start=  724625, BFS took 	0.039047	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	25	, TEPS=	0	 (result discarded)
+25.000000	: iteration  8: start= 2394484, BFS took 	20.921787	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,055,026	, TEPS=	1,513,903	 
+25.000000	: iteration  9: start=  351742, BFS took 	22.146915	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,720,073	, TEPS=	1,430,157	 
+25.000000	: iteration 10: start=  565854, BFS took 	0.038309	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	26	, TEPS=	0	 (result discarded)
+25.000000	: iteration 11: start=  221315, BFS took 	0.036751	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+25.000000	: iteration 12: start=  950518, BFS took 	22.128789	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,724,758	, TEPS=	1,431,328	 
+25.000000	: iteration 13: start=  446425, BFS took 	0.038009	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	157	, TEPS=	0	 (result discarded)
+25.000000	: iteration 14: start=  929738, BFS took 	22.139117	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,722,087	, TEPS=	1,430,660	 
+25.000000	: iteration 15: start=  828234, BFS took 	0.034033	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	117	, TEPS=	0	 (result discarded)
+25.000000	: iteration 16: start= 1605236, BFS took 	0.043096	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	185	, TEPS=	0	 (result discarded)
+25.000000	: iteration 17: start=  950965, BFS took 	22.325698	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,674,267	, TEPS=	1,418,704	 
+25.000000	: iteration 18: start= 2242285, BFS took 	0.046388	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	64	, TEPS=	0	 (result discarded)
+25.000000	: iteration 19: start= 1291427, BFS took 	22.502190	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	5,629,762	, TEPS=	1,407,577	 
+25.000000	: iteration 20: start= 2028424, BFS took 	20.917807	s, covered 	31673572	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	6,056,178	, TEPS=	1,514,191	 
+25.000000	: iteration 21: start= 1004718, BFS took 	21.455680	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,904,356	, TEPS=	1,476,232	 
+25.000000	: iteration 22: start=  750848, BFS took 	0.032119	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	31	, TEPS=	0	 (result discarded)
+25.000000	: iteration 23: start= 1642323, BFS took 	0.036454	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+25.000000	: iteration 24: start= 1257228, BFS took 	22.417272	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,651,087	, TEPS=	1,412,909	 
+25.000000	: iteration 25: start=  490027, BFS took 	22.310929	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,678,023	, TEPS=	1,419,643	 
+25.000000	: iteration 26: start= 1062860, BFS took 	21.620533	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,859,336	, TEPS=	1,464,976	 
+25.000000	: iteration 27: start= 2104657, BFS took 	20.986383	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,036,389	, TEPS=	1,509,243	 
+25.000000	: iteration 28: start=  550247, BFS took 	0.038261	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	52	, TEPS=	0	 (result discarded)
+25.000000	: iteration 29: start=   65642, BFS took 	0.035988	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+25.000000	: iteration 30: start= 1280874, BFS took 	22.674435	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	5,586,996	, TEPS=	1,396,884	 
+25.000000	: iteration 31: start= 1606965, BFS took 	22.080258	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	5,737,341	, TEPS=	1,434,474	 
+
+BFS execution times (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.09178068637847900e+01
+  firstquartile_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.14968933463096619e+01
+         median_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.21339529752731323e+01
+  thirdquartile_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.23943784236907959e+01
+            max_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.26744349002838135e+01
+           mean_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	2.19288167357444763e+01
+         stddev_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	5.81829893431526135e-01
+          total_SejitsSR_SejitsFilter_OTFtime	25.000000	: 	3.508611e+02
+
+number of edges traversed OTF
+            min_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+  firstquartile_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+         median_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+  thirdquartile_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+            max_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735730000000000e+07
+           mean_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	3.16735713125000000e+07
+         stddev_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	7.04154339142586960e-01
+          total_SejitsSR_SejitsFilter_OTFnedge	25.000000	: 	5.067771e+08
+
+TEPS (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.39688477967773052e+06
+  firstquartile_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.41435809949322185e+06
+         median_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.43099485028539342e+06
+  thirdquartile_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.47341843364492361e+06
+            max_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.51419181782564288e+06
+  harmonic_mean_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.44438123127311375e+06
+harmonic_stddev_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	4.43946840259797955e+03
+
+TEPS including filtered edges (SejitsSR_SejitsFilter_OTF)
+            min_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	5.58699604012686294e+06
+  firstquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	5.65688270472217165e+06
+         median_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	5.72342324198266398e+06
+  thirdquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	5.89310108740586694e+06
+            max_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	6.05617868187347054e+06
+  harmonic_mean_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	5.77696353144515213e+06
+harmonic_stddev_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	25.000000	: 	1.77561443299686143e+04
+Total runtime for sso on 25% is	1014.270833	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 2500))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	25	% in	0.077827	s.
+--Generating starting verts
+Generated starting verts in 567.798635s.
+--Doing BFS
+25.000000	: iteration  1: start=  999511, BFS took 	0.040119	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	24	, TEPS=	0	 (result discarded)
+25.000000	: iteration  2: start= 2390036, BFS took 	20.473026	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,187,750	, TEPS=	1,547,087	 
+25.000000	: iteration  3: start= 1726462, BFS took 	21.106767	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,001,960	, TEPS=	1,500,635	 
+25.000000	: iteration  4: start= 2235138, BFS took 	0.044289	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	45	, TEPS=	0	 (result discarded)
+25.000000	: iteration  5: start=     274, BFS took 	0.033598	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	148	, TEPS=	0	 (result discarded)
+25.000000	: iteration  6: start=  307086, BFS took 	0.035171	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	85	, TEPS=	0	 (result discarded)
+25.000000	: iteration  7: start=  724625, BFS took 	0.037015	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+25.000000	: iteration  8: start= 2394484, BFS took 	19.826217	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,389,619	, TEPS=	1,597,559	 
+25.000000	: iteration  9: start=  351742, BFS took 	20.813040	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,086,663	, TEPS=	1,521,813	 
+25.000000	: iteration 10: start=  565854, BFS took 	0.036190	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	27	, TEPS=	0	 (result discarded)
+25.000000	: iteration 11: start=  221315, BFS took 	0.034473	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	29	, TEPS=	0	 (result discarded)
+25.000000	: iteration 12: start=  950518, BFS took 	20.719353	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,114,185	, TEPS=	1,528,694	 
+25.000000	: iteration 13: start=  446425, BFS took 	0.035562	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	168	, TEPS=	0	 (result discarded)
+25.000000	: iteration 14: start=  929738, BFS took 	20.709330	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,117,144	, TEPS=	1,529,434	 
+25.000000	: iteration 15: start=  828234, BFS took 	0.031224	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	128	, TEPS=	0	 (result discarded)
+25.000000	: iteration 16: start= 1605236, BFS took 	0.040798	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	196	, TEPS=	0	 (result discarded)
+25.000000	: iteration 17: start=  950965, BFS took 	20.882179	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,066,511	, TEPS=	1,516,775	 
+25.000000	: iteration 18: start= 2242285, BFS took 	0.043943	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	68	, TEPS=	0	 (result discarded)
+25.000000	: iteration 19: start= 1291427, BFS took 	21.008103	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	6,030,148	, TEPS=	1,507,683	 
+25.000000	: iteration 20: start= 2028424, BFS took 	19.699169	s, covered 	31673572	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	6,430,828	, TEPS=	1,607,863	 
+25.000000	: iteration 21: start= 1004718, BFS took 	20.024646	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,326,302	, TEPS=	1,581,729	 
+25.000000	: iteration 22: start=  750848, BFS took 	0.029727	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	33	, TEPS=	0	 (result discarded)
+25.000000	: iteration 23: start= 1642323, BFS took 	0.033965	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	29	, TEPS=	0	 (result discarded)
+25.000000	: iteration 24: start= 1257228, BFS took 	20.852904	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,075,027	, TEPS=	1,518,904	 
+25.000000	: iteration 25: start=  490027, BFS took 	20.873833	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,068,936	, TEPS=	1,517,381	 
+25.000000	: iteration 26: start= 1062860, BFS took 	19.869871	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,375,581	, TEPS=	1,594,050	 
+25.000000	: iteration 27: start= 2104657, BFS took 	19.518842	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,490,240	, TEPS=	1,622,717	 
+25.000000	: iteration 28: start=  550247, BFS took 	0.035905	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	55	, TEPS=	0	 (result discarded)
+25.000000	: iteration 29: start=   65642, BFS took 	0.033633	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	29	, TEPS=	0	 (result discarded)
+25.000000	: iteration 30: start= 1280874, BFS took 	21.088383	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	6,007,192	, TEPS=	1,501,944	 
+25.000000	: iteration 31: start= 1606965, BFS took 	20.631830	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	6,140,123	, TEPS=	1,535,179	 
+
+BFS execution times (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTFtime	25.000000	: 	1.95188419818878174e+01
+  firstquartile_C++SR_SejitsFilter_OTFtime	25.000000	: 	1.99085646867752075e+01
+         median_C++SR_SejitsFilter_OTFtime	25.000000	: 	2.07143415212631226e+01
+  thirdquartile_C++SR_SejitsFilter_OTFtime	25.000000	: 	2.08800925016403198e+01
+            max_C++SR_SejitsFilter_OTFtime	25.000000	: 	2.11067669391632080e+01
+           mean_C++SR_SejitsFilter_OTFtime	25.000000	: 	2.05060932934284210e+01
+         stddev_C++SR_SejitsFilter_OTFtime	25.000000	: 	5.33624883484838386e-01
+          total_C++SR_SejitsFilter_OTFtime	25.000000	: 	3.280975e+02
+
+number of edges traversed OTF
+            min_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+  firstquartile_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+         median_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+  thirdquartile_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735710000000000e+07
+            max_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735730000000000e+07
+           mean_C++SR_SejitsFilter_OTFnedge	25.000000	: 	3.16735713125000000e+07
+         stddev_C++SR_SejitsFilter_OTFnedge	25.000000	: 	7.04154339142586960e-01
+          total_C++SR_SejitsFilter_OTFnedge	25.000000	: 	5.067771e+08
+
+TEPS (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.50063584305895213e+06
+  firstquartile_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.51692680224255705e+06
+         median_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.52906491482528183e+06
+  thirdquartile_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.59096996954162256e+06
+            max_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.62271773240394890e+06
+  harmonic_mean_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.54459315401635319e+06
+harmonic_stddev_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	4.95755511584994019e+03
+
+TEPS including filtered edges (C++SR_SejitsFilter_OTF)
+            min_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.00196014695855603e+06
+  firstquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.06711765217741765e+06
+         median_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.11566538500532694e+06
+  thirdquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.36326154434094764e+06
+            max_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.49024025695542898e+06
+  harmonic_mean_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	6.17777227268677671e+06
+harmonic_stddev_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	25.000000	: 	1.98282957475880066e+04
+Total runtime for cso on 25% is	991.334909	s.
+--Materializing the filter
+Materialized 25.000000 in	926.511343	s.
+25.000000	: 	32080410	 edges survived the filter.
+edge Mat: 2396784-by-2396784 (row-by-col) Mat with 32080410 elements.
+1 filter(s) remove 96229274 additional elements (128309684 total elements stored).
+Too many elements to print.
+vertex attribute Vec: length=2396784, dense, [ *too many to print* ]
+--Generating starting verts
+Generated starting verts in 39.884357s.
+--Doing BFS
+25.000000	: iteration  1: start=  999511, BFS took 	0.026790	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration  2: start= 2390036, BFS took 	13.487228	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,348,412	 
+25.000000	: iteration  3: start= 1726462, BFS took 	13.539927	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,339,271	 
+25.000000	: iteration  4: start= 2235138, BFS took 	0.028943	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration  5: start=     274, BFS took 	0.020791	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration  6: start=  307086, BFS took 	0.021462	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration  7: start=  724625, BFS took 	0.022476	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration  8: start= 2394484, BFS took 	12.866342	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,461,738	 
+25.000000	: iteration  9: start=  351742, BFS took 	13.008506	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,434,835	 
+25.000000	: iteration 10: start=  565854, BFS took 	0.021804	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 11: start=  221315, BFS took 	0.020992	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 12: start=  950518, BFS took 	13.408782	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,362,151	 
+25.000000	: iteration 13: start=  446425, BFS took 	0.022820	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 14: start=  929738, BFS took 	13.632365	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,323,409	 
+25.000000	: iteration 15: start=  828234, BFS took 	0.022522	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 16: start= 1605236, BFS took 	0.024518	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 17: start=  950965, BFS took 	13.476569	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,350,269	 
+25.000000	: iteration 18: start= 2242285, BFS took 	0.026546	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 19: start= 1291427, BFS took 	13.228008	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,394,432	 
+25.000000	: iteration 20: start= 2028424, BFS took 	12.883425	s, covered 	31673572	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,458,474	 
+25.000000	: iteration 21: start= 1004718, BFS took 	12.360842	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,562,412	 
+25.000000	: iteration 22: start=  750848, BFS took 	0.022260	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 23: start= 1642323, BFS took 	0.024452	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 24: start= 1257228, BFS took 	13.144466	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,409,650	 
+25.000000	: iteration 25: start=  490027, BFS took 	13.743773	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,304,576	 
+25.000000	: iteration 26: start= 1062860, BFS took 	12.455914	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,542,854	 
+25.000000	: iteration 27: start= 2104657, BFS took 	12.137700	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,609,519	 
+25.000000	: iteration 28: start=  550247, BFS took 	0.021937	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 29: start=   65642, BFS took 	0.020703	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	0	, TEPS=	0	 (result discarded)
+25.000000	: iteration 30: start= 1280874, BFS took 	13.403469	s, covered 	31673573	 edges, discovered 	1623695	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,363,087	 
+25.000000	: iteration 31: start= 1606965, BFS took 	12.830571	s, covered 	31673571	 edges, discovered 	1623694	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,468,601	 
+
+BFS execution times (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mattime	25.000000	: 	1.21377000808715820e+01
+  firstquartile_C++SR_PythonFilter_Mattime	25.000000	: 	1.28395138978958130e+01
+         median_C++SR_PythonFilter_Mattime	25.000000	: 	1.31862369775772095e+01
+  thirdquartile_C++SR_PythonFilter_Mattime	25.000000	: 	1.34845631718635559e+01
+            max_C++SR_PythonFilter_Mattime	25.000000	: 	1.37437729835510254e+01
+           mean_C++SR_PythonFilter_Mattime	25.000000	: 	1.31004929393529892e+01
+         stddev_C++SR_PythonFilter_Mattime	25.000000	: 	4.80182383842615912e-01
+          total_C++SR_PythonFilter_Mattime	25.000000	: 	2.096079e+02
+
+number of edges traversed Mat
+            min_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735710000000000e+07
+  firstquartile_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735710000000000e+07
+         median_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735710000000000e+07
+  thirdquartile_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735710000000000e+07
+            max_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735730000000000e+07
+           mean_C++SR_PythonFilter_Matnedge	25.000000	: 	3.16735713125000000e+07
+         stddev_C++SR_PythonFilter_Matnedge	25.000000	: 	7.04154339142586960e-01
+          total_C++SR_PythonFilter_Matnedge	25.000000	: 	5.067771e+08
+
+TEPS (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.30457611879270105e+06
+  firstquartile_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.34887658639592584e+06
+         median_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.40204160535978992e+06
+  thirdquartile_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.46688599611754296e+06
+            max_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.60951999052242097e+06
+  harmonic_mean_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.41773889442180656e+06
+harmonic_stddev_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	1.18457702806477737e+04
+
+TEPS including materialization time (C++SR_PythonFilter_Mat)
+            min_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.36861458783873022e+04
+  firstquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.36954350468144039e+04
+         median_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.37061334809634864e+04
+  thirdquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.37185736042570134e+04
+            max_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.37437844670479535e+04
+  harmonic_mean_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	3.37092085273700141e+04
+harmonic_stddev_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	25.000000	: 	2.30270073741842340e+00
+Total runtime for cpm on 25% is	1246.410643	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 10000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	100	% in	0.083689	s.
+--Generating starting verts
+Generated starting verts in 600.353951s.
+--Doing BFS
+100.000000	: iteration  1: start=  999511, BFS took 	66.704543	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,923,529	, TEPS=	1,923,529	 
+100.000000	: iteration  2: start= 2390036, BFS took 	59.693840	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,149,437	, TEPS=	2,149,437	 
+100.000000	: iteration  3: start= 1726462, BFS took 	57.562063	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,229,040	, TEPS=	2,229,040	 
+100.000000	: iteration  4: start= 2235138, BFS took 	67.262297	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,907,579	, TEPS=	1,907,579	 
+100.000000	: iteration  5: start=     274, BFS took 	68.956347	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,860,716	, TEPS=	1,860,716	 
+100.000000	: iteration  6: start=  307086, BFS took 	68.585205	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,870,785	, TEPS=	1,870,785	 
+100.000000	: iteration  7: start=  724625, BFS took 	68.575269	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,871,056	, TEPS=	1,871,056	 
+100.000000	: iteration  8: start= 2394484, BFS took 	68.188411	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,881,671	, TEPS=	1,881,671	 
+100.000000	: iteration  9: start=  351742, BFS took 	58.276268	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,201,722	, TEPS=	2,201,722	 
+100.000000	: iteration 10: start=  565854, BFS took 	69.533320	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,845,276	, TEPS=	1,845,276	 
+100.000000	: iteration 11: start=  221315, BFS took 	64.867453	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,978,005	, TEPS=	1,978,005	 
+100.000000	: iteration 12: start=  950518, BFS took 	57.506461	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,231,195	, TEPS=	2,231,195	 
+100.000000	: iteration 13: start=  446425, BFS took 	69.149601	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,855,515	, TEPS=	1,855,515	 
+100.000000	: iteration 14: start=  929738, BFS took 	58.746214	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,184,109	, TEPS=	2,184,109	 
+100.000000	: iteration 15: start=  828234, BFS took 	69.297859	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,851,546	, TEPS=	1,851,546	 
+100.000000	: iteration 16: start= 1605236, BFS took 	67.541024	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,899,707	, TEPS=	1,899,707	 
+
+BFS execution times (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	5.75064609050750732e+01
+  firstquartile_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	5.89831203818321228e+01
+         median_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	6.74016604423522949e+01
+  thirdquartile_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	6.88635614514350891e+01
+            max_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	6.95333199501037598e+01
+           mean_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	6.50278858840465546e+01
+         stddev_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	4.80369181572249904e+00
+          total_SejitsSR_SejitsFilter_OTFtime	100.000000	: 	1.040446e+03
+
+number of edges traversed OTF
+            min_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+  firstquartile_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+         median_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+  thirdquartile_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+            max_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+           mean_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+         stddev_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	0.00000000000000000e+00
+          total_SejitsSR_SejitsFilter_OTFnedge	100.000000	: 	2.052931e+09
+
+TEPS (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.84527625161681254e+06
+  firstquartile_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.86323335585092404e+06
+         median_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.90364349637992191e+06
+  thirdquartile_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	2.17544178279132023e+06
+            max_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	2.23119597312371759e+06
+  harmonic_mean_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.97312556383565534e+06
+harmonic_stddev_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.52147197577601892e+04
+
+TEPS including filtered edges (SejitsSR_SejitsFilter_OTF)
+            min_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.84527625161681254e+06
+  firstquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.86323335585092404e+06
+         median_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.90364349637992191e+06
+  thirdquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	2.17544178279132023e+06
+            max_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	2.23119597312371759e+06
+  harmonic_mean_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.97312556383565534e+06
+harmonic_stddev_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	100.000000	: 	1.52147197577601892e+04
+Total runtime for sso on 100% is	1689.736603	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 10000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	100	% in	0.079809	s.
+--Generating starting verts
+Generated starting verts in 602.254874s.
+--Doing BFS
+100.000000	: iteration  1: start=  999511, BFS took 	63.826380	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,010,268	, TEPS=	2,010,268	 
+100.000000	: iteration  2: start= 2390036, BFS took 	54.948223	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,335,074	, TEPS=	2,335,074	 
+100.000000	: iteration  3: start= 1726462, BFS took 	54.188188	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,367,825	, TEPS=	2,367,825	 
+100.000000	: iteration  4: start= 2235138, BFS took 	64.044852	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,003,411	, TEPS=	2,003,411	 
+100.000000	: iteration  5: start=     274, BFS took 	64.582576	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,986,730	, TEPS=	1,986,730	 
+100.000000	: iteration  6: start=  307086, BFS took 	65.887344	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,947,387	, TEPS=	1,947,387	 
+100.000000	: iteration  7: start=  724625, BFS took 	64.679812	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,983,743	, TEPS=	1,983,743	 
+100.000000	: iteration  8: start= 2394484, BFS took 	63.956140	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,006,190	, TEPS=	2,006,190	 
+100.000000	: iteration  9: start=  351742, BFS took 	55.161831	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,326,031	, TEPS=	2,326,031	 
+100.000000	: iteration 10: start=  565854, BFS took 	65.231381	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,966,970	, TEPS=	1,966,970	 
+100.000000	: iteration 11: start=  221315, BFS took 	60.548218	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,119,107	, TEPS=	2,119,107	 
+100.000000	: iteration 12: start=  950518, BFS took 	54.665058	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,347,170	, TEPS=	2,347,170	 
+100.000000	: iteration 13: start=  446425, BFS took 	64.782141	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,980,610	, TEPS=	1,980,610	 
+100.000000	: iteration 14: start=  929738, BFS took 	55.153744	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,326,373	, TEPS=	2,326,373	 
+100.000000	: iteration 15: start=  828234, BFS took 	65.322060	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	1,964,239	, TEPS=	1,964,239	 
+100.000000	: iteration 16: start= 1605236, BFS took 	63.952382	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	2,006,308	, TEPS=	2,006,308	 
+
+BFS execution times (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTFtime	100.000000	: 	5.41881878376007080e+01
+  firstquartile_C++SR_SejitsFilter_OTFtime	100.000000	: 	5.51557657718658447e+01
+         median_C++SR_SejitsFilter_OTFtime	100.000000	: 	6.39542609453201294e+01
+  thirdquartile_C++SR_SejitsFilter_OTFtime	100.000000	: 	6.47565587759017944e+01
+            max_C++SR_SejitsFilter_OTFtime	100.000000	: 	6.58873438835144043e+01
+           mean_C++SR_SejitsFilter_OTFtime	100.000000	: 	6.13081456273794174e+01
+         stddev_C++SR_SejitsFilter_OTFtime	100.000000	: 	4.66168996667465141e+00
+          total_C++SR_SejitsFilter_OTFtime	100.000000	: 	9.809303e+02
+
+number of edges traversed OTF
+            min_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+  firstquartile_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+         median_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+  thirdquartile_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+            max_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+           mean_C++SR_SejitsFilter_OTFnedge	100.000000	: 	1.28308184000000000e+08
+         stddev_C++SR_SejitsFilter_OTFnedge	100.000000	: 	0.00000000000000000e+00
+          total_C++SR_SejitsFilter_OTFnedge	100.000000	: 	2.052931e+09
+
+TEPS (C++SR_SejitsFilter_OTF)
+            min_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.94738741065116506e+06
+  firstquartile_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.98139380082192691e+06
+         median_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.00624918831396080e+06
+  thirdquartile_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.32628779097866733e+06
+            max_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.36782570372224320e+06
+  harmonic_mean_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.09284072592629935e+06
+harmonic_stddev_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.62033255416449374e+04
+
+TEPS including filtered edges (C++SR_SejitsFilter_OTF)
+            min_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.94738741065116506e+06
+  firstquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.98139380082192691e+06
+         median_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.00624918831396080e+06
+  thirdquartile_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.32628779097866733e+06
+            max_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.36782570372224320e+06
+  harmonic_mean_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	2.09284072592629935e+06
+harmonic_stddev_IncFiltered_C++SR_SejitsFilter_OTF_TEPS	100.000000	: 	1.62033255416449374e+04
+Total runtime for cso on 100% is	1632.198595	s.
+--Materializing the filter
+Materialized 100.000000 in	948.479957	s.
+100.000000	: 	128309684	 edges survived the filter.
+edge Mat: 2396784-by-2396784 (row-by-col) Mat with 128309684 elements.
+1 filter(s) remove 0 additional elements (128309684 total elements stored).
+Too many elements to print.
+vertex attribute Vec: length=2396784, dense, [ *too many to print* ]
+--Generating starting verts
+Generated starting verts in 159.768105s.
+--Doing BFS
+100.000000	: iteration  1: start=  999511, BFS took 	56.331064	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,277,751	 
+100.000000	: iteration  2: start= 2390036, BFS took 	45.770482	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,803,295	 
+100.000000	: iteration  3: start= 1726462, BFS took 	45.227783	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,836,932	 
+100.000000	: iteration  4: start= 2235138, BFS took 	55.883828	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,295,980	 
+100.000000	: iteration  5: start=     274, BFS took 	56.845829	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,257,125	 
+100.000000	: iteration  6: start=  307086, BFS took 	56.257483	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,280,730	 
+100.000000	: iteration  7: start=  724625, BFS took 	55.790481	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,299,822	 
+100.000000	: iteration  8: start= 2394484, BFS took 	56.322935	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,278,080	 
+100.000000	: iteration  9: start=  351742, BFS took 	46.648058	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,750,557	 
+100.000000	: iteration 10: start=  565854, BFS took 	57.667983	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,224,946	 
+100.000000	: iteration 11: start=  221315, BFS took 	51.753157	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,479,233	 
+100.000000	: iteration 12: start=  950518, BFS took 	45.944280	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,792,691	 
+100.000000	: iteration 13: start=  446425, BFS took 	57.146670	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,245,243	 
+100.000000	: iteration 14: start=  929738, BFS took 	45.401151	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,826,099	 
+100.000000	: iteration 15: start=  828234, BFS took 	57.567197	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,228,841	 
+100.000000	: iteration 16: start= 1605236, BFS took 	55.746810	s, covered 	128308184	 edges, discovered 	2395285	 verts, TEPS incl. filtered edges=	0	, TEPS=	2,301,623	 
+
+BFS execution times (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mattime	100.000000	: 	4.52277829647064209e+01
+  firstquartile_C++SR_PythonFilter_Mattime	100.000000	: 	4.61202244162559509e+01
+         median_C++SR_PythonFilter_Mattime	100.000000	: 	5.58371545076370239e+01
+  thirdquartile_C++SR_PythonFilter_Mattime	100.000000	: 	5.67171377539634705e+01
+            max_C++SR_PythonFilter_Mattime	100.000000	: 	5.76679830551147461e+01
+           mean_C++SR_PythonFilter_Mattime	100.000000	: 	5.28940744251012802e+01
+         stddev_C++SR_PythonFilter_Mattime	100.000000	: 	5.11828853248976401e+00
+          total_C++SR_PythonFilter_Mattime	100.000000	: 	8.463052e+02
+
+number of edges traversed Mat
+            min_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+  firstquartile_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+         median_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+  thirdquartile_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+            max_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+           mean_C++SR_PythonFilter_Matnedge	100.000000	: 	1.28308184000000000e+08
+         stddev_C++SR_PythonFilter_Matnedge	100.000000	: 	0.00000000000000000e+00
+          total_C++SR_PythonFilter_Matnedge	100.000000	: 	2.052931e+09
+
+TEPS (C++SR_PythonFilter_Mat)
+            min_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.22494662033476401e+06
+  firstquartile_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.26228226386034023e+06
+         median_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.29790136658616923e+06
+  thirdquartile_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.78215783770762570e+06
+            max_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.83693286713004531e+06
+  harmonic_mean_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.42575724019306013e+06
+harmonic_stddev_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	2.34387464854449136e+04
+
+TEPS including materialization time (C++SR_PythonFilter_Mat)
+            min_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.27524173015494671e+05
+  firstquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.27644808134803301e+05
+         median_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.27756644583349786e+05
+  thirdquartile_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.29004798536531584e+05
+            max_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.29120644658723846e+05
+  harmonic_mean_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	1.28132126418444968e+05
+harmonic_stddev_PlusMatTime_C++SR_PythonFilter_Mat_TEPS	100.000000	: 	6.53966913218401373e+01
+Total runtime for cpm on 100% is	1990.603082	s.
+Total runtime for everything is		15753.602681
