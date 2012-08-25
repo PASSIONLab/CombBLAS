@@ -1,0 +1,1366 @@
+graph_generation:               14.147211 s
+Generated renamed edge lists
+Generation took 14.1475 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 4194304-by-4194304
+Duplicates removed (or summed): 416598 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 0.361501 seconds
+Converted to Boolean and removed 275 loops
+As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
+Dropped isolated vertices from input
+As a whole: 1751377 rows and 1751377 columns and 20554647 nonzeros
+Symmetricized
+As a whole: 1751377 rows and 1751377 columns and 41109294 nonzeros
+Generated Erdos-Renyi graph in 50.904021s: 	1751377	 vertices and 	41109294	 edges.
+Converted in 409.191205s. GER has 1751377 vertices and 41109294 edges.
+Symmetricized randoms in 280.913000s. GER has 1751377 vertices and 41109294 edges.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db
+{
+  double myfunc(const double &v)
+  {
+    return _random();
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
+
+              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_double_double = &myfunc;
+                              
+              UnaryFunctionObj* retO = new UnaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+UnaryFunctionObj_Python()!!!
+UnaryFunctionObj_SEJITS()!!!
+UnaryFunctionObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return 1;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y < x;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f
+{
+  double myfunc(const double &x, const double &y)
+  {
+    if (x < y)
+      return x;
+    else
+      return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 100))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aa1ff3ae684a8a0506e0330e077ef334;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	1	% in	0.070991	s.
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.754051	MIS size is	1683495	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.744014	MIS size is	1683707	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.728529	MIS size is	1683503	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.585008	MIS size is	1683195	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.587935	MIS size is	1683355	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.585747	MIS size is	1683391	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.577077	MIS size is	1683464	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.566649	MIS size is	1683233	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.578974	MIS size is	1683421	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.596051	MIS size is	1683441	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.585671	MIS size is	1683391	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.576868	MIS size is	1683612	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.593950	MIS size is	1683726	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.589547	MIS size is	1683572	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.590346	MIS size is	1683165	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	2.568554	MIS size is	1683477	verification succeeded
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.56664896011352539e+00
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.57755118608474731e+00
+         median_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.58684098720550537e+00
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.59552568197250366e+00
+            max_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.75405097007751465e+00
+           mean_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	2.61306066811084747e+00
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	6.47556332908997417e-02
+          total_SejitsSR_SejitsFilter_ER_OTF_22time	1.000000	: 	4.180897e+01
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68316500000000000e+06
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68336400000000000e+06
+         median_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68345250000000000e+06
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68355475000000000e+06
+            max_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68372600000000000e+06
+           mean_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.68344675000000000e+06
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	1.63134096170400056e+02
+          total_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	1.000000	: 	2.693515e+07
+
+Total runtime for sso2 on SejitsSR_SejitsFilter_ER_OTF_22 1% is	51.421947	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db
+{
+  double myfunc(const double &v)
+  {
+    return _random();
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
+
+              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_double_double = &myfunc;
+                              
+              UnaryFunctionObj* retO = new UnaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+UnaryFunctionObj_Python()!!!
+UnaryFunctionObj_SEJITS()!!!
+UnaryFunctionObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return 1;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y < x;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f
+{
+  double myfunc(const double &x, const double &y)
+  {
+    if (x < y)
+      return x;
+    else
+      return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_1ff01f768c575b931f8a3ca16adf99f5;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	10	% in	0.066295	s.
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.833150	MIS size is	1531184	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.450573	MIS size is	1531113	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.367998	MIS size is	1531005	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.325704	MIS size is	1531111	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.344013	MIS size is	1531364	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.355191	MIS size is	1531386	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.486655	MIS size is	1531466	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.346145	MIS size is	1531725	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.368515	MIS size is	1531089	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.473436	MIS size is	1531348	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.360197	MIS size is	1531308	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.330161	MIS size is	1531153	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.333620	MIS size is	1531385	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.355806	MIS size is	1531365	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.310568	MIS size is	1531238	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	6.314796	MIS size is	1531043	verification succeeded
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.31056809425354004e+00
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.33102560043334961e+00
+         median_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.35549843311309814e+00
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.43005859851837158e+00
+            max_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.83314990997314453e+00
+           mean_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	6.39728297293186188e+00
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	1.28223089019199349e-01
+          total_SejitsSR_SejitsFilter_ER_OTF_22time	10.000000	: 	1.023565e+02
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53100500000000000e+06
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53111150000000000e+06
+         median_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53127300000000000e+06
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53138000000000000e+06
+            max_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53172500000000000e+06
+           mean_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.53126768750000000e+06
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	1.86900943015277477e+02
+          total_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	10.000000	: 	2.450028e+07
+
+Total runtime for sso2 on SejitsSR_SejitsFilter_ER_OTF_22 10% is	118.986427	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db
+{
+  double myfunc(const double &v)
+  {
+    return _random();
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
+
+              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_double_double = &myfunc;
+                              
+              UnaryFunctionObj* retO = new UnaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+UnaryFunctionObj_Python()!!!
+UnaryFunctionObj_SEJITS()!!!
+UnaryFunctionObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return 1;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y < x;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f
+{
+  double myfunc(const double &x, const double &y)
+  {
+    if (x < y)
+      return x;
+    else
+      return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 2500))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_a441cd9367f267a2ff66cb51471d5e04;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	25	% in	0.073039	s.
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.961644	MIS size is	1431255	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.287493	MIS size is	1430361	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.141784	MIS size is	1431062	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.233011	MIS size is	1430967	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.117992	MIS size is	1430169	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.376286	MIS size is	1431676	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.299157	MIS size is	1431256	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.298657	MIS size is	1431139	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.138016	MIS size is	1431450	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.369142	MIS size is	1431968	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.276899	MIS size is	1430776	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.404495	MIS size is	1431816	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.150014	MIS size is	1430881	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.317887	MIS size is	1431010	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.159535	MIS size is	1431252	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	11.321680	MIS size is	1430466	verification succeeded
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.11179921627044678e+01
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.11523942351341248e+01
+         median_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.12930749654769897e+01
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.13572764992713928e+01
+            max_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.19616439342498779e+01
+           mean_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.13033557534217834e+01
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.98612886193351434e-01
+          total_SejitsSR_SejitsFilter_ER_OTF_22time	25.000000	: 	1.808537e+02
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43016900000000000e+06
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43080225000000000e+06
+         median_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43110050000000000e+06
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43140150000000000e+06
+            max_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43196800000000000e+06
+           mean_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	1.43109400000000000e+06
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	5.02511956740003029e+02
+          total_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	25.000000	: 	2.289750e+07
+
+Total runtime for sso2 on SejitsSR_SejitsFilter_ER_OTF_22 25% is	205.547741	s.
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db
+{
+  double myfunc(const double &v)
+  {
+    return _random();
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
+
+              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_double_double = &myfunc;
+                              
+              UnaryFunctionObj* retO = new UnaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_87378a19d0440c3cbf7b552b078ed3db;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+UnaryFunctionObj_Python()!!!
+UnaryFunctionObj_SEJITS()!!!
+UnaryFunctionObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return 1;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f8e76f3fd91b5b952a96bd31fa1716e2;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y < x;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_c6f7b50c5beff560b3e498e31a48de50;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f
+{
+  double myfunc(const double &x, const double &y)
+  {
+    if (x < y)
+      return x;
+    else
+      return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_13b224f0334c8e63c8dc6232fb7fc53f;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 10000))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_2ae6a1f413b5c5b701e18e23b8fa45a6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	100	% in	0.075231	s.
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.959189	MIS size is	1228141	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.125932	MIS size is	1227785	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.295329	MIS size is	1227897	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.404933	MIS size is	1229018	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.323594	MIS size is	1228904	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.332617	MIS size is	1227356	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.386185	MIS size is	1228439	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.358391	MIS size is	1228081	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.459673	MIS size is	1228821	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.505921	MIS size is	1228873	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.301831	MIS size is	1227730	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.457650	MIS size is	1227957	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.371493	MIS size is	1228143	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.365985	MIS size is	1228361	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.412799	MIS size is	1227970	verification succeeded
+SejitsSR_SejitsFilter_ER_OTF_22	1	 procs time:	27.398552	MIS size is	1227717	verification succeeded
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.71259319782257080e+01
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.73258498311042786e+01
+         median_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.73788390159606934e+01
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.74464373588562012e+01
+            max_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.79591891765594482e+01
+           mean_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	2.74037546664476395e+01
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	1.71413234011584537e-01
+          total_SejitsSR_SejitsFilter_ER_OTF_22time	100.000000	: 	4.384601e+02
+
+            min_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22735600000000000e+06
+  firstquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22781300000000000e+06
+         median_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22811100000000000e+06
+  thirdquartile_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22872550000000000e+06
+            max_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22901800000000000e+06
+           mean_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.22819956250000000e+06
+         stddev_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	4.93271253132256504e+02
+          total_SejitsSR_SejitsFilter_ER_OTF_22_MISverts	100.000000	: 	1.965119e+07
+
+Total runtime for sso2 on SejitsSR_SejitsFilter_ER_OTF_22 100% is	476.901397	s.
+Total runtime for everything is 1544.894020
