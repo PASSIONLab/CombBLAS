@@ -2204,6 +2204,12 @@ sandbox/TwitterFilterPercent-sejits.py -text
 sandbox/TwitterFilterPercent.py -text
 sandbox/filter_debug.txt -text
 sandbox/ipdps_bfs_run.sh -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_1.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_16.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_25.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_36.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_4.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_9.txt -text
 sandbox/ipdps_results/results-mirasol-bfs/gnuplot_1.dat -text
 sandbox/ipdps_results/results-mirasol-bfs/gnuplot_1.gp -text
 sandbox/ipdps_results/results-mirasol-bfs/gnuplot_1.png -text
