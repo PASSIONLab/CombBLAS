@@ -1,19 +1,35 @@
 import sys
 import re
 
-cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
+if len(sys.argv) < 2:
+	print "what are you trying to do?"
+	sys.exit()
 
-experiments = ["PythonSR_PythonFilter_OTF", "PythonSR_SejitsFilter_OTF", "C++SR_PythonFilter_OTF","C++SR_SejitsFilter_OTF", "SejitsSR_SejitsFilter_OTF", "C++SR_PythonFilter_Mat"]
+filters = [1, 10, 25, 100]
 
-# ID will be replaced by strings from experiments array
-experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+if sys.argv[1] == "bfs":
+	cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
+	
+	experiments = ["PythonSR_PythonFilter_OTF", "PythonSR_SejitsFilter_OTF", "C++SR_PythonFilter_OTF","C++SR_SejitsFilter_OTF", "SejitsSR_SejitsFilter_OTF", "C++SR_PythonFilter_Mat"]
+	
+	# ID will be replaced by strings from experiments array
+	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+elif sys.argv[1] == "mis":
+	cores = {1: "result_ipdps_MIS_1.txt", 4: "result_ipdps_MIS_4.txt", 9: "result_ipdps_MIS_9.txt", 16: "result_ipdps_MIS_16.txt", 25: "result_ipdps_MIS_25.txt", 36: "result_ipdps_MIS_36.txt"}
+	
+	experiments = ["PythonSR_PythonFilter_ER_OTF_22", "PythonSR_SejitsFilter_ER_OTF_22", "SejitsSR_SejitsFilter_ER_OTF_22"]
+	
+	# ID will be replaced by strings from experiments array
+	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+else:
+	print "unknown option. use bfs or mis"
+	sys.exit()
 
 varieties = []
 for exp in experiments:
 	for var in experiment_varieties:
 		varieties.append(var.replace("ID", exp))
 
-filters = [1, 10, 25, 100]
 
 data = []
 # parse
@@ -36,7 +52,7 @@ def format_table(data, group_col_idx, group_col_select_val, col_ids, row_ids, co
 		fdata.append([])
 		fdata[i].append(row_ids[i])
 		for j in range(len(col_ids)):
-			fdata[i].append("")
+			fdata[i].append("-")
 		
 	# format the data into a grid
 	for d in data:
@@ -77,7 +93,8 @@ for filter in filters:
 	gnuplot += 'set output "%s.png"\n'%filestem
 	gnuplot += ''
 	gnuplot += 'set xrange [0:40]\n'
-	gnuplot += 'set yrange [0:20]\n'
+	gnuplot += 'set yrange [0.1:256]\n'
+	gnuplot += 'set logscale y\n'
 	gnuplot += "set xlabel 'number of MPI processes'\n"
 	gnuplot += "set ylabel 'mean BFS time (s)'\n"
 	
