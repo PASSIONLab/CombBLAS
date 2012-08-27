@@ -43,7 +43,7 @@ elif sys.argv[1] == "mis":
 	
 	experiments = [("PythonSR_PythonFilter_ER_OTF_22", "Python/Python KDT", "#FF0000"), # red (kinda light)
 				("PythonSR_SejitsFilter_ER_OTF_22", "Python/SEJITS KDT", "#8B0000"), # dark red
-				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#008000")] # blue (but it's dark)
+				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF")] # blue (but it's dark)
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
