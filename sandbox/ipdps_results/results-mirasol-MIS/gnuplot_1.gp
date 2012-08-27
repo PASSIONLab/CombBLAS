@@ -12,5 +12,5 @@ plot\
  "gnuplot_1.dat" every ::1 using 1:2 title 'Python/Python KDT' lc rgb '#FF0000' with lines,\
  "gnuplot_1.dat" every ::1 using 1:5:6:7 title '' ps 0 lc rgb '#8B0000' with errorbars,\
  "gnuplot_1.dat" every ::1 using 1:5 title 'Python/SEJITS KDT' lc rgb '#8B0000' with lines,\
- "gnuplot_1.dat" every ::1 using 1:8:9:10 title '' ps 0 lc rgb '#008000' with errorbars,\
- "gnuplot_1.dat" every ::1 using 1:8 title 'SEJITS/SEJITS KDT' lc rgb '#008000' with lines
+ "gnuplot_1.dat" every ::1 using 1:8:9:10 title '' ps 0 lc rgb '#0000FF' with errorbars,\
+ "gnuplot_1.dat" every ::1 using 1:8 title 'SEJITS/SEJITS KDT' lc rgb '#0000FF' with lines
