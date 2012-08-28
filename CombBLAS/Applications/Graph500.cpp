@@ -1,3 +1,4 @@
+#define DETERMINISTIC
 #include "../CombBLAS.h"
 #include <mpi.h>
 #include <sys/time.h> 
@@ -353,7 +354,12 @@ int main(int argc, char* argv[])
 		FullyDistVec<int64_t, int64_t> Cands(ITERS);
 		double nver = (double) degrees.TotalLength();
 
+#ifdef DETERMINISTIC
+		MTRand M(1);
+#else
 		MTRand M;	// generate random numbers with Mersenne Twister
+#endif
+
 		vector<double> loccands(ITERS);
 		vector<int64_t> loccandints(ITERS);
 		if(myrank == 0)
