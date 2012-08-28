@@ -16,5 +16,5 @@ plot\
  "gnuplot_100.dat" every ::1 using 1:5 title 'Python/SEJITS KDT' lc rgb '#8B0000' with lines,\
  "gnuplot_100.dat" every ::1 using 1:8:9:10 title '' ps 0 lc rgb '#0000FF' with errorbars,\
  "gnuplot_100.dat" every ::1 using 1:8 title 'SEJITS/SEJITS KDT' lc rgb '#0000FF' with lines,\
- "gnuplot_100.dat" every ::1 using 1:11:12:13 title '' ps 0 lc rgb '#FFD700' with errorbars,\
- "gnuplot_100.dat" every ::1 using 1:11 title 'C++/C++ CombBLAS' lc rgb '#FFD700' with lines
+ "gnuplot_100.dat" every ::1 using 1:11:12:13 title '' ps 0 lc rgb '#DAA520' with errorbars,\
+ "gnuplot_100.dat" every ::1 using 1:11 title 'C++/C++ CombBLAS' lc rgb '#DAA520' with lines
