@@ -231,8 +231,12 @@ void DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in
 
 		uint64_t size = (uint64_t) commGrid->GetSize();
 		uint64_t rank = (uint64_t) commGrid->GetRank();
+	#ifdef DETERMINISTIC
+		uint64_t seed2 = 2;
+	#else
 		uint64_t seed2 = time(NULL);
-		make_mrg_seed(rank, seed2, seed);
+	#endif
+		make_mrg_seed(rank, seed2, seed);	// we give rank as the first seed, so it is different on processors
 
 		// a single pair of [val0,val1] for all the computation, global across all processors
 		uint64_t val0, val1; /* Values for scrambling */
