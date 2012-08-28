@@ -15,11 +15,11 @@ if sys.argv[1] == "bfs":
 	
 	experiments = [("PythonSR_PythonFilter_OTF", "Python/Python KDT", "#FF0000"), # red (kinda light)
 		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#8B0000"), # dark red
-		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
-		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
+#		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
+#		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
 		("SejitsSR_SejitsFilter_OTF", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
-		("CombBLAS_OTF", "C++/C++ CombBLAS", "#FFD700"), # gold
-		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
+		("CombBLAS_OTF", "C++/C++ CombBLAS", "#FFD700")] # gold
+#		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
@@ -27,7 +27,6 @@ if sys.argv[1] == "bfs":
 	result_type = "BFS"
 	
 	def parseCombBLAS(data):
-		return
 		for line in open(combblas_file, 'r'):
 			feats = line.split("\t")
 			core = int(feats[0])
@@ -143,6 +142,7 @@ if doFilterGrid:
 		gnuplot += 'set yrange [0.1:256]\n'
 		gnuplot += 'set logscale y\n'
 		gnuplot += 'set logscale x\n'
+		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
 		gnuplot += "set xlabel 'Number of MPI Processes'\n"
 		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
 		
@@ -195,8 +195,10 @@ if doFilterEffects:
 	gnuplot += 'set xrange [-5:105]\n'
 	gnuplot += 'set yrange [0.1:32]\n'
 	gnuplot += 'set logscale y\n'
+	gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
 	gnuplot += "set xlabel 'Filter Permeability'\n"
 	gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
+	gnuplot += "set key right bottom\n"
 	
 	xtics = ""
 	cc = filters
@@ -205,7 +207,7 @@ if doFilterEffects:
 			comma = ", "
 		else:
 			comma = ""
-		xtics += "'%d' %d%s"%(cc[i], cc[i], comma)
+		xtics += "'%d%%%%' %d%s"%(cc[i], cc[i], comma)
 	
 	gnuplot += "set xtics (%s)\n"%xtics
 	gnuplot += 'plot\\\n'
