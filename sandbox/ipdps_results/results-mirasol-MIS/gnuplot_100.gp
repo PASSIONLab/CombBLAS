@@ -5,6 +5,7 @@ set xrange [0.9:40]
 set yrange [0.1:256]
 set logscale y
 set logscale x
+set grid ytics mytics lt 1 lc rgb "#EEEEEE"
 set xlabel 'Number of MPI Processes'
 set ylabel 'Mean MIS Time (seconds, log scale)'
 set xtics ('1' 1, '36' 36, '9' 9, '16' 16, '25' 25, '4' 4)

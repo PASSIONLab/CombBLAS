@@ -2217,6 +2217,9 @@ sandbox/ipdps_results/results-mirasol-MIS/gnuplot_100.png -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_25.dat -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_25.gp -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_25.png -text
+sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36.dat -text
+sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36.gp -text
+sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36.png -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_1.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_16.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_25.txt -text
