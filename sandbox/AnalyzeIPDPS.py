@@ -27,6 +27,7 @@ if sys.argv[1] == "bfs":
 	result_type = "BFS"
 	
 	def parseCombBLAS(data):
+		return
 		for line in open(combblas_file, 'r'):
 			feats = line.split("\t")
 			core = int(feats[0])
@@ -37,6 +38,10 @@ if sys.argv[1] == "bfs":
 			data.append((core, "min_CombBLAS_OTFtime", filter, min_time))
 			data.append((core, "max_CombBLAS_OTFtime", filter, max_time))
 			data.append((core, "mean_CombBLAS_OTFtime", filter, mean_time))
+	
+	
+	doFilterGrid = True
+	doFilterEffects = True
 		
 elif sys.argv[1] == "mis":
 	cores = {1: "result_ipdps_MIS_1.txt", 4: "result_ipdps_MIS_4.txt", 9: "result_ipdps_MIS_9.txt", 16: "result_ipdps_MIS_16.txt", 25: "result_ipdps_MIS_25.txt", 36: "result_ipdps_MIS_36.txt"}
@@ -52,6 +57,9 @@ elif sys.argv[1] == "mis":
 
 	def parseCombBLAS(data):
 		pass
+
+	doFilterGrid = True
+	doFilterEffects = True
 else:
 	print "unknown option. use bfs or mis"
 	sys.exit()
@@ -63,6 +71,11 @@ for exp in experiments:
 
 
 data = []
+# data[i][0] == core count
+# data[i][1] == experiment variety
+# data[i][2] == filter permeability
+# data[i][3] == time
+
 # parse
 for (core, file) in cores.items():
 	for line in open(file, 'r'):
@@ -108,31 +121,85 @@ def format_table(data, group_col_idx, group_col_select_val, col_ids, row_ids, co
 	
 	return ret
 
-# print filter by filter
 
-for filter in filters:
-	print ""
-	k = cores.keys()
-	k.sort()
-	print "filter ",filter, k
-	grid = format_table(data, 2, filter, varieties, k, 1, 0, 3)
+if doFilterGrid:
+	# print filter by filter
+	for filter in filters:
+		print ""
+		k = cores.keys()
+		k.sort()
+		print "filter ",filter, k
+		grid = format_table(data, 2, filter, varieties, k, 1, 0, 3)
+		print grid
+	
+		filestem = "gnuplot_%d"%filter
+		
+		gnuplot = ""
+		gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
+		gnuplot += 'set terminal png\n'
+		gnuplot += 'set output "%s.png"\n'%filestem
+		gnuplot += ''
+		gnuplot += 'set xrange [0.9:40]\n'
+		gnuplot += 'set yrange [0.1:256]\n'
+		gnuplot += 'set logscale y\n'
+		gnuplot += 'set logscale x\n'
+		gnuplot += "set xlabel 'Number of MPI Processes'\n"
+		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
+		
+		xtics = ""
+		cc = cores.keys()
+		for i in range(len(cc)):
+			if i+1 < len(cc):
+				comma = ", "
+			else:
+				comma = ""
+			xtics += "'%d' %d%s"%(cc[i], cc[i], comma)
+		
+		gnuplot += "set xtics (%s)\n"%xtics
+		gnuplot += 'plot\\\n'
+		vars_per_exp = len(experiment_varieties)
+		for i in range(len(experiments)):
+			exp_col_start = 1 + vars_per_exp*i + 1
+			if i+1 < len(experiments):
+				comma = ",\\"
+			else:
+				comma = ""
+			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+	
+		print ""
+		print gnuplot
+		
+		f = open('%s.dat'%filestem, 'w')
+		f.write(grid)
+		f.close()
+	
+		f = open('%s.gp'%filestem, 'w')
+		f.write(gnuplot)
+		f.close()
+
+# draw permeability plot, increasing filters on largest core count
+if doFilterEffects:	
+	core_cnt = max(cores.keys())
+	print "=== filter permeability ==="
+	grid = format_table(data, 0, core_cnt, varieties, [1, 10, 25, 100], 1, 2, 3)
 	print grid
 
-	filestem = "gnuplot_%d"%filter
+	filestem = "gnuplot_perm_%d"%core_cnt
 	
 	gnuplot = ""
-	gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
+	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
 	gnuplot += 'set terminal png\n'
 	gnuplot += 'set output "%s.png"\n'%filestem
 	gnuplot += ''
-	gnuplot += 'set xrange [0:40]\n'
-	gnuplot += 'set yrange [0.1:256]\n'
+	gnuplot += 'set xrange [-5:105]\n'
+	gnuplot += 'set yrange [0.1:32]\n'
 	gnuplot += 'set logscale y\n'
-	gnuplot += "set xlabel 'number of MPI processes'\n"
-	gnuplot += "set ylabel 'mean %s time (seconds, log scale)'\n"%(result_type)
+	gnuplot += "set xlabel 'Filter Permeability'\n"
+	gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
 	
 	xtics = ""
-	cc = cores.keys()
+	cc = filters
 	for i in range(len(cc)):
 		if i+1 < len(cc):
 			comma = ", "
