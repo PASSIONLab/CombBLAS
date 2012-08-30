@@ -2248,6 +2248,7 @@ sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36.dat -text
 sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36.gp -text
 sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36.png -text
 sandbox/ipdps_results/results-mirasol-bfsreal/result_ipdps_bfs_real_combblas.txt -text
+sandbox/ipdps_results/roofline-mirasol/roofline.py -text
 sandbox/mcl.py -text
 sandbox/pact_SummarizeFilterPercent.sh -text
 sandbox/roofline_ewise.py -text
