@@ -1096,7 +1096,7 @@ class UnaryFunctionObj {
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
 	double operator()(const double& x) const { return worker(x); }
 	
-	protected:
+    //	protected:
 	UnaryFunctionObj() { // should never be called
 		printf("UnaryFunctionObj()!!!\n");
 	}
@@ -1110,7 +1110,7 @@ UnaryFunctionObj unaryObj(PyObject *pyfunc);
 UnaryPredicateObj unaryObjPred(PyObject *pyfunc);
 
 class BinaryFunctionObj {
-	protected:
+//	protected:
 	BinaryFunctionObj(): commutable(false), associative(false) {}
 	public:
 	~BinaryFunctionObj() {  }
@@ -1162,7 +1162,7 @@ class BinaryPredicateObj {
 
 	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
-	protected:
+	//protected:
 	BinaryPredicateObj() { // should never be called
 		printf("BinaryPredicateObj()!!!\n");
 	}
