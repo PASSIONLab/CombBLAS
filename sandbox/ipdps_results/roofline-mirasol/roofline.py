@@ -200,12 +200,14 @@ def runEWiseMulExperiment(filter, binop, e, name):
 
 #################################################
 
-kdt.p("running SpMV tests")
-runSpMVExperiment(py_twitterFilter, kdt.sr_select2nd, False, "SpMV mult only (C++/Python)")
-runSpMVExperiment(py_twitterFilter, kdt.sr_select2nd, True, "SpMV mult+add (C++/Python)")
+#kdt.p("running SpMV tests")
+#runSpMVExperiment(py_twitterFilter, kdt.sr_select2nd, False, "SpMV mult only (C++/Python)")
+#runSpMVExperiment(py_twitterFilter, kdt.sr_select2nd, True, "SpMV mult+add (C++/Python)")
 
 kdt.p("running eWiseApply tests")
 runEWiseMulExperiment(py_twitterFilter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/Python)")
 
 if useSEJITS:
+	runEWiseMulExperiment(py_twitterFilter, sejits_select1st_DO, kdt.Obj2(), "eWiseApply twitter filtered select1st (SEJITS/Python)")
+	runEWiseMulExperiment(sejits_filter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/SEJITS)")
 	runEWiseMulExperiment(sejits_filter, sejits_select1st_DO, kdt.Obj2(), "eWiseApply twitter filtered select1st (SEJITS/SEJITS)")
