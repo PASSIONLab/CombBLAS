@@ -37,7 +37,6 @@ int cblas_splits = 1;
 #define PERCENTS 4  // testing with 4 different percentiles
 #define MINRUNS 4
 //#define ONLYTIME // don't calculate TEPS
-// DETERMINISTIC defined or underdefined at SpDef.h (for candidate selection)
 
 using namespace std;
 
