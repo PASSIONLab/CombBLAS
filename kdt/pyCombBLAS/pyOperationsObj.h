@@ -358,7 +358,13 @@ RET BinaryFunctionObj_Python::call(const T1& x, const T2& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		throw string("BinaryFunctionObj_Python::operator() FAILED (callOO)!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOO) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callOO)");
 		return RET();
 	}
 }
@@ -385,7 +391,13 @@ double BinaryFunctionObj_Python::callOD_retD(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		throw string("BinaryFunctionObj_Python::operator() FAILED (callOD)!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callOD)");
 		return 0;
 	}
 }
@@ -412,7 +424,13 @@ RET BinaryFunctionObj_Python::callOD_retO(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
-		throw string("BinaryFunctionObj_Python::operator() FAILED (callOD)!");
+		if (PyErr_Occurred())
+		{
+			PyErr_Print();
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD_retO) (with exception)");
+		}
+		else
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callOD_retO)");
 		return RET();
 	}
 }
@@ -476,7 +494,7 @@ RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 			throw string("BinaryFunctionObj_Python::operator() FAILED! (callDO_retO) (with exception)");
 		}
 		else
-			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDO)");
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDO_retO)");
 		return RET();
 	}
 }
@@ -588,7 +606,7 @@ bool BinaryPredicateObj_Python::call(const T1& x, const T2& y) const
 			throw string("BinaryPredicateObj_Python::operator() FAILED! (call (OO)) (with exception)");
 		}
 		else
-			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (call (OO))");
 		return false;
 	}
 }
@@ -618,7 +636,7 @@ bool BinaryPredicateObj_Python::callOD(const T1& x, const double& y) const
 			throw string("BinaryPredicateObj_Python::operator() FAILED! (callOD) (with exception)");
 		}
 		else
-			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callOD)");
 		return false;
 	}
 }
@@ -648,7 +666,7 @@ bool BinaryPredicateObj_Python::callDO(const double& x, const T2& y) const
 			throw string("BinaryPredicateObj_Python::operator() FAILED! (callDO) (with exception)");
 		}
 		else
-			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found)");
+			throw string("BinaryPredicateObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDO)");
 		return false;
 	}
 }
