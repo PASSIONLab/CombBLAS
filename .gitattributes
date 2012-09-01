@@ -820,6 +820,9 @@ CombBLAS/ReleaseTests/ranger/rangerscript64 -text
 CombBLAS/ReleaseTests/ranger/rangerscript81 -text
 CombBLAS/ReleaseTests/ranger/rangerscript841 -text
 CombBLAS/ReleaseTests/ranger/rangerscript9 -text
+CombBLAS/ReleaseTests/roofline_combblas_16cores -text
+CombBLAS/ReleaseTests/roofline_combblas_36cores -text
+CombBLAS/ReleaseTests/roofline_combblas_singlecore -text
 CombBLAS/ReleaseTests/small_nonsym.mtx -text
 CombBLAS/SemanticGraph.h -text
 CombBLAS/Semirings.h -text

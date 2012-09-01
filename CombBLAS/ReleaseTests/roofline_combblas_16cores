@@ -1,0 +1,45 @@
+EWiseApply Iterations finished
+0.002084 seconds elapsed for 1000 iterations on vector of length 4096
+1965.660090 million TEPS per second
+EWiseApply Iterations finished
+0.003057 seconds elapsed for 1000 iterations on vector of length 8192
+2679.748742 million TEPS per second
+EWiseApply Iterations finished
+0.003975 seconds elapsed for 1000 iterations on vector of length 12288
+3091.387209 million TEPS per second
+EWiseApply Iterations finished
+0.005384 seconds elapsed for 1000 iterations on vector of length 16384
+3042.973774 million TEPS per second
+EWiseApply Iterations finished
+0.003448 seconds elapsed for 1000 iterations on vector of length 20480
+5939.658825 million TEPS per second
+EWiseApply Iterations finished
+0.004026 seconds elapsed for 1000 iterations on vector of length 24576
+6104.418755 million TEPS per second
+EWiseApply Iterations finished
+0.004625 seconds elapsed for 1000 iterations on vector of length 28672
+6199.241419 million TEPS per second
+EWiseApply Iterations finished
+0.005125 seconds elapsed for 1000 iterations on vector of length 32768
+6393.698989 million TEPS per second
+EWiseApply Iterations finished
+0.005775 seconds elapsed for 1000 iterations on vector of length 36864
+6383.404453 million TEPS per second
+EWiseApply Iterations finished
+0.006351 seconds elapsed for 1000 iterations on vector of length 40960
+6449.384032 million TEPS per second
+EWiseApply Iterations finished
+0.007002 seconds elapsed for 1000 iterations on vector of length 45056
+6434.846126 million TEPS per second
+EWiseApply Iterations finished
+0.008820 seconds elapsed for 1000 iterations on vector of length 49152
+5572.753155 million TEPS per second
+EWiseApply Iterations finished
+0.009777 seconds elapsed for 1000 iterations on vector of length 53248
+5446.212919 million TEPS per second
+EWiseApply Iterations finished
+0.011060 seconds elapsed for 1000 iterations on vector of length 57344
+5184.810377 million TEPS per second
+EWiseApply Iterations finished
+0.012423 seconds elapsed for 1000 iterations on vector of length 61440
+4945.649978 million TEPS per second

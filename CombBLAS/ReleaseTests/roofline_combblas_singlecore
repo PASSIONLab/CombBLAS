@@ -1,0 +1,45 @@
+EWiseApply Iterations finished
+0.000510 seconds elapsed for 1000 iterations on vector of length 256
+501.983087 million TEPS per second
+EWiseApply Iterations finished
+0.000910 seconds elapsed for 1000 iterations on vector of length 512
+562.610335 million TEPS per second
+EWiseApply Iterations finished
+0.001333 seconds elapsed for 1000 iterations on vector of length 768
+576.144781 million TEPS per second
+EWiseApply Iterations finished
+0.002084 seconds elapsed for 1000 iterations on vector of length 1024
+491.358803 million TEPS per second
+EWiseApply Iterations finished
+0.002927 seconds elapsed for 1000 iterations on vector of length 1280
+437.298128 million TEPS per second
+EWiseApply Iterations finished
+0.003494 seconds elapsed for 1000 iterations on vector of length 1536
+439.607707 million TEPS per second
+EWiseApply Iterations finished
+0.004055 seconds elapsed for 1000 iterations on vector of length 1792
+441.921024 million TEPS per second
+EWiseApply Iterations finished
+0.004640 seconds elapsed for 1000 iterations on vector of length 2048
+441.369571 million TEPS per second
+EWiseApply Iterations finished
+0.005194 seconds elapsed for 1000 iterations on vector of length 2304
+443.593134 million TEPS per second
+EWiseApply Iterations finished
+0.005768 seconds elapsed for 1000 iterations on vector of length 2560
+443.823347 million TEPS per second
+EWiseApply Iterations finished
+0.006348 seconds elapsed for 1000 iterations on vector of length 2816
+443.611646 million TEPS per second
+EWiseApply Iterations finished
+0.006908 seconds elapsed for 1000 iterations on vector of length 3072
+444.690315 million TEPS per second
+EWiseApply Iterations finished
+0.007483 seconds elapsed for 1000 iterations on vector of length 3328
+444.741086 million TEPS per second
+EWiseApply Iterations finished
+0.008069 seconds elapsed for 1000 iterations on vector of length 3584
+444.166929 million TEPS per second
+EWiseApply Iterations finished
+0.008635 seconds elapsed for 1000 iterations on vector of length 3840
+444.699524 million TEPS per second
