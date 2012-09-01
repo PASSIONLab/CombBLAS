@@ -6,15 +6,17 @@ import time
 kdt.PDO_enable(False)
 
 sweep_dimensions = True
-repeats = [1, 2, 3, 4, 5, 10]
+repeats = range(1,20)#[1, 2, 3, 4, 5, 10, 13, 15, 20]
 printProgress = False
-useSEJITS = False
+useSEJITS = True
 
 try:
 	from pcb_predicate import *
 	useSEJITS = True
-except:
-	useSEJITS = False
+except ImportError:
+	#useSEJITS = False
+	#kdt.p("SEJITS parts not found, doing Python only.")
+	kdt.p("problems importing SEJITS, will try anyway.")
 
 
 if sweep_dimensions:
@@ -25,8 +27,8 @@ if sweep_dimensions:
 else:
 	mults_mulonly = [100]
 	mults_muladd = [20]
-	adds = [20] 
-	
+	adds = [20]
+
 	p = kdt._nproc()
 	if p == 9:
 		mults_mulonly = [297]
@@ -106,14 +108,14 @@ def makeMat(rows, cols, full):
 		i = kdt.Vec.range(rows, sparse=False)
 		j = kdt.Vec(rows, element=0, sparse=False)
 		v = kdt.Vec(rows, element=kdt.Obj2(), sparse=False)
-		
+
 		return kdt.Mat(i, j, v, cols, rows)
 
 def runSpMVExperiment(filter, sr, full, name):
 	best_ops_per_s = 0
 	best_len = -1
 	best_repeats = -1
-	
+
 	if full:
 		mults = mults_muladd
 		cols = adds
@@ -122,7 +124,7 @@ def runSpMVExperiment(filter, sr, full, name):
 		mults = mults_mulonly
 		cols = [1]
 		#kdt.p("m")
-	
+
 	#p = kdt._nproc()
 	#mults = [2*p]
 	#cols = [p]
@@ -133,14 +135,14 @@ def runSpMVExperiment(filter, sr, full, name):
 			M = makeMat(r, c, full)
 			M.addFilter(filter)
 			v = kdt.Vec.ones(c, sparse=True)
-			
+
 			for rpt in repeats:
 
 				if full:
 					op = rpt*(r*c + r*(c-1)) # multiplies + adds
 				else:
 					op = rpt*r
-				
+
 				#op *= 10000 # LOTSOFRUNS
 
 				#kdt.p("b %d\t(Ops) on \t%d procs\t%5d-by-%5d\t(row-by-col), repeat\t%3d\ttimes"%(op, p, r, c, rpt))
@@ -149,7 +151,7 @@ def runSpMVExperiment(filter, sr, full, name):
 					M.SpMV(v, semiring=sr, inPlace=True)
 				t = time.time() - begin
 				#kdt.p("%f"%(t))
-				
+
 				#kdt.p("t")
 				ops = op / t
 				if best_ops_per_s < ops:
@@ -160,7 +162,7 @@ def runSpMVExperiment(filter, sr, full, name):
 					best_c = c
 					best_repeats = rpt
 					best_time = t
-	
+
 	p = kdt._nproc()
 	kdt.p("BEST\t%s\ton %3d procs:\t%5d-by-%5d (row-by-col), repeat %3d times on \t%f\t ops (\t%f\tsec):\t%f\tOp/s"%(name, p, best_r, best_c, best_repeats, best_op, best_time, best_ops_per_s))
 
@@ -171,7 +173,7 @@ def runEWiseMulExperiment(filter, binop, e, name):
 	best_ops_per_s = 0
 	best_len = -1
 	best_repeats = -1
-	
+
 	for vl in eWiseVecLens:
 		if printProgress:
 			kdt.p("trying vec length %d"%(vl))
@@ -193,7 +195,7 @@ def runEWiseMulExperiment(filter, binop, e, name):
 				best_len = vl
 				best_repeats = rpt
 				best_time = t
-	
+
 	p = kdt._nproc()
 	#kdt.p("BEST %s on %3d procs: len %5d, repeat %3d times: %f Op/s"%(name, p, best_len, best_repeats, best_ops_per_s))
 	kdt.p("BEST\t%s\ton %3d procs:\t%5d (len), repeat %3d times on \t%f\t ops (\t%f\tsec):\t%f\tOp/s"%(name, p, best_len, best_repeats, best_op, best_time, best_ops_per_s))
