@@ -435,7 +435,6 @@ int main(int argc, char* argv[])
 			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
    			deviation = sqrt( deviation / (sruns-1) ) * (hteps*hteps);	// harmonic_std_dev
 			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
-			SpParHelper::Print(os.str());
 
 			sort(MPEPS, MPEPS+sruns);
 			os << "Bidirectional Processed Edges per second (to estimate sustained BW)"<< endl;
