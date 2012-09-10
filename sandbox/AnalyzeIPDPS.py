@@ -14,9 +14,20 @@ filters = [1, 10, 25, 100]
 
 ######################
 ## RMAT BFS
-if sys.argv[1] == "bfs":
-	cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
-	combblas_file = "result_ipdps_bfs_22_combblas.txt"
+if sys.argv[1] == "bfs" or sys.argv[1] == "bfshopper":
+	if sys.argv[1] == "bfs":
+		cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
+		combblas_file = "result_ipdps_bfs_22_combblas.txt"
+		
+		core_xrange = "0.9:40"
+		filtergrid_yrange = "0.1:256"
+	else:
+		cores = {121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2048: "result_ipdps_bfs_25_2048.txt"}
+		combblas_file = "result_ipdps_bfs_25_combblas.txt"
+
+		core_xrange = "100:2100"
+		filtergrid_yrange = "0.1:256"
+
 	# combblas file format: each line is a tab-delimited tuple:
 	# core count, filter percentage, min time, max time, mean time
 	
@@ -40,14 +51,19 @@ if sys.argv[1] == "bfs":
 
 		for line in open(combblas_file, 'r'):
 			feats = line.split("\t")
-			core = int(feats[0])
-			filter = int(float(feats[1]))
-			min_time = float(feats[2])
-			max_time = float(feats[3])
-			mean_time = float(feats[4])
-			data.append((core, "min_CombBLAS_OTFtime", filter, min_time))
-			data.append((core, "max_CombBLAS_OTFtime", filter, max_time))
-			data.append((core, "mean_CombBLAS_OTFtime", filter, mean_time))
+			try:
+				core = int(feats[0])
+				filter = int(float(feats[1]))
+				min_time = float(feats[2])
+				max_time = float(feats[3])
+				mean_time = float(feats[4])
+				data.append((core, "min_CombBLAS_OTFtime", filter, min_time))
+				data.append((core, "max_CombBLAS_OTFtime", filter, max_time))
+				data.append((core, "mean_CombBLAS_OTFtime", filter, mean_time))
+			except ValueError:
+				# there is some empty/invalid data
+				print "omitting CombBLAS datapoints from this incomplete line:",line
+				pass
 	
 	
 	parseProcFiles = True
@@ -148,6 +164,9 @@ data = []
 # parse KDT
 if parseProcFiles:
 	for (core, file) in cores.items():
+		if not os.path.isfile(file):
+			print "file not found:",file
+			continue
 		for line in open(file, 'r'):
 			for var in varieties:
 				if line.find(var) != -1:
@@ -242,8 +261,8 @@ if doFilterGrid:
 		gnuplot += 'set terminal png\n'
 		gnuplot += 'set output "%s.png"\n'%filestem
 		gnuplot += ''
-		gnuplot += 'set xrange [0.9:40]\n'
-		gnuplot += 'set yrange [0.1:256]\n'
+		gnuplot += 'set xrange [%s]\n'%(core_xrange)
+		gnuplot += 'set yrange [%s]\n'%(filtergrid_yrange)
 		gnuplot += 'set logscale y\n'
 		gnuplot += 'set logscale x\n'
 		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'

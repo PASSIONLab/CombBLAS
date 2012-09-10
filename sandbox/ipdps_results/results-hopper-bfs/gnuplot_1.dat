@@ -1,0 +1,6 @@
+	mean_PythonSR_PythonFilter_OTFtime	min_PythonSR_PythonFilter_OTFtime	max_PythonSR_PythonFilter_OTFtime	mean_PythonSR_SejitsFilter_OTFtime	min_PythonSR_SejitsFilter_OTFtime	max_PythonSR_SejitsFilter_OTFtime	mean_SejitsSR_SejitsFilter_OTFtime	min_SejitsSR_SejitsFilter_OTFtime	max_SejitsSR_SejitsFilter_OTFtime	mean_CombBLAS_OTFtime	min_CombBLAS_OTFtime	max_CombBLAS_OTFtime	
+121	20.8639287502	20.6212370396	21.1757280827	0.895382583141	0.733717918396	1.76356101036	0.954055279493	0.6511490345	2.96230483055	0.611459	0.598242	0.652629	
+256	10.2632094026	9.92071199417	10.6336131096	0.687195464969	0.395205974579	2.61431288719	0.639783293009	0.330148935318	2.86625289917	0.333911	0.320371	0.378255	
+576	-	-	-	-	-	-	-	-	-	-	-	-	
+1024	-	-	-	-	-	-	-	-	-	-	-	-	
+2048	-	-	-	-	-	-	-	-	-	-	-	-	
