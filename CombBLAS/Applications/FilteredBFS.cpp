@@ -33,7 +33,6 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 #define ITERS 16 
 #define CC_LIMIT 100
-//#define PERMUTEFORBALANCE
 #define PERCENTS 4  // testing with 4 different percentiles
 #define MINRUNS 4
 //#define ONLYTIME // don't calculate TEPS
@@ -115,6 +114,10 @@ int main(int argc, char* argv[])
 		double t01 = MPI_Wtime();
 		if(string(argv[1]) == string("File")) // text|binary input option
 		{
+			SpParHelper::Print("Using real data, which we NEVER permute for load balance, also leaving isolated vertices as-is, if any\n");
+			SpParHelper::Print("This is because the input is assumed to be load balanced\n");
+			SpParHelper::Print("BFS is run on DIRECTED graph, hence hitting SCCs, and TEPS is unidirectional\n");
+
 			// ReadDistribute (const string & filename, int master, bool nonum, HANDLER handler, bool transpose, bool pario)
 			// if nonum is true, then numerics are not supplied and they are assumed to be all 1's
 			A.ReadDistribute(string(argv[2]), 0, false, TwitterReadSaveHandler<int64_t>(), true, true);	// read it from file (and transpose on the fly)
@@ -127,8 +130,11 @@ int main(int argc, char* argv[])
 		}
 		else if(string(argv[1]) == string("Gen"))
 		{
- 			double initiator[4] = {.57, .19, .19, .05};
+			SpParHelper::Print("Using synthetic data, which we ALWAYS permute for load balance\n");
+			SpParHelper::Print("We only balance the original input, we don't repermute after each filter change\n");
+			SpParHelper::Print("BFS is run on UNDIRECTED graph, hence hitting CCs, and TEPS is bidirectional\n");
 
+ 			double initiator[4] = {.57, .19, .19, .05};
 			double t01 = MPI_Wtime();
 			double t02;
 			DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
@@ -138,16 +144,16 @@ int main(int argc, char* argv[])
 			outs << "Forcing scale to : " << scale << endl;
 			SpParHelper::Print(outs.str());
 
+			// parameters: (double initiator[4], int log_numverts, int edgefactor, bool scramble, bool packed)
 			DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );	// generate packed edges
 			SpParHelper::Print("Generated renamed edge lists\n");
 
 			ABool = new PSpMat_Bool(*DEL, false); 
-
 			int64_t removed  = ABool->RemoveLoops();
-                        ostringstream loopinfo;
-                        loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
-                        SpParHelper::Print(loopinfo.str());
-                        ABool->PrintInfo();
+			ostringstream loopinfo;
+			loopinfo << "Converted to Boolean and removed " << removed << " loops" << endl;
+			SpParHelper::Print(loopinfo.str());
+			ABool->PrintInfo();
 			delete DEL;	// free memory
 			A = PSpMat_Twitter(*ABool); // any upcasting generates the default object
 			
@@ -168,23 +174,14 @@ int main(int argc, char* argv[])
 		ABool->Reduce(oudegrees, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
 		ABool->Reduce(indegrees, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 		
-		FullyDistVec<int64_t, int64_t> indegrees_arr[4];	
-		FullyDistVec<int64_t, int64_t> oudegrees_arr[4];	
+		// indegrees_filt and oudegrees_filt is used for the real data
+		FullyDistVec<int64_t, int64_t> indegrees_filt;	
+		FullyDistVec<int64_t, int64_t> oudegrees_filt;	
+		FullyDistVec<int64_t, int64_t> degrees_filt[4];	// used for the synthetic data (symmetricized before randomization)
 		int64_t keep[PERCENTS] = {100, 1000, 2500, 10000}; 	// ratio of edges kept in range (0, 10000) 
 		
-		if(string(argv[1]) == string("Gen"))
+		if(string(argv[1]) == string("File"))	// if using synthetic data, no notion of out/in degrees after randomization exist
 		{
-			for (int i=0; i < PERCENTS; i++) 
-			{
-				PSpMat_Twitter B = A;
-				B.Prune(bind2nd(Twitter_materialize(), keep[i]));
-				PSpMat_Bool BBool = B;
-				BBool.PrintInfo();
-				BBool.Reduce(oudegrees_arr[i], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-				BBool.Reduce(indegrees_arr[i], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
-			}
-		}
-		else {
 			struct tm timeinfo;
 			memset(&timeinfo, 0, sizeof(struct tm));
 			int year, month, day, hour, min, sec;
@@ -203,8 +200,8 @@ int main(int argc, char* argv[])
 			B.Prune(bind2nd(Twitter_materialize(), mysincedate));
 			PSpMat_Bool BBool = B;
 			BBool.PrintInfo();
-			BBool.Reduce(oudegrees_arr[0], Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
-			BBool.Reduce(indegrees_arr[0], Row, plus<int64_t>(), static_cast<int64_t>(0)); 
+			BBool.Reduce(oudegrees_filt, Column, plus<int64_t>(), static_cast<int64_t>(0)); 	
+			BBool.Reduce(indegrees_filt, Row, plus<int64_t>(), static_cast<int64_t>(0)); 
 		}
 
 		degrees = indegrees;	
@@ -217,44 +214,44 @@ int main(int argc, char* argv[])
 		outs << "Load balance: " << balance << endl;
 		SpParHelper::Print(outs.str());
 
-#ifdef PERMUTEFORBALANCE
-		// nonisov: id's of non-isolated (connected) vertices
-		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
-		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
-		nonisov->RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-		A(*nonisov, *nonisov, true);	// in-place permute to save memory
-		SpParHelper::Print("Dropped isolated vertices from input\n");	
-
-		indegrees = indegrees(*nonisov);	// fix the degrees arrays too
-		oudegrees = oudegrees(*nonisov);	
-		degrees = degrees(*nonisov);
 		if(string(argv[1]) == string("Gen"))
 		{
-			for (int i=0; i < PERCENTS; i++) 
-			{
-				indegrees_arr[i] = indegrees_arr[i](*nonisov);	
-				oudegrees_arr[i] = oudegrees_arr[i](*nonisov);	
-			}
-		}
-		else
-		{	
-			indegrees_arr[0] = indegrees_arr[0](*nonisov);	
-			oudegrees_arr[0] = oudegrees_arr[0](*nonisov);	
-		}
-		delete nonisov;
-#endif
-
-		SpParHelper::Print("Finished generating in/out degrees\n");	
-		A.PrintInfo();
-
-		if(string(argv[1]) == string("Gen"))
-		{
+			// We symmetricize before we apply the random generator
+			// Otherwise += will naturally add the random numbers together
+			// hence will create artificially high-permeable filters
 			Symmetricize(A);	// A += A';
 			SpParHelper::Print("Symmetricized\n");	
 
 			A.Apply(Twitter_obj_randomizer());
 			A.PrintInfo();
+			
+			FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
+			SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
+			nonisov->RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+			A(*nonisov, *nonisov, true);	// in-place permute to save memory
+			SpParHelper::Print("Dropped isolated vertices from input\n");	
+			
+			indegrees = indegrees(*nonisov);	// fix the degrees arrays too
+			oudegrees = oudegrees(*nonisov);	
+			degrees = degrees(*nonisov);
+			delete nonisov;
+			
+			for (int i=0; i < PERCENTS; i++) 
+			{
+				PSpMat_Twitter B = A;
+				B.Prune(bind2nd(Twitter_materialize(), keep[i]));
+				PSpMat_Bool BBool = B;
+				BBool.PrintInfo();
+				float balance = B.LoadImbalance();
+				ostringstream outs;
+				outs << "Load balance of " << static_cast<float>(keep[i])/100 << "% filtered case: " << balance << endl;
+				SpParHelper::Print(outs.str());
+				
+				// degrees_filt[i] is by-default generated as permuted
+				BBool.Reduce(degrees_filt[i], Column, plus<int64_t>(), static_cast<int64_t>(0));  // Column=Row since BBool is symmetric
+			}
 		}
+		// real data is pre-balanced, because otherwise even the load balancing routine crushes due to load imbalance
 			
 		float balance_former = A.LoadImbalance();
 		ostringstream outs_former;
@@ -323,12 +320,21 @@ int main(int argc, char* argv[])
 				FullyDistSpVec<int64_t, int64_t> intraversed, inprocessed, outraversed, ouprocessed;
 				inprocessed = EWiseApply<int64_t>(parentsp, indegrees, seldegree(), passifthere(), true, ParentType());
 				ouprocessed = EWiseApply<int64_t>(parentsp, oudegrees, seldegree(), passifthere(), true, ParentType());
-				intraversed = EWiseApply<int64_t>(parentsp, indegrees_arr[trials], seldegree(), passifthere(), true, ParentType());
-				outraversed = EWiseApply<int64_t>(parentsp, oudegrees_arr[trials], seldegree(), passifthere(), true, ParentType());
+				int64_t nedges, in_nedges, ou_nedges;
+				if(string(argv[1]) == string("Gen"))
+				{
+					FullyDistSpVec<int64_t, int64_t> traversed = EWiseApply<int64_t>(parentsp, degrees_filt[trials], seldegree(), passifthere(), true, ParentType());
+					nedges = traversed.Reduce(plus<int64_t>(), (int64_t) 0);
+				}
+				else 
+				{
+					intraversed = EWiseApply<int64_t>(parentsp, indegrees_filt, seldegree(), passifthere(), true, ParentType());
+					outraversed = EWiseApply<int64_t>(parentsp, oudegrees_filt, seldegree(), passifthere(), true, ParentType());
+					in_nedges = intraversed.Reduce(plus<int64_t>(), (int64_t) 0);
+					ou_nedges = outraversed.Reduce(plus<int64_t>(), (int64_t) 0);
+					nedges = in_nedges + ou_nedges;	// count birectional edges twice
+				}
 				
-				int64_t in_nedges = intraversed.Reduce(plus<int64_t>(), (int64_t) 0);
-				int64_t ou_nedges = outraversed.Reduce(plus<int64_t>(), (int64_t) 0);
-				int64_t nedges = in_nedges + ou_nedges;	// count birectional edges twice
 				int64_t in_nedges_processed = inprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t ou_nedges_processed = ouprocessed.Reduce(plus<int64_t>(), (int64_t) 0);
 				int64_t nedges_processed = in_nedges_processed + ou_nedges_processed;	// count birectional edges twice
@@ -353,19 +359,25 @@ int main(int argc, char* argv[])
 					outnew << "Number iterations: " << iterations << endl;
 					outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
 					outnew << "Number of edges traversed in both directions: " << nedges << endl;
-					outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
+					if(string(argv[1]) == string("File"))
+						outnew << "Number of edges traversed in one direction: " << ou_nedges << endl;
 					outnew << "Number of edges processed in both directions: " << nedges_processed << endl;
 					outnew << "Number of edges processed in one direction: " << ou_nedges_processed << endl;
 					outnew << "BFS time: " << t2-t1 << " seconds" << endl;
 					outnew << "MTEPS (bidirectional): " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;
-					outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
+					if(string(argv[1]) == string("File"))
+						outnew << "MTEPS (unidirectional): " << static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0 << endl;
 					outnew << "MPEPS (bidirectional): " << static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "MPEPS (unidirectional): " << static_cast<double>(ou_nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 
 					TIMES[sruns] = t2-t1;
-					EDGES[sruns] = static_cast<double>(ou_nedges);
-					MTEPS[sruns] = static_cast<double>(ou_nedges) / (t2-t1) / 1000000.0;
+					if(string(argv[1]) == string("Gen"))
+						EDGES[sruns] = static_cast<double>(nedges);
+					else
+						EDGES[sruns] = static_cast<double>(ou_nedges);
+
+					MTEPS[sruns] = EDGES[sruns] / (t2-t1) / 1000000.0;
 					MPEPS[sruns++] = static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0;
 					SpParHelper::Print(outnew.str());
 				}
