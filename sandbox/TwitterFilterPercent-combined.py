@@ -11,6 +11,9 @@ from stats import splitthousands, printstats
 
 kdt.PDO_enable(False)
 
+useParIO = True
+useDelIsolated = False
+
 #parse arguments
 if (len(sys.argv) < 2):
 	kdt.p("Usage: python %s twittergraph.mtx [whatToDoArg1 whatToDoArg2 ...]"%(sys.argv[0]))
@@ -159,14 +162,15 @@ if datasource == "file":
 	# load
 	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
-	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2(), par_IO=True)
+	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2(), par_IO=useParIO)
 	kdt.p("Read in %fs. Read \t%d\t vertices and \t%d\t edges."%(time.time()-before, G.nvert(), G.nedge()))
 
-	# optimize the graph
-	kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
-	before = time.time()
-	G.delIsolatedVerts(True)
-	kdt.p("Done in %fs."%(time.time()-before))
+	if useDelIsolated:
+		# optimize the graph
+		kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
+		before = time.time()
+		G.delIsolatedVerts(True)
+		kdt.p("Done in %fs."%(time.time()-before))
 elif datasource == "generate":
 	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
