@@ -7,7 +7,7 @@ kdt.PDO_enable(False)
 
 sweep_dimensions = True
 repeats = range(1,20)#[1, 2, 3, 4, 5, 10, 13, 15, 20]
-printProgress = False
+printProgress = True
 useSEJITS = True
 
 try:
@@ -20,7 +20,7 @@ except ImportError:
 
 
 if sweep_dimensions:
-	mults_mulonly = range(8, 2000, 8)
+	mults_mulonly = range(8, 200000, 8)
 	mults_muladd = range(1, 40, 1)
 	adds = range(8, 200, 16)
 	eWiseVecLens = mults_mulonly
@@ -187,6 +187,7 @@ def runEWiseMulExperiment(filter, binop, e, name):
 			t = time.time() - begin
 
 			op = vl*rpt
+			op *= 1000 # repeat in EWiseApply implementation
 			ops = op / t
 			if best_ops_per_s < ops:
 				#kdt.p("len %5d, repeat %3d times: %f (took %f seconds)"%(vl, r, ops, t))
@@ -207,9 +208,9 @@ def runEWiseMulExperiment(filter, binop, e, name):
 #runSpMVExperiment(py_twitterFilter, kdt.sr_select2nd, True, "SpMV mult+add (C++/Python)")
 
 kdt.p("running eWiseApply tests")
-runEWiseMulExperiment(py_twitterFilter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/Python)")
+#runEWiseMulExperiment(py_twitterFilter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/Python)")
 
 if useSEJITS:
-	runEWiseMulExperiment(py_twitterFilter, sejits_select1st_DO, kdt.Obj2(), "eWiseApply twitter filtered select1st (SEJITS/Python)")
-	runEWiseMulExperiment(sejits_filter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/SEJITS)")
+	#runEWiseMulExperiment(py_twitterFilter, sejits_select1st_DO, kdt.Obj2(), "eWiseApply twitter filtered select1st (SEJITS/Python)")
+	#runEWiseMulExperiment(sejits_filter, py_select1st, kdt.Obj2(), "eWiseApply twitter filtered select1st (Python/SEJITS)")
 	runEWiseMulExperiment(sejits_filter, sejits_select1st_DO, kdt.Obj2(), "eWiseApply twitter filtered select1st (SEJITS/SEJITS)")
