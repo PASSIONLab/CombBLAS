@@ -36,7 +36,7 @@ gen_scale = 10
 nstarts = 512
 keep_starts = 16
 keep_min_edges = 100
-CC_LIMIT = 100 # Aydin's 
+CC_LIMIT = 100 # Aydin's
 
 # figure out what to do
 if (len(sys.argv) >= 3):
@@ -159,9 +159,9 @@ if datasource == "file":
 	# load
 	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
-	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2())
+	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2(), par_IO=True)
 	kdt.p("Read in %fs. Read \t%d\t vertices and \t%d\t edges."%(time.time()-before, G.nvert(), G.nedge()))
-	
+
 	# optimize the graph
 	kdt.p("--Deleting isolated vertices and randomly permuting matrix for load balance")
 	before = time.time()
@@ -195,18 +195,18 @@ class SemiringTypeToUse:
 	PYTHON = 0
 	CPP = 1
 	SEJITS = 2
-	
+
 	@staticmethod
 	def get_string(value):
 		return {SemiringTypeToUse.PYTHON: "PythonSR",
 		 SemiringTypeToUse.CPP: "C++SR",
 		 SemiringTypeToUse.SEJITS: "SejitsSR"}[value]
- 
+
 def run(SR_to_use, use_SEJITS_Filter, materialize):
 	global G, nstarts, origDegrees, filterUpperValue, sejits_filter, sejits_SR
 	runStarts = nstarts
 	filterPercent = filterUpperValue/100.0
-	
+
 	G.addEFilter(twitterEdgeFilter)
 	materializeTime = 0
 	if materialize:
@@ -217,11 +217,11 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		kdt.p("Materialized %f in\t%f\ts."%(filterPercent, materializeTime))
 		kdt.p("%f\t: \t%d\t edges survived the filter."%(filterPercent, G.nedge()))
 		kdt.p(G)
-	
+
 	kdt.p("--Generating starting verts")
 	before = time.time()
 	degrees = G.degree()
-	
+
 	# This starting vertex generation is fine, but we want to
 	# use the same scheme as the CombBLAS FilteredBFS.cpp so that
 	# we reduce variability due to random number generation.
@@ -241,7 +241,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 	else:
 		starts = kdt.Vec.ones(runStarts, sparse=False)
 		starts._v_.SelectCandidates(G.nvert(), True)
-		
+
 	kdt.p("Generated starting verts in %fs."%(time.time()-before))
 
 	kdt.p("--Doing BFS")
@@ -253,11 +253,11 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 	K2TEPS = [];
 	K2ORIGTEPS = []
 	K2MATTEPS = []
-	
+
 	i = 0
 	for start in starts:
 		start = int(start)
-		
+
 		# figure out which Semiring to use
 		if SR_to_use == SemiringTypeToUse.PYTHON:
 			PythonSR = True
@@ -270,7 +270,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			SEJITSSR = True
 
 
-		# the actual BFS		
+		# the actual BFS
 		if SR_to_use == SemiringTypeToUse.SEJITS:
 			before = time.time()
 			parents = sejits_bfsTree(G, start)
@@ -278,40 +278,40 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			before = time.time()
 			parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 		itertime = time.time() - before
-		
+
 		## // Aydin's code for finding number of edges:
 		## FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
 		## parentsp.Apply(set<int64_t>(1));
 		## // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
 		## int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
-		
+
 		#import kdt.pyCombBLAS as pcb
 		#parentsp_pcb = parents._dpv.Find(pcb.bind2nd(pcb.greater(), -1))
 		#parentsp_pcb.Apply(pcb.set(1))
 		#print "number of discovered verts: ",parentsp_pcb.getnee()," total: ",len(parents)
 		#nedges = pcb.EWiseMult(parentsp_pcb, degrees._dpv, False, 0).Reduce(pcb.plus())
-		
+
 		# Compute the number of edges traversed by adding up each discovered vertex's degree.
 		# The degree vector was computed before the reverse edges were added, hence the TEPS score
 		# only includes edges present in the original graph.
-		
+
 		# This computation overwrites the parents vector, but it's not used again so it's ok.
 		def TEPSupdate(p, deg):
 			if p == -1:
 				return 0
 			else:
 				return deg
-		nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add) 
+		nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add)
 		if materialize:
 			nOrigEdges = 0
 		else:
-			nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add) 
-		
+			nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add)
+
 		##nedges2 = len((parents[origI] != -1).find())
 		##if kdt.master():
 		##	if (nedges != nedges2):
 		##		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
-		
+
 		ndiscVerts = parents.count(lambda x: x != -1)
 		#if nedges >= keep_min_edges: # old method, but not what Aydin uses
 		if ndiscVerts > CC_LIMIT:
@@ -323,13 +323,13 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			discardedString = ""
 		else:
 			discardedString = "(result discarded)"
-		
+
 		i += 1
 		# print result for this iteration
 		kdt.p("%f\t: iteration %2d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
 		if len(K2edges) >= keep_starts:
 			break
-	
+
 	# print results summary
 	if kdt.master():
 		if materialize:
@@ -340,15 +340,15 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			SF = "SejitsFilter"
 		else:
 			SF = "PythonFilter"
-		
+
 		labeling = SemiringTypeToUse.get_string(SR_to_use)+"_"+SF+"_"+Mat
-		
+
 		print "\nBFS execution times (%s)"%(labeling)
 		printstats(K2elapsed, "%stime\t%f\t"%(labeling, filterPercent), False, True, True)
-		
+
 		print "\nnumber of edges traversed %s"%(Mat)
 		printstats(K2edges, "%snedge\t%f\t"%(labeling, filterPercent), False, True, True)
-		
+
 		print "\nTEPS (%s)"%(labeling)
 		printstats(K2TEPS, "%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
 
@@ -358,7 +358,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		else:
 			print "\nTEPS including materialization time (%s)"%(labeling)
 			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
-	
+
 	if use_SEJITS_Filter:
 		G.delEFilter(sejits_filter)
 	else:
@@ -387,7 +387,7 @@ for latestDate in latestDatesToCheck:
                         initialize_sejits_SR()
 		else:
 			raise ValueError,"Invalid semiring specified in whatToDo %s"%whatToDo
-		
+
 		# determine the filter type to use
 		if whatToDo[1] == 'p':
 			use_SEJITS_Filter = False
@@ -395,7 +395,7 @@ for latestDate in latestDatesToCheck:
 			use_SEJITS_Filter = True
 		else:
 			raise ValueError,"Invalid filter type specified in whatToDo %s"%whatToDo
-		
+
 		# determine OTF or Materialize
 		if whatToDo[2] == 'o':
 			materialize = False
@@ -403,11 +403,11 @@ for latestDate in latestDatesToCheck:
 			materialize = True
 		else:
 			raise ValueError,"Invalid materialization flag specified in whatToDo %s"%whatToDo
-		
+
 		single_runtime_before = time.time()
 		if use_SEJITS_Filter: # put here so if the system doesn't have SEJITS it won't crash
 			from pcb_predicate import *
-	
+
 			class TwitterFilter(PcbUnaryPredicate):
 				def __init__(self, filterUpperValue):
 					self.filterUpperValue = filterUpperValue
