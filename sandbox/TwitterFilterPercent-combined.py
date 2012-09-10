@@ -364,9 +364,17 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 	else:
 		G.delEFilter(twitterEdgeFilter)
 
-#for p in (0, 0.5, 1, 2, 5, 10, 20, 30, 40, 60, 100):
-for p in (1, 10, 25, 100):
-	filterUpperValue = int(p*100)
+if datasource == "file":
+	latestDatesToCheck = [1246406400] # 2009-07-01 0:0:0
+else:
+	latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+
+for latestDate in latestDatesToCheck:
+	filterUpperValue = latestDate
+	if datasource == "file":
+		permeability = latestDate
+	else:
+		permeability = int(latestDate/100)
 
 	for whatToDo in whatToDoList:
 		# determine the semiring type to use
@@ -412,10 +420,10 @@ for p in (1, 10, 25, 100):
 			before = time.time()
 			sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
 			sejits_filter_create_time = time.time()-before
-			kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(p, sejits_filter_create_time))
+			kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(permeability, sejits_filter_create_time))
 
 		run(SR_to_Use, use_SEJITS_Filter, materialize)
 		single_runtime = time.time() - single_runtime_before
-		kdt.p("Total runtime for %s on %d%% is\t%f\ts."%(whatToDo, p, single_runtime))
+		kdt.p("Total runtime for %s on %d%% is\t%f\ts."%(whatToDo, permeability, single_runtime))
 
 kdt.p("Total runtime for everything is\t\t%f"%(time.time()-time_very_beginning))
