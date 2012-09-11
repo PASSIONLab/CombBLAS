@@ -30,7 +30,7 @@ int cblas_splits = 1;
 #include "TwitterEdge.h"
 
 #define MAX_ITERS 20000
-#define EDGEFACTOR 16
+#define EDGEFACTOR 5 //16
 #define ITERS 16 
 #define PERCENTS 4  // testing with 4 different percentiles
 #define MINRUNS 4
@@ -76,6 +76,49 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 	}
 };
 
+//// callbacks used by MIS
+//def rand( verc ):
+//	import random
+//	return random.random()
+
+double randGen(double ignore)
+{
+	return GlobalMT.rand();
+}
+
+//def return1(x, y):
+//	return 1
+uint8_t return1(double, double)
+{
+	return 1;
+}
+
+//def is2ndSmaller(m, c):
+//	return (c < m)
+bool is2ndSmaller(double m, double c)
+{
+	return (c < m);
+}
+
+/*
+these are for semirings
+def myMin(x,y):
+	if x<y:
+		return x
+	else:
+		return y
+
+def select2nd(x, y):
+	return y
+*/
+
+
+
+
+
+
+
+
 int main(int argc, char* argv[])
 {
 
@@ -110,7 +153,8 @@ int main(int argc, char* argv[])
 		SpParHelper::Print("We only balance the original input, we don't repermute after each filter change\n");
 		SpParHelper::Print("BFS is run on UNDIRECTED graph, hence hitting CCs, and TEPS is bidirectional\n");
 
-		double initiator[4] = {.57, .19, .19, .05};
+		//double initiator[4] = {.57, .19, .19, .05};
+		double initiator[4] = {.25, .25, .25, .25};
 		double t01 = MPI_Wtime();
 		double t02;
 		DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
@@ -219,6 +263,72 @@ int main(int argc, char* argv[])
 			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
 			{
 				// MIS Core goes here
+
+				uint64_t nvert = A.getncol();
+				
+				//# the final result set. S[i] exists and is 1 if vertex i is in the MIS
+				//S = Vec(nvert, sparse=True)
+				FullyDistSpVec<uint64_t, uint8_t> S ( A.getcommgrid(), nvert);
+				
+				//# the candidate set. initially all vertices are candidates.
+				//# this vector doubles as 'r', the random value vector.
+				//# i.e. if C[i] exists, then i is a candidate. The value C[i] is i's r for this iteration.
+				//C = Vec.ones(nvert, sparse=True)
+				FullyDistSpVec<uint64_t, double> C ( A.getcommgrid(), nvert);
+
+				FullyDistSpVec<uint64_t, double> min_neighbor_r ( A.getcommgrid(), nvert);
+				FullyDistSpVec<uint64_t, uint8_t> new_S_members ( A.getcommgrid(), nvert);
+					
+				//while (C.nnn()>0):
+				while (C.getnnz() > 0)
+				{
+					//# label each vertex in C with a random value
+					//C.apply(rand)
+					C.Apply(randGen);
+					
+					//# find the smallest random value among a vertex's neighbors
+					//# In other words:
+					//# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
+					//min_neighbor_r = Gmatrix.SpMV(C, sr(myMin,select2nd)) # could use "min" directly
+					SpMV<Min2ndSR /* add=min, multiply=filtered select2nd */  >(A, C, min_neighbor_r, false);	
+			
+					//# The vertices to be added to S this iteration are those whose random value is
+					//# smaller than those of all its neighbors:
+					//# new_S_members[i] exists if C[i] < min_neighbor_r[i]
+					//new_S_members = min_neighbor_r.eWiseApply(C, return1, doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
+					new_S_members = EWiseApply<uint64_t, uint8_t>(min_neighbor_r, C, return1, is2ndSmaller, true, false, 2, 2, true);
+					////EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp,
+					//// bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect, const bool useExtendedBinOp);
+			
+					//# new_S_members are no longer candidates, so remove them from C
+					//C.eWiseApply(new_S_members, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+					C = EWiseApply<uint64_t, double>(C, new_S_members, return1, return1, false, true, 0, 0, false);
+			
+					//# find neighbors of new_S_members
+					//new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(select2nd,select2nd))
+					SpMV< /* filtered select 2nd */ > >(A, new_S_members, new_S_neighbors, false);
+			
+					//# remove neighbors of new_S_members from C, because they cannot be part of the MIS anymore
+					C.eWiseApply(new_S_neighbors, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
+					C = EWiseApply<uint64_t, double>(C, new_S_neighbors, return1, return1, false, true, 0, 0, false);
+			
+					//# add new_S_members to S
+					//S.eWiseApply(new_S_members, return1, allowANulls=True, allowBNulls=True, inPlace=True)
+					S = EWiseApply<uint64_t, uint8_t>(S, new_S_members, return1, return1, true, true, 1, 1, true);
+				}
+					
+				//return S
+
+
+
+
+
+
+
+
+
+
+
 				
 				// Change the following print outs too
 				// No need to keep TEPS

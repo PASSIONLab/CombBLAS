@@ -38,6 +38,9 @@ APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h 
 FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp
 
+FilteredMIS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h ../FullyDistVec.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredMIS.o FilteredMIS.cpp
+
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
@@ -46,6 +49,9 @@ driver: MemoryPool.o CommGrid.o MPIType.o Driver.o
 
 fbfs:	MemoryPool.o CommGrid.o MPIType.o FilteredBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(INCADD) $(FLAGS) -o fbfs FilteredBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
+
+fmis:	MemoryPool.o CommGrid.o MPIType.o FilteredMIS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o fmis FilteredMIS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 mcl:	MemoryPool.o CommGrid.o MPIType.o MCL.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o mcl MCL.o MemoryPool.o CommGrid.o MPIType.o
