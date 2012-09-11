@@ -158,6 +158,7 @@ else:
 		datasource = "unknown"
 
 # get the data
+minUsefulTime = None
 if datasource == "file":
 	# load
 	kdt.p("--Reading network from %s"%inmatrixfile)
@@ -171,6 +172,8 @@ if datasource == "file":
 		before = time.time()
 		G.delIsolatedVerts(True)
 		kdt.p("Done in %fs."%(time.time()-before))
+	nstarts = 20000 # data is very sparse
+	minUsefulTime = 0.05 # fast runs are likely to be useless
 elif datasource == "generate":
 	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
@@ -282,6 +285,11 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 			before = time.time()
 			parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 		itertime = time.time() - before
+
+		if minUsefulTime is not None and itertime < minUsefulTime:
+		    i += 1
+		    kdt.p("iteration %d is too fast to be useful, not even checking. start=%8d, time=%f (result discarded)"%(i, start, itertime))
+		    continue # this iteration was too fast to be useful
 
 		## // Aydin's code for finding number of edges:
 		## FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
