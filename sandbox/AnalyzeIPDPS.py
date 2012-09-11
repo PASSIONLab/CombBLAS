@@ -2,20 +2,28 @@ import sys
 import re
 import os
 
+filters = [1, 10, 25, 100]
+errorbars = "candlesticks" # also "errorbars" or None
+runtype = None
+
 if len(sys.argv) < 2:
 	print "what are you trying to do?"
 	sys.exit()
 
-filters = [1, 10, 25, 100]
+runtype = sys.argv[1]
+graphformat = "png"
+machine = "mirasol"
 
+showIndividualIterations = True
+showIndividualIterations_claim_to_be = "mean_%stime"
 
 ######################
 ## setup experiment to plot
 
 ######################
 ## RMAT BFS
-if sys.argv[1] == "bfs" or sys.argv[1] == "bfshopper":
-	if sys.argv[1] == "bfs":
+if runtype == "bfs" or runtype == "bfshopper":
+	if runtype == "bfs":
 		cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
 		combblas_file = "result_ipdps_bfs_22_combblas.txt"
 		
@@ -27,6 +35,8 @@ if sys.argv[1] == "bfs" or sys.argv[1] == "bfshopper":
 
 		core_xrange = "100:2100"
 		filtergrid_yrange = "0.1:256"
+		
+		machine = "hopper"
 
 	# combblas file format: each line is a tab-delimited tuple:
 	# core count, filter percentage, min time, max time, mean time
@@ -40,7 +50,7 @@ if sys.argv[1] == "bfs" or sys.argv[1] == "bfshopper":
 #		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
-	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 	
 	result_type = "BFS"
 	
@@ -74,7 +84,7 @@ if sys.argv[1] == "bfs" or sys.argv[1] == "bfshopper":
 	
 ######################
 ## real data BFS
-elif sys.argv[1] == "bfsreal":
+elif runtype == "bfsreal":
 	cores = {36: 1}
 	files = {"small": "result_ipdps_bfs_small_36.txt", "medium": "result_ipdps_bfs_medium_36.txt", "large": "result_ipdps_bfs_large_36.txt", "huge": "result_ipdps_bfs_huge_36.txt"}
 	combblas_file = "result_ipdps_bfs_real_combblas.txt"
@@ -90,7 +100,7 @@ elif sys.argv[1] == "bfsreal":
 #		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
-	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 	
 	result_type = "BFS"
 	
@@ -119,7 +129,7 @@ elif sys.argv[1] == "bfsreal":
 
 ######################
 ## Erdos-Renyi MIS
-elif sys.argv[1] == "mis":
+elif runtype == "mis":
 	cores = {1: "result_ipdps_MIS_1.txt", 4: "result_ipdps_MIS_4.txt", 9: "result_ipdps_MIS_9.txt", 16: "result_ipdps_MIS_16.txt", 25: "result_ipdps_MIS_25.txt", 36: "result_ipdps_MIS_36.txt"}
 	
 	experiments = [("PythonSR_PythonFilter_ER_OTF_22", "Python/Python KDT", "#FF0000"), # red (kinda light)
@@ -127,7 +137,7 @@ elif sys.argv[1] == "mis":
 				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF")] # blue (but it's dark)
 	
 	# ID will be replaced by strings from experiments array
-	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime"]
+	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 
 	result_type = "MIS"
 
@@ -149,6 +159,22 @@ for exp in experiments:
 	for var in experiment_varieties:
 		varieties.append(var.replace("ID", exp[0]))
 
+def isExperiment(str):
+	for exp in experiments:
+		if str == exp[0]:
+			return True
+	return False
+
+def getFunnyCore(core, iteration):
+	spread = core/2
+	return float(core) + iteration/16.0*spread
+
+if showIndividualIterations:
+	funnyCores = []
+	for core in cores.keys():
+		funnyCores.append(core)
+		for i in range(1,17):
+			funnyCores.append(getFunnyCore(core, i))
 
 #######################
 ## data structure
@@ -196,6 +222,39 @@ if parseRealFiles:
 
 # parse CombBLAS
 parseCombBLAS(data)
+
+# get detailed data about each individual BFS iteration
+if showIndividualIterations and parseProcFiles:
+	for (core, file) in cores.items():
+		if not os.path.isfile(file):
+			print "file not found:",file
+			continue
+		iterationData = []
+		for line in open(file, 'r'):
+			if line.find("(result discarded)") != -1:
+				continue
+
+			if line.find("iteration") != -1:
+				feats = line.split("\t")
+				filter = int(float(feats[0]))
+				#iteration string = feats[1]
+				iteration = len(iterationData)+1 # easier than parsing out the string
+				time = float(feats[2])
+				
+				iterationData.append((getFunnyCore(core, iteration), "", filter, time))
+			elif line.find("BFS execution times") != -1:
+				# found out what the previous iterations were for
+				exp = line[(line.find("(")+1) : (line.find(")"))]
+				if isExperiment(exp):
+					print "found variety:", var
+					for d in iterationData:
+						print (d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3])
+						data.append((d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3]))
+				
+				iterationData = []
+			elif len(line) > 1:
+				iterationData = []
+			
 
 ######################
 ## function to determine if there's any data for a particular core count
@@ -245,10 +304,14 @@ def format_table(data, group_col_idx, group_col_select_val, col_ids, row_ids, co
 ######################
 ## Figure 15-style plot with a scalability plot for each filter percentage
 if doFilterGrid:
+	if showIndividualIterations:
+		coreXVals = funnyCores
+	else:
+		coreXVals = cores.keys()
 	# print filter by filter
 	for filter in filters:
 		print ""
-		k = cores.keys()
+		k = coreXVals
 		k.sort()
 		print "filter ",filter, k
 		grid = format_table(data, 2, filter, varieties, k, 1, 0, 3)
@@ -258,8 +321,8 @@ if doFilterGrid:
 		
 		gnuplot = ""
 		gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
-		gnuplot += 'set terminal png\n'
-		gnuplot += 'set output "%s.png"\n'%filestem
+		gnuplot += 'set terminal %s\n'%(graphformat)
+		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += ''
 		gnuplot += 'set xrange [%s]\n'%(core_xrange)
 		gnuplot += 'set yrange [%s]\n'%(filtergrid_yrange)
@@ -287,7 +350,16 @@ if doFilterGrid:
 				comma = ",\\"
 			else:
 				comma = ""
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+			if errorbars == "candlesticks":
+				# candlestick data: x:box_min:whisker_min:whisker_high:box_high
+				#      +0,            +1,          +2,                +3,                     +4
+				# ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
+				# 1, firstquantile, min, max, thirdquartile:  +3, +1, +2, +4
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+			elif errorbars == "errorbars":
+				# errorbars data: x:y:ylow:yhigh
+				# 1, +0, +1, +2
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
@@ -313,8 +385,8 @@ if doPermeabilityPlot:
 	
 	gnuplot = ""
 	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
-	gnuplot += 'set terminal png\n'
-	gnuplot += 'set output "%s.png"\n'%filestem
+	gnuplot += 'set terminal %s\n'%(graphformat)
+	gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 	gnuplot += ''
 	gnuplot += 'set xrange [-5:105]\n'
 	gnuplot += 'set yrange [0.1:32]\n'
@@ -342,7 +414,10 @@ if doPermeabilityPlot:
 			comma = ",\\"
 		else:
 			comma = ""
-		gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+		if errorbars == "candlesticks":
+			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+		elif errorbars == "errorbars":
+			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 		gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 
 	print ""
@@ -371,8 +446,8 @@ if doRealScalabilityPlot:
 		
 		gnuplot = ""
 		gnuplot += 'set title "BFS on Twitter Data (%d processes)"\n'%(plot_core_cnt)
-		gnuplot += 'set terminal png\n'
-		gnuplot += 'set output "%s.png"\n'%filestem
+		gnuplot += 'set terminal %s\n'%(graphformat)
+		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += ''
 		gnuplot += 'set xrange [-0.5:3.5]\n'
 		gnuplot += 'set yrange [0.01:32]\n'
@@ -401,7 +476,10 @@ if doRealScalabilityPlot:
 				comma = ",\\"
 			else:
 				comma = ""
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+			if errorbars == "candlesticks":
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+			elif errorbars == "errorbars":
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
