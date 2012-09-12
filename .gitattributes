@@ -2201,6 +2201,7 @@ kdt/pyCombBLAS/testscript.py -text
 sandbox/AnalyzeIPDPS.py -text
 sandbox/Graph500_HyGraph.py -text
 sandbox/MIStest.py -text
+sandbox/SEJITSTimer.py -text
 sandbox/SummarizeFilterPercent.sh -text
 sandbox/TwitterBFS.py -text
 sandbox/TwitterFilterPercent-combined.py -text
