@@ -14,6 +14,9 @@ kdt.PDO_enable(False)
 useParIO = True
 useDelIsolated = False
 
+repeatEachStart = 10 # how many times to do each start
+repeatGroups = ["A", ""] # "" for just doing it once, ["A","B"] for doing it twice
+
 #parse arguments
 if (len(sys.argv) < 2):
 	kdt.p("Usage: python %s twittergraph.mtx [whatToDoArg1 whatToDoArg2 ...]"%(sys.argv[0]))
@@ -255,121 +258,128 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 	if use_SEJITS_Filter:
 		G.delEFilter(twitterEdgeFilter)
 		G.addEFilter(sejits_filter)
-	K2elapsed = [];
-	K2edges = [];
-	K2TEPS = [];
-	K2ORIGTEPS = []
-	K2MATTEPS = []
 
-	i = 0
-	for start in starts:
-		start = int(start)
+	for rpt_group in repeatGroups:
+		K2elapsed = [];
+		K2edges = [];
+		K2TEPS = [];
+		K2ORIGTEPS = []
+		K2MATTEPS = []
 
-		# figure out which Semiring to use
-		if SR_to_use == SemiringTypeToUse.PYTHON:
-			PythonSR = True
-			SEJITSSR = False
-		if SR_to_use == SemiringTypeToUse.CPP:
-			PythonSR = False
-			SEJITSSR = False
-		if SR_to_use == SemiringTypeToUse.SEJITS:
-			PythonSR = True
-			SEJITSSR = True
+		i = 1
+		for start in starts:
+			start = int(start)
+			
+			breakStartsLoop = False
+			for startrpt in range(repeatEachStart):
+				# figure out which Semiring to use
+				if SR_to_use == SemiringTypeToUse.PYTHON:
+					PythonSR = True
+					SEJITSSR = False
+				if SR_to_use == SemiringTypeToUse.CPP:
+					PythonSR = False
+					SEJITSSR = False
+				if SR_to_use == SemiringTypeToUse.SEJITS:
+					PythonSR = True
+					SEJITSSR = True
+		
+		
+				# the actual BFS
+				if SR_to_use == SemiringTypeToUse.SEJITS:
+					before = time.time()
+					parents = sejits_bfsTree(G, start)
+				else:
+					before = time.time()
+					parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
+				itertime = time.time() - before
+		
+				if minUsefulTime is not None and itertime < minUsefulTime:
+					i += 1
+					kdt.p("iteration %d is too fast to be useful, not even checking. start=%8d, time=%f (result discarded)"%(i, start, itertime))
+					continue # this iteration was too fast to be useful
+		
+				## // Aydin's code for finding number of edges:
+				## FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
+				## parentsp.Apply(set<int64_t>(1));
+				## // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
+				## int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
+		
+				#import kdt.pyCombBLAS as pcb
+				#parentsp_pcb = parents._dpv.Find(pcb.bind2nd(pcb.greater(), -1))
+				#parentsp_pcb.Apply(pcb.set(1))
+				#print "number of discovered verts: ",parentsp_pcb.getnee()," total: ",len(parents)
+				#nedges = pcb.EWiseMult(parentsp_pcb, degrees._dpv, False, 0).Reduce(pcb.plus())
+		
+				# Compute the number of edges traversed by adding up each discovered vertex's degree.
+				# The degree vector was computed before the reverse edges were added, hence the TEPS score
+				# only includes edges present in the original graph.
+		
+				# This computation overwrites the parents vector, but it's not used again so it's ok.
+				def TEPSupdate(p, deg):
+					if p == -1:
+						return 0
+					else:
+						return deg
+				nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add)
+				if materialize:
+					nOrigEdges = 0
+				else:
+					nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add)
+		
+				##nedges2 = len((parents[origI] != -1).find())
+				##if kdt.master():
+				##	if (nedges != nedges2):
+				##		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
+		
+				ndiscVerts = parents.count(lambda x: x != -1)
+				#if nedges >= keep_min_edges: # old method, but not what Aydin uses
+				if ndiscVerts > CC_LIMIT*repeatEachStart:
+					K2elapsed.append(itertime)
+					K2edges.append(nedges)
+					K2TEPS.append(nedges/itertime)
+					K2ORIGTEPS.append(nOrigEdges/itertime)
+					K2MATTEPS.append(nedges/(itertime+materializeTime))
+					discardedString = ""
+				else:
+					discardedString = "(result discarded)"
+		
+				# print result for this iteration
+				kdt.p("%f\t: iteration %s%d.%d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, rpt_group, i, startrpt, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
+				if len(K2edges) >= keep_starts:
+					breakStartsLoop = True
+					break
+			i += 1
+			if breakStartsLoop:
+				break
 
-
-		# the actual BFS
-		if SR_to_use == SemiringTypeToUse.SEJITS:
-			before = time.time()
-			parents = sejits_bfsTree(G, start)
-		else:
-			before = time.time()
-			parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
-		itertime = time.time() - before
-
-		if minUsefulTime is not None and itertime < minUsefulTime:
-		    i += 1
-		    kdt.p("iteration %d is too fast to be useful, not even checking. start=%8d, time=%f (result discarded)"%(i, start, itertime))
-		    continue # this iteration was too fast to be useful
-
-		## // Aydin's code for finding number of edges:
-		## FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));
-		## parentsp.Apply(set<int64_t>(1));
-		## // we use degrees on the directed graph, so that we don't count the reverse edges in the teps score
-		## int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);
-
-		#import kdt.pyCombBLAS as pcb
-		#parentsp_pcb = parents._dpv.Find(pcb.bind2nd(pcb.greater(), -1))
-		#parentsp_pcb.Apply(pcb.set(1))
-		#print "number of discovered verts: ",parentsp_pcb.getnee()," total: ",len(parents)
-		#nedges = pcb.EWiseMult(parentsp_pcb, degrees._dpv, False, 0).Reduce(pcb.plus())
-
-		# Compute the number of edges traversed by adding up each discovered vertex's degree.
-		# The degree vector was computed before the reverse edges were added, hence the TEPS score
-		# only includes edges present in the original graph.
-
-		# This computation overwrites the parents vector, but it's not used again so it's ok.
-		def TEPSupdate(p, deg):
-			if p == -1:
-				return 0
+		# print results summary
+		if kdt.master():
+			if materialize:
+				Mat = "Mat"
 			else:
-				return deg
-		nedges = parents.eWiseApply(degrees, TEPSupdate).reduce(kdt.op_add)
-		if materialize:
-			nOrigEdges = 0
-		else:
-			nOrigEdges = parents.eWiseApply(origDegrees, TEPSupdate).reduce(kdt.op_add)
-
-		##nedges2 = len((parents[origI] != -1).find())
-		##if kdt.master():
-		##	if (nedges != nedges2):
-		##		print "edge counts differ! ewisemult method: %d, find() method: %d"%(nedges, nedges2)
-
-		ndiscVerts = parents.count(lambda x: x != -1)
-		#if nedges >= keep_min_edges: # old method, but not what Aydin uses
-		if ndiscVerts > CC_LIMIT:
-			K2elapsed.append(itertime)
-			K2edges.append(nedges)
-			K2TEPS.append(nedges/itertime)
-			K2ORIGTEPS.append(nOrigEdges/itertime)
-			K2MATTEPS.append(nedges/(itertime+materializeTime))
-			discardedString = ""
-		else:
-			discardedString = "(result discarded)"
-
-		i += 1
-		# print result for this iteration
-		kdt.p("%f\t: iteration %2d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, i, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
-		if len(K2edges) >= keep_starts:
-			break
-
-	# print results summary
-	if kdt.master():
-		if materialize:
-			Mat = "Mat"
-		else:
-			Mat = "OTF"
-		if use_SEJITS_Filter:
-			SF = "SejitsFilter"
-		else:
-			SF = "PythonFilter"
-
-		labeling = SemiringTypeToUse.get_string(SR_to_use)+"_"+SF+"_"+Mat
-
-		print "\nBFS execution times (%s)"%(labeling)
-		printstats(K2elapsed, "%stime\t%f\t"%(labeling, filterPercent), False, True, True)
-
-		print "\nnumber of edges traversed %s"%(Mat)
-		printstats(K2edges, "%snedge\t%f\t"%(labeling, filterPercent), False, True, True)
-
-		print "\nTEPS (%s)"%(labeling)
-		printstats(K2TEPS, "%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
-
-		if not materialize:
-			print "\nTEPS including filtered edges (%s)"%(labeling)
-			printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
-		else:
-			print "\nTEPS including materialization time (%s)"%(labeling)
-			printstats(K2MATTEPS, "PlusMatTime_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
+				Mat = "OTF"
+			if use_SEJITS_Filter:
+				SF = "SejitsFilter"
+			else:
+				SF = "PythonFilter"
+	
+			labeling = SemiringTypeToUse.get_string(SR_to_use)+"_"+SF+"_"+Mat+rpt_group
+	
+			print "\nBFS execution times (%s)"%(labeling)
+			printstats(K2elapsed, "%stime\t%f\t"%(labeling, filterPercent), False, True, True)
+	
+			print "\nnumber of edges traversed %s"%(Mat)
+			printstats(K2edges, "%snedge\t%f\t"%(labeling, filterPercent), False, True, True)
+	
+			print "\nTEPS (%s)"%(labeling)
+			printstats(K2TEPS, "%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
+	
+			if not materialize:
+				print "\nTEPS including filtered edges (%s)"%(labeling)
+				printstats(K2ORIGTEPS, "IncFiltered_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
+			else:
+				print "\nTEPS including materialization time (%s)"%(labeling)
+				printstats(K2MATTEPS, "PlusMatTime_%s_TEPS\t%f\t"%(labeling, filterPercent), True, True)
 
 	if use_SEJITS_Filter:
 		G.delEFilter(sejits_filter)
