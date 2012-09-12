@@ -14,8 +14,8 @@ kdt.PDO_enable(False)
 useParIO = True
 useDelIsolated = False
 
-repeatEachStart = 10 # how many times to do each start
-repeatGroups = ["A", ""] # "" for just doing it once, ["A","B"] for doing it twice
+repeatEachStart = 1#10 # how many times to do each start
+repeatGroups = [""]#["A", ""] # [""] for just doing it once, ["A",""] for doing it twice
 
 #parse arguments
 if (len(sys.argv) < 2):
@@ -162,8 +162,31 @@ else:
 
 # get the data
 minUsefulTime = None
+preSelectedStartingVerts = None
 if datasource == "file":
 	# load
+	# these starting vertices were figured out on previous runs, so just do them
+	smallStartingVerts = [208727, 226684,  48842, 272713, 470848,  20555, 352911, 221636, 74800, 217127, 394815, 234809, 475460, 44012, 258724, 259506]
+	mediumStartingVerts = [4285378, 2016541, 1261800, 2811941, 2063059, 3781148, 2194288, 3144895, 1796930, 2174384, 3188040, 3634010, 2120160, 3451768, 3936127, 504424]
+	largeStartingVerts = [8032503, 3187035, 4217991, 10757667, 943598, 2848253, 9322023, 1343828, 3190402, 5937131, 2044637, 1224243, 10690863, 9818564, 9879877, 408150]
+	hugeStartingVerts = [14472363, 13699402, 3890644, 14569240, 5705911, 394273, 7630462, 13303812, 754337, 9095300, 10736458, 15183577, 14039705]
+	
+	if inmatrixfile.find("twitter_from06_to-06.induced.bin.remapped.bin.converted.balanced") != -1:
+		preSelectedStartingVerts = smallStartingVerts
+		kdt.p("-- Will be using pre-selected starting vertices for small: %s"%(str(preSelectedStartingVerts)))
+	elif inmatrixfile.find("twitter_from06_to-07.induced.bin.remapped.bin.converted.balanced") != -1:
+		preSelectedStartingVerts = mediumStartingVerts
+		kdt.p("-- Will be using pre-selected starting vertices for medium: %s"%(str(preSelectedStartingVerts)))
+	elif inmatrixfile.find("twitter_from06_to-09.induced.bin.remapped.bin.converted.balanced") != -1:
+		preSelectedStartingVerts = largeStartingVerts
+		kdt.p("-- Will be using pre-selected starting vertices for large: %s"%(str(preSelectedStartingVerts)))
+	elif inmatrixfile.find("twitter_from06_to-12.induced.bin.remapped.bin.converted.balanced") != -1:
+		preSelectedStartingVerts = hugeStartingVerts
+		kdt.p("-- Will be using pre-selected starting vertices for huge: %s"%(str(preSelectedStartingVerts)))
+	else:
+		nstarts = 20000 # data is very sparse
+		minUsefulTime = 0.05 # fast runs are likely to be useless
+
 	kdt.p("--Reading network from %s"%inmatrixfile)
 	before = time.time()
 	G = kdt.DiGraph.load(inmatrixfile, eelement=kdt.Obj2(), par_IO=useParIO)
@@ -175,8 +198,7 @@ if datasource == "file":
 		before = time.time()
 		G.delIsolatedVerts(True)
 		kdt.p("Done in %fs."%(time.time()-before))
-	nstarts = 20000 # data is very sparse
-	minUsefulTime = 0.05 # fast runs are likely to be useless
+
 elif datasource == "generate":
 	#type1 = kdt.DiGraph.generateRMAT(scale, element=1.0, edgeFactor=7, delIsolated=False, initiator=[0.60, 0.19, 0.16, 0.05])
 	kdt.p("--Generating a plain RMAT graph of scale %d"%(gen_scale))
@@ -249,8 +271,11 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 		#	starts = deg3verts[kdt.Vec.range(runStarts)]
 		pass
 	else:
-		starts = kdt.Vec.ones(runStarts, sparse=False)
-		starts._v_.SelectCandidates(G.nvert(), True)
+		if preSelectedStartingVerts is not None
+			starts = preSelectedStartingVerts
+		else:
+			starts = kdt.Vec.ones(runStarts, sparse=False)
+			starts._v_.SelectCandidates(G.nvert(), True)
 
 	kdt.p("Generated starting verts in %fs."%(time.time()-before))
 
