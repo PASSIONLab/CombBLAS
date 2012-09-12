@@ -32,16 +32,16 @@ private:
 public:
   void clear()
   {
-        int is_finalized=0;
+	int is_finalized=0;
 	MPI_Finalized(&is_finalized);
-    	if (! is_finalized ) 	// do not free after call to MPI_FInalize
+	if (! is_finalized ) 	// do not free after call to MPI_FInalize
 	{
-      		// ignore errors in the destructor
-      		for (stored_map_type::iterator it=map.begin(); it != map.end(); ++it)
+		// ignore errors in the destructor
+		for (stored_map_type::iterator it=map.begin(); it != map.end(); ++it)
 		{
-		        MPI_Type_free(&(it->second));
+			MPI_Type_free(&(it->second));
 		}
-    	}
+	}
   }
   ~MPIDataTypeCache()
   {
@@ -87,7 +87,7 @@ MPI_Datatype MPIType ( void )
 
 	if (datatype == MPI_DATATYPE_NULL) 
 	{
-	        MPI_Type_contiguous(sizeof(T), MPI_CHAR, &datatype );
+		MPI_Type_contiguous(sizeof(T), MPI_CHAR, &datatype );
 		MPI_Type_commit(&datatype);
 		int myrank;
 		MPI_Comm_rank(MPI_COMM_WORLD, &myrank);

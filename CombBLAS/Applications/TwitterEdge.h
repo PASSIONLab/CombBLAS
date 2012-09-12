@@ -80,10 +80,7 @@ class TwitterReadSaveHandler
 
 		MPI_Datatype getMPIType()
 		{
-			MPI_Datatype datatype;
-			MPI_Type_contiguous(sizeof(TwitterEdge), MPI_CHAR, &datatype);
-			MPI_Type_commit(&datatype);
-			return datatype;
+			return MPIType<TwitterEdge>(); // utilize the MPI type cache
 		}
 
 		void binaryfill(FILE * rFile, IT & row, IT & col, TwitterEdge & val)
@@ -205,8 +202,46 @@ ParentType operator+( const IT & left, const ParentType & right)
 
 void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);	// forward declaration
 
+template <typename VECTYPE>
+static VECTYPE filtered_select2nd(const TwitterEdge & arg1, const VECTYPE & arg2, time_t & sincedate)  
+{
+	if(sincedate == -1)	// uninitialized
+	{
+		struct tm timeinfo;
+		memset(&timeinfo, 0, sizeof(struct tm));
+		int year, month, day, hour, min, sec;
+		year = 2009;	month = 7;	day = 1;
+		hour = 0;	min = 0;	sec = 0;
+		
+		timeinfo.tm_year = year - 1900; // year is "years since 1900"
+		timeinfo.tm_mon = month - 1 ;   // month is in range 0...11
+		timeinfo.tm_mday = day;         // range 1...31
+		timeinfo.tm_hour = hour;        // range 0...23
+		timeinfo.tm_min = min;          // range 0...59
+		timeinfo.tm_sec = sec;          // range 0.
+		sincedate = timegm(&timeinfo);
+		
+		ostringstream outs;
+		outs << "Initializing since date (only once) to " << sincedate << endl;
+		SpParHelper::Print(outs.str());
+	}
+	
+	if(arg1.isRetwitter() && arg1.LastTweetBy(sincedate))	// T1 is of type edges for BFS
+	{
+		return arg2;
+	}
+	else
+	{
+		returnedSAID(true);
+		return VECTYPE();	
+		// return null-type parent id (for BFS) or 
+		// double() for MIS - POD objects are zero initilied
+	}
+}
 
-//! Filters officially don't exist in Combinatorial BLAS
+
+
+//! Filters are only indirectly supported in Combinatorial BLAS
 //! KDT generates them by embedding their filter stack and pushing those
 //! predicates to the SR::multiply() function, conceptually like 
 //! if(predicate(maxrix_val)) { bin_op(xxx) }
@@ -223,9 +258,9 @@ struct LatestRetwitterBFS
 	{
 		static bool flag = false;
 
-                bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
-                flag = setFlagTo; // set/clear the flag.
-                return temp;
+		bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+		flag = setFlagTo; // set/clear the flag.
+		return temp;
 	}
 
 	static ParentType add(const ParentType & arg1, const ParentType & arg2)
@@ -235,42 +270,13 @@ struct LatestRetwitterBFS
 
 	static MPI_Op mpi_op() 
 	{ 
-		MPI_Op_create(select2nd, false, &MPI_BFSADD);	// todo: do this once only !
+		MPI_Op_create(select2nd, false, &MPI_BFSADD);	// \todo {do this once only, by greating a MPI_Op buffer}
 		return MPI_BFSADD;
 	}
 	static time_t sincedate;
 	static ParentType multiply(const TwitterEdge & arg1, const ParentType & arg2)
 	{
-		if(sincedate == -1)	// uninitialized
-		{
-			struct tm timeinfo;
-			memset(&timeinfo, 0, sizeof(struct tm));
-			int year, month, day, hour, min, sec;
-			year = 2009;	month = 7;	day = 1;
-			hour = 0;	min = 0;	sec = 0;
-			
-			timeinfo.tm_year = year - 1900; // year is "years since 1900"
-			timeinfo.tm_mon = month - 1 ;   // month is in range 0...11
-			timeinfo.tm_mday = day;         // range 1...31
-			timeinfo.tm_hour = hour;        // range 0...23
-			timeinfo.tm_min = min;          // range 0...59
-			timeinfo.tm_sec = sec;          // range 0.
-			sincedate = timegm(&timeinfo);
-
-			ostringstream outs;
-			outs << "Initializing since date (only once) to " << sincedate << endl;
-			SpParHelper::Print(outs.str());
-		}
-		
-		if(arg1.isRetwitter() && arg1.LastTweetBy(sincedate))	// T1 is of type edges for BFS
-		{
-			return arg2;
-		}
-		else
-		{
-			returnedSAID(true);
-			return ParentType();	// null-type parent id
-		}
+		return filtered_select2nd(arg1, arg2, sincedate);
 	}
 	static void axpy(TwitterEdge a, const ParentType & x, ParentType & y)
 	{
@@ -285,10 +291,10 @@ void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
 	ParentType * pinvec = static_cast<ParentType*>(invec);
 	ParentType * pinoutvec = static_cast<ParentType*>(inoutvec);
-        for (int i = 0; i < *len; i++)
-        {
-                pinoutvec[i] = LatestRetwitterBFS::add(pinvec[i], pinoutvec[i]);
-        }
+	for (int i = 0; i < *len; i++)
+	{
+		pinoutvec[i] = LatestRetwitterBFS::add(pinvec[i], pinoutvec[i]);
+	}
 }
 
 MPI_Op LatestRetwitterBFS::MPI_BFSADD;
@@ -344,6 +350,45 @@ struct isparentset: public std::unary_function<ParentType, bool>
 	}
 	
 };
+
+// Matrix type: TwitterEdge
+// Vector type: double
+struct LatestRetwitterMIS
+{
+	static double id() { return 0.0; }	// additive identity
+	
+	// the default argument means that this function can be used like this:
+	// if (returnedSAID()) {...}
+	// which is how it is called inside CombBLAS routines. That call conveniently clears the flag for us.
+	static bool returnedSAID(bool setFlagTo = false) 
+	{
+		static bool flag = false;
+		
+		bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+		flag = setFlagTo; // set/clear the flag.
+		return temp;
+	}
+	
+	static double add(const double & arg1, const double & arg2)
+	{
+		return std::min(arg1, arg2);
+	}
+	
+	static MPI_Op mpi_op() 
+	{ 
+		return MPI_MIN;
+	}
+	static time_t sincedate;
+	static double multiply(const TwitterEdge & arg1, const double & arg2)  // filtered select2nd
+	{
+		return filtered_select2nd(arg1, arg2, sincedate);
+	}
+	static void axpy(TwitterEdge a, const double & x, double & y)
+	{
+		y = add(y, multiply(a, x));
+	}
+};
+
 
 
 #endif
