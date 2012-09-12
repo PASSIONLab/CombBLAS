@@ -79,11 +79,9 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT
 	IT vecsize = rhs.LocArrSize();
 	for(IT i=0; i< vecsize; ++i)
 	{
-		//if(rhs.arr[i] != rhs.zero)
-		{
-			ind.push_back(i);
-			num.push_back(rhs.arr[i]);
-		}
+		// rhs.zero does not exist after CombBLAS 1.2
+		ind.push_back(i);
+		num.push_back(rhs.arr[i]);
 	}
 	return *this;
 }

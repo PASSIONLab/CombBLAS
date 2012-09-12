@@ -123,7 +123,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	IT end = length;	// initially everyone is active			
 	pair<KEY, double> * wmminput = new pair<KEY,double>[nprocs];	// (median, #{actives})
 
-    	MPI_Datatype MPI_sortType;
+	MPI_Datatype MPI_sortType;
 	MPI_Type_contiguous (sizeof(pair<KEY,double>), MPI_CHAR, &MPI_sortType);
 	MPI_Type_commit (&MPI_sortType);
 
@@ -133,11 +133,15 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 	IT nacts = 0; 
 	bool found = 0;
 	int iters = 0;
+	
+	/* changes by shan : to add begin0 and end0 for exit condition */
+	IT begin0, end0;
 	do
 	{
 		iters++;
+		begin0 = begin; end0 = end;
 		KEY median = array[(begin + end)/2].first; 	// median of the active range
-               	wmminput[myrank].first = median;
+		wmminput[myrank].first = median;
 		wmminput[myrank].second = static_cast<double>(active);
 		MPI_Allgather(MPI_IN_PLACE, 0, MPI_sortType, wmminput, 1, MPI_sortType, comm);
 		double totact = 0;	// total number of active elements
@@ -185,6 +189,7 @@ void SpParHelper::GlobalSelect(IT gl_rank, pair<KEY,VAL> * & low,  pair<KEY,VAL>
 		}
 		active = end-begin;
 		MPI_Allreduce(&active, &nacts, 1, MPIType<IT>(), MPI_SUM, comm);
+		if (begin0 == begin && end0 == end) break;  // ABAB: Active range did not shrink, so we break (is this kosher?)
 	} 
 	while((nacts > 2*nprocs) && (!found));
 	delete [] wmminput;

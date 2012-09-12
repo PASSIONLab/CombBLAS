@@ -77,7 +77,7 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 };
 
 //// callbacks used by MIS
-//def rand( verc ):
+// def rand( verc ):
 //	import random
 //	return random.random()
 
@@ -259,11 +259,8 @@ int main(int argc, char* argv[])
 			cblas_allgathertime = 0;
 			cblas_alltoalltime = 0;
 
-			int sruns = 0;		// successful runs (At MIS, all should be successful???)
-			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
+			for(int sruns = 0; sruns < ITERS; ++i)
 			{
-				// MIS Core goes here
-
 				uint64_t nvert = A.getncol();
 				
 				//# the final result set. S[i] exists and is 1 if vertex i is in the MIS
@@ -274,12 +271,16 @@ int main(int argc, char* argv[])
 				//# this vector doubles as 'r', the random value vector.
 				//# i.e. if C[i] exists, then i is a candidate. The value C[i] is i's r for this iteration.
 				//C = Vec.ones(nvert, sparse=True)
-				FullyDistSpVec<uint64_t, double> C ( A.getcommgrid(), nvert);
+				//FullyDistSpVec's length is not the same as its nnz
+				//Since FullyDistSpVec::Apply only affects nonzeros, nnz should be forced to glen
+				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
+				FullyDistVec<int64_t, double> * denseC = new FullyDistVec<int64_t, double>( A.getcommgrid(), nverts, 1.0);
+				FullyDistSpVec<uint64_t, double> C ( *denseC);
+				delete denseC;
 
 				FullyDistSpVec<uint64_t, double> min_neighbor_r ( A.getcommgrid(), nvert);
 				FullyDistSpVec<uint64_t, uint8_t> new_S_members ( A.getcommgrid(), nvert);
 					
-				//while (C.nnn()>0):
 				while (C.getnnz() > 0)
 				{
 					//# label each vertex in C with a random value
@@ -290,7 +291,7 @@ int main(int argc, char* argv[])
 					//# In other words:
 					//# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
 					//min_neighbor_r = Gmatrix.SpMV(C, sr(myMin,select2nd)) # could use "min" directly
-					SpMV<Min2ndSR /* add=min, multiply=filtered select2nd */  >(A, C, min_neighbor_r, false);	
+					SpMV<LatestRetwitterMIS>(A, C, min_neighbor_r, false);	// min_neighbor_r empty OK?
 			
 					//# The vertices to be added to S this iteration are those whose random value is
 					//# smaller than those of all its neighbors:
@@ -403,31 +404,6 @@ int main(int argc, char* argv[])
 			os << "STDDEV time: " << deviation << " seconds" << endl;
 			os << "--------------------------" << endl;
 
-			sort(MTEPS, MTEPS+sruns);
-			os << "Min MTEPS: " << MTEPS[0] << endl;
-			os << "Median MTEPS: " << (MTEPS[(sruns/2)-1] + MTEPS[sruns/2])/2 << endl;
-			os << "Max MTEPS: " << MTEPS[sruns-1] << endl;
-			transform(MTEPS, MTEPS+sruns, INVMTEPS, safemultinv<double>()); 	// returns inf for zero teps
-			double hteps = static_cast<double>(sruns) / accumulate(INVMTEPS, INVMTEPS+sruns, 0.0);	
-			os << "Harmonic mean of MTEPS: " << hteps << endl;
-			transform(INVMTEPS, INVMTEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hteps));
-			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-   			deviation = sqrt( deviation / (sruns-1) ) * (hteps*hteps);	// harmonic_std_dev
-			os << "Harmonic standard deviation of MTEPS: " << deviation << endl;
-
-			sort(MPEPS, MPEPS+sruns);
-			os << "Bidirectional Processed Edges per second (to estimate sustained BW)"<< endl;
-			os << "Min MPEPS: " << MPEPS[0] << endl;
-			os << "Median MPEPS: " << (MPEPS[(sruns/2)-1] + MPEPS[sruns/2])/2 << endl;
-			os << "Max MPEPS: " << MPEPS[sruns-1] << endl;
-			transform(MPEPS, MPEPS+sruns, INVMPEPS, safemultinv<double>()); 	// returns inf for zero teps
-			double hpeps = static_cast<double>(sruns) / accumulate(INVMPEPS, INVMPEPS+sruns, 0.0);	
-			os << "Harmonic mean of MPEPS: " << hpeps << endl;
-			transform(INVMPEPS, INVMPEPS+sruns, zero_mean.begin(), bind2nd(minus<double>(), 1/hpeps));
-			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-   			deviation = sqrt( deviation / (sruns-1) ) * (hpeps*hpeps);	// harmonic_std_dev
-			os << "Harmonic standard deviation of MPEPS: " << deviation << endl;
-			SpParHelper::Print(os.str());
 		}
 	}
 	MPI_Finalize();
