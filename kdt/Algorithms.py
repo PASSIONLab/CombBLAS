@@ -848,8 +848,7 @@ def MIS(self, use_SEJITS_SR=False):
 	# callbacks used by MIS
 	def rand( verc ):
 		import random
-		if verc > 0:
-			return random.random()
+		return random.random()
 	
 	def return1(x, y):
 		return 1
