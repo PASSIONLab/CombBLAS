@@ -76,48 +76,16 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 	}
 };
 
-//// callbacks used by MIS
-// def rand( verc ):
+//  def rand( verc ):
 //	import random
 //	return random.random()
-
-double randGen(double ignore)
+struct randGen : public std::unary_function<double, double>
 {
-	return GlobalMT.rand();
-}
-
-//def return1(x, y):
-//	return 1
-uint8_t return1(double, double)
-{
-	return 1;
-}
-
-//def is2ndSmaller(m, c):
-//	return (c < m)
-bool is2ndSmaller(double m, double c)
-{
-	return (c < m);
-}
-
-/*
-these are for semirings
-def myMin(x,y):
-	if x<y:
-		return x
-	else:
-		return y
-
-def select2nd(x, y):
-	return y
-*/
-
-
-
-
-
-
-
+	const double operator()(const double & ignore) 
+	{
+		return GlobalMT.rand();
+	}
+};
 
 int main(int argc, char* argv[])
 {
@@ -285,25 +253,30 @@ int main(int argc, char* argv[])
 				{
 					//# label each vertex in C with a random value
 					//C.apply(rand)
-					C.Apply(randGen);
+					C.Apply(randGen());
 					
 					//# find the smallest random value among a vertex's neighbors
 					//# In other words:
 					//# min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
 					//min_neighbor_r = Gmatrix.SpMV(C, sr(myMin,select2nd)) # could use "min" directly
 					SpMV<LatestRetwitterMIS>(A, C, min_neighbor_r, false);	// min_neighbor_r empty OK?
+					min_neighbor_r.DebugPrint();
 			
 					//# The vertices to be added to S this iteration are those whose random value is
 					//# smaller than those of all its neighbors:
 					//# new_S_members[i] exists if C[i] < min_neighbor_r[i]
+					//# If C[i] exists and min_neighbor_r[i] doesn't, still a value is returned with bin_op(NULL,C[i]) 
 					//new_S_members = min_neighbor_r.eWiseApply(C, return1, doOp=is2ndSmaller, allowANulls=True, allowBNulls=False, inPlace=False, ANull=2)
-					new_S_members = EWiseApply<uint64_t, uint8_t>(min_neighbor_r, C, return1, is2ndSmaller, true, false, 2, 2, true);
+					new_S_members = EWiseApply<uint64_t, uint8_t>(min_neighbor_r, C, return1(), is2ndSmaller(), true, false, 2, 2, true);
 					////EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp,
 					//// bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect, const bool useExtendedBinOp);
 			
 					//# new_S_members are no longer candidates, so remove them from C
 					//C.eWiseApply(new_S_members, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
-					C = EWiseApply<uint64_t, double>(C, new_S_members, return1, return1, false, true, 0, 0, false);
+					C = EWiseApply<uint64_t, double>(C, new_S_members, return1(), return1(), false, true, 0, 0, false);
+					
+					
+					// AYDIN: Stopped at this point.
 			
 					//# find neighbors of new_S_members
 					//new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(select2nd,select2nd))

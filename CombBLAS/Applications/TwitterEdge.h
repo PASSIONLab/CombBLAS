@@ -329,6 +329,25 @@ struct passifthere: public std::binary_function<ParentType, int64_t, bool>
 	
 };
 
+// DoOp for MIS's EWiseApply
+struct is2ndSmaller: public std::binary_function<double, double, bool>
+{
+  	bool operator()(double m, double c) const
+	{
+		return (c < m);
+	}
+};
+
+// BinOp for MIS's EWiseApply
+struct return1_uint8: public std::binary_function<double, double, uint8_t>
+{
+	uint8_t operator() return1(double t1, double t2)
+	{
+		return (uint8_t) 1;
+	}
+};
+
+
 // x: elements from fringe (sparse), y: elements from parents (dense) 
 // return true for edges that are not filtered out, and not previously discovered
 // if the edge was filtered out, then x would be ParentType()
