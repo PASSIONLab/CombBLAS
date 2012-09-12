@@ -102,6 +102,8 @@ for tr in range(totalRepeats):
 	sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
 	sejits_filter_create_time = time.time()-before
 	kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(filterPercent, sejits_filter_create_time))
+	
+	obj2Vec.addFilter(sejits_filter)
 
 	before = time.time()
 	select1st = select1st_class.get_function()
@@ -113,3 +115,4 @@ for tr in range(totalRepeats):
 		kdt.p("%d\tfiltered iteration\t%d\t%d\ttime:\t%s\t (vec length %d)"%(i, tr, rr, elapsed, vecLength))
 		i += 1
 
+	obj2Vec.delFilter(sejits_filter)
