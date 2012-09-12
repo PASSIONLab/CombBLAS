@@ -56,9 +56,16 @@ class TwitterFilter(PcbUnaryPredicate):
 				return False
 
 # create the operating vectors
+def Twitter_obj_converter(obj, bin):
+	obj.count = 1
+	obj.latest = 1
+	obj.follower = 0
+	return obj
+
 begin = time.time()
-obj2Vec = kdt.ones(vecLength, sparse=True, element=kdt.Obj2)
-doubleVec = kdt.ones(vecLength, sparse=False)
+obj2Vec = kdt.Vec(vecLength, sparse=True, element=kdt.Obj2)
+doubleVec = kdt.Vec.ones(vecLength, sparse=False)
+obj2Vec.eWiseApply(doubleVec, op=Twitter_obj_converter, allowANulls=True, inPlace=True)
 elapsed = time.time()-begin
 kdt.p("created vectors of length %d in %f"%(vecLength, elapsed))
 
