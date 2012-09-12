@@ -12,9 +12,9 @@ from stats import splitthousands, printstats
 kdt.PDO_enable(False)
 
 
-vecLength = 10000000
-totalRepeats = 50
-reuseRepeats = 50
+vecLength = 20 #10000000
+totalRepeats = 5 #50
+reuseRepeats = 5 #50
 
 filterPercent = 10
 
@@ -63,7 +63,7 @@ def Twitter_obj_converter(obj, bin):
 	return obj
 
 begin = time.time()
-obj2Vec = kdt.Vec(vecLength, sparse=True, element=kdt.Obj2)
+obj2Vec = kdt.Vec(vecLength, sparse=True, element=kdt.Obj2())
 doubleVec = kdt.Vec.ones(vecLength, sparse=False)
 obj2Vec.eWiseApply(doubleVec, op=Twitter_obj_converter, allowANulls=True, inPlace=True)
 elapsed = time.time()-begin
@@ -75,13 +75,14 @@ def Twitter_obj_randomizer_Apply(obj):
 	obj.latest = int(float(pcb._random())*10000.0) #random.randrange(0, 10000)
 	#print "rnd result:",obj.latest
 	return obj
-	
+
 begin = time.time()
 obj2Vec.apply(Twitter_obj_randomizer_Apply)
 elapsed = time.time()-begin
 kdt.p("randomized in %f"%(elapsed))
 
 
+i = 1
 # regular run
 for tr in range(totalRepeats):
 	before = time.time()
@@ -90,11 +91,13 @@ for tr in range(totalRepeats):
 	for rr in range(reuseRepeats):
 		before = time.time()
 		doubleVec.eWiseApply(obj2Vec, op=select1st, inPlace=True)
-		elapsed = time.time - before
-		kdt.p("unfiltered iteration\t%d-%d\ttime:\t%s\t (vec length %d)"%(tr, rr, elapsed, vecLength))
+		elapsed = time.time() - before
+		kdt.p("%d\tunfiltered iteration\t%d\t%d\ttime:\t%s\t (vec length %d)"%(i, tr, rr, elapsed, vecLength))
+		i += 1
 
 # filtered run
 for tr in range(totalRepeats):
+	filterUpperValue = filterPercent*100
 	before = time.time()
 	sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
 	sejits_filter_create_time = time.time()-before
@@ -106,5 +109,7 @@ for tr in range(totalRepeats):
 	for rr in range(reuseRepeats):
 		before = time.time()
 		doubleVec.eWiseApply(obj2Vec, op=select1st, inPlace=True)
-		elapsed = time.time - before
-		kdt.p("unfiltered iteration\t%d-%d\ttime:\t%s\t (vec length %d)"%(tr, rr, elapsed, vecLength))
+		elapsed = time.time() - before
+		kdt.p("%d\tfiltered iteration\t%d\t%d\ttime:\t%s\t (vec length %d)"%(i, tr, rr, elapsed, vecLength))
+		i += 1
+
