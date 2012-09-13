@@ -15,6 +15,7 @@ if len(sys.argv) < 2:
 runtype = sys.argv[1]
 graphformat = "png"
 machine = "mirasol"
+algorithm = "bfs"
 
 showIndividualIterations = False
 showIndividualIterations_claim_to_be = "mean_%stime"
@@ -29,6 +30,11 @@ for arg in sys.argv[2:]:
 	elif arg == "indiv":
 		showIndividualIterations = True
 
+def getTerminalString(format):
+	if format=="eps":
+		return "postscript eps color"
+	return format
+	
 ######################
 ## setup experiment to plot
 
@@ -149,24 +155,60 @@ elif runtype == "bfsreal":
 ## Erdos-Renyi MIS
 elif runtype == "mis":
 	cores = {1: "result_ipdps_MIS_1.txt", 4: "result_ipdps_MIS_4.txt", 9: "result_ipdps_MIS_9.txt", 16: "result_ipdps_MIS_16.txt", 25: "result_ipdps_MIS_25.txt", 36: "result_ipdps_MIS_36.txt"}
+	raw_combblas_files = {1: "mis_ran_scale_22_1p.txt", 4: "mis_ran_scale_22_4p.txt", 9: "mis_ran_scale_22_9p.txt", 16: "mis_ran_scale_22_16p.txt", 25: "mis_ran_scale_22_25p.txt", 36: "mis_ran_scale_22_36p.txt"}
 	
 	experiments = [("PythonSR_PythonFilter_ER_OTF_22", "Python/Python KDT", "#FF0000"), # red (kinda light)
 				("PythonSR_SejitsFilter_ER_OTF_22", "Python/SEJITS KDT", "#8B0000"), # dark red
-				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF")] # blue (but it's dark)
+				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
+				("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 
 	result_type = "MIS"
 
+	if showIndividualIterations:
+		core_xrange = "0.9:64"
+	else:
+		core_xrange = "0.9:40"
+	filtergrid_yrange = "0.1:256"
+
 	def parseCombBLAS(data):
-		pass
+		for (core, file) in raw_combblas_files.items():
+			times = []
+			if not os.path.isfile(file):
+				print "file not found:",file
+				continue
+			for line in open(file, 'r'):
+				# BFS time: 0.887308 seconds
+				# Filter keeps 100 percentage of edges
+				if line.find("MIS time:") != -1: # // not being printed at the moment
+					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+					times.append(float(time_s))
+				elif line.find("Filter keeps") != -1:
+					filter_s = line[len("Filter keeps ") : (line.find("percentage"))].strip()
+					filter = int(filter_s)
+					#data.append(())
+					#times = []
+				elif line.find("Min time:") != -1:
+					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+					data.append((core, "min_CombBLAS_OTFtime", filter, float(time_s)))
+				elif line.find("Max time:") != -1:
+					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+					data.append((core, "max_CombBLAS_OTFtime", filter, float(time_s)))
+				elif line.find("Mean time:") != -1:
+					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+					data.append((core, "mean_CombBLAS_OTFtime", filter, float(time_s)))
+				#elif line.find("Median time:") != -1:
+				#	time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+				#	data.append((core, "median_CombBLAS_OTFtime", filter, float(time_s)))
 
 	parseProcFiles = True
 	parseRealFiles = False
 	doFilterGrid = True
 	doPermeabilityPlot = True
 	doRealScalabilityPlot = False
+	algorithm = "mis"
 else:
 	print "unknown option. use bfs or mis"
 	sys.exit()
@@ -207,20 +249,6 @@ data = []
 ## parse
 
 # parse KDT
-if parseProcFiles:
-	for (core, file) in cores.items():
-		if not os.path.isfile(file):
-			print "file not found:",file
-			continue
-		for line in open(file, 'r'):
-			for var in varieties:
-				if line.find(var) != -1:
-					feats = line.split("\t")
-					# var = feats[0]
-					filter = int(float(feats[1]))
-					# : = feats[2]
-					time = float(feats[3])
-					data.append((core, var, filter, time))
 
 if parseRealFiles:
 	core = cores.keys()[0]
@@ -246,7 +274,7 @@ def parseCombBLASIterations(file):
 	for line in open(file, 'r'):
 		# BFS time: 0.887308 seconds
 		# Filter keeps 100 percentage of edges
-		if line.find("BFS time") != -1:
+		if line.find("BFS time:") != -1:
 			time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
 			times.append(float(time_s))
 		elif line.find("Filter keeps") != -1 and len(times) > 0: # the filter bit is printed twice
@@ -257,7 +285,7 @@ def parseCombBLASIterations(file):
 
 	return ret
 
-if raw_combblas_files is not None:
+if raw_combblas_files is not None and algorithm != "mis":
 	exp = "CombBLAS_OTF"
 	for (core, file) in raw_combblas_files.items():
 		if not os.path.isfile(file):
@@ -277,7 +305,6 @@ if raw_combblas_files is not None:
 			# summarize
 			stats = compute_stats(times)
 			
-			#experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 			data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
 			data.append((core, "min_%stime"%exp, filter, stats["min"]))
 			data.append((core, "max_%stime"%exp, filter, stats["max"]))
@@ -287,37 +314,82 @@ else:
 	parseCombBLAS(data)
 
 # get detailed data about each individual BFS iteration
-if showIndividualIterations and parseProcFiles:
+# parse individual BFS or MIS iterations then calculate stats
+if parseProcFiles:
 	for (core, file) in cores.items():
 		if not os.path.isfile(file):
 			print "file not found:",file
 			continue
 		iterationData = []
+		iteration = 1
 		for line in open(file, 'r'):
 			if line.find("(result discarded)") != -1:
 				continue
 
-			if line.find("iteration") != -1:
-				feats = line.split("\t")
-				filter = int(float(feats[0]))
-				#iteration string = feats[1]
-				iteration = len(iterationData)+1 # easier than parsing out the string
-				time = float(feats[2])
+			#############################################
+			if algorithm == "bfs":
+				if line.find("iteration") != -1:
+					feats = line.split("\t")
+					filter = int(float(feats[0]))
+					#iteration string = feats[1]
+					iteration = len(iterationData)+1 # easier than parsing out the string
+					time = float(feats[2])
+					
+					iterationData.append((getFunnyCore(core, iteration), "", filter, time))
+				elif line.find("BFS execution times") != -1:
+					# found out what the previous iterations were for
+					exp = line[(line.find("(")+1) : (line.find(")"))]
+					if isExperiment(exp):
+						# got all the data for an experiment, so summarize it
+						print "found variety:", var
+						times = []
+						for d in iterationData:
+							times.append(d[3])
+							filter = d[2]
+							if showIndividualIterations:
+								data.append((d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3]))
+
+						stats = compute_stats(times)
 				
-				iterationData.append((getFunnyCore(core, iteration), "", filter, time))
-			elif line.find("BFS execution times") != -1:
-				# found out what the previous iterations were for
-				exp = line[(line.find("(")+1) : (line.find(")"))]
-				if isExperiment(exp):
-					print "found variety:", var
+						data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
+						data.append((core, "min_%stime"%exp, filter, stats["min"]))
+						data.append((core, "max_%stime"%exp, filter, stats["max"]))
+						data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
+						data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
+
+					iterationData = []
+				elif len(line) > 1:
+					iterationData = []
+			#############################################
+			elif algorithm == "mis": 
+				if line.find("procs time:") != -1:
+					feats = line.split("\t")
+					var = feats[0]
+					#core = feats[1]
+					time = float(feats[3])
+					iterationData.append((getFunnyCore(core, iteration), var, -1, time))
+					iteration += 1
+				if line.find("min_") != -1 and len(iterationData) > 0: # first line that has the filter amount
+					feats = line.split("\t")
+					filter = int(float(feats[1]))
+					times = []
 					for d in iterationData:
-						print (d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3])
-						data.append((d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3]))
-				
-				iterationData = []
-			elif len(line) > 1:
-				iterationData = []
+						times.append(d[3])
+						exp = d[1]
+						if showIndividualIterations:
+							data.append((d[0], showIndividualIterations_claim_to_be%(d[1]), filter, d[3]))
+					iteration = 1
+					iterationData = []
+
+					stats = compute_stats(times)
 			
+					data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
+					data.append((core, "min_%stime"%exp, filter, stats["min"]))
+					data.append((core, "max_%stime"%exp, filter, stats["max"]))
+					data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
+					data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
+	#for d in data:
+	#	print d			
 
 ######################
 ## function to determine if there's any data for a particular core count
@@ -380,11 +452,11 @@ if doFilterGrid:
 		grid = format_table(data, 2, filter, varieties, k, 1, 0, 3)
 		print grid
 	
-		filestem = "gnuplot_filtergrid_%d_%s"%(filter, machine)
+		filestem = "gnuplot_filtergrid_%d_%s_%s"%(filter, machine, algorithm)
 		
 		gnuplot = ""
 		gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
-		gnuplot += 'set terminal %s\n'%(graphformat)
+		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += '\n'
 		gnuplot += 'set datafile missing "-"\n'
@@ -420,11 +492,11 @@ if doFilterGrid:
 				#      +0,            +1,          +2,                +3,                     +4
 				# ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 				# 1, firstquantile, min, max, thirdquartile:  +3, +1, +2, +4
-				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 			elif errorbars == "errorbars":
 				# errorbars data: x:y:ylow:yhigh
 				# 1, +0, +1, +2
-				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
@@ -446,11 +518,11 @@ if doPermeabilityPlot:
 	grid = format_table(data, 0, core_cnt, varieties, [1, 10, 25, 100], 1, 2, 3)
 	print grid
 
-	filestem = "gnuplot_perm_%d_%s"%(core_cnt, machine)
+	filestem = "gnuplot_perm_%d_%s_%s"%(core_cnt, machine, algorithm)
 	
 	gnuplot = ""
 	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
-	gnuplot += 'set terminal %s\n'%(graphformat)
+	gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 	gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 	gnuplot += ''
 	gnuplot += 'set xrange [-5:105]\n'
@@ -480,9 +552,9 @@ if doPermeabilityPlot:
 		else:
 			comma = ""
 		if errorbars == "candlesticks":
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 		elif errorbars == "errorbars":
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 		gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 
 	print ""
@@ -507,11 +579,11 @@ if doRealScalabilityPlot:
 		grid = format_table(data, 0, plot_core_cnt, varieties, ["small", "medium", "large", "huge"], 1, 2, 3, row_ids_are_strings=True)
 		print grid
 	
-		filestem = "gnuplot_real_%d_%s"%(plot_core_cnt, machine)
+		filestem = "gnuplot_real_%d_%s_%s"%(plot_core_cnt, machine, algorithm)
 		
 		gnuplot = ""
 		gnuplot += 'set title "BFS on Twitter Data (%d processes)"\n'%(plot_core_cnt)
-		gnuplot += 'set terminal %s\n'%(graphformat)
+		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += ''
 		gnuplot += 'set xrange [-0.5:3.5]\n'
@@ -542,9 +614,9 @@ if doRealScalabilityPlot:
 			else:
 				comma = ""
 			if errorbars == "candlesticks":
-				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 			elif errorbars == "errorbars":
-				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
 			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
