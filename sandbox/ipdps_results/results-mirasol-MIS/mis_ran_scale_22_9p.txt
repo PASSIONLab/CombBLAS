@@ -2,12 +2,12 @@ Using synthetic data, which we ALWAYS permute for load balance
 We only balance the original input, we don't repermute after each filter change
 BFS is run on UNDIRECTED graph, hence hitting CCs, and TEPS is bidirectional
 Forcing scale to : 22
-graph_generation:               1.604279 s
+graph_generation:               1.608593 s
 Generated renamed edge lists
 Duplicates removed (or summed): 416598 and self-loops removed: 0
 Converted to Boolean and removed 275 loops
 As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
-Generation took 2.91744 seconds
+Generation took 2.92968 seconds
 As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
 All degrees calculated
 Load balance: 1.02138
@@ -33,81 +33,113 @@ As a whole, The current MIS: has: 1682316 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683247 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683252 nonzeros and length 1751377
 MIS has 1683252 vertices
+MIS has 1683252 vertices
+MIS time: 0.227066 seconds
 As a whole, The current MIS: has: 1644936 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682065 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683014 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683017 nonzeros and length 1751377
 MIS has 1683017 vertices
+MIS has 1683017 vertices
+MIS time: 0.224881 seconds
 As a whole, The current MIS: has: 1644989 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682142 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682991 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682998 nonzeros and length 1751377
 MIS has 1682998 vertices
+MIS has 1682998 vertices
+MIS time: 0.22574 seconds
 As a whole, The current MIS: has: 1645825 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682008 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682876 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682878 nonzeros and length 1751377
 MIS has 1682878 vertices
+MIS has 1682878 vertices
+MIS time: 0.223985 seconds
 As a whole, The current MIS: has: 1645218 nonzeros and length 1751377
 As a whole, The current MIS: has: 1681976 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682915 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682919 nonzeros and length 1751377
 MIS has 1682919 vertices
+MIS has 1682919 vertices
+MIS time: 0.224724 seconds
 As a whole, The current MIS: has: 1645590 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682242 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683047 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683050 nonzeros and length 1751377
 MIS has 1683050 vertices
+MIS has 1683050 vertices
+MIS time: 0.225865 seconds
 As a whole, The current MIS: has: 1644822 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682165 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683043 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683045 nonzeros and length 1751377
 MIS has 1683045 vertices
+MIS has 1683045 vertices
+MIS time: 0.222731 seconds
 As a whole, The current MIS: has: 1645617 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682312 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683170 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683177 nonzeros and length 1751377
 MIS has 1683177 vertices
+MIS has 1683177 vertices
+MIS time: 0.224732 seconds
 As a whole, The current MIS: has: 1644971 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682311 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683236 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683239 nonzeros and length 1751377
 MIS has 1683239 vertices
+MIS has 1683239 vertices
+MIS time: 0.225822 seconds
 As a whole, The current MIS: has: 1645376 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682242 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683174 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683176 nonzeros and length 1751377
 MIS has 1683176 vertices
+MIS has 1683176 vertices
+MIS time: 0.224202 seconds
 As a whole, The current MIS: has: 1645510 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682190 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683061 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683070 nonzeros and length 1751377
 MIS has 1683070 vertices
+MIS has 1683070 vertices
+MIS time: 0.225051 seconds
 As a whole, The current MIS: has: 1645922 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682300 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683146 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683147 nonzeros and length 1751377
 MIS has 1683147 vertices
+MIS has 1683147 vertices
+MIS time: 0.222625 seconds
 As a whole, The current MIS: has: 1645637 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682422 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683275 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683278 nonzeros and length 1751377
 MIS has 1683278 vertices
+MIS has 1683278 vertices
+MIS time: 0.223891 seconds
 As a whole, The current MIS: has: 1645875 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682434 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683273 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683277 nonzeros and length 1751377
 MIS has 1683277 vertices
+MIS has 1683277 vertices
+MIS time: 0.223995 seconds
 As a whole, The current MIS: has: 1645466 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682350 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683288 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683296 nonzeros and length 1751377
 MIS has 1683296 vertices
+MIS has 1683296 vertices
+MIS time: 0.224163 seconds
 As a whole, The current MIS: has: 1645045 nonzeros and length 1751377
 As a whole, The current MIS: has: 1682494 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683323 nonzeros and length 1751377
 As a whole, The current MIS: has: 1683328 nonzeros and length 1751377
 MIS has 1683328 vertices
+MIS has 1683328 vertices
+MIS time: 0.225625 seconds
 Per iteration communication times: 
 AllGatherv: 0
 AlltoAllv: 0
@@ -119,11 +151,11 @@ Mean MIS vertices: 1.68313e+06
 STDDEV MIS vertices: 140.669
 --------------------------
 Filter keeps 1 percentage of edges
-Min time: 0.21909 seconds
-Median time: 0.221573 seconds
-Max time: 0.222932 seconds
-Mean time: 0.221501 seconds
-STDDEV time: 0.00105142 seconds
+Min time: 0.222625 seconds
+Median time: 0.224728 seconds
+Max time: 0.227066 seconds
+Mean time: 0.224694 seconds
+STDDEV time: 0.00117444 seconds
 --------------------------
 Initializing since date (only once) to 1000
 As a whole, The current MIS: has: 1298054 nonzeros and length 1751377
@@ -132,83 +164,115 @@ As a whole, The current MIS: has: 1530144 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530260 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530262 nonzeros and length 1751377
 MIS has 1530262 vertices
+MIS has 1530262 vertices
+MIS time: 0.524183 seconds
 As a whole, The current MIS: has: 1295581 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519245 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530859 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530977 nonzeros and length 1751377
 MIS has 1530977 vertices
+MIS has 1530977 vertices
+MIS time: 0.518139 seconds
 As a whole, The current MIS: has: 1299952 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520339 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531052 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531160 nonzeros and length 1751377
 MIS has 1531160 vertices
+MIS has 1531160 vertices
+MIS time: 0.516826 seconds
 As a whole, The current MIS: has: 1297294 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519469 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530517 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530647 nonzeros and length 1751377
 MIS has 1530647 vertices
+MIS has 1530647 vertices
+MIS time: 0.51564 seconds
 As a whole, The current MIS: has: 1297467 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519880 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531383 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531530 nonzeros and length 1751377
 MIS has 1531530 vertices
+MIS has 1531530 vertices
+MIS time: 0.506987 seconds
 As a whole, The current MIS: has: 1298819 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519848 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530693 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530831 nonzeros and length 1751377
 MIS has 1530831 vertices
+MIS has 1530831 vertices
+MIS time: 0.505732 seconds
 As a whole, The current MIS: has: 1298452 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520374 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531367 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531480 nonzeros and length 1751377
 MIS has 1531480 vertices
+MIS has 1531480 vertices
+MIS time: 0.50605 seconds
 As a whole, The current MIS: has: 1300266 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519789 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530554 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530710 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530712 nonzeros and length 1751377
 MIS has 1530712 vertices
+MIS has 1530712 vertices
+MIS time: 0.511668 seconds
 As a whole, The current MIS: has: 1296125 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519545 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530618 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530736 nonzeros and length 1751377
 MIS has 1530736 vertices
+MIS has 1530736 vertices
+MIS time: 0.505794 seconds
 As a whole, The current MIS: has: 1297510 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519840 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531180 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531303 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531305 nonzeros and length 1751377
 MIS has 1531305 vertices
+MIS has 1531305 vertices
+MIS time: 0.51323 seconds
 As a whole, The current MIS: has: 1299893 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520387 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530784 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530895 nonzeros and length 1751377
 MIS has 1530895 vertices
+MIS has 1530895 vertices
+MIS time: 0.50562 seconds
 As a whole, The current MIS: has: 1297899 nonzeros and length 1751377
 As a whole, The current MIS: has: 1519742 nonzeros and length 1751377
 As a whole, The current MIS: has: 1530889 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531006 nonzeros and length 1751377
 MIS has 1531006 vertices
+MIS has 1531006 vertices
+MIS time: 0.506345 seconds
 As a whole, The current MIS: has: 1299957 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520222 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531165 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531277 nonzeros and length 1751377
 MIS has 1531277 vertices
+MIS has 1531277 vertices
+MIS time: 0.505247 seconds
 As a whole, The current MIS: has: 1296334 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520007 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531674 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531804 nonzeros and length 1751377
 MIS has 1531804 vertices
+MIS has 1531804 vertices
+MIS time: 0.506827 seconds
 As a whole, The current MIS: has: 1299419 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520603 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531404 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531544 nonzeros and length 1751377
 MIS has 1531544 vertices
+MIS has 1531544 vertices
+MIS time: 0.506603 seconds
 As a whole, The current MIS: has: 1297938 nonzeros and length 1751377
 As a whole, The current MIS: has: 1520213 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531156 nonzeros and length 1751377
 As a whole, The current MIS: has: 1531274 nonzeros and length 1751377
 MIS has 1531274 vertices
+MIS has 1531274 vertices
+MIS time: 0.506033 seconds
 Per iteration communication times: 
 AllGatherv: 0
 AlltoAllv: 0
@@ -220,11 +284,11 @@ Mean MIS vertices: 1.53109e+06
 STDDEV MIS vertices: 404.683
 --------------------------
 Filter keeps 10 percentage of edges
-Min time: 0.503435 seconds
-Median time: 0.505093 seconds
-Max time: 0.511276 seconds
-Mean time: 0.50586 seconds
-STDDEV time: 0.00215158 seconds
+Min time: 0.505247 seconds
+Median time: 0.506715 seconds
+Max time: 0.524183 seconds
+Mean time: 0.510058 seconds
+STDDEV time: 0.00584254 seconds
 --------------------------
 Initializing since date (only once) to 2500
 As a whole, The current MIS: has: 1027599 nonzeros and length 1751377
@@ -233,94 +297,126 @@ As a whole, The current MIS: has: 1430592 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431058 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431059 nonzeros and length 1751377
 MIS has 1431059 vertices
+MIS has 1431059 vertices
+MIS time: 0.886402 seconds
 As a whole, The current MIS: has: 1031206 nonzeros and length 1751377
 As a whole, The current MIS: has: 1406033 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430280 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430688 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430690 nonzeros and length 1751377
 MIS has 1430690 vertices
+MIS has 1430690 vertices
+MIS time: 0.885644 seconds
 As a whole, The current MIS: has: 1026538 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405793 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430637 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431055 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431056 nonzeros and length 1751377
 MIS has 1431056 vertices
+MIS has 1431056 vertices
+MIS time: 0.887059 seconds
 As a whole, The current MIS: has: 1029063 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405817 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430215 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430603 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430604 nonzeros and length 1751377
 MIS has 1430604 vertices
+MIS has 1430604 vertices
+MIS time: 0.883991 seconds
 As a whole, The current MIS: has: 1027621 nonzeros and length 1751377
 As a whole, The current MIS: has: 1404733 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430598 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431055 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431057 nonzeros and length 1751377
 MIS has 1431057 vertices
+MIS has 1431057 vertices
+MIS time: 0.886061 seconds
 As a whole, The current MIS: has: 1027596 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405602 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430262 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430684 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430687 nonzeros and length 1751377
 MIS has 1430687 vertices
+MIS has 1430687 vertices
+MIS time: 1.1306 seconds
 As a whole, The current MIS: has: 1032409 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405959 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430119 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430533 nonzeros and length 1751377
 MIS has 1430533 vertices
+MIS has 1430533 vertices
+MIS time: 1.20504 seconds
 As a whole, The current MIS: has: 1031076 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405143 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430195 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430602 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430603 nonzeros and length 1751377
 MIS has 1430603 vertices
+MIS has 1430603 vertices
+MIS time: 1.21604 seconds
 As a whole, The current MIS: has: 1028610 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405623 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430861 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431288 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431289 nonzeros and length 1751377
 MIS has 1431289 vertices
+MIS has 1431289 vertices
+MIS time: 1.16795 seconds
 As a whole, The current MIS: has: 1031201 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405639 nonzeros and length 1751377
 As a whole, The current MIS: has: 1429940 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430331 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430332 nonzeros and length 1751377
 MIS has 1430332 vertices
+MIS has 1430332 vertices
+MIS time: 1.17066 seconds
 As a whole, The current MIS: has: 1032399 nonzeros and length 1751377
 As a whole, The current MIS: has: 1406369 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430258 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430647 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430648 nonzeros and length 1751377
 MIS has 1430648 vertices
+MIS has 1430648 vertices
+MIS time: 1.16094 seconds
 As a whole, The current MIS: has: 1031153 nonzeros and length 1751377
 As a whole, The current MIS: has: 1406374 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430551 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430953 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430955 nonzeros and length 1751377
 MIS has 1430955 vertices
+MIS has 1430955 vertices
+MIS time: 1.16506 seconds
 As a whole, The current MIS: has: 1030202 nonzeros and length 1751377
 As a whole, The current MIS: has: 1406212 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430906 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431282 nonzeros and length 1751377
 MIS has 1431282 vertices
+MIS has 1431282 vertices
+MIS time: 1.15542 seconds
 As a whole, The current MIS: has: 1028477 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405781 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431673 nonzeros and length 1751377
 As a whole, The current MIS: has: 1432140 nonzeros and length 1751377
 As a whole, The current MIS: has: 1432144 nonzeros and length 1751377
 MIS has 1432144 vertices
+MIS has 1432144 vertices
+MIS time: 1.16754 seconds
 As a whole, The current MIS: has: 1029367 nonzeros and length 1751377
 As a whole, The current MIS: has: 1406005 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430832 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431232 nonzeros and length 1751377
 As a whole, The current MIS: has: 1431234 nonzeros and length 1751377
 MIS has 1431234 vertices
+MIS has 1431234 vertices
+MIS time: 1.10912 seconds
 As a whole, The current MIS: has: 1028719 nonzeros and length 1751377
 As a whole, The current MIS: has: 1405686 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430159 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430585 nonzeros and length 1751377
 As a whole, The current MIS: has: 1430587 nonzeros and length 1751377
 MIS has 1430587 vertices
+MIS has 1430587 vertices
+MIS time: 1.08029 seconds
 Per iteration communication times: 
 AllGatherv: 0
 AlltoAllv: 0
@@ -332,11 +428,11 @@ Mean MIS vertices: 1.43092e+06
 STDDEV MIS vertices: 440.425
 --------------------------
 Filter keeps 25 percentage of edges
-Min time: 0.878062 seconds
-Median time: 0.885872 seconds
-Max time: 0.902152 seconds
-Mean time: 0.886315 seconds
-STDDEV time: 0.0051445 seconds
+Min time: 0.883991 seconds
+Median time: 1.14301 seconds
+Max time: 1.21604 seconds
+Mean time: 1.07236 seconds
+STDDEV time: 0.133722 seconds
 --------------------------
 Initializing since date (only once) to 10000
 As a whole, The current MIS: has: 473897 nonzeros and length 1751377
@@ -345,96 +441,128 @@ As a whole, The current MIS: has: 1225370 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227326 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227331 nonzeros and length 1751377
 MIS has 1227331 vertices
+MIS has 1227331 vertices
+MIS time: 2.98501 seconds
 As a whole, The current MIS: has: 469423 nonzeros and length 1751377
 As a whole, The current MIS: has: 1157081 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225718 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227661 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227674 nonzeros and length 1751377
 MIS has 1227674 vertices
+MIS has 1227674 vertices
+MIS time: 2.98855 seconds
 As a whole, The current MIS: has: 472376 nonzeros and length 1751377
 As a whole, The current MIS: has: 1155242 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226195 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228154 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228163 nonzeros and length 1751377
 MIS has 1228163 vertices
+MIS has 1228163 vertices
+MIS time: 2.99399 seconds
 As a whole, The current MIS: has: 471218 nonzeros and length 1751377
 As a whole, The current MIS: has: 1156451 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226621 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228646 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228662 nonzeros and length 1751377
 MIS has 1228662 vertices
+MIS has 1228662 vertices
+MIS time: 2.99468 seconds
 As a whole, The current MIS: has: 470183 nonzeros and length 1751377
 As a whole, The current MIS: has: 1156587 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226996 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228933 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228946 nonzeros and length 1751377
 MIS has 1228946 vertices
+MIS has 1228946 vertices
+MIS time: 2.99689 seconds
 As a whole, The current MIS: has: 469910 nonzeros and length 1751377
 As a whole, The current MIS: has: 1156495 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225949 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227974 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227981 nonzeros and length 1751377
 MIS has 1227981 vertices
+MIS has 1227981 vertices
+MIS time: 2.98738 seconds
 As a whole, The current MIS: has: 463417 nonzeros and length 1751377
 As a whole, The current MIS: has: 1154360 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226668 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228802 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228814 nonzeros and length 1751377
 MIS has 1228814 vertices
+MIS has 1228814 vertices
+MIS time: 3.00248 seconds
 As a whole, The current MIS: has: 470284 nonzeros and length 1751377
 As a whole, The current MIS: has: 1156347 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225888 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227826 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227836 nonzeros and length 1751377
 MIS has 1227836 vertices
+MIS has 1227836 vertices
+MIS time: 2.99403 seconds
 As a whole, The current MIS: has: 469070 nonzeros and length 1751377
 As a whole, The current MIS: has: 1154805 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226324 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228423 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228433 nonzeros and length 1751377
 MIS has 1228433 vertices
+MIS has 1228433 vertices
+MIS time: 2.99889 seconds
 As a whole, The current MIS: has: 466941 nonzeros and length 1751377
 As a whole, The current MIS: has: 1154581 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225343 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227473 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227485 nonzeros and length 1751377
 MIS has 1227485 vertices
+MIS has 1227485 vertices
+MIS time: 2.99402 seconds
 As a whole, The current MIS: has: 473379 nonzeros and length 1751377
 As a whole, The current MIS: has: 1157520 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225293 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227080 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227086 nonzeros and length 1751377
 MIS has 1227086 vertices
+MIS has 1227086 vertices
+MIS time: 2.98348 seconds
 As a whole, The current MIS: has: 461722 nonzeros and length 1751377
 As a whole, The current MIS: has: 1151013 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227816 nonzeros and length 1751377
 As a whole, The current MIS: has: 1230094 nonzeros and length 1751377
 As a whole, The current MIS: has: 1230111 nonzeros and length 1751377
 MIS has 1230111 vertices
+MIS has 1230111 vertices
+MIS time: 3.01176 seconds
 As a whole, The current MIS: has: 469670 nonzeros and length 1751377
 As a whole, The current MIS: has: 1154884 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225940 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228079 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228084 nonzeros and length 1751377
 MIS has 1228084 vertices
+MIS has 1228084 vertices
+MIS time: 2.99214 seconds
 As a whole, The current MIS: has: 471999 nonzeros and length 1751377
 As a whole, The current MIS: has: 1158647 nonzeros and length 1751377
 As a whole, The current MIS: has: 1225566 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227378 nonzeros and length 1751377
 As a whole, The current MIS: has: 1227387 nonzeros and length 1751377
 MIS has 1227387 vertices
+MIS has 1227387 vertices
+MIS time: 2.98318 seconds
 As a whole, The current MIS: has: 465369 nonzeros and length 1751377
 As a whole, The current MIS: has: 1156000 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226131 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228177 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228191 nonzeros and length 1751377
 MIS has 1228191 vertices
+MIS has 1228191 vertices
+MIS time: 2.99154 seconds
 As a whole, The current MIS: has: 467874 nonzeros and length 1751377
 As a whole, The current MIS: has: 1154921 nonzeros and length 1751377
 As a whole, The current MIS: has: 1226768 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228889 nonzeros and length 1751377
 As a whole, The current MIS: has: 1228901 nonzeros and length 1751377
 MIS has 1228901 vertices
+MIS has 1228901 vertices
+MIS time: 2.99698 seconds
 Per iteration communication times: 
 AllGatherv: 0
 AlltoAllv: 0
@@ -446,9 +574,9 @@ Mean MIS vertices: 1.22819e+06
 STDDEV MIS vertices: 773.913
 --------------------------
 Filter keeps 100 percentage of edges
-Min time: 2.48225 seconds
-Median time: 2.49018 seconds
-Max time: 2.50809 seconds
-Mean time: 2.49032 seconds
-STDDEV time: 0.00645807 seconds
+Min time: 2.98318 seconds
+Median time: 2.994 seconds
+Max time: 3.01176 seconds
+Mean time: 2.99344 seconds
+STDDEV time: 0.00737359 seconds
 --------------------------
