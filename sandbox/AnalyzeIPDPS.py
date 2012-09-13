@@ -174,34 +174,36 @@ elif runtype == "mis":
 	filtergrid_yrange = "0.1:256"
 
 	def parseCombBLAS(data):
+		exp = "CombBLAS_OTF"
 		for (core, file) in raw_combblas_files.items():
 			times = []
 			if not os.path.isfile(file):
 				print "file not found:",file
 				continue
 			for line in open(file, 'r'):
-				# BFS time: 0.887308 seconds
+				# MIS time: 0.887308 seconds
 				# Filter keeps 100 percentage of edges
-				if line.find("MIS time:") != -1: # // not being printed at the moment
+				if line.find("MIS time:") != -1:
 					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
 					times.append(float(time_s))
 				elif line.find("Filter keeps") != -1:
 					filter_s = line[len("Filter keeps ") : (line.find("percentage"))].strip()
 					filter = int(filter_s)
-					#data.append(())
-					#times = []
-				elif line.find("Min time:") != -1:
-					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
-					data.append((core, "min_CombBLAS_OTFtime", filter, float(time_s)))
-				elif line.find("Max time:") != -1:
-					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
-					data.append((core, "max_CombBLAS_OTFtime", filter, float(time_s)))
-				elif line.find("Mean time:") != -1:
-					time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
-					data.append((core, "mean_CombBLAS_OTFtime", filter, float(time_s)))
-				#elif line.find("Median time:") != -1:
-				#	time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
-				#	data.append((core, "median_CombBLAS_OTFtime", filter, float(time_s)))
+					if showIndividualIterations:
+						iteration = 1
+						for t in times:
+							data.append((getFunnyCore(core, iteration), showIndividualIterations_claim_to_be%(exp), filter, t))
+							iteration += 1
+					
+					# summarize
+					stats = compute_stats(times)
+					
+					data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
+					data.append((core, "min_%stime"%exp, filter, stats["min"]))
+					data.append((core, "max_%stime"%exp, filter, stats["max"]))
+					data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
+					data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
+					times = []
 
 	parseProcFiles = True
 	parseRealFiles = False
