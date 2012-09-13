@@ -44,6 +44,40 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
+
+struct DetSymmetricize: public std::binary_function<TwitterEdge, TwitterEdge, TwitterEdge>
+{
+	// have to deterministically choose between one of the two values.
+	// cannot just add them because that will change the distribution (small values are unlikely to survive)
+	TwitterEdge operator()(const TwitterEdge & g, const TwitterEdge & t) 
+	{
+		TwitterEdge toret = g;
+
+		if(((g.latest + t.latest) & 1) == 1)
+		{
+			toret.latest = std::min(g.latest, t.latest);
+		}
+		else 
+		{
+			toret.latest = std::max(g.latest, t.latest);
+		}
+		return toret;
+	}
+};
+
+typedef SpParMat < int64_t, TwitterEdge, SpDCCols<int64_t, TwitterEdge > > PSpMat_Twitter;
+typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
+
+void SymmetricizeRands(PSpMat_Twitter & A)
+{
+	PSpMat_Twitter AT = A;
+	AT.Transpose();
+	// SpParMat<IU,RETT,RETDER> EWiseApply (const SpParMat<IU,NU1,UDERA> & A, 
+	// const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, bool notB, const NU2& defaultBVal)
+	// Default B value is irrelevant since the structures of the matrices are 
+	A = EWiseApply<TwitterEdge, SpDCCols<int64_t, TwitterEdge > >(A, AT, DetSymmetricize(), false, TwitterEdge());
+}
+
 #ifdef DETERMINISTIC
         MTRand GlobalMT(1);
 #else
@@ -83,6 +117,8 @@ struct randGen : public std::unary_function<double, double>
 	}
 };
 
+
+
 int main(int argc, char* argv[])
 {
 
@@ -90,7 +126,7 @@ int main(int argc, char* argv[])
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-	if(argc < 3)
+	if(argc < 2)
 	{
 		if(myrank == 0)
 		{
@@ -100,9 +136,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}		
 	{
-		typedef SpParMat < int64_t, TwitterEdge, SpDCCols<int64_t, TwitterEdge > > PSpMat_Twitter;
-		typedef SpParMat < int64_t, bool, SpDCCols<int64_t, bool > > PSpMat_Bool;
-
 		// Declare objects
 		PSpMat_Twitter A;	
 		FullyDistVec<int64_t, int64_t> indegrees;	// in-degrees of vertices (including multi-edges and self-loops)
@@ -170,6 +203,10 @@ int main(int argc, char* argv[])
 
 		A.Apply(Twitter_obj_randomizer());
 		A.PrintInfo();
+		SymmetricizeRands(A);
+		SpParHelper::Print("Symmetricized Rands\n");	
+		A.PrintInfo();
+
 			
 		FullyDistVec<int64_t, int64_t> * nonisov = new FullyDistVec<int64_t, int64_t>(degrees.FindInds(bind2nd(greater<int64_t>(), 0)));	
 		SpParHelper::Print("Found (and permuted) non-isolated vertices\n");	
@@ -210,6 +247,7 @@ int main(int argc, char* argv[])
 			double TIMES[ITERS]; 
 			
 			LatestRetwitterMIS::sincedate = keep[trials];
+			LatestRetwitterSelect2nd::sincedate = keep[trials];
 			ostringstream outs;
 			outs << "Initializing since date (only once) to " << LatestRetwitterMIS::sincedate << endl;
 			SpParHelper::Print(outs.str());
@@ -247,7 +285,14 @@ int main(int argc, char* argv[])
 					//# In other words: min_neighbor_r[i] = min(C[j] for all neighbors j of vertex i)
 					//min_neighbor_r = Gmatrix.SpMV(C, sr(myMin,select2nd)) # could use "min" directly
 					SpMV<LatestRetwitterMIS>(A, C, min_neighbor_r, false);	// min_neighbor_r empty OK?
+					#ifdef PRINTITERS
+					min_neighbor_r.PrintInfo("Neighbors");
+					#endif
+
+					#ifdef DEBUG
 					min_neighbor_r.DebugPrint();
+					C.DebugPrint();
+					#endif
 			
 					//# The vertices to be added to S this iteration are those whose random value is
 					//# smaller than those of all its neighbors:
@@ -258,11 +303,20 @@ int main(int argc, char* argv[])
 					//// template <typename RET, typename IU ...> 
 					//// FullyDistSpVec<IU,RET> EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistSpVec<IU,NU2> & W , _BinaryOperation _binary_op, _BinaryPredicate _doOp,
 					//// bool allowVNulls, bool allowWNulls, NU1 Vzero, NU2 Wzero, const bool allowIntersect = true);
-			
+					#ifdef PRINTITERS
+					new_S_members.PrintInfo("New members of the MIS");
+					#endif
+					
+					#ifdef DEBUG	
+					new_S_members.DebugPrint();
+					#endif
+					
 					//# new_S_members are no longer candidates, so remove them from C
 					//C.eWiseApply(new_S_members, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 					C = EWiseApply<double>(C, new_S_members, return1_uint8(), return1_uint8(), false, true, (double) 0.0, (uint8_t) 0, false);
-					C.DebugPrint();
+					#ifdef PRINTITERS
+					C.PrintInfo("Entries to be removed from the Candidates set");
+					#endif
 								
 					//# find neighbors of new_S_members
 					//new_S_neighbors = Gmatrix.SpMV(new_S_members, sr(select2nd,select2nd))
@@ -272,57 +326,58 @@ int main(int argc, char* argv[])
 					//# If C[i] exists and new_S_neighbors[i] doesn't, still a value is returned with bin_op(NULL,C[i]) 
 					//C.eWiseApply(new_S_neighbors, return1, allowANulls=False, allowIntersect=False, allowBNulls=True, inPlace=True)
 					C = EWiseApply<double>(C, new_S_neighbors, return1_uint8(), return1_uint8(), false, true, (double) 0.0, (uint8_t) 0, false);
+					#ifdef PRINTITERS
 					C.PrintInfo("Candidates set after neighbors of MIS removed");
-					C.DebugPrint();
+					#endif
 					
 					//# add new_S_members to S
 					//S.eWiseApply(new_S_members, return1, allowANulls=True, allowBNulls=True, inPlace=True)
 					S = EWiseApply<uint8_t>(S, new_S_members, return1_uint8(), return1_uint8(), true, true, (uint8_t) 1, (uint8_t) 1, true);
 					S.PrintInfo("The current MIS:");
-					S.DebugPrint();
 				}
 				double t2 = MPI_Wtime();
-
 					
 				ostringstream ositr;
 				ositr << "MIS has " << S.getnnz() << " vertices" << endl;
+				SpParHelper::Print(ositr.str());
 				
 				TIMES[sruns] = t2-t1;
 				MISVS[sruns] = S.getnnz();
-		
-				ostringstream os;
-				os << "Per iteration communication times: " << endl;
-				os << "AllGatherv: " << cblas_allgathertime / sruns << endl;
-				os << "AlltoAllv: " << cblas_alltoalltime / sruns << endl;
-
-				sort(MISVS, MISVS+sruns);
-				os << "--------------------------" << endl;
-				os << "Min MIS vertices: " << MISVS[0] << endl;
-				os << "Median MIS vertices: " << (MISVS[(sruns/2)-1] + MISVS[sruns/2])/2 << endl;
-				os << "Max MIS vertices: " << MISVS[sruns-1] << endl;
-				double mean = accumulate( MISVS, MISVS+sruns, 0.0 )/ sruns;
-				vector<double> zero_mean(sruns);	// find distances to the mean
-				transform(MISVS, MISVS+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
-				// self inner-product is sum of sum of squares
-				double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-				deviation = sqrt( deviation / (sruns-1) );
-				os << "Mean MIS vertices: " << mean << endl;
-				os << "STDDEV MIS vertices: " << deviation << endl;
-				os << "--------------------------" << endl;
-	
-				sort(TIMES,TIMES+sruns);
-				os << "Filter keeps " << static_cast<double>(keep[trials])/100.0 << " percentage of edges" << endl;
-				os << "Min time: " << TIMES[0] << " seconds" << endl;
-				os << "Median time: " << (TIMES[(sruns/2)-1] + TIMES[sruns/2])/2 << " seconds" << endl;
-				os << "Max time: " << TIMES[sruns-1] << " seconds" << endl;
-				mean = accumulate( TIMES, TIMES+sruns, 0.0 )/ sruns;
-				transform(TIMES, TIMES+sruns, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
-				deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
-				deviation = sqrt( deviation / (sruns-1) );
-				os << "Mean time: " << mean << " seconds" << endl;
-				os << "STDDEV time: " << deviation << " seconds" << endl;
-				os << "--------------------------" << endl;
 			} // end for(int sruns = 0; sruns < ITERS; ++sruns)
+		
+			ostringstream os;
+			os << "Per iteration communication times: " << endl;
+			os << "AllGatherv: " << cblas_allgathertime / ITERS << endl;
+			os << "AlltoAllv: " << cblas_alltoalltime / ITERS << endl;
+
+			sort(MISVS, MISVS+ITERS);
+			os << "--------------------------" << endl;
+			os << "Min MIS vertices: " << MISVS[0] << endl;
+			os << "Median MIS vertices: " << (MISVS[(ITERS/2)-1] + MISVS[ITERS/2])/2 << endl;
+			os << "Max MIS vertices: " << MISVS[ITERS-1] << endl;
+			double mean = accumulate( MISVS, MISVS+ITERS, 0.0 )/ ITERS;
+			vector<double> zero_mean(ITERS);	// find distances to the mean
+			transform(MISVS, MISVS+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			// self inner-product is sum of sum of squares
+			double deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+			deviation = sqrt( deviation / (ITERS-1) );
+			os << "Mean MIS vertices: " << mean << endl;
+			os << "STDDEV MIS vertices: " << deviation << endl;
+			os << "--------------------------" << endl;
+	
+			sort(TIMES,TIMES+ITERS);
+			os << "Filter keeps " << static_cast<double>(keep[trials])/100.0 << " percentage of edges" << endl;
+			os << "Min time: " << TIMES[0] << " seconds" << endl;
+			os << "Median time: " << (TIMES[(ITERS/2)-1] + TIMES[ITERS/2])/2 << " seconds" << endl;
+			os << "Max time: " << TIMES[ITERS-1] << " seconds" << endl;
+			mean = accumulate( TIMES, TIMES+ITERS, 0.0 )/ ITERS;
+			transform(TIMES, TIMES+ITERS, zero_mean.begin(), bind2nd( minus<double>(), mean )); 	
+			deviation = inner_product( zero_mean.begin(),zero_mean.end(), zero_mean.begin(), 0.0 );
+			deviation = sqrt( deviation / (ITERS-1) );
+			os << "Mean time: " << mean << " seconds" << endl;
+			os << "STDDEV time: " << deviation << " seconds" << endl;
+			os << "--------------------------" << endl;
+			SpParHelper::Print(os.str());
 		}	// end for(int trials =0; trials < PERCENTS; trials++)	
 	}
 	MPI_Finalize();
