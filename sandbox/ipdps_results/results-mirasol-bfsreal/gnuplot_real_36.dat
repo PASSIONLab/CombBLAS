@@ -1,5 +1,0 @@
-	mean_PythonSR_PythonFilter_OTFtime	min_PythonSR_PythonFilter_OTFtime	max_PythonSR_PythonFilter_OTFtime	mean_PythonSR_SejitsFilter_OTFtime	min_PythonSR_SejitsFilter_OTFtime	max_PythonSR_SejitsFilter_OTFtime	mean_SejitsSR_SejitsFilter_OTFtime	min_SejitsSR_SejitsFilter_OTFtime	max_SejitsSR_SejitsFilter_OTFtime	mean_CombBLAS_OTFtime	min_CombBLAS_OTFtime	max_CombBLAS_OTFtime	
-0	-	-	-	-	-	-	-	-	-	0.0360624	0.032845	0.0390909	
-1	-	-	-	-	-	-	-	-	-	0.550979	0.188315	0.748091	
-2	-	-	-	-	-	-	-	-	-	1.19124	0.277104	2.03902	
-3	-	-	-	-	-	-	-	-	-	1.74131	0.972128	2.57692	
