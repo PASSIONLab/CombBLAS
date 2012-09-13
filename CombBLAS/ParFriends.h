@@ -1012,9 +1012,9 @@ SpParMat<IU,RETT,RETDER>
 EWiseApply (const SpParMat<IU,NU1,UDERA> & A, const SpParMat<IU,NU2,UDERB> & B, _BinaryOperation __binary_op, _BinaryPredicate do_op, bool allowANulls, bool allowBNulls, const NU1& ANullVal, const NU2& BNullVal, const bool allowIntersect = true)
 {
 	return EWiseApply<RETT, RETDER>(A, B,
-									EWiseExtToPlainAdapter<RETT, NU1, NU2, _BinaryOperation>(__binary_op),
-									EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(do_op),
-									allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, true);
+				EWiseExtToPlainAdapter<RETT, NU1, NU2, _BinaryOperation>(__binary_op),
+				EWiseExtToPlainAdapter<bool, NU1, NU2, _BinaryPredicate>(do_op),
+				allowANulls, allowBNulls, ANullVal, BNullVal, allowIntersect, true);
 }
 // end adapter
 

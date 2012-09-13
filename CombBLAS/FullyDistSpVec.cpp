@@ -740,7 +740,8 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
     	MPI_File thefile;
-	MPI_File_open(World, "temp_fullydistspvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
+	char tfilename[32] = "temp_fullydistspvec";
+	MPI_File_open(World, tfilename, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
@@ -761,7 +762,8 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, "native", MPI_INFO_NULL);
+	char openmode[32] = "native";
+    	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, openmode, MPI_INFO_NULL);
 
 	int count = ind.size();
 	mystruct * packed = new mystruct[count];
