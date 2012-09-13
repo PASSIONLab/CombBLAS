@@ -199,10 +199,12 @@ ParentType operator+( const IT & left, const ParentType & right)
 	return ParentType(left+right.id);
 }
 
+// forward declaration
+template <typename SR, typename T>
+void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
 
-void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);	// forward declaration
 
-template <typename VECTYPE>
+template <typename SR, typename VECTYPE>
 static VECTYPE filtered_select2nd(const TwitterEdge & arg1, const VECTYPE & arg2, time_t & sincedate)  
 {
 	if(sincedate == -1)	// uninitialized
@@ -232,7 +234,7 @@ static VECTYPE filtered_select2nd(const TwitterEdge & arg1, const VECTYPE & arg2
 	}
 	else
 	{
-		returnedSAID(true);
+		SR::returnedSAID(true);
 		return VECTYPE();	
 		// return null-type parent id (for BFS) or 
 		// double() for MIS - POD objects are zero initilied
@@ -270,13 +272,13 @@ struct LatestRetwitterBFS
 
 	static MPI_Op mpi_op() 
 	{ 
-		MPI_Op_create(select2nd, false, &MPI_BFSADD);	// \todo {do this once only, by greating a MPI_Op buffer}
+		MPI_Op_create(select2nd<LatestRetwitterBFS,ParentType>, false, &MPI_BFSADD);	// \todo {do this once only, by greating a MPI_Op buffer}
 		return MPI_BFSADD;
 	}
 	static time_t sincedate;
 	static ParentType multiply(const TwitterEdge & arg1, const ParentType & arg2)
 	{
-		return filtered_select2nd(arg1, arg2, sincedate);
+		return filtered_select2nd<LatestRetwitterBFS>(arg1, arg2, sincedate);
 	}
 	static void axpy(TwitterEdge a, const ParentType & x, ParentType & y)
 	{
@@ -286,16 +288,18 @@ struct LatestRetwitterBFS
 
 time_t LatestRetwitterBFS::sincedate = -1;
 
-
+// select2nd for doubles
+template <typename SR, typename T>
 void select2nd(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
-	ParentType * pinvec = static_cast<ParentType*>(invec);
-	ParentType * pinoutvec = static_cast<ParentType*>(inoutvec);
+	T * pinvec = static_cast<T*>(invec);
+	T * pinoutvec = static_cast<T*>(inoutvec);
 	for (int i = 0; i < *len; i++)
 	{
-		pinoutvec[i] = LatestRetwitterBFS::add(pinvec[i], pinoutvec[i]);
+		pinoutvec[i] = SR::add(pinvec[i], pinoutvec[i]);
 	}
 }
+
 
 MPI_Op LatestRetwitterBFS::MPI_BFSADD;
 
@@ -341,7 +345,7 @@ struct is2ndSmaller: public std::binary_function<double, double, bool>
 // BinOp for MIS's EWiseApply
 struct return1_uint8: public std::binary_function<double, double, uint8_t>
 {
-	uint8_t operator() return1(double t1, double t2)
+	uint8_t operator() (double t1, double t2)
 	{
 		return (uint8_t) 1;
 	}
@@ -400,13 +404,57 @@ struct LatestRetwitterMIS
 	static time_t sincedate;
 	static double multiply(const TwitterEdge & arg1, const double & arg2)  // filtered select2nd
 	{
-		return filtered_select2nd(arg1, arg2, sincedate);
+		return filtered_select2nd<LatestRetwitterMIS>(arg1, arg2, sincedate);
 	}
 	static void axpy(TwitterEdge a, const double & x, double & y)
 	{
 		y = add(y, multiply(a, x));
 	}
 };
+
+// Matrix type: TwitterEdge
+// Vector type: double
+struct LatestRetwitterSelect2nd // also used for finding neighbors of the candidate set in MIS
+{
+	static MPI_Op MPI_SEL2NDADD;
+	static double id() { return 0.0; }	// additive identity
+	
+	// the default argument means that this function can be used like this:
+	// if (returnedSAID()) {...}
+	// which is how it is called inside CombBLAS routines. That call conveniently clears the flag for us.
+	static bool returnedSAID(bool setFlagTo = false) 
+	{
+		static bool flag = false;
+		
+		bool temp = flag; // save the current flag value to be returned later. Saves an if statement.
+		flag = setFlagTo; // set/clear the flag.
+		return temp;
+	}
+	
+	static double add(const double & arg1, const double & arg2)
+	{
+		return std::min(arg1, arg2);
+	}
+	
+	static MPI_Op mpi_op() 
+	{ 
+		MPI_Op_create(select2nd<LatestRetwitterSelect2nd,double>, false, &MPI_SEL2NDADD);	// \todo {do this once only, by greating a MPI_Op buffer}
+		return MPI_SEL2NDADD;
+	}
+	static time_t sincedate;
+	static double multiply(const TwitterEdge & arg1, const double & arg2)  // filtered select2nd
+	{
+		return filtered_select2nd<LatestRetwitterSelect2nd>(arg1, arg2, sincedate);
+	}
+	static void axpy(TwitterEdge a, const double & x, double & y)
+	{
+		y = add(y, multiply(a, x));
+	}
+};
+
+time_t LatestRetwitterMIS::sincedate = -1;
+time_t LatestRetwitterSelect2nd::sincedate = -1;
+MPI_Op LatestRetwitterSelect2nd::MPI_SEL2NDADD;
 
 
 
