@@ -1,0 +1,19 @@
+Using synthetic data, which we ALWAYS permute for load balance
+We only balance the original input, we don't repermute after each filter change
+BFS is run on UNDIRECTED graph, hence hitting CCs, and TEPS is bidirectional
+Forcing scale to : 22
+graph_generation:               0.573828 s
+Generated renamed edge lists
+Duplicates removed (or summed): 416598 and self-loops removed: 0
+Converted to Boolean and removed 275 loops
+As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
+Generation took 1.19814 seconds
+As a whole: 4194304 rows and 4194304 columns and 20554647 nonzeros
+All degrees calculated
+Load balance: 1.04292
+Symmetricized
+As a whole: 4194304 rows and 4194304 columns and 41109294 nonzeros
+Symmetricized Rands
+As a whole: 4194304 rows and 4194304 columns and 41109294 nonzeros
+Found (and permuted) non-isolated vertices
+Creating a new MPI data type for 11TwitterEdge
