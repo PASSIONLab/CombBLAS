@@ -139,6 +139,12 @@ CombBLAS/Applications/HopperResults/script4096.final_small- -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Dec23 -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Feb10 -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_16p.txt -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_1p.txt -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_25p.txt -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_36p.txt -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_4p.txt -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_9p.txt -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_huge_p36_notiming_august12.det -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_large_p36_notiming_august12.det -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_medium_p36_notiming_august12.det -text
