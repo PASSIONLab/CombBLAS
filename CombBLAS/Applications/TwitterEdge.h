@@ -7,6 +7,8 @@
 
 using namespace std;
 
+struct DetSymmetricize;
+
 /**
  * This is not part of the Combinatorial BLAS library, it's just an example.
  * A nonzero A(i,j) is present if at least one edge (of any type)
@@ -52,6 +54,8 @@ private:
 	
 	template <typename IT>
 	friend class TwitterReadSaveHandler;
+	
+	friend struct DetSymmetricize;
 };
 
 ostream& operator<<(ostream& os, const TwitterEdge & twe )    
