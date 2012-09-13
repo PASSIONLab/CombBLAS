@@ -6,26 +6,9 @@ def splitthousands(s, sep=','):
 	if (len(s) <= 3): return s  
 	return splitthousands(s[:-3], sep) + sep + s[-3:]
 
-# prints statistics about an array
-# the algorithms here are based on the graph500 reference implementation,
-# graph500-1.2/graph500.c:218
-def printstats(data, label, israte, printSomethingAnyway=False, printTotal=False):
+def compute_stats(data, israte=False):
 	n = len(data)
 	data.sort()
-	
-	if printSomethingAnyway:
-		if n == 0:
-			data = [0, 0, 0, 0]
-		elif n == 1:
-			val = data[0]
-			data = [val, val]
-		n = len(data)
-	else:
-		if n == 0:
-			return
-		if n == 1:
-			print "            %s: \t%20.17e"%(label, data[0])
-			return
 	
 	#min
 	min = data[0]
@@ -95,27 +78,64 @@ def printstats(data, label, israte, printSomethingAnyway=False, printTotal=False
 	harmonicSampleStdDev = (math.sqrt (s)/(n-1)) * harmonicMean * harmonicMean
 	
 	# total
-	if printTotal:
-		total = 0
-		for d in data:
-			total += d
+	total = 0
+	for d in data:
+		total += d
+
+	ret = {}
+	ret["min"] = min
+	ret["q1"] = q1
+	ret["median"] = median
+	ret["q3"] = q3
+	ret["max"] = max
+	ret["total"] = total
+	if israte:
+		ret["harmonic_mean"] = harmonicMean
+		ret["harmonic_stddev"] = harmonicSampleStdDev
+	else:
+		ret["mean"] = mean
+		ret["stddev"] = sampleStdDev
+	return ret
+
+# prints statistics about an array
+# the algorithms here are based on the graph500 reference implementation,
+# graph500-1.2/graph500.c:218
+def printstats(data, label, israte, printSomethingAnyway=False, printTotal=False):
+	n = len(data)
+	data.sort()
+	
+	if printSomethingAnyway:
+		if n == 0:
+			data = [0, 0, 0, 0]
+		elif n == 1:
+			val = data[0]
+			data = [val, val]
+		n = len(data)
+	else:
+		if n == 0:
+			return
+		if n == 1:
+			print "            %s: \t%20.17e"%(label, data[0])
+			return
+	
+	stats = compute_stats(data, israte=israte)
 	
 	if n >= 2:
-		print "            min_%s: \t%20.17e"%(label, min)
+		print "            min_%s: \t%20.17e"%(label, stats["min"])
 	if n >= 4:
-		print "  firstquartile_%s: \t%20.17e"%(label, q1)
+		print "  firstquartile_%s: \t%20.17e"%(label, stats["q1"])
 	if n >= 2:
-		print "         median_%s: \t%20.17e"%(label, median)
+		print "         median_%s: \t%20.17e"%(label, stats["median"])
 	if n >= 4:
-		print "  thirdquartile_%s: \t%20.17e"%(label, q3)
+		print "  thirdquartile_%s: \t%20.17e"%(label, stats["q3"])
 	if n >= 1:
-		print "            max_%s: \t%20.17e"%(label, max)
+		print "            max_%s: \t%20.17e"%(label, stats["max"])
 	if (israte):
-		print "  harmonic_mean_%s: \t%20.17e"%(label, harmonicMean)
-		print "harmonic_stddev_%s: \t%20.17e"%(label, harmonicSampleStdDev)
+		print "  harmonic_mean_%s: \t%20.17e"%(label, stats["harmonic_mean"])
+		print "harmonic_stddev_%s: \t%20.17e"%(label, stats["harmonic_stddev"])
 	else:
-		print "           mean_%s: \t%20.17e"%(label, mean)
-		print "         stddev_%s: \t%20.17e"%(label, sampleStdDev)
+		print "           mean_%s: \t%20.17e"%(label, stats["mean"])
+		print "         stddev_%s: \t%20.17e"%(label, stats["stddev"])
 	if printTotal:
-		print "          total_%s: \t%e"%(label, total)
+		print "          total_%s: \t%e"%(label, stats["total"])
 

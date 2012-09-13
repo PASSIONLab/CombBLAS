@@ -2,6 +2,8 @@ import sys
 import re
 import os
 
+from stats import compute_stats
+
 filters = [1, 10, 25, 100]
 errorbars = "candlesticks" # also "errorbars" or None
 runtype = None
@@ -14,26 +16,42 @@ runtype = sys.argv[1]
 graphformat = "png"
 machine = "mirasol"
 
-showIndividualIterations = True
+showIndividualIterations = False
 showIndividualIterations_claim_to_be = "mean_%stime"
+
+for arg in sys.argv[2:]:
+	if arg == "hopper" or arg == "mirasol":
+		machine = arg
+	elif arg == "candlesticks" or arg == "errorbars" or arg == "noerror":
+		errorbars = arg
+	elif arg == "png" or arg == "eps":
+		graphformat = arg
+	elif arg == "indiv":
+		showIndividualIterations = True
 
 ######################
 ## setup experiment to plot
 
 ######################
 ## RMAT BFS
-if runtype == "bfs" or runtype == "bfshopper":
-	if runtype == "bfs":
+raw_combblas_files = None
+if runtype == "bfs":
+	if machine == "mirasol":
 		cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
 		combblas_file = "result_ipdps_bfs_22_combblas.txt"
+		raw_combblas_files = {1: "ran_scale22_p1_notiming.det", 4: "ran_scale22_p4_notiming.det", 9: "ran_scale22_p9_notiming.det", 16: "ran_scale22_p16_notiming.det", 25: "ran_scale22_p25_notiming.det", 36: "ran_scale22_p36_notiming.det"}
 		
-		core_xrange = "0.9:40"
+		if showIndividualIterations:
+			core_xrange = "0.9:64"
+		else:
+			core_xrange = "0.9:40"
 		filtergrid_yrange = "0.1:256"
 	else:
 		cores = {121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2048: "result_ipdps_bfs_25_2048.txt"}
 		combblas_file = "result_ipdps_bfs_25_combblas.txt"
+		raw_combblas_files = {121: "combblas_bfs_25_121.txt", 256: "combblas_bfs_25_256.txt", 576: "combblas_bfs_25_576.txt", 1024: "combblas_bfs_25_1024.txt", 2048: "combblas_bfs_25_2048.txt"}
 
-		core_xrange = "100:2100"
+		core_xrange = "100:2500"
 		filtergrid_yrange = "0.1:256"
 		
 		machine = "hopper"
@@ -166,12 +184,13 @@ def isExperiment(str):
 	return False
 
 def getFunnyCore(core, iteration):
-	spread = core/2
+	spread = core/2.0
 	return float(core) + iteration/16.0*spread
 
 if showIndividualIterations:
 	funnyCores = []
 	for core in cores.keys():
+		funnyCores.append(core - 0.1)
 		funnyCores.append(core)
 		for i in range(1,17):
 			funnyCores.append(getFunnyCore(core, i))
@@ -204,24 +223,68 @@ if parseProcFiles:
 					data.append((core, var, filter, time))
 
 if parseRealFiles:
+	core = cores.keys()[0]
 	for (graphsize, file) in files.items():
 		if not os.path.isfile(file):
 			print "file not found:",file
 			continue
-
+		
 		for line in open(file, 'r'):
 			for var in varieties:
 				if line.find(var) != -1:
 					feats = line.split("\t")
 					# var = feats[0]
-					raise NotImplementedError,"Don't know how to parse real world data"
-					filter = int(float(feats[1]))
+					# filter = int(float(feats[1]))
 					# : = feats[2]
 					time = float(feats[3])
-					data.append((core, var, filter, time))
+					data.append((core, var, graphsize, time))
 
 # parse CombBLAS
-parseCombBLAS(data)
+def parseCombBLASIterations(file):
+	ret = []
+	times = []
+	for line in open(file, 'r'):
+		# BFS time: 0.887308 seconds
+		# Filter keeps 100 percentage of edges
+		if line.find("BFS time") != -1:
+			time_s = line[(line.find(":")+1) : (line.rfind(" seconds"))].strip()
+			times.append(float(time_s))
+		elif line.find("Filter keeps") != -1 and len(times) > 0: # the filter bit is printed twice
+			filter_s = line[len("Filter keeps ") : (line.find("percentage"))].strip()
+			filter = int(filter_s)
+			ret.append((times, filter))
+			times = []
+
+	return ret
+
+if raw_combblas_files is not None:
+	exp = "CombBLAS_OTF"
+	for (core, file) in raw_combblas_files.items():
+		if not os.path.isfile(file):
+			print "file not found:",file
+			continue
+		parsed = parseCombBLASIterations(file)
+		for run in parsed:
+			times = run[0]
+			filter = run[1]
+			
+			if showIndividualIterations:
+				iteration = 1
+				for t in times:
+					data.append((getFunnyCore(core, iteration), showIndividualIterations_claim_to_be%(exp), filter, t))
+					iteration += 1
+			
+			# summarize
+			stats = compute_stats(times)
+			
+			#experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
+			data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
+			data.append((core, "min_%stime"%exp, filter, stats["min"]))
+			data.append((core, "max_%stime"%exp, filter, stats["max"]))
+			data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
+			data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
+else:
+	parseCombBLAS(data)
 
 # get detailed data about each individual BFS iteration
 if showIndividualIterations and parseProcFiles:
@@ -317,13 +380,15 @@ if doFilterGrid:
 		grid = format_table(data, 2, filter, varieties, k, 1, 0, 3)
 		print grid
 	
-		filestem = "gnuplot_%d"%filter
+		filestem = "gnuplot_filtergrid_%d_%s"%(filter, machine)
 		
 		gnuplot = ""
 		gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
 		gnuplot += 'set terminal %s\n'%(graphformat)
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
-		gnuplot += ''
+		gnuplot += '\n'
+		gnuplot += 'set datafile missing "-"\n'
+		gnuplot += '\n'
 		gnuplot += 'set xrange [%s]\n'%(core_xrange)
 		gnuplot += 'set yrange [%s]\n'%(filtergrid_yrange)
 		gnuplot += 'set logscale y\n'
@@ -360,7 +425,7 @@ if doFilterGrid:
 				# errorbars data: x:y:ylow:yhigh
 				# 1, +0, +1, +2
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
 		print gnuplot
@@ -381,7 +446,7 @@ if doPermeabilityPlot:
 	grid = format_table(data, 0, core_cnt, varieties, [1, 10, 25, 100], 1, 2, 3)
 	print grid
 
-	filestem = "gnuplot_perm_%d"%core_cnt
+	filestem = "gnuplot_perm_%d_%s"%(core_cnt, machine)
 	
 	gnuplot = ""
 	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
@@ -442,7 +507,7 @@ if doRealScalabilityPlot:
 		grid = format_table(data, 0, plot_core_cnt, varieties, ["small", "medium", "large", "huge"], 1, 2, 3, row_ids_are_strings=True)
 		print grid
 	
-		filestem = "gnuplot_real_%d"%plot_core_cnt
+		filestem = "gnuplot_real_%d_%s"%(plot_core_cnt, machine)
 		
 		gnuplot = ""
 		gnuplot += 'set title "BFS on Twitter Data (%d processes)"\n'%(plot_core_cnt)
