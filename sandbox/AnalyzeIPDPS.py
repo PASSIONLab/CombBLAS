@@ -111,6 +111,7 @@ if runtype == "bfs":
 elif runtype == "bfsreal":
 	cores = {36: 1}
 	files = {"small": "result_ipdps_bfs_small_36.txt", "medium": "result_ipdps_bfs_medium_36.txt", "large": "result_ipdps_bfs_large_36.txt", "huge": "result_ipdps_bfs_huge_36.txt"}
+	raw_combblas_files = {"small": "ran_small_p36_notiming_august12.det", "medium": "ran_medium_p36_notiming_august12.det", "large": "ran_large_p36_notiming_august12.det", "huge": "ran_huge_p36_notiming_august12.det"}
 	combblas_file = "result_ipdps_bfs_real_combblas.txt"
 	# combblas file format: each line is a tab-delimited tuple:
 	# core count, [small|medium|large|huge], min time, max time, mean time
@@ -127,6 +128,8 @@ elif runtype == "bfsreal":
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 	
 	result_type = "BFS"
+	
+	real_graph_sizes = ["small", "medium", "large", "huge"]
 	
 	def parseCombBLAS(data):
 		if not os.path.isfile(combblas_file):
@@ -231,13 +234,27 @@ def getFunnyCore(core, iteration):
 	spread = core/2.0
 	return float(core) + iteration/16.0*spread
 
+def getFunnyGraphSize(graphsize, iteration):
+	if iteration == 0:
+		return graphsize
+	
+	return graphsize+str(iteration)
+
 if showIndividualIterations:
 	funnyCores = []
 	for core in cores.keys():
-		funnyCores.append(core - 0.1)
+		funnyCores.append(core - 0.1) # for a gap in the plot
 		funnyCores.append(core)
 		for i in range(1,17):
 			funnyCores.append(getFunnyCore(core, i))
+	
+	funnyGraphSizes = []
+	for g in real_graph_sizes:
+		funnyGraphSizes.append(g)
+		for i in range(1,20): # one extra to put a gap in the plot
+			funnyGraphSizes.append(getFunnyGraphSize(g, i))
+	real_graph_sizes = funnyGraphSizes
+	
 
 #######################
 ## data structure
@@ -249,25 +266,6 @@ data = []
 
 ######################
 ## parse
-
-# parse KDT
-
-if parseRealFiles:
-	core = cores.keys()[0]
-	for (graphsize, file) in files.items():
-		if not os.path.isfile(file):
-			print "file not found:",file
-			continue
-		
-		for line in open(file, 'r'):
-			for var in varieties:
-				if line.find(var) != -1:
-					feats = line.split("\t")
-					# var = feats[0]
-					# filter = int(float(feats[1]))
-					# : = feats[2]
-					time = float(feats[3])
-					data.append((core, var, graphsize, time))
 
 # parse CombBLAS
 def parseCombBLASIterations(file):
@@ -289,19 +287,39 @@ def parseCombBLASIterations(file):
 
 if raw_combblas_files is not None and algorithm != "mis":
 	exp = "CombBLAS_OTF"
-	for (core, file) in raw_combblas_files.items():
+
+	for (first, file) in raw_combblas_files.items():
 		if not os.path.isfile(file):
 			print "file not found:",file
 			continue
+
+		if parseProcFiles:
+			core = first
+		elif parseRealFiles:
+			core = cores.keys()[0]
+			graphsize = first
+
 		parsed = parseCombBLASIterations(file)
 		for run in parsed:
 			times = run[0]
-			filter = run[1]
+			if parseProcFiles:
+				filter = run[1]
+			else:
+				filter = graphsize
 			
 			if showIndividualIterations:
 				iteration = 1
 				for t in times:
-					data.append((getFunnyCore(core, iteration), showIndividualIterations_claim_to_be%(exp), filter, t))
+					if parseProcFiles:
+						filter_val = filter
+						core_val = getFunnyCore(core, iteration)
+					else:
+						filter_val = getFunnyGraphSize(graphsize, iteration)
+						core_val = core
+						print filter_val, "ccblas"
+					#data.append((d[0], showIndividualIterations_claim_to_be%(exp), filter_val, d[3]))
+
+					data.append((core_val, showIndividualIterations_claim_to_be%(exp), filter_val, t))
 					iteration += 1
 			
 			# summarize
@@ -315,74 +333,66 @@ if raw_combblas_files is not None and algorithm != "mis":
 else:
 	parseCombBLAS(data)
 
+#############
+# parse KDT data
 # get detailed data about each individual BFS iteration
 # parse individual BFS or MIS iterations then calculate stats
 if parseProcFiles:
-	for (core, file) in cores.items():
-		if not os.path.isfile(file):
-			print "file not found:",file
+	fileItems = cores.items()
+elif parseRealFiles:
+	fileItems = files.items()
+	
+for (first, file) in fileItems:
+	if not os.path.isfile(file):
+		print "file not found:",file
+		continue
+	
+	if parseProcFiles:
+		core = first
+	elif parseRealFiles:
+		core = cores.keys()[0]
+		graphsize = first
+
+	iterationData = []
+	iteration = 1
+	for line in open(file, 'r'):
+		if line.find("(result discarded)") != -1:
 			continue
-		iterationData = []
-		iteration = 1
-		for line in open(file, 'r'):
-			if line.find("(result discarded)") != -1:
-				continue
 
-			#############################################
-			if algorithm == "bfs":
-				if line.find("iteration") != -1:
-					feats = line.split("\t")
-					filter = int(float(feats[0]))
-					#iteration string = feats[1]
-					iteration = len(iterationData)+1 # easier than parsing out the string
-					time = float(feats[2])
-					
-					iterationData.append((getFunnyCore(core, iteration), "", filter, time))
-				elif line.find("BFS execution times") != -1:
-					# found out what the previous iterations were for
-					exp = line[(line.find("(")+1) : (line.find(")"))]
-					if isExperiment(exp):
-						# got all the data for an experiment, so summarize it
-						print "found variety:", var
-						times = []
-						for d in iterationData:
-							times.append(d[3])
-							filter = d[2]
-							if showIndividualIterations:
-								data.append((d[0], showIndividualIterations_claim_to_be%(exp), d[2], d[3]))
-
-						stats = compute_stats(times)
+		#############################################
+		if algorithm == "bfs":
+			if line.find("iteration") != -1:
+				feats = line.split("\t")
+				filter = int(float(feats[0]))
+				#iteration string = feats[1]
+				iteration = len(iterationData)+1 # easier than parsing out the string
+				time = float(feats[2])
 				
-						data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
-						data.append((core, "min_%stime"%exp, filter, stats["min"]))
-						data.append((core, "max_%stime"%exp, filter, stats["max"]))
-						data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
-						data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
-
-					iterationData = []
-				elif len(line) > 1:
-					iterationData = []
-			#############################################
-			elif algorithm == "mis": 
-				if line.find("procs time:") != -1:
-					feats = line.split("\t")
-					var = feats[0]
-					#core = feats[1]
-					time = float(feats[3])
-					iterationData.append((getFunnyCore(core, iteration), var, -1, time))
-					iteration += 1
-				if line.find("min_") != -1 and len(iterationData) > 0: # first line that has the filter amount
-					feats = line.split("\t")
-					filter = int(float(feats[1]))
+				if parseProcFiles:
+					iterationData.append((getFunnyCore(core, iteration), "", filter, time))
+				else:
+					iterationData.append((core, "", filter, time))
+			elif line.find("BFS execution times") != -1:
+				# found out what the previous iterations were for
+				exp = line[(line.find("(")+1) : (line.find(")"))]
+				if isExperiment(exp):
+					# got all the data for an experiment, so summarize it
+					print "found variety:", var
 					times = []
+					iteration = 1
 					for d in iterationData:
 						times.append(d[3])
-						exp = d[1]
+						filter = d[2]
+						if parseRealFiles:
+							filter = graphsize # small/medium/large/huge
 						if showIndividualIterations:
-							data.append((d[0], showIndividualIterations_claim_to_be%(d[1]), filter, d[3]))
-					iteration = 1
-					iterationData = []
-
+							if parseProcFiles:
+								filter_val = filter
+							else:
+								filter_val = getFunnyGraphSize(filter, iteration)
+							data.append((d[0], showIndividualIterations_claim_to_be%(exp), filter_val, d[3]))
+							iteration += 1
+							
 					stats = compute_stats(times)
 			
 					data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
@@ -390,8 +400,40 @@ if parseProcFiles:
 					data.append((core, "max_%stime"%exp, filter, stats["max"]))
 					data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
 					data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
-	#for d in data:
-	#	print d			
+
+				iterationData = []
+			elif len(line) > 1:
+				iterationData = []
+		#############################################
+		elif algorithm == "mis": 
+			if line.find("procs time:") != -1:
+				feats = line.split("\t")
+				var = feats[0]
+				#core = feats[1]
+				time = float(feats[3])
+				iterationData.append((getFunnyCore(core, iteration), var, -1, time))
+				iteration += 1
+			if line.find("min_") != -1 and len(iterationData) > 0: # first line that has the filter amount
+				feats = line.split("\t")
+				filter = int(float(feats[1]))
+				times = []
+				for d in iterationData:
+					times.append(d[3])
+					exp = d[1]
+					if showIndividualIterations:
+						data.append((d[0], showIndividualIterations_claim_to_be%(d[1]), filter, d[3]))
+				iteration = 1
+				iterationData = []
+
+				stats = compute_stats(times)
+		
+				data.append((core, "mean_%stime"%exp, filter, stats["mean"]))
+				data.append((core, "min_%stime"%exp, filter, stats["min"]))
+				data.append((core, "max_%stime"%exp, filter, stats["max"]))
+				data.append((core, "firstquartile_%stime"%exp, filter, stats["q1"]))
+				data.append((core, "thirdquartile_%stime"%exp, filter, stats["q3"]))
+#for d in data:
+#	print d			
 
 ######################
 ## function to determine if there's any data for a particular core count
@@ -526,7 +568,7 @@ if doPermeabilityPlot:
 	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
 	gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 	gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
-	gnuplot += ''
+	gnuplot += '\n'
 	gnuplot += 'set xrange [-5:105]\n'
 	gnuplot += 'set yrange [0.1:32]\n'
 	gnuplot += 'set logscale y\n'
@@ -578,7 +620,7 @@ if doRealScalabilityPlot:
 			continue
 
 		print "=== real data ==="
-		grid = format_table(data, 0, plot_core_cnt, varieties, ["small", "medium", "large", "huge"], 1, 2, 3, row_ids_are_strings=True)
+		grid = format_table(data, 0, plot_core_cnt, varieties, real_graph_sizes, 1, 2, 3, row_ids_are_strings=True)
 		print grid
 	
 		filestem = "gnuplot_real_%d_%s_%s"%(plot_core_cnt, machine, algorithm)
@@ -588,7 +630,13 @@ if doRealScalabilityPlot:
 		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += ''
-		gnuplot += 'set xrange [-0.5:3.5]\n'
+		if showIndividualIterations:
+			gnuplot += 'set xrange [-0.5:80]\n'
+		else:
+			gnuplot += 'set xrange [-0.5:3.5]\n'
+		gnuplot += '\n'
+		gnuplot += 'set datafile missing "-"\n'
+		gnuplot += '\n'
 		gnuplot += 'set yrange [0.01:32]\n'
 		gnuplot += 'set logscale y\n'
 		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
@@ -619,7 +667,7 @@ if doRealScalabilityPlot:
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 			elif errorbars == "errorbars":
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
 		print gnuplot
