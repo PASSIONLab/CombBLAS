@@ -32,7 +32,7 @@ for arg in sys.argv[2:]:
 
 def getTerminalString(format):
 	if format=="eps":
-		return "postscript eps color"
+		return "postscript eps color size 2.5,2"
 	return format
 	
 ######################
@@ -248,12 +248,13 @@ if showIndividualIterations:
 		for i in range(1,17):
 			funnyCores.append(getFunnyCore(core, i))
 	
-	funnyGraphSizes = []
-	for g in real_graph_sizes:
-		funnyGraphSizes.append(g)
-		for i in range(1,20): # one extra to put a gap in the plot
-			funnyGraphSizes.append(getFunnyGraphSize(g, i))
-	real_graph_sizes = funnyGraphSizes
+	if parseRealFiles:
+		funnyGraphSizes = []
+		for g in real_graph_sizes:
+			funnyGraphSizes.append(g)
+			for i in range(1,20): # one extra to put a gap in the plot
+				funnyGraphSizes.append(getFunnyGraphSize(g, i))
+		real_graph_sizes = funnyGraphSizes
 	
 
 #######################
@@ -541,7 +542,7 @@ if doFilterGrid:
 				# errorbars data: x:y:ylow:yhigh
 				# 1, +0, +1, +2
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
 		print gnuplot
@@ -599,7 +600,7 @@ if doPermeabilityPlot:
 			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 		elif errorbars == "errorbars":
 			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-		gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+		gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 
 	print ""
 	print gnuplot
@@ -667,7 +668,7 @@ if doRealScalabilityPlot:
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 			elif errorbars == "errorbars":
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
 	
 		print ""
 		print gnuplot

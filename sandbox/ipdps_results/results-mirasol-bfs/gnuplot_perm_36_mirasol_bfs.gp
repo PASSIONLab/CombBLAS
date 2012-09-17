@@ -1,6 +1,7 @@
 set title "Effects of Filter Permeability (36 processes)"
-set terminal postscript eps color
+set terminal postscript eps color size 2.5,2
 set output "gnuplot_perm_36_mirasol_bfs.eps"
+
 set xrange [-5:105]
 set yrange [0.1:32]
 set logscale y
