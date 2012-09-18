@@ -351,6 +351,7 @@ CombBLAS/Applications/filter_debug.txt -text
 CombBLAS/Applications/genscripts -text
 CombBLAS/Applications/graph_p25_singleiter_scale21 -text
 CombBLAS/Applications/gridtransposer.py -text
+CombBLAS/Applications/hyperthread_finder.cpp -text
 CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh.notiming -text
 CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh.scale30 -text
 CombBLAS/Applications/jaguar_runtimes/script11664_jaguar.sh_timing -text
