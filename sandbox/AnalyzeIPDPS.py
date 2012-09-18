@@ -2,10 +2,10 @@ import sys
 import re
 import os
 
-from stats import compute_stats
+from stats import compute_stats as compute_stats_lib
 
 filters = [1, 10, 25, 100]
-errorbars = "candlesticks" # also "errorbars" or None
+errorbars = None #"candlesticks" # also "errorbars" or None
 runtype = None
 
 if len(sys.argv) < 2:
@@ -16,9 +16,22 @@ runtype = sys.argv[1]
 graphformat = "png"
 machine = "mirasol"
 algorithm = "bfs"
+showTitle = False
+showLegend = False
+simpleLegend = False
+ignoreGrossOutliers = False
+addMaterialized = False
+
+linestyle = "lt 1 lw 7" # solid line with weight 7
+gnuplotSetting = ""
+gnuplotSetting += "set pointsize 1.5\n"
+#gnuplotSetting += "set key left center\n"
+# if you want lines instead of linespoints then replace all "with linespoints" with "with lines"
+terminalSize = "2.5,2"
 
 showIndividualIterations = False
 showIndividualIterations_claim_to_be = "mean_%stime"
+
 
 for arg in sys.argv[2:]:
 	if arg == "hopper" or arg == "mirasol":
@@ -29,14 +42,59 @@ for arg in sys.argv[2:]:
 		graphformat = arg
 	elif arg == "indiv":
 		showIndividualIterations = True
+	elif arg == "nooutliers":
+		ignoreGrossOutliers = True
+	elif arg == "title":
+		showTitle = True
+	elif arg == "key":
+		showLegend = True
+	elif arg == "mat":
+		addMaterialized = True
+	elif arg == "simple":
+		simpleLegend = True
+	elif arg == "wide":
+		terminalSize = "3.3,2"
 
 def getTerminalString(format):
 	if format=="eps":
-		return "postscript eps color size 2.5,2"
+		return "postscript eps color size %s"%(terminalSize)
 	return format
+
+
+def compute_stats(arr):
+	global ignoreGrossOutliers
+	
+	if ignoreGrossOutliers:
+		# ignore values that are twice the quadrants or more from the median
+		init_stats = compute_stats_lib(arr)
+		
+		pruned_arr = []
+		for d in arr:
+			median = init_stats["median"]
+			uplimit = median+2*(init_stats["q3"]-median)
+			downlimit = median-2*(median-init_stats["q1"])
+			if d <= uplimit and d >= downlimit:
+				pruned_arr.append(d)
+		return compute_stats_lib(pruned_arr)		
+	else:
+		return compute_stats_lib(arr)
+		
+def simple_or_complicated(simple, complicated):
+	global simpleLegend
+	if simpleLegend:
+		return simple
+	else:
+		return complicated
 	
 ######################
 ## setup experiment to plot
+experiments = [("PythonSR_PythonFilter_OTF", simple_or_complicated("KDT", "Python/Python KDT"), "#FF0000", "pt 5"), # red (kinda light)
+		(simple_or_complicated("disabled", "PythonSR_SejitsFilter_OTF"), simple_or_complicated("disabled", "Python/SEJITS KDT"), "#228B22", "pt 11"), # forest green. used to be dark red (#8B0000)
+#		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
+#		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
+		("SejitsSR_SejitsFilter_OTF", simple_or_complicated("KDT+SEJITS", "SEJITS/SEJITS KDT"), "#0000FF", "pt 13"), # blue (but it's dark)
+		("CombBLAS_OTF", simple_or_complicated("CombBLAS", "C++/C++ CombBLAS"), "#DAA520", "pt 7")] # gold is FFD700, DAA520 is darker gold
+#		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
 
 ######################
 ## RMAT BFS
@@ -52,6 +110,8 @@ if runtype == "bfs":
 		else:
 			core_xrange = "0.9:40"
 		filtergrid_yrange = "0.1:256"
+
+		permeability_plot_core_counts = [36]
 	else:
 		cores = {121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2048: "result_ipdps_bfs_25_2048.txt"}
 		combblas_file = "result_ipdps_bfs_25_combblas.txt"
@@ -61,17 +121,21 @@ if runtype == "bfs":
 		filtergrid_yrange = "0.1:256"
 		
 		machine = "hopper"
+		
+		permeability_plot_core_counts = [576, 1024]
 
-	# combblas file format: each line is a tab-delimited tuple:
-	# core count, filter percentage, min time, max time, mean time
-	
-	experiments = [("PythonSR_PythonFilter_OTF", "Python/Python KDT", "#FF0000"), # red (kinda light)
-		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#8B0000"), # dark red
-#		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
-#		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
-		("SejitsSR_SejitsFilter_OTF", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
-		("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold is FFD700, DAA520 is darker gold
-#		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
+
+#	experiments = [("PythonSR_PythonFilter_OTF", simple_or_complicated("KDT", "Python/Python KDT"), "#FF0000", "pt 5"), # red (kinda light)
+#		(simple_or_complicated("disabled", "PythonSR_SejitsFilter_OTF"), simple_or_complicated("disabled", "Python/SEJITS KDT"), "#228B22", "pt 11"), # forest green. used to be dark red (#8B0000)
+##		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
+##		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
+#		("SejitsSR_SejitsFilter_OTF", simple_or_complicated("KDT+SEJITS", "SEJITS/SEJITS KDT"), "#0000FF", "pt 13"), # blue (but it's dark)
+#		("CombBLAS_OTF", simple_or_complicated("CombBLAS", "C++/C++ CombBLAS"), "#DAA520", "pt 7")] # gold is FFD700, DAA520 is darker gold
+##		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
+
+	if addMaterialized:
+		# todo: get the actual data
+		pass
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
@@ -116,13 +180,13 @@ elif runtype == "bfsreal":
 	# combblas file format: each line is a tab-delimited tuple:
 	# core count, [small|medium|large|huge], min time, max time, mean time
 	
-	experiments = [("PythonSR_PythonFilter_OTF", "Python/Python KDT", "#FF0000"), # red (kinda light)
-		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#8B0000"), # dark red
-#		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
-#		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
-		("SejitsSR_SejitsFilter_OTF", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
-		("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold
-#		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
+#	experiments = [("PythonSR_PythonFilter_OTF", "Python/Python KDT", "#FF0000", "pt 5"), # red (kinda light)
+#		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#228B22"), # forest green
+##		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
+##		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
+#		("SejitsSR_SejitsFilter_OTF", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
+#		("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold
+##		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
@@ -160,15 +224,17 @@ elif runtype == "mis":
 	cores = {1: "result_ipdps_MIS_1.txt", 4: "result_ipdps_MIS_4.txt", 9: "result_ipdps_MIS_9.txt", 16: "result_ipdps_MIS_16.txt", 25: "result_ipdps_MIS_25.txt", 36: "result_ipdps_MIS_36.txt"}
 	raw_combblas_files = {1: "mis_ran_scale_22_1p.txt", 4: "mis_ran_scale_22_4p.txt", 9: "mis_ran_scale_22_9p.txt", 16: "mis_ran_scale_22_16p.txt", 25: "mis_ran_scale_22_25p.txt", 36: "mis_ran_scale_22_36p.txt"}
 	
-	experiments = [("PythonSR_PythonFilter_ER_OTF_22", "Python/Python KDT", "#FF0000"), # red (kinda light)
-				("PythonSR_SejitsFilter_ER_OTF_22", "Python/SEJITS KDT", "#8B0000"), # dark red
-				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
-				("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold
+	experiments = [("PythonSR_PythonFilter_ER_OTF_22", "Python/Python KDT", "#FF0000", "pt 5"), # red (kinda light)
+				("PythonSR_SejitsFilter_ER_OTF_22", "Python/SEJITS KDT", "#228B22", "pt 11"), # forest green
+				("SejitsSR_SejitsFilter_ER_OTF_22", "SEJITS/SEJITS KDT", "#0000FF", "pt 13"), # blue (but it's dark)
+				("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520", "pt 7")] # gold
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
 
 	result_type = "MIS"
+	
+	permeability_plot_core_counts = [36]
 
 	if showIndividualIterations:
 		core_xrange = "0.9:64"
@@ -378,7 +444,6 @@ for (first, file) in fileItems:
 				exp = line[(line.find("(")+1) : (line.find(")"))]
 				if isExperiment(exp):
 					# got all the data for an experiment, so summarize it
-					print "found variety:", var
 					times = []
 					iteration = 1
 					for d in iterationData:
@@ -500,11 +565,13 @@ if doFilterGrid:
 		filestem = "gnuplot_filtergrid_%d_%s_%s"%(filter, machine, algorithm)
 		
 		gnuplot = ""
-		gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
+		if showTitle:
+			gnuplot += 'set title "Filtered %s (%d%% permeability)"\n'%(result_type, filter)
 		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += '\n'
 		gnuplot += 'set datafile missing "-"\n'
+		gnuplot += gnuplotSetting
 		gnuplot += '\n'
 		gnuplot += 'set xrange [%s]\n'%(core_xrange)
 		gnuplot += 'set yrange [%s]\n'%(filtergrid_yrange)
@@ -513,6 +580,9 @@ if doFilterGrid:
 		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
 		gnuplot += "set xlabel 'Number of MPI Processes'\n"
 		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
+		if not showLegend:
+			gnuplot += "set nokey\n"
+
 		
 		xtics = ""
 		cc = cores.keys()
@@ -542,7 +612,7 @@ if doFilterGrid:
 				# errorbars data: x:y:ylow:yhigh
 				# 1, +0, +1, +2
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' %s lc rgb \'%s\' %s with linespoints%s\n'%(filestem, exp_col_start, experiments[i][1], linestyle, experiments[i][2], experiments[i][3], comma)
 	
 		print ""
 		print gnuplot
@@ -557,61 +627,68 @@ if doFilterGrid:
 
 ######################
 ## permeability plot, increasing filter permeability on largest core count
-if doPermeabilityPlot:	
-	core_cnt = max(cores.keys())
-	print "=== filter permeability ==="
-	grid = format_table(data, 0, core_cnt, varieties, [1, 10, 25, 100], 1, 2, 3)
-	print grid
-
-	filestem = "gnuplot_perm_%d_%s_%s"%(core_cnt, machine, algorithm)
+if doPermeabilityPlot:
+	for core_cnt in permeability_plot_core_counts:
+		print "=== filter permeability for",core_cnt," ==="
+		grid = format_table(data, 0, core_cnt, varieties, [1, 10, 25, 100], 1, 2, 3)
+		print grid
 	
-	gnuplot = ""
-	gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
-	gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
-	gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
-	gnuplot += '\n'
-	gnuplot += 'set xrange [-5:105]\n'
-	gnuplot += 'set yrange [0.1:32]\n'
-	gnuplot += 'set logscale y\n'
-	gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
-	gnuplot += "set xlabel 'Filter Permeability'\n"
-	gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
-	gnuplot += "set key right bottom\n"
-	
-	xtics = ""
-	cc = filters
-	for i in range(len(cc)):
-		if i+1 < len(cc):
-			comma = ", "
+		filestem = "gnuplot_perm_%d_%s_%s"%(core_cnt, machine, algorithm)
+		
+		gnuplot = ""
+		if showTitle:
+			gnuplot += 'set title "Effects of Filter Permeability (%d processes)"\n'%(core_cnt)
+		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
+		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
+		gnuplot += '\n'
+		gnuplot += gnuplotSetting
+		gnuplot += '\n'
+		gnuplot += 'set xrange [0.9:110]\n'
+		gnuplot += 'set yrange [0.05:32]\n'
+		gnuplot += 'set logscale y\n'
+		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
+		gnuplot += "set xlabel 'Filter Permeability'\n"
+		gnuplot += 'set logscale x\n'
+		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
+		if showLegend:
+			gnuplot += "set key right bottom\n"
 		else:
-			comma = ""
-		xtics += "'%d%%%%' %d%s"%(cc[i], cc[i], comma)
+			gnuplot += "set nokey\n"
+		
+		xtics = ""
+		cc = [1, 10, 100] #filters
+		for i in range(len(cc)):
+			if i+1 < len(cc):
+				comma = ", "
+			else:
+				comma = ""
+			xtics += "'%d%%%%' %d%s"%(cc[i], cc[i], comma)
+		
+		gnuplot += "set xtics (%s)\n"%xtics
+		gnuplot += 'plot\\\n'
+		vars_per_exp = len(experiment_varieties)
+		for i in range(len(experiments)):
+			exp_col_start = 1 + vars_per_exp*i + 1
+			if i+1 < len(experiments):
+				comma = ",\\"
+			else:
+				comma = ""
+			if errorbars == "candlesticks":
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
+			elif errorbars == "errorbars":
+				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
+			gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' %s lc rgb \'%s\' %s with linespoints%s\n'%(filestem, exp_col_start, experiments[i][1], linestyle, experiments[i][2], experiments[i][3], comma)
 	
-	gnuplot += "set xtics (%s)\n"%xtics
-	gnuplot += 'plot\\\n'
-	vars_per_exp = len(experiment_varieties)
-	for i in range(len(experiments)):
-		exp_col_start = 1 + vars_per_exp*i + 1
-		if i+1 < len(experiments):
-			comma = ",\\"
-		else:
-			comma = ""
-		if errorbars == "candlesticks":
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
-		elif errorbars == "errorbars":
-			gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-		gnuplot += ' "%s.dat" every ::1 using 1:%d title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
-
-	print ""
-	print gnuplot
+		print ""
+		print gnuplot
+		
+		f = open('%s.dat'%filestem, 'w')
+		f.write(grid)
+		f.close()
 	
-	f = open('%s.dat'%filestem, 'w')
-	f.write(grid)
-	f.close()
-
-	f = open('%s.gp'%filestem, 'w')
-	f.write(gnuplot)
-	f.close()
+		f = open('%s.gp'%filestem, 'w')
+		f.write(gnuplot)
+		f.close()
 
 ######################
 ## real data time plot
@@ -627,7 +704,8 @@ if doRealScalabilityPlot:
 		filestem = "gnuplot_real_%d_%s_%s"%(plot_core_cnt, machine, algorithm)
 		
 		gnuplot = ""
-		gnuplot += 'set title "BFS on Twitter Data (%d processes)"\n'%(plot_core_cnt)
+		if showTitle:
+			gnuplot += 'set title "BFS on Twitter Data (%d processes)"\n'%(plot_core_cnt)
 		gnuplot += 'set terminal %s\n'%(getTerminalString(graphformat))
 		gnuplot += 'set output "%s.%s"\n'%(filestem, graphformat)
 		gnuplot += ''
@@ -637,13 +715,17 @@ if doRealScalabilityPlot:
 			gnuplot += 'set xrange [-0.5:3.5]\n'
 		gnuplot += '\n'
 		gnuplot += 'set datafile missing "-"\n'
+		gnuplot += gnuplotSetting
 		gnuplot += '\n'
 		gnuplot += 'set yrange [0.01:32]\n'
 		gnuplot += 'set logscale y\n'
 		gnuplot += 'set grid ytics mytics lt 1 lc rgb "#EEEEEE"\n'
 		gnuplot += "set xlabel 'Twitter Input Graph'\n"
 		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
-		gnuplot += "set key right top\n"
+		if showLegend:
+			gnuplot += "set key right top\n"
+		else:
+			gnuplot += "set nokey\n"
 		
 		xtics = ""
 		cc = ["small", "medium", "large", "huge"]
@@ -668,7 +750,7 @@ if doRealScalabilityPlot:
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with candlesticks,\\\n'%(filestem, exp_col_start+3,exp_col_start+1,exp_col_start+2, exp_col_start+4, experiments[i][2])
 			elif errorbars == "errorbars":
 				gnuplot += ' "%s.dat" every ::1 using 1:%d:%d:%d title \'\' ps 0 lt 1 lc rgb \'%s\' with errorbars,\\\n'%(filestem, exp_col_start,exp_col_start+1,exp_col_start+2, experiments[i][2])
-			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' lw 7 lc rgb \'%s\' with lines%s\n'%(filestem, exp_col_start, experiments[i][1], experiments[i][2], comma)
+			gnuplot += ' "%s.dat" every ::1 using 1:($%d) title \'%s\' %s lc rgb \'%s\' %s with linespoints%s\n'%(filestem, exp_col_start, experiments[i][1], linestyle, experiments[i][2], experiments[i][3], comma)
 	
 		print ""
 		print gnuplot
