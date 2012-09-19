@@ -1,0 +1,3633 @@
+-- Will be using pre-selected starting vertices for large: [8032503, 3187035, 4217991, 10757667, 943598, 2848253, 9322023, 1343828, 3190402, 5937131, 2044637, 1224243, 10690863, 9818564, 9879877, 408150]
+--Reading network from /home/aydin/twitter/twitter_from06_to-09.induced.bin.remapped.bin.converted.balanced
+Read in 56.417949s. Read 	11295959	 vertices and 	636241873	 edges.
+--calculating degrees on original graph
+Calculated in 56.219355s.
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef
+{
+  double myfunc(const Obj2 &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_Obj2double_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_bfbd93b78f3801787b39b750cbda67ef;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return y;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_aafb9d1d9f0662d21fe8c33bafdbc101;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Created SEJITS filter for 	1246406400	% in	0.039392	s.
+--Generating starting verts
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_f478003faf74267d41b8a2b1eb850b07
+{
+  double myfunc(const double &x, const double &y)
+  {
+    return x;
+  }
+  
+                        
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_doubledouble_double = &myfunc;
+                              
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_f478003faf74267d41b8a2b1eb850b07;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_function", &get_function);
+}
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6
+{
+  bool myfunc(const double &x, const double &y)
+  {
+    return y == -1;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
+
+              BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
+              retf->customFuncDD = &myfunc;
+                              
+              BinaryPredicateObj* retO = new BinaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_e5c4ffa654fafac12ead4af3a19935c6;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj_Python()!!!
+BinaryPredicateObj_SEJITS()!!!
+BinaryPredicateObj()!!!
+
+Source code for backend 'c++':
+#include <boost/python.hpp>
+#include "pyOperationsObj.h"
+#include <tr1/memory>
+#define COMBBLAS_TR1
+
+namespace private_namespace_57bcccb429bfcd84817426270dd8d33c
+{
+  bool myfunc(const Obj2 &e)
+  {
+    if ((e.count > 0 && e.latest < 1246406400))
+      return true;
+    else
+      return false;
+  }
+  
+                        
+
+            PyObject* get_predicate()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule();
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
+
+              UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
+              retf->customFuncO2 = &myfunc;
+                              
+              UnaryPredicateObj* retO = new UnaryPredicateObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+              
+              return ret_obj;
+            }
+}
+
+using namespace private_namespace_57bcccb429bfcd84817426270dd8d33c;
+
+BOOST_PYTHON_MODULE(module)
+{
+  boost::python::def("myfunc", &myfunc);
+  boost::python::def("get_predicate", &get_predicate);
+}
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj_Python()!!!
+UnaryPredicateObj_SEJITS()!!!
+UnaryPredicateObj()!!!
+Generated starting verts in 141.017177s.
+--Doing BFS
+12464064.000000	: iteration 1.0: start= 8032503, BFS took 	1.116743	s, covered 	73029	 edges, discovered 	45290	 verts, TEPS incl. filtered edges=	53,480,330	, TEPS=	65,394	 
+12464064.000000	: iteration 2.0: start= 3187035, BFS took 	0.208775	s, covered 	137	 edges, discovered 	131	 verts, TEPS incl. filtered edges=	275,827	, TEPS=	656	 
+12464064.000000	: iteration 3.0: start= 4217991, BFS took 	0.794682	s, covered 	73040	 edges, discovered 	45305	 verts, TEPS incl. filtered edges=	75,157,079	, TEPS=	91,910	 
+12464064.000000	: iteration 4.0: start=10757667, BFS took 	0.907843	s, covered 	73031	 edges, discovered 	45296	 verts, TEPS incl. filtered edges=	65,792,734	, TEPS=	80,444	 
+12464064.000000	: iteration 5.0: start=  943598, BFS took 	0.418714	s, covered 	297	 edges, discovered 	253	 verts, TEPS incl. filtered edges=	764,242	, TEPS=	709	 
+12464064.000000	: iteration 6.0: start= 2848253, BFS took 	0.881634	s, covered 	73053	 edges, discovered 	45312	 verts, TEPS incl. filtered edges=	67,768,421	, TEPS=	82,860	 
+12464064.000000	: iteration 7.0: start= 9322023, BFS took 	0.904409	s, covered 	73021	 edges, discovered 	45290	 verts, TEPS incl. filtered edges=	66,036,260	, TEPS=	80,738	 
+12464064.000000	: iteration 8.0: start= 1343828, BFS took 	0.789328	s, covered 	73029	 edges, discovered 	45296	 verts, TEPS incl. filtered edges=	75,664,794	, TEPS=	92,520	 
+12464064.000000	: iteration 9.0: start= 3190402, BFS took 	0.789993	s, covered 	73078	 edges, discovered 	45332	 verts, TEPS incl. filtered edges=	75,608,170	, TEPS=	92,504	 
+12464064.000000	: iteration 10.0: start= 5937131, BFS took 	0.699878	s, covered 	73019	 edges, discovered 	45289	 verts, TEPS incl. filtered edges=	85,334,559	, TEPS=	104,331	 
+12464064.000000	: iteration 11.0: start= 2044637, BFS took 	0.781903	s, covered 	73071	 edges, discovered 	45322	 verts, TEPS incl. filtered edges=	76,406,565	, TEPS=	93,452	 
+12464064.000000	: iteration 12.0: start= 1224243, BFS took 	0.702809	s, covered 	73019	 edges, discovered 	45289	 verts, TEPS incl. filtered edges=	84,978,694	, TEPS=	103,895	 
+12464064.000000	: iteration 13.0: start=10690863, BFS took 	0.989382	s, covered 	73019	 edges, discovered 	45289	 verts, TEPS incl. filtered edges=	60,364,729	, TEPS=	73,802	 
+12464064.000000	: iteration 14.0: start= 9818564, BFS took 	0.880571	s, covered 	73086	 edges, discovered 	45337	 verts, TEPS incl. filtered edges=	67,897,528	, TEPS=	82,998	 
+12464064.000000	: iteration 15.0: start= 9879877, BFS took 	0.502437	s, covered 	145	 edges, discovered 	122	 verts, TEPS incl. filtered edges=	95,124	, TEPS=	288	 
+12464064.000000	: iteration 16.0: start=  408150, BFS took 	0.019448	s, covered 	0	 edges, discovered 	1	 verts, TEPS incl. filtered edges=	51	, TEPS=	0	 (result discarded)
+
+BFS execution times (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	2.08775043487548828e-01
+  firstquartile_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	6.99877977371215820e-01
+         median_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	7.89993047714233398e-01
+  thirdquartile_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	9.04408931732177734e-01
+            max_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	1.11674308776855469e+00
+           mean_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	7.57940069834391328e-01
+         stddev_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	2.31278009567493642e-01
+          total_SejitsSR_SejitsFilter_OTFtime	12464064.000000	: 	1.136910e+01
+
+number of edges traversed OTF
+            min_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	1.37000000000000000e+02
+  firstquartile_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	7.30190000000000000e+04
+         median_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	7.30290000000000000e+04
+  thirdquartile_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	7.30530000000000000e+04
+            max_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	7.30860000000000000e+04
+           mean_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	5.84715999999999985e+04
+         stddev_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	3.01620681860038057e+04
+          total_SejitsSR_SejitsFilter_OTFnedge	12464064.000000	: 	8.770740e+05
+
+TEPS (SejitsSR_SejitsFilter_OTF)
+            min_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	2.88593329897778005e+02
+  firstquartile_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	6.53946290779596748e+04
+         median_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	8.28609153589892085e+04
+  thirdquartile_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	9.25204895355366461e+04
+            max_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	1.04331043926062368e+05
+  harmonic_mean_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	2.29393412463533468e+03
+harmonic_stddev_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	1.60249802212365864e+02
+
+TEPS including filtered edges (SejitsSR_SejitsFilter_OTF)
+            min_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	9.51243421319613844e+04
+  firstquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	5.34803301261872426e+07
+         median_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	6.77684211427630335e+07
+  thirdquartile_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	7.56647941062035263e+07
+            max_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	8.53345596389904171e+07
+  harmonic_mean_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	9.60436261767329182e+05
+harmonic_stddev_IncFiltered_SejitsSR_SejitsFilter_OTF_TEPS	12464064.000000	: 	6.78304713564551639e+04
+Total runtime for sso on 1246406400% is	169.223101	s.
+Total runtime for everything is		285.779403
