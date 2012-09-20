@@ -2316,6 +2316,9 @@ sandbox/ipdps_results/results-mirasol-bfs/result_ipdps_bfs_22_36.txt -text
 sandbox/ipdps_results/results-mirasol-bfs/result_ipdps_bfs_22_36_old.txt -text
 sandbox/ipdps_results/results-mirasol-bfs/result_ipdps_bfs_22_4.txt -text
 sandbox/ipdps_results/results-mirasol-bfs/result_ipdps_bfs_22_9.txt -text
+sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_16_mirasol_bfs.dat -text
+sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_16_mirasol_bfs.eps -text
+sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_16_mirasol_bfs.gp -text
 sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36_mirasol_bfs.dat -text
 sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36_mirasol_bfs.eps -text
 sandbox/ipdps_results/results-mirasol-bfsreal/gnuplot_real_36_mirasol_bfs.gp -text

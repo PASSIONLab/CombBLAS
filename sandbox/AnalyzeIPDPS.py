@@ -173,20 +173,20 @@ if runtype == "bfs":
 ######################
 ## real data BFS
 elif runtype == "bfsreal":
-	cores = {36: 1}
-	files = {"small": "result_ipdps_bfs_small_36.txt", "medium": "result_ipdps_bfs_medium_36.txt", "large": "result_ipdps_bfs_large_36.txt", "huge": "result_ipdps_bfs_huge_36.txt"}
-	raw_combblas_files = {"small": "ran_small_p36_notiming_august12.det", "medium": "ran_medium_p36_notiming_august12.det", "large": "ran_large_p36_notiming_august12.det", "huge": "ran_huge_p36_notiming_august12.det"}
-	combblas_file = "result_ipdps_bfs_real_combblas.txt"
+	cores = {16: 1}
+	files = {"small": "result_ipdps_bfs_small_16.txt", "medium": "result_ipdps_bfs_medium_16.txt", "large": "result_ipdps_bfs_large_16.txt", "huge": "result_ipdps_bfs_huge_16.txt"}
+	raw_combblas_files = {"small": "small_again_p16_combblas", "medium": "medium_again_p16_combblas", "large": "large_again_p16_combblas", "huge": "huge_again_p16_combblas"}
+	combblas_file = "result_ipdps_bfs_real_combblas_p16.txt"
 	# combblas file format: each line is a tab-delimited tuple:
 	# core count, [small|medium|large|huge], min time, max time, mean time
 	
-#	experiments = [("PythonSR_PythonFilter_OTF", "Python/Python KDT", "#FF0000", "pt 5"), # red (kinda light)
+	experiments = [("PythonSR_PythonFilter_OTF", "KDT", "#FF0000", "pt 5"), # red (kinda light)
 #		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#228B22"), # forest green
-##		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
-##		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
-#		("SejitsSR_SejitsFilter_OTF", "SEJITS/SEJITS KDT", "#0000FF"), # blue (but it's dark)
-#		("CombBLAS_OTF", "C++/C++ CombBLAS", "#DAA520")] # gold
-##		("C++SR_PythonFilter_Mat", "C++/Python KDT (materialized)", "#000000")] # black
+#		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
+#		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
+		("SejitsSR_SejitsFilter_OTF", "SEJITS+KDT", "#0000FF"), # blue (but it's dark)
+		("CombBLAS_OTF", "CombBLAS", "#DAA520")] # gold
+#		("C++SR_PythonFilter_Mat", "KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
 	experiment_varieties = ["mean_IDtime", "min_IDtime", "max_IDtime", "firstquartile_IDtime", "thirdquartile_IDtime"]
@@ -723,7 +723,7 @@ if doRealScalabilityPlot:
 		gnuplot += "set xlabel 'Twitter Input Graph'\n"
 		gnuplot += "set ylabel 'Mean %s Time (seconds, log scale)'\n"%(result_type)
 		if showLegend:
-			gnuplot += "set key right top\n"
+			gnuplot += "set key right bottom\n"
 		else:
 			gnuplot += "set nokey\n"
 		
