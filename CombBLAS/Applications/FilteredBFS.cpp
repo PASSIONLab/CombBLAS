@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale>" << endl;
-			cout << "Example: ./FilteredBFS File twitter_small.txt" << endl;
+			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale> (Optional: double)" << endl;
+			cout << "Example: ./FilteredBFS File twitter_small.txt double" << endl;
 		}
 		MPI_Finalize();
 		return -1;
@@ -126,7 +126,14 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("Read input\n");
 
 			ABool = new PSpMat_Bool(A);
-			MAXTRIALS = 1;
+			if(argc == 4 && string(argv[3]) == string("Double"))
+			{
+				MAXTRIALS = 2;
+			}
+			else 
+			{
+				MAXTRIALS = 1;
+			}
 		}
 		else if(string(argv[1]) == string("Gen"))
 		{
@@ -354,7 +361,7 @@ int main(int argc, char* argv[])
 					parents.DebugPrint();
 				#endif
 					
-					ostringstream outnew;
+					ostringstream outnew;  
 					outnew << i << "th starting vertex was " << Cands[i] << endl;
 					outnew << "Number iterations: " << iterations << endl;
 					outnew << "Number of vertices found: " << parentsp.getnnz() << endl; 
