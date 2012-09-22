@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale> (Optional: double)" << endl;
-			cout << "Example: ./FilteredBFS File twitter_small.txt double" << endl;
+			cout << "Usage: ./FilteredBFS <File, Gen> <Input Name | Scale> (Optional: Double)" << endl;
+			cout << "Example: ./FilteredBFS File twitter_small.txt Double" << endl;
 		}
 		MPI_Finalize();
 		return -1;
