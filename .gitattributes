@@ -139,6 +139,9 @@ CombBLAS/Applications/HopperResults/script4096.final_small- -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Dec23 -text
 CombBLAS/Applications/HopperResults/script529.24pernode_Feb10 -text
 CombBLAS/Applications/HopperResults/script8100.final_small- -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/huge_p16_double -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/large_p16_double -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/medium_p16_double -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_16p.txt -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_1p.txt -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/mis_ran_scale_22_25p.txt -text
@@ -161,6 +164,7 @@ CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_scale23_p36_notiming.det -tex
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_scale23_p4_notiming.det -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_scale23_p9_notiming.det -text
 CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/ran_small_p36_notiming_august12.det -text
+CombBLAS/Applications/IPDPS_DETERMINISTIC_RUNS/small_p16_double -text
 CombBLAS/Applications/MCL.cpp -text
 CombBLAS/Applications/MirasolFilteredRuns/huge_mirasol_p36_directed -text
 CombBLAS/Applications/MirasolFilteredRuns/large_mirasol_p36_directed -text
