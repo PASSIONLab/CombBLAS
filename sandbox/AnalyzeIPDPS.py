@@ -113,11 +113,11 @@ if runtype == "bfs":
 
 		permeability_plot_core_counts = [36]
 	else:
-		cores = {121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2048: "result_ipdps_bfs_25_2048.txt"}
+		cores = {64: "result_ipdps_bfs_25_64.txt", 121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2025: "result_ipdps_bfs_25_2025.txt"}
 		combblas_file = "result_ipdps_bfs_25_combblas.txt"
-		raw_combblas_files = {121: "combblas_bfs_25_121.txt", 256: "combblas_bfs_25_256.txt", 576: "combblas_bfs_25_576.txt", 1024: "combblas_bfs_25_1024.txt", 2048: "combblas_bfs_25_2048.txt"}
+		raw_combblas_files = {64: "combblas_bfs_25_64.txt", 121: "combblas_bfs_25_121.txt", 256: "combblas_bfs_25_256.txt", 576: "combblas_bfs_25_576.txt", 1024: "combblas_bfs_25_1024.txt", 2025: "combblas_bfs_25_2025.txt"}
 
-		core_xrange = "100:2500"
+		core_xrange = "54:2500"
 		filtergrid_yrange = "0.1:256"
 		
 		machine = "hopper"
@@ -184,8 +184,8 @@ elif runtype == "bfsreal":
 #		("PythonSR_SejitsFilter_OTF", "Python/SEJITS KDT", "#228B22"), # forest green
 #		("C++SR_PythonFilter_OTF", "C++/Python KDT", "#90EE90"), # light green
 #		("C++SR_SejitsFilter_OTF", "C++/SEJITS KDT", "#008000"), # green (but it's dark)
-		("SejitsSR_SejitsFilter_OTF", "SEJITS+KDT", "#0000FF"), # blue (but it's dark)
-		("CombBLAS_OTF", "CombBLAS", "#DAA520")] # gold
+		("SejitsSR_SejitsFilter_OTF", "SEJITS+KDT", "#0000FF", "pt 13"), # blue (but it's dark)
+		("CombBLAS_OTF", "CombBLAS", "#DAA520", "pt 7")] # gold
 #		("C++SR_PythonFilter_Mat", "KDT (materialized)", "#000000")] # black
 	
 	# ID will be replaced by strings from experiments array
