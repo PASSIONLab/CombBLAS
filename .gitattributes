@@ -2227,6 +2227,7 @@ sandbox/ipdps_results/results-hopper-bfs/combblas_bfs_25_1024.txt -text
 sandbox/ipdps_results/results-hopper-bfs/combblas_bfs_25_121.txt -text
 sandbox/ipdps_results/results-hopper-bfs/combblas_bfs_25_256.txt -text
 sandbox/ipdps_results/results-hopper-bfs/combblas_bfs_25_576.txt -text
+sandbox/ipdps_results/results-hopper-bfs/combblas_bfs_25_64.txt -text
 sandbox/ipdps_results/results-hopper-bfs/gnuplot_filtergrid_100_hopper_bfs.dat -text
 sandbox/ipdps_results/results-hopper-bfs/gnuplot_filtergrid_100_hopper_bfs.eps -text
 sandbox/ipdps_results/results-hopper-bfs/gnuplot_filtergrid_100_hopper_bfs.gp -text
@@ -2249,9 +2250,11 @@ sandbox/ipdps_results/results-hopper-bfs/gnuplot_perm_2048_hopper_bfs.gp -text
 sandbox/ipdps_results/results-hopper-bfs/gnuplot_perm_2048_hopper_bfs.png -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_1024.txt -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_121.txt -text
+sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_121.txt.old -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_256.txt -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_256_old.txt -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_576.txt -text
+sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_64.txt -text
 sandbox/ipdps_results/results-hopper-bfs/result_ipdps_bfs_25_combblas.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_filtergrid_100_mirasol_mis.dat -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_filtergrid_100_mirasol_mis.eps -text
