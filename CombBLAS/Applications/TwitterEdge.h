@@ -437,7 +437,7 @@ struct LatestRetwitterSelect2nd // also used for finding neighbors of the candid
 	
 	static double add(const double & arg1, const double & arg2)
 	{
-		return std::min(arg1, arg2);
+		return arg2;
 	}
 	
 	static MPI_Op mpi_op() 
