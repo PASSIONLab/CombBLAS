@@ -103,7 +103,7 @@ if runtype == "bfs":
 	if machine == "mirasol":
 		cores = {1: "result_ipdps_bfs_22_1.txt", 4: "result_ipdps_bfs_22_4.txt", 9: "result_ipdps_bfs_22_9.txt", 16: "result_ipdps_bfs_22_16.txt", 25: "result_ipdps_bfs_22_25.txt", 36: "result_ipdps_bfs_22_36.txt"}
 		combblas_file = "result_ipdps_bfs_22_combblas.txt"
-		raw_combblas_files = {1: "ran_scale22_p1_notiming.det", 4: "ran_scale22_p4_notiming.det", 9: "ran_scale22_p9_notiming.det", 16: "ran_scale22_p16_notiming.det", 25: "ran_scale22_p25_notiming.det", 36: "ran_scale22_p36_notiming.det"}
+		raw_combblas_files = {1: "ran_scale22_p1_notiming.det", 4: "ran_scale22_p4_notiming.det", 9: "ran_scale22_p9_notiming.det", 16: "ran_scale22_p16_notiming.det.sep27", 25: "ran_scale22_p25_notiming.det.sep27", 36: "ran_scale22_p36_notiming.det"}
 		
 		if showIndividualIterations:
 			core_xrange = "0.9:64"
