@@ -2275,6 +2275,7 @@ sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36.png -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36_mirasol_mis.dat -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36_mirasol_mis.eps -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36_mirasol_mis.gp -text
+sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36_mirasol_mis.gp.hand -text
 sandbox/ipdps_results/results-mirasol-MIS/gnuplot_perm_36_mirasol_mis.png -text
 sandbox/ipdps_results/results-mirasol-MIS/mis_ran_scale_22_16p.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/mis_ran_scale_22_1p.txt -text
@@ -2284,8 +2285,12 @@ sandbox/ipdps_results/results-mirasol-MIS/mis_ran_scale_22_4p.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/mis_ran_scale_22_9p.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_1.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_16.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_16.txt.old -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_25.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_25.txt.noPPO -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_25.txt.old -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_36.txt -text
+sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_36.txt.old -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_4.txt -text
 sandbox/ipdps_results/results-mirasol-MIS/result_ipdps_MIS_9.txt -text
 sandbox/ipdps_results/results-mirasol-bfs/gnuplot_filtergrid_100_mirasol_bfs.dat -text
