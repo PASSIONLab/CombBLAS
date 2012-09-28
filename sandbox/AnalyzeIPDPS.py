@@ -113,11 +113,11 @@ if runtype == "bfs":
 
 		permeability_plot_core_counts = [36]
 	else:
-		cores = {64: "result_ipdps_bfs_25_64.txt", 121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt", 2025: "result_ipdps_bfs_25_2025.txt"}
+		cores = {64: "result_ipdps_bfs_25_64.txt", 121: "result_ipdps_bfs_25_121.txt", 256: "result_ipdps_bfs_25_256.txt", 576: "result_ipdps_bfs_25_576.txt", 1024: "result_ipdps_bfs_25_1024.txt"}
 		combblas_file = "result_ipdps_bfs_25_combblas.txt"
-		raw_combblas_files = {64: "combblas_bfs_25_64.txt", 121: "combblas_bfs_25_121.txt", 256: "combblas_bfs_25_256.txt", 576: "combblas_bfs_25_576.txt", 1024: "combblas_bfs_25_1024.txt", 2025: "combblas_bfs_25_2025.txt"}
+		raw_combblas_files = {64: "combblas_bfs_25_64.txt", 121: "combblas_bfs_25_121.txt", 256: "combblas_bfs_25_256.txt", 576: "combblas_bfs_25_576.txt", 1024: "combblas_bfs_25_1024.txt"}
 
-		core_xrange = "54:2500"
+		core_xrange = "54:1200"
 		filtergrid_yrange = "0.1:256"
 		
 		machine = "hopper"
