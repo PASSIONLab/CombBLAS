@@ -13,6 +13,6 @@ set ylabel 'Mean BFS Time (seconds, log scale)'
 set key right bottom
 set xtics ('small' 1, 'medium' 2, 'large' 3, 'huge' 4)
 plot\
- "gnuplot_real_16_mirasol_bfs.hand" using 1:2 title 'KDT' lt 1 lw 7 lc rgb '#FF0000' pt 5 with linespoints,\
- "gnuplot_real_16_mirasol_bfs.hand" using 1:3 title 'SEJITS/SEJITS' lt 1 lw 7 lc rgb '#0000FF' pt 13 with linespoints,\
- "gnuplot_real_16_mirasol_bfs.hand" using 1:4 title 'CombBLAS' lt 1 lw 7 lc rgb '#DAA520' pt 7 with linespoints
+ "gnuplot_real_16_mirasol_bfs.hand" using 1:2 title 'Python/Python KDT' lt 1 lw 7 lc rgb '#FF0000' pt 5 with linespoints,\
+ "gnuplot_real_16_mirasol_bfs.hand" using 1:3 title 'SEJITS/SEJITS KDT' lt 1 lw 7 lc rgb '#0000FF' pt 13 with linespoints,\
+ "gnuplot_real_16_mirasol_bfs.hand" using 1:4 title 'C++/C++ CombBLAS' lt 1 lw 7 lc rgb '#DAA520' pt 7 with linespoints
