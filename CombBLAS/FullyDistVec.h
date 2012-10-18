@@ -266,6 +266,9 @@ private:
 
 	template <typename IU>
 	friend void RenameVertices(DistEdgeList<IU> & DEL);
+	
+	template <typename IU, typename NU>
+	friend FullyDistVec<IU,NU> Concatenate ( vector< FullyDistVec<IU,NU> > & vecs);
 };
 
 #include "FullyDistVec.cpp"

@@ -480,10 +480,20 @@ bool Dcsc<IT,NT>::operator==(const Dcsc<IT,NT> & rhs)
 	vector< pair<NT, NT> > error_original_pair(nz);
 	for(IT i=0; i < nz; ++i)
 		error_original_pair[i] = make_pair(error[i], numx[i]);
-	partial_sort(error_original_pair.begin(), error_original_pair.begin()+10, error_original_pair.end(), greater< pair<NT,NT> >());
-	cout << "Highest 10 different entries are: " << endl;
-	for(IT i=0; i < 10; ++i)
-		cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << endl;
+	if(error_original_pair.size() > 10)	// otherwise would crush for small data
+	{
+		partial_sort(error_original_pair.begin(), error_original_pair.begin()+10, error_original_pair.end(), greater< pair<NT,NT> >());
+		cout << "Highest 10 different entries are: " << endl;
+		for(IT i=0; i < 10; ++i)
+			cout << "Diff: " << error_original_pair[i].first << " on " << error_original_pair[i].second << endl;
+	}
+	else
+	{
+		sort(error_original_pair.begin(), error_original_pair.end(), greater< pair<NT,NT> >());
+		cout << "Highest different entries are: " << endl;
+		for(typename vector< pair<NT, NT> >::iterator it=error_original_pair.begin(); it != error_original_pair.end(); ++it)
+			cout << "Diff: " << it->first << " on " << it->second << endl;
+	}
 	cout << "Same before num: " << same << endl;
 #endif
 

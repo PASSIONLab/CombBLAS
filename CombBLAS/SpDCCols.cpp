@@ -815,7 +815,7 @@ void SpDCCols<IT,NT>::PrintInfo() const
 			cout <<", nzc: "<< 0 << endl;
 		}
 
-		if(m < 10 && n < 10)	// small enough to print
+		if(m < PRINT_LIMIT && n < PRINT_LIMIT)	// small enough to print
 		{
 			NT ** A = SpHelper::allocate2D<NT>(m,n);
 			for(IT i=0; i< m; ++i)

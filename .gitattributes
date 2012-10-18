@@ -874,6 +874,7 @@ CombBLAS/Test/output -text
 CombBLAS/Test/promote.h -text
 CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
+CombBLAS/TestCXXAcceptsFlag.cmake -text
 CombBLAS/VecIterator.cpp -text
 CombBLAS/VecIterator.h -text
 CombBLAS/bc-runtimes/SCALE16/100cores_b256_tile4.out -text
