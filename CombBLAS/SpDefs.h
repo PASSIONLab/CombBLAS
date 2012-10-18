@@ -52,6 +52,7 @@
 #include "psort-1.0/driver/MersenneTwister.h"
 #include "CommGrid.h"
 
+#define PRINT_LIMIT 30
 #define EPSILON 0.01
 #define FLOPSPERLOC 0	// always use SPA based merger inside the sequential code
 #define HEAPMERGE 1	// use heapmerge for accumulating contributions from row neighbors

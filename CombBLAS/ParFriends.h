@@ -3,11 +3,13 @@
 
 #include "mpi.h"
 #include <iostream>
+#include <cstdarg>
 #include "SpParMat.h"	
 #include "SpParHelper.h"
 #include "MPIType.h"
 #include "Friends.h"
 #include "OptBuf.h"
+
 
 using namespace std;
 
@@ -17,6 +19,110 @@ class SpParMat;
 /*************************************************************************************************/
 /**************************** FRIEND FUNCTIONS FOR PARALLEL CLASSES ******************************/
 /*************************************************************************************************/
+
+
+/**
+ ** Concatenate all the FullyDistVec<IT,NT> objects into a single one
+ **/
+template <typename IT, typename NT>
+FullyDistVec<IT,NT> Concatenate ( vector< FullyDistVec<IT,NT> > & vecs)
+{
+	if(vecs.size() < 1)
+	{
+		SpParHelper::Print("Warning: Nothing to concatenate, returning empty ");
+		return FullyDistVec<IT,NT>();
+	}
+	else if (vecs.size() < 2)
+	{
+		return vecs[1];
+	
+	}
+	else 
+	{
+		typename vector< FullyDistVec<IT,NT> >::iterator it = vecs.begin();
+		shared_ptr<CommGrid> commGridPtr = it->getcommgrid();
+		MPI_Comm World = commGridPtr->GetWorld();
+		
+		IT nglen = it->TotalLength();	// new global length
+		IT cumloclen = it->MyLocLength();	// existing cumulative local lengths 
+		++it;
+		for(; it != vecs.end(); ++it)
+		{
+			if(*(commGridPtr) != *(it->getcommgrid()))
+			{
+				SpParHelper::Print("Grids are not comparable for FullyDistVec<IT,NT>::EWiseApply\n");
+				MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+			}
+			nglen += it->TotalLength();
+			cumloclen += it->MyLocLength();
+		}
+		FullyDistVec<IT,NT> ConCat (commGridPtr, nglen, NT());	
+		int nprocs = commGridPtr->GetSize();
+		
+		vector< vector< NT > > data(nprocs);
+		vector< vector< IT > > inds(nprocs);
+		IT gloffset = 0;
+		for(it = vecs.begin(); it != vecs.end(); ++it)
+		{
+			IT loclen = it->LocArrSize();
+			for(IT i=0; i < loclen; ++i)
+			{
+				IT locind;
+				IT loffset = it->LengthUntil();
+				int owner = ConCat.Owner(gloffset+loffset+i, locind);	
+				data[owner].push_back(it->arr[i]);
+				inds[owner].push_back(locind);
+			}
+			gloffset += it->TotalLength();
+		}
+		
+		int * sendcnt = new int[nprocs];
+		int * sdispls = new int[nprocs];
+		for(int i=0; i<nprocs; ++i)
+			sendcnt[i] = (int) data[i].size();
+		
+		int * rdispls = new int[nprocs];
+		int * recvcnt = new int[nprocs];
+		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs,static_cast<IT>(0));
+		NT * senddatabuf = new NT[cumloclen];
+		for(int i=0; i<nprocs; ++i)
+		{
+			copy(data[i].begin(), data[i].end(), senddatabuf+sdispls[i]);
+			vector<NT>().swap(data[i]);	// delete data vectors
+		}
+		NT * recvdatabuf = new NT[totrecv];
+		MPI_Alltoallv(senddatabuf, sendcnt, sdispls, MPIType<NT>(), recvdatabuf, recvcnt, rdispls, MPIType<NT>(), World);  // send data
+		delete [] senddatabuf;
+		
+		IT * sendindsbuf = new IT[cumloclen];
+		for(int i=0; i<nprocs; ++i)
+		{
+			copy(inds[i].begin(), inds[i].end(), sendindsbuf+sdispls[i]);
+			vector<IT>().swap(inds[i]);	// delete inds vectors
+		}
+		IT * recvindsbuf = new IT[totrecv];
+		MPI_Alltoallv(sendindsbuf, sendcnt, sdispls, MPIType<IT>(), recvindsbuf, recvcnt, rdispls, MPIType<IT>(), World);  // send new inds
+		DeleteAll(sendindsbuf, sendcnt, sdispls);
+
+		for(int i=0; i<nprocs; ++i)
+		{
+			for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)			
+			{
+				ConCat.arr[recvindsbuf[j]] = recvdatabuf[j];
+			}
+		}
+		DeleteAll(recvindsbuf, recvcnt, rdispls);
+		return ConCat;
+	}
+}
 
 template <typename MATRIXA, typename MATRIXB>
 bool CheckSpGEMMCompliance(const MATRIXA & A, const MATRIXB & B)

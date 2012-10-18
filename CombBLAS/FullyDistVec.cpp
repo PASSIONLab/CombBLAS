@@ -515,17 +515,17 @@ NT FullyDistVec<IT,NT>::GetElement (IT indx) const
 template <class IT, class NT>
 void FullyDistVec<IT,NT>::DebugPrint()
 {
-    	int nprocs, rank;
+	int nprocs, rank;
 	MPI_Comm World = commGrid->GetWorld();
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
-    	MPI_File thefile;
+	MPI_File thefile;
 	MPI_File_open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 	IT lengthuntil = LengthUntil();
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-    	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI_INFO_NULL);
+	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI_INFO_NULL);
 
 	IT count = LocArrSize();	
 	MPI_File_write(thefile, &(arr[0]), count, MPIType<NT>(), NULL);
@@ -537,11 +537,11 @@ void FullyDistVec<IT,NT>::DebugPrint()
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistvec", "r");
-                if(!f)
-                {
-                        cerr << "Problem reading binary input file\n";
-                        return;
-                }
+		if(!f)
+		{
+				cerr << "Problem reading binary input file\n";
+				return;
+		}
 		IT maxd = *max_element(counts, counts+nprocs);
 		NT * data = new NT[maxd];
 
@@ -583,7 +583,9 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	{
 		if(glen != other.glen)
 		{
-			cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::EWiseApply\n";
+			SpParHelper::Print(outs.str());
 			MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 		}
 		else
@@ -601,7 +603,9 @@ void FullyDistVec<IT,NT>::EWiseApply(const FullyDistVec<IT,NT2> & other, _Binary
 	}
 	else
 	{
-		cout << "Grids are not comparable elementwise apply" << endl; 
+		ostringstream outs;
+		outs << "Grids are not comparable for FullyDistVec<IT,NT>::EWiseApply" << endl; 
+		SpParHelper::Print(outs.str());
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }	
@@ -781,7 +785,7 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-	IT totrecv = accumulate(recvcnt,recvcnt+nprocs,0);
+	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(data_req[i].begin(), data_req[i].end(), sendbuf+sdispls[i]);
