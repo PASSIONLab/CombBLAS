@@ -6,7 +6,7 @@ from asp.codegen import cpp_ast
 
 class PcbUnaryPredicate(object):
     """
-    Top-level for PCB predicate functions.  
+    Top-level for PCB predicate functions.
 
     """
 
@@ -28,7 +28,7 @@ class PcbUnaryPredicate(object):
             # add some include directories
             for x in include_files:
                 self.mod.add_header(x)
-            self.mod.backends["c++"].toolchain.cc = "mpicxx"
+            #self.mod.backends["c++"].toolchain.cc = "mpicxx"
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#include <tr1/memory>")])
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-g", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
@@ -54,13 +54,13 @@ class PcbUnaryPredicate(object):
         except:
             print "WARNING: Specialization failed, proceeding with pure Python."
             raise
-        
+
     def gen_get_predicate(self):
         # this function generates the code that passes a specialized UnaryPredicateObj back to Python for later use
         # TODO: this should actually generate all the filled possible customFuncs for all datatypes
         import asp.codegen.templating.template as template
         t = template.Template("""
-                        
+
 
             PyObject* get_predicate()
             {
@@ -71,12 +71,12 @@ class PcbUnaryPredicate(object):
 
               UnaryPredicateObj_SEJITS* retf = new UnaryPredicateObj_SEJITS();
               retf->customFuncO2 = &myfunc;
-                              
+
               UnaryPredicateObj* retO = new UnaryPredicateObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-              
+
               return ret_obj;
             }
             """, disable_unicode=True)
@@ -96,7 +96,7 @@ class PcbUnaryPredicate(object):
 
 class PcbBinaryPredicate(PcbUnaryPredicate):
     """
-    Top-level for PCB binary predicate functions.  
+    Top-level for PCB binary predicate functions.
 
     """
 
@@ -118,7 +118,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             # add some include directories
             for x in include_files:
                 self.mod.add_header(x)
-            self.mod.backends["c++"].toolchain.cc = "mpicxx"
+            #self.mod.backends["c++"].toolchain.cc = "mpicxx"
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#include <tr1/memory>")])
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-g", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
@@ -150,7 +150,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
         # TODO: this should actually generate all the filled possible customFuncs for all datatypes
         import asp.codegen.templating.template as template
         t = template.Template("""
-                        
+
 
             PyObject* get_predicate()
             {
@@ -161,12 +161,12 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
 
               BinaryPredicateObj_SEJITS* retf = new BinaryPredicateObj_SEJITS();
               retf->customFuncDD = &myfunc;
-                              
+
               BinaryPredicateObj* retO = new BinaryPredicateObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-              
+
               return ret_obj;
             }
             """, disable_unicode=True)
