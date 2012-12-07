@@ -21,7 +21,7 @@ import kdt.pyCombBLAS as pcb
 #
 # NEEDED: update to new EWiseApply
 # NEEDED: tests
-def bfsTree(self, root, useOldFunc=False, usePythonSemiring=False, SEJITS_Python_SR=False):
+def bfsTree(self, root, useOldFunc=False, usePythonSemiring=False):
 	"""
 	calculates a breadth-first search tree by the edges of the
 	graph, starting from the root vertex. "Breadth-first"
@@ -53,8 +53,6 @@ def bfsTree(self, root, useOldFunc=False, usePythonSemiring=False, SEJITS_Python
 		def f_select2nd(x, y):
 			return y
 		sR = sr(f_select2nd, f_select2nd)
-		if SEJITS_Python_SR:
-			return Vec(self.nvert(), 0, sparse=False)
 	else:
 		sR = sr_select2nd
 	
@@ -832,7 +830,7 @@ DiGraph._findClusterModularity = _findClusterModularity
 ##############################
 # Maximal Independent Set
 
-def MIS(self, use_SEJITS_SR=False):
+def MIS(self):
 	"""
 	find the Maximal Independent Set of an undirected graph.
 

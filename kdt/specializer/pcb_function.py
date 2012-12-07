@@ -22,13 +22,13 @@ class PcbBinaryFunction(object):
             # add some include directories
             for x in include_files:
                 self.mod.add_header(x)
-            self.mod.backends["c++"].toolchain.cc = "mpicxx"
+            #self.mod.backends["c++"].toolchain.cc = "mpicxx"
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#include <tr1/memory>")])
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-O3", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
             self.mod.backends["c++"].toolchain.cflags.append("-DGRAPH_GENERATOR_SEQ=1 -DMPICH_IGNORE_CXX_SEEK -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -Drestrict= -DNDEBUG=1")
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
-                self.mod.backends["c++"].toolchain.ldflags.remove("-bundle") 
+                self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
             # get location of this file & use to include kdt files
             import inspect, os
@@ -57,7 +57,7 @@ class PcbBinaryFunction(object):
 
         import asp.codegen.templating.template as template
         t = template.Template("""
-                        
+
 
             PyObject* get_function()
             {
@@ -68,18 +68,18 @@ class PcbBinaryFunction(object):
 
               BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
               retf->customFunc_${specialized_function_slot} = &myfunc;
-                              
+
               BinaryFunctionObj* retO = new BinaryFunctionObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-              
+
               return ret_obj;
             }
             """, disable_unicode=True)
 
         return t.render(specialized_function_slot=specialized_function_slot)
-        
+
 
 
     def get_function(self):
@@ -108,13 +108,13 @@ class PcbUnaryFunction(object):
             # add some include directories
             for x in include_files:
                 self.mod.add_header(x)
-            self.mod.backends["c++"].toolchain.cc = "mpicxx"
+            #self.mod.backends["c++"].toolchain.cc = "mpicxx"
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#include <tr1/memory>")])
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-O3", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
             self.mod.backends["c++"].toolchain.cflags.append("-DGRAPH_GENERATOR_SEQ=1 -DMPICH_IGNORE_CXX_SEEK -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -Drestrict= -DNDEBUG=1")
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
-                self.mod.backends["c++"].toolchain.ldflags.remove("-bundle") 
+                self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
             # get location of this file & use to include kdt files
             import inspect, os
@@ -144,7 +144,7 @@ class PcbUnaryFunction(object):
 
         import asp.codegen.templating.template as template
         t = template.Template("""
-                        
+
 
             PyObject* get_function()
             {
@@ -155,18 +155,18 @@ class PcbUnaryFunction(object):
 
               UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
               retf->customFunc_${specialized_function_slot} = &myfunc;
-                              
+
               UnaryFunctionObj* retO = new UnaryFunctionObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-              
+
               return ret_obj;
             }
             """, disable_unicode=True)
 
         return t.render(specialized_function_slot=specialized_function_slot)
-        
+
 
 
     def get_function(self):

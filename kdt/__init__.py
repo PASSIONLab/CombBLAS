@@ -22,6 +22,16 @@ import kdt.ObjMethods
 
 import Algorithms
 
+# SEJITS
+from specializer.pcb_predicate import PcbUnaryPredicate
+#from specializer.pcb_predicate import PcbBinaryPredicate
+#from specializer.pcb_function import PcbUnaryFunction
+#from specializer.pcb_function import PcbBinaryFunction
+
+#from Util_SEJITS import SEJITS_enable
+
+
+
 # The imports below are temporary. When their code is finalized
 # they'll get merged into Algorithms.py and Mat.py
 import eig
