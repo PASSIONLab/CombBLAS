@@ -27,7 +27,7 @@
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-neumann) 
 * 
 * <b>Requirements</b>: You need a recent 
-* C++ compiler (gcc version 4.7+, Intel version 12.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
+* C++ compiler (gcc version 4.4+, Intel version 11.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DCOMBBLAS_BOOST option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
 * $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
 * CombBLAS works successfully with GNU, Intel, and PGI compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
