@@ -16,10 +16,10 @@ struct IsOdd : public unary_function<T,bool> {
 
 int main(int argc, char* argv[])
 {
-
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	try
 	{
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
   	{
     		cout << e.what() << endl;
   	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 

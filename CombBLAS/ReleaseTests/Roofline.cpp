@@ -39,10 +39,11 @@ public:
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
-
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+	
 	{
 		int64_t len = INC;
 		time_t now;
@@ -56,8 +57,8 @@ int main(int argc, char* argv[])
 			FullyDistVec<int64_t,ParentType> pvec;
 			pvec.iota(nprocs * len, ParentType());
 	
-			MPI::COMM_WORLD.Barrier();
-			double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+			MPI_Barrier(MPI_COMM_WORLD);
+			double t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 
 			time_t now = time(0);
 			struct tm * timeinfo = localtime( &now);
@@ -67,10 +68,9 @@ int main(int argc, char* argv[])
 			for(int i=0; i< REPEAT; ++i)
 				pvec.EWiseApply(tvec, twitter_mult(monthago));
 
-
-			MPI::COMM_WORLD.Barrier();
-			double t2 = MPI::Wtime(); 	
-
+			MPI_Barrier(MPI_COMM_WORLD);
+			double t2 = MPI_Wtime(); 	
+			
 			if(myrank == 0)
 			{
 				cout<<"EWiseApply Iterations finished"<<endl;	
@@ -82,6 +82,6 @@ int main(int argc, char* argv[])
 			len += INC;
 		}
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }

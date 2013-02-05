@@ -30,9 +30,10 @@ pair< FullyDistVec<IT,IT>, FullyDistVec<IT,NT> > TopK(FullyDistSpVec<IT,NT> & v,
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 8)
 	{
@@ -42,7 +43,7 @@ int main(int argc, char* argv[])
 			cout << "Example: ./SpAsgnTest ../mfiles A_100x100.txt A_with20x30hole.txt dense_20x30matrix.txt A_wdenseblocks.txt 20outta100.txt 30outta100.txt" << endl;
 			cout << "Input files should be under <BASEADDRESS> in tuples format" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -68,11 +69,11 @@ int main(int argc, char* argv[])
 			if(inputvec1.fail() || inputvec2.fail())
 			{
 				cout << "One of the input vector files do not exist, aborting" << endl;
-				MPI::COMM_WORLD.Abort(NOFILE);
+				MPI_Abort(MPI_COMM_WORLD, NOFILE);
 				return -1;
 			}
 		}
-		MPI::COMM_WORLD.Barrier();
+		MPI_Barrier(MPI_COMM_WORLD);
 		typedef SpParMat <int, double , SpDCCols<int,double> > PARDBMAT;
 		PARDBMAT A, Apr, B, C;		// declare objects
 		FullyDistVec<int,int> vec1, vec2;
@@ -128,6 +129,6 @@ int main(int argc, char* argv[])
 		inputvec2.clear();
 		inputvec2.close();
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }

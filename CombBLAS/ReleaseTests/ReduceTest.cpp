@@ -22,9 +22,10 @@ public:
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 4)
 	{
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./ReduceTest <MatrixA> <SumColumns> <SumRows>" << endl;
 			cout << "<Matrix>,<SumColumns>,<SumRows> are absolute addresses, and files should be in triples format" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -43,9 +44,8 @@ int main(int argc, char* argv[])
 
 		ifstream inputB(Bname.c_str());
 		ifstream inputC(Cname.c_str());
-
-		MPI::COMM_WORLD.Barrier();
-	
+		MPI_Barrier(MPI_COMM_WORLD);
+		
 		PSpMat<double>::MPI_DCCols A;	
 		FullyDistVec<int,double> colsums(A.getcommgrid());
 		FullyDistVec<int,double> rowsums(A.getcommgrid());
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 		inputC.clear();
 		inputC.close();
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 

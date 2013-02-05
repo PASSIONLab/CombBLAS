@@ -11,9 +11,10 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 4)
 	{
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./TransposeTest <BASEADDRESS> <Matrix> <MatrixTranspose>" << endl;
 			cout << "Input file <Matrix> and <MatrixTranspose> should be under <BASEADDRESS> in triples format" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -49,6 +50,6 @@ int main(int argc, char* argv[])
 			SpParHelper::Print("ERROR in transpose, go fix it!\n");	
 		}
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
