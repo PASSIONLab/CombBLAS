@@ -402,6 +402,7 @@ CombBLAS/DistEdgeList.cpp -text
 CombBLAS/DistEdgeList.h -text
 CombBLAS/Doxyfile -text
 CombBLAS/Exception.h -text
+CombBLAS/FAQ-combblas.html -text
 CombBLAS/FileHeader.h -text
 CombBLAS/Friends.h -text
 CombBLAS/FullyDist.h -text
@@ -875,6 +876,8 @@ CombBLAS/Test/promote.h -text
 CombBLAS/Test/test.cpp -text
 CombBLAS/Test/vector_test.cpp -text
 CombBLAS/TestCXXAcceptsFlag.cmake -text
+CombBLAS/Users.xlsx -text
+CombBLAS/Users_anonymized.xlsx -text
 CombBLAS/VecIterator.cpp -text
 CombBLAS/VecIterator.h -text
 CombBLAS/bc-runtimes/SCALE16/100cores_b256_tile4.out -text
