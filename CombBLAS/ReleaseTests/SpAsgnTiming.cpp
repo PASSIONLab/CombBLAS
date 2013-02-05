@@ -14,9 +14,10 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 2)
 	{
@@ -24,7 +25,7 @@ int main(int argc, char* argv[])
 		{
 			cout << "Usage: ./IndexingTiming <Scale>" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -71,12 +72,12 @@ int main(int argc, char* argv[])
 			A->SpAsgn(perm,perm,*B);	// overriding A with a structurally similar piece. 
 			A->PrintInfo();
 		
-			double t1 = MPI::Wtime();
+			double t1 = MPI_Wtime();
 			for(int j=0; j< ITERATIONS; ++j)
 			{
 				A->SpAsgn(perm,perm,*B);
 			}	
-			double t2 = MPI::Wtime();
+			double t2 = MPI_Wtime();
 
 			if(myrank == 0)
 			{
@@ -87,6 +88,6 @@ int main(int argc, char* argv[])
 			delete B;
 		}
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }

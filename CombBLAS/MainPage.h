@@ -15,8 +15,8 @@
 *
 * <b>Download</b> 
 * - Read release notes <a href="../release-notes.html">here</a>.
-* - The latest CMake'd tarball (version 1.2.1, April 2012) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12_1.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). 
- The previous version (version 1.2.0, March 2012) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12_1.tgz"> here </a> for backwards compatibility and benchmarking. 
+* - The latest CMake'd tarball (version 1.3.0, Feb 2013) <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_13_0.tar.gz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/NERSC_INSTALL.html">this</a>). 
+ The previous version (version 1.2.1, April 2012) is also available <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLAS_beta_12_1.tgz"> here </a> for backwards compatibility and benchmarking. 
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		-  <i> cmake . </i>
@@ -27,10 +27,10 @@
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-neumann) 
 * 
 * <b>Requirements</b>: You need a recent 
-* C++ compiler (g++ version 4.2 or higher - and compatible), a compliant MPI-2 implementation, and a TR1 library (libstdc++ that comes with g++ 
+* C++ compiler (gcc version 4.7+, Intel version 12.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DCOMBBLAS_BOOST option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
 * $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
-* CombBLAS works successfully with PGI, GNU and Intel compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
+* CombBLAS works successfully with GNU, Intel, and PGI compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
 * 
 * <b>Documentation</b>:
 * This is a reference implementation of the Combinatorial BLAS Library in C++/MPI.
@@ -53,18 +53,18 @@
 * - SpParMat<int, float, SpDCCols<int,float> > A; 
 *
 * The repetitions of int and float types inside the SpDCCols< > is a direct consequence of the static typing of C++
-* and is akin to some STL constructs such as vector<int, SomeAllocator<int> >
+* and is akin to some STL constructs such as vector<int, SomeAllocator<int> >. If your compiler support "auto", then you can have the compiler infer the type.
 *
 * Sparse and dense vectors can be distributed either along the diagonal processor or to all processor. The latter is more space efficient and provides 
 * much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
 * (sparse matrix-dense vector multiplication) 
 *
-* <b> New in version 1.2</b>: 
-* - It is possible to create matrices with globally 64-bit, locally 32-bit indices. This is very handy because the index range 
-* for submatrices are typically addressible with 32-bit indices but the global semantics require 64-bit computation.
-* Example: SpParMat<int64_t, float, SpDCCols<int32_t,float> > A;
-* - Some primitives (Sparse SpMV, EWiseMult, Apply, Set) are hybrid multithreaded within a socket. Read this <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/CombBLASv1.2_threading.txt"> short tutorial </a>.  
-* - A new binary format. Read the manual <a href="http://gauss.cs.ucsb.edu/code/CombBLAS/Input_File_Formats.pdf">here</a>.
+* <b> New in version 1.3</b>: 
+* - MPI C++ bindings are removed since they are no longer supported my MPI-3 standard. All MPI calls are C-style. 
+* - On-the-fly filtering support [7] illustrated through examples (FilteredBFS.cpp, FilteredMIS.cpp, and TwitterEdge.h). 
+* - Frequently asked questions (FAQ) added. 
+* - Maximal Independent Set (MIS) application implememented in the language of linear algebra (FilteredMIS.cpp).
+* - 
 *
 * The supported operations (a growing list) are:
 * - Sparse matrix-matrix multiplication on a semiring SR: PSpGEMM()
@@ -82,16 +82,13 @@
 * 
 * All the binary operations can be performed on matrices with different numerical value representations.
 * The type-traits mechanism will take care of the automatic type promotion, and automatic MPI data type determination.
-* Of course, you have to declare the return value type appropriately (until C++11 is stable, which has <a href="http://www.research.att.com/~bs/C++0xFAQ.html#auto"> auto </a>) 
 *
 * Some features it uses:
 * - templates (for generic types, and for metaprogramming through "curiously recurring template pattern")
 * - operator overloading 
 * - compositors (to avoid intermediate copying) 
-* - <a href="http://www.boost.org"> boost library </a> or TR1 whenever necessary (mostly for shared_ptr and tuple) 
 * - standard library whenever possible
 * - Reference counting using shared_ptr for IITO (implemented in terms of) relationships
-* - MPI-2 one-sided operations
 * - As external code, it utilizes 
 *	- sequence heaps of <a href="http://www.mpi-inf.mpg.de/~sanders/programs/"> Peter Sanders </a>.
 *	- a modified (memory efficient) version of the Viral Shah's <a href="http://gauss.cs.ucsb.edu/~viral/PAPERS/psort/html/psort.html"> PSort </a>.
@@ -113,6 +110,8 @@
 * - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/code/CombBLAS/scale17_bc_inp.tar.gz"> here </a>.
 * - MCL.cpp : An implementation of the MCL graph clustering algorithm.
 * - Graph500.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a>.
+* - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
+* - FilteredBFS.cpp: Filtered breadth-first search on a twitter-like data set. 
 *
 * <b> Performance </b> results of the first two applications can be found in the design paper [1]; Graph 500 results are in a recent BFS paper [4]. The most
 recent sparse matrix indexing, assignment, and multiplication results can be found in [5].
@@ -122,7 +121,8 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
 * - MultTiming.cpp : Parallel SpGEMM tests
 * - IndexingTest.cpp: Various sparse matrix indexing usages
 * - SpAsgnTiming.cpp: Sparse matrix assignment usage and timing. 
-* - FindSparse.cpp : Parallel find/sparse routines akin to Matlab's
+* - FindSparse.cpp : Parallel find/sparse routines akin to Matlab's.
+* - GalerkinNew.cpp : Graph contraction or restriction operator (used in Algebraic Multigrid). 
 *
 * <b> Citation: </b> Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 *
@@ -130,7 +130,7 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
 * - [2] Aydın Buluç and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
 * - [3] Aydın Buluç and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
 * - [4] Aydın Buluç and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. Supercomputing (SC'11), Seattle, USA. <a href="http://arxiv.org/abs/1104.4518">Extended preprint</a>
-* - [5] Aydın Buluç and John R. Gilbert. <i> Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments </i>. SIAM Journal of Scientific Computing (Under Review). <a href="http://arxiv.org/abs/1109.3739"> Preprint </a>
+* - [5] Aydın Buluç and John R. Gilbert. <i> Parallel Sparse Matrix-Matrix Multiplication and Indexing: Implementation and Experiments </i>. SIAM Journal of Scientific Computing, 2012. <a href="http://arxiv.org/abs/1109.3739"> Preprint </a>
 * - [6] Aydın Buluç. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
-*
+* - [7] Aydın Buluç, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. <i> High-Productivity and High-Performance Analysis of Filtered Semantic Graphs </i> , International Parallel and Distributed Processing Symposium (IPDPS), 2013.
 */

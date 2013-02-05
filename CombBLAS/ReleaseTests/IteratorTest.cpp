@@ -10,10 +10,10 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 3)
 	{
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./IteratorTest <BASEADDRESS> <Matrix>" << endl;
 			cout << "Input file <Matrix> should be under <BASEADDRESS> in triples format" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 				count++;
 			}
 		}	
-		MPI::COMM_WORLD.Allreduce( &count, &total, 1, MPIType<int>(), MPI::SUM);
+		MPI_Allreduce( &count, &total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 		
 		if(total == A.getnnz())
 			SpParHelper::Print( "Iteration passed soft test\n");
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 			SpParHelper::Print( "Iteration failed !!!\n") ;
 		
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 

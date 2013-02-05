@@ -20,9 +20,10 @@ bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 3)
 	{
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 		{
 			cout << "Usage: ./IndexingTiming Input/Force/Binary <Inputfile>/<Scale>/<BinaryFile>" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -38,7 +39,6 @@ int main(int argc, char* argv[])
 		PARDBMAT * A;		// declare objects
 		if(string(argv[1]) == string("Input"))
 		{
-			MPI::COMM_WORLD.Barrier();
 			A->ReadDistribute(argv[2], 0);	
 		}
 		else if(string(argv[1]) == string("Binary"))
@@ -104,16 +104,16 @@ int main(int argc, char* argv[])
 		outs << "New balance: " << newbalance << endl;
 		SpParHelper::Print(outs.str());
 
-		MPI::COMM_WORLD.Barrier();
-		double t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+		MPI_Barrier(MPI_COMM_WORLD);
+		double t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 	
 		for(int i=0; i<ITERATIONS; i++)
 		{
 			B = (*A)(p,p);
 		}
 		
-		MPI::COMM_WORLD.Barrier();
-		double t2 = MPI::Wtime(); 	
+		MPI_Barrier(MPI_COMM_WORLD);
+		double t2 = MPI_Wtime(); 	
 
 		if(myrank == 0)
 		{
@@ -139,16 +139,16 @@ int main(int argc, char* argv[])
 			B.PrintInfo();
 		} 
 
-		MPI::COMM_WORLD.Barrier();
-		t1 = MPI::Wtime(); 	// initilize (wall-clock) timer
+		MPI_Barrier(MPI_COMM_WORLD);
+		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i< nclust; i++)
 		{
 			for(int j=0; j < ITERATIONS; j++)
 				B = (*A)(clusters[i], clusters[i]);
 		} 
 
-		MPI::COMM_WORLD.Barrier();
-		t2 = MPI::Wtime(); 	
+		MPI_Barrier(MPI_COMM_WORLD);
+		t2 = MPI_Wtime(); 	
 
 		if(myrank == 0)
 		{
@@ -182,6 +182,6 @@ int main(int argc, char* argv[])
 		
 		delete A;
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }

@@ -13,6 +13,12 @@ double cblas_alltoalltime;
 double cblas_allgathertime;
 #endif
 
+#ifdef _OPENMP
+int cblas_splits = omp_get_max_threads(); 
+#else
+int cblas_splits = 1;
+#endif
+
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -27,9 +33,10 @@ public:
 
 int main(int argc, char* argv[])
 {
-	MPI::Init(argc, argv);
-	int nprocs = MPI::COMM_WORLD.Get_size();
-	int myrank = MPI::COMM_WORLD.Get_rank();
+	int nprocs, myrank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
 	if(argc < 6)
 	{
@@ -38,7 +45,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./MultTest <MatrixA> <MatrixB> <MatrixC> <vecX> <vecY>" << endl;
 			cout << "<MatrixA>,<MatrixB>,<MatrixC> are absolute addresses, and files should be in triples format" << endl;
 		}
-		MPI::Finalize(); 
+		MPI_Finalize(); 
 		return -1;
 	}				
 	{
@@ -51,8 +58,7 @@ int main(int argc, char* argv[])
 		ifstream vecinpx(V1name.c_str());
 		ifstream vecinpy(V2name.c_str());
 
-		MPI::COMM_WORLD.Barrier();
-	
+		MPI_Barrier(MPI_COMM_WORLD);	
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 		typedef SelectMaxSRing<bool, int64_t> SR;	
 
@@ -84,7 +90,6 @@ int main(int argc, char* argv[])
 		}
 
 		FullyDistSpVec<int64_t, double> spy = SpMV<PTDOUBLEDOUBLE>(A, spx);
-		
 		if (spycontrol == spy)
 		{
 			SpParHelper::Print("Sparse SpMV (fully dist) working correctly\n");	
@@ -140,7 +145,7 @@ int main(int argc, char* argv[])
 			spyint64.SaveGathered(of1,0);
 			spyint64buf.SaveGathered(of2,0);
 		}
-		ABool.ActivateThreading(6);
+		ABool.ActivateThreading(cblas_splits);
 		FullyDistSpVec<int64_t, int64_t> spyint64_threaded = SpMV<SR>(ABool, spxint64, false);
 
 		if (spyint64 == spyint64_threaded)
@@ -157,7 +162,7 @@ int main(int argc, char* argv[])
 		vecinpy.clear();
 		vecinpy.close();
 	}
-	MPI::Finalize();
+	MPI_Finalize();
 	return 0;
 }
 
