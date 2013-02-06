@@ -112,7 +112,16 @@ int main(int argc, char* argv[])
 		A.Reduce(colsums, Column, plus<double>(), 0.0);
 		
 		FullyDistVec<int,double> numcols(1, A.getncol());
+
+	#if defined(COMBBLAS_TR1) || defined(COMBBLAS_BOOST) || defined(NOTGNU)
+		vector< FullyDistVec<int,double> > vals2concat;
+		vals2concat.push_back(numcols);
+		vals2concat.push_back(colsums);
+		vals2concat.push_back(colsums);
+		vals2concat.push_back(valsym);
+	#else
 		vector< FullyDistVec<int,double> > vals2concat{numcols, colsums, colsums, valsym};
+	#endif
 		FullyDistVec<int,double> nval = Concatenate(vals2concat);
 		nval.PrintInfo("Values:");
 		
@@ -121,8 +130,15 @@ int main(int argc, char* argv[])
 		FullyDistVec<int,int> firstcolrids(A.getncol(), 0);	// M(2:end,1)
 		firstcolrids.iota(A.getncol(),1);	// fill M(2:end,1)'s row ids
 		rowsym.Apply(bind2nd(plus<int>(), 1));
-		
+
+	#if defined(COMBBLAS_TR1) || defined(COMBBLAS_BOOST) || defined(NOTGNU)
+		vector< FullyDistVec<int,int> > rows2concat;
+		rows2concat.push_back(firstrowrids);
+		rows2concat.push_back(firstcolrids);
+		rows2concat.push_back(rowsym);
+	#else	
 		vector< FullyDistVec<int,int> > rows2concat{firstrowrids, firstcolrids, rowsym};	// C++11 style
+	#endif
 		FullyDistVec<int,int> nrow = Concatenate(rows2concat);
 		nrow.PrintInfo("Row ids:");
 		
@@ -130,8 +146,15 @@ int main(int argc, char* argv[])
 		firstrowcids.iota(A.getncol()+1,0);	// fill M(1,:)'s column ids
 		FullyDistVec<int,int> firstcolcids(A.getncol(), 0);	// M(2:end,1)
 		colsym.Apply(bind2nd(plus<int>(), 1));
-		
+
+	#if defined(COMBBLAS_TR1) || defined(COMBBLAS_BOOST) || defined(NOTGNU)
+		vector< FullyDistVec<int,int> > cols2concat;
+		cols2concat.push_back(firstrowcids);
+		cols2concat.push_back(firstcolcids);
+		cols2concat.push_back(colsym);
+	#else
 		vector< FullyDistVec<int,int> > cols2concat{firstrowcids, firstcolcids, colsym}; // C++11 style
+	#endif
 		FullyDistVec<int,int> ncol = Concatenate(cols2concat);
 		ncol.PrintInfo("Column ids:");
 		
