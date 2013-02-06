@@ -12,6 +12,7 @@
 * Knowledge Discovery Toolbox (KDT) </a>. 
 * - It achieves scalability via its two dimensional distribution and coarse-grained parallelism. 
 * - For an illustrative overview, check out <a href="http://gauss.cs.ucsb.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
+* - Operations among sparse matrices and vectors use arbitrary user defined semirings. Here is a semiring <a href="http://kdt.sourceforge.net/wiki/index.php/Using_Semirings">primer</a>
 * - Check out the <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/FAQ-combblas.html">Frequently asked questions about CombBLAS</a>.
 *
 * <b>Download</b> 
