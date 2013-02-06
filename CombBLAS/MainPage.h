@@ -12,6 +12,7 @@
 * Knowledge Discovery Toolbox (KDT) </a>. 
 * - It achieves scalability via its two dimensional distribution and coarse-grained parallelism. 
 * - For an illustrative overview, check out <a href="http://gauss.cs.ucsb.edu/~aydin/talks/CombBLAS_Nov11.pdf">these slides</a>. 
+* - Check out the <a href="FAQ-combblas.html">Frequently asked questions about CombBLAS</a>. 
 *
 * <b>Download</b> 
 * - Read release notes <a href="../release-notes.html">here</a>.
