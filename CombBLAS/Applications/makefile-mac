@@ -8,7 +8,7 @@ INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DDEBUG
 COMPILER = mpicxx	
-FLAGS = $(DEB) -DCOMBBLAS_TR1 -DTHREADED -fopenmp
+FLAGS = $(DEB) -DCOMBBLAS_TR1 #-DTHREADED -fopenmp
 COMBBLAS = ..
 
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
@@ -72,6 +72,8 @@ clean:
 	rm -f apowers
 	rm -f graph500
 	rm -f *.o
+	rm -f ../graph500-1.2/generator/*.o
+	rm -f ../graph500-1.2/generator/libgraph_generator_seq.a
 
 cleanout:
 	rm out.*
