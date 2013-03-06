@@ -2036,6 +2036,7 @@ Matlab/stuff/rstats.m -text
 Matlab/utils/rmat.m -text
 Matlab/utils/testmat.m -text
 /README.txt -text
+/SEJITS_checklist.txt -text
 examples/BetwCent.py -text
 examples/Cluster.py -text
 examples/DrawGraph.py -text
