@@ -100,13 +100,14 @@ void SpParMat< IT,NT,DER >::FreeMemory ()
 	spSeq = NULL;
 }
 
-
+#if 0
+// Adam: commenting out because of compiler error with MPI_FIle_open
 template <class IT, class NT, class DER>
 void SpParMat< IT,NT,DER >::Dump(string filename) const
 {
 	MPI_Comm World = commGrid->GetWorld();
-    	int rank = commGrid->GetRank;
-    	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
+	int nprocs = commGrid->GetSize();
 		
 	MPI_File thefile;
 	MPI_File_open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
@@ -155,7 +156,7 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 	delete [] prelens;
 	delete [] gen_edges;
 }
-
+#endif
 
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)

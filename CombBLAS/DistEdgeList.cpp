@@ -94,6 +94,10 @@ DistEdgeList<IT>::DistEdgeList(const char * filename, IT globaln, IT globalm): e
 	
 }
 
+#if 0
+// Adam:
+// commenting out because there is a compiler error with MPI_File_open.
+
 template <typename IT>
 void DistEdgeList<IT>::Dump64bit(string filename)
 {
@@ -145,6 +149,7 @@ void DistEdgeList<IT>::Dump32bit(string filename)
 	delete [] prelens;
 	delete [] gen_edges;
 }	
+#endif
 
 template <typename IT>
 DistEdgeList<IT>::~DistEdgeList()
