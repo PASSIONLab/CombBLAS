@@ -35,8 +35,9 @@ class PcbBinaryFunction(object):
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
-                                 [installDir+"/../kdt/pyCombBLAS"],
-                                 library_dirs=[installDir+"/../build/lib.linux-x86_64-2.6"])#,
+                                 [installDir+"/../pyCombBLAS"],
+                                 #library_dirs=[installDir+"/../build/lib.linux-x86_64-2.6"])#,
+                                 library_dirs=[installDir+"/../../build/lib.macosx-10.8-intel-2.7"])#,
             #libraries=["mpichcxx"])
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
@@ -121,8 +122,8 @@ class PcbUnaryFunction(object):
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
-                                 [installDir+"/../kdt/pyCombBLAS"],
-                                 library_dirs=[installDir+"/../build/lib.linux-x86_64-2.7/kdt"],
+                                 [installDir+"../pyCombBLAS"],
+                                 library_dirs=[installDir+"/../../build/lib.linux-x86_64-2.7/kdt"],
                                  libraries=["pyCombBLAS"])
             #libraries=["mpichcxx"])
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
