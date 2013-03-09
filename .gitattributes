@@ -2215,6 +2215,13 @@ kdt/pyCombBLAS/pySpParVecObj2.h -text
 kdt/pyCombBLAS/script1024_hop -text
 kdt/pyCombBLAS/swigpyrun.h -text
 kdt/pyCombBLAS/testscript.py -text
+kdt/specializer/include/doubleint.h -text
+kdt/specializer/include/obj.h -text
+kdt/specializer/include/pyCombBLAS-NoMPI.h -text
+kdt/specializer/include/pyOperationsObj.h -text
+kdt/specializer/include/pyOperationsSEJITS.h -text
+kdt/specializer/include/pyOperationsWorkers.h -text
+kdt/specializer/include/swigpyrun.h -text
 kdt/specializer/pcb_function.py -text
 kdt/specializer/pcb_function_sm.py -text
 kdt/specializer/pcb_operator_convert.py -text

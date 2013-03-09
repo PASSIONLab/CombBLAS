@@ -70,10 +70,10 @@ BinaryPredicateObj binaryObjPred(PyObject *pyfunc)
 /**************************\
 | METHODS
 \**************************/
-BinaryFunctionObj* BinaryFunctionObj::currentlyApplied = NULL;
-MPI_Op BinaryFunctionObj::staticMPIop;
+BinaryFunctionObj* BinaryFunctionObj_MPI_Interface::currentlyApplied = NULL;
+MPI_Op BinaryFunctionObj_MPI_Interface::staticMPIop;
 	
-void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
+void BinaryFunctionObj_MPI_Interface::apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
 	if (*datatype == MPIType< doubleint >())
 		applyWorker(static_cast<doubleint*>(invec), static_cast<doubleint*>(inoutvec), len);
@@ -89,30 +89,39 @@ void BinaryFunctionObj::apply(void * invec, void * inoutvec, int * len, MPI_Data
 
 extern "C" void BinaryFunctionObjApplyWrapper(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
 {
-        BinaryFunctionObj::apply(invec, inoutvec, len, datatype);
+        BinaryFunctionObj_MPI_Interface::apply(invec, inoutvec, len, datatype);
 }
 
-MPI_Op* BinaryFunctionObj::getMPIOp()
+MPI_Op* BinaryFunctionObj_MPI_Interface::mpi_op()
 {
-	if (currentlyApplied != NULL)
+	return &staticMPIop;
+}
+
+void BinaryFunctionObj::getMPIOp()
+{
+	if (BinaryFunctionObj_MPI_Interface::currentlyApplied != NULL)
 	{
 		throw string("There is an internal error in creating an MPI version of a BinaryFunctionObj: Conflict between two BFOs.");
 	}
-	else if (currentlyApplied == this)
+	else if (BinaryFunctionObj_MPI_Interface::currentlyApplied == this)
 	{
-		return &staticMPIop;
+		return;
 	}
 
-	currentlyApplied = this;
+	BinaryFunctionObj_MPI_Interface::currentlyApplied = this;
 	int commutable_flag = int(commutable);
-	MPI_Op_create((MPI_User_function *)BinaryFunctionObjApplyWrapper, commutable_flag, &staticMPIop);
-	return &staticMPIop;
+	MPI_Op_create((MPI_User_function *)BinaryFunctionObjApplyWrapper, commutable_flag, &BinaryFunctionObj_MPI_Interface::staticMPIop);
 }
 
 void BinaryFunctionObj::releaseMPIOp()
 {
-	if (currentlyApplied == this)
-		currentlyApplied = NULL;
+	if (BinaryFunctionObj_MPI_Interface::currentlyApplied == this)
+		BinaryFunctionObj_MPI_Interface::currentlyApplied = NULL;
+}
+
+void clear_BinaryFunctionObj_currentlyApplied()
+{
+	BinaryFunctionObj_MPI_Interface::currentlyApplied = NULL;
 }
 
 /**************************\

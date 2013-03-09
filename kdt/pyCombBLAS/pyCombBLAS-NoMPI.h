@@ -58,7 +58,6 @@ public:
 #include "obj.h"
 
 // RNG
-extern MTRand GlobalMT;
 double _random();
 
 #endif
