@@ -47,6 +47,9 @@ class EWiseArgDescriptor
 };
 
 
+// RNG
+extern MTRand GlobalMT;
+
 //INTERFACE_INCLUDE_BEGIN
 
 void finalize();

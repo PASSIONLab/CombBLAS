@@ -1,7 +1,18 @@
 #ifndef PYOPERATIONOBJ_H
 #define PYOPERATIONOBJ_H
 
+#ifdef PYCOMBBLAS_MPIOK
+#define PYOPERATIONOBJ_H_MPIOK PYCOMBBLAS_MPIOK
+#else
+#define PYOPERATIONOBJ_H_MPIOK 1
+#endif
+
+#if PYOPERATIONOBJ_H_MPIOK
 #include "pyCombBLAS.h"
+#else
+#include "pyCombBLAS-NoMPI.h"
+#endif
+
 #include <functional>
 #include <iostream>
 #include <math.h>
@@ -280,16 +291,10 @@ class BinaryFunctionObj {
           worker.customFunc_Obj2double_Obj2 = tmp->worker.customFunc_Obj2double_Obj2;
       }
     }
-
-	// for creating an MPI_Op that can be used with MPI Reduce
-	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
-	template <class T1, class T2>
-	static void applyWorker(T1 * in, T2 * inout, int * len);
-
-	static BinaryFunctionObj* currentlyApplied;
-	static MPI_Op staticMPIop;
 	
-	MPI_Op* getMPIOp();
+	// For dealing with MPI. The prototypes do not mention MPI so that this header can be compiled without MPI (for SEJITS)
+	// These functions are actually implemented by the class BinaryFunctionObj_MPI_Interface.
+	void getMPIOp();
 	void releaseMPIOp();
 
 //INTERFACE_INCLUDE_BEGIN
@@ -333,6 +338,33 @@ class BinaryFunctionObj {
 };
 
 //INTERFACE_INCLUDE_END
+
+#if PYOPERATIONOBJ_H_MPIOK
+
+class BinaryFunctionObj_MPI_Interface {
+public:
+	// for creating an MPI_Op that can be used with MPI Reduce
+	static void apply(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype);
+	template <class T1, class T2>
+	static void applyWorker(T1 * in, T2 * inout, int * len);
+
+	static BinaryFunctionObj* currentlyApplied;
+	static MPI_Op staticMPIop;
+
+	static MPI_Op* mpi_op();
+};
+
+template <class T1, class T2>
+void BinaryFunctionObj_MPI_Interface::applyWorker(T1 * in, T2 * inout, int * len)
+{
+	for (int i = 0; i < *len; i++)
+	{
+		inout[i] = (*currentlyApplied)(in[i], inout[i]);
+	}
+}
+
+#endif
+
 template <typename RET, typename T1, typename T2>
 RET BinaryFunctionObj_Python::call(const T1& x, const T2& y) const
 {
@@ -504,6 +536,7 @@ RET BinaryFunctionObj_Python::callDO_retO(const double& x, const T2& y) const
 // That can't be done directly because SemiringObj is still an incomplete type at this point, so
 // this prevents some nasty re-ordering of everything in the file.
 void clear_SemiringObj_currentlyApplied();
+void clear_BinaryFunctionObj_currentlyApplied();
 
 inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y) const
 {
@@ -526,7 +559,7 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
         return dres;
 	} else
 	{
-		BinaryFunctionObj::currentlyApplied = NULL;
+		clear_BinaryFunctionObj_currentlyApplied();
 		clear_SemiringObj_currentlyApplied();
 		if (PyErr_Occurred())
 		{
@@ -536,15 +569,6 @@ inline double BinaryFunctionObj_Python::callDD(const double& x, const double& y)
 		else
 			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callDD)");
 		return 0;
-	}
-}
-
-template <class T1, class T2>
-void BinaryFunctionObj::applyWorker(T1 * in, T2 * inout, int * len)
-{
-	for (int i = 0; i < *len; i++)
-	{
-		inout[i] = (*currentlyApplied)(in[i], inout[i]);
 	}
 }
 
@@ -700,8 +724,11 @@ bool BinaryPredicateObj_Python::callDD(const double& x, const double& y) const
 //INTERFACE_INCLUDE_BEGIN
 BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
+//INTERFACE_INCLUDE_END
 
+#if PYOPERATIONOBJ_H_MPIOK
 
+//INTERFACE_INCLUDE_BEGIN
 class SemiringObj {
 //INTERFACE_INCLUDE_END
 	public:
@@ -753,7 +780,8 @@ class SemiringObj {
 	
 	MPI_Op mpi_op()
 	{
-		return *(binfunc_add->getMPIOp());
+		binfunc_add->getMPIOp();
+		return *(BinaryFunctionObj_MPI_Interface::mpi_op());
 	}
 	
 	//doubleint add(const doubleint & arg1, const doubleint & arg2);	
@@ -826,15 +854,20 @@ SemiringObj TimesPlusSemiringObj();
 //SemiringObj MinPlusSemiringObj();
 SemiringObj SecondMaxSemiringObj();
 //SemiringObj SecondSecondSemiringObj();
-} // namespace op
-
 
 //INTERFACE_INCLUDE_END
+#endif
 
+//INTERFACE_INCLUDE_BEGIN
+} // namespace op
+//INTERFACE_INCLUDE_END
+
+#if PYOPERATIONOBJ_H_MPIOK
 // modeled after CombBLAS/Operations.h
 // This call is only safe when between BinaryFunction.getMPIOp() and releaseMPIOp() calls.
 // That should be safe enough, because this is only called from inside CombBLAS reduce operations,
 // which only get called between getMPIOp() and releaseMPIOp().
-template<typename T> struct MPIOp< op::BinaryFunctionObj, T > {  static MPI_Op op() { return op::BinaryFunctionObj::staticMPIop; } };
+template<typename T> struct MPIOp< op::BinaryFunctionObj, T > {  static MPI_Op op() { return op::BinaryFunctionObj_MPI_Interface::staticMPIop; } };
+#endif
 
 #endif

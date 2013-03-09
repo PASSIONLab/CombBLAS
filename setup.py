@@ -355,6 +355,7 @@ if not debug:
 
 ############################################################################
 #### RUN DISTUTILS
+define_macros.append(('SWIG_TYPE_TABLE', 'pyCombBLAS'))
 
 #files for the graph500 graph generator.
 generator_files = [GENERATOR+"btrd_binomial_distribution.c", GENERATOR+"splittable_mrg.c", GENERATOR+"mrg_transitions.c", GENERATOR+"graph_generator.c", GENERATOR+"permutation_gen.c", GENERATOR+"make_graph.c", GENERATOR+"utils.c", GENERATOR+"scramble_edges.c"]

@@ -1173,8 +1173,6 @@ class BinaryPredicateObj {
 
 BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
-
-
 class SemiringObj {
 	protected:
 	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {}
@@ -1189,7 +1187,8 @@ class SemiringObj {
 	
 	MPI_Op mpi_op()
 	{
-		return *(binfunc_add->getMPIOp());
+		binfunc_add->getMPIOp();
+		return *(BinaryFunctionObj_MPI_Interface::mpi_op());
 	}
 	
 	//doubleint add(const doubleint & arg1, const doubleint & arg2);	
@@ -1201,9 +1200,8 @@ SemiringObj TimesPlusSemiringObj();
 //SemiringObj MinPlusSemiringObj();
 SemiringObj SecondMaxSemiringObj();
 //SemiringObj SecondSecondSemiringObj();
+
 } // namespace op
-
-
 
 
 void finalize();
