@@ -10,7 +10,7 @@ BOOST = $(HOME)/boost_1_45_0/
 OPT = -DNDEBUG -fast -DMPICH_IGNORE_CXX_SEEK -DNOTR1 -I$(BOOST) -w
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
 COMPILER = CC
-FLAGS = $(OPT) -fPIC -dynamic
+FLAGS = $(OPT) -fPIC -dynamic -DSWIG_TYPE_TABLE=pyCombBLAS
 
 all: pyCombBLAS.py
 
@@ -37,10 +37,10 @@ MPIType.o:	$(COMBBLAS)/MPIType.cpp $(COMBBLAS)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS)/MPIType.cpp
 
 MemoryPool.o:	$(COMBBLAS)/MemoryPool.cpp $(COMBBLAS)/SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp	
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp
 
 libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
-	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o 
+	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o
 
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator

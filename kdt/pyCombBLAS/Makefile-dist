@@ -8,9 +8,9 @@ COMBBLAS = ../../CombBLAS
 # -fno-exceptions does not work with MPICH2
 # -fno-rtti does not work with tr1:tuples
 
-OPT = -g -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w 
+OPT = -g -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK #-DDEBUG
-FLAGS = $(OPT) -fPIC 
+FLAGS = $(OPT) -fPIC -DSWIG_TYPE_TABLE=pyCombBLAS
 
 all: pyCombBLAS.py
 
@@ -31,10 +31,10 @@ MPIType.o:	$(COMBBLAS)/MPIType.cpp $(COMBBLAS)/MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o MPIType.o $(COMBBLAS)/MPIType.cpp
 
 MemoryPool.o:	$(COMBBLAS)/MemoryPool.cpp $(COMBBLAS)/SpDefs.h
-	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp	
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o MemoryPool.o $(COMBBLAS)/MemoryPool.cpp
 
 libCombBLAS.a: CommGrid.o MPIType.o MemoryPool.o
-	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o 
+	ar rcs libCombBLAS.a CommGrid.o MPIType.o MemoryPool.o
 
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
