@@ -27,10 +27,16 @@ class PcbBinaryFunction(object):
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-O3", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
             self.mod.backends["c++"].toolchain.cflags.append("-DGRAPH_GENERATOR_SEQ=1 -DMPICH_IGNORE_CXX_SEEK -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -Drestrict= -DNDEBUG=1")
+
+            # Adam's tests
+            self.mod.backends["c++"].toolchain.cflags.append("-DSWIG_TYPE_TABLE=pyCombBLAS")
+            self.mod.backends["c++"].toolchain.cflags.append("-g")
+
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
                 self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
             # get location of this file & use to include kdt files
+
             import inspect, os
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
@@ -117,12 +123,17 @@ class PcbUnaryFunction(object):
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
                 self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
+
+            # Adam's tests
+            self.mod.backends["c++"].toolchain.cflags.append("-DSWIG_TYPE_TABLE=pyCombBLAS")
+            self.mod.backends["c++"].toolchain.cflags.append("-g")
+
             # get location of this file & use to include kdt files
             import inspect, os
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
-                                 [installDir+"../pyCombBLAS"],
+                                 [installDir+"/../pyCombBLAS"],
                                  library_dirs=[installDir+"/../../build/lib.linux-x86_64-2.7/kdt"],
                                  libraries=["pyCombBLAS"])
             #libraries=["mpichcxx"])
