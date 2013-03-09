@@ -33,6 +33,10 @@ class PcbUnaryPredicate(object):
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-g", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
             self.mod.backends["c++"].toolchain.cflags.append("-DGRAPH_GENERATOR_SEQ=1 -DMPICH_IGNORE_CXX_SEEK -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -Drestrict= -DNDEBUG=1")
+            # Adam's tests
+            self.mod.backends["c++"].toolchain.cflags.append("-DSWIG_TYPE_TABLE=pyCombBLAS")
+            self.mod.backends["c++"].toolchain.cflags.append("-g")
+
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
                 self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
@@ -42,8 +46,9 @@ class PcbUnaryPredicate(object):
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
-                                 [installDir+"/../kdt/pyCombBLAS"],
-                                 library_dirs=[installDir+"/../build/lib.macosx-10.7-intel-2.7"])#,
+                                 [installDir+"/../pyCombBLAS"],
+                                 #library_dirs=[installDir+"/../build/lib.macosx-10.7-intel-2.7"])#,
+                                 library_dirs=[installDir+"/../../build/lib.macosx-10.8-intel-2.7"])#,
             #libraries=["mpichcxx"])
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=["bool", "Obj2"]))
@@ -123,6 +128,11 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             self.mod.backends["c++"].module.add_to_preamble([cpp_ast.Line("#define COMBBLAS_TR1")])
             self.mod.backends["c++"].toolchain.cflags = ["-g", "-fPIC", "-shared", "-DCOMBBLAS_TR1", "-DUSESEJITS", "-DFAST_64BIT_ARITHMETIC"]
             self.mod.backends["c++"].toolchain.cflags.append("-DGRAPH_GENERATOR_SEQ=1 -DMPICH_IGNORE_CXX_SEEK -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -Drestrict= -DNDEBUG=1")
+
+            # Adam's tests
+            self.mod.backends["c++"].toolchain.cflags.append("-DSWIG_TYPE_TABLE=pyCombBLAS")
+            self.mod.backends["c++"].toolchain.cflags.append("-g")
+
             if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
                 self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
             self.mod.backends["c++"].toolchain.defines.append("COMBBLAS_TR1")
@@ -132,8 +142,10 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             this_file = inspect.currentframe().f_code.co_filename
             installDir = os.path.dirname(this_file)
             self.mod.add_library("pycombblas",
-                                 [installDir+"/../kdt/pyCombBLAS"],
-                                 library_dirs=[installDir+"/../build/lib.macosx-10.7-intel-2.7"])#,
+                                 [installDir+"/../pyCombBLAS"],
+                                 #library_dirs=[installDir+"/../build/lib.macosx-10.7-intel-2.7"])#,
+                                 library_dirs=[installDir+"/../../build/lib.macosx-10.8-intel-2.7"])#,
+
             #libraries=["mpichcxx"])
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=["bool", "double", "double"]))
