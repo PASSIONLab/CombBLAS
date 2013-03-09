@@ -3,7 +3,7 @@
 splitting MPI/non-MPI
  - for pyCombBLAS, need to split definition of objects and operations into MPI using bits and non-MPI using bits.
    - problem with operations, because the serial parts are mixed with MPI parts. BinaryFunction does both, is it ok to just rip out a part of it?
-      AL: I have some ideas on how to get this to work, let me play with it some more.
+      AL: I have this working on the test environment, there's still some bug with setup.py.
 
  - will have to do the same with CombBLAS in the future (embedded)
 
