@@ -53,7 +53,7 @@ void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, ui
   N = (int64_t)pow(GRAPHGEN_INITIATOR_SIZE, log_numverts);
   M = desired_nedges;
 
-  
+
   make_mrg_seed(userseed1, userseed2, seed);
 
   nedges = compute_edge_array_size(0, 1, M);
@@ -67,7 +67,7 @@ void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, ui
   generate_kronecker(0, 1, seed, log_numverts, M, initiator, edges);
 
   vertex_perm = (int64_t*)xmalloc(N * sizeof(int64_t));
-  result;
+  /* result; AL: this is a needless warning about unused code. */
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES
   result = (int64_t*)xmalloc(2 * nedges * sizeof(int64_t));
 #else
@@ -78,7 +78,7 @@ void make_graph(int log_numverts, int64_t desired_nedges, uint64_t userseed1, ui
 
   mrg_seed(&state, seed);
   rand_sort_shared(&state, N, vertex_perm);
- 
+
   /* Apply vertex permutation to graph, optionally copying into user's result
    * array. */
 #ifdef GRAPHGEN_KEEP_MULTIPLICITIES

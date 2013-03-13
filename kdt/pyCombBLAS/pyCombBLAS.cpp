@@ -318,7 +318,7 @@ void init_pyCombBLAS_MPI()
 	MPI_Get_address(&data, &d2);
 	disp[0] = (d1 - d2);
 
-	doubleint_MPI_datatype;
+	//doubleint_MPI_datatype;
 	// MPI::Datatype::Create_struct(1,blocklen,disp,type);
 	MPI_Type_struct(1,blocklen,disp,type, &doubleint_MPI_datatype);
 	MPI_Type_commit(&doubleint_MPI_datatype);
