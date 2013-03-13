@@ -121,7 +121,7 @@ namespace vpsort {
   }
 
 
-  static void progress (int rank, int step, char *s, MPI_Comm comm) {
+  static void progress (int rank, int step, const char *s, MPI_Comm comm) {
     MPI_Barrier (comm);
     psort_timing[step] = MPI_Wtime ();
     if (rank == 0) {
@@ -151,11 +151,24 @@ namespace vpsort {
     MPI_Comm_size (comm, &nproc);
     MPI_Comm_rank (comm, &rank);
 
+	/*
+	AL: This is the original code. This is legal in C but not in C++ because
+	C++ string literals are const char* instead of just char*, so this code has constness
+	errors.
+	
     char **stage = new char*[5];
     stage[1] = mysort.description();
     stage[2] = mysplit.description();
     stage[3] = "alltoall";
     stage[4] = mymerge.description();
+    */
+    const char *stage[5] = {
+      "",
+      mysort.description(),
+      mysplit.description(),
+      "alltoall",
+      mymerge.description()
+    };
     
     if (rank == 0) cout << endl;
     double rtime[5];
@@ -219,12 +232,26 @@ namespace vpsort {
     MPI_Comm_size (comm, &nproc);
     MPI_Comm_rank (comm, &rank);
 
+	/*
+	AL: This is the original code. This is legal in C but not in C++ because
+	C++ string literals are const char* instead of just char*, so this code has constness
+	errors.
+	
     char **stage = new char*[6];
     stage[1] = "sample splitters";
     stage[2] = "partition";
     stage[3] = "alltoall";
     stage[4] = mysort.description();
     stage[5] = "adjust boundaries";
+    */
+    const char* stage[6] = {
+      "",
+      "sample splitters",
+      "partition",
+      "alltoall",
+      mysort.description(),
+      "adjust boundaries"
+    };
 
     if (rank == 0) cout << endl;
     double rtime[6];

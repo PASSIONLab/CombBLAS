@@ -329,11 +329,13 @@ void SpParHelper::BipartiteSwap(pair<KEY,VAL> * low, pair<KEY,VAL> * array, IT l
 template<typename KEY, typename VAL, typename IT>
 void SpParHelper::DebugPrintKeys(pair<KEY,VAL> * array, IT length, IT * dist, MPI_Comm & World)
 {
-        int rank, nprocs;
+	int rank, nprocs;
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
-    	MPI_File thefile;
-	MPI_File_open(World, "temp_sortedkeys", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
+	MPI_File thefile;
+    
+    char _fn[] = "temp_sortedkeys"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
+	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 
 	// The cast in the last parameter is crucial because the signature of the function is
    	// T accumulate ( InputIterator first, InputIterator last, T init )

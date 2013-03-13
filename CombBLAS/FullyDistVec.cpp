@@ -520,12 +520,14 @@ void FullyDistVec<IT,NT>::DebugPrint()
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
 	MPI_File thefile;
-	MPI_File_open(World, "temp_fullydistvec", MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
+	char _fn[] = "temp_fullydistvec"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
+	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
 	IT lengthuntil = LengthUntil();
 
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
-	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), "native", MPI_INFO_NULL);
+	char native[] = "native"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
+	MPI_File_set_view(thefile, int64_t(lengthuntil * sizeof(NT)), MPIType<NT>(), MPIType<NT>(), native, MPI_INFO_NULL);
 
 	IT count = LocArrSize();	
 	MPI_File_write(thefile, &(arr[0]), count, MPIType<NT>(), NULL);
