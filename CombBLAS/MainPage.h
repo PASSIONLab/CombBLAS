@@ -127,7 +127,7 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
 *
 * <b> Citation: </b> Please cite the design paper [1] if you end up using the Combinatorial BLAS in your research.
 *
-* - [1] Aydın Buluç and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), 2011. <a href="http://www.cs.ucsb.edu/research/tech_reports/reports/2010-18.pdf"> Preprint </a>, <a href="http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract">Link</a>
+* - [1] Aydın Buluç and John R. Gilbert, <i> The Combinatorial BLAS: Design, implementation, and applications </i>. International Journal of High Performance Computing Applications (IJHPCA), 2011. <a href="http://gauss.cs.ucsb.edu/~aydin/combblas-r2.pdf"> Preprint </a>, <a href="http://hpc.sagepub.com/content/early/2011/05/11/1094342011403516.abstract">Link</a>
 * - [2] Aydın Buluç and John R. Gilbert, <i> On the Representation and Multiplication of Hypersparse Matrices </i>. The 22nd IEEE International Parallel and Distributed Processing Symposium (IPDPS 2008), Miami, FL, April 14-18, 2008
 * - [3] Aydın Buluç and John R. Gilbert, <i> Challenges and Advances in Parallel Sparse Matrix-Matrix Multiplication </i>. The 37th International Conference on Parallel Processing (ICPP 2008), Portland, Oregon, USA, 2008
 * - [4] Aydın Buluç and Kamesh Madduri, <i> Parallel Breadth-First Search on Distributed-Memory Systems </i>. Supercomputing (SC'11), Seattle, USA. <a href="http://arxiv.org/abs/1104.4518">Extended preprint</a> <a href="http://gauss.cs.ucsb.edu/~aydin/sc11_bfs.pdf"> PDF </a>
