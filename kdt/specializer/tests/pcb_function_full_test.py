@@ -15,7 +15,16 @@ class FullUnaryFunctionTest(unittest.TestCase):
         # this should not throw an exception
         f = MyFunc().get_function()
 
+class FullBinaryFunctionTest(unittest.TestCase):
+    def test_basic(self):
+        class MyFunc(PcbBinaryFunction):
+            def __call__(self, x, y):
+                return x+10.0
 
+        import kdt
+
+        # this should not throw an exception
+        f = MyFunc().get_function()
 
 if __name__ == '__main__':
     unittest.main()

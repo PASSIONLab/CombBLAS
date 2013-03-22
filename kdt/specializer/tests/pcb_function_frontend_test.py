@@ -36,5 +36,17 @@ class SimpleReturnTest(unittest.TestCase):
         assert_contains_node_type(model, UnaryFunction)
         assert_contains_node_type(model, FunctionReturn)
 
+    
+    def test_binary_conversion(self):
+        class Foo(PcbUnaryFunction):
+            def __call__(self, x, y):
+                return y
+
+        model = PcbBinaryFunctionFrontEnd().parse(get_ast(Foo.__call__))
+
+        assert_contains_node_type(model, BinaryFunction)
+        assert_contains_node_type(model, FunctionReturn)
+
+
 if __name__ == '__main__':
     unittest.main()

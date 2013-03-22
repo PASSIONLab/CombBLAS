@@ -9,12 +9,14 @@ class PcbBinaryFunction(object):
     Top-level class for BinaryFunctions.
     """
 
-    def __init__(self, sm, types=["double", "double", "double"]):
+    def __init__(self, types=["double", "double", "double"]):
         try:
             # create semantic model
-            #import ast, inspect
-            #from pcb_predicate_frontend import *
-            #sm = PcbUnaryPredicateFrontEnd().parse(ast.parse(inspect.getsource(self.__call__).lstrip()), env=vars(self))
+            intypes = types
+            import ast, inspect
+            from pcb_function_frontend import *
+            types = intypes
+            sm = PcbBinaryFunctionFrontEnd().parse(ast.parse(inspect.getsource(self.__call__).lstrip()), env=vars(self))
 
             include_files = ["pyOperationsObj.h"]
             self.mod = asp_module.ASPModule(specializer="kdt")
@@ -102,7 +104,7 @@ class PcbUnaryFunction(object):
 
     def __init__(self, types=["double", "double", "double"]):
         try:
-            #FIXME: need to refactor "types" everywhere to a different name because it gets aliased over
+            #FIXME: need to refactor "types" everywhere to a different name because it gets aliased ove
             intypes = types
             # create semantic model
             import ast, inspect
