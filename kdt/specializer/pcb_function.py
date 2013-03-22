@@ -30,7 +30,10 @@ class PcbBinaryFunction(object):
             self.mod.backends["c++"].toolchain.defines.append("PYCOMBBLAS_MPIOK=0")
             self.mod.backends["c++"].toolchain.defines.append("SWIG_TYPE_TABLE=pyCombBLAS")
 
-            if "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
+            while "-bundle" in self.mod.backends["c++"].toolchain.cflags:
+                self.mod.backends["c++"].toolchain.cflags.remove("-bundle")
+
+            while "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
                 self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
 
             # get location of this file & use to include kdt files
@@ -97,12 +100,15 @@ class PcbUnaryFunction(object):
     Top-level class for UnaryFunctions.
     """
 
-    def __init__(self, sm, types=["double", "double", "double"]):
+    def __init__(self, types=["double", "double", "double"]):
         try:
+            #FIXME: need to refactor "types" everywhere to a different name because it gets aliased over
+            intypes = types
             # create semantic model
-            #import ast, inspect
-            #from pcb_predicate_frontend import *
-            #sm = PcbUnaryPredicateFrontEnd().parse(ast.parse(inspect.getsource(self.__call__).lstrip()), env=vars(self))
+            import ast, inspect
+            from pcb_function_frontend import *
+            types = intypes
+            sm = PcbUnaryFunctionFrontEnd().parse(ast.parse(inspect.getsource(self.__call__).lstrip()), env=vars(self))
 
             include_files = ["pyOperationsObj.h"]
             self.mod = asp_module.ASPModule(specializer="kdt")
@@ -118,6 +124,12 @@ class PcbUnaryFunction(object):
             self.mod.backends["c++"].toolchain.defines.append("PYCOMBBLAS_MPIOK=0")
             self.mod.backends["c++"].toolchain.defines.append("SWIG_TYPE_TABLE=pyCombBLAS")
 
+            while "-bundle" in self.mod.backends["c++"].toolchain.cflags:
+                self.mod.backends["c++"].toolchain.cflags.remove("-bundle")
+
+            while "-bundle" in self.mod.backends["c++"].toolchain.ldflags:
+                self.mod.backends["c++"].toolchain.ldflags.remove("-bundle")
+
             # get location of this file & use to include kdt files
             import inspect, os
             this_file = inspect.currentframe().f_code.co_filename
@@ -125,6 +137,7 @@ class PcbUnaryFunction(object):
             self.mod.add_library("pycombblas",
                                  [installDir+"/include"])
 
+            print types
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
             self.mod.add_function("get_function", self.gen_get_function(types=types))

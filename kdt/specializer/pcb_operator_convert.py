@@ -41,6 +41,7 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
         """
         # the types array tells us what the return and input types are
         self.types = types
+        print types
         self.name = name
         return self.visit(sm)
 
@@ -66,6 +67,7 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
 
     def visit_UnaryFunction(self, node):
         # FIXME: have to worry about type specialization on return & passed-in types
+        print self.types
         return cpp_ast.FunctionBody(cpp_ast.FunctionDeclaration(cpp_ast.Value(self.types[0], self.name),
                                                                 [cpp_ast.Reference(cpp_ast.Value("const %s" % self.types[1], self.visit(node.input)))]),
                                     cpp_ast.Block(contents=[self.visit(node.body)]))
@@ -100,7 +102,7 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
             return "false"
 
     def visit_Constant(self, node):
-        if isinstance(node.value, int):
+        if isinstance(node.value, int) or isinstance(node.value, float):
             return cpp_ast.CNumber(node.value)
         else:
             return cpp_ast.CName(node.value)
