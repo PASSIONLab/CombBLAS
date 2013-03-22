@@ -17,7 +17,7 @@ AL: What I think would be involved:
 
 SEJITS Installation
  - copy headers to install directory (via setup.py)
- - Not clear where system paths will be, need to know what to pass into codepy.
+ - Not clear where system paths will be, need to know what to pass into codepy. (Which system paths do you mean?-SK)
  - why is pyCombBLAS passed into SEJITS? eg. pcb_function.py line 38
 
 

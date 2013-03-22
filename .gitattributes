@@ -2224,11 +2224,14 @@ kdt/specializer/include/pyOperationsSEJITS.h -text
 kdt/specializer/include/pyOperationsWorkers.h -text
 kdt/specializer/include/swigpyrun.h -text
 kdt/specializer/pcb_function.py -text
+kdt/specializer/pcb_function_frontend.py -text
 kdt/specializer/pcb_function_sm.py -text
 kdt/specializer/pcb_operator_convert.py -text
 kdt/specializer/pcb_predicate.py -text
 kdt/specializer/pcb_predicate_frontend.py -text
 kdt/specializer/pcb_predicate_sm.py -text
+kdt/specializer/tests/pcb_function_frontend_test.py -text
+kdt/specializer/tests/pcb_function_full_test.py -text
 kdt/specializer/tests/pcb_function_sm_test.py -text
 kdt/specializer/tests/pcb_function_test.py -text
 kdt/specializer/tests/pcb_predicate_frontend_test.py -text
