@@ -83,19 +83,19 @@ class PcbUnaryFunctionFrontEnd(ast_tools.NodeTransformer):
 
 
 # this is for binary predicates
-##class PcbBinaryPredicateFrontEnd(PcbUnaryPredicateFrontEnd):
-##    def visit_FunctionDef(self, node):
-##        # we only translate the __call__ function with a single (functional) statement inside
-##        assert node.name == "__call__", "Front end conversion failed with unknown function: " + node.name.id
-##        assert len(node.body) == 1, "Front end conversion failed: only a single statement is supported for the function body"
-##
-##        return BinaryPredicate(self.visit(node.args), self.visit(node.body[0]))
-##
-##    def visit_arguments(self, node):
-##        # arguments must be self, something, something
-##        assert len(node.args) == 3, "Front end conversion failed with wrong number of arguments to __call__ function"
-##        assert node.args[0].id == "self", "Front end conversion failed with unknwown argument at first position"
-##
-##        return [Identifier(x.id) for x in node.args[1:]]
-##
+class PcbBinaryFunctionFrontEnd(PcbUnaryFunctionFrontEnd):
+    def visit_FunctionDef(self, node):
+        # we only translate the __call__ function with a single (functional) statement inside
+        assert node.name == "__call__", "Front end conversion failed with unknown function: " + node.name.id
+        assert len(node.body) == 1, "Front end conversion failed: only a single statement is supported for the function body"
+
+        return BinaryFunction(self.visit(node.args), self.visit(node.body[0]))
+
+    def visit_arguments(self, node):
+        # arguments must be self, something, something
+        assert len(node.args) == 3, "Front end conversion failed with wrong number of arguments to __call__ function"
+        assert node.args[0].id == "self", "Front end conversion failed with unknwown argument at first position"
+
+        return [Identifier(x.id) for x in node.args[1:]]
+
     
