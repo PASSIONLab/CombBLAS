@@ -1,6 +1,7 @@
 INCDIR = $(HOME)
 #INCADD = -I$(INCDIR) -I/usr/include/python2.4
-INCADD = -I$(INCDIR) -I/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
+#INCADD = -I$(INCDIR) -I/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
+INCADD = -I$(INCDIR) -I/usr/local/Cellar/python/2.7.3/Frameworks/Python.framework/Headers
 COMBBLAS = ../../CombBLAS
 
 # notes for configure:
