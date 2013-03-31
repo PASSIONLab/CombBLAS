@@ -1,6 +1,8 @@
 #include <iostream>
 #include "pySpParMatObj1.h"
 
+#include <limits>
+
 pySpParMatObj1::pySpParMatObj1(): A(new DCColsType(), commGrid)
 {
 }
@@ -82,6 +84,114 @@ void pySpParMatObj1::save(const char* filename)
 {
 	A.SaveGathered(filename, Obj1ReadSaveHandler(), true);
 }
+
+// This load/save handler allows Python-defined callbacks.
+class Obj1ReadSaveHandler_PythonCallback
+{
+public:
+	PyObject* defaultConstructor;
+	PyObject* loadCallback;
+	PyObject* saveCallback;
+	
+	Obj1ReadSaveHandler_PythonCallback(PyObject* in_defaultConstructor, PyObject* in_loadCallback, PyObject* in_saveCallback):
+		defaultConstructor(in_defaultConstructor), loadCallback(in_loadCallback), saveCallback(in_saveCallback)
+	{
+	}
+	
+public:
+	Obj1 getNoNum(pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col) {
+	
+		// construct the object
+		Obj1 ret;
+		PyObject *tempSwigObj = SWIG_NewPointerObj(&ret, Obj1::SwigTypeInfo, 0);
+		
+		// construct the parameters
+		// if 64-bit ints are not needed, then use a standard int
+		if (row <= std::numeric_limits<int>::max() && col <= std::numeric_limits<int>::max())
+		{
+			int irow = static_cast<int>(row);
+			int icol = static_cast<int>(col);
+			
+			if (defaultConstructor != NULL)
+			{
+				PyObject_CallFunction(defaultConstructor,"(O, i, i)", tempSwigObj, irow, icol);
+			}
+			else
+			{
+				PyObject_CallFunction(loadCallback,"(O, i, i, s)", tempSwigObj, irow, icol, "");
+			}
+		}
+		else // 64-bit ints
+		{
+			if (defaultConstructor != NULL)
+			{
+				PyObject_CallFunction(defaultConstructor,"(O, L, L)", tempSwigObj, row, col);
+			}
+			else
+			{
+				PyObject_CallFunction(loadCallback,"(O, L, L, s)", tempSwigObj, row, col, "");
+			}
+		}
+	
+		return ret;
+	}
+	
+	void binaryfill(FILE * rFile, pySpParMatObj1::INDEXTYPE & row, pySpParMatObj1::INDEXTYPE & col, Obj1 & val)
+	{
+		Obj1::binaryfill(rFile, row, col, val);
+	}
+	
+	size_t entrylength()
+	{
+		return Obj1::entrylength<pySpParMatObj1::INDEXTYPE>();
+	}
+	
+	template <typename c, typename t>
+	Obj1 read(std::basic_istream<c,t>& is, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
+	{
+		// read the text
+		string line;
+		getline(is, line);
+		
+		// construct the object
+		Obj1 ret;
+		PyObject *tempSwigObj = SWIG_NewPointerObj(&ret, Obj1::SwigTypeInfo, 0);
+		
+		// construct the parameters
+		// if 64-bit ints are not needed, then use a standard int
+		if (row <= std::numeric_limits<int>::max() && col <= std::numeric_limits<int>::max())
+		{
+			int irow = static_cast<int>(row);
+			int icol = static_cast<int>(col);
+			
+			PyObject_CallFunction(loadCallback,"(O, i, i, s)", tempSwigObj, irow, icol, line.c_str());
+		}
+		else // 64-bit ints
+		{
+			PyObject_CallFunction(loadCallback,"(O, L, L, s)", tempSwigObj, row, col, line.c_str());
+		}
+	
+		return ret;
+	}
+
+	template <typename c, typename t>
+	void save(std::basic_ostream<c,t>& os, const Obj1& v, pySpParMatObj1::INDEXTYPE row, pySpParMatObj1::INDEXTYPE col)
+	{
+		v.saveCpp(os);
+	}
+};
+
+/*
+void pySpParMatObj1::load(const char* filename, bool pario)
+{
+	A.ReadDistribute(filename, 0, false, Obj1ReadSaveHandler(), true, pario);
+}
+
+void pySpParMatObj1::save(const char* filename)
+{
+	A.SaveGathered(filename, Obj1ReadSaveHandler(), true);
+}*/
+
 
 #if 0
 // Copied directly from Aydin's C++ Graph500 code
