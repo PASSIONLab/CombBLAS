@@ -2156,6 +2156,7 @@ kdt/ObjMethods.py -text
 kdt/SpectralClustering.py -text
 kdt/UFget.py -text
 kdt/Util.py -text
+kdt/Util_SEJITS.py -text
 kdt/Vec.py -text
 kdt/__init__.py -text
 kdt/eig.py -text
