@@ -23,12 +23,17 @@ import kdt.ObjMethods
 import Algorithms
 
 # SEJITS
-from specializer.pcb_predicate import PcbUnaryPredicate
-#from specializer.pcb_predicate import PcbBinaryPredicate
-#from specializer.pcb_function import PcbUnaryFunction
-#from specializer.pcb_function import PcbBinaryFunction
+from Util_SEJITS import *
 
-#from Util_SEJITS import SEJITS_enable
+try:
+	from specializer.pcb_predicate import PcbUnaryPredicate
+	from specializer.pcb_predicate import PcbBinaryPredicate
+	from specializer.pcb_function import PcbUnaryFunction
+	from specializer.pcb_function import PcbBinaryFunction
+	SEJITS_enable(True)
+except ImportError:
+	SEJITS_enable(False)
+
 
 
 
