@@ -4,7 +4,7 @@ ADD_EXECUTABLE( betwcent BetwCent.cpp )
 ADD_EXECUTABLE( mcl MCL.cpp )
 ADD_EXECUTABLE( graph500 Graph500.cpp )
 ADD_EXECUTABLE( fbfs FilteredBFS.cpp )
-ADD_EXECUTABLE( fmis FilteredMIS.cpp.cpp )
+ADD_EXECUTABLE( fmis FilteredMIS.cpp )
 
 
 TARGET_LINK_LIBRARIES( mcl CommGridlib MPITypelib MemoryPoollib )

@@ -74,6 +74,71 @@ FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 	}
 }
 
+/**
+  * Initialize a FullyDistVec with a separate vector from each processor
+  * Optimizes for the common case where all fillarr's in separate processors are of the same size
+  */
+template <class IT, class NT>
+FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<CommGrid> grid ) 
+: FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(grid)
+{
+	MPI_Comm World = commGrid->GetWorld();
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
+	
+	IT * sizes = new IT[nprocs];
+	IT nsize = fillarr.size(); 
+	sizes[rank] = nsize;
+	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), sizes, 1, MPIType<IT>(), World);
+	glen = std::accumulate(sizes, sizes+nprocs, static_cast<IT>(0));
+
+	vector<IT> uniq_sizes;
+	std::unique_copy(sizes, sizes+nprocs, std::back_inserter(uniq_sizes));
+	if(uniq_sizes == 1)
+	{
+		arr = fillarr;
+	}
+	else 
+	{
+		IT lengthuntil = accumulate(sizes, sizes+rank, static_cast<IT>(0));
+		
+		// Although the found vector is not reshuffled yet, its glen and commGrid are set
+		// We can call the Owner/MyLocLength/LengthUntil functions (to infer future distribution)
+		
+		// rebalance/redistribute
+		int * sendcnt = new int[nprocs];
+		fill(sendcnt, sendcnt+nprocs, 0);
+		for(IT i=0; i<nsize; ++i)
+		{
+			IT locind;
+			int owner = Owner(i+lengthuntil, locind);	
+			++sendcnt[owner];
+		}
+		int * recvcnt = new int[nprocs];
+		MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); // share the counts
+		
+		int * sdispls = new int[nprocs];
+		int * rdispls = new int[nprocs];
+		sdispls[0] = 0;
+		rdispls[0] = 0;
+		for(int i=0; i<nprocs-1; ++i)
+		{
+			sdispls[i+1] = sdispls[i] + sendcnt[i];
+			rdispls[i+1] = rdispls[i] + recvcnt[i];
+		}
+		IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+		vector<IT> recvbuf(totrecv);
+		
+		// data is already in the right order in found.arr
+		MPI_Alltoallv(&(arr[0]), sendcnt, sdispls, MPIType<IT>(), &(recvbuf[0]), recvcnt, rdispls, MPIType<IT>(), World);
+		arr.swap(recvbuf);
+		DeleteAll(sendcnt, recvcnt, sdispls, rdispls);
+	}
+	delete [] sizes;
+	
+}
+
+
 template <class IT, class NT>
 template <typename _BinaryOperation>
 NT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT identity)
