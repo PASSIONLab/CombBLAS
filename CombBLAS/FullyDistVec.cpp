@@ -94,7 +94,7 @@ FullyDistVec<IT, NT>::FullyDistVec ( const vector<NT> & fillarr, shared_ptr<Comm
 
 	vector<IT> uniq_sizes;
 	std::unique_copy(sizes, sizes+nprocs, std::back_inserter(uniq_sizes));
-	if(uniq_sizes == 1)
+	if(uniq_sizes.size() == 1)
 	{
 		arr = fillarr;
 	}
