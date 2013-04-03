@@ -1,4 +1,6 @@
 include kdt/*.py
+include kdt/specializer/*.py
+include kdt/specializer/include/*
 include kdt/pyCombBLAS/*.cpp
 include kdt/pyCombBLAS/*.h
 include kdt/pyCombBLAS/pyCombBLAS.i
