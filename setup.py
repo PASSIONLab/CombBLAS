@@ -372,7 +372,6 @@ pyCombBLAS_ext = Extension('kdt._pyCombBLAS',
 py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.feedback', 'kdt.UFget', 'kdt.Mat', 'kdt.Vec', 'kdt.ObjMethods', 'kdt.Algorithms', 'kdt.Util', 'kdt.SpectralClustering', 'kdt.eig']
 # SEJITS modules:
 py_modules.extend(['kdt.Util_SEJITS', 'kdt.specializer.__init__', 'kdt.specializer.parsetab', 'kdt.specializer.pcb_function', 'kdt.specializer.pcb_function_frontend', 'kdt.specializer.pcb_function_sm', 'kdt.specializer.pcb_operator_convert', 'kdt.specializer.pcb_predicate', 'kdt.specializer.pcb_predicate_frontend', 'kdt.specializer.pcb_predicate_sm'])
-data_files = [('kdt/specializer/include', ['kdt/specializer/include/doubleint.h', 'kdt/specializer/include/obj.h', 'kdt/specializer/include/pyCombBLAS-NoMPI.h', 'kdt/specializer/include/pyOperationsObj.h', 'kdt/specializer/include/pyOperationsSEJITS.h', 'kdt/specializer/include/pyOperationsWorkers.h', 'kdt/specializer/include/swigpyrun.h'])]
 
 setup(name='kdt',
 	version='0.3',
@@ -380,9 +379,10 @@ setup(name='kdt',
 	author='Aydin Buluc, John Gilbert, Adam Lugowski, Steve Reinhardt',
 	url='http://kdt.sourceforge.net',
 #	packages=['kdt', 'kdt'],
+	packages=['kdt.specializer'],
+	package_data={'kdt.specializer' : ['include/*']},
 	ext_modules=[pyCombBLAS_ext],
 	py_modules = py_modules,
-	data_files = data_files,
 	script_args=copy_args
 	)
 	
