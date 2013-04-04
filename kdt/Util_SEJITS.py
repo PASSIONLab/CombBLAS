@@ -23,9 +23,9 @@ except ImportError:
 	pass
 
 def SEJITS_enable(en):
-"""
-Enables/disables SEJITS by manipulating the callback parent classes.
-"""
+	"""
+	Enables/disables SEJITS by manipulating the callback parent classes.
+	"""
 	global KDTUnaryPredicate
 	global KDTBinaryPredicate
 	global KDTUnaryFunction
@@ -46,7 +46,7 @@ Enables/disables SEJITS by manipulating the callback parent classes.
 		KDTBinaryFunction = _SEJITS_diabled_callback_parent
 
 def SEJITS_enabled():
-"""
-Tests whether or not the SEJITS callback parent classes are set or not.
-"""
+	"""
+	Tests whether or not the SEJITS callback parent classes are set or not.
+	"""
 	return KDTUnaryPredicate is not _SEJITS_diabled_callback_parent
