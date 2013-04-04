@@ -69,7 +69,7 @@ class PcbBinaryFunction(object):
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = SWIG_Python_GetModule(NULL);
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
 
@@ -164,7 +164,7 @@ class PcbUnaryFunction(object):
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = SWIG_Python_GetModule(NULL);
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 
