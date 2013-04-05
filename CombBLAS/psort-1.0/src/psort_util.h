@@ -121,7 +121,7 @@ namespace vpsort {
   }
 
 
-  static void progress (int rank, int step, const char *s, MPI_Comm comm) {
+  static inline void progress (int rank, int step, const char *s, MPI_Comm comm) {
     MPI_Barrier (comm);
     psort_timing[step] = MPI_Wtime ();
     if (rank == 0) {
