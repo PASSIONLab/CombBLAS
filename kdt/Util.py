@@ -171,7 +171,7 @@ def _broadcast(obj):
 
 def p(s):
 	"""
-	printer helper
+	print routine which works in a distributed environment. Only one copy of s gets printed, not one per processor. Use this instead of the Python print.
 	"""
 	s = str(s)
 	#if master():
@@ -215,7 +215,29 @@ def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
 NONE = 0
 INFO = 1
 DEBUG = 2
-verbosity = NONE
+verbosity = 0
+
+def set_verbosity(v):
+	global verbosity
+	verbosity = v
+
+def p_debug(s):
+	"""
+	print debug information
+	"""
+	global verbosity
+	global DEBUG
+	if (verbosity >= DEBUG):
+		p(s)
+
+def p_info(s):
+	"""
+	print debug information that's informational in nature
+	"""
+	global verbosity
+	global INFO
+	if (verbosity >= INFO):
+		p(s)
 
 ####
 #
