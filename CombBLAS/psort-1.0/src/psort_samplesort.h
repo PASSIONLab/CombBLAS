@@ -57,7 +57,7 @@ namespace vpsort {
     }
   }
 
-  static void set_splitters(long *part_gsize, long n_parts, int nproc, long *dist, long *out) {
+  static inline void set_splitters(long *part_gsize, long n_parts, int nproc, long *dist, long *out) {
     // impl 1: get all but last about correct size; last might pick up slack
     long ind = 0, cum = 0;
     for (long i=0; i<n_parts; ++i) {
