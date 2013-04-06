@@ -79,7 +79,6 @@ def initialize_sejits_SR():
 	s2nd_d = c_s2nd()
 	s2nd_d.gen_get_function(types=["double", "double", "double"])
 	func2 = s2nd_d.get_function()
-	#func2 = s2nd_d.gen_get_function(types=["double", "double", "double"]).get_function()
 
 	sejits_SR = kdt.sr(func2, func)
 
