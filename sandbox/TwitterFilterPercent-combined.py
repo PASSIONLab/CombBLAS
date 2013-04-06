@@ -57,30 +57,47 @@ s1st = None
 func2 = None
 
 def initialize_sejits_SR():
-        global sejits_SR, isneg1, s1st, func2
+	global sejits_SR, isneg1, s1st, func2
 
-        import pcb_predicate, pcb_function, pcb_function_sm as f_sm
+	#import pcb_predicate, pcb_function, pcb_function_sm as f_sm
 
-        s2nd = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
-                                             f_sm.FunctionReturn(f_sm.Identifier("y"))),
-                         types=["double", "Obj2", "double"])
-        s2nd_d = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
-                                               f_sm.FunctionReturn(f_sm.Identifier("y"))),
-                           types=["double", "double", "double"])
-        func = s2nd.get_function()
-        func2 = s2nd_d.get_function()
+	#s2nd = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+	#									 f_sm.FunctionReturn(f_sm.Identifier("y"))),
+	#				 types=["double", "Obj2", "double"])
+	#s2nd_d = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+	#									   f_sm.FunctionReturn(f_sm.Identifier("y"))),
+	#				   types=["double", "double", "double"])
+	
+	class c_s2nd(kdt.KDTBinaryFunction):
+		def __call__(self, x, y):
+			return y
 
-        sejits_SR = kdt.sr(func2, func)
+	s2nd = c_s2nd()
+	s2nd.gen_get_function(types=["double", "Obj2", "double"])
+	func = s2nd.get_function()
 
-        s1st = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
-                                             f_sm.FunctionReturn(f_sm.Identifier("x"))),
-                         types=["double", "double", "double"]).get_function()
+	s2nd_d = c_s2nd()
+	s2nd_d.gen_get_function(types=["double", "double", "double"])
+	func2 = s2nd_d.get_function()
+	#func2 = s2nd_d.gen_get_function(types=["double", "double", "double"]).get_function()
 
-        class IsNeg1(pcb_predicate.PcbBinaryPredicate):
-                def __call__(self, x, y):
-                        return y == -1
+	sejits_SR = kdt.sr(func2, func)
 
-        isneg1 = IsNeg1().get_predicate()
+	#s1st = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
+	#									 f_sm.FunctionReturn(f_sm.Identifier("x"))),
+	#				 types=["double", "double", "double"]).get_function()
+	class c_s1st(kdt.KDTBinaryFunction):
+		def __call__(self, x, y):
+			return x
+	tmp = c_s1st()
+	tmp.gen_get_function(types=["double", "double", "double"])
+	s1st = tmp.get_function()
+
+	class IsNeg1(kdt.KDTBinaryPredicate):
+		def __call__(self, x, y):
+			return y == -1
+
+	isneg1 = IsNeg1().get_predicate()
 
 
 # this is the SEJITS-enabled BFS.
@@ -91,7 +108,7 @@ def sejits_bfsTree(mat, root, usePySemiring=False):
 	"""
         Same as KDT's bfsTree, except SEJITS-ized
 	"""
-        global sejits_SR, isneg1, s1st
+	global sejits_SR, isneg1, s1st
 	parents = kdt.Vec(mat.nvert(), -1, sparse=False)
 	frontier = kdt.Vec(mat.nvert(), sparse=True)
 	parents[root] = root
@@ -99,13 +116,13 @@ def sejits_bfsTree(mat, root, usePySemiring=False):
 	while frontier.nnn() > 0:
 		frontier.spRange()
 		mat.e.SpMV(frontier, semiring=sejits_SR, inPlace=True)
-                # remove already discovered vertices from the frontier.
+		# remove already discovered vertices from the frontier.
 
-                frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
+		frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
 
-                # update the parents
-                #parents[frontier] = frontier
-                parents.eWiseApply(frontier, op=func2, inPlace=True)
+		# update the parents
+		#parents[frontier] = frontier
+		parents.eWiseApply(frontier, op=func2, inPlace=True)
 	return parents
 
 
@@ -315,7 +332,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 					parents = sejits_bfsTree(G, start)
 				else:
 					before = time.time()
-					parents = G.bfsTree(start, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
+					parents = G.bfsTree(start)###, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
 				itertime = time.time() - before
 
 				if minUsefulTime is not None and itertime < minUsefulTime:
@@ -414,7 +431,8 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 if datasource == "file":
 	latestDatesToCheck = [1246406400] # 2009-07-01 0:0:0
 else:
-	latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+	#latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+	latestDatesToCheck = [10000] # 1%, 10%, 25%, 100%
 
 for latestDate in latestDatesToCheck:
 	filterUpperValue = latestDate
@@ -453,9 +471,9 @@ for latestDate in latestDatesToCheck:
 
 		single_runtime_before = time.time()
 		if use_SEJITS_Filter: # put here so if the system doesn't have SEJITS it won't crash
-			from pcb_predicate import *
+			###from pcb_predicate import *
 
-			class TwitterFilter(PcbUnaryPredicate):
+			class TwitterFilter(kdt.KDTUnaryPredicate):
 				def __init__(self, filterUpperValue):
 					self.filterUpperValue = filterUpperValue
 					super(TwitterFilter, self).__init__()
