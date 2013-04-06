@@ -23,16 +23,16 @@ import kdt.ObjMethods
 import Algorithms
 
 # SEJITS
-from Util_SEJITS import *
+#from Util_SEJITS import *
 
-try:
-	from specializer.pcb_predicate import PcbUnaryPredicate
-	from specializer.pcb_predicate import PcbBinaryPredicate
-	from specializer.pcb_function import PcbUnaryFunction
-	from specializer.pcb_function import PcbBinaryFunction
-	SEJITS_enable(True)
-except ImportError:
-	SEJITS_enable(False)
+#try:
+#	from specializer.pcb_predicate import PcbUnaryPredicate
+#	from specializer.pcb_predicate import PcbBinaryPredicate
+#	from specializer.pcb_function import PcbUnaryFunction
+#	from specializer.pcb_function import PcbBinaryFunction
+#	SEJITS_enable(True)
+#except ImportError:
+#	SEJITS_enable(False)
 
 
 
@@ -41,3 +41,71 @@ except ImportError:
 # they'll get merged into Algorithms.py and Mat.py
 import eig
 import SpectralClustering
+
+#=======================================================
+# SEJITS ===============================================
+
+## SEJITS helpers.
+# SEJITS itself is in the specializer subdirectory.
+
+
+# placeholder parent class for when SEJITS is disabled
+class _SEJITS_diabled_callback_parent:
+	def get_function(self):
+		return self
+	def get_predicate(self):
+		return self
+
+# the SEJITS callback parent classes
+KDTUnaryPredicate = _SEJITS_diabled_callback_parent
+KDTBinaryPredicate = _SEJITS_diabled_callback_parent
+KDTUnaryFunction = _SEJITS_diabled_callback_parent
+KDTBinaryFunction = _SEJITS_diabled_callback_parent
+
+# load the real SEJITS callbacks
+try:
+	from specializer.pcb_predicate import PcbUnaryPredicate
+	from specializer.pcb_predicate import PcbBinaryPredicate
+	from specializer.pcb_function import PcbUnaryFunction
+	from specializer.pcb_function import PcbBinaryFunction
+except ImportError:
+	pass
+
+def SEJITS_enable(en):
+	"""
+	Enables/disables SEJITS by manipulating the callback parent classes.
+	"""
+	global KDTUnaryPredicate
+	global KDTBinaryPredicate
+	global KDTUnaryFunction
+	global KDTBinaryFunction
+
+	if en:
+		#try:
+		global PcbUnaryPredicate
+		global PcbBinaryPredicate
+		global PcbUnaryFunction
+		global PcbBinaryFunction
+
+		KDTUnaryPredicate = PcbUnaryPredicate
+		KDTBinaryPredicate = PcbBinaryPredicate
+		KDTUnaryFunction = PcbUnaryFunction
+		KDTBinaryFunction = PcbBinaryFunction
+		#except NameError:
+		#	raise RuntimeError, "SEJITS not available."
+	else:
+		KDTUnaryPredicate = _SEJITS_diabled_callback_parent
+		KDTBinaryPredicate = _SEJITS_diabled_callback_parent
+		KDTUnaryFunction = _SEJITS_diabled_callback_parent
+		KDTBinaryFunction = _SEJITS_diabled_callback_parent
+
+try:
+	SEJITS_enable(True)
+except NameError:
+	pass
+
+def SEJITS_enabled():
+	"""
+	Tests whether or not the SEJITS callback parent classes are set or not.
+	"""
+	return KDTUnaryPredicate is not _SEJITS_diabled_callback_parent
