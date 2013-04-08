@@ -318,10 +318,7 @@ SWIGINTERNINLINE int SWIG_CheckState(int r) {
   return SWIG_IsOK(r) ? SWIG_CastRank(r) + 1 : 0; 
 }
 #else /* no cast-rank mode */
-//#  define SWIG_AddCast
-SWIGINTERNINLINE int SWIG_AddCast(int r) {
-  return r;
-}
+#  define SWIG_AddCast
 #  define SWIG_CheckState(r) (SWIG_IsOK(r) ? 1 : 0)
 #endif
 
@@ -41244,6 +41241,288 @@ SWIGINTERN PyObject *CallError_swigregister(PyObject *SWIGUNUSEDPARM(self), PyOb
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj_getCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:UnaryPredicateObj_getCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryPredicateObj_getCallback" "', argument " "1"" of type '" "op::UnaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryPredicateObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::UnaryPredicateObj const *)arg1)->getCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj_setCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryPredicateObj_setCallback",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryPredicateObj_setCallback" "', argument " "1"" of type '" "op::UnaryPredicateObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryPredicateObj * >(argp1);
+  arg2 = obj1;
+  {
+    try {
+      (arg1)->setCallback(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj___call____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
+  Obj2 *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryPredicateObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryPredicateObj___call__" "', argument " "1"" of type '" "op::UnaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "UnaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "UnaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj2 * >(argp2);
+  {
+    try {
+      result = (bool)((op::UnaryPredicateObj const *)arg1)->operator ()((Obj2 const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj___call____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
+  Obj1 *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryPredicateObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryPredicateObj___call__" "', argument " "1"" of type '" "op::UnaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "UnaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "UnaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj1 * >(argp2);
+  {
+    try {
+      result = (bool)((op::UnaryPredicateObj const *)arg1)->operator ()((Obj1 const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj___call____SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
+  double *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double temp2 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryPredicateObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryPredicateObj___call__" "', argument " "1"" of type '" "op::UnaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryPredicateObj * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "UnaryPredicateObj___call__" "', argument " "2"" of type '" "double""'");
+  } 
+  temp2 = static_cast< double >(val2);
+  arg2 = &temp2;
+  {
+    try {
+      result = (bool)((op::UnaryPredicateObj const *)arg1)->operator ()((double const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryPredicateObj___call__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_UnaryPredicateObj___call____SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_UnaryPredicateObj___call____SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_UnaryPredicateObj___call____SWIG_2(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'UnaryPredicateObj___call__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    op::UnaryPredicateObj::operator ()(Obj2 const &) const\n"
+    "    op::UnaryPredicateObj::operator ()(Obj1 const &) const\n"
+    "    op::UnaryPredicateObj::operator ()(double const &) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_UnaryPredicateObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryPredicateObj *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_UnaryPredicateObj")) SWIG_fail;
+  {
+    try {
+      result = (op::UnaryPredicateObj *)new op::UnaryPredicateObj();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__UnaryPredicateObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_UnaryPredicateObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::UnaryPredicateObj *arg1 = (op::UnaryPredicateObj *) 0 ;
@@ -41281,6 +41560,288 @@ SWIGINTERN PyObject *UnaryPredicateObj_swigregister(PyObject *SWIGUNUSEDPARM(sel
   SWIG_TypeNewClientData(SWIGTYPE_p_op__UnaryPredicateObj, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj_getCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *arg1 = (op::UnaryFunctionObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:UnaryFunctionObj_getCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryFunctionObj_getCallback" "', argument " "1"" of type '" "op::UnaryFunctionObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunctionObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::UnaryFunctionObj const *)arg1)->getCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj_setCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *arg1 = (op::UnaryFunctionObj *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryFunctionObj_setCallback",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryFunctionObj_setCallback" "', argument " "1"" of type '" "op::UnaryFunctionObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunctionObj * >(argp1);
+  arg2 = obj1;
+  {
+    try {
+      (arg1)->setCallback(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj___call____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *arg1 = (op::UnaryFunctionObj *) 0 ;
+  Obj2 *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Obj2 result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryFunctionObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryFunctionObj___call__" "', argument " "1"" of type '" "op::UnaryFunctionObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunctionObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "UnaryFunctionObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "UnaryFunctionObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj2 * >(argp2);
+  {
+    try {
+      result = ((op::UnaryFunctionObj const *)arg1)->operator ()((Obj2 const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new Obj2(static_cast< const Obj2& >(result))), SWIGTYPE_p_Obj2, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj___call____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *arg1 = (op::UnaryFunctionObj *) 0 ;
+  Obj1 *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  Obj1 result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryFunctionObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryFunctionObj___call__" "', argument " "1"" of type '" "op::UnaryFunctionObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunctionObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "UnaryFunctionObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "UnaryFunctionObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj1 * >(argp2);
+  {
+    try {
+      result = ((op::UnaryFunctionObj const *)arg1)->operator ()((Obj1 const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj((new Obj1(static_cast< const Obj1& >(result))), SWIGTYPE_p_Obj1, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj___call____SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *arg1 = (op::UnaryFunctionObj *) 0 ;
+  double *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double temp2 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  double result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:UnaryFunctionObj___call__",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__UnaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "UnaryFunctionObj___call__" "', argument " "1"" of type '" "op::UnaryFunctionObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::UnaryFunctionObj * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "UnaryFunctionObj___call__" "', argument " "2"" of type '" "double""'");
+  } 
+  temp2 = static_cast< double >(val2);
+  arg2 = &temp2;
+  {
+    try {
+      result = (double)((op::UnaryFunctionObj const *)arg1)->operator ()((double const &)*arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_double(static_cast< double >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_UnaryFunctionObj___call__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryFunctionObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_UnaryFunctionObj___call____SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryFunctionObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_UnaryFunctionObj___call____SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__UnaryFunctionObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_UnaryFunctionObj___call____SWIG_2(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'UnaryFunctionObj___call__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    op::UnaryFunctionObj::operator ()(Obj2 const &) const\n"
+    "    op::UnaryFunctionObj::operator ()(Obj1 const &) const\n"
+    "    op::UnaryFunctionObj::operator ()(double const &) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_UnaryFunctionObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::UnaryFunctionObj *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_UnaryFunctionObj")) SWIG_fail;
+  {
+    try {
+      result = (op::UnaryFunctionObj *)new op::UnaryFunctionObj();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__UnaryFunctionObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
 
 SWIGINTERN PyObject *_wrap_delete_UnaryFunctionObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
@@ -41324,7 +41885,7 @@ SWIGINTERN PyObject *_wrap_unaryObj(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< op::UnaryFunctionObj > result;
+  op::UnaryFunctionObj result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:unaryObj",&obj0)) SWIG_fail;
   arg1 = obj0;
@@ -41350,7 +41911,7 @@ SWIGINTERN PyObject *_wrap_unaryObjPred(PyObject *SWIGUNUSEDPARM(self), PyObject
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< op::UnaryPredicateObj > result;
+  op::UnaryPredicateObj result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:unaryObjPred",&obj0)) SWIG_fail;
   arg1 = obj0;
@@ -41429,6 +41990,40 @@ SWIGINTERN PyObject *_wrap_BinaryFunctionObj_getCallback(PyObject *SWIGUNUSEDPAR
     }
   }
   resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryFunctionObj_setCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BinaryFunctionObj_setCallback",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryFunctionObj_setCallback" "', argument " "1"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryFunctionObj * >(argp1);
+  arg2 = obj1;
+  {
+    try {
+      (arg1)->setCallback(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -42926,6 +43521,785 @@ SWIGINTERN PyObject *BinaryFunctionObj_swigregister(PyObject *SWIGUNUSEDPARM(sel
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj_getCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BinaryPredicateObj_getCallback",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj_getCallback" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  {
+    try {
+      result = (PyObject *)((op::BinaryPredicateObj const *)arg1)->getCallback();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = result;
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj_setCallback(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BinaryPredicateObj_setCallback",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj_setCallback" "', argument " "1"" of type '" "op::BinaryPredicateObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  arg2 = obj1;
+  {
+    try {
+      (arg1)->setCallback(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj1 *arg2 = 0 ;
+  Obj1 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj1 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj1 const &)*arg2,(Obj1 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj1 *arg2 = 0 ;
+  Obj2 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj1 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj2 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj1 const &)*arg2,(Obj2 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj2 *arg2 = 0 ;
+  Obj2 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj2 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj2 const &)*arg2,(Obj2 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_3(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj2 *arg2 = 0 ;
+  Obj1 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj2 * >(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj1 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj2 const &)*arg2,(Obj1 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj1 *arg2 = 0 ;
+  double *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  double temp3 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj1 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj1 * >(argp2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "double""'");
+  } 
+  temp3 = static_cast< double >(val3);
+  arg3 = &temp3;
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj1 const &)*arg2,(double const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_5(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  Obj2 *arg2 = 0 ;
+  double *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  double temp3 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "Obj2 const &""'"); 
+  }
+  arg2 = reinterpret_cast< Obj2 * >(argp2);
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "double""'");
+  } 
+  temp3 = static_cast< double >(val3);
+  arg3 = &temp3;
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((Obj2 const &)*arg2,(double const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_6(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  double *arg2 = 0 ;
+  Obj2 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double temp2 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "double""'");
+  } 
+  temp2 = static_cast< double >(val2);
+  arg2 = &temp2;
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj2,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj2 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj2 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((double const &)*arg2,(Obj2 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_7(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  double *arg2 = 0 ;
+  Obj1 *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double temp2 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "double""'");
+  } 
+  temp2 = static_cast< double >(val2);
+  arg2 = &temp2;
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_Obj1,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "Obj1 const &""'"); 
+  }
+  arg3 = reinterpret_cast< Obj1 * >(argp3);
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((double const &)*arg2,(Obj1 const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call____SWIG_8(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
+  double *arg2 = 0 ;
+  double *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  double temp2 ;
+  double val2 ;
+  int ecode2 = 0 ;
+  double temp3 ;
+  double val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  bool result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:BinaryPredicateObj___call__",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BinaryPredicateObj___call__" "', argument " "1"" of type '" "op::BinaryPredicateObj const *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryPredicateObj * >(argp1);
+  ecode2 = SWIG_AsVal_double(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BinaryPredicateObj___call__" "', argument " "2"" of type '" "double""'");
+  } 
+  temp2 = static_cast< double >(val2);
+  arg2 = &temp2;
+  ecode3 = SWIG_AsVal_double(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "BinaryPredicateObj___call__" "', argument " "3"" of type '" "double""'");
+  } 
+  temp3 = static_cast< double >(val3);
+  arg3 = &temp3;
+  {
+    try {
+      result = (bool)((op::BinaryPredicateObj const *)arg1)->operator ()((double const &)*arg2,(double const &)*arg3);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BinaryPredicateObj___call__(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[4];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj1, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_0(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj2, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_1(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj2, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_2(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj1, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_3(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj1, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_4(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      int res = SWIG_ConvertPtr(argv[1], 0, SWIGTYPE_p_Obj2, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_5(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj2, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_6(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        int res = SWIG_ConvertPtr(argv[2], 0, SWIGTYPE_p_Obj1, 0);
+        _v = SWIG_CheckState(res);
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_7(self, args);
+        }
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryPredicateObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_double(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_double(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_BinaryPredicateObj___call____SWIG_8(self, args);
+        }
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'BinaryPredicateObj___call__'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    op::BinaryPredicateObj::operator ()(Obj1 const &,Obj1 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(Obj1 const &,Obj2 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(Obj2 const &,Obj2 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(Obj2 const &,Obj1 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(Obj1 const &,double const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(Obj2 const &,double const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(double const &,Obj2 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(double const &,Obj1 const &) const\n"
+    "    op::BinaryPredicateObj::operator ()(double const &,double const &) const\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_BinaryPredicateObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryPredicateObj *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_BinaryPredicateObj")) SWIG_fail;
+  {
+    try {
+      result = (op::BinaryPredicateObj *)new op::BinaryPredicateObj();
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__BinaryPredicateObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_delete_BinaryPredicateObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::BinaryPredicateObj *arg1 = (op::BinaryPredicateObj *) 0 ;
@@ -43069,7 +44443,7 @@ SWIGINTERN PyObject *_wrap_binaryObjPred(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
   PyObject * obj0 = 0 ;
-  SwigValueWrapper< op::BinaryPredicateObj > result;
+  op::BinaryPredicateObj result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:binaryObjPred",&obj0)) SWIG_fail;
   arg1 = obj0;
@@ -44539,14 +45913,23 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_CallError", _wrap_new_CallError, METH_VARARGS, NULL},
 	 { (char *)"delete_CallError", _wrap_delete_CallError, METH_VARARGS, NULL},
 	 { (char *)"CallError_swigregister", CallError_swigregister, METH_VARARGS, NULL},
+	 { (char *)"UnaryPredicateObj_getCallback", _wrap_UnaryPredicateObj_getCallback, METH_VARARGS, NULL},
+	 { (char *)"UnaryPredicateObj_setCallback", _wrap_UnaryPredicateObj_setCallback, METH_VARARGS, NULL},
+	 { (char *)"UnaryPredicateObj___call__", _wrap_UnaryPredicateObj___call__, METH_VARARGS, NULL},
+	 { (char *)"new_UnaryPredicateObj", _wrap_new_UnaryPredicateObj, METH_VARARGS, NULL},
 	 { (char *)"delete_UnaryPredicateObj", _wrap_delete_UnaryPredicateObj, METH_VARARGS, NULL},
 	 { (char *)"UnaryPredicateObj_swigregister", UnaryPredicateObj_swigregister, METH_VARARGS, NULL},
+	 { (char *)"UnaryFunctionObj_getCallback", _wrap_UnaryFunctionObj_getCallback, METH_VARARGS, NULL},
+	 { (char *)"UnaryFunctionObj_setCallback", _wrap_UnaryFunctionObj_setCallback, METH_VARARGS, NULL},
+	 { (char *)"UnaryFunctionObj___call__", _wrap_UnaryFunctionObj___call__, METH_VARARGS, NULL},
+	 { (char *)"new_UnaryFunctionObj", _wrap_new_UnaryFunctionObj, METH_VARARGS, NULL},
 	 { (char *)"delete_UnaryFunctionObj", _wrap_delete_UnaryFunctionObj, METH_VARARGS, NULL},
 	 { (char *)"UnaryFunctionObj_swigregister", UnaryFunctionObj_swigregister, METH_VARARGS, NULL},
 	 { (char *)"unaryObj", _wrap_unaryObj, METH_VARARGS, NULL},
 	 { (char *)"unaryObjPred", _wrap_unaryObjPred, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryFunctionObj", _wrap_delete_BinaryFunctionObj, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_getCallback", _wrap_BinaryFunctionObj_getCallback, METH_VARARGS, NULL},
+	 { (char *)"BinaryFunctionObj_setCallback", _wrap_BinaryFunctionObj_setCallback, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_commutable_set", _wrap_BinaryFunctionObj_commutable_set, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_commutable_get", _wrap_BinaryFunctionObj_commutable_get, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_associative_set", _wrap_BinaryFunctionObj_associative_set, METH_VARARGS, NULL},
@@ -44554,6 +45937,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BinaryFunctionObj___call__", _wrap_BinaryFunctionObj___call__, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_rettype2nd_call", _wrap_BinaryFunctionObj_rettype2nd_call, METH_VARARGS, NULL},
 	 { (char *)"BinaryFunctionObj_swigregister", BinaryFunctionObj_swigregister, METH_VARARGS, NULL},
+	 { (char *)"BinaryPredicateObj_getCallback", _wrap_BinaryPredicateObj_getCallback, METH_VARARGS, NULL},
+	 { (char *)"BinaryPredicateObj_setCallback", _wrap_BinaryPredicateObj_setCallback, METH_VARARGS, NULL},
+	 { (char *)"BinaryPredicateObj___call__", _wrap_BinaryPredicateObj___call__, METH_VARARGS, NULL},
+	 { (char *)"new_BinaryPredicateObj", _wrap_new_BinaryPredicateObj, METH_VARARGS, NULL},
 	 { (char *)"delete_BinaryPredicateObj", _wrap_delete_BinaryPredicateObj, METH_VARARGS, NULL},
 	 { (char *)"BinaryPredicateObj_swigregister", BinaryPredicateObj_swigregister, METH_VARARGS, NULL},
 	 { (char *)"binaryObj", _wrap_binaryObj, METH_VARARGS, NULL},

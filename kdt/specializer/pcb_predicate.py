@@ -86,7 +86,8 @@ class PcbUnaryPredicate(object):
 
     def get_predicate(self):
         try:
-            pred =  self.mod.get_predicate()
+            pred = self.mod.get_predicate()
+            pred.setCallback(self)
         except:
             print "WARNING: Specialization failed, returning pure Python object."
             pred = self

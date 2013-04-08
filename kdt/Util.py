@@ -472,6 +472,9 @@ class _python_def_shim_binary:
 			# a POD type, eg for predicates
 			return result
 
+def _is_SEJITS_callback(op):
+	return isinstance(op, (PcbUnaryFunction, PcbBinaryFunction, PcbUnaryPredicate, PcbBinaryPredicate))
+
 ## helper functions to transform Python callbacks into pyCombBLAS functor objects
 
 # Wrap a Python unary callback into pyCombBLAS's UnaryFunctionObj,

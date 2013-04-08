@@ -1073,18 +1073,16 @@ class CallError {};
 
 
 class UnaryPredicateObj {
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
- // these are exactly the same as the operator()s, but they are directly callable from Python
- // and make stacked SEJITS filters easier.
- 	bool __call__(const Obj2& x) const { return worker(x); }
-	bool __call__(const Obj1& x) const { return worker(x); }
-	bool __call__(const double& x) const { return worker(x); }
 
 	//protected:
-	UnaryPredicateObj() { // should never be called
-		printf("UnaryPredicateObj()!!!\n");
+	UnaryPredicateObj() {
 	}
 
 	public:
@@ -1092,13 +1090,16 @@ class UnaryPredicateObj {
 };
 
 class UnaryFunctionObj {
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	Obj2 operator()(const Obj2& x) const { return worker(x); }
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
 	double operator()(const double& x) const { return worker(x); }
 	
     //	protected:
-	UnaryFunctionObj() { // should never be called
-		printf("UnaryFunctionObj()!!!\n");
+	UnaryFunctionObj() {
 	}
 
 	public:
@@ -1116,6 +1117,7 @@ class BinaryFunctionObj {
 	~BinaryFunctionObj() {  }
 	
 	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
 	
 	bool commutable;
 	bool associative;
@@ -1150,6 +1152,10 @@ class BinaryFunctionObj {
 };
 
 class BinaryPredicateObj {
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
 	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
 	bool operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
@@ -1163,8 +1169,7 @@ class BinaryPredicateObj {
 	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
 	//protected:
-	BinaryPredicateObj() { // should never be called
-		printf("BinaryPredicateObj()!!!\n");
+	BinaryPredicateObj() {
 	}
 
 	public:

@@ -36,8 +36,8 @@ class UnaryPredicateObj_SEJITS : public UnaryPredicateObj_Python {
 
     }
 
-	UnaryPredicateObj_SEJITS() { // should never be called
-		printf("UnaryPredicateObj_SEJITS()!!!\n");
+	UnaryPredicateObj_SEJITS() {
+		callback = NULL;
 	}
 
     // for each operator, first check whether a specialized function
@@ -90,8 +90,7 @@ class UnaryFunctionObj_SEJITS : public UnaryFunctionObj_Python {
     double (*customFunc_double_double)(const double& x);
     double (*customFunc_Obj2_double)(const Obj2& x);
 
-	UnaryFunctionObj_SEJITS() { // should never be called
-		printf("UnaryFunctionObj_SEJITS()!!!\n");
+	UnaryFunctionObj_SEJITS() {
 		callback = NULL;
 	}
 
@@ -161,8 +160,8 @@ class BinaryPredicateObj_SEJITS : public BinaryPredicateObj_Python {
       { /*printf("using python callback\n");*/ return callDD(x, y); }
   }
 
-	BinaryPredicateObj_SEJITS() { // should never be called
-		printf("BinaryPredicateObj_SEJITS()!!!\n");
+	BinaryPredicateObj_SEJITS() {
+		callback = NULL;
 	}
 
 	public:
@@ -215,7 +214,7 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 	public:
 	~BinaryFunctionObj_SEJITS() { /*Py_XDECREF(callback);*/ }
 
-	PyObject* getCallback() const { return callback; }
+	//PyObject* getCallback() const { return callback; }
 
 	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }

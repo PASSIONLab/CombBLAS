@@ -44,18 +44,16 @@ class UnaryPredicateObj {
 	UnaryPredicateObj(PyObject *pyfunc): worker(pyfunc) { }
 
 //INTERFACE_INCLUDE_BEGIN
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
 	bool operator()(const double& x) const { return worker(x); }
- // these are exactly the same as the operator()s, but they are directly callable from Python
- // and make stacked SEJITS filters easier.
- 	bool __call__(const Obj2& x) const { return worker(x); }
-	bool __call__(const Obj1& x) const { return worker(x); }
-	bool __call__(const double& x) const { return worker(x); }
 
 	//protected:
-	UnaryPredicateObj() { // should never be called
-		printf("UnaryPredicateObj()!!!\n");
+	UnaryPredicateObj() {
 	}
 
 	public:
@@ -85,13 +83,16 @@ class UnaryFunctionObj {
 	UnaryDoubleFunctionObj_Python getRetDoubleVersion() { return UnaryDoubleFunctionObj_Python(worker.callback); }
 
 //INTERFACE_INCLUDE_BEGIN
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	Obj2 operator()(const Obj2& x) const { return worker(x); }
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
 	double operator()(const double& x) const { return worker(x); }
 	
     //	protected:
-	UnaryFunctionObj() { // should never be called
-		printf("UnaryFunctionObj()!!!\n");
+	UnaryFunctionObj() {
 	}
 
 	public:
@@ -304,6 +305,7 @@ class BinaryFunctionObj {
 	~BinaryFunctionObj() {  }
 	
 	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
 	
 	bool commutable;
 	bool associative;
@@ -580,6 +582,10 @@ class BinaryPredicateObj {
 	BinaryPredicateObj(PyObject *pyfunc): worker(pyfunc) { }
 
 //INTERFACE_INCLUDE_BEGIN
+	public:
+	PyObject* getCallback() const { return worker.getCallback(); }
+	void setCallback(PyObject* c) { worker.setCallback(c); }
+
 	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
 	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
 	bool operator()(const Obj2& x, const Obj2& y) const { return worker(x, y); }
@@ -593,8 +599,7 @@ class BinaryPredicateObj {
 	bool operator()(const double& x, const double& y) const { return worker(x, y); }
 
 	//protected:
-	BinaryPredicateObj() { // should never be called
-		printf("BinaryPredicateObj()!!!\n");
+	BinaryPredicateObj() {
 	}
 
 	public:
