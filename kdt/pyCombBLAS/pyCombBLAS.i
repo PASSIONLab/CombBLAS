@@ -1075,7 +1075,7 @@ class CallError {};
 class UnaryPredicateObj {
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
@@ -1092,7 +1092,7 @@ class UnaryPredicateObj {
 class UnaryFunctionObj {
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	Obj2 operator()(const Obj2& x) const { return worker(x); }
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
@@ -1117,7 +1117,7 @@ class BinaryFunctionObj {
 	~BinaryFunctionObj() {  }
 	
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 	
 	bool commutable;
 	bool associative;
@@ -1154,7 +1154,7 @@ class BinaryFunctionObj {
 class BinaryPredicateObj {
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
 	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
