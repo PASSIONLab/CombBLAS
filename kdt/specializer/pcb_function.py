@@ -90,8 +90,9 @@ class PcbBinaryFunction(object):
 
 
     def get_function(self):
-        return self.mod.get_function()
-        #return self
+        ret = self.mod.get_function()
+        ret.setCallback(self)
+        return ret
 
     def __call__(self, x, y):
         print "CALL?!?!?!"
@@ -185,8 +186,9 @@ class PcbUnaryFunction(object):
 
 
     def get_function(self):
-        return self.mod.get_function()
-        #return self
+        ret = self.mod.get_function()
+        ret.setCallback(self)
+        return ret
 
     def __call__(self, x):
         print "CALL?!?!?!"

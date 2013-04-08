@@ -775,8 +775,14 @@ class UnaryPredicateObj(_object):
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryPredicateObj, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, UnaryPredicateObj, name)
-    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
+    def getCallback(self): return _pyCombBLAS.UnaryPredicateObj_getCallback(self)
+    def setCallback(self, *args): return _pyCombBLAS.UnaryPredicateObj_setCallback(self, *args)
+    def __call__(self, *args): return _pyCombBLAS.UnaryPredicateObj___call__(self, *args)
+    def __init__(self): 
+        this = _pyCombBLAS.new_UnaryPredicateObj()
+        try: self.this.append(this)
+        except: self.this = this
     __swig_destroy__ = _pyCombBLAS.delete_UnaryPredicateObj
     __del__ = lambda self : None;
 UnaryPredicateObj_swigregister = _pyCombBLAS.UnaryPredicateObj_swigregister
@@ -787,8 +793,14 @@ class UnaryFunctionObj(_object):
     __setattr__ = lambda self, name, value: _swig_setattr(self, UnaryFunctionObj, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, UnaryFunctionObj, name)
-    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
+    def getCallback(self): return _pyCombBLAS.UnaryFunctionObj_getCallback(self)
+    def setCallback(self, *args): return _pyCombBLAS.UnaryFunctionObj_setCallback(self, *args)
+    def __call__(self, *args): return _pyCombBLAS.UnaryFunctionObj___call__(self, *args)
+    def __init__(self): 
+        this = _pyCombBLAS.new_UnaryFunctionObj()
+        try: self.this.append(this)
+        except: self.this = this
     __swig_destroy__ = _pyCombBLAS.delete_UnaryFunctionObj
     __del__ = lambda self : None;
 UnaryFunctionObj_swigregister = _pyCombBLAS.UnaryFunctionObj_swigregister
@@ -812,6 +824,7 @@ class BinaryFunctionObj(_object):
     __swig_destroy__ = _pyCombBLAS.delete_BinaryFunctionObj
     __del__ = lambda self : None;
     def getCallback(self): return _pyCombBLAS.BinaryFunctionObj_getCallback(self)
+    def setCallback(self, *args): return _pyCombBLAS.BinaryFunctionObj_setCallback(self, *args)
     __swig_setmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_set
     __swig_getmethods__["commutable"] = _pyCombBLAS.BinaryFunctionObj_commutable_get
     if _newclass:commutable = _swig_property(_pyCombBLAS.BinaryFunctionObj_commutable_get, _pyCombBLAS.BinaryFunctionObj_commutable_set)
@@ -828,8 +841,14 @@ class BinaryPredicateObj(_object):
     __setattr__ = lambda self, name, value: _swig_setattr(self, BinaryPredicateObj, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, BinaryPredicateObj, name)
-    def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
+    def getCallback(self): return _pyCombBLAS.BinaryPredicateObj_getCallback(self)
+    def setCallback(self, *args): return _pyCombBLAS.BinaryPredicateObj_setCallback(self, *args)
+    def __call__(self, *args): return _pyCombBLAS.BinaryPredicateObj___call__(self, *args)
+    def __init__(self): 
+        this = _pyCombBLAS.new_BinaryPredicateObj()
+        try: self.this.append(this)
+        except: self.this = this
     __swig_destroy__ = _pyCombBLAS.delete_BinaryPredicateObj
     __del__ = lambda self : None;
 BinaryPredicateObj_swigregister = _pyCombBLAS.BinaryPredicateObj_swigregister

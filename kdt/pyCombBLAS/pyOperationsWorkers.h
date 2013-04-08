@@ -9,6 +9,9 @@ class UnaryPredicateObj_Python {
 	PyObject *callback;
 	UnaryPredicateObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
+	PyObject* getCallback() const { return callback; }
+	void setCallback(PyObject* c) { callback = c; Py_INCREF(callback); }
+	
 	template <class T>
 	bool call(const T& x) const;
 
@@ -18,8 +21,7 @@ class UnaryPredicateObj_Python {
 	bool operator()(const Obj1& x) const { return call(x); }
 	bool operator()(const double& x) const { return callD(x); }
 
-	UnaryPredicateObj_Python() { // should never be called
-		printf("UnaryPredicateObj_Python()!!!\n");
+	UnaryPredicateObj_Python() {
 		callback = NULL;
 	}
 
@@ -34,6 +36,9 @@ class UnaryDoubleFunctionObj_Python {
 	PyObject *callback;
 	UnaryDoubleFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
+	PyObject* getCallback() const { return callback; }
+	void setCallback(PyObject* c) { callback = c; Py_INCREF(callback); }
+	
 	template <class T>
 	double call(const T& x) const;
 
@@ -43,8 +48,7 @@ class UnaryDoubleFunctionObj_Python {
 	double operator()(const Obj1& x) const { return call(x); }
 	double operator()(const double& x) const { return callD(x); }
 	
-	UnaryDoubleFunctionObj_Python() { // should never be called
-		printf("UnaryDoubleFunctionObj_Python()!!!\n");
+	UnaryDoubleFunctionObj_Python() { 
 		callback = NULL;
 	}
 
@@ -57,6 +61,9 @@ class UnaryFunctionObj_Python {
 	PyObject *callback;
 	UnaryFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
+	PyObject* getCallback() const { return callback; }
+	void setCallback(PyObject* c) { callback = c; Py_INCREF(callback); }
+	
 	template <class T>
 	T call(const T& x) const;
 
@@ -66,8 +73,7 @@ class UnaryFunctionObj_Python {
 	Obj1 operator()(const Obj1& x) const { return call(x); }
 	double operator()(const double& x) const { return callD(x); }
 	
-	UnaryFunctionObj_Python() { // should never be called
-		printf("UnaryFunctionObj_Python()!!!\n");
+	UnaryFunctionObj_Python() { 
 		callback = NULL;
 	}
 
@@ -81,6 +87,13 @@ class BinaryFunctionObj_Python {
 
 	BinaryFunctionObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
+	BinaryFunctionObj_Python(): callback(NULL) {}
+	public:
+	~BinaryFunctionObj_Python() { /*Py_XDECREF(callback);*/ }
+	
+	PyObject* getCallback() const { return callback; }
+	void setCallback(PyObject* c) { callback = c; Py_INCREF(callback); }
+	
 	template <class RET, class T1, class T2>
 	RET call(const T1& x, const T2& y) const;
 
@@ -95,12 +108,6 @@ class BinaryFunctionObj_Python {
 	RET callDO_retO(const double& x, const T2& y) const;
 
 	inline double callDD(const double& x, const double& y) const;
-	
-	BinaryFunctionObj_Python(): callback(NULL) {}
-	public:
-	~BinaryFunctionObj_Python() { /*Py_XDECREF(callback);*/ }
-	
-	PyObject* getCallback() const { return callback; }
 	
 	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
 	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
@@ -136,6 +143,9 @@ class BinaryPredicateObj_Python {
 	PyObject *callback;
 	BinaryPredicateObj_Python(PyObject *pyfunc): callback(pyfunc) { Py_INCREF(callback); }
 
+	PyObject* getCallback() const { return callback; }
+	void setCallback(PyObject* c) { callback = c; Py_INCREF(callback); }
+	
 	template <class T1, class T2>
 	bool call(const T1& x, const T2& y) const;
 
@@ -158,8 +168,7 @@ class BinaryPredicateObj_Python {
 
 	bool operator()(const double& x, const double& y) const { return callDD(x, y); }
 
-	BinaryPredicateObj_Python() { // should never be called
-		printf("BinaryPredicateObj_Python()!!!\n");
+	BinaryPredicateObj_Python() {
 		callback = NULL;
 	}
 
