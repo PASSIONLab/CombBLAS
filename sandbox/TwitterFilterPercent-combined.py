@@ -72,12 +72,12 @@ def initialize_sejits_SR():
 		def __call__(self, x, y):
 			return y
 
-	s2nd = c_s2nd()
-	s2nd.gen_get_function(types=["double", "Obj2", "double"])
+	s2nd = c_s2nd(types=["double", "Obj2", "double"])
+	#s2nd.gen_get_function(types=["double", "Obj2", "double"])
 	func = s2nd.get_function()
 
-	s2nd_d = c_s2nd()
-	s2nd_d.gen_get_function(types=["double", "double", "double"])
+	s2nd_d = c_s2nd(types=["double", "double", "double"])
+	#s2nd_d.gen_get_function(types=["double", "double", "double"])
 	func2 = s2nd_d.get_function()
 
 	sejits_SR = kdt.sr(func2, func)
@@ -88,8 +88,8 @@ def initialize_sejits_SR():
 	class c_s1st(kdt.KDTBinaryFunction):
 		def __call__(self, x, y):
 			return x
-	tmp = c_s1st()
-	tmp.gen_get_function(types=["double", "double", "double"])
+	tmp = c_s1st(types=["double", "double", "double"])
+	#tmp.gen_get_function(types=["double", "double", "double"])
 	s1st = tmp.get_function()
 
 	class IsNeg1(kdt.KDTBinaryPredicate):
