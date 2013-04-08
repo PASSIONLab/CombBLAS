@@ -46,7 +46,7 @@ class UnaryPredicateObj {
 //INTERFACE_INCLUDE_BEGIN
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	bool operator()(const Obj2& x) const { return worker(x); }
 	bool operator()(const Obj1& x) const { return worker(x); }
@@ -85,7 +85,7 @@ class UnaryFunctionObj {
 //INTERFACE_INCLUDE_BEGIN
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	Obj2 operator()(const Obj2& x) const { return worker(x); }
 	Obj1 operator()(const Obj1& x) const { return worker(x); }
@@ -305,7 +305,7 @@ class BinaryFunctionObj {
 	~BinaryFunctionObj() {  }
 	
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 	
 	bool commutable;
 	bool associative;
@@ -425,10 +425,14 @@ double BinaryFunctionObj_Python::callOD_retD(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
+		if (callback == NULL)
+		{
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD_retD) (NULL callback!)");
+		}
 		if (PyErr_Occurred())
 		{
 			PyErr_Print();
-			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD) (with exception)");
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD_retD) (with exception)");
 		}
 		else
 			throw string("BinaryFunctionObj_Python::operator() FAILED! (no exception, maybe return value was expected but not found) (callOD)");
@@ -458,6 +462,10 @@ RET BinaryFunctionObj_Python::callOD_retO(const T1& x, const double& y) const
 	} else
 	{
 		Py_XDECREF(resultPy);
+		if (callback == NULL)
+		{
+			throw string("BinaryFunctionObj_Python::operator() FAILED! (callOD_retO) (NULL callback!)");
+		}
 		if (PyErr_Occurred())
 		{
 			PyErr_Print();
@@ -584,7 +592,7 @@ class BinaryPredicateObj {
 //INTERFACE_INCLUDE_BEGIN
 	public:
 	PyObject* getCallback() const { return worker.getCallback(); }
-	void setCallback(PyObject* c) { worker.setCallback(c); }
+	void setCallback(PyObject *pyfunc) { worker.setCallback(pyfunc); }
 
 	bool operator()(const Obj1& x, const Obj1& y) const { return worker(x, y); }
 	bool operator()(const Obj1& x, const Obj2& y) const { return worker(x, y); }
