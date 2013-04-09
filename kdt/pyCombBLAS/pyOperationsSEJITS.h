@@ -88,14 +88,26 @@ class UnaryFunctionObj_SEJITS : public UnaryFunctionObj_Python {
     
   }
 
-	Obj2 operator()(const Obj2& x) const { return call(x); }
-	Obj1 operator()(const Obj1& x) const { return call(x); }
+	Obj2 operator()(const Obj2& x) const { 
+    if (customFunc_Obj2_Obj2 != NULL)
+      return (*customFunc_Obj2_Obj2)(x);
+    else
+      return call(x); 
+  }
+
+	Obj1 operator()(const Obj1& x) const { 
+    if (customFunc_Obj1_Obj1 != NULL)
+      return (*customFunc_Obj1_Obj1)(x);
+    else
+      return call(x); 
+  }
+
 	double operator()(const double& x) const {
       if (customFunc_double_double != NULL)
         return (*customFunc_double_double)(x);
       else
         return callD(x);
-    }
+   }
 
     // specialized functions, for each possible input type and output
     // type
@@ -263,16 +275,43 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
     // specialized functions, for each possible input type and output
     // type
     // convention: name is customFunc_<type1><type2>_<return type>
+
+    // return type matches first input
     double (*customFunc_doubledouble_double)(const double& x, const double& y);
-    double (*customFunc_Obj2double_double)(const Obj2& x, const double& y);
-    Obj2 (*customFunc_Obj2double_Obj2)(const Obj2& x, const double& y);
+    double (*customFunc_doubleObj1_double)(const double& x, const Obj1& y);
     double (*customFunc_doubleObj2_double)(const double& x, const Obj2& y);
+    Obj1 (*customFunc_Obj1double_Obj1)(const Obj1& x, const double& y);
+    Obj1 (*customFunc_Obj1Obj1_Obj1)(const Obj1& x, const Obj1& y);
+    Obj1 (*customFunc_Obj1Obj2_Obj1)(const Obj1& x, const Obj2& y);
+    Obj2 (*customFunc_Obj2double_Obj2)(const Obj2& x, const double& y);
+    Obj2 (*customFunc_Obj2Obj1_Obj2)(const Obj2& x, const Obj1& y);
+    Obj2 (*customFunc_Obj2Obj2_Obj2)(const Obj2& x, const Obj2& y);
+    // return type matches second input
+    Obj1 (*customFunc_doubleObj1_Obj1)(const double& x, const Obj1& y);
+    Obj2 (*customFunc_doubleObj2_Obj2)(const double& x, const Obj2& y);
+    double (*customFunc_Obj1double_double)(const Obj1& x, const double& y);
+    Obj2 (*customFunc_Obj1Obj2_Obj2)(const Obj1& x, const Obj2& y);
+    double (*customFunc_Obj2double_double)(const Obj2& x, const double& y);
+    Obj1 (*customFunc_Obj2Obj1_Obj1)(const Obj2& x, const Obj1& y);
 
 	BinaryFunctionObj_SEJITS(PyObject *pyfunc): BinaryFunctionObj_Python(pyfunc) {
-      customFunc_doubledouble_double = NULL;
-      customFunc_Obj2double_double = NULL;
-      customFunc_Obj2double_Obj2 = NULL;
-      customFunc_doubleObj2_double = NULL;
+    customFunc_doubledouble_double = NULL;
+    customFunc_doubleObj1_double = NULL;
+    customFunc_doubleObj2_double = NULL;
+    customFunc_Obj1double_Obj1 = NULL;
+    customFunc_Obj1Obj1_Obj1 = NULL;
+    customFunc_Obj1Obj2_Obj1 = NULL;
+    customFunc_Obj2double_Obj2 = NULL;
+    customFunc_Obj2Obj1_Obj2 = NULL;
+    customFunc_Obj2Obj2_Obj2 = NULL;
+    customFunc_doubleObj1_Obj1 = NULL;
+    customFunc_doubleObj2_Obj2 = NULL;
+    customFunc_Obj1double_double = NULL;
+    customFunc_Obj1Obj2_Obj2 = NULL;
+    customFunc_Obj2double_double = NULL;
+    customFunc_Obj2Obj1_Obj1 = NULL;
+      
+
       /*
       if (pyfunc != Py_None) {
         // now we check if the PyObject is actually a BinaryFunctionObj
@@ -303,12 +342,42 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 
 	//PyObject* getCallback() const { return callback; }
 
-	Obj1 operator()(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
-	Obj1 operator()(const Obj1& x, const Obj2& y) const { return call<Obj1>(x, y); }
-	Obj2 operator()(const Obj2& x, const Obj1& y) const { return call<Obj2>(x, y); }
+	Obj1 operator()(const Obj1& x, const Obj1& y) const {
+    if (customFunc_Obj1Obj1_Obj1 != NULL)
+      return (*customFunc_Obj1Obj1_Obj1)(x, y);
+    else
+      return call<Obj1>(x, y);
+  }
 
-	Obj1 operator()(const Obj1& x, const double& y) const { return callOD_retO<Obj1>(x, y); }
+	Obj2 operator()(const Obj2& x, const Obj2& y) const {
+    if (customFunc_Obj2Obj2_Obj2 != NULL)
+      return (*customFunc_Obj2Obj2_Obj2)(x, y);
+    else
+      return call<Obj2>(x, y); 
+  }
+
+	Obj1 operator()(const Obj1& x, const Obj2& y) const {
+    if (customFunc_Obj1Obj2_Obj1 != NULL)
+      return (*customFunc_Obj1Obj2_Obj1)(x, y);
+    else
+      return call<Obj1>(x, y); 
+  }
+
+	Obj2 operator()(const Obj2& x, const Obj1& y) const {
+    if (customFunc_Obj2Obj1_Obj2 != NULL)
+      return (*customFunc_Obj2Obj1_Obj2)(x, y);
+    else
+      return call<Obj2>(x, y); 
+  }
+
+
+	Obj1 operator()(const Obj1& x, const double& y) const {
+    if (customFunc_Obj1double_Obj1 != NULL)
+      return (*customFunc_Obj1double_Obj1)(x, y);
+    else
+      return callOD_retO<Obj1>(x, y); 
+  }
+
 	Obj2 operator()(const Obj2& x, const double& y) const {
       /*      printf("Obj2,d,retObj2\n");
       if (customFunc_Obj2double_double != NULL)
@@ -327,7 +396,13 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
         
         }
     }
-	double operator()(const double& x, const Obj1& y) const { return callDO_retD(x, y); }
+	double operator()(const double& x, const Obj1& y) const {
+    if (customFunc_doubleObj1_double != NULL)
+      return (*customFunc_doubleObj1_double)(x, y);
+    else
+      return callDO_retD(x, y); 
+  }
+
 	double operator()(const double& x, const Obj2& y) const {
 	    if (customFunc_doubleObj2_double != NULL)
 		return (*customFunc_doubleObj2_double)(x,y);
@@ -353,12 +428,42 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
 
 	// These are used by the semiring ops. They do the same thing as the operator() above,
 	// but their return type matches the 2nd argument instead of the 1st.
-	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const { return call<Obj2>(x, y); }
-	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const { return call<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const { return call<Obj2>(x, y); }
+	Obj1 rettype2nd_call(const Obj1& x, const Obj1& y) const {
+    if (customFunc_Obj1Obj1_Obj1 != NULL)
+      return (*customFunc_Obj1Obj1_Obj1)(x, y);
+    else
+      return call<Obj1>(x, y); 
+  }
 
-	double rettype2nd_call(const Obj1& x, const double& y) const { printf("Obj1,d\n"); return callOD_retD(x, y); }
+	Obj2 rettype2nd_call(const Obj2& x, const Obj2& y) const {
+    if (customFunc_Obj2Obj2_Obj2 != NULL)
+      return (*customFunc_Obj2Obj2_Obj2)(x, y);
+    else
+      return call<Obj2>(x, y); 
+  }
+
+	Obj1 rettype2nd_call(const Obj2& x, const Obj1& y) const {
+    if (customFunc_Obj2Obj1_Obj1 != NULL)
+      return (*customFunc_Obj2Obj1_Obj1)(x, y);
+    else
+      return call<Obj1>(x, y); 
+  }
+
+	Obj2 rettype2nd_call(const Obj1& x, const Obj2& y) const {
+    if (customFunc_Obj1Obj2_Obj2 != NULL)
+      return (*customFunc_Obj1Obj2_Obj2)(x, y);
+    else
+      return call<Obj2>(x, y); 
+  }
+
+
+	double rettype2nd_call(const Obj1& x, const double& y) const {
+    if (customFunc_Obj1double_double != NULL)
+      return (*customFunc_Obj1double_double)(x, y);
+    else
+      return callOD_retD(x, y); 
+  }
+
 	double rettype2nd_call(const Obj2& x, const double& y) const {
             printf("Obj2, d, retd\n");
       if (customFunc_Obj2double_double != NULL)
@@ -371,10 +476,28 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
         return callOD_retD(x, y);
       }
     }
-	Obj1 rettype2nd_call(const double& x, const Obj1& y) const { return callDO_retO<Obj1>(x, y); }
-	Obj2 rettype2nd_call(const double& x, const Obj2& y) const { return callDO_retO<Obj2>(x, y); }
+	Obj1 rettype2nd_call(const double& x, const Obj1& y) const {
+    if (customFunc_doubleObj1_Obj1 != NULL)
+      return (*customFunc_doubleObj1_Obj1)(x, y);
+    else
+      return callDO_retO<Obj1>(x, y); 
+  }
 
-	double rettype2nd_call(const double& x, const double& y) const { return operator()(x, y); }
+	Obj2 rettype2nd_call(const double& x, const Obj2& y) const {
+    if (customFunc_doubleObj2_Obj2 != NULL)
+      return (*customFunc_doubleObj2_Obj2)(x, y);
+    else
+      return callDO_retO<Obj2>(x, y); 
+  }
+
+
+	double rettype2nd_call(const double& x, const double& y) const {
+    if (customFunc_doubledouble_double != NULL)
+      return (*customFunc_doubledouble_double)(x, y);
+    else
+      return operator()(x, y); 
+  }
+
 
 };
 
