@@ -15,7 +15,7 @@ class FullTwitterTest(unittest.TestCase):
         import kdt
 
         # this should not throw an exception
-        pred = TwitterFilter().get_predicate()
+        pred = TwitterFilter().get_predicate(types=["bool", "Obj2"])
 
     def test_with_instancevar(self):
         class TwitterFilter(PcbUnaryPredicate):

@@ -9,7 +9,42 @@ class PcbBinaryFunction(object):
     Top-level class for BinaryFunctions.
     """
 
-    def __init__(self, types=["double", "double", "double"]):
+
+    def gen_get_function(self, types=["double", "double", "double"]):
+        # this function generates the code that passes a specialized BinaryFunctionObj back to python
+        #TODO: this needs to generate the proper customFunc given the input datatypes
+        # IN FACT, needs to generate ALL possible type specializations
+
+        specialized_function_slot = "%s%s_%s" % (types[1], types[2], types[0])
+
+        import asp.codegen.templating.template as template
+        t = template.Template("""
+
+
+            PyObject* get_function()
+            {
+              using namespace op;
+              swig_module_info* module = SWIG_Python_GetModule(NULL);
+
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+
+              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              retf->customFunc_${specialized_function_slot} = &myfunc;
+
+              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              retO->worker = *retf;
+
+              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
+
+              return ret_obj;
+            }
+            """, disable_unicode=True)
+
+        return t.render(specialized_function_slot=specialized_function_slot)
+
+
+
+    def get_function(self, types=["double", "double", "double"]):
         try:
             # create semantic model
             intypes = types
@@ -50,17 +85,26 @@ class PcbBinaryFunction(object):
             self.mod.add_function("get_function", self.gen_get_function(types=types))
 
             print self.mod.generate()
-
+            ret = self.mod.get_function()
+            ret.setCallback(self)
+            return ret
         except:
             print "WARNING: Specialization failed, proceeding with pure Python."
-            raise
+            return self
 
-    def gen_get_function(self, types=["double", "double", "double"]):
+
+
+class PcbUnaryFunction(object):
+    """
+    Top-level class for UnaryFunctions.
+    """
+
+    def gen_get_function(self, types=["double", "double"]):
         # this function generates the code that passes a specialized BinaryFunctionObj back to python
         #TODO: this needs to generate the proper customFunc given the input datatypes
         # IN FACT, needs to generate ALL possible type specializations
 
-        specialized_function_slot = "%s%s_%s" % (types[1], types[2], types[0])
+        specialized_function_slot = "%s_%s" % (types[1], types[0])
 
         import asp.codegen.templating.template as template
         t = template.Template("""
@@ -71,12 +115,12 @@ class PcbBinaryFunction(object):
               using namespace op;
               swig_module_info* module = SWIG_Python_GetModule(NULL);
 
-              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
+              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 
-              BinaryFunctionObj_SEJITS* retf = new BinaryFunctionObj_SEJITS(Py_None);
+              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
               retf->customFunc_${specialized_function_slot} = &myfunc;
 
-              BinaryFunctionObj* retO = new BinaryFunctionObj();
+              UnaryFunctionObj* retO = new UnaryFunctionObj();
               retO->worker = *retf;
 
               PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
@@ -89,21 +133,7 @@ class PcbBinaryFunction(object):
 
 
 
-    def get_function(self):
-        ret = self.mod.get_function()
-        ret.setCallback(self)
-        return ret
-
-    def __call__(self, x, y):
-        print "CALL?!?!?!"
-        return x
-
-class PcbUnaryFunction(object):
-    """
-    Top-level class for UnaryFunctions.
-    """
-
-    def __init__(self, types=["double", "double", "double"]):
+    def get_function(self, types=["double", "double"]):
         try:
             #FIXME: need to refactor "types" everywhere to a different name because it gets aliased ove
             intypes = types
@@ -146,50 +176,11 @@ class PcbUnaryFunction(object):
             self.mod.add_function("get_function", self.gen_get_function(types=types))
 
             print self.mod.generate()
+            ret = self.mod.get_function()
+            ret.setCallback(self)
+            return ret
 
         except:
             print "WARNING: Specialization failed, proceeding with pure Python."
-            raise
+            return self
 
-    def gen_get_function(self, types=["double", "double"]):
-        # this function generates the code that passes a specialized BinaryFunctionObj back to python
-        #TODO: this needs to generate the proper customFunc given the input datatypes
-        # IN FACT, needs to generate ALL possible type specializations
-
-        specialized_function_slot = "%s_%s" % (types[1], types[0])
-
-        import asp.codegen.templating.template as template
-        t = template.Template("""
-
-
-            PyObject* get_function()
-            {
-              using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
-
-              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
-
-              UnaryFunctionObj_SEJITS* retf = new UnaryFunctionObj_SEJITS(Py_None);
-              retf->customFunc_${specialized_function_slot} = &myfunc;
-
-              UnaryFunctionObj* retO = new UnaryFunctionObj();
-              retO->worker = *retf;
-
-              PyObject* ret_obj = SWIG_NewPointerObj((void*)(retO), ty, SWIG_POINTER_OWN | 0);
-
-              return ret_obj;
-            }
-            """, disable_unicode=True)
-
-        return t.render(specialized_function_slot=specialized_function_slot)
-
-
-
-    def get_function(self):
-        ret = self.mod.get_function()
-        ret.setCallback(self)
-        return ret
-
-    def __call__(self, x):
-        print "CALL?!?!?!"
-        return x
