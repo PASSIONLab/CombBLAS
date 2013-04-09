@@ -72,15 +72,18 @@ def initialize_sejits_SR():
 		def __call__(self, x, y):
 			return y
 
-	s2nd = c_s2nd(types=["double", "Obj2", "double"])
+	###FIX: s2nd = c_s2nd(types=["double", "Obj2", "double"])
+	s2nd = c_s2nd()
 	#s2nd.gen_get_function(types=["double", "Obj2", "double"])
-	func = s2nd.get_function()
+	func = s2nd.get_function(types=["double", "Obj2", "double"])
 
-	s2nd_d = c_s2nd(types=["double", "double", "double"])
+	s2nd_d = c_s2nd()
 	#s2nd_d.gen_get_function(types=["double", "double", "double"])
-	func2 = s2nd_d.get_function()
+	func2 = s2nd.get_function(types=["double", "double", "double"])
 
 	sejits_SR = kdt.sr(func2, func)
+
+	print("SR constructed")
 
 	#s1st = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
 	#									 f_sm.FunctionReturn(f_sm.Identifier("x"))),
@@ -88,15 +91,17 @@ def initialize_sejits_SR():
 	class c_s1st(kdt.KDTBinaryFunction):
 		def __call__(self, x, y):
 			return x
-	tmp = c_s1st(types=["double", "double", "double"])
+	tmp = c_s1st()
 	#tmp.gen_get_function(types=["double", "double", "double"])
-	s1st = tmp.get_function()
+	s1st = tmp.get_function(types=["double", "double", "double"])
+	print("s1st constructed")
 
 	class IsNeg1(kdt.KDTBinaryPredicate):
 		def __call__(self, x, y):
 			return y == -1
 
-	isneg1 = IsNeg1().get_predicate()
+	isneg1 = IsNeg1().get_predicate(types=["bool", "double", "double"])
+	print("isneg1 constructed")
 
 
 # this is the SEJITS-enabled BFS.
