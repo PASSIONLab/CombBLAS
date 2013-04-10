@@ -2238,6 +2238,7 @@ kdt/specializer/tests/pcb_predicate_frontend_test.py -text
 kdt/specializer/tests/pcb_predicate_full_test.py -text
 /python-mpi -text
 sandbox/AnalyzeIPDPS.py -text
+sandbox/FakeFilteredBC.py -text
 sandbox/Graph500_HyGraph.py -text
 sandbox/MIStest.py -text
 sandbox/SEJITSTimer.py -text
