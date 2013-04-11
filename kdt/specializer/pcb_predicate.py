@@ -4,6 +4,8 @@ from pcb_operator_convert import *
 from asp.jit import asp_module
 from asp.codegen import cpp_ast
 
+import kdt
+
 class PcbUnaryPredicate(object):
     """
     Top-level for PCB predicate functions.
@@ -80,12 +82,12 @@ class PcbUnaryPredicate(object):
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
             self.mod.add_function("get_predicate", self.gen_get_predicate(types))
 
-            print self.mod.generate()
+            kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
             pred.setCallback(self)
 
         except:
-            print "WARNING: Specialization failed, proceeding with pure Python."
+            kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
             pred = self
         return pred
 
@@ -167,12 +169,12 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
             self.mod.add_function("get_predicate", self.gen_get_predicate(types))
 
-            print self.mod.generate()
+            kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
             pred.setCallback(self)
 
         except:
-            print "WARNING: Specialization failed, proceeding with pure Python."
+            kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
             pred = self
         return pred
 

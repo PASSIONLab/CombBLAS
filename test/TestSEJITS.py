@@ -6,6 +6,8 @@ import kdt.specializer.pcb_predicate as pcb_predicate
 import ast
 import unittest
 
+#kdt.set_verbosity(kdt.DEBUG)
+
 class MulFn(PcbBinaryFunction):
     def __call__(self, x, y):
         return y

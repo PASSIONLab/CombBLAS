@@ -3,6 +3,7 @@ from pcb_operator_convert import *
 
 from asp.jit import asp_module
 from asp.codegen import cpp_ast
+import kdt
 
 class PcbBinaryFunction(object):
     """
@@ -84,12 +85,12 @@ class PcbBinaryFunction(object):
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
             self.mod.add_function("get_function", self.gen_get_function(types=types))
 
-            print self.mod.generate()
+            kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
             return ret
         except:
-            print "WARNING: Specialization failed, proceeding with pure Python."
+            kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
             return self
 
 
@@ -170,17 +171,17 @@ class PcbUnaryFunction(object):
             self.mod.add_library("pycombblas",
                                  [installDir+"/include"])
 
-            print types
+            kdt.p_debug(types)
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
             self.mod.add_function("get_function", self.gen_get_function(types=types))
 
-            print self.mod.generate()
+            kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
             return ret
 
         except:
-            print "WARNING: Specialization failed, proceeding with pure Python."
+            kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
             return self
 
