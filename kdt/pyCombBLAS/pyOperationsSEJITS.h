@@ -169,7 +169,7 @@ class BinaryPredicateObj_SEJITS : public BinaryPredicateObj_Python {
       BinaryPredicateObj_SEJITS* tmp;
 
       if (module != NULL && ty != NULL && (SWIG_ConvertPtr(pyfunc, (void**)&tmp, ty, 0)) == 0) {
-        printf("BinaryPredicateObj_SEJITS detected, replicating callbacks...\n");
+        //printf("BinaryPredicateObj_SEJITS detected, replicating callbacks...\n");
 
         customFuncObj1Obj1     = tmp->customFuncObj1Obj1    ;
         customFuncObj1Obj2     = tmp->customFuncObj1Obj2    ;
@@ -386,12 +386,9 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
         printf("    specialized for double f(double, double)\n");
       */
       if (customFunc_Obj2double_Obj2 != NULL) {
-          printf("+++++ doing call to specialized version\n");
         return (*customFunc_Obj2double_Obj2)(x,y);
-        
         }
       else {
-          printf("+++++ doing call to non-specialized version\n");
         return callOD_retO<Obj2>(x, y);
         
         }
@@ -465,14 +462,11 @@ class BinaryFunctionObj_SEJITS : public BinaryFunctionObj_Python {
   }
 
 	double rettype2nd_call(const Obj2& x, const double& y) const {
-            printf("Obj2, d, retd\n");
       if (customFunc_Obj2double_double != NULL)
         {
-            printf("using customFunc\n");
           return (*customFunc_Obj2double_double)(x, y);
         }
       else {
-        printf("using interpretation\n");
         return callOD_retD(x, y);
       }
     }

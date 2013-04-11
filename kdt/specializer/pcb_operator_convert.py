@@ -1,5 +1,6 @@
 import asp.codegen.ast_tools as ast_tools
 import asp.codegen.cpp_ast as cpp_ast
+import kdt
 
 # this should get pulled into Asp
 class CppAttribute(cpp_ast.Generable):
@@ -41,7 +42,7 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
         """
         # the types array tells us what the return and input types are
         self.types = types
-        print types
+        kdt.p_debug(types)
         self.name = name
         return self.visit(sm)
 
@@ -55,8 +56,6 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
         return cpp_ast.FunctionBody(cpp_ast.FunctionDeclaration(cpp_ast.Value(self.types[0], self.name),
                                                                 [cpp_ast.Reference(cpp_ast.Value("const %s" % self.types[1], self.visit(node.input)))]),
                                              cpp_ast.Block(contents=[self.visit(node.body)]))
-#                                             cpp_ast.Block(contents=[cpp_ast.Print('<<"IN_CALL"', True),self.visit(node.body)]))
-              
 
     def visit_BinaryPredicate(self, node):
         #FIXME: same problem as UnaryPredicate
@@ -67,7 +66,6 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
 
     def visit_UnaryFunction(self, node):
         # FIXME: have to worry about type specialization on return & passed-in types
-        print self.types
         return cpp_ast.FunctionBody(cpp_ast.FunctionDeclaration(cpp_ast.Value(self.types[0], self.name),
                                                                 [cpp_ast.Reference(cpp_ast.Value("const %s" % self.types[1], self.visit(node.input)))]),
                                     cpp_ast.Block(contents=[self.visit(node.body)]))
