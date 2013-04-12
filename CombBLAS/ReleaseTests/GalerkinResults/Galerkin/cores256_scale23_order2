@@ -1,0 +1,32 @@
+TACC: Setting memory limits for job 1284886 to 1992294 KB
+TACC: Dumping job script:
+--------------------------------------------------------------------------------
+#!/bin/bash 			  
+				# first line specifies shell
+#$ -V		 		# inherit the submission environment
+#$ -cwd				# Start job in this directory
+#$ -N galerkin256			# Name
+#$ -o $JOB_NAME.$JOB_ID.out	# output->   out.o&ltjobID>
+#$ -e $JOB_NAME.$JOB_ID.err	# error -> error.o&ltjobID>
+#$ -pe 16way 256		# 16 tasks/node, 64 cores total
+#$ -l h_rt=00:20:00		# 15 mins runtime
+#$ -q normal			# Use normal queue.
+set -x                          #Echo all commands.
+ibrun ./MultTime $WORK/SCALE23-RMAT/input1_0 $WORK/SCALE23-RMAT/galerkin_scale23_order2
+--------------------------------------------------------------------------------
+TACC: Done.
+TACC: Starting up job 1284886
+TACC: Setting up parallel environment for OpenMPI mpirun.
+TACC: Setup complete. Running job script.
+TACC: starting parallel tasks...
+Data read
+Warmed up for Synch
+Synchronous multiplications finished
+1.121353 seconds elapsed per iteration
+Warmed up for PassiveTarget
+Passive target multiplications finished
+0.995949 seconds elapsed per iteration
+TACC: Shutting down parallel environment.
+TACC: Shutdown complete. Exiting.
+TACC: Cleaning up after job: 1284886
+TACC: Done.

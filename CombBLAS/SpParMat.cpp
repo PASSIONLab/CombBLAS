@@ -1018,7 +1018,7 @@ bool SpParMat<IT,NT,DER>::operator== (const SpParMat<IT,NT,DER> & rhs) const
  ** Before this call, commGrid is already set
  **/
 template <class IT, class NT, class DER>
-void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n)
+void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, bool SumDuplicates)
 {
 	int nprocs = commGrid->GetSize();
 	int * sendcnt = new int[nprocs];
@@ -1062,6 +1062,11 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 	else	loccols = total_n - myproccol * n_perproc;
 
 	SpTuples<IT,NT> A(totrecv, locrows, loccols, recvdata);	// It is ~SpTuples's job to deallocate
+	if(SumDuplicates)
+	{
+		// the previous constructor sorts based on columns-first (but that doesn't matter as long as they are sorted one way or another)
+		A.RemoveDuplicates(plus<NT>());
+	}
   	spSeq = new DER(A,false);        // Convert SpTuples to DER
 }
 
@@ -1069,7 +1074,7 @@ void SpParMat< IT,NT,DER >::SparseCommon(vector< vector < tuple<IT,IT,NT> > > & 
 //! All vectors are zero-based indexed (as usual)
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & distrows, 
-				const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals)
+				const FullyDistVec<IT,IT> & distcols, const FullyDistVec<IT,NT> & distvals, bool SumDuplicates)
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) || (*(distcols.commGrid) != *(distvals.commGrid)))
 	{
@@ -1093,14 +1098,14 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
 		data[owner].push_back(make_tuple(lrow,lcol,distvals.arr[i]));	
 	}
-	SparseCommon(data, locsize, total_m, total_n);
+	SparseCommon(data, locsize, total_m, total_n, SumDuplicates);
 }
 
 
 
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,IT> & distrows, 
-				const FullyDistVec<IT,IT> & distcols, const NT & val)
+				const FullyDistVec<IT,IT> & distcols, const NT & val, bool SumDuplicates)
 {
 	if((*(distrows.commGrid) != *(distcols.commGrid)) )
 	{
@@ -1123,7 +1128,7 @@ SpParMat< IT,NT,DER >::SpParMat (IT total_m, IT total_n, const FullyDistVec<IT,I
 		int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
 		data[owner].push_back(make_tuple(lrow,lcol,val));	
 	}
-	SparseCommon(data, locsize, total_m, total_n);
+	SparseCommon(data, locsize, total_m, total_n, SumDuplicates);
 }
 
 template <class IT, class NT, class DER>

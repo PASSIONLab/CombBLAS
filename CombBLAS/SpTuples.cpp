@@ -205,6 +205,35 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
 	return *this;
 }
 
+/**
+ * \pre {The object is either column-sorted or row-sorted, either way the identical entries will be consecutive}
+ **/
+template <class IT,class NT>
+void SpTuples<IT,NT>::RemoveDuplicates(std::binary_function<NT,NT,NT> BinOp)
+{
+	if(nnz > 0)
+	{
+		vector< tuple<IT, IT, NT> > summed;
+		summed.push_back(tuples[0]);
+	
+		for(IT i=1; i< nnz; ++i)
+        	{
+			if((get<0>(summed.back()) == get<0>(tuples[i])) && (get<1>(summed.back()) == get<1>(tuples[i])))
+			{
+				get<2>(summed.back()) = BinOp(get<2>(summed.back()), get<2>(tuples[i]));
+			}
+			else
+			{
+				summed.push_back(tuples[i]);
+				
+			}
+                }
+		delete [] tuples;
+		tuples  = new tuple<IT, IT, NT>[summed.size()];
+		copy(summed.begin(), summed.end(), tuples);
+	}
+}
+
 
 //! Loads a triplet matrix from infile
 //! \remarks Assumes matlab type indexing for the input (i.e. indices start from 1)
