@@ -72,24 +72,20 @@ int main(int argc, char* argv[])
 		string Sname(argv[2]);
 		string STname(argv[3]);		
 
-		ifstream inputA(Aname.c_str());
-		ifstream inputS(Sname.c_str());
-		ifstream inputST(STname.c_str());
-
 		MPI_Barrier(MPI_COMM_WORLD);
 		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
 
 		PSpMat<double>::MPI_DCCols A, S, ST;	// construct objects
 		
-		A.ReadDistribute(inputA, 0);
-		S.ReadDistribute(inputS, 0);
-		ST.ReadDistribute(inputST, 0);
+		A.ReadDistribute(Aname, 0);
+		S.ReadDistribute(Sname, 0);
+		ST.ReadDistribute(STname, 0);
 		SpParHelper::Print("Data read\n");
 
 		// force the calling of C's destructor
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, ST);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(S, C);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(A, ST);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, C);
 			SpParHelper::Print("Warmed up for DoubleBuff (right evaluate)\n");
 		}	
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -97,8 +93,8 @@ int main(int argc, char* argv[])
 		double t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(A, ST);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(S, C);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(A, ST);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, C);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		double t2 = MPI_Wtime(); 	
@@ -111,8 +107,8 @@ int main(int argc, char* argv[])
 
 		// force the calling of C's destructor
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(S, A);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(C, ST);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, A);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(C, ST);
 			SpParHelper::Print("Warmed up for DoubleBuff (left evaluate)\n");
 		}	
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -120,8 +116,8 @@ int main(int argc, char* argv[])
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(S, A);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE>(C, ST);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, A);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(C, ST);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		t2 = MPI_Wtime(); 	
@@ -134,8 +130,8 @@ int main(int argc, char* argv[])
 
 		// force the calling of C's destructor
 		{	
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, ST);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(S, C);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(A, ST);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, C);
 		}
 		SpParHelper::Print("Warmed up for Synch (right evaluate)\n");
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -143,8 +139,8 @@ int main(int argc, char* argv[])
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(A, ST);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(S, C);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(A, ST);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, C);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(-1,"SpGEMM_Synch_right");
@@ -157,8 +153,8 @@ int main(int argc, char* argv[])
 
 		// force the calling of C's destructor
 		{	
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(S, A);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(C, ST);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, A);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(C, ST);
 		}
 		SpParHelper::Print("Warmed up for Synch (left evaluate)\n");
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -166,8 +162,8 @@ int main(int argc, char* argv[])
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(S, A);
-			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE>(C, ST);
+			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(S, A);
+			PSpMat<double>::MPI_DCCols D = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, SpDCCols<int,double> >(C, ST);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(-1,"SpGEMM_Synch_left");
@@ -177,12 +173,6 @@ int main(int argc, char* argv[])
 			cout<<"Synchronous multiplications (left evaluate) finished"<<endl;	
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
-		inputA.clear();
-		inputA.close();
-		inputS.clear();
-		inputS.close();
-		inputST.clear();
-		inputST.clear();
 	}
 	MPI_Finalize();
 	return 0;
