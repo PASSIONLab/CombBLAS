@@ -100,6 +100,8 @@ public:
 		return 2*sizeof(INDEXTYPE)+sizeof(Obj1);
 	}
 
+	friend Obj1 operator+(const Obj1&, const Obj1&);
+
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -110,7 +112,7 @@ public:
 
 	bool operator!=(const Obj1& other) const {
 		return __ne__(other);
-	}
+	} 
 
 	// For sorting
 	bool operator<(const Obj1& other) const {
@@ -296,6 +298,8 @@ public:
 		return sizeof(TwitterInteraction);
 	}
 
+	friend Obj2 operator+(const Obj2&, const Obj2&);
+
 ///// USER CHANGEABLE CODE END
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -341,6 +345,19 @@ inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const O
 
 template <typename c, typename t>
 inline std::basic_ostream<c,t>& operator<<(std::basic_ostream<c,t>& lhs, const Obj2& rhs) { return lhs << rhs.__repr__(); }
+
+
+inline Obj1 operator+ (const Obj1 & first, const Obj1 & second)
+{
+	cout << "Warning: Addition is not defined on Obj1 yet" << endl;
+	return first;
+}
+
+inline Obj2 operator+ (const Obj2 & first, const Obj2 & second)
+{
+	cout << "Warning: Addition is not defined on Obj2 yet" << endl;
+	return first;
+}
 
 //template <typename c, typename t>
 //inline std::basic_istream<c,t>& operator>>(std::basic_istream<c,t>& lhs, const doubleint& rhs) { return lhs >> rhs.d; }
