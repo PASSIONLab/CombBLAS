@@ -56,8 +56,10 @@ public:
 	IT colindex (IT i) const { return joker::get<1>(tuples[i]); } 
 	NT numvalue (IT i) const { return joker::get<2>(tuples[i]); } 
 
+
+	template <typename BINFUNC>
+	void RemoveDuplicates(BINFUNC BinOp);
 	
-	void RemoveDuplicates(std::binary_function<NT,NT,NT> BinOp);
 	void SortRowBased()
 	{
 		RowLexiCompare<IT,NT> rowlexicogcmp;

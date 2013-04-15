@@ -209,7 +209,8 @@ SpTuples<IT,NT> & SpTuples<IT,NT>::operator=(const SpTuples<IT,NT> & rhs)
  * \pre {The object is either column-sorted or row-sorted, either way the identical entries will be consecutive}
  **/
 template <class IT,class NT>
-void SpTuples<IT,NT>::RemoveDuplicates(std::binary_function<NT,NT,NT> BinOp)
+template <typename BINFUNC>
+void SpTuples<IT,NT>::RemoveDuplicates(BINFUNC BinOp)
 {
 	if(nnz > 0)
 	{
