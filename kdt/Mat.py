@@ -7,8 +7,6 @@ from Util import _op_make_unary_pred
 from Util import _op_make_binary
 from Util import _op_make_binaryObj
 from Util import _op_make_binary_pred
-from Util import _sr_get_python_mul
-from Util import _sr_get_python_add
 from Util import _makePythonOp
 from Util import _opStruct_int
 from Util import _opStruct_float

@@ -760,6 +760,7 @@ class SemiringObj {
 	
 	BinaryFunctionObj *binfunc_add;
 	BinaryFunctionObj *binfunc_mul;
+	bool own_add_mul;
 	UnaryPredicateObj* left_filter;
 	UnaryPredicateObj* right_filter;
 	//template <class T1, class T2, class OUT>
@@ -772,7 +773,7 @@ class SemiringObj {
 	void disableSemiring();
 	
 	public:
-	SemiringObj(SRingType t): type(t), binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {
+	SemiringObj(SRingType t): type(t), binfunc_add(NULL), binfunc_mul(NULL), own_add_mul(true), left_filter(NULL), right_filter(NULL) {
 		//if (t == CUSTOM)
 			// scream bloody murder
 	}
@@ -781,9 +782,10 @@ class SemiringObj {
 	
 //INTERFACE_INCLUDE_BEGIN
 	protected:
-	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), own_add_mul(true), left_filter(NULL), right_filter(NULL) {}
 	public:
 	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
+	SemiringObj(BinaryFunctionObj *add, BinaryFunctionObj *multiply);
 	~SemiringObj();
 	
 	void setFilters(PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
