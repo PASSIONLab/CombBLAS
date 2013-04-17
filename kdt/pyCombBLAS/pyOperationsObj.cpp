@@ -144,6 +144,7 @@ SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filte
 	
 	binfunc_add = new BinaryFunctionObj(add, true, true);
 	binfunc_mul = new BinaryFunctionObj(multiply, true, true);
+	own_add_mul = true;
 	
 	if (left_filter_py != NULL && Py_None != left_filter_py)
 		left_filter = new UnaryPredicateObj(left_filter_py);
@@ -155,13 +156,28 @@ SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filte
 	else
 		right_filter = NULL;
 }
+
+SemiringObj::SemiringObj(BinaryFunctionObj *add, BinaryFunctionObj *multiply)
+	: type(CUSTOM)//, pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+{
+	//Py_INCREF(pyfunc_add);
+	//Py_INCREF(pyfunc_multiply);
+	
+	binfunc_add = add;
+	binfunc_mul = multiply;
+	own_add_mul = false;
+	
+	left_filter = NULL;
+	right_filter = NULL;
+}
+
 SemiringObj::~SemiringObj()
 {
 	//Py_XDECREF(pyfunc_add);
 	//Py_XDECREF(pyfunc_multiply);
-	if (binfunc_add != NULL)
+	if (binfunc_add != NULL && own_add_mul)
 		delete binfunc_add;
-	if (binfunc_mul != NULL)
+	if (binfunc_mul != NULL && own_add_mul)
 		delete binfunc_mul;
 	if (left_filter != NULL)
 		delete left_filter;

@@ -44561,6 +44561,47 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_new_SemiringObj__SWIG_4(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::BinaryFunctionObj *arg1 = (op::BinaryFunctionObj *) 0 ;
+  op::BinaryFunctionObj *arg2 = (op::BinaryFunctionObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  op::SemiringObj *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:new_SemiringObj",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_SemiringObj" "', argument " "1"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::BinaryFunctionObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__BinaryFunctionObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_SemiringObj" "', argument " "2"" of type '" "op::BinaryFunctionObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::BinaryFunctionObj * >(argp2);
+  {
+    try {
+      result = (op::SemiringObj *)new op::SemiringObj(arg1,arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_op__SemiringObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_SemiringObj(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[5];
@@ -44570,6 +44611,20 @@ SWIGINTERN PyObject *_wrap_new_SemiringObj(PyObject *self, PyObject *args) {
   argc = args ? (int)PyObject_Length(args) : 0;
   for (ii = 0; (ii < 4) && (ii < argc); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__BinaryFunctionObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_SemiringObj__SWIG_4(self, args);
+      }
+    }
   }
   if (argc == 2) {
     int _v;
@@ -44616,7 +44671,8 @@ fail:
     "  Possible C/C++ prototypes are:\n"
     "    op::SemiringObj::SemiringObj(PyObject *,PyObject *,PyObject *,PyObject *)\n"
     "    op::SemiringObj::SemiringObj(PyObject *,PyObject *,PyObject *)\n"
-    "    op::SemiringObj::SemiringObj(PyObject *,PyObject *)\n");
+    "    op::SemiringObj::SemiringObj(PyObject *,PyObject *)\n"
+    "    op::SemiringObj::SemiringObj(op::BinaryFunctionObj *,op::BinaryFunctionObj *)\n");
   return 0;
 }
 

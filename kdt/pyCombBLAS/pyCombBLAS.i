@@ -1180,9 +1180,10 @@ BinaryFunctionObj binaryObj(PyObject *pyfunc, bool comm=false);
 BinaryPredicateObj binaryObjPred(PyObject *pyfunc);
 class SemiringObj {
 	protected:
-	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), left_filter(NULL), right_filter(NULL) {}
+	SemiringObj(): type(NONE)/*, pyfunc_add(NULL), pyfunc_multiply(NULL)*/, binfunc_add(NULL), binfunc_mul(NULL), own_add_mul(true), left_filter(NULL), right_filter(NULL) {}
 	public:
 	SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);
+	SemiringObj(BinaryFunctionObj *add, BinaryFunctionObj *multiply);
 	~SemiringObj();
 	
 	void setFilters(PyObject* left_filter_py = NULL, PyObject* right_filter_py = NULL);

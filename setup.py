@@ -281,12 +281,12 @@ if usingWinMPICH:
 	libraries.append("mpi")
 	libraries.append("cxx")
 
-if not check_for_header("Python.h", include_dirs, define_macros):
-	print "Please install the Python development libraries. They are required to compile any Python C++ module."
-	print "On most systems that just means installing the `python-dev` or `python-devel` package."
-	print ""
-	print "attempting to continue anyway..."
-	#sys.exit()
+#if not check_for_header("Python.h", include_dirs, define_macros):
+#	print "Please install the Python development libraries. They are required to compile any Python C++ module."
+#	print "On most systems that just means installing the `python-dev` or `python-devel` package."
+#	print ""
+#	print "attempting to continue anyway..."
+#	#sys.exit()
 
 if not check_for_MPI(include_dirs, define_macros):
 	print "ERROR: MPI not found. KDT requires an MPI compiler to be used."

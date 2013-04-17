@@ -10,6 +10,7 @@ import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
 
 kdt.PDO_enable(False)
+#kdt.set_verbosity(kdt.DEBUG)
 
 useParIO = True
 useDelIsolated = False
@@ -72,14 +73,13 @@ def initialize_sejits_SR():
 		def __call__(self, x, y):
 			return y
 
-	###FIX: s2nd = c_s2nd(types=["double", "Obj2", "double"])
 	s2nd = c_s2nd()
 	#s2nd.gen_get_function(types=["double", "Obj2", "double"])
-	func = s2nd.get_function(types=["double", "Obj2", "double"])
+	func = s2nd#.get_function(types=["double", "Obj2", "double"])
 
 	s2nd_d = c_s2nd()
 	#s2nd_d.gen_get_function(types=["double", "double", "double"])
-	func2 = s2nd.get_function(types=["double", "double", "double"])
+	func2 = s2nd_d#.get_function(types=["double", "double", "double"])
 
 	sejits_SR = kdt.sr(func2, func)
 

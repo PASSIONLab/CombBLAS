@@ -1,4 +1,5 @@
 import pyCombBLAS as pcb
+import kdt
 
 import ctypes
 
@@ -203,15 +204,6 @@ def revision():
 	"""
 	return "r7xx"
 
-def sr(addFn, mulFn, leftFilter=None, rightFilter=None):
-	ret = pcb.SemiringObj(addFn, mulFn, leftFilter, rightFilter)
-	ret.origAddFn = addFn
-	ret.origMulFn = mulFn
-	#ret.origLeftFilter = leftFilter # overrriden by setFilters()
-	#ret.origRightFilter = rightFilter # overrriden by setFilters()
-	return ret
-
-
 NONE = 0
 INFO = 1
 DEBUG = 2
@@ -253,15 +245,6 @@ def p_info(s):
 sr_select2nd = pcb.SecondMaxSemiringObj()
 sr_plustimes = pcb.TimesPlusSemiringObj()
 
-def times(x, y):
-	return x*y
-def plus(x, y):
-	return x+y
-def select2nd(x, y):
-	return y
-py_sr_select2nd = sr(select2nd, select2nd)
-py_sr_plustimes = sr(plus, times)
-		
 # built-in operations that only work on floating point scalars
 op_add = pcb.plus()
 op_sub = pcb.minus()
@@ -473,7 +456,18 @@ class _python_def_shim_binary:
 			return result
 
 def _is_SEJITS_callback(op):
-	return isinstance(op, (PcbUnaryFunction, PcbBinaryFunction, PcbUnaryPredicate, PcbBinaryPredicate))
+	return isinstance(op, (kdt.PcbUnaryFunction, kdt.PcbBinaryFunction, kdt.PcbUnaryPredicate, kdt.PcbBinaryPredicate))
+
+def _get_Asp_string_type(t):
+	if t == float:
+		return "double"
+	if t == bool:
+		return "double"
+	if t == pcb.Obj1:
+		return "Obj1"
+	if t == pcb.Obj2:
+		return "Obj2"
+	raise TypeError, "Unknown type for SEJITS! Got " + str(t)
 
 ## helper functions to transform Python callbacks into pyCombBLAS functor objects
 
@@ -482,13 +476,19 @@ def _is_SEJITS_callback(op):
 def _op_make_unary(op, opStruct, opStructRet=None):
 	if op is None:
 		return None
+	if opStructRet is None:
+		opStructRet = opStruct
+
 	if issubclass(opStruct._getElementType(), ctypes.Structure):
-		if opStructRet is None:
-			opStructRet = opStruct
 		op = _python_def_shim_unary(op, opStruct._getElementType(), opStructRet._getStorageType())
 
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj)):
 		return op
+	if _is_SEJITS_callback(op):
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct._getStorageType())])
+		if not _is_SEJITS_callback(ret):
+			return ret # specialization succeeded
+
 	return pcb.unaryObj(op)
 
 def _op_make_unary_pred(op, opStruct, opStructRet=None):
@@ -499,6 +499,11 @@ def _op_make_unary_pred(op, opStruct, opStructRet=None):
 
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
 		return op
+	if _is_SEJITS_callback(op):
+		ret = op.get_predicate(types=[_get_Asp_string_type(opStruct._getStorageType())])
+		if not _is_SEJITS_callback(ret):
+			return ret # specialization succeeded
+
 	return pcb.unaryObjPred(op)
 
 # Wrap a Python binary callback into pyCombBLAS's BinaryFunctionObj,
@@ -511,6 +516,12 @@ def _op_make_binary(op, opStruct1, opStruct2, opStructRet):
 
 	if isinstance(op, (pcb.BinaryFunction, pcb.BinaryFunctionObj)):
 		return op
+
+	if _is_SEJITS_callback(op):
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		if not _is_SEJITS_callback(ret):
+			return ret # specialization succeeded
+
 	return pcb.binaryObj(op)
 
 # same as above, but will convert a BinaryFunction into a
@@ -525,6 +536,12 @@ def _op_make_binaryObj(op, opStruct1, opStruct2, opStructRet):
 		return op
 	if isinstance(op, (pcb.BinaryFunction)):
 		return pcb.binaryObj(_op_builtin_pyfunc(op))
+
+	if _is_SEJITS_callback(op):
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		if not _is_SEJITS_callback(ret):
+			return ret # specialization succeeded
+
 	return pcb.binaryObj(op)
 
 def _op_make_binary_pred(op, opStruct1, opStruct2, opStructRet=None):
@@ -535,15 +552,52 @@ def _op_make_binary_pred(op, opStruct1, opStruct2, opStructRet=None):
 
 	if isinstance(op, (pcb.BinaryFunction, pcb.BinaryPredicateObj)):
 		return op
+
+	if _is_SEJITS_callback(op):
+		ret = op.get_predicate(types=[_get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		if not _is_SEJITS_callback(ret):
+			return ret # specialization succeeded
+
 	return pcb.binaryObjPred(op)
 
+def sr(addFn, mulFn):
+	ret = pcb.SemiringObj(addFn, mulFn, None, None)
+	ret.origAddFn = addFn
+	ret.origMulFn = mulFn
+	#ret.origLeftFilter = leftFilter # overrriden by setFilters()
+	#ret.origRightFilter = rightFilter # overrriden by setFilters()
+	return ret
+
+def times(x, y):
+	return x*y
+def plus(x, y):
+	return x+y
+def select2nd(x, y):
+	return y
+py_sr_select2nd = sr(select2nd, select2nd)
+py_sr_plustimes = sr(plus, times)
+		
 def _sr_addTypes(inSR, opStruct1, opStruct2, opStructRet):
+	add = inSR.origAddFn
+	mul = inSR.origMulFn
 	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
-		mul = inSR.origMulFn
-		add = inSR.origAddFn
+		#add = inSR.origAddFn
+		#mul = inSR.origMulFn
 		mul = _python_def_shim_binary(mul, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
-		add = _python_def_shim_binary(add, opStruct2._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
+		add = _python_def_shim_binary(add, opStructRet._getElementType(), opStructRet._getElementType(), opStructRet._getStorageType())
 		outSR = sr(add, mul)
+		return outSR
+	elif _is_SEJITS_callback(mul) and _is_SEJITS_callback(add):
+		mul_f = mul.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		add_f = add.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType())])
+		outSR = pcb.SemiringObj(add_f, mul_f)
+		
+		# keep references to make sure garbage collector doesn't collect this too early.
+		outSR.mul_f = mul_f
+		outSR.add_f = add_f
+		
+		outSR.origAddFn = inSR.origAddFn
+		outSR.origMulFn = inSR.origMulFn
 		return outSR
 	else:
 		return inSR
@@ -601,21 +655,3 @@ def _makePythonOp(op):
 		return py_sr_select2nd
 	else:
 		return op
-
-def _sr_get_python_add(SR):
-	if SR == sr_plustimes:
-		# use an actual function instead of a lambda to make SEJITS handle it easier
-		def plus(x, y):
-			return x+y
-		return plus
-	else:
-		return SR.getAddCallback()
-
-def _sr_get_python_mul(SR):
-	if SR == sr_plustimes:
-		# use an actual function instead of a lambda to make SEJITS handle it easier
-		def mul(x, y):
-			return x*y
-		return mul
-	else:
-		return SR.getMulCallback()
