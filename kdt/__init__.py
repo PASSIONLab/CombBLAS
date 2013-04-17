@@ -50,11 +50,8 @@ import SpectralClustering
 
 
 # placeholder parent class for when SEJITS is disabled
-class _SEJITS_diabled_callback_parent:
-	def get_function(self):
-		return self
-	def get_predicate(self):
-		return self
+class _SEJITS_diabled_callback_parent(object):
+	pass
 
 # the SEJITS callback parent classes
 KDTUnaryPredicate = _SEJITS_diabled_callback_parent

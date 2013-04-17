@@ -46,6 +46,13 @@ class PcbUnaryPredicate(object):
     def get_predicate(self, types=["bool", "Obj2"]):
         #FIXME: do we save the vars of the instance so they can be passed in to translation machinery?
 
+    	# see if the result is cached
+    	if not hasattr(self, '_func_cache'):
+    		self._func_cache = {}
+    		
+    	if str(types) in self._func_cache:
+    		return self._func_cache[str(types)]
+
         try:
             # create semantic model
             intypes = types
@@ -85,6 +92,9 @@ class PcbUnaryPredicate(object):
             kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
             pred.setCallback(self)
+
+            # cache the result
+            self._func_cache[str(types)] = pred
 
         except:
             kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
@@ -134,6 +144,13 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
     def get_predicate(self, types=["bool", "double", "double"]):
         #FIXME: do we then save the vars of the instance so they can be passed in to translation machinery?
 
+    	# see if the result is cached
+    	if not hasattr(self, '_func_cache'):
+    		self._func_cache = {}
+    		
+    	if str(types) in self._func_cache:
+    		return self._func_cache[str(types)]
+
         try:
             # create semantic model
             intypes = types
@@ -172,6 +189,9 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
             pred.setCallback(self)
+
+            # cache the result
+            self._func_cache[str(types)] = pred
 
         except:
             kdt.p("WARNING: Specialization failed, proceeding with pure Python.")

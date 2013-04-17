@@ -8,31 +8,31 @@ import unittest
 
 #kdt.set_verbosity(kdt.DEBUG)
 
-class MulFn(PcbBinaryFunction):
+class MulFn(kdt.KDTBinaryFunction):
     def __call__(self, x, y):
         return y
 
-class AddFn(PcbBinaryFunction):
+class AddFn(kdt.KDTBinaryFunction):
     def __call__(self, x, y):
         if x>y:
             return x
         else:
             return y
 
-class Sel1st(PcbBinaryFunction):
+class Sel1st(kdt.KDTBinaryFunction):
     def __call__(self, x, y):
         return x
 
-class NotEq(pcb_predicate.PcbBinaryPredicate):
+class NotEq(kdt.KDTBinaryPredicate):
 	def __call__(self, x, y):
 		return x != y
 
 class TestSEJITS(unittest.TestCase):
     def test_conncomp(self):
-        mulFn = MulFn().get_function()
-        addFn = AddFn().get_function()
-        select1st = Sel1st().get_function()
-        noteq = NotEq().get_predicate()
+        mulFn = MulFn()
+        addFn = AddFn()
+        select1st = Sel1st()
+        noteq = NotEq()
         selectMax = kdt.sr(addFn, mulFn)
         
         def connComp(inmat):

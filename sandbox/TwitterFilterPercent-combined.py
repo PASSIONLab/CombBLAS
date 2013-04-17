@@ -10,7 +10,7 @@ import kdt.pyCombBLAS as pcb
 from stats import splitthousands, printstats
 
 kdt.PDO_enable(False)
-#kdt.set_verbosity(kdt.DEBUG)
+kdt.set_verbosity(kdt.DEBUG)
 
 useParIO = True
 useDelIsolated = False
@@ -60,26 +60,15 @@ func2 = None
 def initialize_sejits_SR():
 	global sejits_SR, isneg1, s1st, func2
 
-	#import pcb_predicate, pcb_function, pcb_function_sm as f_sm
-
-	#s2nd = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
-	#									 f_sm.FunctionReturn(f_sm.Identifier("y"))),
-	#				 types=["double", "Obj2", "double"])
-	#s2nd_d = pcb_function.PcbBinaryFunction(f_sm.BinaryFunction([f_sm.Identifier("x"), f_sm.Identifier("y")],
-	#									   f_sm.FunctionReturn(f_sm.Identifier("y"))),
-	#				   types=["double", "double", "double"])
-	
 	class c_s2nd(kdt.KDTBinaryFunction):
 		def __call__(self, x, y):
 			return y
 
 	s2nd = c_s2nd()
-	#s2nd.gen_get_function(types=["double", "Obj2", "double"])
-	func = s2nd#.get_function(types=["double", "Obj2", "double"])
+	func = s2nd
 
 	s2nd_d = c_s2nd()
-	#s2nd_d.gen_get_function(types=["double", "double", "double"])
-	func2 = s2nd_d#.get_function(types=["double", "double", "double"])
+	func2 = s2nd_d
 
 	sejits_SR = kdt.sr(func2, func)
 
@@ -93,14 +82,14 @@ def initialize_sejits_SR():
 			return x
 	tmp = c_s1st()
 	#tmp.gen_get_function(types=["double", "double", "double"])
-	s1st = tmp.get_function(types=["double", "double", "double"])
+	s1st = tmp #.get_function(types=["double", "double", "double"])
 	print("s1st constructed")
 
 	class IsNeg1(kdt.KDTBinaryPredicate):
 		def __call__(self, x, y):
 			return y == -1
 
-	isneg1 = IsNeg1().get_predicate(types=["bool", "double", "double"])
+	isneg1 = IsNeg1()#.get_predicate(types=["bool", "double", "double"])
 	print("isneg1 constructed")
 
 
@@ -336,7 +325,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 					parents = sejits_bfsTree(G, start)
 				else:
 					before = time.time()
-					parents = G.bfsTree(start)###, usePythonSemiring=PythonSR, SEJITS_Python_SR=SEJITSSR)
+					parents = G.bfsTree(start, usePythonSemiring=PythonSR)##, SEJITS_Python_SR=SEJITSSR)
 				itertime = time.time() - before
 
 				if minUsefulTime is not None and itertime < minUsefulTime:
@@ -481,13 +470,14 @@ for latestDate in latestDatesToCheck:
 				def __init__(self, filterUpperValue):
 					self.filterUpperValue = filterUpperValue
 					super(TwitterFilter, self).__init__()
+					
 				def __call__(self, e):
 					if (e.count > 0 and e.latest < self.filterUpperValue):
-							return True
+						return True
 					else:
-							return False
+						return False
 			before = time.time()
-			sejits_filter = TwitterFilter(filterUpperValue).get_predicate()
+			sejits_filter = TwitterFilter(filterUpperValue)
 			sejits_filter_create_time = time.time()-before
 			kdt.p("Created SEJITS filter for \t%d\t%% in\t%f\ts."%(permeability, sejits_filter_create_time))
 

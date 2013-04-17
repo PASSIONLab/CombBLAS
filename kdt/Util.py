@@ -34,6 +34,25 @@ class info:
 	def minInt():
 		return -(2**62)
 
+# SEJITS helpers
+def _is_SEJITS_callback(op):
+	if not hasattr(kdt, "PcbUnaryFunction"):
+		return False # SEJITS isn't even enabled
+	return isinstance(op, (kdt.PcbUnaryFunction, kdt.PcbBinaryFunction, kdt.PcbUnaryPredicate, kdt.PcbBinaryPredicate))
+
+def _get_Asp_string_type(t):
+	if t == float:
+		return "double"
+	if t == bool:
+		return "double"
+	if t == pcb.Obj1:
+		return "Obj1"
+	if t == pcb.Obj2:
+		return "Obj2"
+	raise TypeError, "Unknown type for SEJITS! Got " + str(t)
+
+
+
 class FilterHelper:
 	@staticmethod
 	def getFilteredUniOpOrSelf(filteredObject, op):
@@ -92,7 +111,12 @@ class FilterHelper:
 		if filteredObject._hasFilter():
 			if len(filteredObject._filter_) == 1:
 				# only one filter, so pass the single predicate along
-				return filteredObject._filter_[0]
+				ret = filteredObject._filter_[0]
+
+				if _is_SEJITS_callback(ret):
+					return ret.get_predicate(types=["bool", _get_Asp_string_type(filteredObject._getStorageType())])
+				else:
+					return ret
 			else:
 				# multiple filters, so create a shim that calls each one
 				# successively, supporting shortcuts.
@@ -455,20 +479,6 @@ class _python_def_shim_binary:
 			# a POD type, eg for predicates
 			return result
 
-def _is_SEJITS_callback(op):
-	return isinstance(op, (kdt.PcbUnaryFunction, kdt.PcbBinaryFunction, kdt.PcbUnaryPredicate, kdt.PcbBinaryPredicate))
-
-def _get_Asp_string_type(t):
-	if t == float:
-		return "double"
-	if t == bool:
-		return "double"
-	if t == pcb.Obj1:
-		return "Obj1"
-	if t == pcb.Obj2:
-		return "Obj2"
-	raise TypeError, "Unknown type for SEJITS! Got " + str(t)
-
 ## helper functions to transform Python callbacks into pyCombBLAS functor objects
 
 # Wrap a Python unary callback into pyCombBLAS's UnaryFunctionObj,
@@ -500,7 +510,7 @@ def _op_make_unary_pred(op, opStruct, opStructRet=None):
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
 		return op
 	if _is_SEJITS_callback(op):
-		ret = op.get_predicate(types=[_get_Asp_string_type(opStruct._getStorageType())])
+		ret = op.get_predicate(types=["bool", _get_Asp_string_type(opStruct._getStorageType())])
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -554,7 +564,7 @@ def _op_make_binary_pred(op, opStruct1, opStruct2, opStructRet=None):
 		return op
 
 	if _is_SEJITS_callback(op):
-		ret = op.get_predicate(types=[_get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		ret = op.get_predicate(types=["bool", _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -576,7 +586,14 @@ def select2nd(x, y):
 	return y
 py_sr_select2nd = sr(select2nd, select2nd)
 py_sr_plustimes = sr(plus, times)
-		
+
+sr_select2nd.origAddFn = select2nd
+sr_select2nd.origMulFn = select2nd
+sr_plustimes.origAddFn = plus
+sr_plustimes.origMulFn = times
+
+
+
 def _sr_addTypes(inSR, opStruct1, opStruct2, opStructRet):
 	add = inSR.origAddFn
 	mul = inSR.origMulFn
