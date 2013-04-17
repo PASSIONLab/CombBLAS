@@ -470,7 +470,7 @@ class ConstructorTests(SpVecTests):
 #		for ind in range(sz):
 #			self.assertEqual(expVec[ind],vec[ind].weight)
 
-	def test_copy_elementArg_Obj1toDint(self):
+	def disabled_for_builtin_types___test_copy_elementArg_Obj1toDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, 4, 16, 36, 64, 100]
@@ -484,7 +484,7 @@ class ConstructorTests(SpVecTests):
 		self.assertEqual(type(element2),type(vec2[0]))
 		self.assertEqualVec(vec2, expW, nn=i)
 
-	def test_copy_elementArg_Obj2toDint(self):
+	def disabled_for_builtin_types___test_copy_elementArg_Obj2toDint(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [0, 4, 16, 36, 64, 100]
@@ -538,7 +538,7 @@ class BuiltInTests(SpVecTests):
 		expRes = 6
 		self.assertEqual(expRes, res)
 
-	def test_nnn_vectorObj1_elem3Zero(self):
+	def disabled_for_builtin_types___test_nnn_vectorObj1_elem3Zero(self):
 		sz = 25
 		i = [0, 2, 4, 6, 8, 10]
 		weight = [777, -4, 16, 0, -64, 100]
@@ -558,7 +558,7 @@ class BuiltInTests(SpVecTests):
 		expRes = 6
 		self.assertEqual(expRes, res)
 
-	def test_nnn_vectorObj1_noElem0(self):
+	def disabled_for_builtin_types___test_nnn_vectorObj1_noElem0(self):
 		sz = 25
 		i = [1, 2, 4, 6, 8, 10]
 		weight = [777, -4, 16, -36, -64, 100]
@@ -624,7 +624,7 @@ class BuiltInTests(SpVecTests):
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
 		self.assertEqualVec(vec3, expI)
 
-	def test_add_vectorObj1_vectorObj2(self):
+	def disabled_for_builtin_types___test_add_vectorObj1_vectorObj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -660,7 +660,7 @@ class BuiltInTests(SpVecTests):
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
 		self.assertEqualVec(vec3, expI)
 
-	def test_add_vectorObj1_vectorDint(self):
+	def disabled_for_builtin_types___test_add_vectorObj1_vectorDint(self):
 		sz = 25
 		i1 = [0, 2,  4,  6,  8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -676,7 +676,7 @@ class BuiltInTests(SpVecTests):
 		self.assertEqual(len(i1)+len(i2)-2,vec3.nnn())
 		self.assertEqualVec(vec3, expI)
 
-	def test_add_vectorDint_vectorObj2(self):
+	def disabled_for_builtin_types___test_add_vectorDint_vectorObj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -775,7 +775,7 @@ class BuiltInTests(SpVecTests):
 				0, 0, 0, 0, 0, 0, 0, 0, 0,]
 		self.assertEqualVec(vec3, expI)
 
-	def test_bitwiseAnd_vectorObj1_vectorObj2(self):
+	def disabled_for_builtin_types___test_bitwiseAnd_vectorObj1_vectorObj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F]

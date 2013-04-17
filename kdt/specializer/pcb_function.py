@@ -44,8 +44,14 @@ class PcbBinaryFunction(object):
         return t.render(specialized_function_slot=specialized_function_slot)
 
 
-
     def get_function(self, types=["double", "double", "double"]):
+    	# see if the result is cached
+    	if not hasattr(self, '_func_cache'):
+    		self._func_cache = {}
+    		
+    	if str(types) in self._func_cache:
+    		return self._func_cache[str(types)]
+
         try:
             # create semantic model
             intypes = types
@@ -88,6 +94,9 @@ class PcbBinaryFunction(object):
             kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
+            
+            # cache the result
+            self._func_cache[str(types)] = ret
             return ret
         except:
             kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
@@ -135,6 +144,13 @@ class PcbUnaryFunction(object):
 
 
     def get_function(self, types=["double", "double"]):
+    	# see if the result is cached
+    	if not hasattr(self, '_func_cache'):
+    		self._func_cache = {}
+    		
+    	if str(types) in self._func_cache:
+    		return self._func_cache[str(types)]
+
         try:
             #FIXME: need to refactor "types" everywhere to a different name because it gets aliased ove
             intypes = types
@@ -179,6 +195,9 @@ class PcbUnaryFunction(object):
             kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
+
+            # cache the result
+            self._func_cache[str(types)] = ret
             return ret
 
         except:

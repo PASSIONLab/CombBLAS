@@ -137,7 +137,7 @@ void clear_SemiringObj_currentlyApplied()
 }
 		
 SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filter_py, PyObject* right_filter_py)
-	: type(CUSTOM)//, pyfunc_add(add), pyfunc_multiply(multiply), binfunc_add(&binary(add))
+	: type(CUSTOM)
 {
 	//Py_INCREF(pyfunc_add);
 	//Py_INCREF(pyfunc_multiply);
@@ -155,6 +155,9 @@ SemiringObj::SemiringObj(PyObject *add, PyObject *multiply, PyObject* left_filte
 		right_filter = new UnaryPredicateObj(right_filter_py);
 	else
 		right_filter = NULL;
+	
+	own_left_filter = true;
+	own_right_filter = true;
 }
 
 SemiringObj::SemiringObj(BinaryFunctionObj *add, BinaryFunctionObj *multiply)
@@ -179,32 +182,57 @@ SemiringObj::~SemiringObj()
 		delete binfunc_add;
 	if (binfunc_mul != NULL && own_add_mul)
 		delete binfunc_mul;
-	if (left_filter != NULL)
+	if (left_filter != NULL && own_left_filter)
 		delete left_filter;
-	if (right_filter != NULL)
+	if (right_filter != NULL && own_right_filter)
 		delete right_filter;
 	//assert(currentlyApplied != this);
 }
 
-void SemiringObj::setFilters(PyObject* left_filter_py, PyObject* right_filter_py)
+void SemiringObj::setLeftFilter(PyObject* left_filter_py)
 {
 	if (left_filter_py != NULL && Py_None != left_filter_py)
+	{
 		left_filter = new UnaryPredicateObj(left_filter_py);
+		own_left_filter = true;
+	}
 	else
 	{
-		if (left_filter != NULL)
+		if (left_filter != NULL && own_left_filter)
 			delete left_filter;
 		left_filter = NULL;
 	}
+}
 
+void SemiringObj::setLeftFilter(UnaryPredicateObj *left_filter_in)
+{
+	if (left_filter != NULL && own_left_filter)
+		delete left_filter;
+	left_filter = left_filter_in;
+	own_left_filter = false;
+}
+
+void SemiringObj::setRightFilter(PyObject* right_filter_py)
+{
 	if (right_filter_py != NULL && Py_None != right_filter_py)
+	{
 		right_filter = new UnaryPredicateObj(right_filter_py);
+		own_right_filter = true;
+	}
 	else
 	{
-		if (right_filter != NULL)
+		if (right_filter != NULL && own_right_filter)
 			delete right_filter;
 		right_filter = NULL;
 	}
+}
+
+void SemiringObj::setRightFilter(UnaryPredicateObj *right_filter_in)
+{
+	if (right_filter_in != NULL && own_right_filter)
+		delete right_filter_in;
+	right_filter = right_filter_in;
+	own_right_filter = false;
 }
 
 void SemiringObj::enableSemiring()

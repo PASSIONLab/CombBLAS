@@ -1,6 +1,7 @@
 import unittest
 import TestDiGraph
 #import TestHyGraph
+import TestMat
 import TestVec
 import TestSpVec
 
@@ -12,6 +13,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTests(TestDiGraph.suite())
 #    suite.addTests(TestHyGraph.suite())
+    suite.addTests(TestMat.suite())
     suite.addTests(TestVec.suite())
     suite.addTests(TestSpVec.suite())
     return suite

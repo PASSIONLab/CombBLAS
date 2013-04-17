@@ -318,7 +318,9 @@ SWIGINTERNINLINE int SWIG_CheckState(int r) {
   return SWIG_IsOK(r) ? SWIG_CastRank(r) + 1 : 0; 
 }
 #else /* no cast-rank mode */
-#  define SWIG_AddCast
+SWIGINTERNINLINE int SWIG_AddCast(int r) { 
+  return r;
+}
 #  define SWIG_CheckState(r) (SWIG_IsOK(r) ? 1 : 0)
 #endif
 
@@ -44708,44 +44710,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SemiringObj_setFilters__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  PyObject *arg3 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OOO:SemiringObj_setFilters",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setFilters" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
-  }
-  arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
-  arg2 = obj1;
-  arg3 = obj2;
-  {
-    try {
-      (arg1)->setFilters(arg2,arg3);
-    } catch(string& stringReason) {
-      const char* sData = (char*)stringReason.c_str();
-      SWIG_exception(SWIG_RuntimeError,sData);
-      SWIG_exception(SWIG_IndexError,sData);
-    } catch(...) {
-      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
-    }
-  }
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SemiringObj_setFilters__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SemiringObj_setLeftFilter__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
@@ -44754,16 +44719,16 @@ SWIGINTERN PyObject *_wrap_SemiringObj_setFilters__SWIG_1(PyObject *SWIGUNUSEDPA
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:SemiringObj_setFilters",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:SemiringObj_setLeftFilter",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setFilters" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setLeftFilter" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
   }
   arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
   arg2 = obj1;
   {
     try {
-      (arg1)->setFilters(arg2);
+      (arg1)->setLeftFilter(arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -44779,22 +44744,31 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SemiringObj_setFilters__SWIG_2(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SemiringObj_setLeftFilter__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
+  op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
   PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:SemiringObj_setFilters",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:SemiringObj_setLeftFilter",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setFilters" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setLeftFilter" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
   }
   arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SemiringObj_setLeftFilter" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
   {
     try {
-      (arg1)->setFilters();
+      (arg1)->setLeftFilter(arg2);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -44810,23 +44784,28 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SemiringObj_setFilters(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_SemiringObj_setLeftFilter(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[4];
+  PyObject *argv[3];
   int ii;
   
   if (!PyTuple_Check(args)) SWIG_fail;
   argc = args ? (int)PyObject_Length(args) : 0;
-  for (ii = 0; (ii < 3) && (ii < argc); ii++) {
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
-  if (argc == 1) {
+  if (argc == 2) {
     int _v;
     void *vptr = 0;
     int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      return _wrap_SemiringObj_setFilters__SWIG_2(self, args);
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_SemiringObj_setLeftFilter__SWIG_1(self, args);
+      }
     }
   }
   if (argc == 2) {
@@ -44837,11 +44816,119 @@ SWIGINTERN PyObject *_wrap_SemiringObj_setFilters(PyObject *self, PyObject *args
     if (_v) {
       _v = (argv[1] != 0);
       if (_v) {
-        return _wrap_SemiringObj_setFilters__SWIG_1(self, args);
+        return _wrap_SemiringObj_setLeftFilter__SWIG_0(self, args);
       }
     }
   }
-  if (argc == 3) {
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'SemiringObj_setLeftFilter'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    op::SemiringObj::setLeftFilter(PyObject *)\n"
+    "    op::SemiringObj::setLeftFilter(op::UnaryPredicateObj *)\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_SemiringObj_setRightFilter__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SemiringObj_setRightFilter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setRightFilter" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
+  arg2 = obj1;
+  {
+    try {
+      (arg1)->setRightFilter(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SemiringObj_setRightFilter__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  op::SemiringObj *arg1 = (op::SemiringObj *) 0 ;
+  op::UnaryPredicateObj *arg2 = (op::UnaryPredicateObj *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SemiringObj_setRightFilter",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_op__SemiringObj, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SemiringObj_setRightFilter" "', argument " "1"" of type '" "op::SemiringObj *""'"); 
+  }
+  arg1 = reinterpret_cast< op::SemiringObj * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_op__UnaryPredicateObj, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SemiringObj_setRightFilter" "', argument " "2"" of type '" "op::UnaryPredicateObj *""'"); 
+  }
+  arg2 = reinterpret_cast< op::UnaryPredicateObj * >(argp2);
+  {
+    try {
+      (arg1)->setRightFilter(arg2);
+    } catch(string& stringReason) {
+      const char* sData = (char*)stringReason.c_str();
+      SWIG_exception(SWIG_RuntimeError,sData);
+      SWIG_exception(SWIG_IndexError,sData);
+    } catch(...) {
+      SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SemiringObj_setRightFilter(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[3];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_op__UnaryPredicateObj, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_SemiringObj_setRightFilter__SWIG_1(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
     int _v;
     void *vptr = 0;
     int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_op__SemiringObj, 0);
@@ -44849,20 +44936,16 @@ SWIGINTERN PyObject *_wrap_SemiringObj_setFilters(PyObject *self, PyObject *args
     if (_v) {
       _v = (argv[1] != 0);
       if (_v) {
-        _v = (argv[2] != 0);
-        if (_v) {
-          return _wrap_SemiringObj_setFilters__SWIG_0(self, args);
-        }
+        return _wrap_SemiringObj_setRightFilter__SWIG_0(self, args);
       }
     }
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'SemiringObj_setFilters'.\n"
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'SemiringObj_setRightFilter'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    op::SemiringObj::setFilters(PyObject *,PyObject *)\n"
-    "    op::SemiringObj::setFilters(PyObject *)\n"
-    "    op::SemiringObj::setFilters()\n");
+    "    op::SemiringObj::setRightFilter(PyObject *)\n"
+    "    op::SemiringObj::setRightFilter(op::UnaryPredicateObj *)\n");
   return 0;
 }
 
@@ -46003,7 +46086,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"binaryObjPred", _wrap_binaryObjPred, METH_VARARGS, NULL},
 	 { (char *)"new_SemiringObj", _wrap_new_SemiringObj, METH_VARARGS, NULL},
 	 { (char *)"delete_SemiringObj", _wrap_delete_SemiringObj, METH_VARARGS, NULL},
-	 { (char *)"SemiringObj_setFilters", _wrap_SemiringObj_setFilters, METH_VARARGS, NULL},
+	 { (char *)"SemiringObj_setLeftFilter", _wrap_SemiringObj_setLeftFilter, METH_VARARGS, NULL},
+	 { (char *)"SemiringObj_setRightFilter", _wrap_SemiringObj_setRightFilter, METH_VARARGS, NULL},
 	 { (char *)"SemiringObj_getAddCallback", _wrap_SemiringObj_getAddCallback, METH_VARARGS, NULL},
 	 { (char *)"SemiringObj_getMulCallback", _wrap_SemiringObj_getMulCallback, METH_VARARGS, NULL},
 	 { (char *)"SemiringObj_mpi_op", _wrap_SemiringObj_mpi_op, METH_VARARGS, NULL},

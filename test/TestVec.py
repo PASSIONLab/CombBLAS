@@ -565,7 +565,7 @@ class BuiltInTests(VecTests):
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind].weight)
 
-	def test_add_vectors_Obj1_Obj2(self):
+	def disabled_for_builtin_types___test_add_vectors_Obj1_Obj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -603,7 +603,7 @@ class BuiltInTests(VecTests):
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind].weight)
 
-	def test_add_vectors_Obj1_dint(self):
+	def disabled_for_builtin_types___test_add_vectors_Obj1_dint(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -620,7 +620,7 @@ class BuiltInTests(VecTests):
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind].weight)
 
-	def test_add_vectors_dint_Obj2(self):
+	def disabled_for_builtin_types___test_add_vectors_dint_Obj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0, 4, 16, 36, 64, 100]
@@ -665,7 +665,7 @@ class BuiltInTests(VecTests):
 		for ind in range(sz):
 			self.assertEqual(expI[ind], vec3[ind])
 
-	def test_bitwiseAnd_vector_Obj1_Obj2(self):
+	def disabled_for_builtin_types___test_bitwiseAnd_vector_Obj1_Obj2(self):
 		sz = 25
 		i1 = [0, 2, 4, 6, 8, 10]
 		w1 = [0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F]

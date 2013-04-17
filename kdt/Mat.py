@@ -1143,7 +1143,8 @@ class Mat:
 		# setup on-the-fly filter
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
-			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
+			semiring.setLeftFilter(FilterHelper.getFilterPred(self))
+			semiring.setRightFilter(FilterHelper.getFilterPred(other))
 			clearSemiringFilters = True
 			
 		# multiplying a matrix by itself is handled by a separate routine
@@ -1167,7 +1168,9 @@ class Mat:
 
 		# clear out on-the-fly filter
 		if clearSemiringFilters:
-			semiring.setFilters(None, None)
+			semiring.setLeftFilter(None)
+			semiring.setRightFilter(None)
+
 		return ret
 
 	spGEMM = SpGEMM
@@ -1220,7 +1223,8 @@ class Mat:
 		# setup on-the-fly filter
 		clearSemiringFilters = False
 		if self._hasFilter() or other._hasFilter():
-			semiring.setFilters(FilterHelper.getFilterPred(self), FilterHelper.getFilterPred(other))
+			semiring.setLeftFilter(FilterHelper.getFilterPred(self))
+			semiring.setRightFilter(FilterHelper.getFilterPred(other))
 			clearSemiringFilters = True
 
 		# the operation itself
@@ -1232,7 +1236,8 @@ class Mat:
 		
 		# clear out on-the-fly filter
 		if clearSemiringFilters:
-			semiring.setFilters(None, None)
+			semiring.setLeftFilter(None)
+			semiring.setRightFilter(None)
 		
 		return ret
 		
