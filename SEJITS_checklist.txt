@@ -22,11 +22,32 @@ SEJITS Installation
 
 
 
-25% additon for Journal:
+25% addition for Journal:
+
 embedding (?)
+
 profile the computation better, provide data on where time is spent in the computation
 new graph algorithm (peer pressure clustering?)
 
 SEJITS todos
 - need to allow multiple statements instead of a single (functional) one for ops
+
+- Roofline currently only provides relative ordering numbers; not actual
+performance prediction. Let's try to do the latter for SISC submission.
+
+- The function pointer callback is on each semiring operation; move to
+blocks.
+
+- After SEJITS is applied, what is the time breakdown? Most time is spent in
+SpMV. If so, then we can profile the SpMV and move from a callback per
+semiring to callback per block.
+
+- If the profile reveals auto-tuning need, and the technical arsenal we have
+are applicable, we can add it to the SISC submission.
+
+- Shoaib, Adam, Aydin (and Sam) will work on profiling SEJITS generated
+code.
+
+- Energy counters. 
+
 
