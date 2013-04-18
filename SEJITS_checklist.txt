@@ -29,5 +29,4 @@ new graph algorithm (peer pressure clustering?)
 
 SEJITS todos
 - need to allow multiple statements instead of a single (functional) one for ops
-- need to change headers to non-MPI ones
 
