@@ -15,6 +15,8 @@ include CombBLAS/graph500-1.2/generator/*.cpp
 include CombBLAS/graph500-1.2/generator/Makefile
 include CombBLAS/graph500-1.2/generator/README
 include CombBLAS/graph500-1.2/generator/*.txt
+include CombBLAS/psort-1.0/src/*
+include CombBLAS/psort-1.0/driver/*
 include setup.py
 include README.txt
 include LICENSE.txt
