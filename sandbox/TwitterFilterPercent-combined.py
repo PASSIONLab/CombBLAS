@@ -424,8 +424,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 if datasource == "file":
 	latestDatesToCheck = [1246406400] # 2009-07-01 0:0:0
 else:
-	#latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
-	latestDatesToCheck = [10000] # 1%, 10%, 25%, 100%
+	latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
 
 for latestDate in latestDatesToCheck:
 	filterUpperValue = latestDate
