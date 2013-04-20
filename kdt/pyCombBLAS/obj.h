@@ -28,6 +28,16 @@ public:
 	void* getDataPtr() {
 		return data;
 	}
+
+	const void* getConstDataPtr() const {
+		return data;
+	}
+
+	Obj1(const void* buffer, size_t length) {
+		if (length > capacity())
+			throw string("attempting to fit larger object than container supports!");
+		memcpy(data, buffer, length);
+	}
 	
 	// void* gets wrapped by SWIG into something that doesn't talk with ctypes,
 	// while a regular integer can be cast into a ctypes pointer.

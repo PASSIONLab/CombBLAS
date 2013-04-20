@@ -14,8 +14,8 @@ from Util import _op_is_wrapped
 from Util import _makePythonOp
 from Util import _opStruct_int
 from Util import _opStruct_float
-from Util import _coerceToInternal
-from Util import _coerceToExternal
+from Util import _PDO_to_CPP
+from Util import _CPP_to_PDO
 from Util import _typeWrapInfo
 
 #	naming convention:
@@ -44,14 +44,14 @@ class Vec(object):
 			if sparse:
 				self._v_ = pcb.pySpParVecObj1(length)
 			else:
-				self._v_ = pcb.pyDenseParVecObj1(length, _coerceToInternal(element, pcb.Obj1))
+				self._v_ = pcb.pyDenseParVecObj1(length, _PDO_to_CPP(element, pcb.Obj1))
 			#self._identity_ = pcb.Obj1()
 			self._identity_ = typeInfo._getElementType()()
 		elif issubclass(typeInfo._getStorageType(), pcb.Obj2):
 			if sparse:
 				self._v_ = pcb.pySpParVecObj2(length)
 			else:
-				self._v_ = pcb.pyDenseParVecObj2(length, _coerceToInternal(element, pcb.Obj2))
+				self._v_ = pcb.pyDenseParVecObj2(length, _PDO_to_CPP(element, pcb.Obj2))
 			#self._identity_ = pcb.Obj2()
 			self._identity_ = typeInfo._getElementType()()
 		#elif isinstance(element, ctypes.Structure):
@@ -61,7 +61,7 @@ class Vec(object):
 		#		if sparse:
 		#			self._v_ = pcb.pySpParVecObj1(length)
 		#		else:
-		#			self._v_ = pcb.pyDenseParVecObj1(length, _coerceToInternal(element, pcb.Obj1))
+		#			self._v_ = pcb.pyDenseParVecObj1(length, _PDO_to_CPP(element, pcb.Obj1))
 		#		self._identity_ = elType()
 		#	else:
 		#		raise TypeError, "Cannot fit object into any available sizes. Largest possible object is %d bytes."%(kdt.Obj1.capacity())
@@ -318,7 +318,7 @@ class Vec(object):
 				raise IndexError
 			
 			try:
-				ret = _coerceToExternal(self._v_[key], type(self._identity_))
+				ret = _CPP_to_PDO(self._v_[key], type(self._identity_))
 			except:
 				# not found in a sparse vector
 				ret = None
@@ -561,8 +561,8 @@ class Vec(object):
 				raise ValueError, "you called the old reduce by using a built-in function, but this old version does not support the init attribute. Use a Python function instead of a builtin."
 			ret = self._v_.Reduce(_op_make_binary(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType))
 		else:
-			ret = self._v_.Reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _coerceToInternal(init, uniRetType._getStorageType()))
-		return _coerceToExternal(ret, uniRetType._getElementType())
+			ret = self._v_.Reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _PDO_to_CPP(init, uniRetType._getStorageType()))
+		return _CPP_to_PDO(ret, uniRetType._getElementType())
 	
 	def count(self, pred=None):
 		"""
@@ -655,7 +655,7 @@ class Vec(object):
 		if isinstance(key, (float, int, long)):
 			if key < 0 or key > len(self)-1:
 				raise IndexError, "key %d is out of range length of vector is %d"%(key, len(self))
-			self._v_[key] = _coerceToInternal(value, self._getStorageType())
+			self._v_[key] = _PDO_to_CPP(value, self._getStorageType())
 		elif isinstance(key,Vec):
 			if isinstance(value,Vec):
 				pass
@@ -677,7 +677,7 @@ class Vec(object):
 			else:
 				self._v_[key.dense()._v_] = value.dense()._v_
 		elif type(key) == str and key == 'nonnull':
-			self.apply(op_set(_coerceToInternal(value, self._getStorageType())))
+			self.apply(op_set(_PDO_to_CPP(value, self._getStorageType())))
 		else:
 			raise KeyError, 'Unknown key type'
 		return
@@ -844,8 +844,8 @@ class Vec(object):
 			ANull = self._identity_
 		if BNull is None:
 			BNull = other._identity_
-		ANull = _coerceToInternal(ANull, self._getStorageType())
-		BNull = _coerceToInternal(BNull, self._getStorageType())
+		ANull = _PDO_to_CPP(ANull, self._getStorageType())
+		BNull = _PDO_to_CPP(BNull, self._getStorageType())
 
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
