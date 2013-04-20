@@ -710,6 +710,7 @@ class Obj1(_object):
     __swig_getmethods__["capacity"] = lambda x: _pyCombBLAS.Obj1_capacity
     if _newclass:capacity = staticmethod(_pyCombBLAS.Obj1_capacity)
     def getDataPtr(self): return _pyCombBLAS.Obj1_getDataPtr(self)
+    def getConstDataPtr(self): return _pyCombBLAS.Obj1_getConstDataPtr(self)
     def getDataPtrLong(self): return _pyCombBLAS.Obj1_getDataPtrLong(self)
     def __init__(self, *args): 
         this = _pyCombBLAS.new_Obj1(*args)

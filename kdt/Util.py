@@ -410,7 +410,7 @@ def PDO_enable(tf):
 	PDO_enabled = tf
 
 # take a pure ctypes structure and put it into a pyCombBLAS object
-def _coerceToInternal(value, storageType):
+def _PDO_to_CPP(value, storageType):
 	if not PDO_enabled:
 		return value
 
@@ -429,11 +429,11 @@ def _coerceToInternal(value, storageType):
 		return ret
 
 # take a pyCombBLAS object and turn it into a ctypes object
-def _coerceToExternal(value, extType):
+def _CPP_to_PDO(value, extType):
 	if not PDO_enabled:
 		return value
 
-	#print "_coerceToExternal types:",type(value),extType
+	#print "_CPP_to_PDO types:",type(value),extType
 	if isinstance(value, extType) or (isinstance(value, (bool, int, float)) and issubclass(extType, (bool, int, float))):
 		return value
 	else:
@@ -452,10 +452,10 @@ class _python_def_shim_unary:
 		self.retStorageType = retStorageType
 	
 	def __call__(self, arg1):
-		result = self.callback(_coerceToExternal(arg1, self.ctypesClass))
+		result = self.callback(_CPP_to_PDO(arg1, self.ctypesClass))
 		if self.retStorageType is not None:
 			# a value stored back in the structure
-			return _coerceToInternal(result, self.retStorageType)
+			return _PDO_to_CPP(result, self.retStorageType)
 		else:
 			# a POD type, eg for predicates
 			return result
@@ -469,12 +469,12 @@ class _python_def_shim_binary:
 	
 	def __call__(self, arg1, arg2):
 		#print "in binop callback. types of args:",type(arg1), type(arg2), " ctypesTypes:",self.ctypesClass1, self.ctypesClass2, self.retStorageType
-		result = self.callback(_coerceToExternal(arg1, self.ctypesClass1),
-			_coerceToExternal(arg2, self.ctypesClass2))
+		result = self.callback(_CPP_to_PDO(arg1, self.ctypesClass1),
+			_CPP_to_PDO(arg2, self.ctypesClass2))
 			
 		if self.retStorageType is not None:
 			# a value stored back in the structure
-			return _coerceToInternal(result, self.retStorageType)
+			return _PDO_to_CPP(result, self.retStorageType)
 		else:
 			# a POD type, eg for predicates
 			return result
@@ -490,6 +490,11 @@ def _op_make_unary(op, opStruct, opStructRet=None):
 		opStructRet = opStruct
 
 	if issubclass(opStruct._getElementType(), ctypes.Structure):
+		## testing here:
+		if _is_SEJITS_callback(op):
+			ret = op.get_function_PDO(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
+											 [opStruct._getElementType(), _get_Asp_string_type(opStruct._getStorageType())]])
+
 		op = _python_def_shim_unary(op, opStruct._getElementType(), opStructRet._getStorageType())
 
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj)):

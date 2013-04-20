@@ -10,8 +10,8 @@ from Util import _op_make_binary_pred
 from Util import _makePythonOp
 from Util import _opStruct_int
 from Util import _opStruct_float
-from Util import _coerceToInternal
-from Util import _coerceToExternal
+from Util import _PDO_to_CPP
+from Util import _CPP_to_PDO
 from Util import _typeWrapInfo
 from Util import _sr_addTypes
 
@@ -852,8 +852,8 @@ class Mat:
 			ANull = self._identity_
 		if BNull is None:
 			BNull = other._identity_
-		ANull = _coerceToInternal(ANull, self._getStorageType())
-		BNull = _coerceToInternal(BNull, self._getStorageType())
+		ANull = _PDO_to_CPP(ANull, self._getStorageType())
+		BNull = _PDO_to_CPP(BNull, self._getStorageType())
 		
 		if inPlace:
 			self._m_ = pcb.EWiseApply(self._m_, other._m_, _op_make_binary(op, self, other, self), _op_make_binary_pred(doOp, self, other), allowANulls, allowBNulls, ANull, BNull, allowIntersect, _op_make_unary_pred(FilterHelper.getFilterPred(self), self), _op_make_unary_pred(FilterHelper.getFilterPred(other), other))
@@ -1024,10 +1024,10 @@ class Mat:
 			dir = Mat.Column
 			doall = True
 
-		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _coerceToInternal(init, uniRetType._getStorageType()))
+		self._m_.Reduce(dir, ret._v_, _op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), _op_make_unary(uniOp, self, uniRetType), _PDO_to_CPP(init, uniRetType._getStorageType()))
 		if doall:
-			ret = ret.reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), None, _coerceToInternal(init, uniRetType._getStorageType()))
-			return _coerceToExternal(ret, uniRetType._getElementType())
+			ret = ret.reduce(_op_make_binaryObj(op, uniRetType, uniRetType, uniRetType), None, _PDO_to_CPP(init, uniRetType._getStorageType()))
+			return _CPP_to_PDO(ret, uniRetType._getElementType())
 		else:
 			return ret
 
