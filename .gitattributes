@@ -2431,6 +2431,7 @@ sandbox/ipdps_results/roofline-mirasol/result_roofline_36_proc.txt -text
 sandbox/ipdps_results/roofline-mirasol/roofline.py -text
 sandbox/mcl.py -text
 sandbox/pact_SummarizeFilterPercent.sh -text
+sandbox/pdo_sejits_test.py -text
 sandbox/roofline_ewise.py -text
 sandbox/roofline_pure_parser.py -text
 sandbox/roofline_spmv.py -text
