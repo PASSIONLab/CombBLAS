@@ -3,8 +3,9 @@ from pcb_operator_convert import *
 
 from asp.jit import asp_module
 from asp.codegen import cpp_ast
-
 import kdt
+
+from pdo_utils import get_CPP_types, add_PDO_stubs
 
 class PcbUnaryPredicate(object):
     """
@@ -43,15 +44,15 @@ class PcbUnaryPredicate(object):
 
         return t.render(specialized_function_slot=specialized_function_slot)
 
-    def get_predicate(self, types=["bool", "Obj2"]):
+    def get_predicate(self, types=["bool", "Obj2"], PDO=False):
         #FIXME: do we save the vars of the instance so they can be passed in to translation machinery?
 
-    	# see if the result is cached
-    	if not hasattr(self, '_func_cache'):
-    		self._func_cache = {}
-    		
-    	if str(types) in self._func_cache:
-    		return self._func_cache[str(types)]
+        # see if the result is cached
+        if not hasattr(self, '_func_cache'):
+            self._func_cache = {}
+            
+        if str(types) in self._func_cache:
+            return self._func_cache[str(types)]
 
         try:
             # create semantic model
@@ -85,9 +86,14 @@ class PcbUnaryPredicate(object):
             self.mod.add_library("pycombblas",
                                  [installDir+"/include"])
 
+            converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
+            
+            if PDO:
+                add_PDO_stubs(self.mod, converted, types)
+            
             #FIXME: try all types?
-            self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
-            self.mod.add_function("get_predicate", self.gen_get_predicate(types))
+            self.mod.add_function("myfunc", converted)
+            self.mod.add_function("get_predicate", self.gen_get_predicate(get_CPP_types(types)))
 
             kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
@@ -96,8 +102,9 @@ class PcbUnaryPredicate(object):
             # cache the result
             self._func_cache[str(types)] = pred
 
-        except:
+        except Exception as ex:
             kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
+            kdt.p_debug(str(ex))
             pred = self
         return pred
 
@@ -141,15 +148,15 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
 
         return t.render(specialized_function_slot=specialized_function_slot)
 
-    def get_predicate(self, types=["bool", "double", "double"]):
+    def get_predicate(self, types=["bool", "double", "double"], PDO=False):
         #FIXME: do we then save the vars of the instance so they can be passed in to translation machinery?
 
-    	# see if the result is cached
-    	if not hasattr(self, '_func_cache'):
-    		self._func_cache = {}
-    		
-    	if str(types) in self._func_cache:
-    		return self._func_cache[str(types)]
+        # see if the result is cached
+        if not hasattr(self, '_func_cache'):
+            self._func_cache = {}
+            
+        if str(types) in self._func_cache:
+            return self._func_cache[str(types)]
 
         try:
             # create semantic model
@@ -182,9 +189,14 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             self.mod.add_library("pycombblas",
                                  [installDir+"/include"])
 
+            converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
+            
+            if PDO:
+                add_PDO_stubs(self.mod, converted, types)
+
             #FIXME: try all types?
-            self.mod.add_function("myfunc", PcbOperatorConvert().convert(sm, types=types))
-            self.mod.add_function("get_predicate", self.gen_get_predicate(types))
+            self.mod.add_function("myfunc", converted)
+            self.mod.add_function("get_predicate", self.gen_get_predicate(get_CPP_types(types)))
 
             kdt.p_debug(self.mod.generate())
             pred = self.mod.get_predicate()
@@ -193,8 +205,9 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             # cache the result
             self._func_cache[str(types)] = pred
 
-        except:
+        except Exception as ex:
             kdt.p("WARNING: Specialization failed, proceeding with pure Python.")
+            kdt.p_debug(str(ex))
             pred = self
         return pred
 

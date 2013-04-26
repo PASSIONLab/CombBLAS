@@ -38,3 +38,17 @@ v.apply(yTimes2())
 
 kdt.p("v after apply:")
 kdt.p(v)
+
+##############################
+
+class isy2(kdt.KDTUnaryPredicate):
+	def __call__(self, p):
+		if (p.y == 2):
+			return True
+		else:
+			return False
+
+v.addFilter(isy2())
+
+v2 = v.copy() # this executes the SEJITS predicate, a straight print will be Python-only
+kdt.p(v2)

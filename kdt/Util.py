@@ -113,10 +113,9 @@ class FilterHelper:
 				# only one filter, so pass the single predicate along
 				ret = filteredObject._filter_[0]
 
-				if _is_SEJITS_callback(ret):
-					return ret.get_predicate(types=["bool", _get_Asp_string_type(filteredObject._getStorageType())])
-				else:
-					return ret
+				return ret
+				
+				# _op_make_unary_pred is called in the primitive
 			else:
 				# multiple filters, so create a shim that calls each one
 				# successively, supporting shortcuts.
@@ -492,8 +491,10 @@ def _op_make_unary(op, opStruct, opStructRet=None):
 	if issubclass(opStruct._getElementType(), ctypes.Structure):
 		## testing here:
 		if _is_SEJITS_callback(op):
-			ret = op.get_function_PDO(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
-											 [opStruct._getElementType(), _get_Asp_string_type(opStruct._getStorageType())]])
+			ret = op.get_function(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
+											 [opStruct._getElementType(), _get_Asp_string_type(opStruct._getStorageType())]], PDO=True)
+			if not _is_SEJITS_callback(ret):
+				return ret # specialization succeeded
 
 		op = _python_def_shim_unary(op, opStruct._getElementType(), opStructRet._getStorageType())
 
@@ -510,6 +511,13 @@ def _op_make_unary_pred(op, opStruct, opStructRet=None):
 	if op is None:
 		return None
 	if issubclass(opStruct._getElementType(), ctypes.Structure):
+		## testing here:
+		if _is_SEJITS_callback(op):
+			ret = op.get_predicate(types=[[None, "bool"],
+											 [opStruct._getElementType(), _get_Asp_string_type(opStruct._getStorageType())]], PDO=True)
+			if not _is_SEJITS_callback(ret):
+				return ret # specialization succeeded
+
 		op = _python_def_shim_unary(op, opStruct._getElementType(), None)
 
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
@@ -527,6 +535,14 @@ def _op_make_binary(op, opStruct1, opStruct2, opStructRet):
 	if op is None:
 		return None
 	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		## testing here:
+		if _is_SEJITS_callback(op):
+			ret = op.get_predicate(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
+											 [opStruct1._getElementType(), _get_Asp_string_type(opStruct1._getStorageType())],
+											 [opStruct2._getElementType(), _get_Asp_string_type(opStruct2._getStorageType())]], PDO=True)
+			if not _is_SEJITS_callback(ret):
+				return ret # specialization succeeded
+
 		op = _python_def_shim_binary(op, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
 
 	if isinstance(op, (pcb.BinaryFunction, pcb.BinaryFunctionObj)):
@@ -545,6 +561,14 @@ def _op_make_binaryObj(op, opStruct1, opStruct2, opStructRet):
 	if op is None:
 		return None
 	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
+		## testing here:
+		if _is_SEJITS_callback(op):
+			ret = op.get_predicate(types=[[None, "bool"],
+											 [opStruct1._getElementType(), _get_Asp_string_type(opStruct1._getStorageType())],
+											 [opStruct2._getElementType(), _get_Asp_string_type(opStruct2._getStorageType())]], PDO=True)
+			if not _is_SEJITS_callback(ret):
+				return ret # specialization succeeded
+
 		op = _python_def_shim_binary(op, opStruct1._getElementType(), opStruct2._getElementType(), opStructRet._getStorageType())
 
 	if isinstance(op, (pcb.BinaryFunctionObj)):
