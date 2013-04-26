@@ -2268,6 +2268,7 @@ kdt/specializer/pcb_operator_convert.py -text
 kdt/specializer/pcb_predicate.py -text
 kdt/specializer/pcb_predicate_frontend.py -text
 kdt/specializer/pcb_predicate_sm.py -text
+kdt/specializer/pdo_utils.py -text
 kdt/specializer/tests/pcb_function_frontend_test.py -text
 kdt/specializer/tests/pcb_function_full_test.py -text
 kdt/specializer/tests/pcb_function_sm_test.py -text

@@ -95,8 +95,8 @@ for whatToDo in whatToDoList:
 			self.filterUpperValue = 946684800
 		
 		def __call__(self, parent, e):
-			if (e.follower == 1 and e.count > 0 and e.latest > 946684800):
-				return parent
+			if (e.follower == 1 and e.count > 0 and e.latest > self.filterUpperValue):
+				return 0
 			else:
 				return parent
 

@@ -845,7 +845,7 @@ class Vec(object):
 		if BNull is None:
 			BNull = other._identity_
 		ANull = _PDO_to_CPP(ANull, self._getStorageType())
-		BNull = _PDO_to_CPP(BNull, self._getStorageType())
+		BNull = _PDO_to_CPP(BNull, other._getStorageType())
 
 		# there are 4 possible permutations of dense and sparse vectors,
 		# and each one can be either inplace or not.
