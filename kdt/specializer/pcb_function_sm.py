@@ -22,23 +22,24 @@ Expr =  Constant
           | Attribute
           | FunctionReturn
           | Compare
+          | BoolOp
 
 
 Identifier(name=types.StringType)
 
 
-
 Compare(left=Expr, op=(ast.Eq | ast.NotEq | ast.Lt | ast.LtE | ast.Gt | ast.GtE), right=Expr)
 
+BoolOp(op=(ast.And | ast.Or | ast.Not), operands=Expr*)
 
 Constant(value = types.IntType | types.FloatType)
 
-BinaryOp(left=Expr, op=(ast.Add | ast.Sub | ast.And), right=Expr)
+BinaryOp(left=Expr, op=(ast.Add | ast.Sub | ast.Mul | ast.Div), right=Expr)
 
 BoolConstant(value = types.BooleanType)
 
 
-IfExp(test=(Compare|Attribute|Identifier|BoolConstant|BinaryOp), body=Expr, orelse=Expr)
+IfExp(test=(Compare|Attribute|Identifier|BoolConstant|BoolOp), body=Expr, orelse=Expr)
 
 
 
