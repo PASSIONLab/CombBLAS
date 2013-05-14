@@ -121,9 +121,11 @@ class PcbOperatorConvert(ast_tools.NodeTransformer):
 
     def visit_BoolOp(self, node):
         import ast
-        boolop_map = {ast.And:"&&", ast.Or: "||"}
-        #FIXME: add support for the NOT operation
-        return cpp_ast.BinOp(self.visit(node.operands[0]), boolop_map[node.op.__class__], self.visit(node.operands[1]))
+        boolop_map = {ast.And:"&&", ast.Or: "||", ast.Not: "!"}
+        #FIXME: add support for Not
+        visited_operands = map(self.visit, node.operands)
+        return reduce(lambda x,y: cpp_ast.BinOp(x, boolop_map[node.op.__class__], y), visited_operands)
+  
 
     def visit_Attribute(self, node):
         return CppAttribute(self.visit(node.value), self.visit(node.attr))

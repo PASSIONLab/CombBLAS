@@ -2261,6 +2261,7 @@ kdt/specializer/include/pyOperationsObj.h -text
 kdt/specializer/include/pyOperationsSEJITS.h -text
 kdt/specializer/include/pyOperationsWorkers.h -text
 kdt/specializer/include/swigpyrun.h -text
+kdt/specializer/pcb_callback.py -text
 kdt/specializer/pcb_function.py -text
 kdt/specializer/pcb_function_frontend.py -text
 kdt/specializer/pcb_function_sm.py -text

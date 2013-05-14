@@ -9,6 +9,21 @@ import asp.codegen.python_ast as ast
 from pcb_function import *
 from pcb_function_sm import *
 
+def get_arity(node):
+    # this visitor gets the arity of the callback in question
+    class ArityVisitor(ast_tools.NodeVisitor):
+       def visit_Module(self, node):
+           return self.visit(node.body[0])
+           
+       def visit_FunctionDef(self, node):
+           return self.visit(node.args)
+       
+       def visit_arguments(self, node):
+           return len(node.args) - 1  # assume first is self
+ 
+    return ArityVisitor().visit(node)
+            
+
 class PcbUnaryFunctionFrontEnd(ast_tools.NodeTransformer):
     def parse(self, node, env={}):
         self.env = env
