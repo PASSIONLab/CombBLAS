@@ -163,11 +163,11 @@ namespace vpsort {
 		    out, comp);
       } else if (locs[next] == 0) {
 	// 10 => backwards out of place
-	std::merge (reverse_iterator<_RandomAccessIter> (in + disps[nproc]),
-		    reverse_iterator<_RandomAccessIter> (in + disps[next]),
-		    reverse_iterator<_RandomAccessIter> (out + disps[next]),
-		    reverse_iterator<_RandomAccessIter> (out),
-		    reverse_iterator<_RandomAccessIter> (out + disps[nproc]),
+	std::merge (std::reverse_iterator<_RandomAccessIter> (in + disps[nproc]),
+		    std::reverse_iterator<_RandomAccessIter> (in + disps[next]),
+		    std::reverse_iterator<_RandomAccessIter> (out + disps[next]),
+		    std::reverse_iterator<_RandomAccessIter> (out),
+		    std::reverse_iterator<_RandomAccessIter> (out + disps[nproc]),
 		    not2 (comp));
       } else {
 	// 11 => in-place

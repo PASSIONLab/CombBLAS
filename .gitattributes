@@ -907,6 +907,17 @@ CombBLAS/SpParVec.h -text
 CombBLAS/SpTuples.cpp -text
 CombBLAS/SpTuples.h -text
 CombBLAS/StackEntry.h -text
+CombBLAS/TDSP/ISB[!!-~]06-28-12.pptx -text
+CombBLAS/TDSP/Master's[!!-~]Project[!!-~]Report_Lijie[!!-~]Ren.pdf -text
+CombBLAS/TDSP/New_NextRelease.rtf -text
+CombBLAS/TDSP/deliverable/staticSP/Makefile -text
+CombBLAS/TDSP/deliverable/staticSP/Node.h -text
+CombBLAS/TDSP/deliverable/staticSP/ssp.cpp -text
+CombBLAS/TDSP/deliverable/tdsp/Ft.h -text
+CombBLAS/TDSP/deliverable/tdsp/Makefile -text
+CombBLAS/TDSP/deliverable/tdsp/Node.h -text
+CombBLAS/TDSP/deliverable/tdsp/tdsp.cpp -text
+CombBLAS/TDSP/shortestPath.tar -text
 CombBLAS/Test/Deleter.h -text
 CombBLAS/Test/Semirings.h -text
 CombBLAS/Test/output -text
