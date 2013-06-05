@@ -45,6 +45,7 @@
 #ifdef TAU_PROFILE
 	#include <Profile/Profiler.h>
 #endif
+#include <papi.h>
 
 
 double cblas_alltoalltime;
@@ -105,6 +106,24 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 			return true;	// true if the edge is to be pruned
 	}
 };
+
+void CreatePAPIEvents(int & eventset, long long ** ptr2values)
+{
+	if ( PAPI_create_eventset( &eventset ) != PAPI_OK )
+		cout << "Event set did not get created" << endl;
+
+	int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
+	string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
+	size_t arraysize = sizeof(Events2Add) / sizeof(int);
+	ptr2values = new long long * [arraysize];
+	
+	for(size_t i=0; i < arraysize; ++i)
+	{
+   		if ( PAPI_add_event( eventset, Events2Add[i])  != PAPI_OK )
+			cout << "Event " << EventNames[i] << " did not get added" << endl;
+	}
+}
+					
 
 int main(int argc, char* argv[])
 {
@@ -335,7 +354,14 @@ int main(int argc, char* argv[])
 					fringe.ApplyInd(NumSetter);
 
 					// SpMV with sparse vector, optimizations disabled for generality
+					int eventSet = PAPI_NULL;
+					long long * values;
+					CreatePAPIEvents(eventSet, &values);
+					PAPI_start(eventSet);
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
+					PAPI_stop(eventSet, values);
+					printf("%lld\\n", values[0]);
+				        	
 					
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
