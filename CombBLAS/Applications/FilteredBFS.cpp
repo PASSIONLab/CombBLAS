@@ -107,12 +107,19 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 	}
 };
 
+// Function not needed anymore
 void CreatePAPIEvents(int & eventset, long long ** ptr2values)
 {
-	if ( PAPI_create_eventset( &eventset ) != PAPI_OK )
+	char errorstring[PAPI_MAX_STR_LEN+1];
+	int crtr = PAPI_create_eventset( &eventset );
+	if( crtr != PAPI_OK)
+	{
 		cout << "Event set did not get created" << endl;
+	    	PAPI_perror(crtr, errorstring, PAPI_MAX_STR_LEN);
+	    	fprintf(stderr, "PAPI error (%d): %s\n", crtr, errorstring);
+	}
 
-	int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
+	unsigned int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
 	string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
 	size_t arraysize = sizeof(Events2Add) / sizeof(int);
 	ptr2values = new long long * [arraysize];
@@ -137,6 +144,19 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	int MAXTRIALS;
+	int retval;
+
+	/* Initialize the PAPI library */
+	retval = PAPI_library_init(PAPI_VER_CURRENT);
+	if (retval != PAPI_VER_CURRENT && retval > 0) 
+	{
+		fprintf(stderr,"PAPI library version mismatch!\en");
+		exit(1); 
+	}
+	retval = PAPI_is_initialized();
+	if (retval != PAPI_LOW_LEVEL_INITED)
+		cout << "Not initialized" << endl;
+
 	if(argc < 3)
 	{
 		if(myrank == 0)
@@ -337,6 +357,7 @@ int main(int argc, char* argv[])
 			int sruns = 0;		// successful runs
 			for(int i=0; i<MAX_ITERS && sruns < ITERS; ++i)
 			{
+				
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 				FullyDistVec<int64_t, ParentType> parents ( A.getcommgrid(), A.getncol(), ParentType());	
 
@@ -346,6 +367,12 @@ int main(int argc, char* argv[])
 				MPI_Barrier(MPI_COMM_WORLD);
 				double t1 = MPI_Wtime();
 
+				char errorstring[PAPI_MAX_STR_LEN+1];
+				int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
+				string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
+				int arraysize = sizeof(Events2Add) / sizeof(int);
+				long long ptr2values[arraysize];
+
 				fringe.SetElement(Cands[i], Cands[i]);
 				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
@@ -353,16 +380,22 @@ int main(int argc, char* argv[])
 				{
 					fringe.ApplyInd(NumSetter);
 
-					// SpMV with sparse vector, optimizations disabled for generality
-					int eventSet = PAPI_NULL;
-					long long * values;
-					CreatePAPIEvents(eventSet, &values);
-					PAPI_start(eventSet);
-					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);	
-					PAPI_stop(eventSet, values);
-					printf("%lld\\n", values[0]);
-				        	
+					int errorcode = PAPI_start_counters(Events2Add, arraysize);
+					if (errorcode != PAPI_OK) {
+	    					PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
+	    					fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
+					}
 					
+					// SpMV with sparse vector, optimizations disabled for generality
+					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);
+	
+					errorcode = PAPI_read_counters(ptr2values, arraysize);
+					if (errorcode != PAPI_OK) {
+	    					PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
+	    					fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
+					}
+					errorcode = PAPI_stop_counters(ptr2values, arraysize);
+						
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
@@ -431,6 +464,15 @@ int main(int argc, char* argv[])
 					outnew << "MPEPS (bidirectional): " << static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "MPEPS (unidirectional): " << static_cast<double>(ou_nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
+
+					ostringstream papiout;
+					papiout << "Threshold is " << LatestRetwitterBFS::sincedate  << endl;
+					for(int k=0; k<arraysize; ++k)
+					{
+						papiout << EventNames[k] << ":\t" << ptr2values[k] << endl; 
+					}
+					SpParHelper::PrintFile(papiout.str(), "PAPIRES.txt");
+						
 
 					TIMES[sruns] = t2-t1;
 					if(string(argv[1]) == string("Gen"))

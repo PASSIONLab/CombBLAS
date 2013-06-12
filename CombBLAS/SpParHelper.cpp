@@ -556,6 +556,18 @@ void SpParHelper::GetSetSizes(const SpMat<IT,NT,DER> & Matrix, IT ** & sizes, MP
 	}	
 }
 
+inline void SpParHelper::PrintFile(const string & s, const string & filename)
+{
+	int myrank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	if(myrank == 0)
+	{
+		ofstream out(filename.c_str(), std::ofstream::app);
+		out << s;
+		out.close();
+	}
+}
+
 
 inline void SpParHelper::Print(const string & s)
 {

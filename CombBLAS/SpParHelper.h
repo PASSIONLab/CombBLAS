@@ -67,6 +67,7 @@ public:
 	static void UnlockWindows(int ownind, vector<MPI_Win> & arrwin);
 
 	static void Print(const string & s);
+	static void PrintFile(const string & s, const string & filename);
 	static void WaitNFree(vector<MPI_Win> & arrwin);
 	static void FreeWindows(vector<MPI_Win> & arrwin);
 };
