@@ -4,8 +4,9 @@ import time
 from ctypes import *
 
 #veclen = [10, 50, 100, 150, 200, 500, 1000, 1300, 1500, 1700]#, 2000, 2500, 3000, 5000, 10000, 15000]
-veclen = range(64, 4192+1, 64)
-#veclen = range(64, 128+1, 64)
+#veclen = range(64, 4192+1, 64)
+veclen = [8, 1024]
+
 #repeats = [10, 25, 50, 75, 100, 200, 300, 400]#, 1000, 10000, 100000]
 repeats = [1000]
 
@@ -89,7 +90,7 @@ for whatToDo in whatToDoList:
 		raise ValueError,"Invalid SEJITS or pure Python specified in whatToDo %s"%whatToDo
 
 
-	class twitterMul_eWise(kdt.KDTBinaryFunction):
+	class twitterMul_eWise(kdt.Callback):
 		def __init__(self, dflt):
 			self.dflt = dflt
 			self.filterUpperValue = 946684800
