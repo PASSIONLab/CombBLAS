@@ -2446,6 +2446,10 @@ sandbox/mcl.py -text
 sandbox/pact_SummarizeFilterPercent.sh -text
 sandbox/papi.py -text
 sandbox/pdo_sejits_test.py -text
+sandbox/pyPAPI/definescraper.py -text
+sandbox/pyPAPI/dummy.h -text
+sandbox/pyPAPI/papi.h -text
+sandbox/pyPAPI/papiconstants.cpp -text
 sandbox/roofline/roofline_ewise.py -text
 sandbox/roofline_ewise.py -text
 sandbox/roofline_pure_parser.py -text
