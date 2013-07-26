@@ -54,19 +54,23 @@ class _SEJITS_diabled_callback_parent(object):
 	pass
 
 # the SEJITS callback parent classes
-KDTUnaryPredicate = _SEJITS_diabled_callback_parent
-KDTBinaryPredicate = _SEJITS_diabled_callback_parent
-KDTUnaryFunction = _SEJITS_diabled_callback_parent
-KDTBinaryFunction = _SEJITS_diabled_callback_parent
+KDTUnaryPredicate = _SEJITS_diabled_callback_parent  # for KDT v0.3 compatibility
+KDTBinaryPredicate = _SEJITS_diabled_callback_parent  # for KDT v0.3 compatibility
+KDTUnaryFunction = _SEJITS_diabled_callback_parent  # for KDT v0.3 compatibility
+KDTBinaryFunction = _SEJITS_diabled_callback_parent  # for KDT v0.3 compatibility
+Callback = _SEJITS_diabled_callback_parent
 
 # load the real SEJITS callbacks
 try:
-	from specializer.pcb_predicate import PcbUnaryPredicate
-	from specializer.pcb_predicate import PcbBinaryPredicate
-	from specializer.pcb_function import PcbUnaryFunction
-	from specializer.pcb_function import PcbBinaryFunction
+	#from specializer.pcb_predicate import PcbUnaryPredicate
+	#from specializer.pcb_predicate import PcbBinaryPredicate
+	#from specializer.pcb_function import PcbUnaryFunction
+	#from specializer.pcb_function import PcbBinaryFunction
+	from specializer.pcb_callback import PcbCallback
 except ImportError:
 	pass
+
+from specializer.pcb_callback import PcbCallback
 
 def SEJITS_enable(en):
 	"""
@@ -76,18 +80,26 @@ def SEJITS_enable(en):
 	global KDTBinaryPredicate
 	global KDTUnaryFunction
 	global KDTBinaryFunction
-
+	global Callback
+	
 	if en:
 		#try:
-		global PcbUnaryPredicate
-		global PcbBinaryPredicate
-		global PcbUnaryFunction
-		global PcbBinaryFunction
+		#global PcbUnaryPredicate
+		#global PcbBinaryPredicate
+		#global PcbUnaryFunction
+		#global PcbBinaryFunction
+		global PcbCallback
 
-		KDTUnaryPredicate = PcbUnaryPredicate
-		KDTBinaryPredicate = PcbBinaryPredicate
-		KDTUnaryFunction = PcbUnaryFunction
-		KDTBinaryFunction = PcbBinaryFunction
+		#KDTUnaryPredicate = PcbUnaryPredicate
+		#KDTBinaryPredicate = PcbBinaryPredicate
+		#KDTUnaryFunction = PcbUnaryFunction
+		#KDTBinaryFunction = PcbBinaryFunction
+		KDTUnaryPredicate = PcbCallback
+		KDTBinaryPredicate = PcbCallback
+		KDTUnaryFunction = PcbCallback
+		KDTBinaryFunction = PcbCallback
+		Callback = PcbCallback
+
 		#except NameError:
 		#	raise RuntimeError, "SEJITS not available."
 	else:
@@ -95,6 +107,7 @@ def SEJITS_enable(en):
 		KDTBinaryPredicate = _SEJITS_diabled_callback_parent
 		KDTUnaryFunction = _SEJITS_diabled_callback_parent
 		KDTBinaryFunction = _SEJITS_diabled_callback_parent
+		Callback = _SEJITS_diabled_callback_parent
 
 try:
 	SEJITS_enable(True)

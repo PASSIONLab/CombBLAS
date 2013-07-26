@@ -838,10 +838,8 @@ def MIS(self):
 		ret: a sparse Vec of length equal to the number of vertices where
 		     ret[i] exists and is 1 if i is part of the MIS.
 	"""
-	graph = self
-	
-	Gmatrix = graph.e
-	nvert = graph.nvert();
+	Gmatrix = self.e
+	nvert = self.nvert();
 	
 	# callbacks used by MIS
 	def rand( verc ):

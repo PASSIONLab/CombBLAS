@@ -36,9 +36,9 @@ class info:
 
 # SEJITS helpers
 def _is_SEJITS_callback(op):
-	if not hasattr(kdt, "PcbUnaryFunction"):
+	if not hasattr(kdt, "PcbCallback"):
 		return False # SEJITS isn't even enabled
-	return isinstance(op, (kdt.PcbUnaryFunction, kdt.PcbBinaryFunction, kdt.PcbUnaryPredicate, kdt.PcbBinaryPredicate))
+	return isinstance(op, (kdt.PcbCallback))
 
 def _get_Asp_string_type(t):
 	if t == float:
@@ -501,7 +501,7 @@ def _op_make_unary(op, opStruct, opStructRet=None):
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryFunctionObj)):
 		return op
 	if _is_SEJITS_callback(op):
-		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct._getStorageType())])
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct._getStorageType())], PDO=False)
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -513,7 +513,7 @@ def _op_make_unary_pred(op, opStruct, opStructRet=None):
 	if issubclass(opStruct._getElementType(), ctypes.Structure):
 		## testing here:
 		if _is_SEJITS_callback(op):
-			ret = op.get_predicate(types=[[None, "bool"],
+			ret = op.get_function(types=[[None, "bool"],
 											 [opStruct._getElementType(), _get_Asp_string_type(opStruct._getStorageType())]], PDO=True)
 			if not _is_SEJITS_callback(ret):
 				return ret # specialization succeeded
@@ -523,7 +523,7 @@ def _op_make_unary_pred(op, opStruct, opStructRet=None):
 	if isinstance(op, (pcb.UnaryFunction, pcb.UnaryPredicateObj)):
 		return op
 	if _is_SEJITS_callback(op):
-		ret = op.get_predicate(types=["bool", _get_Asp_string_type(opStruct._getStorageType())])
+		ret = op.get_function(types=["bool", _get_Asp_string_type(opStruct._getStorageType())], PDO=False)
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -537,7 +537,7 @@ def _op_make_binary(op, opStruct1, opStruct2, opStructRet):
 	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
 		## testing here:
 		if _is_SEJITS_callback(op):
-			ret = op.get_predicate(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
+			ret = op.get_function(types=[[opStructRet._getElementType(), _get_Asp_string_type(opStructRet._getStorageType())],
 											 [opStruct1._getElementType(), _get_Asp_string_type(opStruct1._getStorageType())],
 											 [opStruct2._getElementType(), _get_Asp_string_type(opStruct2._getStorageType())]], PDO=True)
 			if not _is_SEJITS_callback(ret):
@@ -549,7 +549,7 @@ def _op_make_binary(op, opStruct1, opStruct2, opStructRet):
 		return op
 
 	if _is_SEJITS_callback(op):
-		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())], PDO=False)
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -563,7 +563,7 @@ def _op_make_binaryObj(op, opStruct1, opStruct2, opStructRet):
 	if issubclass(opStruct1._getElementType(), ctypes.Structure) or issubclass(opStruct2._getElementType(), ctypes.Structure):
 		## testing here:
 		if _is_SEJITS_callback(op):
-			ret = op.get_predicate(types=[[None, "bool"],
+			ret = op.get_function(types=[[None, "bool"],
 											 [opStruct1._getElementType(), _get_Asp_string_type(opStruct1._getStorageType())],
 											 [opStruct2._getElementType(), _get_Asp_string_type(opStruct2._getStorageType())]], PDO=True)
 			if not _is_SEJITS_callback(ret):
@@ -577,7 +577,7 @@ def _op_make_binaryObj(op, opStruct1, opStruct2, opStructRet):
 		return pcb.binaryObj(_op_builtin_pyfunc(op))
 
 	if _is_SEJITS_callback(op):
-		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		ret = op.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())], PDO=False)
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -593,7 +593,7 @@ def _op_make_binary_pred(op, opStruct1, opStruct2, opStructRet=None):
 		return op
 
 	if _is_SEJITS_callback(op):
-		ret = op.get_predicate(types=["bool", _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
+		ret = op.get_function(types=["bool", _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())], PDO=False)
 		if not _is_SEJITS_callback(ret):
 			return ret # specialization succeeded
 
@@ -634,8 +634,8 @@ def _sr_addTypes(inSR, opStruct1, opStruct2, opStructRet):
 		outSR = sr(add, mul)
 		return outSR
 	elif _is_SEJITS_callback(mul) and _is_SEJITS_callback(add):
-		mul_f = mul.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())])
-		add_f = add.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType())])
+		mul_f = mul.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())], PDO=False)
+		add_f = add.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType())], PDO=False)
 		outSR = pcb.SemiringObj(add_f, mul_f)
 		
 		# keep references to make sure garbage collector doesn't collect this too early.
