@@ -15,6 +15,9 @@ kdt.set_verbosity(kdt.DEBUG)
 useParIO = True
 useDelIsolated = False
 
+usePAPI = False
+from pyPAPI.papi import *
+
 repeatEachStart = 1#10 # how many times to do each start
 repeatGroups = [""]#["A", ""] # [""] for just doing it once, ["A",""] for doing it twice
 
@@ -50,6 +53,15 @@ if (len(sys.argv) >= 3):
 	whatToDoList = sys.argv[2:]
 else:
 	whatToDoList = ("cpo") # Python/Python OTF, C++/Python OTF
+
+# init PAPI
+if usePAPI:
+	PAPI_library_init()
+	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"]
+	papi_events = []
+	for e in events_nm:
+		c = PAPI_event_name_to_code(e)
+		papi_events.append(e)
 
 # this function initializes the SEJITS semiring
 sejits_SR = None
