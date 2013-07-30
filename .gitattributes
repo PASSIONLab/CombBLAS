@@ -2268,6 +2268,7 @@ kdt/specializer/__init__.py -text
 kdt/specializer/include/doubleint.h -text
 kdt/specializer/include/obj.h -text
 kdt/specializer/include/pyCombBLAS-NoMPI.h -text
+kdt/specializer/include/pyCombBLAS.h -text
 kdt/specializer/include/pyOperationsObj.h -text
 kdt/specializer/include/pyOperationsSEJITS.h -text
 kdt/specializer/include/pyOperationsWorkers.h -text
