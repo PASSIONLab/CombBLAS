@@ -2445,6 +2445,7 @@ sandbox/ipdps_results/roofline-mirasol/roofline.py -text
 sandbox/mcl.py -text
 sandbox/pact_SummarizeFilterPercent.sh -text
 sandbox/pdo_sejits_test.py -text
+sandbox/pyPAPI/__init__.py -text
 sandbox/pyPAPI/definescraper.py -text
 sandbox/pyPAPI/dummy.h -text
 sandbox/pyPAPI/papi.h -text
