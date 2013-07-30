@@ -65,7 +65,9 @@ if usePAPI:
 
 	PAPI_library_init()
 
-	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"]
+	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
+	events_nm = events_nm + ["PAPI_L2_TCR", "PAPI_L3_TCR", "PAPI_L2_TCW", "PAPI_L3_TCW"] # cache read/writes
+	events_nm = events_nm + ["PAPI_TLB_DM", "PAPI_TLB_IM", "PAPI_TLB_TL"] # TLB
 	events = (c_int*len(events_nm))()
 	counter_array_type = c_longlong*len(events_nm)
 	papi_counters = []
