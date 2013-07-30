@@ -15,8 +15,8 @@ kdt.set_verbosity(kdt.DEBUG)
 useParIO = True
 useDelIsolated = False
 
-usePAPI = False
-from pyPAPI.papi import *
+usePAPI = True
+num_PAPI_counters = 1000
 
 repeatEachStart = 1#10 # how many times to do each start
 repeatGroups = [""]#["A", ""] # [""] for just doing it once, ["A",""] for doing it twice
@@ -48,6 +48,9 @@ keep_starts = 16
 keep_min_edges = 100
 CC_LIMIT = 100 # Aydin's
 
+#latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+latestDatesToCheck = [2500, 10000] # 1%, 10%, 25%, 100%
+
 # figure out what to do
 if (len(sys.argv) >= 3):
 	whatToDoList = sys.argv[2:]
@@ -56,13 +59,56 @@ else:
 
 # init PAPI
 if usePAPI:
-	PAPI_library_init()
-	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"]
-	papi_events = []
-	for e in events_nm:
-		c = PAPI_event_name_to_code(e)
-		papi_events.append(e)
+	from pyPAPI.papi import *
+	from ctypes import c_int, c_longlong, c_int64
 
+
+	PAPI_library_init()
+
+	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"]
+	events = (c_int*len(events_nm))()
+	counter_array_type = c_longlong*len(events_nm)
+	papi_counters = []
+	papi_counters_used = -12
+	papi_labels = []
+	for i in range(num_PAPI_counters):
+		papi_counters.append((counter_array_type)())
+	
+	my_proc_rank = kdt._rank()
+	papi_output_filename = "temp_papi_output_p%02d.txt"%my_proc_rank
+	papi_output_file = open(papi_output_filename, "w")
+
+	for i in range(len(events_nm)):
+		c = PAPI_event_name_to_code(events_nm[i])
+		events[i] = c
+		print "%s => %d"%(events_nm[i], c)
+
+
+	def print_papi_counters(labels):
+		global papi_counters, papi_counters_used, papi_output_file
+		# print the header
+		names = "\t".join(events_nm)
+		
+		#print("PRINTING PAPI")
+		#print("num counters used = %d, num labels = %d"%(papi_counters_used, len(labels)))
+		papi_output_file.write("iter\tlabel\t%s\n"%(names))
+		
+		iter = 0
+		label_i = -1
+		for i in range(papi_counters_used):
+			label_i += 1
+			if label_i >= len(labels):
+				iter += 1
+				label_i -= len(labels)
+
+			#values = "\t".join(papi_counters[i])
+			values = ""
+			for j in range(len(events_nm)):
+				values += str(papi_counters[i][j]) + "\t"
+			papi_output_file.write("%d\t%s\t%s\n"%(iter, labels[label_i], values))
+
+	
+		
 # this function initializes the SEJITS semiring
 sejits_SR = None
 isneg1 = None
@@ -109,25 +155,62 @@ def initialize_sejits_SR():
 # eventually this will go into Algorithms.py but right now, since the front-end translation is not in
 # place, it should stay out of there.
 
-def sejits_bfsTree(mat, root, usePySemiring=False):
+def sejits_bfsTree(mat, root):
 	"""
         Same as KDT's bfsTree, except SEJITS-ized
 	"""
 	global sejits_SR, isneg1, s1st
+	global usePAPI
 	parents = kdt.Vec(mat.nvert(), -1, sparse=False)
 	frontier = kdt.Vec(mat.nvert(), sparse=True)
 	parents[root] = root
 	frontier[root] = root
+	
+	if usePAPI:
+		global papi_counters_used, papi_counters, papi_labels
+		papi_counters_used = 0
+		PAPI_start_counters(events)
+	
 	while frontier.nnn() > 0:
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
+
 		frontier.spRange()
+
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
 		mat.e.SpMV(frontier, semiring=sejits_SR, inPlace=True)
+
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
 		# remove already discovered vertices from the frontier.
 
 		frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
 
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
+
 		# update the parents
 		#parents[frontier] = frontier
 		parents.eWiseApply(frontier, op=func2, inPlace=True)
+		if usePAPI:
+			PAPI_read_counters(papi_counters[papi_counters_used])
+			papi_counters_used += 1
+
+	if usePAPI:
+		PAPI_stop_counters(papi_counters[papi_counters_used])
+		papi_labels = ["loopcnd", "empty1", "empty2", "spRange", "SpMV", "f_updt", "p_updt"]
+		
 	return parents
 
 
@@ -390,6 +473,10 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 				else:
 					discardedString = "(result discarded)"
 
+				if usePAPI and len(discardedString) == 0:
+					global papi_labels
+					print_papi_counters(papi_labels)
+
 				# print result for this iteration
 				kdt.p("%f\t: iteration %s%d.%d: start=%8d, BFS took \t%f\ts, covered \t%d\t edges, discovered \t%d\t verts, TEPS incl. filtered edges=\t%s\t, TEPS=\t%s\t %s"%(filterPercent, rpt_group, i, startrpt, start, (itertime), nedges, ndiscVerts, splitthousands(nOrigEdges/itertime),splitthousands(nedges/itertime), discardedString))
 				if len(K2edges) >= keep_starts:
@@ -435,8 +522,7 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 
 if datasource == "file":
 	latestDatesToCheck = [1246406400] # 2009-07-01 0:0:0
-else:
-	latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+# else use percentages, defined above
 
 for latestDate in latestDatesToCheck:
 	filterUpperValue = latestDate

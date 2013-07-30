@@ -165,17 +165,43 @@ cdll.LoadLibrary("libpapi.so.4")
 libpapi = CDLL("libpapi.so.4")
 
 #print libpapi['PAPI_VER_CURRENT']
+def PAPI_is_initialized():
+    return libpapi.PAPI_is_initialized();
+
+
 def PAPI_library_init():
-	retval = libpapi.PAPI_library_init(c_int(PAPI_VER_CURRENT));
-	if retval != PAPI_VER_CURRENT and retval > 0:
-		import sys
-		sys.stderr.write("PAPI library version mismatch!\n");
-		sys.exit(); 
-	
+    retval = libpapi.PAPI_library_init(c_int(PAPI_VER_CURRENT));
+    if retval != PAPI_VER_CURRENT and retval > 0:
+	import sys
+	sys.stderr.write("PAPI library version mismatch!\n");
+	sys.exit();
+
+#def PAPI_perror():
+#    pass
+
+def PAPI_strerror(errorcode):
+    return libpapi.PAPI_strerror(errorcode)
+
+def _pyPAPI_handle_error(errorcode):
+    if (errorcode != PAPI_OK):
+	import sys
+	errorstring = PAPI_strerror(errocode)
+	sys.stderr.write("PAPI error (%d): %s\n"%(errorcode, errorstring));
+
+
 def PAPI_event_name_to_code(EventName):
     code = c_int()
     error = libpapi.PAPI_event_name_to_code(c_char_p(str(EventName)), byref(code));
-    print "error:",error
     return code.value
 
+def PAPI_start_counters(events):
+    errorcode = libpapi.PAPI_start_counters(events, c_int(len(events)))
+    _pyPAPI_handle_error(errorcode)
 
+def PAPI_read_counters(counters):
+    errorcode = libpapi.PAPI_read_counters(counters, c_int(len(counters)))
+    _pyPAPI_handle_error(errorcode)
+
+def PAPI_stop_counters(counters):
+    errorcode = libpapi.PAPI_stop_counters(counters, c_int(len(counters)))
+    _pyPAPI_handle_error(errorcode)
