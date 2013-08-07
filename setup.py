@@ -373,6 +373,10 @@ py_modules = ['kdt.pyCombBLAS', 'kdt.Graph', 'kdt.DiGraph', 'kdt.HyGraph', 'kdt.
 # SEJITS modules:
 py_modules.extend(['kdt.specializer.__init__', 'kdt.specializer.parsetab', 'kdt.specializer.pcb_function', 'kdt.specializer.pcb_function_frontend', 'kdt.specializer.pcb_function_sm', 'kdt.specializer.pcb_operator_convert', 'kdt.specializer.pcb_predicate', 'kdt.specializer.pcb_predicate_frontend', 'kdt.specializer.pcb_predicate_sm'])
 
+
+
+from kdt_mpidistutils import build_ext as kdt_build_ext
+
 setup(name='kdt',
 	version='0.3',
 	description='Knowledge Discovery Toolbox',
@@ -383,6 +387,7 @@ setup(name='kdt',
 	package_data={'kdt.specializer' : ['include/*']},
 	ext_modules=[pyCombBLAS_ext],
 	py_modules = py_modules,
-	script_args=copy_args
+	script_args=copy_args,
+	cmdclass={'build_ext':kdt_build_ext}
 	)
 	
