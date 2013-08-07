@@ -2288,6 +2288,10 @@ kdt/specializer/tests/pcb_function_sm_test.py -text
 kdt/specializer/tests/pcb_function_test.py -text
 kdt/specializer/tests/pcb_predicate_frontend_test.py -text
 kdt/specializer/tests/pcb_predicate_full_test.py -text
+/kdt_mpidistutils.py -text
+/mpi.cfg -text
+/mpiconfig.py -text
+/mpidistutils.py -text
 /python-mpi -text
 sandbox/AnalyzeIPDPS.py -text
 sandbox/FakeFilteredBC.py -text
