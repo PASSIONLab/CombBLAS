@@ -48,6 +48,14 @@
 #include <papi.h>
 
 
+/* Global variables for timing */
+
+char spmv_errorstring[PAPI_MAX_STR_LEN+1];
+string spmv_event_names [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
+int spmv_papi_events [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
+int papi_num_events = sizeof(spmv_papi_events) / sizeof(int);
+vector< vector< vector<long long> > > spmv_counters;	// outer index: BFS iterations, middle index SpMV iteration, inner index papi events
+
 double cblas_alltoalltime;
 double cblas_allgathertime;
 #ifdef _OPENMP
@@ -55,6 +63,9 @@ int cblas_splits = omp_get_max_threads();
 #else
 int cblas_splits = 1;
 #endif
+
+/* End global variables */
+
 
 #include "TwitterEdge.h"
 
@@ -399,7 +410,7 @@ int main(int argc, char* argv[])
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
-					parents += fringe;
+					parents += fringe;	// ABAB: Convert this to EwiseApply for compliance in PAPI timings
 					iterations++;
 					
 				}
