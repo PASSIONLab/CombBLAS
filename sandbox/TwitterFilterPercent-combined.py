@@ -17,6 +17,16 @@ useDelIsolated = False
 
 usePAPI = True
 num_PAPI_counters = 1000
+events_nm = []
+events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
+#events_nm = events_nm + ["PAPI_L2_TCR", "PAPI_L3_TCR"]
+#events_nm = events_nm + ["PAPI_L2_TCW", "PAPI_L3_TCW"] # cache read/writes
+#events_nm = events_nm + ["PAPI_TLB_DM", "PAPI_TLB_IM", "PAPI_TLB_TL"] # TLB
+#preSelectedStartingVerts = None
+preSelectedStartingVerts = [14547] * 16
+
+#latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
+latestDatesToCheck = [10000] # 1%, 10%, 25%, 100%
 
 repeatEachStart = 1#10 # how many times to do each start
 repeatGroups = [""]#["A", ""] # [""] for just doing it once, ["A",""] for doing it twice
@@ -41,15 +51,23 @@ datasource = "file"
 inmatrixfile = sys.argv[1]
 gen_scale = 10
 
+# determine where the data is supposed to come from
+if os.path.isfile(inmatrixfile):
+	datasource = "file"
+else:
+	try:
+		gen_scale = int(inmatrixfile)
+		datasource = "generate"
+	except ValueError:
+		datasource = "unknown"
+
+
 # report results of keep_starts runs, where each run traverses at least keep_min_edges edges.
 # total maximum of runs is nstarts.
 nstarts = 512
 keep_starts = 16
 keep_min_edges = 100
 CC_LIMIT = 100 # Aydin's
-
-#latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
-latestDatesToCheck = [2500, 10000] # 1%, 10%, 25%, 100%
 
 # figure out what to do
 if (len(sys.argv) >= 3):
@@ -65,19 +83,26 @@ if usePAPI:
 
 	PAPI_library_init()
 
-	events_nm = ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
-	events_nm = events_nm + ["PAPI_L2_TCR", "PAPI_L3_TCR", "PAPI_L2_TCW", "PAPI_L3_TCW"] # cache read/writes
-	events_nm = events_nm + ["PAPI_TLB_DM", "PAPI_TLB_IM", "PAPI_TLB_TL"] # TLB
 	events = (c_int*len(events_nm))()
 	counter_array_type = c_longlong*len(events_nm)
 	papi_counters = []
 	papi_counters_used = -12
 	papi_labels = []
+	papi_timers = [0] * num_PAPI_counters
 	for i in range(num_PAPI_counters):
 		papi_counters.append((counter_array_type)())
-	
+
 	my_proc_rank = kdt._rank()
-	papi_output_filename = "temp_papi_output_p%02d.txt"%my_proc_rank
+	np = kdt._nproc()
+	percents = '_'.join(map(str, map(lambda x: x/100, latestDatesToCheck)))
+	event_join_str = '-'.join(events_nm)
+	
+	if preSelectedStartingVerts is not None:
+		preSel_s = "_start%d"%(preSelectedStartingVerts[0])
+	else:
+		preSel_s = ""
+	
+	papi_output_filename = "temp_papi_output_scale%d_filter%s%s_events%s_%s_np%d_p%02d.txt"%(gen_scale, percents, preSel_s, event_join_str, "-".join(whatToDoList), np, my_proc_rank)
 	papi_output_file = open(papi_output_filename, "w")
 
 	for i in range(len(events_nm)):
@@ -87,14 +112,14 @@ if usePAPI:
 
 
 	def print_papi_counters(labels):
-		global papi_counters, papi_counters_used, papi_output_file
+		global papi_counters, papi_counters_used, papi_output_file, papi_timers, papi_time_before
 		# print the header
-		names = "\t".join(events_nm)
-		
+		names = "\t".join(["TIME_usec"] + events_nm)
+
 		#print("PRINTING PAPI")
 		#print("num counters used = %d, num labels = %d"%(papi_counters_used, len(labels)))
 		papi_output_file.write("iter\tlabel\t%s\n"%(names))
-		
+
 		iter = 0
 		label_i = -1
 		for i in range(papi_counters_used):
@@ -104,21 +129,26 @@ if usePAPI:
 				label_i -= len(labels)
 
 			#values = "\t".join(papi_counters[i])
-			values = ""
+			values = "%d\t"%(papi_timers[i] - papi_timers[i-1])
 			for j in range(len(events_nm)):
 				values += str(papi_counters[i][j]) + "\t"
 			papi_output_file.write("%d\t%s\t%s\n"%(iter, labels[label_i], values))
 
-	
-		
+
+
 # this function initializes the SEJITS semiring
 sejits_SR = None
 isneg1 = None
 s1st = None
-func2 = None
+s2nd_d = None
+
+bfsTree_SR = None
+bfsTree_s2nd_d = None
+bfsTree_isneg1 = None
+bfsTree_s1st = None
 
 def initialize_sejits_SR():
-	global sejits_SR, isneg1, s1st, func2
+	global sejits_SR, isneg1, s1st, s2nd_d
 
 	class c_s2nd(kdt.KDTBinaryFunction):
 		def __call__(self, x, y):
@@ -128,9 +158,8 @@ def initialize_sejits_SR():
 	func = s2nd
 
 	s2nd_d = c_s2nd()
-	func2 = s2nd_d
 
-	sejits_SR = kdt.sr(func2, func)
+	sejits_SR = kdt.sr(s2nd_d, func)
 
 	print("SR constructed")
 
@@ -152,6 +181,15 @@ def initialize_sejits_SR():
 	isneg1 = IsNeg1()#.get_predicate(types=["bool", "double", "double"])
 	print("isneg1 constructed")
 
+# the Python versions
+def s2nd_python(x, y):
+	return y
+def s1st_python(x, y):
+	return x
+def isneg1_python(x, y):
+	return y == -1
+SR_python = kdt.sr(s2nd_python, s2nd_python)
+
 
 # this is the SEJITS-enabled BFS.
 # eventually this will go into Algorithms.py but right now, since the front-end translation is not in
@@ -161,58 +199,56 @@ def sejits_bfsTree(mat, root):
 	"""
         Same as KDT's bfsTree, except SEJITS-ized
 	"""
-	global sejits_SR, isneg1, s1st
-	global usePAPI
+	#global sejits_SR, s2nd_d, isneg1, s1st
+	global bfsTree_SR, bfsTree_s2nd_d, bfsTree_isneg1, bfsTree_s1st
+	global usePAPI, papi_counters_used, papi_counters, papi_labels
+
 	parents = kdt.Vec(mat.nvert(), -1, sparse=False)
 	frontier = kdt.Vec(mat.nvert(), sparse=True)
 	parents[root] = root
 	frontier[root] = root
-	
-	if usePAPI:
-		global papi_counters_used, papi_counters, papi_labels
-		papi_counters_used = 0
-		PAPI_start_counters(events)
-	
-	while frontier.nnn() > 0:
-		if usePAPI:
-			PAPI_read_counters(papi_counters[papi_counters_used])
-			papi_counters_used += 1
-		if usePAPI:
-			PAPI_read_counters(papi_counters[papi_counters_used])
-			papi_counters_used += 1
-		if usePAPI:
-			PAPI_read_counters(papi_counters[papi_counters_used])
-			papi_counters_used += 1
 
+	if usePAPI:
+		papi_counters_used = 0
+		papi_timers[-1] = PAPI_get_real_usec()
+		PAPI_start_counters(events)
+
+
+	while frontier.nnn() > 0:
 		frontier.spRange()
 
 		if usePAPI:
+			papi_timers[papi_counters_used] = PAPI_get_real_usec()
 			PAPI_read_counters(papi_counters[papi_counters_used])
 			papi_counters_used += 1
-		mat.e.SpMV(frontier, semiring=sejits_SR, inPlace=True)
+		mat.e.SpMV(frontier, semiring=bfsTree_SR, inPlace=True)
 
 		if usePAPI:
+			papi_timers[papi_counters_used] = PAPI_get_real_usec()
 			PAPI_read_counters(papi_counters[papi_counters_used])
 			papi_counters_used += 1
 		# remove already discovered vertices from the frontier.
 
-		frontier.eWiseApply(parents, op=s1st, doOp=isneg1, inPlace=True)
+		frontier.eWiseApply(parents, op=bfsTree_s1st, doOp=bfsTree_isneg1, inPlace=True)
 
 		if usePAPI:
+			papi_timers[papi_counters_used] = PAPI_get_real_usec()
 			PAPI_read_counters(papi_counters[papi_counters_used])
 			papi_counters_used += 1
 
 		# update the parents
 		#parents[frontier] = frontier
-		parents.eWiseApply(frontier, op=func2, inPlace=True)
+		parents.eWiseApply(frontier, op=bfsTree_s2nd_d, inPlace=True)
 		if usePAPI:
+			papi_timers[papi_counters_used] = PAPI_get_real_usec()
 			PAPI_read_counters(papi_counters[papi_counters_used])
 			papi_counters_used += 1
 
 	if usePAPI:
+		papi_timers[papi_counters_used] = PAPI_get_real_usec()
 		PAPI_stop_counters(papi_counters[papi_counters_used])
-		papi_labels = ["loopcnd", "empty1", "empty2", "spRange", "SpMV", "f_updt", "p_updt"]
-		
+		papi_labels = ["loop+Rng", "SpMV", "f_updt", "p_updt"]
+
 	return parents
 
 
@@ -257,19 +293,8 @@ def twitterEdgeFilter(e):
 
 
 
-# determine where the data is supposed to come from
-if os.path.isfile(inmatrixfile):
-	datasource = "file"
-else:
-	try:
-		gen_scale = int(inmatrixfile)
-		datasource = "generate"
-	except ValueError:
-		datasource = "unknown"
-
 # get the data
 minUsefulTime = None
-preSelectedStartingVerts = None
 if datasource == "file":
 	# load
 	# these starting vertices were figured out on previous runs, so just do them
@@ -342,7 +367,11 @@ class SemiringTypeToUse:
 		 SemiringTypeToUse.SEJITS: "SejitsSR"}[value]
 
 def run(SR_to_use, use_SEJITS_Filter, materialize):
-	global G, nstarts, origDegrees, filterUpperValue, sejits_filter, sejits_SR
+	global G, nstarts, origDegrees, filterUpperValue, sejits_filter
+	global bfsTree_SR, bfsTree_s2nd_d, bfsTree_isneg1, bfsTree_s1st
+	global sejits_SR, s2nd_d, isneg1, s1st	
+	global SR_python, s2nd_python, isneg1_python, s1st_python
+			
 	runStarts = nstarts
 	filterPercent = filterUpperValue/100.0
 
@@ -418,11 +447,20 @@ def run(SR_to_use, use_SEJITS_Filter, materialize):
 
 				# the actual BFS
 				if SR_to_use == SemiringTypeToUse.SEJITS:
-					before = time.time()
-					parents = sejits_bfsTree(G, start)
+					bfsTree_SR = sejits_SR
+					bfsTree_s2nd_d = s2nd_d
+					bfsTree_isneg1 = isneg1
+					bfsTree_s1st = s1st
 				else:
-					before = time.time()
-					parents = G.bfsTree(start, usePythonSemiring=PythonSR)##, SEJITS_Python_SR=SEJITSSR)
+					bfsTree_SR = SR_python
+					bfsTree_s2nd_d = s2nd_python
+					bfsTree_isneg1 = isneg1_python
+					bfsTree_s1st = s1st_python
+
+					#before = time.time()
+					#parents = G.bfsTree(start, usePythonSemiring=PythonSR)##, SEJITS_Python_SR=SEJITSSR)
+				before = time.time()
+				parents = sejits_bfsTree(G, start)
 				itertime = time.time() - before
 
 				if minUsefulTime is not None and itertime < minUsefulTime:
@@ -569,7 +607,7 @@ for latestDate in latestDatesToCheck:
 				def __init__(self, filterUpperValue):
 					self.filterUpperValue = filterUpperValue
 					super(TwitterFilter, self).__init__()
-					
+
 				def __call__(self, e):
 					if (e.count > 0 and e.latest < self.filterUpperValue):
 						return True

@@ -184,10 +184,12 @@ def PAPI_strerror(errorcode):
 
 def _pyPAPI_handle_error(errorcode):
     if (errorcode != PAPI_OK):
-	import sys
-	errorstring = PAPI_strerror(errocode)
-	sys.stderr.write("PAPI error (%d): %s\n"%(errorcode, errorstring));
-
+    	if errorcode == PAPI_ECNFLCT:
+    		raise RuntimeError, "PAPI error PAPI_ECNFLCT: Hardware event exists, but cannot be counted due to counter resource limitations"
+        import sys
+        errorstring = PAPI_strerror(errorcode)
+        #errorstring = cast(errorstring, c_char_p)
+        raise RuntimeError, "PAPI error (%d): %s\n"%(errorcode, str(errorstring));
 
 def PAPI_event_name_to_code(EventName):
     code = c_int()
@@ -205,3 +207,6 @@ def PAPI_read_counters(counters):
 def PAPI_stop_counters(counters):
     errorcode = libpapi.PAPI_stop_counters(counters, c_int(len(counters)))
     _pyPAPI_handle_error(errorcode)
+
+def PAPI_get_real_usec():
+	return libpapi.PAPI_get_real_usec()
