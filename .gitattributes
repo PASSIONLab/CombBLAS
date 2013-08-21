@@ -1412,6 +1412,7 @@ CombBLAS/graph500-1.2/xalloc.c -text
 CombBLAS/graph500-1.2/xalloc.h -text
 CombBLAS/graph500-1.2/xmt-csr-local/xmt-csr-local.c -text
 CombBLAS/graph500-1.2/xmt-csr/xmt-csr.c -text
+CombBLAS/graphlab_cmakelists.txt -text
 CombBLAS/largeseq/input1_0 -text
 CombBLAS/largeseq/input2_0 -text
 CombBLAS/mcl-runtimes/TODO -text
