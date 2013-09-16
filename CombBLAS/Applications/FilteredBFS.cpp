@@ -46,15 +46,10 @@
 	#include <Profile/Profiler.h>
 #endif
 #include <papi.h>
+#include "papi_combblas_global.h"
 
 
 /* Global variables for timing */
-
-char spmv_errorstring[PAPI_MAX_STR_LEN+1];
-string spmv_event_names [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
-int spmv_papi_events [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
-int papi_num_events = sizeof(spmv_papi_events) / sizeof(int);
-vector< vector< vector<long long> > > spmv_counters;	// outer index: BFS iterations, middle index SpMV iteration, inner index papi events
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
@@ -118,27 +113,12 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 	}
 };
 
-// Function not needed anymore
-void CreatePAPIEvents(int & eventset, long long ** ptr2values)
+void CheckPAPI(int errorcode, char [] errorstring)
 {
-	char errorstring[PAPI_MAX_STR_LEN+1];
-	int crtr = PAPI_create_eventset( &eventset );
-	if( crtr != PAPI_OK)
+	if (errorcode != PAPI_OK) 
 	{
-		cout << "Event set did not get created" << endl;
-	    	PAPI_perror(crtr, errorstring, PAPI_MAX_STR_LEN);
-	    	fprintf(stderr, "PAPI error (%d): %s\n", crtr, errorstring);
-	}
-
-	unsigned int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
-	string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
-	size_t arraysize = sizeof(Events2Add) / sizeof(int);
-	ptr2values = new long long * [arraysize];
-	
-	for(size_t i=0; i < arraysize; ++i)
-	{
-   		if ( PAPI_add_event( eventset, Events2Add[i])  != PAPI_OK )
-			cout << "Event " << EventNames[i] << " did not get added" << endl;
+		PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
+		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
 	}
 }
 					
@@ -379,40 +359,77 @@ int main(int argc, char* argv[])
 				double t1 = MPI_Wtime();
 
 				char errorstring[PAPI_MAX_STR_LEN+1];
-				int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
-				string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
-				int arraysize = sizeof(Events2Add) / sizeof(int);
-				long long ptr2values[arraysize];
+				long long ptr2values[combblas_papi_num_events];
 
 				fringe.SetElement(Cands[i], Cands[i]);
 				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
 				while(fringe.getnnz() > 0)
 				{
+					vector< vector<long long> > papi_this_iterate(num_bfs_papi_labels);
+					
 					fringe.ApplyInd(NumSetter);
 
-					int errorcode = PAPI_start_counters(Events2Add, arraysize);
-					if (errorcode != PAPI_OK) {
-	    					PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
-	    					fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
-					}
+					int errorcode = PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);
+					long_long papi_t_sta = PAPI_get_real_usec();
 					
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);
+					
+					lond_long papi_t_end = PAPI_get_real_usec();
 	
-					errorcode = PAPI_read_counters(ptr2values, arraysize);
-					if (errorcode != PAPI_OK) {
-	    					PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
-	    					fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
+					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);
+
+					errorcode = PAPI_stop_counters(ptr2values, combblas_papi_num_events);
+					papi_this_iterate[bfs_papi_enum.SpMV].resize(combblas_papi_num_events+1);	// +1 for the time
+					for(int k=0; k<combblas_papi_num_events; ++k)
+					{
+						papi_this_iterate[bfs_papi_enum.SpMV][k] = ptr2values[k];
 					}
-					errorcode = PAPI_stop_counters(ptr2values, arraysize);
+					papi_this_iterate[bfs_papi_enum.SpMV][combblas_papi_num_events] = papi_t_end - papi_s_end;	// time in usec
 						
+					PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);
+					papi_t_sta = PAPI_get_real_usec();
+					
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
-					parents += fringe;	// ABAB: Convert this to EwiseApply for compliance in PAPI timings
-					iterations++;
 					
+					papi_t_end = PAPI_get_real_usec();
+					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);
+					
+					errorcode = PAPI_stop_counters(ptr2values, combblas_papi_num_events);
+					papi_this_iterate[bfs_papi_enum.fringe_updt].resize(combblas_papi_num_events+1);	// +1 for the time
+					for(int k=0; k<combblas_papi_num_events; ++k)
+					{
+						papi_this_iterate[bfs_papi_enum.fringe_updt][k] = ptr2values[k];
+					}
+					papi_this_iterate[bfs_papi_enum.fringe_updt][combblas_papi_num_events] = papi_t_end - papi_s_end;	// time in usec
+					
+					PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);
+					papi_t_sta = PAPI_get_real_usec();					
+					
+					parents += fringe;	// ABAB: Convert this to EwiseApply for compliance in PAPI timings
+					
+					papi_t_end = PAPI_get_real_usec();
+					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
+					CheckPAPI(errorcode, errorstring);		
+					
+					errorcode = PAPI_stop_counters(ptr2values, combblas_papi_num_events);
+					papi_this_iterate[bfs_papi_enum.parents_updt].resize(combblas_papi_num_events+1);	// +1 for the time
+					for(int k=0; k<combblas_papi_num_events; ++k)
+					{
+						papi_this_iterate[bfs_papi_enum.parents_updt][k] = ptr2values[k];
+					}
+					papi_this_iterate[bfs_papi_enum.parents_updt][combblas_papi_num_events] = papi_t_end - papi_s_end;	// time in usec
+					
+					bfs_counters.push_back(papi_this_iterate);	// copy to bfs_counters[iterations]
+					iterations++;
 				}
 				MPI_Barrier(MPI_COMM_WORLD);
 				double t2 = MPI_Wtime();
@@ -475,15 +492,28 @@ int main(int argc, char* argv[])
 					outnew << "MPEPS (bidirectional): " << static_cast<double>(nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "MPEPS (unidirectional): " << static_cast<double>(ou_nedges_processed) / (t2-t1) / 1000000.0 << endl;
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
-
+					
+					/* Write to PAPI */
 					ostringstream papiout;
+					papiout << i << "th starting vertex was " << Cands[i] << endl;
 					papiout << "Threshold is " << LatestRetwitterBFS::sincedate  << endl;
-					for(int k=0; k<arraysize; ++k)
+					
+					for(int i=0; i < iterations; i++)	// over all spmv iterations in this BFS  
 					{
-						papiout << EventNames[k] << ":\t" << ptr2values[k] << endl; 
+						papiout << "Iteration : " << i << endl;
+						for(int j=0; j < bfs_papi_labels; ++j)
+						{
+							papiout << "Function : " << bfs_papi_labels[j] << endl;
+
+							for(int k=0; k < combblas_papi_num_events; ++k)
+							{
+								papiout << combblas_event_names[k] << ":\t" << bfs_counters[i][j][k] << endl; 
+							}
+							papiout << "Time (usec)" << ":\t" << bfs_counters[i][j][combblas_papi_num_events] << endl; 
+						}
 					}
 					SpParHelper::PrintFile(papiout.str(), "PAPIRES.txt");
-						
+					/* (End) Write to PAPI */	
 
 					TIMES[sruns] = t2-t1;
 					if(string(argv[1]) == string("Gen"))
