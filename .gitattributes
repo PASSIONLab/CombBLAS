@@ -1442,6 +1442,7 @@ CombBLAS/ms_inttypes/stdint.h -text
 CombBLAS/ms_sys/sys/mta_task.h -text
 CombBLAS/ms_sys/sys/time.h -text
 CombBLAS/myenableif.h -text
+CombBLAS/papi_combblas_globals.h -text
 CombBLAS/promote.h -text
 CombBLAS/psort-1.0/README -text
 CombBLAS/psort-1.0/doc/psort.pdf -text svneol=unset#unset

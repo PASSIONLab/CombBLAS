@@ -740,8 +740,32 @@ void SpMV (const SpParMat<IU,NUM,UDER> & A, const FullyDistSpVec<IU,IVT> & x, Fu
 	IU lenuntil;
 	int32_t *trxinds, *indacc;
 	IVT *trxnums, *numacc;
+	
+	
+	/* char errorstring[PAPI_MAX_STR_LEN+1];
+	 int Events2Add [] = {PAPI_TOT_INS, PAPI_L1_TCM, PAPI_L2_TCM, PAPI_L3_TCM};
+	 string EventNames [] = {"PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"};
+	 int arraysize = sizeof(Events2Add) / sizeof(int);
+	 long long ptr2values[arraysize];
+	 
+	int errorcode = PAPI_start_counters(Events2Add, arraysize);
+	if (errorcode != PAPI_OK) {
+		PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
+		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
+	}
+	*/
+	
 	TransposeVector(World, x, trxlocnz, lenuntil, trxinds, trxnums, indexisvalue);
 	AllGatherVector(ColWorld, trxlocnz, lenuntil, trxinds, trxnums, indacc, numacc, accnz, indexisvalue);
+	
+	/*
+	errorcode = PAPI_read_counters(ptr2values, arraysize);
+	if (errorcode != PAPI_OK) {
+		PAPI_perror(errorcode, errorstring, PAPI_MAX_STR_LEN);
+		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
+	}
+	errorcode = PAPI_stop_counters(ptr2values, arraysize);
+	 */
 	
 	int rowneighs;
 	MPI_Comm_size(RowWorld, &rowneighs);
