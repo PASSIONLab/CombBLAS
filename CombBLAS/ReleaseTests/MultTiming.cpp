@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 			tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
 			SpParHelper::Print(tinfo.str());
 			SpParHelper::Print("Warmed up for DoubleBuff\n");
-			
+			C.PrintInfo();
 		}	
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(1,"SpGEMM_DoubleBuff");
@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
 
 		{// force the calling of C's destructor
 			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			C.PrintInfo();
 		}
 		SpParHelper::Print("Warmed up for Synch\n");
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -93,6 +94,7 @@ int main(int argc, char* argv[])
 			cout<<"Synchronous multiplications finished"<<endl;	
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}
+
 
 		/*
 		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
