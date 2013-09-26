@@ -8,7 +8,7 @@
 #include "../CombBLAS.h"
 
 using namespace std;
-#define ITERATIONS 10
+#define ITERATIONS 1
 
 // Simple helper class for declarations: Just the numerical type is templated 
 // The index type and the sequential matrix type stays the same for the whole code
@@ -20,6 +20,8 @@ public:
 	typedef SpDCCols < int, NT > DCCols;
 	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
 };
+
+#define ElementType double
 
 
 int main(int argc, char* argv[])
@@ -42,15 +44,17 @@ int main(int argc, char* argv[])
 	{
 		string Aname(argv[1]);		
 		string Bname(argv[2]);
-		typedef PlusTimesSRing<double, double> PTDOUBLEDOUBLE;	
-		PSpMat<double>::MPI_DCCols A, B;	// construct objects
+		typedef PlusTimesSRing<ElementType, ElementType> PTDOUBLEDOUBLE;	
+		PSpMat<ElementType>::MPI_DCCols A, B;	// construct objects
 		
 		A.ReadDistribute(Aname, 0);
+		A.PrintInfo();
 		B.ReadDistribute(Bname, 0);
+		B.PrintInfo();
 		SpParHelper::Print("Data read\n");
 
 		{ // force the calling of C's destructor
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 			int64_t cnnz = C.getnnz();
 			ostringstream tinfo;
 			tinfo << "C has a total of " << cnnz << " nonzeros" << endl;
@@ -63,7 +67,7 @@ int main(int argc, char* argv[])
 		double t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_DoubleBuff<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		double t2 = MPI_Wtime(); 	
@@ -75,7 +79,7 @@ int main(int argc, char* argv[])
 		}
 
 		{// force the calling of C's destructor
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 			C.PrintInfo();
 		}
 		SpParHelper::Print("Warmed up for Synch\n");
@@ -84,7 +88,7 @@ int main(int argc, char* argv[])
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			PSpMat<double>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			PSpMat<ElementType>::MPI_DCCols C = Mult_AnXBn_Synch<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(-1,"SpGEMM_Synch");
@@ -97,14 +101,14 @@ int main(int argc, char* argv[])
 
 
 		/*
-		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+		C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		SpParHelper::Print("Warmed up for ActiveTarget\n");
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(1,"SpGEMM_ActiveTarget");
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			C = Mult_AnXBn_ActiveTarget<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(-1,"SpGEMM_ActiveTarget");
@@ -115,14 +119,14 @@ int main(int argc, char* argv[])
 			printf("%.6lf seconds elapsed per iteration\n", (t2-t1)/(double)ITERATIONS);
 		}		
 
-		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+		C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		SpParHelper::Print("Warmed up for PassiveTarget\n");
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(1,"SpGEMM_PassiveTarget");
 		t1 = MPI_Wtime(); 	// initilize (wall-clock) timer
 		for(int i=0; i<ITERATIONS; i++)
 		{
-			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, double, PSpMat<double>::DCCols >(A, B);
+			C = Mult_AnXBn_PassiveTarget<PTDOUBLEDOUBLE, ElementType, PSpMat<ElementType>::DCCols >(A, B);
 		}
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Pcontrol(-1,"SpGEMM_PassiveTarget");
