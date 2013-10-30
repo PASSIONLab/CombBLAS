@@ -298,7 +298,11 @@ void PermEdges(DistEdgeList<IT> & DEL)
 	int rank = (DEL.commGrid)->GetRank();
 	IT * dist = new IT[nproc];
 
-	MTRand M;	// generate random numbers with Mersenne Twister
+#ifdef DETERMINISTIC
+	MTRand M(1);
+#else
+	MTRand M;	// generate random numbers with Mersenne Twister 
+#endif
 	for(IT s=0; s< stages; ++s)
 	{
 		#ifdef DEBUG

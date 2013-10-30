@@ -78,8 +78,12 @@ void SymmetricizeRands(PSpMat_Twitter & A)
 	A = EWiseApply<TwitterEdge, SpDCCols<int64_t, TwitterEdge > >(A, AT, DetSymmetricize(), false, TwitterEdge());
 }
 
+#ifdef DETERMINISTIC
+MTRand GlobalMT(1);
+#else
+MTRand GlobalMT;	// generate random numbers with Mersenne Twister 
+#endif
 
-MTRand GlobalMT; 	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
 
 struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterEdge>
 {
