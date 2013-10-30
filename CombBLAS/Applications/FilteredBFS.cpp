@@ -89,7 +89,12 @@ void Symmetricize(PARMAT & A)
 }
 
 
-MTRand GlobalMT; 	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
+#ifdef DETERMINISTIC
+MTRand GlobalMT(1);
+#else
+MTRand GlobalMT;	// generate random numbers with Mersenne Twister 
+#endif
+
 
 struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterEdge>
 {

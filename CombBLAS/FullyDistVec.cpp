@@ -180,8 +180,11 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 template<class IT, class NT>
 void FullyDistVec<IT,NT>::SelectCandidates(double nver)
 {
-	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
-	MTRand M;       
+#ifdef DETERMINISTIC
+	MTRand M(1);
+#else
+	MTRand M;	// generate random numbers with Mersenne Twister 
+#endif     
 
 	IT length = TotalLength();
 	vector<double> loccands(length);
