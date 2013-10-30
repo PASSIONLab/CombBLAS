@@ -45,8 +45,11 @@
 #ifdef TAU_PROFILE
 	#include <Profile/Profiler.h>
 #endif
-#include <papi.h>
-#include "papi_combblas_global.h"
+
+#ifdef USE_PAPI
+	#include <papi.h>
+	#include "papi_combblas_global.h"
+#endif
 
 
 /* Global variables for timing */
@@ -85,11 +88,9 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-#ifdef DETERMINISTIC
-        MTRand GlobalMT(1);
-#else
-        MTRand GlobalMT;
-#endif
+
+MTRand GlobalMT; 	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
+
 struct Twitter_obj_randomizer : public std::unary_function<TwitterEdge, TwitterEdge>
 {
   const TwitterEdge operator()(const TwitterEdge & x) const
@@ -113,6 +114,7 @@ struct Twitter_materialize: public std::binary_function<TwitterEdge, time_t, boo
 	}
 };
 
+#ifdef USE_PAPI
 void CheckPAPI(int errorcode, char [] errorstring)
 {
 	if (errorcode != PAPI_OK) 
@@ -121,6 +123,7 @@ void CheckPAPI(int errorcode, char [] errorstring)
 		fprintf(stderr, "PAPI error (%d): %s\n", errorcode, errorstring);
 	}
 }
+#endif
 					
 
 int main(int argc, char* argv[])
@@ -137,6 +140,7 @@ int main(int argc, char* argv[])
 	int MAXTRIALS;
 	int retval;
 
+#ifdef USE_PAPI
 	/* Initialize the PAPI library */
 	retval = PAPI_library_init(PAPI_VER_CURRENT);
 	if (retval != PAPI_VER_CURRENT && retval > 0) 
@@ -147,6 +151,7 @@ int main(int argc, char* argv[])
 	retval = PAPI_is_initialized();
 	if (retval != PAPI_LOW_LEVEL_INITED)
 		cout << "Not initialized" << endl;
+#endif
 
 	if(argc < 3)
 	{
@@ -328,7 +333,7 @@ int main(int argc, char* argv[])
 
 		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS);
 		double nver = (double) degrees.TotalLength();
-		Cands.SelectCandidates(nver, true);
+		Cands.SelectCandidates(nver);
 
 		for(int trials =0; trials < MAXTRIALS; trials++)	
 		{
@@ -357,28 +362,33 @@ int main(int argc, char* argv[])
 
 				MPI_Barrier(MPI_COMM_WORLD);
 				double t1 = MPI_Wtime();
-
+				
+			#ifdef USE_PAPI
 				char errorstring[PAPI_MAX_STR_LEN+1];
 				long long ptr2values[combblas_papi_num_events];
+			#endif
 
 				fringe.SetElement(Cands[i], Cands[i]);
 				parents.SetElement(Cands[i], ParentType(Cands[i]));	// make root discovered
 				int iterations = 0;
 				while(fringe.getnnz() > 0)
 				{
+				#ifdef USE_PAPI
 					vector< vector<long long> > papi_this_iterate(num_bfs_papi_labels);
-					
+				#endif
 					fringe.ApplyInd(NumSetter);
-
+						
+				#ifdef USE_PAPI
 					int errorcode = PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);
 					long_long papi_t_sta = PAPI_get_real_usec();
+				#endif
 					
 					// SpMV with sparse vector, optimizations disabled for generality
 					SpMV<LatestRetwitterBFS>(A, fringe, fringe, false);
 					
+				#ifdef USE_PAPI
 					lond_long papi_t_end = PAPI_get_real_usec();
-	
 					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);
 
@@ -393,11 +403,13 @@ int main(int argc, char* argv[])
 					PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);
 					papi_t_sta = PAPI_get_real_usec();
+				#endif
 					
 					//  EWiseApply (const FullyDistSpVec<IU,NU1> & V, const FullyDistVec<IU,NU2> & W, 
 					//		_BinaryOperation _binary_op, _BinaryPredicate _doOp, bool allowVNulls, NU1 Vzero)
 					fringe = EWiseApply<ParentType>(fringe, parents, getfringe(), keepinfrontier_f(), true, ParentType());
 					
+				#ifdef USE_PAPI
 					papi_t_end = PAPI_get_real_usec();
 					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);
@@ -412,10 +424,12 @@ int main(int argc, char* argv[])
 					
 					PAPI_start_counters(combblas_papi_events, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);
-					papi_t_sta = PAPI_get_real_usec();					
+					papi_t_sta = PAPI_get_real_usec();		
+				#endif
 					
 					parents += fringe;	// ABAB: Convert this to EwiseApply for compliance in PAPI timings
-					
+				
+				#ifdef USE_PAPI
 					papi_t_end = PAPI_get_real_usec();
 					errorcode = PAPI_read_counters(ptr2values, combblas_papi_num_events);
 					CheckPAPI(errorcode, errorstring);		
@@ -427,8 +441,9 @@ int main(int argc, char* argv[])
 						papi_this_iterate[bfs_papi_enum.parents_updt][k] = ptr2values[k];
 					}
 					papi_this_iterate[bfs_papi_enum.parents_updt][combblas_papi_num_events] = papi_t_end - papi_s_end;	// time in usec
-					
 					bfs_counters.push_back(papi_this_iterate);	// copy to bfs_counters[iterations]
+				#endif
+					
 					iterations++;
 				}
 				MPI_Barrier(MPI_COMM_WORLD);
@@ -494,6 +509,7 @@ int main(int argc, char* argv[])
 					outnew << "Total communication (average so far): " << (cblas_allgathertime + cblas_alltoalltime) / (i+1) << endl;
 					
 					/* Write to PAPI */
+				#ifdef USE_PAPI
 					ostringstream papiout;
 					papiout << i << "th starting vertex was " << Cands[i] << endl;
 					papiout << "Threshold is " << LatestRetwitterBFS::sincedate  << endl;
@@ -513,6 +529,7 @@ int main(int argc, char* argv[])
 						}
 					}
 					SpParHelper::PrintFile(papiout.str(), "PAPIRES.txt");
+				#endif
 					/* (End) Write to PAPI */	
 
 					TIMES[sruns] = t2-t1;

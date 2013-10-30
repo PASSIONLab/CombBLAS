@@ -178,11 +178,10 @@ OUT FullyDistVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _
 
 //! ABAB: Put concept check, NT should be integer for this to make sense
 template<class IT, class NT>
-void FullyDistVec<IT,NT>::SelectCandidates(double nver, bool deterministic)
+void FullyDistVec<IT,NT>::SelectCandidates(double nver)
 {
-	MTRand M;       // generate random numbers with Mersenne Twister
-	if(deterministic)
-		M.seed(1);
+	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
+	MTRand M;       
 
 	IT length = TotalLength();
 	vector<double> loccands(length);
@@ -779,11 +778,9 @@ void FullyDistVec<IT,NT>::RandPerm()
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
-#ifdef DETERMINISTIC
-	MTRand M(1);
-#else
-  	MTRand M;	// generate random numbers with Mersenne Twister
-#endif
+
+	// generate random numbers with Mersenne Twister (the default seed is also deterministic - i.e. not based on the system clock)
+  	MTRand M;	
 	for(int i=0; i<size; ++i)
 	{
 		vecpair[i].first = M.rand();
