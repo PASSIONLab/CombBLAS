@@ -247,7 +247,11 @@ public:
 	static inline void make_graph(int log_numverts, int64_t M, int64_t* nedges_ptr, packed_edge** result_ptr) 
 	{
   		int rank, size;
+#ifdef DETERMINISTIC
+		uint64_t userseed1 = 0;
+#else
 		uint64_t userseed1 = (uint64_t) init_random();
+#endif
 
   		/* Spread the two 64-bit numbers into five nonzero values in the correct range. */
   		uint_fast32_t seed[5];
