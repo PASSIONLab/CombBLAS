@@ -224,7 +224,7 @@ public:
 	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
 	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
 
-	void SelectCandidates(double nver, bool deterministic);
+	void SelectCandidates(double nver);
 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::commGrid; 
