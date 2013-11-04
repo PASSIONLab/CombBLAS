@@ -302,7 +302,6 @@ int main(int argc, char* argv[])
 			delete RowSums;
 			SpParHelper::Print("Intersection of colsums and rowsums found\n");
 
-			// TODO: seg fault in FindInds for scale 33 
 			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));	// only the indices of non-isolated vertices
 			delete ColSums;
 
