@@ -703,13 +703,13 @@ void FullyDistVec<IT,NT>::RandPerm()
 	uint64_t seed= time(NULL);
 #endif
 	MTRand M(seed);	// generate random numbers with Mersenne Twister 
+	int nprocs = commGrid->GetSize();
+	int rank = commGrid->GetRank();
 
 #ifdef COMBBLAS_LEGACY
 	MPI::Intracomm World = commGrid->GetWorld();
 	IT size = LocArrSize();
 	pair<double,NT> * vecpair = new pair<double,NT>[size];
-	int nprocs = World.Get_size();
-	int rank = World.Get_rank();
 	IT * dist = new IT[nprocs];
 	dist[rank] = size;
 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());	
@@ -726,11 +726,11 @@ void FullyDistVec<IT,NT>::RandPerm()
 	arr.swap(nnum);
 #else
 	MPI_Comm World = commGrid->GetWorld();
-	int nprocs = commGrid->GetSize();
 	IT size = LocArrSize();
 	vector< vector< IT > > data_send(nprocs);
 	for(int i=0; i<size; ++i)
         {
+		// send each entry to a random process
 		uint32_t dest = M.randInt(nprocs);
 		data_send[dest].push_back(arr[i]);
 	}
@@ -759,11 +759,44 @@ void FullyDistVec<IT,NT>::RandPerm()
         for(int i=0; i<nprocs; ++i)
         {
                 copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
-                vector<IT>().swap(data_send[i]);
+                vector<IT>().swap(data_send[i]);	// free memory
         }
 	IT * recvbuf = new IT[totrecv];
-        MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  // shuffle data
+        MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  
+	std::random_shuffle(recvbuf, recvbuf+ totrecv);	// locally shuffle data
         delete [] sendbuf;
+
+	int64_t * localcounts = new int64_t[nprocs];
+	localcounts[rank] = totrecv;
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_LONG_LONG, localcounts, 1, MPI_LONG_LONG, World);
+	int64_t glenuntil = std::accumulate(localcounts, localcounts+rank, static_cast<int64_t>(0));	
+
+	vector< vector< IT > > locs_send(nprocs);
+	for(IT i=0; i< totrecv; ++i)
+	{
+		IT remotelocind;
+		int owner = Owner(glenuntil+i, remotelocind);
+		locs_send[owner].push_back(remotelocind);
+		data_send[owner].push_back(recvbuf[i]);	
+	}
+	delete [] recvbuf;
+        for(int i=0; i<nprocs; ++i) sendcnt[i] = (int) data_send[i].size();
+        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+        sdispls[0] = 0;
+        rdispls[0] = 0;
+        for(int i=0; i<nprocs-1; ++i)
+        {
+                sdispls[i+1] = sdispls[i] + sendcnt[i];
+                rdispls[i+1] = rdispls[i] + recvcnt[i];
+        }
+       	totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	if(totrecv > std::numeric_limits<int>::max())
+	{
+		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << totrecv << endl;
+	}
+	sendbuf = new IT[size];	// re-allocate
+		
+	
 		
 #endif
 }
