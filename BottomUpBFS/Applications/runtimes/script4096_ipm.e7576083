@@ -1,0 +1,31 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+ModuleCmd_Switch.c(137):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+Forcing scale to : 31
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               7.662859 s
+Generated renamed edge lists
+Generation took 7.67624 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 33554432-by-33554432
+Duplicates removed (or summed): 257958620 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+[NID 08471] 2012-04-26 17:46:59 Apid 27140510 killed. Received node failed or halted event for nid 8473
+
+ + --------------------------------------------------------------------------
+ +        Job name: script4096_ipm
+ +          Job Id: 7576083.nid00003
+ +          System: franklin
+ +     Queued Time: Thu Apr 26 17:44:54 2012
+ +      Start Time: Thu Apr 26 17:45:17 2012
+ + Completion Time: Thu Apr 26 17:46:42 2012
+ +            User: abuluc
+ +        MOM Host: nid00576
+ +           Queue: premium
+ +  Req. Resources: other=QSUBPID:42170:nid00095,walltime=00:15:00
+ +  Used Resources: cput=00:00:00,mem=12248kb,vmem=29300kb,walltime=00:01:25
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/combblas/Applications
+ +     Submit Args: script4096_ipm
+ + --------------------------------------------------------------------------
+

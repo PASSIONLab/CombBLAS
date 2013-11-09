@@ -1,0 +1,884 @@
+ModuleCmd_Switch.c(172):ERROR:152: Module 'openmpi' is currently not loaded
+ModuleCmd_Switch.c(172):ERROR:152: Module 'openmpi' is currently not loaded
+Forcing scale to : 31
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               5.888635 s
+Generated renamed edge lists
+Generation took 5.89224 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 28256363-by-28256363
+Duplicates removed (or summed): 257958620 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 4.78712 seconds
+Converted to Boolean and removed 5446 loops
+As a whole: 2147483648 rows and 2147483648 columns and 34101774302 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 2147483648 rows and 2147483648 columns and 34101774302 nonzeros
+Convered to 32-bit integers
+Dropped isolated vertices from input
+As a whole: 860218347 rows and 860218347 columns and 34101774302 nonzeros
+Symmetricized
+Optimization buffers set
+As a whole: 860218347 rows and 860218347 columns and 68203548604 nonzeros
+303.178 seconds elapsed for Kernel #1
+As a whole: 860218347 rows and 860218347 columns and 68203548604 nonzeros
+Load balance: 1.04004
+As a whole, Degrees array has length 860218347
+0.946965 0.542662 0.12097 0.355637 0.814016 0.400449 0.952218 0.182136 0.0505395 0.531011 0.949616 0.787246 0.889269 0.232132 0.974767 0.591463 
+8.14596e+08 4.66808e+08 1.04061e+08 3.05926e+08 7.00232e+08 3.44474e+08 8.19116e+08 1.56677e+08 4.3475e+07 4.56785e+08 8.16877e+08 6.77203e+08 7.64966e+08 1.99684e+08 8.38513e+08 5.08787e+08 
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              1        0.00776
+ 0d              1        0.03031
+  s             33        0.00117
+ 1d              1        0.02266
+  s        7189067        0.00144
+ 2d            144        0.04088
+  s    17165370062        0.00446
+  c                       0.00078
+ 3u        5841103        0.08879
+ 4u      678976650        0.06613
+ 5u      174274558        0.04664
+  c                       0.00002
+ 6d         579410        0.04076
+  s            237        0.00642
+ 7d            424        0.04124
+  s            162        0.00592
+ 8d            383        0.03258
+  s              0        0.00146
+0th starting vertex was 814596483
+Number iterations: 9
+Number of vertices found: 859672674
+Number of edges traversed: 34359465238
+BFS time: 0.475563 seconds
+MTEPS: 72250.1
+Total communication (average so far): 0.0156257
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00188
+ 0d              1        0.02640
+  s             51        0.00412
+ 1d              1        0.03180
+  s        5585733        0.00117
+ 2d            154        0.03354
+  s    16593055884        0.00129
+  c                       0.00076
+ 3u        5201665        0.08111
+ 4u      671563474        0.06236
+ 5u      182288470        0.05810
+  c                       0.00002
+ 6d         617995        0.04106
+  s            230        0.00145
+ 7d            451        0.03092
+  s            193        0.00160
+ 8d            403        0.03929
+  s              0        0.00181
+1th starting vertex was 466807524
+Number iterations: 9
+Number of vertices found: 859672614
+Number of edges traversed: 34359465220
+BFS time: 0.458976 seconds
+MTEPS: 74861.1
+Total communication (average so far): 0.0141598
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              3        0.00303
+ 0d              1        0.01992
+  s        1725001        0.00145
+ 1d             37        0.03059
+  s    10588205632        0.00157
+  c                       0.00074
+ 2u        1652696        0.08202
+ 3u      573811290        0.06748
+ 4u      282970570        0.06311
+ 5u        1235822        0.03558
+  c                       0.00001
+ 6d           2779        0.03188
+  s              2        0.00114
+ 7d              2        0.03399
+  s              0        0.00199
+ 8d              2        0.03286
+  s              0        0.00185
+2th starting vertex was 104060505
+Number iterations: 9
+Number of vertices found: 859673199
+Number of edges traversed: 34359465485
+BFS time: 0.450632 seconds
+MTEPS: 76247.3
+Total communication (average so far): 0.011489
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00270
+ 0d              1        0.02375
+  s           2857        0.00147
+ 1d              1        0.03124
+  s      147266710        0.00206
+ 2d           4273        0.06781
+  s    29547971916        0.00333
+  c                       0.00094
+ 3u       65134007        0.09044
+ 4u      755379635        0.05094
+ 5u       39059023        0.05784
+  c                       0.00001
+ 6d          96050        0.03813
+  s             42        0.00150
+ 7d             74        0.03149
+  s             28        0.00148
+ 8d             68        0.03748
+  s              0        0.00192
+3th starting vertex was 305925864
+Number iterations: 9
+Number of vertices found: 859673132
+Number of edges traversed: 34359465455
+BFS time: 0.484567 seconds
+MTEPS: 70907.6
+Total communication (average so far): 0.0142921
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              1        0.00251
+ 0d              1        0.02946
+  s           2277        0.00212
+ 1d              1        0.02148
+  s      171937034        0.00114
+ 2d           4303        0.07787
+  s    29803980320        0.00369
+  c                       0.00094
+ 3u       70316353        0.09862
+ 4u      752704412        0.06630
+ 5u       36558463        0.04248
+  c                       0.00001
+ 6d          89458        0.04476
+  s             34        0.00236
+ 7d             62        0.03574
+  s             27        0.00476
+ 8d             59        0.03239
+  s              0        0.00166
+4th starting vertex was 700231910
+Number iterations: 9
+Number of vertices found: 859673112
+Number of edges traversed: 34359465453
+BFS time: 0.488671 seconds
+MTEPS: 70312.1
+Total communication (average so far): 0.0186119
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00239
+ 0d              1        0.02563
+  s          10321        0.00367
+ 1d              2        0.03000
+  s      415344535        0.00178
+ 2d          13841        0.08759
+  s    31358714297        0.00897
+  c                       0.00108
+ 3u      121493118        0.10020
+ 4u      716923661        0.05911
+ 5u       21192246        0.04075
+  c                       0.00001
+ 6d          50221        0.03376
+  s             20        0.00113
+ 7d             41        0.03291
+  s             19        0.00250
+ 8d             36        0.03648
+  s              0        0.00523
+5th starting vertex was 344473845
+Number iterations: 9
+Number of vertices found: 859673167
+Number of edges traversed: 34359465473
+BFS time: 0.49324 seconds
+MTEPS: 69660.7
+Total communication (average so far): 0.0201022
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s             24        0.00211
+ 0d              1        0.02272
+  s        1674401        0.00170
+ 1d             48        0.03073
+  s    11485590897        0.00164
+  c                       0.00074
+ 2u        1948261        0.08090
+ 3u      591006275        0.06365
+ 4u      265610888        0.05042
+ 5u        1105188        0.02792
+  c                       0.00001
+ 6d           2535        0.03259
+  s              2        0.00145
+ 7d              2        0.03101
+  s              0        0.00290
+ 8d              2        0.03987
+  s              0        0.00397
+6th starting vertex was 819115757
+Number iterations: 9
+Number of vertices found: 859673200
+Number of edges traversed: 34359465486
+BFS time: 0.444151 seconds
+MTEPS: 77359.9
+Total communication (average so far): 0.0184166
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00153
+ 0d              1        0.02774
+  s           3954        0.00267
+ 1d              2        0.03496
+  s      220052668        0.00346
+ 2d           5636        0.06943
+  s    30263141100        0.00368
+  c                       0.00097
+ 3u       80997692        0.09022
+ 4u      746464169        0.04954
+ 5u       32127449        0.05203
+  c                       0.00001
+ 6d          78075        0.04625
+  s             29        0.00436
+ 7d             52        0.02935
+  s             21        0.00114
+ 8d             49        0.03169
+  s              0        0.00336
+7th starting vertex was 156676578
+Number iterations: 9
+Number of vertices found: 859673125
+Number of edges traversed: 34359465452
+BFS time: 0.493275 seconds
+MTEPS: 69655.8
+Total communication (average so far): 0.0192385
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              1        0.00255
+ 0d              1        0.02914
+  s         373205        0.00158
+ 1d              2        0.02448
+  s     5173008793        0.00138
+  c                       0.00089
+ 2u         409479        0.11687
+ 3u      432479672        0.10220
+ 4u      423952723        0.04784
+ 5u        2824850        0.05965
+  c                       0.00001
+ 6d           6458        0.03900
+  s              5        0.00166
+ 7d              6        0.02833
+  s              1        0.00206
+ 8d              6        0.02754
+  s              0        0.00200
+8th starting vertex was 43475032
+Number iterations: 9
+Number of vertices found: 859673197
+Number of edges traversed: 34359465485
+BFS time: 0.529155 seconds
+MTEPS: 64932.7
+Total communication (average so far): 0.0177844
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00635
+ 0d              1        0.02440
+  s           9923        0.00378
+ 1d              1        0.02332
+  s      428134421        0.00117
+ 2d          13854        0.10906
+  s    31391482891        0.00567
+  c                       0.00109
+ 3u      123519882        0.08438
+ 4u      715277083        0.06105
+ 5u       20813084        0.04585
+  c                       0.00001
+ 6d          49191        0.04981
+  s             21        0.00237
+ 7d             32        0.03301
+  s              9        0.00185
+ 8d             28        0.03225
+  s              0        0.00473
+9th starting vertex was 456785099
+Number iterations: 9
+Number of vertices found: 859673156
+Number of edges traversed: 34359465463
+BFS time: 0.537957 seconds
+MTEPS: 63870.3
+Total communication (average so far): 0.021349
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00178
+ 0d              1        0.02935
+  s          43924        0.00580
+ 1d              8        0.03872
+  s     1560549085        0.00340
+ 2d          63060        0.17389
+  s    31776201908        0.00608
+  c                       0.00143
+ 3u      248961884        0.09433
+ 4u      602389093        0.04708
+ 5u        8239966        0.05071
+  c                       0.00001
+ 6d          19148        0.03297
+  s              8        0.00114
+ 7d             12        0.03098
+  s              3        0.00336
+ 8d             10        0.03251
+  s              0        0.00299
+10th starting vertex was 816877290
+Number iterations: 9
+Number of vertices found: 859673182
+Number of edges traversed: 34359465479
+BFS time: 0.634818 seconds
+MTEPS: 54124.9
+Total communication (average so far): 0.0249804
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s             24        0.00183
+ 0d              1        0.02800
+  s         905489        0.00112
+ 1d             26        0.03432
+  s     8939703498        0.00562
+  c                       0.00073
+ 2u        1131718        0.09566
+ 3u      538261963        0.08110
+ 4u      318739276        0.04634
+ 5u        1536632        0.03016
+  c                       0.00001
+ 6d           3578        0.05497
+  s              2        0.00316
+ 7d              2        0.02630
+  s              0        0.00151
+ 8d              2        0.02752
+  s              0        0.00117
+11th starting vertex was 677203435
+Number iterations: 9
+Number of vertices found: 859673198
+Number of edges traversed: 34359465485
+BFS time: 0.485423 seconds
+MTEPS: 70782.5
+Total communication (average so far): 0.0240625
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              1        0.00312
+ 0d              1        0.02729
+  s          14350        0.00164
+ 1d              1        0.02799
+  s     1142702375        0.00116
+ 2d          43131        0.14122
+  s    31910091716        0.00491
+  c                       0.00128
+ 3u      211140350        0.08458
+ 4u      637900458        0.06696
+ 5u       10564558        0.03522
+  c                       0.00001
+ 6d          24642        0.03967
+  s             11        0.00138
+ 7d             22        0.03364
+  s              9        0.00119
+ 8d             19        0.02940
+  s              0        0.00164
+12th starting vertex was 764965829
+Number iterations: 9
+Number of vertices found: 859673182
+Number of edges traversed: 34359465478
+BFS time: 0.528113 seconds
+MTEPS: 65060.8
+Total communication (average so far): 0.026008
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s             71        0.00192
+ 0d              1        0.03805
+  s        4350330        0.00446
+ 1d            135        0.04456
+  s    17128447975        0.00159
+  c                       0.00075
+ 2u        5639726        0.08099
+ 3u      677508416        0.06363
+ 4u      175935983        0.04661
+  c                       0.00002
+ 5d         587619        0.04723
+  s            216        0.00420
+ 6d            420        0.03390
+  s            179        0.00112
+ 7d            378        0.03047
+  s              0        0.00160
+13th starting vertex was 199684164
+Number iterations: 8
+Number of vertices found: 859672678
+Number of edges traversed: 34359465234
+BFS time: 0.437887 seconds
+MTEPS: 78466.5
+Total communication (average so far): 0.0256268
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              0        0.00285
+ 0d              1        0.01850
+  s          72142        0.00113
+ 1d              1        0.02004
+  s     2624567600        0.00130
+ 2d         134410        0.20707
+  s    31060129116        0.00951
+  c                       0.00148
+ 3u      319064839        0.08704
+ 4u      535080311        0.05154
+ 5u        5381119        0.05388
+  c                       0.00001
+ 6d          12491        0.03374
+  s              7        0.00313
+ 7d              9        0.02711
+  s              1        0.00193
+ 8d              7        0.02647
+  s              0        0.00161
+14th starting vertex was 838512739
+Number iterations: 9
+Number of vertices found: 859673188
+Number of edges traversed: 34359465480
+BFS time: 0.573101 seconds
+MTEPS: 59953.6
+Total communication (average so far): 0.0273515
+param 860218347 vertices with 68203548604 edges
+3410177430 up and 904126 down
+  s              3        0.00234
+ 0d              1        0.03237
+  s        2087258        0.00113
+ 1d             48        0.03364
+  s    11350464843        0.00126
+  c                       0.00074
+ 2u        1937536        0.08228
+ 3u      588865963        0.06421
+ 4u      267746179        0.04660
+ 5u        1120900        0.02824
+  c                       0.00001
+ 6d           2568        0.03157
+  s              2        0.00124
+ 7d              2        0.02591
+  s              0        0.00121
+ 8d              2        0.02593
+  s              0        0.00185
+0: MPICH2 Error: Failed to register memory address 0xbfad000 with length of 0x4000 (16384) bytes.
+0: Unable to register memory at the requested address. This may indicate an application bug. See process virtual memory mappings below:
+0: 00400000-00731000 r-xp 00000000 00:0d 712046                             /var/spool/alps/7189990/graph500
+0: 00930000-009a2000 rw-p 00330000 00:0d 712046                             /var/spool/alps/7189990/graph500
+0: 009a2000-0b2fb000 rw-p 00000000 00:00 0                                  [heap]
+0: 2aaaaaaab000-2aaaaaaac000 r-xp 00000000 00:00 0                          [vdso]
+0: 2aaaaaaac000-2aaaabd33000 rw-s 00000000 00:04 712178                     /dev/zero (deleted)
+0: 2aaaabd33000-2aaaabfef000 rw-p 00000000 00:00 0 
+0: 2aaaabfef000-2aaab427a000 rw-s 00000000 00:04 14450688                   /SYSV00000000 (deleted)
+0: 2aaab427a000-2aaab427b000 rw-p 00000000 00:00 0 
+0: 2aaab427b000-2aaab427c000 r--s 0a417000 00:04 712432                     /dev/zero (deleted)
+0: 2aaab427c000-2aaaf427c000 rw-s 00000000 00:00 0 
+0: 2aaaf427c000-2aab3427c000 rw-s 00000000 00:00 0 
+0: 2aab3427c000-2aab7427c000 rw-s 00000000 00:00 0 
+0: 2aab7427c000-2aab7427d000 rw-s 00000000 00:00 0 
+0: 2aab7427d000-2aab7427e000 rw-p 00000000 00:00 0 
+0: 2aab7427e000-2aab7427f000 r--s 03187000 00:04 712501                     /dev/zero (deleted)
+0: 2aab7427f000-2aab74280000 ---p 00000000 00:00 0 
+0: 2aab74280000-2aab744d1000 rw-p 00000000 00:00 0 
+0: 2aab744d1000-2aab744d2000 rw-s 00000000 00:00 0 
+0: 2aab744d2000-2aab744e3000 rw-p 00000000 00:00 0 
+0: 2aab744e3000-2aab744e4000 rw-s 00000000 00:00 0 
+0: 2aab744e4000-2aab74521000 rw-p 00000000 00:00 0 
+0: 2aab74600000-2aab74a00000 rw-s 00000000 00:12 712515                     /var/lib/hugetlbfs/global/pagesize-2097152/hugepagefile.MPICH.0.28584.kvs_7189990 (deleted)
+0: 2aab74a00000-2aab74be2000 rw-p 00000000 00:00 0 
+0: 2aab74c00000-2aab75800000 rw-s 00000000 00:12 712525                     /var/lib/hugetlbfs/global/pagesize-2097152/hugepagefile.MPICH.1.28584.kvs_7189990 (deleted)
+0: 2aab75800000-2aab75913000 rw-p 00000000 00:00 0 
+0: 2aab77914000-2aab77f14000 rw-s 00000000 00:00 0 
+0: 2aab77f14000-2aab78514000 rw-s 00000000 00:00 0 
+0: 2aab78514000-2aab78b14000 rw-s 00000000 00:00 0 
+0: 2aab78b14000-2aab79114000 rw-s 00000000 00:00 0 
+0: 2aab79114000-2aab79714000 rw-s 00000000 00:00 0 
+0: 2aab79714000-2aab79d14000 rw-s 00000000 00:00 0 
+0: 2aab7a000000-2aab7ac00000 rw-s 00000000 00:12 712582                     /var/lib/hugetlbfs/global/pagesize-2097152/hugepagefile.MPICH.2.28584.kvs_7189990 (deleted)
+0: 2aab7ac00000-2aab7b200000 rw-s 00000000 00:00 0 
+0: 2aab7b200000-2aab7b800000 rw-s 00000000 00:00 0 
+0: 2aab7b800000-2aab7be00000 rw-s 00000000 00:00 0 
+0: 2aab7be00000-2aab7c400000 rw-s 00000000 00:00 0 
+0: 2aab7c400000-2aab7ca00000 rw-s 00000000 00:00 0 
+0: 2aab7e401000-2aab7ea01000 rw-s 00000000 00:00 0 
+0: 2aab7ea01000-2aab7f001000 rw-s 00000000 00:00 0 
+0: 2aab7f001000-2aab7f601000 rw-s 00000000 00:00 0 
+0: 2aab7f601000-2aab7fc01000 rw-s 00000000 00:00 0 
+0: 2aab7fc01000-2aab80201000 rw-s 00000000 00:00 0 
+0: 2aab80201000-2aab80801000 rw-s 00000000 00:00 0 
+0: 2aab80801000-2aab80e01000 rw-s 00000000 00:00 0 
+0: 2aab80e01000-2aab81401000 rw-s 00000000 00:00 0 
+0: 2aab81401000-2aab81a01000 rw-s 00000000 00:00 0 
+0: 2aab81a01000-2aab82001000 rw-s 00000000 00:00 0 
+0: 2aab82001000-2aab82601000 rw-s 00000000 00:00 0 
+0: 2aab82601000-2aab82c01000 rw-s 00000000 00:00 0 
+0: 2aab82c01000-2aab83201000 rw-s 00000000 00:00 0 
+0: 2aab83201000-2aab83801000 rw-s 00000000 00:00 0 
+0: 2aab83801000-2aab83e01000 rw-s 00000000 00:00 0 
+0: 2aab83e01000-2aab84401000 rw-s 00000000 00:00 0 
+0: 2aab84401000-2aab84a01000 rw-s 00000000 00:00 0 
+0: 2aab84a01000-2aab85001000 rw-s 00000000 00:00 0 
+0: 2aab85001000-2aab85601000 rw-s 00000000 00:00 0 
+0: 2aab85601000-2aab85c01000 rw-s 00000000 00:00 0 
+0: 2aab85c01000-2aab86201000 rw-s 00000000 00:00 0 
+0: 2aab86201000-2aab86801000 rw-s 00000000 00:00 0 
+0: 2aab86801000-2aab86e01000 rw-s 00000000 00:00 0 
+0: 2aab86e01000-2aab87401000 rw-s 00000000 00:00 0 
+0: 2aab87401000-2aab87a01000 rw-s 00000000 00:00 0 
+0: 2aab87a01000-2aab88001000 rw-s 00000000 00:00 0 
+0: 2aab88001000-2aab88601000 rw-s 00000000 00:00 0 
+0: 2aab88601000-2aab88c01000 rw-s 00000000 00:00 0 
+0: 2aab88c01000-2aab89201000 rw-s 00000000 00:00 0 
+0: 2aab89201000-2aab89801000 rw-s 00000000 00:00 0 
+0: 2aab89801000-2aab89e01000 rw-s 00000000 00:00 0 
+0: 2aab89e01000-2aab8a401000 rw-s 00000000 00:00 0 
+0: 2aab8a401000-2aab8aa01000 rw-s 00000000 00:00 0 
+0: 2aab8aa01000-2aab8b001000 rw-s 00000000 00:00 0 
+0: 2aab8b001000-2aab8b601000 rw-s 00000000 00:00 0 
+0: 2aab8b601000-2aab8bc01000 rw-s 00000000 00:00 0 
+0: 2aab8bc01000-2aab8c201000 rw-s 00000000 00:00 0 
+0: 2aab8c201000-2aab8c801000 rw-s 00000000 00:00 0 
+0: 2aab8c801000-2aab8ce01000 rw-s 00000000 00:00 0 
+0: 2aab8ce01000-2aab8d401000 rw-s 00000000 00:00 0 
+0: 2aab8d401000-2aab8da01000 rw-s 00000000 00:00 0 
+0: 2aab8da01000-2aab8e001000 rw-s 00000000 00:00 0 
+0: 2aab8e001000-2aab8e601000 rw-s 00000000 00:00 0 
+0: 2aab8e601000-2aab8ec01000 rw-s 00000000 00:00 0 
+0: 2aab8ec01000-2aab8f201000 rw-s 00000000 00:00 0 
+0: 2aab8f201000-2aab8f801000 rw-s 00000000 00:00 0 
+0: 2aab8f801000-2aab8fe01000 rw-s 00000000 00:00 0 
+0: 2aab8fe01000-2aab90401000 rw-s 00000000 00:00 0 
+0: 2aab90401000-2aab90a01000 rw-s 00000000 00:00 0 
+0: 2aab90a01000-2aab91001000 rw-s 00000000 00:00 0 
+0: 2aab91001000-2aab91601000 rw-s 00000000 00:00 0 
+0: 2aab91601000-2aab91c01000 rw-s 00000000 00:00 0 
+0: 2aab91c01000-2aab92201000 rw-s 00000000 00:00 0 
+0: 2aab92201000-2aab92801000 rw-s 00000000 00:00 0 
+0: 2aab92801000-2aab92e01000 rw-s 00000000 00:00 0 
+0: 2aab92e01000-2aab93401000 rw-s 00000000 00:00 0 
+0: 2aab93401000-2aab93a01000 rw-s 00000000 00:00 0 
+0: 2aab93a01000-2aab94001000 rw-s 00000000 00:00 0 
+0: 2aab94001000-2aab94601000 rw-s 00000000 00:00 0 
+0: 2aab94601000-2aab94c01000 rw-s 00000000 00:00 0 
+0: 2aab94c01000-2aab95201000 rw-s 00000000 00:00 0 
+0: 2aab95201000-2aab95801000 rw-s 00000000 00:00 0 
+0: 2aab95801000-2aab95e01000 rw-s 00000000 00:00 0 
+0: 2aab95e01000-2aab96401000 rw-s 00000000 00:00 0 
+0: 2aab96401000-2aab96a01000 rw-s 00000000 00:00 0 
+0: 2aab96a01000-2aab97001000 rw-s 00000000 00:00 0 
+0: 2aab97001000-2aab97601000 rw-s 00000000 00:00 0 
+0: 2aab97601000-2aab97c01000 rw-s 00000000 00:00 0 
+0: 2aab97c01000-2aab98201000 rw-s 00000000 00:00 0 
+0: 2aab98201000-2aab98801000 rw-s 00000000 00:00 0 
+0: 2aab98801000-2aab98e01000 rw-s 00000000 00:00 0 
+0: 2aab98e01000-2aab99401000 rw-s 00000000 00:00 0 
+0: 2aab99401000-2aab99a01000 rw-s 00000000 00:00 0 
+0: 2aab99a01000-2aab9a001000 rw-s 00000000 00:00 0 
+0: 2aab9a001000-2aab9a601000 rw-s 00000000 00:00 0 
+0: 2aab9a601000-2aab9ac01000 rw-s 00000000 00:00 0 
+0: 2aab9ac01000-2aab9b201000 rw-s 00000000 00:00 0 
+0: 2aab9b201000-2aab9b801000 rw-s 00000000 00:00 0 
+0: 2aab9b801000-2aab9be01000 rw-s 00000000 00:00 0 
+0: 2aab9be01000-2aab9c401000 rw-s 00000000 00:00 0 
+0: 2aab9c401000-2aab9ca01000 rw-s 00000000 00:00 0 
+0: 2aab9ca01000-2aab9d001000 rw-s 00000000 00:00 0 
+0: 2aab9d001000-2aab9d601000 rw-s 00000000 00:00 0 
+0: 2aab9d601000-2aab9dc01000 rw-s 00000000 00:00 0 
+0: 2aab9dc01000-2aab9e201000 rw-s 00000000 00:00 0 
+0: 2aab9e201000-2aab9e801000 rw-s 00000000 00:00 0 
+0: 2aab9e801000-2aab9ee01000 rw-s 00000000 00:00 0 
+0: 2aab9ee01000-2aab9f401000 rw-s 00000000 00:00 0 
+0: 2aab9f401000-2aab9fa01000 rw-s 00000000 00:00 0 
+0: 2aab9fa01000-2aaba0001000 rw-s 00000000 00:00 0 
+0: 2aaba0001000-2aaba0601000 rw-s 00000000 00:00 0 
+0: 2aaba0601000-2aaba0c01000 rw-s 00000000 00:00 0 
+0: 2aaba0c01000-2aaba1201000 rw-s 00000000 00:00 0 
+0: 2aaba1201000-2aaba1801000 rw-s 00000000 00:00 0 
+0: 2aaba1801000-2aaba1e01000 rw-s 00000000 00:00 0 
+0: 2aaba1e01000-2aaba2401000 rw-s 00000000 00:00 0 
+0: 2aaba2401000-2aaba2a01000 rw-s 00000000 00:00 0 
+0: 2aaba2a01000-2aaba3001000 rw-s 00000000 00:00 0 
+0: 2aaba3001000-2aaba3601000 rw-s 00000000 00:00 0 
+0: 2aaba3601000-2aaba3c01000 rw-s 00000000 00:00 0 
+0: 2aaba3c01000-2aaba4201000 rw-s 00000000 00:00 0 
+0: 2aaba4201000-2aaba4801000 rw-s 00000000 00:00 0 
+0: 2aaba4801000-2aaba4e01000 rw-s 00000000 00:00 0 
+0: 2aaba4e01000-2aaba5401000 rw-s 00000000 00:00 0 
+0: 2aaba5401000-2aaba5a01000 rw-s 00000000 00:00 0 
+0: 2aaba5a01000-2aaba6001000 rw-s 00000000 00:00 0 
+0: 2aaba6001000-2aaba6601000 rw-s 00000000 00:00 0 
+0: 2aaba6601000-2aaba6c01000 rw-s 00000000 00:00 0 
+0: 2aaba6c01000-2aaba7201000 rw-s 00000000 00:00 0 
+0: 2aaba7201000-2aaba7801000 rw-s 00000000 00:00 0 
+0: 2aaba7801000-2aaba7e01000 rw-s 00000000 00:00 0 
+0: 2aaba7e01000-2aaba8401000 rw-s 00000000 00:00 0 
+0: 2aaba8401000-2aaba8a01000 rw-s 00000000 00:00 0 
+0: 2aaba8a01000-2aaba9001000 rw-s 00000000 00:00 0 
+0: 2aaba9001000-2aaba9601000 rw-s 00000000 00:00 0 
+0: 2aaba9601000-2aaba9c01000 rw-s 00000000 00:00 0 
+0: 2aaba9c01000-2aabaa201000 rw-s 00000000 00:00 0 
+0: 2aabaa201000-2aabaad6f000 rw-s 00000000 00:00 0 
+0: 2aabaad6f000-2aabab36f000 rw-s 00000000 00:00 0 
+0: 2aabab36f000-2aabab96f000 rw-s 00000000 00:00 0 
+0: 2aabab96f000-2aababf6f000 rw-s 00000000 00:00 0 
+0: 2aababf6f000-2aabaca86000 rw-s 00000000 00:00 0 
+0: 2aabaca86000-2aabad086000 rw-s 00000000 00:00 0 
+0: 2aabad086000-2aabad686000 rw-s 00000000 00:00 0 
+0: 2aabad686000-2aabadc86000 rw-s 00000000 00:00 0 
+0: 2aabadc86000-2aabae791000 rw-s 00000000 00:00 0 
+0: 2aabae791000-2aabaed91000 rw-s 00000000 00:00 0 
+0: 2aabaed91000-2aabaf391000 rw-s 00000000 00:00 0 
+0: 2aabaf391000-2aabaf991000 rw-s 00000000 00:00 0 
+0: 2aabaf991000-2aabb04a7000 rw-s 00000000 00:00 0 
+0: 2aabb04a7000-2aabb0aa7000 rw-s 00000000 00:00 0 
+0: 2aabb0aa7000-2aabb10a7000 rw-s 00000000 00:00 0 
+0: 2aabb10a7000-2aabb16a7000 rw-s 00000000 00:00 0 
+0: 2aabb16a7000-2aabb21fc000 rw-s 00000000 00:00 0 
+0: 2aabb21fc000-2aabb27fc000 rw-s 00000000 00:00 0 
+0: 2aabb27fc000-2aabb2dfc000 rw-s 00000000 00:00 0 
+0: 2aabb2dfc000-2aabb33fc000 rw-s 00000000 00:00 0 
+0: 2aabb33fc000-2aabb3f3b000 rw-s 00000000 00:00 0 
+0: 2aabb3f3b000-2aabb453b000 rw-s 00000000 00:00 0 
+0: 2aabb453b000-2aabb4b3b000 rw-s 00000000 00:00 0 
+0: 2aabb4b3b000-2aabb513b000 rw-s 00000000 00:00 0 
+0: 2aabb513b000-2aabb5c7e000 rw-s 00000000 00:00 0 
+0: 2aabb5c7e000-2aabb627e000 rw-s 00000000 00:00 0 
+0: 2aabb627e000-2aabb687e000 rw-s 00000000 00:00 0 
+0: 2aabb687e000-2aabb6e7e000 rw-s 00000000 00:00 0 
+0: 2aabb6e7e000-2aabb79aa000 rw-s 00000000 00:00 0 
+0: 2aabb79aa000-2aabb7faa000 rw-s 00000000 00:00 0 
+0: 2aabb7faa000-2aabb85aa000 rw-s 00000000 00:00 0 
+0: 2aabb85aa000-2aabb8baa000 rw-s 00000000 00:00 0 
+0: 2aabb8baa000-2aabb96e3000 rw-s 00000000 00:00 0 
+0: 2aabb96e3000-2aabb9ce3000 rw-s 00000000 00:00 0 
+0: 2aabb9ce3000-2aabba2e3000 rw-s 00000000 00:00 0 
+0: 2aabba2e3000-2aabba8e3000 rw-s 00000000 00:00 0 
+0: 2aabba8e3000-2aabbb409000 rw-s 00000000 00:00 0 
+0: 2aabbb409000-2aabbba09000 rw-s 00000000 00:00 0 
+0: 2aabbba09000-2aabbc009000 rw-s 00000000 00:00 0 
+0: 2aabbc009000-2aabbc609000 rw-s 00000000 00:00 0 
+0: 2aabbc609000-2aabbd14e000 rw-s 00000000 00:00 0 
+0: 2aabbd14e000-2aabbd74e000 rw-s 00000000 00:00 0 
+0: 2aabbd74e000-2aabbdd4e000 rw-s 00000000 00:00 0 
+0: 2aabbdd4e000-2aabbe34e000 rw-s 00000000 00:00 0 
+0: 2aabbe34e000-2aabbee63000 rw-s 00000000 00:00 0 
+0: 2aabbee63000-2aabbf463000 rw-s 00000000 00:00 0 
+0: 2aabbf463000-2aabbfa63000 rw-s 00000000 00:00 0 
+0: 2aabbfa63000-2aabc0063000 rw-s 00000000 00:00 0 
+0: 2aabc0063000-2aabc0b80000 rw-s 00000000 00:00 0 
+0: 2aabc0b80000-2aabc1180000 rw-s 00000000 00:00 0 
+0: 2aabc1180000-2aabc1780000 rw-s 00000000 00:00 0 
+0: 2aabc1780000-2aabc1d80000 rw-s 00000000 00:00 0 
+0: 2aabc1d80000-2aabc2886000 rw-s 00000000 00:00 0 
+0: 2aabc2886000-2aabc2e86000 rw-s 00000000 00:00 0 
+0: 2aabc2e86000-2aabc3486000 rw-s 00000000 00:00 0 
+0: 2aabc3486000-2aabc3a86000 rw-s 00000000 00:00 0 
+0: 2aabc3a86000-2aabc459d000 rw-s 00000000 00:00 0 
+0: 2aabc459d000-2aabc4b9d000 rw-s 00000000 00:00 0 
+0: 2aabc4b9d000-2aabc519d000 rw-s 00000000 00:00 0 
+0: 2aabc519d000-2aabc579d000 rw-s 00000000 00:00 0 
+0: 2aabc579d000-2aabc62c7000 rw-s 00000000 00:00 0 
+0: 2aabc62c7000-2aabc68c7000 rw-s 00000000 00:00 0 
+0: 2aabc68c7000-2aabc6ec7000 rw-s 00000000 00:00 0 
+0: 2aabc6ec7000-2aabc74c7000 rw-s 00000000 00:00 0 
+0: 2aabc74c7000-2aabc7ff6000 rw-s 00000000 00:00 0 
+0: 2aabc7ff6000-2aabc85f6000 rw-s 00000000 00:00 0 
+0: 2aabc85f6000-2aabc8bf6000 rw-s 00000000 00:00 0 
+0: 2aabc8bf6000-2aabc91f6000 rw-s 00000000 00:00 0 
+0: 2aabc91f6000-2aabc9d75000 rw-s 00000000 00:00 0 
+0: 2aabc9d75000-2aabca375000 rw-s 00000000 00:00 0 
+0: 2aabca375000-2aabca975000 rw-s 00000000 00:00 0 
+0: 2aabca975000-2aabcaf75000 rw-s 00000000 00:00 0 
+0: 2aabcaf75000-2aabcbaaf000 rw-s 00000000 00:00 0 
+0: 2aabcbaaf000-2aabcc0af000 rw-s 00000000 00:00 0 
+0: 2aabcc0af000-2aabcc6af000 rw-s 00000000 00:00 0 
+0: 2aabcc6af000-2aabcccaf000 rw-s 00000000 00:00 0 
+0: 2aabcccaf000-2aabcd7eb000 rw-s 00000000 00:00 0 
+0: 2aabcd7eb000-2aabcddeb000 rw-s 00000000 00:00 0 
+0: 2aabcddeb000-2aabce3eb000 rw-s 00000000 00:00 0 
+0: 2aabce3eb000-2aabce9eb000 rw-s 00000000 00:00 0 
+0: 2aabce9eb000-2aabcf521000 rw-s 00000000 00:00 0 
+0: 2aabcf521000-2aabcfb21000 rw-s 00000000 00:00 0 
+0: 2aabcfb21000-2aabd0121000 rw-s 00000000 00:00 0 
+0: 2aabd0121000-2aabd0721000 rw-s 00000000 00:00 0 
+0: 2aabd0721000-2aabd121c000 rw-s 00000000 00:00 0 
+0: 2aabd121c000-2aabd181c000 rw-s 00000000 00:00 0 
+0: 2aabd181c000-2aabd1e1c000 rw-s 00000000 00:00 0 
+0: 2aabd1e1c000-2aabd241c000 rw-s 00000000 00:00 0 
+0: 2aabd241c000-2aabd2f29000 rw-s 00000000 00:00 0 
+0: 2aabd2f29000-2aabd3529000 rw-s 00000000 00:00 0 
+0: 2aabd3529000-2aabd3b29000 rw-s 00000000 00:00 0 
+0: 2aabd3b29000-2aabd4684000 rw-s 00000000 00:00 0 
+0: 2aabd4684000-2aabd4c84000 rw-s 00000000 00:00 0 
+0: 2aabd4c84000-2aabd5284000 rw-s 00000000 00:00 0 
+0: 2aabd5284000-2aabd5d9b000 rw-s 00000000 00:00 0 
+0: 2aabd5d9b000-2aabd639b000 rw-s 00000000 00:00 0 
+0: 2aabd639b000-2aabd699b000 rw-s 00000000 00:00 0 
+0: 2aabd699b000-2aabd6f9b000 rw-s 00000000 00:00 0 
+0: 2aabd6f9b000-2aabd7ac1000 rw-s 00000000 00:00 0 
+0: 2aabd7ac1000-2aabd80c1000 rw-s 00000000 00:00 0 
+0: 2aabd80c1000-2aabd86c1000 rw-s 00000000 00:00 0 
+0: 2aabd86c1000-2aabd922b000 rw-s 00000000 00:00 0 
+0: 2aabd922b000-2aabd982b000 rw-s 00000000 00:00 0 
+0: 2aabd982b000-2aabda380000 rw-s 00000000 00:00 0 
+0: 2aabda380000-2aabda980000 rw-s 00000000 00:00 0 
+0: 2aabda980000-2aabdb49e000 rw-s 00000000 00:00 0 
+0: 2aabdb49e000-2aabdba9e000 rw-s 00000000 00:00 0 
+0: 2aabdba9e000-2aabdc09e000 rw-s 00000000 00:00 0 
+0: 2aabdc09e000-2aabdc69e000 rw-s 00000000 00:00 0 
+0: 2aabdc69e000-2aabdd207000 rw-s 00000000 00:00 0 
+0: 2aabdd207000-2aabdd807000 rw-s 00000000 00:00 0 
+0: 2aabdd807000-2aabdde07000 rw-s 00000000 00:00 0 
+0: 2aabdde07000-2aabde91a000 rw-s 00000000 00:00 0 
+0: 2aabde91a000-2aabdef1a000 rw-s 00000000 00:00 0 
+0: 2aabdef1a000-2aabdfa34000 rw-s 00000000 00:00 0 
+0: 2aabdfa34000-2aabe0034000 rw-s 00000000 00:00 0 
+0: 2aabe0034000-2aabe0634000 rw-s 00000000 00:00 0 
+0: 2aabe0634000-2aabe1172000 rw-s 00000000 00:00 0 
+0: 2aabe1172000-2aabe1772000 rw-s 00000000 00:00 0 
+0: 2aabe1772000-2aabe22be000 rw-s 00000000 00:00 0 
+0: 2aabe22be000-2aabe28be000 rw-s 00000000 00:00 0 
+0: 2aabe28be000-2aabe2ebe000 rw-s 00000000 00:00 0 
+0: 2aabe2ebe000-2aabe34be000 rw-s 00000000 00:00 0 
+0: 2aabe34be000-2aabe3fb6000 rw-s 00000000 00:00 0 
+0: 2aabe3fb6000-2aabe45b6000 rw-s 00000000 00:00 0 
+0: 2aabe45b6000-2aabe50f0000 rw-s 00000000 00:00 0 
+0: 2aabe50f0000-2aabe56f0000 rw-s 00000000 00:00 0 
+0: 2aabe56f0000-2aabe5cf0000 rw-s 00000000 00:00 0 
+0: 2aabe5cf0000-2aabe681d000 rw-s 00000000 00:00 0 
+0: 2aabe681d000-2aabe6e1d000 rw-s 00000000 00:00 0 
+0: 2aabe6e1d000-2aabe741d000 rw-s 00000000 00:00 0 
+0: 2aabe741d000-2aabe7f6a000 rw-s 00000000 00:00 0 
+0: 2aabe7f6a000-2aabe856a000 rw-s 00000000 00:00 0 
+0: 2aabe856a000-2aabe908a000 rw-s 00000000 00:00 0 
+0: 2aabe908a000-2aabe968a000 rw-s 00000000 00:00 0 
+0: 2aabe968a000-2aabea1d4000 rw-s 00000000 00:00 0 
+0: 2aabea1d4000-2aabea7d4000 rw-s 00000000 00:00 0 
+0: 2aabea7d4000-2aabeb31e000 rw-s 00000000 00:00 0 
+0: 2aabeb31e000-2aabeb91e000 rw-s 00000000 00:00 0 
+0: 2aabeb91e000-2aabec47d000 rw-s 00000000 00:00 0 
+0: 2aabec47d000-2aabecf93000 rw-s 00000000 00:00 0 
+0: 2aabecf93000-2aabed593000 rw-s 00000000 00:00 0 
+0: 2aabed593000-2aabee0a9000 rw-s 00000000 00:00 0 
+0: 2aabee0a9000-2aabee6a9000 rw-s 00000000 00:00 0 
+0: 2aabee6a9000-2aabeeca9000 rw-s 00000000 00:00 0 
+0: 2aabeeca9000-2aabef7bc000 rw-s 00000000 00:00 0 
+0: 2aabef7bc000-2aabf032b000 rw-s 00000000 00:00 0 
+0: 2aabf032b000-2aabf092b000 rw-s 00000000 00:00 0 
+0: 2aabf092b000-2aabf35aa000 rw-p 00000000 00:00 0 
+0: 2aabf35aa000-2aabf3baa000 rw-s 00000000 00:00 0 
+0: 2aabf3baa000-2aabf41aa000 rw-s 00000000 00:00 0 
+0: 2aabf41aa000-2aabf47aa000 rw-s 00000000 00:00 0 
+0: 2aabf47aa000-2aabf4daa000 rw-s 00000000 00:00 0 
+0: 2aabf4daa000-2aabf53aa000 rw-s 00000000 00:00 0 
+0: 2aabf53aa000-2aabf59aa000 rw-s 00000000 00:00 0 
+0: 2aabf59aa000-2aabf5faa000 rw-s 00000000 00:00 0 
+0: 2aabf5faa000-2aabf65aa000 rw-s 00000000 00:00 0 
+0: 2aabf65aa000-2aabf6baa000 rw-s 00000000 00:00 0 
+0: 2aabf6baa000-2aabf71aa000 rw-s 00000000 00:00 0 
+0: 2aabf71aa000-2aabf77aa000 rw-s 00000000 00:00 0 
+0: 2aabf77aa000-2aabf7daa000 rw-s 00000000 00:00 0 
+0: 2aabf7daa000-2aabf83aa000 rw-s 00000000 00:00 0 
+0: 2aabf83aa000-2aabf89aa000 rw-s 00000000 00:00 0 
+0: 2aabf89aa000-2aabf8faa000 rw-s 00000000 00:00 0 
+0: 2aabf8faa000-2aabf95aa000 rw-s 00000000 00:00 0 
+0: 2aabf95aa000-2aabf9baa000 rw-s 00000000 00:00 0 
+0: 2aabf9baa000-2aabfa1aa000 rw-s 00000000 00:00 0 
+0: 2aabfa1aa000-2aabfa7aa000 rw-s 00000000 00:00 0 
+0: 2aabfa7aa000-2aabfadaa000 rw-s 00000000 00:00 0 
+0: 2aabfadaa000-2aabfb3aa000 rw-s 00000000 00:00 0 
+0: 2aabfb3aa000-2aabfb9aa000 rw-s 00000000 00:00 0 
+0: 2aabfb9aa000-2aabfbfaa000 rw-s 00000000 00:00 0 
+0: 2aabfbfaa000-2aabfc5aa000 rw-s 00000000 00:00 0 
+0: 2aabfc5aa000-2aabfcbaa000 rw-s 00000000 00:00 0 
+0: 2aabfcbaa000-2aabfd1aa000 rw-s 00000000 00:00 0 
+0: 2aabfd1aa000-2aabfd7aa000 rw-s 00000000 00:00 0 
+0: 2aabfd7aa000-2aabfddaa000 rw-s 00000000 00:00 0 
+0: 2aabfddaa000-2aabfe3aa000 rw-s 00000000 00:00 0 
+0: 2aabfe3aa000-2aabfe9aa000 rw-s 00000000 00:00 0 
+0: 2aabfe9aa000-2aabfefaa000 rw-s 00000000 00:00 0 
+0: 2aabfefaa000-2aabff5aa000 rw-s 00000000 00:00 0 
+0: 2aabff5aa000-2aabffbaa000 rw-s 00000000 00:00 0 
+0: 2aabffbaa000-2aac001aa000 rw-s 00000000 00:00 0 
+0: 2aac001aa000-2aac007aa000 rw-s 00000000 00:00 0 
+0: 2aac007aa000-2aac00daa000 rw-s 00000000 00:00 0 
+0: 2aac00daa000-2aac013aa000 rw-s 00000000 00:00 0 
+0: 2aac013aa000-2aac019aa000 rw-s 00000000 00:00 0 
+0: 2aac019aa000-2aac01faa000 rw-s 00000000 00:00 0 
+0: 2aac01faa000-2aac025aa000 rw-s 00000000 00:00 0 
+0: 2aac025aa000-2aac02baa000 rw-s 00000000 00:00 0 
+0: 2aac02baa000-2aac031aa000 rw-s 00000000 00:00 0 
+0: 2aac031aa000-2aac037aa000 rw-s 00000000 00:00 0 
+0: 2aac037aa000-2aac03daa000 rw-s 00000000 00:00 0 
+0: 2aac03daa000-2aac043aa000 rw-s 00000000 00:00 0 
+0: 2aac043aa000-2aac049aa000 rw-s 00000000 00:00 0 
+0: 2aac049aa000-2aac04faa000 rw-s 00000000 00:00 0 
+0: 2aac04faa000-2aac055aa000 rw-s 00000000 00:00 0 
+0: 2aac055aa000-2aac05baa000 rw-s 00000000 00:00 0 
+0: 2aac05baa000-2aac061aa000 rw-s 00000000 00:00 0 
+0: 2aac061aa000-2aac067aa000 rw-s 00000000 00:00 0 
+0: 2aac067aa000-2aac06daa000 rw-s 00000000 00:00 0 
+0: 2aac06daa000-2aac073aa000 rw-s 00000000 00:00 0 
+0: 2aac073aa000-2aac079aa000 rw-s 00000000 00:00 0 
+0: 2aac079aa000-2aac07faa000 rw-s 00000000 00:00 0 
+0: 2aac07faa000-2aac085aa000 rw-s 00000000 00:00 0 
+0: 2aac085aa000-2aac08baa000 rw-s 00000000 00:00 0 
+0: 2aac08baa000-2aac091aa000 rw-s 00000000 00:00 0 
+0: 2aac091aa000-2aac097aa000 rw-s 00000000 00:00 0 
+0: 2aac097aa000-2aac09daa000 rw-s 00000000 00:00 0 
+0: 2aac09daa000-2aac0a3aa000 rw-s 00000000 00:00 0 
+0: 2aac0a3aa000-2aac0a9aa000 rw-s 00000000 00:00 0 
+0: 2aac0a9aa000-2aac0afaa000 rw-s 00000000 00:00 0 
+0: 2aac0afaa000-2aac0b5aa000 rw-s 00000000 00:00 0 
+0: 2aac0b5aa000-2aac0bbaa000 rw-s 00000000 00:00 0 
+0: 2aac0bbaa000-2aac0c1aa000 rw-s 00000000 00:00 0 
+0: 2aac0c1aa000-2aac0c1ab000 rw-p 00000000 00:00 0 
+0: 7ffffffe7000-7ffffffff000 rw-p 00000000 00:00 0                          [stack]
+0: ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+terminate called after throwing an instance of 'MPI::Exception'
+15th starting vertex was 508787329
+Number iterations: 9
+Number of vertices found: 859673199
+Number of edges traversed: 34359465485
+BFS time: 0.39841 seconds
+MTEPS: 86241.5
+Total communication (average so far): 0.0260263
+_pmiu_daemon(SIGCHLD): [NID 00864] [c4-2c2s0n0] [Mon Apr 30 16:49:36 2012] PE RANK 2724 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00649] [c2-2c1s4n1] [Mon Apr 30 16:49:36 2012] PE RANK 3293 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 02722] [c14-1c0s1n2] [Mon Apr 30 16:49:36 2012] PE RANK 2171 exit signal Segmentation fault
+[NID 02722] 2012-04-30 16:50:00 Apid 7189990: initiated application termination
+_pmiu_daemon(SIGCHLD): [NID 02086] [c10-3c1s3n0] [Mon Apr 30 16:49:36 2012] PE RANK 487 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00976] [c4-3c1s7n0] [Mon Apr 30 16:49:36 2012] PE RANK 5568 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 06340] [c1-3c0s2n0] [Mon Apr 30 16:49:36 2012] PE RANK 317 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01729] [c8-3c0s0n1] [Mon Apr 30 16:49:36 2012] PE RANK 4279 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01249] [c6-3c0s0n3] [Mon Apr 30 16:49:36 2012] PE RANK 4549 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00611] [c2-2c0s1n3] [Mon Apr 30 16:49:36 2012] PE RANK 4128 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 06058] [c3-0c0s5n2] [Mon Apr 30 16:49:36 2012] PE RANK 31 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 05389] [c5-0c0s6n1] [Mon Apr 30 16:49:36 2012] PE RANK 131 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01706] [c8-2c1s5n2] [Mon Apr 30 16:49:36 2012] PE RANK 3624 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 02783] [c14-1c2s0n1] [Mon Apr 30 16:49:36 2012] PE RANK 1752 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 03318] [c16-3c2s4n2] [Mon Apr 30 16:49:36 2012] PE RANK 779 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 03452] [c16-1c2s1n2] [Mon Apr 30 16:49:36 2012] PE RANK 1488 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01402] [c6-2c0s2n0] [Mon Apr 30 16:49:36 2012] PE RANK 4176 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01654] [c8-2c1s4n0] [Mon Apr 30 16:49:36 2012] PE RANK 3720 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 02059] [c10-3c2s5n3] [Mon Apr 30 16:49:36 2012] PE RANK 895 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01653] [c8-2c1s5n1] [Mon Apr 30 16:49:36 2012] PE RANK 3717 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00778] [c4-0c0s5n0] [Mon Apr 30 16:49:36 2012] PE RANK 2285 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00852] [c4-0c0s5n2] [Mon Apr 30 16:49:36 2012] PE RANK 2335 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01558] [c8-0c1s4n0] [Mon Apr 30 16:49:36 2012] PE RANK 2535 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00877] [c4-2c2s6n1] [Mon Apr 30 16:49:36 2012] PE RANK 2898 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00870] [c4-2c2s3n0] [Mon Apr 30 16:49:36 2012] PE RANK 2810 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00653] [c2-2c1s6n1] [Mon Apr 30 16:49:36 2012] PE RANK 3097 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 02547] [c12-3c2s6n3] [Mon Apr 30 16:49:36 2012] PE RANK 1272 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 02688] [c14-1c2s0n2] [Mon Apr 30 16:49:36 2012] PE RANK 1683 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01332] [c6-3c0s5n0] [Mon Apr 30 16:49:36 2012] PE RANK 4982 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01260] [c6-3c0s6n2] [Mon Apr 30 16:49:36 2012] PE RANK 5252 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01744] [c8-3c1s7n0] [Mon Apr 30 16:49:36 2012] PE RANK 5343 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 00977] [c4-3c1s7n1] [Mon Apr 30 16:49:36 2012] PE RANK 5598 exit signal Segmentation fault
+_pmiu_daemon(SIGCHLD): [NID 01819] [c8-3c0s2n3] [Mon Apr 30 16:49:36 2012] PE RANK 4714 exit signal Segmentation fault
+Application 7189990 exit codes: 139
+Application 7189990 exit signals: Killed
+Application 7189990 resources: utime ~10046s, stime ~950s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script5776_hop_all
+ +          Job Id: 1595726.sdb
+ +          System: hopper
+ +     Queued Time: Mon Apr 30 16:41:22 2012
+ +      Start Time: Mon Apr 30 16:44:21 2012
+ + Completion Time: Mon Apr 30 16:50:01 2012
+ +            User: abuluc
+ +        MOM Host: nid04944
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:32470:hopper11,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=5180kb,vmem=39696kb,walltime=00:05:40
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/combblas/Applications
+ +     Submit Args: script5776_hop_all
+ + --------------------------------------------------------------------------
+

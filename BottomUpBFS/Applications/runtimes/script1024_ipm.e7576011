@@ -1,0 +1,580 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+ModuleCmd_Switch.c(137):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+Forcing scale to : 29
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               7.320316 s
+Generated renamed edge lists
+Generation took 7.32574 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 16777216-by-16777216
+Duplicates removed (or summed): 96356279 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 3.36714 seconds
+Converted to Boolean and removed 3375 loops
+As a whole: 536870912 rows and 536870912 columns and 8493574938 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 536870912 rows and 536870912 columns and 8493574938 nonzeros
+Dropped isolated vertices from input
+As a whole: 232988391 rows and 232988391 columns and 8493574938 nonzeros
+Symmetricized
+Optimization buffers set
+As a whole: 232988391 rows and 232988391 columns and 16987149876 nonzeros
+138.434 seconds elapsed for Kernel #1
+As a whole: 232988391 rows and 232988391 columns and 16987149876 nonzeros
+Load balance: 1.0283
+As a whole, Degrees array has length 232988391
+0.307893 0.257794 0.670489 0.78357 0.34998 0.830364 0.588045 0.315155 0.416052 0.192773 0.261493 0.245729 0.204745 0.83367 0.61857 0.97439 
+7.17354e+07 6.00631e+07 1.56216e+08 1.82563e+08 8.15412e+07 1.93465e+08 1.37008e+08 7.34275e+07 9.69353e+07 4.49138e+07 6.09249e+07 5.7252e+07 4.77032e+07 1.94235e+08 1.4412e+08 2.27022e+08 
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              1        0.00471
+ 0d              1        0.02934
+  s           4817        0.00436
+ 1d              6        0.02944
+  s      299929637        0.00495
+  c                       0.00118
+ 2u          16681        0.26398
+ 3u       59522753        0.20784
+ 4u      170285717        0.15962
+ 5u        3004027        0.15183
+  c                       0.00001
+ 6d           7525        0.03390
+  s              4        0.00447
+ 7d              8        0.02916
+  s              3        0.00427
+ 8d              7        0.02918
+  s              0        0.00429
+0th starting vertex was 71735395
+Number iterations: 9
+Number of vertices found: 232836725
+Number of edges traversed: 8589858659
+BFS time: 0.983247 seconds
+MTEPS: 8736.22
+Total communication (average so far): 0.00492311
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              2        0.00448
+ 0d              1        0.02170
+  s         207494        0.00446
+ 1d              7        0.03076
+  s     1568642854        0.00439
+  c                       0.00116
+ 2u         205102        0.23666
+ 3u      128145439        0.19185
+ 4u      103812370        0.15457
+ 5u         672146        0.15167
+  c                       0.00001
+ 6d           1657        0.03221
+  s              0        0.00438
+ 7d              2        0.02898
+  s              2        0.00433
+ 8d              2        0.02225
+  s              0        0.00433
+1th starting vertex was 60063123
+Number iterations: 9
+Number of vertices found: 232836726
+Number of edges traversed: 8589858660
+BFS time: 0.923215 seconds
+MTEPS: 9304.29
+Total communication (average so far): 0.00441658
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              1        0.00434
+ 0d              1        0.02366
+  s          57564        0.00419
+ 1d              2        0.02751
+  s      725873350        0.00424
+  c                       0.00126
+ 2u          58521        0.24999
+ 3u       91794134        0.20276
+ 4u      139538022        0.15388
+ 5u        1442388        0.15195
+  c                       0.00001
+ 6d           3650        0.03323
+  s              0        0.00458
+2th starting vertex was 156216067
+Number iterations: 7
+Number of vertices found: 232836718
+Number of edges traversed: 8589858656
+BFS time: 0.886955 seconds
+MTEPS: 9684.66
+Total communication (average so far): 0.00413728
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              1        0.00449
+ 0d              1        0.01925
+  s           1608        0.00439
+ 1d              2        0.02911
+  s       38188579        0.00433
+  c                       0.00113
+ 2u           2054        0.28731
+ 3u       18445042        0.21764
+ 4u      203152947        0.16091
+ 5u       11206765        0.15292
+  c                       0.00002
+ 6d          29839        0.03523
+  s             14        0.00514
+ 7d             24        0.03032
+  s              8        0.00432
+ 8d             22        0.03016
+  s              0        0.00436
+3th starting vertex was 182562769
+Number iterations: 9
+Number of vertices found: 232836696
+Number of edges traversed: 8589858645
+BFS time: 1.01273 seconds
+MTEPS: 8481.89
+Total communication (average so far): 0.00447673
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00446
+ 0d              1        0.02159
+  s          33607        0.00487
+ 1d              7        0.02767
+  s      747745344        0.00433
+  c                       0.00126
+ 2u          55850        0.24658
+ 3u       92714452        0.20207
+ 4u      138649415        0.15508
+ 5u        1413458        0.15193
+  c                       0.00001
+ 6d           3537        0.03339
+  s              1        0.00429
+ 7d              2        0.02424
+  s              1        0.00432
+ 8d              2        0.02904
+  s              0        0.00418
+4th starting vertex was 81541247
+Number iterations: 9
+Number of vertices found: 232836724
+Number of edges traversed: 8589858660
+BFS time: 0.947924 seconds
+MTEPS: 9061.76
+Total communication (average so far): 0.00447068
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              3        0.00400
+ 0d              1        0.02511
+  s        1163841        0.00443
+ 1d             49        0.03564
+  s     3889893636        0.00420
+  c                       0.00123
+ 2u        1453738        0.22711
+ 3u      178468055        0.17737
+ 4u       52712748        0.15646
+  c                       0.00002
+ 5d         201616        0.04395
+  s             75        0.00445
+ 6d            161        0.03098
+  s             78        0.00437
+ 7d            147        0.03097
+  s              0        0.00437
+5th starting vertex was 193465057
+Number iterations: 8
+Number of vertices found: 232836515
+Number of edges traversed: 8589858571
+BFS time: 0.786244 seconds
+MTEPS: 10925.2
+Total communication (average so far): 0.00536203
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00441
+ 0d              1        0.02845
+  s           4355        0.00445
+ 1d              1        0.02358
+  s      125012737        0.00443
+  c                       0.00126
+ 2u           5957        0.27615
+ 3u       36323225        0.21266
+ 4u      190787717        0.15905
+ 5u        5705080        0.15355
+  c                       0.00002
+ 6d          14713        0.03516
+  s              8        0.00427
+ 7d             16        0.03016
+  s              7        0.00422
+ 8d             14        0.02928
+  s              0        0.00427
+6th starting vertex was 137007669
+Number iterations: 9
+Number of vertices found: 232836724
+Number of edges traversed: 8589858658
+BFS time: 0.998933 seconds
+MTEPS: 8599.03
+Total communication (average so far): 0.00533775
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s             14        0.00422
+ 0d              1        0.01916
+  s         527446        0.00421
+ 1d             18        0.03334
+  s     2877885250        0.00420
+  c                       0.00120
+ 2u         688002        0.23165
+ 3u      160963661        0.18563
+ 4u       70862228        0.15312
+ 5u         322032        0.15222
+  c                       0.00001
+ 6d            781        0.03210
+  s              0        0.00427
+7th starting vertex was 73427453
+Number iterations: 7
+Number of vertices found: 232836723
+Number of edges traversed: 8589858659
+BFS time: 0.847011 seconds
+MTEPS: 10141.4
+Total communication (average so far): 0.00504604
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00421
+ 0d              1        0.02168
+  s          23828        0.00415
+ 1d              2        0.02639
+  s      731183825        0.00402
+  c                       0.00115
+ 2u          57984        0.24806
+ 3u       91584619        0.19925
+ 4u      139742172        0.15775
+ 5u        1448358        0.15232
+  c                       0.00001
+ 6d           3582        0.03336
+  s              0        0.00503
+ 7d              2        0.02958
+  s              2        0.00435
+ 8d              2        0.02301
+  s              0        0.00464
+8th starting vertex was 96935252
+Number iterations: 9
+Number of vertices found: 232836722
+Number of edges traversed: 8589858658
+BFS time: 0.948767 seconds
+MTEPS: 9053.71
+Total communication (average so far): 0.00497516
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00443
+ 0d              1        0.02047
+  s        1720907        0.00451
+ 1d             63        0.03676
+  s     4069114160        0.00433
+  c                       0.00124
+ 2u        1658267        0.22831
+ 3u      181239429        0.17754
+ 4u       49753382        0.15267
+  c                       0.00002
+ 5d         185107        0.04290
+  s             66        0.00436
+ 6d            134        0.03200
+  s             61        0.00455
+ 7d            121        0.03189
+  s              0        0.00432
+9th starting vertex was 44913762
+Number iterations: 8
+Number of vertices found: 232836504
+Number of edges traversed: 8589858567
+BFS time: 0.775631 seconds
+MTEPS: 11074.7
+Total communication (average so far): 0.00538087
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00431
+ 0d              1        0.02285
+  s           4084        0.00438
+ 1d              1        0.03050
+  s      134156674        0.00448
+  c                       0.00126
+ 2u           5952        0.27217
+ 3u       38310197        0.21265
+ 4u      189138642        0.15805
+ 5u        5368253        0.15274
+  c                       0.00002
+ 6d          13644        0.03426
+  s              7        0.00425
+ 7d             13        0.03225
+  s              4        0.00433
+ 8d             11        0.02853
+  s              0        0.00425
+10th starting vertex was 60924925
+Number iterations: 9
+Number of vertices found: 232836714
+Number of edges traversed: 8589858651
+BFS time: 1.0021 seconds
+MTEPS: 8571.87
+Total communication (average so far): 0.00533414
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00431
+ 0d              1        0.02881
+  s         181575        0.00423
+ 1d              5        0.03099
+  s     1565462293        0.00460
+  c                       0.00127
+ 2u         202923        0.24165
+ 3u      127947287        0.19210
+ 4u      104009714        0.15287
+ 5u         675098        0.15351
+  c                       0.00001
+ 6d           1693        0.03231
+  s              0        0.00434
+ 7d              2        0.02922
+  s              2        0.00411
+ 8d              2        0.02282
+  s              0        0.00456
+11th starting vertex was 57251978
+Number iterations: 9
+Number of vertices found: 232836725
+Number of edges traversed: 8589858661
+BFS time: 0.934863 seconds
+MTEPS: 9188.36
+Total communication (average so far): 0.00520728
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              1        0.00402
+ 0d              1        0.02526
+  s          11933        0.00488
+ 1d              3        0.02968
+  s      354127545        0.00428
+  c                       0.00116
+ 2u          21094        0.26039
+ 3u       64384744        0.20689
+ 4u      165753924        0.15678
+ 5u        2670257        0.15293
+  c                       0.00001
+ 6d           6686        0.03416
+  s              2        0.00436
+ 7d              5        0.03062
+  s              3        0.00430
+ 8d              5        0.02927
+  s              0        0.00433
+12th starting vertex was 47703184
+Number iterations: 9
+Number of vertices found: 232836719
+Number of edges traversed: 8589858654
+BFS time: 0.987016 seconds
+MTEPS: 8702.85
+Total communication (average so far): 0.00518733
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00419
+ 0d              1        0.02695
+  s           1707        0.00430
+ 1d              1        0.02065
+  s       39407254        0.00430
+  c                       0.00127
+ 2u           1885        0.29261
+ 3u       18534236        0.21883
+ 4u      203098843        0.15998
+ 5u       11171913        0.15365
+  c                       0.00002
+ 6d          29783        0.03583
+  s             13        0.00431
+ 7d             26        0.03208
+  s             11        0.00486
+ 8d             23        0.03004
+  s              0        0.00426
+13th starting vertex was 194235367
+Number iterations: 9
+Number of vertices found: 232836711
+Number of edges traversed: 8589858654
+BFS time: 1.01904 seconds
+MTEPS: 8429.34
+Total communication (average so far): 0.00522215
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              0        0.00449
+ 0d              1        0.02794
+  s             36        0.00420
+ 1d              1        0.02608
+  s         528431        0.00446
+ 2d             50        0.03545
+  s     3449215956        0.00451
+  c                       0.00124
+ 3u        1043765        0.23124
+ 4u      171207401        0.18164
+ 5u       60337001        0.15342
+  c                       0.00002
+ 6d         247857        0.04592
+  s             95        0.00435
+ 7d            182        0.03093
+  s             78        0.00441
+ 8d            164        0.03160
+  s              0        0.00530
+14th starting vertex was 144119693
+Number iterations: 9
+Number of vertices found: 232836422
+Number of edges traversed: 8589858524
+BFS time: 0.817691 seconds
+MTEPS: 10505
+Total communication (average so far): 0.00554644
+param 232988391 vertices with 16987149876 edges
+11649419 up and 266297 down
+  s              1        0.00435
+ 0d              1        0.02049
+  s            355        0.00508
+ 1d              1        0.02219
+  s       43829652        0.00452
+  c                       0.00126
+ 2u           1942        0.28090
+ 3u       19632992        0.21731
+ 4u      202543904        0.15980
+ 5u       10629560        0.15338
+  c                       0.00002
+ 6d          28257        0.03475
+  s             14        0.00444
+ 7d             25        0.03003
+  s             10        0.00429
+ 8d             23        0.03058
+  s              0        0.00428
+15th starting vertex was 227021558
+Number iterations: 9
+Number of vertices found: 232836705
+Number of edges traversed: 8589858656
+BFS time: 1.00871 seconds
+MTEPS: 8515.65
+Total communication (average so far): 0.00554824
+Finished
+Per iteration communication times: 
+AllGatherv: 0.00146124
+AlltoAllv: 0.004087
+--------------------------
+Min nedges: 8.58986e+09
+First Quartile nedges: 8.58986e+09
+Median nedges: 8.58986e+09
+Third Quartile nedges: 8.58986e+09
+Max nedges: 8.58986e+09
+Mean nedges: 8.58986e+09
+STDDEV nedges: 42.4805
+--------------------------
+Min time: 0.775631 seconds
+First Quartile time: 0.866983 seconds
+Median time: 0.948346 seconds
+Third Quartile time: 1.00052 seconds
+Max time: 1.01904 seconds
+Mean time: 0.930005 seconds
+STDDEV time: 0.0831052 seconds
+--------------------------
+Min MTEPS: 8429.34
+First Quartile MTEPS: 8585.45
+Median MTEPS: 9057.73
+Third Quartile MTEPS: 9913.02
+Max MTEPS: 11074.7
+Harmonic mean of MTEPS: 9236.35
+Harmonic standard deviation of MTEPS: 825.359
+##IPMv0.983####################################################################
+# 
+# command : ./graph500_withipm_bottomup Force 29 FastGen  (completed)
+# host    : nid12374/x86_64_Linux          mpi_tasks : 1024 on 256 nodes
+# start   : 04/26/12/16:06:44              wallclock : 170.992505 sec
+# stop    : 04/26/12/16:09:35              %comm     : 55.65 
+# gbytes  : 7.11695e+02 total              gflop/sec : 1.83327e-03 total
+#
+##############################################################################
+# region  : *       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                       1024             1             1             1
+# wallclock                   175086       170.983       170.975       170.993
+# user                        148241       144.767       142.541       146.825
+# system                       25964       25.3555       23.5375       26.7977
+# mpi                          97434       95.1504       93.3144       97.5036
+# %comm                                    55.6459        54.576       57.0248
+# gflop/sec               0.00183327    1.7903e-06   1.78993e-06   1.79047e-06
+# gbytes                     711.695      0.695015      0.676064      0.713451
+#
+# PAPI_TOT_INS           4.45239e+14   4.34803e+11   4.25398e+11   4.45217e+11
+# PAPI_FP_OPS            3.13475e+08        306127        306064        306157
+# PAPI_L1_DCA            1.79554e+14   1.75346e+11   1.71744e+11   1.80255e+11
+# PAPI_L1_DCM            1.00899e+12   9.85345e+08   9.71311e+08   1.01021e+09
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                  81585.2    1.3353e+06         83.73        46.60
+# MPI_Sendrecv               5012.62   6.48461e+06          5.14         2.86
+# MPI_Reduce                 3097.93         98304          3.18         1.77
+# MPI_Alltoallv              2372.62        181248          2.44         1.36
+# MPI_Allreduce              2274.37        596992          2.33         1.30
+# MPI_Allgather              1030.13        274432          1.06         0.59
+# MPI_Barrier                982.126        377856          1.01         0.56
+# MPI_Alltoall               700.028         99328          0.72         0.40
+# MPI_Allgatherv             378.406        142336          0.39         0.22
+# MPI_Comm_rank             0.418655        439296          0.00         0.00
+# MPI_Comm_size             0.089454        197632          0.00         0.00
+##############################################################################
+# region  : ipm_noregion       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                       3072             3             3             3
+# wallclock                   158970       155.244       155.237       155.252
+# user                        132782        129.67       127.424       131.764
+# system                     25384.9       24.7899       22.9054       26.2896
+# mpi                        91342.7       89.2018       87.5482       91.6766
+# %comm                                    57.4562       56.3939       59.0521
+# gflop/sec               0.00173093   1.69036e-06   1.68995e-06   1.69055e-06
+#
+# PAPI_TOT_INS           3.93805e+14   3.84575e+11   3.75135e+11   3.95066e+11
+# PAPI_FP_OPS             2.6873e+08        262431        262368        262461
+# PAPI_L1_DCA            1.56642e+14   1.52971e+11   1.49419e+11   1.58378e+11
+# PAPI_L1_DCM              9.194e+11   8.97851e+08   8.85356e+08   9.23063e+08
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Bcast                  81568.7    1.0496e+06         89.30        51.31
+# MPI_Reduce                 3097.93         98304          3.39         1.95
+# MPI_Alltoallv              2325.83         23552          2.55         1.46
+# MPI_Allreduce               1651.2         88064          1.81         1.04
+# MPI_Allgather              923.205        116736          1.01         0.58
+# MPI_Barrier                849.449         13312          0.93         0.53
+# MPI_Sendrecv               685.486         14976          0.75         0.43
+# MPI_Alltoall               239.883         20480          0.26         0.15
+# MPI_Allgatherv            0.591471          1024          0.00         0.00
+# MPI_Comm_rank             0.358947        310272          0.00         0.00
+# MPI_Comm_size            0.0147161         23552          0.00         0.00
+##############################################################################
+# region  : BFS       [ntasks] =   1024
+#
+#                           [total]         <avg>           min           max 
+# entries                       1024             1             1             1
+# wallclock                  16105.9       15.7284       15.7272       15.7291
+# user                       15458.9       15.0966       14.8689        15.249
+# system                     579.112      0.565539      0.420026      0.756048
+# mpi                        6091.29       5.94852       5.60126        6.1315
+# %comm                                    37.8186       35.6136       38.9831
+# gflop/sec               0.00284471   2.77804e-06   2.77804e-06   2.77804e-06
+#
+# PAPI_TOT_INS           5.14334e+13    5.0228e+10   4.89619e+10   5.10342e+10
+# PAPI_FP_OPS            4.47447e+07         43696         43696         43696
+# PAPI_L1_DCA            2.29125e+13   2.23755e+10   2.17777e+10     2.264e+10
+# PAPI_L1_DCM            8.95939e+10    8.7494e+07   8.55036e+07    9.3546e+07
+#
+#                            [time]       [calls]        <%mpi>      <%wall>
+# MPI_Sendrecv               4327.13   6.46963e+06         71.04        26.87
+# MPI_Allreduce              623.172        508928         10.23         3.87
+# MPI_Alltoall               460.145         78848          7.55         2.86
+# MPI_Allgatherv             377.814        141312          6.20         2.35
+# MPI_Barrier                132.677        364544          2.18         0.82
+# MPI_Allgather              106.924        157696          1.76         0.66
+# MPI_Alltoallv              46.7883        157696          0.77         0.29
+# MPI_Bcast                  16.4991        285696          0.27         0.10
+# MPI_Comm_size            0.0747379        174080          0.00         0.00
+# MPI_Comm_rank            0.0597085        129024          0.00         0.00
+###############################################################################
+Application 27139090 resources: utime 0, stime 0
+
+ + --------------------------------------------------------------------------
+ +        Job name: script1024_ipm
+ +          Job Id: 7576011.nid00003
+ +          System: franklin
+ +     Queued Time: Thu Apr 26 16:03:05 2012
+ +      Start Time: Thu Apr 26 16:06:28 2012
+ + Completion Time: Thu Apr 26 16:09:24 2012
+ +            User: abuluc
+ +        MOM Host: nid00579
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:95581:nid00004,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=7024kb,vmem=24044kb,walltime=00:02:56
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/combblas/Applications
+ +     Submit Args: script1024_ipm
+ + --------------------------------------------------------------------------
+

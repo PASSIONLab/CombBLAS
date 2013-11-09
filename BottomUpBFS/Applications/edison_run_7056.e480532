@@ -1,0 +1,43 @@
+Forcing scale to : 32
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               6.214001 s
+Generated renamed edge lists
+Generation took 6.21746 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 51130563-by-51130563
+Duplicates removed (or summed): 421463299 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 4.87694 seconds
+Converted to Boolean and removed 6916 loops
+As a whole: 4294967296 rows and 4294967296 columns and 68298006521 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found non-isolated vertices
+As a whole: 4294967296 rows and 4294967296 columns and 68298006521 nonzeros
+Converted to 32-bit integers
+[NID 05811] 2013-11-07 22:55:16 Apid 1686528: initiated application termination
+[NID 05817] 2013-11-07 22:55:19 Apid 1686528: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05813] 2013-11-07 22:55:19 Apid 1686528: OOM killer terminated this process.
+[NID 05811] 2013-11-07 22:55:19 Apid 1686528: OOM killer terminated this process.
+[NID 05822] 2013-11-07 22:55:19 Apid 1686528: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05816] 2013-11-07 22:55:19 Apid 1686528: Error detected during page fault processing.  Process terminated via bus error.
+Application 1686528 exit signals: Killed
+Application 1686528 resources: utime ~0s, stime ~37s, Rss ~3800, inblocks ~3057894, outblocks ~8069712
+
+ + --------------------------------------------------------------------------
+ +        Job name: edison_run_7056
+ +          Job Id: 480532.edique02
+ +          System: edison
+ +     Queued Time: Thu Nov  7 22:51:12 2013
+ +      Start Time: Thu Nov  7 22:51:59 2013
+ + Completion Time: Thu Nov  7 22:55:20 2013
+ +            User: abuluc
+ +        MOM Host: nid02433
+ +           Queue: debug
+ +  Req. Resources: mppnodect=294,mppnppn=24,mppwidth=7056,walltime=00:20:00
+ +  Used Resources: cput=00:00:00,mem=10088kb,vmem=157288kb,walltime=00:03:23
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/G500-Nov13/combblas/Applications
+ +     Submit Args: edison_run_7056
+ + --------------------------------------------------------------------------
+

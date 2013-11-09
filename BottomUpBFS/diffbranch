@@ -1,0 +1,1826 @@
+[1mdiff --git a/Applications/Graph500.cpp b/Applications/Graph500.cpp[m
+[1mindex 4b0f210..3405e0c 100644[m
+[1m--- a/Applications/Graph500.cpp[m
+[1m+++ b/Applications/Graph500.cpp[m
+[36m@@ -1,3 +1,4 @@[m
+[32m+[m[32m#define DETERMINISTIC[m
+ #include <mpi.h>[m
+ #include <sys/time.h> [m
+ #include <iostream>[m
+[36m@@ -35,6 +36,10 @@[m [mdouble bottomup_allgather;[m
+ double bottomup_total;[m
+ double bottomup_convert;[m
+ [m
+[32m+[m[32mdouble bu_local;[m
+[32m+[m[32mdouble bu_update;[m
+[32m+[m[32mdouble bu_rotate;[m
+[32m+[m
+ #ifdef _OPENMP[m
+ int cblas_splits = omp_get_max_threads(); [m
+ #else[m
+[36m@@ -43,7 +48,7 @@[m [mint cblas_splits = 1;[m
+ [m
+ #include "../CombBLAS.h"[m
+ [m
+[31m-#define ITERS 16[m
+[32m+[m[32m#define ITERS 128[m
+ #define EDGEFACTOR 16[m
+ [m
+ // 64-bit floor(log2(x)) function [m
+[36m@@ -125,6 +130,7 @@[m [mint main(int argc, char* argv[])[m
+ 		// Declare objects[m
+ 		PSpMat_Bool A;	[m
+ 		PSpMat_s32p64 Aeff;[m
+[32m+[m		[32mPSpMat_s32p64 ALocalT;[m
+ 		FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)[m
+ 		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices[m
+ 		unsigned scale;[m
+[36m@@ -153,6 +159,7 @@[m [mint main(int argc, char* argv[])[m
+       SpParHelper::Print("Symmetricized and pruned\n");[m
+ [m
+       Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated[m
+[32m+[m[32m      ALocalT = PSpMat_s32p64(Aeff.seq().TransposeConst(), Aeff.getcommgrid());[m
+       #ifdef THREADED[m
+         ostringstream tinfo;[m
+         tinfo << "Threading activated with " << cblas_splits << " threads" << endl;[m
+[36m@@ -219,6 +226,7 @@[m [mint main(int argc, char* argv[])[m
+ 			SpParHelper::Print("Symmetricized\n");	[m
+ 			//A.Dump("graph_symmetric");[m
+ [m
+[32m+[m[32m      // should make ALocalT, but hard to do without Aeff[m
+ 		#ifdef THREADED	[m
+ 			ostringstream tinfo;[m
+ 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;[m
+[36m@@ -337,6 +345,7 @@[m [mint main(int argc, char* argv[])[m
+ 			SpParHelper::Print("Symmetricized\n");	[m
+ [m
+ 	                Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated[m
+[32m+[m		[32m  ALocalT = PSpMat_s32p64(Aeff.seq().TransposeConst(), Aeff.getcommgrid());[m
+ 		#ifdef THREADED	[m
+ 			ostringstream tinfo;[m
+ 			tinfo << "Threading activated with " << cblas_splits << " threads" << endl;[m
+[36m@@ -369,8 +378,14 @@[m [mint main(int argc, char* argv[])[m
+ 		// degrees.DebugPrint();[m
+ 		FullyDistVec<int64_t, int64_t> Cands(ITERS);[m
+ 		double nver = (double) degrees.TotalLength();[m
+[31m-[m
+[31m-		MTRand M;	// generate random numbers with Mersenne Twister[m
+[32m+[m[41m		[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m		[32muint64_t seed = 1383098845;[m
+[32m+[m[32m#else[m
+[32m+[m		[32muint64_t seed= time(NULL);[m
+[32m+[m[32m#endif[m
+[32m+[m		[32mMTRand M(seed);	// generate random numbers with Mersenne Twister[m[41m [m
+[32m+[m[41m		[m
+ 		vector<double> loccands(ITERS);[m
+ 		vector<int64_t> loccandints(ITERS);[m
+ 		if(myrank == 0)[m
+[36m@@ -392,8 +407,8 @@[m [mint main(int argc, char* argv[])[m
+ 		{[m
+ 			Cands.SetElement(i,loccandints[i]);[m
+ 		}[m
+[31m-    		// Cands.SetElement(0,60);  // HACK FOR DEBUGGING; REMOVE ONCE OK[m
+[31m-    		SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > ALocalT(Aeff.seq().TransposeConst(), Aeff.getcommgrid());[m
+[32m+[m
+[32m+[m[32m    // Cands.SetElement(0,60);  // HACK FOR DEBUGGING; REMOVE ONCE OK[m
+ [m
+ 		#define MAXTRIALS 1[m
+ 		for(int trials =0; trials < MAXTRIALS; trials++)	// try different algorithms for BFS[m
+[36m@@ -409,9 +424,14 @@[m [mint main(int argc, char* argv[])[m
+ 			bottomup_total = 0;[m
+ 			bottomup_convert = 0;[m
+ 			[m
+[32m+[m			[32mbu_local = 0;[m
+[32m+[m[32m      bu_update = 0;[m
+[32m+[m[32m      bu_rotate = 0;[m
+[32m+[m
+ 			MPI_Pcontrol(1,"BFS");[m
+ [m
+ 			double MTEPS[ITERS]; double INVMTEPS[ITERS]; double TIMES[ITERS]; double EDGES[ITERS];[m
+[32m+[m			[32mint64_t lastnverts =  0;[m
+ 			for(int i=0; i<ITERS; ++i)[m
+ 			{[m
+ 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);[m
+[36m@@ -419,7 +439,11 @@[m [mint main(int argc, char* argv[])[m
+ [m
+ 				// FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);[m
+ 				FullyDistSpVec<int64_t, int64_t> fringe(Aeff.getcommgrid(), Aeff.getncol());	// numerical values are stored 0-based[m
+[31m-[m
+[32m+[m[41m				[m
+[32m+[m				[32m// For debugging[m
+[32m+[m				[32mFullyDistSpVec<int64_t, int64_t> top_down_end(Aeff.getcommgrid(), Aeff.getncol());[m[41m	[m
+[32m+[m				[32mFullyDistSpVec<int64_t, int64_t> bottom_up_end(Aeff.getcommgrid(), Aeff.getncol());[m[41m	[m
+[32m+[m[41m					[m
+ 				ostringstream devout;[m
+ 				devout.setf(ios::fixed);[m
+ [m
+[36m@@ -460,6 +484,7 @@[m [mint main(int argc, char* argv[])[m
+ 						bm_fringe.LoadFromSpVec(fringe);[m
+ 						double conv_end = MPI_Wtime();[m
+ 						devout << "  c" << setw(30) << setprecision(5) << (conv_end - conv_start) << endl;[m
+[32m+[m						[32mtop_down_end = parents.Find(bind2nd(greater<int64_t>(), -1));;[m
+ 						bottomup_convert += (conv_end - conv_start);[m
+ [m
+ 						while (fringe_size > 0) 		[m
+[36m@@ -478,6 +503,8 @@[m [mint main(int argc, char* argv[])[m
+ 									bm_fringe.UpdateSpVec(fringe);[m
+ 									conv_end = MPI_Wtime();[m
+ 									devout << "  c" << setw(30) << setprecision(5) << (conv_end - conv_start) << endl;[m
+[32m+[m									[32mbottom_up_end = parents.Find(bind2nd(greater<int64_t>(), -1));;[m
+[32m+[m
+ 									bottomup_convert += (conv_end - conv_start);[m
+ 									break;[m
+ 							}[m
+[36m@@ -511,17 +538,20 @@[m [mint main(int argc, char* argv[])[m
+ 				double t2 = MPI_Wtime();[m
+ 				delete[] starts;[m
+ 				SpParHelper::Print(devout.str());[m
+[32m+[m[41m				[m
+[32m+[m[41m				[m
+ [m
+ 				FullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1));[m
+ 				parentsp.Apply(set<int64_t>(1));[m
+ 	[m
+ 				// we use degrees on the directed graph, so that we don't count the reverse edges in the teps score[m
+ 				int64_t nedges = EWiseMult(parentsp, degrees, false, (int64_t) 0).Reduce(plus<int64_t>(), (int64_t) 0);[m
+[31m-	[m
+[32m+[m				[32mint64_t nverts = parentsp.Reduce(plus<int64_t>(), (int64_t) 0);[m
+[32m+[m[41m				[m
+ 				ostringstream outnew;[m
+ 				outnew << i << "th starting vertex was " << Cands[i] << endl;[m
+ 				outnew << "Number iterations: " << iterations << endl;[m
+[31m-				outnew << "Number of vertices found: " << parentsp.Reduce(plus<int64_t>(), (int64_t) 0) << endl; [m
+[32m+[m				[32moutnew << "Number of vertices found: " << nverts << endl;[m[41m [m
+ 				outnew << "Number of edges traversed: " << nedges << endl;[m
+ 				outnew << "BFS time: " << t2-t1 << " seconds" << endl;[m
+ 				outnew << "MTEPS: " << static_cast<double>(nedges) / (t2-t1) / 1000000.0 << endl;[m
+[36m@@ -530,6 +560,19 @@[m [mint main(int argc, char* argv[])[m
+ 				EDGES[i] = nedges;[m
+ 				MTEPS[i] = static_cast<double>(nedges) / (t2-t1) / 1000000.0;[m
+ 				SpParHelper::Print(outnew.str());[m
+[32m+[m[41m				[m
+[32m+[m				[32mif(lastnverts != nverts && i != 0 )[m
+[32m+[m				[32m{[m[41m   [m
+[32m+[m					[32mFullyDistSpVec<int64_t, int64_t> parentsp = parents.Find(bind2nd(greater<int64_t>(), -1)); // shadow ![m
+[32m+[m					[32mSpParHelper::Print("End of all\n");[m
+[32m+[m					[32mparentsp.DebugPrint();[m
+[32m+[m					[32mSpParHelper::Print("End of initial top down\n");[m
+[32m+[m					[32mtop_down_end.DebugPrint();[m
+[32m+[m					[32mSpParHelper::Print("End of bottom up\n");[m
+[32m+[m					[32mbottom_up_end.DebugPrint();[m
+[32m+[m				[32m}[m
+[32m+[m				[32mlastnverts = nverts;[m
+[32m+[m
+ 			}[m
+ 			MPI_Pcontrol(-1,"BFS");[m
+ 			SpParHelper::Print("Finished\n");[m
+[36m@@ -570,9 +613,21 @@[m [mint main(int argc, char* argv[])[m
+ 			MPI::COMM_WORLD.Gather(&cblas_mergeconttime, 1, MPI::DOUBLE, td_mc_all, 1, MPI::DOUBLE, 0);[m
+ 			MPI::COMM_WORLD.Gather(&cblas_localspmvtime, 1, MPI::DOUBLE, td_spmv_all, 1, MPI::DOUBLE, 0);[m
+ 			MPI::COMM_WORLD.Gather(&cblas_ewisemulttime, 1, MPI::DOUBLE, td_ewm_all, 1, MPI::DOUBLE, 0);[m
+[31m-			[m
+[32m+[m
+[32m+[m[32m      double bu_local_total = 0;[m
+[32m+[m[32m      double bu_update_total = 0;[m
+[32m+[m[32m      double bu_rotate_total = 0;[m
+[32m+[m
+[32m+[m			[32mMPI::COMM_WORLD.Allreduce(&bu_local, &bu_local_total, 1, MPI::DOUBLE, MPI::SUM);[m
+[32m+[m			[32mMPI::COMM_WORLD.Allreduce(&bu_update, &bu_update_total, 1, MPI::DOUBLE, MPI::SUM);[m
+[32m+[m			[32mMPI::COMM_WORLD.Allreduce(&bu_rotate, &bu_rotate_total, 1, MPI::DOUBLE, MPI::SUM);[m
+[32m+[m
+ 			if(myrank == 0)[m
+ 			{[m
+[32m+[m[32m        cout << "BU Local: " << bu_local_total/nprocs << endl;[m
+[32m+[m[32m        cout << "BU Update: " << bu_update_total/nprocs << endl;[m
+[32m+[m[32m        cout << "BU Rotate: " << bu_rotate_total/nprocs << endl;[m
+[32m+[m
+ 				vector<double> total_time(nprocs, 0);[m
+ 				for(int i=0; i< nprocs; ++i) 				// find the mean performing guy[m
+ 					total_time[i] += bu_total[i] + bu_convert[i] + td_ag_all[i] +  td_a2a_all[i] + td_tv_all[i] + td_mc_all[i] + td_spmv_all[i] + td_ewm_all[i];[m
+[1mdiff --git a/Applications/Makefile b/Applications/Makefile[m
+[1mdeleted file mode 100644[m
+[1mindex b956f6e..0000000[m
+[1m--- a/Applications/Makefile[m
+[1m+++ /dev/null[m
+[36m@@ -1,235 +0,0 @@[m
+[31m-# CMAKE generated file: DO NOT EDIT![m
+[31m-# Generated by "Unix Makefiles" Generator, CMake Version 2.8[m
+[31m-[m
+[31m-# Default target executed when no arguments are given to make.[m
+[31m-default_target: all[m
+[31m-.PHONY : default_target[m
+[31m-[m
+[31m-#=============================================================================[m
+[31m-# Special targets provided by cmake.[m
+[31m-[m
+[31m-# Disable implicit rules so canoncical targets will work.[m
+[31m-.SUFFIXES:[m
+[31m-[m
+[31m-# Remove some rules from gmake that .SUFFIXES does not remove.[m
+[31m-SUFFIXES =[m
+[31m-[m
+[31m-.SUFFIXES: .hpux_make_needs_suffix_list[m
+[31m-[m
+[31m-# Produce verbose output by default.[m
+[31m-VERBOSE = 1[m
+[31m-[m
+[31m-# Suppress display of executed commands.[m
+[31m-$(VERBOSE).SILENT:[m
+[31m-[m
+[31m-# A target that is always out of date.[m
+[31m-cmake_force:[m
+[31m-.PHONY : cmake_force[m
+[31m-[m
+[31m-#=============================================================================[m
+[31m-# Set environment variables for the build.[m
+[31m-[m
+[31m-# The shell in which to execute make rules.[m
+[31m-SHELL = /bin/sh[m
+[31m-[m
+[31m-# The CMake executable.[m
+[31m-CMAKE_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/cmake[m
+[31m-[m
+[31m-# The command to remove a file.[m
+[31m-RM = /global/common/franklin/usg/cmake/2.8.2/bin/cmake -E remove -f[m
+[31m-[m
+[31m-# The program to use to edit the cache.[m
+[31m-CMAKE_EDIT_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/ccmake[m
+[31m-[m
+[31m-# The top-level source directory on which CMake was run.[m
+[31m-CMAKE_SOURCE_DIR = /global/homes/a/abuluc/combblas[m
+[31m-[m
+[31m-# The top-level build directory on which CMake was run.[m
+[31m-CMAKE_BINARY_DIR = /global/homes/a/abuluc/combblas[m
+[31m-[m
+[31m-#=============================================================================[m
+[31m-# Targets provided globally by CMake.[m
+[31m-[m
+[31m-# Special rule for the target edit_cache[m
+[31m-edit_cache:[m
+[31m-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[31m-.PHONY : edit_cache[m
+[31m-[m
+[31m-# Special rule for the target edit_cache[m
+[31m-edit_cache/fast: edit_cache[m
+[31m-.PHONY : edit_cache/fast[m
+[31m-[m
+[31m-# Special rule for the target rebuild_cache[m
+[31m-rebuild_cache:[m
+[31m-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[31m-.PHONY : rebuild_cache[m
+[31m-[m
+[31m-# Special rule for the target rebuild_cache[m
+[31m-rebuild_cache/fast: rebuild_cache[m
+[31m-.PHONY : rebuild_cache/fast[m
+[31m-[m
+[31m-# Special rule for the target test[m
+[31m-test:[m
+[31m-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ctest --force-new-ctest-process $(ARGS)[m
+[31m-.PHONY : test[m
+[31m-[m
+[31m-# Special rule for the target test[m
+[31m-test/fast: test[m
+[31m-.PHONY : test/fast[m
+[31m-[m
+[31m-# The main all target[m
+[31m-all: cmake_check_build_system[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles /global/homes/a/abuluc/combblas/Applications/CMakeFiles/progress.marks[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/all[m
+[31m-	$(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles 0[m
+[31m-.PHONY : all[m
+[31m-[m
+[31m-# The main clean target[m
+[31m-clean:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/clean[m
+[31m-.PHONY : clean[m
+[31m-[m
+[31m-# The main clean target[m
+[31m-clean/fast: clean[m
+[31m-.PHONY : clean/fast[m
+[31m-[m
+[31m-# Prepare targets for installation.[m
+[31m-preinstall: all[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/preinstall[m
+[31m-.PHONY : preinstall[m
+[31m-[m
+[31m-# Prepare targets for installation.[m
+[31m-preinstall/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/preinstall[m
+[31m-.PHONY : preinstall/fast[m
+[31m-[m
+[31m-# clear depends[m
+[31m-depend:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1[m
+[31m-.PHONY : depend[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-Applications/CMakeFiles/betwcent.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/betwcent.dir/rule[m
+[31m-.PHONY : Applications/CMakeFiles/betwcent.dir/rule[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-betwcent: Applications/CMakeFiles/betwcent.dir/rule[m
+[31m-.PHONY : betwcent[m
+[31m-[m
+[31m-# fast build rule for target.[m
+[31m-betwcent/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/build[m
+[31m-.PHONY : betwcent/fast[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-Applications/CMakeFiles/graph500.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/graph500.dir/rule[m
+[31m-.PHONY : Applications/CMakeFiles/graph500.dir/rule[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-graph500: Applications/CMakeFiles/graph500.dir/rule[m
+[31m-.PHONY : graph500[m
+[31m-[m
+[31m-# fast build rule for target.[m
+[31m-graph500/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/build[m
+[31m-.PHONY : graph500/fast[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-Applications/CMakeFiles/mcl.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/mcl.dir/rule[m
+[31m-.PHONY : Applications/CMakeFiles/mcl.dir/rule[m
+[31m-[m
+[31m-# Convenience name for target.[m
+[31m-mcl: Applications/CMakeFiles/mcl.dir/rule[m
+[31m-.PHONY : mcl[m
+[31m-[m
+[31m-# fast build rule for target.[m
+[31m-mcl/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/build[m
+[31m-.PHONY : mcl/fast[m
+[31m-[m
+[31m-# target to build an object file[m
+[31m-BetwCent.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.o[m
+[31m-.PHONY : BetwCent.o[m
+[31m-[m
+[31m-# target to preprocess a source file[m
+[31m-BetwCent.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.i[m
+[31m-.PHONY : BetwCent.i[m
+[31m-[m
+[31m-# target to generate assembly for a file[m
+[31m-BetwCent.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.s[m
+[31m-.PHONY : BetwCent.s[m
+[31m-[m
+[31m-# target to build an object file[m
+[31m-Graph500.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.o[m
+[31m-.PHONY : Graph500.o[m
+[31m-[m
+[31m-# target to preprocess a source file[m
+[31m-Graph500.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.i[m
+[31m-.PHONY : Graph500.i[m
+[31m-[m
+[31m-# target to generate assembly for a file[m
+[31m-Graph500.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.s[m
+[31m-.PHONY : Graph500.s[m
+[31m-[m
+[31m-# target to build an object file[m
+[31m-MCL.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.o[m
+[31m-.PHONY : MCL.o[m
+[31m-[m
+[31m-# target to preprocess a source file[m
+[31m-MCL.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.i[m
+[31m-.PHONY : MCL.i[m
+[31m-[m
+[31m-# target to generate assembly for a file[m
+[31m-MCL.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.s[m
+[31m-.PHONY : MCL.s[m
+[31m-[m
+[31m-# Help Target[m
+[31m-help:[m
+[31m-	@echo "The following are some of the valid targets for this Makefile:"[m
+[31m-	@echo "... all (the default if no target is provided)"[m
+[31m-	@echo "... clean"[m
+[31m-	@echo "... depend"[m
+[31m-	@echo "... betwcent"[m
+[31m-	@echo "... edit_cache"[m
+[31m-	@echo "... graph500"[m
+[31m-	@echo "... mcl"[m
+[31m-	@echo "... rebuild_cache"[m
+[31m-	@echo "... test"[m
+[31m-	@echo "... BetwCent.o"[m
+[31m-	@echo "... BetwCent.i"[m
+[31m-	@echo "... BetwCent.s"[m
+[31m-	@echo "... Graph500.o"[m
+[31m-	@echo "... Graph500.i"[m
+[31m-	@echo "... Graph500.s"[m
+[31m-	@echo "... MCL.o"[m
+[31m-	@echo "... MCL.i"[m
+[31m-	@echo "... MCL.s"[m
+[31m-.PHONY : help[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-#=============================================================================[m
+[31m-# Special targets to cleanup operation of make.[m
+[31m-[m
+[31m-# Special rule to run CMake to check the build system integrity.[m
+[31m-# No rule that depends on this can have commands that come from listfiles[m
+[31m-# because they might be regenerated.[m
+[31m-cmake_check_build_system:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0[m
+[31m-.PHONY : cmake_check_build_system[m
+[31m-[m
+[1mdiff --git a/Applications/makefile b/Applications/makefile[m
+[1mdeleted file mode 120000[m
+[1mindex 22551ae..0000000[m
+[1m--- a/Applications/makefile[m
+[1m+++ /dev/null[m
+[36m@@ -1 +0,0 @@[m
+[31m-makefile-nersc[m
+\ No newline at end of file[m
+[1mdiff --git a/Applications/makefile b/Applications/makefile[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f53cdb3[m
+[1m--- /dev/null[m
+[1m+++ b/Applications/makefile[m
+[36m@@ -0,0 +1,235 @@[m
+[32m+[m[32m# CMAKE generated file: DO NOT EDIT![m
+[32m+[m[32m# Generated by "Unix Makefiles" Generator, CMake Version 2.8[m
+[32m+[m
+[32m+[m[32m# Default target executed when no arguments are given to make.[m
+[32m+[m[32mdefault_target: all[m
+[32m+[m[32m.PHONY : default_target[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Special targets provided by cmake.[m
+[32m+[m
+[32m+[m[32m# Disable implicit rules so canoncical targets will work.[m
+[32m+[m[32m.SUFFIXES:[m
+[32m+[m
+[32m+[m[32m# Remove some rules from gmake that .SUFFIXES does not remove.[m
+[32m+[m[32mSUFFIXES =[m
+[32m+[m
+[32m+[m[32m.SUFFIXES: .hpux_make_needs_suffix_list[m
+[32m+[m
+[32m+[m[32m# Produce verbose output by default.[m
+[32m+[m[32mVERBOSE = 1[m
+[32m+[m
+[32m+[m[32m# Suppress display of executed commands.[m
+[32m+[m[32m$(VERBOSE).SILENT:[m
+[32m+[m
+[32m+[m[32m# A target that is always out of date.[m
+[32m+[m[32mcmake_force:[m
+[32m+[m[32m.PHONY : cmake_force[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Set environment variables for the build.[m
+[32m+[m
+[32m+[m[32m# The shell in which to execute make rules.[m
+[32m+[m[32mSHELL = /bin/sh[m
+[32m+[m
+[32m+[m[32m# The CMake executable.[m
+[32m+[m[32mCMAKE_COMMAND = /opt/local/bin/cmake[m
+[32m+[m
+[32m+[m[32m# The command to remove a file.[m
+[32m+[m[32mRM = /opt/local/bin/cmake -E remove -f[m
+[32m+[m
+[32m+[m[32m# The program to use to edit the cache.[m
+[32m+[m[32mCMAKE_EDIT_COMMAND = /opt/local/bin/ccmake[m
+[32m+[m
+[32m+[m[32m# The top-level source directory on which CMake was run.[m
+[32m+[m[32mCMAKE_SOURCE_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+[32m+[m
+[32m+[m[32m# The top-level build directory on which CMake was run.[m
+[32m+[m[32mCMAKE_BINARY_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Targets provided globally by CMake.[m
+[32m+[m
+[32m+[m[32m# Special rule for the target edit_cache[m
+[32m+[m[32medit_cache:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."[m
+[32m+[m	[32m/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m[32m.PHONY : edit_cache[m
+[32m+[m
+[32m+[m[32m# Special rule for the target edit_cache[m
+[32m+[m[32medit_cache/fast: edit_cache[m
+[32m+[m[32m.PHONY : edit_cache/fast[m
+[32m+[m
+[32m+[m[32m# Special rule for the target rebuild_cache[m
+[32m+[m[32mrebuild_cache:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."[m
+[32m+[m	[32m/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m[32m.PHONY : rebuild_cache[m
+[32m+[m
+[32m+[m[32m# Special rule for the target rebuild_cache[m
+[32m+[m[32mrebuild_cache/fast: rebuild_cache[m
+[32m+[m[32m.PHONY : rebuild_cache/fast[m
+[32m+[m
+[32m+[m[32m# Special rule for the target test[m
+[32m+[m[32mtest:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."[m
+[32m+[m	[32m/opt/local/bin/ctest --force-new-ctest-process $(ARGS)[m
+[32m+[m[32m.PHONY : test[m
+[32m+[m
+[32m+[m[32m# Special rule for the target test[m
+[32m+[m[32mtest/fast: test[m
+[32m+[m[32m.PHONY : test/fast[m
+[32m+[m
+[32m+[m[32m# The main all target[m
+[32m+[m[32mall: cmake_check_build_system[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/Applications/CMakeFiles/progress.marks[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/all[m
+[32m+[m	[32m$(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles 0[m
+[32m+[m[32m.PHONY : all[m
+[32m+[m
+[32m+[m[32m# The main clean target[m
+[32m+[m[32mclean:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/clean[m
+[32m+[m[32m.PHONY : clean[m
+[32m+[m
+[32m+[m[32m# The main clean target[m
+[32m+[m[32mclean/fast: clean[m
+[32m+[m[32m.PHONY : clean/fast[m
+[32m+[m
+[32m+[m[32m# Prepare targets for installation.[m
+[32m+[m[32mpreinstall: all[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/preinstall[m
+[32m+[m[32m.PHONY : preinstall[m
+[32m+[m
+[32m+[m[32m# Prepare targets for installation.[m
+[32m+[m[32mpreinstall/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/preinstall[m
+[32m+[m[32m.PHONY : preinstall/fast[m
+[32m+[m
+[32m+[m[32m# clear depends[m
+[32m+[m[32mdepend:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1[m
+[32m+[m[32m.PHONY : depend[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mApplications/CMakeFiles/betwcent.dir/rule:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/betwcent.dir/rule[m
+[32m+[m[32m.PHONY : Applications/CMakeFiles/betwcent.dir/rule[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mbetwcent: Applications/CMakeFiles/betwcent.dir/rule[m
+[32m+[m[32m.PHONY : betwcent[m
+[32m+[m
+[32m+[m[32m# fast build rule for target.[m
+[32m+[m[32mbetwcent/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/build[m
+[32m+[m[32m.PHONY : betwcent/fast[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mApplications/CMakeFiles/graph500.dir/rule:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/graph500.dir/rule[m
+[32m+[m[32m.PHONY : Applications/CMakeFiles/graph500.dir/rule[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mgraph500: Applications/CMakeFiles/graph500.dir/rule[m
+[32m+[m[32m.PHONY : graph500[m
+[32m+[m
+[32m+[m[32m# fast build rule for target.[m
+[32m+[m[32mgraph500/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/build[m
+[32m+[m[32m.PHONY : graph500/fast[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mApplications/CMakeFiles/mcl.dir/rule:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 Applications/CMakeFiles/mcl.dir/rule[m
+[32m+[m[32m.PHONY : Applications/CMakeFiles/mcl.dir/rule[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mmcl: Applications/CMakeFiles/mcl.dir/rule[m
+[32m+[m[32m.PHONY : mcl[m
+[32m+[m
+[32m+[m[32m# fast build rule for target.[m
+[32m+[m[32mmcl/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/build[m
+[32m+[m[32m.PHONY : mcl/fast[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mBetwCent.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.o[m
+[32m+[m[32m.PHONY : BetwCent.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mBetwCent.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.i[m
+[32m+[m[32m.PHONY : BetwCent.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mBetwCent.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/betwcent.dir/build.make Applications/CMakeFiles/betwcent.dir/BetwCent.s[m
+[32m+[m[32m.PHONY : BetwCent.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mGraph500.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.o[m
+[32m+[m[32m.PHONY : Graph500.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mGraph500.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.i[m
+[32m+[m[32m.PHONY : Graph500.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mGraph500.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/graph500.dir/build.make Applications/CMakeFiles/graph500.dir/Graph500.s[m
+[32m+[m[32m.PHONY : Graph500.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mMCL.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.o[m
+[32m+[m[32m.PHONY : MCL.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mMCL.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.i[m
+[32m+[m[32m.PHONY : MCL.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mMCL.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f Applications/CMakeFiles/mcl.dir/build.make Applications/CMakeFiles/mcl.dir/MCL.s[m
+[32m+[m[32m.PHONY : MCL.s[m
+[32m+[m
+[32m+[m[32m# Help Target[m
+[32m+[m[32mhelp:[m
+[32m+[m	[32m@echo "The following are some of the valid targets for this Makefile:"[m
+[32m+[m	[32m@echo "... all (the default if no target is provided)"[m
+[32m+[m	[32m@echo "... clean"[m
+[32m+[m	[32m@echo "... depend"[m
+[32m+[m	[32m@echo "... betwcent"[m
+[32m+[m	[32m@echo "... edit_cache"[m
+[32m+[m	[32m@echo "... graph500"[m
+[32m+[m	[32m@echo "... mcl"[m
+[32m+[m	[32m@echo "... rebuild_cache"[m
+[32m+[m	[32m@echo "... test"[m
+[32m+[m	[32m@echo "... BetwCent.o"[m
+[32m+[m	[32m@echo "... BetwCent.i"[m
+[32m+[m	[32m@echo "... BetwCent.s"[m
+[32m+[m	[32m@echo "... Graph500.o"[m
+[32m+[m	[32m@echo "... Graph500.i"[m
+[32m+[m	[32m@echo "... Graph500.s"[m
+[32m+[m	[32m@echo "... MCL.o"[m
+[32m+[m	[32m@echo "... MCL.i"[m
+[32m+[m	[32m@echo "... MCL.s"[m
+[32m+[m[32m.PHONY : help[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Special targets to cleanup operation of make.[m
+[32m+[m
+[32m+[m[32m# Special rule to run CMake to check the build system integrity.[m
+[32m+[m[32m# No rule that depends on this can have commands that come from listfiles[m
+[32m+[m[32m# because they might be regenerated.[m
+[32m+[m[32mcmake_check_build_system:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0[m
+[32m+[m[32m.PHONY : cmake_check_build_system[m
+[32m+[m
+[1mdiff --git a/BFSFriends.h b/BFSFriends.h[m
+[1mindex d4faa11..e9c0917 100644[m
+[1m--- a/BFSFriends.h[m
+[1m+++ b/BFSFriends.h[m
+[36m@@ -13,10 +13,17 @@[m
+ #include "BitMap.h"[m
+ #include "BitMapCarousel.h"[m
+ #include "BitMapFringe.h"[m
+[32m+[m[32m#ifdef THREADED[m
+[32m+[m[32m#include <omp.h>[m
+[32m+[m[32m#endif[m
+ // AL: doesn't compile on OSX. #include <parallel/algorithm>[m
+ [m
+ using namespace std;[m
+ [m
+[32m+[m[32mextern double bu_local;[m
+[32m+[m[32mextern double bu_update;[m
+[32m+[m[32mextern double bu_rotate;[m
+[32m+[m
+ template <class IT, class NT, class DER>[m
+ class SpParMat;[m
+ [m
+[36m@@ -366,34 +373,56 @@[m [mSpDCCols<int,bool>::SpColIter* CalcSubStarts(SpParMat<IT,bool,UDER> & A, FullyDi[m
+   MPI::Intracomm RowWorld = cg->GetRowWorld();[m
+   RowWorld.Bcast(&rowuntil, 1, MPIType<IT>(), 0);[m
+   int numcols = cg->GetGridCols();[m
+[31m-  SpDCCols<int,bool>::SpColIter* starts = new SpDCCols<int,bool>::SpColIter[numcols+1];[m
+   SpDCCols<int,bool>::SpColIter colit = A.seq().begcol();[m
+[31m-  for(int c=0; c<numcols; c++) {[m
+[31m-    IT next_start = done.GetGlobalStartOfLocal(c) - rowuntil;[m
+[31m-    while(colit.colid() < next_start) {[m
+[31m-      ++colit;[m
+[32m+[m[32m  #ifdef THREADED[m
+[32m+[m[32m    SpDCCols<int,bool>::SpColIter* starts = new SpDCCols<int,bool>::SpColIter[numcols*cblas_splits+1];[m
+[32m+[m[32m    for(int c=0; c<numcols; c++) {[m
+[32m+[m[32m      IT curr_sub_start = done.GetGlobalStartOfLocal(c) - rowuntil;[m
+[32m+[m[32m      IT next_sub_start = done.GetGlobalEndOfLocal(c) - rowuntil;[m
+[32m+[m[32m      IT sub_range = next_sub_start - curr_sub_start;[m
+[32m+[m[32m      IT per_thread = (sub_range + cblas_splits - 1) / cblas_splits;[m
+[32m+[m[32m      IT curr_thread_start = curr_sub_start;[m
+[32m+[m[32m      for (int t=0; t<cblas_splits; t++) {[m
+[32m+[m[32m        while(colit.colid() < curr_thread_start) {[m
+[32m+[m[32m          ++colit;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        starts[c*cblas_splits + t] = colit;[m
+[32m+[m[32m        curr_thread_start = min(curr_thread_start + per_thread, next_sub_start);[m
+[32m+[m[32m      }[m
+     }[m
+[31m-    starts[c] = colit;[m
+[31m-    // this shouldn't reach .endcol if next_start is correct?[m
+[31m-  }[m
+[31m-  starts[numcols] = A.seq().endcol();[m
+[32m+[m[32m    starts[numcols*cblas_splits] = A.seq().endcol();[m
+[32m+[m[32m  #else[m
+[32m+[m[32m    SpDCCols<int,bool>::SpColIter* starts = new SpDCCols<int,bool>::SpColIter[numcols+1];[m
+[32m+[m[32m    for(int c=0; c<numcols; c++) {[m
+[32m+[m[32m      IT next_start = done.GetGlobalStartOfLocal(c) - rowuntil;[m
+[32m+[m[32m      while(colit.colid() < next_start) {[m
+[32m+[m[32m        ++colit;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      starts[c] = colit;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    starts[numcols] = A.seq().endcol();[m
+[32m+[m[32m  #endif[m
+   return starts;[m
+ }[m
+ [m
+ template <typename VT, typename IT>[m
+[31m-void UpdateParents(MPI::Intracomm &RowWorld, vector<pair<IT,IT> > &updates, FullyDistVec<IT,VT> &parents, int source, int dest, BitMapFringe<int64_t,int64_t> &bm_fringe) {[m
+[31m-  long send_words = updates.size()<<1, recv_words;[m
+[31m-  RowWorld.Sendrecv(&send_words, 1, MPI::LONG, dest, PUPSIZE,[m
+[31m-                    &recv_words, 1, MPI::LONG, source, PUPSIZE);[m
+[31m-  vector<pair<IT,IT> > recv_buff(recv_words>>1);[m
+[31m-  RowWorld.Sendrecv(updates.data(), send_words, MPIType<IT>(), dest, PUPDATA,[m
+[31m-                    recv_buff.data(), recv_words, MPIType<IT>(), source, PUPDATA);[m
+[31m-  typename vector<pair<IT,IT> >::iterator it;[m
+[31m-  for (it = recv_buff.begin(); it!= recv_buff.end(); it++) {[m
+[31m-    parents.SetLocalElement(it->first, it->second);[m
+[32m+[m[32mvoid UpdateParents(MPI::Intracomm &RowWorld, pair<IT,IT> *updates, int num_updates, FullyDistVec<IT,VT> &parents, int source, int dest, BitMapFringe<int64_t,int64_t> &bm_fringe) {[m
+[32m+[m[32m  int send_words = num_updates<<1, recv_words;[m
+[32m+[m[32m  RowWorld.Sendrecv(&send_words, 1, MPI::INT, dest, PUPSIZE,[m
+[32m+[m[32m                    &recv_words, 1, MPI::INT, source, PUPSIZE);[m
+[32m+[m[32m  pair<IT,IT>* recv_buff = new pair<IT,IT>[recv_words>>1];[m
+[32m+[m[32m  RowWorld.Sendrecv(updates, send_words, MPIType<IT>(), dest, PUPDATA,[m
+[32m+[m[32m                    recv_buff, recv_words, MPIType<IT>(), source, PUPDATA);[m
+[32m+[m
+[32m+[m[32m  #ifdef THREADED[m
+[32m+[m[32m    #pragma omp parallel for[m
+[32m+[m[32m  #endif[m
+[32m+[m[32m  for (int i=0; i<recv_words>>1; i++) {[m
+[32m+[m[32m    parents.SetLocalElement(recv_buff[i].first, recv_buff[i].second);[m
+   }[m
+[31m-  bm_fringe.IncrementNumSet(recv_buff.size());[m
+[31m-  updates.resize(0);[m
+[32m+[m
+[32m+[m[32m  bm_fringe.IncrementNumSet((recv_words>>1));[m
+[32m+[m[32m  delete[] recv_buff;[m
+ }[m
+ [m
+ [m
+[36m@@ -415,38 +444,98 @@[m [mvoid BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF[m
+   BitMap* frontier = bm_fringe.TransposeGather();[m
+   done.SaveOld();[m
+ [m
+[32m+[m[32m  #ifdef THREADED[m
+[32m+[m[32m  const int buff_size = 8192;[m
+[32m+[m[32m  pair<IT,IT>* local_update_heads[cblas_splits];[m
+[32m+[m[32m  for (int t=0; t<cblas_splits; t++)[m
+[32m+[m[32m    local_update_heads[t] = new pair<IT,IT>[buff_size];[m
+[32m+[m[32m  #endif[m
+[32m+[m
+   // do bottom up work[m
+   int numcols = cg->GetGridCols();[m
+   int mycol = cg->GetRankInProcRow();[m
+[31m-  vector<pair<IT,IT> > parent_updates;[m
+[31m-  SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;[m
+[31m-  SpDCCols<int,bool>::SpColIter colit, colit_end;[m
+[32m+[m[32m  pair<IT,IT>* parent_updates = new pair<IT,IT>[done.SizeOfChunk()<<1]; // over-allocated[m
+[32m+[m
+   for (int sub_step=0; sub_step<numcols; sub_step++) {[m
+[32m+[m[32m    int num_updates = 0;[m
+     IT sub_start = done.GetGlobalStartOfLocal();[m
+     int dest_slice = (mycol + sub_step) % numcols;[m
+     int source_slice = (mycol - sub_step + numcols) % numcols;[m
+[31m-    colit_end = starts[dest_slice+1];[m
+[31m-    for(colit = starts[dest_slice]; colit != colit_end; ++colit) {[m
+[31m-      int32_t local_row_ind = colit.colid();[m
+[31m-      IT row = local_row_ind + rowuntil;[m
+[31m-      if (!done.GetBit(row)) {[m
+[31m-        nzit_end = A.seq().endnz(colit);[m
+[31m-        for(nzit = A.seq().begnz(colit); nzit != nzit_end; ++nzit) {[m
+[31m-          int32_t local_col_ind = nzit.rowid();[m
+[31m-          IT col = local_col_ind + coluntil;[m
+[31m-          if (frontier->get_bit(local_col_ind)) {[m
+[31m-            parent_updates.push_back(make_pair(row-sub_start, col));[m
+[31m-            done.SetBit(row);[m
+[31m-            break;[m
+[32m+[m[32m    double t1 = MPI_Wtime();[m
+[32m+[m[32m    #ifdef THREADED[m
+[32m+[m[32m      #pragma omp parallel[m
+[32m+[m[32m      {[m
+[32m+[m[32m        int id = omp_get_thread_num();[m
+[32m+[m[32m        int num_locals=0;[m
+[32m+[m[32m        SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;[m
+[32m+[m[32m        SpDCCols<int,bool>::SpColIter colit, colit_end;[m
+[32m+[m[32m        pair<IT,IT>* local_updates = local_update_heads[id];[m
+[32m+[m[32m        // vector<pair<IT,IT> > local_updates;[m
+[32m+[m[32m        colit_end = starts[dest_slice*cblas_splits + id + 1];[m
+[32m+[m[32m        for(colit = starts[dest_slice*cblas_splits + id]; colit != colit_end; ++colit) {[m
+[32m+[m[32m          int32_t local_row_ind = colit.colid();[m
+[32m+[m[32m          IT row = local_row_ind + rowuntil;[m
+[32m+[m[32m          if (!done.GetBit(row)) {[m
+[32m+[m[32m            nzit_end = A.seq().endnz(colit);[m
+[32m+[m[32m            for(nzit = A.seq().begnz(colit); nzit != nzit_end; ++nzit) {[m
+[32m+[m[32m              int32_t local_col_ind = nzit.rowid();[m
+[32m+[m[32m              IT col = local_col_ind + coluntil;[m
+[32m+[m[32m              if (frontier->get_bit(local_col_ind)) {[m
+[32m+[m[32m                // local_updates.push_back(make_pair(row-sub_start, col));[m
+[32m+[m[32m                if (num_locals == buff_size) {[m
+[32m+[m[32m                  int copy_start = __sync_fetch_and_add(&num_updates, buff_size);[m
+[32m+[m[32m                  copy(local_updates, local_updates + buff_size, parent_updates + copy_start);[m
+[32m+[m[32m                  num_locals = 0;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                local_updates[num_locals++] = make_pair(row-sub_start, col);[m
+[32m+[m[32m                done.SetBit(row);[m
+[32m+[m[32m                break;[m
+[32m+[m[32m              }[m
+[32m+[m[32m            }[m
+           }[m
+         }[m
+[32m+[m[32m        int copy_start = __sync_fetch_and_add(&num_updates, num_locals);[m
+[32m+[m[32m        copy(local_updates, local_updates + num_locals, parent_updates + copy_start);[m
+       }[m
+[31m-    }[m
+[31m-    UpdateParents(RowWorld, parent_updates, parents, source_slice, dest_slice, bm_fringe);[m
+[32m+[m[32m    #else[m
+[32m+[m[32m      SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;[m
+[32m+[m[32m      SpDCCols<int,bool>::SpColIter colit, colit_end;[m
+[32m+[m[32m      colit_end = starts[dest_slice+1];[m
+[32m+[m[32m      for(colit = starts[dest_slice]; colit != colit_end; ++colit) {[m
+[32m+[m[32m        int32_t local_row_ind = colit.colid();[m
+[32m+[m[32m        IT row = local_row_ind + rowuntil;[m
+[32m+[m[32m        if (!done.GetBit(row)) {[m
+[32m+[m[32m          nzit_end = A.seq().endnz(colit);[m
+[32m+[m[32m          for(nzit = A.seq().begnz(colit); nzit != nzit_end; ++nzit) {[m
+[32m+[m[32m            int32_t local_col_ind = nzit.rowid();[m
+[32m+[m[32m            IT col = local_col_ind + coluntil;[m
+[32m+[m[32m            if (frontier->get_bit(local_col_ind)) {[m
+[32m+[m[32m              parent_updates[num_updates++] = make_pair(row-sub_start, col);[m
+[32m+[m[32m              done.SetBit(row);[m
+[32m+[m[32m              break;[m
+[32m+[m[32m            }[m
+[32m+[m[32m          }[m
+[32m+[m[32m        }[m
+[32m+[m[32m      }[m
+[32m+[m[32m    #endif[m
+[32m+[m[32m    double t2 = MPI_Wtime();[m
+[32m+[m[32m    bu_local += (t2-t1);[m
+[32m+[m[32m    t1 = MPI_Wtime();[m
+     done.RotateAlongRow();[m
+[32m+[m[32m    t2 = MPI_Wtime();[m
+[32m+[m[32m    bu_rotate += (t2-t1);[m
+[32m+[m[32m    t1 = MPI_Wtime();[m
+[32m+[m[32m    UpdateParents(RowWorld, parent_updates, num_updates, parents, source_slice, dest_slice, bm_fringe);[m
+[32m+[m[32m    t2 = MPI_Wtime();[m
+[32m+[m[32m    bu_update += (t2-t1);[m
+   }[m
+   bm_fringe.LoadFromNext();[m
+   done.UpdateFringe(bm_fringe);[m
+[32m+[m[32m  #ifdef THREADED[m
+[32m+[m[32m  for (int t=0; t<cblas_splits; t++)[m
+[32m+[m[32m    delete[] local_update_heads[t];[m
+[32m+[m[32m  #endif[m
+[32m+[m[32m  delete[] parent_updates;[m
+ }[m
+ [m
+ #endif[m
+[1mdiff --git a/BitMap.h b/BitMap.h[m
+[1mindex 453bc5f..f3855ee 100644[m
+[1m--- a/BitMap.h[m
+[1m+++ b/BitMap.h[m
+[36m@@ -33,6 +33,17 @@[m [mclass BitMap {[m
+   }[m
+ [m
+   inline[m
+[32m+[m[32m  void set_bit_atomic(long pos) {[m
+[32m+[m[32m    set_bit(pos);[m
+[32m+[m[32m    // uint64_t old_val, new_val;[m
+[32m+[m[32m    // uint64_t *loc = start + WORD_OFFSET(pos);[m
+[32m+[m[32m    // do {[m
+[32m+[m[32m    //   old_val = *loc;[m
+[32m+[m[32m    //   new_val = old_val | ((uint64_t) 1l<<BIT_OFFSET(pos));[m
+[32m+[m[32m    // } while(!__sync_bool_compare_and_swap(loc, old_val, new_val));[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  inline[m
+   bool get_bit(uint64_t pos) {[m
+     if (start[WORD_OFFSET(pos)] & (1l<<BIT_OFFSET(pos)))[m
+       return true;[m
+[1mdiff --git a/BitMapCarousel.h b/BitMapCarousel.h[m
+[1mindex d193838..2ec886f 100644[m
+[1m--- a/BitMapCarousel.h[m
+[1m+++ b/BitMapCarousel.h[m
+[36m@@ -13,11 +13,11 @@[m [mclass BitMapCarousel {[m
+     commGrid.reset(new CommGrid(*grid));   [m
+     rotation_index = 0;[m
+     global_size = glen;[m
+[31m-    local_size = -1;[m
+     my_procrow = commGrid->GetRankInProcCol();[m
+     my_proccol = commGrid->GetRankInProcRow();[m
+     procrows = commGrid->GetGridRows();[m
+     proccols = commGrid->GetGridCols();[m
+[32m+[m[32m    local_size = SizeOfChunk();[m
+     rotlenuntil = RotLengthUntil();[m
+     IT biggest_size = global_size - RotLengthUntil(procrows-1, proccols-1) + 63;[m
+     bm = new BitMap(biggest_size);[m
+[1mdiff --git a/BitMapFringe.h b/BitMapFringe.h[m
+[1mindex 728d36b..d7f8678 100644[m
+[1m--- a/BitMapFringe.h[m
+[1m+++ b/BitMapFringe.h[m
+[36m@@ -33,13 +33,15 @@[m [mclass BitMapFringe {[m
+     local_offset = x.LengthUntil();[m
+     local_num_set = 0;[m
+ [m
+[31m-    // Compute word displacements and send counts for gather[m
+[32m+[m[32m    // Compute word/byte displacements and send counts for gather[m
+     word_dpls = new int[colneighs];[m
+[31m-    for (int c=0; c<colneighs; c++)[m
+[31m-      word_dpls[c] = (dpls[c] + (64-(dpls[c]%64)))>>6;[m
+[32m+[m[32m    byte_dpls = new int[colneighs];[m
+     send_counts = new int[colneighs];[m
+[31m-    for (int c=0; c<colneighs; c++)[m
+[32m+[m[32m    for (int c=0; c<colneighs; c++) {[m
+[32m+[m[32m      word_dpls[c] = (dpls[c] + (64-(dpls[c]%64)))>>6;[m
+[32m+[m[32m      byte_dpls[c] = word_dpls[c]<<3;[m
+       send_counts[c] = (counts[c] - (64-(dpls[c] % 64)) + 63)>>6;[m
+[32m+[m[32m    }[m
+ [m
+     // Compute subword displacements and transpose exchange details[m
+     trans_subword_disp = dpls[colrank] % 64;[m
+[36m@@ -62,6 +64,7 @@[m [mclass BitMapFringe {[m
+     delete gather_bm;[m
+     delete[] send_counts;[m
+     delete[] word_dpls;[m
+[32m+[m[32m    delete[] byte_dpls;[m
+   }[m
+ [m
+ [m
+[36m@@ -160,6 +163,7 @@[m [mclass BitMapFringe {[m
+   BitMap* trans_bm;[m
+   BitMap* gather_bm;[m
+   int* send_counts;[m
+[32m+[m[32m  int* byte_dpls;[m
+   int* word_dpls;[m
+   int colneighs;[m
+   int colrank;[m
+[1mdiff --git a/DenseParVec.cpp b/DenseParVec.cpp[m
+[1mindex 3a90477..61181b0 100644[m
+[1m--- a/DenseParVec.cpp[m
+[1m+++ b/DenseParVec.cpp[m
+[36m@@ -546,7 +546,12 @@[m [mvoid DenseParVec<IT,NT>::RandPerm()[m
+ 		DiagWorld.Allgather(MPI::IN_PLACE, 1, MPIType<long>(), dist, 1, MPIType<long>());[m
+ 		IT lengthuntil = accumulate(dist, dist+diagrank, 0);[m
+ [m
+[31m-  		MTRand M;	// generate random numbers with Mersenne Twister[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m		[32muint64_t seed = 1;[m
+[32m+[m[32m#else[m
+[32m+[m		[32muint64_t seed= time(NULL);[m
+[32m+[m[32m#endif[m
+[32m+[m		[32mMTRand M(seed);	// generate random numbers with Mersenne Twister[m[41m [m
+ 		for(int i=0; i<size; ++i)[m
+ 		{[m
+ 			vecpair[i].first = M.rand();[m
+[1mdiff --git a/DistEdgeList.cpp b/DistEdgeList.cpp[m
+[1mindex ecca2cf..f2fbb54 100644[m
+[1m--- a/DistEdgeList.cpp[m
+[1m+++ b/DistEdgeList.cpp[m
+[36m@@ -211,7 +211,11 @@[m [mvoid DistEdgeList<IT>::GenGraph500Data(double initiator[4], int log_numverts, in[m
+ 		uint_fast32_t seed[5];[m
+ 		uint64_t rank = MPI::COMM_WORLD.Get_rank();[m
+ 		uint64_t size = MPI::COMM_WORLD.Get_size();[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m		[32muint64_t seed2 = 1383096201;	// using a problematic seed that is known to hit a bug[m
+[32m+[m[32m#else[m
+ 		uint64_t seed2 = time(NULL);[m
+[32m+[m[32m#endif[m
+ 		make_mrg_seed(rank, seed2, seed);[m
+ [m
+ 		// a single pair of [val0,val1] for all the computation, global across all processors[m
+[36m@@ -269,7 +273,12 @@[m [mvoid PermEdges(DistEdgeList<IT> & DEL)[m
+ 	int rank = (DEL.commGrid)->GetRank();[m
+ 	IT * dist = new IT[nproc];[m
+ [m
+[31m-	MTRand M;	// generate random numbers with Mersenne Twister[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m	[32mMTRand M(1);[m
+[32m+[m[32m#else[m
+[32m+[m[41m  [m	[32mMTRand M;	// generate random numbers with Mersenne Twister[m[41m [m
+[32m+[m[32m#endif[m
+[32m+[m[41m	[m
+ 	for(IT s=0; s< stages; ++s)[m
+ 	{[m
+ 		#ifdef DEBUG[m
+[1mdiff --git a/FullyDistSpVec.cpp b/FullyDistSpVec.cpp[m
+[1mindex 37f0126..2b5ec28 100644[m
+[1m--- a/FullyDistSpVec.cpp[m
+[1m+++ b/FullyDistSpVec.cpp[m
+[36m@@ -802,10 +802,10 @@[m [mvoid FullyDistSpVec<IT,NT>::DebugPrint()[m
+ 			// read n_per_proc integers and print them[m
+ 			fread(data, dsize, dist[i],f);	[m
+ [m
+[31m-			cout << "Elements stored on proc " << i << ": {";[m
+[32m+[m			[32mcout << "Elements stored on proc " << i << ": {" << endl;[m
+ 			for (int j = 0; j < dist[i]; j++)[m
+ 			{[m
+[31m-				cout << "(" << data[j].ind << "," << data[j].num << "), ";[m
+[32m+[m				[32mcout << "(" << data[j].ind << "," << data[j].num << ")" << endl;[m
+ 			}[m
+ 			cout << "}" << endl;[m
+ 		}[m
+[1mdiff --git a/FullyDistVec.cpp b/FullyDistVec.cpp[m
+[1mindex 6673057..747a6d1 100644[m
+[1m--- a/FullyDistVec.cpp[m
+[1m+++ b/FullyDistVec.cpp[m
+[36m@@ -684,7 +684,15 @@[m [mvoid FullyDistVec<IT,NT>::RandPerm()[m
+ 	IT * dist = new IT[nprocs];[m
+ 	dist[rank] = size;[m
+ 	World.Allgather(MPI::IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>());[m
+[31m-  	MTRand M;	// generate random numbers with Mersenne Twister[m
+[32m+[m[41m	[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m	[32muint64_t seed = 1383098845;[m
+[32m+[m[32m#else[m
+[32m+[m	[32muint64_t seed= time(NULL);[m
+[32m+[m[32m#endif[m
+[32m+[m	[32mMTRand M(seed);	// generate random numbers with Mersenne Twister[m[41m [m
+[32m+[m[41m	[m
+[32m+[m[41m	[m
+ 	for(int i=0; i<size; ++i)[m
+ 	{[m
+ 		vecpair[i].first = M.rand();[m
+[1mdiff --git a/Makefile b/Makefile[m
+[1mindex 41e2c41..57e63e6 100644[m
+[1m--- a/Makefile[m
+[1m+++ b/Makefile[m
+[36m@@ -33,19 +33,19 @@[m [mcmake_force:[m
+ SHELL = /bin/sh[m
+ [m
+ # The CMake executable.[m
+[31m-CMAKE_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/cmake[m
+[32m+[m[32mCMAKE_COMMAND = /opt/local/bin/cmake[m
+ [m
+ # The command to remove a file.[m
+[31m-RM = /global/common/franklin/usg/cmake/2.8.2/bin/cmake -E remove -f[m
+[32m+[m[32mRM = /opt/local/bin/cmake -E remove -f[m
+ [m
+ # The program to use to edit the cache.[m
+[31m-CMAKE_EDIT_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/ccmake[m
+[32m+[m[32mCMAKE_EDIT_COMMAND = /opt/local/bin/ccmake[m
+ [m
+ # The top-level source directory on which CMake was run.[m
+[31m-CMAKE_SOURCE_DIR = /global/homes/a/abuluc/combblas[m
+[32m+[m[32mCMAKE_SOURCE_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+ [m
+ # The top-level build directory on which CMake was run.[m
+[31m-CMAKE_BINARY_DIR = /global/homes/a/abuluc/combblas[m
+[32m+[m[32mCMAKE_BINARY_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+ [m
+ #=============================================================================[m
+ # Targets provided globally by CMake.[m
+[36m@@ -53,7 +53,7 @@[m [mCMAKE_BINARY_DIR = /global/homes/a/abuluc/combblas[m
+ # Special rule for the target edit_cache[m
+ edit_cache:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m	[32m/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+ .PHONY : edit_cache[m
+ [m
+ # Special rule for the target edit_cache[m
+[36m@@ -63,7 +63,7 @@[m [medit_cache/fast: edit_cache[m
+ # Special rule for the target rebuild_cache[m
+ rebuild_cache:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m	[32m/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+ .PHONY : rebuild_cache[m
+ [m
+ # Special rule for the target rebuild_cache[m
+[36m@@ -73,7 +73,7 @@[m [mrebuild_cache/fast: rebuild_cache[m
+ # Special rule for the target test[m
+ test:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ctest --force-new-ctest-process $(ARGS)[m
+[32m+[m	[32m/opt/local/bin/ctest --force-new-ctest-process $(ARGS)[m
+ .PHONY : test[m
+ [m
+ # Special rule for the target test[m
+[36m@@ -82,9 +82,9 @@[m [mtest/fast: test[m
+ [m
+ # The main all target[m
+ all: cmake_check_build_system[m
+[31m-	$(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles /global/homes/a/abuluc/combblas/CMakeFiles/progress.marks[m
+[32m+[m	[32m$(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles/progress.marks[m
+ 	$(MAKE) -f CMakeFiles/Makefile2 all[m
+[31m-	$(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles 0[m
+[32m+[m	[32m$(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles 0[m
+ .PHONY : all[m
+ [m
+ # The main clean target[m
+[1mdiff --git a/ParFriendsExt.h b/ParFriendsExt.h[m
+[1mindex c0400ba..36538c4 100644[m
+[1m--- a/ParFriendsExt.h[m
+[1m+++ b/ParFriendsExt.h[m
+[36m@@ -715,7 +715,11 @@[m [mvoid RandPerm(SpParVec<IU,IU> & V)[m
+ 		dist[diagrank] = (long) V.getlocnnz();[m
+ 		DiagWorld.Allgather(MPI::IN_PLACE, 0, MPIType<long>(), dist, 1, MPIType<long>());[m
+ 		[m
+[31m-  		MTRand M;	// generate random numbers with Mersenne Twister[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m		[32mMTRand M(1);[m
+[32m+[m[32m#else[m
+[32m+[m		[32mMTRand M;	// generate random numbers with Mersenne Twister[m[41m [m
+[32m+[m[32m#endif[m
+ 		for(int i=0; i<V.getlocnnz(); ++i)[m
+ 		{[m
+ 			vecpair[i].first = M.rand();[m
+[1mdiff --git a/RefGen21.h b/RefGen21.h[m
+[1mindex fa3f26c..5b264c3 100644[m
+[1m--- a/RefGen21.h[m
+[1m+++ b/RefGen21.h[m
+[36m@@ -246,7 +246,11 @@[m [mpublic:[m
+ 	static inline void make_graph(int log_numverts, int64_t M, int64_t* nedges_ptr, packed_edge** result_ptr) [m
+ 	{[m
+   		int rank, size;[m
+[32m+[m[32m#ifdef DETERMINISTIC[m
+[32m+[m		[32muint64_t userseed1 = 3737844653;	// know problematic seed useful for debugging[m
+[32m+[m[32m#else[m
+ 		uint64_t userseed1 = (uint64_t) init_random();[m
+[32m+[m[32m#endif[m
+ [m
+   		/* Spread the two 64-bit numbers into five nonzero values in the correct range. */[m
+   		uint_fast32_t seed[5];[m
+[1mdiff --git a/ReleaseTests/Makefile b/ReleaseTests/Makefile[m
+[1mindex db9b7d4..c7f28a6 100644[m
+[1m--- a/ReleaseTests/Makefile[m
+[1m+++ b/ReleaseTests/Makefile[m
+[36m@@ -33,19 +33,19 @@[m [mcmake_force:[m
+ SHELL = /bin/sh[m
+ [m
+ # The CMake executable.[m
+[31m-CMAKE_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/cmake[m
+[32m+[m[32mCMAKE_COMMAND = /opt/local/bin/cmake[m
+ [m
+ # The command to remove a file.[m
+[31m-RM = /global/common/franklin/usg/cmake/2.8.2/bin/cmake -E remove -f[m
+[32m+[m[32mRM = /opt/local/bin/cmake -E remove -f[m
+ [m
+ # The program to use to edit the cache.[m
+[31m-CMAKE_EDIT_COMMAND = /global/common/franklin/usg/cmake/2.8.2/bin/ccmake[m
+[32m+[m[32mCMAKE_EDIT_COMMAND = /opt/local/bin/ccmake[m
+ [m
+ # The top-level source directory on which CMake was run.[m
+[31m-CMAKE_SOURCE_DIR = /global/homes/a/abuluc/combblas[m
+[32m+[m[32mCMAKE_SOURCE_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+ [m
+ # The top-level build directory on which CMake was run.[m
+[31m-CMAKE_BINARY_DIR = /global/homes/a/abuluc/combblas[m
+[32m+[m[32mCMAKE_BINARY_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+ [m
+ #=============================================================================[m
+ # Targets provided globally by CMake.[m
+[36m@@ -53,7 +53,7 @@[m [mCMAKE_BINARY_DIR = /global/homes/a/abuluc/combblas[m
+ # Special rule for the target edit_cache[m
+ edit_cache:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m	[32m/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+ .PHONY : edit_cache[m
+ [m
+ # Special rule for the target edit_cache[m
+[36m@@ -63,7 +63,7 @@[m [medit_cache/fast: edit_cache[m
+ # Special rule for the target rebuild_cache[m
+ rebuild_cache:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m	[32m/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+ .PHONY : rebuild_cache[m
+ [m
+ # Special rule for the target rebuild_cache[m
+[36m@@ -73,7 +73,7 @@[m [mrebuild_cache/fast: rebuild_cache[m
+ # Special rule for the target test[m
+ test:[m
+ 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."[m
+[31m-	/global/common/franklin/usg/cmake/2.8.2/bin/ctest --force-new-ctest-process $(ARGS)[m
+[32m+[m	[32m/opt/local/bin/ctest --force-new-ctest-process $(ARGS)[m
+ .PHONY : test[m
+ [m
+ # Special rule for the target test[m
+[36m@@ -82,14 +82,14 @@[m [mtest/fast: test[m
+ [m
+ # The main all target[m
+ all: cmake_check_build_system[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles /global/homes/a/abuluc/combblas/ReleaseTests/CMakeFiles/progress.marks[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/all[m
+[31m-	$(CMAKE_COMMAND) -E cmake_progress_start /global/homes/a/abuluc/combblas/CMakeFiles 0[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/ReleaseTests/CMakeFiles/progress.marks[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/all[m
+[32m+[m	[32m$(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles 0[m
+ .PHONY : all[m
+ [m
+ # The main clean target[m
+ clean:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/clean[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/clean[m
+ .PHONY : clean[m
+ [m
+ # The main clean target[m
+[36m@@ -98,22 +98,22 @@[m [mclean/fast: clean[m
+ [m
+ # Prepare targets for installation.[m
+ preinstall: all[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/preinstall[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/preinstall[m
+ .PHONY : preinstall[m
+ [m
+ # Prepare targets for installation.[m
+ preinstall/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/preinstall[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/preinstall[m
+ .PHONY : preinstall/fast[m
+ [m
+ # clear depends[m
+ depend:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1[m
+ .PHONY : depend[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/IndexingTest.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IndexingTest.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IndexingTest.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/IndexingTest.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -122,12 +122,12 @@[m [mIndexingTest: ReleaseTests/CMakeFiles/IndexingTest.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ IndexingTest/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/build[m
+ .PHONY : IndexingTest/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/IndexingTiming.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IndexingTiming.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IndexingTiming.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/IndexingTiming.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -136,12 +136,12 @@[m [mIndexingTiming: ReleaseTests/CMakeFiles/IndexingTiming.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ IndexingTiming/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/build[m
+ .PHONY : IndexingTiming/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/IteratorTest.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IteratorTest.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/IteratorTest.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/IteratorTest.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -150,12 +150,12 @@[m [mIteratorTest: ReleaseTests/CMakeFiles/IteratorTest.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ IteratorTest/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/build[m
+ .PHONY : IteratorTest/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/MultTest.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/MultTest.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/MultTest.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/MultTest.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -164,12 +164,12 @@[m [mMultTest: ReleaseTests/CMakeFiles/MultTest.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ MultTest/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/build[m
+ .PHONY : MultTest/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/MultTiming.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/MultTiming.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/MultTiming.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/MultTiming.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -178,12 +178,12 @@[m [mMultTiming: ReleaseTests/CMakeFiles/MultTiming.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ MultTiming/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/build[m
+ .PHONY : MultTiming/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/ReduceTest.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/ReduceTest.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/ReduceTest.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/ReduceTest.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -192,12 +192,12 @@[m [mReduceTest: ReleaseTests/CMakeFiles/ReduceTest.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ ReduceTest/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/build[m
+ .PHONY : ReduceTest/fast[m
+ [m
+ # Convenience name for target.[m
+ ReleaseTests/CMakeFiles/TransposeTest.dir/rule:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/TransposeTest.dir/rule[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 ReleaseTests/CMakeFiles/TransposeTest.dir/rule[m
+ .PHONY : ReleaseTests/CMakeFiles/TransposeTest.dir/rule[m
+ [m
+ # Convenience name for target.[m
+[36m@@ -206,112 +206,112 @@[m [mTransposeTest: ReleaseTests/CMakeFiles/TransposeTest.dir/rule[m
+ [m
+ # fast build rule for target.[m
+ TransposeTest/fast:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/build[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/build[m
+ .PHONY : TransposeTest/fast[m
+ [m
+ # target to build an object file[m
+ IndexingTest.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.o[m
+ .PHONY : IndexingTest.o[m
+ [m
+ # target to preprocess a source file[m
+ IndexingTest.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.i[m
+ .PHONY : IndexingTest.i[m
+ [m
+ # target to generate assembly for a file[m
+ IndexingTest.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTest.dir/build.make ReleaseTests/CMakeFiles/IndexingTest.dir/IndexingTest.s[m
+ .PHONY : IndexingTest.s[m
+ [m
+ # target to build an object file[m
+ IndexingTiming.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.o[m
+ .PHONY : IndexingTiming.o[m
+ [m
+ # target to preprocess a source file[m
+ IndexingTiming.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.i[m
+ .PHONY : IndexingTiming.i[m
+ [m
+ # target to generate assembly for a file[m
+ IndexingTiming.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IndexingTiming.dir/build.make ReleaseTests/CMakeFiles/IndexingTiming.dir/IndexingTiming.s[m
+ .PHONY : IndexingTiming.s[m
+ [m
+ # target to build an object file[m
+ IteratorTest.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.o[m
+ .PHONY : IteratorTest.o[m
+ [m
+ # target to preprocess a source file[m
+ IteratorTest.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.i[m
+ .PHONY : IteratorTest.i[m
+ [m
+ # target to generate assembly for a file[m
+ IteratorTest.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/IteratorTest.dir/build.make ReleaseTests/CMakeFiles/IteratorTest.dir/IteratorTest.s[m
+ .PHONY : IteratorTest.s[m
+ [m
+ # target to build an object file[m
+ MultTest.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.o[m
+ .PHONY : MultTest.o[m
+ [m
+ # target to preprocess a source file[m
+ MultTest.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.i[m
+ .PHONY : MultTest.i[m
+ [m
+ # target to generate assembly for a file[m
+ MultTest.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTest.dir/build.make ReleaseTests/CMakeFiles/MultTest.dir/MultTest.s[m
+ .PHONY : MultTest.s[m
+ [m
+ # target to build an object file[m
+ MultTiming.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.o[m
+ .PHONY : MultTiming.o[m
+ [m
+ # target to preprocess a source file[m
+ MultTiming.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.i[m
+ .PHONY : MultTiming.i[m
+ [m
+ # target to generate assembly for a file[m
+ MultTiming.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/MultTiming.dir/build.make ReleaseTests/CMakeFiles/MultTiming.dir/MultTiming.s[m
+ .PHONY : MultTiming.s[m
+ [m
+ # target to build an object file[m
+ ReduceTest.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.o[m
+ .PHONY : ReduceTest.o[m
+ [m
+ # target to preprocess a source file[m
+ ReduceTest.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.i[m
+ .PHONY : ReduceTest.i[m
+ [m
+ # target to generate assembly for a file[m
+ ReduceTest.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/ReduceTest.dir/build.make ReleaseTests/CMakeFiles/ReduceTest.dir/ReduceTest.s[m
+ .PHONY : ReduceTest.s[m
+ [m
+ # target to build an object file[m
+ TransposeTest.o:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.o[m
+ .PHONY : TransposeTest.o[m
+ [m
+ # target to preprocess a source file[m
+ TransposeTest.i:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.i[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.i[m
+ .PHONY : TransposeTest.i[m
+ [m
+ # target to generate assembly for a file[m
+ TransposeTest.s:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.s[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f ReleaseTests/CMakeFiles/TransposeTest.dir/build.make ReleaseTests/CMakeFiles/TransposeTest.dir/TransposeTest.s[m
+ .PHONY : TransposeTest.s[m
+ [m
+ # Help Target[m
+[36m@@ -362,6 +362,6 @@[m [mhelp:[m
+ # No rule that depends on this can have commands that come from listfiles[m
+ # because they might be regenerated.[m
+ cmake_check_build_system:[m
+[31m-	cd /global/homes/a/abuluc/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0[m
+ .PHONY : cmake_check_build_system[m
+ [m
+[1mdiff --git a/graph500-1.2/generator/Makefile b/graph500-1.2/generator/Makefile[m
+[1mindex bea4ca9..e264d3d 100644[m
+[1m--- a/graph500-1.2/generator/Makefile[m
+[1m+++ b/graph500-1.2/generator/Makefile[m
+[36m@@ -1,25 +1,295 @@[m
+[31m-AR = ar[m
+[31m-RANLIB = ranlib[m
+[31m-# CC is the C++ compiler, while cc is the C compiler[m
+[31m-COMPILER = CC[m
+[31m-CFLAGS = -Drestrict=__restrict__ -O2 -DNDEBUG -DGRAPH_GENERATOR_SEQ -fPIC # -g # -pg[m
+[31m-# CFLAGS = -Drestrict=__restrict__[m
+[31m-LDFLAGS = #-g # -pg[m
+[32m+[m[32m# CMAKE generated file: DO NOT EDIT![m
+[32m+[m[32m# Generated by "Unix Makefiles" Generator, CMake Version 2.8[m
+ [m
+[31m-all: libgraph_generator_seq.a [m
+[32m+[m[32m# Default target executed when no arguments are given to make.[m
+[32m+[m[32mdefault_target: all[m
+[32m+[m[32m.PHONY : default_target[m
+ [m
+[31m-generator_test_seq: generator_test_seq.c libgraph_generator_seq.a[m
+[31m-	CC $(CFLAGS) $(LDFLAGS) -o generator_test_seq generator_test_seq.c -L. -lgraph_generator_seq -lm[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Special targets provided by cmake.[m
+ [m
+[32m+[m[32m# Disable implicit rules so canoncical targets will work.[m
+[32m+[m[32m.SUFFIXES:[m
+ [m
+[31m-# mrg_transitions.c only contains one global array. mpicxx will ignore it, needs a C compiler for it to even exist in the object file.[m
+[31m-# If mpicxx is used to compile this then you'll get an "undefined mrg_skip_matrices" linker error.[m
+[31m-mrg_transitions.o:[m
+[31m-	cc $(CFLAGS) -c -o mrg_transitions.o mrg_transitions.c[m
+[32m+[m[32m# Remove some rules from gmake that .SUFFIXES does not remove.[m
+[32m+[m[32mSUFFIXES =[m
+[32m+[m
+[32m+[m[32m.SUFFIXES: .hpux_make_needs_suffix_list[m
+[32m+[m
+[32m+[m[32m# Produce verbose output by default.[m
+[32m+[m[32mVERBOSE = 1[m
+[32m+[m
+[32m+[m[32m# Suppress display of executed commands.[m
+[32m+[m[32m$(VERBOSE).SILENT:[m
+[32m+[m
+[32m+[m[32m# A target that is always out of date.[m
+[32m+[m[32mcmake_force:[m
+[32m+[m[32m.PHONY : cmake_force[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Set environment variables for the build.[m
+[32m+[m
+[32m+[m[32m# The shell in which to execute make rules.[m
+[32m+[m[32mSHELL = /bin/sh[m
+[32m+[m
+[32m+[m[32m# The CMake executable.[m
+[32m+[m[32mCMAKE_COMMAND = /opt/local/bin/cmake[m
+[32m+[m
+[32m+[m[32m# The command to remove a file.[m
+[32m+[m[32mRM = /opt/local/bin/cmake -E remove -f[m
+[32m+[m
+[32m+[m[32m# The program to use to edit the cache.[m
+[32m+[m[32mCMAKE_EDIT_COMMAND = /opt/local/bin/ccmake[m
+[32m+[m
+[32m+[m[32m# The top-level source directory on which CMake was run.[m
+[32m+[m[32mCMAKE_SOURCE_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+[32m+[m
+[32m+[m[32m# The top-level build directory on which CMake was run.[m
+[32m+[m[32mCMAKE_BINARY_DIR = /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Targets provided globally by CMake.[m
+[32m+[m
+[32m+[m[32m# Special rule for the target edit_cache[m
+[32m+[m[32medit_cache:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."[m
+[32m+[m	[32m/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m[32m.PHONY : edit_cache[m
+[32m+[m
+[32m+[m[32m# Special rule for the target edit_cache[m
+[32m+[m[32medit_cache/fast: edit_cache[m
+[32m+[m[32m.PHONY : edit_cache/fast[m
+ [m
+[31m-libgraph_generator_seq.a: btrd_binomial_distribution.o splittable_mrg.o mrg_transitions.o graph_generator.o permutation_gen.o make_graph.o utils.o scramble_edges.o[m
+[31m-	$(AR) cruv libgraph_generator_seq.a btrd_binomial_distribution.o splittable_mrg.o mrg_transitions.o graph_generator.o permutation_gen.o make_graph.o utils.o scramble_edges.o[m
+[31m-	$(RANLIB) libgraph_generator_seq.a[m
+[32m+[m[32m# Special rule for the target rebuild_cache[m
+[32m+[m[32mrebuild_cache:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."[m
+[32m+[m	[32m/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)[m
+[32m+[m[32m.PHONY : rebuild_cache[m
+ [m
+[32m+[m[32m# Special rule for the target rebuild_cache[m
+[32m+[m[32mrebuild_cache/fast: rebuild_cache[m
+[32m+[m[32m.PHONY : rebuild_cache/fast[m
+[32m+[m
+[32m+[m[32m# Special rule for the target test[m
+[32m+[m[32mtest:[m
+[32m+[m	[32m@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."[m
+[32m+[m	[32m/opt/local/bin/ctest --force-new-ctest-process $(ARGS)[m
+[32m+[m[32m.PHONY : test[m
+[32m+[m
+[32m+[m[32m# Special rule for the target test[m
+[32m+[m[32mtest/fast: test[m
+[32m+[m[32m.PHONY : test/fast[m
+[32m+[m
+[32m+[m[32m# The main all target[m
+[32m+[m[32mall: cmake_check_build_system[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/graph500-1.2/generator/CMakeFiles/progress.marks[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 graph500-1.2/generator/all[m
+[32m+[m	[32m$(CMAKE_COMMAND) -E cmake_progress_start /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas/CMakeFiles 0[m
+[32m+[m[32m.PHONY : all[m
+[32m+[m
+[32m+[m[32m# The main clean target[m
+ clean:[m
+[31m-	-rm -f generator_test_seq libgraph_generator_seq.a *.o[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 graph500-1.2/generator/clean[m
+[32m+[m[32m.PHONY : clean[m
+[32m+[m
+[32m+[m[32m# The main clean target[m
+[32m+[m[32mclean/fast: clean[m
+[32m+[m[32m.PHONY : clean/fast[m
+[32m+[m
+[32m+[m[32m# Prepare targets for installation.[m
+[32m+[m[32mpreinstall: all[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 graph500-1.2/generator/preinstall[m
+[32m+[m[32m.PHONY : preinstall[m
+[32m+[m
+[32m+[m[32m# Prepare targets for installation.[m
+[32m+[m[32mpreinstall/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 graph500-1.2/generator/preinstall[m
+[32m+[m[32m.PHONY : preinstall/fast[m
+[32m+[m
+[32m+[m[32m# clear depends[m
+[32m+[m[32mdepend:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1[m
+[32m+[m[32m.PHONY : depend[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mgraph500-1.2/generator/CMakeFiles/GraphGenlib.dir/rule:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f CMakeFiles/Makefile2 graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/rule[m
+[32m+[m[32m.PHONY : graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/rule[m
+[32m+[m
+[32m+[m[32m# Convenience name for target.[m
+[32m+[m[32mGraphGenlib: graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/rule[m
+[32m+[m[32m.PHONY : GraphGenlib[m
+[32m+[m
+[32m+[m[32m# fast build rule for target.[m
+[32m+[m[32mGraphGenlib/fast:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build[m
+[32m+[m[32m.PHONY : GraphGenlib/fast[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mbtrd_binomial_distribution.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/btrd_binomial_distribution.o[m
+[32m+[m[32m.PHONY : btrd_binomial_distribution.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mbtrd_binomial_distribution.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/btrd_binomial_distribution.i[m
+[32m+[m[32m.PHONY : btrd_binomial_distribution.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mbtrd_binomial_distribution.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/btrd_binomial_distribution.s[m
+[32m+[m[32m.PHONY : btrd_binomial_distribution.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mgraph_generator.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/graph_generator.o[m
+[32m+[m[32m.PHONY : graph_generator.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mgraph_generator.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/graph_generator.i[m
+[32m+[m[32m.PHONY : graph_generator.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mgraph_generator.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/graph_generator.s[m
+[32m+[m[32m.PHONY : graph_generator.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mmake_graph.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/make_graph.o[m
+[32m+[m[32m.PHONY : make_graph.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mmake_graph.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/make_graph.i[m
+[32m+[m[32m.PHONY : make_graph.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mmake_graph.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/make_graph.s[m
+[32m+[m[32m.PHONY : make_graph.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mmrg_transitions.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/mrg_transitions.o[m
+[32m+[m[32m.PHONY : mrg_transitions.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mmrg_transitions.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/mrg_transitions.i[m
+[32m+[m[32m.PHONY : mrg_transitions.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mmrg_transitions.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/mrg_transitions.s[m
+[32m+[m[32m.PHONY : mrg_transitions.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mpermutation_gen.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/permutation_gen.o[m
+[32m+[m[32m.PHONY : permutation_gen.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mpermutation_gen.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/permutation_gen.i[m
+[32m+[m[32m.PHONY : permutation_gen.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mpermutation_gen.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/permutation_gen.s[m
+[32m+[m[32m.PHONY : permutation_gen.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mscramble_edges.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/scramble_edges.o[m
+[32m+[m[32m.PHONY : scramble_edges.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mscramble_edges.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/scramble_edges.i[m
+[32m+[m[32m.PHONY : scramble_edges.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mscramble_edges.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/scramble_edges.s[m
+[32m+[m[32m.PHONY : scramble_edges.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32msplittable_mrg.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/splittable_mrg.o[m
+[32m+[m[32m.PHONY : splittable_mrg.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32msplittable_mrg.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/splittable_mrg.i[m
+[32m+[m[32m.PHONY : splittable_mrg.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32msplittable_mrg.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/splittable_mrg.s[m
+[32m+[m[32m.PHONY : splittable_mrg.s[m
+[32m+[m
+[32m+[m[32m# target to build an object file[m
+[32m+[m[32mutils.o:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/utils.o[m
+[32m+[m[32m.PHONY : utils.o[m
+[32m+[m
+[32m+[m[32m# target to preprocess a source file[m
+[32m+[m[32mutils.i:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/utils.i[m
+[32m+[m[32m.PHONY : utils.i[m
+[32m+[m
+[32m+[m[32m# target to generate assembly for a file[m
+[32m+[m[32mutils.s:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(MAKE) -f graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/build.make graph500-1.2/generator/CMakeFiles/GraphGenlib.dir/utils.s[m
+[32m+[m[32m.PHONY : utils.s[m
+[32m+[m
+[32m+[m[32m# Help Target[m
+[32m+[m[32mhelp:[m
+[32m+[m	[32m@echo "The following are some of the valid targets for this Makefile:"[m
+[32m+[m	[32m@echo "... all (the default if no target is provided)"[m
+[32m+[m	[32m@echo "... clean"[m
+[32m+[m	[32m@echo "... depend"[m
+[32m+[m	[32m@echo "... GraphGenlib"[m
+[32m+[m	[32m@echo "... edit_cache"[m
+[32m+[m	[32m@echo "... rebuild_cache"[m
+[32m+[m	[32m@echo "... test"[m
+[32m+[m	[32m@echo "... btrd_binomial_distribution.o"[m
+[32m+[m	[32m@echo "... btrd_binomial_distribution.i"[m
+[32m+[m	[32m@echo "... btrd_binomial_distribution.s"[m
+[32m+[m	[32m@echo "... graph_generator.o"[m
+[32m+[m	[32m@echo "... graph_generator.i"[m
+[32m+[m	[32m@echo "... graph_generator.s"[m
+[32m+[m	[32m@echo "... make_graph.o"[m
+[32m+[m	[32m@echo "... make_graph.i"[m
+[32m+[m	[32m@echo "... make_graph.s"[m
+[32m+[m	[32m@echo "... mrg_transitions.o"[m
+[32m+[m	[32m@echo "... mrg_transitions.i"[m
+[32m+[m	[32m@echo "... mrg_transitions.s"[m
+[32m+[m	[32m@echo "... permutation_gen.o"[m
+[32m+[m	[32m@echo "... permutation_gen.i"[m
+[32m+[m	[32m@echo "... permutation_gen.s"[m
+[32m+[m	[32m@echo "... scramble_edges.o"[m
+[32m+[m	[32m@echo "... scramble_edges.i"[m
+[32m+[m	[32m@echo "... scramble_edges.s"[m
+[32m+[m	[32m@echo "... splittable_mrg.o"[m
+[32m+[m	[32m@echo "... splittable_mrg.i"[m
+[32m+[m	[32m@echo "... splittable_mrg.s"[m
+[32m+[m	[32m@echo "... utils.o"[m
+[32m+[m	[32m@echo "... utils.i"[m
+[32m+[m	[32m@echo "... utils.s"[m
+[32m+[m[32m.PHONY : help[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m#=============================================================================[m
+[32m+[m[32m# Special targets to cleanup operation of make.[m
+[32m+[m
+[32m+[m[32m# Special rule to run CMake to check the build system integrity.[m
+[32m+[m[32m# No rule that depends on this can have commands that come from listfiles[m
+[32m+[m[32m# because they might be regenerated.[m
+[32m+[m[32mcmake_check_build_system:[m
+[32m+[m	[32mcd /Users/abuluc/SVNLocal/Bottomup-CombBLAS/combblas && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0[m
+[32m+[m[32m.PHONY : cmake_check_build_system[m
+[41m+[m

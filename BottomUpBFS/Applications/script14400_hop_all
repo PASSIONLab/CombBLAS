@@ -1,0 +1,12 @@
+#PBS -S /bin/bash
+#PBS -q regular
+#PBS -l mppwidth=14400
+#PBS -l walltime=00:35:00
+#PBS -j eo
+#PBS -V
+
+export MPICH_RANK_REORDER_DISPLAY=1
+cd $SCRATCH
+aprun -n 14400 ./graph500 Force 32 FastGen
+export MPICH_RANK_REORDER_METHOD=3
+aprun -n 14400 ./graph500 Force 32 FastGen
