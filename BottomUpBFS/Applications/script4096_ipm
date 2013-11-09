@@ -1,0 +1,12 @@
+#PBS -S /usr/bin/tcsh 
+#PBS -q premium
+#PBS -l mppwidth=4096
+#PBS -l walltime=00:15:00
+#PBS -j eo
+#PBS -V
+
+setenv IPM_LOGDIR "."
+setenv IPM_LOG "full"
+setenv MPICH_RANK_REORDER_METHOD 3
+cd $SCRATCH
+aprun -n 4096 ./graph500_withipm_batch_bottom Force 31 FastGen

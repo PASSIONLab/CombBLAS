@@ -1,0 +1,11 @@
+#PBS -S /bin/bash
+#PBS -q debug
+#PBS -l mppwidth=1764
+#PBS -l walltime=00:10:00
+#PBS -j eo
+#PBS -V
+
+module load craype-hugepages16M
+export HUGETLB_VERBOSE=3
+cd $PBS_O_WORKDIR
+aprun -n 1764 ./graph500 Force 30 FastGen

@@ -1,0 +1,9 @@
+#PBS -S /bin/bash
+#PBS -q regular
+#PBS -l mppwidth=14400
+#PBS -l walltime=00:30:00
+#PBS -j eo
+#PBS -V
+
+cd $PBS_O_WORKDIR
+aprun -n 14400 ./graph500 Force 32 FastGen

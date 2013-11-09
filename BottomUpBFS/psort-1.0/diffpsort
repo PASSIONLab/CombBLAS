@@ -1,0 +1,43 @@
+Only in .: diffpsort
+Only in ./driver: psort
+diff -r '--exclude=.svn' '--exclude=.o' ./src/psort_samplesort.h /global/homes/a/abuluc/kdt/trunk/CombBLAS/psort-1.0//src/psort_samplesort.h
+60c60
+<   static void set_splitters(long *part_gsize, long n_parts, int nproc, long *dist, long *out) {
+---
+>   static inline void set_splitters(long *part_gsize, long n_parts, int nproc, long *dist, long *out) {
+diff -r '--exclude=.svn' '--exclude=.o' ./src/psort_util.h /global/homes/a/abuluc/kdt/trunk/CombBLAS/psort-1.0//src/psort_util.h
+124c124
+<   static void progress (int rank, int step, char *s, MPI_Comm comm) {
+---
+>   static inline void progress (int rank, int step, const char *s, MPI_Comm comm) {
+153a154,158
+> 	/*
+> 	AL: This is the original code. This is legal in C but not in C++ because
+> 	C++ string literals are const char* instead of just char*, so this code has constness
+> 	errors.
+> 	
+158a164,171
+>     */
+>     const char *stage[5] = {
+>       "",
+>       mysort.description(),
+>       mysplit.description(),
+>       "alltoall",
+>       mymerge.description()
+>     };
+221a235,239
+> 	/*
+> 	AL: This is the original code. This is legal in C but not in C++ because
+> 	C++ string literals are const char* instead of just char*, so this code has constness
+> 	errors.
+> 	
+227a246,254
+>     */
+>     const char* stage[6] = {
+>       "",
+>       "sample splitters",
+>       "partition",
+>       "alltoall",
+>       mysort.description(),
+>       "adjust boundaries"
+>     };

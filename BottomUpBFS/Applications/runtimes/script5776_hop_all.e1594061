@@ -1,0 +1,40 @@
+ModuleCmd_Switch.c(172):ERROR:152: Module 'openmpi' is currently not loaded
+ModuleCmd_Switch.c(172):ERROR:152: Module 'openmpi' is currently not loaded
+Forcing scale to : 31
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               5.887617 s
+Generated renamed edge lists
+Generation took 5.8908 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 28256363-by-28256363
+Duplicates removed (or summed): 257958620 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 4.828 seconds
+Converted to Boolean and removed 5446 loops
+As a whole: 2147483648 rows and 2147483648 columns and 34101774302 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found (and permuted) non-isolated vertices
+As a whole: 2147483648 rows and 2147483648 columns and 34101774302 nonzeros
+[NID 01028] 2012-04-30 13:28:56 Apid 7186355: initiated application termination
+[NID 01028] 2012-04-30 13:28:34 Apid 7186355: OOM killer terminated this process.
+Application 7186355 exit signals: Killed
+Application 7186355 resources: utime ~0s, stime ~244s
+
+ + --------------------------------------------------------------------------
+ +        Job name: script5776_hop_all
+ +          Job Id: 1594061.sdb
+ +          System: hopper
+ +     Queued Time: Mon Apr 30 13:22:04 2012
+ +      Start Time: Mon Apr 30 13:23:01 2012
+ + Completion Time: Mon Apr 30 13:28:58 2012
+ +            User: abuluc
+ +        MOM Host: nid03934
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:30374:hopper11,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5240kb,vmem=39468kb,walltime=00:05:57
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/a/abuluc/combblas/Applications
+ +     Submit Args: script5776_hop_all
+ + --------------------------------------------------------------------------
+
