@@ -727,44 +727,43 @@ void FullyDistVec<IT,NT>::RandPerm()
 #else
 	MPI_Comm World = commGrid->GetWorld();
 	IT size = LocArrSize();
-	vector< vector< IT > > data_send(nprocs);
+	vector< vector< NT > > data_send(nprocs);
 	for(int i=0; i<size; ++i)
-        {
+    {
 		// send each entry to a random process
-		uint32_t dest = M.randInt(nprocs);
+		uint32_t dest = M.randInt(nprocs-1);
 		data_send[dest].push_back(arr[i]);
 	}
-        int * sendcnt = new int[nprocs];
-        int * sdispls = new int[nprocs];
-        for(int i=0; i<nprocs; ++i)
-                sendcnt[i] = (int) data_send[i].size();
+    int * sendcnt = new int[nprocs];
+    int * sdispls = new int[nprocs];
+    for(int i=0; i<nprocs; ++i) sendcnt[i] = (int) data_send[i].size();
 
-        int * rdispls = new int[nprocs];
-        int * recvcnt = new int[nprocs];
-        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
-        sdispls[0] = 0;
-        rdispls[0] = 0;
-        for(int i=0; i<nprocs-1; ++i)
-        {
-                sdispls[i+1] = sdispls[i] + sendcnt[i];
-                rdispls[i+1] = rdispls[i] + recvcnt[i];
-        }
-        IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    int * rdispls = new int[nprocs];
+    int * recvcnt = new int[nprocs];
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	if(totrecv > std::numeric_limits<int>::max())
 	{
 		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << totrecv << endl;
 	}
+    vector<NT>().swap(arr);  // make space for temporaries
 
-	IT * sendbuf = new IT[size];
-        for(int i=0; i<nprocs; ++i)
-        {
-                copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
-                vector<IT>().swap(data_send[i]);	// free memory
-        }
-	IT * recvbuf = new IT[totrecv];
-        MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  
+	NT * sendbuf = new NT[size];
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
+        vector<NT>().swap(data_send[i]);	// free memory
+    }
+	NT * recvbuf = new IT[totrecv];
+    MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<NT>(), recvbuf, recvcnt, rdispls, MPIType<NT>(), World);
 	std::random_shuffle(recvbuf, recvbuf+ totrecv);	// locally shuffle data
-        delete [] sendbuf;
 
 	int64_t * localcounts = new int64_t[nprocs];
 	localcounts[rank] = totrecv;
@@ -772,32 +771,56 @@ void FullyDistVec<IT,NT>::RandPerm()
 	int64_t glenuntil = std::accumulate(localcounts, localcounts+rank, static_cast<int64_t>(0));	
 
 	vector< vector< IT > > locs_send(nprocs);
-	for(IT i=0; i< totrecv; ++i)
+	for(IT i=0; i< totrecv; ++i)    // determine new locations w/ prefix sums
 	{
 		IT remotelocind;
 		int owner = Owner(glenuntil+i, remotelocind);
 		locs_send[owner].push_back(remotelocind);
 		data_send[owner].push_back(recvbuf[i]);	
 	}
-	delete [] recvbuf;
-        for(int i=0; i<nprocs; ++i) sendcnt[i] = (int) data_send[i].size();
-        MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
-        sdispls[0] = 0;
-        rdispls[0] = 0;
-        for(int i=0; i<nprocs-1; ++i)
-        {
-                sdispls[i+1] = sdispls[i] + sendcnt[i];
-                rdispls[i+1] = rdispls[i] + recvcnt[i];
-        }
-       	totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-	if(totrecv > std::numeric_limits<int>::max())
+
+    for(int i=0; i<nprocs; ++i) sendcnt[i] = (int) data_send[i].size(); // = locs_send.size()
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World); 
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    IT newsize = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	if(newsize > std::numeric_limits<int>::max())
 	{
-		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << totrecv << endl;
+		cout << "COMBBLAS_WARNING: total data to receive exceeds max int: " << newsize << endl;
 	}
-	sendbuf = new IT[size];	// re-allocate
-		
-	
-		
+	// re-use the receive buffer as sendbuf of second stage
+    IT totalsend = std::accumulate(sendcnt, sendcnt+nprocs, static_cast<IT>(0));
+    if(totalsend != totrecv || newsize != size)
+    {
+        cout << "COMBBLAS_WARNING: sending different sized data than received: " << totalsend << "=" << totrecv << " , " << newsize << "=" << size << endl;
+    }
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(data_send[i].begin(), data_send[i].end(), recvbuf+sdispls[i]);
+        vector<NT>().swap(data_send[i]);	// free memory
+    }
+    // re-use the send buffer as receive buffer of second stage
+    MPI_Alltoallv(recvbuf, sendcnt, sdispls, MPIType<NT>(), sendbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] recvbuf;
+    IT * newinds = new IT[totalsend];
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(locs_send[i].begin(), locs_send[i].end(), newinds+sdispls[i]);
+        vector<IT>().swap(locs_send[i]);	// free memory
+    }
+    IT * indsbuf = new IT[size];
+	MPI_Alltoallv(newinds, sendcnt, sdispls, MPIType<IT>(), indsbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    DeleteAll(newinds, sendcnt, sdispls, rdispls, recvcnt);
+    arr.resize(size);
+    for(IT i=0; i<size; ++i)
+    {
+        arr[indsbuf[i]] = sendbuf[i];
+    }
 #endif
 }
 
