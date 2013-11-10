@@ -1,7 +1,7 @@
 AR = ar
 RANLIB = ranlib
 CC = cc
-CFLAGS = -g -Wall -Drestrict=__restrict__ -fast -no-ipo -DNDEBUG -DGRAPH_GENERATOR_SEQ # -g -pg
+CFLAGS = -g -Wall -Drestrict=__restrict__ -DNDEBUG -DGRAPH_GENERATOR_SEQ # -fast -no-ipo -g -pg
 # CFLAGS = -g -Wall -Drestrict=__restrict__
 LDFLAGS = -g # -g -pg
 
