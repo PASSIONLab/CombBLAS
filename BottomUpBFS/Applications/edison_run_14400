@@ -6,4 +6,4 @@
 #PBS -V
 
 cd $PBS_O_WORKDIR
-aprun -n 14400 ./graph500 Force 32 FastGen
+aprun -n 14400 ./graph500 Force 33 FastGen

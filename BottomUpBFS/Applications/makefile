@@ -3,11 +3,12 @@
 
 GCCOPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ 
 GCCDEB = -g -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ #-DDEBUG
-COMPILER = mpicxx
+COMPILER = CC
 GCCFLAGS = $(GCCOPT) -DCOMBBLAS_TR1 #-DCOMBBLAS_LEGACY
 ICCFLAGS = $(INCADD) -DNDEBUG -fast -no-ipo -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -DCOMBBLAS_TR1
-FLAGS = $(GCCFLAGS) #-std=c++11 -DTHREADED -fopenmp
+FLAGS = $(ICCFLAGS) #-std=c++11 -DTHREADED -fopenmp
 COMBBLAS = ..
+THREADFLAGS = -openmp -DTHREADED 
 
 
 #include  $(TAUROOTDIR)/include/Makefile
@@ -45,6 +46,9 @@ APowers.o:  APowers.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h 
 Graph500.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpParHelper.cpp ../FullyDistVec.cpp
 	$(COMPILER) $(FLAGS) -c -o Graph500.o Graph500.cpp
 
+Graph500_threaded.o:  Graph500.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpParHelper.cpp ../FullyDistVec.cpp
+	$(COMPILER) $(FLAGS) $(THREADFLAGS) -c -o Graph500_threaded.o Graph500.cpp
+
 FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h
 	$(COMPILER) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp
 
@@ -62,6 +66,9 @@ apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
 
 graph500:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) -o graph500 Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
+graph500_threaded:	MemoryPool.o CommGrid.o MPIType.o Graph500_threaded.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(FLAGS) $(THREADFLAGS) -o graph500_threaded Graph500_threaded.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
 
 graph500_withipm:	MemoryPool.o CommGrid.o MPIType.o Graph500.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
 	$(COMPILER) $(FLAGS) -o graph500_withipm Graph500.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq $(IPM_GNU)
