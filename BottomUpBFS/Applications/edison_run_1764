@@ -5,7 +5,5 @@
 #PBS -j eo
 #PBS -V
 
-module load craype-hugepages16M
-export HUGETLB_VERBOSE=3
 cd $PBS_O_WORKDIR
 aprun -n 1764 ./graph500 Force 30 FastGen

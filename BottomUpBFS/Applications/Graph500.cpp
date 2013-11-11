@@ -41,14 +41,12 @@ double bu_update;
 double bu_rotate;
 
 #ifdef _OPENMP
-int cblas_splits = omp_get_max_threads(); 
-#else
-int cblas_splits = 1;
+	int cblas_splits = omp_get_max_threads(); 
 #endif
 
 #include "../CombBLAS.h"
 
-#define ITERS 128
+#define ITERS 64
 #define EDGEFACTOR 16
 
 // 64-bit floor(log2(x)) function 
