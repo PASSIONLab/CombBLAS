@@ -1,0 +1,267 @@
+Graph500 Breadth-First Search Benchmark: 2-D MPI Tuned Implementation
+Jeremiah Willcock and Andrew Lumsdaine
+---------------------------------------------------------------------
+
+This implementation of the Graph 500 benchmark is cleaned up from the
+version used for the most recent Intrepid, Jugene, and Big Red 2 entries
+in the Graph 500 list.  The implementation is based on the Blue Gene/P
+code described in the paper:
+
+  Fabio Checconi, Fabrizio Petrini, Jeremiah Willcock, Andrew Lumsdaine,
+  Anamitra Roy Choudhury, and Yogish Sabharwal.  "Breaking the Speed and
+  Scalability Barriers for Graph Exploration on Distributed-Memory
+  Machines." In Supercomputing, November 2012.
+
+Please cite this paper when using this code for your entry or comparing
+against it in your own work.
+
+The released version of the code differs from the version described in the
+paper in two ways:
+
+1. The released code supports non-power-of-2 process counts, but the total
+process count must be of the form 2*(n^2) for some positive integer n.
+
+2. The released code creates the predecessor map in one final pass after
+the rest of the algorithm is finished, not as part of each BFS level as
+described in the paper.
+
+***
+When comparing your own algorithms to this code, please apply the
+suggestions given in the "Tuning" section of this document, especially
+topology mapping and using the best compilers for each part of the code,
+to achieve a fair comparison.
+***
+
+Directions:
+
+The code is written in straightforward C++03 and C99, and is known to
+build out of the box on standard Linux x86-64 systems, the Cray XE-6
+platform, and the Blue Gene/Q; there is also a Makefile provided for Blue
+Gene/P.  To build the code, either use one of the existing Makefile.*
+files in mpi/ or copy one of them and customize it for your system.  GNU
+Make is probably required.  With GNU Make, to compile the code, run:
+
+    make -C mpi -f Makefile.xxx
+
+from the directory containing this README file, where "xxx" is the suffix
+on the Makefile you wish to use.  The Makefiles for x86-64 platforms
+(Makefile.linux and Makefile.crayxe6) set #defines to include assembly
+versions of some kernels (see the "Tweaked assembly versions of some
+kernels for x86-64" section for more details).  
+
+The MPI process count to use is hardwired into each executable at
+compile-time.  There is a SIZES variable in the Makefiles that sets which
+process counts to use; the build process automatically builds one
+executable for each entry in that list.  They are placed in the mpi/
+directory and are named "graph500_mpi_custom_N" where N is the process
+count.  The code will fail at run-time if the number of MPI ranks does not
+match the count set at compile-time, so it is important to run the correct
+executable for each test.
+
+The only required parameter to the executable is the scale (logarithm base
+2 of the number of vertices).  Thus, the syntax to use is:
+
+    [your MPI launcher] ./mpi/graph500_mpi_custom_[N] [scale]
+
+When OpenMP is enabled, MPI_THREAD_MULTIPLE is required; see your
+platform's documentation for how to enable it.
+
+The settings[] array in mpi/main.cpp sets which BFS settings to use during
+the algorithm.  In the default version, a number of tests are run but not
+timed officially to determine the optimal broadcast tree for your machine,
+followed by the official runs (which then use the best tree size found).
+After that, a run with extra statistics gathering is performed.  Change
+the settings[] array to customize this; the fields are:
+
+1. Compression level (integer, 0-3): determines the maximum level of
+bitmap compression to apply.  The value 3 provides the most compression, 0
+disables it entirely, and other values enable some but not all compression
+algorithms.  Use 3 except for experimentation; the highest-compression
+algorithms will not be applied unless they provide actual compression.
+
+2. Number of BFSes to run (integer, 1-): determines the number of searches
+with different roots to run with this set of parameters.
+
+3. Whether to keep queue statistics (boolean): see the "Instrumentation"
+section for documentation on this option.
+
+4. Whether to keep average level times (boolean): enables printing of
+detailed information on the timing of each part of each BFS level; see
+"Instrumentation" below for more details.
+
+5. Whether to include these results in the official Graph 500 results
+(boolean): only runs with this flag set will be included in the summary
+statistics printed to standard output in the Graph 500 output format.
+
+6. Broadcast step size (integer, 2-): sets the size of the top level in
+the two-level broadcast algorithm used for bitmap queues.
+
+Output comes in two forms: debug output produced on standard error, and
+the official results produced on standard output.  The official results
+follow the format in the Graph 500 specification; see that for the
+meanings of the various fields.  The debugging output provides both a
+progress indication and much useful information on the details of what the
+code is doing; the flags in the settings[] array described above enable
+more verbosity in this output.
+
+Platform notes:
+
+-- Cray XE-6
+
+Makefile.crayxe6 assumes that cc and CC are the Cray compilers and that
+gcc is GCC 4.7 or above.  Using "module load gcc/4.8.1" with the latest
+version of Cray PE installed will load a new enough version of GCC.
+
+When running on this platform, the MPICH_MAX_THREAD_SAFETY environment
+variable must be defined to "multiple" or an error will be printed and the
+program will abort.  Setting HUGETLB_MORECORE to "yes" is also recommended
+(linking to that library is done in the default Makefile for XE-6).
+Remember also to set OMP_NUM_THREADS and provide an appropriate -d option
+to the aprun command.
+
+-- PowerPC
+
+The code has not been tested on PowerPC recently.  However, it is designed
+to be portable to big-endian systems, compiles on Blue Gene/Q, and the IBM
+compiler's intrinsics (for both 32-bit and 64-bit systems) are used
+automatically when present.  For the best performance on this platform,
+the order of bits within bitmaps should be reversed; please contact the
+address at the end of the README file for the necessary modified files.
+
+-- 32-bit systems
+
+On 32-bit systems, especially PowerPC, be sure to remove the #define of
+FAST_64BIT_ARITHMETIC in generator/user_settings.h to speed up graph
+generation.
+
+-- Blue Gene/P
+
+The compiler specified in Makefile.bgp is likely specific to Argonne
+National Laboratory's configuration; it is likely to be necessary to
+change it for other systems.  An OpenMP-enabled compiler is highly
+recommended, and the default version of GCC on BG/P does not support that
+feature.
+
+Tuning:
+
+The code is currently tuned for Cray XE-6 and x86-64 in general; there
+should not be anything Cray-specific in it, however, except for the
+print_node_topology() function in mpi/bfs_custom.cpp which is commented
+out by default and needs to be modified before enabling it.
+
+- Compilers:
+
+The code has some unusual characteristics with respect to which compilers
+provide the best performance.  A number of key kernels have been separated
+into a separate file mpi/kernels.c so that they can be compiled with a
+different compiler than the rest of the code.  The KERNELCC and
+KERNELCFLAGS variables in the Makefiles set which compiler to use for
+those; experimentation is typically required to determine the best
+compiler and settings.  Otherwise, the compiler flags to use are usually
+straightforward; use maximum optimization, enable the "restrict" keyword,
+and enable OpenMP if possible.  The example Makefiles for Cray XE-6 and
+BG/P show the best compilers found so far on those platforms; the Cray
+Makefile assumes that CC and cc are the Cray compilers and that gcc is a
+recent version of GCC (in particular, it assumes version 4.7 or above;
+change -Ofast to -O3 and -march=native to -march=<your platform> for
+earlier versions).
+
+- Large pages:
+
+Large pages should be used if supported by your platform (for example,
+libhugetlbfs on Linux).  Please see your platform's documentation for how
+to enable these; it usually requires both compile-time and run-time
+settings.  The compile-time flag is already enabled in the .linux and
+.crayxe6 Makefiles.
+
+- Topology mapping:
+
+Topology mapping is important to the performance of this code.  The data
+distribution used is the "folded triangle" layout from the paper cited
+above (the square layout used for BG/Q in the paper is not supported).
+The code (except the BG/P version) expects the MPI ranks to be in a 3-D
+grid with dimensions n*n*2; row-major ordering is assumed (i.e., the first
+dimension of the three has the largest stride).  The neighbors of cell (a,
+b, c) in the grid are (a+/-1, b, c) and (a, b+/-1, c), with no wrapping of
+the coordinates; there is no connection in the C dimension except for
+vertices where a=0 or b=n-1.  There are other indirect connections that
+will be used only if they help performance, and that do not need to be
+considered during topology mapping.  The triangle->grid mapping is in the
+function compute_coord_owner_info() in mpi/bfs_custom.cpp.  You can also
+use your platform's empirical topology mapping generator (if there is one)
+to find the best pattern to use.
+
+-- Cray XE-6:
+
+For Cray systems, you can build a topology mapping file using a command
+similar to:
+
+    grid_order -R -Z -c 4,2,1 -g 52,52,2
+
+This command is part of the "perftools" module.  The "4,2,1" part is the
+layout within each node, and the "52,52,2" part is the layout of the MPI
+processes between the nodes.  See the "grid_order" manual page for
+details.  The "-R" and "-Z" options are important to use to match the MPI
+rank numbering expected by the code.  See
+http://www.nersc.gov/users/computational-systems/hopper/performance-and-optimization/reordering-mpi-ranks/
+for how to use such a rank file.  There is an example (using the settings
+given above) in the file mpi/MPICH_RANK_ORDER-example.
+
+-- Blue Gene/P:
+
+If the code is compiled on a Blue Gene/P platform, some specialized,
+system-specific topology mapping functions are used, and they override any
+settings given to the job launcher or MPI implementation.  These mapping
+functions have only been tested with power-of-2 process counts (in
+particular, counts of the form 2^(2*n+1) for some positive integer n).
+Running multiple MPI ranks per node and/or not using the entire machine
+may be necessary to satisfy this requirement on some system
+configurations.  The code has not been tested on this platform but
+successfully compiles on it.
+
+-- Blue Gene/Q
+
+The code has been compiled but not tested on this platform.  Topology
+mapping has not yet been implemented.
+
+- Tweaked assembly versions of some kernels for x86-64:
+
+There is a modified version of the GCC-generated assembly code for some
+functions in mpi/kernels.c in mpi/kernels_tweaked.s.  These versions are
+included by default by those Makefiles for x86-64 platforms.  To use the C
+code instead, remove kernels_tweaked.o from the OBJECTS variable and
+remove the -D option for USE_ASM_VERSIONS_FOR_MATVEC in the KERNELCFLAGS
+variable.  The changes in the tweaked version relative to the assembly
+code generated by GCC by default are small but have a noticeable impact on
+performance; they primarily involve removing unnecessary instructions
+(such as masking shift counts) and rearranging some shift operations.
+
+Instrumentation:
+
+Performance instrumentation is available in the code; in particular, it
+can generate the statistics in Figure 4(a) of the Supercomputing paper
+mentioned above.  In the normal run configuration, all runs except for the
+official, timed runs keep this extra information; the second boolean value
+in each entry in the settings[] array (in main.cpp) controls the
+collection of these.  If the first boolean value in an entry is true,
+statistics on the number of predecessor map updates removed by owner
+assignment are also kept and printed at the end of the BFS.  
+
+Credits:
+
+Some of the code (in particular, generator/ and some files in mpi/) are
+from the basic MPI reference implementation.
+
+Copyright and license information:
+
+Copyright 2010-2013 The Trustees of Indiana University.
+
+Distributed under the Boost Software License, Version 1.0.  (See
+accompanying file generator/LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+
+Contact:
+
+Please contact Jeremiah Willcock (jewillco@crest.iu.edu) with any
+questions or comments on the code.
+
