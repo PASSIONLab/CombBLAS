@@ -179,6 +179,7 @@ def PAPI_library_init():
 #def PAPI_perror():
 #    pass
 
+libpapi.PAPI_strerror.restype = c_char_p
 def PAPI_strerror(errorcode):
     return libpapi.PAPI_strerror(errorcode)
 
@@ -208,5 +209,6 @@ def PAPI_stop_counters(counters):
     errorcode = libpapi.PAPI_stop_counters(counters, c_int(len(counters)))
     _pyPAPI_handle_error(errorcode)
 
+libpapi.PAPI_get_real_usec.restype = c_longlong
 def PAPI_get_real_usec():
 	return libpapi.PAPI_get_real_usec()

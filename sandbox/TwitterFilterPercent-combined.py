@@ -18,15 +18,22 @@ useDelIsolated = False
 usePAPI = True
 num_PAPI_counters = 1000
 events_nm = []
-events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
+#events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
+events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_ICM", "PAPI_L1_DCM", "PAPI_L2_TCM"]#, "PAPI_L1_ICA", "PAPI_L1_DCA"]
 #events_nm = events_nm + ["PAPI_L2_TCR", "PAPI_L3_TCR"]
 #events_nm = events_nm + ["PAPI_L2_TCW", "PAPI_L3_TCW"] # cache read/writes
 #events_nm = events_nm + ["PAPI_TLB_DM", "PAPI_TLB_IM", "PAPI_TLB_TL"] # TLB
-#preSelectedStartingVerts = None
-preSelectedStartingVerts = [14547] * 16
 
 #latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
-latestDatesToCheck = [10000] # 1%, 10%, 25%, 100%
+#latestDatesToCheck = [10000] # 100%
+#preSelectedStartingVerts = None
+
+latestDatesToCheck = [10000] # 100%
+preSelectedStartingVerts = [4299890] * 16 # scale 23, for 100% filter
+
+#latestDatesToCheck = [1000] # 10%
+#preSelectedStartingVerts = [4597878] * 16 # scale 23, for 10% filter
+
 
 repeatEachStart = 1#10 # how many times to do each start
 repeatGroups = [""]#["A", ""] # [""] for just doing it once, ["A",""] for doing it twice
@@ -96,12 +103,12 @@ if usePAPI:
 	np = kdt._nproc()
 	percents = '_'.join(map(str, map(lambda x: x/100, latestDatesToCheck)))
 	event_join_str = '-'.join(events_nm)
-	
+
 	if preSelectedStartingVerts is not None:
 		preSel_s = "_start%d"%(preSelectedStartingVerts[0])
 	else:
 		preSel_s = ""
-	
+
 	papi_output_filename = "temp_papi_output_scale%d_filter%s%s_events%s_%s_np%d_p%02d.txt"%(gen_scale, percents, preSel_s, event_join_str, "-".join(whatToDoList), np, my_proc_rank)
 	papi_output_file = open(papi_output_filename, "w")
 
@@ -369,9 +376,9 @@ class SemiringTypeToUse:
 def run(SR_to_use, use_SEJITS_Filter, materialize):
 	global G, nstarts, origDegrees, filterUpperValue, sejits_filter
 	global bfsTree_SR, bfsTree_s2nd_d, bfsTree_isneg1, bfsTree_s1st
-	global sejits_SR, s2nd_d, isneg1, s1st	
+	global sejits_SR, s2nd_d, isneg1, s1st
 	global SR_python, s2nd_python, isneg1_python, s1st_python
-			
+
 	runStarts = nstarts
 	filterPercent = filterUpperValue/100.0
 
