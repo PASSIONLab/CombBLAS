@@ -1,0 +1,47 @@
+# Copyright (C) 2013 The Trustees of Indiana University.             
+#                                                                         
+# Use, modification and distribution is subject to the Boost Software     
+# License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at 
+# http://www.boost.org/LICENSE_1_0.txt)                                   
+#                                                                         
+#  Authors: Jeremiah Willcock                                             
+#           Andrew Lumsdaine                                              
+
+CFLAGS_COMMON = -mcpu=450fp2 -fopenmp -O3 -misel -DHAVE_ISEL -D__bgp__ -g3 -Wall -Wextra -Wconversion -Drestrict=__restrict__ -DNDEBUG -DGRAPH_GENERATOR_MPI -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX
+CFLAGS = $(CFLAGS_COMMON) -std=gnu99
+CXXFLAGS = $(CFLAGS_COMMON)
+LDFLAGS = -g3 -fopenmp
+# MPICC = env MPICH_CC=/home/projects/gcc/4.7.0/bin/powerpc-bgp-linux-gcc /bgsys/drivers/ppcfloor/comm/bin/mpicc
+# MPICXX = env MPICH_CXX=/home/projects/gcc/4.7.0/bin/powerpc-bgp-linux-g++ /bgsys/drivers/ppcfloor/comm/bin/mpicxx
+MPICC = /soft/apps/current/gcc-4.3.2/comm/default/bin/mpicc
+MPICXX = /soft/apps/current/gcc-4.3.2/comm/default/bin/mpicxx
+KERNELCC = mpixlc_r
+KERNELCFLAGS = -g -O5 -DNDEBUG -qlanglvl=extc99
+
+SIZES = 2 8 32 128 512 2048 8192 32768
+EXES = $(SIZES:%=graph500_mpi_custom_%)
+all: $(EXES)
+
+GENERATOR_OBJECTS = ../generator/graph_generator.o ../generator/make_graph.o ../generator/splittable_mrg.o ../generator/utils.o
+OBJECTS = main.o utils.o validate.o bitmap.o kernels.o
+HEADERS = bitmap.hpp common.hpp mpi_workarounds.hpp onesided.hpp coroutine.hpp kernels.h
+
+$(EXES): graph500_mpi_custom_%: bfs_custom_%.o $(OBJECTS) $(GENERATOR_OBJECTS)
+	$(MPICXX) -o $@ $(OBJECTS) $(GENERATOR_OBJECTS) $< -lm $(LDFLAGS)
+
+bfs_custom_%.o: bfs_custom.cpp $(HEADERS)
+	$(MPICXX) $(CXXFLAGS) -DPROCESS_COUNT=$(@:bfs_custom_%.o=%) -c bfs_custom.cpp -o $@
+
+$(OBJECTS) : $(HEADERS)
+
+.c.o: $(HEADERS)
+	$(MPICC) $(CFLAGS) -c $< -o $@
+
+.cpp.o: $(HEADERS)
+	$(MPICXX) $(CXXFLAGS) -c $< -o $@
+
+kernels.o: kernels.c kernels.h
+	$(KERNELCC) $(KERNELCFLAGS) -c $<
+
+clean:
+	-rm -f graph500_mpi_custom_* *.o *.a ../generator/*.o
