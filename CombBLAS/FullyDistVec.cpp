@@ -836,7 +836,7 @@ void FullyDistVec<IT,NT>::RandPerm()
         copy(data_send[i].begin(), data_send[i].end(), sendbuf+sdispls[i]);
         vector<NT>().swap(data_send[i]);	// free memory
     }
-	NT * recvbuf = new IT[totrecv];
+	NT * recvbuf = new NT[totrecv];
     MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<NT>(), recvbuf, recvcnt, rdispls, MPIType<NT>(), World);
 	std::random_shuffle(recvbuf, recvbuf+ totrecv);	// locally shuffle data
     
