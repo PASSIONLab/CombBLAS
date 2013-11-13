@@ -11,7 +11,7 @@ COMBBLAS = ../../CombBLAS
 OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK -Wreturn-type -w
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DTR1 -DNDEBUG
 COMPILER = mpicxx
-FLAGS = $(DEB) -fPIC -DCOMBBLAS_TR1 -undefined dynamic_lookup -DSWIG_TYPE_TABLE=pyCombBLAS
+FLAGS = $(DEB) -fPIC -DCOMBBLAS_TR1 -DDETERMINISTIC -undefined dynamic_lookup -DSWIG_TYPE_TABLE=pyCombBLAS
 
 all: pyCombBLAS.py
 

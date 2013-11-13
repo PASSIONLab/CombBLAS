@@ -11,6 +11,7 @@ COMBBLAS = "CombBLAS/"
 PCB = "kdt/pyCombBLAS/"
 GENERATOR = "CombBLAS/graph500-1.2/generator/"
 debug = False
+deterministic = True # means that some random operations will be statically seeded so their results are reproducible.
 
 ############################################################################
 #### HELPER FUNCTIONS
@@ -352,6 +353,9 @@ if not usingWindows and not check_for_restrict(include_dirs, define_macros):
 
 if not debug:
 	define_macros.append(('NDEBUG', '1'))
+	
+if deterministic:
+	define_macros.append(('DETERMINISTIC', '1'))
 
 ############################################################################
 #### RUN DISTUTILS

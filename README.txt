@@ -2,10 +2,11 @@
 Installation
 ------------
 
-KDT is distributed as a Python Distutils package. It requires the MPI compiler
-to be specified in the $CC and $CXX environment variables. For example, in Bash:
-export CC=mpicxx
-export CXX=mpicxx
+KDT is distributed as a Python Distutils package. It includes an MPI C++
+extension that must be compiled using an MPI compiler (eg. mpicxx).
+This should be autodetected for you, but you may specify your preferred
+MPI compiler in mpi.cfg. This file includes examples for some common MPI
+distributions. It is the same file that mpi4py uses.
 
 The build and installation is performed by the standard Distutils setup command:
 $ python setup.py build
