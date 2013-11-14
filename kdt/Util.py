@@ -111,7 +111,11 @@ class FilterHelper:
 		if filteredObject._hasFilter():
 			if len(filteredObject._filter_) == 1:
 				# only one filter, so pass the single predicate along
-				ret = filteredObject._filter_[0]
+				the_filter = filteredObject._filter_[0]
+				if not SEJITS_enabled() or not _is_SEJITS_callback(the_filter):
+					ret = the_filter
+				else:
+					ret = _op_make_unary_pred(the_filter, filteredObject)
 
 				return ret
 				
