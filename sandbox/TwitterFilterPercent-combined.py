@@ -618,10 +618,8 @@ for latestDate in latestDatesToCheck:
 					super(TwitterFilter, self).__init__()
 
 				def __call__(self, e):
-					if (e.count > 0 and e.latest < self.filterUpperValue):
-						return True
-					else:
-						return False
+					return (e.count > 0 and e.latest < self.filterUpperValue)
+
 			before = time.time()
 			sejits_filter = TwitterFilter(filterUpperValue)
 			sejits_filter_create_time = time.time()-before
