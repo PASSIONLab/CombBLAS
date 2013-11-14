@@ -18,7 +18,7 @@ class info:
 			return fi.epsilon
 		except ImportError:
 			pass
-			
+
 		# try Numpy
 		try:
 			import numpy as np
@@ -27,7 +27,7 @@ class info:
 			pass
 		except AttributeError:
 			pass
-			
+
 		# return a reasonable value
 		return 2.220446049250313e-16;
 
@@ -112,13 +112,13 @@ class FilterHelper:
 			if len(filteredObject._filter_) == 1:
 				# only one filter, so pass the single predicate along
 				the_filter = filteredObject._filter_[0]
-				if not SEJITS_enabled() or not _is_SEJITS_callback(the_filter):
+				if not kdt.SEJITS_enabled() or not _is_SEJITS_callback(the_filter):
 					ret = the_filter
 				else:
 					ret = _op_make_unary_pred(the_filter, filteredObject)
 
 				return ret
-				
+
 				# _op_make_unary_pred is called in the primitive
 			else:
 				# multiple filters, so create a shim that calls each one
@@ -126,7 +126,7 @@ class FilterHelper:
 				class FilterStacker:
 					def __init__(self, f):
 						self.filters = f
-	
+
 					def __call__(self, x):
 						for i in range(len(self.filters)):
 							if not self.filters[i](x):
@@ -135,10 +135,10 @@ class FilterHelper:
 				return FilterStacker(filteredObject._filter_)
 		else:
 			return None
-			
+
 def master():
 	"""
-	Return Boolean value denoting whether calling process is the 
+	Return Boolean value denoting whether calling process is the
 	master process or a slave process in a parallel program.
 	"""
 	return pcb.root()
@@ -307,7 +307,7 @@ class _complex_op:
 	def __init__(self, op, name):
 		self.pcb_op = op
 		self.name = name
-	
+
 
 def op_set(val):
 	return pcb.set(val)
@@ -354,7 +354,7 @@ def _op_builtin_pyfunc(op):
 	if op == op_mod:
 		return lambda x, y: (x % y)
 	if op == op_fmod:
-		raise NotImplementedError, 'fmod Python expression not implemented' 
+		raise NotImplementedError, 'fmod Python expression not implemented'
 		#return lambda x, y: (x % y)
 	if op == op_pow:
 		return lambda x, y: (x**y)
@@ -386,7 +386,7 @@ def _op_builtin_pyfunc(op):
 		return lambda x, y: (x >= y)
 	if op == op_le:
 		return lambda x, y: (x <= y)
-	
+
 	# unary functions
 	if op == op_id:
 		return lambda x: (x)
@@ -398,7 +398,7 @@ def _op_builtin_pyfunc(op):
 		return lambda x: (~x)
 	if op == op_not:
 		return lambda x: (not x)
-	
+
 	raise NotImplementedError, 'Unable to convert functor to Python expression.'
 
 
@@ -422,7 +422,7 @@ def _PDO_to_CPP(value, storageType):
 	else:
 		if not issubclass(type(value), ctypes.Structure):
 			raise ValueError,"coercion is meant to work on Python-defined types. You provided %s => %s"%(str(type(value)), str(storageType))
-		
+
 		# create the pyCombBLAS obj to store the object
 		ret = storageType()
 		ctypesObj = type(value).from_address(ret.getDataPtrLong())
@@ -442,18 +442,18 @@ def _CPP_to_PDO(value, extType):
 	else:
 		if not issubclass(extType, ctypes.Structure):
 			raise ValueError,"coercion is meant to work on Python-defined types. You provided %s => %s"%(str(type(value)), str(extType))
-		
+
 		ret = extType.from_address(value.getDataPtrLong())
 		ret.referenceToMemoryObj = value # keep a reference to the storage object so it doesn't get garbage collected
 		return ret
-		
+
 # shim to make a CombBLAS object act like a ctypes-defined object
 class _python_def_shim_unary:
 	def __init__(self, callback, ctypesClass, retStorageType):
 		self.callback = callback
 		self.ctypesClass = ctypesClass
 		self.retStorageType = retStorageType
-	
+
 	def __call__(self, arg1):
 		result = self.callback(_CPP_to_PDO(arg1, self.ctypesClass))
 		if self.retStorageType is not None:
@@ -469,12 +469,12 @@ class _python_def_shim_binary:
 		self.ctypesClass1 = ctypesClass1
 		self.ctypesClass2 = ctypesClass2
 		self.retStorageType = retStorageType
-	
+
 	def __call__(self, arg1, arg2):
 		#print "in binop callback. types of args:",type(arg1), type(arg2), " ctypesTypes:",self.ctypesClass1, self.ctypesClass2, self.retStorageType
 		result = self.callback(_CPP_to_PDO(arg1, self.ctypesClass1),
 			_CPP_to_PDO(arg2, self.ctypesClass2))
-			
+
 		if self.retStorageType is not None:
 			# a value stored back in the structure
 			return _PDO_to_CPP(result, self.retStorageType)
@@ -641,17 +641,17 @@ def _sr_addTypes(inSR, opStruct1, opStruct2, opStructRet):
 		mul_f = mul.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStruct1._getStorageType()), _get_Asp_string_type(opStruct2._getStorageType())], PDO=False)
 		add_f = add.get_function(types=[_get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType()), _get_Asp_string_type(opStructRet._getStorageType())], PDO=False)
 		outSR = pcb.SemiringObj(add_f, mul_f)
-		
+
 		# keep references to make sure garbage collector doesn't collect this too early.
 		outSR.mul_f = mul_f
 		outSR.add_f = add_f
-		
+
 		outSR.origAddFn = inSR.origAddFn
 		outSR.origMulFn = inSR.origMulFn
 		return outSR
 	else:
 		return inSR
-		
+
 # more type management helpers
 class _typeWrapInfo:
 	def __init__(self, externalType):
@@ -667,7 +667,7 @@ class _typeWrapInfo:
 
 	def _getStorageType(self):
 		return self.storageType
-	
+
 	def _getElementType(self):
 		return self.externalType
 
@@ -676,14 +676,14 @@ class _typeWrapInfo:
 class _opStruct_int:
 	def _getStorageType(self):
 		return int
-	
+
 	def _getElementType(self):
 		return int
 # floats
 class _opStruct_float:
 	def _getStorageType(self):
 		return float
-	
+
 	def _getElementType(self):
 		return float
 
