@@ -1,5 +1,5 @@
 #define PYCOMBBLAS_CPP
-#define DETERMINISTIC
+
 #include "pyCombBLAS.h"
 #include <stdlib.h>
 
@@ -82,7 +82,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 {
 	if (argc == 0)
 		return;
-	
+
 	// Find all the iterators
 	int nnz_iters = 0;
 	int total_iters = 0;
@@ -95,12 +95,12 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 				nnz_iters++;
 		}
 	}
-	
+
 	if (total_iters == 0)
 		return; // nothing to do
-	
+
 	VectorLocalIterator<int64_t, doubleint>** iters = new VectorLocalIterator<int64_t, doubleint>*[total_iters];
-	
+
 	// Fill in the iterator array
 	int nz_ptr = 0;
 	int other_ptr = nnz_iters;
@@ -122,9 +122,9 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 	}
 	if (nnz_iters == 0)
 		nnz_iters = 1; // Just use the first iterator's nonzero values
-		
+
 	PyObject* arglistlist = Py_BuildValue("(O)", argList);  // Build argument list
-	
+
 	bool hasNext = true;
 	bool continue_;
 	int64_t index = iters[0]->GetLocIndex();
@@ -132,23 +132,23 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 	while (hasNext && index != -1)
 	{
 		continue_ = false;
-		
+
 		// parse and advance the individual iterators
 		for (int vec_i = 0; vec_i < total_iters; vec_i++)
 		{
 			iters[vec_i]->NextTo(index);
-			
+
 			if (vec_i < nnz_iters)
 			{
 				int64_t thisIndex = iters[vec_i]->GetLocIndex();
-				
+
 				if (thisIndex == -1) // we're done
 				{
 					hasNext = false;
 					continue_ = true;
 					break;
 				}
-				
+
 				if (index < thisIndex)
 				{
 					index = thisIndex;
@@ -159,7 +159,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 		}
 		if (continue_)
 			continue;
-				
+
 		// Now that we've found a position with non-nulls, assemble the arguments
 		for (int i = 0; i < argc; i++)
 		{
@@ -192,10 +192,10 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 					break;
 			}
 		}
-		
+
 		// call the visitor
 		PyEval_CallObject(pyfunc, arglistlist);                 // Call Python
-	
+
 		// update the vectors to reflect changes by the visitor
 		for (int i = 0; i < argc; i++)
 		{
@@ -245,7 +245,7 @@ void EWise(PyObject *pyfunc, int argc, EWiseArgDescriptor* argv, PyObject *argLi
 			iters[0]->Next();
 		index = iters[0]->GetLocIndex();
 	}
-	
+
 	Py_DECREF(arglistlist);                                 // Trash arglist
 	delete [] iters;
 }
@@ -255,7 +255,7 @@ void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v)
 	SparseVectorLocalIterator<int64_t, doubleint> fringe(fringe_v.v);
 	DenseVectorLocalIterator<int64_t, doubleint> parents(parents_v.v);
 
-	pySpParVec newfringe_v(fringe_v.__len__());	
+	pySpParVec newfringe_v(fringe_v.__len__());
 	SparseVectorLocalIterator<int64_t, doubleint> newfringe(newfringe_v.v);
 
 	int64_t index;
@@ -265,7 +265,7 @@ void Graph500VectorOps(pySpParVec& fringe_v, pyDenseParVec& parents_v)
 		parents.NextTo(index);
 		doubleint& f = fringe.GetValue();
 		doubleint& p = parents.GetValue();
-		
+
 		if (p == -1)
 		{
 			// discovered new vertex, set its parent
@@ -306,12 +306,12 @@ void init_pyCombBLAS_MPI()
 	// create the shared communication grid
 	MPI_Comm world = MPI_COMM_WORLD;
 	commGrid.reset(new CommGrid(world, 0, 0));
-	
+
 	// create doubleint MPI_Datatype
 	MPI_Datatype type[1] = {MPI_DOUBLE};
 	int blocklen[1] = {1};
 	MPI_Aint disp[1];
-	
+
 	doubleint data;
 	MPI_Aint d1, d2;
 	MPI_Get_address(&data.d, &d1);
@@ -322,7 +322,7 @@ void init_pyCombBLAS_MPI()
 	// MPI::Datatype::Create_struct(1,blocklen,disp,type);
 	MPI_Type_struct(1,blocklen,disp,type, &doubleint_MPI_datatype);
 	MPI_Type_commit(&doubleint_MPI_datatype);
-	
+
 	// create VERTEXTYPE and EDGETYPE MPI_Datatypes
 	create_EDGE_and_VERTEX_MPI_Datatypes();
 }
@@ -343,7 +343,7 @@ void finalize()
 }
 
 void _broadcast(char *outMsg, char* inMsg) {
-	const int MaxMsgLen = 1024;
+	const unsigned int MaxMsgLen = 1024;
 
 	bool isRoot = root();
 	if(isRoot) {
@@ -394,4 +394,4 @@ template<> MPI_Datatype MPIType< doubleint >( void )
 {
 	//cout << "returning doubleint MPIType" << endl;
 	return doubleint_MPI_datatype;
-}; 
+};

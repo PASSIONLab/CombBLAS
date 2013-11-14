@@ -30,14 +30,14 @@ class PcbCallback(object):
             callback_type = "Predicate"
         else:
             callback_type = "Function"
-            
+
         import asp.codegen.templating.template as template
         t = template.Template("""
 
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
+              swig_module_info* module = SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::${arity_prefix}${callback_type}Obj *");
 
@@ -65,7 +65,7 @@ class PcbCallback(object):
         # see if the result is cached
         if not hasattr(self, '_func_cache'):
             self._func_cache = {}
-            
+
         #TODO: need to store arity, function_type as well (i.e. is it Binary/Unary,
         # is it Function/Predicate)
         if str(types) in self._func_cache:
@@ -78,11 +78,11 @@ class PcbCallback(object):
             #from pcb_function_frontend import * #AL: this produces a SyntaxWarning
             from pcb_function_frontend import PcbUnaryFunctionFrontEnd, PcbBinaryFunctionFrontEnd, get_arity
             types = intypes
-            
+
             parsed_ast = ast.parse(inspect.getsource(self.__call__).lstrip())
-            
+
             arity = get_arity(parsed_ast)
-            
+
             if arity == 1:
                 sm = PcbUnaryFunctionFrontEnd().parse(parsed_ast, env=vars(self))
             elif arity == 2:
@@ -118,10 +118,10 @@ class PcbCallback(object):
                                  [installDir+"/include"])
 
             converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-            
+
             if PDO:
                 add_PDO_stubs(self.mod, converted, types)
-                        
+
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", converted)
             self.mod.add_function("get_function", self.gen_get_function(arity=arity, types=get_CPP_types(types)))
@@ -129,7 +129,7 @@ class PcbCallback(object):
             kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
-            
+
             # cache the result
             self._func_cache[str(types)] = ret
             return ret
@@ -160,7 +160,7 @@ class PcbCallback(object):
 #            PyObject* get_function()
 #            {
 #              using namespace op;
-#              swig_module_info* module = SWIG_Python_GetModule(NULL);
+#              swig_module_info* module = SWIG_Python_GetModule();
 #
 #              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 #
@@ -184,7 +184,7 @@ class PcbCallback(object):
 #        # see if the result is cached
 #        if not hasattr(self, '_func_cache'):
 #            self._func_cache = {}
-#            
+#
 #        if str(types) in self._func_cache:
 #            return self._func_cache[str(types)]
 #
@@ -225,7 +225,7 @@ class PcbCallback(object):
 #                                 [installDir+"/include"])
 #
 #            converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-#            
+#
 #            if PDO:
 #                add_PDO_stubs(self.mod, converted, types)
 #

@@ -27,7 +27,7 @@ class PcbBinaryFunction(object):
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
+              swig_module_info* module = SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
 
@@ -50,7 +50,7 @@ class PcbBinaryFunction(object):
         # see if the result is cached
         if not hasattr(self, '_func_cache'):
             self._func_cache = {}
-            
+
         if str(types) in self._func_cache:
             return self._func_cache[str(types)]
 
@@ -92,10 +92,10 @@ class PcbBinaryFunction(object):
                                  [installDir+"/include"])
 
             converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-            
+
             if PDO:
                 add_PDO_stubs(self.mod, converted, types)
-                        
+
             #FIXME: pass correct types, or try all types, or do SOMETHING that's smarter than this hardwired crap
             self.mod.add_function("myfunc", converted)
             self.mod.add_function("get_function", self.gen_get_function(types=get_CPP_types(types)))
@@ -103,7 +103,7 @@ class PcbBinaryFunction(object):
             kdt.p_debug(self.mod.generate())
             ret = self.mod.get_function()
             ret.setCallback(self)
-            
+
             # cache the result
             self._func_cache[str(types)] = ret
             return ret
@@ -133,7 +133,7 @@ class PcbUnaryFunction(object):
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
+              swig_module_info* module = SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 
@@ -157,7 +157,7 @@ class PcbUnaryFunction(object):
         # see if the result is cached
         if not hasattr(self, '_func_cache'):
             self._func_cache = {}
-            
+
         if str(types) in self._func_cache:
             return self._func_cache[str(types)]
 
@@ -198,7 +198,7 @@ class PcbUnaryFunction(object):
                                  [installDir+"/include"])
 
             converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-            
+
             if PDO:
                 add_PDO_stubs(self.mod, converted, types)
 
