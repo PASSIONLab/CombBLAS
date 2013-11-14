@@ -17,7 +17,7 @@ class PcbUnaryPredicate(object):
         # this function generates the code that passes a specialized UnaryPredicateObj back to Python for later use
         # TODO: this should actually generate all the filled possible customFuncs for all datatypes
         import asp.codegen.templating.template as template
-        
+
         specialized_function_slot = "customFunc%s" % (types[1])
 
         t = template.Template("""
@@ -26,7 +26,7 @@ class PcbUnaryPredicate(object):
             PyObject* get_predicate()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
+              swig_module_info* module = SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
 
@@ -50,7 +50,7 @@ class PcbUnaryPredicate(object):
         # see if the result is cached
         if not hasattr(self, '_func_cache'):
             self._func_cache = {}
-            
+
         if str(types) in self._func_cache:
             return self._func_cache[str(types)]
 
@@ -87,10 +87,10 @@ class PcbUnaryPredicate(object):
                                  [installDir+"/include"])
 
             converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-            
+
             if PDO:
                 add_PDO_stubs(self.mod, converted, types)
-            
+
             #FIXME: try all types?
             self.mod.add_function("myfunc", converted)
             self.mod.add_function("get_predicate", self.gen_get_predicate(get_CPP_types(types)))
@@ -130,7 +130,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             PyObject* get_predicate()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule(NULL);
+              swig_module_info* module = SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
 
@@ -154,7 +154,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
         # see if the result is cached
         if not hasattr(self, '_func_cache'):
             self._func_cache = {}
-            
+
         if str(types) in self._func_cache:
             return self._func_cache[str(types)]
 
@@ -190,7 +190,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
                                  [installDir+"/include"])
 
             converted = PcbOperatorConvert().convert(sm, types=get_CPP_types(types))
-            
+
             if PDO:
                 add_PDO_stubs(self.mod, converted, types)
 

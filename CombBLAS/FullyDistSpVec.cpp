@@ -54,9 +54,9 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (IT globallen)
 
 
 template <class IT, class NT>
-FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)	
+FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistSpVec< IT,NT > & rhs)
 {
-	if(this != &rhs)		
+	if(this != &rhs)
 	{
 		FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 		ind = rhs.ind;
@@ -121,7 +121,7 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx)
 	return val;
 }
 
-//! Indexing is performed 0-based 
+//! Indexing is performed 0-based
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 {
@@ -132,7 +132,7 @@ void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
 	int owner = Owner(indx, locind);
 	if(commGrid->GetRank() == owner)
 	{
-		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);	
+		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);
 		if(iter == ind.end())	// beyond limits, insert from back
 		{
 			ind.push_back(locind);
@@ -159,7 +159,7 @@ void FullyDistSpVec<IT,NT>::DelElement (IT indx)
 	int owner = Owner(indx, locind);
 	if(commGrid->GetRank() == owner)
 	{
-		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);	
+		typename vector<IT>::iterator iter = lower_bound(ind.begin(), ind.end(), locind);
 		if(iter != ind.end() && !(locind < *iter))
 		{
 			num.erase(num.begin() + (iter-ind.begin()));
@@ -195,7 +195,7 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 		if(ri.arr[i] >= glen || ri.arr[i] < 0)
 		{
 			local = 0;
-		} 
+		}
 	}
 	MPI_Allreduce( &local, &whole, 1, MPI_INT, MPI_BAND, World);
 	if(whole == 0)
@@ -236,12 +236,12 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 		vector<IT>().swap(data_req[i]);
 	}
 	MPI_Alltoallv(sendbuf, sendcnt, sdispls, MPIType<IT>(), recvbuf, recvcnt, rdispls, MPIType<IT>(), World);  // request data
-		
-	// We will return the requested data, 
+
+	// We will return the requested data,
 	// our return can be at most as big as the request
-	// and smaller if we are missing some elements 
+	// and smaller if we are missing some elements
 	IT * indsback = new IT[totrecv];
-	NT * databack = new NT[totrecv];		
+	NT * databack = new NT[totrecv];
 
 	int * ddispls = new int[nprocs];
 	copy(rdispls, rdispls+nprocs, ddispls);
@@ -250,21 +250,21 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 		// this is not the most efficient method because it scans ind vector nprocs = sqrt(p) times
 		IT * it = set_intersection(recvbuf+rdispls[i], recvbuf+rdispls[i]+recvcnt[i], ind.begin(), ind.end(), indsback+rdispls[i]);
 		recvcnt[i] = (it - (indsback+rdispls[i]));	// update with size of the intersection
-	
+
 		IT vi = 0;
 		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
 		{
 			// indsback is a subset of ind
-			while(indsback[j] > ind[vi]) 
+			while(indsback[j] > ind[vi])
 				++vi;
 			databack[j] = num[vi++];
 		}
 	}
-		
+
 	DeleteAll(recvbuf, ddispls);
 	NT * databuf = new NT[ri.LocArrSize()];
 
-	MPI_Alltoall(recvcnt, 1, MPI_INT, sendcnt, 1, MPI_INT, World);	// share the response counts, overriding request counts 
+	MPI_Alltoall(recvcnt, 1, MPI_INT, sendcnt, 1, MPI_INT, World);	// share the response counts, overriding request counts
 	MPI_Alltoallv(indsback, recvcnt, rdispls, MPIType<IT>(), sendbuf, sendcnt, sdispls, MPIType<IT>(), World);  // send indices
 	MPI_Alltoallv(databack, recvcnt, rdispls, MPIType<NT>(), databuf, sendcnt, sdispls, MPIType<NT>(), World);  // send data
 	DeleteAll(rdispls, recvcnt, indsback, databack);
@@ -273,10 +273,10 @@ FullyDistVec<IT,NT> FullyDistSpVec<IT,NT>::operator() (const FullyDistVec<IT,IT>
 	// arr is already resized during its construction
 	for(int i=0; i<nprocs; ++i)
 	{
-		// data will come globally sorted from processors 
-		// i.e. ind owned by proc_i is always smaller than 
+		// data will come globally sorted from processors
+		// i.e. ind owned by proc_i is always smaller than
 		// ind owned by proc_j for j < i
-		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)	
+		for(int j=sdispls[i]; j< sdispls[i]+sendcnt[i]; ++j)
 		{
 			typename unordered_map<IT,IT>::iterator it = revr_map.find(sendbuf[j]);
 			Indexed.arr[it->second] = databuf[j];
@@ -303,13 +303,13 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 {
 	MPI_Comm World = commGrid->GetWorld();
 	FullyDistSpVec<IT,IT> temp(commGrid);
-	IT nnz = getlocnnz(); 
+	IT nnz = getlocnnz();
 	pair<NT,IT> * vecpair = new pair<NT,IT>[nnz];
 
 	int nprocs, rank;
 	MPI_Comm_size(World, &nprocs);
 	MPI_Comm_rank(World, &rank);
-	
+
 	IT * dist = new IT[nprocs];
 	dist[rank] = nnz;
 	MPI_Allgather(MPI_IN_PLACE, 1, MPIType<IT>(), dist, 1, MPIType<IT>(), World);
@@ -317,7 +317,7 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	for(IT i=0; i< nnz; ++i)
 	{
 		vecpair[i].first = num[i];	// we'll sort wrt numerical values
-		vecpair[i].second = ind[i] + sizeuntil;	
+		vecpair[i].second = ind[i] + sizeuntil;
 	}
 	SpParHelper::MemoryEfficientPSort(vecpair, nnz, dist, World);
 
@@ -337,16 +337,16 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	temp.num = nnum;
 	return temp;
 }
-		
+
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<IT,NT> & rhs)
 {
-	if(this != &rhs)		
-	{	
+	if(this != &rhs)
+	{
 		if(glen != rhs.glen)
 		{
 			cerr << "Vector dimensions don't match for addition\n";
-			return *this; 	
+			return *this;
 		}
 		IT lsize = getlocnnz();
 		IT rsize = rhs.getlocnnz();
@@ -361,7 +361,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<
 		{
 			// assignment won't change the size of vector, push_back is necessary
 			if(ind[i] > rhs.ind[j])
-			{	
+			{
 				nind.push_back( rhs.ind[j] );
 				nnum.push_back( rhs.num[j++] );
 			}
@@ -388,24 +388,24 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
-	}	
+	}
 	else
-	{		
+	{
 		typename vector<NT>::iterator it;
 		for(it = num.begin(); it != num.end(); ++it)
 			(*it) *= 2;
 	}
 	return *this;
-};	
+};
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<IT,NT> & rhs)
 {
-	if(this != &rhs)		
-	{	
+	if(this != &rhs)
+	{
 		if(glen != rhs.glen)
 		{
 			cerr << "Vector dimensions don't match for addition\n";
-			return *this; 	
+			return *this;
 		}
 		IT lsize = getlocnnz();
 		IT rsize = rhs.getlocnnz();
@@ -419,7 +419,7 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 		{
 			// assignment won't change the size of vector, push_back is necessary
 			if(ind[i] > rhs.ind[j])
-			{	
+			{
 				nind.push_back( rhs.ind[j] );
 				nnum.push_back( -static_cast<NT>(rhs.num[j++]) );
 			}
@@ -446,14 +446,14 @@ FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator-=(const FullyDistSpVec<
 		}
 		ind.swap(nind);		// ind will contain the elements of nind with capacity shrunk-to-fit size
 		num.swap(nnum);
-	} 		
+	}
 	else
 	{
 		ind.clear();
 		num.clear();
 	}
 	return *this;
-};	
+};
 
 //! Called on an existing object
 template <class IT, class NT>
@@ -469,16 +469,16 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 	for (int i=0; i<neighs; ++i)
 		displs[i] = i*buffperneigh;
 
-	int * curptrs = NULL; 
+	int * curptrs = NULL;
 	int recvcount = 0;
-	IT * inds = NULL; 
+	IT * inds = NULL;
 	NT * vals = NULL;
-	int rank = commGrid->GetRank();	
+	int rank = commGrid->GetRank();
 	if(rank == master)	// 1 processor only
-	{		
+	{
 		inds = new IT [ buffperneigh * neighs ];
 		vals = new NT [ buffperneigh * neighs ];
-		curptrs = new int[neighs]; 
+		curptrs = new int[neighs];
 		fill_n(curptrs, neighs, 0);	// fill with zero
 		if (infile.is_open())
 		{
@@ -499,7 +499,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				glen = numcols;
 			}
 			MPI_Bcast(&glen, 1, MPIType<IT>(), master, World);
-	
+
 			IT tempind;
 			IT temprow, tempcol;
 			IT cnz = 0;
@@ -516,7 +516,7 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				int rec = Owner(tempind, locind);	// recipient (owner) processor
 				inds[ rec * buffperneigh + curptrs[rec] ] = locind;
 				vals[ rec * buffperneigh + curptrs[rec] ] = handler.read(infile, tempind);
-				++ (curptrs[rec]);				
+				++ (curptrs[rec]);
 
 				if(curptrs[rec] == buffperneigh || (cnz == (total_nnz-1)) )		// one buffer is full, or file is done !
 				{
@@ -526,14 +526,14 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 					// generate space for own recv data ... (use arrays because vector<bool> is cripled, if NT=bool)
 					IT * tempinds = new IT[recvcount];
 					NT * tempvals = new NT[recvcount];
-					
+
 					// then, send all buffers that to their recipients ...
-					MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, World); 
-					MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, World); 
-		
+					MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, World);
+					MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, World);
+
 					// now push what is ours to tuples
 					for(IT i=0; i< recvcount; ++i)
-					{					
+					{
 						ind.push_back( tempinds[i] );	// already offset'd by the sender
 						num.push_back( tempvals[i] );
 					}
@@ -545,14 +545,14 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 				++ cnz;
 			}
 			assert (cnz == total_nnz);
-			
+
 			// Signal the end of file to other processors along the diagonal
-			fill_n(curptrs, neighs, numeric_limits<int>::max());	
+			fill_n(curptrs, neighs, numeric_limits<int>::max());
 			MPI_Scatter(curptrs, 1, MPI_INT, &recvcount, 1, MPI_INT, master, World);
 		}
 		else	// input file does not exist !
 		{
-			glen = 0;	
+			glen = 0;
 			MPI_Bcast(&glen, 1, MPIType<IT>(), master, World);
 		}
 		DeleteAll(inds,vals, curptrs);
@@ -567,18 +567,18 @@ ifstream& FullyDistSpVec<IT,NT>::ReadDistribute (ifstream& infile, int master, H
 
 			if( recvcount == numeric_limits<int>::max())
 				break;
-	
-			// create space for incoming data ... 
+
+			// create space for incoming data ...
 			IT * tempinds = new IT[recvcount];
 			NT * tempvals = new NT[recvcount];
-				
+
 			// receive actual data ... (first 4 arguments are ignored in the receiver side)
 			MPI_Scatterv(inds, curptrs, displs, MPIType<IT>(), tempinds, recvcount,  MPIType<IT>(), master, World);
 			MPI_Scatterv(vals, curptrs, displs, MPIType<NT>(), tempvals, recvcount,  MPIType<NT>(), master, World);
 
 			// now push what is ours to tuples
 			for(IT i=0; i< recvcount; ++i)
-			{					
+			{
 				ind.push_back( tempinds[i] );
 				num.push_back( tempvals[i] );
 			}
@@ -599,9 +599,9 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
 	MPI_File thefile;
-	
+
 	char _fn[] = "temp_fullydistspvec"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
-	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
+	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
@@ -622,8 +622,8 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	int dsize;
 	MPI_Type_size(datatype, &dsize);
 
-	// The disp displacement argument specifies the position 
-	// (absolute offset in bytes from the beginning of the file) 
+	// The disp displacement argument specifies the position
+	// (absolute offset in bytes from the beginning of the file)
 	char native[] = "native"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
 	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, native, MPI_INFO_NULL);
 
@@ -644,7 +644,7 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	{
 		FILE * f = fopen("temp_fullydistspvec", "r");
         	if(!f)
-        	{ 
+        	{
 			cerr << "Problem reading binary input file\n";
 			return;
 	        }
@@ -657,7 +657,10 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, dsize, dist[i], f);
+			if (fread(data, dsize, dist[i], f) < static_cast<size_t>(dist[i]))
+			{
+			    cout << "fread 660 failed! attempting to continue..." << endl;
+			}
 
 			if (printProcSplits)
 				outfile << "Elements stored on proc " << i << ":" << endl;
@@ -686,7 +689,7 @@ IT FullyDistSpVec<IT,NT>::Count(_Predicate pred) const
 	IT local = count_if( num.begin(), num.end(), pred );
 	IT whole = 0;
 	MPI_Allreduce( &local, &whole, 1, MPIType<IT>(), MPI_SUM, commGrid->GetWorld());
-	return whole;	
+	return whole;
 }
 
 
@@ -708,8 +711,8 @@ template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
 OUT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op)
 {
 	// std::accumulate returns identity for empty sequences
-	OUT localsum = default_val; 
-	
+	OUT localsum = default_val;
+
 	if (num.size() > 0)
 	{
 		typename vector< NT >::const_iterator iter = num.begin();
@@ -731,8 +734,8 @@ template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::PrintInfo(string vectorname) const
 {
 	IT nznz = getnnz();
-	if (commGrid->GetRank() == 0)	
-		cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << glen << endl; 
+	if (commGrid->GetRank() == 0)
+		cout << "As a whole, " << vectorname << " has: " << nznz << " nonzeros and length " << glen << endl;
 }
 
 template <class IT, class NT>
@@ -743,9 +746,9 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	MPI_Comm_rank(World, &rank);
 	MPI_Comm_size(World, &nprocs);
 	MPI_File thefile;
-	
+
 	char tfilename[32] = "temp_fullydistspvec";
-	MPI_File_open(World, tfilename, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);    
+	MPI_File_open(World, tfilename, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
@@ -764,8 +767,8 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	int dsize;
 	MPI_Type_size(datatype, &dsize);
 
-	// The disp displacement argument specifies the position 
-	// (absolute offset in bytes from the beginning of the file) 
+	// The disp displacement argument specifies the position
+	// (absolute offset in bytes from the beginning of the file)
 	char openmode[32] = "native";
     	MPI_File_set_view(thefile, static_cast<int>(sizeuntil * dsize), datatype, datatype, openmode, MPI_INFO_NULL);
 
@@ -780,13 +783,13 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 	MPI_Barrier(World);
 	MPI_File_close(&thefile);
 	delete [] packed;
-	
+
 	// Now let processor-0 read the file and print
 	if(rank == 0)
 	{
 		FILE * f = fopen("temp_fullydistspvec", "r");
                 if(!f)
-                { 
+                {
                         cerr << "Problem reading binary input file\n";
                         return;
                 }
@@ -796,7 +799,10 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		for(int i=0; i<nprocs; ++i)
 		{
 			// read n_per_proc integers and print them
-			fread(data, dsize, dist[i],f);	
+			if (fread(data, dsize, dist[i],f) < static_cast<size_t>(dist[i]))
+			{
+			    cout << "fread 802 failed! attempting to continue..." << endl;
+			}
 
 			cout << "Elements stored on proc " << i << ": {";
 			for (int j = 0; j < dist[i]; j++)

@@ -71,7 +71,7 @@ class UnaryFunctionObj {
 	UnaryFunctionObj_WorkerType worker;
 	
 	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { 
-      swig_module_info* module = SWIG_Python_GetModule(NULL);
+      swig_module_info* module = SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
       
       UnaryFunctionObj * tmp;
@@ -284,7 +284,7 @@ class BinaryFunctionObj {
 
     //	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): worker(pyfunc), commutable(com), associative(as) { }
     BinaryFunctionObj(PyObject *pyfunc, bool as, bool com) : worker(pyfunc), commutable(com), associative(as) {
-      swig_module_info* module = SWIG_Python_GetModule(NULL);
+      swig_module_info* module = SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
       
       BinaryFunctionObj * tmp;

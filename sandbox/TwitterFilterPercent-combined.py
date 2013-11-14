@@ -26,12 +26,14 @@ events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_ICM", "PAPI_L1_DCM", "PAPI_L2_
 
 #latestDatesToCheck = [100, 1000, 2500, 10000] # 1%, 10%, 25%, 100%
 #latestDatesToCheck = [10000] # 100%
-#preSelectedStartingVerts = None
+preSelectedStartingVerts = None
 
-latestDatesToCheck = [10000] # 100%
-preSelectedStartingVerts = [4299890] * 16 # scale 23, for 100% filter
+#latestDatesToCheck = [10000] # 100%
+#preSelectedStartingVerts = [1726462] * 16 # scale 22, for 100% filter
+#preSelectedStartingVerts = [4299890] * 16 # scale 23, for 100% filter
 
-#latestDatesToCheck = [1000] # 10%
+latestDatesToCheck = [1000] # 10%
+#preSelectedStartingVerts = [1291427] * 16 # scale 22, for 10% filter
 #preSelectedStartingVerts = [4597878] * 16 # scale 23, for 10% filter
 
 
