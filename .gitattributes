@@ -716,7 +716,7 @@ CombBLAS/DistEdgeList.cpp -text
 CombBLAS/DistEdgeList.h -text
 CombBLAS/Doxyfile -text
 CombBLAS/Exception.h -text
-CombBLAS/FAQ-combblas.html -text
+CombBLAS/FAQ-combblas.html -text svneol=unset#unset
 CombBLAS/FileHeader.h -text
 CombBLAS/Friends.h -text
 CombBLAS/FullyDist.h -text
