@@ -24,8 +24,8 @@ class BitMapCarousel {
     recv_buff = new BitMap(biggest_size);
     old_bm = new BitMap(biggest_size);
     sub_disps = new int[proccols];
-    sub_disps[my_proccol] = local_subword_disp;
-    commGrid->GetRowWorld().Allgather(MPI::IN_PLACE, 1, MPI::INT, sub_disps, 1, MPI::INT);
+    sub_disps[my_proccol] = local_subword_disp;	  
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, sub_disps, 1, MPI_INT, commGrid->GetRowWorld());
     curr_subword_disp = local_subword_disp;
   }
   
@@ -114,9 +114,10 @@ class BitMapCarousel {
 #ifdef TIMING
     double t1 = MPI_Wtime();
 #endif
-    MPI::Intracomm RowWorld = commGrid->GetRowWorld();
-    RowWorld.Sendrecv(bm->data(), send_words, MPIType<uint64_t>(), dest, ROTATE,
-                      recv_buff->data(), recv_words, MPIType<uint64_t>(), source, ROTATE);
+    MPI_Comm RowWorld = commGrid->GetRowWorld();
+	MPI_Status status;
+	MPI_Sendrecv(bm->data(), send_words, MPIType<uint64_t>(), dest, ROTATE,
+				   recv_buff->data(), recv_words, MPIType<uint64_t>(), source, ROTATE, RowWorld, &status);
 #ifdef TIMING
     double t2 = MPI_Wtime();
     bottomup_sendrecv += t2-t1;

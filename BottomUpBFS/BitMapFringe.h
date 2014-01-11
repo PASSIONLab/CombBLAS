@@ -11,22 +11,25 @@ class BitMapFringe {
   BitMapFringe(shared_ptr<CommGrid> grid, FullyDistSpVec<IT,VT> & x) {
     cg.reset(new CommGrid(*grid));   
     
-    MPI::Intracomm World = cg->GetWorld();
-    MPI::Intracomm ColWorld = cg->GetColWorld();
+	MPI_Comm World = x.getcommgrid()->GetWorld();
+	MPI_Comm ColWorld = x.getcommgrid()->GetColWorld();
+	MPI_Status status;
 
     // Find out how big local chunk will be after transpose
     long num_local_send = x.MyLocLength(), num_local_recv;
     diagneigh = cg->GetComplementRank();
-    World.Sendrecv(&num_local_send, 1, MPI::LONG, diagneigh, TROST,
-                   &num_local_recv, 1, MPI::LONG, diagneigh, TROST);
+	MPI_Sendrecv(&num_local_send, 1, MPI_LONG, diagneigh, TROST,
+				 &num_local_recv, 1, MPI_LONG, diagneigh, TROST, World, &status); 
 
     // Calculate new local displacements
-  	colneighs = ColWorld.Get_size();
-  	colrank = ColWorld.Get_rank();
+	MPI_Comm_size(ColWorld, &colneighs);
+	MPI_Comm_rank(ColWorld, &colrank);
+	  
   	int counts[colneighs];
   	counts[colrank] = num_local_recv;
-    ColWorld.Allgather(MPI::IN_PLACE, 1, MPI::INT, counts, 1, MPI::INT);
-    int dpls[colneighs];
+	MPI_Allgather(MPI_IN_PLACE, 1, MPI_INT, counts, 1, MPI_INT, ColWorld);	
+
+	int dpls[colneighs];
     dpls[0] = 0;
   	std::partial_sum(counts, counts+colneighs-1, dpls+1);
     long total_size = dpls[colneighs-1] + counts[colneighs-1];
@@ -45,7 +48,9 @@ class BitMapFringe {
 
     // Compute subword displacements and transpose exchange details
     trans_subword_disp = dpls[colrank] % 64;
-    World.Sendrecv(&trans_subword_disp, 1, MPIType<int32_t>(), diagneigh, TROST, &local_subword_disp, 1, MPIType<int32_t>(), diagneigh, TROST);
+	MPI_Sendrecv(&trans_subword_disp, 1, MPIType<int32_t>(), diagneigh, TROST, 
+				 &local_subword_disp, 1, MPIType<int32_t>(), diagneigh, TROST, World, &status); 
+	  
     trans_words_send = (num_local_send + local_subword_disp + 63)>>6;
     trans_words_recv = (num_local_recv + trans_subword_disp + 63)>>6;
 
@@ -55,7 +60,6 @@ class BitMapFringe {
     trans_bm = new BitMap(num_local_recv + trans_subword_disp);
     gather_bm = new BitMap(total_size);
   }
-
 
   ~BitMapFringe() {
     delete local_bm;
@@ -67,14 +71,12 @@ class BitMapFringe {
     delete[] byte_dpls;
   }
 
-
   void LoadFromSpVec(FullyDistSpVec<IT,VT> & x) {
     local_bm->reset();
     for (SparseVectorLocalIterator<IT,VT> spit(x); spit.HasNext(); spit.Next())
       local_bm->set_bit(spit.GetLocIndex() + local_subword_disp);
     local_num_set = x.getlocnnz();
   }
-
 
   void LoadFromUpdates(IT* updates, long total_updates) {
     local_bm->reset();
@@ -83,11 +85,9 @@ class BitMapFringe {
     local_num_set = total_updates;
   }
 
-
   void LoadFromNext() {
     local_num_set = next_num_set;
   }
-
 
   void SetNext(IT local_index) {
     next_num_set++;
@@ -99,16 +99,19 @@ class BitMapFringe {
   }
 
 
-  BitMap* TransposeGather() {
-    MPI::Intracomm World = cg->GetWorld();
-    MPI::Intracomm ColWorld = cg->GetColWorld();
+  BitMap* TransposeGather() 
+  {
+	MPI_Comm World = cg->GetWorld();
+	MPI_Comm ColWorld = cg->GetColWorld();
+	MPI_Status status;
 
     // Transpose bitmaps
-    World.Sendrecv(local_bm->data(), trans_words_send, MPIType<uint64_t>(), diagneigh, TROST, trans_bm->data(), trans_words_recv, MPIType<uint64_t>(), diagneigh, TROST);
-
+	MPI_Sendrecv(local_bm->data(), trans_words_send, MPIType<uint64_t>(), diagneigh, TROST, 
+				 trans_bm->data(), trans_words_recv, MPIType<uint64_t>(), diagneigh, TROST, World, &status); 
+	  
     // Gather all but first words
     double t1 = MPI_Wtime();
-    ColWorld.Allgatherv(trans_bm->data()+1, send_counts[colrank], MPIType<uint64_t>(), gather_bm->data(), send_counts, word_dpls, MPIType<uint64_t>());
+	MPI_Allgatherv(trans_bm->data()+1, send_counts[colrank], MPIType<uint64_t>(), gather_bm->data(), send_counts, word_dpls, MPIType<uint64_t>(), ColWorld);	
     double t2 = MPI_Wtime();
     bottomup_allgather += (t2-t1);
 
@@ -116,7 +119,7 @@ class BitMapFringe {
     gather_bm->data()[0] = 0;
     uint64_t firsts[colneighs];
     firsts[colrank] = trans_bm->data()[0];
-    ColWorld.Allgather(MPI::IN_PLACE, 1, MPIType<uint64_t>(), firsts, 1, MPIType<uint64_t>());
+    MPI_Allgather(MPI_IN_PLACE, 1, MPIType<uint64_t>(), firsts, 1, MPIType<uint64_t>(), ColWorld);
     for (int c=0; c<colneighs; c++)
       gather_bm->data()[word_dpls[c]-1] |= firsts[c];
 
@@ -143,10 +146,10 @@ class BitMapFringe {
   }
 
 
-  IT GetNumSet() const {
-		IT global_num_set = 0;
-		(cg->GetWorld()).Allreduce(&local_num_set, &global_num_set, 1, MPIType<IT>(), MPI::SUM);
-		return global_num_set;
+  IT GetNumSet() {
+	  IT global_num_set = 0;
+	  MPI_Allreduce(&local_num_set, &global_num_set, 1, MPIType<IT>(), MPI_SUM, cg->GetWorld());
+	  return global_num_set;
 	}
 
 
