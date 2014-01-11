@@ -140,15 +140,17 @@ class BitMap {
     return start;
   }
 
-  void print_ones() {
-    /* 
-    uint64_t max_size = (end-start)*64;
-    for (uint64_t i=0; i<max_size; i++)
-      if (get_bit(i))
-        cout << " " << i;
-    cout << endl;
-    */ 
-  }
+	void copy_from(const BitMap* other) {
+		copy(other->start, other->end, start);
+	}
+	
+	void print_ones() {
+		uint64_t max_size = (end-start)*64;
+		for (uint64_t i=0; i<max_size; i++)
+			if (get_bit(i))
+				cout << " " << i;
+		cout << endl;
+	}
 
  private:
   uint64_t *start;

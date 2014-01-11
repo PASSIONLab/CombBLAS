@@ -200,6 +200,10 @@ public:
 
 	void DebugPrint();
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
+	
+	void Reset();
+	NT GetLocalElement(IT indx);
+	void BulkSet(IT inds[], int count);
 
 protected:
 	using FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::glen; 

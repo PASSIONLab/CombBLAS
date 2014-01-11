@@ -82,7 +82,7 @@ public:
 		class NzIter	//! Iterate over the nonzeros of the sparse column
 		{	
 		public:
-			NzIter(IT * ir, NT * num) : rid(ir), val(num) {}
+			NzIter(IT * ir = NULL, NT * num = NULL) : rid(ir), val(num) {}
      		
       			bool operator==(const NzIter & other)
       			{
@@ -118,7 +118,7 @@ public:
 			
 		};
 
-      		SpColIter(IT * cp, IT * jc) : cptr(cp), cid(jc) {}
+      		SpColIter(IT * cp = NULL, IT * jc = NULL) : cptr(cp), cid(jc) {}
      		
       		bool operator==(const SpColIter& other)
       		{
@@ -208,6 +208,7 @@ public:
 	
 	void Transpose();				//!< Mutator version, replaces the calling object 
 	SpDCCols<IT,NT> TransposeConst() const;		//!< Const version, doesn't touch the existing object
+	SpDCCols<IT,NT> * TransposeConstPtr() const;
 
 	void RowSplit(int numsplits)
 	{

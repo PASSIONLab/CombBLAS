@@ -515,6 +515,20 @@ SpDCCols<IT,NT> SpDCCols<IT,NT>::TransposeConst() const
 	return SpDCCols<IT,NT>(Atuples,true);
 }
 
+/**
+ * O(nnz log(nnz)) time Transpose function
+ * \remarks Performs a lexicographical sort
+ * \remarks Const function (doesn't mutate the calling object)
+ */
+template <class IT, class NT>
+SpDCCols<IT,NT> * SpDCCols<IT,NT>::TransposeConstPtr() const
+{
+	SpTuples<IT,NT> Atuples(*this);
+	Atuples.SortRowBased();
+	
+	return new SpDCCols<IT,NT>(Atuples,true);
+}
+
 /** 
   * Splits the matrix into two parts, simply by cutting along the columns
   * Simple algorithm that doesn't intend to split perfectly, but it should do a pretty good job
