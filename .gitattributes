@@ -355,6 +355,7 @@ CombBLAS/Applications/CarverResults/scale24_p64_july11_intel.run -text
 CombBLAS/Applications/CarverResults/scale26_p128_july11.run -text
 CombBLAS/Applications/CarverResults/scale26_p256_july11.run -text
 CombBLAS/Applications/CarverResults/scale26_p64_july11.run -text
+CombBLAS/Applications/DirOptBFS.cpp -text
 CombBLAS/Applications/Driver.cpp -text
 CombBLAS/Applications/FilteredBFS.cpp -text
 CombBLAS/Applications/FilteredMIS.cpp -text
@@ -425,7 +426,6 @@ CombBLAS/Applications/FranklinResults/script8100.final_small- -text
 CombBLAS/Applications/FranklinResults/script8100.fullydist_Jan02 -text
 CombBLAS/Applications/FranklinResults/script8100.fullydist_Jan04 -text
 CombBLAS/Applications/FranklinResults/script8100.fullydist_Scale30 -text
-CombBLAS/Applications/Graph500.cpp -text
 CombBLAS/Applications/HopperResults/script1024.16pernode -text
 CombBLAS/Applications/HopperResults/script1024.16pernode_mini_fullydist -text
 CombBLAS/Applications/HopperResults/script1024.16pernode_toy -text
@@ -657,6 +657,7 @@ CombBLAS/Applications/TACC-SCRIPTS/mpi2script529 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script64 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script81 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script9 -text
+CombBLAS/Applications/TopDownBFS.cpp -text
 CombBLAS/Applications/TwitterEdge.h -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
@@ -701,6 +702,8 @@ CombBLAS/Applications/twitterresults/largetwitter_p16.results -text
 CombBLAS/BC-DEBUG/input.txt -text
 CombBLAS/BFSFriends.h -text
 CombBLAS/BitMap.h -text
+CombBLAS/BitMapCarousel.h -text
+CombBLAS/BitMapFringe.h -text
 CombBLAS/CMakeLists.txt -text
 CombBLAS/CMakeLists_NERSC.txt -text
 CombBLAS/CombBLAS.h -text

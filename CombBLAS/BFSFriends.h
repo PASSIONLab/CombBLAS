@@ -10,8 +10,9 @@
 #include "OptBuf.h"
 #include "ParFriends.h"
 #include "SpImplNoSR.h"
-// AL: doesn't compile on OSX. #include <parallel/algorithm>
-
+#include "BitMap.h"
+#include "BitMapCarousel.h"
+#include "BitMapFringe.h"
 using namespace std;
 
 template <class IT, class NT, class DER>
@@ -357,6 +358,192 @@ FullyDistSpVec<IT,VT>  SpMV (const SpParMat<IT,bool,UDER> & A, const FullyDistSp
 
 	MergeContributions(y,recvcnt, rdispls, recvindbuf, recvnumbuf, rowneighs);
 	return y;	
+}
+
+template <typename VT, typename IT, typename UDER>
+SpDCCols<int,bool>::SpColIter* CalcSubStarts(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapCarousel<IT,VT> &done) {
+	shared_ptr<CommGrid> cg = A.getcommgrid();
+	IT rowuntil = x.LengthUntil();
+	MPI_Comm RowWorld = cg->GetRowWorld();
+	MPI_Bcast(&rowuntil, 1, MPIType<IT>(), 0, RowWorld);
+	int numcols = cg->GetGridCols();
+	SpDCCols<int,bool>::SpColIter colit = A.seq().begcol();
+#ifdef THREADED
+    SpDCCols<int,bool>::SpColIter* starts = new SpDCCols<int,bool>::SpColIter[numcols*cblas_splits+1];
+    for(int c=0; c<numcols; c++) {
+		IT curr_sub_start = done.GetGlobalStartOfLocal(c) - rowuntil;
+		IT next_sub_start = done.GetGlobalEndOfLocal(c) - rowuntil;
+		IT sub_range = next_sub_start - curr_sub_start;
+		IT per_thread = (sub_range + cblas_splits - 1) / cblas_splits;
+		IT curr_thread_start = curr_sub_start;
+		for (int t=0; t<cblas_splits; t++) {
+			while(colit.colid() < curr_thread_start) {
+				++colit;
+			}
+			starts[c*cblas_splits + t] = colit;
+			curr_thread_start = min(curr_thread_start + per_thread, next_sub_start);
+		}
+    }
+    starts[numcols*cblas_splits] = A.seq().endcol();
+#else
+    SpDCCols<int,bool>::SpColIter* starts = new SpDCCols<int,bool>::SpColIter[numcols+1];
+    for(int c=0; c<numcols; c++) {
+		IT next_start = done.GetGlobalStartOfLocal(c) - rowuntil;
+		while(colit.colid() < next_start) {
+			++colit;
+		}
+		starts[c] = colit;
+    }
+    starts[numcols] = A.seq().endcol();
+#endif
+	return starts;
+}
+
+template <typename VT, typename IT>
+void UpdateParents(MPI_Comm & RowWorld, pair<IT,IT> *updates, int num_updates, FullyDistVec<IT,VT> &parents, int source, int dest, BitMapFringe<int64_t,int64_t> &bm_fringe) {
+	int send_words = num_updates<<1, recv_words;
+	MPI_Status status;
+	MPI_Sendrecv(&send_words, 1, MPI_INT, dest, PUPSIZE,
+					  &recv_words, 1, MPI_INT, source, PUPSIZE, RowWorld, &status);
+	pair<IT,IT>* recv_buff = new pair<IT,IT>[recv_words>>1];
+	MPI_Sendrecv(updates, send_words, MPIType<IT>(), dest, PUPDATA,
+					  recv_buff, recv_words, MPIType<IT>(), source, PUPDATA, RowWorld, &status);
+	
+#ifdef THREADED
+#pragma omp parallel for
+#endif
+	for (int i=0; i<recv_words>>1; i++) {
+		parents.SetLocalElement(recv_buff[i].first, recv_buff[i].second);
+	}
+	
+	bm_fringe.IncrementNumSet((recv_words>>1));
+	delete[] recv_buff;
+}
+
+
+template <typename VT, typename IT, typename UDER>
+void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapFringe<int64_t,int64_t> &bm_fringe, FullyDistVec<IT,VT> & parents, BitMapCarousel<IT,VT> &done, SpDCCols<int,bool>::SpColIter* starts)
+{
+	shared_ptr<CommGrid> cg = A.getcommgrid();
+	MPI_Comm World = cg->GetWorld();
+	MPI_Comm ColWorld = cg->GetColWorld();
+	MPI_Comm RowWorld = cg->GetRowWorld();
+	MPI_Status status;
+	
+	// get row and column offsets
+	IT rowuntil = x.LengthUntil(), my_coluntil = x.LengthUntil(), coluntil;
+	int diagneigh = cg->GetComplementRank();
+	MPI_Sendrecv(&my_coluntil, 1, MPIType<IT>(), diagneigh, TROST, &coluntil, 1, MPIType<IT>(), diagneigh, TROST, World, &status);
+	MPI_Bcast(&coluntil, 1, MPIType<IT>(), 0, ColWorld);
+	MPI_Bcast(&rowuntil, 1, MPIType<IT>(), 0, RowWorld);
+	
+	BitMap* frontier = bm_fringe.TransposeGather();
+	done.SaveOld();
+	
+#ifdef THREADED
+	const int buff_size = 8192;
+	pair<IT,IT>* local_update_heads[cblas_splits];
+	for (int t=0; t<cblas_splits; t++)
+		local_update_heads[t] = new pair<IT,IT>[buff_size];
+#endif
+	
+	// do bottom up work
+	int numcols = cg->GetGridCols();
+	int mycol = cg->GetRankInProcRow();
+	pair<IT,IT>* parent_updates = new pair<IT,IT>[done.SizeOfChunk()<<1]; // over-allocated
+	
+	for (int sub_step=0; sub_step<numcols; sub_step++) {
+		int num_updates = 0;
+		IT sub_start = done.GetGlobalStartOfLocal();
+		int dest_slice = (mycol + sub_step) % numcols;
+		int source_slice = (mycol - sub_step + numcols) % numcols;
+		double t1 = MPI_Wtime();
+#ifdef THREADED
+#pragma omp parallel
+		{
+			int id = omp_get_thread_num();
+			int num_locals=0;
+			SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;
+			SpDCCols<int,bool>::SpColIter colit, colit_end;
+			pair<IT,IT>* local_updates = local_update_heads[id];
+			// vector<pair<IT,IT> > local_updates;
+			colit_end = starts[dest_slice*cblas_splits + id + 1];
+			for(colit = starts[dest_slice*cblas_splits + id]; colit != colit_end; ++colit) {
+				int32_t local_row_ind = colit.colid();
+				IT row = local_row_ind + rowuntil;
+				if (!done.GetBit(row)) {
+					nzit_end = A.seq().endnz(colit);
+					for(nzit = A.seq().begnz(colit); nzit != nzit_end; ++nzit) {
+						int32_t local_col_ind = nzit.rowid();
+						IT col = local_col_ind + coluntil;
+						if (frontier->get_bit(local_col_ind)) {
+							// local_updates.push_back(make_pair(row-sub_start, col));
+							if (num_locals == buff_size) {
+								int copy_start = __sync_fetch_and_add(&num_updates, buff_size);
+								copy(local_updates, local_updates + buff_size, parent_updates + copy_start);
+								num_locals = 0;
+							}
+							local_updates[num_locals++] = make_pair(row-sub_start, col);
+							done.SetBit(row);
+							break;
+						}
+					}
+				}
+			}
+			int copy_start = __sync_fetch_and_add(&num_updates, num_locals);
+			copy(local_updates, local_updates + num_locals, parent_updates + copy_start);
+		}
+#else
+		SpDCCols<int,bool>::SpColIter::NzIter nzit, nzit_end;
+		SpDCCols<int,bool>::SpColIter colit, colit_end;
+		colit_end = starts[dest_slice+1];
+		for(colit = starts[dest_slice]; colit != colit_end; ++colit) 
+		{
+			int32_t local_row_ind = colit.colid();
+			IT row = local_row_ind + rowuntil;
+			if (!done.GetBit(row)) 
+			{
+				nzit_end = A.seq().endnz(colit);
+				for(nzit = A.seq().begnz(colit); nzit != nzit_end; ++nzit) 
+				{
+					int32_t local_col_ind = nzit.rowid();
+					IT col = local_col_ind + coluntil;
+					if (frontier->get_bit(local_col_ind)) 
+					{
+						parent_updates[num_updates++] = make_pair(row-sub_start, col);
+						done.SetBit(row);
+						break;
+					}
+				} // end_for
+			} // end_if
+		} // end_for
+#endif
+
+#ifdef BOTTOMUPTIME
+		double t2 = MPI_Wtime();
+		bu_local += (t2-t1);
+		t1 = MPI_Wtime();
+#endif
+		done.RotateAlongRow();
+
+#ifdef BOTTOMUPTIME
+		t2 = MPI_Wtime();
+		bu_rotate += (t2-t1);
+		t1 = MPI_Wtime();
+#endif
+		UpdateParents(RowWorld, parent_updates, num_updates, parents, source_slice, dest_slice, bm_fringe);
+#ifdef BOTTOMUPTIME
+		t2 = MPI_Wtime();
+		bu_update += (t2-t1);
+#endif
+	}
+	bm_fringe.LoadFromNext();
+	done.UpdateFringe(bm_fringe);
+#ifdef THREADED
+	for (int t=0; t<cblas_splits; t++)
+		delete[] local_update_heads[t];
+#endif
+	delete[] parent_updates;
 }
 
 #endif

@@ -95,6 +95,9 @@
 #define TROST 137
 #define TRLUT 138
 #define SWAPTAG 139
+#define ROTATE 140
+#define PUPSIZE 141
+#define PUPDATA 142
 
 extern int cblas_splits;
 

@@ -121,6 +121,25 @@ NT FullyDistSpVec<IT,NT>::operator[](IT indx)
 	return val;
 }
 
+template <class IT, class NT>
+NT FullyDistSpVec<IT,NT>::GetLocalElement(IT indx)
+{
+	NT val = NT();
+	IT locind;
+	int owner = Owner(indx, locind);
+	int found = 0;
+	typename vector<IT>::const_iterator it = lower_bound(ind.begin(), ind.end(), locind);	// ind is a sorted vector
+	if(commGrid->GetRank() == owner) {
+		if(it != ind.end() && locind == (*it))	// found
+		{
+			val = num[it-ind.begin()];
+			found = 1;
+		}
+	}
+	wasFound = found;
+	return val;
+}
+
 //! Indexing is performed 0-based
 template <class IT, class NT>
 void FullyDistSpVec<IT,NT>::SetElement (IT indx, NT numx)
@@ -817,4 +836,20 @@ void FullyDistSpVec<IT,NT>::DebugPrint()
 		delete [] dist;
 	}
 	MPI_Barrier(World);
+}
+
+template <class IT, class NT>
+void FullyDistSpVec<IT,NT>::Reset()
+{
+	ind.resize(0);
+	num.resize(0);
+}
+
+// Assigns given locations their value, needs to be sorted
+template <class IT, class NT>
+void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
+	ind.resize(count);
+	num.resize(count);
+	copy(inds, inds+count, ind.data());
+	copy(inds, inds+count, num.data());
 }

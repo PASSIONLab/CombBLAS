@@ -114,6 +114,7 @@ public:
 	bool operator==(const FullyDistVec<IT,NT> & rhs) const;
 
 	void SetElement (IT indx, NT numx);	// element-wise assignment
+	void SetLocalElement(IT index, NT value) {  arr[index] = value; }; // no checks, local index
 	NT   GetElement (IT indx) const;	// element-wise fetch
 	NT operator[](IT indx) const		// more c++ like API
 	{
