@@ -736,6 +736,7 @@ CombBLAS/MPIType.h -text
 CombBLAS/MainPage.h -text
 CombBLAS/MemoryPool.cpp -text
 CombBLAS/MemoryPool.h -text
+CombBLAS/NERSC_INSTALL.html -text
 CombBLAS/Operations.h -text
 CombBLAS/OptBuf.h -text
 CombBLAS/PBBS/radixSort.h -text
