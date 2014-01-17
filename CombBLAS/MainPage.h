@@ -29,7 +29,7 @@
 * directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * 
 * <b>Requirements</b>: You need a recent 
-* C++ compiler (gcc version 4.4+, Intel version 11.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
+* C++ compiler (gcc version 4.4+, Intel version 11.0+ and compatible - please avoid 13.x with -std=c++11), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
 * has them). If not, you can use the boost library and pass the -DCOMBBLAS_BOOST option to the compiler (cmake will automatically do it for you); it will work if you just add boost's path to 
 * $INCADD in the makefile. The recommended tarball uses the CMake build system, but only to build the documentation and unit-tests, and to automate installation. The chances are that you're not going to use any of our sample applications "as-is", so you can just modify them or imitate their structure to write your own application by just using the header files. There are very few binary libraries to link to, and no configured header files. Like many high-performance C++ libraries, the Combinatorial BLAS is mostly templated. 
 * CombBLAS works successfully with GNU, Intel, and PGI compilers, using OpenMPI, MVAPICH, Cray's MPI (based on MPICH) and Intel MPI libraries.
@@ -62,7 +62,7 @@
 * (sparse matrix-dense vector multiplication) 
 *
 * <b> New in version 1.4</b>:
-* - Direction optimizing breadth-first search in distributed memory (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="http://www.cs.berkeley.edu/~sbeamer/gap/">GAP</a>). Please cite [8] if you use this code in your research or benchmarks.
+* - Direction optimizing breadth-first search in distributed memory (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="http://www.cs.berkeley.edu/~sbeamer/gap/">GAP</a>). Please cite [8] if you use this code in your research or benchmarks (DirOptBFS.cpp).
 *
 * <b> New in version 1.3</b>: 
 * - MPI C++ bindings are removed since they are no longer supported by the MPI-3 standard. All MPI calls are C-style. 
@@ -113,7 +113,8 @@
 * <b> Applications </b>  implemented using Combinatorial BLAS:
 * - BetwCent.cpp : Betweenness centrality computation on directed, unweighted graphs. Download sample input <a href=" http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/scale17_bc_inp.tar.gz"> here </a>.
 * - MCL.cpp : An implementation of the MCL graph clustering algorithm.
-* - Graph500.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a>.
+* - TopDownBFS.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the traditional top-down BFS.
+* - DirOpt.cpp: A conformant implementation of the <a href="http://graph500.org">Graph 500 benchmark</a> using the traditional the faster direction-optimizing BFS.
 * - FilteredMIS.cpp: Filtered maximal independent set calculation on ER graphs using Luby's algorithm. 
 * - FilteredBFS.cpp: Filtered breadth-first search on a twitter-like data set. 
 *
