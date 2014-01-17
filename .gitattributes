@@ -2377,7 +2377,7 @@ CombBLAS/pspectralclustering/testdata/data.txt -text
 CombBLAS/pspectralclustering/testdata/distances.txt -text
 CombBLAS/pspectralclustering/testdata/similarity.txt -text
 CombBLAS/pspectralclustering/usage -text
-CombBLAS/release-notes.html -text
+CombBLAS/release-notes.html -text svneol=unset#unset
 CombBLAS/targz -text
 CombBLAS/valgrindout -text
 /Input_File_Formats.docx -text

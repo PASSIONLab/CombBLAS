@@ -1,8 +1,8 @@
 /** @mainpage Combinatorial BLAS Library (MPI reference implementation)
 *
-* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a>
+* @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a> (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a>).
 *
-* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) </i>
+* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC05-00OR22725. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE) </i>
 *
 *
 * @section intro Introduction
@@ -17,16 +17,16 @@
 *
 * <b>Download</b> 
 * - Read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/release-notes.html">release notes</a>.
-* - The latest CMake'd tarball (version 1.3.0, Feb 2013) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_13_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>). 
- The previous version (version 1.2.1, April 2012) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_12_1.tgz"> here </a> for backwards compatibility and benchmarking. 
+* - The latest CMake'd tarball (version 1.4.0, Jan 2014) <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_14_0.tgz"> here</a>. (NERSC users read <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/NERSC_INSTALL.html">this</a>).
+ The previous version (version 1.3.0, Feb 2013) is also available <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_13_0.tgz"> here </a> for backwards compatibility and benchmarking.
 * 	- To create sample applications
 * and run simple tests, all you need to do is to execute the following three commands, in the given order, inside the main directory: 
 * 		-  <i> cmake . </i>
 * 		- <i> make </i>
 * 		- <i> ctest -V </i> (you need the testinputs, see below)
-* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.tar.gz"
+* 	- Test inputs are separately downloadable <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/testdata_combblas1.2.1.tgz"> here</a>. Extract them inside the CombBLAS_vx.x directory with the command "tar -xzvf testdata_combblas1.2.1.tgz"
 * - Alternatively (if cmake fails, or you just don't want to install it), you can just imitate the sample makefiles inside the ReleaseTests and Applications 
-* directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-neumann) 
+* directories. Those sample makefiles have the following format: makefile-<i>machine</i>. (example: makefile-macair)
 * 
 * <b>Requirements</b>: You need a recent 
 * C++ compiler (gcc version 4.4+, Intel version 11.0+ and compatible), a compliant MPI implementation, and C++11 Standard library (libstdc++ that comes with g++ 
@@ -60,6 +60,9 @@
 * Sparse and dense vectors can be distributed either along the diagonal processor or to all processor. The latter is more space efficient and provides 
 * much better load balance for SpMSV (sparse matrix-sparse vector multiplication) but the former is simpler and perhaps faster for SpMV 
 * (sparse matrix-dense vector multiplication) 
+*
+* <b> New in version 1.4</b>:
+* - Direction optimizing breadth-first search in distributed memory (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a> and <a href="http://www.cs.berkeley.edu/~sbeamer/gap/">GAP</a>). Please cite [8] if you use this code in your research or benchmarks.
 *
 * <b> New in version 1.3</b>: 
 * - MPI C++ bindings are removed since they are no longer supported by the MPI-3 standard. All MPI calls are C-style. 
@@ -135,4 +138,5 @@ recent sparse matrix indexing, assignment, and multiplication results can be fou
  <a href="http://gauss.cs.ucsb.edu/~aydin/spgemm_sisc12.pdf"> PDF </a>
 * - [6] Aydın Buluç. <i> Linear Algebraic Primitives for Computation on Large Graphs </i>. PhD thesis, University of California, Santa Barbara, 2010. <a href="http://gauss.cs.ucsb.edu/~aydin/Buluc_Dissertation.pdf"> PDF </a>
 * - [7] Aydın Buluç, Erika Duriakova, Armando Fox, John Gilbert, Shoaib Kamil, Adam Lugowski, Leonid Oliker, Samuel Williams. <i> High-Productivity and High-Performance Analysis of Filtered Semantic Graphs </i> , International Parallel and Distributed Processing Symposium (IPDPS), 2013. <a href="http://gauss.cs.ucsb.edu/~aydin/ipdps13-kdtsejits.pdf"> PDF </a>
+* - [8] Scott Beamer, Aydin Buluç, Krste Asanović, and David Patterson. Distributed memory breadth-first search revisited: Enabling bottom-up search. In Workshop on Multithreaded Architectures and Applications (MTAAP), in conjunction with IPDPS. IEEE Computer Society, 2013.  <a href="http://crd.lbl.gov/assets/pubs_presos/mtaapbottomup2D.pdf"> PDF </a>
 */
