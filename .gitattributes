@@ -729,6 +729,7 @@ CombBLAS/FullyDistVec.cpp -text
 CombBLAS/FullyDistVec.h -text
 CombBLAS/HeapEntry.h -text
 CombBLAS/Isect.h -text
+CombBLAS/LICENSE -text
 CombBLAS/LocArr.h -text
 CombBLAS/MMmul.h -text
 CombBLAS/MPIType.cpp -text
