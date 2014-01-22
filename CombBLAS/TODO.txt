@@ -1,3 +1,4 @@
+- Remove SpParVec and DenseParVec classes
 - Name Sparse SpMV "SpMSpV"
 - Name BFSFriends versions to SpMV_NoSR(...) and SpMSpV_NoSR(...)
 - Implement SpMM and SpMV using CSB
