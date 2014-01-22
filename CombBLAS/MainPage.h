@@ -2,7 +2,7 @@
 *
 * @authors <a href="http://gauss.cs.ucsb.edu/~aydin"> Aydın Buluç </a>, <a href="http://cs.ucsb.edu/~gilbert"> John R. Gilbert </a>, <a href="http://www.cs.ucsb.edu/~alugowski/">Adam Lugowski</a> (in collaboration with <a href="http://www.cs.berkeley.edu/~sbeamer/">Scott Beamer</a>).
 *
-* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC05-00OR22725. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a>. </i>
+* <i> This material is based upon work supported by the National Science Foundation under Grant No. 0709385 and by the Department of Energy, Office of Science, ASCR Contract No. DE-AC05-00OR22725. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation (NSF) and the Department of Energy (DOE). This software is released under <a href="http://en.wikipedia.org/wiki/MIT_License">the MIT license</a> described <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/LICENSE">here</a>. </i>
 *
 *
 * @section intro Introduction
