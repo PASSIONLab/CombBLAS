@@ -137,14 +137,16 @@ public:
 	template <typename _UnaryOperation>
 	SpParMat<IT,NT,DER> PruneI(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
 	{
+		IT grow=0, gcol=0; 
+		//int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
 		if (inPlace)
 		{
-			spSeq->PruneI(__unary_op, inPlace);
+			spSeq->PruneI(__unary_op, inPlace, grow, gcol);
 			return SpParMat<IT,NT,DER>(); // return blank to match signature
 		}
 		else
 		{
-			return SpParMat<IT,NT,DER>(spSeq->PruneI(__unary_op, inPlace), commGrid);
+			return SpParMat<IT,NT,DER>(spSeq->PruneI(__unary_op, inPlace, grow, gcol), commGrid);
 		}
 	}
 

@@ -72,8 +72,8 @@ public:
 		transform(numx, numx+nz, numx, __unary_op);
 	}
 
-	template <typename _UnaryOperation>
-	Dcsc<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace);
+	template <typename _UnaryOperation, typename GlobalIT>
+	Dcsc<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset);
 	template <typename _UnaryOperation>
 	Dcsc<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
 

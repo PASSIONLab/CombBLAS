@@ -193,8 +193,8 @@ public:
 			dcsc->Apply(__unary_op);	
 	}
 	
-	template <typename _UnaryOperation>
-	SpDCCols<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace);
+	template <typename _UnaryOperation, typename GlobalIT>
+	SpDCCols<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset);
 	template <typename _UnaryOperation>
 	SpDCCols<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
 

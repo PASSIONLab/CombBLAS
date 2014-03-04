@@ -517,8 +517,8 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 
 
 template <class IT, class NT>
-template <typename _UnaryOperation>
-Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace)
+template <typename _UnaryOperation, typename GlobalIT>
+Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset)
 {
 	// Two-pass algorithm
 	IT prunednnz = 0;
@@ -528,7 +528,7 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace)
 		bool colexists = false;
 		for(IT j=cp[i]; j < cp[i+1]; ++j)
 		{
-			if(!(__unary_op(make_tuple(ir[j], jc[i], numx[j])))) 	// keep this nonzero
+			if(!(__unary_op(make_tuple(rowOffset+ir[j], colOffset+jc[i], numx[j])))) 	// keep this nonzero
 			{
 				++prunednnz;
 				colexists = true;
@@ -553,7 +553,7 @@ Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace)
 	{
 		for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
 		{
-			if(!(__unary_op(make_tuple(oldir[j], oldjc[i], oldnumx[j])))) // keep this nonzero
+			if(!(__unary_op(make_tuple(rowOffset+oldir[j], colOffset+oldjc[i], oldnumx[j])))) // keep this nonzero
 			{
 				ir[cnnz] = oldir[j];	
 				numx[cnnz++] = 	oldnumx[j];
