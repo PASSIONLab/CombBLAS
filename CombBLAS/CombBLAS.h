@@ -66,6 +66,7 @@
 	#include <unordered_map>
 	#include <tuple>
 	#include <type_traits>
+	using namespace std;
 	#define joker std
 #endif
 using namespace std;

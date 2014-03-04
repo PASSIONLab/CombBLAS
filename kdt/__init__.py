@@ -70,7 +70,7 @@ try:
 except ImportError:
 	pass
 
-from specializer.pcb_callback import PcbCallback
+#from specializer.pcb_callback import PcbCallback
 
 def SEJITS_enable(en):
 	"""

@@ -194,6 +194,8 @@ public:
 	}
 	
 	template <typename _UnaryOperation>
+	SpDCCols<IT,NT>* PruneI(_UnaryOperation __unary_op, bool inPlace);
+	template <typename _UnaryOperation>
 	SpDCCols<IT,NT>* Prune(_UnaryOperation __unary_op, bool inPlace);
 
 	template <typename _BinaryOperation>

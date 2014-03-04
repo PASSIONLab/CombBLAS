@@ -18,7 +18,9 @@ public:
 	typedef SpDCCols<INDEXTYPE,NUMTYPE> DCColsType;
 	typedef SpParMat < INDEXTYPE, NUMTYPE, DCColsType > PSpMat_Obj2;
 	typedef PSpMat_Obj2 MatType;
-	
+
+	typedef tuple<INDEXTYPE, INDEXTYPE, NUMTYPE> NUM_TUPLE;
+
 public:
 	
 	pySpParMatObj2(MatType other);
@@ -57,7 +59,10 @@ public:
 	void Apply(op::UnaryFunctionObj* f);
 	void DimWiseApply(int dim, const pyDenseParVecObj2& values, op::BinaryFunctionObj* f);
 	pySpParMatObj2 Keep(op::UnaryPredicateObj* pred, bool inPlace);
-	
+		
+	pySpParMatObj2 TriU(bool inPlace);
+	pySpParMatObj2 TriL(bool inPlace);
+
 	// Be wary of identity value with min()/max()!!!!!!!
 	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
 	void Reduce(int dim, pyDenseParVecObj2 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity = Obj2());

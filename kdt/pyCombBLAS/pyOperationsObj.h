@@ -30,6 +30,12 @@
 #define USESEJITS 1
 #endif
 
+#if SWIG13
+#define FIXED_SWIG_Python_GetModule() SWIG_Python_GetModule()
+#else
+#define FIXED_SWIG_Python_GetModule() SWIG_Python_GetModule(NULL)
+#endif
+
 
 //INTERFACE_INCLUDE_BEGIN
 namespace op {
@@ -71,7 +77,7 @@ class UnaryFunctionObj {
 	UnaryFunctionObj_WorkerType worker;
 	
 	UnaryFunctionObj(PyObject *pyfunc): worker(pyfunc) { 
-      swig_module_info* module = SWIG_Python_GetModule();
+      swig_module_info* module = FIXED_SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
       
       UnaryFunctionObj * tmp;
@@ -284,7 +290,7 @@ class BinaryFunctionObj {
 
     //	BinaryFunctionObj(PyObject *pyfunc, bool as, bool com): worker(pyfunc), commutable(com), associative(as) { }
     BinaryFunctionObj(PyObject *pyfunc, bool as, bool com) : worker(pyfunc), commutable(com), associative(as) {
-      swig_module_info* module = SWIG_Python_GetModule();
+      swig_module_info* module = FIXED_SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
       
       BinaryFunctionObj * tmp;

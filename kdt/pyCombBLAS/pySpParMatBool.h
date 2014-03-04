@@ -19,6 +19,8 @@ public:
 	typedef SpParMat < INDEXTYPE, NUMTYPE, DCColsType > PSpMat_DoubleInt;
 	typedef PSpMat_DoubleInt MatType;
 	
+	typedef tuple<INDEXTYPE, INDEXTYPE, NUMTYPE> NUM_TUPLE;
+	
 public:
 	
 	pySpParMatBool(MatType other);
@@ -62,6 +64,9 @@ public:
 	void Apply(op::UnaryFunction* f);
 	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
 	pySpParMatBool Keep(op::UnaryPredicateObj* f, bool inPlace);
+	
+	pySpParMatBool TriU(bool inPlace);
+	pySpParMatBool TriL(bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	

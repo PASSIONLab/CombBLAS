@@ -479,11 +479,35 @@ void pySpParMatObj2::DimWiseApply(int dim, const pyDenseParVecObj2& values, op::
 	A.DimApply((dim == Column() ? ::Column : ::Row), values.v, *f);
 }
 
-
 pySpParMatObj2 pySpParMatObj2::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 {
 	return pySpParMatObj2(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
+
+bool TriU_Prune_pred(const pySpParMatObj2::NUM_TUPLE& tup)
+{
+	// Upper Triangular: col >= row
+	// row: get<0>(tup), col: get<1>(tup)
+	return get<0>(tup) > get<1>(tup);
+}
+
+bool TriL_Prune_pred(const pySpParMatObj2::NUM_TUPLE& tup)
+{
+	// Lower Triangular: col <= row
+	// row: get<0>(tup), col: get<1>(tup)
+	return get<0>(tup) < get<1>(tup);
+}
+
+pySpParMatObj2 pySpParMatObj2::TriU(bool inPlace)
+{
+	return pySpParMatObj2(A.PruneI(TriU_Prune_pred, inPlace));
+}
+
+pySpParMatObj2 pySpParMatObj2::TriL(bool inPlace)
+{
+	return pySpParMatObj2(A.PruneI(TriL_Prune_pred, inPlace));
+}
+
 
 void pySpParMatObj2::Reduce(int dim, pyDenseParVecObj2 *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, Obj2 identity)
 {

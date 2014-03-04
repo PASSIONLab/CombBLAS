@@ -558,6 +558,41 @@ class Mat:
 		return matrix, degrees, kernel1Time
 
 	@staticmethod
+	def generateER(n, m, nnn, dedupe=True):
+		"""
+		generates an Erdos-Renyi matrix. This matrix has `nnn` non-zeros whose row and
+		column indices are randomly generated using a uniform distribution.
+
+		Input Parameter:
+			n:  an integer number of columns in the matrix
+			m:  an integer number of rows in the matrix.
+			nnn:  the number on non-nulls to generate.
+			dedupe: whether or not to remove duplicate elements.
+
+		Output Parameter:
+			ret:  a Mat instance
+		"""
+	
+		import random
+
+		rows = kdt.Vec.range(nnn)
+		cols = kdt.Vec.range(nnn)
+
+		cols.apply(lambda x: random.randint(0, n-1)) # randint(i, j)'s range is inclusive [i, j].
+		rows.apply(lambda x: random.randint(0, m-1))
+	
+		with_dupes = kdt.Mat(rows, cols, 1, n, m, element=1.0)
+	
+		# remove dupes using matrix multiplication with the identity
+		if (dedupe):
+			I = kdt.Mat.eye(n, n)
+			ret = I.SpGEMM(with_dupes, semiring=kdt.sr_plustimes)
+			return ret
+		else:
+			return with_dupes
+
+
+	@staticmethod
 	def eye(n, m=None, element=1.0):
 		"""
 		creates a matrix with n columns and m rows (or n rows if m is omitted)
@@ -951,7 +986,6 @@ class Mat:
 			ret = Mat._toMat(SubsRefOut, self._identity_)
 			return ret
 		
-	# TODO: make a keep() which reverses the predicate
 	def keep(self, pred, inPlace=True, ignoreFilter=False):
 		"""
 		only keep elements for which pred(e) == True.
@@ -960,6 +994,24 @@ class Mat:
 			raise NotImplementedError,"keep() doesn't support filters yet"
 			
 		return Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
+	
+	def triu(self, inPlace=False):
+		"""
+		make upper triangular.
+		"""
+		if self._hasFilter():
+			raise NotImplementedError,"triu() doesn't support filters yet"
+
+		return Mat._toMat(self._m_.TriU(inPlace), self._identity_)
+
+	def tril(self, inPlace=False):
+		"""
+		make lower triangular.
+		"""
+		if self._hasFilter():
+			raise NotImplementedError,"tril() doesn't support filters yet"
+
+		return Mat._toMat(self._m_.TriL(inPlace), self._identity_)
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""

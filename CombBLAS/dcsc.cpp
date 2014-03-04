@@ -518,6 +518,87 @@ void Dcsc<IT,NT>::EWiseMult(const Dcsc<IT,NT> & rhs, bool exclude)
 
 template <class IT, class NT>
 template <typename _UnaryOperation>
+Dcsc<IT,NT>* Dcsc<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace)
+{
+	// Two-pass algorithm
+	IT prunednnz = 0;
+	IT prunednzc = 0;
+	for(IT i=0; i<nzc; ++i)
+	{
+		bool colexists = false;
+		for(IT j=cp[i]; j < cp[i+1]; ++j)
+		{
+			if(!(__unary_op(make_tuple(ir[j], jc[i], numx[j])))) 	// keep this nonzero
+			{
+				++prunednnz;
+				colexists = true;
+			}
+		}
+		if(colexists) 	++prunednzc;
+	}
+	IT * oldcp = cp; 
+	IT * oldjc = jc;
+	IT * oldir = ir;	
+	NT * oldnumx = numx;	
+
+	cp = new IT[prunednzc+1];
+	jc = new IT[prunednzc];
+	ir = new IT[prunednnz];
+	numx = new NT[prunednnz];
+
+	IT cnzc = 0;
+	IT cnnz = 0;
+	cp[cnzc] = 0;
+	for(IT i=0; i<nzc; ++i)
+	{
+		for(IT j = oldcp[i]; j < oldcp[i+1]; ++j)
+		{
+			if(!(__unary_op(make_tuple(oldir[j], oldjc[i], oldnumx[j])))) // keep this nonzero
+			{
+				ir[cnnz] = oldir[j];	
+				numx[cnnz++] = 	oldnumx[j];
+			}
+		}
+		if(cnnz > cp[cnzc])
+		{
+			jc[cnzc] = oldjc[i];
+			cp[cnzc+1] = cnnz;
+			++cnzc;
+		}
+	}
+	assert(cnzc == prunednzc);
+	assert(cnnz == prunednnz);
+	if (inPlace)
+	{
+		// delete the memory pointed by previous pointers
+		DeleteAll(oldnumx, oldir, oldjc, oldcp);
+		nz = cnnz;
+		nzc = cnzc;
+		return NULL;
+	}
+	else
+	{
+		// create a new object to store the data
+		Dcsc<IT,NT>* ret = new Dcsc<IT,NT>();
+		ret->cp = cp; 
+		ret->jc = jc;
+		ret->ir = ir;	
+		ret->numx = numx;
+		ret->nz = cnnz;
+		ret->nzc = cnzc;
+
+		// put the previous pointers back		
+		cp = oldcp;
+		jc = oldjc;
+		ir = oldir;
+		numx = oldnumx;
+		
+		return ret;
+	}
+}
+
+template <class IT, class NT>
+template <typename _UnaryOperation>
 Dcsc<IT,NT>* Dcsc<IT,NT>::Prune(_UnaryOperation __unary_op, bool inPlace)
 {
 	// Two-pass algorithm
