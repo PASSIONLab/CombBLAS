@@ -309,6 +309,32 @@ pySpParMat pySpParMat::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 	return pySpParMat(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
 
+bool TriU_Prune_pred(const pySpParMat::NUM_TUPLE& tup)
+{
+	//cout << "TriU_Prine_pred: <" << get<0>(tup) << ", " << get<1>(tup) << ", " << get<2>(tup) << ">: " << bool(get<0>(tup) <= get<1>(tup)) << endl;
+	// Upper Triangular: col >= row
+	// row: get<0>(tup), col: get<1>(tup)
+	return get<0>(tup) > get<1>(tup);
+}
+
+bool TriL_Prune_pred(const pySpParMat::NUM_TUPLE& tup)
+{
+	// Lower Triangular: col <= row
+	// row: get<0>(tup), col: get<1>(tup)
+	return get<0>(tup) < get<1>(tup);
+}
+
+pySpParMat pySpParMat::TriU(bool inPlace)
+{
+	return pySpParMat(A.PruneI(TriU_Prune_pred, inPlace));
+}
+
+pySpParMat pySpParMat::TriL(bool inPlace)
+{
+	return pySpParMat(A.PruneI(TriL_Prune_pred, inPlace));
+}
+
+
 int64_t pySpParMat::Count(op::UnaryFunction* pred)
 {
 	// use Reduce to count along the columns, then reduce the result vector into one value

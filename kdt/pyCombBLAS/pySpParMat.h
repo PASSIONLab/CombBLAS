@@ -21,6 +21,8 @@ public:
 	typedef SpParMat < INDEXTYPE, double, DCColsType > PSpMat_Double;
 	typedef PSpMat_DoubleInt MatType;
 	
+	typedef tuple<INDEXTYPE, INDEXTYPE, NUMTYPE> NUM_TUPLE;
+	
 public:
 	
 	pySpParMat(MatType other);
@@ -65,6 +67,9 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunction* f);
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	pySpParMat Keep(op::UnaryPredicateObj* f, bool inPlace);
+	
+	pySpParMat TriU(bool inPlace);
+	pySpParMat TriL(bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	

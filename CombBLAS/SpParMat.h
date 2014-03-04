@@ -135,6 +135,20 @@ public:
 	void ActivateThreading(int numsplits);	//<! As of version 1.2, only works with boolean matrices 
 
 	template <typename _UnaryOperation>
+	SpParMat<IT,NT,DER> PruneI(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
+	{
+		if (inPlace)
+		{
+			spSeq->PruneI(__unary_op, inPlace);
+			return SpParMat<IT,NT,DER>(); // return blank to match signature
+		}
+		else
+		{
+			return SpParMat<IT,NT,DER>(spSeq->PruneI(__unary_op, inPlace), commGrid);
+		}
+	}
+
+	template <typename _UnaryOperation>
 	SpParMat<IT,NT,DER> Prune(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
 	{
 		if (inPlace)

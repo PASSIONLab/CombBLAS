@@ -1,6 +1,12 @@
 #ifndef PYOPERATIONSSEJITS_H
 #define PYOPERATIONSSEJITS_H
 
+#if SWIG13
+#define FIXED_SWIG_Python_GetModule() SWIG_Python_GetModule()
+#else
+#define FIXED_SWIG_Python_GetModule() SWIG_Python_GetModule(NULL)
+#endif
+
 #include "pyCombBLAS-NoMPI.h"
 #include "pyOperationsWorkers.h"
 
@@ -21,7 +27,7 @@ class UnaryPredicateObj_SEJITS : public UnaryPredicateObj_Python {
 
       // now we check if the PyObject is actually a UnaryPredicateObj
       // in disguise
-      swig_module_info* module = SWIG_Python_GetModule();
+      swig_module_info* module = FIXED_SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
 
       UnaryPredicateObj_SEJITS* tmp;
@@ -163,7 +169,7 @@ class BinaryPredicateObj_SEJITS : public BinaryPredicateObj_Python {
 
       // now we check if the PyObject is actually a UnaryPredicateObj
       // in disguise
-      swig_module_info* module = SWIG_Python_GetModule();
+      swig_module_info* module = FIXED_SWIG_Python_GetModule();
       swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
 
       BinaryPredicateObj_SEJITS* tmp;
