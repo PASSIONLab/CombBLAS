@@ -309,29 +309,38 @@ pySpParMat pySpParMat::Keep(op::UnaryPredicateObj* pred, bool inPlace)
 	return pySpParMat(A.Prune(pcb_logical_not<op::UnaryPredicateObj>(*pred), inPlace));
 }
 
-bool TriU_Prune_pred(const pySpParMat::NUM_TUPLE& tup)
+struct TriU_Prune_pred
 {
-	//cout << "TriU_Prine_pred: <" << get<0>(tup) << ", " << get<1>(tup) << ", " << get<2>(tup) << ">: " << bool(get<0>(tup) <= get<1>(tup)) << endl;
-	// Upper Triangular: col >= row
-	// row: get<0>(tup), col: get<1>(tup)
-	return get<0>(tup) > get<1>(tup);
+	int64_t k;
+	TriU_Prune_pred(int64_t k_): k(k_) {}
+	bool operator()(const pySpParMat::NUM_TUPLE& tup) const
+	{
+		//cout << "TriU_Prine_pred: <" << get<0>(tup) << ", " << get<1>(tup) << ", " << get<2>(tup) << ">: " << bool(get<0>(tup) <= get<1>(tup)) << endl;
+		// Upper Triangular: col >= row
+		// row: get<0>(tup), col: get<1>(tup)
+		return get<0>(tup) + k > get<1>(tup);
+	}
+};
+
+struct TriL_Prune_pred
+{
+	int64_t k;
+	TriL_Prune_pred(int64_t k_): k(k_) {}
+	bool operator()(const pySpParMat::NUM_TUPLE& tup) const
+	{
+		// Lower Triangular: col <= row
+		return get<0>(tup) < get<1>(tup) + k;
+	}
+};
+
+pySpParMat pySpParMat::TriU(int64_t k, bool inPlace)
+{
+	return pySpParMat(A.PruneI(TriU_Prune_pred(k), inPlace));
 }
 
-bool TriL_Prune_pred(const pySpParMat::NUM_TUPLE& tup)
+pySpParMat pySpParMat::TriL(int64_t k, bool inPlace)
 {
-	// Lower Triangular: col <= row
-	// row: get<0>(tup), col: get<1>(tup)
-	return get<0>(tup) < get<1>(tup);
-}
-
-pySpParMat pySpParMat::TriU(bool inPlace)
-{
-	return pySpParMat(A.PruneI(TriU_Prune_pred, inPlace));
-}
-
-pySpParMat pySpParMat::TriL(bool inPlace)
-{
-	return pySpParMat(A.PruneI(TriL_Prune_pred, inPlace));
+	return pySpParMat(A.PruneI(TriL_Prune_pred(k), inPlace));
 }
 
 

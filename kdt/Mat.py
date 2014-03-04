@@ -992,26 +992,29 @@ class Mat:
 		"""
 		if not ignoreFilter and self._hasFilter():
 			raise NotImplementedError,"keep() doesn't support filters yet"
-			
-		return Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
+		
+		if not inPlace:
+			return Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
 	
-	def triu(self, inPlace=False):
+	def triu(self, k=0, inPlace=False):
 		"""
 		make upper triangular.
 		"""
 		if self._hasFilter():
 			raise NotImplementedError,"triu() doesn't support filters yet"
 
-		return Mat._toMat(self._m_.TriU(inPlace), self._identity_)
+		if not inPlace:
+			return Mat._toMat(self._m_.TriU(k, inPlace), self._identity_)
 
-	def tril(self, inPlace=False):
+	def tril(self, k=0, inPlace=False):
 		"""
 		make lower triangular.
 		"""
 		if self._hasFilter():
 			raise NotImplementedError,"tril() doesn't support filters yet"
 
-		return Mat._toMat(self._m_.TriL(inPlace), self._identity_)
+		if not inPlace:
+			return Mat._toMat(self._m_.TriL(k, inPlace), self._identity_)
 
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""

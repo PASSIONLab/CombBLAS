@@ -5511,29 +5511,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMat_TriU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMat result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_TriU",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_TriU",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_TriU" "', argument " "1"" of type '" "pySpParMat *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_TriU" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_TriU" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMat_TriU" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriU(arg2);
+      result = (arg1)->TriU(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -5552,29 +5561,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMat_TriL(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMat *arg1 = (pySpParMat *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMat result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMat_TriL",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMat_TriL",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMat, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMat_TriL" "', argument " "1"" of type '" "pySpParMat *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMat * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_TriL" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMat_TriL" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMat_TriL" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriL(arg2);
+      result = (arg1)->TriL(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -9893,29 +9911,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatBool_TriU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatBool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_TriU",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_TriU",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_TriU" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_TriU" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_TriU" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatBool_TriU" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriU(arg2);
+      result = (arg1)->TriU(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -9934,29 +9961,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatBool_TriL(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatBool *arg1 = (pySpParMatBool *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatBool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatBool_TriL",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatBool_TriL",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatBool, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatBool_TriL" "', argument " "1"" of type '" "pySpParMatBool *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatBool * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_TriL" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatBool_TriL" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatBool_TriL" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriL(arg2);
+      result = (arg1)->TriL(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -13212,29 +13248,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatObj1_TriU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatObj1 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj1_TriU",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_TriU",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_TriU" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj1_TriU" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj1_TriU" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj1_TriU" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriU(arg2);
+      result = (arg1)->TriU(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -13253,29 +13298,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatObj1_TriL(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj1 *arg1 = (pySpParMatObj1 *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatObj1 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj1_TriL",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj1_TriL",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj1, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj1_TriL" "', argument " "1"" of type '" "pySpParMatObj1 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj1 * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj1_TriL" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj1_TriL" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj1_TriL" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriL(arg2);
+      result = (arg1)->TriL(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16362,29 +16416,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatObj2_TriU(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatObj2 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj2_TriU",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_TriU",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_TriU" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj2_TriU" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj2_TriU" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj2_TriU" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriU(arg2);
+      result = (arg1)->TriU(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
@@ -16403,29 +16466,38 @@ fail:
 SWIGINTERN PyObject *_wrap_pySpParMatObj2_TriL(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pySpParMatObj2 *arg1 = (pySpParMatObj2 *) 0 ;
-  bool arg2 ;
+  int64_t arg2 ;
+  bool arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  bool val2 ;
+  long long val2 ;
   int ecode2 = 0 ;
+  bool val3 ;
+  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   pySpParMatObj2 result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:pySpParMatObj2_TriL",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:pySpParMatObj2_TriL",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pySpParMatObj2, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pySpParMatObj2_TriL" "', argument " "1"" of type '" "pySpParMatObj2 *""'"); 
   }
   arg1 = reinterpret_cast< pySpParMatObj2 * >(argp1);
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  ecode2 = SWIG_AsVal_long_SS_long(obj1, &val2);
   if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj2_TriL" "', argument " "2"" of type '" "bool""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pySpParMatObj2_TriL" "', argument " "2"" of type '" "int64_t""'");
   } 
-  arg2 = static_cast< bool >(val2);
+  arg2 = static_cast< int64_t >(val2);
+  ecode3 = SWIG_AsVal_bool(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pySpParMatObj2_TriL" "', argument " "3"" of type '" "bool""'");
+  } 
+  arg3 = static_cast< bool >(val3);
   {
     try {
-      result = (arg1)->TriL(arg2);
+      result = (arg1)->TriL(arg2,arg3);
     } catch(string& stringReason) {
       const char* sData = (char*)stringReason.c_str();
       SWIG_exception(SWIG_RuntimeError,sData);
