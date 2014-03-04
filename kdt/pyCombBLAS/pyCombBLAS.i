@@ -102,8 +102,8 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	pySpParMat Keep(op::UnaryPredicateObj* f, bool inPlace);
 	
-	pySpParMat TriU(bool inPlace);
-	pySpParMat TriL(bool inPlace);
+	pySpParMat TriU(int64_t k, bool inPlace);
+	pySpParMat TriL(int64_t k, bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	
@@ -185,8 +185,8 @@ public:
 	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
 	pySpParMatBool Keep(op::UnaryPredicateObj* f, bool inPlace);
 	
-	pySpParMatBool TriU(bool inPlace);
-	pySpParMatBool TriL(bool inPlace);
+	pySpParMatBool TriU(int64_t k, bool inPlace);
+	pySpParMatBool TriL(int64_t k, bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	
@@ -262,8 +262,8 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVecObj1& values, op::BinaryFunctionObj* f);
 	pySpParMatObj1 Keep(op::UnaryPredicateObj* pred, bool inPlace);
 		
-	pySpParMatObj1 TriU(bool inPlace);
-	pySpParMatObj1 TriL(bool inPlace);
+	pySpParMatObj1 TriU(int64_t k, bool inPlace);
+	pySpParMatObj1 TriL(int64_t k, bool inPlace);
 
 	// Be wary of identity value with min()/max()!!!!!!!
 	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);
@@ -335,8 +335,8 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVecObj2& values, op::BinaryFunctionObj* f);
 	pySpParMatObj2 Keep(op::UnaryPredicateObj* pred, bool inPlace);
 		
-	pySpParMatObj2 TriU(bool inPlace);
-	pySpParMatObj2 TriL(bool inPlace);
+	pySpParMatObj2 TriU(int64_t k, bool inPlace);
+	pySpParMatObj2 TriL(int64_t k, bool inPlace);
 
 	// Be wary of identity value with min()/max()!!!!!!!
 	void Reduce(int dim, pyDenseParVec     *ret, op::BinaryFunctionObj* bf, op::UnaryFunctionObj* uf, double identity = 0);

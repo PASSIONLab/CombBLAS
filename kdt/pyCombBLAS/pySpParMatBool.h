@@ -65,8 +65,8 @@ public:
 	//void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f); // Not enough CombBLAS support
 	pySpParMatBool Keep(op::UnaryPredicateObj* f, bool inPlace);
 	
-	pySpParMatBool TriU(bool inPlace);
-	pySpParMatBool TriL(bool inPlace);
+	pySpParMatBool TriU(int64_t k, bool inPlace);
+	pySpParMatBool TriL(int64_t k, bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	

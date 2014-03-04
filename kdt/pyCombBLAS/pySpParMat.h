@@ -68,8 +68,8 @@ public:
 	void DimWiseApply(int dim, const pyDenseParVec& values, op::BinaryFunctionObj* f);
 	pySpParMat Keep(op::UnaryPredicateObj* f, bool inPlace);
 	
-	pySpParMat TriU(bool inPlace);
-	pySpParMat TriL(bool inPlace);
+	pySpParMat TriU(int64_t k, bool inPlace);
+	pySpParMat TriL(int64_t k, bool inPlace);
 
 	int64_t Count(op::UnaryFunction* pred);
 	
