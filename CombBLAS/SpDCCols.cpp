@@ -258,12 +258,12 @@ SpDCCols<IT,NT> & SpDCCols<IT,NT>::operator+= (const SpDCCols<IT,NT> & rhs)
 }
 
 template <class IT, class NT>
-template <typename _UnaryOperation>
-SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace)
+template <typename _UnaryOperation, typename GlobalIT>
+SpDCCols<IT,NT>* SpDCCols<IT,NT>::PruneI(_UnaryOperation __unary_op, bool inPlace, GlobalIT rowOffset, GlobalIT colOffset)
 {
 	if(nnz > 0)
 	{
-		Dcsc<IT,NT>* ret = dcsc->PruneI (__unary_op, inPlace);
+		Dcsc<IT,NT>* ret = dcsc->PruneI (__unary_op, inPlace, rowOffset, colOffset);
 		if (inPlace)
 		{
 			nnz = dcsc->nz;
