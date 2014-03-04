@@ -1486,6 +1486,7 @@ void SpParMat< IT,NT,DER >::SaveGathered(string filename, HANDLER handler, bool 
 	{
 		std::string s;
 		std::stringstream strm;
+		strm << "%%MatrixMarket matrix coordinate real general" << endl;
 		strm << totalm << " " << totaln << " " << totnnz << endl;
 		s = strm.str();
 		out.open(filename.c_str(),ios_base::trunc);
