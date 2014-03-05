@@ -138,7 +138,7 @@ public:
 	SpParMat<IT,NT,DER> PruneI(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
 	{
 		IT grow=0, gcol=0; 
-		//int owner = Owner(total_m, total_n, distrows.arr[i], distcols.arr[i], lrow, lcol);
+		GetPlaceInGlobalGrid(grow, gcol);
 		if (inPlace)
 		{
 			spSeq->PruneI(__unary_op, inPlace, grow, gcol);
@@ -308,6 +308,8 @@ public:
 private:
 	void SparseCommon(vector< vector < tuple<IT,IT,NT> > > & data, IT locsize, IT total_m, IT total_n, bool SumDuplicates = false);
 	int Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lrow, IT & lcol) const;
+	
+	void GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const;
 	
 	void HorizontalSend(IT * & rows, IT * & cols, NT * & vals, IT * & temprows, IT * & tempcols, NT * & tempvals, vector < tuple <IT,IT,NT> > & localtuples,
 						int * rcurptrs, int * rdispls, IT buffperrowneigh, int rowneighs, int recvcount, IT m_perproc, IT n_perproc, int rankinrow);

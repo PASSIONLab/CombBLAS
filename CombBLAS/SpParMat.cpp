@@ -2512,3 +2512,27 @@ int SpParMat<IT,NT,DER>::Owner(IT total_m, IT total_n, IT grow, IT gcol, IT & lr
 	lcol = gcol - (own_proccol * n_perproc);
 	return commGrid->GetRank(own_procrow, own_proccol);
 }
+
+/**
+  * @param[out] rowOffset {Row offset imposed by process grid. Global row index = rowOffset + local row index.}
+  * @param[out] colOffset {Column offset imposed by process grid. Global column index = colOffset + local column index.}
+ **/
+template <class IT, class NT,class DER>
+void SpParMat<IT,NT,DER>::GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) const
+{
+	IT total_rows = getnrow();
+	IT total_cols = getncol();
+
+	int procrows = commGrid->GetGridRows();
+	int proccols = commGrid->GetGridCols();
+	IT rows_perproc = total_rows / procrows;
+	IT cols_perproc = total_cols / proccols;
+	
+	/*
+	AL: CommGrid::GetRankInProcRow and GetRankInProcCol return transposed values.
+	I'm seeing both uses in the code, so I'll also transpose it here.
+	*/
+	rowOffset = commGrid->GetRankInProcCol()*rows_perproc;
+	colOffset = commGrid->GetRankInProcRow()*cols_perproc;
+}
+	
