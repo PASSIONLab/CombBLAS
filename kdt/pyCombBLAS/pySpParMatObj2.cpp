@@ -503,7 +503,7 @@ struct TriL_Prune_pred
 	bool operator()(const pySpParMatObj2::NUM_TUPLE& tup) const
 	{
 		// Lower Triangular: col <= row
-		return get<0>(tup) < get<1>(tup) + k;
+		return get<0>(tup) + k < get<1>(tup);
 	}
 };
 
