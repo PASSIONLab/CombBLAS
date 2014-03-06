@@ -2528,10 +2528,6 @@ void SpParMat<IT,NT,DER>::GetPlaceInGlobalGrid(IT& rowOffset, IT& colOffset) con
 	IT rows_perproc = total_rows / procrows;
 	IT cols_perproc = total_cols / proccols;
 	
-	/*
-	AL: CommGrid::GetRankInProcRow and GetRankInProcCol return transposed values.
-	I'm seeing both uses in the code, so I'll also transpose it here.
-	*/
 	rowOffset = commGrid->GetRankInProcCol()*rows_perproc;
 	colOffset = commGrid->GetRankInProcRow()*cols_perproc;
 }
