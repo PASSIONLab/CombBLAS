@@ -485,7 +485,9 @@ void BottomUpStep(SpParMat<IT,bool,UDER> & A, FullyDistSpVec<IT,VT> & x, BitMapF
 		IT sub_start = done.GetGlobalStartOfLocal();
 		int dest_slice = (mycol + sub_step) % numcols;
 		int source_slice = (mycol - sub_step + numcols) % numcols;
+#ifdef BOTTOMUPTIME
 		double t1 = MPI_Wtime();
+#endif
 #ifdef THREADED
 #pragma omp parallel
 		{
