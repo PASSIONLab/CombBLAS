@@ -18,9 +18,12 @@ include CombBLAS/graph500-1.2/generator/*.txt
 include CombBLAS/psort-1.0/src/*
 include CombBLAS/psort-1.0/driver/*
 include setup.py
+include mpidistutils.py
+include mpiconfig.py
+include kdt_mpidistutils.py
+include mpi.cfg
 include README.txt
 include LICENSE.txt
-include KDT_User_Guide.pdf
 include examples/*.py
 include test/*.py
 include test/testfiles/*
