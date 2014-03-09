@@ -140,10 +140,12 @@ class BitMapFringe {
 				 trans_bm->data(), trans_words_recv, MPIType<uint64_t>(), diagneigh, TROST, World, &status); 
 	  
     // Gather all but first words
-    double t1 = MPI_Wtime();
-	MPI_Allgatherv(trans_bm->data()+1, send_counts[colrank], MPIType<uint64_t>(), gather_bm->data(), send_counts, word_dpls, MPIType<uint64_t>(), ColWorld);	
-    double t2 = MPI_Wtime();
 #ifdef BOTTOMUPTIME
+    double t1 = MPI_Wtime();
+#endif
+	MPI_Allgatherv(trans_bm->data()+1, send_counts[colrank], MPIType<uint64_t>(), gather_bm->data(), send_counts, word_dpls, MPIType<uint64_t>(), ColWorld);	
+#ifdef BOTTOMUPTIME
+    double t2 = MPI_Wtime();
     bottomup_allgather += (t2-t1);
 #endif
 
