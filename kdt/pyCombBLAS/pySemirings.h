@@ -230,10 +230,16 @@ struct PCBPlusTimesSRing
 			returnedSAID(true);
 
 #ifndef _MSC_VER
-		return arg1 * arg2;
+		OUT ret = arg1 * arg2;
+		if (ret == id())
+			returnedSAID(true);
+		return ret;
 #else
 		// maybe not the most efficient way, but this will only be used on scalars VC can't figure out anything else
-		return static_cast<OUT>(static_cast<NT1>(arg1) * static_cast<NT1>(arg2));
+		OUT ret = static_cast<OUT>(static_cast<NT1>(arg1) * static_cast<NT1>(arg2));
+		if (ret == id())
+			returnedSAID(true);
+		return ret;
 #endif
 	}
 	static void axpy(const OUT& a, const NT2& x, OUT & y)
