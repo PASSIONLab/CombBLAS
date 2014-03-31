@@ -42,8 +42,6 @@ THE SOFTWARE.
 #include <ctime>
 #include <cmath>
 #include "../CombBLAS.h"
-#include "../SpParVec.h"	// ABAB: deprecated
-#include "../DenseParVec.h"	// ABAB: deprecated
 
 
 // Simple helper class for declarations: Just the numerical type is templated 
@@ -69,14 +67,14 @@ int main(int argc, char* argv[])
 	typedef PlusTimesSRing<bool, double> PTBOOLDOUBLE;
 
 	if(argc < 4)
-        {
+    {
 		if(myrank == 0)
 		{	
-                	cout << "Usage: ./betwcent <BASEADDRESS> <K4APPROX> <BATCHSIZE>" << endl;
-                	cout << "Example: ./betwcent Data/ 15 128" << endl;
-                	cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
-                	cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
-			cout << "Because <BATCHSIZE> is for the overall matrix (similarly, <K4APPROX> is global as well) " << endl;
+                cout << "Usage: ./betwcent <BASEADDRESS> <K4APPROX> <BATCHSIZE> <output file - optional>" << endl;
+                cout << "Example: ./betwcent Data/ 15 128" << endl;
+                cout << "Input file input.txt should be under <BASEADDRESS> in triples format" << endl;
+                cout << "<BATCHSIZE> should be a multiple of sqrt(p)" << endl;
+                cout << "Because <BATCHSIZE> is for the overall matrix (similarly, <K4APPROX> is global as well) " << endl;
  		}
 		MPI_Finalize();
 		return -1;
@@ -109,10 +107,12 @@ int main(int argc, char* argv[])
 			cout << "*** Processing "<< nPasses <<" vertices instead"<< endl;
 		}
 
-		vector<int> candidates;
-		if (myrank == 0)
-			cout << "Batch processing will occur " << numBatches << " times, each processing " << nBatchSize << " vertices (overall)" << endl;
+        A.PrintInfo();
+        ostringstream tinfo;
+		tinfo << "Batch processing will occur " << numBatches << " times, each processing " << nBatchSize << " vertices (overall)" << endl;
+        SpParHelper::Print(tinfo.str());
 
+        vector<int> candidates;
 		// Only consider non-isolated vertices
 		int vertices = 0;
 		int vrtxid = 0; 
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 		SpParHelper::Print("Candidates chosen, precomputation finished\n");
 		double t1 = MPI_Wtime();
 		vector<int> batch(subBatchSize);
-		DenseParVec<int, double> bc(AT.getcommgrid(),0.0);
+		FullyDistVec<int, double> bc(AT.getcommgrid(), A.getnrow(), 0.0);
 
 		for(int i=0; i< numBatches; ++i)
 		{
@@ -206,8 +206,8 @@ int main(int argc, char* argv[])
 				delete bfs[j];
 			}
 		
-			SpParHelper::Print("Adding bc contributions...\n");			
-			bc += bcu.Reduce(Row, plus<double>(), 0.0);	// pack along rows
+			SpParHelper::Print("Adding bc contributions...\n");
+			bc += FullyDistVec<int, double>(bcu.Reduce(Row, plus<double>(), 0.0));	// pack along rows
 		}
 		bc.Apply(bind2nd(minus<double>(), nPasses));	// Subtrack nPasses from all the bc scores (because bcu was initialized to all 1's)
 		
@@ -219,6 +219,9 @@ int main(int argc, char* argv[])
 			fprintf(stdout, "%.6lf seconds elapsed for %d starting vertices\n", t2-t1, nPasses);
 			fprintf(stdout, "TEPS score is: %.6lf\n", TEPS);
 		}
+        ofstream output(argv[4]);
+        bc.SaveGathered(output, 0);
+        output.close();
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
