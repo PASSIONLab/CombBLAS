@@ -62,6 +62,12 @@ FullyDistVec<IT,NT>::FullyDistVec (const FullyDistSpVec<IT,NT> & rhs)		// Conver
 }
 
 template <class IT, class NT>
+FullyDistVec<IT,NT>::FullyDistVec (const DenseParVec<IT,NT> & rhs)		// Conversion copy-constructor
+{
+	*this = rhs;
+}
+
+template <class IT, class NT>
 template <class ITRHS, class NTRHS>
 FullyDistVec<IT, NT>::FullyDistVec ( const FullyDistVec<ITRHS, NTRHS>& rhs )
 : FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>(rhs.commGrid, static_cast<IT>(rhs.glen))
@@ -271,7 +277,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 		if(rhs.diagonal)
 		{
 			int proccols = commGrid->GetGridCols();	
-        		IT n_perproc = rhs.getLocalLength() / proccols;
+            IT n_perproc = rhs.getLocalLength() / proccols;
 			sendcnts = new int[proccols];
 			fill(sendcnts, sendcnts+proccols-1, n_perproc);
 			sendcnts[proccols-1] = rhs.getLocalLength() - (n_perproc * (proccols-1));
@@ -280,7 +286,7 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator=(const DenseParVec< IT,NT
 		}
 
 		int rowroot = commGrid->GetDiagOfProcRow();
-		MPI_Scatterv(&(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot, commGrid->GetRowWorld());
+		MPI_Scatterv((void*) &(rhs.arr[0]),sendcnts, dpls, MPIType<NT>(), &(arr[0]), arr.size(), MPIType<NT>(),rowroot, commGrid->GetRowWorld());
 	}
 	return *this;
 }
