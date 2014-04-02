@@ -71,7 +71,7 @@ class FullyDistSpVec: public FullyDist<IT,NT,typename CombBLAS::disable_if< Comb
 {
 public:
 	FullyDistSpVec ( );
-	FullyDistSpVec ( IT glen );
+	explicit FullyDistSpVec ( IT glen );
 	FullyDistSpVec ( shared_ptr<CommGrid> grid);
 	FullyDistSpVec ( shared_ptr<CommGrid> grid, IT glen);
 

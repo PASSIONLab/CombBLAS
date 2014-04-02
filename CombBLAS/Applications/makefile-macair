@@ -8,7 +8,7 @@ INCADD = -I$(INCDIR)
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++0x
+COMPILER = CC -std=c++11
 FLAGS = $(OPT)
 COMBBLAS = ..
 
@@ -56,10 +56,10 @@ apowers:	MemoryPool.o CommGrid.o MPIType.o APowers.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o apowers APowers.o MemoryPool.o CommGrid.o MPIType.o 
 
 tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 dobfs:	MemoryPool.o CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o 

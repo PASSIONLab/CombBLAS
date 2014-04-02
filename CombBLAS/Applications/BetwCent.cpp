@@ -219,9 +219,9 @@ int main(int argc, char* argv[])
 			fprintf(stdout, "%.6lf seconds elapsed for %d starting vertices\n", t2-t1, nPasses);
 			fprintf(stdout, "TEPS score is: %.6lf\n", TEPS);
 		}
-        ofstream output(argv[4]);
-        bc.SaveGathered(output, 0);
-        output.close();
+        	ofstream output(argv[4]);
+        	bc.SaveGathered(output, 0);
+        	output.close();
 	}	
 
 	// make sure the destructors for all objects are called before MPI::Finalize()
