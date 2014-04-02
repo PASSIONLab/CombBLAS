@@ -242,19 +242,19 @@ int main(int argc, char* argv[])
 		t1 = MPI_Wtime();
 
 		// Now that every remaining vertex is non-isolated, randomly pick ITERS many of them as starting vertices
-		#ifndef NOPERMUTE
+	#ifndef NOPERMUTE
 		degrees = degrees(nonisov);	// fix the degrees array too
 		degrees.PrintInfo("Degrees array");
-		#endif
+	#endif
 		// degrees.DebugPrint();
-		FullyDistVec<int64_t, int64_t> Cands(ITERS);
+		FullyDistVec<int64_t, int64_t> Cands(ITERS, 0);
 		double nver = (double) degrees.TotalLength();
 		
-#ifdef DETERMINISTIC
+	#ifdef DETERMINISTIC
 		uint64_t seed = 1383098845;
-#else
+	#else
 		uint64_t seed= time(NULL);
-#endif
+	#endif
 		MTRand M(seed);	// generate random numbers with Mersenne Twister 
 		
 		vector<double> loccands(ITERS);
@@ -301,6 +301,8 @@ int main(int argc, char* argv[])
 
 			for(int i=0; i<ITERS; ++i)
 			{
+				SpParHelper::Print("A BFS iteration is starting\n");
+				
 				// FullyDistVec ( shared_ptr<CommGrid> grid, IT globallen, NT initval);
 				FullyDistVec<int64_t, int64_t> parents ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);	// identity is -1
 

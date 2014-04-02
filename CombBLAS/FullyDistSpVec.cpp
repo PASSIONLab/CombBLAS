@@ -620,7 +620,15 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 	MPI_File thefile;
 
 	char _fn[] = "temp_fullydistspvec"; // AL: this is to avoid the problem that C++ string literals are const char* while C string literals are char*, leading to a const warning (technically error, but compilers are tolerant)
-	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
+	int mpi_err = MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
+	if(mpi_err != MPI_SUCCESS)
+	{
+		char mpi_err_str[MPI_MAX_ERROR_STRING];
+    		int  mpi_err_strlen;
+		MPI_Error_string(mpi_err, mpi_err_str, &mpi_err_strlen);
+		printf("MPI_File_open failed (%s)\n", mpi_err_str);
+		MPI_Abort(World, 1);
+    	}
 
 	IT * dist = new IT[nprocs];
 	dist[rank] = getlocnnz();
@@ -653,7 +661,17 @@ void FullyDistSpVec<IT,NT>::SaveGathered(ofstream& outfile, int master, HANDLER 
 		packed[i].ind = ind[i] + sizeuntil;
 		packed[i].num = num[i];
 	}
-	MPI_File_write(thefile, packed, count, datatype, NULL);
+	
+	mpi_err = MPI_File_write(thefile, packed, count, datatype, NULL);
+	if(mpi_err != MPI_SUCCESS)
+        {
+                char mpi_err_str[MPI_MAX_ERROR_STRING];
+                int  mpi_err_strlen;
+                MPI_Error_string(mpi_err, mpi_err_str, &mpi_err_strlen);
+                printf("MPI_File_write failed (%s)\n", mpi_err_str);
+                MPI_Abort(World, 1);
+        }
+
 	MPI_Barrier(World);
 	MPI_File_close(&thefile);
 	delete [] packed;

@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
 		degrees.PrintInfo("Degrees array");
 		#endif
 		// degrees.DebugPrint();
-		FullyDistVec<int64_t, int64_t> Cands(ITERS);
+		FullyDistVec<int64_t, int64_t> Cands(ITERS, 0);
 		double nver = (double) degrees.TotalLength();
 
 #ifdef DETERMINISTIC
