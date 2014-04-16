@@ -463,6 +463,56 @@ class DiGraph(gr.Graph):
 		return DiGraph(edges=ret)
 
 	@staticmethod
+	def generate3DTorus(nnodes):
+		"""
+		constructs a DiGraph instance with the connectivity pattern of a 3D
+		torus;  i.e., each vertex has edges to its north, west, south,
+		east, front, and back neighbors, where the neighbor may be wrapped
+		around to the other side of the torus.  
+
+		Input Parameter:
+			nnodes:  an integer scalar that denotes the number of nodes
+			    on each axis of the 3D torus.  The resulting DiGraph
+			    instance will have nnodes**2 vertices.
+
+		Output Parameter:
+			ret:  a DiGraph instance with nnodes**3 vertices and edges
+			    in the pattern of a 3D torus. 
+		"""
+		n = nnodes
+		N = n*n*n
+		rows = Vec.range(N)
+		main = rows.copy() # main diagonal, self loops
+
+		p = main.copy()
+		p.apply(lambda x: (x+1)%N) # main diagonal moved right 1, connect to east neighbor
+		ret = Mat(rows, p, 1, N)
+
+		p = main.copy()
+		p.apply(lambda x: (x+(n-1))%N) # main diagonal moved right (n-1), connect to south neighbor
+		ret += Mat(rows, p, 1, N)
+
+		p = main.copy()
+		p.apply(lambda x: (x+(n*n-1))%N) # main diagonal moved right (n**2-1), connect to back neighbor
+		ret += Mat(rows, p, 1, N)
+
+		p = main.copy()
+		p.apply(lambda x: (x-1)%N) # main diagonal moved left 1, connect to west neighbor
+		ret += Mat(rows, p, 1, N)
+		
+		p = main.copy()
+		p.apply(lambda x: (x-(n-1))%N) # main diagonal moved left (n-1), connect to north neighbor
+		ret += Mat(rows, p, 1, N)
+
+		p = main.copy()
+		p.apply(lambda x: (x-(n*n-1))%N) # main diagonal moved left (n**2-1), connect to front neighbor
+		ret += Mat(rows, p, 1, N)
+
+		#ret += Mat(rows, main, 1, N) # would include self loops
+		
+		return DiGraph(edges=ret)
+
+	@staticmethod
 	def generateSelfLoops(n, selfLoopAttr=1):
 		"""
 		creates edges in a DiGraph instance where each vertex
