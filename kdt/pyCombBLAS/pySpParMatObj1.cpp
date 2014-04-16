@@ -77,12 +77,12 @@ public:
 
 void pySpParMatObj1::load(const char* filename, bool pario)
 {
-	A.ReadDistribute(filename, 0, false, Obj1ReadSaveHandler(), true, pario);
+	A.ReadDistribute(filename, 0, false, Obj1ReadSaveHandler(), false, pario);
 }
 
 void pySpParMatObj1::save(const char* filename)
 {
-	A.SaveGathered(filename, Obj1ReadSaveHandler(), true);
+	A.SaveGathered(filename, Obj1ReadSaveHandler(), false);
 }
 
 // This load/save handler allows Python-defined callbacks.

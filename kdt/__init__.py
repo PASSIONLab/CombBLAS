@@ -12,6 +12,8 @@ from Mat import Mat
 #from DeVec import DeVec
 from feedback import sendFeedback
 from UFget import UFget, UFdownload
+
+# import pyCombBLAS
 try:
 	import kdt.pyCombBLAS as pcb
 except ImportError:
@@ -119,3 +121,5 @@ def SEJITS_enabled():
 	Tests whether or not the SEJITS callback parent classes are set or not.
 	"""
 	return KDTUnaryPredicate is not _SEJITS_diabled_callback_parent
+	
+

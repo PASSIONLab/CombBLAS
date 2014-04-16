@@ -87,13 +87,13 @@ void pySpParMat::load(const char* filename, bool pario)
 	else
 	{
 		// matrix market file
-		A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), true, pario);
+		A.ReadDistribute(filename, 0, false, MatType::ScalarReadSaveHandler(), false, pario);
 	}
 }
 
 void pySpParMat::save(const char* filename)
 {
-	A.SaveGathered(filename, MatType::ScalarReadSaveHandler(), true);
+	A.SaveGathered(filename, MatType::ScalarReadSaveHandler(), false);
 }
 
 // Copied directly from Aydin's C++ Graph500 code
