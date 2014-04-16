@@ -185,7 +185,7 @@ pyDenseParVec pyDenseParVec::Sort()
 
 pyDenseParVec pyDenseParVec::TopK(int64_t k)
 {
-	FullyDistVec<INDEXTYPE, INDEXTYPE> sel(k);
+	FullyDistVec<INDEXTYPE, INDEXTYPE> sel(k, 0);
 	sel.iota(k, 0);
 
 	pyDenseParVec sorted = copy();
