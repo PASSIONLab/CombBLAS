@@ -530,7 +530,7 @@ class DiGraph(gr.Graph):
 		return DiGraph(edges=Mat.eye(n, n, element=selfLoopAttr))
 		
 	@staticmethod
-	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, retKernel1Time = False, element=True):
+	def generateRMAT(scale, edgeFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, scramble=True, retKernel1Time = False, element=True):
 		"""
 		creates edges in a DiGraph instance that meets the Graph500 
 		specification.  The graph is symmetric. (See www.graph500.org 
@@ -563,7 +563,7 @@ class DiGraph(gr.Graph):
 		if not isinstance(scale, (int, float, long)):
 			raise KeyError, "scale must be an integer!"
 			
-		edges, degrees, k1time = Mat.generateRMAT(int(scale), fillFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, element=element)
+		edges, degrees, k1time = Mat.generateRMAT(int(scale), fillFactor=edgeFactor, initiator=initiator, delIsolated=delIsolated, scramble=scramble, element=element)
 		
 		ret = DiGraph(edges=edges, vertices=degrees)
 				

@@ -86,7 +86,7 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, double a, double b, double c, double d)
+double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, bool scramble, double a, double b, double c, double d)
 {
 	// Copied directly from Aydin's C++ Graph500 code
 	typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
@@ -98,7 +98,6 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	//PSpMat_Bool A;	
 	FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 	FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
-	bool scramble = true;
 
 
 
