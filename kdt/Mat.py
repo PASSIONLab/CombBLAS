@@ -438,7 +438,7 @@ class Mat:
 	_REPR_MAX = 400
 	def __repr__(self):
 
-		if self.ncol() < 20:
+		if self.ncol() < 33:
 			# pretty print a nice matrix
 			return self._reprGrid()
 		elif self.nnn() < self._REPR_MAX:
@@ -524,7 +524,7 @@ class Mat:
 ###########################
 
 	@staticmethod
-	def generateRMAT(scale, fillFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, element=True):
+	def generateRMAT(scale, fillFactor=16, initiator=[.57, .19, .19, .05], delIsolated=True, scramble=True, element=True):
 		"""
 		generates a Kronecker product matrix using the Graph500 RMAT graph generator
 		(see http://www.graph500.org/reference.html).
@@ -537,7 +537,9 @@ class Mat:
 			initiator:  a 4-tuple of initiators A, B, C, and D. Default value is
 				[0.57, 0.19, 0.19, 0.05].
 			delIsolated:  a Boolean indicating whether to delete isolated vertices
-				from the graph.
+				from the graph. Also performs a scramble.
+			scramble:  a Boolean indicating whether to pseudorandomly scramble the
+				order of the vertices to help with load balancing.
 			element:  a representative matrix element by which the matrix type is
 				determined. Default is True, which corresponds to a matrix of
 				Booleans. Other possible values include 1 (results in a float-
@@ -554,7 +556,7 @@ class Mat:
 		matrix = Mat(element=element)
 		if matrix.isObj():
 			raise NotImplementedError,"RMAT generation has not yet been supported for object matrices."
-		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, fillFactor, delIsolated, initiator[0], initiator[1], initiator[2], initiator[3])
+		kernel1Time = matrix._m_.GenGraph500Edges(scale, degrees._v_, fillFactor, delIsolated, scramble, initiator[0], initiator[1], initiator[2], initiator[3])
 		return matrix, degrees, kernel1Time
 
 	@staticmethod

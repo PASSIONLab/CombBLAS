@@ -107,7 +107,7 @@ void Symmetricize(PARMAT & A)
 	A += AT;
 }
 
-double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, double a, double b, double c, double d)
+double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDGEFACTOR, bool delIsolated, bool scramble, double a, double b, double c, double d)
 {
 	typedef SpParMat < int64_t, doubleint, SpDCCols<int64_t,doubleint> > PSpMat_DoubleInt;
 
@@ -121,7 +121,6 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	//PSpMat_Bool A;	
 	FullyDistVec<int64_t, int64_t> degrees;	// degrees of vertices (including multi-edges and self-loops)
 	FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
-	bool scramble = true;
 
 
 
@@ -134,7 +133,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
 	if(!scramble || !delIsolated)
 	{
-		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false);
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, false);
 		SpParHelper::Print("Generated edge lists\n");
 		t02 = MPI_Wtime();
 		ostringstream tinfo;
@@ -151,7 +150,7 @@ double pySpParMat::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int EDG
 	}
 	else	// fast generation
 	{
-		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, true );
 		SpParHelper::Print("Generated renamed edge lists\n");
 		t02 = MPI_Wtime();
 		ostringstream tinfo;

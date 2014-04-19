@@ -85,7 +85,7 @@ public:
 	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR = 16, bool delIsolated=true, bool scramble=true, double a=.57, double b=.19, double c=.19, double d=.05);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
@@ -169,7 +169,7 @@ public:
 	void load(const char* filename, bool pario);
 	void save(const char* filename);
 	
-	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16, bool delIsolated=true, double a=.57, double b=.19, double c=.19, double d=.05);
+	double GenGraph500Edges(int scale, pyDenseParVec* pyDegrees = NULL, int EDGEFACTOR=16, bool delIsolated=true, bool scramble=true, double a=.57, double b=.19, double c=.19, double d=.05);
 	//double GenGraph500Edges(int scale, pyDenseParVec& pyDegrees);
 	
 public:
