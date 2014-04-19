@@ -110,20 +110,23 @@ double pySpParMatBool::GenGraph500Edges(int scale, pyDenseParVec* pyDegrees, int
 	DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
 	if(!scramble || !delIsolated)
 	{
-		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR);
+		DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, scramble, false);
 		SpParHelper::Print("Generated edge lists\n");
 		t02 = MPI_Wtime();
 		ostringstream tinfo;
 		tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 		SpParHelper::Print(tinfo.str());
 		
-		PermEdges(*DEL);
-		SpParHelper::Print("Permuted Edges\n");
-		//DEL->Dump64bit("edges_permuted");
-		//SpParHelper::Print("Dumped\n");
+		if (scramble)
+		{
+			PermEdges(*DEL);
+			SpParHelper::Print("Permuted Edges\n");
+			//DEL->Dump64bit("edges_permuted");
+			//SpParHelper::Print("Dumped\n");
 		
-		RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
-		SpParHelper::Print("Renamed Vertices\n");
+			RenameVertices(*DEL);	// intermediate: generates RandPerm vector, using MemoryEfficientPSort
+			SpParHelper::Print("Renamed Vertices\n");
+		}
 	}
 	else	// fast generation
 	{
