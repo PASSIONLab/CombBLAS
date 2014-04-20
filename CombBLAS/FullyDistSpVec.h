@@ -142,6 +142,8 @@ public:
 	// return the permutation vector (0-based)
 	FullyDistSpVec<IT, IT> sort();	
 
+	FullyDistSpVec<IT, NT> Uniq();
+
 	IT getlocnnz() const 
 	{
 		return ind.size();

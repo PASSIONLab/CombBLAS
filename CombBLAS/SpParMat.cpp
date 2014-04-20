@@ -32,6 +32,7 @@
 #include "Operations.h"
 #include "FileHeader.h"
 
+#include <mpi.h>
 #include <fstream>
 #include <algorithm>
 #include <stdexcept>
@@ -101,8 +102,7 @@ void SpParMat< IT,NT,DER >::FreeMemory ()
 	spSeq = NULL;
 }
 
-#if 0
-// Adam: commenting out because of compiler error with MPI_FIle_open
+
 template <class IT, class NT, class DER>
 void SpParMat< IT,NT,DER >::Dump(string filename) const
 {
@@ -111,7 +111,8 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 	int nprocs = commGrid->GetSize();
 		
 	MPI_File thefile;
-	MPI_File_open(World, filename.c_str(), MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
+    char * _fn = const_cast<char*>(filename.c_str());
+	MPI_File_open(World, _fn, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &thefile);
 
 	int rankinrow = commGrid->GetRankInProcRow();
 	int rankincol = commGrid->GetRankInProcCol();
@@ -157,7 +158,6 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 	delete [] prelens;
 	delete [] gen_edges;
 }
-#endif
 
 template <class IT, class NT, class DER>
 SpParMat< IT,NT,DER >::SpParMat (const SpParMat< IT,NT,DER > & rhs)
