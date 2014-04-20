@@ -95,8 +95,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./Graph500 <Force,Input> <Scale Forced | Input Name> {FastGen}" << endl;
-			cout << "Example: ./Graph500 Force 25 FastGen" << endl;
+			cout << "Usage: ./tdbfs <Force,Input> <Scale Forced | Input Name> {FastGen}" << endl;
+			cout << "Example: ./tdbfs Force 25 FastGen" << endl;
 		}
 		MPI_Finalize();
 		return -1;

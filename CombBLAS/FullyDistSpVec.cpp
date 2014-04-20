@@ -358,6 +358,85 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 }
 
 template <class IT, class NT>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq()
+{
+	// The indices for FullyDistVec are offset'd to 1/p pieces
+	// The matrix indices are offset'd to 1/sqrt(p) pieces
+	// Add the corresponding offset before sending the data
+	IT roffset = RowLenUntil();
+	IT rrowlen = MyRowLength();
+    
+	// We create n-by-n matrix B from length-n vector
+	// Rows(B): indices of nonzeros in vector
+    // Columns(B): values in vector
+    // Values(B): same as Rows(B)
+    
+	IT rowneighs = commGrid->GetGridCols();	// number of neighbors along this processor row (including oneself)
+    IT glen = TotalLength();
+	IT m_perproccol = glen / rowneighs;
+    
+	vector< vector<IT> > rowid(rowneighs);
+	vector< vector<IT> > colid(rowneighs);
+    
+	size_t locvec = num.size();	// nnz in local vector
+	for(size_t i=0; i< locvec; ++i)
+	{
+		// numerical values (permutation indices) are 0-based
+		IT rowrec = (m_perproccol!=0) ? std::min(ind[i] / m_perproccol, rowneighs-1) : (rowneighs-1); 	// recipient along processor row
+
+		// vector's numerical values give the colids and its indices give rowids
+		rowid[rowrec].push_back( ind[i] + roffset);
+		colid[rowrec].push_back( num[i] - (rowrec * m_perproccol));
+	}
+    
+	int * sendcnt = new int[rowneighs];
+	int * recvcnt = new int[rowneighs];
+	for(IT i=0; i<rowneighs; ++i)
+		sendcnt[i] = rowid[i].size();
+    
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, commGrid->GetRowWorld()); // share the counts
+	int * sdispls = new int[rowneighs]();
+	int * rdispls = new int[rowneighs]();
+	partial_sum(sendcnt, sendcnt+rowneighs-1, sdispls+1);
+	partial_sum(recvcnt, recvcnt+rowneighs-1, rdispls+1);
+	IT p_nnz = accumulate(recvcnt,recvcnt+rowneighs, static_cast<IT>(0));
+    
+	// create space for incoming data ...
+	IT * p_rows = new IT[p_nnz];
+	IT * p_cols = new IT[p_nnz];
+  	IT * senddata = new IT[locvec];	// re-used for both rows and columns
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(rowid[i]);	// clear memory of rowid
+	}
+	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
+    
+	for(int i=0; i<rowneighs; ++i)
+	{
+		copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+		vector<IT>().swap(colid[i]);	// clear memory of colid
+	}
+	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
+	delete [] senddata;
+    
+	tuple<IT,IT,IT> * p_tuples = new tuple<IT,IT,IT>[p_nnz];
+    
+    int procrows = commGrid->GetGridRows();
+	int my_procrow = commGrid->GetRankInProcCol();
+	IT n_perprocrow = glen / procrows;	// length on a typical processor row
+	for(IT i=0; i< p_nnz; ++i)
+	{
+		p_tuples[i] = make_tuple(p_rows[i], p_cols[i], p_rows[i]+(n_perprocrow * my_procrow));
+	}
+	DeleteAll(p_rows, p_cols);
+    
+	SpDCCols<IT,IT> * PSeq = new SpDCCols<IT,IT>();
+	PSeq->Create( p_nnz, rrowlen, rrowlen, p_tuples);		// square matrix
+    SpParMat<IT,IT, SpDCCols<IT,IT> > B (PSeq, commGrid);
+}
+
+template <class IT, class NT>
 FullyDistSpVec<IT,NT> & FullyDistSpVec<IT, NT>::operator+=(const FullyDistSpVec<IT,NT> & rhs)
 {
 	if(this != &rhs)
