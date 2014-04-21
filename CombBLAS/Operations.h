@@ -158,6 +158,31 @@ struct minimum : public std::binary_function<T, T, T>
 };
 
 /**
+ *  @brief With 50/50 chances, return a one of the operants
+ */
+template<typename T>
+struct RandReduce : public std::binary_function<T, T, T>
+{
+    /** @returns the minimum of x and y. */
+    const T operator()(const T& x, const T& y) 
+    {
+        return (M.rand() < 0.5)? x : y;
+    }
+    RandReduce()
+    {
+    #ifdef DETERMINISTIC
+        M = MTRand(1);
+    #else
+        M = MTRand();	// generate random numbers with Mersenne Twister
+    #endif
+    }
+    MTRand M;
+};
+
+
+
+
+/**
  *  @brief Compute the bitwise AND of two integral values.
  *
  *  This binary function object computes the bitwise AND of the two

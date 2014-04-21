@@ -358,7 +358,8 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 }
 
 template <class IT, class NT>
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq()
+template <typename _BinaryOperation >
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op, MPI_Op mympiop)
 {
 	// The indices for FullyDistVec are offset'd to 1/p pieces
 	// The matrix indices are offset'd to 1/sqrt(p) pieces
@@ -434,6 +435,9 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq()
 	SpDCCols<IT,IT> * PSeq = new SpDCCols<IT,IT>();
 	PSeq->Create( p_nnz, rrowlen, rrowlen, p_tuples);		// square matrix
     SpParMat<IT,IT, SpDCCols<IT,IT> > B (PSeq, commGrid);
+    
+    FullyDistVec<IT,IT> colmin;
+    B.Reduce(colmin, Column, __binary_op, glen);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
 }
 
 template <class IT, class NT>
