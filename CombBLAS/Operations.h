@@ -53,6 +53,7 @@ struct myset: public std::unary_function<T, T>
   T value;
 };
 
+
 template<typename T>
 struct identity : public std::unary_function<T, T>
 {
@@ -97,6 +98,15 @@ struct safemultinv : public std::unary_function<T, T>
   }
 };
 
+
+template<typename T>
+struct select2nd: public std::binary_function<T, T, T>
+{
+    const T& operator()(const T& x, const T & y) const
+    {
+        return y;
+    }
+};
 
 template<typename T1, typename T2>
 struct bintotality : public std::binary_function<T1, T2, bool>
@@ -179,7 +189,26 @@ struct RandReduce : public std::binary_function<T, T, T>
     MTRand M;
 };
 
-
+/**
+ *  @brief Returns a special value (passed to the constructor of the functor) when both operants disagree
+ */
+template<typename T>
+struct SetIfNotEqual : public std::binary_function<T, T, T>
+{
+    const T operator()(const T& x, const T& y)
+    {
+        if(x != y)
+        {
+            return valuetoset;
+        }
+        else
+        {
+            return x;
+        }
+    }
+    SetIfNotEqual(T value):valuetoset(value) { };
+    T valuetoset;
+};
 
 
 /**

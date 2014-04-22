@@ -72,6 +72,23 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs)		// Conv
 }
 
 template <class IT, class NT>
+template <typename _UnaryOperation>
+FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop)		// Conversion copy-constructor where unary op is true
+{
+	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
+    
+	IT vecsize = rhs.LocArrSize();
+	for(IT i=0; i< vecsize; ++i)
+	{
+		if(unop(rhs.arr[i]))
+        {
+            ind.push_back(i);
+            num.push_back(rhs.arr[i]);
+        }
+	}
+}
+
+template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
 	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
@@ -427,9 +444,8 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	int my_procrow = commGrid->GetRankInProcCol();
 	IT n_perprocrow = glen / procrows;	// length on a typical processor row
 	for(IT i=0; i< p_nnz; ++i)
-	{
 		p_tuples[i] = make_tuple(p_rows[i], p_cols[i], p_rows[i]+(n_perprocrow * my_procrow));
-	}
+    
 	DeleteAll(p_rows, p_cols);
     
 	SpDCCols<IT,IT> * PSeq = new SpDCCols<IT,IT>();
@@ -437,7 +453,21 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     SpParMat<IT,IT, SpDCCols<IT,IT> > B (PSeq, commGrid);
     
     FullyDistVec<IT,IT> colmin;
-    B.Reduce(colmin, Column, __binary_op, glen);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
+    B.Reduce(colmin, Column, __binary_op, glen+1);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
+    // colmin.PrintInfo("colmin");
+    
+    // at this point, colmin[i] is semantically zero iff colmin[i] >= glen
+    SetIfNotEqual<IT> setter(glen+1);
+    B.DimApply(Column, colmin, setter); // B[i][j] to be pruned if B[i][j] >= glen
+    B.Prune(bind2nd(greater<IT>(), glen));
+    
+    FullyDistVec<IT,IT> colind2val;
+    colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
+    B.DimApply(Column, colind2val, select2nd<IT>());
+    
+    FullyDistVec<IT,IT> pruned;
+    B.Reduce(pruned, Column, plus<IT>(), (IT) 0);
+    return FullyDistSpVec<IT,IT>(pruned, bind2nd(greater<IT>(), 0));    // only retain [< glen] entries
 }
 
 template <class IT, class NT>
