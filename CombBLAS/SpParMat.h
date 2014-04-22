@@ -135,7 +135,7 @@ public:
 	void ActivateThreading(int numsplits);	//<! As of version 1.2, only works with boolean matrices 
 
 	template <typename _UnaryOperation>
-	SpParMat<IT,NT,DER> PruneI(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
+	SpParMat<IT,NT,DER> PruneI(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries based on both row/column indices and value
 	{
 		IT grow=0, gcol=0; 
 		GetPlaceInGlobalGrid(grow, gcol);
@@ -151,7 +151,7 @@ public:
 	}
 
 	template <typename _UnaryOperation>
-	SpParMat<IT,NT,DER> Prune(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true	
+	SpParMat<IT,NT,DER> Prune(_UnaryOperation __unary_op, bool inPlace = true) //<! Prune any nonzero entries for which the __unary_op evaluates to true (solely based on value)
 	{
 		if (inPlace)
 		{
