@@ -425,7 +425,7 @@ class DiGraph(gr.Graph):
 		return DiGraph(edges=edges)
 	
 	@staticmethod
-	def generate2DTorus(nnodes):
+	def generate2DTorus(nnodes, selfLoops=False):
 		"""
 		constructs a DiGraph instance with the connectivity pattern of a 2D
 		torus;  i.e., each vertex has edges to its north, west, south, and
@@ -458,12 +458,13 @@ class DiGraph(gr.Graph):
 		ret += Mat(rows, m1, 1, N)
 		ret += Mat(rows, pn, 1, N)
 		ret += Mat(rows, mn, 1, N)
-		#ret += Mat(rows, main, 1, N) # would include self loops
+		if selfLoops:
+			ret += Mat(rows, main, 1, N)
 		
 		return DiGraph(edges=ret)
 
 	@staticmethod
-	def generate3DTorus(nnodes):
+	def generate3DTorus(nnodes, selfLoops=False):
 		"""
 		constructs a DiGraph instance with the connectivity pattern of a 3D
 		torus;  i.e., each vertex has edges to its north, west, south,
@@ -507,8 +508,9 @@ class DiGraph(gr.Graph):
 		p = main.copy()
 		p.apply(lambda x: (x-(n*n-1))%N) # main diagonal moved left (n**2-1), connect to front neighbor
 		ret += Mat(rows, p, 1, N)
-
-		#ret += Mat(rows, main, 1, N) # would include self loops
+		
+		if selfLoops:
+			ret += Mat(rows, main, 1, N) # would include self loops
 		
 		return DiGraph(edges=ret)
 

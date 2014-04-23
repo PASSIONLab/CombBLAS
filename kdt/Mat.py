@@ -436,12 +436,13 @@ class Mat:
 				
 	#ToDo:  put in method to modify _REPR_MAX
 	_REPR_MAX = 400
+	_REPR_GRID_MAX = 33
 	def __repr__(self):
 
-		if self.ncol() < 33:
+		if self.ncol() < Mat._REPR_GRID_MAX:
 			# pretty print a nice matrix
 			return self._reprGrid()
-		elif self.nnn() < self._REPR_MAX:
+		elif self.nnn() < Mat._REPR_MAX:
 			return self._reprTuples()
 		else:
 			ret = self._reprHeader()
