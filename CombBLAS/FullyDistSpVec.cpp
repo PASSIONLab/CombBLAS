@@ -374,6 +374,10 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	return temp;
 }
 
+
+// ABAB: \todo Concept control so it only gets called in integers
+// ABAB: \todo Generalize to cases where the range of values is larger than {0,...,vectorlength}.
+// ABAB: \todo Generalization might require a remapping (i.e. if somme values are negative, all values need to be shifted?)
 template <class IT, class NT>
 template <typename _BinaryOperation >
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op, MPI_Op mympiop)
@@ -438,7 +442,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), commGrid->GetRowWorld());
 	delete [] senddata;
     
-	tuple<IT,IT,IT> * p_tuples = new tuple<IT,IT,IT>[p_nnz];
+	tuple<IT,IT,NT> * p_tuples = new tuple<IT,IT,NT>[p_nnz];
     
     int procrows = commGrid->GetGridRows();
 	int my_procrow = commGrid->GetRankInProcCol();
@@ -448,26 +452,27 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     
 	DeleteAll(p_rows, p_cols);
     
-	SpDCCols<IT,IT> * PSeq = new SpDCCols<IT,IT>();
+	SpDCCols<IT,NT> * PSeq = new SpDCCols<IT,NT>();
 	PSeq->Create( p_nnz, rrowlen, rrowlen, p_tuples);		// square matrix
-    SpParMat<IT,IT, SpDCCols<IT,IT> > B (PSeq, commGrid);
+    SpParMat<IT,NT, SpDCCols<IT,NT> > B (PSeq, commGrid);
     
-    FullyDistVec<IT,IT> colmin;
+    FullyDistVec<IT,NT> colmin;
     B.Reduce(colmin, Column, __binary_op, glen+1);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
     // colmin.PrintInfo("colmin");
     
     // at this point, colmin[i] is semantically zero iff colmin[i] >= glen
-    SetIfNotEqual<IT> setter(glen+1);
+    SetIfNotEqual<NT> setter(glen+1);
     B.DimApply(Column, colmin, setter); // B[i][j] to be pruned if B[i][j] >= glen
-    B.Prune(bind2nd(greater<IT>(), glen));
+    B.Prune(bind2nd(greater<NT>(), glen));
     
-    FullyDistVec<IT,IT> colind2val;
+    FullyDistVec<IT,NT> colind2val;
     colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
-    B.DimApply(Column, colind2val, select2nd<IT>());
+    B.DimApply(Column, colind2val, select2nd<NT>());
     
-    FullyDistVec<IT,IT> pruned;
-    B.Reduce(pruned, Column, plus<IT>(), (IT) 0);
-    return FullyDistSpVec<IT,IT>(pruned, bind2nd(greater<IT>(), 0));    // only retain [< glen] entries
+    FullyDistVec<IT,NT> pruned;
+    B.Reduce(pruned, Column, plus<NT>(), (NT) 0);
+    FullyDistSpVec<IT,NT> UniqInds(pruned, bind2nd(greater<NT>(), 0));    // only retain [< glen] entries
+    return EWiseApply<NT>(UniqInds, *this, select2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
 }
 
 template <class IT, class NT>

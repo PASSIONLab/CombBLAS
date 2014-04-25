@@ -1420,7 +1420,8 @@ FullyDistSpVec<IU,RET> EWiseApply
  *  allowVNulls &&  allowWNulls => union
  *
  * The type of each element of ret must not necessarily be related to the types of V or W, so the return type must be explicitly specified as a template parameter:
- * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, retTrue, false, 0, false, 0)
+ * FullyDistSpVec<int, double> r = EWiseApply<double>(V, W, plus, ...)
+ * For intersection, Vzero and Wzero are irrelevant
 **/
 template <typename RET, typename IU, typename NU1, typename NU2, typename _BinaryOperation, typename _BinaryPredicate>
 FullyDistSpVec<IU,RET> EWiseApply 
