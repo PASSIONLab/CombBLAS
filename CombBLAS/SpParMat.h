@@ -199,10 +199,13 @@ public:
 	public:
 		NT getNoNum(IT row, IT col) { return static_cast<NT>(1); }
 		void binaryfill(FILE * rFile, IT & row, IT & col, NT & val) 
-		{ 
-			fread(&row, sizeof(IT), 1,rFile);
-			fread(&col, sizeof(IT), 1,rFile);
-			fread(&val, sizeof(NT), 1,rFile);
+		{
+			if (fread(&row, sizeof(IT), 1,rFile) != 1)
+				cout << "binaryfill(): error reading row index" << endl;
+			if (fread(&col, sizeof(IT), 1,rFile) != 1)
+				cout << "binaryfill(): error reading col index" << endl;
+			if (fread(&val, sizeof(NT), 1,rFile) != 1)
+				cout << "binaryfill(): error reading value" << endl;
 			return; 
 		}
 		size_t entrylength() { return 2*sizeof(IT)+sizeof(NT); }
