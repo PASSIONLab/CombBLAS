@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 		double t1 = MPI_Wtime();
 
-		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS);
+		FullyDistVec<int64_t, int64_t> Cands(MAX_ITERS, 0);
 		double nver = (double) degrees.TotalLength();
 		Cands.SelectCandidates(nver);
 

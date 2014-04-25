@@ -466,7 +466,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     //B.PrintInfo();
     
     FullyDistVec<IT,NT> colmin;
-    B.Reduce(colmin, Column, __binary_op, glen+1);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
+    B.Reduce(colmin, Column, __binary_op, glen+1, mympiop);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
     //colmin.DebugPrint();
     
     // at this point, colmin[i] is semantically zero iff colmin[i] >= glen
@@ -477,7 +477,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     
     FullyDistVec<IT,NT> colind2val;
     colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
-    B.DimApply(Column, colind2val, select2nd<NT>());
+    B.DimApply(Column, colind2val, sel2nd<NT>());
     //B.PrintInfo();
 
     FullyDistVec<IT,NT> pruned;
@@ -487,7 +487,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     FullyDistSpVec<IT,NT> UniqInds(pruned, bind2nd(greater<NT>(), 0));    // only retain [< glen] entries
     //UniqInds.DebugPrint();
 
-    return EWiseApply<NT>(UniqInds, *this, select2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
+    return EWiseApply<NT>(UniqInds, *this, sel2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
 }
 
 template <class IT, class NT>

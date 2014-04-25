@@ -104,22 +104,28 @@ public:
 	void DimApply(Dim dim, const FullyDistVec<IT, NT>& v, _BinaryOperation __binary_op);
 
 	template <typename _BinaryOperation, typename _UnaryOperation >	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id, _UnaryOperation __unary_op) const;  // deprecated?
 
 	template <typename _BinaryOperation>	
-	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;
+	DenseParVec<IT,NT> Reduce(Dim dim, _BinaryOperation __binary_op, NT id) const;  // deprecated?
 
 	template <typename VT, typename _BinaryOperation, typename _UnaryOperation >	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const; // deprecated?
 
 	template <typename VT, typename _BinaryOperation>	
-	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
+	void Reduce(DenseParVec<IT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const; // deprecated?
 
+    template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >
+	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const;
+    
 	template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation >	
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const;
 
 	template <typename VT, typename GIT, typename _BinaryOperation>	
 	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id) const;
+    
+    template <typename VT, typename GIT, typename _BinaryOperation>
+	void Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const;
 
 	template <typename _UnaryOperation>
 	void Apply(_UnaryOperation __unary_op)

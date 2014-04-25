@@ -100,7 +100,7 @@ struct safemultinv : public std::unary_function<T, T>
 
 
 template<typename T>
-struct select2nd: public std::binary_function<T, T, T>
+struct sel2nd: public std::binary_function<T, T, T>
 {
     const T& operator()(const T& x, const T & y) const
     {
