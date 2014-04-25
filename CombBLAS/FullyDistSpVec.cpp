@@ -388,6 +388,13 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	IT roffset = RowLenUntil();
 	IT rrowlen = MyRowLength();
     
+    // Get the right local dimensions
+	IT diagneigh = commGrid->GetComplementRank();
+	IT ccollen;
+	MPI_Status status;
+	MPI_Sendrecv(&rrowlen, 1, MPIType<IT>(), diagneigh, TRROWX, &ccollen, 1, MPIType<IT>(), diagneigh, TRROWX, commGrid->GetWorld(), &status);
+    
+    
 	// We create n-by-n matrix B from length-n vector
 	// Rows(B): indices of nonzeros in vector
     // Columns(B): values in vector
@@ -401,10 +408,11 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	vector< vector<IT> > colid(rowneighs);
     
 	size_t locvec = num.size();	// nnz in local vector
+    IT lenuntil = LengthUntil();
 	for(size_t i=0; i< locvec; ++i)
 	{
 		// numerical values (permutation indices) are 0-based
-		IT rowrec = (m_perproccol!=0) ? std::min(ind[i] / m_perproccol, rowneighs-1) : (rowneighs-1); 	// recipient along processor row
+		IT rowrec = (m_perproccol!=0) ? std::min(num[i] / m_perproccol, rowneighs-1) : (rowneighs-1); 	// recipient along processor row
 
 		// vector's numerical values give the colids and its indices give rowids
 		rowid[rowrec].push_back( ind[i] + roffset);
@@ -453,25 +461,32 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	DeleteAll(p_rows, p_cols);
     
 	SpDCCols<IT,NT> * PSeq = new SpDCCols<IT,NT>();
-	PSeq->Create( p_nnz, rrowlen, rrowlen, p_tuples);		// square matrix
+	PSeq->Create( p_nnz, rrowlen, ccollen, p_tuples);		// square matrix
     SpParMat<IT,NT, SpDCCols<IT,NT> > B (PSeq, commGrid);
+    //B.PrintInfo();
     
     FullyDistVec<IT,NT> colmin;
     B.Reduce(colmin, Column, __binary_op, glen+1);    // all values are guarenteed to be smaller than "glen" {0,1,...,glen-1}
-    // colmin.PrintInfo("colmin");
+    //colmin.DebugPrint();
     
     // at this point, colmin[i] is semantically zero iff colmin[i] >= glen
     SetIfNotEqual<NT> setter(glen+1);
     B.DimApply(Column, colmin, setter); // B[i][j] to be pruned if B[i][j] >= glen
     B.Prune(bind2nd(greater<NT>(), glen));
+    //B.PrintInfo();
     
     FullyDistVec<IT,NT> colind2val;
     colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
     B.DimApply(Column, colind2val, select2nd<NT>());
-    
+    //B.PrintInfo();
+
     FullyDistVec<IT,NT> pruned;
-    B.Reduce(pruned, Column, plus<NT>(), (NT) 0);
+    B.Reduce(pruned, Row, plus<NT>(), (NT) 0);
+    //pruned.DebugPrint();
+
     FullyDistSpVec<IT,NT> UniqInds(pruned, bind2nd(greater<NT>(), 0));    // only retain [< glen] entries
+    //UniqInds.DebugPrint();
+
     return EWiseApply<NT>(UniqInds, *this, select2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
 }
 
