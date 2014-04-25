@@ -43,7 +43,7 @@
 * sequential parts of the computation, making it possible to implement new formats and plug them in
 * without changing the rest of the library.
 *
-* The implementation supports both formatted and binary I/O. The latter is much faster but no human readable. Formatted I/O uses a tuples format very similar to the Matrix Market.
+* The implementation supports both formatted and binary I/O. The latter is much faster but not human readable. Formatted I/O uses a tuples format very similar to the Matrix Market.
 * We encourage in-memory generators for faster benchmarking. A port to University of Florida Sparse Matrix Collection is under construction. More info on I/O formats are 
 * <a href="http://gauss.cs.ucsb.edu/~aydin/CombBLAS_FILES/Input_File_Formats.pdf">here</a>
 *
