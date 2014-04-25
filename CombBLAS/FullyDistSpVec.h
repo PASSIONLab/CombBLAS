@@ -146,8 +146,14 @@ public:
 	// return the permutation vector (0-based)
 	FullyDistSpVec<IT, IT> sort();	
 
-    template <typename _BinaryOperation = minimum<NT> >
+#if __cplusplus > 199711L
+	template <typename _BinaryOperation = minimum<NT> >
 	FullyDistSpVec<IT, NT> Uniq(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);
+#else
+	template <typename _BinaryOperation >
+	FullyDistSpVec<IT, NT> Uniq(_BinaryOperation __binary_op, MPI_Op mympiop);
+#endif
+
 
 	IT getlocnnz() const 
 	{

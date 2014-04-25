@@ -139,7 +139,8 @@ void SpParMat< IT,NT,DER >::Dump(string filename) const
 	// The disp displacement argument specifies the position 
 	// (absolute offset in bytes from the beginning of the file) 
 	MPI_Offset disp = lengthuntil * sizeof(uint32_t);
-	MPI_File_set_view(thefile, disp, MPI_UNSIGNED, MPI_UNSIGNED, "native", MPI_INFO_NULL);
+	char native[] = "native";
+	MPI_File_set_view(thefile, disp, MPI_UNSIGNED, MPI_UNSIGNED, native, MPI_INFO_NULL); // AL: the second-to-last argument is a non-const char* (looks like poor MPI standardization, the C++ bindings list it as const), C++ string literals MUST be const (especially in c++11).
 	uint32_t * gen_edges = new uint32_t[prelens[rank]];
 	
 	IT k = 0;

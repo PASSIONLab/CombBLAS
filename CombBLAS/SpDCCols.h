@@ -292,8 +292,10 @@ private:
 	template <class IU, class NU>
 	friend class SpTuples;
 
-	template <class IU, class NU>
-	friend class SpDCCols<IU, NU>::SpColIter;
+	// AL: removed this because it appears illegal and causes this compiler warning:
+	// warning: dependent nested name specifier 'SpDCCols<IU, NU>::' for friend class declaration is not supported; turning off access control for 'SpDCCols'
+	//template <class IU, class NU>
+	//friend class SpDCCols<IU, NU>::SpColIter;
 	
 	template<typename IU>
 	friend void BooleanRowSplit(SpDCCols<IU, bool> & A, int numsplits);
