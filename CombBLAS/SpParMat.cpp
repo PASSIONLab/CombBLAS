@@ -1783,7 +1783,7 @@ void SpParMat< IT,NT,DER >::ReadDistribute (const string & filename, int master,
 #endif
 
 	ifstream infile;
-	FILE * binfile;	// points to "past header" if the file is binary
+	FILE * binfile = NULL;	// points to "past header" if the file is binary
 	int seeklength = 0;
 	HeaderInfo hfile;
 	if(commGrid->GetRank() == master)	// 1 processor

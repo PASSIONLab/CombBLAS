@@ -382,7 +382,7 @@ py_modules.extend(['kdt.specializer.__init__', 'kdt.specializer.parsetab', 'kdt.
 from kdt_mpidistutils import build_ext as kdt_build_ext
 
 setup(name='kdt',
-	version='0.5pre5',
+	version='0.5pre6',
 	description='Knowledge Discovery Toolbox',
 	author='Aydin Buluc, John Gilbert, Adam Lugowski, Steve Reinhardt',
 	url='http://kdt.sourceforge.net',
