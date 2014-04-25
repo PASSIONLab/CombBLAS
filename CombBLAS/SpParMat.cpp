@@ -365,8 +365,23 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 }
 
 template <class IT, class NT, class DER>
+template <typename VT, typename GIT, typename _BinaryOperation>
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, MPI_Op mympiop) const
+{
+	Reduce(rvec, dim, __binary_op, id, myidentity<NT>(), mympiop );
+}
+
+template <class IT, class NT, class DER>
 template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector	
 void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op) const
+{
+    Reduce(rvec, dim, __binary_op, id, __unary_op, MPIOp<_BinaryOperation, VT>::op() );
+}
+
+
+template <class IT, class NT, class DER>
+template <typename VT, typename GIT, typename _BinaryOperation, typename _UnaryOperation>	// GIT: global index type of vector
+void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOperation __binary_op, VT id, _UnaryOperation __unary_op, MPI_Op mympiop) const
 {
 	if(*rvec.commGrid != *commGrid)
 	{
@@ -414,7 +429,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 					trarr.resize(loclens[i]);
 					recvbuf = SpHelper::p2a(trarr);	
 				}
-				MPI_Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i, commGrid->GetColWorld()); // root  = i
+				MPI_Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), mympiop, i, commGrid->GetColWorld()); // root  = i
 				delete [] sendbuf;
 			}
 			DeleteAll(loclens, lensums);
@@ -489,7 +504,7 @@ void SpParMat<IT,NT,DER>::Reduce(FullyDistVec<GIT,VT> & rvec, Dim dim, _BinaryOp
 							}
 							recvbuf = SpHelper::p2a(rvec.arr);	
 						}
-						MPI_Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), MPIOp<_BinaryOperation, VT>::op(), i, commGrid->GetRowWorld()); // root = i
+						MPI_Reduce(sendbuf, recvbuf, loclens[i], MPIType<VT>(), mympiop, i, commGrid->GetRowWorld()); // root = i
 						delete [] sendbuf;
 					}
 					begfinger = curfinger;	// set the next begfilter
