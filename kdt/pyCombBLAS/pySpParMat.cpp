@@ -318,7 +318,6 @@ struct TriU_Prune_pred
 	TriU_Prune_pred(int64_t k_): k(k_) {}
 	bool operator()(const pySpParMat::NUM_TUPLE& tup) const
 	{
-		//cout << "TriU_Prine_pred: <" << get<0>(tup) << ", " << get<1>(tup) << ", " << get<2>(tup) << ">: " << bool(get<0>(tup) <= get<1>(tup)) << endl;
 		// Upper Triangular: col >= row
 		// row: get<0>(tup), col: get<1>(tup)
 		return get<0>(tup) + k > get<1>(tup);
