@@ -634,6 +634,7 @@ CombBLAS/Applications/SC2011_HopperResults/script5046_hybrid_scale30_split12 -te
 CombBLAS/Applications/SC2011_HopperResults/script5046_hybrid_scale30_split6 -text
 CombBLAS/Applications/SC2011_HopperResults/script5046_hybrid_scale32_split12 -text
 CombBLAS/Applications/SC2011_HopperResults/script5046_hybrid_scale32_split6 -text
+CombBLAS/Applications/SingleChildBFS.cpp -text
 CombBLAS/Applications/SpMMError.cpp -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script100 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script121 -text
