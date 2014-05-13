@@ -77,6 +77,8 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOp
 {
 	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
     
+	vector<IT>().swap(ind);
+	vector<NT>().swap(num);
 	IT vecsize = rhs.LocArrSize();
 	for(IT i=0; i< vecsize; ++i)
 	{
@@ -93,6 +95,8 @@ FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT
 {
 	FullyDist<IT,NT,typename CombBLAS::disable_if< CombBLAS::is_boolean<NT>::value, NT >::type>::operator= (rhs);	// to update glen and commGrid
 
+	vector<IT>().swap(ind);
+	vector<NT>().swap(num);
 	IT vecsize = rhs.LocArrSize();
 	for(IT i=0; i< vecsize; ++i)
 	{
