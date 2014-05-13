@@ -996,9 +996,10 @@ class Mat:
 		if not ignoreFilter and self._hasFilter():
 			raise NotImplementedError,"keep() doesn't support filters yet"
 		
+		ret = Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
 		if not inPlace:
-			return Mat._toMat(self._m_.Keep(_op_make_unary_pred(pred, self), inPlace), self._identity_)
-	
+			return ret
+			
 	def triu(self, k=0, inPlace=False):
 		"""
 		make upper triangular.
@@ -1006,8 +1007,9 @@ class Mat:
 		if self._hasFilter():
 			raise NotImplementedError,"triu() doesn't support filters yet"
 
+		ret = Mat._toMat(self._m_.TriU(k, inPlace), self._identity_)
 		if not inPlace:
-			return Mat._toMat(self._m_.TriU(k, inPlace), self._identity_)
+			return ret
 
 	def tril(self, k=0, inPlace=False):
 		"""
@@ -1016,9 +1018,10 @@ class Mat:
 		if self._hasFilter():
 			raise NotImplementedError,"tril() doesn't support filters yet"
 
+		ret = Mat._toMat(self._m_.TriL(k, inPlace), self._identity_)
 		if not inPlace:
-			return Mat._toMat(self._m_.TriL(k, inPlace), self._identity_)
-
+			return ret
+			
 	def reduce(self, dir, op, uniOp=None, init=None):
 		"""
 		accumulates matrix elements along the specified direction.
