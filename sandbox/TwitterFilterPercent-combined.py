@@ -15,7 +15,7 @@ kdt.set_verbosity(kdt.DEBUG)
 useParIO = True
 useDelIsolated = False
 
-usePAPI = True
+usePAPI = False
 num_PAPI_counters = 1000
 events_nm = []
 #events_nm = events_nm + ["PAPI_TOT_INS", "PAPI_L1_TCM", "PAPI_L2_TCM", "PAPI_L3_TCM"] # instructions, cache misses
