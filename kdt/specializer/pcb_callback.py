@@ -32,12 +32,13 @@ class PcbCallback(object):
             callback_type = "Function"
 
         import asp.codegen.templating.template as template
+        # FIXED_SWIG_Python_GetModule() evaluates to GetModule(), but works with both SWIG 1.3 and 2.0.
         t = template.Template("""
 
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::${arity_prefix}${callback_type}Obj *");
 
@@ -160,7 +161,7 @@ class PcbCallback(object):
 #            PyObject* get_function()
 #            {
 #              using namespace op;
-#              swig_module_info* module = SWIG_Python_GetModule();
+#              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 #
 #              swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 #
