@@ -1,7 +1,7 @@
 INCDIR = /opt/local/include
 INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
 
-OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
+OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK 
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
 COMPILER = mpicxx  -std=c++11
 FLAGS = $(DEB)
@@ -30,6 +30,9 @@ MultTiming.o: MultTiming.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParH
 ReduceTest.o: ReduceTest.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParHelper.h ../SpParMat.cpp ../Friends.h ../ParFriends.h 
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o ReduceTest.o ReduceTest.cpp
 
+VectorIndexing.o: VectorIndexing.cpp ../FullyDistSpVec.cpp ../FullyDistVec.cpp ../FullyDistSpVec.h ../FullyDistVec.h 
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o VectorIndexing.o VectorIndexing.cpp
+
 TransposeTest: MemoryPool.o CommGrid.o MPIType.o TransposeTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o TransposeTest TransposeTest.o MemoryPool.o CommGrid.o MPIType.o
 
@@ -44,6 +47,9 @@ IteratorTest: MemoryPool.o CommGrid.o MPIType.o IteratorTest.o
 
 ReduceTest: MemoryPool.o CommGrid.o MPIType.o ReduceTest.o
 	$(COMPILER) $(FLAGS) $(INCADD) -o ReduceTest ReduceTest.o MemoryPool.o CommGrid.o MPIType.o
+
+VectorInd: MemoryPool.o CommGrid.o MPIType.o VectorIndexing.o
+	$(COMPILER) $(FLAGS) $(INCADD) -o VectorInd VectorIndexing.o MemoryPool.o CommGrid.o MPIType.o
 
 clean: 
 	rm -f TransposeTest
