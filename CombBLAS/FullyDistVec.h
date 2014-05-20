@@ -104,6 +104,7 @@ public:
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
+    FullyDistSpVec<IT,NT> operator() (const FullyDistSpVec<IT,IT> & ri) const;	//<! sparse subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
@@ -221,10 +222,10 @@ public:
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
 	
 	template <typename _BinaryOperation>
-	NT Reduce(_BinaryOperation __binary_op, NT identity);	//! Reduce can be used to implement max_element, for instance
+	NT Reduce(_BinaryOperation __binary_op, NT identity) const;	//! Reduce can be used to implement max_element, for instance
 
 	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
-	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
+	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const;
 
 	void SelectCandidates(double nver);
 

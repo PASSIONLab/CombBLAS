@@ -869,7 +869,7 @@ IT FullyDistSpVec<IT,NT>::Count(_Predicate pred) const
 
 template <class IT, class NT>
 template <typename _BinaryOperation>
-NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
+NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init) const
 {
 	// std::accumulate returns init for empty sequences
 	// the semantics are init + num[0] + ... + num[n]
@@ -882,7 +882,7 @@ NT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, NT init)
 
 template <class IT, class NT>
 template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
-OUT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op)
+OUT FullyDistSpVec<IT,NT>::Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const
 {
 	// std::accumulate returns identity for empty sequences
 	OUT localsum = default_val;

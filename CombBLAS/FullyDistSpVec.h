@@ -78,8 +78,6 @@ public:
     template <typename _UnaryOperation>
     FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop);
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
-    
-    
 
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
@@ -206,10 +204,10 @@ public:
 	}
 
 	template <typename _BinaryOperation>
-	NT Reduce(_BinaryOperation __binary_op, NT init);
+	NT Reduce(_BinaryOperation __binary_op, NT init) const;
 	
 	template <typename OUT, typename _BinaryOperation, typename _UnaryOperation>
-	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op);
+	OUT Reduce(_BinaryOperation __binary_op, OUT default_val, _UnaryOperation __unary_op) const;
 
 	void DebugPrint();
 	shared_ptr<CommGrid> getcommgrid() const { return commGrid; }
