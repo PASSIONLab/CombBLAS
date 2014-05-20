@@ -19,14 +19,15 @@ class PcbUnaryPredicate(object):
         import asp.codegen.templating.template as template
 
         specialized_function_slot = "customFunc%s" % (types[1])
-
+        
+        # FIXED_SWIG_Python_GetModule() evaluates to GetModule(), but works with both SWIG 1.3 and 2.0.
         t = template.Template("""
 
 
             PyObject* get_predicate()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryPredicateObj *");
 
@@ -122,7 +123,8 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
         # TODO: this should actually generate all the filled possible customFuncs for all datatypes
 
         specialized_function_slot = "customFunc%s%s" % (types[1], types[2])
-
+        
+        # FIXED_SWIG_Python_GetModule() evaluates to GetModule(), but works with both SWIG 1.3 and 2.0.
         import asp.codegen.templating.template as template
         t = template.Template("""
 
@@ -130,7 +132,7 @@ class PcbBinaryPredicate(PcbUnaryPredicate):
             PyObject* get_predicate()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryPredicateObj *");
 

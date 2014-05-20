@@ -21,13 +21,14 @@ class PcbBinaryFunction(object):
         specialized_function_slot = "%s%s_%s" % (types[1], types[2], types[0])
 
         import asp.codegen.templating.template as template
+        # FIXED_SWIG_Python_GetModule() evaluates to GetModule(), but works with both SWIG 1.3 and 2.0.
         t = template.Template("""
 
 
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::BinaryFunctionObj *");
 
@@ -127,13 +128,14 @@ class PcbUnaryFunction(object):
         specialized_function_slot = "%s_%s" % (types[1], types[0])
 
         import asp.codegen.templating.template as template
+        # FIXED_SWIG_Python_GetModule() evaluates to GetModule(), but works with both SWIG 1.3 and 2.0.
         t = template.Template("""
 
 
             PyObject* get_function()
             {
               using namespace op;
-              swig_module_info* module = SWIG_Python_GetModule();
+              swig_module_info* module = FIXED_SWIG_Python_GetModule();
 
               swig_type_info* ty = SWIG_TypeQueryModule(module, module, "op::UnaryFunctionObj *");
 
