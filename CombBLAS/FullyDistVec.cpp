@@ -1061,7 +1061,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
 		sdispls[i+1] = sdispls[i] + sendcnt[i];
 		rdispls[i+1] = rdispls[i] + recvcnt[i];
 	}
-    	NT * datbuf = new NT[ploclen];
+    NT * datbuf = new NT[ploclen];
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
@@ -1073,16 +1073,16 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
 		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
 		vector<IT>().swap(indsent[i]);
 	}
-    	IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	NT * recvdatbuf = new NT[totrecv];
 	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
-    	delete [] datbuf;
+    delete [] datbuf;
     
-    	IT * recvindbuf = new IT[totrecv];
-    	MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
-    	delete [] indbuf;
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
     
-    	vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
     
 	for(int i=0; i<nprocs; ++i)
 	{
@@ -1092,13 +1092,14 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
 		}
 	}
 	DeleteAll(recvindbuf, recvdatbuf);
-    	DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
 
-    	std::sort(tosort.begin(), tosort.end());
+    std::sort(tosort.begin(), tosort.end());
+    IT correction = Indexed.LengthUntil();
     
 	for(auto itr = tosort.begin(); itr != tosort.end(); ++itr)
-    	{
-        	Indexed.ind.push_back(itr->first);
+    {
+        	Indexed.ind.push_back(itr->first - correction);
         	Indexed.num.push_back(itr->second);
 	}
 	return Indexed;
