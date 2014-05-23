@@ -68,6 +68,16 @@ int main(int argc, char* argv[])
         auto subvec2  = dvec(vec2);
         subvec2.DebugPrint();
         
+        FullyDistSpVec<int,int> vecA(12);
+        for(int i=0; i<12; i+=3)  vecA.SetElement(i,i);
+        MPI_Barrier(MPI_COMM_WORLD);
+        vecA.DebugPrint();
+        FullyDistVec<int,int> dvecA;
+        dvecA.iota(12, 0);   // with 12 entries, first being 0
+        
+        auto subvecA  = dvecA(vecA);
+        subvecA.DebugPrint();
+
         
 		inputvec1.clear();
 		inputvec1.close();
