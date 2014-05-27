@@ -34,27 +34,6 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 using namespace std;
 
-// 64-bit floor(log2(x)) function 
-// note: least significant bit is the "zeroth" bit
-// pre: v > 0
-unsigned int highestbitset(uint64_t v)
-{
-	// b in binary is {10,1100, 11110000, 1111111100000000 ...}  
-	const uint64_t b[] = {0x2ULL, 0xCULL, 0xF0ULL, 0xFF00ULL, 0xFFFF0000ULL, 0xFFFFFFFF00000000ULL};
-	const unsigned int S[] = {1, 2, 4, 8, 16, 32};
-	int i;
-
-	unsigned int r = 0; // result of log2(v) will go here
-	for (i = 5; i >= 0; i--) 
-	{
-		if (v & b[i])	// highestbitset is on the left half (i.e. v > S[i] for sure)
-		{
-			v >>= S[i];
-			r |= S[i];
-		} 
-	}
-	return r;
-}
 
 template <class T>
 bool from_string(T & t, const string& s, std::ios_base& (*f)(std::ios_base&))
