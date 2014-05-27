@@ -1043,7 +1043,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
 		IT locind;
 		int owner = Owner(perm.num[k], locind);     // numerical values in perm are 0-based indices
 		datsent[owner].push_back(arr[perm.ind[k]]);
-		indsent[owner].push_back(perm.num[k]);
+		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
 	}
 	int * sendcnt = new int[nprocs];
 	int * sdispls = new int[nprocs];
@@ -1093,13 +1093,11 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
 	}
 	DeleteAll(recvindbuf, recvdatbuf);
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
-
     std::sort(tosort.begin(), tosort.end());
-    IT correction = Indexed.LengthUntil();
     
 	for(auto itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
-        	Indexed.ind.push_back(itr->first - correction);
+        	Indexed.ind.push_back(itr->first);
         	Indexed.num.push_back(itr->second);
 	}
 	return Indexed;
