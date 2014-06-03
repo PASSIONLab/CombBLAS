@@ -497,44 +497,60 @@ int main(int argc, char* argv[])
             int64_t newlyMatched = 1; // ensure the first pass of the while loop
             int iteration = 0;
             tStart = MPI_Wtime();
+            vector<vector<double> > timing;
+            if(myrank == 0)
+            {
+                cout << "=======================================================\n";
+                cout << "@@@@@@ Number of processes: " << nprocs << endl;
+                cout << "=======================================================\n";
+                cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
+                cout << "=======================================================\n";
+            }
             MPI_Barrier(MPI_COMM_WORLD);
             
 
             //dvRowVertices.DebugPrint();
             while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
             {
-                
+                vector<double> times;
+                double t1 = MPI_Wtime();
                 // step1: Find adjacent row vertices (col vertices parent, row vertices child)
                 //unmatchedCol.DebugPrint();
                 fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
                 
                 // step2: Remove matched row vertices
                 fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
-                //fringeRow.DebugPrint();
+                if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+                
+                
                 
                 // step3: Remove duplicate row vertices
                 fringeRow = fringeRow.Uniq();
-                
+                if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
                 
                 // step4: Update mateRow2Col with the newly matched row vertices
                 mateRow2Col.Set(fringeRow);
                 
                 // step5: Update mateCol2Row with the newly matched col vertices
+                //FullyDistSpVec<int64_t, int64_t> temp = dvRowVertices(fringeRow);
                 auto temp = dvRowVertices(fringeRow);
                 //mateCol2Row.Set(dvColVertices(fringeRow)); // does not work !!
                 mateCol2Row.Set(temp);
-                
+                if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
                 
                 // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
                 unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
                 unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
+                if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
                 
                 
                 ++iteration;
                 newlyMatched = fringeRow.getnnz();
                 if(myrank == 0)
                 {
-                    cout  << "Iteration: " << iteration << "  |  UMRow: " << curUnmatchedRow << "  |  UMCol: " << curUnmatchedCol << "  |  newlyMatched: " << newlyMatched << endl;
+                    times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
+                    timing.push_back(times);
+                    cout  << iteration <<  "  " << curUnmatchedRow  <<  "  " << curUnmatchedCol  <<  "  " << newlyMatched <<  "  " << times.back() << endl;
                 }
                 
                 curUnmatchedCol = unmatchedCol.getnnz();
@@ -561,6 +577,30 @@ int main(int argc, char* argv[])
             //fringeCol = SpMV(Aeff, unmatchedRow, optbuf);
             //fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
             
+            // print statistics
+            if(myrank == 0)
+            {
+                cout << "============================================================\n";
+                cout << "\n================individual timings =========================\n";
+                 cout  << "SpMV  |  Uniq   |  Permute   |  Update matching  |  Total "<< endl;
+                cout << "============================================================\n";
+                
+                vector<double> totalTimes(timing[0].size(),0);
+                for(int i=0; i<timing.size(); i++)
+                {
+                    for(int j=0; j<timing[i].size(); j++)
+                    {
+                        totalTimes[j] += timing[i][j];
+                        cout << timing[i][j] << "  ";
+                    }
+                    cout << endl;
+                }
+                
+                cout << "=================== total timing ===========================\n";
+                for(int i=0; i<totalTimes.size(); i++)
+                    cout<<totalTimes[i] << " ";
+                cout << endl;
+            }
         
     }
     
@@ -578,7 +618,7 @@ int main(int argc, char* argv[])
 
 		MPI_Pcontrol(-1,"BFS");
 		ostringstream outnew;
-		outnew << endl << "======================================================================" << endl;
+		outnew << endl << "==============================================================" << endl;
 		outnew << "Number of edges traversed= " << nedges;
 		outnew << " BFS time: " << tEnd-tStart << " seconds";
 		outnew << " MTEPS: " << static_cast<double>(nedges) / (tEnd-tStart) / 1000000.0 << endl;
