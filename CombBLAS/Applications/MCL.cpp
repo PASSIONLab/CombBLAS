@@ -59,7 +59,7 @@ class Dist
 public: 
 	typedef SpDCCols < int, NT > DCCols;
 	typedef SpParMat < int, NT, DCCols > MPI_DCCols;
-	typedef DenseParVec < int, NT> MPI_DenseVec;
+	typedef FullyDistVec < int, NT> MPI_DenseVec;
 };
 
 
@@ -76,7 +76,7 @@ double Inflate(Dist<double>::MPI_DCCols & A, double power)
 		// Reduce (Column): pack along the columns, result is a vector of size n
 		Dist<double>::MPI_DenseVec colsums = A.Reduce(Column, plus<double>(), 0.0);			
 		colsums.Apply(safemultinv<double>());
-		A.DimScale(colsums, Column);	// scale each "Column" with the given vector
+		A.DimApply(Column, colsums, multiplies<double>());	// scale each "Column" with the given vector
 
 #ifdef DEBUG
 		colsums = A.Reduce(Column, plus<double>(), 0.0);			

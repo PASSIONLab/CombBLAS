@@ -466,17 +466,17 @@ void SpParHelper::SetWindows(MPI_Comm & comm1d, const SpMat< IT,NT,DER > & Matri
 
 inline void SpParHelper::LockWindows(int ownind, vector<MPI_Win> & arrwin)
 {
-	for(unsigned int i=0; i< arrwin.size(); ++i)
+	for(vector<MPI_Win>::iterator itr = arrwin.begin(); itr != arrwin.end(); ++itr)
 	{
-		MPI_Win_lock(MPI_LOCK_SHARED, ownind, 0, arrwin[i]);
+		MPI_Win_lock(MPI_LOCK_SHARED, ownind, 0, *itr);
 	}
 }
 
 inline void SpParHelper::UnlockWindows(int ownind, vector<MPI_Win> & arrwin) 
 {
-	for(unsigned int i=0; i< arrwin.size(); ++i)
+	for(vector<MPI_Win>::iterator itr = arrwin.begin(); itr != arrwin.end(); ++itr)
 	{
-		MPI_Win_unlock( ownind, arrwin[i]);
+		MPI_Win_unlock( ownind, *itr);
 	}
 }
 
