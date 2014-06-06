@@ -604,8 +604,8 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     
     delete ColSums;
     delete RowSums;
-    unmatchedRow.DebugPrint();
-    unmatchedCol.DebugPrint();
+    //unmatchedRow.DebugPrint();
+    //unmatchedCol.DebugPrint();
     
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
@@ -654,20 +654,18 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         // step2: Remove matched row vertices
         fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        fringeRow.DebugPrint();
         
         
         // step3: Remove duplicate row vertices
         fringeRow = fringeRow.Uniq();
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        fringeRow.DebugPrint();
+
         // step4: Update mateRow2Col with the newly matched row vertices
         mateRow2Col.Set(fringeRow);
         
         // step5: Update mateCol2Row with the newly matched col vertices
-        //FullyDistSpVec<int64_t, int64_t> temp = dvRowVertices(fringeRow);
-        auto temp = dvRowVertices(fringeRow);
-        //mateCol2Row.Set(dvColVertices(fringeRow)); // does not work !!
+        FullyDistSpVec<int64_t, int64_t> temp = dvRowVertices(fringeRow);
+        //auto temp = dvRowVertices(fringeRow);
         mateCol2Row.Set(temp);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
          
@@ -695,8 +693,8 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     
     
     //Check if this is a maximal matching
-    mateRow2Col.DebugPrint();
-    mateCol2Row.DebugPrint();
+    //mateRow2Col.DebugPrint();
+    //mateCol2Row.DebugPrint();
     fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
     fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
     if(fringeRow.getnnz() != 0)
