@@ -57,6 +57,7 @@ endif (NOT C11)
 ADD_LIBRARY( CommGridlib CommGrid.cpp  )
 ADD_LIBRARY( MPITypelib MPIType.cpp )
 ADD_LIBRARY( MemoryPoollib MemoryPool.cpp )
+ADD_LIBRARY( Hashlib hash.cpp )
 
 
 ADD_SUBDIRECTORY( ReleaseTests )

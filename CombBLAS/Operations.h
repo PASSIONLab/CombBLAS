@@ -40,6 +40,15 @@
 
 using namespace std;
 
+template<typename T1, typename T2>
+struct equal_first
+{
+    bool operator()(pair<T1,T2> & lhs, pair<T1,T2> & rhs){
+        return lhs.first == rhs.first;
+    }
+};
+
+
 
 template<typename T>
 struct myset: public std::unary_function<T, T>
