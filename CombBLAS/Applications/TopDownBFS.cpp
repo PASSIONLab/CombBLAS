@@ -285,6 +285,7 @@ int main(int argc, char* argv[])
 			redtimeinfo << "Calculated degrees in " << redtf-redts << " seconds" << endl;
 			SpParHelper::Print(redtimeinfo.str());
 			A =  PSpMat_Bool(*G);			// Convert to Boolean
+			A.SaveGathered("Rmat.txt");
 			delete G;
 			int64_t removed  = A.RemoveLoops();
 
