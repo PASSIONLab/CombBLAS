@@ -689,6 +689,7 @@ CombBLAS/Applications/makefile-carver -text
 CombBLAS/Applications/makefile-lonestar -text
 CombBLAS/Applications/makefile-mac -text
 CombBLAS/Applications/makefile-macair -text
+CombBLAS/Applications/makefile-matching -text
 CombBLAS/Applications/makefile-mirasol -text
 CombBLAS/Applications/makefile-nersc -text
 CombBLAS/Applications/makefile-neumann -text
