@@ -49,6 +49,14 @@ SingleChildBFS.o:  SingleChildBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h 
 DirOptBFS.o:  DirOptBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o DirOptBFS.o DirOptBFS.cpp 
 
+BPMaximalMatching.o:  BPMaximalMatching.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o BPMaximalMatching.o BPMaximalMatching.cpp 
+
+
+BPMaximalMatching:	MemoryPool.o CommGrid.o MPIType.o BPMaximalMatching.o hash.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+	$(COMPILER) $(INCADD) $(FLAGS) -o BPMaximalMatching BPMaximalMatching.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq 
+
+
 FilteredBFS.o:  FilteredBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h ../SpParHelper.cpp ../Friends.h TwitterEdge.h ../MPIType.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o FilteredBFS.o FilteredBFS.cpp 
 

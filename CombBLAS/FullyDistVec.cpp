@@ -1095,7 +1095,7 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     std::sort(tosort.begin(), tosort.end());
     
-	for(auto itr = tosort.begin(); itr != tosort.end(); ++itr)
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
         	Indexed.ind.push_back(itr->first);
         	Indexed.num.push_back(itr->second);
