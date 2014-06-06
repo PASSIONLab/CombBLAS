@@ -19,6 +19,9 @@ COMBBLAS = ..
 $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a:
 	$(MAKE) -C $(COMBBLAS)/graph500-1.2/generator
 
+hash.o: ../hash.hpp ../hash.cpp
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o hash.o ../hash.cpp 
+
 CommGrid.o:	../CommGrid.cpp ../CommGrid.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o CommGrid.o ../CommGrid.cpp 
 

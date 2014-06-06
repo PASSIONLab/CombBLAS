@@ -223,7 +223,22 @@ protected:
 private:
 	vector< IT > ind;	// ind.size() give the number of nonzeros
 	vector< NT > num;
-	bool wasFound; // true if the last GetElement operation returned an actual value.
+	bool wasFound; // true if the last GetElement operation returned an actual value
+    
+#if __cplusplus > 199711L
+	template <typename _BinaryOperation = minimum<NT> >
+	FullyDistSpVec<IT, NT> UniqAll2All(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);
+    
+    template <typename _BinaryOperation = minimum<NT> >
+	FullyDistSpVec<IT, NT> Uniq2D(_BinaryOperation __binary_op = _BinaryOperation(), MPI_Op mympiop = MPI_MIN);
+#else
+	template <typename _BinaryOperation >
+	FullyDistSpVec<IT, NT> UniqAll2All(_BinaryOperation __binary_op, MPI_Op mympiop);
+    
+    template <typename _BinaryOperation >
+	FullyDistSpVec<IT, NT> Uniq2D(_BinaryOperation __binary_op, MPI_Op mympiop);
+#endif
+    
 
 	template <class IU, class NU>
 	friend class FullyDistSpVec;

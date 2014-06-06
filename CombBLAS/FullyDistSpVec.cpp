@@ -30,6 +30,7 @@
 #include "FullyDistSpVec.h"
 #include "SpDefs.h"
 #include "SpHelper.h"
+#include "hash.hpp"
 using namespace std;
 
 template <class IT, class NT>
@@ -378,15 +379,150 @@ FullyDistSpVec<IT, IT> FullyDistSpVec<IT, NT>::sort()
 	return temp;
 }
 
-
-// ABAB: \todo Concept control so it only gets called in integers
-// ABAB: \todo Generalize to cases where the range of values is larger than {0,...,vectorlength}.
-// ABAB: \todo Generalization might require a remapping (i.e. if somme values are negative, all values need to be shifted?)
 template <class IT, class NT>
 template <typename _BinaryOperation >
-FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op, MPI_Op mympiop)
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::UniqAll2All(_BinaryOperation __binary_op, MPI_Op mympiop)
 {
-	// The indices for FullyDistVec are offset'd to 1/p pieces
+    MPI_Comm World = commGrid->GetWorld();
+	int nprocs = commGrid->GetSize();
+    
+    vector< vector< NT > > datsent(nprocs);
+	vector< vector< IT > > indsent(nprocs);
+    
+    IT locind;
+    size_t locvec = num.size();     // nnz in local vector
+    IT lenuntil = LengthUntil();    // to convert to global index
+	for(size_t i=0; i< locvec; ++i)
+	{
+        uint64_t myhash;    // output of MurmurHash3_x64_64 is 64-bits regardless of the input length
+        MurmurHash3_x64_64((const void*) &(num[i]),sizeof(NT), 0, &myhash);
+        double range = static_cast<double>(myhash) * static_cast<double>(glen);
+        NT mapped = range / static_cast<double>(numeric_limits<uint64_t>::max());   // mapped is in range [0,n)
+        int owner = Owner(mapped, locind);
+        
+        datsent[owner].push_back(num[i]);  // all identical entries will be hashed to the same value -> same processor
+        indsent[owner].push_back(ind[i]+lenuntil);
+    }
+    int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = (int) datsent[i].size();
+    
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    NT * datbuf = new NT[locvec];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+		vector<NT>().swap(datsent[i]);
+	}
+    IT * indbuf = new IT[locvec];
+    for(int i=0; i<nprocs; ++i)
+	{
+		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
+		vector<IT>().swap(indsent[i]);
+	}
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	NT * recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    vector< pair<NT,IT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+            tosort.push_back(make_pair(recvdatbuf[j], recvindbuf[j]));
+		}
+	}
+	DeleteAll(recvindbuf, recvdatbuf);
+    std::sort(tosort.begin(), tosort.end());
+    //std::unique returns an iterator to the element that follows the last element not removed.
+    typename vector< pair<NT,IT> >::iterator last;
+    last = std::unique (tosort.begin(), tosort.end(), equal_first<NT,IT>());
+
+    vector< vector< NT > > datback(nprocs);
+	vector< vector< IT > > indback(nprocs);
+    
+    for(typename vector< pair<NT,IT> >::iterator itr = tosort.begin(); itr != last; ++itr)
+    {
+        IT locind;
+        int owner = Owner(itr->second, locind);
+        
+        datback[owner].push_back(itr->first);
+        indback[owner].push_back(locind);
+    }
+    for(int i=0; i<nprocs; ++i) sendcnt[i] = (int) datback[i].size();
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    datbuf = new NT[tosort.size()];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(datback[i].begin(), datback[i].end(), datbuf+sdispls[i]);
+		vector<NT>().swap(datback[i]);
+	}
+    indbuf = new IT[tosort.size()];
+    for(int i=0; i<nprocs; ++i)
+	{
+		copy(indback[i].begin(), indback[i].end(), indbuf+sdispls[i]);
+		vector<IT>().swap(indback[i]);
+	}
+    totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));   // update value
+    
+    recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+
+    FullyDistSpVec<IT,NT> Indexed(commGrid, glen);	// length(Indexed) = length(glen) = length(*this)
+    
+    vector< pair<IT,NT> > back2sort;
+    for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+            back2sort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+		}
+	}
+    std::sort(back2sort.begin(), back2sort.end());
+    for(typename vector< pair<IT,NT> >::iterator itr = back2sort.begin(); itr != back2sort.end(); ++itr)
+    {
+        Indexed.ind.push_back(itr->first);
+        Indexed.num.push_back(itr->second);
+    }
+    
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    DeleteAll(recvindbuf, recvdatbuf);
+    return Indexed;
+    
+}
+
+//! Only works for cases where the range of *this is [0,n) where n=length(*this)
+template <class IT, class NT>
+template <typename _BinaryOperation >
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq2D(_BinaryOperation __binary_op, MPI_Op mympiop)
+{
+    // The indices for FullyDistVec are offset'd to 1/p pieces
 	// The matrix indices are offset'd to 1/sqrt(p) pieces
 	// Add the corresponding offset before sending the data
 	IT roffset = RowLenUntil();
@@ -417,7 +553,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
 	{
 		// numerical values (permutation indices) are 0-based
 		IT rowrec = (m_perproccol!=0) ? std::min(num[i] / m_perproccol, rowneighs-1) : (rowneighs-1); 	// recipient along processor row
-
+        
 		// vector's numerical values give the colids and its indices give rowids
 		rowid[rowrec].push_back( ind[i] + roffset);
 		colid[rowrec].push_back( num[i] - (rowrec * m_perproccol));
@@ -483,15 +619,39 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op,
     colind2val.iota(B.getncol(), 1);    // start with 1 so that we can prune all zeros
     B.DimApply(Column, colind2val, sel2nd<NT>());
     //B.PrintInfo();
-
+    
     FullyDistVec<IT,NT> pruned;
     B.Reduce(pruned, Row, plus<NT>(), (NT) 0);
     //pruned.DebugPrint();
-
+    
     FullyDistSpVec<IT,NT> UniqInds(pruned, bind2nd(greater<NT>(), 0));    // only retain [< glen] entries
     //UniqInds.DebugPrint();
-
+    
     return EWiseApply<NT>(UniqInds, *this, sel2nd<NT>(), bintotality<NT,NT>(), false, false, (NT) 0, (NT) 0);
+}
+
+    
+
+// ABAB: \todo Concept control so it only gets called in integers
+template <class IT, class NT>
+template <typename _BinaryOperation >
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT, NT>::Uniq(_BinaryOperation __binary_op, MPI_Op mympiop)
+{
+#ifndef _2DUNIQ_
+    return UniqAll2All(__binary_op, mympiop);
+#else
+    
+    NT mymax = Reduce(maximum<NT>(), (NT) 0);
+    NT mymin = Reduce(minimum<NT>(), TotalLength());
+    if(mymax >= TotalLength() || mymin < (NT) 0)
+    {
+        return UniqAll2All(__binary_op, mympiop);
+    }
+    else
+    {
+        return Uniq2D(__binary_op, mympiop);
+    }
+#endif
 }
 
 template <class IT, class NT>
