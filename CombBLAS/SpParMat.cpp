@@ -1004,8 +1004,8 @@ void SpParMat<IT,NT,DER>::PrintInfo() const
 	IT nznz = getnnz();
 	
 	if (commGrid->myrank == 0)	
-		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl; 
-
+		cout << "As a whole: " << mm << " rows and "<< nn <<" columns and "<<  nznz << " nonzeros" << endl;
+    
 #ifdef DEBUG
 	IT allprocs = commGrid->grrows * commGrid->grcols;
 	for(IT i=0; i< allprocs; ++i)
