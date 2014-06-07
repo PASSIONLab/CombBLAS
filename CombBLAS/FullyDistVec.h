@@ -124,6 +124,7 @@ public:
 	}
 
 	void Set(const FullyDistSpVec< IT,NT > & rhs);
+    void SetInd2Val (const FullyDistSpVec<IT,IT> & rhs);
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation

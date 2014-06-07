@@ -1006,43 +1006,46 @@ FullyDistVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistVec<IT,IT> &
 	return Indexed;
 }
 
-
 /** The semantics:
- ** Call *this* object V, then for each perm[k] that is nonzero, V(perm)[perm[k]] = V[k]
- ** This might be different than the semantics of the dense vector subsref using a dense vector
- ** However, it is likely to be faster as it does only one BSP step
- ** Notice that the returned object, V(perm) is also sparse and has the same nnz as "perm"
- **/
+ ** Let the sparse dense vector be dV and the sparse vecotor be spV, 
+ ** then for each spV[k] that is nonzero, dV[spV[k]] = k
+ ** Work for unequal spV and dV
+**/
 template <class IT, class NT>
-FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,IT> & perm) const
+void FullyDistVec<IT,NT>::SetInd2Val (const FullyDistSpVec<IT,IT> & rhs)
 {
-	if(!(*commGrid == *perm.commGrid))
+	if(!(*commGrid == *rhs.commGrid))
 	{
 		cout << "Grids are not comparable for dense vector subsref using a sparse vector" << endl;
-		return FullyDistSpVec<IT,NT>(commGrid);
+		return;
 	}
-    	if(!(glen == perm.glen))
+    
+    /*
+    if(!(glen == rhs.glen))
 	{
 		cout << "Vector lengths are different for dense vector subsref using a sparse vector" << endl;
 		return FullyDistSpVec<IT,NT>(commGrid);
-	}
-    IT max_entry = perm.Reduce(maximum<IT>(), (IT) 0 ) ;
+	}*/
+    
+    IT max_entry = rhs.Reduce(maximum<IT>(), (IT) 0 ) ;
     if(max_entry >= glen)
     {
-        cout << "Permutation vector has entries (" << max_entry  << ") larger than global vector length " << glen << endl;
-        return FullyDistSpVec<IT,NT>(commGrid);
+        cout << "Sparse vector has entries (" << max_entry  << ") larger than global vector length " << glen << endl;
+        return;
     }
-	FullyDistSpVec<IT,NT> Indexed(commGrid, glen);	// length(Indexed) = length(glen) = length(*this)
-	int nprocs = commGrid->GetSize();
+	
+    int nprocs = commGrid->GetSize();
 	vector< vector< NT > > datsent(nprocs);
 	vector< vector< IT > > indsent(nprocs);
     
-	IT ploclen = perm.getlocnnz();
+	IT ploclen = rhs.getlocnnz();
 	for(IT k=0; k < ploclen; ++k)
 	{
 		IT locind;
-		int owner = Owner(perm.num[k], locind);     // numerical values in perm are 0-based indices
-		datsent[owner].push_back(arr[perm.ind[k]]);
+		int owner = Owner(rhs.num[k], locind);     // numerical values in rhs are 0-based indices
+        //datsent[owner].push_back(arr[rhs.ind[k]]);
+        IT gind = rhs.ind[k] + rhs.LengthUntil();
+        datsent[owner].push_back(gind);
 		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
 	}
 	int * sendcnt = new int[nprocs];
@@ -1082,13 +1085,105 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
     MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
     delete [] indbuf;
     
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+            arr[recvindbuf[j]] = recvdatbuf[j];
+		}
+	}
+	DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+ }
+
+
+/** The semantics:
+ ** Call *this* object V, then for each perm[k] that is nonzero, V(perm)[perm[k]] = V[k]
+ ** This might be different than the semantics of the dense vector subsref using a dense vector
+ ** However, it is likely to be faster as it does only one BSP step
+ ** Notice that the returned object, V(perm) is also sparse and has the same nnz as "perm"
+ **/
+
+template <class IT, class NT>
+FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,IT> & perm) const
+{
+	if(!(*commGrid == *perm.commGrid))
+	{
+		cout << "Grids are not comparable for dense vector subsref using a sparse vector" << endl;
+		return FullyDistSpVec<IT,NT>(commGrid);
+	}
+    
+    if(!(glen == perm.glen))
+	{
+		cout << "Vector lengths are different for dense vector subsref using a sparse vector" << endl;
+		return FullyDistSpVec<IT,NT>(commGrid);
+	}
+    
+    IT max_entry = perm.Reduce(maximum<IT>(), (IT) 0 ) ;
+    if(max_entry >= glen)
+    {
+        cout << "Permutation vector has entries (" << max_entry  << ") larger than global vector length " << glen << endl;
+        return FullyDistSpVec<IT,NT>(commGrid);
+    }
+	FullyDistSpVec<IT,NT> Indexed(commGrid, glen);	// length(Indexed) = length(glen) = length(*this)
+	int nprocs = commGrid->GetSize();
+	vector< vector< NT > > datsent(nprocs);
+	vector< vector< IT > > indsent(nprocs);
+    
+	IT ploclen = perm.getlocnnz();
+	for(IT k=0; k < ploclen; ++k)
+	{
+		IT locind;
+		int owner = Owner(perm.num[k], locind);     // numerical values in perm are 0-based indices
+        datsent[owner].push_back(arr[perm.ind[k]]);
+        //IT gind = perm.ind[k] + perm.LengthUntil();
+        //datsent[owner].push_back(gind);
+		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+	}
+	int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = (int) datsent[i].size();
+    
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+    MPI_Comm World = commGrid->GetWorld();
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    NT * datbuf = new NT[ploclen];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+		vector<NT>().swap(datsent[i]);
+	}
+    IT * indbuf = new IT[ploclen];
+    for(int i=0; i<nprocs; ++i)
+	{
+		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
+		vector<IT>().swap(indsent[i]);
+	}
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	NT * recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
     vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
     
 	for(int i=0; i<nprocs; ++i)
 	{
 		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
 		{
-            		tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+            tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
 		}
 	}
 	DeleteAll(recvindbuf, recvdatbuf);
@@ -1097,8 +1192,8 @@ FullyDistSpVec<IT,NT> FullyDistVec<IT,NT>::operator() (const FullyDistSpVec<IT,I
     
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
-        	Indexed.ind.push_back(itr->first);
-        	Indexed.num.push_back(itr->second);
+        Indexed.ind.push_back(itr->first);
+        Indexed.num.push_back(itr->second);
 	}
 	return Indexed;
 }

@@ -36,6 +36,9 @@ int cblas_splits = 1;
 using namespace std;
 void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf);
 void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& tAeff, OptBuf<int32_t, int64_t>& optbuf, OptBuf<int32_t, int64_t>& toptbuf);
+template <class IT, class NT>
+bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col);
+
 
 // 64-bit floor(log2(x)) function 
 // note: least significant bit is the "zeroth" bit
@@ -88,6 +91,16 @@ struct positive : public std::unary_function<T, bool>
 };
 
 
+template<typename T>
+struct unmatched : public std::unary_function<T, bool>
+{
+    bool operator()(const T& x) const
+    {
+        return (x==-1);
+    }
+};
+
+
 
 /**
  * Binary function to prune the previously discovered vertices from the current frontier 
@@ -101,72 +114,6 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 	}
 };
 
-
-/*
- * Check the validity of the matching solution
- */
-template <class IT, class NT>
-void sanityCheck(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col,
-                 SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& spAdjMat, OptBuf<int32_t, int64_t> & optbuf)
-{
-    //mateCol2Row.DebugPrint();
-    //mateRow2Col.DebugPrint();
-    int myrank;
-    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-   
-    /*
-    // first check if this is a matching
-    for(int i=0; i< mateRow2Col.glen ; i++)
-    {
-        int t = mateRow2Col[i];
-        
-        if(t!=-1 && mateCol2Row[t]!=i)
-        {
-            if(myrank == 0)
-                cout << "Error!!\n";
-            break;
-        }
-    }
-    
-    for(int i=0; i< mateCol2Row.glen ; i++)
-    {
-        int t = mateCol2Row[i];
-        if(t!=-1 && mateRow2Col[t]!=i)
-        {
-            if(myrank == 0)
-                cout << "Error!!\n";
-            break;
-        }
-    }
-    */
-    
-    // Check if this is a maximal matching
-    
-    FullyDistVec<IT, NT> dvColVertices(spAdjMat.getcommgrid(), spAdjMat.getncol(), (NT) 0);
-    FullyDistSpVec<IT, NT> unmatchedCol(dvColVertices);
-    unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
-    FullyDistSpVec<IT, NT> fringeRow(spAdjMat.getcommgrid(), spAdjMat.getnrow());
-    
-    fringeRow = SpMV(spAdjMat, unmatchedCol, optbuf);
-    fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
-    
-    
-    FullyDistVec<IT, NT> dvRowVertices(spAdjMat.getcommgrid(), spAdjMat.getnrow(), (NT) 0);
-    FullyDistSpVec<IT, NT> unmatchedRow(dvRowVertices);
-    unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
-    FullyDistSpVec<IT, NT> fringeCol(spAdjMat.getcommgrid(), spAdjMat.getncol());
-    
-    spAdjMat.Transpose();
-    fringeCol = SpMV(spAdjMat, unmatchedRow, optbuf);
-    fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
-    
-    if(fringeRow.getnnz() != 0 || fringeCol.getnnz() != 0)
-    {
-        if(myrank == 0)
-            cout << "Not maximam matching!!\n";
-    }
-
-}
 
 
 
@@ -302,25 +249,26 @@ int main(int argc, char* argv[])
 			A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0)); 	
 			SpParHelper::Print("Reductions done\n");
 			//ColSums->EWiseApply(*RowSums, plus<int64_t>());
-			//nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+			nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
             
             
             //nonisoRowV.iota(A.getnrow(), 0);
             nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
             nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
             //nonisoColV.iota(A.getncol(), 0);
-            nonisoRowV.RandPerm();
             nonisoColV.RandPerm();
+            nonisoRowV.RandPerm();
+            
             delete ColSums;
             delete RowSums;
 
 			//SpParHelper::Print("Found (and permuted) non-isolated vertices\n");
-			//nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+			nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
             
 #ifndef NOPERMUTE
             
-			//A(nonisov, nonisov, true);	// in-place permute to save memory
-            A(nonisoRowV, nonisoColV, true); // there is a problem with this in multi-processor !!
+			//A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
+            A(nonisoRowV, nonisoColV, true);
 			//SpParHelper::Print("Dropped isolated vertices from input\n");
 			A.PrintInfo();
 #endif
@@ -334,6 +282,7 @@ int main(int argc, char* argv[])
             tAeff.Transpose();
 			Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
             tAeff.OptimizeForGraph500(toptbuf); // single buffer does not work
+            //tAeff.PrintInfo();
             
 #ifdef THREADED	
 			ostringstream tinfo;
@@ -397,47 +346,30 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-// double sided gready matching
+
+
 void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& tAeff, OptBuf<int32_t, int64_t>& optbuf, OptBuf<int32_t, int64_t>& toptbuf)
 {
-    /*
+    
     int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
-    // find non isolated row and column vertices
-    FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
-    FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
-    
-    FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(Aeff.getcommgrid());
-    FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(Aeff.getcommgrid());
-    Aeff.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
-    Aeff.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
-    
-    FullyDistSpVec<int64_t, int64_t> unmatchedRow(*RowSums, positive<int64_t>());
-    FullyDistSpVec<int64_t, int64_t> unmatchedCol(*ColSums, positive<int64_t>());
-    unmatchedRow.setNumToInd();
-    unmatchedCol.setNumToInd();
-    
-    delete ColSums;
-    delete RowSums;
     
     
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
     
+    //unmatched row and column vertices
+    FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, unmatched<int64_t>());
+    FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, unmatched<int64_t>());
+    unmatchedRow.setNumToInd();
+    unmatchedCol.setNumToInd();
+    
+    
     //fringe vector (sparse)
     FullyDistSpVec<int64_t, int64_t> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
     FullyDistSpVec<int64_t, int64_t> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
-    
-    //row and column indices... dummy vectors used for permutation. #todo: think better alternatives
-    FullyDistVec<int64_t, int64_t> dvColVertices;
-    dvColVertices.iota(Aeff.getncol(), 0);
-    FullyDistVec<int64_t, int64_t> dvRowVertices;
-    dvRowVertices.iota(Aeff.getnrow(), 0);
-    //FullyDistVec<int64_t, int64_t> dvColVertices(Aeff.getcommgrid(), Aeff.getncol(), (int64_t) 0); // just for
-    
     
     
     int64_t curUnmatchedCol = unmatchedCol.getnnz();
@@ -457,7 +389,6 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
     MPI_Barrier(MPI_COMM_WORLD);
     
     
-    //dvRowVertices.DebugPrint();
     while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
     {
         vector<double> times;
@@ -466,33 +397,29 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
         if(curUnmatchedCol <= curUnmatchedRow)
         {
             // step1: Find adjacent row vertices (col vertices parent, row vertices child)
-            //unmatchedCol.DebugPrint();
             fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
+            
             
             // step2: Remove matched row vertices
             fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
             
-            
-            
             // step3: Remove duplicate row vertices
             fringeRow = fringeRow.Uniq();
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+            //fringeRow.DebugPrint();
             
             // step4: Update mateRow2Col with the newly matched row vertices
             mateRow2Col.Set(fringeRow);
             
             // step5: Update mateCol2Row with the newly matched col vertices
-            //FullyDistSpVec<int64_t, int64_t> temp = dvRowVertices(fringeRow);
-            auto temp = dvRowVertices(fringeRow);
-            //mateCol2Row.Set(dvColVertices(fringeRow)); // does not work !!
-            mateCol2Row.Set(temp);
+            mateCol2Row.SetInd2Val(fringeRow);
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
             newlyMatched = fringeRow.getnnz();
-         }
+        }
+        
         else
         {
- 
             fringeCol = SpMV(tAeff, unmatchedRow, toptbuf);
             
             fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
@@ -500,16 +427,19 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
             
             fringeCol = fringeCol.Uniq();
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+            //fringeCol.DebugPrint();
             
             mateCol2Row.Set(fringeCol);
-            
-            auto temp = dvColVertices(fringeCol);
-            mateRow2Col.Set(temp);
+            mateRow2Col.SetInd2Val(fringeCol);
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+            
             newlyMatched = fringeCol.getnnz();
+            
         }
+            
         
         
+        // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
         unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
         unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
@@ -533,7 +463,9 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
     
     
     //Check if this is a maximal matching
-    
+    //mateRow2Col.DebugPrint();
+    //mateCol2Row.DebugPrint();
+    //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
     fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
     fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
     if(fringeRow.getnnz() != 0)
@@ -541,7 +473,6 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
         if(myrank == 0)
             cout << "Not maximal matching!!\n";
     }
-    
     fringeCol = SpMV(tAeff, unmatchedRow, toptbuf);
     fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
     if(fringeCol.getnnz() != 0)
@@ -550,9 +481,7 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
             cout << "Not maximal matching!!\n";
     }
     
-    
     // print statistics
-    
     if(myrank == 0)
     {
         cout << "============================================================\n";
@@ -577,8 +506,6 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
         cout << endl;
     }
     
-    MPI_Barrier(MPI_COMM_WORLD);
-     */
     
 }
 
@@ -590,6 +517,144 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
+    
+    //matching vector (dense)
+    FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
+    
+    //unmatched row and column vertices
+    FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, unmatched<int64_t>());
+    FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, unmatched<int64_t>());
+    unmatchedRow.setNumToInd();
+    unmatchedCol.setNumToInd();
+   
+    
+    //fringe vector (sparse)
+    FullyDistSpVec<int64_t, int64_t> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    FullyDistSpVec<int64_t, int64_t> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+
+    
+    int64_t curUnmatchedCol = unmatchedCol.getnnz();
+    int64_t curUnmatchedRow = unmatchedRow.getnnz();
+    int64_t newlyMatched = 1; // ensure the first pass of the while loop
+    int iteration = 0;
+    double tStart = MPI_Wtime();
+    vector<vector<double> > timing;
+    if(myrank == 0)
+    {
+        cout << "=======================================================\n";
+        cout << "@@@@@@ Number of processes: " << nprocs << endl;
+        cout << "=======================================================\n";
+        cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
+        cout << "=======================================================\n";
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+    while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
+    {
+        vector<double> times;
+        double t1 = MPI_Wtime();
+        // step1: Find adjacent row vertices (col vertices parent, row vertices child)
+        fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
+
+        
+        // step2: Remove matched row vertices
+        fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        
+        // step3: Remove duplicate row vertices
+        fringeRow = fringeRow.Uniq();
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        //fringeRow.DebugPrint();
+        
+        // step4: Update mateRow2Col with the newly matched row vertices
+        mateRow2Col.Set(fringeRow);
+        //mateRow2Col.DebugPrint();
+        
+        // step5: Update mateCol2Row with the newly matched col vertices
+         mateCol2Row.SetInd2Val(fringeRow);
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        
+        // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
+        unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
+        unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        
+        
+        ++iteration;
+        newlyMatched = fringeRow.getnnz();
+        if(myrank == 0)
+        {
+            times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
+            timing.push_back(times);
+            cout  << iteration <<  "  " << curUnmatchedRow  <<  "  " << curUnmatchedCol  <<  "  " << newlyMatched <<  "  " << times.back() << endl;
+        }
+       
+        curUnmatchedCol = unmatchedCol.getnnz();
+        curUnmatchedRow = unmatchedRow.getnnz();
+        MPI_Barrier(MPI_COMM_WORLD);
+        
+    }
+    
+    
+    
+    //Check if this is a maximal matching
+    //mateRow2Col.DebugPrint();
+    //mateCol2Row.DebugPrint();
+    //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
+    fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
+    fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
+    if(fringeRow.getnnz() != 0)
+    {
+        if(myrank == 0)
+            cout << "Not maximal matching!!\n";
+    }
+    /*
+    fringeCol = SpMV(tAeff, unmatchedRow, toptbuf);
+    fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
+    if(fringeCol.getnnz() != 0)
+    {
+        if(myrank == 0)
+            cout << "Not maximal matching!!\n";
+    }*/
+    
+    // print statistics
+    if(myrank == 0)
+    {
+        cout << "============================================================\n";
+        cout << "\n================individual timings =========================\n";
+        cout  << "SpMV  |  Uniq   |  Permute   |  Update matching  |  Total "<< endl;
+        cout << "============================================================\n";
+        
+        vector<double> totalTimes(timing[0].size(),0);
+        for(int i=0; i<timing.size(); i++)
+        {
+            for(int j=0; j<timing[i].size(); j++)
+            {
+                totalTimes[j] += timing[i][j];
+                cout << timing[i][j] << "  ";
+            }
+            cout << endl;
+        }
+        
+        cout << "=================== total timing ===========================\n";
+        for(int i=0; i<totalTimes.size(); i++)
+            cout<<totalTimes[i] << " ";
+        cout << endl;
+    }
+    
+
+}
+
+/*
+void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf)
+{
+    
+    int nprocs, myrank;
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
     // find non isolated row and column vertices
     
     FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(Aeff.getcommgrid());
@@ -597,10 +662,9 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     Aeff.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
     Aeff.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
     
-    FullyDistSpVec<int64_t, int64_t> unmatchedRow(*RowSums, positive<int64_t>());
-    FullyDistSpVec<int64_t, int64_t> unmatchedCol(*ColSums, positive<int64_t>());
-    //unmatchedRow.setNumToInd();
-    unmatchedCol.setNumToInd();
+    //ColSums->DebugPrint();
+    //RowSums->DebugPrint();
+    
     
     delete ColSums;
     delete RowSums;
@@ -610,6 +674,12 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
+    
+    FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, unmatched<int64_t>());
+    FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, unmatched<int64_t>());
+    unmatchedRow.setNumToInd();
+    unmatchedCol.setNumToInd();
+    
     
     //fringe vector (sparse)
     FullyDistSpVec<int64_t, int64_t> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
@@ -647,28 +717,32 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         vector<double> times;
         double t1 = MPI_Wtime();
         // step1: Find adjacent row vertices (col vertices parent, row vertices child)
-        //unmatchedCol.DebugPrint();
         fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
-       
+        
         
         // step2: Remove matched row vertices
         fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-        
+        //fringeRow.DebugPrint();
         
         // step3: Remove duplicate row vertices
         fringeRow = fringeRow.Uniq();
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-
+        //fringeRow.DebugPrint();
+        
         // step4: Update mateRow2Col with the newly matched row vertices
         mateRow2Col.Set(fringeRow);
+        //mateRow2Col.DebugPrint();
         
         // step5: Update mateCol2Row with the newly matched col vertices
-        FullyDistSpVec<int64_t, int64_t> temp = dvRowVertices(fringeRow);
+        //FullyDistSpVec<int64_t, int64_t> temp = dvColVertices(fringeRow);
+        //dvColVertices.DebugPrint();
+        //temp.DebugPrint();
         //auto temp = dvRowVertices(fringeRow);
-        mateCol2Row.Set(temp);
+        //mateCol2Row.Set(temp);
+        mateCol2Row.SetInd2Val(fringeRow);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
-         
+        //mateCol2Row.DebugPrint();
         // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
         unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
         unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
@@ -683,7 +757,7 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
             timing.push_back(times);
             cout  << iteration <<  "  " << curUnmatchedRow  <<  "  " << curUnmatchedCol  <<  "  " << newlyMatched <<  "  " << times.back() << endl;
         }
-       
+        
         curUnmatchedCol = unmatchedCol.getnnz();
         curUnmatchedRow = unmatchedRow.getnnz();
         MPI_Barrier(MPI_COMM_WORLD);
@@ -695,6 +769,7 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     //Check if this is a maximal matching
     //mateRow2Col.DebugPrint();
     //mateCol2Row.DebugPrint();
+    isMatching(mateCol2Row, mateRow2Col);
     fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
     fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
     if(fringeRow.getnnz() != 0)
@@ -702,9 +777,14 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         if(myrank == 0)
             cout << "Not maximal matching!!\n";
     }
-    //Aeff.Transpose();
-    //fringeCol = SpMV(Aeff, unmatchedRow, optbuf);
-    //fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
+ 
+     fringeCol = SpMV(tAeff, unmatchedRow, toptbuf);
+     fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
+     if(fringeCol.getnnz() != 0)
+     {
+     if(myrank == 0)
+     cout << "Not maximal matching!!\n";
+     }
     
     // print statistics
     if(myrank == 0)
@@ -731,42 +811,34 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         cout << endl;
     }
     
-
+    
 }
-
-
-
-
-
-
+*/
 
 /*
  * Check the validity of the matching solution
  */
-/*
 template <class IT, class NT>
-void sanityCheck(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col,
-                 SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& spAdjMat, OptBuf<int32_t, int64_t> & optbuf)
+bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col)
 {
-    //mateCol2Row.DebugPrint();
-    //mateRow2Col.DebugPrint();
+
     int myrank;
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
- 
- 
+    
+    
     // first check if this is a matching
     for(int i=0; i< mateRow2Col.glen ; i++)
     {
         int t = mateRow2Col[i];
- 
+        
         if(t!=-1 && mateCol2Row[t]!=i)
         {
             if(myrank == 0)
                 cout << "Error!!\n";
-            break;
+            return false;
         }
     }
- 
+    
     for(int i=0; i< mateCol2Row.glen ; i++)
     {
         int t = mateCol2Row[i];
@@ -774,36 +846,8 @@ void sanityCheck(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRo
         {
             if(myrank == 0)
                 cout << "Error!!\n";
-            break;
+            return false;
         }
     }
- 
- 
-    // Check if this is a maximal matching
- 
-    FullyDistVec<IT, NT> dvColVertices(spAdjMat.getcommgrid(), spAdjMat.getncol(), (NT) 0);
-    FullyDistSpVec<IT, NT> unmatchedCol(dvColVertices);
-    unmatchedCol = EWiseMult(unmatchedCol, mateCol2Row, true, (int64_t) -1);
-    FullyDistSpVec<IT, NT> fringeRow(spAdjMat.getcommgrid(), spAdjMat.getnrow());
-    
-    fringeRow = SpMV(spAdjMat, unmatchedCol, optbuf);
-    fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
-    
-    
-    FullyDistVec<IT, NT> dvRowVertices(spAdjMat.getcommgrid(), spAdjMat.getnrow(), (NT) 0);
-    FullyDistSpVec<IT, NT> unmatchedRow(dvRowVertices);
-    unmatchedRow = EWiseMult(unmatchedRow, mateRow2Col, true, (int64_t) -1);
-    FullyDistSpVec<IT, NT> fringeCol(spAdjMat.getcommgrid(), spAdjMat.getncol());
-    
-    spAdjMat.Transpose();
-    fringeCol = SpMV(spAdjMat, unmatchedRow, optbuf);
-    fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
-    
-    if(fringeRow.getnnz() != 0 || fringeCol.getnnz() != 0)
-    {
-        if(myrank == 0)
-            cout << "Not maximam matching!!\n";
-    }
-    
+    return true;
 }
-*/
