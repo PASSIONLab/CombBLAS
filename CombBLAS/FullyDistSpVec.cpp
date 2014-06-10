@@ -1171,7 +1171,12 @@ void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
 
 
 
-
+/*
+ ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
+ ** the length of vout is globallen, which nust be less than the maximum entry of vin.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry vin[k]: vout[vin[k]] = k
+ */
 
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
