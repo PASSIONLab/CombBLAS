@@ -78,6 +78,7 @@ public:
     template <typename _UnaryOperation>
     FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOperation unop);
 	FullyDistSpVec (const FullyDistVec<IT,NT> & rhs);					// Conversion copy-constructor
+    FullyDistSpVec<IT,NT> Invert (IT globallen);
 
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.

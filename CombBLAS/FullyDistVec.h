@@ -104,7 +104,6 @@ public:
 	FullyDistVec<IT,NT> & operator=(const FullyDistSpVec<IT,NT> & rhs);		//!< FullyDistSpVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> & operator=(const DenseParVec<IT,NT> & rhs);		//!< DenseParVec->FullyDistVec conversion operator
 	FullyDistVec<IT,NT> operator() (const FullyDistVec<IT,IT> & ri) const;	//<! subsref
-    FullyDistSpVec<IT,NT> operator() (const FullyDistSpVec<IT,IT> & ri) const;	//<! sparse subsref
 	
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
 	//! Useful for places where the "victim" will be distroyed immediately after the call.
@@ -124,7 +123,6 @@ public:
 	}
 
 	void Set(const FullyDistSpVec< IT,NT > & rhs);
-    void SetInd2Val (const FullyDistSpVec<IT,IT> & rhs);
 	void iota(IT globalsize, NT first);
 	void RandPerm();	// randomly permute the vector
 	FullyDistVec<IT,IT> sort();	// sort and return the permutation
