@@ -35,6 +35,7 @@ int cblas_splits = 1;
 #define EDGEFACTOR 16
 using namespace std;
 void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf);
+void greedyMatching1(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf);
 void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& tAeff, OptBuf<int32_t, int64_t>& optbuf, OptBuf<int32_t, int64_t>& toptbuf);
 template <class IT, class NT>
 bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow2Col);
@@ -128,8 +129,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./Graph500 <Force,Input> <Scale Forced | Input Name> {FastGen}" << endl;
-			cout << "Example: ./Graph500 Force 25 FastGen" << endl;
+			cout << "Usage: mpirun -n nproc ./BPMaximalMatching <Force,Input> <Scale | Input Name> " << endl;
+			cout << "Example: mpirun -n 4 ./BPMaximalMatching Force 25" << endl;
 		}
 		MPI_Finalize();
 		return -1;
@@ -317,11 +318,12 @@ int main(int argc, char* argv[])
 		degrees.PrintInfo("Degrees array");
 #endif
         
-        // MPI_Pcontrol(1,"BFS");
+        // MPI_Pcontrol(1,"BFS"); 
         double tStart;
         
 
         greedyMatching(Aeff, optbuf); // one dierection search
+        greedyMatching1(Aeff, optbuf); // one dierection search
         greedyMatching2S(Aeff, tAeff, optbuf, toptbuf); //bidirectional search
 
         
@@ -413,7 +415,9 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
             mateRow2Col.Set(fringeRow);
             
             // step5: Update mateCol2Row with the newly matched col vertices
-            mateCol2Row.SetInd2Val(fringeRow);
+            //mateCol2Row.SetInd2Val(fringeRow);
+            FullyDistSpVec<int64_t, int64_t> temp = fringeRow.Invert(Aeff.getncol());
+            mateCol2Row.Set(temp);
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
             newlyMatched = fringeRow.getnnz();
         }
@@ -430,7 +434,9 @@ void greedyMatching2S(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, 
             //fringeCol.DebugPrint();
             
             mateCol2Row.Set(fringeCol);
-            mateRow2Col.SetInd2Val(fringeCol);
+            FullyDistSpVec<int64_t, int64_t> temp = fringeCol.Invert(Aeff.getnrow());
+            mateRow2Col.Set(temp);
+            //mateRow2Col.SetInd2Val(fringeCol);
             if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
             
             newlyMatched = fringeCol.getnnz();
@@ -573,7 +579,9 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         //mateRow2Col.DebugPrint();
         
         // step5: Update mateCol2Row with the newly matched col vertices
-         mateCol2Row.SetInd2Val(fringeRow);
+        FullyDistSpVec<int64_t, int64_t> temp = fringeRow.Invert(Aeff.getncol());
+        mateCol2Row.Set(temp);
+        // mateCol2Row.SetInd2Val(fringeRow);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         
         // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
@@ -647,8 +655,8 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
 
 }
 
-/*
-void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf)
+
+void greedyMatching1(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, OptBuf<int32_t, int64_t>& optbuf)
 {
     
     int nprocs, myrank;
@@ -736,11 +744,9 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         
         // step5: Update mateCol2Row with the newly matched col vertices
         //FullyDistSpVec<int64_t, int64_t> temp = dvColVertices(fringeRow);
-        //dvColVertices.DebugPrint();
-        //temp.DebugPrint();
-        //auto temp = dvRowVertices(fringeRow);
-        //mateCol2Row.Set(temp);
-        mateCol2Row.SetInd2Val(fringeRow);
+        FullyDistSpVec<int64_t, int64_t> temp = fringeRow.Invert(Aeff.getncol());
+        mateCol2Row.Set(temp);
+        //mateCol2Row.SetInd2Val(fringeRow);
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         //mateCol2Row.DebugPrint();
         // step6: Update unmatchedCol/unmatchedRow by removing newly matched columns/rows
@@ -769,7 +775,7 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     //Check if this is a maximal matching
     //mateRow2Col.DebugPrint();
     //mateCol2Row.DebugPrint();
-    isMatching(mateCol2Row, mateRow2Col);
+    //isMatching(mateCol2Row, mateRow2Col);
     fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
     fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1);
     if(fringeRow.getnnz() != 0)
@@ -777,15 +783,7 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         if(myrank == 0)
             cout << "Not maximal matching!!\n";
     }
- 
-     fringeCol = SpMV(tAeff, unmatchedRow, toptbuf);
-     fringeCol = EWiseMult(fringeCol, mateCol2Row, true, (int64_t) -1);
-     if(fringeCol.getnnz() != 0)
-     {
-     if(myrank == 0)
-     cout << "Not maximal matching!!\n";
-     }
-    
+
     // print statistics
     if(myrank == 0)
     {
@@ -813,7 +811,7 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
     
     
 }
-*/
+
 
 /*
  * Check the validity of the matching solution

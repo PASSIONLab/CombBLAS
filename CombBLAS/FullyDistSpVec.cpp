@@ -1169,3 +1169,92 @@ void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
 	copy(inds, inds+count, num.data());
 }
 
+
+
+
+
+template <class IT, class NT>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
+{
+    FullyDistSpVec<IT,NT> Inverted(commGrid, globallen);
+    IT max_entry = Reduce(maximum<IT>(), (IT) 0 ) ;
+    if(max_entry >= globallen)
+    {
+        cout << "Sparse vector has entries (" << max_entry  << ") larger than requested global vector length " << globallen << endl;
+        return Inverted;
+    }
+	
+    
+	int nprocs = commGrid->GetSize();
+	vector< vector< NT > > datsent(nprocs);
+	vector< vector< IT > > indsent(nprocs);
+    
+	IT ploclen = getlocnnz();
+	for(IT k=0; k < ploclen; ++k)
+	{
+		IT locind;
+		int owner = Inverted.Owner(num[k], locind);     // numerical values in rhs are 0-based indices
+        IT gind = ind[k] + LengthUntil();
+        datsent[owner].push_back(gind);
+		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+	}
+	int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = (int) datsent[i].size();
+    
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+    MPI_Comm World = commGrid->GetWorld();
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    NT * datbuf = new NT[ploclen];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+		vector<NT>().swap(datsent[i]);
+	}
+    IT * indbuf = new IT[ploclen];
+    for(int i=0; i<nprocs; ++i)
+	{
+		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
+		vector<IT>().swap(indsent[i]);
+	}
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	NT * recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    
+    vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+            tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+		}
+	}
+	DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    std::sort(tosort.begin(), tosort.end());
+    
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        Inverted.ind.push_back(itr->first);
+        Inverted.num.push_back(itr->second);
+	}
+	return Inverted;
+    
+}
+
