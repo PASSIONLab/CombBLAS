@@ -1241,6 +1241,8 @@ CombBLAS/TDSP/deliverable/tdsp/Node.h -text
 CombBLAS/TDSP/deliverable/tdsp/tdsp.cpp -text
 CombBLAS/TDSP/shortestPath.tar -text
 CombBLAS/TODO.txt -text
+CombBLAS/Temporary/ParallelMerge.cpp -text
+CombBLAS/Temporary/PermuteVector.cpp -text
 CombBLAS/Test/Deleter.h -text
 CombBLAS/Test/Semirings.h -text
 CombBLAS/Test/output -text
