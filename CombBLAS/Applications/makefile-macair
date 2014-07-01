@@ -8,7 +8,7 @@ INCADD = -I$(INCDIR)
 OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
-COMPILER = mpicxx -std=c++11 -DDEBUG
+COMPILER = mpicxx -std=c++11
 FLAGS = $(OPT)
 COMBBLAS = ..
 
@@ -46,6 +46,10 @@ TopDownBFS.o:  TopDownBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpPar
 SingleChildBFS.o:  SingleChildBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o SingleChildBFS.o SingleChildBFS.cpp 
 
+RandomParentBFS.o:  RandomParentBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o RandomParentBFS.o RandomParentBFS.cpp 
+
+
 DirOptBFS.o:  DirOptBFS.cpp ../SpDCCols.cpp ../dcsc.cpp ../SpHelper.h ../SpParMat.h ../ParFriends.h ../SpParMat.cpp ../SpDefs.h ../SpTuples.cpp ../DenseParVec.h ../DenseParVec.cpp ../SpImpl.h
 	$(COMPILER) $(INCADD) $(FLAGS) -c -o DirOptBFS.o DirOptBFS.cpp 
 
@@ -73,10 +77,14 @@ tdbfs:	MemoryPool.o CommGrid.o MPIType.o TopDownBFS.o $(COMBBLAS)/graph500-1.2/g
 	$(COMPILER) $(INCADD) $(FLAGS) -o tdbfs TopDownBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 scbfs:	MemoryPool.o CommGrid.o MPIType.o SingleChildBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o scbfs SingleChildBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
+	$(COMPILER) $(INCADD) $(FLAGS) -o scbfs SingleChildBFS.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
+
+rpbfs:	MemoryPool.o CommGrid.o MPIType.o RandomParentBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a hash.o
+	$(COMPILER) $(INCADD) $(FLAGS) -o rpbfs RandomParentBFS.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
+
 
 dobfs:	MemoryPool.o CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
-	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
+	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o betwcent BetwCent.o MemoryPool.o CommGrid.o MPIType.o 
