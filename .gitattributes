@@ -570,6 +570,7 @@ CombBLAS/Applications/Post_SC_optimization/script5041_transposed.e1036025 -text
 CombBLAS/Applications/Post_SC_optimization/script5046_hybrid.e1372321 -text
 CombBLAS/Applications/Post_SC_optimization/script5046_hybrid_transposed.e1372323 -text
 CombBLAS/Applications/RANKS_FAQ.doc -text
+CombBLAS/Applications/RandomParentBFS.cpp -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_hybrid_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg4_scale31 -text
 CombBLAS/Applications/SC2011_FranklinResults/script1024_deg64_hybrid_scale27 -text

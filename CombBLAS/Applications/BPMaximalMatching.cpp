@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "../promote.h"
+
 #ifdef THREADED
 #ifndef _OPENMP
 #define _OPENMP
@@ -103,6 +105,57 @@ struct unmatched : public std::unary_function<T, bool>
 
 
 
+/*
+template <class T1, class T2>
+struct SelectMaxSRing
+{
+	typedef typename promote_trait<T1,T2>::T_promote T_promote;
+	static T_promote id() {  return -1; };
+	static bool returnedSAID() { return false; }
+	static MPI_Op mpi_op() { return MPI_MAX; };
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+		return std::max(arg1, arg2);
+	}
+	static T_promote multiply(const T1 & arg1, const T2 & arg2)
+	{
+		// we could have just returned arg2 but it would be
+		// fragile since it wouldn't work with y <- x*A
+		return (static_cast<T_promote>(arg1) *
+                static_cast<T_promote>(arg2) );
+	}
+	static void axpy(T1 a, const T2 & x, T_promote & y)
+	{
+		y = std::max(y, static_cast<T_promote>(a*x));
+	}
+};
+
+
+// This one is used for BFS iteration
+template<class T2>
+struct zz1
+{
+    
+	typedef T2 T_promote;
+	static T_promote id(){ return -1; };
+	static bool returnedSAID() { return false; }
+	static MPI_Op mpi_op() { return MPI_MAX; };
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+		return std::max(arg1, arg2);
+	}
+	static T_promote multiply(const bool & arg1, const T2 & arg2)
+	{
+		return arg2;
+	}
+	static void axpy(bool a, const T2 & x, T_promote & y)
+	{
+		y = std::max(y, x);
+	}
+};
+
+*/
+
 /**
  * Binary function to prune the previously discovered vertices from the current frontier 
  * When used with EWiseApply(SparseVec V, DenseVec W,...) we get the 'exclude = false' effect of EWiseMult
@@ -115,6 +168,30 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 	}
 };
 
+
+
+
+// This one is used for BFS iteration
+struct SelectMinSRing1
+{
+	typedef int64_t T_promote;
+	static T_promote id(){ return -1; };
+	static bool returnedSAID() { return false; }
+	static MPI_Op mpi_op() { return MPI_MIN; };
+	static T_promote add(const T_promote & arg1, const T_promote & arg2)
+	{
+		return std::min(arg1, arg2);
+	}
+	static T_promote multiply(const bool & arg1, const T_promote & arg2)
+	{
+		return arg2;
+	}
+    
+	static void axpy(bool a, const T_promote & x, T_promote & y)
+	{
+		y = std::max(y, x);
+	}
+};
 
 
 
@@ -318,7 +395,7 @@ int main(int argc, char* argv[])
 		degrees.PrintInfo("Degrees array");
 #endif
         
-        // MPI_Pcontrol(1,"BFS"); 
+        // MPI_Pcontrol(1,"BFS");
         double tStart;
         
 
@@ -562,7 +639,8 @@ void greedyMatching(SpParMat < int64_t, bool, SpDCCols<int32_t,bool> >& Aeff, Op
         vector<double> times;
         double t1 = MPI_Wtime();
         // step1: Find adjacent row vertices (col vertices parent, row vertices child)
-        fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
+        //fringeRow = SpMV(Aeff, unmatchedCol, optbuf);
+        SpMV<SelectMinSRing1>(Aeff, unmatchedCol, fringeRow, false, optbuf);
 
         
         // step2: Remove matched row vertices
