@@ -8,26 +8,13 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#ifdef THREADED
-	#ifndef _OPENMP
-	#define _OPENMP
-	#endif
-#endif
 
-#ifdef _OPENMP
-	#include <omp.h>
-#endif
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
 double cblas_mergeconttime;
 double cblas_transvectime;
 double cblas_localspmvtime;
-#ifdef _OPENMP
-int cblas_splits = omp_get_max_threads(); 
-#else
-int cblas_splits = 1;
-#endif
 
 #define ITERS 16
 #define EDGEFACTOR 16
@@ -88,7 +75,19 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 int main(int argc, char* argv[])
 {
 	int nprocs, myrank;
+#ifdef _OPENMP
+    int provided, flag, claimed;
+    MPI_Init_thread(&argc, &argv MPI_THREAD_FUNNELED, &provided );
+    MPI_Is_thread_main( &flag );
+    if (!flag)
+        SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
+    MPI_Query_thread( &claimed );
+    if (claimed != provided)
+        SpParHelper::Print("Query thread gave different thread level than requested\n");
+#else
 	MPI_Init(&argc, &argv);
+#endif
+    
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 	if(argc < 3)

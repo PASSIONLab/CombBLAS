@@ -72,6 +72,22 @@
 using namespace std;
 // for VC2008
 
+
+// Just in case the -fopenmp didn't define _OPENMP by itself
+#ifdef THREADED
+	#ifndef _OPENMP
+	#define _OPENMP
+	#endif
+#endif
+
+#ifdef _OPENMP
+	#include <omp.h>
+	int cblas_splits = omp_get_max_threads();
+#else
+	int cblas_splits = 1;
+#endif
+
+
 //#ifdef _MSC_VER
 //#pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
 //#endif
