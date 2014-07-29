@@ -82,9 +82,6 @@ using namespace std;
 
 #ifdef _OPENMP
 	#include <omp.h>
-	int cblas_splits = omp_get_max_threads();
-#else
-	int cblas_splits = 1;
 #endif
 
 
@@ -92,6 +89,7 @@ using namespace std;
 //#pragma warning( disable : 4244 ) // conversion from 'int64_t' to 'double', possible loss of data
 //#endif
 
+extern int cblas_splits;
 extern double cblas_alltoalltime;
 extern double cblas_allgathertime;
 extern double cblas_localspmvtime;

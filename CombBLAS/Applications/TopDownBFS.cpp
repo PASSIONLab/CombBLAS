@@ -9,6 +9,11 @@
 #include <string>
 #include <sstream>
 
+#ifdef _OPENMP
+	int cblas_splits = omp_get_max_threads();
+#else
+	int cblas_splits = 1;
+#endif
 
 double cblas_alltoalltime;
 double cblas_allgathertime;
@@ -77,7 +82,7 @@ int main(int argc, char* argv[])
 	int nprocs, myrank;
 #ifdef _OPENMP
     int provided, flag, claimed;
-    MPI_Init_thread(&argc, &argv MPI_THREAD_FUNNELED, &provided );
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
     MPI_Is_thread_main( &flag );
     if (!flag)
         SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
