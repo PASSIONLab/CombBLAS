@@ -1,4 +1,4 @@
-//#define DETERMINISTIC
+#define DETERMINISTIC
 #define BOTTOMUPTIME
 #include <mpi.h>
 #include <sys/time.h> 
@@ -106,10 +106,10 @@ struct prunediscovered: public std::binary_function<int64_t, int64_t, int64_t >
 
 int main(int argc, char* argv[])
 {
-	int nprocs, myrank;
+    int nprocs, myrank;
 #ifdef _OPENMP
     int provided, flag, claimed;
-    MPI_Init_thread(&argc, &argv MPI_THREAD_FUNNELED, &provided );
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided );
     MPI_Is_thread_main( &flag );
     if (!flag)
         SpParHelper::Print("This thread called init_thread but Is_thread_main gave false\n");
@@ -230,7 +230,7 @@ int main(int argc, char* argv[])
 		Aeff.OptimizeForGraph500(optbuf);		// Should be called before threading is activated
 		ALocalT = PSpMat_s32p64(Aeff.seq().TransposeConstPtr(), Aeff.getcommgrid());	// this should be copied before the threading is activated
 	#ifdef THREADED	
-		ostringstream tinfo;
+		tinfo;
 		tinfo << "Threading activated with " << cblas_splits << " threads" << endl;
 		SpParHelper::Print(tinfo.str());
 		Aeff.ActivateThreading(cblas_splits);	
