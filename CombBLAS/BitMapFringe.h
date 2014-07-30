@@ -168,7 +168,7 @@ class BitMapFringe {
     IT bm_index=local_subword_disp, up_index=0;
 	  
     if (local_bm->get_bit(bm_index))	// if the first valid bit is 1
-      updates[up_index++] = bm_index - local_subword_disp;	// ABAB: local_subword_disp is subtracted
+      updates[up_index++] = bm_index - local_subword_disp;	// ABAB: local_subword_disp is NOT subtracted (as local_subword_disp is equal to bm_index)
 	  
     bm_index = local_bm->get_next_bit(bm_index);
     while(bm_index != -1) {

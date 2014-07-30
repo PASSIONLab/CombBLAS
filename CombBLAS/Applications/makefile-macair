@@ -9,7 +9,7 @@ OPT = -DNDEBUG -O2 -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type -DDEBUG
 PROF = -pg -O2 -fno-inline -DMPICH_IGNORE_CXX_SEEK -DGRAPH_GENERATOR_SEQ -Wreturn-type
 COMPILER = mpicxx -std=c++11
-FLAGS = $(OPT) -DTHREADED -fopenmp
+FLAGS = $(OPT) #-DTHREADED -fopenmp
 COMBBLAS = ..
 
 
@@ -83,7 +83,7 @@ rpbfs:	MemoryPool.o CommGrid.o MPIType.o RandomParentBFS.o $(COMBBLAS)/graph500-
 	$(COMPILER) $(INCADD) $(FLAGS) -o rpbfs RandomParentBFS.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 
-dobfs:	MemoryPool.o CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a
+dobfs:	MemoryPool.o CommGrid.o MPIType.o DirOptBFS.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a hash.o
 	$(COMPILER) $(INCADD) $(FLAGS) -o dobfs DirOptBFS.o MemoryPool.o CommGrid.o MPIType.o hash.o -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq ${IPM}
 
 betwcent: MemoryPool.o CommGrid.o MPIType.o BetwCent.o
