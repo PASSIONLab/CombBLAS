@@ -1,0 +1,52 @@
+--------------------------------------------
+Graph500 BFS Implementation
+---
+Kamesh Madduri
+Last updated: December 2011
+--------------------------------------------
+
+1. Create a file in the ARCH directory for specifying compiler 
+   flags, etc.
+   See, for example, Makefile.hopper-opt.
+   These settings are for building the benchmark code in the 
+   src directory.
+
+2. Modify the Makefile in src/generator, and build the 
+   RMAT graph generator (extracted from the reference implementation).
+
+   Within src/generator, do
+
+   $ make ARCH=hopper-opt
+   (or the appropriate Makefile suffix). 
+
+3. Set the MAX_NUMPROCS variable to the maximum number of MPI tasks that will used
+   for executing the benchmark.
+   
+4. Now build the graph creation and BFS code in the src directory.
+    
+   Within src, do
+
+   $ make ARCH=hopper-opt
+   (or the appropriate Makefile suffix).
+
+5. Running the code:
+
+   Set the number of OpenMP threads per process using the environment variable OMP_NUM_THREADS.
+
+   $ ./graph500_bfs_hopper_opt <SCALE> <avg. degree> 1 <MPI process grid, row dim.> <MPI process grid, col dim.>
+
+   examples:  
+   
+   i) SCALE 32 with 100 MPI tasks and a 100X1 process grid:
+   $ mpiexec -n 100 ./graph500_bfs_hopper_opt 32 16 1 100 1
+   
+   ii) SCALE 32 with 100 MPI tasks and a 10X10 process grid:
+   $ mpiexec -n 100 ./graph500_bfs_hopper_opt 32 16 1 10 10
+
+   ii) SCALE 32 with 100 MPI tasks and a 1X100 process grid:
+   $ mpiexec -n 100 ./graph500_bfs_hopper_opt 32 16 1 1 100
+
+   I recommend one MPI task per socket.
+
+----
+

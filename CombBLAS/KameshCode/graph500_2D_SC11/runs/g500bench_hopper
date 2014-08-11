@@ -1,0 +1,12 @@
+#PBS -q regular
+#PBS -l mppwidth=6144
+#PBS -l walltime=00:20:00
+#PBS -j eo
+#PBS -V
+
+cd $PBS_O_WORKDIR
+
+setenv OMP_NUM_THREADS 6
+aprun -n 1024 -N 4 -S 1 -ss -d 6 ../src/graph500_bfs_hopper_opt 29 16 1 32 32
+aprun -n 1024 -N 4 -S 1 -ss -d 6 ../src/graph500_bfs_hopper_opt 29 16 1 128 8
+
