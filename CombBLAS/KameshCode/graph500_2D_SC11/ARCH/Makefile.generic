@@ -1,0 +1,13 @@
+CC = gcc
+MPICC = gcc
+CFLAGS = -DUSE_MPI=0 -std=gnu99 -g -Wall -Wextra -pedantic
+CFLAGSOMP = -fopenmp
+CFLAGSRNG = -O2
+COPTFLAGS = -O3
+CDEPFLAGS = -MD 
+CLDFLAGS = -lm
+EXEEXT = _generic_gcc
+
+AR = ar
+ARCRFLAGS = cr
+RANLIB = ranlib

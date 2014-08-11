@@ -1,0 +1,19 @@
+CC = mpicc -cc=icc
+CXX = mpic++ -cc=icpc
+MPICC = mpicc -cc=icc
+CFLAGS = -DUSE_MPI=1 -g -std=c99 -Wall -wd981 -wd1572
+CXXFLAGS = -DUSE_MPI=1 -g -std=c99 -Wall -wd981 -wd1572
+CFLAGSOMP = -openmp
+COPTFLAGS = -O3
+CFLAGSRNG = -O3 -fp-model strict
+CDEPFLAGS = -MD 
+MPIDIR = /opt/intel/impi/4.0.0
+CFLAGS  += -I$(MPIDIR)/include64
+CXXFLAGS  += -I$(MPIDIR)/include64
+CLDFLAGS = -limf -L$(MPIDIR)/lib64
+
+EXEEXT = _nehalem_icc_opt
+
+AR = ar
+ARCRFLAGS = cr
+RANLIB = ranlib

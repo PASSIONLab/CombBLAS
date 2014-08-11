@@ -1,0 +1,19 @@
+CC = cc
+CXX = CC
+MPICC = cc
+MPIDIR = 
+CFLAGS = -DUSE_MPI=1 -std=gnu99 -Wall
+CXXFLAGS = -DUSE_MPI=1 -Wall
+
+CFLAGSOMP = -fopenmp
+COPTFLAGS = -O3 -m64
+
+CFLAGSRNG = -O3 -m64
+CDEPFLAGS = -MD 
+CLDFLAGS =
+
+AR = ar
+ARCRFLAGS = cr
+RANLIB = ranlib
+
+EXEEXT = _hopper_opt

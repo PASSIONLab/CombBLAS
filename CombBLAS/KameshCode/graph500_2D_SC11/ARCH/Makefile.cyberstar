@@ -1,0 +1,19 @@
+CC = mpicc
+CXX = mpic++ 
+MPICC = mpic++
+CFLAGS = -DUSE_MPI=1 -g -std=c99 -Wall -wd981 -wd1572
+CXXFLAGS = -DUSE_MPI=1 -g -std=c99 -Wall -wd981 -wd1572
+CFLAGSOMP = -openmp
+COPTFLAGS = -O3
+CFLAGSRNG = -O2 -fp-model strict
+CDEPFLAGS = -MD 
+MPIDIR = 
+CFLAGS  += -I$(MPIDIR)/include64
+CXXFLAGS  += -I$(MPIDIR)/include64
+CLDFLAGS = -limf -L$(MPIDIR)/lib64
+
+EXEEXT = _cyberstar
+
+AR = ar
+ARCRFLAGS = cr
+RANLIB = ranlib
