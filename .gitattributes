@@ -316,6 +316,7 @@ BottomUpBFS/psort-1.0/src/sort.timpl.h -text
 CombBLAS/Applications/2DBFS_optimizations.txt -text
 CombBLAS/Applications/APowers.cpp -text
 CombBLAS/Applications/BPMaximalMatching.cpp -text
+CombBLAS/Applications/BPMaximumMatching.cpp -text
 CombBLAS/Applications/BetwCent.cpp -text
 CombBLAS/Applications/CMakeLists.txt -text
 CombBLAS/Applications/CarverResults/PBGL/p128_scale22.out -text
