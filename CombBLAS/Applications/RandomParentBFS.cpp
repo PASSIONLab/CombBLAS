@@ -159,6 +159,7 @@ void RandomParentBFS(PSpMat_Bool & Aeff)
     
     
     FullyDistSpVec<int64_t, ParentType> fringe(Aeff.getcommgrid(), Aeff.getncol());
+    
     fringe.SetElement(0, ParentType(0));
     fringe.SetElement(1, ParentType(1));
     fringe.SetElement(5, ParentType(5));
@@ -168,7 +169,7 @@ void RandomParentBFS(PSpMat_Bool & Aeff)
     PSpMat_Int64  A = Aeff;
     //A.PrintInfo();
     SpMV<SelectRandSRing>(A, fringe, fringe, false);
-    //fringe.DebugPrint();
+    fringe.DebugPrint();
 }
 
 
