@@ -63,14 +63,14 @@ public:
     
 };
 
-
+/*
 
 
 struct VertexType
 {
 public:
 	VertexType(){parent=-1; root = -1;};
-    explicit VertexType(int64_t p){parent=p; root=-1;}; // why do we need this constructor ? otherwise compile error
+    VertexType(int64_t p){parent=p; root=-1;}; // why do we need this constructor ? otherwise compile error
 	VertexType(int64_t p, int64_t r){parent=p; root = r;};
     friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "Parent=" << vertex.parent << " Root=" << vertex.root << "\n"; return os;};
     //private:
@@ -79,11 +79,10 @@ public:
 
 };
 
+*/
 
 
-
-
-// This one is used for BFS iteration
+// This one is used for maximal matching
 struct SelectMinSRing1
 {
 	typedef int64_t T_promote;
@@ -110,62 +109,9 @@ struct SelectMinSRing1
 };
 
 
+/*
 
-
-
-struct Edge_randomizer : public std::unary_function<std::pair<bool, float>, std::pair<bool, float>>
-{
-    const std::pair<bool, float> operator()(const std::pair<bool, float> & x) const
-    {
-        float edgeRand = static_cast<float>(rand());	// random range(0,1)
-        return std::pair<bool, float>(x.first, edgeRand);
-    }
-};
-
-
-
-static void MPI_randuniq(void * invec, void * inoutvec, int * len, MPI_Datatype *datatype)
-{
-    RandReduce<int64_t> RR;
-    int64_t * inveccast = (int64_t *) invec;
-    int64_t * inoutveccast = (int64_t *) inoutvec;
-    for (int i=0; i<*len; i++ )
-        inoutveccast[i] = RR(inveccast[i], inoutveccast[i]);
-}
-
-
-struct SelectRandSRing
-{
-    //static MPI_Op MPI_BFSRAND;
-	typedef int64_t T_promote;
-	static ParentType id(){ return ParentType(); };
-	static bool returnedSAID() { return false; }
-	//static MPI_Op mpi_op() { return MPI_MAX; }; // do we need this?
-    
-	static ParentType add(const ParentType & arg1, const ParentType & arg2)
-	{
-        //cout << arg1 << " ;;; " << arg2 << endl;
-        if(arg1.p < arg2.p) return arg1;
-        else return arg2;
-	}
-    
-	static ParentType multiply(const T_promote & arg1, const ParentType & arg2)
-	{
-        ParentType temp;
-        temp.parent = arg2.parent;
-        temp.p = GlobalMT.rand();
-		return temp;
-	}
-    
-     static void axpy(T_promote a, const ParentType & x, ParentType & y)
-     {
-         y = add(y, multiply(a, x));
-     }
-};
-
-
-
-// This one is used for BFS iteration
+// This one is used for maximum matching
 struct SelectMinSRing2
 {
 	typedef int64_t T_promote;
@@ -192,7 +138,7 @@ struct SelectMinSRing2
 	}
 };
 
-
+*/
 
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
@@ -204,26 +150,6 @@ template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
                        FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
 
-void RandomParentBFS(PSpMat_Bool & Aeff)
-{
-    
-    int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
-    
-    FullyDistSpVec<int64_t, ParentType> fringe(Aeff.getcommgrid(), Aeff.getncol());
-    fringe.SetElement(0, ParentType(0));
-    fringe.SetElement(1, ParentType(1));
-    fringe.SetElement(5, ParentType(5));
-    fringe.SetElement(6, ParentType(6));
-    fringe.SetElement(7, ParentType(7));
-    
-    PSpMat_Int64  A = Aeff;
-    //A.PrintInfo();
-    SpMV<SelectRandSRing>(A, fringe, fringe, false);
-    //fringe.DebugPrint();
-}
 
 
 
@@ -237,8 +163,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./rpbfs <Scale>" << endl;
-			cout << "Example: mpirun -np 4 ./spbfs 20" << endl;
+			cout << "Usage: ./bpmm <Scale>" << endl;
+			cout << "Example: mpirun -np 4 ./bpmm 20" << endl;
 		}
 		MPI_Finalize();
 		return -1;
@@ -348,18 +274,18 @@ void maximumMatching(PSpMat_Bool & Aeff)
     //cout << fringeCol[1];
     
 
-     FullyDistSpVec<int64_t, VertexType> fringeCol;
-    fringeCol.SetElement(0, VertexType(0,-1));
+    // FullyDistSpVec<int64_t, VertexType> fringeCol;
+    //fringeCol.SetElement(0, VertexType(0,-1));
 
     //FullyDistSpVec<int64_t, VertexType> fringeCol;
     //fringeCol.SetElement(0, VertexType());
 
     
-    PSpMat_Int64  A = Aeff;
+    //PSpMat_Int64  A = Aeff;
     //A.PrintInfo();
     //SpMV<SelectRandSRing>(A, fringeCol, fringeCol, false);
     
-    SpMV<SelectMinSRing2>(A, fringeCol, fringeCol, false);
+    //SpMV<SelectMinSRing2>(A, fringeCol, fringeCol, false);
     
     //fringeCol.DebugPrint(); // does not work for vector of custom data type
     
