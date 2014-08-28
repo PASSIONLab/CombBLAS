@@ -63,23 +63,23 @@ public:
     
 };
 
-/*
+
 
 
 struct VertexType
 {
 public:
 	VertexType(){parent=-1; root = -1;};
-    VertexType(int64_t p){parent=p; root=-1;}; // why do we need this constructor ? otherwise compile error
+    VertexType(int64_t p){parent=p; root=-1;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
 	VertexType(int64_t p, int64_t r){parent=p; root = r;};
-    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "Parent=" << vertex.parent << " Root=" << vertex.root << "\n"; return os;};
+    friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
     //private:
     int64_t parent;
     int64_t root;
 
 };
 
-*/
+
 
 
 // This one is used for maximal matching
@@ -92,13 +92,13 @@ struct SelectMinSRing1
     
 	static T_promote add(const T_promote & arg1, const T_promote & arg2)
 	{
-        cout << arg1 << " a " << arg2 << endl;
+        //cout << arg1 << " a " << arg2 << endl;
 		return std::max(arg1, arg2);
 	}
     
 	static T_promote multiply(const bool & arg1, const T_promote & arg2)
 	{
-        cout << arg1 << " m " << arg2 << endl;
+        //cout << arg1 << " m " << arg2 << endl;
 		return arg2;
 	}
     
@@ -109,7 +109,7 @@ struct SelectMinSRing1
 };
 
 
-/*
+
 
 // This one is used for maximum matching
 struct SelectMinSRing2
@@ -121,6 +121,7 @@ struct SelectMinSRing2
     
 	static VertexType add(const VertexType & arg1, const VertexType & arg2)
 	{
+        cout << arg1 << " + " << arg2 << endl;
 		if(arg1.parent < arg2.parent)
             return arg1;
         else
@@ -129,8 +130,10 @@ struct SelectMinSRing2
     
 	static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
 	{
+        cout << arg1 << " * " << arg2 << endl;
 		return arg2;
 	}
+    
     
 	static void axpy(T_promote a, const VertexType & x, VertexType & y)
 	{
@@ -138,7 +141,7 @@ struct SelectMinSRing2
 	}
 };
 
-*/
+
 
 
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
@@ -146,6 +149,7 @@ typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 void greedyMatching(PSpMat_Bool & Aeff);
 void maximumMatching(PSpMat_Bool & Aeff);
+void maximumMatchingSimple(PSpMat_Bool & Aeff);
 template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
                        FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
@@ -209,6 +213,8 @@ int main(int argc, char* argv[])
         //RandomParentBFS(*ABool);
         //greedyMatching(*ABool);
         maximumMatching(*ABool);
+        //maximumMatchingSimple(*ABool);
+        
         
         
 	}
@@ -220,7 +226,7 @@ int main(int argc, char* argv[])
 
 
 template<typename T>
-struct unmatched : public std::unary_function<T, bool>
+struct unmatched_unary : public std::unary_function<T, bool>
 {
     bool operator()(const T& x) const
     {
@@ -231,7 +237,7 @@ struct unmatched : public std::unary_function<T, bool>
 
 
 template<typename T1, typename T2>
-struct unmatched1: public std::binary_function<T1, T2, bool>
+struct unmatched_binary: public std::binary_function<T1, T2, bool>
 {
     bool operator()(const T1& x, const T2 & y) const
     {
@@ -240,8 +246,20 @@ struct unmatched1: public std::binary_function<T1, T2, bool>
 };
 
 
+// an unary operator would suffice. But the EWiseApply function takes a binary predicate
+// this function when used as a predicate select the matched entried
 template<typename T1, typename T2>
-struct sel1st: public std::binary_function<T1, T2, bool>
+struct matched_binary: public std::binary_function<T1, T2, bool>
+{
+    bool operator()(const T1& x, const T2 & y) const
+    {
+        return (y!=-1);
+    }
+};
+
+
+template<typename T1, typename T2>
+struct select1st: public std::binary_function<T1, T2, bool>
 {
     const T1& operator()(const T1& x, const T2 & y) const
     {
@@ -250,7 +268,92 @@ struct sel1st: public std::binary_function<T1, T2, bool>
 };
 
 
+// returns the second argument
+template<typename T1, typename T2>
+struct select2nd: public std::binary_function<T1, T2, bool>
+{
+    const T2& operator()(const T1& x, const T2 & y) const
+    {
+        cout << y << "....\n";
+        return y;
+    }
+};
 
+
+
+// init
+template<typename T1, typename T2>
+struct init: public std::binary_function<T1, T2, bool>
+{
+    const T1 operator()(const T1& x, const T2 & y) const
+    {
+        return T1(y,y);
+    }
+};
+
+
+
+void maximumMatchingSimple(PSpMat_Bool & Aeff)
+{
+    int nprocs, myrank;
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    PSpMat_Int64  A = Aeff;
+    
+    FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> rootsCol ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+    FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<int64_t, int64_t> umFringeRow(A.getcommgrid(), A.getnrow()); // unmatched vertices in the current fringeRow
+    FullyDistSpVec<int64_t, int64_t> rootFringeRow(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<int64_t, int64_t> rootFringeCol(A.getcommgrid(), A.getncol());
+    
+    
+    FullyDistSpVec<int64_t, int64_t> fringeCol(mateCol2Row, unmatched_unary<int64_t>());
+    fringeCol.ApplyInd(select2nd<VertexType, int64_t>());
+    
+    
+    A.PrintInfo();
+    while(fringeCol.getnnz() > 0)
+    {
+        fringeCol.setNumToInd();
+        fringeCol.DebugPrint();
+        SpMV<SelectMinSRing1>(A, fringeCol, fringeRow, false);
+        fringeRow.DebugPrint();
+        /*
+        fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);	// clean-up vertices that already have parents
+        parentsRow.Set(fringeRow);
+        
+        // pass root information
+        SpMV<SelectMinSRing1>(A, rootFringeCol, rootFringeRow, false); // this will not work... we need a sparse value based set operation
+        fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);	// clean-up vertices that already has parents
+        parentsRow.Set(fringeRow);
+        
+        if(fringeRow.getnnz()>0) fringeRow.DebugPrint();
+        
+        umFringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col, select1st<int64_t, int64_t>(), unmatched_binary<int64_t,int64_t>(), false, (int64_t) 0);
+        if(umFringeRow .getnnz()>0) break;
+        
+        // faster than using unary function in the constructor.
+        // Here we are accessing the sparse vector, but in the constructor we access the dense vector
+        fringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col, select2nd<int64_t, int64_t>(), matched_binary<int64_t,int64_t>(), false, (int64_t) 0);
+        if(fringeRow.getnnz()>0) fringeRow.DebugPrint();
+        
+        fringeCol = fringeRow.Invert(A.getncol());
+        //fringeCol.DebugPrint();
+         */
+        
+        break;
+
+    }
+    
+    //augment
+    
+    
+}
 
 void maximumMatching(PSpMat_Bool & Aeff)
 {
@@ -259,11 +362,63 @@ void maximumMatching(PSpMat_Bool & Aeff)
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
+    PSpMat_Int64  A = Aeff;
     
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
-    //FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
+    FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
+    FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
+    FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+    FullyDistSpVec<int64_t, VertexType> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    
+    
+    
+    //FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    //FullyDistSpVec<int64_t, VertexType> mFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    
+    fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
+    //fringeCol.SetElement(1,VertexType(1,1));
+    fringeCol.ApplyInd(init<VertexType, int64_t>()); //  root & parent both equal to index
+    fringeCol.DebugPrint();
+    
+    A.PrintInfo();
+    
+     while(fringeCol.getnnz() > 0)
+     {
+        SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+        fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+        //parentsRow.Set(fringeRow);
+        fringeRow.DebugPrint();
+         
+        //fringeRow  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
+     
+         break;
+     //fringeCol.DebugPrint();
+     
+     }
+    
+    //fringeCol = unmatchedCol;
+    //SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+    
+    //umFringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+    
+    
+    //fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType()); // root & parent both =-1
+    
+    
+    
+    
+    /*
+    while(fringeCol.getnnz() > 0)
+    {
+        fringeCol.setNumToInd();
+        fringeCol.DebugPrint();
+        
+        //fringeCol.DebugPrint();
+        
+    }*/
+    
     //cout << fringeCol[1];
     //FullyDistSpVec<int64_t, VertexType> fringeCol;
     //FullyDistSpVec<int64_t, VertexType> fringeRow;
