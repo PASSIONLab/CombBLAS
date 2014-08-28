@@ -1266,10 +1266,11 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 
 
 /*
- ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
+ ** Create a new sparse vector vout by from the input sparse vector vin
  ** the length of vout is globallen, which must be less than the maximum entry of vin.
  ** nnz(vin) = nnz(vout)
- ** for every nonzero entry vin[k]: vout[vin[k]] = k
+ ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
+ ** value is computed by function _BinaryOperationVal.
  */
 
 
