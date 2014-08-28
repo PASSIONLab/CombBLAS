@@ -293,6 +293,31 @@ struct init: public std::binary_function<T1, T2, bool>
 
 
 
+// init
+template<typename T>
+struct binopInd: public std::binary_function<VertexType, T, T>
+{
+    const T operator()(const VertexType& vtx, const T & index) const
+    {
+        return vtx.parent;
+    }
+};
+
+
+
+// init
+template<typename T>
+struct binopVal: public std::binary_function<VertexType, T, VertexType>
+{
+    const VertexType operator()(const VertexType& vtx, const T & index) const
+    {
+        return VertexType(index, vtx.root);
+    }
+};
+
+
+
+
 void maximumMatchingSimple(PSpMat_Bool & Aeff)
 {
     int nprocs, myrank;
@@ -390,7 +415,9 @@ void maximumMatching(PSpMat_Bool & Aeff)
         fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
         //parentsRow.Set(fringeRow);
         fringeRow.DebugPrint();
-         
+        
+         fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
+         fringeCol.DebugPrint();
         //fringeRow  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
      
          break;
