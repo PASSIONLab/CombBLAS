@@ -1173,7 +1173,7 @@ void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
 
 /*
  ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
- ** the length of vout is globallen, which nust be less than the maximum entry of vin.
+ ** the length of vout is globallen, which must be less than the maximum entry of vin.
  ** nnz(vin) = nnz(vout)
  ** for every nonzero entry vin[k]: vout[vin[k]] = k
  */
@@ -1262,4 +1262,127 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 	return Inverted;
     
 }
+
+
+
+/*
+ ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
+ ** the length of vout is globallen, which must be less than the maximum entry of vin.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry vin[k]: vout[vin[k]] = k
+ */
+
+
+template <class IT, class NT>
+template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+{
+    FullyDistSpVec<IT,NT> Composed(commGrid, globallen);
+    
+    
+    // identify the max index in the composed vector
+    IT init = (IT) 0;
+    IT localsize = num.size();
+    IT lengthuntil = LengthUntil();
+    IT localmax = init;
+
+    for(IT k=0; k < localsize; ++k)
+    {
+        localmax = std::max(localmax, __binopIdx(num[k], ind[k] + lengthuntil));
+    }
+    IT globalmax = init;
+    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    
+    if(globalmax >= globallen)
+    {
+        cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
+        return Composed;
+    }
+     
+	
+    
+	int nprocs = commGrid->GetSize();
+	vector< vector< NT > > datsent(nprocs);
+	vector< vector< IT > > indsent(nprocs);
+    
+	IT ploclen = getlocnnz();
+	for(IT k=0; k < ploclen; ++k)
+	{
+		IT locind;
+        IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
+		int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
+        NT val = __binopVal(num[k], ind[k] + LengthUntil());
+        datsent[owner].push_back(val);
+		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+	}
+    
+    
+	int * sendcnt = new int[nprocs];
+	int * sdispls = new int[nprocs];
+	for(int i=0; i<nprocs; ++i)
+		sendcnt[i] = (int) datsent[i].size();
+    
+	int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+    MPI_Comm World = commGrid->GetWorld();
+	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+	sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    
+    NT * datbuf = new NT[ploclen];
+	for(int i=0; i<nprocs; ++i)
+	{
+		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+		vector<NT>().swap(datsent[i]);
+	}
+    IT * indbuf = new IT[ploclen];
+    for(int i=0; i<nprocs; ++i)
+	{
+		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
+		vector<IT>().swap(indsent[i]);
+	}
+    
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+	NT * recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    
+    vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    
+	for(int i=0; i<nprocs; ++i)
+	{
+		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+		{
+            tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+		}
+	}
+    
+	DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    
+    std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
+    
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        Composed.ind.push_back(itr->first);
+        Composed.num.push_back(itr->second);
+	}
+     
+    
+	return Composed;
+    
+}
+
+
+
 
