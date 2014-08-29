@@ -348,6 +348,8 @@ void maximumMatchingSimple(PSpMat_Bool & Aeff)
         fringeCol.DebugPrint();
         SpMV<SelectMinSRing1>(A, fringeCol, fringeRow, false);
         fringeRow.DebugPrint();
+        
+        
         /*
         fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);	// clean-up vertices that already have parents
         parentsRow.Set(fringeRow);
@@ -393,9 +395,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
+    FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
     FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
     FullyDistSpVec<int64_t, VertexType> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
     
     
     
@@ -411,17 +415,41 @@ void maximumMatching(PSpMat_Bool & Aeff)
     
      while(fringeCol.getnnz() > 0)
      {
-        SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
-        fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
-        //parentsRow.Set(fringeRow);
-        fringeRow.DebugPrint();
-        
-         fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
-         fringeCol.DebugPrint();
-        //fringeRow  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
-     
-         break;
-     //fringeCol.DebugPrint();
+         SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+         // remove vertices already having parents
+         fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+        if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
+         
+         // Set parent pointer
+         // TODO: Write a general purpose FullyDistVec::Set
+         parentsRow.EWiseApply(fringeRow,
+                               [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
+                               [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
+                               false, VertexType(), false);
+
+         
+         parentsRow.DebugPrint(); 
+         
+         //get unmatched row vertices
+         umFringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
+                                             [](VertexType vtx, int64_t mate){return vtx;}, // return matched vertices with mate as parent
+                                             [](VertexType vtx, int64_t mate){return mate==-1;}, // select unmatched vertices
+                                             false, VertexType());
+         
+         
+         //fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), matched_binary<VertexType,int64_t>(), false, VertexType());
+         // keep matched vertices
+         // TODO: this can be merged into compose function for a complicated function to avoid creating unnecessary intermediate fringeRow
+         fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
+                                             [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);}, // return matched vertices with mate as parent
+                                             [](VertexType vtx, int64_t mate){return mate!=-1;}, // select matched vertices
+                                             false, VertexType());
+         if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
+         //fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
+         fringeCol = fringeRow.Compose(Aeff.getncol(),
+                                       [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the
+                                       [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);});
+          if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
      
      }
     
