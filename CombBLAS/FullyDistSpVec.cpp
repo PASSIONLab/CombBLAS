@@ -1173,7 +1173,7 @@ void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
 
 /*
  ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
- ** the length of vout is globallen, which must be less than the maximum entry of vin.
+ ** the length of vout is globallen, which must be greater than the maximum entry of vin.
  ** nnz(vin) = nnz(vout)
  ** for every nonzero entry vin[k]: vout[vin[k]] = k
  */
@@ -1254,10 +1254,16 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     std::sort(tosort.begin(), tosort.end());
     
+    IT lastIndex=-1;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
-        Inverted.ind.push_back(itr->first);
-        Inverted.num.push_back(itr->second);
+        if(lastIndex!=itr->first) // avoid duplicate indices
+        {
+            Inverted.ind.push_back(itr->first);
+            Inverted.num.push_back(itr->second);
+        }
+        lastIndex = itr->first;
+        
 	}
 	return Inverted;
     
@@ -1266,8 +1272,8 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 
 
 /*
- ** Create a new sparse vector vout by from the input sparse vector vin
- ** the length of vout is globallen, which must be less than the maximum entry of vin.
+ ** Create a new sparse vector vout from the calling sparse vector vin
+ ** the length of vout is globallen.
  ** nnz(vin) = nnz(vout)
  ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
  ** value is computed by function _BinaryOperationVal.
@@ -1371,12 +1377,18 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 	DeleteAll(recvindbuf, recvdatbuf);
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     
+    // sort based on index
     std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
     
+    IT lastIndex=-1;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
-        Composed.ind.push_back(itr->first);
-        Composed.num.push_back(itr->second);
+        if(lastIndex!=itr->first) // avoid duplicate indices
+        {
+            Composed.ind.push_back(itr->first);
+            Composed.num.push_back(itr->second);
+        }
+        lastIndex = itr->first;
 	}
      
     
