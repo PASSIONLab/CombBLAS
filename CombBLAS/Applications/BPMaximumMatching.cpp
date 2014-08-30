@@ -121,7 +121,7 @@ struct SelectMinSRing2
     
 	static VertexType add(const VertexType & arg1, const VertexType & arg2)
 	{
-        cout << arg1 << " + " << arg2 << endl;
+        //cout << arg1 << " + " << arg2 << endl;
 		if(arg1.parent < arg2.parent)
             return arg1;
         else
@@ -130,7 +130,7 @@ struct SelectMinSRing2
     
 	static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
 	{
-        cout << arg1 << " * " << arg2 << endl;
+        //cout << arg1 << " * " << arg2 << endl;
 		return arg2;
 	}
     
@@ -390,77 +390,141 @@ void maximumMatching(PSpMat_Bool & Aeff)
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
     PSpMat_Int64  A = Aeff;
+    A.PrintInfo();
     
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-    FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
-    FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+    
+
+    //FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
+    
+    FullyDistSpVec<int64_t, VertexType> temp(Aeff.getcommgrid(), Aeff.getncol());
     FullyDistSpVec<int64_t, VertexType> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
     FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
     
     
     
-    //FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
-    //FullyDistSpVec<int64_t, VertexType> mFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
+    bool matched = true;
+    int phase = 0;
     
-    fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
+    while(matched)
+    {
+        cout << "Phase: " << ++phase << "\n";
+        FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
+        FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // it needs to be cleared after each phase
+        FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+        fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(),
+                                            unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
+        fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
+        //fringeCol.DebugPrint();
+        
+        
+        while(fringeCol.getnnz() > 0)
+        {
+            SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+            // remove vertices already having parents
+            fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+            
+            // Set parent pointer
+            // TODO: Write a general purpose FullyDistVec::Set
+            parentsRow.EWiseApply(fringeRow,
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
+                                  false, VertexType(), false);
+            
+            //if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
+            //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
+            
+            //parentsRow.DebugPrint();
+            
+            //get unmatched row vertices
+            umFringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
+                                                  [](VertexType vtx, int64_t mate){return vtx;}, // return matched vertices with mate as parent
+                                                  [](VertexType vtx, int64_t mate){return mate==-1;}, // select unmatched vertices
+                                                  false, VertexType());
+            // get the unique leaves
+            temp = umFringeRow.Compose(Aeff.getncol(),
+                                       [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
+                                       [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value
+            //set leaf pointer
+            leaves.EWiseApply(temp,
+                              [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
+                              [](int64_t dval, VertexType svtx, bool a, bool b){return dval==-1;}, //if no aug path is already found
+                              false, VertexType(), false);
+            
+            
+            
+            //fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), matched_binary<VertexType,int64_t>(), false, VertexType());
+            // keep matched vertices
+            // TODO: this can be merged into compose function for a complicated function to avoid creating unnecessary intermediate fringeRow
+            fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
+                                                [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);}, // return matched vertices with mate as parent
+                                                [](VertexType vtx, int64_t mate){return mate!=-1;}, // select matched vertices
+                                                false, VertexType());
+            //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
+            //fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
+            fringeCol = fringeRow.Compose(Aeff.getncol(),
+                                          [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the
+                                          [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);});
+            // TODO:do something for prunning
+            
+            
+        }
+        
+        cout << "1---------\n";
+        //leaves.DebugPrint();
+        
+        // create a sparse vector of leaves
+        FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
+        FullyDistSpVec<int64_t, int64_t> row(A.getcommgrid(), A.getnrow());
+        FullyDistSpVec<int64_t, int64_t> nextcol(A.getcommgrid(), A.getncol());
+        
+        
+        //parentsRow.DebugPrint();
+        //col.DebugPrint();
+        if (col.getnnz()== 0) matched = false;
+        
+        //if (phase == 4 ) break;
+        // Augment
+        while(col.getnnz()!=0)
+        {
+            row = col.Invert(A.getnrow());
+            
+            // Set parent pointer
+            // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
+            row = EWiseApply<int64_t>(row, parentsRow,
+                                      [](int64_t root, int64_t parent){return parent;},
+                                      [](int64_t root, int64_t parent){return true;}, // must have a root
+                                      false, (int64_t) -1);
+            //if(row.getnnz()!=0)row.DebugPrint();
+            
+            
+            col = row.Invert(A.getncol()); // children array
+            nextcol = EWiseApply<int64_t>(col, mateCol2Row,
+                                          [](int64_t child, int64_t mate){return mate;},
+                                          [](int64_t child, int64_t mate){return mate!=-1;}, // mate==-1 when we have reached to the root
+                                          false, (int64_t) -1);
+            //col.DebugPrint();
+            mateRow2Col.Set(row);
+            mateCol2Row.Set(col);
+            col = nextcol;
+            
+        }
+        
+        //mateRow2Col.DebugPrint();
+        //mateCol2Row.DebugPrint();
+        cout << "2---------\n";
+    }
+    
+    
+    
+    
+   
+   // fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
     //fringeCol.SetElement(1,VertexType(1,1));
-    fringeCol.ApplyInd(init<VertexType, int64_t>()); //  root & parent both equal to index
-    fringeCol.DebugPrint();
-    
-    A.PrintInfo();
-    
-     while(fringeCol.getnnz() > 0)
-     {
-         SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
-         // remove vertices already having parents
-         fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
-        if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
-         
-         // Set parent pointer
-         // TODO: Write a general purpose FullyDistVec::Set
-         parentsRow.EWiseApply(fringeRow,
-                               [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
-                               [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
-                               false, VertexType(), false);
-
-         
-         parentsRow.DebugPrint(); 
-         
-         //get unmatched row vertices
-         umFringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
-                                             [](VertexType vtx, int64_t mate){return vtx;}, // return matched vertices with mate as parent
-                                             [](VertexType vtx, int64_t mate){return mate==-1;}, // select unmatched vertices
-                                             false, VertexType());
-         
-         
-         //fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), matched_binary<VertexType,int64_t>(), false, VertexType());
-         // keep matched vertices
-         // TODO: this can be merged into compose function for a complicated function to avoid creating unnecessary intermediate fringeRow
-         fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
-                                             [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);}, // return matched vertices with mate as parent
-                                             [](VertexType vtx, int64_t mate){return mate!=-1;}, // select matched vertices
-                                             false, VertexType());
-         if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
-         //fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
-         fringeCol = fringeRow.Compose(Aeff.getncol(),
-                                       [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the
-                                       [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);});
-          if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
-     
-     }
-    
-    //fringeCol = unmatchedCol;
-    //SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
-    
-    //umFringeRow = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
-    
-    
-    //fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType()); // root & parent both =-1
-    
+    //fringeCol.ApplyInd(init<VertexType, int64_t>()); //  root & parent both equal to index
+    //fringeCol.DebugPrint();
     
     
     
