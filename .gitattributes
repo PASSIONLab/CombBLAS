@@ -1143,6 +1143,7 @@ CombBLAS/ReleaseTests/SpRef_Franklin/script4_scale22_perm+subgraph -text
 CombBLAS/ReleaseTests/SpRef_Franklin/script64_scale21_perm -text
 CombBLAS/ReleaseTests/SpRef_Franklin/script64_scale22_perm+subgraph -text
 CombBLAS/ReleaseTests/TransposeTest.cpp -text
+CombBLAS/ReleaseTests/VectorIOPermute.cpp -text
 CombBLAS/ReleaseTests/VectorIndexing.cpp -text
 CombBLAS/ReleaseTests/VectorTest.cpp -text
 CombBLAS/ReleaseTests/exectests -text
