@@ -111,6 +111,13 @@ public:
 		}
 	};
 	
+    //! New (2014) version that can handle parallel IO and binary files
+    template <class HANDLER>
+    void ReadDistribute (const string & filename, int master, HANDLER handler, bool pario);
+    void ReadDistribute (const string & filename, int master, bool pario) { ReadDistribute(filename, master, ScalarReadSaveHandler(), pario); }
+
+
+    //! Obsolete version that only accepts an ifstream object and ascii files
 	template <class HANDLER>
 	ifstream& ReadDistribute (ifstream& infile, int master, HANDLER handler);	
 	ifstream& ReadDistribute (ifstream& infile, int master) { return ReadDistribute(infile, master, ScalarReadSaveHandler()); }
@@ -144,8 +151,7 @@ public:
 	NT operator[](IT indx);
 	bool WasFound() const { return wasFound; }
 
-	// sort the vector itself
-	// return the permutation vector (0-based)
+	//! sort the vector itself, return the permutation vector (0-based)
 	FullyDistSpVec<IT, IT> sort();	
 
 #if __cplusplus > 199711L
@@ -244,6 +250,20 @@ private:
 #endif
     
 
+    template <class HANDLER>
+    void ReadAllMine(FILE * binfile, IT * & inds, NT * & vals, vector< pair<IT,NT> > & localpairs, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls,
+                     IT buffperrowneigh, IT buffpercolneigh, IT entriestoread, HANDLER handler, int rankinrow);
+    
+    void HorizontalSend(IT * & inds, NT * & vals, IT * & tempinds, NT * & tempvals, vector < pair <IT,NT> > & localpairs,
+                        int * rcurptrs, int * rdispls, IT buffperrowneigh, int recvcount, int rankinrow);
+    
+    void VerticalSend(IT * & inds, NT * & vals, vector< pair<IT,NT> > & localpairs, int * rcurptrs, int * ccurptrs, int * rdispls, int * cdispls,
+                      IT buffperrowneigh, IT buffpercolneigh, int rankinrow);
+    
+    void BcastEssentials(MPI_Comm & world, IT & total_m, IT & total_n, IT & total_nnz, int master);
+    
+    void AllocateSetBuffers(IT * & myinds, NT * & myvals,  int * & rcurptrs, int * & ccurptrs, int rowneighs, int colneighs, IT buffpercolneigh);
+    
 	template <class IU, class NU>
 	friend class FullyDistSpVec;
 
