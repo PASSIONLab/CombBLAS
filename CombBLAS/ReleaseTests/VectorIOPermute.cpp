@@ -27,7 +27,8 @@ public:
         qual[SEQLEN] = '\0';
 
     }
-	friend ostream& operator<<( ostream& os, const ShortRead<IDLEN,SEQLEN> & sread);
+	template <unsigned int NS_IDLEN, unsigned int NS_SEQLEN>
+	friend ostream& operator<<( ostream& os, const ShortRead<NS_IDLEN,NS_SEQLEN> & sread);
     
 private:
 	char id[IDLEN+1];   // (+1)s are for null termination
