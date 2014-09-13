@@ -711,6 +711,7 @@ CombBLAS/BitMapFringe.h -text
 CombBLAS/CMakeLists.txt -text
 CombBLAS/CMakeLists_NERSC.txt -text
 CombBLAS/CombBLAS.h -text
+CombBLAS/CombBLASusersSep2014.pptx -text
 CombBLAS/CommGrid.cpp -text
 CombBLAS/CommGrid.h -text
 CombBLAS/Compare.h -text
