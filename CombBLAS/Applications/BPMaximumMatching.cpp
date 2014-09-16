@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+//#include "PothenFan.cpp"
 #ifdef THREADED
 	#ifndef _OPENMP
 	#define _OPENMP
@@ -154,8 +155,11 @@ template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
                        FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
 
+void removeIsolated(PSpMat_Bool & A)
+{
+   
 
-
+}
 
 int main(int argc, char* argv[])
 {
@@ -174,53 +178,80 @@ int main(int argc, char* argv[])
 		return -1;
 	}		
 	{
-    
-		// Declare objects
-		PSpMat_Bool A;
-		FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+		
 		unsigned scale;
-
 		scale = static_cast<unsigned>(atoi(argv[1]));
-        double initiator[4] = {.57, .19, .19, .05};
+        //double initiator[4] = {.57, .19, .19, .05};
+        double initiator[4] = {.25, .25, .25, .25};
 
         
         DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-        DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+        DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false ); // if packed=true the function does not use initiator
         MPI_Barrier(MPI_COMM_WORLD);
-        
         
         PSpMat_Bool * ABool = new PSpMat_Bool(*DEL, false);
         delete DEL;
-        int64_t removed  = ABool->RemoveLoops();
+        //int64_t removed  = ABool->RemoveLoops(); // loop means an edges (i,i+NU) in a bipartite graph
         
-        
-        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
-        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(ABool->getcommgrid());
-        
-        ABool->Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
-        ABool->Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
-        ColSums->EWiseApply(*RowSums, plus<int64_t>());
-        delete RowSums;
-        nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
-        delete ColSums;
-        nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
-#ifndef NOPERMUTE
-        ABool->operator()(nonisov, nonisov, true);	// in-place permute to save memory
-#endif
-
+       
         // remove isolated vertice if necessary
         
         //RandomParentBFS(*ABool);
         //greedyMatching(*ABool);
-        maximumMatching(*ABool);
+        // maximumMatching(*ABool);
         //maximumMatchingSimple(*ABool);
         
         
+        
+        
+        //PSpMat_Bool A1;
+        //A1.ReadDistribute("amazon0312.mtx", 0);	// read it from file
+        //A1.ReadDistribute("coPapersDBLP.mtx", 0);	// read it from file
+        //A1.PrintInfo();
+        
+        
+        
+        //////
+        /*
+        // Remove Isolated vertice
+        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A1.getcommgrid());
+        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A1.getcommgrid());
+        FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
+        FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
+        FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+        
+        A1.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        A1.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
+        //ColSums->EWiseApply(*RowSums, plus<int64_t>());
+        nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+        nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+        nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
+        //nonisoColV.iota(A.getncol(), 0);
+        nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+        nonisoColV.RandPerm();
+        nonisoRowV.RandPerm();
+        
+        delete ColSums;
+        delete RowSums;
+        
+        //A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
+        A1.operator()(nonisoRowV, nonisoColV, true);
+        /////
+        */
+        
+        
+        //removeIsolated(A1);
+        
+       
+        //A1.Transpose();
+        //varify_matching(*ABool);
+        maximumMatching(*ABool);
         
 	}
 	MPI_Finalize();
 	return 0;
 }
+
 
 
 
@@ -395,7 +426,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
     //matching vector (dense)
     FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
     FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
-    
+    //mateCol2Row.DebugPrint();
 
     //FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
     
@@ -404,13 +435,15 @@ void maximumMatching(PSpMat_Bool & Aeff)
     FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
     
     
-    
+    vector<vector<double> > timing;
+    double t1, time_search, time_augment, time_phase;
     bool matched = true;
     int phase = 0;
     
     while(matched)
     {
-        cout << "Phase: " << ++phase << "\n";
+        time_phase = MPI_Wtime();
+        vector<double> phase_timing(16,0);
         FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // it needs to be cleared after each phase
         FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
@@ -419,60 +452,81 @@ void maximumMatching(PSpMat_Bool & Aeff)
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
         //fringeCol.DebugPrint();
         
+        ++phase;
+        int64_t numUnmatchedCol = fringeCol.getnnz();
         
+        
+        time_search = MPI_Wtime();
         while(fringeCol.getnnz() > 0)
         {
+            t1 = MPI_Wtime();
             SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+            phase_timing[0] += MPI_Wtime()-t1;
+            
             // remove vertices already having parents
+            t1 = MPI_Wtime();
             fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+            phase_timing[1] += MPI_Wtime()-t1;
             
             // Set parent pointer
             // TODO: Write a general purpose FullyDistVec::Set
+            t1 = MPI_Wtime();
             parentsRow.EWiseApply(fringeRow,
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
                                   false, VertexType(), false);
+            phase_timing[2] += MPI_Wtime()-t1;
             
             //if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
             //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
             
-            //parentsRow.DebugPrint();
+            
             
             //get unmatched row vertices
+            t1 = MPI_Wtime();
             umFringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
                                                   [](VertexType vtx, int64_t mate){return vtx;}, // return matched vertices with mate as parent
                                                   [](VertexType vtx, int64_t mate){return mate==-1;}, // select unmatched vertices
                                                   false, VertexType());
+            phase_timing[3] += MPI_Wtime()-t1;
+            t1 = MPI_Wtime();
             // get the unique leaves
             temp = umFringeRow.Compose(Aeff.getncol(),
                                        [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
                                        [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value
+            phase_timing[4] += MPI_Wtime()-t1;
+            
             //set leaf pointer
+            t1 = MPI_Wtime();
             leaves.EWiseApply(temp,
                               [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                               [](int64_t dval, VertexType svtx, bool a, bool b){return dval==-1;}, //if no aug path is already found
                               false, VertexType(), false);
-            
+            phase_timing[5] += MPI_Wtime()-t1;
             
             
             //fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col, select1st<VertexType, int64_t>(), matched_binary<VertexType,int64_t>(), false, VertexType());
             // keep matched vertices
             // TODO: this can be merged into compose function for a complicated function to avoid creating unnecessary intermediate fringeRow
+            t1 = MPI_Wtime();
             fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
                                                 [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);}, // return matched vertices with mate as parent
                                                 [](VertexType vtx, int64_t mate){return mate!=-1;}, // select matched vertices
                                                 false, VertexType());
+            phase_timing[6] += MPI_Wtime()-t1;
             //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
             //fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
+            t1 = MPI_Wtime();
             fringeCol = fringeRow.Compose(Aeff.getncol(),
                                           [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the
                                           [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);});
+            phase_timing[7] += MPI_Wtime()-t1;
             // TODO:do something for prunning
             
             
         }
-        
-        cout << "1---------\n";
+        time_search = MPI_Wtime() - time_search;
+        phase_timing[8] += time_search;
         //leaves.DebugPrint();
         
         // create a sparse vector of leaves
@@ -480,181 +534,110 @@ void maximumMatching(PSpMat_Bool & Aeff)
         FullyDistSpVec<int64_t, int64_t> row(A.getcommgrid(), A.getnrow());
         FullyDistSpVec<int64_t, int64_t> nextcol(A.getcommgrid(), A.getncol());
         
-        
-        //parentsRow.DebugPrint();
-        //col.DebugPrint();
+        int64_t numMatchedCol = col.getnnz();
         if (col.getnnz()== 0) matched = false;
         
-        //if (phase == 4 ) break;
         // Augment
+        time_augment = MPI_Wtime();
         while(col.getnnz()!=0)
         {
+            t1 = MPI_Wtime();
             row = col.Invert(A.getnrow());
-            
+            phase_timing[9] += MPI_Wtime()-t1;
             // Set parent pointer
             // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
+            t1 = MPI_Wtime();
             row = EWiseApply<int64_t>(row, parentsRow,
                                       [](int64_t root, int64_t parent){return parent;},
                                       [](int64_t root, int64_t parent){return true;}, // must have a root
                                       false, (int64_t) -1);
+            phase_timing[10] += MPI_Wtime()-t1;
             //if(row.getnnz()!=0)row.DebugPrint();
             
-            
+            t1 = MPI_Wtime();
             col = row.Invert(A.getncol()); // children array
+            phase_timing[11] += MPI_Wtime()-t1;
+            
+            t1 = MPI_Wtime();
             nextcol = EWiseApply<int64_t>(col, mateCol2Row,
                                           [](int64_t child, int64_t mate){return mate;},
                                           [](int64_t child, int64_t mate){return mate!=-1;}, // mate==-1 when we have reached to the root
                                           false, (int64_t) -1);
+            phase_timing[12] += MPI_Wtime()-t1;
             //col.DebugPrint();
+            t1 = MPI_Wtime();
             mateRow2Col.Set(row);
             mateCol2Row.Set(col);
+            phase_timing[13] += MPI_Wtime()-t1;
             col = nextcol;
             
         }
         
         //mateRow2Col.DebugPrint();
         //mateCol2Row.DebugPrint();
-        cout << "2---------\n";
+        
+        time_augment = MPI_Wtime() - time_augment;
+        phase_timing[14] += time_augment;
+        time_phase = MPI_Wtime() - time_phase;
+        phase_timing[15] += time_phase;
+        timing.push_back(phase_timing);
+        
+        ostringstream tinfo;
+        tinfo << "Phase: " << phase << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << "\n";
+        SpParHelper::Print(tinfo.str());
+
+        
     }
+    
+    
     
     
     
     
    
-   // fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
-    //fringeCol.SetElement(1,VertexType(1,1));
-    //fringeCol.ApplyInd(init<VertexType, int64_t>()); //  root & parent both equal to index
-    //fringeCol.DebugPrint();
     
     
-    
-    /*
-    while(fringeCol.getnnz() > 0)
-    {
-        fringeCol.setNumToInd();
-        fringeCol.DebugPrint();
-        
-        //fringeCol.DebugPrint();
-        
-    }*/
-    
-    //cout << fringeCol[1];
-    //FullyDistSpVec<int64_t, VertexType> fringeCol;
-    //FullyDistSpVec<int64_t, VertexType> fringeRow;
-    
-    //FullyDistSpVec<int64_t, VertexType> unmatchedCol  = EWiseApply<VertexType, int64_t, VertexType, int64_t>(unmatchedCol1, mateCol2Row, sel1st<VertexType, int64_t>(), unmatched1<VertexType,int64_t>(), false, VertexType());
-    //unmatchedCol  = EWiseApply<VertexType>(unmatchedCol, mateCol2Row, sel1st<VertexType, int64_t>(), unmatched1<VertexType,int64_t>(), false, VertexType());
-    //fringeCol = unmatchedCol;
-    //cout << fringeCol[1];
-    
-
-    // FullyDistSpVec<int64_t, VertexType> fringeCol;
-    //fringeCol.SetElement(0, VertexType(0,-1));
-
-    //FullyDistSpVec<int64_t, VertexType> fringeCol;
-    //fringeCol.SetElement(0, VertexType());
-
-    
-    //PSpMat_Int64  A = Aeff;
-    //A.PrintInfo();
-    //SpMV<SelectRandSRing>(A, fringeCol, fringeCol, false);
-    
-    //SpMV<SelectMinSRing2>(A, fringeCol, fringeCol, false);
-    
-    //fringeCol.DebugPrint(); // does not work for vector of custom data type
-    
-    //FullyDistSpVec<int64_t, VertexType> fringeCol(mateCol2Row, unmatched<int64_t>());
-    
-    //FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-    
-    //unmatched row and column vertices
-    //FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, unmatched<int64_t>());
-    //FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, unmatched<int64_t>());
-    //unmatchedRow.setNumToInd();
-    //unmatchedCol.setNumToInd();
-    
-    
-    //fringe vector (sparse)
-    //FullyDistSpVec<int64_t, int64_t> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
-    //FullyDistSpVec<int64_t, int64_t> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
-    
-    //FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, unmatched<int64_t>());
-    
-    
-    
-    
-    /*
-    int64_t curUnmatchedCol = unmatchedCol.getnnz();
-    int64_t curUnmatchedRow = unmatchedRow.getnnz();
-    int64_t newlyMatched = 1; // ensure the first pass of the while loop
-    int iteration = 0;
-    double tStart = MPI_Wtime();
-    vector<vector<double> > timing;
-    if(myrank == 0)
-    {
-        cout << "=======================================================\n";
-        cout << "@@@@@@ Number of processes: " << nprocs << endl;
-        cout << "=======================================================\n";
-        cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
-        cout << "=======================================================\n";
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    PSpMat_Int64  A = Aeff;
-    A.PrintInfo();
-    
-    fringeCol = unmatchedCol;
-    //while(fringeCol.getnnz() >0)
-    {
-
-        SpMV<SelectMinSRing1>(A, fringeCol, fringeRow, false);
-        fringeRow.DebugPrint();
-        fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);
-        fringeRow.DebugPrint();
-        parentsRow.Set(fringeRow);
-        fringeRow = EWiseMult(fringeRow, mateRow2Col, true, (int64_t) -1); //unmatched rows
-        fringeRow.DebugPrint();
-        fringeCol = fringeRow.Invert(Aeff.getncol());
-        fringeCol.DebugPrint();
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
-    
-    MPI_Barrier(MPI_COMM_WORLD);
-    */
-    /*
-    
-    //Check if this is a maximal matching
-    //mateRow2Col.DebugPrint();
-    //mateCol2Row.DebugPrint();
-    isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
+    //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
     //isMatching(mateCol2Row, mateRow2Col); //todo there is a better way to check this
     
     
     // print statistics
     if(myrank == 0)
     {
-        cout << "============================================================\n";
-        cout << "\n================individual timings =========================\n";
-        cout  << "SpMV  |  Uniq   |  Permute   |  Update matching  |  Total "<< endl;
-        cout << "============================================================\n";
+        cout << endl;
+        cout << "============================================================ ===================================\n";
+        cout << "                         BFS Search                                        Augment    \n";
+        cout << "============================================================ ===================================\n";
+        cout  << "Phase  SpMV EWvis EWSetP EWUmR CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug \n";
+        cout << "============================================================ ===================================\n";
         
         vector<double> totalTimes(timing[0].size(),0);
+        int nphases = timing.size();
         for(int i=0; i<timing.size(); i++)
         {
-            for(int j=0; j<timing[i].size(); j++)
+            //printf(" %3d   ", i+1);
+            for(int j=0; j<timing[i].size()-1; j++)
             {
-                totalTimes[j] += timing[i][j];
-                cout << timing[i][j] << "  ";
+                timing[i][j] /= timing[i].back();
+                totalTimes[j] += timing[i][j]/nphases;
+                //printf("%.2lf  ", timing[i][j]);
             }
-            cout << endl;
+            //printf("\n");
         }
         
-        cout << "=================== total timing ===========================\n";
-        for(int i=0; i<totalTimes.size(); i++)
-            cout<<totalTimes[i] << " ";
-        cout << endl;
+        printf(" %3d   ", nphases);
+        for(int j=0; j<totalTimes.size()-1; j++)
+        {
+            printf("%.2lf  ", totalTimes[j]);
+        }
+        printf("\n");
+        
+        //cout << "=================== total timing ===========================\n";
+        //for(int i=0; i<totalTimes.size(); i++)
+        //    cout<<totalTimes[i] << " ";
+        //cout << endl;
     }
-    */
+    
     
 }
 
