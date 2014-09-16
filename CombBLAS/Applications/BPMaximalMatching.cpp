@@ -31,7 +31,7 @@ int cblas_splits = 1;
 #endif
 
 #define ITERS 16
-#define EDGEFACTOR 16
+#define EDGEFACTOR 8  /// changed to 8
 using namespace std;
 
 
@@ -39,7 +39,7 @@ MTRand GlobalMT(123); // for reproducable result
 
 
 
-struct ParentType 
+struct ParentType
 {
 public:
 	ParentType(){parent=-1; p = 0;};
