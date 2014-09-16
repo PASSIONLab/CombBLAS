@@ -605,11 +605,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
     if(myrank == 0)
     {
         cout << endl;
-        cout << "============================================================ ===================================\n";
+        cout << "========================================================================================================\n";
         cout << "                         BFS Search                                        Augment    \n";
-        cout << "============================================================ ===================================\n";
-        cout  << "Phase  SpMV EWvis EWSetP EWUmR CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug \n";
-        cout << "============================================================ ===================================\n";
+        cout << "============================================================ =================================== =======\n";
+        cout  << "Phase  SpMV EWvis EWSetP EWUmR CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug   Total \n";
+        cout << "========================================================================================================\n";
         
         vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
@@ -618,19 +618,21 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //printf(" %3d   ", i+1);
             for(int j=0; j<timing[i].size()-1; j++)
             {
+                totalTimes[j] += timing[i][j];
                 timing[i][j] /= timing[i].back();
-                totalTimes[j] += timing[i][j]/nphases;
                 //printf("%.2lf  ", timing[i][j]);
             }
+            
             //printf("\n");
         }
         
+        double combTime = std::accumulate(totalTimes.begin(), totalTimes.end(), 0.0);
         printf(" %3d   ", nphases);
         for(int j=0; j<totalTimes.size()-1; j++)
         {
-            printf("%.2lf  ", totalTimes[j]);
+            printf("%.2lf  ", totalTimes[j]/combTime);
         }
-        printf("\n");
+        printf("%.2lf\n", combTime);
         
         //cout << "=================== total timing ===========================\n";
         //for(int i=0; i<totalTimes.size(); i++)
