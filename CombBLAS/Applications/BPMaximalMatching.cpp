@@ -39,7 +39,7 @@ MTRand GlobalMT(123); // for reproducable result
 
 
 
-struct ParentType
+struct ParentType 
 {
 public:
 	ParentType(){parent=-1; p = 0;};
