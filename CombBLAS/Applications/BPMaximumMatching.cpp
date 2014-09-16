@@ -630,7 +630,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
         printf(" %3d   ", nphases);
         for(int j=0; j<totalTimes.size()-1; j++)
         {
-            printf("%.2lf  ", totalTimes[j]/combTime);
+            printf("%.2lf  ", totalTimes[j]);
         }
         printf("%.2lf\n", combTime);
         
