@@ -616,17 +616,17 @@ void maximumMatching(PSpMat_Bool & Aeff)
         for(int i=0; i<timing.size(); i++)
         {
             //printf(" %3d   ", i+1);
-            for(int j=0; j<timing[i].size()-1; j++)
+            for(int j=0; j<timing[i].size(); j++)
             {
                 totalTimes[j] += timing[i][j];
-                timing[i][j] /= timing[i].back();
+                //timing[i][j] /= timing[i].back();
                 //printf("%.2lf  ", timing[i][j]);
             }
             
             //printf("\n");
         }
         
-        double combTime = std::accumulate(totalTimes.begin(), totalTimes.end(), 0.0);
+        double combTime = totalTimes.back();
         printf(" %3d   ", nphases);
         for(int j=0; j<totalTimes.size()-1; j++)
         {
