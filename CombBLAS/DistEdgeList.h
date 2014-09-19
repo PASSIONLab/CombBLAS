@@ -92,6 +92,7 @@ public:
 	
 	int64_t getGlobalV() const { return globalV; }
 	IT getNumLocalEdges() const { return nedges; }
+    IT* getEdges() const {return edges;}
 	
 private:
 	shared_ptr<CommGrid> commGrid; 
