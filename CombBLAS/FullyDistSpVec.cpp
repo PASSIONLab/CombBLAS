@@ -1807,8 +1807,10 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
     IT init = (IT) 0;
     IT localsize = num.size();
     IT lengthuntil = LengthUntil();
+    
+    /*
     IT localmax = init;
-
+    
     for(IT k=0; k < localsize; ++k)
     {
         localmax = std::max(localmax, __binopIdx(num[k], ind[k] + lengthuntil));
@@ -1821,6 +1823,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
         cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
         return Composed;
     }
+    */
     
 	int nprocs = commGrid->GetSize();
 	vector< vector< NT > > datsent(nprocs);

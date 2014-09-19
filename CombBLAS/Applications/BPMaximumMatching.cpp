@@ -569,7 +569,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //col.DebugPrint();
             t1 = MPI_Wtime();
             mateRow2Col.Set(row);
-            mateCol2Row.Set(col); 
+            mateCol2Row.Set(col);
             phase_timing[13] += MPI_Wtime()-t1;
             col = nextcol;
             
