@@ -1906,4 +1906,85 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 
 
 
+template <typename IT, typename NT>
+template <typename NT1, typename _UnaryOperation>
+void FullyDistSpVec<IT,NT>::Select (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop)
+{
+	if(*commGrid == *(denseVec.commGrid))
+	{
+		if(TotalLength() != denseVec.TotalLength())
+		{
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << TotalLength() << " vs " << denseVec.TotalLength() << ") for Select\n";
+			SpParHelper::Print(outs.str());
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+		}
+		else
+		{
+
+			IT spsize = getlocnnz();
+            IT k = 0;
+            // iterate over the sparse vector
+            for(IT i=0; i< spsize; ++i)
+            {
+                if(__unop(denseVec.arr[ind[i]]))
+                {
+                    ind[k] = ind[i];
+                    num[k++] = num[i];
+                }
+            }
+            ind.resize(k);
+            num.resize(k);
+		}
+	}
+	else
+	{
+        ostringstream outs;
+        outs << "Grids are not comparable for Select" << endl;
+        SpParHelper::Print(outs.str());
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}
+}
+
+
+
+template <typename IT, typename NT>
+template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
+void FullyDistSpVec<IT,NT>::SelectApply (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop)
+{
+	if(*commGrid == *(denseVec.commGrid))
+	{
+		if(TotalLength() != denseVec.TotalLength())
+		{
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << TotalLength() << " vs " << denseVec.TotalLength() << ") for Select\n";
+			SpParHelper::Print(outs.str());
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+		}
+		else
+		{
+            
+			IT spsize = getlocnnz();
+            IT k = 0;
+            // iterate over the sparse vector
+            for(IT i=0; i< spsize; ++i)
+            {
+                if(__unop(denseVec.arr[ind[i]]))
+                {
+                    ind[k] = ind[i];
+                    num[k++] = __binop(num[i], denseVec.arr[ind[i]]);
+                }
+            }
+            ind.resize(k);
+            num.resize(k);
+		}
+	}
+	else
+	{
+        ostringstream outs;
+        outs << "Grids are not comparable for Select" << endl;
+        SpParHelper::Print(outs.str());
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}
+}
 

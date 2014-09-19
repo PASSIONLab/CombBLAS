@@ -465,8 +465,14 @@ void maximumMatching(PSpMat_Bool & Aeff)
             
             // remove vertices already having parents
             t1 = MPI_Wtime();
-            fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
-            phase_timing[1] += MPI_Wtime()-t1;
+            //fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow, select1st<VertexType, int64_t>(), unmatched_binary<VertexType,int64_t>(), false, VertexType());
+            fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;});
+            /*fringeRow  = EWiseApply<VertexType>(fringeRow, parentsRow,
+                                                  [](VertexType vtx, int64_t parent){return vtx;}, // return unvisited vertices
+                                                  [](VertexType vtx, int64_t parent){return parent==-1;}, // select unvisited vertices
+                                                  false, VertexType());
+            */
+             phase_timing[1] += MPI_Wtime()-t1;
             
             // Set parent pointer
             // TODO: Write a general purpose FullyDistVec::Set
@@ -485,9 +491,10 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //get unmatched row vertices
             t1 = MPI_Wtime();
             umFringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
-                                                  [](VertexType vtx, int64_t mate){return vtx;}, // return matched vertices with mate as parent
+                                                  [](VertexType vtx, int64_t mate){return vtx;}, // return unmatched vertices
                                                   [](VertexType vtx, int64_t mate){return mate==-1;}, // select unmatched vertices
                                                   false, VertexType());
+            
             phase_timing[3] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             // get the unique leaves
@@ -509,10 +516,16 @@ void maximumMatching(PSpMat_Bool & Aeff)
             // keep matched vertices
             // TODO: this can be merged into compose function for a complicated function to avoid creating unnecessary intermediate fringeRow
             t1 = MPI_Wtime();
+            /*
             fringeRow  = EWiseApply<VertexType>(fringeRow, mateRow2Col,
                                                 [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);}, // return matched vertices with mate as parent
                                                 [](VertexType vtx, int64_t mate){return mate!=-1;}, // select matched vertices
                                                 false, VertexType());
+             */
+            fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
+                                 [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
+             
+            //fringeRow.Select(mateRow2Col, [](int64_t mate){return mate!=-1;});
             phase_timing[6] += MPI_Wtime()-t1;
             //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
             //fringeCol = fringeRow.Compose(Aeff.getncol(), binopInd<int64_t>(), binopVal<int64_t>());
@@ -547,10 +560,15 @@ void maximumMatching(PSpMat_Bool & Aeff)
             // Set parent pointer
             // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
             t1 = MPI_Wtime();
+            /*
             row = EWiseApply<int64_t>(row, parentsRow,
                                       [](int64_t root, int64_t parent){return parent;},
                                       [](int64_t root, int64_t parent){return true;}, // must have a root
                                       false, (int64_t) -1);
+            */
+            row.SelectApply(parentsRow, [](int64_t parent){return true;},
+                            [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
+            
             phase_timing[10] += MPI_Wtime()-t1;
             //if(row.getnnz()!=0)row.DebugPrint();
             
