@@ -83,8 +83,13 @@ public:
     FullyDistSpVec<IT,NT> Compose (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
     template <typename NT1, typename _UnaryOperation>
     void Select (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation unop);
+    template <typename NT1, typename _UnaryOperation>
+    FullyDistSpVec<IT,NT> SelectNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop);
+
     template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
     void SelectApply (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop);
+    template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
+    FullyDistSpVec<IT,NT> SelectApplyNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop);
 
 
 	//! like operator=, but instead of making a deep copy it just steals the contents. 
