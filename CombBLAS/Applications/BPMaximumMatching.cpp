@@ -32,7 +32,7 @@ int cblas_splits = 1;
 #endif
 
 #define ITERS 16
-#define EDGEFACTOR 16
+#define EDGEFACTOR 8
 using namespace std;
 
 
@@ -490,9 +490,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
             phase_timing[3] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             // get the unique leaves
+            MPI_Pcontrol(1,"Compose");
             temp = umFringeRow.Compose(Aeff.getncol(),
                                        [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
                                        [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value
+            MPI_Pcontrol(-1,"Compose");
             phase_timing[4] += MPI_Wtime()-t1;
             
             //set leaf pointer
