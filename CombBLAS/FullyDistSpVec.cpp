@@ -1808,7 +1808,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
     IT localsize = num.size();
     IT lengthuntil = LengthUntil();
     
-    /*
+    
     IT localmax = init;
     
     for(IT k=0; k < localsize; ++k)
@@ -1823,7 +1823,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
         cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
         return Composed;
     }
-    */
+    
     
 	int nprocs = commGrid->GetSize();
 	vector< vector< NT > > datsent(nprocs);
@@ -1892,7 +1892,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     
     // sort based on index
-    std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
+    //std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
     
     IT lastIndex=-1;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
