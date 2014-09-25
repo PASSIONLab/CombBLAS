@@ -490,19 +490,26 @@ void maximumMatching(PSpMat_Bool & Aeff)
             phase_timing[3] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             // get the unique leaves
-            MPI_Pcontrol(1,"Compose");
-            temp = umFringeRow.Compose(Aeff.getncol(),
-                                       [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
-                                       [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value
-            MPI_Pcontrol(-1,"Compose");
+            //MPI_Pcontrol(1,"Compose");
+            if(umFringeRow.getnnz()>0)
+            {
+                temp = umFringeRow.Compose1(Aeff.getncol(),
+                                           [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
+                                           [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value
+            }
+            
+            //MPI_Pcontrol(-1,"Compose");
             phase_timing[4] += MPI_Wtime()-t1;
             
             //set leaf pointer
             t1 = MPI_Wtime();
-            leaves.EWiseApply(temp,
+            if(umFringeRow.getnnz()>0)
+            {
+                leaves.EWiseApply(temp,
                               [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                               [](int64_t dval, VertexType svtx, bool a, bool b){return dval==-1;}, //if no aug path is already found
                               false, VertexType(), false);
+            }
             phase_timing[5] += MPI_Wtime()-t1;
             
             
@@ -587,9 +594,9 @@ void maximumMatching(PSpMat_Bool & Aeff)
         timing.push_back(phase_timing);
         
         ostringstream tinfo;
-        tinfo << "Phase: " << phase << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << "\n";
+        tinfo << "Phase: " << phase << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " Comp: " <<phase_timing[4]<< "\n";
         SpParHelper::Print(tinfo.str());
-        
+        //break; 
         
     }
     
