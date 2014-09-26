@@ -52,31 +52,19 @@ void Symmetricize(PARMAT & A)
 
 
 
-struct ParentType
-{
-public:
-	ParentType(){parent=-1; p = 0;};
-	ParentType(int64_t x){parent=(x); p = 0;};
-    friend ostream& operator<<(ostream& os, const ParentType & vertex ){os << "Parent=" << vertex.parent << " p=" << vertex.p; return os;};
-    //private:
-    int64_t parent;
-    float p;
-    
-};
-
-
-
 
 struct VertexType
 {
 public:
-	VertexType(){parent=-1; root = -1;};
-    VertexType(int64_t p){parent=p; root=-1;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
-	VertexType(int64_t p, int64_t r){parent=p; root = r;};
+	VertexType(){parent=-1; root = -1; prob = 1;};
+    VertexType(int64_t p){parent=p; root=-1; prob = 1;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
+	VertexType(int64_t p, int64_t r){parent=p; root = r; prob = 1;};
+    VertexType(int64_t p, int64_t r, int16_t pr){parent=p; root = r; prob = pr;};
     friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
     //private:
     int64_t parent;
     int64_t root;
+    int16_t prob; // probability of selecting an edge
 
 };
 
@@ -110,6 +98,31 @@ struct SelectMinSRing1
 };
 
 
+// Selct parent at random
+struct SelectRandSRing
+{
+    static MPI_Op MPI_BFSRAND;
+	typedef int64_t T_promote;
+	static VertexType id(){ return VertexType(); };
+	static bool returnedSAID() { return false; }
+	//static MPI_Op mpi_op() { return MPI_MAX; }; // do we need this?
+    
+	static VertexType add(const VertexType & arg1, const VertexType & arg2)
+	{
+        if(arg1.prob < arg2.prob) return arg1;
+        else return arg2;
+	}
+    
+	static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
+	{
+        return VertexType(arg2.parent, arg2.root, arg1); // think if we can use arg2.prob for a better prediction. may be based on degree
+	}
+    
+    static void axpy(T_promote a, const VertexType & x, VertexType & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
 
 
 // This one is used for maximum matching
@@ -148,6 +161,7 @@ struct SelectMinSRing2
 typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
+typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
 void greedyMatching(PSpMat_Bool & Aeff);
 void maximumMatching(PSpMat_Bool & Aeff);
 void maximumMatchingSimple(PSpMat_Bool & Aeff);
@@ -348,73 +362,6 @@ struct binopVal: public std::binary_function<VertexType, T, VertexType>
 
 
 
-
-void maximumMatchingSimple(PSpMat_Bool & Aeff)
-{
-    int nprocs, myrank;
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-    
-    PSpMat_Int64  A = Aeff;
-    
-    FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> rootsCol ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-    FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
-    FullyDistSpVec<int64_t, int64_t> umFringeRow(A.getcommgrid(), A.getnrow()); // unmatched vertices in the current fringeRow
-    FullyDistSpVec<int64_t, int64_t> rootFringeRow(A.getcommgrid(), A.getnrow());
-    FullyDistSpVec<int64_t, int64_t> rootFringeCol(A.getcommgrid(), A.getncol());
-    
-    
-    FullyDistSpVec<int64_t, int64_t> fringeCol(mateCol2Row, unmatched_unary<int64_t>());
-    fringeCol.ApplyInd(select2nd<VertexType, int64_t>());
-    
-    
-    A.PrintInfo();
-    while(fringeCol.getnnz() > 0)
-    {
-        fringeCol.setNumToInd();
-        fringeCol.DebugPrint();
-        SpMV<SelectMinSRing1>(A, fringeCol, fringeRow, false);
-        fringeRow.DebugPrint();
-        
-        
-        /*
-        fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);	// clean-up vertices that already have parents
-        parentsRow.Set(fringeRow);
-        
-        // pass root information
-        SpMV<SelectMinSRing1>(A, rootFringeCol, rootFringeRow, false); // this will not work... we need a sparse value based set operation
-        fringeRow = EWiseMult(fringeRow, parentsRow, true, (int64_t) -1);	// clean-up vertices that already has parents
-        parentsRow.Set(fringeRow);
-        
-        if(fringeRow.getnnz()>0) fringeRow.DebugPrint();
-        
-        umFringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col, select1st<int64_t, int64_t>(), unmatched_binary<int64_t,int64_t>(), false, (int64_t) 0);
-        if(umFringeRow .getnnz()>0) break;
-        
-        // faster than using unary function in the constructor.
-        // Here we are accessing the sparse vector, but in the constructor we access the dense vector
-        fringeRow = EWiseApply<int64_t>(fringeRow, mateRow2Col, select2nd<int64_t, int64_t>(), matched_binary<int64_t,int64_t>(), false, (int64_t) 0);
-        if(fringeRow.getnnz()>0) fringeRow.DebugPrint();
-        
-        fringeCol = fringeRow.Invert(A.getncol());
-        //fringeCol.DebugPrint();
-         */
-        
-        break;
-
-    }
-    
-    //augment
-    
-    
-}
-
-
-
 void maximumMatching(PSpMat_Bool & Aeff)
 {
     
@@ -423,6 +370,8 @@ void maximumMatching(PSpMat_Bool & Aeff)
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
     PSpMat_Int64  A = Aeff;
+    //PSpMat_float A = Aeff;
+    A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
     A.PrintInfo();
     
     //matching vector (dense)
@@ -448,6 +397,9 @@ void maximumMatching(PSpMat_Bool & Aeff)
         vector<double> phase_timing(16,0);
         FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // it needs to be cleared after each phase
+        
+        FullyDistVec<int64_t, int64_t> rootsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // just for test
+        
         FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
         fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(),
                                             unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
@@ -462,7 +414,8 @@ void maximumMatching(PSpMat_Bool & Aeff)
         while(fringeCol.getnnz() > 0)
         {
             t1 = MPI_Wtime();
-            SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+            //SpMV<SelectMinSRing2>(A, fringeCol, fringeRow, false);
+            SpMV<SelectRandSRing>(A, fringeCol, fringeRow, false);
             phase_timing[0] += MPI_Wtime()-t1;
             
             // remove vertices already having parents
@@ -477,6 +430,10 @@ void maximumMatching(PSpMat_Bool & Aeff)
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
                                   false, VertexType(), false);
+            rootsRow.EWiseApply(fringeRow,
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.root;}, // return parent of the sparse vertex
+                                  [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
+                                  false, VertexType(), false); // just for testing
             phase_timing[2] += MPI_Wtime()-t1;
             
             //if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
@@ -531,6 +488,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
         time_search = MPI_Wtime() - time_search;
         phase_timing[8] += time_search;
         //leaves.DebugPrint();
+        //rootsRow.DebugPrint();
         
         // create a sparse vector of leaves
         FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
