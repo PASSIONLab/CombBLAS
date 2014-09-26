@@ -596,7 +596,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
         ostringstream tinfo;
         tinfo << "Phase: " << phase << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " Comp: " <<phase_timing[4]<< "\n";
         SpParHelper::Print(tinfo.str());
-        //break; 
+        //break;
         
     }
     

@@ -1935,43 +1935,22 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
     IT localsize = num.size();
     IT lengthuntil = LengthUntil();
     
-    /*
-    IT localmax = init;
-    
-    for(IT k=0; k < localsize; ++k)
-    {
-        localmax = std::max(localmax, __binopIdx(num[k], ind[k] + lengthuntil));
-    }
-    IT globalmax = init;
-    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
-    
-    if(globalmax >= globallen)
-    {
-        cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
-        return Composed;
-    }
-     */
     
     
 	int nprocs = commGrid->GetSize();
-	vector< vector< NT > > datsent(nprocs);
-	vector< vector< IT > > indsent(nprocs);
+	
+    int * sendcnt = new int[nprocs](); // initialize to zero
+	int * sdispls = new int[nprocs];
     
-	IT ploclen = getlocnnz();
+    IT ploclen = getlocnnz();
 	for(IT k=0; k < ploclen; ++k)
 	{
 		IT locind;
         IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
 		int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
-        NT val = __binopVal(num[k], ind[k] + LengthUntil());
-        datsent[owner].push_back(val);
-		indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+        sendcnt[owner]++;
 	}
     
-	int * sendcnt = new int[nprocs];
-	int * sdispls = new int[nprocs];
-	for(int i=0; i<nprocs; ++i)
-		sendcnt[i] = (int) datsent[i].size();
     
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
@@ -1986,17 +1965,37 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
 	}
     
     NT * datbuf = new NT[ploclen];
+    IT * indbuf = new IT[ploclen];
+    
+    vector< vector< NT > > datsent(nprocs);
+	vector< vector< IT > > indsent(nprocs);
+    int * scount = new int[nprocs](); // current counter
+	for(IT k=0; k < ploclen; ++k)
+	{
+		IT locind;
+        IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
+		int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
+        NT val = __binopVal(num[k], ind[k] + LengthUntil());
+        int id = sdispls[owner] + scount[owner];
+        datbuf[id] = val;
+        indbuf[id] = locind;
+        scount[owner]++;
+        //datsent[owner].push_back(val);
+		//indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+	}
+    
+    
+/*
+
 	for(int i=0; i<nprocs; ++i)
 	{
 		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+        copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
 		vector<NT>().swap(datsent[i]);
+        vector<IT>().swap(indsent[i]);
 	}
-    IT * indbuf = new IT[ploclen];
-    for(int i=0; i<nprocs; ++i)
-	{
-		copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
-		vector<IT>().swap(indsent[i]);
-	}
+    
+*/
     
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 	NT * recvdatbuf = new NT[totrecv];
