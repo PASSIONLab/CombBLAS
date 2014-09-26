@@ -1935,8 +1935,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
     IT localsize = num.size();
     IT lengthuntil = LengthUntil();
     
-    
-    
 	int nprocs = commGrid->GetSize();
 	
     int * sendcnt = new int[nprocs](); // initialize to zero
@@ -1950,7 +1948,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
 		int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
         sendcnt[owner]++;
 	}
-    
     
 	int * rdispls = new int[nprocs];
 	int * recvcnt = new int[nprocs];
@@ -1967,8 +1964,6 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
     NT * datbuf = new NT[ploclen];
     IT * indbuf = new IT[ploclen];
     
-    vector< vector< NT > > datsent(nprocs);
-	vector< vector< IT > > indsent(nprocs);
     int * scount = new int[nprocs](); // current counter
 	for(IT k=0; k < ploclen; ++k)
 	{
@@ -1984,67 +1979,19 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose1 (IT globallen, _BinaryOper
 		//indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
 	}
     
-    
-/*
-
-	for(int i=0; i<nprocs; ++i)
-	{
-		copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
-        copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
-		vector<NT>().swap(datsent[i]);
-        vector<IT>().swap(indsent[i]);
-	}
-    
-*/
-    
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
-	NT * recvdatbuf = new NT[totrecv];
-	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
-    delete [] datbuf;
-    
-    IT * recvindbuf = new IT[totrecv];
-    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
-    delete [] indbuf;
-    
-    
-    //vector< pair<IT,NT> > tosort(totrecv);   // in fact, tomerge would be a better name but it is unlikely to be faster
     Composed.ind.resize(totrecv);
     Composed.num.resize(totrecv);
-    IT k = 0;
-	for(int i=0; i<nprocs; ++i)
-	{
-		for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
-		{
-            //tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
-            //tosort[k++] = make_pair(recvindbuf[j], recvdatbuf[j]);
-            Composed.ind[k] = recvindbuf[j];
-            Composed.num[k++] = recvdatbuf[j];
-		}
-	}
-	DeleteAll(recvindbuf, recvdatbuf);
+    
+    MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), Composed.num.data(), recvcnt, rdispls, MPIType<NT>(), World);
+	delete [] datbuf;
+    
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), Composed.ind.data(), recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    // no need to sort at this moment
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
-    /*
-    // sort based on index
-    std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
-    
-    IT lastIndex=-1;
-    
-    Composed.ind.resize(tosort.size());
-    Composed.num.resize(tosort.size());
-    k = 0;
-    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
-    {
-        //if(lastIndex!=itr->first) // avoid duplicate indices
-        {
-            //Composed.ind.push_back(itr->first);
-            Composed.ind[k] = itr->first;
-            Composed.num[k++] = itr->second;
-            //Composed.num.push_back(itr->second);
-        }
-        lastIndex = itr->first;
-	}
-     */
-	return Composed;
+   	return Composed;
 }
 
 
