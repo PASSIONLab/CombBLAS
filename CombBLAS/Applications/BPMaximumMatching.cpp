@@ -503,7 +503,10 @@ void maximumMatching(PSpMat_Bool & Aeff)
         while(col.getnnz()!=0)
         {
             t1 = MPI_Wtime();
-            row = col.Invert(A.getnrow());
+            row = col.Compose1(Aeff.getncol(),
+                                        [](int64_t val, const int64_t index){return val;}, // index is the val
+                                        [](int64_t val, const int64_t index){return index;}); // val is the index
+            //row = col.Invert(A.getnrow());
             phase_timing[9] += MPI_Wtime()-t1;
             // Set parent pointer
             // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
@@ -521,7 +524,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //if(row.getnnz()!=0)row.DebugPrint();
             
             t1 = MPI_Wtime();
-            col = row.Invert(A.getncol()); // children array
+            //col = row.Invert(A.getncol()); // children array
+            col = row.Compose1(Aeff.getncol(),
+                               [](int64_t val, const int64_t index){return val;}, // index is the val
+                               [](int64_t val, const int64_t index){return index;}); // val is the index
+
             phase_timing[11] += MPI_Wtime()-t1;
             
             t1 = MPI_Wtime();
