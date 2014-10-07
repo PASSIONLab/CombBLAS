@@ -87,6 +87,11 @@ public:
     void Select (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation unop);
     template <typename NT1, typename _UnaryOperation>
     FullyDistSpVec<IT,NT> SelectNew (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop);
+    template <typename NT1, typename _UnaryOperation1, typename _UnaryOperation2>
+    FullyDistSpVec<IT,NT1> SelectNew1 (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2);
+    template <typename NT1, typename _UnaryOperation>
+    void FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
+
 
     template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
     void SelectApply (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation __unop, _BinaryOperation __binop);
