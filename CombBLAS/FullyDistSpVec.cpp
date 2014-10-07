@@ -2083,6 +2083,54 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::SelectNew (const FullyDistVec<IT,NT
 }
 
 
+//
+template <typename IT, typename NT>
+template <typename NT1, typename _UnaryOperation1, typename _UnaryOperation2>
+FullyDistSpVec<IT,NT1> FullyDistSpVec<IT,NT>::SelectNew1 (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2)
+{
+    FullyDistSpVec<IT,NT1> composed(commGrid, TotalLength());
+	if(*commGrid == *(denseVec.commGrid))
+	{
+		if(TotalLength() != denseVec.TotalLength())
+		{
+			ostringstream outs;
+			outs << "Vector dimensions don't match (" << TotalLength() << " vs " << denseVec.TotalLength() << ") for Select\n";
+			SpParHelper::Print(outs.str());
+			MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+		}
+		else
+		{
+            
+			IT spsize = getlocnnz();
+            //IT k = 0;
+            // iterate over the sparse vector
+            for(IT i=0; i< spsize; ++i)
+            {
+                if(__unop1(denseVec.arr[ind[i]]))
+                {
+                    composed.ind.push_back(ind[i]);
+                    composed.num.push_back(__unop2(num[i]));
+                    //ind[k] = ind[i];
+                    //num[k++] = num[i];
+                }
+            }
+            //ind.resize(k);
+            //num.resize(k);
+		}
+	}
+	else
+	{
+        ostringstream outs;
+        outs << "Grids are not comparable for Select" << endl;
+        SpParHelper::Print(outs.str());
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+	}
+    
+    return composed;
+}
+
+
+
 
 template <typename IT, typename NT>
 template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
@@ -2165,5 +2213,78 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::SelectApplyNew(const FullyDistVec<I
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
     return composed;
+}
+
+
+
+
+
+/* exp version
+ ** Create a new sparse vector vout from the calling sparse vector vin
+ ** the length of vout is globallen.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
+ ** value is computed by function _BinaryOperationVal.
+ */
+template <class IT, class NT>
+template <typename NT1, typename _UnaryOperation>
+void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop)
+{
+    if(*commGrid != *(Selector.commGrid))
+    {
+        ostringstream outs;
+        outs << "Grids are not comparable for Filter" << endl;
+        SpParHelper::Print(outs.str());
+		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    int nprocs = commGrid->GetSize();
+    MPI_Comm World = commGrid->GetWorld();
+	
+    
+	int * rdispls = new int[nprocs];
+    int sendcnt = Selector.ind.size();
+    int * recvcnt = new int[nprocs];
+    MPI_Allgather(&sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);
+    
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    
+    
+    NT1 * sendbuf = new NT1[sendcnt];
+    
+    for(int k=0; k<sendcnt; k++)
+    {
+        sendbuf[k] = Selector.ind[k] + Selector.LengthUntil();
+    }
+    
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    
+    std::vector<NT1> recvbuf;
+    recvbuf.resize(totrecv);
+    
+    MPI_Allgatherv(sendbuf, sendcnt, MPIType<NT1>(), recvbuf.data(), recvcnt, rdispls, MPIType<NT1>(), World);
+    delete [] sendbuf;
+    DeleteAll(rdispls,recvcnt);
+    
+    //for(IT i=0; i<recvbuf.size(); i++) cout << recvbuf[i] << " ";
+    //cout << "@@"<< num.size() << endl;
+    // now perform filter (recvbuf is sorted)
+    IT k=0;
+    for(IT i=0; i<num.size(); i++)
+    {
+        NT1 val = __unop(num[i]);
+        if(!std::binary_search(recvbuf.begin(), recvbuf.end(), val))
+        {
+            ind[k] = ind[i];
+            num[k++] = num[i];
+        }
+    }
+    ind.resize(k);
+    num.resize(k);
+ 
+    
 }
 
