@@ -392,11 +392,13 @@ void maximumMatching(PSpMat_Bool & Aeff)
     double t1, time_search, time_augment, time_phase;
     bool matched = true;
     int phase = 0;
+    int totalLayer = 0;
+    int64_t numUnmatchedCol;
     
     while(matched)
     {
         time_phase = MPI_Wtime();
-        vector<double> phase_timing(16,0);
+        vector<double> phase_timing(14,0);
         FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // it needs to be cleared after each phase
         
@@ -409,9 +411,10 @@ void maximumMatching(PSpMat_Bool & Aeff)
         //fringeCol.DebugPrint();
         
         ++phase;
-        int64_t numUnmatchedCol = fringeCol.getnnz();
+        numUnmatchedCol = fringeCol.getnnz();
         int64_t tt;
         int layer = 0;
+        
         time_search = MPI_Wtime();
         while(fringeCol.getnnz() > 0)
         {
@@ -426,8 +429,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
             // remove vertices already having parents
             t1 = MPI_Wtime();
             fringeRow.Select(parentsRow, [](int64_t parent){return parent==-1;});
-            //if(fringeRow.getnnz()>0)fringeRow.DebugPrint();
-            phase_timing[1] += MPI_Wtime()-t1;
+           
             
             // Set parent pointer
             // TODO: Write a general purpose FullyDistVec::Set
@@ -436,14 +438,6 @@ void maximumMatching(PSpMat_Bool & Aeff)
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
                                   false, VertexType(), false);
-            rootsRow.EWiseApply(fringeRow,
-                                [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.root;}, // return parent of the sparse vertex
-                                [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
-                                false, VertexType(), false); // just for testing
-            phase_timing[2] += MPI_Wtime()-t1;
-            
-            //if(fringeCol.getnnz() > 0)fringeCol.DebugPrint();
-            //if(fringeRow.getnnz() > 0)fringeRow.DebugPrint();
             
             
             
@@ -451,9 +445,12 @@ void maximumMatching(PSpMat_Bool & Aeff)
             t1 = MPI_Wtime();
             //umFringeRow = fringeRow.SelectNew(mateRow2Col, [](int64_t mate){return mate==-1;});
             umFringeRow1 = fringeRow.SelectNew1(mateRow2Col, [](int64_t mate){return mate==-1;}, [](VertexType& vtx){return vtx.root;});
+            //umFringeRow1 = fringeRow.SelectApplyNew(mateRow2Col, [](int64_t mate){return mate==-1;},
+            //                                        [](VertexType& vtx, int64_t mate){return vtx.root;});
+            
             //cout << "umFringeRow1: ";
             //if(umFringeRow1.getnnz()>0)umFringeRow1.DebugPrint();
-            phase_timing[3] += MPI_Wtime()-t1;
+            phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
             tt = umFringeRow1.getnnz();
             // get the unique leaves
@@ -476,7 +473,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
             }
             
             //MPI_Pcontrol(-1,"Compose");
-            phase_timing[4] += MPI_Wtime()-t1;
+            phase_timing[2] += MPI_Wtime()-t1;
             
             //set leaf pointer
             t1 = MPI_Wtime();
@@ -491,13 +488,13 @@ void maximumMatching(PSpMat_Bool & Aeff)
                 leaves.Set(temp1);
                 
             }
-            phase_timing[5] += MPI_Wtime()-t1;
+            phase_timing[3] += MPI_Wtime()-t1;
             
             
             t1 = MPI_Wtime();
             fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
                                   [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
-            phase_timing[6] += MPI_Wtime()-t1;
+            phase_timing[4] += MPI_Wtime()-t1;
             
             //if(temp1.getnnz() > 0)temp1.DebugPrint();
             
@@ -515,13 +512,13 @@ void maximumMatching(PSpMat_Bool & Aeff)
                                           [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                                           [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
             //if(fringeCol.getnnz()>0)fringeCol.DebugPrint();
-            phase_timing[7] += MPI_Wtime()-t1;
+            phase_timing[5] += MPI_Wtime()-t1;
             // TODO:do something for prunning
             
             
         }
         time_search = MPI_Wtime() - time_search;
-        phase_timing[8] += time_search;
+        phase_timing[6] += time_search;
         //leaves.DebugPrint();
         //rootsRow.DebugPrint();
         
@@ -538,11 +535,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
         while(col.getnnz()!=0)
         {
             t1 = MPI_Wtime();
-            row = col.Compose1(Aeff.getncol(),
-                               [](int64_t val, const int64_t index){return val;}, // index is the val
-                               [](int64_t val, const int64_t index){return index;}); // val is the index
-            //row = col.Invert(A.getnrow());
-            phase_timing[9] += MPI_Wtime()-t1;
+            //row = col.Compose1(Aeff.getncol(),
+            //                   [](int64_t val, const int64_t index){return val;}, // index is the val
+            //                   [](int64_t val, const int64_t index){return index;}); // val is the index
+            row = col.Invert(A.getnrow());
+            phase_timing[7] += MPI_Wtime()-t1;
             // Set parent pointer
             // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
             t1 = MPI_Wtime();
@@ -555,16 +552,16 @@ void maximumMatching(PSpMat_Bool & Aeff)
             row.SelectApply(parentsRow, [](int64_t parent){return true;},
                             [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
             
-            phase_timing[10] += MPI_Wtime()-t1;
+            phase_timing[8] += MPI_Wtime()-t1;
             //if(row.getnnz()!=0)row.DebugPrint();
             
             t1 = MPI_Wtime();
-            //col = row.Invert(A.getncol()); // children array
-            col = row.Compose1(Aeff.getncol(),
-                               [](int64_t val, const int64_t index){return val;}, // index is the val
-                               [](int64_t val, const int64_t index){return index;}); // val is the index
+            col = row.Invert(A.getncol()); // children array
+            //col = row.Compose1(Aeff.getncol(),
+            //                   [](int64_t val, const int64_t index){return val;}, // index is the val
+            //                   [](int64_t val, const int64_t index){return index;}); // val is the index
             
-            phase_timing[11] += MPI_Wtime()-t1;
+            phase_timing[9] += MPI_Wtime()-t1;
             
             t1 = MPI_Wtime();
             /*
@@ -574,12 +571,12 @@ void maximumMatching(PSpMat_Bool & Aeff)
              false, (int64_t) -1);
              */
             nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
-            phase_timing[12] += MPI_Wtime()-t1;
+            phase_timing[10] += MPI_Wtime()-t1;
             //col.DebugPrint();
             t1 = MPI_Wtime();
             mateRow2Col.Set(row);
             mateCol2Row.Set(col);
-            phase_timing[13] += MPI_Wtime()-t1;
+            phase_timing[11] += MPI_Wtime()-t1;
             col = nextcol;
             
         }
@@ -588,15 +585,16 @@ void maximumMatching(PSpMat_Bool & Aeff)
         //mateCol2Row.DebugPrint();
         
         time_augment = MPI_Wtime() - time_augment;
-        phase_timing[14] += time_augment;
+        phase_timing[12] += time_augment;
         time_phase = MPI_Wtime() - time_phase;
-        phase_timing[15] += time_phase;
+        phase_timing[13] += time_phase;
         timing.push_back(phase_timing);
         
         ostringstream tinfo;
-        tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " Comp: " <<phase_timing[4]<< " um: " << tt << "\n";
+        tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << "\n";
         SpParHelper::Print(tinfo.str());
         //if(phase==2)break;
+        totalLayer += layer;
         
     }
     
@@ -616,11 +614,11 @@ void maximumMatching(PSpMat_Bool & Aeff)
     if(myrank == 0)
     {
         cout << endl;
-        cout << "========================================================================================================\n";
-        cout << "                         BFS Search                                        Augment    \n";
-        cout << "============================================================ =================================== =======\n";
-        cout  << "Phase  SpMV EWvis EWSetP EWUmR CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug   Total \n";
-        cout << "========================================================================================================\n";
+        cout << "===================== ========================================= ============================================\n";
+        cout << "                                        BFS Search                                        Augment    \n";
+        cout << "===================== ========================================= =================================== =======\n";
+        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug   Total \n";
+        cout << "===================== ========================================= ============================================\n";
         
         vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
@@ -638,7 +636,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
         }
         
         double combTime = totalTimes.back();
-        printf(" %3d   ", nphases);
+        printf(" %3d  %3d  %8lld   ", nphases, totalLayer/nphases, numUnmatchedCol);
         for(int j=0; j<totalTimes.size()-1; j++)
         {
             printf("%.2lf  ", totalTimes[j]);
