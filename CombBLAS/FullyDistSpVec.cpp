@@ -1696,7 +1696,7 @@ void FullyDistSpVec<IT,NT>::BulkSet(IT inds[], int count) {
  ** nnz(vin) = nnz(vout)
  ** for every nonzero entry vin[k]: vout[vin[k]] = k
  */
-
+/*
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 {
@@ -1772,6 +1772,108 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 	DeleteAll(recvindbuf, recvdatbuf);
     DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
     std::sort(tosort.begin(), tosort.end());
+    
+    IT lastIndex=-1;
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        if(lastIndex!=itr->first) // avoid duplicate indices
+        {
+            Inverted.ind.push_back(itr->first);
+            Inverted.num.push_back(itr->second);
+        }
+        lastIndex = itr->first;
+        
+	}
+	return Inverted;
+    
+}
+*/
+
+
+
+/*
+ ** Create a new sparse vector vout by swaping the indices and values of a sparse vector vin.
+ ** the length of vout is globallen, which must be greater than the maximum entry of vin.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry vin[k]: vout[vin[k]] = k
+ */
+
+template <class IT, class NT>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
+{
+    FullyDistSpVec<IT,NT> Inverted(commGrid, globallen);
+    IT max_entry = Reduce(maximum<IT>(), (IT) 0 ) ;
+    if(max_entry >= globallen)
+    {
+        cout << "Sparse vector has entries (" << max_entry  << ") larger than requested global vector length " << globallen << endl;
+        return Inverted;
+    }
+	
+    MPI_Comm World = commGrid->GetWorld();
+	int nprocs = commGrid->GetSize();
+    int * rdispls = new int[nprocs];
+	int * recvcnt = new int[nprocs];
+    int * sendcnt = new int[nprocs](); // initialize to 0
+	int * sdispls = new int[nprocs];
+    
+    
+	IT ploclen = getlocnnz();
+	for(IT k=0; k < ploclen; ++k)
+	{
+		IT locind;
+		int owner = Inverted.Owner(num[k], locind);
+        sendcnt[owner]++;
+	}
+    
+   	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    
+    sdispls[0] = 0;
+	rdispls[0] = 0;
+	for(int i=0; i<nprocs-1; ++i)
+	{
+		sdispls[i+1] = sdispls[i] + sendcnt[i];
+		rdispls[i+1] = rdispls[i] + recvcnt[i];
+	}
+    
+    
+    
+    
+    NT * datbuf = new NT[ploclen];
+    IT * indbuf = new IT[ploclen];
+    int *count = new int[nprocs](); //current position
+    for(IT i=0; i < ploclen; ++i)
+	{
+		IT locind;
+        int owner = Inverted.Owner(num[i], locind);
+        int id = sdispls[owner] + count[owner];
+        datbuf[id] = ind[i] + LengthUntil();
+        indbuf[id] = locind;
+        count[owner]++;
+	}
+    
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+
+	NT * recvdatbuf = new NT[totrecv];
+	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    
+    IT * recvindbuf = new IT[totrecv];
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+    
+    
+    vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
+    tosort.resize(totrecv);
+	for(int i=0; i<totrecv; ++i)
+	{
+        tosort[i] = make_pair(recvindbuf[i], recvdatbuf[i]);
+	}
+	DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    std::sort(tosort.begin(), tosort.end());
+    
+    //Inverted.ind.resize(totrecv);
+    //Inverted.num.resize(totrecv);
     
     IT lastIndex=-1;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
