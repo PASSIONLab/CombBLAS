@@ -526,7 +526,8 @@ void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t 
 		MPI_Sendrecv(const_cast<NV*>(SpHelper::p2a(x.num)), xlocnz, MPIType<NV>(), diagneigh, TRX, trxnums, trxlocnz, MPIType<NV>(), diagneigh, TRX, World, &status);
 	}
 	transform(trxinds, trxinds+trxlocnz, trxinds, bind2nd(plus<int32_t>(), roffset)); // fullydist indexing (p pieces) -> matrix indexing (sqrt(p) pieces)
-}	
+}
+
 
 /**
  * Step 2 of the sparse SpMV algorithm 
