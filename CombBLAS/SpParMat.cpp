@@ -1292,6 +1292,10 @@ IT SpParMat<IT,NT,DER>::RemoveLoops()
 	return totrem;
 }		
 
+
+//! Does two optimizations
+//! 1) Splits the local column indices to sparse & dense pieces to avoid redundant AllGather (sparse pieces get p2p)
+//! 2) Pre-allocates buffers for row communication
 template <class IT, class NT, class DER>
 template <typename LIT, typename OT>
 void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
@@ -1300,23 +1304,91 @@ void SpParMat<IT,NT,DER>::OptimizeForGraph500(OptBuf<LIT,OT> & optbuf)
 	{
 		SpParHelper::Print("Can not declare preallocated buffers for multithreaded execution");
 		return;
-	}
+    }
 
-	// Set up communication buffers, one for all
-	typename DER::LocalIT mA = spSeq->getnrow();
-	typename DER::LocalIT p_c = commGrid->GetGridCols();
+    typedef typename DER::LocalIT LocIT;    // ABAB: should match the type of LIT. Check?
+    
+    // Set up communication buffers, one for all
+	LocIT mA = spSeq->getnrow();
+    LocIT nA = spSeq->getncol();
+    
+	int p_c = commGrid->GetGridCols();
+    int p_r = commGrid->GetGridRows();
+    
+    LocIT rwperproc = mA / p_c; // per processors in row-wise communication
+    LocIT cwperproc = nA / p_r; // per processors in column-wise communication
+    
+#ifdef GATHERVOPT
+    LocIT * colinds = seq->GetDCSC()->jc;   // local nonzero column id's
+    LocIT locnzc = seq->getnzc();
+    LocIT cci = 0;  // index to column id's array (cci: current column index)
+    int * gsizes = NULL;
+    IT * ents = NULL;
+    IT * dpls = NULL;
+    vector<LocIT> pack2send;
+    
+    FullyDistSpVec<IT,IT> dummyRHS ( commGrid, getncol()); // dummy RHS vector to estimate index start position
+    IT recveclen;
+    
+    for(int pid = 1; pid <= p_r; pid++)
+    {
+        IT diagoffset;
+        MPI_Status status;
+        IT offset = dummyRHS.RowLenUntil(pid-1);
+        int diagneigh = commGrid->GetComplementRank();
+        MPI_Sendrecv(&offset, 1, MPIType<IT>(), diagneigh, TRTAGNZ, &diagoffset, 1, MPIType<IT>(), diagneigh, TRTAGNZ, commGrid->GetWorld(), &status);
+
+        LocIT endind = (pid == p_r)? nA : static_cast<LocIT>(pid) * cwperproc;     // the last one might have a larger share (is this fitting to the vector boundaries?)
+        while(cci < locnzc && colinds[cci] < endind)
+        {
+            pack2send.push_back(colinds[cci++]-diagoffset);
+        }
+        if(pid-1 == myrank) gsizes = new int[p_r];
+        MPI_Gather(&mysize, 1, MPI_INT, gsizes, 1, MPI_INT, pid-1, commGrid->GetColWorld());
+        if(pid-1 == myrank)
+        {
+            IT colcnt = std::accumulate(gsizes, gsizes+p_r, static_cast<IT>(0));
+            recvbuf = new IT[colcnt];
+            dpls = new IT[p_r]();     // displacements (zero initialized pid)
+            std::partial_sum(gsizes, gsizes+p_r-1, dpls+1);
+        }
+        
+        // int MPI_Gatherv (void* sbuf, int scount, MPI_Datatype stype, void* rbuf, int *rcount, int* displs, MPI_Datatype rtype, int root, MPI_Comm comm)
+        MPI_Gatherv(SpHelper::p2a(pack2send), mysize, MPIType<LocIT>(), recvbuf, gsizes, dpls, MPIType<LocIT>(), pid-1, commGrid->GetColWorld());
+        vector<LocIT>().swap(pack2send);
+        
+       if(pid-1 == myrank)
+       {
+           recveclen = dummyRHS.MyLocLength();
+           vector< vector<LocIT> > service(recveclen);
+           for(int i=0; i< p_r; ++i)
+           {
+               for(int j=0; j< gsizes[i]; ++j)
+               {
+                   IT colid2update = recvbuf[dpls[i]+j];
+                   if(service[colid2update].size() < GATHERVNEIGHLIMIT)
+                   {
+                       service.push_back(i);
+                   }
+                   // else don't increase any further and mark it done after the iterations are complete
+               }
+           }
+       }
+    }
+#endif
+
+    
 	vector<bool> isthere(mA, false); // perhaps the only appropriate use of this crippled data structure
-	typename DER::LocalIT perproc = mA / p_c; 
 	vector<int> maxlens(p_c,0);	// maximum data size to be sent to any neighbor along the processor row
 
 	for(typename DER::SpColIter colit = spSeq->begcol(); colit != spSeq->endcol(); ++colit)
 	{
 		for(typename DER::SpColIter::NzIter nzit = spSeq->begnz(colit); nzit != spSeq->endnz(colit); ++nzit)
 		{
-			typename DER::LocalIT rowid = nzit.rowid();
+			LocIT rowid = nzit.rowid();
 			if(!isthere[rowid])
 			{
-				typename DER::LocalIT owner = min(nzit.rowid() / perproc, p_c-1); 			
+				LocIT owner = min(nzit.rowid() / rwperproc, (LocIT) p_c-1);
 				maxlens[owner]++;
 				isthere[rowid] = true;
 			}
