@@ -17,7 +17,7 @@ extern int nprocs;
 typedef uint32_t vid_t;
 typedef uint32_t eid_t;
 
-#define MAX_NUMPROCS 305
+#define MAX_NUMPROCS 512
 
 #define ROOT_VERT_RNG_SEED 2323232
 

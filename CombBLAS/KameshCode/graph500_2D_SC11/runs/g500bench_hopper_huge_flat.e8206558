@@ -1,0 +1,721 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+cray-hdf5-parallel(3):ERROR:105: Unable to locate a modulefile for 'cray-hdf5-parallel/1.8.12'
+ModuleCmd_Switch.c(172):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+SCALE: 32, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 220, nproc_cols 220
+Vertex status array replicated
+graph_generation:               1.871191 s
+Running threaded BFS 0 (12223)
+time:  1.484705 s.
+sift  0.008694 s. (0.586), load  0.639660 s. (43.083)
+a2a   0.534180 s. (35.979), gather  0.263677 s. (17.760)
+comm  0.797857 s. (53.738), comp  0.648354 s. (43.669)
+init  0.018721 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 1 (88234)
+time:  1.412594 s.
+sift  0.005094 s. (0.361), load  0.646263 s. (45.750)
+a2a   0.513116 s. (36.324), gather  0.201520 s. (14.266)
+comm  0.714636 s. (50.590), comp  0.651357 s. (46.111)
+init  0.018130 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 2 (51010)
+time:  1.364235 s.
+sift  0.006103 s. (0.447), load  0.646777 s. (47.409)
+a2a   0.507716 s. (37.216), gather  0.165061 s. (12.099)
+comm  0.672777 s. (49.315), comp  0.652879 s. (47.857)
+init  0.018114 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (10178)
+time:  1.370018 s.
+sift  0.005102 s. (0.372), load  0.652510 s. (47.628)
+a2a   0.501111 s. (36.577), gather  0.174929 s. (12.768)
+comm  0.676040 s. (49.345), comp  0.657612 s. (48.000)
+init  0.019081 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 4 (44341)
+time:  1.368785 s.
+sift  0.006556 s. (0.479), load  0.656790 s. (47.983)
+a2a   0.501785 s. (36.659), gather  0.161870 s. (11.826)
+comm  0.663655 s. (48.485), comp  0.663347 s. (48.462)
+init  0.017940 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (52796)
+time:  1.442072 s.
+sift  0.005919 s. (0.410), load  0.651976 s. (45.211)
+a2a   0.519326 s. (36.012), gather  0.233293 s. (16.178)
+comm  0.752619 s. (52.190), comp  0.657895 s. (45.622)
+init  0.017991 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (2339)
+time:  1.445829 s.
+sift  0.006332 s. (0.438), load  0.631752 s. (43.695)
+a2a   0.515540 s. (35.657), gather  0.222546 s. (15.392)
+comm  0.738086 s. (51.049), comp  0.638084 s. (44.133)
+init  0.019043 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 7 (5095)
+time:  1.390364 s.
+sift  0.006294 s. (0.453), load  0.637135 s. (45.825)
+a2a   0.501408 s. (36.063), gather  0.216751 s. (15.590)
+comm  0.718159 s. (51.653), comp  0.643429 s. (46.278)
+init  0.018029 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 8 (32239)
+time:  1.349984 s.
+sift  0.005486 s. (0.406), load  0.647292 s. (47.948)
+a2a   0.483013 s. (35.779), gather  0.185657 s. (13.753)
+comm  0.668669 s. (49.532), comp  0.652778 s. (48.355)
+init  0.019054 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 9 (44722)
+time:  1.383382 s.
+sift  0.006248 s. (0.452), load  0.660857 s. (47.771)
+a2a   0.544392 s. (39.352), gather  0.141381 s. (10.220)
+comm  0.685773 s. (49.572), comp  0.667105 s. (48.223)
+init  0.017953 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 10 (36769)
+time:  1.415933 s.
+sift  0.006746 s. (0.476), load  0.660834 s. (46.671)
+a2a   0.519720 s. (36.705), gather  0.198427 s. (14.014)
+comm  0.718147 s. (50.719), comp  0.667580 s. (47.148)
+init  0.019038 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 11 (72549)
+time:  1.359321 s.
+sift  0.004972 s. (0.366), load  0.658678 s. (48.456)
+a2a   0.486503 s. (35.790), gather  0.180940 s. (13.311)
+comm  0.667443 s. (49.101), comp  0.663650 s. (48.822)
+init  0.018155 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 12 (60118)
+time:  1.339738 s.
+sift  0.005204 s. (0.388), load  0.652633 s. (48.713)
+a2a   0.497436 s. (37.129), gather  0.158438 s. (11.826)
+comm  0.655874 s. (48.955), comp  0.657836 s. (49.102)
+init  0.018993 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 13 (79462)
+time:  1.375572 s.
+sift  0.005965 s. (0.434), load  0.629807 s. (45.785)
+a2a   0.498454 s. (36.236), gather  0.204902 s. (14.896)
+comm  0.703356 s. (51.132), comp  0.635772 s. (46.219)
+init  0.019009 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 14 (51261)
+time:  1.343078 s.
+sift  0.005572 s. (0.415), load  0.648408 s. (48.278)
+a2a   0.504287 s. (37.547), gather  0.159975 s. (11.911)
+comm  0.664262 s. (49.458), comp  0.653980 s. (48.693)
+init  0.017988 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 15 (69076)
+time:  1.349972 s.
+sift  0.005871 s. (0.435), load  0.646304 s. (47.875)
+a2a   0.528070 s. (39.117), gather  0.141579 s. (10.488)
+comm  0.669649 s. (49.605), comp  0.652175 s. (48.310)
+init  0.018165 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 16 (55388)
+time:  1.376000 s.
+sift  0.005279 s. (0.384), load  0.629992 s. (45.784)
+a2a   0.498196 s. (36.206), gather  0.212082 s. (15.413)
+comm  0.710278 s. (51.619), comp  0.635271 s. (46.168)
+init  0.017712 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 17 (47912)
+time:  1.405718 s.
+sift  0.006725 s. (0.478), load  0.632241 s. (44.976)
+a2a   0.540847 s. (38.475), gather  0.183242 s. (13.035)
+comm  0.724089 s. (51.510), comp  0.638966 s. (45.455)
+init  0.018061 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 18 (56770)
+time:  1.411653 s.
+sift  0.007042 s. (0.499), load  0.661880 s. (46.887)
+a2a   0.521409 s. (36.936), gather  0.187088 s. (13.253)
+comm  0.708497 s. (50.189), comp  0.668922 s. (47.386)
+init  0.019071 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 19 (7096)
+time:  1.339439 s.
+sift  0.005758 s. (0.430), load  0.647236 s. (48.321)
+a2a   0.503748 s. (37.609), gather  0.153258 s. (11.442)
+comm  0.657007 s. (49.051), comp  0.652995 s. (48.751)
+init  0.019040 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 20 (4838)
+time:  1.387987 s.
+sift  0.005819 s. (0.419), load  0.634574 s. (45.719)
+a2a   0.534147 s. (38.484), gather  0.178162 s. (12.836)
+comm  0.712309 s. (51.320), comp  0.640393 s. (46.138)
+init  0.017917 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 21 (85821)
+time:  1.344545 s.
+sift  0.006606 s. (0.491), load  0.650779 s. (48.401)
+a2a   0.490251 s. (36.462), gather  0.171060 s. (12.723)
+comm  0.661311 s. (49.185), comp  0.657385 s. (48.893)
+init  0.017945 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 22 (24298)
+time:  1.350976 s.
+sift  0.006515 s. (0.482), load  0.647061 s. (47.896)
+a2a   0.498435 s. (36.894), gather  0.170585 s. (12.627)
+comm  0.669020 s. (49.521), comp  0.653576 s. (48.378)
+init  0.017969 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 23 (76114)
+time:  1.360681 s.
+sift  0.005666 s. (0.416), load  0.658178 s. (48.371)
+a2a   0.517461 s. (38.030), gather  0.152567 s. (11.213)
+comm  0.670028 s. (49.242), comp  0.663844 s. (48.788)
+init  0.018099 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 24 (78749)
+time:  1.369561 s.
+sift  0.005747 s. (0.420), load  0.633530 s. (46.258)
+a2a   0.498268 s. (36.382), gather  0.203836 s. (14.883)
+comm  0.702104 s. (51.265), comp  0.639277 s. (46.678)
+init  0.018002 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 25 (85573)
+time:  1.342449 s.
+sift  0.005494 s. (0.409), load  0.653028 s. (48.645)
+a2a   0.496971 s. (37.020), gather  0.157827 s. (11.757)
+comm  0.654798 s. (48.776), comp  0.658522 s. (49.054)
+init  0.019042 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 26 (84499)
+time:  1.380687 s.
+sift  0.008283 s. (0.600), load  0.632619 s. (45.819)
+a2a   0.523280 s. (37.900), gather  0.183226 s. (13.271)
+comm  0.706506 s. (51.171), comp  0.640902 s. (46.419)
+init  0.019038 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 27 (26570)
+time:  1.347629 s.
+sift  0.006732 s. (0.500), load  0.645750 s. (47.917)
+a2a   0.520499 s. (38.623), gather  0.146581 s. (10.877)
+comm  0.667080 s. (49.500), comp  0.652482 s. (48.417)
+init  0.019037 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 28 (29350)
+time:  1.339202 s.
+sift  0.005811 s. (0.434), load  0.648329 s. (48.412)
+a2a   0.490165 s. (36.601), gather  0.165489 s. (12.357)
+comm  0.655653 s. (48.959), comp  0.654140 s. (48.845)
+init  0.019024 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 29 (75726)
+time:  1.347191 s.
+sift  0.005487 s. (0.407), load  0.656181 s. (48.707)
+a2a   0.510492 s. (37.893), gather  0.146574 s. (10.880)
+comm  0.657066 s. (48.773), comp  0.661668 s. (49.115)
+init  0.019005 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 30 (32079)
+time:  1.391558 s.
+sift  0.005322 s. (0.382), load  0.656871 s. (47.204)
+a2a   0.550063 s. (39.529), gather  0.149891 s. (10.771)
+comm  0.699954 s. (50.300), comp  0.662193 s. (47.586)
+init  0.019014 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 31 (55132)
+time:  1.399031 s.
+sift  0.006694 s. (0.478), load  0.656653 s. (46.936)
+a2a   0.525233 s. (37.543), gather  0.180690 s. (12.915)
+comm  0.705923 s. (50.458), comp  0.663347 s. (47.415)
+init  0.018190 s., vis levels 10, nvisited 1651669332
+
+
+SCALE:                          32
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              48400
+graph_generation:               1.87124 s
+construction_time:              70.3715 s
+min_time:                       1.33929 s
+firstquartile_time:             1.34889 s
+median_time:                    1.36989 s
+thirdquartile_time:             1.39539 s
+max_time:                       1.48487 s
+mean_time:                      1.37791 s
+stddev_time:                    0.0354052
+min_nedge:                      68718955968
+firstquartile_nedge:            68718955968
+median_nedge:                   68718955968
+thirdquartile_nedge:            68718955968
+max_nedge:                      68718955968
+mean_nedge:                     68718955968
+stddev_nedge:                   0
+min_TEPS:                       4.62794e+10 TEPS
+firstquartile_TEPS:             4.9247e+10 TEPS
+median_TEPS:                    5.0164e+10 TEPS
+thirdquartile_TEPS:             5.09447e+10 TEPS
+max_TEPS:                       5.13101e+10 TEPS
+harmonic_mean_TEPS:             4.9872e+10 TEPS
+harmonic_stddev_TEPS:           2.30156e+08
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  6.03497e-07 s
+stddev_validate:                5.13799e-07
+Application 36211757 resources: utime ~6194994s, stime ~169388s, Rss ~509444, inblocks ~18630141, outblocks ~174871314
+SCALE: 32, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 440, nproc_cols 110
+Vertex status array replicated
+graph_generation:               1.868533 s
+Running threaded BFS 0 (28857)
+time:  1.288029 s.
+sift  0.005271 s. (0.409), load  0.520795 s. (40.433)
+a2a   0.479069 s. (37.194), gather  0.177939 s. (13.815)
+comm  0.657008 s. (51.009), comp  0.526066 s. (40.843)
+init  0.092284 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 1 (12223)
+time:  1.218799 s.
+sift  0.004935 s. (0.405), load  0.510320 s. (41.871)
+a2a   0.434847 s. (35.678), gather  0.203210 s. (16.673)
+comm  0.638057 s. (52.351), comp  0.515255 s. (42.276)
+init  0.036206 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 2 (76726)
+time:  1.203370 s.
+sift  0.005363 s. (0.446), load  0.517532 s. (43.007)
+a2a   0.480316 s. (39.914), gather  0.144380 s. (11.998)
+comm  0.624696 s. (51.912), comp  0.522894 s. (43.452)
+init  0.036409 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (88234)
+time:  1.189088 s.
+sift  0.005105 s. (0.429), load  0.514999 s. (43.310)
+a2a   0.500781 s. (42.115), gather  0.115557 s. (9.718)
+comm  0.616338 s. (51.833), comp  0.520104 s. (43.740)
+init  0.037478 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 4 (51010)
+time:  1.199723 s.
+sift  0.005200 s. (0.433), load  0.516774 s. (43.074)
+a2a   0.442269 s. (36.864), gather  0.183556 s. (15.300)
+comm  0.625825 s. (52.164), comp  0.521974 s. (43.508)
+init  0.037466 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (38009)
+time:  1.219067 s.
+sift  0.004853 s. (0.398), load  0.526775 s. (43.211)
+a2a   0.494109 s. (40.532), gather  0.140341 s. (11.512)
+comm  0.634450 s. (52.044), comp  0.531629 s. (43.609)
+init  0.035753 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (10178)
+time:  1.255759 s.
+sift  0.008826 s. (0.703), load  0.521163 s. (41.502)
+a2a   0.477806 s. (38.049), gather  0.175975 s. (14.013)
+comm  0.653781 s. (52.063), comp  0.529989 s. (42.205)
+init  0.036374 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 7 (35701)
+time:  1.232274 s.
+sift  0.004899 s. (0.398), load  0.528024 s. (42.850)
+a2a   0.498733 s. (40.473), gather  0.130799 s. (10.614)
+comm  0.629532 s. (51.087), comp  0.532923 s. (43.247)
+init  0.037472 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 8 (44341)
+time:  1.206581 s.
+sift  0.004865 s. (0.403), load  0.523722 s. (43.405)
+a2a   0.484934 s. (40.191), gather  0.139889 s. (11.594)
+comm  0.624823 s. (51.785), comp  0.528587 s. (43.809)
+init  0.036165 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 9 (52796)
+time:  1.204862 s.
+sift  0.005643 s. (0.468), load  0.521970 s. (43.322)
+a2a   0.494508 s. (41.043), gather  0.135769 s. (11.268)
+comm  0.630276 s. (52.311), comp  0.527613 s. (43.790)
+init  0.036435 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 10 (2339)
+time:  1.179372 s.
+sift  0.005183 s. (0.439), load  0.507860 s. (43.062)
+a2a   0.451797 s. (38.308), gather  0.158558 s. (13.444)
+comm  0.610355 s. (51.753), comp  0.513043 s. (43.501)
+init  0.036244 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 11 (77320)
+time:  1.243308 s.
+sift  0.006494 s. (0.522), load  0.516826 s. (41.569)
+a2a   0.535212 s. (43.047), gather  0.120849 s. (9.720)
+comm  0.656061 s. (52.767), comp  0.523320 s. (42.091)
+init  0.037437 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 12 (5095)
+time:  1.183740 s.
+sift  0.005553 s. (0.469), load  0.508775 s. (42.980)
+a2a   0.443038 s. (37.427), gather  0.174702 s. (14.759)
+comm  0.617740 s. (52.185), comp  0.514328 s. (43.449)
+init  0.037413 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 13 (32239)
+time:  1.207274 s.
+sift  0.005017 s. (0.416), load  0.516548 s. (42.786)
+a2a   0.448048 s. (37.112), gather  0.182697 s. (15.133)
+comm  0.630745 s. (52.245), comp  0.521565 s. (43.202)
+init  0.037477 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 14 (45334)
+time:  1.199625 s.
+sift  0.004883 s. (0.407), load  0.511694 s. (42.654)
+a2a   0.449778 s. (37.493), gather  0.175907 s. (14.664)
+comm  0.625685 s. (52.157), comp  0.516577 s. (43.062)
+init  0.036433 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 15 (56135)
+time:  1.210880 s.
+sift  0.006003 s. (0.496), load  0.521979 s. (43.107)
+a2a   0.480445 s. (39.677), gather  0.150496 s. (12.429)
+comm  0.630941 s. (52.106), comp  0.527982 s. (43.603)
+init  0.037491 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 16 (44722)
+time:  1.204769 s.
+sift  0.005096 s. (0.423), load  0.527060 s. (43.748)
+a2a   0.488437 s. (40.542), gather  0.129594 s. (10.757)
+comm  0.618030 s. (51.299), comp  0.532156 s. (44.171)
+init  0.037510 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 17 (36769)
+time:  1.194706 s.
+sift  0.005336 s. (0.447), load  0.526443 s. (44.065)
+a2a   0.494004 s. (41.349), gather  0.118811 s. (9.945)
+comm  0.612815 s. (51.294), comp  0.531779 s. (44.511)
+init  0.036485 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 18 (72549)
+time:  1.204600 s.
+sift  0.005163 s. (0.429), load  0.525888 s. (43.657)
+a2a   0.496744 s. (41.237), gather  0.125458 s. (10.415)
+comm  0.622202 s. (51.652), comp  0.531051 s. (44.085)
+init  0.036336 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 19 (73909)
+time:  1.210105 s.
+sift  0.005558 s. (0.459), load  0.517871 s. (42.796)
+a2a   0.512924 s. (42.387), gather  0.117689 s. (9.725)
+comm  0.630612 s. (52.112), comp  0.523429 s. (43.255)
+init  0.037448 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 20 (60118)
+time:  1.224008 s.
+sift  0.006241 s. (0.510), load  0.520694 s. (42.540)
+a2a   0.488802 s. (39.935), gather  0.155236 s. (12.683)
+comm  0.644038 s. (52.617), comp  0.526935 s. (43.050)
+init  0.036531 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 21 (79462)
+time:  1.182708 s.
+sift  0.005282 s. (0.447), load  0.507409 s. (42.902)
+a2a   0.443735 s. (37.519), gather  0.178802 s. (15.118)
+comm  0.622537 s. (52.637), comp  0.512691 s. (43.349)
+init  0.037440 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 22 (51261)
+time:  1.218226 s.
+sift  0.005474 s. (0.449), load  0.518668 s. (42.576)
+a2a   0.498756 s. (40.941), gather  0.145282 s. (11.926)
+comm  0.644038 s. (52.867), comp  0.524142 s. (43.025)
+init  0.036312 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 23 (69076)
+time:  1.234425 s.
+sift  0.005559 s. (0.450), load  0.516782 s. (41.864)
+a2a   0.532715 s. (43.155), gather  0.122783 s. (9.947)
+comm  0.655498 s. (53.102), comp  0.522341 s. (42.315)
+init  0.036351 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 24 (84176)
+time:  1.278825 s.
+sift  0.005467 s. (0.428), load  0.520588 s. (40.708)
+a2a   0.532487 s. (41.639), gather  0.143231 s. (11.200)
+comm  0.675718 s. (52.839), comp  0.526055 s. (41.136)
+init  0.036418 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 25 (55388)
+time:  1.216494 s.
+sift  0.006966 s. (0.573), load  0.508701 s. (41.817)
+a2a   0.476603 s. (39.178), gather  0.155279 s. (12.764)
+comm  0.631882 s. (51.943), comp  0.515667 s. (42.390)
+init  0.037495 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 26 (47912)
+time:  1.172863 s.
+sift  0.005364 s. (0.457), load  0.509240 s. (43.419)
+a2a   0.462492 s. (39.433), gather  0.143609 s. (12.244)
+comm  0.606102 s. (51.677), comp  0.514603 s. (43.876)
+init  0.036468 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 27 (56770)
+time:  1.217332 s.
+sift  0.005159 s. (0.424), load  0.528571 s. (43.420)
+a2a   0.474663 s. (38.992), gather  0.151633 s. (12.456)
+comm  0.626296 s. (51.448), comp  0.533730 s. (43.844)
+init  0.036394 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 28 (7096)
+time:  1.206631 s.
+sift  0.005557 s. (0.461), load  0.517509 s. (42.889)
+a2a   0.465200 s. (38.554), gather  0.166243 s. (13.777)
+comm  0.631443 s. (52.331), comp  0.523066 s. (43.349)
+init  0.035728 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 29 (4838)
+time:  1.196954 s.
+sift  0.005065 s. (0.423), load  0.510755 s. (42.671)
+a2a   0.504396 s. (42.140), gather  0.121991 s. (10.192)
+comm  0.626387 s. (52.332), comp  0.515820 s. (43.094)
+init  0.036378 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 30 (85821)
+time:  1.218404 s.
+sift  0.005134 s. (0.421), load  0.520216 s. (42.697)
+a2a   0.495878 s. (40.699), gather  0.149867 s. (12.300)
+comm  0.645745 s. (52.999), comp  0.525350 s. (43.118)
+init  0.036129 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 31 (24298)
+time:  1.210600 s.
+sift  0.005694 s. (0.470), load  0.517596 s. (42.755)
+a2a   0.475617 s. (39.288), gather  0.159136 s. (13.145)
+comm  0.634753 s. (52.433), comp  0.523290 s. (43.226)
+init  0.037453 s., vis levels 10, nvisited 1651669332
+
+
+SCALE:                          32
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              48400
+graph_generation:               1.86859 s
+construction_time:              70.926 s
+min_time:                       1.17296 s
+firstquartile_time:             1.19976 s
+median_time:                    1.20876 s
+thirdquartile_time:             1.21987 s
+max_time:                       1.28811 s
+mean_time:                      1.21368 s
+stddev_time:                    0.0255872
+min_nedge:                      68718955968
+firstquartile_nedge:            68718955968
+median_nedge:                   68718955968
+thirdquartile_nedge:            68718955968
+max_nedge:                      68718955968
+mean_nedge:                     68718955968
+stddev_nedge:                   0
+min_TEPS:                       5.33487e+10 TEPS
+firstquartile_TEPS:             5.63328e+10 TEPS
+median_TEPS:                    5.68506e+10 TEPS
+thirdquartile_TEPS:             5.72775e+10 TEPS
+max_TEPS:                       5.8586e+10 TEPS
+harmonic_mean_TEPS:             5.66202e+10 TEPS
+harmonic_stddev_TEPS:           2.14392e+08
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  5.21541e-07 s
+stddev_validate:                5.00981e-07
+Application 36211825 resources: utime ~5850470s, stime ~165374s, Rss ~449816, inblocks ~96280884, outblocks ~205271948
+SCALE: 32, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 110, nproc_cols 440
+Vertex status array replicated
+graph_generation:               1.868737 s
+Running threaded BFS 0 (88234)
+time:  1.761533 s.
+sift  0.005074 s. (0.288), load  0.911390 s. (51.738)
+a2a   0.451758 s. (25.646), gather  0.345107 s. (19.591)
+comm  0.796865 s. (45.237), comp  0.916464 s. (52.027)
+init  0.008866 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 1 (51010)
+time:  1.640509 s.
+sift  0.004910 s. (0.299), load  0.924733 s. (56.369)
+a2a   0.463770 s. (28.270), gather  0.213564 s. (13.018)
+comm  0.677334 s. (41.288), comp  0.929643 s. (56.668)
+init  0.009800 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 2 (10178)
+time:  1.652441 s.
+sift  0.006127 s. (0.371), load  0.934797 s. (56.571)
+a2a   0.453428 s. (27.440), gather  0.220879 s. (13.367)
+comm  0.674308 s. (40.807), comp  0.940924 s. (56.941)
+init  0.009788 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (2339)
+time:  1.741768 s.
+sift  0.004231 s. (0.243), load  0.893899 s. (51.321)
+a2a   0.489116 s. (28.082), gather  0.249004 s. (14.296)
+comm  0.738119 s. (42.378), comp  0.898130 s. (51.564)
+init  0.009774 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 4 (5095)
+time:  1.611191 s.
+sift  0.005041 s. (0.313), load  0.903906 s. (56.102)
+a2a   0.441440 s. (27.398), gather  0.228152 s. (14.160)
+comm  0.669591 s. (41.559), comp  0.908947 s. (56.415)
+init  0.009828 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (32239)
+time:  1.633200 s.
+sift  0.005786 s. (0.354), load  0.925415 s. (56.663)
+a2a   0.451048 s. (27.617), gather  0.216255 s. (13.241)
+comm  0.667303 s. (40.859), comp  0.931201 s. (57.017)
+init  0.008514 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (44722)
+time:  1.701972 s.
+sift  0.004815 s. (0.283), load  0.949969 s. (55.816)
+a2a   0.450039 s. (26.442), gather  0.244534 s. (14.368)
+comm  0.694574 s. (40.810), comp  0.954784 s. (56.099)
+init  0.008763 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 7 (79462)
+time:  1.692368 s.
+sift  0.007909 s. (0.467), load  0.894192 s. (52.837)
+a2a   0.474499 s. (28.038), gather  0.213778 s. (12.632)
+comm  0.688277 s. (40.669), comp  0.902100 s. (53.304)
+init  0.008726 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 8 (69076)
+time:  1.643766 s.
+sift  0.004771 s. (0.290), load  0.931830 s. (56.689)
+a2a   0.452213 s. (27.511), gather  0.235400 s. (14.321)
+comm  0.687613 s. (41.832), comp  0.936601 s. (56.979)
+init  0.009843 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 9 (55388)
+time:  1.661629 s.
+sift  0.004806 s. (0.289), load  0.894745 s. (53.847)
+a2a   0.479815 s. (28.876), gather  0.242708 s. (14.607)
+comm  0.722523 s. (43.483), comp  0.899551 s. (54.137)
+init  0.008735 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 10 (47912)
+time:  1.696479 s.
+sift  0.004974 s. (0.293), load  0.897553 s. (52.907)
+a2a   0.518678 s. (30.574), gather  0.229424 s. (13.524)
+comm  0.748101 s. (44.097), comp  0.902527 s. (53.200)
+init  0.008760 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 11 (56770)
+time:  1.765309 s.
+sift  0.007919 s. (0.449), load  0.950616 s. (53.850)
+a2a   0.469758 s. (26.611), gather  0.307569 s. (17.423)
+comm  0.777327 s. (44.033), comp  0.958535 s. (54.298)
+init  0.008370 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 12 (7096)
+time:  1.661412 s.
+sift  0.004151 s. (0.250), load  0.926237 s. (55.750)
+a2a   0.479294 s. (28.849), gather  0.215810 s. (12.990)
+comm  0.695104 s. (41.838), comp  0.930388 s. (56.000)
+init  0.009832 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 13 (4838)
+time:  1.643899 s.
+sift  0.006352 s. (0.386), load  0.898411 s. (54.651)
+a2a   0.469560 s. (28.564), gather  0.234006 s. (14.235)
+comm  0.703566 s. (42.799), comp  0.904763 s. (55.038)
+init  0.009826 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 14 (85821)
+time:  1.660560 s.
+sift  0.005457 s. (0.329), load  0.934756 s. (56.292)
+a2a   0.465848 s. (28.054), gather  0.219430 s. (13.214)
+comm  0.685278 s. (41.268), comp  0.940213 s. (56.620)
+init  0.008375 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 15 (78749)
+time:  1.638741 s.
+sift  0.006722 s. (0.410), load  0.896940 s. (54.733)
+a2a   0.458574 s. (27.983), gather  0.251418 s. (15.342)
+comm  0.709992 s. (43.325), comp  0.903662 s. (55.144)
+init  0.008387 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 16 (84499)
+time:  1.639832 s.
+sift  0.005813 s. (0.354), load  0.892335 s. (54.416)
+a2a   0.472876 s. (28.837), gather  0.235147 s. (14.340)
+comm  0.708023 s. (43.177), comp  0.898148 s. (54.771)
+init  0.009802 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 17 (29350)
+time:  1.654429 s.
+sift  0.006156 s. (0.372), load  0.928761 s. (56.138)
+a2a   0.463188 s. (27.997), gather  0.227683 s. (13.762)
+comm  0.690871 s. (41.759), comp  0.934917 s. (56.510)
+init  0.009802 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 18 (32079)
+time:  1.785933 s.
+sift  0.005795 s. (0.324), load  0.942712 s. (52.785)
+a2a   0.494908 s. (27.711), gather  0.287204 s. (16.081)
+comm  0.782112 s. (43.793), comp  0.948507 s. (53.110)
+init  0.009823 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 19 (66222)
+time:  1.651322 s.
+sift  0.004842 s. (0.293), load  0.907576 s. (54.961)
+a2a   0.451779 s. (27.359), gather  0.234712 s. (14.214)
+comm  0.686491 s. (41.572), comp  0.912418 s. (55.254)
+init  0.009852 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 20 (71227)
+time:  1.640874 s.
+sift  0.003959 s. (0.241), load  0.923169 s. (56.261)
+a2a   0.469339 s. (28.603), gather  0.210664 s. (12.839)
+comm  0.680003 s. (41.442), comp  0.927128 s. (56.502)
+init  0.009810 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 21 (15668)
+time:  1.658776 s.
+sift  0.004142 s. (0.250), load  0.893089 s. (53.840)
+a2a   0.476650 s. (28.735), gather  0.242456 s. (14.617)
+comm  0.719106 s. (43.352), comp  0.897231 s. (54.090)
+init  0.009810 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 22 (11609)
+time:  1.690316 s.
+sift  0.012229 s. (0.723), load  0.897584 s. (53.102)
+a2a   0.487035 s. (28.813), gather  0.250665 s. (14.830)
+comm  0.737700 s. (43.643), comp  0.909813 s. (53.825)
+init  0.009853 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 23 (13957)
+time:  1.694501 s.
+sift  0.005735 s. (0.338), load  0.935106 s. (55.185)
+a2a   0.475597 s. (28.067), gather  0.237438 s. (14.012)
+comm  0.713035 s. (42.079), comp  0.940841 s. (55.523)
+init  0.008803 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 24 (65527)
+time:  1.615033 s.
+sift  0.005827 s. (0.361), load  0.908174 s. (56.233)
+a2a   0.450006 s. (27.864), gather  0.222848 s. (13.798)
+comm  0.672854 s. (41.662), comp  0.914001 s. (56.593)
+init  0.008728 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 25 (3151)
+time:  1.657260 s.
+sift  0.004238 s. (0.256), load  0.951305 s. (57.402)
+a2a   0.445854 s. (26.903), gather  0.228268 s. (13.774)
+comm  0.674122 s. (40.677), comp  0.955543 s. (57.658)
+init  0.009824 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 26 (62072)
+time:  1.751715 s.
+sift  0.004438 s. (0.253), load  0.909352 s. (51.912)
+a2a   0.472935 s. (26.998), gather  0.308451 s. (17.609)
+comm  0.781386 s. (44.607), comp  0.913790 s. (52.165)
+init  0.009848 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 27 (78955)
+time:  1.667330 s.
+sift  0.005240 s. (0.314), load  0.893529 s. (53.590)
+a2a   0.469554 s. (28.162), gather  0.250041 s. (14.996)
+comm  0.719595 s. (43.159), comp  0.898769 s. (53.905)
+init  0.008730 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 28 (51249)
+time:  1.602101 s.
+sift  0.004580 s. (0.286), load  0.903924 s. (56.421)
+a2a   0.446915 s. (27.896), gather  0.216826 s. (13.534)
+comm  0.663741 s. (41.429), comp  0.908504 s. (56.707)
+init  0.008132 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 29 (10646)
+time:  1.635020 s.
+sift  0.007326 s. (0.448), load  0.939259 s. (57.446)
+a2a   0.435639 s. (26.644), gather  0.226865 s. (13.875)
+comm  0.662504 s. (40.520), comp  0.946585 s. (57.894)
+init  0.008179 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 30 (16145)
+time:  1.744183 s.
+sift  0.005130 s. (0.294), load  0.893704 s. (51.239)
+a2a   0.479427 s. (27.487), gather  0.270380 s. (15.502)
+comm  0.749807 s. (42.989), comp  0.898834 s. (51.533)
+init  0.009824 s., vis levels 11, nvisited 1651669332
+Running threaded BFS 31 (1045)
+time:  1.651426 s.
+sift  0.005102 s. (0.309), load  0.939699 s. (56.902)
+a2a   0.425017 s. (25.736), gather  0.258975 s. (15.682)
+comm  0.683992 s. (41.418), comp  0.944801 s. (57.211)
+init  0.008909 s., vis levels 10, nvisited 1651669332
+
+
+SCALE:                          32
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              48400
+graph_generation:               1.86879 s
+construction_time:              72.9828 s
+min_time:                       1.60389 s
+firstquartile_time:             1.64078 s
+median_time:                    1.65811 s
+thirdquartile_time:             1.69559 s
+max_time:                       1.78602 s
+mean_time:                      1.67348 s
+stddev_time:                    0.0479572
+min_nedge:                      68718955968
+firstquartile_nedge:            68718955968
+median_nedge:                   68718955968
+thirdquartile_nedge:            68718955968
+max_nedge:                      68718955968
+mean_nedge:                     68718955968
+stddev_nedge:                   0
+min_TEPS:                       3.8476e+10 TEPS
+firstquartile_TEPS:             4.05281e+10 TEPS
+median_TEPS:                    4.14442e+10 TEPS
+thirdquartile_TEPS:             4.18818e+10 TEPS
+max_TEPS:                       4.28453e+10 TEPS
+harmonic_mean_TEPS:             4.10634e+10 TEPS
+harmonic_stddev_TEPS:           2.11352e+08
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  6.63102e-07 s
+stddev_validate:                4.94708e-07
+Application 36211875 resources: utime ~6895129s, stime ~196023s, Rss ~660880, inblocks ~36480900, outblocks ~123061167
+
+ + --------------------------------------------------------------------------
+ +        Job name: g500bench_hopper_huge_flat
+ +          Job Id: 8206558.hopque01
+ +          System: hopper
+ +     Queued Time: Fri Oct  3 03:15:49 2014
+ +      Start Time: Sun Oct  5 23:00:50 2014
+ + Completion Time: Sun Oct  5 23:08:08 2014
+ +            User: abuluc
+ +        MOM Host: nid05621
+ +           Queue: reg_med
+ +  Req. Resources: mppnodect=2017,mppnppn=24,mppwidth=48400,walltime=00:30:00
+ +  Used Resources: cput=00:00:01,mem=12320kb,vmem=147568kb,walltime=00:07:20
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/KameshCode/graph500_2D_SC11/runs
+ +     Submit Args: g500bench_hopper_huge_flat
+ + --------------------------------------------------------------------------
+
