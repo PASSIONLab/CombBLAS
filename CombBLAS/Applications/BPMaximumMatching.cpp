@@ -163,16 +163,43 @@ typedef SpParMat < int64_t, bool, SpDCCols<int64_t,bool> > PSpMat_Bool;
 typedef SpParMat < int64_t, bool, SpDCCols<int32_t,bool> > PSpMat_s32p64;
 typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 typedef SpParMat < int64_t, float, SpDCCols<int64_t,float> > PSpMat_float;
-void greedyMatching(PSpMat_Bool & Aeff);
-void maximumMatching(PSpMat_Bool & Aeff);
+void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                    FullyDistVec<int64_t, int64_t>& mateCol2Row);
+void maximumMatching(PSpMat_Int64 & Aeff, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                     FullyDistVec<int64_t, int64_t>& mateCol2Row);
 void maximumMatchingSimple(PSpMat_Bool & Aeff);
 template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
                        FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
 
-void removeIsolated(PSpMat_Bool & A)
+/*
+ Remove isolated vertices and purmute
+ */
+void removeIsolated(PSpMat_Int64 & A)
 {
-   
+    FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+    FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+    FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
+    FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
+    FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+    
+    A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
+    A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
+    //ColSums->EWiseApply(*RowSums, plus<int64_t>());
+    nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    //nonisoColV.iota(A.getncol(), 0);
+    nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+    nonisoColV.RandPerm();
+    nonisoRowV.RandPerm();
+    
+    delete ColSums;
+    delete RowSums;
+    
+    //A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
+    A.operator()(nonisoRowV, nonisoColV, true);
+    //A.PrintInfo();
 
 }
 
@@ -186,8 +213,8 @@ int main(int argc, char* argv[])
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./bpmm <Scale>" << endl;
-			cout << "Example: mpirun -np 4 ./bpmm 20" << endl;
+            //cout << "Usage: ./bpmm <Scale> <Init> <Permute>" << endl;
+			cout << "Example: mpirun -np 4 ./bpmm 20 1 (optional, 1=init, 0=dont init) 1 (optional, 1=permute 0=nopermute)" << endl;
 		}
 		MPI_Finalize();
 		return -1;
@@ -229,8 +256,8 @@ int main(int argc, char* argv[])
         //////
         /*
         // Remove Isolated vertice
-        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A1.getcommgrid());
-        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A1.getcommgrid());
+        FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+        FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
         FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
         FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
         FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
@@ -250,18 +277,32 @@ int main(int argc, char* argv[])
         delete RowSums;
         
         //A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
-        A1.operator()(nonisoRowV, nonisoColV, true);
+        A.operator()(nonisoRowV, nonisoColV, true);
         /////
         */
         
         
-        //removeIsolated(A1);
         
-       
+        
+        PSpMat_Int64  A = *ABool;
+        if(argc>=4 && static_cast<unsigned>(atoi(argv[3]))==1)
+            removeIsolated(A);
+        
+        
+        FullyDistVec<int64_t, int64_t> mateRow2Col ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
+        FullyDistVec<int64_t, int64_t> mateCol2Row ( A.getcommgrid(), A.getncol(), (int64_t) -1);
+        if(argc>=3 && static_cast<unsigned>(atoi(argv[2]))==1)
+            greedyMatching(A, mateRow2Col, mateCol2Row);
+        
+
+        A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
+        
+        
         //A1.Transpose();
         //varify_matching(*ABool);
-        //maximumMatching(*ABool);
-        greedyMatching(*ABool);
+        maximumMatching(A, mateRow2Col, mateCol2Row);
+        
+        //mateRow2Col.DebugPrint();
         
 	}
 	MPI_Finalize();
@@ -364,30 +405,23 @@ struct binopVal: public std::binary_function<VertexType, T, VertexType>
 
 
 
-void maximumMatching(PSpMat_Bool & Aeff)
+void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                     FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
     
     int nprocs, myrank;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
-    PSpMat_Int64  A = Aeff;
-    //PSpMat_float A = Aeff;
-    A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
-    //A.PrintInfo();
+    int64_t nrow = A.getnrow();
+    int64_t ncol = A.getncol();
+    //FullyDistSpVec<int64_t, VertexType> unmatchedCol(A.getcommgrid(), ncol);
     
-    //matching vector (dense)
-    FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
-    //mateCol2Row.DebugPrint();
-    
-    //FullyDistSpVec<int64_t, VertexType> unmatchedCol(Aeff.getcommgrid(), Aeff.getncol());
-    
-    FullyDistSpVec<int64_t, VertexType> temp(Aeff.getcommgrid(), Aeff.getncol());
-    FullyDistSpVec<int64_t, int64_t> temp1(Aeff.getcommgrid(), Aeff.getncol());
-    FullyDistSpVec<int64_t, VertexType> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
-    FullyDistSpVec<int64_t, VertexType> umFringeRow(Aeff.getcommgrid(), Aeff.getnrow());
-    FullyDistSpVec<int64_t, int64_t> umFringeRow1(Aeff.getcommgrid(), Aeff.getnrow());
+    FullyDistSpVec<int64_t, VertexType> temp(A.getcommgrid(), ncol);
+    FullyDistSpVec<int64_t, int64_t> temp1(A.getcommgrid(), ncol);
+    FullyDistSpVec<int64_t, VertexType> fringeRow(A.getcommgrid(), nrow);
+    FullyDistSpVec<int64_t, VertexType> umFringeRow(A.getcommgrid(), nrow);
+    FullyDistSpVec<int64_t, int64_t> umFringeRow1(A.getcommgrid(), nrow);
     
     
     vector<vector<double> > timing;
@@ -401,12 +435,12 @@ void maximumMatching(PSpMat_Bool & Aeff)
     {
         time_phase = MPI_Wtime();
         vector<double> phase_timing(14,0);
-        FullyDistVec<int64_t, int64_t> leaves ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-        FullyDistVec<int64_t, int64_t> parentsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // it needs to be cleared after each phase
+        FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
+        FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
         
-        FullyDistVec<int64_t, int64_t> rootsRow ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1); // just for test
+        FullyDistVec<int64_t, int64_t> rootsRow ( A.getcommgrid(), nrow, (int64_t) -1); // just for test
         
-        FullyDistSpVec<int64_t, VertexType> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+        FullyDistSpVec<int64_t, VertexType> fringeCol(A.getcommgrid(), ncol);
         fringeCol  = EWiseApply<VertexType>(fringeCol, mateCol2Row, select1st<VertexType, int64_t>(),
                                             unmatched_binary<VertexType,int64_t>(), true, VertexType()); // root & parent both =-1
         fringeCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,idx);}); //  root & parent both equal to index
@@ -459,19 +493,19 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //MPI_Pcontrol(1,"Compose");
             if(umFringeRow1.getnnz()>0)
             {
-                //temp = umFringeRow.Compose1(Aeff.getncol(),
+                //temp = umFringeRow.Compose1(ncol,
                 //                           [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
                 //                           [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value is the leaf
                 
-                //temp1 = umFringeRow1.Compose1(Aeff.getncol(),
+                //temp1 = umFringeRow1.Compose1(ncol,
                 //                          [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
                 //                        [](VertexType& vtx, const int64_t & index){return index;}); // value is the leaf
                 //temp1 = umFringeRow1.Invert
-                //temp1 = umFringeRow1.Compose1(Aeff.getncol(),
+                //temp1 = umFringeRow1.Compose1(ncol,
                 //                              [](int64_t val, const int64_t index){return val;}, // index is the val
                 //                              [](int64_t val, const int64_t index){return index;}); // val is the index
                 
-                temp1 = umFringeRow1.Invert(Aeff.getncol());
+                temp1 = umFringeRow1.Invert(ncol);
             }
             
             //MPI_Pcontrol(-1,"Compose");
@@ -510,7 +544,7 @@ void maximumMatching(PSpMat_Bool & Aeff)
             
             t1 = MPI_Wtime();
             // looks like we need fringeCol sorted!!
-            fringeCol = fringeRow.Compose(Aeff.getncol(),
+            fringeCol = fringeRow.Compose(ncol,
                                           [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                                           [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
             //if(fringeCol.getnnz()>0)fringeCol.DebugPrint();
@@ -522,12 +556,12 @@ void maximumMatching(PSpMat_Bool & Aeff)
         time_search = MPI_Wtime() - time_search;
         phase_timing[6] += time_search;
         //leaves.DebugPrint();
-        parentsRow.DebugPrint();
+        //parentsRow.DebugPrint();
         
         // create a sparse vector of leaves
         FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
-        FullyDistSpVec<int64_t, int64_t> row(A.getcommgrid(), A.getnrow());
-        FullyDistSpVec<int64_t, int64_t> nextcol(A.getcommgrid(), A.getncol());
+        FullyDistSpVec<int64_t, int64_t> row(A.getcommgrid(), nrow);
+        FullyDistSpVec<int64_t, int64_t> nextcol(A.getcommgrid(), ncol);
         
         int64_t numMatchedCol = col.getnnz();
         if (col.getnnz()== 0) matched = false;
@@ -537,10 +571,10 @@ void maximumMatching(PSpMat_Bool & Aeff)
         while(col.getnnz()!=0)
         {
             t1 = MPI_Wtime();
-            //row = col.Compose1(Aeff.getncol(),
+            //row = col.Compose1(ncol,
             //                   [](int64_t val, const int64_t index){return val;}, // index is the val
             //                   [](int64_t val, const int64_t index){return index;}); // val is the index
-            row = col.Invert(A.getnrow());
+            row = col.Invert(nrow);
             phase_timing[7] += MPI_Wtime()-t1;
             // Set parent pointer
             // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
@@ -558,8 +592,8 @@ void maximumMatching(PSpMat_Bool & Aeff)
             //if(row.getnnz()!=0)row.DebugPrint();
             
             t1 = MPI_Wtime();
-            col = row.Invert(A.getncol()); // children array
-            //col = row.Compose1(Aeff.getncol(),
+            col = row.Invert(ncol); // children array
+            //col = row.Compose1(ncol,
             //                   [](int64_t val, const int64_t index){return val;}, // index is the val
             //                   [](int64_t val, const int64_t index){return index;}); // val is the index
             
@@ -656,21 +690,20 @@ void maximumMatching(PSpMat_Bool & Aeff)
 
 
 
-void greedyMatching(PSpMat_Bool & Aeff)
+void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                    FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
-    PSpMat_Int64  A = Aeff;
-    A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
-    A.PrintInfo();
+    //PSpMat_Int64  A = Aeff;
+    //A.Apply([](int64_t x){return static_cast<int64_t>(GlobalMT.rand() * 10000);}); // perform randomization
+    //A.PrintInfo();
     
     
     //matching vector (dense)
-    FullyDistVec<int64_t, int64_t> mateRow2Col ( Aeff.getcommgrid(), Aeff.getnrow(), (int64_t) -1);
-    FullyDistVec<int64_t, int64_t> mateCol2Row ( Aeff.getcommgrid(), Aeff.getncol(), (int64_t) -1);
     
     //unmatched row and column vertices
     FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
@@ -680,8 +713,8 @@ void greedyMatching(PSpMat_Bool & Aeff)
     
     
     //fringe vector (sparse)
-    FullyDistSpVec<int64_t, int64_t> fringeRow(Aeff.getcommgrid(), Aeff.getnrow());
-    FullyDistSpVec<int64_t, int64_t> fringeCol(Aeff.getcommgrid(), Aeff.getncol());
+    FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<int64_t, int64_t> fringeCol(A.getcommgrid(), A.getncol());
     
     
     int64_t curUnmatchedCol = unmatchedCol.getnnz();
