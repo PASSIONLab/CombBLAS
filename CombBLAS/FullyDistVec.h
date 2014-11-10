@@ -273,6 +273,10 @@ private:
 	
 	template <typename IU, typename NU>
 	friend FullyDistVec<IU,NU> Concatenate ( vector< FullyDistVec<IU,NU> > & vecs);
+    
+    template <typename IU, typename NU>
+    friend void Augment (FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
+                         FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves);
 };
 
 #include "FullyDistVec.cpp"

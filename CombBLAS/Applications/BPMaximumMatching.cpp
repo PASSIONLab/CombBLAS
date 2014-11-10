@@ -405,6 +405,111 @@ struct binopVal: public std::binary_function<VertexType, T, VertexType>
 
 
 
+void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
+             FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
+{
+ 
+    int64_t nrow = mateRow2Col.TotalLength();
+    int64_t ncol = mateCol2Row.TotalLength();
+    FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
+    FullyDistSpVec<int64_t, int64_t> row(mateRow2Col.getcommgrid(), nrow);
+    FullyDistSpVec<int64_t, int64_t> nextcol(col.getcommgrid(), ncol);
+ 
+    while(col.getnnz()!=0)
+    {
+     
+        row = col.Invert(nrow);
+        
+        row.SelectApply(parentsRow, [](int64_t parent){return true;},
+                        [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
+        
+
+        col = row.Invert(ncol); // children array
+
+        nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
+        
+        mateRow2Col.Set(row);
+        mateCol2Row.Set(col);
+        col = nextcol;
+        
+    }
+}
+
+
+
+template <typename IT, typename NT>
+void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
+             FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
+{
+
+    MPI_Win win_mateRow2Col, win_mateCol2Row, win_parentsRow;
+    MPI_Win_create(&mateRow2Col.arr[0], mateRow2Col.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, mateRow2Col.commGrid->GetWorld(), &win_mateRow2Col);
+    MPI_Win_create(&mateCol2Row.arr[0], mateCol2Row.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, mateCol2Row.commGrid->GetWorld(), &win_mateCol2Row);
+    MPI_Win_create(&parentsRow.arr[0], parentsRow.LocArrSize() * sizeof(int64_t), sizeof(int64_t), MPI_INFO_NULL, parentsRow.commGrid->GetWorld(), &win_parentsRow);
+
+    //cout<< "Leaves: " ;
+    //leaves.DebugPrint();
+    //parentsRow.DebugPrint();
+    
+    MPI_Win_fence(0, win_mateRow2Col);
+    MPI_Win_fence(0, win_mateCol2Row);
+    MPI_Win_fence(0, win_parentsRow);
+
+    int64_t row, col=100, nextrow;
+    int owner_row, owner_col;
+    IT locind_row, locind_col;
+    int myrank;
+    
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    
+    //IT i=1;
+    for(IT i=0; i<leaves.LocArrSize(); i++)
+    {
+        int depth=0;
+        row = leaves.arr[i];
+        while(row != - 1)
+        {
+            
+            owner_row = mateRow2Col.Owner(row, locind_row);
+            //cout << myrank << ": " << row << " " << owner_row << " " << locind_row << "@@@\n";
+            MPI_Win_lock(MPI_LOCK_SHARED, owner_row, 0, win_parentsRow);
+            MPI_Get(&col, 1, MPIType<NT>(), owner_row, locind_row, 1, MPIType<NT>(), win_parentsRow);
+            MPI_Win_unlock(owner_row, win_parentsRow);
+            
+            owner_col = mateCol2Row.Owner(col, locind_col);
+            //cout <<  myrank << ": " << col << " " << owner_col << " " << locind_col << "!!!\n";
+            
+            MPI_Win_lock(MPI_LOCK_SHARED, owner_col, 0, win_mateCol2Row);
+            MPI_Fetch_and_op(&row, &nextrow, MPIType<NT>(), owner_col, locind_col, MPI_REPLACE, win_mateCol2Row);
+            
+            //MPI_Get(&nextrow, 1, MPIType<NT>(), owner_col, locind_col, 1, MPIType<NT>(), win_mateCol2Row);
+            //MPI_Put(&row, 1, MPIType<NT>(), owner_col, locind_col, 1, MPIType<NT>(), win_mateCol2Row);
+            MPI_Win_unlock(owner_col, win_mateCol2Row);
+            
+            MPI_Win_lock(MPI_LOCK_SHARED, owner_row, 0, win_mateRow2Col);
+            MPI_Put(&col, 1, MPIType<NT>(), owner_row, locind_row, 1, MPIType<NT>(), win_mateRow2Col);
+            MPI_Win_unlock(owner_row, win_mateRow2Col); // we need this otherwise col might get overwritten before communication!
+            //depth++;
+            //if(depth>5) {cout << "depth--------------\n";break;}
+            
+            row = nextrow;
+            
+        }
+    }
+    
+
+    MPI_Win_fence(0, win_mateRow2Col);
+    MPI_Win_fence(0, win_mateCol2Row);
+    MPI_Win_fence(0, win_parentsRow);
+    
+    MPI_Win_free(&win_mateRow2Col);
+    MPI_Win_free(&win_mateCol2Row);
+    MPI_Win_free(&win_parentsRow);
+    
+    //mateCol2Row.DebugPrint();
+    //mateRow2Col.DebugPrint();
+}
+
 void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
@@ -434,7 +539,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     while(matched)
     {
         time_phase = MPI_Wtime();
-        vector<double> phase_timing(14,0);
+        vector<double> phase_timing(9,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
         
@@ -555,75 +660,22 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         }
         time_search = MPI_Wtime() - time_search;
         phase_timing[6] += time_search;
-        //leaves.DebugPrint();
-        //parentsRow.DebugPrint();
-        
-        // create a sparse vector of leaves
-        FullyDistSpVec<int64_t, int64_t> col(leaves, [](int64_t leaf){return leaf!=-1;});
-        FullyDistSpVec<int64_t, int64_t> row(A.getcommgrid(), nrow);
-        FullyDistSpVec<int64_t, int64_t> nextcol(A.getcommgrid(), ncol);
-        
-        int64_t numMatchedCol = col.getnnz();
-        if (col.getnnz()== 0) matched = false;
-        
-        // Augment
+
+      
+        int64_t numMatchedCol = leaves.Count([](int64_t leaf){return leaf!=-1;});
         time_augment = MPI_Wtime();
-        while(col.getnnz()!=0)
+        if (numMatchedCol== 0) matched = false;
+        else
         {
-            t1 = MPI_Wtime();
-            //row = col.Compose1(ncol,
-            //                   [](int64_t val, const int64_t index){return val;}, // index is the val
-            //                   [](int64_t val, const int64_t index){return index;}); // val is the index
-            row = col.Invert(nrow);
-            phase_timing[7] += MPI_Wtime()-t1;
-            // Set parent pointer
-            // TODO: Write a general purpose FullyDistSpVec::Set based on a FullyDistVec
-            t1 = MPI_Wtime();
-            /*
-             row = EWiseApply<int64_t>(row, parentsRow,
-             [](int64_t root, int64_t parent){return parent;},
-             [](int64_t root, int64_t parent){return true;}, // must have a root
-             false, (int64_t) -1);
-             */
-            row.SelectApply(parentsRow, [](int64_t parent){return true;},
-                            [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
-            
-            phase_timing[8] += MPI_Wtime()-t1;
-            //if(row.getnnz()!=0)row.DebugPrint();
-            
-            t1 = MPI_Wtime();
-            col = row.Invert(ncol); // children array
-            //col = row.Compose1(ncol,
-            //                   [](int64_t val, const int64_t index){return val;}, // index is the val
-            //                   [](int64_t val, const int64_t index){return index;}); // val is the index
-            
-            phase_timing[9] += MPI_Wtime()-t1;
-            
-            t1 = MPI_Wtime();
-            /*
-             nextcol = EWiseApply<int64_t>(col, mateCol2Row,
-             [](int64_t child, int64_t mate){return mate;},
-             [](int64_t child, int64_t mate){return mate!=-1;}, // mate==-1 when we have reached to the root
-             false, (int64_t) -1);
-             */
-            nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
-            phase_timing[10] += MPI_Wtime()-t1;
-            //col.DebugPrint();
-            t1 = MPI_Wtime();
-            mateRow2Col.Set(row);
-            mateCol2Row.Set(col);
-            phase_timing[11] += MPI_Wtime()-t1;
-            col = nextcol;
-            
+            Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            //Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
         }
-        
-        //mateRow2Col.DebugPrint();
-        //mateCol2Row.DebugPrint();
-        
         time_augment = MPI_Wtime() - time_augment;
-        phase_timing[12] += time_augment;
+        phase_timing[7] += time_augment;
+        
+        
         time_phase = MPI_Wtime() - time_phase;
-        phase_timing[13] += time_phase;
+        phase_timing[8] += time_phase;
         timing.push_back(phase_timing);
         
         ostringstream tinfo;
@@ -637,9 +689,9 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     
     
     
-    
-    
-    
+    //mateCol2Row.DebugPrint();
+    //mateRow2Col.DebugPrint();
+
     
     
     //isMaximalmatching(A, mateRow2Col, mateCol2Row, unmatchedRow, unmatchedCol);
@@ -650,11 +702,11 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     if(myrank == 0)
     {
         cout << endl;
-        cout << "===================== ========================================= ============================================\n";
-        cout << "                                        BFS Search                                        Augment    \n";
-        cout << "===================== ========================================= =================================== =======\n";
-        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL EWSetL EWMR CmMC  BFS   Inv1   EW1  Inv2  EW2   SetM  Aug   Total \n";
-        cout << "===================== ========================================= ============================================\n";
+        cout << "===================== ========================================= ==============\n";
+        cout << "                                        BFS Search               Aug    \n";
+        cout << "===================== ========================================= ======= ======\n";
+        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL EWSetL EWMR CmMC  BFS           Total\n";
+        cout << "===================== ========================================= ==============\n";
         
         vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
@@ -684,6 +736,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         //    cout<<totalTimes[i] << " ";
         //cout << endl;
     }
+    
     
     
 }
