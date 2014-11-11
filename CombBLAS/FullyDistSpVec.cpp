@@ -2019,6 +2019,101 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 
 
 
+
+/* Compose with one-sided compuunication (RMA)
+ ** Create a new sparse vector vout from the calling sparse vector vin
+ ** the length of vout is globallen.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
+ ** value is computed by function _BinaryOperationVal.
+ */
+template <class IT, class NT>
+template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+{
+    
+    FullyDistVec<IT,NT> temp(commGrid, globallen, -1);
+    
+    FullyDistSpVec<IT,NT> Composed(commGrid, globallen);
+    
+    // identify the max index in the composed vector
+    IT init = (IT) 0;
+    IT localsize = num.size();
+    IT lengthuntil = LengthUntil();
+    
+    
+    IT localmax = init;
+    
+    for(IT k=0; k < localsize; ++k)
+    {
+        localmax = std::max(localmax, __binopIdx(num[k], ind[k] + lengthuntil));
+    }
+    IT globalmax = init;
+    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    
+    if(globalmax >= globallen)
+    {
+        cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
+        return Composed;
+    }
+    
+    
+    int nprocs = commGrid->GetSize();
+    vector< vector< NT > > datsent(nprocs);
+    vector< vector< IT > > indsent(nprocs);
+    
+    IT ploclen = getlocnnz();
+    for(IT k=0; k < ploclen; ++k)
+    {
+        IT locind;
+        IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
+        int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
+        NT val = __binopVal(num[k], ind[k] + LengthUntil());
+        datsent[owner].push_back(val);
+        indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+    }
+    
+    
+    MPI_Win win;
+    MPI_Win_create(&temp.arr[0], temp.LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, temp.commGrid->GetWorld(), &win);
+    MPI_Win_fence(0, win);
+    for(int i=0; i<nprocs; ++i)
+    {
+        for(int j = 0; j < datsent[i].size(); ++j)	// fetch the numerical values
+        {
+            //cout << indsent[i][j] << " ** " << datsent[i][j] << endl;
+            MPI_Put(&datsent[i][j], 1, MPIType<NT>(), i, indsent[i][j], 1, MPIType<NT>(), win);
+        }
+    }
+    MPI_Win_fence(0, win);
+    MPI_Win_free(&win);
+    
+    //temp.DebugPrint();
+    //if(temp.arr[0] == NT()) cout << "asdjhgajhdg\n";
+    
+    
+    
+    for(IT i=0; i<temp.LocArrSize();i++)
+    {
+        //cout << temp.arr[i] << "  ";
+        if(temp.arr[i] == NT())
+        {
+           // do nothing
+        }
+        else
+        {
+            Composed.ind.push_back(i);
+            Composed.num.push_back(temp.arr[i]);
+        }
+    }
+    
+
+    return Composed;
+}
+
+
+
+
 /* exp version
  ** Create a new sparse vector vout from the calling sparse vector vin
  ** the length of vout is globallen.
