@@ -81,6 +81,10 @@ public:
     FullyDistSpVec<IT,NT> Invert (IT globallen);
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
     FullyDistSpVec<IT,NT> Compose (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
+
+    template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
+    FullyDistSpVec<IT,NT> ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
+    
     template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
     FullyDistSpVec<IT,NT> Compose1 (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal);
     template <typename NT1, typename _UnaryOperation>

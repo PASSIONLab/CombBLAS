@@ -52,7 +52,6 @@ void Symmetricize(PARMAT & A)
 
 
 
-
 struct VertexType
 {
 public:
@@ -60,6 +59,8 @@ public:
     VertexType(int64_t p){parent=p; root=-1; prob = 1;}; // this constructor is called when we assign vertextype=number. Called from ApplyInd function
 	VertexType(int64_t p, int64_t r){parent=p; root = r; prob = 1;};
     VertexType(int64_t p, int64_t r, int16_t pr){parent=p; root = r; prob = pr;};
+    
+    friend bool operator==(const VertexType & vtx1, const VertexType & vtx2 ){return vtx1.parent==vtx2.parent;};
     friend ostream& operator<<(ostream& os, const VertexType & vertex ){os << "(" << vertex.parent << "," << vertex.root << ")"; return os;};
     //private:
     int64_t parent;
@@ -648,11 +649,30 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             
             
             t1 = MPI_Wtime();
-            // looks like we need fringeCol sorted!!
-            fringeCol = fringeRow.Compose(ncol,
-                                          [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
-                                          [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
-            //if(fringeCol.getnnz()>0)fringeCol.DebugPrint();
+            
+            if(fringeRow.getnnz() > 0)
+            {
+                //fringeRow.DebugPrint();
+                // looks like we need fringeCol sorted!!
+                
+                /*
+                fringeCol = fringeRow.Compose(ncol,
+                                              [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
+                                              [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
+                
+                */
+                //MPI_Abort(MPI_COMM_WORLD,-1);
+                // I think this is only better for long paths / small number of vertices
+                
+                fringeCol = fringeRow.ComposeRMA(ncol,
+                                              [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
+                                              [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
+                
+                //return;
+                
+            }
+            else break;
+            
             phase_timing[5] += MPI_Wtime()-t1;
             // TODO:do something for prunning
             
