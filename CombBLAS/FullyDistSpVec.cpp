@@ -2155,6 +2155,8 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
         }
         lastIndex = itr->first;
     }
+    Composed.ind.resize(k);
+    Composed.num.resize(k);
     return Composed;
 }
 

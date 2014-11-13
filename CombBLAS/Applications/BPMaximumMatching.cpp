@@ -613,11 +613,12 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 //                          [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
                 //                        [](VertexType& vtx, const int64_t & index){return index;}); // value is the leaf
                 //temp1 = umFringeRow1.Invert
-                //temp1 = umFringeRow1.Compose1(ncol,
-                //                              [](int64_t val, const int64_t index){return val;}, // index is the val
-                //                              [](int64_t val, const int64_t index){return index;}); // val is the index
-                
+                /*temp1 = umFringeRow1.ComposeRMA(ncol,
+                                            [](int64_t& val, const int64_t& index){return val;}, // index is the val
+                                             [](int64_t& val, const int64_t& index){return index;}); // val is the index
+                */
                 temp1 = umFringeRow1.Invert(ncol);
+                //temp1.DebugPrint();
             }
             
             //MPI_Pcontrol(-1,"Compose");
@@ -683,7 +684,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             else break;
             
             phase_timing[5] += MPI_Wtime()-t1;
-            // TODO:do something for prunning 
+            // TODO:do something for prunning
             
             
         }
