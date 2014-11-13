@@ -93,6 +93,9 @@ FullyDistSpVec<IT,NT>::FullyDistSpVec (const FullyDistVec<IT,NT> & rhs, _UnaryOp
 	}
 }
 
+
+
+
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> &  FullyDistSpVec<IT,NT>::operator=(const FullyDistVec< IT,NT > & rhs)		// conversion from dense
 {
@@ -2005,7 +2008,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
     k = 0;
     for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
     {
-        //if(lastIndex!=itr->first) // avoid duplicate indices
+        if(lastIndex!=itr->first) // avoid duplicate indices
         {
             //Composed.ind.push_back(itr->first);
             Composed.ind[k] = itr->first;
@@ -2020,7 +2023,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 
 
 
-/* Compose with one-sided compuunication (RMA)
+/*
  ** Create a new sparse vector vout from the calling sparse vector vin
  ** the length of vout is globallen.
  ** nnz(vin) = nnz(vout)
@@ -2031,9 +2034,6 @@ template <class IT, class NT>
 template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
 {
-    
-    FullyDistVec<IT,NT> temp(commGrid, globallen, -1);
-    
     FullyDistSpVec<IT,NT> Composed(commGrid, globallen);
     
     // identify the max index in the composed vector
@@ -2073,11 +2073,161 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
         indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
     }
     
+    int * sendcnt = new int[nprocs];
+    int * sdispls = new int[nprocs];
+    for(int i=0; i<nprocs; ++i)
+        sendcnt[i] = (int) datsent[i].size();
+    
+    int * rdispls = new int[nprocs];
+    int * recvcnt = new int[nprocs];
+    MPI_Comm World = commGrid->GetWorld();
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    
+    
+    //sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        //sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    
+    MPI_Alltoall(rdispls, 1, MPI_INT, sdispls, 1, MPI_INT, World);  // where to put data
+    
+    
+    
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    //IT totrecv = rdispls[nprocs-1] + recvcnt [nprocs - 1];
+    NT * recvdatbuf = new NT[totrecv];
+    IT * recvindbuf = new IT[totrecv];
+    
+    
+    MPI_Win win, win1;
+    MPI_Win_create(recvdatbuf, totrecv * sizeof(NT), sizeof(NT), MPI_INFO_NULL, commGrid->GetWorld(), &win);
+    MPI_Win_create(recvindbuf, totrecv * sizeof(IT), sizeof(IT), MPI_INFO_NULL, commGrid->GetWorld(), &win1);
+    MPI_Win_fence(0, win);
+    MPI_Win_fence(0, win1);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(datsent[i].size()>0)
+        {
+            //cout << indsent[i][j] << " ** " << datsent[i][j] << endl;
+            MPI_Put(&datsent[i][0], datsent[i].size(), MPIType<NT>(), i, sdispls[i], datsent[i].size(), MPIType<NT>(), win);
+            MPI_Put(&indsent[i][0], indsent[i].size(), MPIType<IT>(), i, sdispls[i], indsent[i].size(), MPIType<IT>(), win1);
+        }
+    }
+    MPI_Win_fence(0, win);
+    MPI_Win_fence(0, win1);
+    MPI_Win_free(&win);
+    MPI_Win_free(&win1);
+    
+    
+    
+    vector< pair<IT,NT> > tosort(totrecv);   // in fact, tomerge would be a better name but it is unlikely to be faster
+    IT k = 0;
+    for(int i=0; i<nprocs; ++i)
+    {
+        for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+        {
+            //tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+            tosort[k++] = make_pair(recvindbuf[j], recvdatbuf[j]);
+        }
+    }
+    DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    
+    // sort based on index
+    std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
+    
+    IT lastIndex=-1;
+    
+    Composed.ind.resize(tosort.size());
+    Composed.num.resize(tosort.size());
+    k = 0;
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        if(lastIndex!=itr->first) // avoid duplicate indices
+        {
+            //Composed.ind.push_back(itr->first);
+            Composed.ind[k] = itr->first;
+            Composed.num[k++] = itr->second;
+            //Composed.num.push_back(itr->second);
+        }
+        lastIndex = itr->first;
+    }
+    return Composed;
+}
+
+
+
+// dense vector is an overkill for long augmenting paths but looks better in scaling
+/* Compose with one-sided compuunication (RMA)
+ ** Create a new sparse vector vout from the calling sparse vector vin
+ ** the length of vout is globallen.
+ ** nnz(vin) = nnz(vout)
+ ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
+ ** value is computed by function _BinaryOperationVal.
+ */
+/*
+template <class IT, class NT>
+template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+{
+    
+    FullyDistVec<IT,NT> temp(commGrid, globallen, -1);
+    
+   
+    
+    // identify the max index in the composed vector
+    IT init = (IT) 0;
+    IT localsize = num.size();
+    IT lengthuntil = LengthUntil();
+    
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    IT localmax = init;
+    
+    for(IT k=0; k < localsize; ++k)
+    {
+        localmax = std::max(localmax, __binopIdx(num[k], ind[k] + lengthuntil));
+    }
+    IT globalmax = init;
+    MPI_Allreduce( &localmax, &globalmax, 1, MPIType<IT>(), MPI_MAX, commGrid->GetWorld());
+    
+    if(globalmax >= globallen)
+    {
+        cout << "Sparse vector has entries (" << globalmax  << ") larger than requested global vector length " << globallen << endl;
+        return FullyDistSpVec<IT,NT>(commGrid, globallen);
+    }
+    
+    
+    int nprocs = commGrid->GetSize();
+    vector< vector< NT > > datsent(nprocs);
+    vector< vector< IT > > indsent(nprocs);
+    
+    IT ploclen = getlocnnz();
+    for(IT k=0; k < ploclen; ++k)
+    {
+        IT locind;
+        IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
+        int owner = temp.Owner(globind, locind);     // numerical values in rhs are 0-based indices
+        NT val = __binopVal(num[k], ind[k] + LengthUntil());
+        datsent[owner].push_back(val);
+        indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+    }
+    
+    
+    for(int j = 0; j < datsent[myrank].size(); ++j)	// fetch the numerical values
+    {
+        temp.arr[indsent[myrank][j]] = datsent[myrank][j];
+    }
+
     
     MPI_Win win;
     MPI_Win_create(&temp.arr[0], temp.LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, temp.commGrid->GetWorld(), &win);
     MPI_Win_fence(0, win);
-    for(int i=0; i<nprocs; ++i)
+    for(int i=0; i<nprocs && i!=myrank; ++i)
     {
         for(int j = 0; j < datsent[i].size(); ++j)	// fetch the numerical values
         {
@@ -2093,25 +2243,25 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     
     
     
+    FullyDistSpVec<IT,NT> Composed(commGrid, globallen); //(temp, [](NT val){return !(val== NT());});
     for(IT i=0; i<temp.LocArrSize();i++)
     {
         //cout << temp.arr[i] << "  ";
-        if(temp.arr[i] == NT())
+        if( ! (temp.arr[i] == NT()) )
         {
-           // do nothing
-        }
-        else
-        {
+            
             Composed.ind.push_back(i);
             Composed.num.push_back(temp.arr[i]);
         }
     }
     
+    
+    
 
     return Composed;
 }
 
-
+*/
 
 
 /* exp version
@@ -2417,12 +2567,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::SelectApplyNew(const FullyDistVec<I
 
 
 /* exp version
- ** Create a new sparse vector vout from the calling sparse vector vin
- ** the length of vout is globallen.
- ** nnz(vin) = nnz(vout)
- ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
- ** value is computed by function _BinaryOperationVal.
- */
+  */
 template <class IT, class NT>
 template <typename NT1, typename _UnaryOperation>
 void FullyDistSpVec<IT,NT>::FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop)
