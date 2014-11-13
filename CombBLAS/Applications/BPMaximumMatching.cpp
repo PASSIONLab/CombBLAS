@@ -511,6 +511,9 @@ void Augment(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, 
     //mateRow2Col.DebugPrint();
 }
 
+
+
+
 void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                      FullyDistVec<int64_t, int64_t>& mateCol2Row)
 {
@@ -532,6 +535,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     
     vector<vector<double> > timing;
     double t1, time_search, time_augment, time_phase;
+   
     bool matched = true;
     int phase = 0;
     int totalLayer = 0;
@@ -556,6 +560,8 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         numUnmatchedCol = fringeCol.getnnz();
         int64_t tt;
         int layer = 0;
+        
+         double test1=0, test2=0;
         
         time_search = MPI_Wtime();
         while(fringeCol.getnnz() > 0)
@@ -655,12 +661,15 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 //fringeRow.DebugPrint();
                 // looks like we need fringeCol sorted!!
                 
-                /*
-                fringeCol = fringeRow.Compose(ncol,
+                FullyDistSpVec<int64_t, VertexType> fringeCol1(fringeCol);
+                
+                double t2 = MPI_Wtime();
+                fringeCol1 = fringeRow.Compose(ncol,
                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                                               [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                 
-                */
+                test1 += MPI_Wtime()-t2;
+                t2 = MPI_Wtime();
                 //MPI_Abort(MPI_COMM_WORLD,-1);
                 // I think this is only better for long paths / small number of vertices
                 
@@ -668,13 +677,13 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                                               [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                 
-                //return;
+                test2 += MPI_Wtime()-t2;
                 
             }
             else break;
             
             phase_timing[5] += MPI_Wtime()-t1;
-            // TODO:do something for prunning
+            // TODO:do something for prunning 
             
             
         }
@@ -699,7 +708,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         timing.push_back(phase_timing);
         
         ostringstream tinfo;
-        tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << "\n";
+        tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " ::: "  << test1 << " , " << test2 << "\n";
         SpParHelper::Print(tinfo.str());
         //if(phase==2)break;
         totalLayer += layer;

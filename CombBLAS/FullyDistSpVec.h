@@ -95,6 +95,9 @@ public:
     FullyDistSpVec<IT,NT1> SelectNew1 (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2);
     template <typename NT1, typename _UnaryOperation>
     void FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
+    
+    //template <typename NT1, typename _UnaryOperation>
+    //void Set (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
 
 
     template <typename NT1, typename _UnaryOperation, typename _BinaryOperation>
