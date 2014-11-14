@@ -2,7 +2,7 @@ top_srcdir = ../..
 include $(top_srcdir)/Makefile.inc
 
 # Set these variables appropriately
-CFLAGS = -std=c99 -O3 -m64 -DGRAPH_GENERATOR_MPI -DGRAPHGEN_DISTRIBUTED_MEMORY \
+CFLAGS = -v -std=c99 -O3 -m64 -DGRAPH_GENERATOR_MPI -DGRAPHGEN_DISTRIBUTED_MEMORY \
  -DNDEBUG -I$(MPIDIR)/include64
 COPTFLAGS =
 LDFLAGS = -O3
