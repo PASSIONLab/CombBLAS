@@ -1,0 +1,689 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+cray-hdf5-parallel(3):ERROR:105: Unable to locate a modulefile for 'cray-hdf5-parallel/1.8.12'
+ModuleCmd_Switch.c(172):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+SCALE: 32, 6084 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 78, nproc_cols 78
+Vertex status array replicated
+graph_generation:               14.755822 s
+Running threaded BFS 0 (553687)
+time:  6.736200 s.
+sift  0.031538 s. (0.468), load  4.473592 s. (66.411)
+a2a   0.848391 s. (12.595), gather  1.207269 s. (17.922)
+comm  2.055661 s. (30.517), comp  4.505130 s. (66.879)
+init  0.131351 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 1 (493725)
+time:  6.711982 s.
+sift  0.031483 s. (0.469), load  4.420992 s. (65.867)
+a2a   1.371496 s. (20.434), gather  0.650844 s. (9.697)
+comm  2.022340 s. (30.130), comp  4.452475 s. (66.336)
+init  0.051221 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 2 (470930)
+time:  6.537632 s.
+sift  0.037272 s. (0.570), load  4.425083 s. (67.686)
+a2a   1.299868 s. (19.883), gather  0.667761 s. (10.214)
+comm  1.967628 s. (30.097), comp  4.462355 s. (68.256)
+init  0.051092 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (631105)
+time:  6.414296 s.
+sift  0.030114 s. (0.469), load  4.465577 s. (69.619)
+a2a   0.852179 s. (13.286), gather  0.983604 s. (15.335)
+comm  1.835783 s. (28.620), comp  4.495691 s. (70.089)
+init  0.051072 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 4 (89420)
+time:  6.493168 s.
+sift  0.032749 s. (0.504), load  4.435744 s. (68.314)
+a2a   1.104383 s. (17.008), gather  0.832597 s. (12.823)
+comm  1.936981 s. (29.831), comp  4.468493 s. (68.818)
+init  0.051046 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (161069)
+time:  6.411874 s.
+sift  0.029570 s. (0.461), load  4.413065 s. (68.826)
+a2a   1.363384 s. (21.263), gather  0.511615 s. (7.979)
+comm  1.874999 s. (29.243), comp  4.442635 s. (69.288)
+init  0.051106 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (165151)
+time:  6.468997 s.
+sift  0.032005 s. (0.495), load  4.492463 s. (69.446)
+a2a   0.793760 s. (12.270), gather  0.999320 s. (15.448)
+comm  1.793080 s. (27.718), comp  4.524468 s. (69.941)
+init  0.051059 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 7 (569406)
+time:  6.424768 s.
+sift  0.028592 s. (0.445), load  4.462313 s. (69.455)
+a2a   0.815054 s. (12.686), gather  1.030788 s. (16.044)
+comm  1.845842 s. (28.730), comp  4.490905 s. (69.900)
+init  0.051097 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 8 (88452)
+time:  6.405046 s.
+sift  0.030906 s. (0.483), load  4.481971 s. (69.976)
+a2a   0.826253 s. (12.900), gather  0.987788 s. (15.422)
+comm  1.814041 s. (28.322), comp  4.512877 s. (70.458)
+init  0.051066 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 9 (438957)
+time:  6.667173 s.
+sift  0.036410 s. (0.546), load  4.485348 s. (67.275)
+a2a   1.221056 s. (18.314), gather  0.828299 s. (12.424)
+comm  2.049355 s. (30.738), comp  4.521758 s. (67.821)
+init  0.051074 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 10 (128825)
+time:  6.504581 s.
+sift  0.033430 s. (0.514), load  4.430929 s. (68.120)
+a2a   1.121842 s. (17.247), gather  0.820010 s. (12.607)
+comm  1.941852 s. (29.854), comp  4.464359 s. (68.634)
+init  0.051087 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 11 (147719)
+time:  6.395358 s.
+sift  0.027987 s. (0.438), load  4.469989 s. (69.894)
+a2a   0.927921 s. (14.509), gather  0.867292 s. (13.561)
+comm  1.795213 s. (28.071), comp  4.497975 s. (70.332)
+init  0.051108 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 12 (79883)
+time:  6.526891 s.
+sift  0.031669 s. (0.485), load  4.445698 s. (68.114)
+a2a   1.217850 s. (18.659), gather  0.715478 s. (10.962)
+comm  1.933328 s. (29.621), comp  4.477367 s. (68.599)
+init  0.051141 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 13 (215143)
+time:  6.571914 s.
+sift  0.030127 s. (0.458), load  4.450936 s. (67.727)
+a2a   1.050556 s. (15.986), gather  0.922096 s. (14.031)
+comm  1.972652 s. (30.016), comp  4.481064 s. (68.185)
+init  0.051095 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 14 (133889)
+time:  6.574753 s.
+sift  0.033535 s. (0.510), load  4.480040 s. (68.140)
+a2a   1.086729 s. (16.529), gather  0.873238 s. (13.282)
+comm  1.959967 s. (29.810), comp  4.513576 s. (68.650)
+init  0.051086 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 15 (352745)
+time:  6.475236 s.
+sift  0.028872 s. (0.446), load  4.485728 s. (69.275)
+a2a   1.052148 s. (16.249), gather  0.832747 s. (12.860)
+comm  1.884895 s. (29.109), comp  4.514600 s. (69.721)
+init  0.051103 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 16 (192949)
+time:  6.454586 s.
+sift  0.033273 s. (0.515), load  4.470001 s. (69.253)
+a2a   1.081388 s. (16.754), gather  0.805038 s. (12.472)
+comm  1.886426 s. (29.226), comp  4.503274 s. (69.769)
+init  0.051100 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 17 (246946)
+time:  6.637536 s.
+sift  0.029461 s. (0.444), load  4.480577 s. (67.504)
+a2a   1.405902 s. (21.181), gather  0.481733 s. (7.258)
+comm  1.887635 s. (28.439), comp  4.510038 s. (67.947)
+init  0.051098 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 18 (81858)
+time:  6.599147 s.
+sift  0.029302 s. (0.444), load  4.474883 s. (67.810)
+a2a   1.132282 s. (17.158), gather  0.730456 s. (11.069)
+comm  1.862739 s. (28.227), comp  4.504185 s. (68.254)
+init  0.051073 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 19 (274887)
+time:  6.489194 s.
+sift  0.031494 s. (0.485), load  4.491014 s. (69.208)
+a2a   0.826534 s. (12.737), gather  1.056297 s. (16.278)
+comm  1.882831 s. (29.015), comp  4.522508 s. (69.693)
+init  0.051137 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 20 (420009)
+time:  6.587526 s.
+sift  0.029084 s. (0.441), load  4.440731 s. (67.411)
+a2a   1.331047 s. (20.206), gather  0.664263 s. (10.084)
+comm  1.995311 s. (30.289), comp  4.469815 s. (67.853)
+init  0.051097 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 21 (371823)
+time:  6.461468 s.
+sift  0.032472 s. (0.503), load  4.478279 s. (69.307)
+a2a   1.212885 s. (18.771), gather  0.649786 s. (10.056)
+comm  1.862671 s. (28.827), comp  4.510751 s. (69.810)
+init  0.051056 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 22 (133545)
+time:  6.590590 s.
+sift  0.029882 s. (0.453), load  4.498845 s. (68.262)
+a2a   1.003113 s. (15.220), gather  0.980598 s. (14.879)
+comm  1.983711 s. (30.099), comp  4.528727 s. (68.715)
+init  0.051054 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 23 (440397)
+time:  6.500195 s.
+sift  0.032753 s. (0.504), load  4.465542 s. (68.699)
+a2a   1.163060 s. (17.893), gather  0.773972 s. (11.907)
+comm  1.937032 s. (29.800), comp  4.498295 s. (69.202)
+init  0.051090 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 24 (99311)
+time:  6.388679 s.
+sift  0.027914 s. (0.437), load  4.488585 s. (70.258)
+a2a   0.890856 s. (13.944), gather  0.924877 s. (14.477)
+comm  1.815733 s. (28.421), comp  4.516499 s. (70.695)
+init  0.051061 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 25 (326627)
+time:  6.420227 s.
+sift  0.033145 s. (0.516), load  4.427384 s. (68.960)
+a2a   1.293076 s. (20.141), gather  0.552793 s. (8.610)
+comm  1.845869 s. (28.751), comp  4.460529 s. (69.476)
+init  0.051121 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 26 (138400)
+time:  6.577532 s.
+sift  0.033932 s. (0.516), load  4.474324 s. (68.024)
+a2a   1.543399 s. (23.465), gather  0.451603 s. (6.866)
+comm  1.995002 s. (30.331), comp  4.508255 s. (68.540)
+init  0.051053 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 27 (702976)
+time:  6.698286 s.
+sift  0.032101 s. (0.479), load  4.454782 s. (66.506)
+a2a   1.484911 s. (22.169), gather  0.626225 s. (9.349)
+comm  2.111135 s. (31.518), comp  4.486883 s. (66.986)
+init  0.051097 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 28 (117109)
+time:  6.503732 s.
+sift  0.031809 s. (0.489), load  4.456012 s. (68.515)
+a2a   1.441522 s. (22.165), gather  0.438561 s. (6.743)
+comm  1.880083 s. (28.908), comp  4.487821 s. (69.004)
+init  0.051094 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 29 (149785)
+time:  6.568828 s.
+sift  0.030552 s. (0.465), load  4.472473 s. (68.086)
+a2a   1.077384 s. (16.401), gather  0.900951 s. (13.716)
+comm  1.978335 s. (30.117), comp  4.503025 s. (68.551)
+init  0.051083 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 30 (74733)
+time:  6.396453 s.
+sift  0.029193 s. (0.456), load  4.453243 s. (69.621)
+a2a   0.887580 s. (13.876), gather  0.949242 s. (14.840)
+comm  1.836822 s. (28.716), comp  4.482436 s. (70.077)
+init  0.051070 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 31 (230954)
+time:  6.513735 s.
+sift  0.034159 s. (0.524), load  4.455471 s. (68.401)
+a2a   1.022720 s. (15.701), gather  0.780036 s. (11.975)
+comm  1.802757 s. (27.676), comp  4.489630 s. (68.926)
+init  0.051057 s., vis levels 11, nvisited 1651669332
+
+
+SCALE:                          32
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              6084
+graph_generation:               14.7559 s
+construction_time:              29.708 s
+min_time:                       6.38876 s
+firstquartile_time:             6.43976 s
+median_time:                    6.50425 s
+thirdquartile_time:             6.58261 s
+max_time:                       6.7363 s
+mean_time:                      6.5222 s
+stddev_time:                    0.0977722
+min_nedge:                      68718955968
+firstquartile_nedge:            68718955968
+median_nedge:                   68718955968
+thirdquartile_nedge:            68718955968
+max_nedge:                      68718955968
+mean_nedge:                     68718955968
+stddev_nedge:                   0
+min_TEPS:                       1.02013e+10 TEPS
+firstquartile_TEPS:             1.04395e+10 TEPS
+median_TEPS:                    1.05652e+10 TEPS
+thirdquartile_TEPS:             1.0671e+10 TEPS
+max_TEPS:                       1.07562e+10 TEPS
+harmonic_mean_TEPS:             1.05362e+10 TEPS
+harmonic_stddev_TEPS:           2.83677e+07
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  5.1409e-07 s
+stddev_validate:                4.92386e-07
+Application 37214644 resources: utime ~1771022s, stime ~31780s, Rss ~1125452, inblocks ~8008810, outblocks ~22419772
+SCALE: 32, 6084 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 156, nproc_cols 39
+Vertex status array replicated
+graph_generation:               14.756410 s
+Running threaded BFS 0 (553687)
+time:  6.775960 s.
+sift  0.039201 s. (0.579), load  4.053049 s. (59.815)
+a2a   1.738764 s. (25.661), gather  0.635370 s. (9.377)
+comm  2.374134 s. (35.038), comp  4.092250 s. (60.394)
+init  0.262756 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 1 (493725)
+time:  6.717730 s.
+sift  0.035937 s. (0.535), load  4.010045 s. (59.693)
+a2a   1.737479 s. (25.864), gather  0.713932 s. (10.628)
+comm  2.451411 s. (36.492), comp  4.045982 s. (60.228)
+init  0.102923 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 2 (9874)
+time:  6.504638 s.
+sift  0.037357 s. (0.574), load  4.057228 s. (62.374)
+a2a   1.832811 s. (28.177), gather  0.398561 s. (6.127)
+comm  2.231372 s. (34.304), comp  4.094585 s. (62.949)
+init  0.102799 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (537878)
+time:  6.378247 s.
+sift  0.036258 s. (0.568), load  4.064448 s. (63.724)
+a2a   1.643199 s. (25.763), gather  0.462754 s. (7.255)
+comm  2.105953 s. (33.018), comp  4.100706 s. (64.292)
+init  0.102789 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 4 (470930)
+time:  6.363118 s.
+sift  0.038994 s. (0.613), load  4.012950 s. (63.066)
+a2a   1.436394 s. (22.574), gather  0.758394 s. (11.919)
+comm  2.194787 s. (34.492), comp  4.051944 s. (63.679)
+init  0.102661 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (631105)
+time:  6.357252 s.
+sift  0.037481 s. (0.590), load  4.026924 s. (63.344)
+a2a   1.585946 s. (24.947), gather  0.556456 s. (8.753)
+comm  2.142402 s. (33.700), comp  4.064405 s. (63.933)
+init  0.102709 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (89420)
+time:  6.372143 s.
+sift  0.037294 s. (0.585), load  4.011086 s. (62.947)
+a2a   1.473972 s. (23.131), gather  0.698913 s. (10.968)
+comm  2.172885 s. (34.100), comp  4.048380 s. (63.532)
+init  0.102734 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 7 (457245)
+time:  6.377805 s.
+sift  0.040777 s. (0.639), load  4.048520 s. (63.478)
+a2a   1.770877 s. (27.766), gather  0.327767 s. (5.139)
+comm  2.098644 s. (32.905), comp  4.089297 s. (64.118)
+init  0.102835 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 8 (161069)
+time:  6.530609 s.
+sift  0.038193 s. (0.585), load  3.998169 s. (61.222)
+a2a   1.735938 s. (26.582), gather  0.620637 s. (9.504)
+comm  2.356575 s. (36.085), comp  4.036362 s. (61.807)
+init  0.102831 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 9 (165151)
+time:  6.516099 s.
+sift  0.036817 s. (0.565), load  4.071031 s. (62.477)
+a2a   1.669849 s. (25.627), gather  0.610893 s. (9.375)
+comm  2.280742 s. (35.002), comp  4.107848 s. (63.042)
+init  0.102777 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 10 (569406)
+time:  6.461396 s.
+sift  0.040389 s. (0.625), load  4.064701 s. (62.907)
+a2a   1.687033 s. (26.109), gather  0.535900 s. (8.294)
+comm  2.222934 s. (34.403), comp  4.105090 s. (63.533)
+init  0.102784 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 11 (184374)
+time:  6.238668 s.
+sift  0.037884 s. (0.607), load  4.046767 s. (64.866)
+a2a   1.632511 s. (26.168), gather  0.397074 s. (6.365)
+comm  2.029586 s. (32.532), comp  4.084651 s. (65.473)
+init  0.102733 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 12 (88452)
+time:  6.314609 s.
+sift  0.040796 s. (0.646), load  4.050647 s. (64.147)
+a2a   1.543316 s. (24.440), gather  0.548234 s. (8.682)
+comm  2.091549 s. (33.122), comp  4.091443 s. (64.793)
+init  0.102882 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 13 (438957)
+time:  6.285473 s.
+sift  0.040739 s. (0.648), load  4.059870 s. (64.591)
+a2a   1.713587 s. (27.263), gather  0.330364 s. (5.256)
+comm  2.043951 s. (32.519), comp  4.100609 s. (65.239)
+init  0.102835 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 14 (399101)
+time:  6.379148 s.
+sift  0.039347 s. (0.617), load  4.046928 s. (63.440)
+a2a   1.784358 s. (27.972), gather  0.356879 s. (5.594)
+comm  2.141237 s. (33.566), comp  4.086275 s. (64.057)
+init  0.102799 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 15 (128825)
+time:  6.392237 s.
+sift  0.039331 s. (0.615), load  4.046963 s. (63.311)
+a2a   1.478613 s. (23.131), gather  0.692675 s. (10.836)
+comm  2.171288 s. (33.968), comp  4.086293 s. (63.926)
+init  0.102798 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 16 (147719)
+time:  6.335771 s.
+sift  0.035897 s. (0.567), load  4.057797 s. (64.046)
+a2a   1.529982 s. (24.148), gather  0.594232 s. (9.379)
+comm  2.124213 s. (33.527), comp  4.093693 s. (64.612)
+init  0.102792 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 17 (79883)
+time:  6.394648 s.
+sift  0.038084 s. (0.596), load  4.021530 s. (62.889)
+a2a   1.657434 s. (25.919), gather  0.541149 s. (8.463)
+comm  2.198583 s. (34.382), comp  4.059614 s. (63.485)
+init  0.102716 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 18 (215143)
+time:  6.307667 s.
+sift  0.035502 s. (0.563), load  4.051996 s. (64.239)
+a2a   1.232072 s. (19.533), gather  0.858190 s. (13.606)
+comm  2.090262 s. (33.138), comp  4.087498 s. (64.802)
+init  0.102819 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 19 (133889)
+time:  6.238434 s.
+sift  0.039516 s. (0.633), load  4.065261 s. (65.165)
+a2a   1.168021 s. (18.723), gather  0.850287 s. (13.630)
+comm  2.018308 s. (32.353), comp  4.104777 s. (65.798)
+init  0.102744 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 20 (352745)
+time:  6.369965 s.
+sift  0.037432 s. (0.588), load  4.062611 s. (63.778)
+a2a   1.769368 s. (27.777), gather  0.374945 s. (5.886)
+comm  2.144313 s. (33.663), comp  4.100043 s. (64.365)
+init  0.102785 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 21 (192949)
+time:  6.376452 s.
+sift  0.038485 s. (0.604), load  4.067296 s. (63.786)
+a2a   1.776978 s. (27.868), gather  0.361137 s. (5.664)
+comm  2.138115 s. (33.531), comp  4.105780 s. (64.390)
+init  0.102808 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 22 (246946)
+time:  6.382064 s.
+sift  0.040565 s. (0.636), load  4.058783 s. (63.597)
+a2a   1.784848 s. (27.967), gather  0.356509 s. (5.586)
+comm  2.141357 s. (33.553), comp  4.099348 s. (64.232)
+init  0.102888 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 23 (81858)
+time:  6.382988 s.
+sift  0.038123 s. (0.597), load  4.062570 s. (63.647)
+a2a   1.799970 s. (28.199), gather  0.320743 s. (5.025)
+comm  2.120713 s. (33.224), comp  4.100693 s. (64.244)
+init  0.102696 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 24 (274887)
+time:  6.286572 s.
+sift  0.037251 s. (0.593), load  4.038714 s. (64.243)
+a2a   1.479991 s. (23.542), gather  0.608924 s. (9.686)
+comm  2.088915 s. (33.228), comp  4.075964 s. (64.836)
+init  0.102730 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 25 (420009)
+time:  6.362115 s.
+sift  0.038022 s. (0.598), load  3.998218 s. (62.844)
+a2a   1.674871 s. (26.326), gather  0.494374 s. (7.771)
+comm  2.169245 s. (34.096), comp  4.036240 s. (63.442)
+init  0.102867 s., vis levels 9, nvisited 1651669332
+Running threaded BFS 26 (371823)
+time:  6.270052 s.
+sift  0.038868 s. (0.620), load  4.049361 s. (64.583)
+a2a   1.705621 s. (27.203), gather  0.355220 s. (5.665)
+comm  2.060841 s. (32.868), comp  4.088229 s. (65.202)
+init  0.102844 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 27 (133545)
+time:  6.292910 s.
+sift  0.040677 s. (0.646), load  4.053658 s. (64.416)
+a2a   1.828392 s. (29.055), gather  0.251529 s. (3.997)
+comm  2.079921 s. (33.052), comp  4.094334 s. (65.063)
+init  0.102793 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 28 (505368)
+time:  6.360576 s.
+sift  0.038503 s. (0.605), load  4.067846 s. (63.954)
+a2a   1.845144 s. (29.009), gather  0.274667 s. (4.318)
+comm  2.119811 s. (33.327), comp  4.106349 s. (64.559)
+init  0.102776 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 29 (440397)
+time:  6.317871 s.
+sift  0.042326 s. (0.670), load  4.038955 s. (63.929)
+a2a   1.776507 s. (28.119), gather  0.330568 s. (5.232)
+comm  2.107075 s. (33.351), comp  4.081281 s. (64.599)
+init  0.102727 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 30 (609985)
+time:  6.242311 s.
+sift  0.041158 s. (0.659), load  4.063891 s. (65.102)
+a2a   1.564017 s. (25.055), gather  0.440991 s. (7.065)
+comm  2.005008 s. (32.120), comp  4.105049 s. (65.762)
+init  0.102818 s., vis levels 11, nvisited 1651669332
+Running threaded BFS 31 (99311)
+time:  6.321080 s.
+sift  0.041489 s. (0.656), load  4.058490 s. (64.206)
+a2a   1.509704 s. (23.884), gather  0.568999 s. (9.002)
+comm  2.078703 s. (32.885), comp  4.099979 s. (64.862)
+init  0.102817 s., vis levels 10, nvisited 1651669332
+
+
+SCALE:                          32
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              6084
+graph_generation:               14.7565 s
+construction_time:              28.1729 s
+min_time:                       6.23852 s
+firstquartile_time:             6.31123 s
+median_time:                    6.36663 s
+thirdquartile_time:             6.3877 s
+max_time:                       6.77605 s
+mean_time:                      6.38154 s
+stddev_time:                    0.120659
+min_nedge:                      68718955968
+firstquartile_nedge:            68718955968
+median_nedge:                   68718955968
+thirdquartile_nedge:            68718955968
+max_nedge:                      68718955968
+mean_nedge:                     68718955968
+stddev_nedge:                   0
+min_TEPS:                       1.01415e+10 TEPS
+firstquartile_TEPS:             1.0758e+10 TEPS
+median_TEPS:                    1.07936e+10 TEPS
+thirdquartile_TEPS:             1.08884e+10 TEPS
+max_TEPS:                       1.10153e+10 TEPS
+harmonic_mean_TEPS:             1.07684e+10 TEPS
+harmonic_stddev_TEPS:           3.65682e+07
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                0 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  3.94881e-07 s
+stddev_validate:                4.86768e-07
+Application 37214857 resources: utime ~1751372s, stime ~28587s, Rss ~978060, inblocks ~3610994, outblocks ~29478208
+SCALE: 32, 6084 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 39, nproc_cols 156
+Vertex status array replicated
+graph_generation:               14.756659 s
+Running threaded BFS 0 (553687)
+time:  8.206490 s.
+sift  0.027407 s. (0.334), load  5.882387 s. (71.680)
+a2a   0.562327 s. (6.852), gather  1.583892 s. (19.300)
+comm  2.146219 s. (26.153), comp  5.909794 s. (72.014)
+init  0.064450 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 1 (493725)
+time:  8.102943 s.
+sift  0.021291 s. (0.263), load  5.856175 s. (72.272)
+a2a   0.877770 s. (10.833), gather  0.974365 s. (12.025)
+comm  1.852135 s. (22.858), comp  5.877465 s. (72.535)
+init  0.025201 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 2 (470930)
+time:  7.841044 s.
+sift  0.020222 s. (0.258), load  5.860568 s. (74.742)
+a2a   0.693818 s. (8.849), gather  1.203836 s. (15.353)
+comm  1.897654 s. (24.202), comp  5.880790 s. (75.000)
+init  0.025308 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 3 (89420)
+time:  7.758765 s.
+sift  0.021300 s. (0.275), load  5.876384 s. (75.739)
+a2a   0.743494 s. (9.583), gather  1.046636 s. (13.490)
+comm  1.790130 s. (23.072), comp  5.897684 s. (76.013)
+init  0.025171 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 4 (161069)
+time:  7.731019 s.
+sift  0.021652 s. (0.280), load  5.841603 s. (75.561)
+a2a   0.950149 s. (12.290), gather  0.840104 s. (10.867)
+comm  1.790253 s. (23.157), comp  5.863255 s. (75.841)
+init  0.025257 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 5 (569406)
+time:  7.854492 s.
+sift  0.024516 s. (0.312), load  5.894981 s. (75.052)
+a2a   0.676557 s. (8.614), gather  1.042098 s. (13.268)
+comm  1.718655 s. (21.881), comp  5.919497 s. (75.364)
+init  0.025274 s., vis levels 10, nvisited 1651669332
+Running threaded BFS 6 (438957)
+[NID 03230] 2014-10-23 02:08:19 Apid 37215177: initiated application termination
+[NID 02015] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04565] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04555] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01680] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02726] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03153] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03442] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02318] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04663] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02222] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01625] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01710] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04106] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01711] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04081] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03798] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03087] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01679] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03393] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02391] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04080] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02388] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04902] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02385] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03001] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02771] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01820] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03422] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00855] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03088] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02653] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03053] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04107] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01423] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00484] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01538] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02293] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04082] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03880] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01709] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03389] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04900] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04991] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02224] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01975] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02747] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02722] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01526] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01687] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01626] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03392] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04987] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00988] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01650] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00776] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04660] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03398] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03058] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04661] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03409] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01683] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03412] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01956] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02390] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03891] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03228] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02295] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03881] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03545] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00765] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02748] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03154] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04875] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02315] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00483] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01678] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01527] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02995] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04896] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01690] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01651] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00758] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02217] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04986] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02654] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01025] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00906] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03385] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02225] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02989] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01421] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00963] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02630] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01420] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02294] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03889] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04650] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01677] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03376] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02321] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03086] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01450] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02668] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03229] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02720] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03411] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01953] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01921] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01730] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01662] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02731] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02014] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03404] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03423] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01392] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01533] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03408] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02651] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02285] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02218] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02745] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01053] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04229] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01954] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02749] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04554] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01402] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01388] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01449] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03413] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03149] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04564] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02724] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04079] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01360] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01546] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04566] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02723] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03421] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02323] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03884] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05332] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03395] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03430] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02751] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02993] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04135] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01684] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04083] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02221] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00777] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03085] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02220] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02284] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02287] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02286] 2014-10-23 02:07:57 Apid 37215177: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03230] 2014-10-23 02:07:57 Apid 37215177: OOM killer terminated this process.
+Application 37215177 exit signals: Killed
+Application 37215177 resources: utime ~0s, stime ~0s, Rss ~4876, inblocks ~1771637, outblocks ~4412995
+
+ + --------------------------------------------------------------------------
+ +        Job name: g500bench_hopper_flat
+ +          Job Id: 8284234.hopque01
+ +          System: hopper
+ +     Queued Time: Wed Oct 22 23:17:01 2014
+ +      Start Time: Thu Oct 23 01:54:41 2014
+ + Completion Time: Thu Oct 23 02:08:22 2014
+ +            User: abuluc
+ +        MOM Host: nid04133
+ +           Queue: reg_small
+ +  Req. Resources: mppnodect=254,mppnppn=24,mppwidth=6084,walltime=00:25:00
+ +  Used Resources: cput=00:00:01,mem=10916kb,vmem=145416kb,walltime=00:13:42
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/KameshCode/graph500_2D_SC11/runs
+ +     Submit Args: g500bench_hopper_flat
+ + --------------------------------------------------------------------------
+
