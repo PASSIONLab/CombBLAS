@@ -419,13 +419,17 @@ void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t,
     while(col.getnnz()!=0)
     {
      
+        MPI_Pcontrol(1,"Col Invert");
         row = col.Invert(nrow);
+        MPI_Pcontrol(-1,"Col Invert");
         
         row.SelectApply(parentsRow, [](int64_t parent){return true;},
                         [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
         
 
+        MPI_Pcontrol(1,"Row Invert");
         col = row.Invert(ncol); // children array
+        MPI_Pcontrol(-1,"Row Invert");
 
         nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
         
@@ -674,9 +678,9 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 //MPI_Abort(MPI_COMM_WORLD,-1);
                 // I think this is only better for long paths / small number of vertices
                 
-                fringeCol = fringeRow.ComposeRMA(ncol,
-                                              [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
-                                              [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
+                //fringeCol = fringeRow.ComposeRMA(ncol,
+                //                              [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
+                //                              [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                 
                 test2 += MPI_Wtime()-t2;
                 
@@ -697,8 +701,8 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         if (numMatchedCol== 0) matched = false;
         else
         {
-            Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
-            //Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            //Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
         }
         time_augment = MPI_Wtime() - time_augment;
         phase_timing[7] += time_augment;
