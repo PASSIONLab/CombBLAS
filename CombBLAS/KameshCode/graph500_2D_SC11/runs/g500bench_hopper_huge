@@ -12,7 +12,7 @@ setenv OMP_NUM_THREADS 6
 #aprun -n 8100 -N 4 -S 1 -ss -d 6 ../src/graph500_bfs_hopper_opt 33 16 1 45 180
 
 
-aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 33 16 1 90 90
-aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 33 16 1 180 45
-aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 33 16 1 45 180
+aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 90 90
+aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 180 45
+aprun -n 8100 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 45 180
 
