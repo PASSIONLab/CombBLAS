@@ -1,0 +1,898 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+cray-hdf5-parallel(3):ERROR:105: Unable to locate a modulefile for 'cray-hdf5-parallel/1.8.12'
+ModuleCmd_Switch.c(172):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+SCALE: 33, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 220, nproc_cols 220
+Vertex status array replicated
+graph_generation:               3.791284 s
+Running threaded BFS 0 (148345)
+time:  5.742162 s.
+sift  0.013870 s. (0.242), load  3.789919 s. (66.002)
+a2a   0.651532 s. (11.346), gather  1.130630 s. (19.690)
+comm  1.782162 s. (31.036), comp  3.803789 s. (66.243)
+init  0.091306 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 1 (1047)
+time:  5.655386 s.
+sift  0.016802 s. (0.297), load  3.773884 s. (66.731)
+a2a   0.502211 s. (8.880), gather  1.168034 s. (20.653)
+comm  1.670245 s. (29.534), comp  3.790686 s. (67.028)
+init  0.035236 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 2 (113709)
+time:  5.688521 s.
+sift  0.013049 s. (0.229), load  3.724959 s. (65.482)
+a2a   0.646080 s. (11.358), gather  1.096423 s. (19.274)
+comm  1.742503 s. (30.632), comp  3.738008 s. (65.711)
+init  0.036183 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 3 (157975)
+time:  5.511111 s.
+sift  0.013875 s. (0.252), load  3.728731 s. (67.658)
+a2a   0.620390 s. (11.257), gather  1.000935 s. (18.162)
+comm  1.621325 s. (29.419), comp  3.742606 s. (67.910)
+init  0.036178 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 4 (79526)
+time:  5.471352 s.
+sift  0.016194 s. (0.296), load  3.763607 s. (68.788)
+a2a   0.573753 s. (10.486), gather  1.010334 s. (18.466)
+comm  1.584087 s. (28.952), comp  3.779802 s. (69.084)
+init  0.035227 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 5 (171726)
+time:  5.487726 s.
+sift  0.017091 s. (0.311), load  3.770668 s. (68.711)
+a2a   0.643531 s. (11.727), gather  0.918694 s. (16.741)
+comm  1.562225 s. (28.468), comp  3.787759 s. (69.022)
+init  0.035886 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 6 (47477)
+time:  5.624537 s.
+sift  0.013527 s. (0.241), load  3.712740 s. (66.010)
+a2a   0.681406 s. (12.115), gather  0.995286 s. (17.695)
+comm  1.676692 s. (29.810), comp  3.726267 s. (66.250)
+init  0.035689 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 7 (38252)
+time:  5.500101 s.
+sift  0.015275 s. (0.278), load  3.788239 s. (68.876)
+a2a   0.554119 s. (10.075), gather  1.000415 s. (18.189)
+comm  1.554534 s. (28.264), comp  3.803514 s. (69.154)
+init  0.036176 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 8 (78942)
+time:  5.440658 s.
+sift  0.014518 s. (0.267), load  3.761743 s. (69.141)
+a2a   0.485828 s. (8.930), gather  1.088142 s. (20.000)
+comm  1.573970 s. (28.930), comp  3.776261 s. (69.408)
+init  0.035885 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 9 (106197)
+time:  5.490793 s.
+sift  0.015870 s. (0.289), load  3.776966 s. (68.787)
+a2a   0.528514 s. (9.625), gather  1.036945 s. (18.885)
+comm  1.565459 s. (28.511), comp  3.792836 s. (69.076)
+init  0.036154 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 10 (44441)
+time:  5.434431 s.
+sift  0.012491 s. (0.230), load  3.694743 s. (67.988)
+a2a   0.740118 s. (13.619), gather  0.891602 s. (16.407)
+comm  1.631720 s. (30.026), comp  3.707234 s. (68.218)
+init  0.036117 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 11 (11603)
+time:  5.400773 s.
+sift  0.015283 s. (0.283), load  3.715282 s. (68.792)
+a2a   0.567060 s. (10.500), gather  1.021338 s. (18.911)
+comm  1.588398 s. (29.411), comp  3.730565 s. (69.075)
+init  0.035839 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 12 (32068)
+time:  5.486653 s.
+sift  0.012775 s. (0.233), load  3.699501 s. (67.427)
+a2a   0.639032 s. (11.647), gather  1.015942 s. (18.517)
+comm  1.654974 s. (30.164), comp  3.712276 s. (67.660)
+init  0.036192 s., vis levels 9, nvisited 2564285469
+Running threaded BFS 13 (42518)
+time:  5.512610 s.
+sift  0.013666 s. (0.248), load  3.779192 s. (68.555)
+a2a   0.562031 s. (10.195), gather  1.022613 s. (18.550)
+comm  1.584644 s. (28.746), comp  3.792858 s. (68.803)
+init  0.036162 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 14 (91225)
+time:  5.456705 s.
+sift  0.015721 s. (0.288), load  3.771937 s. (69.125)
+a2a   0.433731 s. (7.949), gather  1.122675 s. (20.574)
+comm  1.556406 s. (28.523), comp  3.787658 s. (69.413)
+init  0.036104 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 15 (33660)
+time:  5.491142 s.
+sift  0.013212 s. (0.241), load  3.761974 s. (68.510)
+a2a   0.727167 s. (13.243), gather  0.861957 s. (15.697)
+comm  1.589124 s. (28.940), comp  3.775186 s. (68.750)
+init  0.036188 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 16 (101820)
+time:  5.470729 s.
+sift  0.012843 s. (0.235), load  3.738622 s. (68.339)
+a2a   0.521441 s. (9.531), gather  1.077797 s. (19.701)
+comm  1.599238 s. (29.233), comp  3.751465 s. (68.573)
+init  0.036174 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 17 (121903)
+time:  5.453482 s.
+sift  0.014546 s. (0.267), load  3.722544 s. (68.260)
+a2a   0.652046 s. (11.957), gather  0.959261 s. (17.590)
+comm  1.611307 s. (29.546), comp  3.737090 s. (68.527)
+init  0.035991 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 18 (2233)
+time:  5.547578 s.
+sift  0.014528 s. (0.262), load  3.778646 s. (68.113)
+a2a   0.668764 s. (12.055), gather  0.937669 s. (16.902)
+comm  1.606433 s. (28.957), comp  3.793173 s. (68.375)
+init  0.036148 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 19 (62083)
+time:  5.503208 s.
+sift  0.012823 s. (0.233), load  3.747150 s. (68.090)
+a2a   0.588909 s. (10.701), gather  1.026386 s. (18.651)
+comm  1.615295 s. (29.352), comp  3.759973 s. (68.323)
+init  0.035296 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 20 (133559)
+time:  5.498321 s.
+sift  0.013025 s. (0.237), load  3.682405 s. (66.973)
+a2a   0.660937 s. (12.021), gather  1.025308 s. (18.648)
+comm  1.686245 s. (30.668), comp  3.695430 s. (67.210)
+init  0.036163 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 21 (66762)
+time:  5.477606 s.
+sift  0.013463 s. (0.246), load  3.785523 s. (69.109)
+a2a   0.660666 s. (12.061), gather  0.896765 s. (16.371)
+comm  1.557431 s. (28.433), comp  3.798986 s. (69.355)
+init  0.035665 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 22 (26938)
+time:  5.506941 s.
+sift  0.015213 s. (0.276), load  3.757678 s. (68.235)
+a2a   0.524283 s. (9.520), gather  1.075524 s. (19.530)
+comm  1.599808 s. (29.051), comp  3.772892 s. (68.512)
+init  0.036187 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 23 (104538)
+time:  5.456151 s.
+sift  0.019407 s. (0.356), load  3.732016 s. (68.400)
+a2a   0.613453 s. (11.243), gather  0.990907 s. (18.161)
+comm  1.604360 s. (29.405), comp  3.751423 s. (68.756)
+init  0.036188 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 24 (64478)
+time:  5.400473 s.
+sift  0.013219 s. (0.245), load  3.716408 s. (68.816)
+a2a   0.620681 s. (11.493), gather  0.946359 s. (17.524)
+comm  1.567040 s. (29.017), comp  3.729627 s. (69.061)
+init  0.036164 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 25 (65039)
+time:  5.610132 s.
+sift  0.010516 s. (0.187), load  3.666583 s. (65.356)
+a2a   0.732750 s. (13.061), gather  0.968725 s. (17.267)
+comm  1.701475 s. (30.329), comp  3.677100 s. (65.544)
+init  0.036135 s., vis levels 9, nvisited 2564285469
+Running threaded BFS 26 (42201)
+time:  5.416199 s.
+sift  0.013094 s. (0.242), load  3.706865 s. (68.440)
+a2a   0.720734 s. (13.307), gather  0.904693 s. (16.703)
+comm  1.625427 s. (30.010), comp  3.719959 s. (68.682)
+init  0.036209 s., vis levels 9, nvisited 2564285469
+Running threaded BFS 27 (127052)
+time:  5.488957 s.
+sift  0.019177 s. (0.349), load  3.767064 s. (68.630)
+a2a   0.557811 s. (10.162), gather  1.021416 s. (18.609)
+comm  1.579228 s. (28.771), comp  3.786241 s. (68.979)
+init  0.036131 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 28 (176611)
+time:  5.434718 s.
+sift  0.012316 s. (0.227), load  3.713005 s. (68.320)
+a2a   0.653299 s. (12.021), gather  0.951723 s. (17.512)
+comm  1.605022 s. (29.533), comp  3.725321 s. (68.547)
+init  0.035219 s., vis levels 9, nvisited 2564285469
+Running threaded BFS 29 (104031)
+time:  5.539353 s.
+sift  0.019196 s. (0.347), load  3.797844 s. (68.561)
+a2a   0.612884 s. (11.064), gather  0.984034 s. (17.764)
+comm  1.596919 s. (28.829), comp  3.817039 s. (68.908)
+init  0.036158 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 30 (102024)
+time:  5.451774 s.
+sift  0.013749 s. (0.252), load  3.737697 s. (68.559)
+a2a   0.622088 s. (11.411), gather  0.986697 s. (18.099)
+comm  1.608785 s. (29.509), comp  3.751446 s. (68.811)
+init  0.036191 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 31 (46058)
+time:  5.509102 s.
+sift  0.011688 s. (0.212), load  3.766538 s. (68.369)
+a2a   0.531455 s. (9.647), gather  1.074095 s. (19.497)
+comm  1.605549 s. (29.144), comp  3.778226 s. (68.582)
+init  0.035679 s., vis levels 10, nvisited 2564285469
+
+
+SCALE:                          33
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              48400
+graph_generation:               3.79134 s
+construction_time:              127.195 s
+min_time:                       5.40058 s
+firstquartile_time:             5.45492 s
+median_time:                    5.48998 s
+thirdquartile_time:             5.51197 s
+max_time:                       5.74226 s
+mean_time:                      5.50508 s
+stddev_time:                    0.0801889
+min_nedge:                      1.3743856796e+11
+firstquartile_nedge:            1.3743856796e+11
+median_nedge:                   1.3743856796e+11
+thirdquartile_nedge:            1.3743856796e+11
+max_nedge:                      1.3743856796e+11
+mean_nedge:                     1.3743856796e+11
+stddev_nedge:                   0
+min_TEPS:                       2.39346e+10 TEPS
+firstquartile_TEPS:             2.49346e+10 TEPS
+median_TEPS:                    2.50344e+10 TEPS
+thirdquartile_TEPS:             2.51953e+10 TEPS
+max_TEPS:                       2.54489e+10 TEPS
+harmonic_mean_TEPS:             2.49658e+10 TEPS
+harmonic_stddev_TEPS:           6.53152e+07
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  6.18398e-07 s
+stddev_validate:                4.91454e-07
+Application 39223137 resources: utime ~15309953s, stime ~1608344s, Rss ~1261336, inblocks ~32395245, outblocks ~75848218
+SCALE: 33, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 440, nproc_cols 110
+Vertex status array replicated
+graph_generation:               3.791030 s
+Running threaded BFS 0 (148345)
+time:  6.124256 s.
+sift  0.017610 s. (0.288), load  3.668047 s. (59.894)
+a2a   1.059358 s. (17.298), gather  1.126548 s. (18.395)
+comm  2.185906 s. (35.693), comp  3.685657 s. (60.181)
+init  0.185107 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 1 (1047)
+time:  6.047472 s.
+sift  0.013916 s. (0.230), load  3.685566 s. (60.944)
+a2a   0.974572 s. (16.115), gather  1.207335 s. (19.964)
+comm  2.181907 s. (36.080), comp  3.699481 s. (61.174)
+init  0.073266 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 2 (113709)
+time:  6.280138 s.
+sift  0.014004 s. (0.223), load  3.647411 s. (58.079)
+a2a   0.688579 s. (10.964), gather  1.736750 s. (27.655)
+comm  2.425329 s. (38.619), comp  3.661414 s. (58.301)
+init  0.073296 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 3 (157975)
+time:  5.978634 s.
+sift  0.014300 s. (0.239), load  3.655955 s. (61.150)
+a2a   0.648100 s. (10.840), gather  1.500756 s. (25.102)
+comm  2.148856 s. (35.942), comp  3.670255 s. (61.390)
+init  0.073413 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 4 (79526)
+time:  6.085705 s.
+sift  0.014339 s. (0.236), load  3.697104 s. (60.751)
+a2a   0.814999 s. (13.392), gather  1.409997 s. (23.169)
+comm  2.224995 s. (36.561), comp  3.711444 s. (60.986)
+init  0.073178 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 5 (171726)
+time:  5.878111 s.
+sift  0.014965 s. (0.255), load  3.684208 s. (62.677)
+a2a   1.155086 s. (19.651), gather  0.867993 s. (14.767)
+comm  2.023079 s. (34.417), comp  3.699173 s. (62.931)
+init  0.072593 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 6 (47477)
+time:  6.012723 s.
+sift  0.015310 s. (0.255), load  3.633863 s. (60.436)
+a2a   0.699404 s. (11.632), gather  1.470583 s. (24.458)
+comm  2.169987 s. (36.090), comp  3.649173 s. (60.691)
+init  0.073156 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 7 (51291)
+time:  5.857759 s.
+sift  0.014790 s. (0.252), load  3.699313 s. (63.152)
+a2a   0.995098 s. (16.988), gather  0.979200 s. (16.716)
+comm  1.974298 s. (33.704), comp  3.714103 s. (63.405)
+init  0.072622 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 8 (38252)
+time:  5.976749 s.
+sift  0.014214 s. (0.238), load  3.704189 s. (61.977)
+a2a   0.938107 s. (15.696), gather  1.122661 s. (18.784)
+comm  2.060768 s. (34.480), comp  3.718403 s. (62.214)
+init  0.073316 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 9 (27379)
+time:  5.969803 s.
+sift  0.014566 s. (0.244), load  3.669852 s. (61.474)
+a2a   0.668236 s. (11.194), gather  1.480821 s. (24.805)
+comm  2.149057 s. (35.999), comp  3.684418 s. (61.718)
+init  0.073245 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 10 (78942)
+time:  6.039089 s.
+sift  0.014319 s. (0.237), load  3.671531 s. (60.796)
+a2a   0.940921 s. (15.581), gather  1.270062 s. (21.031)
+comm  2.210983 s. (36.611), comp  3.685850 s. (61.033)
+init  0.073196 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 11 (39869)
+time:  5.887765 s.
+sift  0.014071 s. (0.239), load  3.683965 s. (62.570)
+a2a   1.030797 s. (17.507), gather  1.010811 s. (17.168)
+comm  2.041608 s. (34.675), comp  3.698036 s. (62.809)
+init  0.073181 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 12 (106197)
+time:  6.035053 s.
+sift  0.014588 s. (0.242), load  3.707524 s. (61.433)
+a2a   1.095020 s. (18.144), gather  1.071815 s. (17.760)
+comm  2.166835 s. (35.904), comp  3.722112 s. (61.675)
+init  0.073280 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 13 (105892)
+time:  5.942708 s.
+sift  0.014704 s. (0.247), load  3.713194 s. (62.483)
+a2a   1.107401 s. (18.635), gather  0.956676 s. (16.098)
+comm  2.064077 s. (34.733), comp  3.727898 s. (62.731)
+init  0.073260 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 14 (44441)
+time:  5.773858 s.
+sift  0.013897 s. (0.241), load  3.645760 s. (63.143)
+a2a   0.574330 s. (9.947), gather  1.404072 s. (24.318)
+comm  1.978402 s. (34.265), comp  3.659657 s. (63.383)
+init  0.073125 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 15 (25873)
+time:  5.839256 s.
+sift  0.014089 s. (0.241), load  3.696421 s. (63.303)
+a2a   0.999131 s. (17.111), gather  0.986025 s. (16.886)
+comm  1.985156 s. (33.997), comp  3.710510 s. (63.544)
+init  0.073204 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 16 (11603)
+time:  6.029749 s.
+sift  0.014207 s. (0.236), load  3.667666 s. (60.826)
+a2a   0.728040 s. (12.074), gather  1.487933 s. (24.677)
+comm  2.215972 s. (36.751), comp  3.681873 s. (61.062)
+init  0.073295 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 17 (32068)
+time:  5.974417 s.
+sift  0.013580 s. (0.227), load  3.628571 s. (60.735)
+a2a   0.575378 s. (9.631), gather  1.634650 s. (27.361)
+comm  2.210028 s. (36.992), comp  3.642151 s. (60.962)
+init  0.072436 s., vis levels 9, nvisited 2564285469
+Running threaded BFS 18 (42518)
+time:  6.062915 s.
+sift  0.015268 s. (0.252), load  3.660177 s. (60.370)
+a2a   0.965740 s. (15.929), gather  1.273662 s. (21.007)
+comm  2.239402 s. (36.936), comp  3.675445 s. (60.622)
+init  0.073195 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 19 (42767)
+time:  6.009957 s.
+sift  0.013824 s. (0.230), load  3.710651 s. (61.742)
+a2a   0.964534 s. (16.049), gather  1.155839 s. (19.232)
+comm  2.120373 s. (35.281), comp  3.724475 s. (61.972)
+init  0.073022 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 20 (91225)
+time:  5.961150 s.
+sift  0.015725 s. (0.264), load  3.704106 s. (62.137)
+a2a   1.028681 s. (17.256), gather  1.059748 s. (17.778)
+comm  2.088429 s. (35.034), comp  3.719830 s. (62.401)
+init  0.073261 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 21 (33660)
+time:  5.909240 s.
+sift  0.013598 s. (0.230), load  3.698298 s. (62.585)
+a2a   1.231808 s. (20.845), gather  0.788040 s. (13.336)
+comm  2.019849 s. (34.181), comp  3.711895 s. (62.815)
+init  0.072833 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 22 (101820)
+time:  5.800553 s.
+sift  0.015602 s. (0.269), load  3.689822 s. (63.612)
+a2a   0.821881 s. (14.169), gather  1.141591 s. (19.681)
+comm  1.963472 s. (33.850), comp  3.705424 s. (63.881)
+init  0.073215 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 23 (121903)
+time:  5.885120 s.
+sift  0.013913 s. (0.236), load  3.679222 s. (62.517)
+a2a   0.639812 s. (10.872), gather  1.407054 s. (23.909)
+comm  2.046866 s. (34.780), comp  3.693135 s. (62.754)
+init  0.073340 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 24 (88682)
+time:  5.902730 s.
+sift  0.014109 s. (0.239), load  3.627028 s. (61.447)
+a2a   0.726395 s. (12.306), gather  1.353064 s. (22.923)
+comm  2.079459 s. (35.229), comp  3.641136 s. (61.686)
+init  0.072977 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 25 (128634)
+time:  5.879160 s.
+sift  0.013785 s. (0.234), load  3.671061 s. (62.442)
+a2a   1.108629 s. (18.857), gather  0.918238 s. (15.619)
+comm  2.026866 s. (34.475), comp  3.684846 s. (62.676)
+init  0.073293 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 26 (2233)
+time:  5.890249 s.
+sift  0.015199 s. (0.258), load  3.692916 s. (62.695)
+a2a   0.971602 s. (16.495), gather  1.068499 s. (18.140)
+comm  2.040101 s. (34.635), comp  3.708115 s. (62.953)
+init  0.073259 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 27 (62083)
+time:  6.058226 s.
+sift  0.017852 s. (0.295), load  3.655768 s. (60.344)
+a2a   0.862010 s. (14.229), gather  1.386924 s. (22.893)
+comm  2.248933 s. (37.122), comp  3.673620 s. (60.639)
+init  0.073191 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 28 (158207)
+time:  5.997657 s.
+sift  0.014293 s. (0.238), load  3.709275 s. (61.845)
+a2a   1.142698 s. (19.052), gather  0.940884 s. (15.688)
+comm  2.083582 s. (34.740), comp  3.723567 s. (62.084)
+init  0.072532 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 29 (152902)
+time:  5.945950 s.
+sift  0.015052 s. (0.253), load  3.710604 s. (62.406)
+a2a   1.217945 s. (20.484), gather  0.805287 s. (13.543)
+comm  2.023232 s. (34.027), comp  3.725657 s. (62.659)
+init  0.073255 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 30 (133559)
+time:  5.854928 s.
+sift  0.014872 s. (0.254), load  3.638869 s. (62.151)
+a2a   0.562019 s. (9.599), gather  1.505833 s. (25.719)
+comm  2.067852 s. (35.318), comp  3.653741 s. (62.405)
+init  0.073274 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 31 (173030)
+time:  6.031620 s.
+sift  0.013991 s. (0.232), load  3.701555 s. (61.369)
+a2a   0.952117 s. (15.785), gather  1.203950 s. (19.961)
+comm  2.156067 s. (35.746), comp  3.715546 s. (61.601)
+init  0.073291 s., vis levels 10, nvisited 2564285469
+
+
+SCALE:                          33
+edgefactor:                     16
+NBFS:                           32
+num_mpi_processes:              48400
+graph_generation:               3.79109 s
+construction_time:              147.747 s
+min_time:                       5.77395 s
+firstquartile_time:             5.88654 s
+median_time:                    5.97219 s
+thirdquartile_time:             6.03343 s
+max_time:                       6.28023 s
+mean_time:                      5.96645 s
+stddev_time:                    0.103595
+min_nedge:                      1.3743856796e+11
+firstquartile_nedge:            1.3743856796e+11
+median_nedge:                   1.3743856796e+11
+thirdquartile_nedge:            1.3743856796e+11
+max_nedge:                      1.3743856796e+11
+mean_nedge:                     1.3743856796e+11
+stddev_nedge:                   0
+min_TEPS:                       2.18843e+10 TEPS
+firstquartile_TEPS:             2.27795e+10 TEPS
+median_TEPS:                    2.30131e+10 TEPS
+thirdquartile_TEPS:             2.33479e+10 TEPS
+max_TEPS:                       2.38032e+10 TEPS
+harmonic_mean_TEPS:             2.30352e+10 TEPS
+harmonic_stddev_TEPS:           7.18345e+07
+min_validate:                   0 s
+firstquartile_validate:         0 s
+median_validate:                9.53674e-07 s
+thirdquartile_validate:         9.53674e-07 s
+max_validate:                   1.19209e-06 s
+mean_validate:                  5.51343e-07 s
+stddev_validate:                4.97307e-07
+Application 39223298 resources: utime ~16228469s, stime ~2433137s, Rss ~981032, inblocks ~67820463, outblocks ~122074610
+SCALE: 33, 48400 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 110, nproc_cols 440
+Vertex status array replicated
+graph_generation:               3.795147 s
+Running threaded BFS 0 (148345)
+time:  6.615476 s.
+sift  0.013426 s. (0.203), load  4.516970 s. (68.279)
+a2a   0.729663 s. (11.030), gather  1.233626 s. (18.648)
+comm  1.963289 s. (29.677), comp  4.530396 s. (68.482)
+init  0.045734 s., vis levels 10, nvisited 2564285469
+Running threaded BFS 1 (1047)
+[NID 03525] 2014-11-19 02:52:43 Apid 39223503: initiated application termination
+[NID 05459] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01131] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00025] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03289] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00089] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00931] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00629] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01061] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05458] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03019] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00064] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06356] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05441] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04588] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03796] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05406] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00532] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03375] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02453] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03270] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05626] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00906] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06066] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01918] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00583] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03724] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06220] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06231] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01287] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00877] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04325] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01826] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06125] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02164] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03016] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06106] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01146] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03892] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03271] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00417] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06105] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06082] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06109] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06083] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06085] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00021] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05443] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04624] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01382] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03437] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00506] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01097] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06357] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03279] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01187] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00404] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00218] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01111] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01913] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00987] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03378] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01210] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00020] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00219] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06224] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06048] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01206] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04251] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02674] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06084] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06068] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01315] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00216] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06121] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00774] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01069] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00438] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01300] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05374] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00678] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01784] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01307] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01066] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00679] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06107] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05440] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01854] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00391] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03268] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01058] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00439] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01919] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00891] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01147] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00925] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03376] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02155] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01150] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03031] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06230] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05405] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05464] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00857] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03401] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03377] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01770] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01151] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02344] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04248] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02442] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01917] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04625] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00242] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03436] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01244] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05383] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01689] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05899] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04152] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03341] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05260] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03438] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00772] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06226] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00989] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01301] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01060] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01172] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05934] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06124] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00077] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01010] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01086] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01701] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05888] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05395] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05466] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01070] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01012] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02154] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06162] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00079] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00522] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06208] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01011] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01850] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02157] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00451] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06229] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03882] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04198] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06175] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00065] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00023] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01771] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06419] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04013] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02964] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05394] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00858] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00260] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02894] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01690] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06228] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00876] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06108] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05461] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03250] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05393] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01006] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06087] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00476] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01700] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06358] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04894] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02771] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05409] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00478] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02768] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01851] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00477] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00403] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00217] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06142] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06143] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00479] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05617] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00261] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01028] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06156] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03342] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01165] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01714] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05616] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02122] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00034] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03350] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02156] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01009] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03794] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03343] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06157] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02123] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00061] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05442] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05381] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01130] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01025] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01306] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04589] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01713] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00462] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00473] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04070] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01786] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00507] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01207] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02934] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02769] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04250] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00869] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00954] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02345] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05468] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03789] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04768] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01235] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03282] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04854] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03799] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06218] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06362] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01844] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00386] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00764] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03710] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00617] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01766] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05448] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05412] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00032] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05445] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01764] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02441] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06080] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06114] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02263] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00918] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00410] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06067] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03790] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03346] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06078] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00387] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01373] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01101] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06234] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00069] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05435] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01896] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03786] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00859] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03028] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00063] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01219] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02766] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00919] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00453] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06216] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01136] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06167] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00523] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01849] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06086] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00062] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01915] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06177] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01299] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00213] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05606] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00435] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01019] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00526] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02262] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01152] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01018] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06055] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02455] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02163] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03784] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05415] 2014-11-19 02:52:20 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01795] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01444] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02609] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01098] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06133] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06383] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00240] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03486] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05437] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01782] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00436] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00084] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03114] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01182] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01027] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01627] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00016] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00990] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04737] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00396] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05376] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03798] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06408] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03265] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01072] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00015] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05386] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01530] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05864] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02764] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01296] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00508] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 06409] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05471] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05402] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05438] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06210] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00008] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02861] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01313] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01211] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06382] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01148] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00529] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05908] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02358] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06052] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00430] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01356] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 00267] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06137] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01899] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02948] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05607] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00457] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04939] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03525] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 00455] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00087] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01174] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06363] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06136] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00710] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01793] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06081] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00031] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06065] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00086] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00520] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01279] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03452] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04359] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 02705] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01303] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00474] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00673] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00264] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00007] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00029] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06051] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 04356] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05413] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01154] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06139] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00006] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06050] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00531] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01245] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01155] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 06138] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00639] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01246] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01794] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05378] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 05388] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01247] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00444] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00934] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 03351] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 01289] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 05905] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 04358] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+[NID 00892] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 01122] 2014-11-19 02:52:21 Apid 39223503: OOM killer terminated this process.
+[NID 03785] 2014-11-19 02:52:21 Apid 39223503: Error detected during page fault processing.  Process terminated via bus error.
+Application 39223503 exit signals: Killed
+Application 39223503 resources: utime ~0s, stime ~17s, Rss ~4972, inblocks ~14068567, outblocks ~35043357
+
+ + --------------------------------------------------------------------------
+ +        Job name: g500bench_hopper_huge_flat
+ +          Job Id: 8380111.hopque01
+ +          System: hopper
+ +     Queued Time: Tue Nov 18 00:31:21 2014
+ +      Start Time: Wed Nov 19 02:36:59 2014
+ + Completion Time: Wed Nov 19 02:52:46 2014
+ +            User: abuluc
+ +        MOM Host: nid05417
+ +           Queue: reg_med
+ +  Req. Resources: mppnodect=2017,mppnppn=24,mppwidth=48400,walltime=00:25:00
+ +  Used Resources: cput=00:00:02,mem=12260kb,vmem=147544kb,walltime=00:15:50
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/KameshCode/graph500_2D_SC11/runs
+ +     Submit Args: g500bench_hopper_huge_flat
+ + --------------------------------------------------------------------------
+
