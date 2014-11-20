@@ -743,6 +743,10 @@ CombBLAS/KameshCode/graph500_2D_SC11/ARCH/Makefile.intelcluster-opt -text
 CombBLAS/KameshCode/graph500_2D_SC11/Makefile -text
 CombBLAS/KameshCode/graph500_2D_SC11/Makefile.inc -text
 CombBLAS/KameshCode/graph500_2D_SC11/README -text
+CombBLAS/KameshCode/graph500_2D_SC11/runs/140812_g500bench_hopper_scale32_48kcores.nonuma -text
+CombBLAS/KameshCode/graph500_2D_SC11/runs/141005_g500bench_hopper_flat_scale32_48kcores -text
+CombBLAS/KameshCode/graph500_2D_SC11/runs/141119_g500bench_hopper_flat_scale33_48kcores -text
+CombBLAS/KameshCode/graph500_2D_SC11/runs/141119_g500bench_hopper_scale32_48kcores -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_cyberstar -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_edison -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_edison.e1949408 -text
@@ -756,15 +760,11 @@ CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper.e8284229 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_flat -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_flat.e8284234 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge -text
-CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge.e7999772 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge.e8268842 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge.e8284241 -text
-CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge.e8380110 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge_flat -text
-CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge_flat.e8206558 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge_flat.e8268839 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge_flat.e8284201 -text
-CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_huge_flat.e8380111 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_large -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_large.e7998034 -text
 CombBLAS/KameshCode/graph500_2D_SC11/runs/g500bench_hopper_large.e7999743 -text
