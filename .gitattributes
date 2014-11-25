@@ -359,6 +359,7 @@ CombBLAS/Applications/CarverResults/scale26_p256_july11.run -text
 CombBLAS/Applications/CarverResults/scale26_p64_july11.run -text
 CombBLAS/Applications/DirOptBFS.cpp -text
 CombBLAS/Applications/Driver.cpp -text
+CombBLAS/Applications/Fall2014Runs/edison_run_14400.e1949315 -text
 CombBLAS/Applications/FilteredBFS.cpp -text
 CombBLAS/Applications/FilteredMIS.cpp -text
 CombBLAS/Applications/FranklinResults/graph_p256_s26.e6886783 -text
@@ -671,7 +672,6 @@ CombBLAS/Applications/compilertests/icc10.1-btwcent169 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent441 -text
 CombBLAS/Applications/compilertests/icc10.1-btwcent64 -text
 CombBLAS/Applications/compilertests/icc10.1-ipo-btwcent441 -text
-CombBLAS/Applications/edison_run_14400.e1949315 -text
 CombBLAS/Applications/filter_debug.txt -text
 CombBLAS/Applications/genscripts -text
 CombBLAS/Applications/graph_p25_singleiter_scale21 -text
