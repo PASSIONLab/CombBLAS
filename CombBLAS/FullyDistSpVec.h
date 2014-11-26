@@ -340,6 +340,9 @@ private:
 	
 	template<typename IU, typename NV>
 	friend void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue);
+    
+
+
 };
 
 #include "FullyDistSpVec.cpp"

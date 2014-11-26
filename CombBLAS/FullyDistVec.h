@@ -277,6 +277,8 @@ private:
     template <typename IU, typename NU>
     friend void Augment (FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
                          FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves);
+    template <class IU, class DER>
+    friend SpParMat<IU, bool, DER> PermMat (const FullyDistVec<IU,IU> & ri, const IU ncol);
 };
 
 #include "FullyDistVec.cpp"
