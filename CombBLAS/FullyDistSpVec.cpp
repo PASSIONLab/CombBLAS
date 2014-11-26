@@ -1804,8 +1804,11 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 template <class IT, class NT>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
 {
+    double t1, t2, t3;
     FullyDistSpVec<IT,NT> Inverted(commGrid, globallen);
+    t2 = MPI_Wtime();
     IT max_entry = Reduce(maximum<IT>(), (IT) 0 ) ;
+    t2 = MPI_Wtime() - t2;
     if(max_entry >= globallen)
     {
         cout << "Sparse vector has entries (" << max_entry  << ") larger than requested global vector length " << globallen << endl;
@@ -1828,7 +1831,9 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
         sendcnt[owner]++;
 	}
     
+    t3 = MPI_Wtime();
    	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    t3 = MPI_Wtime()- t3;
     
     sdispls[0] = 0;
 	rdispls[0] = 0;
@@ -1856,6 +1861,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
 
+    t1 = MPI_Wtime();
 	NT * recvdatbuf = new NT[totrecv];
 	MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
     delete [] datbuf;
@@ -1863,7 +1869,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
     IT * recvindbuf = new IT[totrecv];
     MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
     delete [] indbuf;
-    
+    t1 = MPI_Wtime() - t1;
     
     vector< pair<IT,NT> > tosort;   // in fact, tomerge would be a better name but it is unlikely to be faster
     tosort.resize(totrecv);
@@ -1889,6 +1895,10 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Invert (IT globallen)
         lastIndex = itr->first;
         
 	}
+    
+    //ostringstream tinfo;
+    //tinfo << t1 << " "<< t2 << " " << t3 << " \n";
+    //SpParHelper::Print(tinfo.str());
 	return Inverted;
     
 }

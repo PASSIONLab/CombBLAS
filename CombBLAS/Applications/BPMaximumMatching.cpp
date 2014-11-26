@@ -38,8 +38,6 @@ using namespace std;
 
 MTRand GlobalMT(123); // for reproducable result
 
-
-
 template <typename PARMAT>
 void Symmetricize(PARMAT & A)
 {
@@ -204,6 +202,111 @@ void removeIsolated(PSpMat_Int64 & A)
 
 }
 
+
+
+/**
+ * Create a boolean matrix A (not necessarily a permutation matrix)
+ * Input: ri: a dense vector (actual values in FullyDistVec should be IT)
+ *        ncol: number of columns in the output matrix A
+ * Output: a boolean matrix A with m=size(ri) and n=ncol (input)
+           and  A[k,ri[k]]=1
+ */
+template <class IT, class DER>
+SpParMat<IT, bool, DER> PermMat (const FullyDistVec<IT,IT> & ri, const IT ncol)
+{
+    
+    IT procsPerRow = ri.commGrid->GetGridCols();	// the number of processor in a row of processor grid
+    IT procsPerCol = ri.commGrid->GetGridRows();	// the number of processor in a column of processor grid
+    
+    
+    IT global_nrow = ri.TotalLength();
+    IT global_ncol = ncol;
+    IT m_perprocrow = global_nrow / procsPerRow;
+    IT n_perproccol = global_ncol / procsPerCol;
+    
+
+    // The indices for FullyDistVec are offset'd to 1/p pieces
+    // The matrix indices are offset'd to 1/sqrt(p) pieces
+    // Add the corresponding offset before sending the data
+
+    vector< vector<IT> > rowid(procsPerRow); // rowid in the local matrix of each vector entry
+    vector< vector<IT> > colid(procsPerRow); // colid in the local matrix of each vector entry
+    
+    IT locvec = ri.arr.size();	// nnz in local vector
+    IT roffset = ri.RowLenUntil(); // the number of vector elements in this processor row before the current processor
+    for(typename vector<IT>::size_type i=0; i< (unsigned)locvec; ++i)
+    {
+        if(ri.arr[i]>=0 && ri.arr[i]<ncol)
+        {
+            IT rowrec = (n_perproccol!=0) ? std::min(ri.arr[i] / n_perproccol, procsPerRow-1) : (procsPerRow-1);
+            // ri's numerical values give the colids and its local indices give rowids
+            rowid[rowrec].push_back( i + roffset);
+            colid[rowrec].push_back(ri.arr[i] - (rowrec * n_perproccol));
+        }
+       
+    }
+    
+    
+
+    int * sendcnt = new int[procsPerRow];
+    int * recvcnt = new int[procsPerRow];
+    for(IT i=0; i<procsPerRow; ++i)
+    {
+        sendcnt[i] = rowid[i].size();
+    }
+    
+    MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, ri.commGrid->GetRowWorld()); // share the counts
+    
+    int * sdispls = new int[procsPerRow]();
+    int * rdispls = new int[procsPerRow]();
+    partial_sum(sendcnt, sendcnt+procsPerRow-1, sdispls+1);
+    partial_sum(recvcnt, recvcnt+procsPerRow-1, rdispls+1);
+    IT p_nnz = accumulate(recvcnt,recvcnt+procsPerRow, static_cast<IT>(0));
+    
+
+    IT * p_rows = new IT[p_nnz];
+    IT * p_cols = new IT[p_nnz];
+    IT * senddata = new IT[locvec];
+    for(int i=0; i<procsPerRow; ++i)
+    {
+        copy(rowid[i].begin(), rowid[i].end(), senddata+sdispls[i]);
+        vector<IT>().swap(rowid[i]);	// clear memory of rowid
+    }
+    MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_rows, recvcnt, rdispls, MPIType<IT>(), ri.commGrid->GetRowWorld());
+    
+    for(int i=0; i<procsPerRow; ++i)
+    {
+        copy(colid[i].begin(), colid[i].end(), senddata+sdispls[i]);
+        vector<IT>().swap(colid[i]);	// clear memory of colid
+    }
+    MPI_Alltoallv(senddata, sendcnt, sdispls, MPIType<IT>(), p_cols, recvcnt, rdispls, MPIType<IT>(), ri.commGrid->GetRowWorld());
+    delete [] senddata;
+    
+    tuple<IT,IT,bool> * p_tuples = new tuple<IT,IT,bool>[p_nnz];
+    for(IT i=0; i< p_nnz; ++i)
+    {
+        p_tuples[i] = make_tuple(p_rows[i], p_cols[i], 1);
+    }
+    DeleteAll(p_rows, p_cols);
+    
+    
+    // Now create the local matrix
+    IT local_nrow = ri.MyRowLength();
+    int my_proccol = ri.commGrid->GetRankInProcRow();
+    IT local_ncol = (my_proccol<(procsPerCol-1))? (n_perproccol) : (global_ncol - (n_perproccol*(procsPerCol-1)));
+    
+    // infer the concrete type SpMat<IT,IT>
+    typedef typename create_trait<DER, IT, bool>::T_inferred DER_IT;
+    DER_IT * PSeq = new DER_IT();
+    PSeq->Create( p_nnz, local_nrow, local_ncol, p_tuples);		// deletion of tuples[] is handled by SpMat::Create
+    
+    SpParMat<IT,bool,DER_IT> P (PSeq, ri.commGrid);
+    //PSpMat_Bool P (PSeq, ri.commGrid);
+    return P;
+    
+}
+
+
 int main(int argc, char* argv[])
 {
 	int nprocs, myrank;
@@ -283,9 +386,11 @@ int main(int argc, char* argv[])
         */
         
         
-        
+     
         
         PSpMat_Int64  A = *ABool;
+        
+        
         if(argc>=4 && static_cast<unsigned>(atoi(argv[3]))==1)
             removeIsolated(A);
         
@@ -304,6 +409,27 @@ int main(int argc, char* argv[])
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
         //mateRow2Col.DebugPrint();
+         
+        
+/*
+        int64_t nrow = 9, ncol=7;
+        FullyDistVec<int64_t, int64_t> row ( A.getcommgrid(), nrow, (int64_t) -1);
+        row.SetElement(0,0);
+        row.SetElement(1,1);
+        //row.SetElement(2,2);
+        row.SetElement(3,3);
+        row.SetElement(4,4);
+        row.SetElement(5,5);
+        row.SetElement(6,6);
+        row.SetElement(7,7);
+        row.SetElement(8,8);
+        //row.DebugPrint();
+        PSpMat_Bool P;
+        P = PermMat<int64_t, SpDCCols<int64_t,bool>>(row, ncol);
+        
+       P.PrintInfo();
+ */
+
         
 	}
 	MPI_Finalize();
@@ -419,17 +545,13 @@ void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t,
     while(col.getnnz()!=0)
     {
      
-        MPI_Pcontrol(1,"Col Invert");
         row = col.Invert(nrow);
-        MPI_Pcontrol(-1,"Col Invert");
         
         row.SelectApply(parentsRow, [](int64_t parent){return true;},
                         [](int64_t root, int64_t parent){return parent;}); // this is a Set operation
         
 
-        MPI_Pcontrol(1,"Row Invert");
         col = row.Invert(ncol); // children array
-        MPI_Pcontrol(-1,"Row Invert");
 
         nextcol = col.SelectApplyNew(mateCol2Row, [](int64_t mate){return mate!=-1;}, [](int64_t child, int64_t mate){return mate;});
         
@@ -548,6 +670,14 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     while(matched)
     {
         time_phase = MPI_Wtime();
+        
+        PSpMat_Bool Mbool;
+        Mbool = PermMat<int64_t, SpDCCols<int64_t,bool>>(mateCol2Row, nrow);
+        //P.Transpose();
+        PSpMat_Int64  M = Mbool; // matching matrix (transposed)
+        
+        
+        
         vector<double> phase_timing(9,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
@@ -585,7 +715,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             
             // Set parent pointer
             // TODO: Write a general purpose FullyDistVec::Set
-            t1 = MPI_Wtime();
+            //t1 = MPI_Wtime();
             parentsRow.EWiseApply(fringeRow,
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
                                   [](int64_t dval, VertexType svtx, bool a, bool b){return true;}, //always true; why do we have to pass the bools?
@@ -594,7 +724,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             
             
             //get unmatched row vertices
-            t1 = MPI_Wtime();
+            //t1 = MPI_Wtime();
             //umFringeRow = fringeRow.SelectNew(mateRow2Col, [](int64_t mate){return mate==-1;});
             umFringeRow1 = fringeRow.SelectNew1(mateRow2Col, [](int64_t mate){return mate==-1;}, [](VertexType& vtx){return vtx.root;});
             //umFringeRow1 = fringeRow.SelectApplyNew(mateRow2Col, [](int64_t mate){return mate==-1;},
@@ -675,6 +805,14 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 
                 test1 += MPI_Wtime()-t2;
                 t2 = MPI_Wtime();
+                
+                SpMV<SelectMinSRing2>(M, fringeRow, fringeCol, false);
+                //if(fringeCol.getnnz() > 0) fringeCol.DebugPrint();
+                //if(fringeCol1.getnnz() > 0) fringeCol1.DebugPrint();
+                //if(fringeRow.getnnz() > 0) fringeRow.DebugPrint();
+
+                
+                
                 //MPI_Abort(MPI_COMM_WORLD,-1);
                 // I think this is only better for long paths / small number of vertices
                 
@@ -701,8 +839,8 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         if (numMatchedCol== 0) matched = false;
         else
         {
-            //Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
-            Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            Augment<int64_t,int64_t>(mateRow2Col, mateCol2Row,parentsRow, leaves);
+            //Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
         }
         time_augment = MPI_Wtime() - time_augment;
         phase_timing[7] += time_augment;
@@ -714,6 +852,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         
         ostringstream tinfo;
         tinfo << "Phase: " << phase << " layers:" << layer << " Unmatched Columns: " << numUnmatchedCol << " Matched: " << numMatchedCol << " Time: "<< time_phase << " ::: "  << test1 << " , " << test2 << "\n";
+        //tinfo << test1 << "  " << test2 << "\n";
         SpParHelper::Print(tinfo.str());
         //if(phase==2)break;
         totalLayer += layer;
@@ -921,6 +1060,9 @@ void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
     
     
 }
+
+
+
 
 
 
