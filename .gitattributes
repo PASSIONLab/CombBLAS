@@ -360,6 +360,8 @@ CombBLAS/Applications/CarverResults/scale26_p64_july11.run -text
 CombBLAS/Applications/DirOptBFS.cpp -text
 CombBLAS/Applications/Driver.cpp -text
 CombBLAS/Applications/Fall2014Runs/edison_run_14400.e1949315 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_28900.e2101895 -text
+CombBLAS/Applications/Fall2014Runs/edison_trans_28900.e2101897 -text
 CombBLAS/Applications/FilteredBFS.cpp -text
 CombBLAS/Applications/FilteredMIS.cpp -text
 CombBLAS/Applications/FranklinResults/graph_p256_s26.e6886783 -text
