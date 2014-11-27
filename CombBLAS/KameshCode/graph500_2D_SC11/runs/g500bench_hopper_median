@@ -1,0 +1,13 @@
+#PBS -q regular
+#PBS -l mppwidth=12696
+#PBS -l walltime=00:30:00
+#PBS -j eo
+#PBS -V
+
+cd $PBS_O_WORKDIR
+
+setenv OMP_NUM_THREADS 6
+aprun -n 2116 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 46 46
+aprun -n 2116 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 92 23
+aprun -n 2116 -N 4 -d 6 -cc numa_node ../src/graph500_bfs_hopper_opt 32 16 1 23 92
+
