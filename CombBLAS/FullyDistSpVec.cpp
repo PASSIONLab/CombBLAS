@@ -1918,6 +1918,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 {
     FullyDistSpVec<IT,NT> Composed(commGrid, globallen);
     
+    
     // identify the max index in the composed vector
     IT init = (IT) 0;
     IT localsize = num.size();
@@ -2040,6 +2041,155 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
  ** for every nonzero entry in vin, we create a nonzero entry in vout whose index is computed by function _BinaryOperationIdx and
  ** value is computed by function _BinaryOperationVal.
  */
+
+template <class IT, class NT>
+template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
+FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+{
+    
+    MPI_Comm World = commGrid->GetWorld();
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    
+    FullyDistSpVec<IT,NT> Composed(commGrid, globallen);
+    
+    
+    int nprocs = commGrid->GetSize();
+    vector< vector< NT > > datsent(nprocs);
+    vector< vector< IT > > indsent(nprocs);
+    
+    IT ploclen = getlocnnz();
+    IT lengthuntil = LengthUntil();
+    for(IT k=0; k < ploclen; ++k)
+    {
+        IT locind;
+        IT globind = __binopIdx(num[k], ind[k] + LengthUntil()); // get global index of the inverted vector
+        int owner = Composed.Owner(globind, locind);     // numerical values in rhs are 0-based indices
+        NT val = __binopVal(num[k], ind[k] + lengthuntil);
+        if(globind < globallen) // prevent index greater than size of the composed vector
+        {
+            datsent[owner].push_back(val);
+            indsent[owner].push_back(locind);   // so that we don't need correction at the recipient
+        }
+    }
+    
+    int * sendcnt = new int[nprocs];
+    int * sdispls = new int[nprocs];
+    int * rdispls = new int[nprocs];
+    int * recvcnt = new int[nprocs]();
+    for(int i=0; i<nprocs; ++i)
+        sendcnt[i] = (int) datsent[i].size();
+   
+   
+    // MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+    // replace previous all2all by the following one-sided call
+    
+    MPI_Win win2;
+    MPI_Win_create(recvcnt, nprocs * sizeof(MPI_INT), sizeof(MPI_INT), MPI_INFO_NULL, World, &win2);
+    MPI_Win_fence(0, win2);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(sendcnt[i]>0)
+        {
+            MPI_Put(&sendcnt[i], 1, MPI_INT, i, myrank, 1, MPI_INT, win2);
+        }
+    }
+    MPI_Win_fence(0, win2);
+    MPI_Win_free(&win2);
+
+
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    
+    //MPI_Alltoall(rdispls, 1, MPI_INT, sdispls, 1, MPI_INT, World);  // where to put data
+    // replace previous all2all by the following one-sided call
+    
+    MPI_Win win3;
+    MPI_Win_create(sdispls, nprocs * sizeof(MPI_INT), sizeof(MPI_INT), MPI_INFO_NULL, World, &win3);
+    MPI_Win_fence(0, win3);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(recvcnt[i]>0)
+        {
+            MPI_Put(&rdispls[i], 1, MPI_INT, i, myrank, 1, MPI_INT, win3);
+        }
+    }
+    MPI_Win_fence(0, win3);
+    MPI_Win_free(&win3);
+
+    
+    
+    
+    IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
+    //IT totrecv = rdispls[nprocs-1] + recvcnt [nprocs - 1];
+    NT * recvdatbuf = new NT[totrecv];
+    IT * recvindbuf = new IT[totrecv];
+    
+    
+    MPI_Win win, win1;
+    MPI_Win_create(recvdatbuf, totrecv * sizeof(NT), sizeof(NT), MPI_INFO_NULL, commGrid->GetWorld(), &win);
+    MPI_Win_create(recvindbuf, totrecv * sizeof(IT), sizeof(IT), MPI_INFO_NULL, commGrid->GetWorld(), &win1);
+    MPI_Win_fence(0, win);
+    MPI_Win_fence(0, win1);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(datsent[i].size()>0)
+        {
+            //cout << indsent[i][j] << " ** " << datsent[i][j] << endl;
+            MPI_Put(&datsent[i][0], datsent[i].size(), MPIType<NT>(), i, sdispls[i], datsent[i].size(), MPIType<NT>(), win);
+            MPI_Put(&indsent[i][0], indsent[i].size(), MPIType<IT>(), i, sdispls[i], indsent[i].size(), MPIType<IT>(), win1);
+        }
+    }
+    MPI_Win_fence(0, win);
+    MPI_Win_fence(0, win1);
+    MPI_Win_free(&win);
+    MPI_Win_free(&win1);
+    
+    
+    
+    vector< pair<IT,NT> > tosort(totrecv);   // in fact, tomerge would be a better name but it is unlikely to be faster
+    IT k = 0;
+    for(int i=0; i<nprocs; ++i)
+    {
+        for(int j = rdispls[i]; j < rdispls[i] + recvcnt[i]; ++j)	// fetch the numerical values
+        {
+            //tosort.push_back(make_pair(recvindbuf[j], recvdatbuf[j]));
+            tosort[k++] = make_pair(recvindbuf[j], recvdatbuf[j]);
+        }
+    }
+    DeleteAll(recvindbuf, recvdatbuf);
+    DeleteAll(sdispls, rdispls, sendcnt, recvcnt);
+    
+    // sort based on index
+    std::sort(tosort.begin(), tosort.end(), [](pair<IT,NT> item1, pair<IT,NT> item2){return item1.first < item2.first;}); // using a lambda function
+    
+    IT lastIndex=-1;
+    
+    Composed.ind.resize(tosort.size());
+    Composed.num.resize(tosort.size());
+    k = 0;
+    for(typename vector<pair<IT,NT>>::iterator itr = tosort.begin(); itr != tosort.end(); ++itr)
+    {
+        if(lastIndex!=itr->first) // avoid duplicate indices
+        {
+            //Composed.ind.push_back(itr->first);
+            Composed.ind[k] = itr->first;
+            Composed.num[k++] = itr->second;
+            //Composed.num.push_back(itr->second);
+        }
+        lastIndex = itr->first;
+    }
+    Composed.ind.resize(k);
+    Composed.num.resize(k);
+    return Composed;
+}
+
+
+
+/*  // older version with alltoall but no all2allv
 template <class IT, class NT>
 template <typename _BinaryOperationIdx, typename _BinaryOperationVal>
 FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
@@ -2170,6 +2320,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     return Composed;
 }
 
+*/
 
 
 // dense vector is an overkill for long augmenting paths but looks better in scaling

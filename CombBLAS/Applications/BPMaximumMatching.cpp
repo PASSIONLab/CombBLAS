@@ -800,11 +800,12 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 FullyDistSpVec<int64_t, VertexType> fringeCol2(fringeCol);
                 
                 double t2 = MPI_Wtime();
+                
                 fringeCol1 = fringeRow.Compose(ncol,
                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
                                               [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                 
-                test1 += MPI_Wtime()-t2;
+                test1 = MPI_Wtime()-t2;
                 t2 = MPI_Wtime();
                 
                 SpMV<SelectMinSRing2>(M, fringeRow, fringeCol, false);
@@ -812,7 +813,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 //if(fringeCol1.getnnz() > 0) fringeCol1.DebugPrint();
                 //if(fringeRow.getnnz() > 0) fringeRow.DebugPrint();
 
-                test2 += MPI_Wtime()-t2;
+                test2 = MPI_Wtime()-t2;
                 t2 = MPI_Wtime();
                 
                 //MPI_Abort(MPI_COMM_WORLD,-1);
@@ -823,7 +824,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                                               [](VertexType& vtx, const int64_t & index){return VertexType(vtx.parent, vtx.root);}); // value
                 
                 
-                test3 += MPI_Wtime()-t2;
+                test3 = MPI_Wtime()-t2;
                 ostringstream tinfo;
                 tinfo << fringeRow.getnnz() << " " << test1 << "  " << test2 << "  " << test3 << "\n";
                 SpParHelper::Print(tinfo.str());
