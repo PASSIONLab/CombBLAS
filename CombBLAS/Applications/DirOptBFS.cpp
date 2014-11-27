@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
 				int64_t num_edges = Aeff.getnnz();
 				int64_t num_nodes = Aeff.getncol();
 				int64_t up_cutoff = num_edges / 20;
-				int64_t down_cutoff = (num_nodes * num_nodes) / ((double) num_edges * 12.0);
+				int64_t down_cutoff = (((double) num_nodes) * ((double)num_nodes)) / ((double) num_edges * 12.0);
 
 				devout << "param " << num_nodes << " vertices with " << num_edges << " edges" << endl;
 				devout << up_cutoff << " up and " << down_cutoff << " down" << endl;
