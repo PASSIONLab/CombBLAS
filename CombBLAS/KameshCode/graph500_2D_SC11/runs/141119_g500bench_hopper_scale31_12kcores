@@ -441,7 +441,7 @@ graph_generation:               3.45977 s
 construction_time:              11.0424 s
 min_time:                       1.55742 s
 firstquartile_time:             1.61216 s
-median_time:                    1.63065 s
+median_time:                     v s
 thirdquartile_time:             1.64239 s
 max_time:                       1.76747 s
 mean_time:                      1.63582 s
