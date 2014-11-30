@@ -1,0 +1,1769 @@
+Forcing scale to : 32
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               12.158289 s
+Generated renamed edge lists
+Generation took 12.1629 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 71582788-by-71582788
+Duplicates removed (or summed): 421440622 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 7.72397 seconds
+Converted to Boolean and removed 6920 loops
+As a whole: 4294967296 rows and 4294967296 columns and 68298029194 nonzeros
+Reductions done
+Intersection of colsums and rowsums found
+Found non-isolated vertices
+As a whole: 4294967296 rows and 4294967296 columns and 68298029194 nonzeros
+Dropped isolated vertices from input
+As a whole: 1652688077 rows and 1652688077 columns and 68298029194 nonzeros
+Converted to 32-bit integers
+Symmetricized
+Optimization buffers set
+As a whole: 1652688077 rows and 1652688077 columns and 136596058388 nonzeros
+484.479 seconds elapsed for Kernel #1
+As a whole: 1652688077 rows and 1652688077 columns and 136596058388 nonzeros
+Load balance: 1.02175
+As a whole, Degrees array has length 1652688077
+0.982048 0.330817 0.699284 0.0607193 0.0194015 0.794178 0.57059 0.245031 0.873026 0.317977 0.0491786 0.979907 0.875608 0.129842 0.862386 0.413525 0.361783 0.548102 0.665159 0.670179 0.654605 0.643731 0.663619 0.0460819 0.796801 0.067343 0.201118 0.178936 0.996204 0.54739 0.0149317 0.577831 0.0934394 0.702221 0.117062 0.00765376 0.142813 0.986832 0.666466 0.625108 0.21412 0.222159 0.298794 0.329842 0.91975 0.845635 0.341476 0.443175 0.8611 0.0348575 0.232313 0.609914 0.604632 0.0941811 0.828735 0.37962 0.91916 0.731879 0.133098 0.64359 0.429148 0.604913 0.941981 0.875231 
+1.62302e+09 5.46738e+08 1.1557e+09 1.0035e+08 3.20646e+07 1.31253e+09 9.43007e+08 4.0496e+08 1.44284e+09 5.25516e+08 8.12768e+07 1.61948e+09 1.44711e+09 2.14587e+08 1.42526e+09 6.83428e+08 5.97914e+08 9.05842e+08 1.0993e+09 1.1076e+09 1.08186e+09 1.06389e+09 1.09675e+09 7.6159e+07 1.31686e+09 1.11297e+08 3.32386e+08 2.95726e+08 1.64641e+09 9.04666e+08 2.46774e+07 9.54974e+08 1.54426e+08 1.16055e+09 1.93467e+08 1.26493e+07 2.36025e+08 1.63093e+09 1.10146e+09 1.03311e+09 3.53873e+08 3.67159e+08 4.93813e+08 5.45125e+08 1.52006e+09 1.39757e+09 5.64354e+08 7.32429e+08 1.42313e+09 5.76085e+07 3.83941e+08 1.008e+09 9.99269e+08 1.55652e+08 1.36964e+09 6.27394e+08 1.51908e+09 1.20957e+09 2.1997e+08 1.06365e+09 7.09247e+08 9.99732e+08 1.5568e+09 1.44648e+09 
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00031
+ 0d              2        0.00552
+  s           2829        0.00017
+ 1d          65562        0.00443
+  s     2235046912        0.00032
+ 2d      397875965        0.25910
+  s    63941951338        0.00558
+  c                       0.00228
+ 3u      397875965        0.12928
+ 4u     1233748900        0.04842
+ 5u       19912526        0.04597
+  c                       0.00001
+ 6d             94        0.00807
+  s             48        0.00008
+ 7d              0        0.00677
+  s              0        0.00008
+0th starting vertex was 1623018514
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.62273 seconds
+MTEPS: 110351
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00020
+ 0d              1        0.00487
+  s            216        0.00011
+ 1d            643        0.00221
+  s       30827974        0.00012
+ 2d       23939875        0.01309
+  s    44079560657        0.00038
+  c                       0.00130
+ 3u       23939875        0.15228
+ 4u     1405814254        0.07159
+ 5u      221281794        0.04667
+  c                       0.00002
+ 6d           1301        0.00959
+  s            597        0.00012
+ 7d              5        0.00782
+  s              4        0.00009
+ 8d              0        0.00477
+  s              0        0.00012
+1th starting vertex was 546737828
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.345371 seconds
+MTEPS: 198971
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              3        0.00007
+ 0d              9        0.00528
+  s          51314        0.00011
+ 1d         105538        0.00548
+  s     3178780819        0.00013
+ 2d      478855308        0.18776
+  s    63608144799        0.00640
+  c                       0.00258
+ 3u      478855308        0.12305
+ 4u     1157578272        0.09406
+ 5u       15074842        0.09298
+  c                       0.00001
+ 6d             71        0.01168
+  s             33        0.00009
+ 7d              0        0.00789
+  s              0        0.00033
+2th starting vertex was 1155697543
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.687653 seconds
+MTEPS: 99932.6
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00024
+ 0d              3        0.00474
+  s       21094733        0.00011
+ 1d       14457523        0.01170
+  s    38036427692        0.00035
+  c                       0.00143
+ 2u       14457523        0.17524
+ 3u     1345646297        0.09731
+ 4u      290668444        0.08593
+  c                       0.00002
+ 5d           1842        0.01020
+  s            861        0.00007
+ 6d              6        0.00805
+  s              3        0.00008
+ 7d              0        0.00492
+  s              0        0.00011
+3th starting vertex was 100350065
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.699678 seconds
+MTEPS: 98215.1
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00010
+ 0d              1        0.00255
+  s            497        0.00011
+ 1d            638        0.00394
+  s       30291107        0.00011
+ 2d       23696560        0.01461
+  s    43955837802        0.00038
+  c                       0.00121
+ 3u       23696560        0.14516
+ 4u     1404551032        0.07159
+ 5u      222782425        0.04704
+  c                       0.00002
+ 6d           1347        0.01212
+  s            623        0.00022
+ 7d              5        0.00798
+  s              3        0.00008
+ 8d              0        0.00491
+  s              0        0.00011
+4th starting vertex was 32064638
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.375686 seconds
+MTEPS: 182916
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00023
+ 0d              4        0.00431
+  s          16953        0.00011
+ 1d          24022        0.00582
+  s      988034416        0.00015
+ 2d      255148232        0.08813
+  s    63292849709        0.00397
+  c                       0.00184
+ 3u      255148232        0.12658
+ 4u     1361200226        0.05161
+ 5u       35195661        0.04680
+  c                       0.00001
+ 6d            161        0.00830
+  s             81        0.00007
+ 7d              0        0.00694
+  s              0        0.00009
+5th starting vertex was 1312528883
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.37101 seconds
+MTEPS: 185221
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              2        0.00241
+  s          49347        0.00013
+ 1d          71852        0.00527
+  s     2321543795        0.00012
+ 2d      409597633        0.15260
+  s    63962263284        0.00564
+  c                       0.00232
+ 3u      409597633        0.12107
+ 4u     1222830943        0.04982
+ 5u       19104390        0.04687
+  c                       0.00001
+ 6d             92        0.00806
+  s             49        0.00009
+ 7d              0        0.00663
+  s              0        0.00008
+6th starting vertex was 943006973
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.4267 seconds
+MTEPS: 161047
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00007
+ 0d              2        0.00430
+  s          45810        0.00011
+ 1d         224609        0.00629
+  s     5403055732        0.00016
+ 2d      616096652        0.27634
+  s    62049787428        0.00885
+  c                       0.00307
+ 3u      616096652        0.11244
+ 4u     1025545697        0.04839
+ 5u        9758806        0.04640
+  c                       0.00001
+ 6d             52        0.00872
+  s             28        0.00090
+ 7d              0        0.00978
+  s              0        0.00014
+7th starting vertex was 404960352
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.605174 seconds
+MTEPS: 113552
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s             51        0.00052
+ 0d             72        0.00966
+  s        4181653        0.00161
+ 1d        4279630        0.01319
+  s    25291514319        0.00124
+  c                       0.00097
+ 2u        4279630        0.22972
+ 3u     1172885967        0.15315
+ 4u      472681081        0.04706
+ 5u        1796724        0.04668
+  c                       0.00001
+ 6d             13        0.00790
+  s              7        0.00007
+ 7d              0        0.00485
+  s              0        0.00025
+8th starting vertex was 1442840212
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.786475 seconds
+MTEPS: 87375.9
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00059
+ 0d              1        0.00232
+  s             28        0.00038
+ 1d             71        0.00419
+  s        1618668        0.00022
+ 2d        3427206        0.00946
+  s    23252974321        0.00021
+  c                       0.00097
+ 3u        3427206        0.15453
+ 4u     1134728407        0.08923
+ 5u      511438191        0.04711
+ 6u        2049061        0.04620
+  c                       0.00001
+ 7d             10        0.00789
+  s              6        0.00008
+ 8d              0        0.00480
+  s              0        0.00012
+9th starting vertex was 525516397
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.391724 seconds
+MTEPS: 175427
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00008
+ 0d              1        0.00526
+  s              8        0.00051
+ 1d            201        0.00345
+  s        8067657        0.00018
+ 2d        7899528        0.01120
+  s    31780613135        0.00017
+  c                       0.00103
+ 3u        7899528        0.15193
+ 4u     1269639283        0.07912
+ 5u      372862467        0.04690
+  c                       0.00003
+ 6d           2640        0.01134
+  s           1259        0.00024
+ 7d              7        0.00840
+  s              4        0.00014
+ 8d              0        0.00496
+  s              0        0.00028
+10th starting vertex was 81276827
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.377299 seconds
+MTEPS: 182134
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00009
+ 0d              2        0.00472
+  s             63        0.00011
+ 1d            283        0.00374
+  s       11594034        0.00015
+ 2d       10937581        0.01128
+  s    35364723340        0.00026
+  c                       0.00109
+ 3u       10937581        0.14761
+ 4u     1315605846        0.07513
+ 5u      324086675        0.04632
+  c                       0.00002
+ 6d           2185        0.00989
+  s           1048        0.00016
+ 7d              8        0.00804
+  s              5        0.00019
+ 8d              0        0.00509
+  s              0        0.00017
+11th starting vertex was 1619480408
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.337118 seconds
+MTEPS: 203842
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00020
+ 0d             12        0.00403
+  s          74993        0.00017
+ 1d         124549        0.00642
+  s     3632966126        0.00012
+ 2d      512546964        0.20791
+  s    63352276229        0.00646
+  c                       0.00270
+ 3u      512546964        0.11727
+ 4u     1125449680        0.04888
+ 5u       13496228        0.04708
+  c                       0.00001
+ 6d             63        0.00807
+  s             34        0.00008
+ 7d              0        0.00620
+  s              0        0.00008
+12th starting vertex was 1447106752
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.484295 seconds
+MTEPS: 141895
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s             10        0.00007
+ 0d             29        0.00465
+  s        1155747        0.00011
+ 1d        1419727        0.00649
+  s    15471797783        0.00012
+  c                       0.00095
+ 2u        1419727        0.15898
+ 3u      974017242        0.09573
+ 4u      672808986        0.04672
+ 5u        3394030        0.04696
+  c                       0.00001
+ 6d             18        0.00796
+  s             10        0.00008
+ 7d              0        0.00537
+  s              0        0.00012
+13th starting vertex was 214587499
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.399344 seconds
+MTEPS: 172080
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s             32        0.00013
+ 0d             70        0.00450
+  s        3214101        0.00011
+ 1d        4035737        0.00806
+  s    24782818070        0.00019
+  c                       0.00099
+ 2u        4035737        0.15240
+ 3u     1163624158        0.08532
+ 4u      482127500        0.04698
+ 5u        1855921        0.04724
+  c                       0.00001
+ 6d              9        0.00782
+  s              4        0.00051
+ 7d              0        0.00487
+  s              0        0.00012
+14th starting vertex was 1425255843
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.390602 seconds
+MTEPS: 175931
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00025
+ 0d              1        0.00507
+  s           5322        0.00011
+ 1d           6569        0.00601
+  s      303153438        0.00011
+ 2d      126861036        0.04447
+  s    59663750722        0.00239
+  c                       0.00149
+ 3u      126861036        0.13113
+ 4u     1453633856        0.05555
+ 5u       70979883        0.04689
+  c                       0.00001
+ 6d            340        0.00905
+  s            149        0.00008
+ 7d              1        0.00735
+  s              0        0.00008
+ 8d              0        0.00454
+  s              0        0.00011
+15th starting vertex was 683427508
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.339553 seconds
+MTEPS: 202381
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d             24        0.00430
+  s         588484        0.00011
+ 1d         942442        0.00686
+  s    12661262734        0.00011
+  c                       0.00098
+ 2u         942442        0.16280
+ 3u      898074965        0.09993
+ 4u      748367433        0.04751
+ 5u        4253211        0.04729
+  c                       0.00001
+ 6d             20        0.00809
+  s             13        0.00025
+ 7d              0        0.00509
+  s              0        0.00018
+16th starting vertex was 597914387
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.407131 seconds
+MTEPS: 168788
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00009
+ 0d              1        0.00500
+  s             17        0.00011
+ 1d             65        0.00268
+  s        2297244        0.00012
+ 2d        2666387        0.00733
+  s    20886853977        0.00014
+  c                       0.00097
+ 3u        2666387        0.15464
+ 4u     1093251157        0.08947
+ 5u      553378872        0.04729
+ 6u        2345882        0.04654
+  c                       0.00001
+ 7d             12        0.00789
+  s              7        0.00008
+ 8d              0        0.00495
+  s              0        0.00079
+17th starting vertex was 905842294
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.391216 seconds
+MTEPS: 175655
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              4        0.00007
+ 0d              6        0.00512
+  s         859163        0.00013
+ 1d         838733        0.00615
+  s    11688531073        0.00013
+  c                       0.00127
+ 2u         838733        0.16355
+ 3u      871089615        0.10054
+ 4u      775101033        0.04724
+ 5u        4608077        0.04698
+  c                       0.00001
+ 6d             22        0.00794
+  s             12        0.00007
+ 7d              0        0.00521
+  s              0        0.00010
+18th starting vertex was 1099300020
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.408312 seconds
+MTEPS: 168300
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              2        0.00234
+  s         206393        0.00012
+ 1d         205868        0.00434
+  s     4896180571        0.00012
+ 2d      593265600        0.25645
+  s    62471929500        0.00820
+  c                       0.00296
+ 3u      593265600        0.11423
+ 4u     1047695053        0.04813
+ 5u       10457880        0.04660
+  c                       0.00001
+ 6d             53        0.00984
+  s             26        0.00008
+ 7d              0        0.00623
+  s              0        0.00010
+19th starting vertex was 1107596237
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.530314 seconds
+MTEPS: 129582
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00010
+ 0d              2        0.00259
+  s           1395        0.00018
+ 1d           2745        0.00548
+  s      138503136        0.00011
+ 2d       72857906        0.02565
+  s    55274748019        0.00175
+  c                       0.00130
+ 3u       72857906        0.13537
+ 4u     1467923589        0.05939
+ 5u      110593610        0.04664
+  c                       0.00001
+ 6d            584        0.00895
+  s            275        0.00007
+ 7d              2        0.00753
+  s              0        0.00009
+ 8d              0        0.00453
+  s              0        0.00011
+20th starting vertex was 1081857775
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.326323 seconds
+MTEPS: 210586
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              7        0.00397
+  s          90563        0.00011
+ 1d         145217        0.00610
+  s     4008375007        0.00012
+ 2d      537487026        0.22529
+  s    63107972389        0.00658
+  c                       0.00277
+ 3u      537487026        0.11665
+ 4u     1101530666        0.04815
+ 5u       12456952        0.04690
+  c                       0.00001
+ 6d             58        0.00802
+  s             31        0.00008
+ 7d              0        0.00631
+  s              0        0.00008
+21th starting vertex was 1063886891
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.497298 seconds
+MTEPS: 138185
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00008
+ 0d              1        0.00473
+  s           5111        0.00011
+ 1d           6702        0.00534
+  s      295770141        0.00014
+ 2d      123004060        0.03924
+  s    59442379672        0.00235
+  c                       0.00149
+ 3u      123004060        0.13199
+ 4u     1455607680        0.05479
+ 5u       72858347        0.04651
+  c                       0.00001
+ 6d            363        0.00891
+  s            164        0.00007
+ 7d              3        0.00744
+  s              1        0.00013
+ 8d              0        0.00478
+  s              0        0.00011
+22th starting vertex was 1096754497
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.332602 seconds
+MTEPS: 206610
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00008
+ 0d              2        0.00452
+  s            395        0.00011
+ 1d            444        0.00495
+  s       29064406        0.00014
+ 2d       21622986        0.01497
+  s    42902554569        0.00034
+  c                       0.00129
+ 3u       21622986        0.14337
+ 4u     1395208687        0.06957
+ 5u      234157553        0.04681
+  c                       0.00002
+ 6d           1426        0.00959
+  s            682        0.00007
+ 7d              6        0.00773
+  s              3        0.00012
+ 8d              0        0.00482
+  s              0        0.00017
+23th starting vertex was 76158978
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.330795 seconds
+MTEPS: 207739
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00009
+ 0d              3        0.00472
+  s           2445        0.00021
+ 1d           6307        0.00499
+  s      321570827        0.00011
+ 2d      126756096        0.04229
+  s    59617877513        0.00239
+  c                       0.00147
+ 3u      126756096        0.13101
+ 4u     1453608513        0.05751
+ 5u       71110330        0.04651
+  c                       0.00001
+ 6d            331        0.00859
+  s            150        0.00008
+ 7d              2        0.00734
+  s              1        0.00008
+ 8d              0        0.00455
+  s              0        0.00011
+24th starting vertex was 1316863472
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.339001 seconds
+MTEPS: 202710
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              4        0.00023
+ 0d              5        0.00226
+  s          59489        0.00014
+ 1d          95062        0.00627
+  s     2971152811        0.00023
+ 2d      463073952        0.17861
+  s    63712970769        0.00604
+  c                       0.00251
+ 3u      463073952        0.11937
+ 4u     1172551614        0.04880
+ 5u       15891203        0.04661
+  c                       0.00001
+ 6d             75        0.00808
+  s             35        0.00007
+ 7d              0        0.00639
+  s              0        0.00008
+25th starting vertex was 111296924
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.454615 seconds
+MTEPS: 151159
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00027
+ 0d              1        0.00192
+  s           3825        0.00012
+ 1d           6578        0.00440
+  s      322683859        0.00015
+ 2d      129220820        0.04295
+  s    59766718583        0.00249
+  c                       0.00152
+ 3u      129220820        0.13088
+ 4u     1452373521        0.05511
+ 5u       69883510        0.04708
+  c                       0.00001
+ 6d            350        0.00876
+  s            153        0.00009
+ 7d              1        0.00749
+  s              1        0.00014
+ 8d              0        0.00176
+  s              0        0.00019
+26th starting vertex was 332386032
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.347752 seconds
+MTEPS: 197609
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00017
+ 0d              2        0.00456
+  s          91379        0.00016
+ 1d         129817        0.00315
+  s     3644873411        0.00015
+ 2d      514283737        0.21038
+  s    63350926715        0.00639
+  c                       0.00268
+ 3u      514283737        0.11737
+ 4u     1123782382        0.04843
+ 5u       13421741        0.04651
+  c                       0.00001
+ 6d             61        0.00801
+  s             34        0.00008
+ 7d              0        0.00616
+  s              0        0.00010
+27th starting vertex was 295725843
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.47962 seconds
+MTEPS: 143278
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00011
+ 0d              1        0.00459
+  s            234        0.00011
+ 1d           6568        0.00408
+  s      308866745        0.00011
+ 2d      122683365        0.04357
+  s    59388427767        0.00234
+  c                       0.00148
+ 3u      122683365        0.13067
+ 4u     1455708651        0.05497
+ 5u       73077786        0.04666
+  c                       0.00001
+ 6d            362        0.01656
+  s            169        0.00007
+ 7d              1        0.00749
+  s              0        0.00009
+ 8d              0        0.00454
+  s              0        0.00012
+28th starting vertex was 1646413821
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.335805 seconds
+MTEPS: 204640
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00011
+ 0d              4        0.00483
+  s          10192        0.00027
+ 1d          15263        0.00455
+  s      636419245        0.00011
+ 2d      199773896        0.06569
+  s    62329164554        0.00322
+  c                       0.00170
+ 3u      199773896        0.12814
+ 4u     1405805992        0.05235
+ 5u       45947529        0.04769
+  c                       0.00001
+ 6d            221        0.00850
+  s            110        0.00017
+ 7d              2        0.00731
+  s              0        0.00008
+ 8d              0        0.00467
+  s              0        0.00012
+29th starting vertex was 904665521
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.354254 seconds
+MTEPS: 193982
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00013
+ 0d              6        0.00512
+  s         220110        0.00012
+ 1d         237259        0.00626
+  s     5478381174        0.00017
+ 2d      625281417        0.27535
+  s    62011642771        0.00888
+  c                       0.00311
+ 3u      625281417        0.11333
+ 4u     1016615914        0.04812
+ 5u        9491859        0.04666
+  c                       0.00001
+ 6d             48        0.00800
+  s             26        0.00011
+ 7d              0        0.00619
+  s              0        0.00008
+30th starting vertex was 24677428
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.556036 seconds
+MTEPS: 123587
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00023
+ 0d              3        0.00419
+  s           3992        0.00011
+ 1d           8956        0.00583
+  s      402297482        0.00011
+ 2d      148849316        0.04853
+  s    60693921867        0.00268
+  c                       0.00156
+ 3u      148849316        0.13190
+ 4u     1441219261        0.05899
+ 5u       61427651        0.04749
+  c                       0.00001
+ 6d            288        0.00867
+  s            134        0.00010
+ 7d              1        0.00734
+  s              0        0.00024
+ 8d              0        0.00454
+  s              0        0.00011
+31th starting vertex was 954973834
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.355441 seconds
+MTEPS: 193334
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00009
+ 0d              1        0.00395
+  s           4050        0.00011
+ 1d           6537        0.00544
+  s      312384325        0.00012
+ 2d      125814922        0.04313
+  s    59580827837        0.00238
+  c                       0.00150
+ 3u      125814922        0.13078
+ 4u     1454140233        0.05472
+ 5u       71518397        0.04690
+  c                       0.00001
+ 6d            353        0.00891
+  s            169        0.00011
+ 7d              2        0.00741
+  s              0        0.00007
+ 8d              0        0.00459
+  s              0        0.00014
+32th starting vertex was 154426118
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.332439 seconds
+MTEPS: 206712
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              7        0.00008
+ 0d              9        0.00201
+  s          61005        0.00015
+ 1d         295368        0.00636
+  s     6540800961        0.00013
+ 2d      671010399        0.31830
+  s    61096434105        0.01520
+  c                       0.00326
+ 3u      671010399        0.11071
+ 4u      972039462        0.04808
+ 5u        8284002        0.04662
+  c                       0.00001
+ 6d             49        0.00828
+  s             26        0.00008
+ 7d              0        0.00623
+  s              0        0.00015
+33th starting vertex was 1160551543
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.594241 seconds
+MTEPS: 115642
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00011
+ 0d              1        0.00186
+  s            243        0.00014
+ 1d            651        0.00435
+  s       39707861        0.00012
+ 2d       27482795        0.01490
+  s    45521980335        0.00051
+  c                       0.00131
+ 3u       27482795        0.14279
+ 4u     1417817303        0.06740
+ 5u      205788910        0.04707
+  c                       0.00002
+ 6d           1195        0.00941
+  s            578        0.00007
+ 7d              5        0.00770
+  s              3        0.00007
+ 8d              0        0.00484
+  s              0        0.00011
+34th starting vertex was 193467342
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.327741 seconds
+MTEPS: 209674
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00015
+ 0d              2        0.00332
+  s          52383        0.00011
+ 1d          68088        0.00346
+  s     2257636873        0.00011
+ 2d      404082076        0.15451
+  s    63980077037        0.00558
+  c                       0.00233
+ 3u      404082076        0.12120
+ 4u     1227975700        0.04926
+ 5u       19478233        0.04636
+  c                       0.00001
+ 6d             93        0.00811
+  s             49        0.00007
+ 7d              0        0.00653
+  s              0        0.00007
+35th starting vertex was 12649273
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.42217 seconds
+MTEPS: 162776
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00008
+ 0d              1        0.00373
+  s         661298        0.00011
+ 1d         624256        0.00368
+  s     9839774176        0.00013
+  c                       0.00174
+ 2u         624256        0.16593
+ 3u      810419664        0.10577
+ 4u      835086304        0.04735
+ 5u        5505186        0.04630
+  c                       0.00001
+ 6d             29        0.00796
+  s             16        0.00007
+ 7d              0        0.00577
+  s              0        0.00009
+36th starting vertex was 236024878
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.41342 seconds
+MTEPS: 166221
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00007
+ 0d              2        0.00424
+  s           1258        0.00020
+ 1d           6865        0.00364
+  s      348430876        0.00017
+ 2d      133600536        0.04336
+  s    59973593503        0.00252
+  c                       0.00154
+ 3u      133600536        0.13025
+ 4u     1450042020        0.05436
+ 5u       67840362        0.04744
+  c                       0.00001
+ 6d            313        0.00911
+  s            145        0.00008
+ 7d              1        0.00729
+  s              0        0.00008
+ 8d              0        0.00456
+  s              0        0.00011
+37th starting vertex was 1630925582
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.333618 seconds
+MTEPS: 205981
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              1        0.00547
+  s              6        0.00013
+ 1d             16        0.00597
+  s         261371        0.00012
+ 2d         307172        0.00612
+  s     6498553152        0.00015
+ 3d      675353279        0.31676
+  s    61156919736        0.00932
+  c                       0.00326
+ 4u      675353279        0.11031
+ 5u      967792525        0.04811
+ 6u        8176510        0.04683
+  c                       0.00001
+ 7d             37        0.00798
+  s             20        0.00009
+ 8d              0        0.00606
+  s              0        0.00007
+38th starting vertex was 1101460134
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.599811 seconds
+MTEPS: 114568
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s             29        0.00007
+ 0d            182        0.00353
+  s        6493889        0.00011
+ 1d        7204071        0.01038
+  s    30839972796        0.00059
+  c                       0.00102
+ 2u        7204071        0.14954
+ 3u     1256875417        0.07934
+ 4u      386253677        0.04776
+  c                       0.00003
+ 5d           2792        0.01041
+  s           1343        0.00009
+ 6d             10        0.00785
+  s              6        0.00010
+ 7d              0        0.00478
+  s              0        0.00011
+39th starting vertex was 1033108852
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.337007 seconds
+MTEPS: 203910
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              4        0.00490
+  s          31396        0.00013
+ 1d          43871        0.00633
+  s     1613505606        0.00014
+ 2d      336786962        0.11908
+  s    63933289697        0.00501
+  c                       0.00209
+ 3u      336786962        0.12421
+ 4u     1289766685        0.04962
+ 5u       24993932        0.04608
+  c                       0.00001
+ 6d            122        0.00820
+  s             61        0.00008
+ 7d              0        0.00682
+  s              0        0.00007
+40th starting vertex was 353873233
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.39431 seconds
+MTEPS: 174276
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00009
+ 0d              2        0.00286
+  s         128499        0.00011
+ 1d         210244        0.00456
+  s     5056773666        0.00021
+ 2d      600308404        0.25896
+  s    62338893000        0.00880
+  c                       0.00300
+ 3u      600308404        0.11309
+ 4u     1040867471        0.04779
+ 5u       10238523        0.04689
+  c                       0.00001
+ 6d             47        0.00804
+  s             26        0.00007
+ 7d              0        0.00604
+  s              0        0.00057
+41th starting vertex was 367158823
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.53646 seconds
+MTEPS: 128097
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              4        0.00007
+ 0d             17        0.00523
+  s        3624989        0.00014
+ 1d        4241169        0.00652
+  s    25093269741        0.00021
+  c                       0.00106
+ 2u        4241169        0.15188
+ 3u     1168649755        0.08543
+ 4u      476929143        0.04748
+ 5u        1823390        0.04688
+  c                       0.00001
+ 6d              9        0.00783
+  s              6        0.00021
+ 7d              0        0.00478
+  s              0        0.00010
+42th starting vertex was 493813178
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.393034 seconds
+MTEPS: 174842
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00010
+ 0d              9        0.00464
+  s        1363900        0.00025
+ 1d        1328025        0.00671
+  s    14850589058        0.00017
+  c                       0.00141
+ 2u        1328025        0.15897
+ 3u      959949472        0.09846
+ 4u      686823080        0.04742
+ 5u        3539023        0.04722
+  c                       0.00001
+ 6d             19        0.00794
+  s             11        0.00009
+ 7d              0        0.00570
+  s              0        0.00011
+43th starting vertex was 545125381
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.435603 seconds
+MTEPS: 157756
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00027
+ 0d              3        0.00354
+  s        1658900        0.00040
+ 1d        2034245        0.00676
+  s    18221549880        0.00026
+  c                       0.00173
+ 2u        2034245        0.15730
+ 3u     1037661656        0.09337
+ 4u      609147132        0.04727
+ 5u        2798364        0.04619
+  c                       0.00001
+ 6d             12        0.00784
+  s              7        0.00008
+ 7d              0        0.00476
+  s              0        0.00011
+44th starting vertex was 1520059331
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.408015 seconds
+MTEPS: 168423
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00008
+ 0d              1        0.00441
+  s          13310        0.00011
+ 1d          65572        0.00559
+  s     2229338375        0.00013
+ 2d      398324275        0.14854
+  s    63952834070        0.00555
+  c                       0.00228
+ 3u      398324275        0.12093
+ 4u     1233335372        0.04996
+ 5u       19877784        0.04670
+  c                       0.00001
+ 6d            100        0.00808
+  s             47        0.00010
+ 7d              0        0.00663
+  s              0        0.00008
+45th starting vertex was 1397570995
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.421547 seconds
+MTEPS: 163016
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              1        0.00348
+  s            528        0.00011
+ 1d            671        0.00601
+  s       31440926        0.00011
+ 2d       25202677        0.01536
+  s    44652850439        0.00041
+  c                       0.00128
+ 3u       25202677        0.14243
+ 4u     1410463028        0.06805
+ 5u      215390067        0.04637
+  c                       0.00002
+ 6d           1261        0.00935
+  s            574        0.00007
+ 7d              6        0.00773
+  s              4        0.00008
+ 8d              0        0.00475
+  s              0        0.00035
+46th starting vertex was 564353824
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.32579 seconds
+MTEPS: 210930
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00008
+ 0d              1        0.00382
+  s             66        0.00011
+ 1d            198        0.00242
+  s        9997454        0.00011
+ 2d       10769978        0.01087
+  s    35221835625        0.00021
+  c                       0.00104
+ 3u       10769978        0.14824
+ 4u     1312992185        0.07583
+ 5u      326855446        0.04842
+  c                       0.00002
+ 6d           2250        0.01182
+  s           1073        0.00008
+ 7d              7        0.00861
+  s              4        0.00075
+ 8d              0        0.00519
+  s              0        0.00030
+47th starting vertex was 732429465
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.374698 seconds
+MTEPS: 183398
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s            115        0.00028
+ 0d            190        0.00446
+  s        8831297        0.00052
+ 1d        8865147        0.01122
+  s    33066335102        0.00050
+  c                       0.00112
+ 2u        8865147        0.14882
+ 3u     1286811566        0.31934
+ 4u      354812775        0.04683
+  c                       0.00002
+ 5d           2535        0.00980
+  s           1208        0.00008
+ 6d              6        0.00775
+  s              4        0.00009
+ 7d              0        0.00480
+  s              0        0.00011
+48th starting vertex was 1423129024
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.580196 seconds
+MTEPS: 118441
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00018
+ 0d             54        0.00188
+  s        3251677        0.00011
+ 1d        3104232        0.00698
+  s    22184413135        0.00013
+  c                       0.00101
+ 2u        3104232        0.15276
+ 3u     1119185457        0.08794
+ 4u      527196020        0.04702
+ 5u        2156944        0.04665
+  c                       0.00001
+ 6d             13        0.00781
+  s              7        0.00008
+ 7d              0        0.00485
+  s              0        0.00013
+49th starting vertex was 57608509
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.379225 seconds
+MTEPS: 181209
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00007
+ 0d              1        0.00525
+  s         165834        0.00013
+ 1d         204558        0.00614
+  s     4922587966        0.00012
+ 2d      594135893        0.25430
+  s    62448641597        0.00855
+  c                       0.00297
+ 3u      594135893        0.11515
+ 4u     1046848114        0.04885
+ 5u       10435678        0.04704
+  c                       0.00001
+ 6d             46        0.00821
+  s             26        0.00007
+ 7d              0        0.00605
+  s              0        0.00010
+50th starting vertex was 383940646
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.549234 seconds
+MTEPS: 125118
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00012
+ 0d              6        0.00452
+  s         297663        0.00023
+ 1d         308562        0.00523
+  s     6526236471        0.00016
+ 2d      677069542        0.31843
+  s    61134775816        0.00928
+  c                       0.00326
+ 3u      677069542        0.10919
+ 4u      966115579        0.04805
+ 5u        8135872        0.04636
+  c                       0.00001
+ 6d             33        0.00798
+  s             18        0.00012
+ 7d              0        0.00595
+  s              0        0.00008
+51th starting vertex was 1007996947
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.595084 seconds
+MTEPS: 115478
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              5        0.00009
+ 0d            216        0.00264
+  s        7147853        0.00011
+ 1d        7549392        0.00988
+  s    31388155244        0.00017
+  c                       0.00108
+ 2u        7549392        0.14858
+ 3u     1264511129        0.07850
+ 4u      378314145        0.04657
+  c                       0.00003
+ 5d           2725        0.00995
+  s           1329        0.00076
+ 6d             10        0.01361
+  s              6        0.00049
+ 7d              0        0.01159
+  s              0        0.00048
+52th starting vertex was 999268751
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.368129 seconds
+MTEPS: 186671
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s           4177        0.00127
+ 0d           6609        0.01598
+  s      307231728        0.00667
+ 1d      124500884        0.04886
+  s    59512973586        0.00413
+  c                       0.00146
+ 2u      124500884        0.48565
+ 3u     1454847795        0.05465
+ 4u       72123777        0.04616
+  c                       0.00001
+ 5d            328        0.00873
+  s            154        0.00008
+ 6d              3        0.00747
+  s              1        0.00009
+ 7d              0        0.00456
+  s              0        0.00014
+53th starting vertex was 155652020
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.923214 seconds
+MTEPS: 74434.5
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00008
+ 0d              1        0.00443
+  s             41        0.00011
+ 1d            619        0.00354
+  s       33729806        0.00011
+ 2d       25227119        0.01582
+  s    44619906395        0.00039
+  c                       0.00126
+ 3u       25227119        0.14239
+ 4u     1410305525        0.06776
+ 5u      215522625        0.04657
+  c                       0.00002
+ 6d           1287        0.00971
+  s            637        0.00018
+ 7d              3        0.00781
+  s              1        0.00018
+ 8d              0        0.00486
+  s              0        0.00015
+54th starting vertex was 1369639904
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.329192 seconds
+MTEPS: 208750
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s             12        0.00009
+ 0d             17        0.00468
+  s         944209        0.00013
+ 1d        1034635        0.00667
+  s    13186853942        0.00016
+  c                       0.00122
+ 2u        1034635        0.16122
+ 3u      914473714        0.10127
+ 4u      732075280        0.05015
+ 5u        4054898        0.04835
+  c                       0.00001
+ 6d             22        0.00796
+  s             10        0.00009
+ 7d              0        0.00588
+  s              0        0.00018
+55th starting vertex was 627393673
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.432449 seconds
+MTEPS: 158906
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              4        0.00013
+ 0d             34        0.00210
+  s         727064        0.00039
+ 1d        1100768        0.00724
+  s    13760300048        0.00039
+  c                       0.00104
+ 2u        1100768        0.16134
+ 3u      929272173        0.09798
+ 4u      717387823        0.04719
+ 5u        3878111        0.04621
+  c                       0.00001
+ 6d             19        0.00797
+  s             10        0.00008
+ 7d              0        0.00522
+  s              0        0.00011
+56th starting vertex was 1519084799
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.40576 seconds
+MTEPS: 169359
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00013
+ 0d              1        0.00528
+  s           7799        0.00011
+ 1d          20844        0.00351
+  s      846675051        0.00011
+ 2d      232024883        0.08132
+  s    62940541507        0.00353
+  c                       0.00174
+ 3u      232024883        0.12704
+ 4u     1380343273        0.05163
+ 5u       39169678        0.04617
+  c                       0.00001
+ 6d            184        0.00830
+  s             89        0.00008
+ 7d              0        0.00719
+  s              0        0.00008
+57th starting vertex was 1209567478
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.355719 seconds
+MTEPS: 193183
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              3        0.00007
+ 0d             57        0.00543
+  s        2793091        0.00011
+ 1d        3061133        0.00778
+  s    21983868659        0.00013
+  c                       0.00098
+ 2u        3061133        0.15347
+ 3u     1114353850        0.08834
+ 4u      532037098        0.04670
+ 5u        2190479        0.04664
+  c                       0.00001
+ 6d             11        0.00781
+  s              6        0.00008
+ 7d              0        0.00481
+  s              0        0.00011
+58th starting vertex was 219969775
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.382745 seconds
+MTEPS: 179542
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              1        0.00007
+ 0d              2        0.00397
+  s         109959        0.00012
+ 1d         267108        0.00545
+  s     5979204917        0.00012
+ 2d      647222635        0.29885
+  s    61585190243        0.00920
+  c                       0.00316
+ 3u      647222635        0.11085
+ 4u      995250214        0.04793
+ 5u        8887771        0.04623
+  c                       0.00001
+ 6d             48        0.00811
+  s             24        0.00007
+ 7d              0        0.00623
+  s              0        0.00007
+59th starting vertex was 1063653374
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.573175 seconds
+MTEPS: 119892
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              0        0.00022
+ 0d              3        0.00446
+  s           1256        0.00022
+ 1d           2447        0.00397
+  s      111035693        0.00023
+ 2d       63629613        0.02235
+  s    54082468085        0.00181
+  c                       0.00130
+ 3u       63629613        0.13536
+ 4u     1466107303        0.06029
+ 5u      121607427        0.04629
+  c                       0.00001
+ 6d            626        0.00888
+  s            299        0.00011
+ 7d              4        0.00756
+  s              2        0.00011
+ 8d              0        0.00478
+  s              0        0.00045
+60th starting vertex was 709247288
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.31798 seconds
+MTEPS: 216111
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00008
+ 0d              4        0.00270
+  s          86273        0.00011
+ 1d         210455        0.00482
+  s     5058709984        0.00012
+ 2d      600357503        0.26032
+  s    62336511990        0.00886
+  c                       0.00301
+ 3u      600357503        0.11304
+ 4u     1040820255        0.04784
+ 5u       10236631        0.04698
+  c                       0.00001
+ 6d             57        0.00802
+  s             26        0.00008
+ 7d              0        0.00615
+  s              0        0.00007
+61th starting vertex was 999732022
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.530971 seconds
+MTEPS: 129421
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              3        0.00007
+ 0d              9        0.00352
+  s          89940        0.00017
+ 1d         137551        0.00613
+  s     3814844220        0.00018
+ 2d      524957391        0.21501
+  s    63237727397        0.00645
+  c                       0.00273
+ 3u      524957391        0.11633
+ 4u     1113556189        0.04904
+ 5u       12967608        0.04682
+  c                       0.00001
+ 6d             58        0.00799
+  s             33        0.00014
+ 7d              0        0.00629
+  s              0        0.00008
+62th starting vertex was 1556800035
+Number iterations: 8
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.496629 seconds
+MTEPS: 138371
+Total communication (average so far): 0
+A BFS iteration is starting
+param 1652688077 vertices with 136596058388 edges
+6829802919 up and 1666335 down
+  s              2        0.00010
+ 0d              2        0.00362
+  s           3959        0.00011
+ 1d           8600        0.00513
+  s      344691616        0.00013
+ 2d      136525572        0.05007
+  s    60155270283        0.00255
+  c                       0.00156
+ 3u      136525572        0.12982
+ 4u     1448558428        0.05432
+ 5u       66400563        0.04655
+  c                       0.00001
+ 6d            313        0.00868
+  s            143        0.00008
+ 7d              1        0.00730
+  s              0        0.00008
+ 8d              0        0.00360
+  s              0        0.00010
+63th starting vertex was 1446484002
+Number iterations: 9
+Number of vertices found: 1651647451
+Number of edges traversed: 68718955814
+BFS time: 0.336293 seconds
+MTEPS: 204342
+Total communication (average so far): 0
+Finished
+--------------------------
+Min nedges: 6.8719e+10
+First Quartile nedges: 6.8719e+10
+Median nedges: 6.8719e+10
+Third Quartile nedges: 6.8719e+10
+Max nedges: 6.8719e+10
+Mean nedges: 6.8719e+10
+STDDEV nedges: 0
+--------------------------
+Min time: 0.31798 seconds
+First Quartile time: 0.346561 seconds
+Median time: 0.396827 seconds
+Third Quartile time: 0.513806 seconds
+Max time: 0.923214 seconds
+Mean time: 0.442075 seconds
+STDDEV time: 0.124551 seconds
+--------------------------
+Min MTEPS: 74434.5
+First Quartile MTEPS: 133883
+Median MTEPS: 173178
+Third Quartile MTEPS: 198290
+Max MTEPS: 216111
+Harmonic mean of MTEPS: 155446
+Harmonic standard deviation of MTEPS: 43795.6
+Application 8704323 resources: utime ~1619473s, stime ~313525s, Rss ~1593932, inblocks ~59383126, outblocks ~6720342
+
+ + --------------------------------------------------------------------------
+ +        Job name: edison_run_3600
+ +          Job Id: 2110364.edique02
+ +          System: edison
+ +     Queued Time: Thu Nov 27 14:17:41 2014
+ +      Start Time: Thu Nov 27 14:34:34 2014
+ + Completion Time: Thu Nov 27 14:43:39 2014
+ +            User: abuluc
+ +        MOM Host: nid01280
+ +           Queue: debug
+ +  Req. Resources: mppnodect=150,mppnppn=24,mppwidth=3600,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=6116kb,vmem=135000kb,walltime=00:09:06
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: edison_run_3600
+ + --------------------------------------------------------------------------
+

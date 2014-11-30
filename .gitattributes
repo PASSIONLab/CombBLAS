@@ -360,7 +360,15 @@ CombBLAS/Applications/CarverResults/scale26_p64_july11.run -text
 CombBLAS/Applications/DirOptBFS.cpp -text
 CombBLAS/Applications/Driver.cpp -text
 CombBLAS/Applications/Fall2014Runs/edison_run_14400.e1949315 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_14400.e839305 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_1764.e2110461 -text
 CombBLAS/Applications/Fall2014Runs/edison_run_28900.e2101895 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_3600.e2110364 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_3600.e2110460 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_7056.e2110464 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_7056.e839130 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_td_7056.e2110467 -text
+CombBLAS/Applications/Fall2014Runs/edison_run_td_7056.e2110469 -text
 CombBLAS/Applications/Fall2014Runs/edison_trans_28900.e2101897 -text
 CombBLAS/Applications/FilteredBFS.cpp -text
 CombBLAS/Applications/FilteredMIS.cpp -text
