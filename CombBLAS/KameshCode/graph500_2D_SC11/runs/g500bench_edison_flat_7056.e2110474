@@ -1,0 +1,94 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+SCALE: 33, 7056 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 84, nproc_cols 84
+Vertex status array replicated
+graph_generation:               16.918287 s
+[NID 02343] 2014-11-27 16:59:39 Apid 8705182: initiated application termination
+[NID 02343] 2014-11-27 16:59:40 Apid 8705182: OOM killer terminated this process.
+[NID 02146] 2014-11-27 16:59:40 Apid 8705182: OOM killer terminated this process.
+[NID 02174] 2014-11-27 16:59:40 Apid 8705182: OOM killer terminated this process.
+Application 8705182 exit signals: Killed
+Application 8705182 resources: utime ~0s, stime ~284s, Rss ~7208, inblocks ~2172366, outblocks ~5360796
+SCALE: 33, 7056 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 42, nproc_cols 168
+Vertex status array replicated
+graph_generation:               16.913742 s
+[NID 02183] 2014-11-27 17:00:27 Apid 8705193: initiated application termination
+[NID 02339] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02330] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02183] 2014-11-27 17:00:28 Apid 8705193: OOM killer terminated this process.
+[NID 02166] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02215] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02338] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02379] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02164] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 01809] 2014-11-27 17:00:29 Apid 8705193: OOM killer terminated this process.
+[NID 01807] 2014-11-27 17:00:29 Apid 8705193: OOM killer terminated this process.
+[NID 02250] 2014-11-27 17:00:31 Apid 8705193: OOM killer terminated this process.
+[NID 02176] 2014-11-27 17:00:32 Apid 8705193: OOM killer terminated this process.
+[NID 02165] 2014-11-27 17:00:32 Apid 8705193: OOM killer terminated this process.
+[NID 01955] 2014-11-27 17:00:32 Apid 8705193: OOM killer terminated this process.
+[NID 02331] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 02332] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 02147] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 02283] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 01827] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 02213] 2014-11-27 17:00:34 Apid 8705193: OOM killer terminated this process.
+[NID 02205] 2014-11-27 17:00:31 Apid 8705193: OOM killer terminated this process.
+[NID 02202] 2014-11-27 17:00:35 Apid 8705193: OOM killer terminated this process.
+[NID 02201] 2014-11-27 17:00:31 Apid 8705193: OOM killer terminated this process.
+[NID 02337] 2014-11-27 17:00:38 Apid 8705193: OOM killer terminated this process.
+[NID 02245] 2014-11-27 17:00:39 Apid 8705193: OOM killer terminated this process.
+[NID 02227] 2014-11-27 17:00:39 Apid 8705193: OOM killer terminated this process.
+[NID 02318] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02317] 2014-11-27 17:00:33 Apid 8705193: OOM killer terminated this process.
+[NID 02323] 2014-11-27 17:00:38 Apid 8705193: OOM killer terminated this process.
+[NID 02174] 2014-11-27 17:00:40 Apid 8705193: OOM killer terminated this process.
+[NID 02390] 2014-11-27 17:00:30 Apid 8705193: OOM killer terminated this process.
+[NID 02391] 2014-11-27 17:00:36 Apid 8705193: OOM killer terminated this process.
+[NID 02389] 2014-11-27 17:00:42 Apid 8705193: OOM killer terminated this process.
+[NID 02380] 2014-11-27 17:00:43 Apid 8705193: OOM killer terminated this process.
+[NID 02316] 2014-11-27 17:00:44 Apid 8705193: OOM killer terminated this process.
+[NID 01798] 2014-11-27 17:00:32 Apid 8705193: OOM killer terminated this process.
+[NID 02755] 2014-11-27 17:00:42 Apid 8705193: OOM killer terminated this process.
+[NID 01795] 2014-11-27 17:00:38 Apid 8705193: OOM killer terminated this process.
+[NID 01797] 2014-11-27 17:00:45 Apid 8705193: OOM killer terminated this process.
+[NID 02760] 2014-11-27 17:00:48 Apid 8705193: OOM killer terminated this process.
+[NID 02448] 2014-11-27 17:00:50 Apid 8705193: OOM killer terminated this process.
+Application 8705193 exit signals: Killed
+Application 8705193 resources: utime ~0s, stime ~283s, Rss ~7208, inblocks ~2172366, outblocks ~5360796
+SCALE: 33, 7056 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 168, nproc_cols 42
+Vertex status array replicated
+graph_generation:               16.915397 s
+Running threaded BFS 0 (395888)
+[NID 02174] 2014-11-27 17:02:43 Apid 8705199: initiated application termination
+[NID 02174] 2014-11-27 17:02:44 Apid 8705199: OOM killer terminated this process.
+[NID 02201] 2014-11-27 17:02:45 Apid 8705199: OOM killer terminated this process.
+[NID 01807] 2014-11-27 17:02:46 Apid 8705199: OOM killer terminated this process.
+[NID 02146] 2014-11-27 17:02:46 Apid 8705199: OOM killer terminated this process.
+[NID 02282] 2014-11-27 17:02:47 Apid 8705199: OOM killer terminated this process.
+[NID 02164] 2014-11-27 17:02:48 Apid 8705199: OOM killer terminated this process.
+[NID 02347] 2014-11-27 17:02:57 Apid 8705199: OOM killer terminated this process.
+[NID 02761] 2014-11-27 17:02:58 Apid 8705199: OOM killer terminated this process.
+Application 8705199 exit signals: Killed
+Application 8705199 resources: utime ~0s, stime ~288s, Rss ~7208, inblocks ~2172366, outblocks ~5360796
+
+ + --------------------------------------------------------------------------
+ +        Job name: g500bench_edison_flat_7056
+ +          Job Id: 2110474.edique02
+ +          System: edison
+ +     Queued Time: Thu Nov 27 15:52:42 2014
+ +      Start Time: Thu Nov 27 16:58:51 2014
+ + Completion Time: Thu Nov 27 17:02:58 2014
+ +            User: abuluc
+ +        MOM Host: nid02050
+ +           Queue: debug
+ +  Req. Resources: mppnodect=294,mppnppn=24,mppwidth=7056,walltime=00:25:00
+ +  Used Resources: cput=00:00:00,mem=6764kb,vmem=135952kb,walltime=00:04:09
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/KameshCode/graph500_2D_SC11/runs
+ +     Submit Args: g500bench_edison_flat_7056
+ + --------------------------------------------------------------------------
+

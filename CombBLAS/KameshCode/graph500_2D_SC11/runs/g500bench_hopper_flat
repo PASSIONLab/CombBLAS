@@ -7,7 +7,7 @@
 cd $PBS_O_WORKDIR
 
 setenv OMP_NUM_THREADS 1
-aprun -n 6084 ../src/graph500_bfs_hopper_opt 32 16 1 78 78
-aprun -n 6084 ../src/graph500_bfs_hopper_opt 32 16 1 156 39
-aprun -n 6084 ../src/graph500_bfs_hopper_opt 32 16 1 39 156
+aprun -n 6084 ../src/graph500_bfs_hopper_opt 30 16 1 78 78
+aprun -n 6084 ../src/graph500_bfs_hopper_opt 30 16 1 156 39
+aprun -n 6084 ../src/graph500_bfs_hopper_opt 30 16 1 39 156
 
