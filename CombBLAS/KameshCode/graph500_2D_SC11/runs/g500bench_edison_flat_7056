@@ -1,0 +1,13 @@
+#PBS -q debug
+#PBS -l mppwidth=7056
+#PBS -l walltime=00:25:00
+#PBS -j eo
+#PBS -V
+
+cd $PBS_O_WORKDIR
+
+setenv OMP_NUM_THREADS 1
+aprun -n 7056 ../src/graph500_bfs_edison_opt 31 16 1 84 84
+aprun -n 7056 ../src/graph500_bfs_edison_opt 31 16 1 42 168
+aprun -n 7056 ../src/graph500_bfs_edison_opt 31 16 1 168 42
+
