@@ -1,0 +1,34 @@
+Forcing scale to : 33
+Using fast vertex permutations; skipping edge permutations (like v2.1)
+graph_generation:               12.677090 s
+Generated renamed edge lists
+Generation took 12.6822 seconds
+Warning: Using smaller indices for the matrix than DistEdgeList
+Local matrices are 102261126-by-102261126
+Duplicates removed (or summed): 687872725 and self-loops removed: 0
+Created Sparse Matrix (with int32 local indices and values)
+Calculated degrees in 10.8027 seconds
+[NID 02761] 2014-11-27 16:57:06 Apid 8705165: initiated application termination
+[NID 02755] 2014-11-27 16:57:06 Apid 8705165: OOM killer terminated this process.
+[NID 02760] 2014-11-27 16:57:07 Apid 8705165: OOM killer terminated this process.
+[NID 02761] 2014-11-27 16:57:08 Apid 8705165: OOM killer terminated this process.
+Application 8705165 exit signals: Killed
+Application 8705165 resources: utime ~0s, stime ~282s, Rss ~7212, inblocks ~2804466, outblocks ~7300020
+
+ + --------------------------------------------------------------------------
+ +        Job name: edison_run_td_7056
+ +          Job Id: 2110469.edique02
+ +          System: edison
+ +     Queued Time: Thu Nov 27 15:46:45 2014
+ +      Start Time: Thu Nov 27 16:56:01 2014
+ + Completion Time: Thu Nov 27 16:57:09 2014
+ +            User: abuluc
+ +        MOM Host: nid02819
+ +           Queue: debug
+ +  Req. Resources: mppnodect=294,mppnppn=24,mppwidth=7056,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=6044kb,vmem=135000kb,walltime=00:01:10
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/Applications
+ +     Submit Args: edison_run_td_7056
+ + --------------------------------------------------------------------------
+
