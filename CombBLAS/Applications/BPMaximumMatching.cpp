@@ -532,6 +532,12 @@ struct binopVal: public std::binary_function<VertexType, T, VertexType>
 
 
 
+
+// It is not easy to write these two inverts using matvec.
+// The first invert is accessing matee, hence can be implemented by multipying with matching matrix
+// The second invert access parents, which can not be implemented with simple matvec.
+
+
 void Augment1(FullyDistVec<int64_t, int64_t>& mateRow2Col, FullyDistVec<int64_t, int64_t>& mateCol2Row,
              FullyDistVec<int64_t, int64_t>& parentsRow, FullyDistVec<int64_t, int64_t>& leaves)
 {
@@ -678,7 +684,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
         
         
         
-        vector<double> phase_timing(9,0);
+        vector<double> phase_timing(7,0);
         FullyDistVec<int64_t, int64_t> leaves ( A.getcommgrid(), nrow, (int64_t) -1);
         FullyDistVec<int64_t, int64_t> parentsRow ( A.getcommgrid(), nrow, (int64_t) -1); // it needs to be cleared after each phase
         
@@ -734,59 +740,37 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             //if(umFringeRow1.getnnz()>0)umFringeRow1.DebugPrint();
             phase_timing[1] += MPI_Wtime()-t1;
             t1 = MPI_Wtime();
-            tt = umFringeRow1.getnnz();
+  
+            
             // get the unique leaves
             //MPI_Pcontrol(1,"Compose");
             if(umFringeRow1.getnnz()>0)
             {
-                //temp = umFringeRow.Compose1(ncol,
-                //                           [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
-                //                           [](VertexType& vtx, const int64_t & index){return VertexType(index, vtx.root);}); // value is the leaf
-                
-                //temp1 = umFringeRow1.Compose1(ncol,
-                //                          [](VertexType& vtx, const int64_t & index){return vtx.root;}, // index is the root
-                //                        [](VertexType& vtx, const int64_t & index){return index;}); // value is the leaf
-                //temp1 = umFringeRow1.Invert
-                /*temp1 = umFringeRow1.ComposeRMA(ncol,
-                                            [](int64_t& val, const int64_t& index){return val;}, // index is the val
-                                             [](int64_t& val, const int64_t& index){return index;}); // val is the index
-                */
-                temp1 = umFringeRow1.Invert(ncol);
+                //TODO: merge into one with RMA??? RMA useful because leaves is dense. So need to send count/displacement
+                //temp1 = umFringeRow1.Invert(ncol);
+                //leaves.Set(temp1);
+                //umFringeRow1.DebugPrint();
+                leaves.GSet(umFringeRow1,
+                            [](int64_t valRoot, int64_t idxLeaf){return valRoot;},
+                            [](int64_t valRoot, int64_t idxLeaf){return idxLeaf;});
+                //leaves.DebugPrint();
+                 
                 //temp1.DebugPrint();
             }
             
             //MPI_Pcontrol(-1,"Compose");
+            
             phase_timing[2] += MPI_Wtime()-t1;
             
-            //set leaf pointer
-            t1 = MPI_Wtime();
-            if(umFringeRow1.getnnz()>0)
-            {
-                
-                //leaves.EWiseApply(temp,
-                //             [](int64_t dval, VertexType svtx, bool a, bool b){return svtx.parent;}, // return parent of the sparse vertex
-                //           [](int64_t dval, VertexType svtx, bool a, bool b){return dval==-1;}, //if no aug path is already found
-                //         false, VertexType(), false);
-                
-                leaves.Set(temp1);
-                
-            }
-            phase_timing[3] += MPI_Wtime()-t1;
-            
-            
-            t1 = MPI_Wtime();
+
             fringeRow.SelectApply(mateRow2Col, [](int64_t mate){return mate!=-1;},
                                   [](VertexType vtx, int64_t mate){return VertexType(mate, vtx.root);});
-            phase_timing[4] += MPI_Wtime()-t1;
+           
             
-            //if(temp1.getnnz() > 0)temp1.DebugPrint();
+            //TODO: experiment prunning
             
-            //cout << temp1.getnnz() << " : " << fringeRow.getnnz() << " : ";
-            //if(fringeRow.getnnz()>0)fringeRow.DebugPrint();
             //if(temp1.getnnz()>0 )
              //   fringeRow.FilterByVal (temp1,[](VertexType vtx){return vtx.root;});
-            //if(fringeRow.getnnz()>0)fringeRow.DebugPrint();
-            //cout << fringeRow.getnnz() << " \n";
             
             
             t1 = MPI_Wtime();
@@ -796,6 +780,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 //fringeRow.DebugPrint();
                 // looks like we need fringeCol sorted!!
                 
+                /*
                 FullyDistSpVec<int64_t, VertexType> fringeCol1(fringeCol);
                 FullyDistSpVec<int64_t, VertexType> fringeCol2(fringeCol);
                 
@@ -807,17 +792,16 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 
                 test1 = MPI_Wtime()-t2;
                 t2 = MPI_Wtime();
-                
-                SpMV<SelectMinSRing2>(M, fringeRow, fringeCol, false);
+                */
+                SpMV<SelectMinSRing2>(M, fringeRow, fringeCol, false); // it is faster than compose and composeRMA
                 //if(fringeCol.getnnz() > 0) fringeCol.DebugPrint();
                 //if(fringeCol1.getnnz() > 0) fringeCol1.DebugPrint();
                 //if(fringeRow.getnnz() > 0) fringeRow.DebugPrint();
-
+                /*
                 test2 = MPI_Wtime()-t2;
                 t2 = MPI_Wtime();
                 
                 //MPI_Abort(MPI_COMM_WORLD,-1);
-                // I think this is only better for long paths / small number of vertices
                 
                 fringeCol2 = fringeRow.ComposeRMA(ncol,
                                               [](VertexType& vtx, const int64_t & index){return vtx.parent;}, // index is the parent (mate)
@@ -828,18 +812,17 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
                 ostringstream tinfo;
                 tinfo << fringeRow.getnnz() << " " << test1 << "  " << test2 << "  " << test3 << "\n";
                 SpParHelper::Print(tinfo.str());
+                 */
                 
                 
             }
             else break;
-            
-            phase_timing[5] += MPI_Wtime()-t1;
-            // TODO:do something for prunning
+            phase_timing[3] += MPI_Wtime()-t1;
             
             
         }
         time_search = MPI_Wtime() - time_search;
-        phase_timing[6] += time_search;
+        phase_timing[4] += time_search;
 
       
         int64_t numMatchedCol = leaves.Count([](int64_t leaf){return leaf!=-1;});
@@ -851,11 +834,11 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             //Augment1(mateRow2Col, mateCol2Row,parentsRow, leaves);
         }
         time_augment = MPI_Wtime() - time_augment;
-        phase_timing[7] += time_augment;
+        phase_timing[5] += time_augment;
         
         
         time_phase = MPI_Wtime() - time_phase;
-        phase_timing[8] += time_phase;
+        phase_timing[6] += time_phase;
         timing.push_back(phase_timing);
         
         //ostringstream tinfo;
@@ -883,11 +866,11 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
     if(myrank == 0)
     {
         cout << endl;
-        cout << "===================== ========================================= ==============\n";
-        cout << "                                        BFS Search               Aug    \n";
-        cout << "===================== ========================================= ======= ======\n";
-        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL EWSetL EWMR CmMC  BFS           Total\n";
-        cout << "===================== ========================================= ==============\n";
+        cout << "====================================================================\n";
+        cout << "                                     BFS Search               \n";
+        cout << "===================== ===========================================\n";
+        cout  << "Phase Layer    UMCol   SpMV EWOpp CmUqL CmMC   BFS   Aug   Total\n";
+        cout << "===================== ============================================\n";
         
         vector<double> totalTimes(timing[0].size(),0);
         int nphases = timing.size();
