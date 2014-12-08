@@ -320,18 +320,6 @@ FullyDistVec< IT,NT > &  FullyDistVec<IT,NT>::operator+=(const FullyDistSpVec< I
 	return *this;
 }
 
-template <class IT, class NT>
-void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & rhs)		
-{
-	IT spvecsize = rhs.getlocnnz();
-	#ifdef _OPENMP
-	#pragma omp parallel for
-	#endif
-	for(IT i=0; i< spvecsize; ++i)
-	{
-		arr[rhs.ind[i]] = rhs.num[i];
-	}
-}
 
 
 template <class IT, class NT>
@@ -1014,3 +1002,145 @@ void FullyDistVec<IT,NT>::PrintInfo(string vectorname) const
 	if (commGrid->GetRank() == 0)		
 		cout << "As a whole, " << vectorname << " has length " << totl << endl; 
 }
+
+
+
+
+
+template <class IT, class NT>
+void FullyDistVec<IT,NT>::Set(const FullyDistSpVec< IT,NT > & other)
+{
+    if(*(commGrid) == *(other.commGrid))
+    {
+        if(glen != other.glen)
+        {
+            cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::Set\n";
+            MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+        }
+        else
+        {
+            
+            IT spvecsize = other.getlocnnz();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for(IT i=0; i< spvecsize; ++i)
+            {
+                arr[other.ind[i]] = other.num[i];
+            }
+        }
+    }
+    else
+    {
+        cout << "Grids are not comparable for GSet" << endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+}
+
+
+
+
+/*
+
+template <class IT, class NT>
+template <typename _BinaryOperation, class NT2>
+void FullyDistVec<IT,NT>::Set(const FullyDistSpVec<IT,NT2> & other, _BinaryOperation __binop)
+{
+    if(*(commGrid) == *(other.commGrid))
+    {
+        if(glen != other.glen)
+        {
+            cerr << "Vector dimensions don't match (" << glen << " vs " << other.glen << ") for FullyDistVec::Set\n";
+            MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+        }
+        else
+        {
+            
+            IT spvecsize = rhs.getlocnnz();
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for(IT i=0; i< spvecsize; ++i)
+            {
+                arr[other.ind[i]] = __binop(arr[other.ind[i]], other.num[i]);
+            }
+        }
+    }
+    else
+    {
+ 
+    }
+}
+
+*/
+
+
+
+
+// General purpose set operation on dense vector by a sparse vector
+
+
+template <class IT, class NT>
+template <class NT1, typename _BinaryOperationIdx, typename _BinaryOperationVal>
+void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOperationIdx __binopIdx, _BinaryOperationVal __binopVal)
+{
+    if(*(commGrid) != *(spVec.commGrid))
+    {
+        cout << "Grids are not comparable for GSet" << endl;
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+    
+    MPI_Comm World = commGrid->GetWorld();
+    int nprocs = commGrid->GetSize();
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+
+
+    vector< vector< NT > > datsent(nprocs);
+    vector< vector< IT > > indsent(nprocs);
+    IT lengthUntil = spVec.LengthUntil();
+    IT spVecSize = spVec.getlocnnz();
+    for(IT k=0; k < spVecSize; ++k)
+    {
+        IT locind;
+        // get global index of the dense vector from the value. Most often a select operator.
+        // If the first operand is selected, then invert; otherwise, EwiseApply.
+        IT globind = __binopIdx(spVec.num[k], spVec.ind[k] + lengthUntil);
+        int owner = Owner(globind, locind); // get local index
+        NT val = __binopVal(spVec.num[k], spVec.ind[k] + lengthUntil);
+        //cout << myrank << " " << owner << " " << locind << " " << val << " " << glen << "\n";
+        if(globind < glen) // prevent index greater than size of the composed vector
+        {
+            datsent[owner].push_back(val);
+            indsent[owner].push_back(locind);   // so that we don't need no correction at the recipient
+        }
+    }
+    
+    
+    for(int j = 0; j < datsent[myrank].size(); ++j)	// directly set local entries
+    {
+        arr[indsent[myrank][j]] = datsent[myrank][j];
+    }
+    
+    
+    MPI_Win win;
+    MPI_Win_create(&arr[0], LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, World, &win);
+    MPI_Win_fence(0, win);
+    for(int i=0; i<nprocs; ++i)
+    {
+        if(i!=myrank)
+        {
+            for(int j = 0; j < datsent[i].size(); ++j)
+            {
+                MPI_Put(&datsent[i][j], 1, MPIType<NT>(), i, indsent[i][j], 1, MPIType<NT>(), win);
+            }
+        }
+        
+    }
+    MPI_Win_fence(0, win);
+    MPI_Win_free(&win);
+
+}
+
+
+

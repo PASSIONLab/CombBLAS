@@ -1965,7 +1965,8 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::Compose (IT globallen, _BinaryOpera
 	int * recvcnt = new int[nprocs];
     MPI_Comm World = commGrid->GetWorld();
 	MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
-	sdispls[0] = 0;
+	
+    sdispls[0] = 0;
 	rdispls[0] = 0;
 	for(int i=0; i<nprocs-1; ++i)
 	{
@@ -2081,12 +2082,15 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
         sendcnt[i] = (int) datsent[i].size();
    
    
-    // MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
+     MPI_Alltoall(sendcnt, 1, MPI_INT, recvcnt, 1, MPI_INT, World);  // share the request counts
     // replace previous all2all by the following one-sided call
+    
     
     MPI_Win win2;
     MPI_Win_create(recvcnt, nprocs * sizeof(MPI_INT), sizeof(MPI_INT), MPI_INFO_NULL, World, &win2);
     MPI_Win_fence(0, win2);
+     /*
+    
     for(int i=0; i<nprocs; ++i)
     {
         if(sendcnt[i]>0)
@@ -2094,15 +2098,20 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
             MPI_Put(&sendcnt[i], 1, MPI_INT, i, myrank, 1, MPI_INT, win2);
         }
     }
+     */
+    
     MPI_Win_fence(0, win2);
     MPI_Win_free(&win2);
 
-
+    
+    /*
     rdispls[0] = 0;
     for(int i=0; i<nprocs-1; ++i)
     {
         rdispls[i+1] = rdispls[i] + recvcnt[i];
     }
+    
+
     
     //MPI_Alltoall(rdispls, 1, MPI_INT, sdispls, 1, MPI_INT, World);  // where to put data
     // replace previous all2all by the following one-sided call
@@ -2121,6 +2130,14 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     MPI_Win_free(&win3);
 
     
+    */
+   
+    
+    
+    
+    
+
+    
     
     
     IT totrecv = accumulate(recvcnt,recvcnt+nprocs, static_cast<IT>(0));
@@ -2129,6 +2146,34 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     IT * recvindbuf = new IT[totrecv];
     
     
+    sdispls[0] = 0;
+    rdispls[0] = 0;
+    for(int i=0; i<nprocs-1; ++i)
+    {
+        sdispls[i+1] = sdispls[i] + sendcnt[i];
+        rdispls[i+1] = rdispls[i] + recvcnt[i];
+    }
+    NT * datbuf = new NT[ploclen];
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(datsent[i].begin(), datsent[i].end(), datbuf+sdispls[i]);
+        vector<NT>().swap(datsent[i]);
+    }
+    IT * indbuf = new IT[ploclen];
+    for(int i=0; i<nprocs; ++i)
+    {
+        copy(indsent[i].begin(), indsent[i].end(), indbuf+sdispls[i]);
+        vector<IT>().swap(indsent[i]);
+    }
+    
+    MPI_Alltoallv(datbuf, sendcnt, sdispls, MPIType<NT>(), recvdatbuf, recvcnt, rdispls, MPIType<NT>(), World);
+    delete [] datbuf;
+    MPI_Alltoallv(indbuf, sendcnt, sdispls, MPIType<IT>(), recvindbuf, recvcnt, rdispls, MPIType<IT>(), World);
+    delete [] indbuf;
+
+    
+    
+    /*
     MPI_Win win, win1;
     MPI_Win_create(recvdatbuf, totrecv * sizeof(NT), sizeof(NT), MPI_INFO_NULL, commGrid->GetWorld(), &win);
     MPI_Win_create(recvindbuf, totrecv * sizeof(IT), sizeof(IT), MPI_INFO_NULL, commGrid->GetWorld(), &win1);
@@ -2139,14 +2184,23 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
         if(datsent[i].size()>0)
         {
             //cout << indsent[i][j] << " ** " << datsent[i][j] << endl;
+            MPI_Win_lock(MPI_LOCK_SHARED, i, 0, win);
+            MPI_Win_lock(MPI_LOCK_SHARED, i, 0, win1);
             MPI_Put(&datsent[i][0], datsent[i].size(), MPIType<NT>(), i, sdispls[i], datsent[i].size(), MPIType<NT>(), win);
             MPI_Put(&indsent[i][0], indsent[i].size(), MPIType<IT>(), i, sdispls[i], indsent[i].size(), MPIType<IT>(), win1);
+            MPI_Win_unlock(i, win);
+            MPI_Win_unlock(i, win1);
         }
     }
     MPI_Win_fence(0, win);
     MPI_Win_fence(0, win1);
     MPI_Win_free(&win);
     MPI_Win_free(&win1);
+    */
+    
+    
+    
+    
     
     
     
@@ -2390,13 +2444,16 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     MPI_Win win;
     MPI_Win_create(&temp.arr[0], temp.LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, temp.commGrid->GetWorld(), &win);
     MPI_Win_fence(0, win);
-    for(int i=0; i<nprocs && i!=myrank; ++i)
+    for(int i=0; i<nprocs ; ++i)
+    {
+    if(i!=myrank)
     {
         for(int j = 0; j < datsent[i].size(); ++j)	// fetch the numerical values
         {
             //cout << indsent[i][j] << " ** " << datsent[i][j] << endl;
             MPI_Put(&datsent[i][j], 1, MPIType<NT>(), i, indsent[i][j], 1, MPIType<NT>(), win);
         }
+    }
     }
     MPI_Win_fence(0, win);
     MPI_Win_free(&win);
