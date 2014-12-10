@@ -900,7 +900,7 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             double tprune = MPI_Wtime()-t1;
             phase_timing[3] += tprune;
             ostringstream tinfo;
-            tinfo << umFringeRow1.getnnz() << " " << tprune << "\n";
+            tinfo << fringeRow.getnnz() << " " << temp1.getnnz() << " " << tprune << "\n";
             SpParHelper::Print(tinfo.str());
             
 
