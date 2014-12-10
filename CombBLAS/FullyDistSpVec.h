@@ -95,6 +95,9 @@ public:
     FullyDistSpVec<IT,NT1> SelectNew1 (const FullyDistVec<IT,NT1> & denseVec, _UnaryOperation1 __unop1, _UnaryOperation2 __unop2);
     template <typename NT1, typename _UnaryOperation>
     void FilterByVal (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
+    template <typename NT1>
+    void Setminus (const FullyDistSpVec<IT,NT1> & other);
+
     
     //template <typename NT1, typename _UnaryOperation>
     //void Set (FullyDistSpVec<IT,NT1> Selector, _UnaryOperation __unop);
@@ -340,6 +343,10 @@ private:
 	
 	template<typename IU, typename NV>
 	friend void TransposeVector(MPI_Comm & World, const FullyDistSpVec<IU,NV> & x, int32_t & trxlocnz, IU & lenuntil, int32_t * & trxinds, NV * & trxnums, bool indexisvalue);
+    
+    template <class IU, class NU, class DER, typename _UnaryOperation>
+    friend SpParMat<IU, bool, DER> PermMat1 (const FullyDistSpVec<IU,NU> & ri, const IU ncol, _UnaryOperation __unop);
+
     
 
 
