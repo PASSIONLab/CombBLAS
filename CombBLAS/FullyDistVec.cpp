@@ -1125,19 +1125,21 @@ void FullyDistVec<IT,NT>::GSet (const FullyDistSpVec<IT,NT1> & spVec, _BinaryOpe
     
     MPI_Win win;
     MPI_Win_create(&arr[0], LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, World, &win);
-    MPI_Win_fence(0, win);
+    //MPI_Win_fence(0, win);
     for(int i=0; i<nprocs; ++i)
     {
         if(i!=myrank)
         {
+            MPI_Win_lock(MPI_LOCK_SHARED,i,MPI_MODE_NOCHECK,win);
             for(int j = 0; j < datsent[i].size(); ++j)
             {
                 MPI_Put(&datsent[i][j], 1, MPIType<NT>(), i, indsent[i][j], 1, MPIType<NT>(), win);
             }
+            MPI_Win_unlock(i, win);
         }
         
     }
-    MPI_Win_fence(0, win);
+    //MPI_Win_fence(0, win);
     MPI_Win_free(&win);
 
 }

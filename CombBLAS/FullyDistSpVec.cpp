@@ -2444,7 +2444,7 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::ComposeRMA (IT globallen, _BinaryOp
     MPI_Win win;
     MPI_Win_create(&temp.arr[0], temp.LocArrSize() * sizeof(NT), sizeof(NT), MPI_INFO_NULL, temp.commGrid->GetWorld(), &win);
     MPI_Win_fence(0, win);
-    for(int i=0; i<nprocs ; ++i)
+    for(int i=0; i<nprocs && ; ++i)
     {
     if(i!=myrank)
     {
@@ -2602,6 +2602,61 @@ void FullyDistSpVec<IT,NT>::Select (const FullyDistVec<IT,NT1> & denseVec, _Unar
 		MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
 	}
 }
+
+
+
+template <typename IT, typename NT>
+template <typename NT1>
+void FullyDistSpVec<IT,NT>::Setminus (const FullyDistSpVec<IT,NT1> & other)
+{
+    if(*commGrid == *(other.commGrid))
+    {
+        if(TotalLength() != other.TotalLength())
+        {
+            ostringstream outs;
+            outs << "Vector dimensions don't match (" << TotalLength() << " vs " << other.TotalLength() << ") for Select\n";
+            SpParHelper::Print(outs.str());
+            MPI_Abort(MPI_COMM_WORLD, DIMMISMATCH);
+        }
+        else
+        {
+            
+            IT mysize = getlocnnz();
+            IT othersize = other.getlocnnz();
+            IT k = 0, i=0, j=0;
+            // iterate over the sparse vector
+            for(; i< mysize && j < othersize;)
+            {
+                if(other.ind[j] == ind[i]) //skip
+                {
+                    i++; j++;
+                }
+                else if(other.ind[j] > ind[i])
+                {
+                    ind[k] = ind[i];
+                    num[k++] = num[i++];
+                }
+                else j++;
+            }
+            while(i< mysize)
+            {
+                ind[k] = ind[i];
+                num[k++] = num[i++];
+            }
+
+            ind.resize(k);
+            num.resize(k);
+        }
+    }
+    else
+    {
+        ostringstream outs;
+        outs << "Grids are not comparable for Select" << endl;
+        SpParHelper::Print(outs.str());
+        MPI_Abort(MPI_COMM_WORLD, GRIDMISMATCH);
+    }
+}
+
 
 
 template <typename IT, typename NT>
@@ -2783,6 +2838,23 @@ FullyDistSpVec<IT,NT> FullyDistSpVec<IT,NT>::SelectApplyNew(const FullyDistVec<I
 }
 
 
+// apply an unary function to each nnz and return a new vector
+// can be a constrauctor
+/*
+template <typename IT, typename NT>
+template <typename NT1, typename _UnaryOperation>
+FullyDistSpVec<IT,NT1> FullyDistSpVec<IT,NT>::Apply(_UnaryOperation __unop)
+{
+    FullyDistSpVec<IT,NT1> composed(commGrid, TotalLength());
+    IT spsize = getlocnnz();
+    for(IT i=0; i< spsize; ++i)
+    {
+        composed.ind.push_back(ind[i]);
+        composed.num.push_back( __unop(num[i]));
+    }
+    return composed;
+}
+*/
 
 
 
