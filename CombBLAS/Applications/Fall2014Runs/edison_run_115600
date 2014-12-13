@@ -1,0 +1,12 @@
+#PBS -S /bin/bash
+#PBS -q regular
+#PBS -l mppwidth=115600
+#PBS -l walltime=00:59:00
+#PBS -j eo
+#PBS -V
+
+cd $SCRATCH/
+module load ipm
+export IPM_LOGDIR="."
+export IPM_LOG="full"
+aprun -n 115600 ./dobfs 36
