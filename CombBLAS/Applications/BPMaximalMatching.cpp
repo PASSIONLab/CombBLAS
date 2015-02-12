@@ -293,31 +293,58 @@ int main(int argc, char* argv[])
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
-	if(argc < 2)
+	if(argc != 3)
 	{
 		if(myrank == 0)
 		{
-			cout << "Usage: ./rpbfs <Scale> " << endl;
-			cout << "Example: mpirun -np 4 ./spbfs greedy 20" << endl;
+			cout << "Usage: ./BPMaximalMatching <rmat|er|input> <scale|filename> " << endl;
+			cout << "Example: mpirun -np 4 ./BPMaximalMatching rmat 20" << endl;
+            cout << "Example: mpirun -np 4 ./BPMaximalMatching er 20" << endl;
+            cout << "Example: mpirun -np 4 ./BPMaximalMatching input a.mtx" << endl;
+            
 		}
 		MPI_Finalize();
 		return -1;
 	}		
 	{
-    
-		unsigned scale;
-		scale = static_cast<unsigned>(atoi(argv[1]));
-        double initiator[4] = {.57, .19, .19, .05};
+        PSpMat_Bool * ABool;
         
-        DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-        DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
-        MPI_Barrier(MPI_COMM_WORLD);
+        if(string(argv[1]) == string("input")) // input option
+        {
+            ABool->ReadDistribute(string(argv[2]), 0);	// read it from file
+        }
+        else if(string(argv[1]) == string("rmat"))
+        {
+            unsigned scale;
+            scale = static_cast<unsigned>(atoi(argv[2]));
+            double initiator[4] = {.57, .19, .19, .05};
+            DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
+            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+            MPI_Barrier(MPI_COMM_WORLD);
+            
+            ABool = new PSpMat_Bool(*DEL, false);
+            delete DEL;
+        }
+        else if(string(argv[1]) == string("er"))
+        {
+            unsigned scale;
+            scale = static_cast<unsigned>(atoi(argv[2]));
+            double initiator[4] = {.25, .25, .25, .25};
+            DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
+            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+            MPI_Barrier(MPI_COMM_WORLD);
+            
+            ABool = new PSpMat_Bool(*DEL, false);
+            delete DEL;
+        }
+        else
+        {
+            SpParHelper::Print("Unknown input option\n");
+            MPI_Finalize();
+            return -1;
+        }
         
-        PSpMat_Bool * ABool = new PSpMat_Bool(*DEL, false);
-        delete DEL;
         //int64_t removed  = ABool->RemoveLoops(); // loop means an edges (i,i+NU) in a bipartite graph
-        
-        
         PSpMat_Int64  A = *ABool;
         removeIsolated(A, true);
         
