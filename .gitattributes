@@ -680,6 +680,14 @@ CombBLAS/Applications/TACC-SCRIPTS/mpi2script81 -text
 CombBLAS/Applications/TACC-SCRIPTS/mpi2script9 -text
 CombBLAS/Applications/TopDownBFS.cpp -text
 CombBLAS/Applications/TwitterEdge.h -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/edison_run_115600.e2280939 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/edison_run_57600.e2184788 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script12100.e8716237 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script12100.e8716248 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script12100.e8716331 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script6400_hop_all.e8716186 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script6400_hop_all.e8716190 -text
+CombBLAS/Applications/Winter2015_UsingCombBLAS1.4/script6400_hop_all.e8716236 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent169 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx12 -text
 CombBLAS/Applications/compilertests/gcc4.4-btwcent441-approx13 -text
