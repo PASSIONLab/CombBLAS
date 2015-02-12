@@ -30,8 +30,10 @@ int cblas_splits = omp_get_max_threads();
 int cblas_splits = 1;
 #endif
 
-#define ITERS 16
 #define EDGEFACTOR 8  /// changed to 8
+#define GREEDY 1
+#define KARP_SIPSER 2
+#define KS_GREEDY 3
 using namespace std;
 
 
@@ -130,9 +132,60 @@ struct SelectMaxSRing1
 
 
 
+struct GreedySR
+{
+    typedef int64_t T_promote;
+    static VertexType id(){ return VertexType(); };
+    static bool returnedSAID() { return false; }
+    //static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static VertexType add(const VertexType & arg1, const VertexType & arg2)
+    {
+        if(arg1.parent < arg2.parent) return arg1;
+        else return arg2;
+    }
+    static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
+    {
+        return arg2;
+    }
+    
+    
+    static void axpy(T_promote a, const VertexType & x, VertexType & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
 
 
-struct SelectMixSR
+
+struct GreedyRandSR
+{
+    typedef int64_t T_promote;
+    static VertexType id(){ return VertexType(); };
+    static bool returnedSAID() { return false; }
+    //static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static VertexType add(const VertexType & arg1, const VertexType & arg2)
+    {
+        if(arg1.prob > arg2.prob) return arg1;
+        else return arg2;
+    }
+    static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
+    {
+        return VertexType(arg2.parent, arg2.degree, arg1);
+    }
+    
+    
+    static void axpy(T_promote a, const VertexType & x, VertexType & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
+
+
+
+
+struct KSGreedySR
 {
     typedef int64_t T_promote;
     static VertexType id(){ return VertexType(); };
@@ -148,10 +201,9 @@ struct SelectMixSR
         else
             return arg2;
     }
-    
     static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
     {
-        return VertexType(arg2.parent, arg2.degree, arg1);
+        return arg2;
     }
     
     
@@ -163,6 +215,33 @@ struct SelectMixSR
 
 
 
+struct KSGreedyRandSR
+{
+    typedef int64_t T_promote;
+    static VertexType id(){ return VertexType(); };
+    static bool returnedSAID() { return false; }
+    //static MPI_Op mpi_op() { return MPI_MIN; };
+    
+    static VertexType add(const VertexType & arg1, const VertexType & arg2)
+    {
+        if(arg1.degree == 1) return arg1;
+        else if(arg2.degree == 1) return arg2;
+        else if(arg1.prob > arg2.prob) return arg1;
+        else return arg2;
+    }
+    static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
+    {
+        return VertexType(arg2.parent, arg2.degree, arg1);
+    }
+    
+    static void axpy(T_promote a, const VertexType & x, VertexType & y)
+    {
+        y = add(y, multiply(a, x));
+    }
+};
+
+
+// not good at all 
 struct SelectMinDegSR
 {
     typedef int64_t T_promote;
@@ -233,8 +312,8 @@ void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
                     FullyDistVec<int64_t, int64_t>& mateCol2Row, bool fairness);
 void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
         FullyDistVec<int64_t, int64_t>& mateCol2Row);
-void MinDeg(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-            FullyDistVec<int64_t, int64_t>& mateCol2Row);
+void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+            FullyDistVec<int64_t, int64_t>& mateCol2Row, int type, bool rand);
 template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row);
 template <class IT, class NT>
@@ -370,7 +449,7 @@ int main(int argc, char* argv[])
         if(myrank==0) cout << "\n*********** Mixed ***********\n";
         FullyDistVec<int64_t, int64_t> mateRow2Col2 ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row2 ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-        MinDeg(A, AT, mateRow2Col2, mateCol2Row2);
+        hybrid(A, AT, mateRow2Col2, mateCol2Row2, KS_GREEDY, false);
         
         //isMaximalmatching(A, mateRow2Col2, mateCol2Row2);
         //isMatching(mateCol2Row2, mateRow2Col2); //todo there is a better way to check this
@@ -517,16 +596,19 @@ void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mat
 
 
 
-void MinDeg(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
-        FullyDistVec<int64_t, int64_t>& mateCol2Row)
+void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+        FullyDistVec<int64_t, int64_t>& mateCol2Row, int type, bool rand)
 {
     
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
-    A.Apply([](int64_t x){return static_cast<int64_t>((GlobalMT.rand() * 10000)+1);}); // perform randomization
-    
+    if(rand)
+    {
+         A.Apply([](int64_t x){return static_cast<int64_t>((GlobalMT.rand() * 100000)+1);}); // perform randomization
+    }
+   
     
     //unmatched row and column vertices
     FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
@@ -573,7 +655,38 @@ void MinDeg(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
         // ======================== step1: One step of BFS =========================
         vector<double> times;
         double t1 = MPI_Wtime();
-        SpMV<SelectMinDegSR>(A, unmatchedCol, fringeRow, false);
+        if(type==GREEDY)
+        {
+            if(rand) SpMV<GreedyRandSR>(A, unmatchedCol, fringeRow, false);
+            else SpMV<GreedySR>(A, unmatchedCol, fringeRow, false);
+        }
+        else if(type==KARP_SIPSER)
+        {
+            FullyDistSpVec<int64_t, VertexType> deg1Col = unmatchedCol;
+            deg1Col.Select(degCol, [](int64_t deg){return deg==1;});
+            
+            if(rand)
+            {
+                if(deg1Col.getnnz()>0)
+                    SpMV<GreedyRandSR>(A, deg1Col, fringeRow, false);
+                else
+                    SpMV<GreedyRandSR>(A, unmatchedCol, fringeRow, false);
+            }
+            else
+            {
+                if(deg1Col.getnnz()>0)
+                    SpMV<GreedySR>(A, deg1Col, fringeRow, false);
+                else
+                    SpMV<GreedySR>(A, unmatchedCol, fringeRow, false);
+            }
+            
+        }
+        else // if (type==KS_GREEDY)  this is default
+        {
+            if(rand) SpMV<KSGreedyRandSR>(A, unmatchedCol, fringeRow, false);
+            else SpMV<KSGreedySR>(A, unmatchedCol, fringeRow, false);
+        }
+        
         // Remove matched row vertices
         fringeRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
