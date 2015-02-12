@@ -1,0 +1,78 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+cray-hdf5-parallel(3):ERROR:105: Unable to locate a modulefile for 'cray-hdf5-parallel/1.8.12'
+ModuleCmd_Switch.c(172):ERROR:152: Module 'PrgEnv-pgi' is currently not loaded
+SCALE: 33, 12100 MPI tasks, 1 OMP threads
+nreplicas 1, nproc_rows 110, nproc_cols 110
+Vertex status array replicated
+graph_generation:               15.173754 s
+[NID 02246] 2015-02-08 17:17:20 Apid 44681922: initiated application termination
+[NID 00913] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 02333] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 02368] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 00815] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 06481] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 02887] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 05843] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 03932] 2015-02-08 17:16:58 Apid 44681922: OOM killer terminated this process.
+[NID 02276] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 06333] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02954] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02280] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 04876] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 01192] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 01389] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02487] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02272] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02896] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 02284] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 00909] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 00437] 2015-02-08 17:16:59 Apid 44681922: OOM killer terminated this process.
+[NID 04194] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 02895] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 02966] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 04197] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 00365] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 03527] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 02416] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 01096] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 02035] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 03832] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 00367] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 00435] 2015-02-08 17:17:00 Apid 44681922: OOM killer terminated this process.
+[NID 03836] 2015-02-08 17:17:01 Apid 44681922: OOM killer terminated this process.
+[NID 02890] 2015-02-08 17:17:01 Apid 44681922: OOM killer terminated this process.
+[NID 04606] 2015-02-08 17:17:01 Apid 44681922: OOM killer terminated this process.
+[NID 05106] 2015-02-08 17:17:01 Apid 44681922: OOM killer terminated this process.
+[NID 03750] 2015-02-08 17:17:02 Apid 44681922: OOM killer terminated this process.
+[NID 04702] 2015-02-08 17:17:02 Apid 44681922: OOM killer terminated this process.
+[NID 02283] 2015-02-08 17:17:07 Apid 44681922: OOM killer terminated this process.
+[NID 06515] 2015-02-08 17:17:08 Apid 44681922: OOM killer terminated this process.
+[NID 02246] 2015-02-08 17:17:08 Apid 44681922: OOM killer terminated this process.
+[NID 00388] 2015-02-08 17:17:12 Apid 44681922: OOM killer terminated this process.
+[NID 04516] 2015-02-08 17:17:13 Apid 44681922: OOM killer terminated this process.
+[NID 02326] 2015-02-08 17:17:13 Apid 44681922: OOM killer terminated this process.
+[NID 05100] 2015-02-08 17:17:14 Apid 44681922: OOM killer terminated this process.
+[NID 00425] 2015-02-08 17:17:14 Apid 44681922: OOM killer terminated this process.
+[NID 04763] 2015-02-08 17:17:14 Apid 44681922: OOM killer terminated this process.
+[NID 04740] 2015-02-08 17:17:14 Apid 44681922: OOM killer terminated this process.
+Application 44681922 exit signals: Killed
+Application 44681922 resources: utime ~0s, stime ~1s, Rss ~3900, inblocks ~3522354, outblocks ~8773868
+
+ + --------------------------------------------------------------------------
+ +        Job name: g500bench_hopper_flat
+ +          Job Id: 8716355.hopque01
+ +          System: hopper
+ +     Queued Time: Sun Feb  8 16:54:19 2015
+ +      Start Time: Sun Feb  8 17:15:54 2015
+ + Completion Time: Sun Feb  8 17:17:40 2015
+ +            User: abuluc
+ +        MOM Host: nid05620
+ +           Queue: debug
+ +  Req. Resources: mppnodect=505,mppnppn=24,mppwidth=12100,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=11116kb,vmem=82716kb,walltime=00:01:47
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/u1/a/abuluc/kdt/trunk/CombBLAS/KameshCode/graph500_2D_SC11/runs
+ +     Submit Args: g500bench_hopper_flat
+ + --------------------------------------------------------------------------
+
