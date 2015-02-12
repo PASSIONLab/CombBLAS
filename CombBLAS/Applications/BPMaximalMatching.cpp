@@ -746,7 +746,7 @@ void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
 
 
 
-
+/*
 
 void greedyMatching_old(PSpMat_Int64  & A)
 {
@@ -878,7 +878,7 @@ void greedyMatching_old(PSpMat_Int64  & A)
     
 }
 
-
+*/
 
 
 template <class IT, class NT>
