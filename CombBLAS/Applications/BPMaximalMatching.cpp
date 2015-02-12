@@ -509,6 +509,7 @@ void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mat
         for(int i=0; i<totalTimes.size(); i++)
              printf("%12.5lf ", totalTimes[i]);
         cout << endl;
+        printf("%lld %lf\n",curUnmatchedRow, totalTimes.back())
     }
     
     
@@ -649,6 +650,8 @@ void MinDeg(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
         for(int i=0; i<totalTimes.size(); i++)
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
+        
+        printf("%lld %lf\n",curUnmatchedRow, totalTimes.back())
     }
     
     
@@ -765,6 +768,7 @@ void greedyMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2Co
         for(int i=0; i<totalTimes.size(); i++)
             printf("%12.5lf ", totalTimes[i]);
         cout << endl;
+        printf("%lld %lf\n",curUnmatchedRow, totalTimes.back())
     }
     
 }
