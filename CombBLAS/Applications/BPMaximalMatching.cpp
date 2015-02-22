@@ -492,9 +492,21 @@ int main(int argc, char* argv[])
         graphStats(A);
         int64_t nrows=A.getnrow(), ncols=A.getncol(), nnz = A.getnnz();
         
-        
-        PSpMat_Int64 AT = A;
+        PSpMat_Int64 AT= A;
         AT.Transpose();
+        
+        // always create tall matrix for randrom cases for greater
+        
+        if(A.getnrow() < A.getncol() )
+        {
+            PSpMat_Int64 t= A;
+            A= AT;
+            AT = t;
+            graphStats(A);
+        }
+        
+        
+        
         double tstart = MPI_Wtime();
         
         if(myrank==0) cout << "\n*********** Greedy Matching ***********\n";
