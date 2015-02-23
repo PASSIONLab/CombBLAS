@@ -58,7 +58,7 @@ public:
 };
 
 
-
+// for degree
 struct SelectPlusSRing
 {
     typedef int64_t T_promote;
@@ -73,7 +73,8 @@ struct SelectPlusSRing
     
     static T_promote multiply(const T_promote & arg1, const T_promote & arg2)
     {
-        return arg1;  // return 1;
+        return static_cast<int64_t> (1);
+        //return arg1;
     }
     
     static void axpy(T_promote a, const T_promote & x, T_promote & y)
@@ -167,7 +168,9 @@ struct GreedyRandSR
     
     static VertexType add(const VertexType & arg1, const VertexType & arg2)
     {
-        if(arg1.prob > arg2.prob) return arg1;
+        if(arg1.prob > arg2.prob)
+        //if((arg1.degree/arg1.prob) < (arg2.degree/arg2.prob))
+            return arg1;
         else return arg2;
     }
     static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
@@ -335,8 +338,6 @@ void removeIsolated(PSpMat_Int64 & A, bool perm)
     A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
     A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
     
-    
-    
     // this steps for general graph
     /*
      ColSums->EWiseApply(*RowSums, plus<int64_t>()); not needed for bipartite graph
@@ -490,12 +491,12 @@ int main(int argc, char* argv[])
         graphStats(A);
         removeIsolated(A, true);
         graphStats(A);
-        int64_t nrows=A.getnrow(), ncols=A.getncol(), nnz = A.getnnz();
+        
         
         PSpMat_Int64 AT= A;
         AT.Transpose();
         
-        // always create tall matrix for randrom cases for greater
+        // always create tall matrix
         
         if(A.getnrow() < A.getncol() )
         {
@@ -505,7 +506,7 @@ int main(int argc, char* argv[])
             graphStats(A);
         }
         
-        
+        int64_t nrows=A.getnrow(), ncols=A.getncol(), nnz = A.getnnz();
         
         double tstart = MPI_Wtime();
         
@@ -529,6 +530,7 @@ int main(int argc, char* argv[])
         hybrid(A, AT, mateRow2Col5, mateCol2Row5, GREEDY, true);
         MPI_Barrier(MPI_COMM_WORLD);
         double t5 = MPI_Wtime()-tstart; tstart = MPI_Wtime();
+        
         
         if(myrank==0) cout << "\n*********** Karp-Sipser ***********\n";
         FullyDistVec<int64_t, int64_t> mateRow2Col2 ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
@@ -557,24 +559,24 @@ int main(int argc, char* argv[])
         //isMatching(mateCol2Row2, mateRow2Col2); //todo there is a better way to check this
         
         // print summary
-        int64_t matched = mateRow2Col.Count([](int64_t mate){return mate!=-1;});
-        int64_t matched1 = mateRow2Col1.Count([](int64_t mate){return mate!=-1;});
-        int64_t matched5 = mateRow2Col5.Count([](int64_t mate){return mate!=-1;});
-        int64_t matched2 = mateRow2Col2.Count([](int64_t mate){return mate!=-1;});
-        int64_t matched3 = mateRow2Col3.Count([](int64_t mate){return mate!=-1;});
-        int64_t matched4 = mateRow2Col4.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched = mateCol2Row.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched1 = mateCol2Row1.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched5 = mateCol2Row5.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched2 = mateCol2Row2.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched3 = mateCol2Row3.Count([](int64_t mate){return mate!=-1;});
+        int64_t matched4 = mateCol2Row4.Count([](int64_t mate){return mate!=-1;});
         
         
         
        if(myrank==0)
        {
-           cout << "matched %rows %cols %total time\n";
-           printf("%lld %lf %lf %lf %lf ",matched, 100*(double)matched/(nrows), 100*(double)matched/(ncols), 200*(double)matched/(nrows+ncols), t);
-           printf("%lld %lf %lf %lf %lf ",matched1, 100*(double)matched1/(nrows), 100*(double)matched1/(ncols), 200*(double)matched1/(nrows+ncols), t1);
-           printf("%lld %lf %lf %lf %lf ",matched5, 100*(double)matched5/(nrows), 100*(double)matched5/(ncols), 200*(double)matched5/(nrows+ncols), t5);
-           printf("%lld %lf %lf %lf %lf ",matched2, 100*(double)matched2/(nrows), 100*(double)matched2/(ncols), 200*(double)matched2/(nrows+ncols), t2);
-           printf("%lld %lf %lf %lf %lf ",matched3, 100*(double)matched3/(nrows), 100*(double)matched3/(ncols), 200*(double)matched3/(nrows+ncols), t3);
-           printf("%lld %lf %lf %lf %lf \n",matched4, 100*(double)matched4/(nrows), 100*(double)matched4/(ncols), 200*(double)matched4/(nrows+ncols), t4);
+           cout << "matched %cols time\n";
+           printf("%lld %lf %lf \n",matched, 100*(double)matched/(ncols), t);
+           printf("%lld %lf %lf \n",matched1, 100*(double)matched1/(ncols), t1);
+           printf("%lld %lf %lf \n",matched5, 100*(double)matched5/(ncols), t5);
+           printf("%lld %lf %lf \n",matched2, 100*(double)matched2/(ncols), t2);
+           printf("%lld %lf %lf \n",matched3, 100*(double)matched3/(ncols), t3);
+           printf("%lld %lf %lf \n",matched4, 100*(double)matched4/(ncols),  t4);
        }
 	}
 	MPI_Finalize();
@@ -598,14 +600,13 @@ void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mat
     unmatchedRow.setNumToInd();
     unmatchedCol.setNumToInd();
     
-    FullyDistSpVec<int64_t, int64_t> degColSG(mateCol2Row, [](int64_t mate){return mate==-1;});
-    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid(), A.getncol(), (int64_t) 0);
+    FullyDistSpVec<int64_t, int64_t> degColSG(A.getcommgrid(), A.getncol());
+    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
+    
     // update initial degree of unmatched column vertices
-    SpMV< SelectPlusSRing>(AT, unmatchedRow, degColSG, false);
-    degCol.Set(degColSG);
+    A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
     unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;}); // remove degree-0 columns
-    
-    
+
     //fringe vector to store the result of SpMV
     FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
     
@@ -637,7 +638,7 @@ void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mat
         FullyDistSpVec<int64_t, int64_t> deg1Col = unmatchedCol;
         deg1Col.Select(degCol, [](int64_t deg){return deg==1;});
         
-        if(deg1Col.getnnz()>0)
+        if(deg1Col.getnnz()>9)
             SpMV<SelectMinSRing1>(A, deg1Col, fringeRow, false);
         else
             SpMV<SelectMinSRing1>(A, unmatchedCol, fringeRow, false);
@@ -725,33 +726,33 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
     
-    if(rand)
-    {
-         A.Apply([](int64_t x){return static_cast<int64_t>((GlobalMT.rand() * 100000)+1);}); // perform randomization
-    }
+    
    
     
     //unmatched row and column vertices
     FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
     unmatchedRow.setNumToInd();
-    
-    FullyDistSpVec<int64_t, int64_t> degColSG(mateCol2Row, [](int64_t mate){return mate==-1;});
-    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid(), A.getncol(), (int64_t) 0);
-    // update initial degree of unmatched column vertices
-    SpMV< SelectPlusSRing>(AT, unmatchedRow, degColSG, false);
-    degCol.Set(degColSG);
+    FullyDistSpVec<int64_t, int64_t> degColSG(A.getcommgrid(), A.getncol());
+    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
+    A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
     
     
     FullyDistSpVec<int64_t, VertexType> unmatchedCol(A.getcommgrid(), A.getncol());
     unmatchedCol  = EWiseApply<VertexType>(unmatchedCol, mateCol2Row, [](VertexType vtx, int64_t mate){return VertexType(-1,0);},
                                            [](VertexType vtx, int64_t mate){return mate==-1;}, true, VertexType());
+    unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;});
     unmatchedCol.ApplyInd([](VertexType vtx, int64_t idx){return VertexType(idx,0);}); //  parent equals to index
-    
-    
+    unmatchedCol.SelectApply(degCol, [](int64_t deg){return deg>0;},
+                             [](VertexType vtx, int64_t deg){return VertexType(vtx.parent,deg);});
     
     //fringe vector (sparse)
     FullyDistSpVec<int64_t, VertexType> fringeRow(A.getcommgrid(), A.getnrow());
     
+    
+    if(rand)
+    {
+        A.Apply([](int64_t x){return static_cast<int64_t>((GlobalMT.rand() * 100000)+1);}); // perform randomization
+    }
     
     int64_t curUnmatchedCol = unmatchedCol.getnnz();
     int64_t curUnmatchedRow = unmatchedRow.getnnz();
@@ -788,14 +789,14 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
             
             if(rand)
             {
-                if(deg1Col.getnnz()>0)
+                if(deg1Col.getnnz()>9)
                     SpMV<GreedyRandSR>(A, deg1Col, fringeRow, false);
                 else
                     SpMV<GreedyRandSR>(A, unmatchedCol, fringeRow, false);
             }
             else
             {
-                if(deg1Col.getnnz()>0)
+                if(deg1Col.getnnz()>9)
                     SpMV<GreedySR>(A, deg1Col, fringeRow, false);
                 else
                     SpMV<GreedySR>(A, unmatchedCol, fringeRow, false);
@@ -839,8 +840,7 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
                           [](int64_t old_deg, int64_t new_deg, bool a, bool b){return old_deg-new_deg;},
                           [](int64_t old_deg, int64_t new_deg, bool a, bool b){return true;},
                           false, static_cast<int64_t>(0), false);
-        unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;});
-        unmatchedCol.SelectApply(degCol, [](int64_t deg){return true;},
+        unmatchedCol.SelectApply(degCol, [](int64_t deg){return deg>0;},
                                  [](VertexType vtx, int64_t deg){return VertexType(vtx.parent,deg);});
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         // ===========================================================================
@@ -861,6 +861,11 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
        
     }
     
+    
+    if(rand) // undo randomization
+    {
+        A.Apply([](int64_t x){return static_cast<int64_t>(1);}); // perform randomization
+    }
     
     if(myrank == 0)
     {
@@ -915,12 +920,14 @@ void greedyMatching(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, i
     FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
     FullyDistSpVec<int64_t, int64_t> fringeCol(A.getcommgrid(), A.getncol());
     
-    FullyDistSpVec<int64_t, int64_t> degColSG(mateCol2Row, [](int64_t mate){return mate==-1;});
-    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid(), A.getncol(), (int64_t) 0);
+    FullyDistSpVec<int64_t, int64_t> degColSG(A.getcommgrid(), A.getncol());
+    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
     if(removeIsolate)
     {
-        SpMV< SelectPlusSRing>(AT, unmatchedRow, degColSG, false);
-        degCol.Set(degColSG);
+        
+        
+        // update initial degree of unmatched column vertices
+        A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
         unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;}); // remove degree-0 columns
     }
     
