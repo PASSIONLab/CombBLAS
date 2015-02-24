@@ -147,7 +147,7 @@ struct GreedySR
     }
     static VertexType multiply(const T_promote & arg1, const VertexType & arg2)
     {
-        return arg2;
+        return VertexType(arg2.parent, arg2.degree, arg1);
     }
     
     
@@ -555,7 +555,7 @@ int main(int argc, char* argv[])
         
          //hybrid(A, AT, mateRow2Col2, mateCol2Row2, KARP_SIPSER, false);
         
-        //isMaximalmatching(A, mateRow2Col2, mateCol2Row2);
+        
         //isMatching(mateCol2Row2, mateRow2Col2); //todo there is a better way to check this
         
         // print summary
@@ -842,6 +842,8 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
                           false, static_cast<int64_t>(0), false);
         unmatchedCol.SelectApply(degCol, [](int64_t deg){return deg>0;},
                                  [](VertexType vtx, int64_t deg){return VertexType(vtx.parent,deg);});
+        
+        A.DimApply(Row, mateRow2Col, [](int64_t val, int64_t mate){if(mate!=-1) return static_cast<int64_t> (0); else return val;});
         if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
         // ===========================================================================
         
@@ -864,7 +866,7 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
     
     if(rand) // undo randomization
     {
-        A.Apply([](int64_t x){return static_cast<int64_t>(1);}); // perform randomization
+        A.Apply([](int64_t x){return static_cast<int64_t>(1);});
     }
     
     if(myrank == 0)
