@@ -863,7 +863,7 @@ void hybrid(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>&
        
     }
     
-    
+    A.DebugPrint();
     if(rand) // undo randomization
     {
         A.Apply([](int64_t x){return static_cast<int64_t>(1);});
