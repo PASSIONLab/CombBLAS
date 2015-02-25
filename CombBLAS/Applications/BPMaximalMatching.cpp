@@ -429,7 +429,7 @@ int main(int argc, char* argv[])
 			cout << "Usage: ./BPMaximalMatching <rmat|er|input> <scale|filename> <w|uw> " << endl;
 			cout << "Example: mpirun -np 4 ./BPMaximalMatching rmat 20" << endl;
             cout << "Example: mpirun -np 4 ./BPMaximalMatching er 20" << endl;
-            cout << "Example: mpirun -np 4 ./BPMaximalMatching input a.mtx uw" << endl;
+            cout << "Example: mpirun -np 4 ./BPMaximalMatching input a.mtx uw sym" << endl;
             
 		}
 		MPI_Finalize();
@@ -445,6 +445,8 @@ int main(int argc, char* argv[])
                 ABool->ReadDistribute(string(argv[2]), 0, true);	// unweighted
             else
                 ABool->ReadDistribute(string(argv[2]), 0, false);	// weighted
+            if(argc>=5 && string(argv[4]) == string("sym"))
+                Symmetricize(*ABool);
             SpParHelper::Print("Read input\n");
 
         }
@@ -458,6 +460,7 @@ int main(int argc, char* argv[])
             MPI_Barrier(MPI_COMM_WORLD);
             
             ABool = new PSpMat_Bool(*DEL, false);
+            Symmetricize(*ABool);
             delete DEL;
         }
         else if(string(argv[1]) == string("er"))
@@ -470,6 +473,7 @@ int main(int argc, char* argv[])
             MPI_Barrier(MPI_COMM_WORLD);
             
             ABool = new PSpMat_Bool(*DEL, false);
+            //Symmetricize(*ABool);
             delete DEL;
         }
         else
