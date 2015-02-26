@@ -306,6 +306,9 @@ typedef SpParMat < int64_t, int64_t, SpDCCols<int64_t,int64_t> > PSpMat_Int64;
 void greedyMatching_old(PSpMat_Int64 & Aeff);
 void greedyMatching(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
                     FullyDistVec<int64_t, int64_t>& mateCol2Row, bool removeIsolate);
+void greedyMatching1(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                    FullyDistVec<int64_t, int64_t>& mateCol2Row, bool removeIsolate);
+
 void KS(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
         FullyDistVec<int64_t, int64_t>& mateCol2Row);
 void DMD(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
@@ -324,6 +327,12 @@ bool isMatching(FullyDistVec<IT,NT> & mateCol2Row, FullyDistVec<IT,NT> & mateRow
  */
 void removeIsolated(PSpMat_Int64 & A, bool perm)
 {
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    
     FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
     FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
     FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
@@ -353,8 +362,26 @@ void removeIsolated(PSpMat_Int64 & A, bool perm)
         nonisoRowV.RandPerm();
     }
     
+    
+    int64_t nrows1=A.getnrow(), ncols1=A.getncol(), nnz1 = A.getnnz();
+    double avgDeg1 = (double) nnz1/(nrows1+ncols1);
+
+    
     A.operator()(nonisoRowV, nonisoColV, true);
-    //A.PrintInfo();
+   
+    int64_t nrows2=A.getnrow(), ncols2=A.getncol(), nnz2 = A.getnnz();
+    double avgDeg2 = (double) nnz2/(nrows2+ncols2);
+    
+    
+    if(myrank == 0)
+    {
+        cout << "ncol nrows  nedges deg \n";
+        cout << nrows1 << " " << ncols1 << " " << nnz1 << " " << avgDeg1 << " \n";
+        cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+
     
 }
 
@@ -487,9 +514,8 @@ int main(int argc, char* argv[])
         PSpMat_Int64  A = *ABool;
         
         
-        graphStats(A);
+
         removeIsolated(A, true);
-        graphStats(A);
         
         
         PSpMat_Int64 AT= A;
@@ -502,7 +528,8 @@ int main(int argc, char* argv[])
             PSpMat_Int64 t= A;
             A= AT;
             AT = t;
-            graphStats(A);
+            //graphStats(A);
+            SpParHelper::Print("row-column swaped\n");
         }
         
         int64_t nrows=A.getnrow(), ncols=A.getncol(), nnz = A.getnnz();
@@ -520,9 +547,10 @@ int main(int argc, char* argv[])
         if(myrank==0) cout << "\n*********** Greedy Matching remove isolated ***********\n";
         FullyDistVec<int64_t, int64_t> mateRow2Col1 ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
         FullyDistVec<int64_t, int64_t> mateCol2Row1 ( A.getcommgrid(), A.getncol(), (int64_t) -1);
-        greedyMatching(A, AT, mateRow2Col1, mateCol2Row1, false, true);
+        greedyMatching1(A, AT, mateRow2Col1, mateCol2Row1, false);
         MPI_Barrier(MPI_COMM_WORLD);
         double t1 = MPI_Wtime()-tstart; tstart = MPI_Wtime();
+        
         
         if(myrank==0) cout << "\n*********** Greedy-Rand ***********\n";
         FullyDistVec<int64_t, int64_t> mateRow2Col5 ( A.getcommgrid(), A.getnrow(), (int64_t) -1);
@@ -573,12 +601,12 @@ int main(int argc, char* argv[])
        if(myrank==0)
        {
            cout << "matched %cols time\n";
-           printf("%lld %lf %lf ",matched, 100*(double)matched/(ncols), t);
-           //printf("%lld %lf %lf ",matched1, 100*(double)matched1/(ncols), t1);
+           printf("%lld %lf %lf \n",matched, 100*(double)matched/(ncols), t);
+           //printf("%lld %lf %lf \n",matched1, 100*(double)matched1/(ncols), t1);
            //printf("%lld %lf %lf ",matched5, 100*(double)matched5/(ncols), t5);
-           printf("%lld %lf %lf ",matched2, 100*(double)matched2/(ncols), t2);
+           printf("%lld %lf %lf \n",matched2, 100*(double)matched2/(ncols), t2);
            //printf("%lld %lf %lf ",matched3, 100*(double)matched3/(ncols), t3);
-           printf("%lld %lf %lf ",matched4, 100*(double)matched4/(ncols),  t4);
+           printf("%lld %lf %lf \n",matched4, 100*(double)matched4/(ncols),  t4);
        }
 	}
 	MPI_Finalize();
@@ -854,6 +882,147 @@ void greedyMatching(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, i
     }
     
 }
+
+
+
+void greedyMatching1(PSpMat_Int64 & A, PSpMat_Int64 & AT, FullyDistVec<int64_t, int64_t>& mateRow2Col,
+                    FullyDistVec<int64_t, int64_t>& mateCol2Row, bool removeIsolate)
+{
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    
+    //unmatched row and column vertices
+    FullyDistSpVec<int64_t, int64_t> unmatchedRow(mateRow2Col, [](int64_t mate){return mate==-1;});
+    FullyDistSpVec<int64_t, int64_t> unmatchedCol(mateCol2Row, [](int64_t mate){return mate==-1;});
+    unmatchedRow.setNumToInd();
+    unmatchedCol.setNumToInd();
+    
+    
+    //fringe vector (sparse)
+    //FullyDistSpVec<int64_t, int64_t> fringeRow(A.getcommgrid(), A.getnrow());
+    FullyDistSpVec<int64_t, int64_t> fringeCol(A.getcommgrid(), A.getncol());
+    
+    FullyDistSpVec<int64_t, int64_t> degColSG(A.getcommgrid(), A.getncol());
+    FullyDistVec<int64_t, int64_t> degCol(A.getcommgrid());
+    if(removeIsolate)
+    {
+        
+        
+        // update initial degree of unmatched column vertices
+        A.Reduce(degCol, Column, plus<int64_t>(), static_cast<int64_t>(0));
+        unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;}); // remove degree-0 columns
+    }
+    
+    
+    
+    int64_t curUnmatchedCol = unmatchedCol.getnnz();
+    int64_t curUnmatchedRow = unmatchedRow.getnnz();
+    int64_t newlyMatched = 1; // ensure the first pass of the while loop
+    int iteration = 0;
+    double tStart = MPI_Wtime();
+    vector<vector<double> > timing;
+    if(myrank == 0)
+    {
+        cout << "=======================================================\n";
+        cout << "@@@@@@ Number of processes: " << nprocs << endl;
+        cout << "=======================================================\n";
+        cout  << "It   |  UMRow   |  UMCol   |  newlyMatched   |  Time "<< endl;
+        cout << "=======================================================\n";
+    }
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    //PSpMat_Int64  A = Aeff;
+    //A.PrintInfo();
+    
+    while(curUnmatchedCol !=0 && curUnmatchedRow!=0 && newlyMatched != 0 )
+    {
+        
+        // ======================== step1: One step of BFS =========================
+        vector<double> times;
+       
+        FullyDistSpVec<int64_t, int64_t> unmatchedCold(unmatchedCol);
+        FullyDistSpVec<int64_t, int64_t> fringeRowd;
+         double t1 = MPI_Wtime();
+        fringeRowd = SpMV<SelectMinSRing1>(A, unmatchedCold);
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        FullyDistSpVec<int64_t, int64_t> fringeRow(fringeRowd, [](int64_t parent){return parent!=0;});
+        fringeRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
+        
+        // ===========================================================================
+        
+        
+        // ======================== step2: Update matching  =========================
+        FullyDistSpVec<int64_t, int64_t> newMatchedCols = fringeRow.Invert(A.getncol());
+        FullyDistSpVec<int64_t, int64_t> newMatchedRows = newMatchedCols.Invert(A.getnrow());
+        mateCol2Row.Set(newMatchedCols);
+        mateRow2Col.Set(newMatchedRows);
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        // ===========================================================================
+        
+        
+        // =============== step3: Update degree of unmatched columns =================
+        unmatchedRow.Select(mateRow2Col, [](int64_t mate){return mate==-1;});
+        unmatchedCol.Select(mateCol2Row, [](int64_t mate){return mate==-1;});
+        
+        if(removeIsolate)
+        {
+            SpMV< SelectPlusSRing>(AT, newMatchedRows, degColSG, false);  // degree of column vertices to matched rows
+            // subtract degree of column vertices
+            degCol.EWiseApply(degColSG,
+                              [](int64_t old_deg, int64_t new_deg, bool a, bool b){return old_deg-new_deg;},
+                              [](int64_t old_deg, int64_t new_deg, bool a, bool b){return true;},
+                              false, static_cast<int64_t>(0), false);
+            unmatchedCol.Select(degCol, [](int64_t deg){return deg>0;});
+        }
+        
+        if(myrank == 0){times.push_back(MPI_Wtime()-t1); t1 = MPI_Wtime();}
+        // ===========================================================================
+        
+        ++iteration;
+        newlyMatched = newMatchedCols.getnnz();
+        if(myrank == 0)
+        {
+            times.push_back(std::accumulate(times.begin(), times.end(), 0.0));
+            timing.push_back(times);
+            printf("%3d %10lld %10lld %10lld %18lf\n", iteration , curUnmatchedRow, curUnmatchedCol, newlyMatched, times.back());
+        }
+        curUnmatchedCol = unmatchedCol.getnnz();
+        curUnmatchedRow = unmatchedRow.getnnz();
+        MPI_Barrier(MPI_COMM_WORLD);
+        
+    }
+    
+    
+    if(myrank == 0)
+    {
+        cout << "==========================================================\n";
+        cout << "\n================individual timings =======================\n";
+        cout  << "     SpMV      Update-Match   Update-UMC    Total "<< endl;
+        cout << "==========================================================\n";
+        
+        vector<double> totalTimes(timing[0].size(),0);
+        for(int i=0; i<timing.size(); i++)
+        {
+            for(int j=0; j<timing[i].size(); j++)
+            {
+                totalTimes[j] += timing[i][j];
+                printf("%12.5lf ", timing[i][j]);
+            }
+            cout << endl;
+        }
+        
+        cout << "-------------------------------------------------------\n";
+        for(int i=0; i<totalTimes.size(); i++)
+            printf("%12.5lf ", totalTimes[i]);
+        cout << endl;
+        printf("%lld %lf\n",curUnmatchedRow, totalTimes.back());
+    }
+    
+}
+
 
 
 // note: randomization in the matrix does not not help, because it is another fixed ordering
