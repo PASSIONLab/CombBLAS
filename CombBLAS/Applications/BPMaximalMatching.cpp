@@ -601,12 +601,12 @@ int main(int argc, char* argv[])
        if(myrank==0)
        {
            cout << "matched %cols time\n";
-           printf("%lld %lf %lf \n",matched, 100*(double)matched/(ncols), t);
+           printf("%lld %lf %lf ",matched, 100*(double)matched/(ncols), t);
            //printf("%lld %lf %lf \n",matched1, 100*(double)matched1/(ncols), t1);
            //printf("%lld %lf %lf ",matched5, 100*(double)matched5/(ncols), t5);
-           printf("%lld %lf %lf \n",matched2, 100*(double)matched2/(ncols), t2);
+           printf("%lld %lf %lf ",matched2, 100*(double)matched2/(ncols), t2);
            //printf("%lld %lf %lf ",matched3, 100*(double)matched3/(ncols), t3);
-           printf("%lld %lf %lf \n",matched4, 100*(double)matched4/(ncols),  t4);
+           printf("%lld %lf %lf ",matched4, 100*(double)matched4/(ncols),  t4);
        }
 	}
 	MPI_Finalize();

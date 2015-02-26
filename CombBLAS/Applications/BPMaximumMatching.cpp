@@ -196,10 +196,23 @@ void removeIsolated(PSpMat_Int64 & A)
     delete ColSums;
     delete RowSums;
     
+    
+    int64_t nrows1=A.getnrow(), ncols1=A.getncol(), nnz1 = A.getnnz();
+    double avgDeg1 = (double) nnz1/(nrows1+ncols1);
+
     //A(nonisoColV, nonisoColV, true);	// in-place permute to save memory
     A.operator()(nonisoRowV, nonisoColV, true);
     //A.PrintInfo();
 
+    int64_t nrows2=A.getnrow(), ncols2=A.getncol(), nnz2 = A.getnnz();
+    double avgDeg2 = (double) nnz2/(nrows2+ncols2);
+    
+    if(myrank == 0)
+    {
+        cout << "ncol nrows  nedges deg \n";
+        cout << nrows1 << " " << ncols1 << " " << nnz1 << " " << avgDeg1 << " \n";
+        cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
+    }
 }
 
 
