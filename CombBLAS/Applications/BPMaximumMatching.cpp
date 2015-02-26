@@ -32,7 +32,7 @@ int cblas_splits = 1;
 #endif
 
 #define ITERS 16
-#define EDGEFACTOR 8
+#define EDGEFACTOR 16
 using namespace std;
 
 
@@ -171,10 +171,78 @@ template <class IT, class NT>
 bool isMaximalmatching(PSpMat_Int64 & A, FullyDistVec<IT,NT> & mateRow2Col, FullyDistVec<IT,NT> & mateCol2Row,
                        FullyDistSpVec<int64_t, int64_t> unmatchedRow, FullyDistSpVec<int64_t, int64_t> unmatchedCol);
 
+
+
+
 /*
  Remove isolated vertices and purmute
  */
 void removeIsolated(PSpMat_Int64 & A)
+{
+    
+    int nprocs, myrank;
+    MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+    
+    
+    FullyDistVec<int64_t, int64_t> * ColSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+    FullyDistVec<int64_t, int64_t> * RowSums = new FullyDistVec<int64_t, int64_t>(A.getcommgrid());
+    FullyDistVec<int64_t, int64_t> nonisoRowV;	// id's of non-isolated (connected) Row vertices
+    FullyDistVec<int64_t, int64_t> nonisoColV;	// id's of non-isolated (connected) Col vertices
+    FullyDistVec<int64_t, int64_t> nonisov;	// id's of non-isolated (connected) vertices
+    
+    A.Reduce(*ColSums, Column, plus<int64_t>(), static_cast<int64_t>(0));
+    A.Reduce(*RowSums, Row, plus<int64_t>(), static_cast<int64_t>(0));
+    
+    // this steps for general graph
+    /*
+     ColSums->EWiseApply(*RowSums, plus<int64_t>()); not needed for bipartite graph
+     nonisov = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+     nonisov.RandPerm();	// so that A(v,v) is load-balanced (both memory and time wise)
+     A.operator()(nonisov, nonisov, true);	// in-place permute to save memory
+     */
+    
+    // this steps for bipartite graph
+    nonisoColV = ColSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    nonisoRowV = RowSums->FindInds(bind2nd(greater<int64_t>(), 0));
+    delete ColSums;
+    delete RowSums;
+    
+
+    {
+        nonisoColV.RandPerm();
+        nonisoRowV.RandPerm();
+    }
+    
+    
+    int64_t nrows1=A.getnrow(), ncols1=A.getncol(), nnz1 = A.getnnz();
+    double avgDeg1 = (double) nnz1/(nrows1+ncols1);
+    
+    
+    A.operator()(nonisoRowV, nonisoColV, true);
+    
+    int64_t nrows2=A.getnrow(), ncols2=A.getncol(), nnz2 = A.getnnz();
+    double avgDeg2 = (double) nnz2/(nrows2+ncols2);
+    
+    
+    if(myrank == 0)
+    {
+        cout << "ncol nrows  nedges deg \n";
+        cout << nrows1 << " " << ncols1 << " " << nnz1 << " " << avgDeg1 << " \n";
+        cout << nrows2 << " " << ncols2 << " " << nnz2 << " " << avgDeg2 << " \n";
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+}
+
+
+
+/*
+ Remove isolated vertices and purmute
+ */
+void removeIsolated1(PSpMat_Int64 & A)
 {
     int nprocs, myrank;
     MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
