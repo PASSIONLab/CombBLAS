@@ -483,7 +483,7 @@ int main(int argc, char* argv[])
             scale = static_cast<unsigned>(atoi(argv[2]));
             double initiator[4] = {.57, .19, .19, .05};
             DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
             MPI_Barrier(MPI_COMM_WORLD);
             
             ABool = new PSpMat_Bool(*DEL, false);
@@ -496,11 +496,11 @@ int main(int argc, char* argv[])
             scale = static_cast<unsigned>(atoi(argv[2]));
             double initiator[4] = {.25, .25, .25, .25};
             DistEdgeList<int64_t> * DEL = new DistEdgeList<int64_t>();
-            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );
+            DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );
             MPI_Barrier(MPI_COMM_WORLD);
             
             ABool = new PSpMat_Bool(*DEL, false);
-            //Symmetricize(*ABool);
+            Symmetricize(*ABool);
             delete DEL;
         }
         else
