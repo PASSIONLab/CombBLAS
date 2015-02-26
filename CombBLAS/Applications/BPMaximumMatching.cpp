@@ -442,6 +442,7 @@ int main(int argc, char* argv[])
         
         PSpMat_Bool * ABool = new PSpMat_Bool(*DEL, false);
         delete DEL;
+        Symmetricize(*ABool);
         //int64_t removed  = ABool->RemoveLoops(); // loop means an edges (i,i+NU) in a bipartite graph
         
        
