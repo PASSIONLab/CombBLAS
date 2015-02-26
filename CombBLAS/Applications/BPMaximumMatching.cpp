@@ -513,6 +513,13 @@ int main(int argc, char* argv[])
         //varify_matching(*ABool);
         maximumMatching(A, mateRow2Col, mateCol2Row);
         
+        int64_t ncols=A.getncol();
+        int64_t matched = mateCol2Row.Count([](int64_t mate){return mate!=-1;});
+        if(myrank==0)
+        {
+            cout << "matched %cols time\n";
+            printf("%lld %lf \n",matched, 100*(double)matched/(ncols));
+        }
         //mateRow2Col.DebugPrint();
          
         
@@ -899,9 +906,9 @@ void maximumMatching(PSpMat_Int64 & A, FullyDistVec<int64_t, int64_t>& mateRow2C
             }
             double tprune = MPI_Wtime()-t1;
             phase_timing[3] += tprune;
-            ostringstream tinfo;
-            tinfo << fringeRow.getnnz() << " " << temp1.getnnz() << " " << tprune << "\n";
-            SpParHelper::Print(tinfo.str());
+            //ostringstream tinfo;
+            //tinfo << fringeRow.getnnz() << " " << temp1.getnnz() << " " << tprune << "\n";
+            //SpParHelper::Print(tinfo.str());
             
 
 
