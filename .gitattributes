@@ -1325,6 +1325,9 @@ CombBLAS/SequenceHeaps/knupdown3.C -text
 CombBLAS/SequenceHeaps/knwiggle.C -text
 CombBLAS/SequenceHeaps/multiMergeUnrolled.C -text
 CombBLAS/SequenceHeaps/util.h -text
+CombBLAS/Serialization/Serialize.h -text
+CombBLAS/Serialization/Test/basic.cpp -text
+CombBLAS/Serialization/makefile-mac -text
 CombBLAS/SpDCCols.cpp -text
 CombBLAS/SpDCCols.h -text
 CombBLAS/SpDefs.h -text
