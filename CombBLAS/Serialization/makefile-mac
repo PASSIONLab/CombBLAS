@@ -1,0 +1,22 @@
+INCDIR = /opt/local/include
+INCADD = -I$(INCDIR) -I$(INCDIR)/mpich2
+
+OPT = -DNDEBUG -O3 -DMPICH_IGNORE_CXX_SEEK
+DEB = -g -O0 -fno-inline -DMPICH_IGNORE_CXX_SEEK
+COMPILER = mpicxx -std=c++11
+FLAGS = $(OPT)
+
+SerializeTest: Test/basic.o
+	$(COMPILER) $(FLAGS) $(INCADD) -lboost_serialization -o SerializeTest Test/basic.o
+
+Test/basic.o: Test/basic.cpp Serialize.h
+	$(COMPILER) $(INCADD) $(FLAGS) -c -o Test/basic.o Test/basic.cpp
+
+clean:
+	rm -f SerializeTest
+	rm -f *.o
+	rm -f Test/*.o
+
+cleanout:
+	rm out.*
+	rm err.*
