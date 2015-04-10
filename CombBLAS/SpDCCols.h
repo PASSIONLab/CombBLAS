@@ -222,6 +222,8 @@ public:
 
 	void CreateImpl(const vector<IT> & essentials);
 	void CreateImpl(IT size, IT nRow, IT nCol, tuple<IT, IT, NT> * mytuples);
+    void CreateImpl(IT * _cp, IT * _jc, IT * _ir, NT * _numx, IT _nz, IT _nzc, IT _m, IT _n);
+
 
 	Arr<IT,NT> GetArrays() const;
 	vector<IT> GetEssentials() const;

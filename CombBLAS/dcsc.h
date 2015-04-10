@@ -93,6 +93,10 @@ public:
 
 	template <typename _BinaryOperation>
 	void UpdateDense(NT ** array, _BinaryOperation __binary_op) const;	// update dense 2D array's entries with __binary_op using elements of "this"
+    
+    //! wrap object around pre-allocated arrays (possibly RDMA registered)
+    Dcsc (IT * _cp, IT * _jc, IT * _ir, NT * _numx, IT _nz, IT _nzc, bool _memowned = true)
+    : cp(_cp), jc(_jc), ir(_ir), numx(_numx), nz(_nz), nzc(_nzc), memowned(_memowned) {};
 
 	IT * cp;		//!<  The master array, size nzc+1 (keeps column pointers)
 	IT * jc ;		//!<  col indices, size nzc
@@ -101,6 +105,7 @@ public:
 	
 	IT nz;
 	IT nzc;			//!<  number of columns with at least one non-zero in them
+    bool memowned;
 
 private:
 	void getindices (StackEntry<NT, pair<IT,IT> > * multstack, IT & rindex, IT & cindex, IT & j, IT nnz);

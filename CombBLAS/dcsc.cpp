@@ -35,10 +35,10 @@
 using namespace std;
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0){}
+Dcsc<IT,NT>::Dcsc ():cp(NULL), jc(NULL), ir(NULL), numx(NULL),nz(0), nzc(0), memowned(true){}
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol)
+Dcsc<IT,NT>::Dcsc (IT nnz, IT nzcol): nz(nnz),nzc(nzcol),memowned(true)
 {
 	assert (nz != 0);
 	assert (nzc != 0);
@@ -190,7 +190,7 @@ Dcsc<IT,NT> & Dcsc<IT,NT>::AddAndAssign (StackEntry<NT, pair<IT,IT> > * multstac
   * \remark Complexity: O(nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz)
+Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, IT nnz): nz(nnz),memowned(true)
 {
 	nzc = std::min(ndim, nnz);	// nzc can't exceed any of those
 
@@ -233,7 +233,7 @@ Dcsc<IT,NT>::Dcsc (StackEntry<NT, pair<IT,IT> > * multstack, IT mdim, IT ndim, I
   * \remark For these temporary matrices nz = nzc (which are both equal to nnz)
   */
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz)
+Dcsc<IT,NT>::Dcsc (IT nnz, const vector<IT> & indices, bool isRow): nz(nnz),nzc(nnz),memowned(true)
 {
 	assert((nnz != 0) && (indices.size() == nnz));
 	cp = new IT[nnz+1];	
@@ -291,7 +291,7 @@ Dcsc<IT,NT>::operator Dcsc<NIT,NNT>() const
 }
 
 template <class IT, class NT>
-Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc)
+Dcsc<IT,NT>::Dcsc (const Dcsc<IT,NT> & rhs): nz(rhs.nz), nzc(rhs.nzc),memowned(true)
 {
 	if(nz > 0)
 	{

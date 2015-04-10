@@ -82,6 +82,7 @@ class DistEdgeList
 public:	
 	// Constructors
 	DistEdgeList ();
+    DistEdgeList(MPI_Comm & myWorld);
 	DistEdgeList (const char * filename, IT globaln, IT globalm);	// read from binary in parallel
 	~DistEdgeList ();
 
@@ -93,9 +94,10 @@ public:
 	int64_t getGlobalV() const { return globalV; }
 	IT getNumLocalEdges() const { return nedges; }
     IT* getEdges() const {return edges;}
+    packed_edge * getPackedEdges() const { return pedges; }
+    shared_ptr<CommGrid> commGrid;
 	
 private:
-	shared_ptr<CommGrid> commGrid; 
 	
 	IT* edges; // edge list composed of pairs of edge endpoints.
 	           // Edge i goes from edges[2*i+0] to edges[2*i+1]
