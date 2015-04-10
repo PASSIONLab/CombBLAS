@@ -167,15 +167,9 @@ public:
 	int64_t getnnz() const { return nnz; }
 
 	void PrintInfo();
+    tuple<IT, IT, NT> * tuples; 	
 
 private:
-	tuple<IT, IT, NT> * tuples; 	// boost:tuple
-	/** 
-	 **	tuple elements with indices:
-	 **	0) IT * ir ;	    	//  array of row indices, size nnz 
-	 **	1) IT * jc ;	    	//  array of col indices, size nnz 
-	 **	2) NT * numx;		//  array of generic values, size nnz
-	 **/
 
 	IT m;
 	IT n;

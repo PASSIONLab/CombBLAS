@@ -411,6 +411,19 @@ void SpDCCols<IT,NT>::EWiseScale(NT ** scaler, IT m_scaler, IT n_scaler)
 /****************************************************************************/
 
 template <class IT, class NT>
+void SpDCCols<IT,NT>::CreateImpl(IT * _cp, IT * _jc, IT * _ir, NT * _numx, IT _nz, IT _nzc, IT _m, IT _n)
+{
+    m = _m;
+    n = _n;
+    nnz =  _nz;
+    
+    if(nnz > 0)
+        dcsc = new Dcsc<IT,NT>(_cp, _jc, _ir, _numx, _nz, _nzc, false);	// memory not owned by DCSC
+    else
+        dcsc = NULL; 
+}
+
+template <class IT, class NT>
 void SpDCCols<IT,NT>::CreateImpl(const vector<IT> & essentials)
 {
 	assert(essentials.size() == esscount);
