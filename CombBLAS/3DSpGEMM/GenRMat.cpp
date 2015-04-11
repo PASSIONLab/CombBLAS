@@ -22,6 +22,7 @@
 #include "../DistEdgeList.h"
 #include "Glue.h"
 
+
 #ifdef BUPC
 extern "C" void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int layer_grid, int rankinlayer, void ** part1, void ** part2, bool trans);
 #endif
@@ -159,7 +160,9 @@ void MakeDCSC (const DistEdgeList<DELIT> & DEL, bool removeloops, DER ** spSeq)
 	else	loccols = DEL.getGlobalV() - myproccol * n_perproc;
 
   	SpTuples<LIT,NT> A(totrecv/2, locrows, loccols, alledges, removeloops);  	// alledges is empty upon return
+
   	*spSeq = new DER(A,false);        // Convert SpTuples to DER
+
 }
 
 SpDCCols<int32_t, double> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], MPI_Comm & layerworld)
@@ -218,15 +221,19 @@ void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int la
 
 	LOC_SPMAT *A1, *A2;
 	if(layer_grid == 0)
-	{	
-		#ifdef DEBUG	
-		cout << MPI::COMM_WORLD.Get_rank() << " maps to " << layerWorld.Get_rank() << endl;
+	{
+        int fullrank, layerrank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &fullrank);
+        MPI_Comm_rank(layerWorld, &layerrank);
+
+		#ifdef DEBUG
+		cout << fullrank << " maps to " << layerrank << endl;
 		#endif
 
 		localmat = GenRMat(scale, EDGEFACTOR, initiator, layerWorld);
 		
 		#ifdef DEBUG	
-		if(layerWorld.Get_rank() == 0)
+		if(layerrank == 0)
 		{
 			cout << "Before transpose\n";
 			localmat->PrintInfo();
@@ -241,7 +248,7 @@ void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int la
 			localmat->Transpose(); // locally transpose
 		
 		#ifdef DEBUG	
-		if(layerWorld.Get_rank() == 0 && trans)
+		if(layerrank == 0 && trans)
 		{
 			cout << "After transpose\n";
 			localmat->PrintInfo();
@@ -284,10 +291,8 @@ void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int la
 
 	if(fprocs > 1 && myrank == 1)
 	{
-		cout << "Dude #1 "<< endl;
 		copy(ess1.begin(), ess1.end(), ostream_iterator<int32_t>(cout, " ")); cout << endl;
 		copy(ess2.begin(), ess2.end(), ostream_iterator<int32_t>(cout, " ")); cout << endl;
-
 	}
 	// Start timer here
 	SpParHelper::BCastMatrix(fiberWorld, *A1, ess1, 0);		// ess is not used at root
