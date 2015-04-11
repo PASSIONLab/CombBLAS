@@ -158,8 +158,13 @@ public:
 	template<typename SR, typename IU, typename NU>
 	friend SpTuples<IU,NU> * MergeAllRec(const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar, IU nstar); 
 	
-	ofstream& putstream (ofstream& outfile) const;		
-	ifstream& getstream (ifstream& infile); 
+	ofstream& putstream (ofstream& outfile) const;
+    ofstream& put (ofstream& outfile) const
+    { return putstream(outfile); }
+
+	ifstream& getstream (ifstream& infile);
+    ifstream& get (ifstream& infile) { return getstream(infile); }
+
 
 	bool isZero() const { return (nnz == 0); }	
 	IT getnrow() const { return m; }
