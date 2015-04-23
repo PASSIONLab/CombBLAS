@@ -339,7 +339,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
 		
 		double reduce_beg = MPI_Wtime();
-        MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, &fibWorld);
+        MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, fibWorld);
 		comm_reduce += (MPI_Wtime() - reduce_beg);
 			
 		// SpTuples<IU,NU> MergeAllContiguous (tuple<IU,IU,NU> * colsortedranges, IU mstar, IU nstar, int hsize, int * nonzeros, int * dpls, bool delarrays)
@@ -377,7 +377,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 	else 
 	{
 		MPI_Gather(&pre_glmerge, 1, MPI_INT, NULL, 1, MPI_INT, 0, fibWorld); // recvbuf is irrelevant on non-root
-		MP_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, NULL, NULL, NULL, MPI_triple, 0, fibWorld);
+		MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, NULL, NULL, NULL, MPI_triple, 0, fibWorld);
 		locret = new LOC_SPMAT(); // other layes don't have the data
 	}
 #endif
