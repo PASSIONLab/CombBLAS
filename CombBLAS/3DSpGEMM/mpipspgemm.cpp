@@ -99,8 +99,10 @@ int main(int argc, char *argv[])
 	/* pack along fibers, so that reductions are fast */
 	CCGrid * CMG = (CCGrid *)malloc(sizeof(CCGrid));
 	
-	for(int i=0; i< 2; ++i)
+    
+	//for(int i=0; i< 2; ++i)
 	{
+        /*
 		if (i == 1) 
 		{
 			// Now run the benchmark in summa grid if possible
@@ -115,9 +117,10 @@ int main(int argc, char *argv[])
 			{
 				if(MYTHREAD == 0)
 					printf("The second run is not possible\n");
+                MPI::Finalize();
 				return 0;
 			}
-		}
+		}*/
 		comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;
 		
 		CMG->layer_grid = MYTHREAD % C_FACTOR;	/* RANKINFIBER = layer_grid, indexed from 1 to C_FACTOR */
@@ -174,6 +177,8 @@ int main(int argc, char *argv[])
 			cout << "Total first run " << time_end-time_beg << " seconds" << endl;
 			printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
 		}
+        
+        /*
 		comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;	// reset
 
 		MPI::COMM_WORLD.Barrier();
@@ -194,6 +199,7 @@ int main(int argc, char *argv[])
 			cout << "Ten further iterations took " << time_end-time_beg << " seconds" << endl;
 			printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
 		}
+        */
 	}
 	MPI::Finalize();
 	return 0;
