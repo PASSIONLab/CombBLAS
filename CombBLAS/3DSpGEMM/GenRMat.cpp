@@ -179,10 +179,10 @@ SpDCCols<int32_t, double> * GenRMat(unsigned scale, unsigned EDGEFACTOR, double 
 	minfo << "Using " << nprocs << " MPI processes" << endl;
 	SpParHelper::Print(minfo.str());
 
-	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, true );	// generate packed edges
+	DEL->GenGraph500Data(initiator, scale, EDGEFACTOR, true, false );	// don't generate packed edges, that function uses MPI_COMM_WORLD which can not be used in a single layer!
 	SpParHelper::Print("Generated renamed edge lists\n");
-	t02 = MPI_Wtime();
 	ostringstream tinfo;
+    t02 = MPI_Wtime();
 	tinfo << "Generation took " << t02-t01 << " seconds" << endl;
 	SpParHelper::Print(tinfo.str());
 
@@ -258,8 +258,15 @@ void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int la
 		}
 		#endif
 
-			
 		Split_GetEssensials(localmat, &A1, &A2, sess1, sess2);
+        
+        int64_t local_A1_nnz = A1->getnnz();
+        int64_t local_A2_nnz = A2->getnnz();
+        
+        int64_t global_A1_nnz = 0, global_A2_nnz = 0;
+        MPI_Reduce(&local_A1_nnz, &global_A1_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
+        MPI_Reduce(&local_A2_nnz, &global_A2_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, layerWorld);
+        
 		// Timer end here
 		// Reduce timer on layerWorld and report as "local splitting and transposition time"
 	}
