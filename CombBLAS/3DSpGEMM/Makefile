@@ -15,7 +15,7 @@ NVCCFLAGS := $(INCLUDE)
 
 # C++ compiler
 CXX := mpicxx
-CXXFLAGS := -std=c++0x -O2 -fpermissive -DPARALLELREDUCE -DDEBUG #-DBUPC
+CXXFLAGS := -std=c++0x -O2 -fpermissive -DPARALLELREDUCE #-DDEBUG #-DBUPC
 
 # C compiler
 CC := mpicc
