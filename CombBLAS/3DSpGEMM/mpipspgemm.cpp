@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <cmath>
 #include "Glue.h"
+#include "../CombBLAS.h"
 
 using namespace std;
 
@@ -30,7 +31,9 @@ double comp_reduce;
 
 int main(int argc, char *argv[])
 {
-	MPI::Init(argc, argv);
+    int provided;
+	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+    
 	int THREADS = MPI::COMM_WORLD.Get_size();
 	int MYTHREAD = MPI::COMM_WORLD.Get_rank();
 
@@ -154,28 +157,48 @@ int main(int argc, char *argv[])
 		// MergeAll C's [there are 2 * eachphase of them on each processor]	
 		mergedC = ReduceAll(C, CMG, 2*eachphase);
 		MPI::Intracomm layerWorld = MPI::COMM_WORLD.Split(CMG->layer_grid, CMG->rankinlayer);
-		if(CMG->layer_grid == 0)
-		{
-			int64_t local_nnz = GetNNZ(mergedC);
-			int64_t global_nnz = 0;
-			layerWorld.Reduce(&local_nnz, &global_nnz, 1, MPI::LONG_LONG, MPI::SUM, 0);
-			if(layerWorld.Get_rank() == 0)
-			{
-				cout << "Global nonzeros in C is " << global_nnz << endl;
-			}
-		}
-		
+
+        int64_t local_nnz = GetNNZ(mergedC);
+        int64_t global_nnz = 0;
+        
+#ifdef PARALLELREDUCE
+        MPI_Reduce(&local_nnz, &global_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, MPI_COMM_WORLD);
+        if(MYTHREAD == 0)
+        {
+            cout << "Global nonzeros in C is " << global_nnz << endl;
+        }
+#else
+        if(CMG->layer_grid == 0)
+        {
+            MPI_Reduce(&local_nnz, &global_nnz, 1, MPI::LONG_LONG, MPI::SUM, layerWorld);
+            if(layerWorld.Get_rank() == 0)
+            {
+                cout << "Global nonzeros in C is " << global_nnz << endl;
+            }
+        }
+
+#endif
+        
+        
+				
 		DeleteMatrix(&mergedC);
 
 		MPI::COMM_WORLD.Barrier();
 		double time_end = MPI_Wtime();
+        double time_total = time_end-time_beg;
 
 		if(MYTHREAD == 0)
 		{
 			cout << "SUMMA Layer took " << time_mid-time_beg << " seconds" << endl;
 			cout << "Reduce took " << time_end-time_mid << " seconds" << endl;
-			cout << "Total first run " << time_end-time_beg << " seconds" << endl;
-			printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
+			//cout << "Total first run " << time_total << " seconds" << endl;
+			//printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
+            double time_other = time_total - (comm_bcast + comm_reduce + comp_summa + comp_reduce);
+            printf("\n Processor Grid: %dx%dx%d \n", GRROWS, GRCOLS, C_FACTOR);
+            printf(" -------------------------------------------------------------------\n");
+            printf(" comm_bcast   comm_reduce comp_summa comp_reduce    other      total\n");
+            printf(" -------------------------------------------------------------------\n");
+            printf("%10lf %12lf %10lf %12lf %10lf %10lf\n\n", comm_bcast, comm_reduce, comp_summa, comp_reduce, time_other, time_total);
 		}
         
         /*
