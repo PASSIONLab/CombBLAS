@@ -7,7 +7,7 @@ template <typename SR, typename NTO, typename IT, typename NT1, typename NT2>
 SpTuples<IT, NTO> * LocalSpGEMM
 (const SpDCCols<IT, NT1> & A,
  const SpDCCols<IT, NT2> & B,
- bool clearA = false, bool clearB = false)
+ bool clearA, bool clearB)
 {
     IT mdim = A.getnrow();
     IT ndim = A.getncol();
