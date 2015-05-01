@@ -266,7 +266,7 @@ SpTuples<IT, NTO> * LocalSpGEMM1
     vector<StackEntry< NTO, pair<IT,IT>>> * colsC = new vector<StackEntry< NTO, pair<IT,IT>>>[Bdcsc.nzc];
     
     
-#pragma omp parallel for
+//#pragma omp parallel for
     for(IT i=0; i< Bdcsc.nzc; ++i)		// for all the columns of B
     {
         IT prevcnz = cnz;
@@ -367,3 +367,32 @@ SpTuples<IT, NTO> * LocalSpGEMM1
     
     return new SpTuples<IT, NTO> (nzc, mdim, ndim, multstack);
 }
+
+
+
+
+
+ template<class SR, class NUO, class IU, class NU1, class NU2>
+ SpTuples<IU, NUO> * LocalSpGEMM2
+ (const SpDCCols<IU, NU1> & A,
+ const SpDCCols<IU, NU2> & B,
+ bool clearA = false, bool clearB = false)
+ {
+ IU mdim = A.getnrow();
+ IU ndim = A.getncol();
+ if(A.isZero() || B.isZero())
+ {
+ return new SpTuples<IU, NUO>(0, mdim, ndim);
+ }
+ StackEntry< NUO, pair<IU,IU> > * multstack;
+ IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
+ 
+ if(clearA)
+ delete const_cast<SpDCCols<IU, NU1> *>(&A);
+ if(clearB)
+ delete const_cast<SpDCCols<IU, NU2> *>(&B);
+ 
+ return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
+ }
+
+
