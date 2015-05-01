@@ -320,6 +320,8 @@ CombBLAS/3DSpGEMM/Glue.h -text
 CombBLAS/3DSpGEMM/Makefile -text
 CombBLAS/3DSpGEMM/SUMMALayer.cpp -text
 CombBLAS/3DSpGEMM/mpipspgemm.cpp -text
+CombBLAS/3DSpGEMM/mtSpGEMM.cpp -text
+CombBLAS/3DSpGEMM/mtSpGEMM.h -text
 CombBLAS/3DSpGEMM/tellme -text
 CombBLAS/Applications/2DBFS_optimizations.txt -text
 CombBLAS/Applications/APowers.cpp -text

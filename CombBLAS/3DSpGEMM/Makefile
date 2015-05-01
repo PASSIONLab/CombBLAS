@@ -15,7 +15,7 @@ NVCCFLAGS := $(INCLUDE)
 
 # C++ compiler
 CXX := mpicxx
-CXXFLAGS := -std=c++0x -O2 -fpermissive -DPARALLELREDUCE #-DDEBUG #-DBUPC
+CXXFLAGS := -std=c++0x -O2 -fopenmp -fpermissive -DPARALLELREDUCE #-DDEBUG #-DBUPC
 
 # C compiler
 CC := mpicc
@@ -79,7 +79,10 @@ pspgemm: pspgemm.o hypersparsegemm.o GenRMat.o $(COMBBLAS)/MPIType.o $(COMBBLAS)
 simple: simple.o GenRMatSimple.o $(COMBBLAS)/MPIType.o 
 	$(LINK) $(LFLAGS) -o $@ $^
 
-mpipspgemm: mpipspgemm.o GenRMat.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o Cessentials.o SUMMALayer.o
+SUMMALayer.o: SUMMALayer.cpp mtSpGEMM.o
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+mpipspgemm: mpipspgemm.o GenRMat.o mtSpGEMM.o $(COMBBLAS)/MPIType.o $(COMBBLAS)/graph500-1.2/generator/libgraph_generator_seq.a $(COMBBLAS)/CommGrid.o Cessentials.o SUMMALayer.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ -L$(COMBBLAS)/graph500-1.2/generator -lgraph_generator_seq
 
 pingpong: gpu_data.o pingpong.o

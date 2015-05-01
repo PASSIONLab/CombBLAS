@@ -12,13 +12,39 @@
 #include "../CombBLAS.h"
 #include "../SpParHelper.h"
 #include "Glue.h"
+#include "mtSpGEMM.h"
 
 #ifdef BUPC
-extern "C" int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg);
+extern "C" int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg, bool isBT, bool threaded);
 extern "C" void * ReduceAll(void ** C, CCGrid * cmg, int localcount);
 extern "C" void DeleteMatrix(void ** A);
 extern "C" int64_t GetNNZ(void * A);
 #endif
+
+/*
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * Tuples_AnXBn2
+(const SpDCCols<IU, NU1> & A,
+ const SpDCCols<IU, NU2> & B,
+ bool clearA = false, bool clearB = false)
+{
+    IU mdim = A.getnrow();
+    IU ndim = A.getncol();
+    if(A.isZero() || B.isZero())
+    {
+        return new SpTuples<IU, NUO>(0, mdim, ndim);
+    }
+    StackEntry< NUO, pair<IU,IU> > * multstack;
+    IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
+    
+    if(clearA)
+        delete const_cast<SpDCCols<IU, NU1> *>(&A);
+    if(clearB)
+        delete const_cast<SpDCCols<IU, NU2> *>(&B);
+    
+    return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
+}
+*/
 
 
 int64_t GetNNZ(void * A)
@@ -391,7 +417,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
  
 // B1 and B2 are already locally transposed
 // Returns an array of unmerged lists in C (size 2 * cmg->GRCOLS)
-int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg)
+int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg, bool isBT, bool threaded)
 {
 	typedef SpDCCols<int32_t, double> LOC_SPMAT;
 	typedef SpTuples<int32_t, double> SPTUPLE;
@@ -495,13 +521,26 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			SpParHelper::BCastMatrix(colWorld, *BRecv, ess, i);	// then, receive its elements
 			comm_bcast += (MPI_Wtime() - bcast_beg);
 			
+            
 			double summa_beg = MPI_Wtime();
-			SPTUPLE * C_cont = MultiplyReturnTuples<PTDD, double>
-						(*ARecv, *BRecv, // parameters themselves
-						false, true,	// transpose information (B is transposed)
-						 i != Aself, 	// 'delete A' condition
-						 i != Bself);	// 'delete B' condition
-			comp_summa += (MPI_Wtime() - summa_beg);
+            SPTUPLE * C_cont;
+            if(threaded)
+            {
+                C_cont = LocalSpGEMM<PTDD, double>
+                (*ARecv, *BRecv, // parameters themselves
+                 i != Aself, 	// 'delete A' condition
+                 i != Bself);	// 'delete B' condition
+            }
+            else
+            {
+                C_cont = MultiplyReturnTuples<PTDD, double>
+                (*ARecv, *BRecv, // parameters themselves
+                 false, isBT,	// transpose information (B is transposed)
+                 i != Aself, 	// 'delete A' condition
+                 i != Bself);	// 'delete B' condition
+            }
+		
+            comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;
 		}
