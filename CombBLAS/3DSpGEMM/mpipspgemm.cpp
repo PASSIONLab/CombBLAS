@@ -230,12 +230,14 @@ int main(int argc, char *argv[])
         LOC_SPMAT * B1_cast = (LOC_SPMAT *) B1;
         LOC_SPMAT * B2_cast = (LOC_SPMAT *) B2;
         
-        //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true);
+        //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false);
         B1_cast->Transpose();
         B2_cast->Transpose();
+       
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
-        
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        
+        
         
         /*
 		comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;	// reset

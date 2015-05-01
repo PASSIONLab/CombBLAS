@@ -78,6 +78,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	int send_sizes[fprocs];
 	int recv_sizes[fprocs];
 	// this could be made more efficient, either by a binary search or by guessing then correcting
+    MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
 	int target = 0;
 	int cols_per_proc = (ncols + fprocs - 1) / fprocs;
@@ -97,10 +98,12 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	  }
 	}
 	send_sizes[fprocs-1] = inputnnz - send_offsets[fprocs-1];
+    MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
 
 	double reduce_beg = MPI_Wtime();
 	MPI_Alltoall( send_sizes, 1, MPI_INT, recv_sizes, 1, MPI_INT,fibWorld);
+    MPI_Barrier(MPI_COMM_WORLD);
 	comm_reduce += (MPI_Wtime() - reduce_beg);
 
 	int recv_count = 0;
@@ -112,9 +115,11 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	for( int i = 1; i < fprocs; i++ ) {
 	  recv_offsets[i] = recv_offsets[i-1]+recv_sizes[i-1];
 	}
+    MPI_Barrier(MPI_COMM_WORLD);
 	reduce_beg = MPI_Wtime();
 	MPI_Alltoallv( localmerged, send_sizes, send_offsets, MPI_triple, recvbuf, recv_sizes, recv_offsets, MPI_triple, fibWorld);
-	comm_reduce += (MPI_Wtime() - reduce_beg);
+    MPI_Barrier(MPI_COMM_WORLD);
+    comm_reduce += (MPI_Wtime() - reduce_beg);
 	loc_beg1 = MPI_Wtime();
 
 	int pos[fprocs];
@@ -153,6 +158,7 @@ void ParallelReduce_Alltoall(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> 
 	    outputnnz++;
 	  }
 	}
+    MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
 	
 	free(recvbuf);
@@ -300,9 +306,10 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 	
 	int64_t totrecv;
 	tuple<int32_t,int32_t,double> * recvdata;
-	
+    MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
 	SPTUPLE localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
+    MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
 
 	
@@ -363,7 +370,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 		recvdata = new tuple<int32_t,int32_t,double>[totrecv];
 
 		// IntraComm::GatherV(sendbuf, int sentcnt, sendtype, recvbuf, int * recvcnts, int * displs, recvtype, root)
-		
+		    MPI_Barrier(MPI_COMM_WORLD);
 		double reduce_beg = MPI_Wtime();
         MPI_Gatherv(localmerged.tuples, pre_glmerge, MPI_triple, recvdata, pst_glmerge, dpls, MPI_triple, 0, fibWorld);
 		comm_reduce += (MPI_Wtime() - reduce_beg);
