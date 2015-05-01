@@ -263,6 +263,9 @@ void ParallelReduce(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> * & local
 
 void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 {
+    
+    
+    
 	typedef SpTuples<int32_t, double> SPTUPLE;
 	typedef SpDCCols<int32_t, double> LOC_SPMAT;
 
@@ -288,6 +291,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 #endif
 	}
 	
+    
 #ifdef TIMING // BEGIN TIMING
 	double loc_merge_beg = MPI_Wtime();
 #endif
@@ -303,15 +307,18 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 			C_n = static_cast<SPTUPLE*>(C[i])->getncol();
 		}
 	}
-	
-	int64_t totrecv;
+    
+    int64_t totrecv;
 	tuple<int32_t,int32_t,double> * recvdata;
+    
     MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
+    //double time1 = MPI_Wtime();
 	SPTUPLE localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
     MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
-
+    //cout <<  "****** reduce1:  "<< MPI_Wtime() - time1 << endl;
+    
 	
 #ifdef TIMING // END TIMING
 	double loc_merge_time = MPI_Wtime() - loc_merge_beg;
@@ -341,7 +348,12 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 	int outputnnz = 0;
 	//ParallelReduce<PTDD>(fibWorld, localmerged.tuples, MPI_triple, recvdata, (int) localmerged.getnnz(), outputnnz);
 	ParallelReduce_Alltoall<PTDD>(fibWorld, localmerged.tuples, MPI_triple, recvdata, (int) localmerged.getnnz(), outputnnz, C_n);
+    //time1 = MPI_Wtime();
+    loc_beg1 = MPI_Wtime();
 	locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
+    MPI_Barrier(MPI_COMM_WORLD); //needed
+    comp_reduce += (MPI_Wtime() - loc_beg1); //needed
+    // cout <<  "****** reduce2:  "<< MPI_Wtime() - time1 << endl;
 #else
     int fibsize, fibrank;
     MPI_Comm_size(fibWorld,&fibsize);
@@ -414,6 +426,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
 		locret = new LOC_SPMAT(); // other layes don't have the data
 	}
 #endif
+    
     MPI_Type_free(&MPI_triple);
     MPI_Comm_free(&fibWorld);
     MPI_Comm_free(&rowWorld);
@@ -496,6 +509,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 			
 		for(int i = stage_beg; i < stage_end; ++i) 
 		{
+             MPI_Barrier(MPI_COMM_WORLD);
 			double bcast_beg = MPI_Wtime();
 			vector<int32_t> ess;	
 			if(i == Aself)
@@ -526,9 +540,9 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
 				BRecv = new LOC_SPMAT();
 			}
 			SpParHelper::BCastMatrix(colWorld, *BRecv, ess, i);	// then, receive its elements
-			comm_bcast += (MPI_Wtime() - bcast_beg);
-			
             
+            MPI_Barrier(MPI_COMM_WORLD);
+			comm_bcast += (MPI_Wtime() - bcast_beg);
 			double summa_beg = MPI_Wtime();
             SPTUPLE * C_cont;
             if(threaded)
@@ -547,6 +561,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  i != Bself);	// 'delete B' condition
             }
 		
+             MPI_Barrier(MPI_COMM_WORLD);
             comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;

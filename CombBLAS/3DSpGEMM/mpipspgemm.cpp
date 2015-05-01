@@ -48,7 +48,13 @@ void multiply_exp(void * A1, void * A2, void * B1, void * B2, CCGrid * cmg, bool
     
     // MergeAll C's [there are 2 * eachphase of them on each processor]
     mergedC = ReduceAll(C, cmg, 2*eachphase);
+    
+    MPI::COMM_WORLD.Barrier();
+    double time_end = MPI_Wtime();
+    double time_total = time_end-time_beg;
+    
     MPI::Intracomm layerWorld = MPI::COMM_WORLD.Split(cmg->layer_grid, cmg->rankinlayer);
+    
     
     int64_t local_nnz = GetNNZ(mergedC);
     int64_t global_nnz = 0;
@@ -73,9 +79,7 @@ void multiply_exp(void * A1, void * A2, void * B1, void * B2, CCGrid * cmg, bool
         
         DeleteMatrix(&mergedC);
     
-         MPI::COMM_WORLD.Barrier();
-        double time_end = MPI_Wtime();
-        double time_total = time_end-time_beg;
+    
     
     MPI_Comm fibWorld;
     int c_factor;
