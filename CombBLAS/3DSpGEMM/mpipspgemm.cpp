@@ -15,7 +15,7 @@ using namespace std;
 
 extern void Split_GetEssensials(void * full, void ** part1, void ** part2, SpDCCol_Essentials * sess1, SpDCCol_Essentials * sess2);
 extern void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int layergrid, int rankinlayer, void ** part1, void ** part2, bool trans);
-extern int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg);
+extern int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg, bool isBT, bool threaded);
 extern void * ReduceAll(void ** C, CCGrid * CMG, int totalcount);
 extern void DeleteMatrix(void ** A);
 extern int64_t GetNNZ(void * A);
@@ -29,10 +29,80 @@ double comp_reduce;
 #define N 100
 #define REPLICAS 1
 
+
+void multiply_exp(void * A1, void * A2, void * B1, void * B2, CCGrid * cmg, bool isBT, bool threaded)
+{
+    comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;
+    int myrank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+    void * mergedC;
+    void ** C;
+    
+    MPI::COMM_WORLD.Barrier();
+    double time_beg = MPI_Wtime();
+    
+    int eachphase = SUMMALayer(A1, A2, B1, B2, &C, cmg, isBT, threaded);
+    
+    MPI::COMM_WORLD.Barrier();
+    double time_mid = MPI_Wtime();
+    
+    // MergeAll C's [there are 2 * eachphase of them on each processor]
+    mergedC = ReduceAll(C, cmg, 2*eachphase);
+    MPI::Intracomm layerWorld = MPI::COMM_WORLD.Split(cmg->layer_grid, cmg->rankinlayer);
+    
+    int64_t local_nnz = GetNNZ(mergedC);
+    int64_t global_nnz = 0;
+    
+#ifdef PARALLELREDUCE
+    MPI_Reduce(&local_nnz, &global_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, MPI_COMM_WORLD);
+    if(myrank == 0)
+    {
+        cout << "Global nonzeros in C is " << global_nnz << endl;
+        }
+#else
+        if(CMG->layer_grid == 0)
+        {
+            MPI_Reduce(&local_nnz, &global_nnz, 1, MPI::LONG_LONG, MPI::SUM, layerWorld);
+            if(layerWorld.Get_rank() == 0)
+            {
+                cout << "Global nonzeros in C is " << global_nnz << endl;
+            }
+        }
+        
+#endif
+        
+        DeleteMatrix(&mergedC);
+    
+         MPI::COMM_WORLD.Barrier();
+        double time_end = MPI_Wtime();
+        double time_total = time_end-time_beg;
+    
+    MPI_Comm fibWorld;
+    int c_factor;
+    MPI_Comm_split(MPI_COMM_WORLD, cmg->rankinlayer, cmg->layer_grid, &fibWorld);
+    MPI_Comm_size(fibWorld, &c_factor);
+    
+    
+        if(myrank == 0)
+        {
+            cout << "SUMMA Layer took " << time_mid-time_beg << " seconds" << endl;
+            cout << "Reduce took " << time_end-time_mid << " seconds" << endl;
+            //cout << "Total first run " << time_total << " seconds" << endl;
+            //printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
+            double time_other = time_total - (comm_bcast + comm_reduce + comp_summa + comp_reduce);
+            printf("\n Processor Grid: %dx%dx%d \n", cmg->GRROWS, cmg->GRCOLS, c_factor);
+            printf(" -------------------------------------------------------------------\n");
+            printf(" comm_bcast   comm_reduce comp_summa comp_reduce    other      total\n");
+            printf(" -------------------------------------------------------------------\n");
+            printf("%10lf %12lf %10lf %12lf %10lf %10lf\n\n", comm_bcast, comm_reduce, comp_summa, comp_reduce, time_other, time_total);
+        }
+
+}
 int main(int argc, char *argv[])
 {
     int provided;
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+    typedef SpDCCols<int32_t, double> LOC_SPMAT;
     
 	int THREADS = MPI::COMM_WORLD.Get_size();
 	int MYTHREAD = MPI::COMM_WORLD.Get_rank();
@@ -124,7 +194,7 @@ int main(int argc, char *argv[])
 				return 0;
 			}
 		}*/
-		comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;
+		
 		
 		CMG->layer_grid = MYTHREAD % C_FACTOR;	/* RANKINFIBER = layer_grid, indexed from 1 to C_FACTOR */
 		CMG->rankinlayer = MYTHREAD / C_FACTOR;		/* indexed from 1 to layer_length */
@@ -140,66 +210,32 @@ int main(int argc, char *argv[])
 		void *A1, *A2, *B1, *B2;
 		VoidRMat(scale, EDGEFACTOR, initiator, CMG->layer_grid, CMG->rankinlayer, &A1, &A2, false);
 		VoidRMat(scale, EDGEFACTOR, initiator, CMG->layer_grid, CMG->rankinlayer, &B1, &B2, true); // also transpose before split
-
 		if(MYTHREAD == 0) printf("RMATs Generated and replicated along layers\n");
 
-		void * mergedC;
-		void ** C;
-
-		MPI::COMM_WORLD.Barrier();
-		double time_beg = MPI_Wtime();	
-
-		int eachphase = SUMMALayer(A1, A2, B1, B2, &C, CMG);  
-
-		MPI::COMM_WORLD.Barrier();
-		double time_mid = MPI_Wtime();
-	
-		// MergeAll C's [there are 2 * eachphase of them on each processor]	
-		mergedC = ReduceAll(C, CMG, 2*eachphase);
-		MPI::Intracomm layerWorld = MPI::COMM_WORLD.Split(CMG->layer_grid, CMG->rankinlayer);
-
-        int64_t local_nnz = GetNNZ(mergedC);
-        int64_t global_nnz = 0;
         
-#ifdef PARALLELREDUCE
-        MPI_Reduce(&local_nnz, &global_nnz, 1, MPIType<int64_t>(), MPI_SUM, 0, MPI_COMM_WORLD);
         if(MYTHREAD == 0)
         {
-            cout << "Global nonzeros in C is " << global_nnz << endl;
-        }
-#else
-        if(CMG->layer_grid == 0)
-        {
-            MPI_Reduce(&local_nnz, &global_nnz, 1, MPI::LONG_LONG, MPI::SUM, layerWorld);
-            if(layerWorld.Get_rank() == 0)
+#pragma omp parallel
             {
-                cout << "Global nonzeros in C is " << global_nnz << endl;
+                int nthreads = omp_get_num_threads();
+                printf ("nthreads = %d\n", nthreads);
             }
         }
-
-#endif
         
         
-				
-		DeleteMatrix(&mergedC);
 
-		MPI::COMM_WORLD.Barrier();
-		double time_end = MPI_Wtime();
-        double time_total = time_end-time_beg;
-
-		if(MYTHREAD == 0)
-		{
-			cout << "SUMMA Layer took " << time_mid-time_beg << " seconds" << endl;
-			cout << "Reduce took " << time_end-time_mid << " seconds" << endl;
-			//cout << "Total first run " << time_total << " seconds" << endl;
-			//printf("comm_bcast = %f, comm_reduce = %f, comp_summa = %f, comp_reduce = %f\n", comm_bcast, comm_reduce, comp_summa, comp_reduce);
-            double time_other = time_total - (comm_bcast + comm_reduce + comp_summa + comp_reduce);
-            printf("\n Processor Grid: %dx%dx%d \n", GRROWS, GRCOLS, C_FACTOR);
-            printf(" -------------------------------------------------------------------\n");
-            printf(" comm_bcast   comm_reduce comp_summa comp_reduce    other      total\n");
-            printf(" -------------------------------------------------------------------\n");
-            printf("%10lf %12lf %10lf %12lf %10lf %10lf\n\n", comm_bcast, comm_reduce, comp_summa, comp_reduce, time_other, time_total);
-		}
+        
+        
+        //multiply_exp(A1, A2, B1, B2, CMG, true);
+        LOC_SPMAT * B1_cast = (LOC_SPMAT *) B1;
+        LOC_SPMAT * B2_cast = (LOC_SPMAT *) B2;
+        
+        //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true);
+        B1_cast->Transpose();
+        B2_cast->Transpose();
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
+        
+        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
         
         /*
 		comm_bcast = 0, comm_reduce = 0, comp_summa = 0, comp_reduce = 0;	// reset
