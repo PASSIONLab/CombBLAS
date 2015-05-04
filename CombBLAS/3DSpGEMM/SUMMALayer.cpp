@@ -525,7 +525,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
             SPTUPLE * C_cont;
             if(threaded)
             {
-                C_cont = LocalSpGEMM2<PTDD, double>
+                C_cont = LocalSpGEMM<PTDD, double>
                 (*ARecv, *BRecv, // parameters themselves
                  i != Aself, 	// 'delete A' condition
                  i != Bself);	// 'delete B' condition
