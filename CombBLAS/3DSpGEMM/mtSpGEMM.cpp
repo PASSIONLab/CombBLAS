@@ -10,7 +10,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
  bool clearA, bool clearB)
 {
     IT mdim = A.getnrow();
-    IT ndim = A.getncol();
+    IT ndim = B.getncol();
     if(A.isZero() || B.isZero())
     {
         return new SpTuples<IT, NTO>(0, mdim, ndim);
@@ -128,6 +128,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
+        cout << thisThread << " ****** " << endl;
         HeapEntry<IT,NT1> * wset = globalheap + threadHeapStart[thisThread]; // thread private heap space
        
         for(int i=colPerThread[thisThread]; i < colPerThread[thisThread+1]; ++i)
@@ -246,7 +247,7 @@ SpTuples<IT, NTO> * LocalSpGEMM1
     
     
     IT mdim = A.getnrow();
-    IT ndim = A.getncol();
+    IT ndim = B.getncol();
     if(A.isZero() || B.isZero())
     {
         return new SpTuples<IT, NTO>(0, mdim, ndim);
@@ -372,27 +373,217 @@ SpTuples<IT, NTO> * LocalSpGEMM1
 
 
 
- template<class SR, class NUO, class IU, class NU1, class NU2>
- SpTuples<IU, NUO> * LocalSpGEMM2
- (const SpDCCols<IU, NU1> & A,
+template<class SR, class NUO, class IU, class NU1, class NU2>
+SpTuples<IU, NUO> * LocalSpGEMM2
+(const SpDCCols<IU, NU1> & A,
  const SpDCCols<IU, NU2> & B,
  bool clearA = false, bool clearB = false)
- {
- IU mdim = A.getnrow();
- IU ndim = A.getncol();
- if(A.isZero() || B.isZero())
- {
- return new SpTuples<IU, NUO>(0, mdim, ndim);
- }
- StackEntry< NUO, pair<IU,IU> > * multstack;
- IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
- 
- if(clearA)
- delete const_cast<SpDCCols<IU, NU1> *>(&A);
- if(clearB)
- delete const_cast<SpDCCols<IU, NU2> *>(&B);
- 
- return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
- }
+{
+    IU mdim = A.getnrow();
+    IU ndim = B.getncol();
+    if(A.isZero() || B.isZero())
+    {
+        return new SpTuples<IU, NUO>(0, mdim, ndim);
+    }
+    StackEntry< NUO, pair<IU,IU> > * multstack;
+    IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
+    
+    if(clearA)
+        delete const_cast<SpDCCols<IU, NU1> *>(&A);
+    if(clearB)
+        delete const_cast<SpDCCols<IU, NU2> *>(&B);
+    
+    return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
+}
+
+
+
+// Performs a balanced merge of the array of SpTuples
+// Assumes the input parameters are already column sorted
+template<class SR, class IU, class NU>
+SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
+{
+    int nArrSpTups =  ArrSpTups.size();
+    if(nArrSpTups == 0)
+    {
+        return SpTuples<IU,NU>(0, mstar,nstar);
+    }
+    else if(nArrSpTups == 1)
+    {
+        SpTuples<IU,NU> ret = *ArrSpTups[0];
+        if(delarrs)
+            delete ArrSpTups[0];
+        return ret;
+    }
+    else
+    {
+        mstar = ArrSpTups[0]->getnrow();
+        nstar = ArrSpTups[0]->getncol();
+    }
+    for(int i=1; i< nArrSpTups; ++i)
+    {
+        if((mstar != ArrSpTups[i]->getnrow()) || nstar != ArrSpTups[i]->getncol())
+        {
+            cerr << "Dimensions do not match on MergeAll()" << endl;
+            return SpTuples<IU,NU>(0,0,0);
+        }
+    }
+    
+    
+    
+    
+    
+    //cout << mstar << " x " <<nstar << endl;
+    
+    int numThreads;
+#pragma omp parallel
+    {
+        numThreads = omp_get_num_threads();
+    }
+
+    int nsplits = numThreads;
+    while(nsplits > nstar)
+    {
+        nsplits = nsplits/2;
+    }
+    // now 1<=nsplits<=nstar
+    
+    
+
+    vector<vector<IU> > colPtrs(nsplits+1, vector<IU>(nArrSpTups));
+    // equally split columns across threads
+    std::fill (colPtrs[0].begin(), colPtrs[0].end(), 0);
+    
+    ColLexiCompare<IU,NU> comp;
+#pragma omp parallel for
+    for(int i=1; i< nsplits; i++)
+    {
+        IU cur_col = i * (nstar/nsplits);
+        //cout << cur_col << " " << endl;
+        std::tuple<IU, IU, NU> search_tuple(0, cur_col, 0); // (rowindex, colindex, val)
+        
+        for(int j=0; j< nArrSpTups; j++)  // parallelize this if nthreads < nArrSpTups, then we can use finger search
+        {
+           
+            tuple<IU, IU, NU>* it;
+            it = std::lower_bound (ArrSpTups[j]->tuples, ArrSpTups[j]->tuples+ArrSpTups[j]->getnnz(), search_tuple, comp);
+            colPtrs[i][j] = it - ArrSpTups[j]->tuples;
+        }
+    }
+    for(int j=0; j< nArrSpTups; j++)
+    {
+        colPtrs[nsplits][j] = ArrSpTups[j]->getnnz();
+    }
+    
+    /*
+    for(int i=0; i<= nsplits; i++)
+    {
+        for(int j=0; j< nArrSpTups; j++)
+        {
+            cout << colPtrs[i][j] << " " ;
+        }
+        cout << endl;
+    }*/
+  
+    ColLexiCompare<IU,int> heapcomp;
+    vector<tuple<IU, IU, NU>* > split_tuples (nsplits);
+    vector<IU> split_tuple_sizes (nsplits);
+    
+#pragma omp parallel
+    {
+        tuple<IU, IU, int> * heap = new tuple<IU, IU, int> [nArrSpTups];	// (rowindex, colindex, source-id)
+        IU * curptr = new IU[nArrSpTups];
+#pragma omp parallel for
+        for(int i=0; i< nsplits; i++)
+        {
+            for(int j=0; j< nArrSpTups; j++)
+            {
+                curptr[j] = colPtrs[i][j];
+            }
+            IU estnnz = 0;
+            IU hsize = 0;
+            for(int j=0; j< nArrSpTups; ++j)
+            {
+                IU curnnz= colPtrs[i+1][j] - colPtrs[i][j];
+                if(curnnz>0)
+                {
+                    heap[hsize++] = make_tuple(get<0>(ArrSpTups[j]->tuples[colPtrs[i][j]]), get<1>(ArrSpTups[j]->tuples[colPtrs[i][j]]), j);
+                    estnnz += curnnz;
+                }
+            }
+            make_heap(heap, heap+hsize, not2(heapcomp));
+            tuple<IU, IU, NU> * ntuples = new tuple<IU,IU,NU>[estnnz];
+            IU cnz = 0;
+            
+            while(hsize > 0)
+            {
+                pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
+                int source = get<2>(heap[hsize-1]);
+                
+                if( (cnz != 0) &&
+                   ((get<0>(ntuples[cnz-1]) == get<0>(heap[hsize-1])) && (get<1>(ntuples[cnz-1]) == get<1>(heap[hsize-1]))) )
+                {
+                    get<2>(ntuples[cnz-1])  = SR::add(get<2>(ntuples[cnz-1]), ArrSpTups[source]->numvalue(curptr[source]++));
+                }
+                else
+                {
+                    ntuples[cnz++] = ArrSpTups[source]->tuples[curptr[source]++];
+                }
+                
+                //if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
+                if(curptr[source] != colPtrs[i+1][source])	// That array has not been depleted
+                    
+                {
+                    heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]),
+                                               get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
+                    push_heap(heap, heap+hsize, not2(heapcomp));
+                }
+                else
+                {
+                    --hsize;
+                }
+            }
+            
+            SpHelper::ShrinkArray(ntuples, cnz);
+            split_tuples[i] = ntuples;
+            split_tuple_sizes[i] = cnz;
+            
+        }
+        DeleteAll(heap, curptr);
+    }
+    
+    
+    
+    
+    if(delarrs)
+    {
+        for(size_t i=0; i<ArrSpTups.size(); ++i)
+            delete ArrSpTups[i];
+    }
+    
+    IU cnz = 0;
+    vector<IU> partial_sum (nsplits+1);
+    partial_sum [0] = 0;
+    for(int i=0; i< nsplits; i++)
+    {
+        cnz += split_tuple_sizes[i];
+        partial_sum[i+1] = partial_sum[i] + split_tuple_sizes[i];
+    }
+    tuple<IU, IU, NU> * merge_tuples = new tuple<IU,IU,NU>[cnz];
+#pragma omp parallel for
+    for(int i=0; i< nsplits; i++)
+    {
+        std::copy(split_tuples[i], split_tuples[i] + split_tuple_sizes[i], merge_tuples+partial_sum[i]);
+    }
+    
+    for(int i=0; i< nsplits; i++)
+    {
+        delete split_tuples[i];
+    }
+    
+    return SpTuples<IU,NU> (cnz, mstar, nstar, merge_tuples);
+    
+    
+}
 
 

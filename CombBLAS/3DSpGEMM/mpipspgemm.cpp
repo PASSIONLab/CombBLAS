@@ -16,7 +16,7 @@ using namespace std;
 extern void Split_GetEssensials(void * full, void ** part1, void ** part2, SpDCCol_Essentials * sess1, SpDCCol_Essentials * sess2);
 extern void * VoidRMat(unsigned scale, unsigned EDGEFACTOR, double initiator[4], int layergrid, int rankinlayer, void ** part1, void ** part2, bool trans);
 extern int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg, bool isBT, bool threaded);
-extern void * ReduceAll(void ** C, CCGrid * CMG, int totalcount);
+extern void * ReduceAll(void ** C, CCGrid * CMG, int totalcount, bool threaded);
 extern void DeleteMatrix(void ** A);
 extern int64_t GetNNZ(void * A);
 
@@ -47,7 +47,7 @@ void multiply_exp(void * A1, void * A2, void * B1, void * B2, CCGrid * cmg, bool
     double time_mid = MPI_Wtime();
     
     // MergeAll C's [there are 2 * eachphase of them on each processor]
-    mergedC = ReduceAll(C, cmg, 2*eachphase);
+    mergedC = ReduceAll(C, cmg, 2*eachphase, threaded);
     
     MPI::COMM_WORLD.Barrier();
     double time_end = MPI_Wtime();
@@ -237,9 +237,9 @@ int main(int argc, char *argv[])
         //multiply_exp(A1, A2, B1_cast, B2_cast, CMG, true, false);
         B1_cast->Transpose();
         B2_cast->Transpose();
-       
+       multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
         multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, false);
-        multiply_exp(A1, A2, B1_cast, B2_cast, CMG, false, true);
+        
         
         
         

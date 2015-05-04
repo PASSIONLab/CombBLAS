@@ -16,35 +16,10 @@
 
 #ifdef BUPC
 extern "C" int SUMMALayer(void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * cmg, bool isBT, bool threaded);
-extern "C" void * ReduceAll(void ** C, CCGrid * cmg, int localcount);
+extern "C" void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded);
 extern "C" void DeleteMatrix(void ** A);
 extern "C" int64_t GetNNZ(void * A);
 #endif
-
-/*
-template<class SR, class NUO, class IU, class NU1, class NU2>
-SpTuples<IU, NUO> * Tuples_AnXBn2
-(const SpDCCols<IU, NU1> & A,
- const SpDCCols<IU, NU2> & B,
- bool clearA = false, bool clearB = false)
-{
-    IU mdim = A.getnrow();
-    IU ndim = A.getncol();
-    if(A.isZero() || B.isZero())
-    {
-        return new SpTuples<IU, NUO>(0, mdim, ndim);
-    }
-    StackEntry< NUO, pair<IU,IU> > * multstack;
-    IU cnz = SpHelper::SpColByCol< SR > (*(A.GetDCSC()), *(B.GetDCSC()), A.getncol(),  multstack);
-    
-    if(clearA)
-        delete const_cast<SpDCCols<IU, NU1> *>(&A);
-    if(clearB)
-        delete const_cast<SpDCCols<IU, NU2> *>(&B);
-    
-    return new SpTuples<IU, NUO> (cnz, mdim, ndim, multstack);
-}
-*/
 
 
 int64_t GetNNZ(void * A)
@@ -261,11 +236,8 @@ void ParallelReduce(MPI_Comm & fibWorld, tuple<int32_t,int32_t,double> * & local
 }
 
 
-void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
+void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
 {
-    
-    
-    
 	typedef SpTuples<int32_t, double> SPTUPLE;
 	typedef SpDCCols<int32_t, double> LOC_SPMAT;
 
@@ -314,7 +286,13 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount)
     MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
     //double time1 = MPI_Wtime();
-	SPTUPLE localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
+    SPTUPLE localmerged(0, alltuples[0]->getnrow(), alltuples[0]->getncol());
+    
+    if(threaded)
+        localmerged = LocalMerge<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
+    else
+        localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
+    
     MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
     //cout <<  "****** reduce1:  "<< MPI_Wtime() - time1 << endl;
@@ -561,7 +539,7 @@ int SUMMALayer (void * A1, void * A2, void * B1, void * B2, void ** C, CCGrid * 
                  i != Bself);	// 'delete B' condition
             }
 		
-             MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
             comp_summa += (MPI_Wtime() - summa_beg);
 		
 			(*tomerge)[k*eachphase + i-stage_beg] = C_cont;
