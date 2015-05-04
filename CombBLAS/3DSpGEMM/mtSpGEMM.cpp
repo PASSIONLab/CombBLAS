@@ -128,7 +128,6 @@ SpTuples<IT, NTO> * LocalSpGEMM
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
-        cout << thisThread << " ****** " << endl;
         HeapEntry<IT,NT1> * wset = globalheap + threadHeapStart[thisThread]; // thread private heap space
        
         for(int i=colPerThread[thisThread]; i < colPerThread[thisThread+1]; ++i)
@@ -431,8 +430,6 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     
     
     
-    
-    
     //cout << mstar << " x " <<nstar << endl;
     
     int numThreads;
@@ -441,53 +438,50 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
         numThreads = omp_get_num_threads();
     }
 
-    int nsplits = numThreads;
+    int nsplits = 2*numThreads;
     while(nsplits > nstar)
     {
         nsplits = nsplits/2;
     }
     // now 1<=nsplits<=nstar
     
-    
+    cout << "Number of splits: " << nsplits << endl;
 
     vector<vector<IU> > colPtrs(nsplits+1, vector<IU>(nArrSpTups));
-    // equally split columns across threads
+    vector<IU> split_tuple_estnnz (nsplits);
     std::fill (colPtrs[0].begin(), colPtrs[0].end(), 0);
-    
+    std::fill (split_tuple_estnnz.begin(), split_tuple_estnnz.end(), 0);
+
     ColLexiCompare<IU,NU> comp;
-#pragma omp parallel for
+#pragma omp parallel for  schedule(dynamic)
     for(int i=1; i< nsplits; i++)
     {
         IU cur_col = i * (nstar/nsplits);
-        //cout << cur_col << " " << endl;
         std::tuple<IU, IU, NU> search_tuple(0, cur_col, 0); // (rowindex, colindex, val)
         
         for(int j=0; j< nArrSpTups; j++)  // parallelize this if nthreads < nArrSpTups, then we can use finger search
         {
-           
             tuple<IU, IU, NU>* it;
             it = std::lower_bound (ArrSpTups[j]->tuples, ArrSpTups[j]->tuples+ArrSpTups[j]->getnnz(), search_tuple, comp);
             colPtrs[i][j] = it - ArrSpTups[j]->tuples;
+            split_tuple_estnnz[i-1] += (colPtrs[i][j] - colPtrs[i-1][j]);
         }
     }
     for(int j=0; j< nArrSpTups; j++)
     {
         colPtrs[nsplits][j] = ArrSpTups[j]->getnnz();
+        split_tuple_estnnz[nsplits-1] += (colPtrs[nsplits][j] - colPtrs[nsplits-1][j]);
     }
     
-    /*
-    for(int i=0; i<= nsplits; i++)
-    {
-        for(int j=0; j< nArrSpTups; j++)
-        {
-            cout << colPtrs[i][j] << " " ;
-        }
-        cout << endl;
-    }*/
-  
+    
+    
     ColLexiCompare<IU,int> heapcomp;
     vector<tuple<IU, IU, NU>* > split_tuples (nsplits);
-    vector<IU> split_tuple_sizes (nsplits);
+    for(int i=0; i< nsplits; i++)
+    {
+        split_tuples[i] = new tuple<IU,IU,NU>[split_tuple_estnnz[i]];
+    }
+    vector<IU> split_tuple_nnz (nsplits);
     
 #pragma omp parallel
     {
@@ -513,6 +507,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
             }
             make_heap(heap, heap+hsize, not2(heapcomp));
             tuple<IU, IU, NU> * ntuples = new tuple<IU,IU,NU>[estnnz];
+            //tuple<IU, IU, NU> * ntuples = split_tuples[i];
             IU cnz = 0;
             
             while(hsize > 0)
@@ -546,7 +541,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
             
             SpHelper::ShrinkArray(ntuples, cnz);
             split_tuples[i] = ntuples;
-            split_tuple_sizes[i] = cnz;
+            split_tuple_nnz[i] = cnz;
             
         }
         DeleteAll(heap, curptr);
@@ -566,14 +561,14 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     partial_sum [0] = 0;
     for(int i=0; i< nsplits; i++)
     {
-        cnz += split_tuple_sizes[i];
-        partial_sum[i+1] = partial_sum[i] + split_tuple_sizes[i];
+        cnz += split_tuple_nnz[i];
+        partial_sum[i+1] = partial_sum[i] + split_tuple_nnz[i];
     }
     tuple<IU, IU, NU> * merge_tuples = new tuple<IU,IU,NU>[cnz];
 #pragma omp parallel for
     for(int i=0; i< nsplits; i++)
     {
-        std::copy(split_tuples[i], split_tuples[i] + split_tuple_sizes[i], merge_tuples+partial_sum[i]);
+        std::copy(split_tuples[i], split_tuples[i] + split_tuple_nnz[i], merge_tuples+partial_sum[i]);
     }
     
     for(int i=0; i< nsplits; i++)
