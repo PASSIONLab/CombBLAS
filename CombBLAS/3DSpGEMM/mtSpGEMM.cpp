@@ -445,7 +445,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     }
     // now 1<=nsplits<=nstar
     
-    cout << "Number of splits: " << nsplits << endl;
+    //cout << "Number of splits: " << nsplits << endl;
 
     vector<vector<IU> > colPtrs(nsplits+1, vector<IU>(nArrSpTups));
     vector<IU> split_tuple_estnnz (nsplits);
@@ -453,7 +453,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     std::fill (split_tuple_estnnz.begin(), split_tuple_estnnz.end(), 0);
 
     ColLexiCompare<IU,NU> comp;
-#pragma omp parallel for  schedule(dynamic)
+#pragma omp parallel for  //schedule(dynamic)
     for(int i=1; i< nsplits; i++)
     {
         IU cur_col = i * (nstar/nsplits);
@@ -481,12 +481,14 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     {
         split_tuples[i] = new tuple<IU,IU,NU>[split_tuple_estnnz[i]];
     }
+    
+    
     vector<IU> split_tuple_nnz (nsplits);
     
 #pragma omp parallel
     {
-        tuple<IU, IU, int> * heap = new tuple<IU, IU, int> [nArrSpTups];	// (rowindex, colindex, source-id)
-        IU * curptr = new IU[nArrSpTups];
+        vector<tuple<IU, IU, int>> heap(nArrSpTups); //(rowindex, colindex, source-id)  // moving out of threaded region??
+        vector<IU> curptr(nArrSpTups);
 #pragma omp parallel for
         for(int i=0; i< nsplits; i++)
         {
@@ -494,7 +496,6 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
             {
                 curptr[j] = colPtrs[i][j];
             }
-            IU estnnz = 0;
             IU hsize = 0;
             for(int j=0; j< nArrSpTups; ++j)
             {
@@ -502,17 +503,15 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
                 if(curnnz>0)
                 {
                     heap[hsize++] = make_tuple(get<0>(ArrSpTups[j]->tuples[colPtrs[i][j]]), get<1>(ArrSpTups[j]->tuples[colPtrs[i][j]]), j);
-                    estnnz += curnnz;
                 }
             }
-            make_heap(heap, heap+hsize, not2(heapcomp));
-            tuple<IU, IU, NU> * ntuples = new tuple<IU,IU,NU>[estnnz];
-            //tuple<IU, IU, NU> * ntuples = split_tuples[i];
+            make_heap(heap.begin(), heap.begin()+hsize, not2(heapcomp));
+            tuple<IU, IU, NU> * ntuples = split_tuples[i];
             IU cnz = 0;
             
             while(hsize > 0)
             {
-                pop_heap(heap, heap + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
+                pop_heap(heap.begin(), heap.begin() + hsize, not2(heapcomp));         // result is stored in heap[hsize-1]
                 int source = get<2>(heap[hsize-1]);
                 
                 if( (cnz != 0) &&
@@ -525,26 +524,20 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
                     ntuples[cnz++] = ArrSpTups[source]->tuples[curptr[source]++];
                 }
                 
-                //if(curptr[source] != ArrSpTups[source]->getnnz())	// That array has not been depleted
                 if(curptr[source] != colPtrs[i+1][source])	// That array has not been depleted
                     
                 {
                     heap[hsize-1] = make_tuple(get<0>(ArrSpTups[source]->tuples[curptr[source]]),
                                                get<1>(ArrSpTups[source]->tuples[curptr[source]]), source);
-                    push_heap(heap, heap+hsize, not2(heapcomp));
+                    push_heap(heap.begin(), heap.begin()+hsize, not2(heapcomp));
                 }
                 else
                 {
                     --hsize;
                 }
             }
-            
-            SpHelper::ShrinkArray(ntuples, cnz);
-            split_tuples[i] = ntuples;
             split_tuple_nnz[i] = cnz;
-            
         }
-        DeleteAll(heap, curptr);
     }
     
     
