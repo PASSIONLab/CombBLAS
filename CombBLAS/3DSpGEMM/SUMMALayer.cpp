@@ -292,10 +292,9 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
         localmerged = LocalMerge<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
     else
         localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
-    
+
     MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
-    //cout <<  "****** reduce1:  "<< MPI_Wtime() - time1 << endl;
     
 	
 #ifdef TIMING // END TIMING
@@ -319,8 +318,12 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
 	MPI_Datatype MPI_triple;
     MPI_Type_contiguous(sizeof(tuple<int32_t,int32_t,double>), MPI_CHAR, &MPI_triple);
     MPI_Type_commit(&MPI_triple);
+    LOC_SPMAT * locret;
+    
+    
+    
 	int pre_glmerge = localmerged.getnnz();
-	LOC_SPMAT * locret;
+	
 	
 #ifdef PARALLELREDUCE
 	int outputnnz = 0;
@@ -404,6 +407,8 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
 		locret = new LOC_SPMAT(); // other layes don't have the data
 	}
 #endif
+    
+    
     
     MPI_Type_free(&MPI_triple);
     MPI_Comm_free(&fibWorld);

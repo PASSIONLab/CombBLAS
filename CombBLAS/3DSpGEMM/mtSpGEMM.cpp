@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <parallel/algorithm>
 #include "../CombBLAS.h"
 
 
@@ -400,7 +401,7 @@ SpTuples<IU, NUO> * LocalSpGEMM2
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IU, class NU>
-SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
+SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
 {
     int nArrSpTups =  ArrSpTups.size();
     if(nArrSpTups == 0)
@@ -572,6 +573,34 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     return SpTuples<IU,NU> (cnz, mstar, nstar, merge_tuples);
     
     
+}
+
+
+template<class SR, class IU, class NU>
+SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
+{
+    int nlists =  ArrSpTups.size();
+    IU totSize = 0;
+    
+    vector<pair<tuple<IU, IU, NU>*, tuple<IU, IU, NU>* > > seqs;
+    
+    for(int i = 0; i < nlists; ++i)
+    {
+        seqs.push_back(make_pair(ArrSpTups[i]->tuples, ArrSpTups[i]->tuples + ArrSpTups[i]->getnnz()));
+        totSize += ArrSpTups[i]->getnnz();
+    }
+    
+    ColLexiCompare<IU,NU> comp;
+    tuple<IU, IU, NU>* mergedData = new tuple<IU, IU, NU>[totSize];
+    __gnu_parallel::multiway_merge(seqs.begin(), seqs.end(), mergedData, totSize , comp);
+    
+    if(delarrs)
+    {
+        for(size_t i=0; i<ArrSpTups.size(); ++i)
+            delete ArrSpTups[i];
+    }
+
+    return SpTuples<IU,NU> (totSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData);
 }
 
 
