@@ -575,6 +575,31 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
     
 }
 
+typedef struct
+{
+    int i;
+    int j;
+    double val;
+}tup;
+
+template <class IT, class NT>
+struct ColLexiCompare1:  // struct instead of class so that operator() is public
+public binary_function< tup, tup, bool >  // (par1, par2, return_type)
+{
+    inline bool operator()(const tup & lhs, const tup & rhs) const
+    {
+        if(lhs.j == rhs.j)
+        {
+            return lhs.i < rhs.i;
+        }
+        else
+        {
+            return lhs.j < rhs.j;
+        }
+    }
+};
+
+
 
 template<class SR, class IU, class NU>
 SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
@@ -591,7 +616,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     }
     
     ColLexiCompare<IU,NU> comp;
-    tuple<IU, IU, NU>* mergedData = new tuple<IU, IU, NU>[totSize];
+    tuple<IU, IU, NU>* mergedData = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[totSize])));
     __gnu_parallel::multiway_merge(seqs.begin(), seqs.end(), mergedData, totSize , comp);
     
     if(delarrs)
@@ -600,6 +625,7 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
             delete ArrSpTups[i];
     }
 
+    //return SpTuples<IU,NU> (totSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData.begin());
     return SpTuples<IU,NU> (totSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData);
 }
 
