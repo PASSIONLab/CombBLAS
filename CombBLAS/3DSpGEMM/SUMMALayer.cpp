@@ -283,7 +283,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
     int64_t totrecv;
 	tuple<int32_t,int32_t,double> * recvdata;
     
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	double loc_beg1 = MPI_Wtime();
     //double time1 = MPI_Wtime();
     SPTUPLE localmerged(0, alltuples[0]->getnrow(), alltuples[0]->getncol());
@@ -293,7 +293,7 @@ void * ReduceAll(void ** C, CCGrid * cmg, int localcount, bool threaded)
     else
         localmerged = MergeAll<PTDD>(alltuples, C_m, C_n,true); // delete alltuples[] entries
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
 	comp_reduce += (MPI_Wtime() - loc_beg1);
     
 	
