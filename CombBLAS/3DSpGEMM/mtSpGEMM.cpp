@@ -10,6 +10,9 @@ SpTuples<IT, NTO> * LocalSpGEMM
  const SpDCCols<IT, NT2> & B,
  bool clearA, bool clearB)
 {
+    
+    double t01 = MPI_Wtime();
+    
     IT mdim = A.getnrow();
     IT ndim = B.getncol();
     if(A.isZero() || B.isZero())
@@ -24,9 +27,12 @@ SpTuples<IT, NTO> * LocalSpGEMM
     float cf  = static_cast<float>(nA+1) / static_cast<float>(Adcsc.nzc);
     IT csize = static_cast<IT>(ceil(cf));   // chunk size
     IT * aux;
-    Adcsc.ConstructAux(nA, aux);
-
     
+  
+    Adcsc.ConstructAux(nA, aux); // this is fast
+    
+
+
     
     // *************** Creating global space to store result, used by all threads *********************
     
@@ -57,6 +63,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
         }
     }
  
+
     int numThreads;
 #pragma omp parallel
     {
@@ -96,7 +103,8 @@ SpTuples<IT, NTO> * LocalSpGEMM
     //IT * RowIdsofC = new IT[size];
     //NT * ValuesofC = new NT[size];
     //vector<StackEntry< NTO, pair<IT,IT>>> * colsC = new vector<StackEntry< NTO, pair<IT,IT>>>[Bdcsc.nzc];
-    StackEntry< NTO, pair<IT,IT>> * colsC = new StackEntry< NTO, pair<IT,IT>>[size];
+    
+    StackEntry< NTO, pair<IT,IT> > * colsC = static_cast<StackEntry< NTO, pair<IT,IT> > *> (::operator new (sizeof(StackEntry<NTO, pair<IT,IT> >[size])));
     delete [] maxnnzc;
     // ************************ End Creating global space *************************************
     
@@ -125,7 +133,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
    
 
     
-    
+
 #pragma omp parallel
     {
         int thisThread = omp_get_thread_num();
@@ -203,17 +211,20 @@ SpTuples<IT, NTO> * LocalSpGEMM
     delete [] aux;
     delete [] globalheap;
     
-
+    
     vector<IT> colptrC(Bdcsc.nzc+1);
     colptrC[0] = 0;
-    for(IT i=0; i< Bdcsc.nzc; ++i)
+    for(IT i=0; i< Bdcsc.nzc; ++i)  // insignificant
     {
         //colptrC[i+1] = colptrC[i] + colsC[i].size();
         colptrC[i+1] = colptrC[i] +colEnd[i]-colStart[i];
     }
     IT nzc = colptrC[Bdcsc.nzc];
     
-    StackEntry< NTO, pair<IT,IT> > * multstack = new StackEntry<NTO, pair<IT,IT> >[nzc];
+    
+    //StackEntry< NTO, pair<IT,IT> > * multstack = new StackEntry<NTO, pair<IT,IT> >[nzc];
+    StackEntry< NTO, pair<IT,IT> > * multstack = static_cast<StackEntry< NTO, pair<IT,IT> > *> (::operator new (sizeof(StackEntry<NTO, pair<IT,IT> >[nzc])));
+    
 #pragma omp parallel for
     for(IT i=0; i< Bdcsc.nzc; ++i)        // combine step
     {
@@ -228,6 +239,7 @@ SpTuples<IT, NTO> * LocalSpGEMM
     if(clearB)
         delete const_cast<SpDCCols<IT, NT2> *>(&B);
     
+    cout << " local SpGEMM " << MPI_Wtime()-t01 << " seconds" << endl;
     return new SpTuples<IT, NTO> (nzc, mdim, ndim, multstack);
 }
 
@@ -401,9 +413,15 @@ SpTuples<IU, NUO> * LocalSpGEMM2
 // Performs a balanced merge of the array of SpTuples
 // Assumes the input parameters are already column sorted
 template<class SR, class IU, class NU>
-SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
+tuple<IU, IU, NU>* multiwayMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
 {
+    
+    double t01 = MPI_Wtime();
     int nArrSpTups =  ArrSpTups.size();
+    mstar = ArrSpTups[0]->getnrow();
+    nstar = ArrSpTups[0]->getncol();
+    
+    /*
     if(nArrSpTups == 0)
     {
         return SpTuples<IU,NU>(0, mstar,nstar);
@@ -415,11 +433,8 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
             delete ArrSpTups[0];
         return ret;
     }
-    else
-    {
-        mstar = ArrSpTups[0]->getnrow();
-        nstar = ArrSpTups[0]->getncol();
-    }
+    
+    
     for(int i=1; i< nArrSpTups; ++i)
     {
         if((mstar != ArrSpTups[i]->getnrow()) || nstar != ArrSpTups[i]->getncol())
@@ -429,6 +444,7 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
         }
     }
     
+    */
     
     
     //cout << mstar << " x " <<nstar << endl;
@@ -478,9 +494,11 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
     
     ColLexiCompare<IU,int> heapcomp;
     vector<tuple<IU, IU, NU>* > split_tuples (nsplits);
+    
     for(int i=0; i< nsplits; i++)
     {
-        split_tuples[i] = new tuple<IU,IU,NU>[split_tuple_estnnz[i]];
+        //split_tuples[i] = new tuple<IU,IU,NU>[split_tuple_estnnz[i]];
+        split_tuples[i] = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[split_tuple_estnnz[i]])));
     }
     
     
@@ -558,7 +576,9 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
         cnz += split_tuple_nnz[i];
         partial_sum[i+1] = partial_sum[i] + split_tuple_nnz[i];
     }
-    tuple<IU, IU, NU> * merge_tuples = new tuple<IU,IU,NU>[cnz];
+    //tuple<IU, IU, NU> * merge_tuples = new tuple<IU,IU,NU>[cnz];
+    tuple<IU, IU, NU>* merge_tuples = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[cnz])));
+    
 #pragma omp parallel for
     for(int i=0; i< nsplits; i++)
     {
@@ -570,7 +590,10 @@ SpTuples<IU,NU> LocalMerge1( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mst
         delete split_tuples[i];
     }
     
-    return SpTuples<IU,NU> (cnz, mstar, nstar, merge_tuples);
+    cout << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
+    //return SpTuples<IU,NU> (cnz, mstar, nstar, merge_tuples);
+    
+    return merge_tuples;
     
     
 }
@@ -601,9 +624,11 @@ public binary_function< tup, tup, bool >  // (par1, par2, return_type)
 
 
 
-template<class SR, class IU, class NU>
-SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU mstar = 0, IU nstar = 0, bool delarrs = false )
+template<class IU, class NU>
+//tuple<IU, IU, NU>*  multiwayMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU& mergedListSize, bool delarrs = false )
+tuple<IU, IU, NU>*  multiwayMerge( const vector<tuple<IU, IU, NU>*> & ArrSpTups, const vector<IU> & listSizes, IU& mergedListSize, bool delarrs = false )
 {
+    double t01 = MPI_Wtime();
     int nlists =  ArrSpTups.size();
     IU totSize = 0;
     
@@ -611,13 +636,16 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
     
     for(int i = 0; i < nlists; ++i)
     {
-        seqs.push_back(make_pair(ArrSpTups[i]->tuples, ArrSpTups[i]->tuples + ArrSpTups[i]->getnnz()));
-        totSize += ArrSpTups[i]->getnnz();
+        seqs.push_back(make_pair(ArrSpTups[i], ArrSpTups[i] + listSizes[i]));
+        totSize += listSizes[i];
     }
+    
+    
     
     ColLexiCompare<IU,NU> comp;
     tuple<IU, IU, NU>* mergedData = static_cast<tuple<IU, IU, NU>*> (::operator new (sizeof(tuple<IU, IU, NU>[totSize])));
     __gnu_parallel::multiway_merge(seqs.begin(), seqs.end(), mergedData, totSize , comp);
+    
     
     if(delarrs)
     {
@@ -625,8 +653,75 @@ SpTuples<IU,NU> LocalMerge( const vector<SpTuples<IU,NU> *> & ArrSpTups, IU msta
             delete ArrSpTups[i];
     }
 
-    //return SpTuples<IU,NU> (totSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData.begin());
-    return SpTuples<IU,NU> (totSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData);
+    cout << totSize << " entries merged in " << MPI_Wtime()-t01 << " seconds" << endl;
+    t01 = MPI_Wtime();
+
+    int totThreads;
+#pragma omp parallel
+    {
+        totThreads = omp_get_num_threads();
+    }
+    
+    vector <IU> tstart(totThreads);
+    vector <IU> tend(totThreads);
+    vector <IU> tdisp(totThreads+1);
+#pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        IU start = threadID * (totSize / totThreads);
+        IU end = (threadID + 1) * (totSize / totThreads);
+        if(threadID == (totThreads-1)) end = totSize;
+        
+        //cout << "thread: " << threadID << " start " << start << " end " << end << "  "<< totSize/(IU)totThreads << endl;
+        
+        IU curpos = start;
+        for (IU i = start+1; i < end; ++i)
+        {
+            if((get<0>(mergedData[i]) == get<0>(mergedData[curpos])) && (get<1>(mergedData[i]) == get<1>(mergedData[curpos])))
+            {
+                get<2>(mergedData[curpos]) += get<2>(mergedData[i]);
+            }
+            else
+            {
+                mergedData[++curpos] = mergedData[i];
+            }
+        }
+        tstart[threadID] = start;
+        if(end>start) tend[threadID] = curpos+1;
+        else tend[threadID] = end; // start=end
+#pragma omp barrier
+#pragma omp single
+        {
+            // serial
+            for(int t=totThreads-1; t>0; --t)
+            {
+                if(tend[t] > tstart[t] && tend[t-1] > tstart[t-1])
+                {
+                    if((get<0>(mergedData[tstart[t]]) == get<0>(mergedData[tend[t-1]-1])) && (get<1>(mergedData[tstart[t]]) == get<1>(mergedData[tend[t-1]-1])))
+                    {
+                        get<2>(mergedData[tend[t-1]-1]) += get<2>(mergedData[tstart[t]]);
+                        tstart[t] ++;
+                    }
+                }
+            }
+            
+            tdisp[0] = 0;
+            for(int t=0; t<totThreads; ++t)
+            {
+                tdisp[t+1] = tdisp[t] + tend[t] - tstart[t];
+            }
+        }
+        
+        // shrink space in parallel
+        std::copy(mergedData + tstart[threadID], mergedData + tend[threadID], mergedData + tdisp[threadID]);
+        
+    }
+    
+
+    mergedListSize = tdisp[totThreads];
+    cout << mergedListSize << " entries reduced in " << MPI_Wtime()-t01 << " seconds" << endl;
+    //return SpTuples<IU,NU> (reducedSize, ArrSpTups[0]->getnrow(), ArrSpTups[0]->getncol(), mergedData);
+    return mergedData;
 }
 
 
