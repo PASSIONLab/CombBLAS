@@ -56,6 +56,8 @@ public:
 	SpDCCols ();
 	SpDCCols (IT size, IT nRow, IT nCol, IT nzc);
 	SpDCCols (const SpTuples<IT,NT> & rhs, bool transpose);
+    SpDCCols (IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT> & rhs);
+
 	SpDCCols (const SpDCCols<IT,NT> & rhs);					// Actual copy constructor		
 	~SpDCCols();
 

@@ -105,7 +105,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpDCCols<IT,NT> & rhs)
  *	\n		else rhs is assumed to be a column sorted SpTuples object
  **/
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose)
+SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
 : m(rhs.m), n(rhs.n), nnz(rhs.nnz), splits(0)
 {	 
 	
@@ -180,6 +180,59 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT,NT> & rhs, bool transpose)
 			dcsc->cp[jspos] = rhs.nnz;
 		}
 	} 
+}
+
+
+
+
+/**
+ * Constructor for converting tuples matrix -> SpDCCols
+ * @param[in] 	rhs if transpose=true,
+ *	\n		then rhs is assumed to be a row sorted SpTuples object
+ *	\n		else rhs is assumed to be a column sorted SpTuples object
+ **/
+
+template <class IT, class NT>
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT> & rhs)
+: m(nRow), n(nCol), nnz(nnz1), splits(0)
+{
+    
+    if(nnz == 0)	// m by n matrix of complete zeros
+    {
+        dcsc = NULL;
+    }
+    else
+    {
+        IT localnzc = 1;
+        for(IT i=1; i<nnz1; ++i)
+        {
+            
+            if(get<1>(rhs[i]) != get<1>(rhs[i-1]))
+            {
+                ++localnzc;
+            }
+        }
+        dcsc = new Dcsc<IT,NT>(nnz1,localnzc);
+        dcsc->jc[0]  = get<1>(rhs[0]);
+        dcsc->cp[0] = 0;
+        
+        for(IT i=0; i<nnz1; ++i)
+        {
+            dcsc->ir[i]  = get<0>(rhs[i]);
+            dcsc->numx[i] = get<2>(rhs[i]);
+        }
+        
+        IT jspos = 1;
+        for(IT i=1; i<nnz1; ++i)
+        {
+            if(get<1>(rhs[i]) != dcsc->jc[jspos-1])
+            {
+                dcsc->jc[jspos] = get<1>(rhs[i]);
+                dcsc->cp[jspos++] = i;
+            }
+        }
+        dcsc->cp[jspos] = nnz1;
+    }
 }
 
 
