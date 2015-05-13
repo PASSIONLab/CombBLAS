@@ -193,7 +193,7 @@ SpDCCols<IT,NT>::SpDCCols(const SpTuples<IT, NT> & rhs, bool transpose)
  **/
 
 template <class IT, class NT>
-SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT> & rhs)
+SpDCCols<IT,NT>::SpDCCols(IT nRow, IT nCol, IT nnz1, const tuple<IT, IT, NT>*  rhs)
 : m(nRow), n(nCol), nnz(nnz1), splits(0)
 {
     
