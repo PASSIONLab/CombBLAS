@@ -344,7 +344,7 @@ void * ReduceAll_threaded(void ** C, CCGrid * cmg, int localcount)
     loc_beg1 = MPI_Wtime();
 	//locret = new LOC_SPMAT(SPTUPLE(outputnnz, C_m, C_n, recvdata), false);
     
-    locret = new LOC_SPMAT((int32_t)C_m, (int32_t)C_n, (int32_t)outputnnz, recvdata);
+    locret = new LOC_SPMAT(C_m, C_n, outputnnz, recvdata);
     
     MPI_Barrier(MPI_COMM_WORLD); //needed
     comp_reduce += (MPI_Wtime() - loc_beg1); //needed
